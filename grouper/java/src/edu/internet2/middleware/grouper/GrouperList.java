@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.10 2004-11-16 22:10:45 blair Exp $
+ * @version $Id: GrouperList.java,v 1.11 2004-11-19 04:16:58 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
@@ -33,7 +33,8 @@ public class GrouperMembership implements Serializable {
     this._init();
   }
 
-  public GrouperMembership(GrouperGroup g, GrouperMember m, String list) {
+  public GrouperMembership(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
+    // TODO The fact that this is public is troubling...
     this._init();
     // FIXME Stop relying upon the groupKey!
     this.groupKey   = g.key();
@@ -41,6 +42,12 @@ public class GrouperMembership implements Serializable {
     this.memberKey  = m.key();
     // FIXME Validation?
     this.groupField = list;
+    // FIXME Stop relying upon the groupKey!
+    if (via != null) {
+      this.via = via.key();
+    } else {
+      this.via = null;
+    }
   }
 
 
