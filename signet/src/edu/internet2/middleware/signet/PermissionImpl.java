@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.4 2005-02-08 19:20:50 acohen Exp $
- $Date: 2005-02-08 19:20:50 $
+ $Id: PermissionImpl.java,v 1.5 2005-02-14 02:33:28 acohen Exp $
+ $Date: 2005-02-14 02:33:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -15,8 +15,8 @@ import java.util.Set;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * PermissionImpl describes an application-level action that a {@link Subject}may
- * be allowed to perform.
+ * PermissionImpl describes an application-level action that a {@link Subject}
+ * may be allowed to perform.
  * 
  */
 /* Hibernate requires this class to be non-final. */
@@ -131,7 +131,15 @@ implements Permission
 
   public void addLimit(Limit limit)
   {
-    this.limits.add(limit);
+    // Do we have this Limit already? If so, just return. That
+    // helps to prevent an infinite loop of adding Permissions and
+    // Limits to each other.
+    
+    if (!(this.limits.contains(limit)))
+    {
+      this.limits.add(limit);
+      ((LimitImpl)limit).add(this);
+    }
   }
   
   /* (non-Javadoc)

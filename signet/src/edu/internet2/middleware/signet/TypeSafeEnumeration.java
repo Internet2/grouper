@@ -68,9 +68,9 @@ implements Serializable
    * class loading.
    * 
    * @param name
-   * 		the external name of the ValueType value.
+   * 		the external name of the DataType value.
    * @param description
-   *    the human readable description of the ValueType value,
+   *    the human readable description of the DataType value,
    * 	  by which it is presented in the user interface.
    */
   protected TypeSafeEnumeration(String name, String description)

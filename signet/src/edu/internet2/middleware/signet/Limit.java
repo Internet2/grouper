@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.4 2005-02-03 00:49:42 acohen Exp $
-$Date: 2005-02-03 00:49:42 $
+$Id: Limit.java,v 1.5 2005-02-14 02:33:28 acohen Exp $
+$Date: 2005-02-14 02:33:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -55,4 +55,13 @@ public interface Limit
 	 * that implements a Struts Tile for display of this Limit.
 	 */
 	public String getRenderer();
+	
+	/**
+	 * displayOrder indicates the relative order in which Limits should be
+	 * displayed in a GUI.
+	 * 
+	 * @return the displayOrder of this Limit - lower numbers are displayed
+	 * before higher numbers.
+	 */
+	public int getDisplayOrder();
 }

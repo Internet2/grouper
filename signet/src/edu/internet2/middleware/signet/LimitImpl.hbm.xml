@@ -18,6 +18,20 @@
 		</composite-id>
 
 		<timestamp name="modifyDatetime"/>
+		
+		<set
+			name="permissions"
+			table="Permission_Limit"
+			cascade="save-update"
+			lazy="false">
+			<key>
+				 <column name="limitID"/>
+				 <column name="subsystemID"/>
+			</key>
+			<many-to-many
+				class="edu.internet2.middleware.signet.PermissionImpl"
+				column="permissionID"/>
+		</set>
 			
 		<property
 			name="status"
@@ -46,17 +60,17 @@
 		<property
 			name="helpText" type="text" not-null="true"/>
 		
-		<!-- The dataType will someday be used as some sort
+		<!-- The valueType will someday be used as some sort
 			 of XML tag, but is so far unused. -->
 		<property
-			name="dataType"
+			name="valueType"
 			not-null="true">
 		</property>
 		
-		<!-- The valueType can be STRING, NUMERIC, or DATE. -->
+		<!-- The dataType can be TEXT, NUMERIC, or DATE. -->
 		<property
-			name="valueType"
-			type="edu.internet2.middleware.signet.ValueTypeType"
+			name="dataType"
+			type="edu.internet2.middleware.signet.DataTypeType"
 			not-null="true">
 		</property>
 		
@@ -64,6 +78,13 @@
 			 a Struts Tile which displays this Limit. -->
 		<property
 			name="renderer"
+			not-null="true">
+		</property>
+		
+		<!-- displayOrder indicates the relative order in which Limits should be
+			 displayed in a GUI. -->
+		<property
+			name="displayOrder"
 			not-null="true">
 		</property>
 	</class>

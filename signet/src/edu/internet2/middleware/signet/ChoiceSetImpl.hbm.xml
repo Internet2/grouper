@@ -21,8 +21,7 @@
 			name="subsystem"
 			column="subsystemID"
 			class="edu.internet2.middleware.signet.SubsystemImpl"
-			not-null="true"
-			cascade="save-update"/>
+			not-null="true"/>
 		
 		<set name="choices" inverse="true" cascade="save-update">
 			<key column="choiceSetID"/>

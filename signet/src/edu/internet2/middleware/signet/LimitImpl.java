@@ -7,6 +7,7 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,18 +22,20 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 final class LimitImpl implements Limit
 {
-  private Signet						signet;
-  private Subsystem					subsystem;
-  private String						subsystemId;
-  private String						id;
-  private ValueType					valueType;
-  private ChoiceSet					choiceSet;
-  private String						choiceSetId;
-  private String						name;
-  private String						helpText;
-  private Date							modifyDatetime;
-  private Status						status;
-  private String						renderer;
+  private Signet			signet;
+  private Subsystem		subsystem;
+  private String			subsystemId;
+  private String			id;
+  private DataType		dataType;
+  private ChoiceSet		choiceSet;
+  private String			choiceSetId;
+  private String			name;
+  private String			helpText;
+  private Date				modifyDatetime;
+  private Status			status;
+  private String			renderer;
+  private Set		  		permissions;
+  private int					displayOrder;
   
   private final String			limitType="reserved";
 
@@ -43,6 +46,7 @@ final class LimitImpl implements Limit
   public LimitImpl()
   {
       super();
+      this.permissions = new HashSet();
   }
 
   
@@ -50,7 +54,7 @@ final class LimitImpl implements Limit
     (Signet			signet,
      Subsystem	subsystem,
      String 		id,
-     ValueType	valueType,
+     DataType		dataType,
      ChoiceSet	choiceSet,
      String 		name,
      String 		helpText,
@@ -62,13 +66,14 @@ final class LimitImpl implements Limit
     this.subsystem = subsystem;
     this.subsystemId = this.subsystem.getId();
     this.id = id;
-    this.valueType = valueType;
+    this.dataType = dataType;
     this.choiceSet = choiceSet;
     this.choiceSetId = this.choiceSet.getId();
     this.name = name;
     this.helpText = helpText;
     this.status = status;
     this.renderer = renderer;
+    this.permissions = new HashSet();
   }
   
   void setSignet(Signet signet)
@@ -227,14 +232,14 @@ final class LimitImpl implements Limit
     }
   }
   
-  void setDataType(String dataType)
+  void setValueType(String valueType)
   {
     // This method is not yet implemented, and exists only to
     // satisfy Hibernate's mapping to the not-yet-used (but not-null)
     // column in the database.
   }
   
-  String getDataType()
+  String getValueType()
   {
     // This method is not yet implemented, and exists only to
     // satisfy Hibernate's mapping to the not-yet-used (but not-null)
@@ -285,19 +290,19 @@ final class LimitImpl implements Limit
   }
   
   /**
-   * @return Returns the valueType.
+   * @return Returns the dataType.
    */
-  ValueType getValueType()
+  DataType getDataType()
   {
-    return this.valueType;
+    return this.dataType;
   }
   
   /**
-   * @param valueType The valueType to set.
+   * @param dataType The dataType to set.
    */
-  void setValueType(ValueType valueType)
+  void setDataType(DataType valueType)
   {
-    this.valueType = valueType;
+    this.dataType = valueType;
   }
   
   /**
@@ -314,5 +319,46 @@ final class LimitImpl implements Limit
   void setLimitType(String limitType)
   {
     // This method does nothing, and is just a place-holder.
+  }
+  
+  /**
+   * @return Returns the permissions.
+   */
+  Set getPermissions() {
+    return this.permissions;
+  }
+  
+  /**
+   * @param permissions The permissions to set.
+   */
+  void setPermissions(Set permissions) {
+    this.permissions = permissions;
+  }
+
+
+  /**
+   * @param impl
+   */
+  public void add(Permission permission)
+  {
+    // Do we have this Permission already? If so, just return. That
+    // helps to prevent an infinite loop of adding Permissions and
+    // Limits to each other.
+    
+    if (!(this.permissions.contains(permission)))
+    {
+      this.permissions.add(permission);
+      permission.addLimit(this);
+    }
+  }
+
+  public int getDisplayOrder()
+  {
+    return this.displayOrder;
+  }
+
+  void setDisplayOrder(int displayOrder)
+  {
+    this.displayOrder = displayOrder;
   }
 }

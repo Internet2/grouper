@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.5 2005-02-08 19:20:50 acohen Exp $
-$Date: 2005-02-08 19:20:50 $
+$Id: Subsystem.java,v 1.6 2005-02-14 02:33:28 acohen Exp $
+$Date: 2005-02-14 02:33:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -117,9 +117,10 @@ extends HelpText, Entity, Name, Comparable
    * Get the ChoiceSets currently associated with this Subsystem.
    * @param choiceSetId
    * 
-   * @return a Map of the ChoiceSets, indexed by choiceSetId.
+   * @return a Set containing all the ChoiceSets currently associated with
+   * this Subsystem.
    */
-  public Map getChoiceSets();
+  public Set getChoiceSets();
   
   /**
    * Gets a single ChoiceSet associated with this Subsystem by its ID.

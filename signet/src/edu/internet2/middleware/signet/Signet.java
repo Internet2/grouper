@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.12 2005-02-09 22:00:35 acohen Exp $
- $Date: 2005-02-09 22:00:35 $
+ $Id: Signet.java,v 1.13 2005-02-14 02:33:28 acohen Exp $
+ $Date: 2005-02-14 02:33:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -184,6 +184,10 @@ public final class Signet
     // The native Signet subject-type must be stored in the database.
     // Let's just make sure that it is.
     initNativeSubjectType();
+    
+    // The SignetSuperSubject must be stored in the database.
+    // Let's just make sure that it is.
+    initSignetSuperSubject();
   }
 
   /**
@@ -331,6 +335,33 @@ public final class Signet
       this.beginTransaction();
       this.save(nativeSubjectType);
       this.commit();
+    }
+  }
+  
+  private void initSignetSuperSubject()
+  {
+    try
+    {
+      Subject superSubject = this.getSubject(Signet.DEFAULT_SUBJECT_TYPE_ID,
+          Signet.SUPERSUBJECT_ID);
+    }
+    catch (ObjectNotFoundException snfe)
+    {
+      // The superSubject was not found. Let's put it into the database.
+      // TODO: This code will need to be protected by a critical section.
+
+      try
+      {
+        Subject superSubject = this.newSubject(this.nativeSubjectType,
+            Signet.SUPERSUBJECT_ID, Signet.SUPERSUBJECT_NAME,
+            Signet.SUPERSUBJECT_DESCRIPTION, Signet.SUPERSUBJECT_DISPLAYID);
+      }
+      catch (OperationNotSupportedException onse)
+      {
+        throw new SignetRuntimeException(
+            "An attempt to store the Signet superSubject in the database"
+                + " failed.", onse);
+      }
     }
   }
 
@@ -787,7 +818,7 @@ public final class Signet
   // I really want to do away with this method, having the Subsystem
   // pick up its associated ChoiceSets via Hibernate object-mapping.
   // I just haven't figured out how to do that yet.
-  Map getChoiceSetsBySubsystem(Subsystem subsystem)
+  Set getChoiceSetsBySubsystem(Subsystem subsystem)
   {
     Query query;
     List resultList;
@@ -808,14 +839,14 @@ public final class Signet
       throw new SignetRuntimeException(e);
     }
 
-    Map choiceSets = new HashMap(resultList.size());
+    Set choiceSets = new HashSet(resultList.size());
 
     Iterator resultListIterator = resultList.iterator();
     while (resultListIterator.hasNext())
     {
       ChoiceSet choiceSet = (ChoiceSet)(resultListIterator.next());
       ((ChoiceSetImpl)choiceSet).setSignet(this);
-      choiceSets.put(choiceSet.getId(), choiceSet);
+      choiceSets.add(choiceSet);
     }
 
     return choiceSets;
@@ -894,6 +925,55 @@ public final class Signet
 
     return permissions;
   }
+
+//  // I really want to do away with this method, having the Function
+//  // pick up its associated Permissions via Hibernate object-mapping.
+//  // I just haven't figured out how to do that yet.
+//  Set getPermissionsByFunction(Function function)
+//  {
+//    Query query;
+//    List resultList;
+//
+//    try
+//    {
+//      query = session
+//          .createQuery
+//          	("from edu.internet2.middleware.signet.PermissionImpl"
+//             + " as limit"
+//             + " where edu.internet2.middleware.signet.Permission_Limit.functionID = :functionID"
+//             + " and edu.internet2.middleware.signet.Permission_Limit.subsystemID = :subsystemID"
+//             + " and edu.internet2.middleware.signet.Permission_Limit.permissionID = permissionID"
+//             + " and edu.internet2.middleware.signet.Permission_Limit.subsystemID = subsystemID");
+//
+//      try
+//      {
+//        query.setString("functionID", function.getId());
+//        query.setString("subsystemID", function.getSubsystem().getId());
+//      }
+//      catch (ObjectNotFoundException onfe)
+//      {
+//        throw new SignetRuntimeException(onfe);
+//      }
+//
+//      resultList = query.list();
+//    }
+//    catch (HibernateException e)
+//    {
+//      throw new SignetRuntimeException(e);
+//    }
+//
+//    Set permissions = new HashSet(resultList.size());
+//
+//    Iterator resultListIterator = resultList.iterator();
+//    while (resultListIterator.hasNext())
+//    {
+//      Permission permission = (Permission)(resultListIterator.next());
+//      ((PermissionImpl)permission).setSignet(this);
+//      permissions.add(permission);
+//    }
+//
+//    return permissions;
+//  }
 
   /**
    * Gets all Assignments in the Signet database. Should probably be changed to
@@ -1867,34 +1947,12 @@ public final class Signet
     }
 
     // Let's fetch the SuperPrivilegedSubject from the database, starting
-    // with its underlying Subject. If that Subject does not yet exist,
-    // then we'll create it.
+    // with its underlying Subject.
 
-    Subject superSubject;
-
-    try
-    {
-      superSubject = this.getSubject(Signet.DEFAULT_SUBJECT_TYPE_ID,
-          Signet.SUPERSUBJECT_ID);
-    }
-    catch (ObjectNotFoundException snfe)
-    {
-      // The superSubject was not found. Let's put it into the database.
-      // TODO: This code will need to be protected by a critical section.
-
-      try
-      {
-        superSubject = this.newSubject(this.nativeSubjectType,
-            Signet.SUPERSUBJECT_ID, Signet.SUPERSUBJECT_NAME,
-            Signet.SUPERSUBJECT_DESCRIPTION, Signet.SUPERSUBJECT_DISPLAYID);
-      }
-      catch (OperationNotSupportedException onse)
-      {
-        throw new SignetRuntimeException(
-            "An attempt to store the Signet superSubject in the database"
-                + " failed.", onse);
-      }
-    }
+    Subject superSubject
+    	= this.getSubject
+    			(Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Signet.SUPERSUBJECT_ID);
 
     superPSubject = new PrivilegedSubjectImpl(this, superSubject);
 
@@ -2247,21 +2305,21 @@ public final class Signet
    * @return
    */
   public Limit newLimit
-  	(Subsystem		subsystem,
-  	 String 			id,
-  	 ValueType		valueType,
-  	 ChoiceSet 		choiceSet,
-  	 String	   		name,
-  	 String 			helpText,
-  	 Status				status,
-  	 String				renderer)
+  	(Subsystem	subsystem,
+  	 String 		id,
+  	 DataType		dataType,
+  	 ChoiceSet 	choiceSet,
+  	 String	   	name,
+  	 String 		helpText,
+  	 Status			status,
+  	 String			renderer)
   {
     Limit limit
     	= new LimitImpl
     			(this,
     			 subsystem,
     			 id,
-    			 valueType,
+    			 dataType,
     			 choiceSet,
     			 name,
     			 helpText,

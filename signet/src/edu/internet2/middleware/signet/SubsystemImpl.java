@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.7 2005-02-08 19:20:50 acohen Exp $
- $Date: 2005-02-08 19:20:50 $
+ $Id: SubsystemImpl.java,v 1.8 2005-02-14 02:33:28 acohen Exp $
+ $Date: 2005-02-14 02:33:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -35,8 +35,8 @@ class SubsystemImpl
   
   private Set     categories;
   private Set     functions;
+  private Set			choiceSets;
 
-  private Map			choiceSets;
   private Map			limits;
   private Map     permissions;
   private Map     functionsMap;
@@ -57,8 +57,8 @@ class SubsystemImpl
     super();
     this.categories = new HashSet();
     this.functions = new HashSet();
+    this.choiceSets = new HashSet();
 
-    this.choiceSets = new HashMap();
     this.limits = new HashMap();
     this.permissions = new HashMap();
     this.functionsMap = new HashMap();
@@ -84,8 +84,8 @@ class SubsystemImpl
     this.helpText = helpText;
     this.categories = new HashSet();
     this.functions = new HashSet();
-
-    this.choiceSets = new HashMap();
+    this.choiceSets = new HashSet();
+    
     this.limits = new HashMap();
     this.permissions = new HashMap();
     this.functionsMap = buildMap(this.functions);
@@ -95,6 +95,12 @@ class SubsystemImpl
   public void setCategories(Set categories)
   {
     this.categories = categories;
+  }
+
+  /* This method exists only for use by Hibernate. */
+  public void setChoiceSets(Set choiceSets)
+  {
+    this.choiceSets = choiceSets;
   }
 
   public void setFunctionsArray(Function[] functions)
@@ -262,9 +268,18 @@ class SubsystemImpl
   {
     // First, make sure that the ChoiceSets have been fetched from
     // the database.
-    Map choiceSets = this.getChoiceSets();
+    Set choiceSets = this.getChoiceSets();
+    ChoiceSet choiceSet = null;
     
-    ChoiceSet choiceSet = (ChoiceSet)(choiceSets.get(id));
+    Iterator choiceSetsIterator = choiceSets.iterator();
+    while (choiceSetsIterator.hasNext())
+    {
+      ChoiceSet candidate = (ChoiceSet)(choiceSetsIterator.next());
+      if (candidate.getId().equals(id))
+      {
+        choiceSet = candidate;
+      }
+    }
     
     if (choiceSet == null)
     {
@@ -283,29 +298,39 @@ class SubsystemImpl
    * @return Returns the ChoiceSets associated with this Subsystem.
    * @throws ObjectNotFoundException
    */
-  public Map getChoiceSets()
+  public Set getChoiceSets()
   {
-    // I really want to handle this purely through Hibernate mappings, but
-    // I haven't figured out how yet.
-
-    if (this.choiceSetsNotYetFetched == true)
+//    // I really want to handle this purely through Hibernate mappings, but
+//    // I haven't figured out how yet.
+//
+//    if (this.choiceSetsNotYetFetched == true)
+//    {
+//      // We have not yet fetched the ChoiceSets associated with this
+//      // Subsystem from the database. Let's make a copy of
+//      // whatever in-memory ChoiceSets we DO have, because they
+//      // represent defined-but-not-necessarily-yet-persisted
+//      // ChoiceSets.
+//      Set unsavedChoiceSets = this.choiceSets;
+//
+//      this.choiceSets
+//      	= this.getSignet().getChoiceSetsBySubsystem(this);
+//
+//      this.choiceSets.addAll(unsavedChoiceSets);
+//
+//      this.choiceSetsNotYetFetched = false;
+//    }
+    
+    if (this.getSignet() != null)
     {
-      // We have not yet fetched the ChoiceSets associated with this
-      // Subsystem from the database. Let's make a copy of
-      // whatever in-memory ChoiceSets we DO have, because they
-      // represent defined-but-not-necessarily-yet-persisted
-      // ChoiceSets.
-      Map unsavedChoiceSets = this.choiceSets;
-
-      this.choiceSets
-      	= this.getSignet().getChoiceSetsBySubsystem(this);
-
-      this.choiceSets.putAll(unsavedChoiceSets);
-
-      this.choiceSetsNotYetFetched = false;
+      Iterator choiceSetsIterator = this.choiceSets.iterator();
+      while (choiceSetsIterator.hasNext())
+      {
+        ChoiceSet choiceSet = (ChoiceSet)(choiceSetsIterator.next());
+        ((ChoiceSetImpl)choiceSet).setSignet(this.getSignet());
+      }
     }
     
-    return UnmodifiableMap.decorate(this.choiceSets);
+    return this.choiceSets;
   }
 
   private Map buildMap(Set set)
@@ -376,7 +401,7 @@ class SubsystemImpl
   
   void add(ChoiceSet choiceSet)
   {
-    this.choiceSets.put(choiceSet.getId(), choiceSet);
+    this.choiceSets.add(choiceSet);
   }
   
   public void add(Limit limit)

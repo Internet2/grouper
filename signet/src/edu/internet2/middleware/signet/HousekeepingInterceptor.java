@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.4 2005-02-03 00:49:42 acohen Exp $
- $Date: 2005-02-03 00:49:42 $
+ $Id: HousekeepingInterceptor.java,v 1.5 2005-02-14 02:33:28 acohen Exp $
+ $Date: 2005-02-14 02:33:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -70,27 +70,29 @@ class HousekeepingInterceptor implements Interceptor, Serializable
     Type[] 				types)
   throws CallbackException
   {
-//    if (entity instanceof EntityImpl)
-//    {
-//      Date createDatetime = ((EntityImpl)entity).getCreateDatetime();
-//      
-//      if (createDatetime == null)
-//      {
-//        setPropertyState
-//        	(state, propertyNames, "createDatetime", new Date());
-//        setPropertyState
-//        	(state, propertyNames, "createDbAccount", this.dbAccount);
-//      }
-//      
-//      setPropertyState
-//      	(state, propertyNames, "modifyDbAccount", this.dbAccount);
-//      
-//      return true;
-//    }
-//    else
-//    {
+    if ((entity instanceof TreeImpl)
+        || (entity instanceof TreeNodeImpl)
+        || (entity instanceof SubjectImpl))
+    {
+      Date createDatetime = ((EntityImpl)entity).getCreateDatetime();
+      
+      if (createDatetime == null)
+      {
+        setPropertyState
+        	(state, propertyNames, "createDatetime", new Date());
+        setPropertyState
+        	(state, propertyNames, "createDbAccount", this.dbAccount);
+      }
+      
+      setPropertyState
+      	(state, propertyNames, "modifyDbAccount", this.dbAccount);
+      
+      return true;
+    }
+    else
+    {
       return false;
-//    }
+    }
   }
   
   private void setPropertyState

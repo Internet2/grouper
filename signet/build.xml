@@ -20,10 +20,17 @@
 	</path>
 
 	<!-- Generate the schemas for all mapping files in our class tree -->
-	<target name="schema" depends="compile" description="Generate DB schema from the O/R mapping files">
+	<target
+		name="schema"
+		depends="compile"
+		description="Generate DB schema from the O/R mapping files">
 		<!-- Teach Ant how to use Hibernate's schema generation tool -->
-		<taskdef name="schemaexport" classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask" classpathref="project.class.path"/>
-		<schemaexport config="${config.dir}/hibernate.cfg.xml" quiet="no" text="no" drop="no">
+		<taskdef
+			name="schemaexport"
+			classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+			classpathref="project.class.path"/>
+		<schemaexport
+			config="${config.dir}/hibernate.cfg.xml" quiet="no" text="no" drop="no">
 		</schemaexport>
 	</target>
 	

@@ -21,11 +21,18 @@ public class Constants
   public static final String SUBSYSTEM_HELPTEXT
 		= "testSubsystemHelptext";
   
+
+  public static final String TREE_ID		= "testTreeId";
+  public static final String TREE_NAME 	= "testTreeName";
+  
   public static final int MAX_CHOICE_SETS = 3;
   public static final int MAX_LIMITS			= 3;
   public static final int MAX_PERMISSIONS = 3;
   public static final int MAX_FUNCTIONS		= 3;
   public static final int MAX_CATEGORIES	= 3;
+  public static final int MAX_SUBJECTS    = 3;
+  public static final int MAX_TREE_DEPTH 	= 3;
+  public static final int MAX_TREE_WIDTH 	= 3;
 
 //  static final String EMPTY_CHOICE_SET_ID
 //  	= "This is the ID of an empty ChoiceSet";

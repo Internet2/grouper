@@ -16,9 +16,13 @@ import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.ValueType;
+import edu.internet2.middleware.signet.DataType;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.tree.Tree;
+import edu.internet2.middleware.signet.tree.TreeNode;
+import edu.internet2.middleware.signet.tree.TreeNotFoundException;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author acohen
@@ -34,16 +38,21 @@ public class Fixtures
   /**
    * @throws OperationNotSupportedException
    * @throws ObjectNotFoundException
+   * @throws TreeNotFoundException
    * 
    */
   public Fixtures(Signet signet)
   throws
   	OperationNotSupportedException,
-  	ObjectNotFoundException
+  	ObjectNotFoundException,
+  	TreeNotFoundException
   {
     super();
     this.signet = signet;
     this.subsystem = getOrCreateSubsystem();
+    
+    Tree tree = getOrCreateTree();
+    subsystem.setTree(tree);
     
     for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
     {
@@ -71,11 +80,56 @@ public class Fixtures
       
       // Permission 0 is associated with Limit 0 and Function 0,
       // Permission 1 is associated with Limit 1 and Function 1, and so on.
+      getOrCreateFunction(i).addPermission(permission);
       permission.addLimit(getOrCreateLimit(i));
-      permission.addFunction(getOrCreateFunction(i));
     }
+    
+    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+    {
+      Subject subject = getOrCreateSubject(i);
+    }
+    
+    signet.save(this.subsystem);
   }
   
+  /**
+   * @param i
+   * @return
+   * @throws ObjectNotFoundException
+   */
+  private Subject getOrCreateSubject(int subjectNumber)
+  throws ObjectNotFoundException
+  {
+    Subject subject;
+    
+    try
+    {
+      subject = this.signet.getSubject(makeSubjectId(subjectNumber));
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      subject
+    	  = this.signet.newSubject
+    		  	(makeSubjectId(subjectNumber), makeSubjectName(subjectNumber));
+    }
+    
+    return subject;
+  }
+
+  /**
+   * @param subjectNumber
+   * @return
+   */
+  private String makeSubjectId(int subjectNumber)
+  {
+    return "SUBJECT_" + subjectNumber + "_ID";
+  }
+
+  private String makeSubjectName(int subjectNumber)
+  {
+    return "SUBJECT_" + subjectNumber + "_NAME";
+  }
+
   private Subsystem getOrCreateSubsystem()
   throws ObjectNotFoundException
   {
@@ -90,18 +144,68 @@ public class Fixtures
       			(Constants.SUBSYSTEM_ID,
       			 Constants.SUBSYSTEM_NAME,
       			 Constants.SUBSYSTEM_HELPTEXT);
-      
-      signet.save(subsystem);
-      
-      // Let's fetch that newly-created Subsystem from the database.
-      // This step is not necessary, but it exercises a little more code.
-      
-      this.subsystem = this.signet.getSubsystem(Constants.SUBSYSTEM_ID);
     }
     
     return this.subsystem;
   }
   
+  private Tree getOrCreateTree()
+  throws TreeNotFoundException
+  {
+    Tree tree;
+    
+    try
+    {
+      tree = this.signet.getTree(Constants.TREE_ID);
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      tree = signet.newTree(Constants.TREE_ID, Constants.TREE_NAME);
+      TreeNode root
+      	= signet.newTreeNode
+      			(tree, makeTreeNodeId(0, 0), makeTreeNodeName(0, 0));
+      tree.addRoot(root);
+      createDescendantTreeNodes(root, 1);
+    }
+    
+    return tree;
+  }
+  
+  private void createDescendantTreeNodes(TreeNode parent, int treeLevel)
+  throws TreeNotFoundException
+  {
+    if (treeLevel >= Constants.MAX_TREE_DEPTH)
+    {
+      return;
+    }
+    
+    for
+    	(int siblingNumber = 0;
+    	 siblingNumber < Constants.MAX_TREE_WIDTH;
+    	 siblingNumber++)
+    {
+      TreeNode node
+      	= signet.newTreeNode
+      			(parent.getTree(),
+      			 makeTreeNodeId(treeLevel, siblingNumber),
+      			 makeTreeNodeName(treeLevel, siblingNumber));
+      
+      createDescendantTreeNodes(node, treeLevel + 1);
+    }
+  }
+
+  private String makeTreeNodeId(int level, int siblingNumber)
+  {
+    return
+    	"TREENODE_LEVEL_" + level + "_SIBLINGNUMBER_" + siblingNumber + "_ID";
+  }
+
+  private String makeTreeNodeName(int level, int siblingNumber)
+  {
+    return
+    	"TREENODE_LEVEL_" + level + "_SIBLINGNUMBER_" + siblingNumber + "_NAME";
+  }
+
   private ChoiceSet getOrCreateChoiceSet(int choiceSetNumber)
   throws
   	OperationNotSupportedException,
@@ -132,10 +236,8 @@ public class Fixtures
   	  			   makeChoiceDisplayOrder(i),
   	  			   makeChoiceRank(i, choiceSetNumber));
       }
-      
-      this.signet.save(choiceSet);
   
-      // Fetch that newly-stored ChoiceSet object from the database.
+      // Fetch that newly-stored ChoiceSet object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
       choiceSet
@@ -166,16 +268,14 @@ public class Fixtures
       	= this.signet.newLimit
       			(subsystem,
       			 makeLimitId(limitNumber),
-      			 makeLimitValueType(limitNumber),
+      			 makeLimitDataType(limitNumber),
       			 subsystem.getChoiceSet(makeChoiceSetId(limitNumber)),
       			 makeLimitName(limitNumber),
       		   makeLimitHelpText(limitNumber),
       		   Status.ACTIVE,
       		   "dummyLimitRenderer.jsp");
-      
-      signet.save(limit);
     
-      // Fetch that newly-stored Limit object from the database.
+      // Fetch that newly-stored Limit object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
       limit
@@ -206,10 +306,8 @@ public class Fixtures
       			 makeCategoryId(categoryNumber),
       			 makeCategoryName(categoryNumber),
       		   Status.ACTIVE);
-      
-      signet.save(category);
     
-      // Fetch that newly-stored Function object from the database.
+      // Fetch that newly-stored Function object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
       category
@@ -261,10 +359,8 @@ public class Fixtures
       			 makeFunctionName(functionNumber),
       		   Status.ACTIVE,
       		   makeFunctionHelpText(functionNumber));
-      
-      signet.save(function);
     
-      // Fetch that newly-stored Function object from the database.
+      // Fetch that newly-stored Function object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
       function
@@ -314,10 +410,8 @@ public class Fixtures
       			(subsystem,
       			 makePermissionId(permissionNumber),
       		   Status.ACTIVE);
-      
-      signet.save(permission);
     
-      // Fetch that newly-stored Permission object from the database.
+      // Fetch that newly-stored Permission object from the subsystem.
       // This step is not really necessary, but exercises a little
       // more code.
       permission
@@ -373,19 +467,19 @@ public class Fixtures
     return "LIMIT_" + limitNumber + "_HELPTEXT";
   }
   
-  public ValueType makeLimitValueType(int limitNumber)
+  public DataType makeLimitDataType(int limitNumber)
   {
-    final int VALUE_TYPE_COUNT = 3;
+    final int DATA_TYPE_COUNT = 3;
     
-    switch (limitNumber % VALUE_TYPE_COUNT)
+    switch (limitNumber % DATA_TYPE_COUNT)
     {
       case 0:
-        return ValueType.DATE;
+        return DataType.DATE;
       case 1:
-        return ValueType.NUMERIC;
+        return DataType.NUMERIC;
       case 2:
       default:
-        return ValueType.STRING;
+        return DataType.TEXT;
     }
   }
   

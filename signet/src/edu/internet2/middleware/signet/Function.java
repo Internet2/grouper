@@ -1,6 +1,6 @@
 /*--
-$Id: Function.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Function.java,v 1.3 2005-02-14 02:33:28 acohen Exp $
+$Date: 2005-02-14 02:33:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -33,6 +33,12 @@ extends SubsystemPart, HelpText, Name, Comparable
    * @return Returns the permissions.
    */
   public Permission[] getPermissionsArray();
+  
+  /**
+   * Gets the Limits associated with this Function's Permissions.
+   * @return Returns the limits.
+   */
+  public Limit[] getLimitsArray();
 
   /**
    * Sets the Category associated with this Function.

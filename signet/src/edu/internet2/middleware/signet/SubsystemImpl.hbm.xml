@@ -20,9 +20,15 @@
 		</property>
 		<property name="name" type="string" not-null="true"/>
 		<property name="helpText" type="text" not-null="true"/>
+		
 		<set name="categories" inverse="true" cascade="save-update">
 			<key column="subsystemID"/>
 			<one-to-many class="edu.internet2.middleware.signet.CategoryImpl"/>
+		</set>
+		
+		<set name="choiceSets" inverse="true" cascade="save-update">
+			<key column="subsystemID"/>
+			<one-to-many class="edu.internet2.middleware.signet.ChoiceSetImpl"/>
 		</set>
 		
 <!--

@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.1 2005-02-03 00:49:42 acohen Exp $
-  $Date: 2005-02-03 00:49:42 $
+  $Id: conditions.jsp,v 1.2 2005-02-14 02:33:28 acohen Exp $
+  $Date: 2005-02-14 02:33:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -34,6 +34,7 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
+<%@ page import="edu.internet2.middleware.signet.Limit" %>
 
 <% 
   Signet signet
@@ -63,6 +64,8 @@
    TreeNode currentScope
      = (TreeNode)
          (request.getSession().getAttribute("currentScope"));
+         
+   Limit[] currentLimits = currentFunction.getLimitsArray();
          
    DateFormat dateFormat = DateFormat.getDateInstance();
    
@@ -166,264 +169,80 @@
                 onclick=(parent.location='<%=orgBrowseHref%>')
                 value="&lt;&lt; Change scope" />
             </div> <!-- textcontent -->
-          
-<!--
-          
-          <div class="tableheader">
-            Select limits
-          </div>
-          <div class="textcontent">	
-            <fieldset>
-              <legend>
-                Approval limit
-              </legend>
-              <p>
-                Metadata explanatory text goes here
-              </p>
-              <blockquote>
-                <select class="money" name="money">
-                  <option selected>$500</option>
-                  <option>$1000</option>
-                  <option>$1500</option>
-                  <option>$5000</option>
-                  <option>$10000</option>
-                  <option>$25000</option>
-                  <option>$50000</option>
-                  <option>$100000</option>
-                </select>
-              </blockquote>
-            </fieldset>
-            <fieldset>
-              <legend>
-                Student type
-              </legend>
-              <p>
-                Metadata explanatory text goes here
-              </p>
-              <blockquote>
-                <input name="ug" type="checkbox" value="undergraduate" />
-                <label for="ug">
-                  Undergraduate
-                </label>
-                <br />
-                <input name="grad" type="checkbox" value="graduate" />
-                <label for="grad">
-                  Graduate
-                </label>
-              </blockquote>
-            </fieldset>
-          </div>
-          
--->
+            
+<%
+  if (currentLimits.length > 0)
+  {
+%>
+            <div class="tableheader">
+              Set Limits
+            </div> <!-- tableheader -->
+            WE HAVE <%= currentLimits.length %> LIMITS TO DISPLAY:
+<%
+            for (int i = 0; i < currentLimits.length; i++)
+            {
+%>
+              <br />
+              <%=currentLimits[i]%>
+<%
+            }
+  }
+%>
 		 
-          <div class="tableheader">
-            Set Conditions
+            <div class="tableheader">
+              Set Conditions
+            </div> <!-- tableheader -->
+          
+            <div class="textcontent">
+              <fieldset>
+                <legend>
+                  Extensibility
+                </legend>
+                <p>
+                  Privilege holder can:
+                </p>
+                <blockquote>
+                  <input
+                     name="can_use"
+                     type="checkbox"
+                     value="checkbox"
+                     checked="checked" />
+                  use this privilege
+                  <br />
+                  <input name="can_grant" type="checkbox" value="checkbox" />
+                  grant this privilege to others
+                </blockquote>
+              </fieldset>
+              <p>
+                <input
+                   name="Button"
+                   type="submit"
+                   class="button-def"
+                   value="Complete assignment" />
+              </p>
+              <p>
+                <a href="<%=personViewHref%>">
+                  <img src="images/icon_arrow_left.gif" width="16" height="16" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+                </a>
+              </p>
+            </div> <!-- textcontent -->
           </div>
-          <div class="textcontent">
-<!--
-            <fieldset>
-              <legend>
-                Begins
-              </legend>
-              <p>
-                Privilege will be effective:
-              </p>
-              <blockquote>  		
-              <p>
-                <select name="2day">
-                  <option value="none"></option>
-                  <option>1</option>
-                  <option>2</option>
-                  <option>3</option>
-                  <option>4</option>
-                  <option>5</option>
-                  <option>6</option>
-                  <option>7</option>
-                  <option>8</option>
-                  <option>9</option>
-                  <option>10</option>
-                  <option>11</option>
-                  <option>12</option>
-                  <option>13</option>
-                  <option>14</option>
-                  <option>15</option>
-                  <option>16</option>
-                  <option>17</option>
-                  <option>18</option>
-                  <option>19</option>
-                  <option>20</option>
-                  <option>21</option>
-                  <option>22</option>
-                  <option>23</option>
-                  <option>24</option>
-                  <option selected="selected">25</option>
-                  <option>26</option>
-                  <option>27</option>
-                  <option>28</option>
-                  <option>29</option>
-                  <option>30</option>
-                  <option>31</option>
-                </select>
-                <select name="2month">
-                  <option value="none"></option>
-                  <option>January</option>
-                  <option>February</option>
-                  <option>March</option>
-                  <option>April</option>
-                  <option>May</option>
-                  option>June</option>
-                  <option>July</option>
-                  <option>August</option>
-                  <option selected="selected">September</option>
-                  <option>October</option>
-                  <option>November</option>
-                  <option>December</option>
-                </select>
-                <select name="2year">
-                  <option value="none"></option>
-                  <option selected="selected">2004</option>
-                  <option>2005</option>
-                  <option>2006</option>
-                  <option>2007</option>
-                  <option>2008</option>
-                </select>
-              </p>
-              <p>
-                <span class="line">
-                  <a href="javascript:openWindow('prerequisites.html','popup','scrollbars=yes,resizable=yes,width=500,height=400');" class="status">
-                    Prerequisites
-                  </a>
-                </span>
-                apply.
-              </p>
-            </blockquote>
- 	</fieldset>
- 	<fieldset>
- 	  <legend>
- 	    Duration
- 	  </legend>
- 	  <p>
- 	    Privilege holder will have this privilege:
- 	  </p>
- 	  <blockquote>
- 	    <input name="radiobutton" type="radio" value="radiobutton" checked="checked" />
-  	    while 
-  	    <select name="2month">
-  	      <option>actively enrolled</option>
-  	      <option selected="selected">employed at KITN</option>
-  	      <option>in &lt;name&gt; department</option>
-  	    </select>
-  	    <br />
-  	    <label for="2month">
-  	      <input name="radiobutton" type="radio" value="radiobutton" />
-  	      until:
-  	    </label>
-  	    <select name="2day">
-  	    <option value="none" selected="selected"></option>
-  	    <option>1</option>
-  	    <option>2</option>
-  	    <option>3</option>
-  	    <option>4</option>
-  	    <option>5</option>
-  	    <option>6</option>
-  	    <option>7</option>
-  	    <option>8</option>
-  	    <option>9</option>
-  	    <option>10</option>
-  	    <option>11</option>
-  	    <option>12</option>
-  	    <option>13</option>
-  	    <option>14</option>
-  	    <option>15</option>
-  	    <option>16</option>
-  	    <option>17</option>
-  	    <option>18</option>
-  	    <option>19</option>
-  	    <option>20</option>
-  	    <option>21</option>
-  	    <option>22</option>
-  	    <option>23</option>
-  	    <option>24</option>
-  	    <option>25</option>
-  	    <option>26</option>
-  	    <option>27</option>
-  	    <option>28</option>
-  	    <option>29</option>
-  	    <option>30</option>
-  	    <option>31</option>
-  	  </select>
-  	  <select name="2month">
-  	    <option value="none"></option>
-  	    <option>January</option>
-  	    <option>February</option>
-  	    <option>March</option>
-  	    <option>April</option>
-  	    <option>May</option>
-  	    <option>June</option>
-  	    <option>July</option>
-  	    <option>August</option>
-  	    <option>September</option>
-  	    <option>October</option>
-  	    <option>November</option>
-  	    <option>December</option>
-  	  </select>
-  	  <select name="2year">
-  	    <option value="none"></option>
-  	    <option>2004</option>
-  	    <option>2005</option>
-  	    <option>2006</option>
-  	    <option>2007</option>
-  	    <option>2008</option>
-  	  </select>
-        </blockquote>
-      </fieldset>
+	      <jsp:include page="footer.jsp" flush="true" />
+        </div>
       
--->
-      
-      <fieldset>
-        <legend>
-          Extensibility
-        </legend>
-        <p>
-          Privilege holder can:
-        </p>
-        <blockquote>
-          <input name="can_use" type="checkbox" value="checkbox" checked="checked" />
-          use this privilege
-          <br />
-          <input name="can_grant" type="checkbox" value="checkbox" />
-          grant this privilege to others
-        </blockquote>
-      </fieldset>
-      <p>
-        <input
-          name="Button"
-          type="submit"
-          class="button-def"
-          value="Complete assignment" />
-      </p>
-      <p>
-        <a href="<%=personViewHref%>">
-          <img src="images/icon_arrow_left.gif" width="16" height="16" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
-        </a>
-      </p>
-    </div>
-  </div>
-	<jsp:include page="footer.jsp" flush="true" />
-</div>
-<div id="Sidebar">
-  <div class="box1">
-    <div class="actionheader">
-      Info
-    </div>
-    <div class="actionbox">
-      <p>
-        Contextual help goes here.
-      </p>
-    </div>
-  </div>
-</div>
-</div>	
-</form>
-</body>
+        <div id="Sidebar">
+          <div class="box1">
+            <div class="actionheader">
+              Info
+            </div> <!-- actionheader -->
+            <div class="actionbox">
+              <p>
+                Contextual help goes here.
+              </p>
+            </div> <!-- actionbox -->
+          </div> <!-- box1 -->
+        </div> <!-- Sidebar -->
+      </div>	
+    </form>
+  </body>
 </html>

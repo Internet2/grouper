@@ -18,19 +18,42 @@
 		<set
 			name="functions"
 			table="Function_Permission"
-			inverse="true">
+			inverse="true"
+			cascade="save-update"
+			lazy="false">
 			
 			<key column="permissionID"/>
 			
 			<many-to-many
 				class="edu.internet2.middleware.signet.FunctionImpl">
 			
-				<column name="subsystemID"/>
 				<column name="functionID"/>
+				<column name="subsystemID"/>
 			</many-to-many>
 		</set>
 		
-		<many-to-one name="subsystem" column="subsystemID" class="edu.internet2.middleware.signet.SubsystemImpl" not-null="true"/>
+		<set
+			name="limits"
+			table="Permission_Limit"
+			inverse="true"
+			cascade="save-update"
+			lazy="false">
+			
+			<key column="permissionID"/>
+			
+			<many-to-many
+				class="edu.internet2.middleware.signet.LimitImpl">
+			
+				<column name="limitID"/>
+				<column name="subsystemID"/>
+			</many-to-many>
+		</set>
+		
+		<many-to-one
+			name="subsystem"
+			column="subsystemID"
+			class="edu.internet2.middleware.signet.SubsystemImpl"
+			not-null="true"/>
 		
 		<property
 			name="status"

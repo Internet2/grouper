@@ -23,14 +23,14 @@ import junit.framework.TestCase;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PermissionTest extends TestCase
+public class FunctionTest extends TestCase
 {
   private Signet		signet;
   private Fixtures	fixtures;
   
   public static void main(String[] args)
   {
-    junit.textui.TestRunner.run(PermissionTest.class);
+    junit.textui.TestRunner.run(FunctionTest.class);
   }
 
   /*
@@ -65,7 +65,7 @@ public class PermissionTest extends TestCase
    * Constructor for LimitTest.
    * @param name
    */
-  public PermissionTest(String name)
+  public FunctionTest(String name)
   {
     super(name);
   }
@@ -74,51 +74,53 @@ public class PermissionTest extends TestCase
   throws
   	ObjectNotFoundException
   {
-    for (int permissionIndex = 0;
-		 		 permissionIndex < Constants.MAX_PERMISSIONS;
-		 		 permissionIndex++)
+    for (int functionIndex = 0;
+		 		 functionIndex < Constants.MAX_FUNCTIONS;
+		 		 functionIndex++)
     {
-      Permission permission
+      Function function
       	= signet
       			.getSubsystem(Constants.SUBSYSTEM_ID)
-      				.getPermission
-      					(fixtures.makePermissionId(permissionIndex));
+      				.getFunction
+      					(fixtures.makeFunctionId(functionIndex));
 
-      // Permission 0 contains limit 0, Permission 1 contains Limit 1,
+      // Function 0 contains limit 0, Function 1 contains Limit 1,
       // and so forth.
-      Limit[] limits = permission.getLimitsArray();
+      Limit[] limits = function.getLimitsArray();
       assertEquals(1, limits.length);
       assertEquals
-      	(limits[0],
-      	 signet
+      	(signet
       	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getLimit(fixtures.makeLimitId(permissionIndex)));
+      	 		.getFunction(fixtures.makeFunctionId(functionIndex))
+      	 		  .getLimitsArray()[0],
+      	 limits[0]);
     }
   }
 
-  public final void testGetFunctionsArray()
+  public final void testGetPermissionsArray()
   throws
   	ObjectNotFoundException
   {
-    for (int permissionIndex = 0;
-		 		 permissionIndex < Constants.MAX_PERMISSIONS;
-		 		 permissionIndex++)
+    for (int functionIndex = 0;
+		 		 functionIndex < Constants.MAX_FUNCTIONS;
+		 		 functionIndex++)
     {
-      Permission permission
+      Function function
       	= signet
       			.getSubsystem(Constants.SUBSYSTEM_ID)
-      				.getPermission
-      					(fixtures.makePermissionId(permissionIndex));
+      				.getFunction
+      					(fixtures.makeFunctionId(functionIndex));
 
-      // Permission 0 is associated with Function 0, Permission 1 is
-      // associated with Function 1, and so forth.
-      Function[] functions = permission.getFunctionsArray();
-      assertEquals(1, functions.length);
+      // Function 0 contains Permission 0, Function 1 Permission Limit 1,
+      // and so forth.
+      Permission[] permissions = function.getPermissionsArray();
+      assertEquals(permissions.length, 1);
       assertEquals
-      	(functions[0],
-      	 signet
+      	(signet
       	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getFunction(fixtures.makeFunctionId(permissionIndex)));
+      	 		.getFunction(fixtures.makeFunctionId(functionIndex))
+      	 		  .getPermissionsArray()[0],
+      	 permissions[0]);
     }
   }
 }

@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
-$Date: 2005-01-11 20:38:44 $
+$Id: FunctionImpl.java,v 1.4 2005-02-14 02:33:28 acohen Exp $
+$Date: 2005-02-14 02:33:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,8 +10,10 @@ package edu.internet2.middleware.signet;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -35,6 +37,7 @@ implements Function
   private Category  category;
   private Set		  	permissions;
   private String 		helpText;
+  private boolean		permissionsNotYetFetched = true;
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -101,25 +104,9 @@ implements Function
    */
   public Permission[] getPermissionsArray()
   {
-    Permission[] permissionsArray;
+    Permission[] permissionsArray = new Permission[0];
     
-    if (this.permissions == null)
-    {
-      permissionsArray = new Permission[0];
-    }
-    else
-    {
-      permissionsArray = new Permission[this.permissions.size()];
-      Iterator permissionsIterator = this.permissions.iterator();
-      int i = 0;
-      while (permissionsIterator.hasNext())
-      {
-        permissionsArray[i] = (Permission)(permissionsIterator.next());
-        i++;
-      }
-    }
-    
-    return permissionsArray;
+    return (Permission[])(this.getPermissions().toArray(permissionsArray));
   }
 
   /**
@@ -143,10 +130,34 @@ implements Function
     this.permissions = permissions;
   }
 
-  /* This method exists only for use by Hibernate.
-   */
+  // This method exists only for use by Hibernate.
+  //
+  // I really want to do away with this method, having the Function
+  // pick up its associated Permissions via Hibernate object-mapping. I just
+  // haven't figured out how to do that yet.
   Set getPermissions()
   {
+//    if (this.getSignet() == null)
+//    {
+//      return this.permissions;
+//    }
+//    else if (this.permissionsNotYetFetched == true)
+//    {
+//      // We have not yet fetched the Permissions associated with this
+//      // Subsystem from the database. Let's make a copy of
+//      // whatever in-memory Permissions we DO have, because they
+//      // represent defined-but-not-necessarily-yet-persisted
+//      // Permissions.
+//      Set unsavedPermissions = this.permissions;
+//
+//      this.permissions
+//      	= this.getSignet().getPermissionsByFunction(this);
+//
+//      this.permissions.addAll(unsavedPermissions);
+//
+//      this.permissionsNotYetFetched = false;
+//    }
+    
     return this.permissions;
   }
 
@@ -307,5 +318,25 @@ implements Function
     otherName = ((Function)o).getName();
     
     return thisName.compareToIgnoreCase(otherName);
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Function#getLimitsArray()
+   */
+  public Limit[] getLimitsArray()
+  {
+    Set functionLimits = new HashSet();
+    Set permissions = this.getPermissions();
+    Iterator permissionsIterator = permissions.iterator();
+    
+    while (permissionsIterator.hasNext())
+    {
+      Permission permission = (Permission)(permissionsIterator.next());
+      Set permissionLimits = ((PermissionImpl)permission).getLimits();
+      functionLimits.addAll(permissionLimits);
+    }
+
+    Limit[] limitsArray = new Limit[0];
+    return (Limit[])(functionLimits.toArray(limitsArray));
   }
 }
