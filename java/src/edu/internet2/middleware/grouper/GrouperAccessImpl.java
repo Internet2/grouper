@@ -16,16 +16,16 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.13 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.14 2004-11-20 16:32:17 blair Exp $
  */
-public class InternalGrouperAccess implements GrouperAccess {
+public class GrouperAccessImpl implements GrouperAccess {
 
   /**
    * Create a access interface object.
    *
    * @param   s   Session context.
    */
-  public InternalGrouperAccess(GrouperSession s) {
+  public GrouperAccessImpl(GrouperSession s) {
     // Nothing -- Yet
   }
 
