@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.1 2004-10-11 18:23:53 blair Exp $
+# $Id: API,v 1.2 2004-10-11 20:20:37 blair Exp $
 #
 # TODO Interfaces
 #
@@ -84,10 +84,8 @@ GrouperField
 GrouperGroup
   Class Methods
     GrouperGroup()
-    GrouperGroup create(GrouperSession s, String stem, String descriptor)
-      XXX Will need a rename at the least
-    GrouperGroup load(GrouperSession s, String stem, String descriptor)
-      XXX Will need a rename at the least
+    GrouperGroup create(GrouperSession s, String namespace, String name)
+    GrouperGroup load(GrouperSession s, String namespace, String name)
 
   Instance Methods
     GrouperAttribute attribute(String attribute)
@@ -97,10 +95,6 @@ GrouperGroup
     String groupKey()
       XXX Probably shouldn't be public
     String groupType()
-    GrouperSession session()
-      XXX Hrm...
-    void session(GrouperSession s)
-      XXX Hrm...
 
 
 GrouperMember

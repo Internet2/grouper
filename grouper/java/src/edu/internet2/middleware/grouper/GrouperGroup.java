@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.50 2004-10-11 18:14:02 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.51 2004-10-11 20:20:37 blair Exp $
  */
 public class GrouperGroup {
 
@@ -70,16 +70,17 @@ public class GrouperGroup {
    * Class method to create a group.
    *
    * @param   s           Session to create the group within.
-   * @param   stem        Stem of the group to be created.
-   * @param   descriptor  Descriptor of group to be created.
+   * @param   namespace   Namespace to create the group within.
+   * @param   name        Name of the group to be created.
    */ 
-  public static GrouperGroup create(GrouperSession s, String stem,
-                                    String descriptor)
+  public static GrouperGroup create(GrouperSession s, 
+                                    String namespace,
+                                    String name)
   {
     GrouperGroup g = new GrouperGroup();
 
     // Initalize aspects of the group.
-    g._create(s, stem, descriptor);
+    g._create(s, namespace, name);
 
     // Verify that we have everything we need to create a group
     // and that this subject is privileged to create this group.
@@ -95,14 +96,15 @@ public class GrouperGroup {
    * Class method to retrieve a group from the persistent store.
    *
    * @param   s           Session to create the group within.
-   * @param   stem        Stem of the group to be created.
-   * @param   descriptor  Descriptor of group to be created.
+   * @param   namespace   Namespace of the group to load.
+   * @param   name        Name of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup load(GrouperSession s, String stem, 
-                                  String descriptor) 
+  public static GrouperGroup load(GrouperSession s, 
+                                  String namespace,
+                                  String name)
   {
-    return GrouperBackend.group(s, stem, descriptor);
+    return GrouperBackend.group(s, namespace, name);
   }
 
   /*
@@ -205,28 +207,6 @@ public class GrouperGroup {
    */
   public String groupType() {
     return this.groupType();
-  }
-
-  /**
-   * Return the current Grouper session.
-   *
-   * @return Returns the Grouper session.
-   */
-  public GrouperSession session() {
-    // TODO Return an exception if !defined?
-    // FIXME What needs this?
-    return this.grprSession;
-  }
-
-  /** 
-   * Attach a Grouper session to this object.
-   * <p>
-   * FIXME Is this method still needed?
-   *
-   * @param s Session to attach to this group.
-   */
-  public void session(GrouperSession s) {
-    this.grprSession = s;
   }
 
   /**
