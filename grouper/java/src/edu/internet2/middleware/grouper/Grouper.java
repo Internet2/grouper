@@ -1,25 +1,27 @@
 package edu.internet2.middleware.directory.grouper;
 
-import java.io.*;
-import java.sql.*;
-import java.util.Properties;
+import  edu.internet2.middleware.directory.grouper.*;
+import  java.io.*;
+import  java.sql.*;
+import  java.util.Properties;
 
 /** 
  * Provides a Grouper environment.
  *
  * @author blair christensen.
- * @version $Id: Grouper.java,v 1.10 2004-04-28 19:00:22 blair Exp $
+ * @version $Id: Grouper.java,v 1.11 2004-04-29 03:45:06 blair Exp $
  */
 public class Grouper {
 
-  private static final Properties conf     = new Properties();
-  private static final String     confFile = "grouper.cf";
+  private Properties      conf      = new Properties();
+  private String          confFile  = "grouper.cf";
+  private GrouperSession  s         = null;
 
   /**
    * Create {@link Grouper} environment.
    */
   public Grouper() {
-    // Nothing
+    // Nothing -- Yet
   }
 
   /**
@@ -34,6 +36,7 @@ public class Grouper {
    *   <li><i>grouper_fields</i></li>
    *   <li><i>grouper_typeDefs</i></li>
    *   <li><i>grouper_types</i></li>
+   *   <li>XXX Am I sure about this?  No.  Clarify later.</li>
    * </ul>
    */
   public void initialize() {
@@ -47,6 +50,8 @@ public class Grouper {
     } catch (FileNotFoundException e) {
       System.err.println("Failed to find '" + confFile + "'");
     }
+    s = new GrouperSession(this);
+    s.start("GrouperSystem", true);
   }
 
   /**
