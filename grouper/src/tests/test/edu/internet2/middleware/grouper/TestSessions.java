@@ -78,31 +78,45 @@ public class TestSessions extends TestCase {
 
   // Start a session as "member.system"
   public void testSessionStartAsMemberSystem() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Assert.assertNotNull(subj);
+    Subject subj = GrouperSubject.load( 
+                     Grouper.config("member.system"), 
+                     Grouper.DEF_SUBJ_TYPE 
+                   );
+    Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
+    Assert.assertNotNull("session !null", s);
   }
 
   // Start and end a session as SubjectID "member.system"
   public void testSessionStartEndAsMemberSystem() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Assert.assertNotNull(subj);
+    Subject subj = GrouperSubject.load(
+                     Grouper.config("member.system"), 
+                     Grouper.DEF_SUBJ_TYPE 
+                   );
+    Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-    Assert.assertTrue( s.stop() );
+    Assert.assertNotNull("session !null", s);
+    Assert.assertTrue("session stopped", s.stop() );
   }
   
   // Verify the subject of the current session 
   public void testSessionSubject() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Assert.assertNotNull(subj);
+    Subject subj = GrouperSubject.load(
+                     Grouper.config("member.system"), 
+                     Grouper.DEF_SUBJ_TYPE
+                   );
+    Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-    Subject         ret   =  s.subject();
-    Assert.assertNotNull( ret );
-    Assert.assertTrue( ret.getId().equals( Grouper.config("member.system") ) );
-    Assert.assertTrue( s.stop() );
+    Assert.assertNotNull("session !null", s);
+    Subject ret = s.subject();
+    Assert.assertNotNull("returned subject !null",  ret);
+    Assert.assertTrue(
+                        "returned subject id matches",  
+                        ret.getId().equals( 
+                          Grouper.config("member.system") 
+                        ) 
+                     );
+    Assert.assertTrue("session stopped",  s.stop());
   }
 
 }
