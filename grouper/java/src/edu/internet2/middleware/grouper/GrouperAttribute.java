@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.23 2005-03-22 17:08:58 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.24 2005-03-22 20:56:15 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -102,6 +102,16 @@ public class GrouperAttribute implements Serializable {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  protected static void delete(GrouperSession s, GrouperAttribute attr) {
+    try {
+      s.dbSess().session().delete(attr);
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error deleting attribute " + attr + ": " + e
+                );
+    }
+  }
 
   /*
    * Save an attribute in the groups registry.

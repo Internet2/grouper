@@ -65,50 +65,9 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.192 2005-03-22 20:23:49 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.193 2005-03-22 20:56:15 blair Exp $
  */
 public class GrouperBackend {
-
-  /**
-   * Delete a {@link GrouperGroup} from the registry.
-   * <p />
-   *
-   * @param   s   Session to delete group within.
-   * @param   g   Group to delete.
-   * @return  True if the group was deleted.
-   */
-  protected static boolean groupDelete(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    /*
-     * TODO I envision problems when people start creating group types
-     *      with other custom fields...
-     */
-    /*
-     * TODO Do I need to validate the privs and then delete with a root
-     *      session?
-     */
-    if (_validateGroupDel(s, g)) {
-      try {
-        // Revoke access privileges
-        if (_privAccessRevokeAll(s, g)) {
-          // Revoke naming privileges
-          if (_privNamingRevokeAll(s, g)) {
-            // Delete attributes
-            if (_attributesDel(s, g))  {
-              // Delete schema
-              GrouperSchema.delete(s, g);
-              // Delete group
-              s.dbSess().session().delete(g);
-              rv = true;
-            }
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error deleting group: " + e);
-      }
-    }
-    return rv;
-  }
 
   /**
    * Add list values to the backend store.
@@ -182,24 +141,6 @@ public class GrouperBackend {
     }
     return rv;
   }
-
-  /* !javadoc
-   * Delete all attributes attached to a group
-   */
-  protected static boolean _attributesDel(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    Iterator iter = attributes(s, g).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute ga = (GrouperAttribute) iter.next();
-      try {
-        s.dbSess().session().delete(ga);
-        rv = true;
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error deleting attributes: " + e);
-      }
-    }
-    return rv;
-  } 
 
   /* !javadoc
    * Add a GrouperList object
@@ -293,81 +234,6 @@ public class GrouperBackend {
                 );
     }
 
-  }
-
-  /* !javadoc
-   * Revoke all access privs attached to a group
-   */
-  protected static boolean _privAccessRevokeAll(
-                           GrouperSession s, GrouperGroup g
-                         ) 
-  {
-    boolean rv = false;
-    /* 
-     * TODO This could be prettier, especially if/when there are custom
-     *      privs
-     */
-    if (
-        s.access().revoke(s, g, Grouper.PRIV_OPTIN)   &&
-        s.access().revoke(s, g, Grouper.PRIV_OPTOUT)  &&
-        s.access().revoke(s, g, Grouper.PRIV_VIEW)    &&
-        s.access().revoke(s, g, Grouper.PRIV_READ)    &&
-        s.access().revoke(s, g, Grouper.PRIV_UPDATE)  &&
-        s.access().revoke(s, g, Grouper.PRIV_ADMIN)
-       )
-    {
-      rv = true;
-    }
-    return rv;
-  }
-
-  /* !javadoc
-   * Revoke all naming privs attached to a group
-   */
-  protected static boolean _privNamingRevokeAll(
-                           GrouperSession s, GrouperGroup g
-                         ) 
-  {
-    boolean rv = false;
-    // Revoke all privileges
-    // FIXME This is ugly 
-    if (
-        s.naming().revoke(s, g, Grouper.PRIV_STEM)    &&
-        s.naming().revoke(s, g, Grouper.PRIV_CREATE) 
-       )
-    {       
-      rv = true;
-    }
-    return rv;
-  }
-
-  /* !javadoc
-   * Validate that a group is eligible to be deleted
-   */
-  protected static boolean _validateGroupDel(
-                           GrouperSession s, GrouperGroup g
-                         ) 
-  {
-    boolean rv = false;
-    // Convert the group to member to see if it has any mships
-    GrouperMember m = g.toMember();
-    List valsG = g.listVals(Grouper.DEF_LIST_TYPE);
-    List valsM = m.listVals(Grouper.DEF_LIST_TYPE);
-    if ( (valsG.size() != 0) || (valsM.size() != 0) ) {
-      if (valsG.size() != 0) {
-        Grouper.log().event(
-          "ERROR: Unable to delete group as it still has members"
-        );
-      }
-      if (valsM.size() != 0) {
-        Grouper.log().event(
-          "ERROR: Unable to delete group as it is a member of other groups"
-        );
-      }
-    } else {
-      rv = true;
-    }
-    return rv;
   }
 
   /**

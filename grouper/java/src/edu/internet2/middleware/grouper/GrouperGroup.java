@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.181 2005-03-22 20:23:49 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.182 2005-03-22 20:56:15 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -142,15 +142,93 @@ public class GrouperGroup extends Group {
    */
   public static boolean delete(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
-    if (GrouperGroup._canDelete(s, g)) {
+    if (g._canDelete()) {
       s.dbSess().txStart();
-      rv = GrouperBackend.groupDelete(s, g);
-      if (rv) {
-        s.dbSess().txCommit();
-      } else {
-        s.dbSess().txRollback();
+      try {
+        // Revoke access privileges
+        if (g._privAccessRevokeAll()) {
+          // Revoke naming privileges
+          if (g._privNamingRevokeAll()) {
+            // Delete attributes
+            if (g._deleteAttributes()) {
+              // Delete schema
+              GrouperSchema.delete(s, g);
+              // Delete group
+              s.dbSess().session().delete(g);
+              rv = true;
+            }
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException("Error deleting group: " + e);
       }
-      Grouper.log().groupDel(rv, s, g);
+    }
+    if (rv) {
+      s.dbSess().txCommit();
+    } else {
+      s.dbSess().txRollback();
+    }
+    Grouper.log().groupDel(rv, s, g);
+    return rv;
+  }
+
+  /* 
+   * Delete all attributes attached to a group
+   */
+  private boolean _deleteAttributes() {
+    boolean rv = false;
+    // TODO 
+    Iterator iter = GrouperBackend.attributes(this.s, this).iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
+      try {
+        GrouperAttribute.delete(this.s, attr);
+        rv = true;
+      } catch (RuntimeException e) {
+        // TODO Less than ideal
+        rv = false;
+        break;
+      }
+    }
+    return rv;
+  }
+
+  /* 
+   * Revoke all access privs attached to a group
+   */
+  private boolean _privAccessRevokeAll() {
+    boolean rv = false;
+    /* 
+     * TODO This could be prettier, especially if/when there are custom
+     *      privs
+     */
+    if (
+        this.s.access().revoke(this.s, this, Grouper.PRIV_OPTIN)   &&
+        this.s.access().revoke(this.s, this, Grouper.PRIV_OPTOUT)  &&
+        this.s.access().revoke(this.s, this, Grouper.PRIV_VIEW)    &&
+        this.s.access().revoke(this.s, this, Grouper.PRIV_READ)    &&
+        this.s.access().revoke(this.s, this, Grouper.PRIV_UPDATE)  &&
+        this.s.access().revoke(this.s, this, Grouper.PRIV_ADMIN)
+       )
+    {
+      rv = true;
+    }
+    return rv;
+  }
+
+  /* 
+   * Revoke all naming privs attached to a group
+   */
+  protected boolean _privNamingRevokeAll() {
+    boolean rv = false;
+    // Revoke all privileges
+    // FIXME This is ugly 
+    if (
+        this.s.naming().revoke(this.s, this, Grouper.PRIV_STEM)    &&
+        this.s.naming().revoke(this.s, this, Grouper.PRIV_CREATE) 
+       )
+    {       
+      rv = true;
     }
     return rv;
   }
@@ -682,15 +760,34 @@ public class GrouperGroup extends Group {
     return rv;
   }
 
-  /* (!javadoc)
+  /* 
    * Does the current subject have permission to delete the group?
    */
-  private static boolean _canDelete(GrouperSession s, GrouperGroup g) {
+  private boolean _canDelete() {
     boolean rv = false;
     // FIXME Support for multiple list types
-    if ( (s != null) && (g != null) ) {
-      if (s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+    if ( (this != null) && (this.s != null) ) {
+      if (this.s.access().has(this.s, this, Grouper.PRIV_ADMIN)) {
         rv = true;
+        // Convert the group to member to see if it has any mships
+        GrouperMember m = this.toMember();
+        List valsG = this.listVals(Grouper.DEF_LIST_TYPE);
+        List valsM = m.listVals(Grouper.DEF_LIST_TYPE);
+        if ( (valsG.size() != 0) || (valsM.size() != 0) ) {
+          // TODO Throw exception!
+          if (valsG.size() != 0) {
+            Grouper.log().event(
+              "ERROR: Unable to delete group as it still has members"
+            );
+          }
+          if (valsM.size() != 0) {
+            Grouper.log().event(
+              "ERROR: Unable to delete group as it is a member of other groups"
+            );
+          }
+        } else {
+          rv = true;
+        }
       }
     }
     return rv;
@@ -1087,10 +1184,8 @@ public class GrouperGroup extends Group {
         g = null;
       } else {
         if (name != null) {
-          // TODO Can I move all|most of this to GrouperBackend?
+          // Merge these two?
           g = new GrouperGroup();
-
-          // BDC 
           g.s = s;
 
           // Generate the UUIDs
