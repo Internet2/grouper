@@ -11,13 +11,15 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
  * Class representing a {@link Grouper} member attribute.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.1 2004-11-05 18:46:27 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.2 2004-11-05 19:21:36 blair Exp $
  */
 public class GrouperMemberAttribute implements Serializable{
 
@@ -55,19 +57,14 @@ public class GrouperMemberAttribute implements Serializable{
    * PUBLIC INSTANCE METHODS
    */
 
-  // FIXME Simplistic!  And probably wrong!
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    return false;
-  }
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
 
-  // FIXME Is this wise?  Correct?  Sufficient?
+
   public int hashCode() {
-    return java.lang.Math.abs( this.getMemberKey().hashCode() ) + 
-           java.lang.Math.abs( this.getMemberTypeID().hashCode() ); 
-  }
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
 
   /**
    * Return attribute name.

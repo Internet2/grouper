@@ -10,12 +10,15 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
+
 
 /** 
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.6 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.7 2004-11-05 19:21:36 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -29,9 +32,26 @@ public class GrouperAttribute implements Serializable {
     groupFieldValue = null;
   }
 
-  public String toString() {
-    return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
-           this.getGroupFieldValue();
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  public String field() {
+    return this.getGroupField();
+  }
+
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
+  public String key() {
+    // TODO This does expose the group key.  Do we want that?
+    return this.getGroupKey();
   }
 
   public void set(String key, String field, String value) {
@@ -40,21 +60,18 @@ public class GrouperAttribute implements Serializable {
     this.groupFieldValue  = value;
   }
 
-  public String key() {
-    // TODO This does expose the group key.  Do we want that?
-    return this.getGroupKey();
-  }
-
-  public String field() {
-    return this.getGroupField();
+  public String toString() {
+    return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
+           this.getGroupFieldValue();
   }
 
   public String value() {
     return this.getGroupFieldValue();
   }
 
+
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
 
   private String getGroupKey() {
@@ -79,20 +96,6 @@ public class GrouperAttribute implements Serializable {
 
   private void setGroupFieldValue(String groupFieldValue) {
     this.groupFieldValue = groupFieldValue;
-  }
-
-  // XXX Simplistic!  And probably wrong!
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    return false;
-  }
-
-  // XXX Is this wise?  Correct?  Sufficient?
-  public int hashCode() {
-    return java.lang.Math.abs( this.getGroupKey().hashCode() ) + 
-           java.lang.Math.abs( this.getGroupField().hashCode() );
   }
 
 }

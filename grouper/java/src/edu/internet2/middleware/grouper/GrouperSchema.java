@@ -10,12 +10,15 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
+
 
 /** 
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.7 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.8 2004-11-05 19:21:36 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -32,12 +35,26 @@ public class GrouperSchema implements Serializable {
     this.setGroupType(type);
   }
 
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupType();
   }
 
+
   /*
-   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
+   * PRIVATE INSTANCE METHODS
    */
 
   /*
@@ -48,8 +65,9 @@ public class GrouperSchema implements Serializable {
     this.setGroupType(null);
   }
 
+
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
 
   private String getGroupKey() {
@@ -66,20 +84,6 @@ public class GrouperSchema implements Serializable {
 
   private void setGroupType(String groupType) {
     this.groupType = groupType;
-  }
-
-  // XXX Simplistic!  And probably wrong!
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    return false;
-  }
-
-  // XXX Is this wise?  Correct?  Sufficient?
-  public int hashCode() {
-    return java.lang.Math.abs( this.getGroupKey().hashCode() ) + 
-           java.lang.Math.abs( this.getGroupType().hashCode() ); 
   }
 
 }

@@ -10,12 +10,15 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
+
 
 /** 
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.9 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.10 2004-11-05 19:21:36 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -34,8 +37,22 @@ public class GrouperTypeDef implements Serializable {
     groupField  = null;
   }
 
-  public String toString() {
-    return this.getGroupType()  + ":" + this.getGroupField();
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  /**
+   * Returns {@link GroupField}.
+   *
+   * @return  Returns name of {@link GroupField}.
+   */
+  public String groupField() {
+    return this.getGroupField();
   }
 
   /**
@@ -47,17 +64,17 @@ public class GrouperTypeDef implements Serializable {
     return this.getGroupType();
   }
 
-  /**
-   * Returns {@link GroupField}.
-   *
-   * @return  Returns name of {@link GroupField}.
-   */
-  public String groupField() {
-    return this.getGroupField();
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
+  public String toString() {
+    return this.getGroupType()  + ":" + this.getGroupField();
   }
 
+
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
 
   private String getGroupType() {
@@ -74,20 +91,6 @@ public class GrouperTypeDef implements Serializable {
 
   private void setGroupField(String groupField) {
     this.groupField = groupField;
-  }
-
-  // XXX Simplistic!  And probably wrong!
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    return false;
-  }
-
-  // XXX Is this wise?  Correct?  Sufficient?
-  public int hashCode() {
-    return java.lang.Math.abs( this.getGroupType().hashCode()  ) +
-           java.lang.Math.abs( this.getGroupField().hashCode() ); 
   }
 
 }
