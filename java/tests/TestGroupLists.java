@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.3 2004-11-15 20:12:51 blair Exp $
+ * $Id: TestGroupLists.java,v 1.4 2004-11-15 20:22:42 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -181,6 +181,7 @@ public class TestGroupLists extends TestCase {
   // TODO Remove list data (plural)
   // TODO Remove invalid list data 
 
+  // TODO Move to TestMembers?
   // Initialize a valid group as a member object
   public void testCreateMemberFromValidSubjectTypeGroup() {
     Grouper         G     = new Grouper();
@@ -205,6 +206,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( m.typeID().equals( type ) );
   }
 
+  // TODO Move to TestMembers?
   // Fetch an already existing group-as-member object
   public void testFetchMemberFromValidGroupSubjectTypeGroup() {
     Grouper       G     = new Grouper();
@@ -232,7 +234,6 @@ public class TestGroupLists extends TestCase {
   // TODO Invalid group 
 
   // Add group as immediate member
-/*
   public void testAddGroupAsImmediateMember() {
     Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
@@ -246,6 +247,22 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    grp2  = GrouperGroup.create(s, stem1, desc1);
     Assert.assertNotNull(grp2);
     Assert.assertTrue( grp2.exists() );
+    // Fetch member
+    String          id    = grp1.key();  // TODO ARGH!!!
+    String          type  = "group";
+    GrouperMember   m     = GrouperMember.lookup(id, type);
+    Assert.assertNotNull(m);
+    String klassMember     = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klassMember.equals( m.getClass().getName() ) );
+    Assert.assertNotNull( m.id() );
+    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.typeID() );
+    Assert.assertTrue( m.typeID().equals( type ) );
+    // Add member to "members" list
+    Assert.assertTrue( grp1.listAddVal(s, m, "members") );
+
+    //Assert.assertTrue( grp.listAddVal(s, m, "members") );
+
     // TODO Make `grp2' a member of `grp1'
     // Fetch a member
     // TOOD The call to .key() will obviously need to change
@@ -258,7 +275,6 @@ public class TestGroupLists extends TestCase {
     // We're done
     s.stop();
   }
-*/
 
   // TODO Delete group with immediate members
   // TODO Delete groups that provide/have effective members
