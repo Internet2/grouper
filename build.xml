@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.28 2004-12-07 02:45:33 blair Exp $ -->
+<!-- $Id: build.xml,v 1.29 2004-12-07 03:59:00 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -41,11 +41,6 @@
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
       <classpath refid="project.class.path"/>
     </javac>
-<!-- FIXME -->
-    <copy file="${basedir}/conf/grouper.properties" 
-          tofile="${build.grouper}/edu/internet2/middleware/grouper/grouper.properties"/>
-    <copy file="${basedir}/conf/Grouper.hbm.xml"
-          tofile="${build.grouper}/edu/internet2/middleware/grouper/Grouper.hbm.xml"/>
   </target>
 
   <target name="dist" depends="build" description="generate the distribution" >
