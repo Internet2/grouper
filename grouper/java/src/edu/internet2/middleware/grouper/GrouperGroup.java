@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.140 2004-12-08 02:29:00 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.141 2004-12-08 03:03:36 blair Exp $
  */
 public class GrouperGroup {
 
@@ -176,7 +176,7 @@ public class GrouperGroup {
                              )
   {
     return GrouperGroup._loadByID(
-             s, id, Grouper.DEF_SUBJ_TYPE
+             s, id, Grouper.DEF_GROUP_TYPE
            );
   }
 
@@ -728,7 +728,7 @@ public class GrouperGroup {
                                 GrouperSession s, String id, String type
                               ) 
   {
-    GrouperGroup g = GrouperBackend.groupLoadByID(id, type);
+    GrouperGroup g = GrouperBackend.groupLoadByID(s, id, type);
     if (g != null) {
       // Attach type  
       // FIXME Grr....wait.  Is this even needed now that I have // type()?
