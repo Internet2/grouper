@@ -92,5 +92,16 @@ public class Constants {
   public static final String mem1I  = "member 1";
   public static final String mem1T  = Grouper.DEF_SUBJ_TYPE;
 
+
+  /*
+   * PUBLIC NS CONSTANTS
+   */
+  public static final String  ns0s  = Grouper.NS_ROOT;
+  public static final String  ns0e  = "root";
+  public static final String  ns1s  = GrouperGroup.groupName(ns0s, ns0e);
+  public static final String  ns1e  = "a stem";
+  public static final String  ns2s  = GrouperGroup.groupName(ns1s, ns1e);
+  public static final String  ns2e  = "another stem";
+
 }
 
