@@ -92,11 +92,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m0);
@@ -121,15 +119,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -213,15 +208,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "invalid admins"
     List            admin0  = grp0.listVals(s, "invalid admins");
     Assert.assertNotNull(admin0);
@@ -258,11 +250,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m0);
@@ -284,11 +274,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch g1 as m0
     GrouperMember   m0      = GrouperMember.lookup( grp1.id(), "group");
     Assert.assertNotNull(m0);
@@ -308,15 +296,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -400,11 +385,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g2 as m0
     GrouperMember   m0      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m0);
@@ -426,15 +409,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -518,11 +498,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m0);
@@ -547,15 +525,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -639,11 +614,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch g1 as m1
     GrouperMember   m1      = GrouperMember.lookup( grp1.id(), "group");
     Assert.assertNotNull(m1);
@@ -665,15 +638,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -757,11 +727,9 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g2 as m2
     GrouperMember   m2      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m2);
@@ -783,15 +751,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -875,11 +840,9 @@ public class TestGroupLists extends TestCase {
     // Fetch g0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch g2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g2 as m2
     GrouperMember   m2      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m2);
@@ -901,15 +864,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);
@@ -993,7 +953,6 @@ public class TestGroupLists extends TestCase {
     // Fetch g2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch m1
     GrouperMember   m1      = GrouperMember.lookup("notblair", "person");
     Assert.assertNotNull(m1);
@@ -1018,15 +977,12 @@ public class TestGroupLists extends TestCase {
     // Fetch Group 0
     GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
-    Assert.assertTrue(grp0.exists());
     // Fetch Group 1
     GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
-    Assert.assertTrue(grp1.exists());
     // Fetch Group 2
     GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
-    Assert.assertTrue(grp2.exists());
     // Fetch g0 "admins"
     List            admin0  = grp0.listVals(s, "admins");
     Assert.assertNotNull(admin0);

@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.13 2004-12-02 16:09:02 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.14 2004-12-02 18:26:56 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -105,7 +105,6 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(g0);
     Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
-    Assert.assertTrue( g0.exists() );
     Assert.assertNotNull( g0.type() );
     Assert.assertNotNull( g0.attribute("stem") );
     Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
@@ -115,7 +114,6 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
-    Assert.assertTrue( g1.exists() );
     Assert.assertNotNull( g1.type() );
     Assert.assertNotNull( g1.attribute("stem") );
     Assert.assertTrue( g1.attribute("stem").value().equals(stem1) );
@@ -125,7 +123,6 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
-    Assert.assertTrue( g2.exists() );
     Assert.assertNotNull( g2.type() );
     Assert.assertNotNull( g2.attribute("stem") );
     Assert.assertTrue( g2.attribute("stem").value().equals(stem2) );

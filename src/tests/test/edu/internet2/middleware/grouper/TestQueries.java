@@ -101,15 +101,12 @@ public class TestQueries extends TestCase {
     // g0
     GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(g0);
-    Assert.assertTrue( g0.exists() );
     // g1
     GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
-    Assert.assertTrue( g1.exists() );
     // g2
     GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
-    Assert.assertTrue( g2.exists() );
     // Fetch the members
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup(m0id, m0type);

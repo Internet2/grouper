@@ -97,16 +97,12 @@ public class TestNamespaces extends TestCase {
     // Confirm that namespaces don't exist
     GrouperGroup    ns0   = GrouperGroup.load(s, stem0, extn0, type);
     Assert.assertNotNull(ns0);
-    Assert.assertFalse( ns0.exists() );
     GrouperGroup    ns00  = GrouperGroup.load(s, stem00, extn00, type);
     Assert.assertNotNull(ns00);
-    Assert.assertFalse( ns00.exists() );
     GrouperGroup    ns1   = GrouperGroup.load(s, stem1, extn1, type);
     Assert.assertNotNull(ns1);
-    Assert.assertFalse( ns1.exists() );
     GrouperGroup    ns2   = GrouperGroup.load(s, stem2, extn2, type);
     Assert.assertNotNull(ns2);
-    Assert.assertFalse( ns2.exists() );
     // We're done
     s.stop();
   }
@@ -121,7 +117,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns0 = GrouperGroup.create(s, stem0, extn0, type);
     Assert.assertNotNull(ns0);
     Assert.assertTrue( klass.equals( ns0.getClass().getName() ) );
-    Assert.assertTrue( ns0.exists() );
     Assert.assertNotNull( ns0.type() );
     Assert.assertTrue( ns0.type().equals(type) ); 
     // FIXME Shouldn't this be null?
@@ -135,7 +130,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns1 = GrouperGroup.create(s, stem1, extn1, type);
     Assert.assertNotNull(ns1);
     Assert.assertTrue( klass.equals( ns1.getClass().getName() ) );
-    Assert.assertTrue( ns1.exists() );
     Assert.assertNotNull( ns1.type() );
     Assert.assertTrue( ns1.type().equals(type) ); 
     // FIXME Shouldn't this be null?
@@ -149,7 +143,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns2 = GrouperGroup.create(s, stem2, extn2, type);
     Assert.assertNotNull(ns2);
     Assert.assertTrue( klass.equals( ns2.getClass().getName() ) );
-    Assert.assertTrue( ns2.exists() );
     Assert.assertNotNull( ns2.type() );
     Assert.assertTrue( ns2.type().equals(type) ); 
     // FIXME Shouldn't this be null?
@@ -163,7 +156,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns00 = GrouperGroup.create(s, stem00, extn00, type);
     Assert.assertNotNull(ns00);
     Assert.assertTrue( klass.equals( ns00.getClass().getName() ) );
-    Assert.assertTrue( ns00.exists() );
     Assert.assertNotNull( ns00.type() );
     Assert.assertTrue( ns00.type().equals(type) ); 
     Assert.assertNotNull( ns00.attribute("stem") );
@@ -185,7 +177,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns0 = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(ns0);
     Assert.assertTrue( klass.equals( ns0.getClass().getName() ) );
-    // FIXME Assert.assertTrue( ns0.exists() );
     // FIXME Assert.assertNotNull( ns0.type() );
     // FIXME Assert.assertTrue( ns0.type().equals(type) ); 
     // FIXME Shouldn't this be null?
@@ -199,7 +190,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns1 = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(ns1);
     Assert.assertTrue( klass.equals( ns1.getClass().getName() ) );
-    // FIXME Assert.assertTrue( ns1.exists() );
     // FIXME Assert.assertNotNull( ns1.type() );
     // FIXME Assert.assertTrue( ns1.type().equals(type) ); 
     // FIXME Shouldn't this be null?
@@ -213,7 +203,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns2 = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(ns2);
     Assert.assertTrue( klass.equals( ns2.getClass().getName() ) );
-    // FIXME Assert.assertTrue( ns2.exists() );
     // FIXME Assert.assertNotNull( ns2.type() );
     // FIXME Assert.assertTrue( ns2.type().equals(type) ); 
     // FIXME Shouldn't this be null?
@@ -227,7 +216,6 @@ public class TestNamespaces extends TestCase {
     GrouperGroup ns00 = GrouperGroup.load(s, stem00, extn00);
     Assert.assertNotNull(ns00);
     Assert.assertTrue( klass.equals( ns00.getClass().getName() ) );
-    // FIXME Assert.assertTrue( ns00.exists() );
     // FIXME Assert.assertNotNull( ns00.type() );
     // FIXME Assert.assertTrue( ns00.type().equals(type) ); 
     // FIXME Assert.assertNotNull( ns00.attribute("stem") );
