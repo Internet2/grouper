@@ -33,7 +33,9 @@
     <property name="hibernate.connection.username">
 	  sa
 	</property>
-    <property name="hibernate.connection.password"/>
+    <property name="hibernate.connection.password">
+    	  passwd
+	</property>
 -->
 
     <!-- connection properties for Sybase -->
