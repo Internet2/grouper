@@ -56,7 +56,7 @@
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.8 2004-12-03 16:48:51 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.9 2004-12-03 21:35:09 blair Exp $ 
  */
 
 import  java.io.*;
@@ -350,7 +350,7 @@ class csv2subject {
                         ")";
         int cnt = stmt.executeUpdate(insert);
         if (cnt == 1) {
-          _verbose("Added 1 row to '" + TABLE + "'");
+          _debug("Added 1 row to '" + TABLE + "'");
           rv = true;
         }
       } catch (SQLException eue) {
