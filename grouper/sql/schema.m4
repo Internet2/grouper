@@ -3,13 +3,15 @@ ifdef(`ORACLE', `DROP TABLE $1;', `DROP TABLE $1 IF EXISTS;')dnl
 )dnl
 define(`_TYPE_INT',         `INTEGER')dnl
 define(`_TYPE_STRING',      `_TYPE_STRING_VAR(32)')dnl
-define(`_TYPE_STRING_VAR',  `VARCHAR($1)')dnl
+define(`_TYPE_STRING_VAR',dnl
+ifdef(`ORACLE', `VARCHAR2($1)', `VARCHAR($1)')dnl
+)dnl
 define(`_TYPE_TIME',        `_TYPE_STRING_VAR(16)')dnl
 define(`_TYPE_UUID',        `_TYPE_STRING_VAR(16)')dnl
 
 -- 
 -- Grouper Database Schema
--- $Id: schema.m4,v 1.1 2005-02-16 20:05:06 blair Exp $
+-- $Id: schema.m4,v 1.2 2005-02-16 20:23:08 blair Exp $
 -- 
 
 _DROP_TABLE(`grouper_attribute')
