@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.98 2004-12-03 17:46:37 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.99 2004-12-03 18:48:01 blair Exp $
  */
 public class GrouperBackend {
 
@@ -98,6 +98,31 @@ public class GrouperBackend {
   protected GrouperBackend() {
     // Provided only for the benefit of finding the Grouper.hbm.xml
     // files.  And yes, there *has* to be a better way.
+  }
+
+
+  /*
+   * PUBLIC CLASS METHODS
+   */
+
+  /**
+   * Formats {@link GrouperGroup} name.
+   * <p />
+   *
+   * @param   stem  Stem of the {@link GrouperGroup}.
+   * @param   extn  Extension of the {@link GrouperGroup}.
+   * @return  String representation of the group <i>stem</i>,
+   *   delimiter, and <i>extension</i>.
+   */
+  public static String groupName(String stem, String extn) {
+    String name;
+    if (stem.equals(Grouper.NS_ROOT)) {
+      name = extn;
+    } else {
+      // TODO Configurable
+      name = stem + ":" + extn;
+    }
+    return name;
   }
 
 
@@ -417,26 +442,6 @@ public class GrouperBackend {
     }
     GrouperBackend._hibernateSessionClose(session);
     return g;
-  }
-
-  /**
-   * Formats {@link GrouperGroup} name.
-   * <p />
-   *
-   * @param   stem  Stem of the {@link GrouperGroup}.
-   * @param   extn  Extension of the {@link GrouperGroup}.
-   * @return  String representation of the group <i>stem</i>,
-   *   delimiter, and <i>extension</i>.
-   */
-  protected static String groupName(String stem, String extn) {
-    String name;
-    if (stem.equals(Grouper.NS_ROOT)) {
-      name = extn;
-    } else {
-      // TODO Configurable
-      name = stem + ":" + extn;
-    }
-    return name;
   }
 
   /**
