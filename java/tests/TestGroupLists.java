@@ -2273,6 +2273,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( g12.listDelVal(s, m11) );
     Assert.assertTrue( GrouperGroup.delete(s, g11) );
     Assert.assertTrue( GrouperGroup.delete(s, g12) );
+    s.stop();
   }
 
   // grouperzilla#286
@@ -2419,6 +2420,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( GrouperGroup.delete(s, g11) );
     Assert.assertTrue( GrouperGroup.delete(s, g12) );
     Assert.assertTrue( GrouperGroup.delete(s, g13) );
+    s.stop();
   }
 
 }
