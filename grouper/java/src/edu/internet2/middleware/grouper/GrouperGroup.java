@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.39 2004-09-19 05:11:10 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.40 2004-09-19 17:10:31 blair Exp $
  */
 public class GrouperGroup {
 
@@ -76,6 +76,12 @@ public class GrouperGroup {
            desc.value(); 
   }
 
+  public static GrouperGroup lookup(GrouperSession s, String stem, 
+                                    String descriptor) 
+  {
+    return GrouperBackend.group(s, stem, descriptor);
+  }
+
   /**
    * Set a group attribute.
    * 
@@ -91,7 +97,7 @@ public class GrouperGroup {
       // load the hibernated group if appropriate.
       attr.set(this.groupKey, attribute, value);
       attributes.put(attribute, attr);
-      this._autoload();
+      // BDC this._autoload();
     } 
   }
 
@@ -146,51 +152,7 @@ public class GrouperGroup {
    * @return Boolean true if the group exists, false otherwise.
    */
   public boolean exist() {
-    if (this.exists == true) {
-      return true;
-    } else {
-      if (attributes.containsKey("stem") && 
-          attributes.containsKey("descriptor")) 
-      {
-        GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
-        GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
-
-        // TODO Please.  Make this better.  Please, please, please.
-        //      For whatever reason, SQL and quality code are evading
-        //      me this week.
-        List descs = GrouperBackend.descriptors(this.grprSession, desc.value());
-        if (descs.size() > 0) {
-          // We found one or more potential descriptors.  Now look
-          // for matching stems.
-          List stems = GrouperBackend.stems(this.grprSession, stem.value());
-          if (stems.size() > 0) {
-            // We have potential stems and potential descriptors.
-            // Now see if we have the *right* stem and the *right*
-            // descriptor.
-            for (Iterator iterDesc = descs.iterator(); iterDesc.hasNext();) {
-              GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
-              for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
-                GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
-                if (desc.value().equals( possDesc.value() ) &&
-                    stem.value().equals( possStem.value() ) &&
-                    possDesc.key().equals( possStem.key() ))
-                {
-                  // We have found an appropriate stem and descriptor
-                  // with matching keys.  We exist!
-
-                  // Set groupKey
-                  this.groupKey = possDesc.key();
-                    
-                  // And now acknowledge our existence
-                  return true;
-                }
-              }
-            }
-          }
-        } 
-      }
-    }
-    return false;
+    return this.exists;
   }
 
   /** 
@@ -251,7 +213,7 @@ public class GrouperGroup {
       // Now run the exist() method.  If successful, load the 
       // hibernating group.
       if (this.exist() == true) {
-        this._load(this.groupKey);
+        // BDC this._load(this.groupKey);
       }
     }
   }
