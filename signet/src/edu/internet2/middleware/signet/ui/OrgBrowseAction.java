@@ -1,6 +1,6 @@
 /*--
-$Id: OrgBrowseAction.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: OrgBrowseAction.java,v 1.3 2005-03-07 19:14:33 acohen Exp $
+$Date: 2005-03-07 19:14:33 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -72,12 +72,12 @@ throws Exception
     return findFailure(mapping);
   }
       
-  // Find the Function specified by the "step3" parameter, and
+  // Find the Function specified by the "functionSelectList" parameter, and
   // stash it in the Session.
   HttpSession session = request.getSession(); 
   Function currentFunction = null;
   Category currentCategory = null;
-  String currentFunctionId = request.getParameter("step3");
+  String currentFunctionId = request.getParameter("functionSelectList");
 
   Signet signet = (Signet)(session.getAttribute("signet"));
   Subsystem currentSubsystem

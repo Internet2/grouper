@@ -1,6 +1,6 @@
 <!--
-  $Id: limits.jsp,v 1.6 2005-02-25 23:13:07 acohen Exp $
-  $Date: 2005-02-25 23:13:07 $
+  $Id: limits.jsp,v 1.7 2005-03-07 19:14:33 acohen Exp $
+  $Date: 2005-03-07 19:14:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,7 +79,7 @@
        + currentSubsystem.getId();
        
    String orgBrowseHref
-   	= "OrgBrowse.do?step3="
+   	= "OrgBrowse.do?functionSelectList="
    		+ currentFunction.getId();
 %>
 

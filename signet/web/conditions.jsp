@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.11 2005-03-03 18:29:00 acohen Exp $
-  $Date: 2005-03-03 18:29:00 $
+  $Id: conditions.jsp,v 1.12 2005-03-07 19:14:33 acohen Exp $
+  $Date: 2005-03-07 19:14:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -147,7 +147,7 @@
        + currentSubsystem.getId();
        
    String orgBrowseHref
-   	= "OrgBrowse.do?step3="
+   	= "OrgBrowse.do?functionSelectList="
    		+ currentFunction.getId();
 %>
 
