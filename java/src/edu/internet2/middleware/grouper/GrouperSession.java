@@ -63,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.82 2005-03-11 01:17:58 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.83 2005-03-14 19:16:25 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -184,6 +184,7 @@ public class GrouperSession implements Serializable {
         rv = true;
       }
     }
+    this.dbSess.stop();
     Grouper.log().sessionStop(rv, this);
     return rv;
   }
