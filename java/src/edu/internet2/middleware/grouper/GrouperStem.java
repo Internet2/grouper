@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.23 2005-03-25 19:50:58 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.24 2005-03-25 20:33:45 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -354,6 +354,39 @@ public class GrouperStem extends Group {
    */
   public Date modifyTime() {
     return this.string2date(this.getModifyTime());
+  }
+
+  /**
+   * Retrieve list of namespaces that are <b>immediate</b> children
+   * of this stem.
+   * <p />
+   * @return  List of {@link GrouperStem} objects.
+   */
+  public List stems() {
+    String  qry   = "Group.key.child.stem.of.stem";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.name());
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          GrouperStem s = (GrouperStem) Group.loadByKey(this.s, key);
+          vals.add(s);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + 
+                    qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
   /**
