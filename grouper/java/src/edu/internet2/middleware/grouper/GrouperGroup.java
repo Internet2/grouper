@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.113 2004-12-04 04:47:09 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.114 2004-12-04 05:12:14 blair Exp $
  */
 public class GrouperGroup {
 
@@ -227,7 +227,7 @@ public class GrouperGroup {
     if (this._validateAttribute(attribute)) {
       // FIXME We don't handle renames yet -- if ever?
       if ( 
-          (this.initialized == true) &&
+          (this.initialized == true) && 
            (
             (attribute.equals("stem"))      ||
             (attribute.equals("extension"))

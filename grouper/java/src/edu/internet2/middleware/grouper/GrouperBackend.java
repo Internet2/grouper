@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.107 2004-12-04 04:47:09 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.108 2004-12-04 05:12:14 blair Exp $
  */
 public class GrouperBackend {
 
@@ -119,8 +119,8 @@ public class GrouperBackend {
     if (stem.equals(Grouper.NS_ROOT)) {
       name = extn;
     } else {
-      // TODO Configurable
-      name = stem + ":" + extn;
+      String delim = Grouper.config("hierarchy.delimiter");
+      name = stem + delim + extn;
     }
     return name;
   }
