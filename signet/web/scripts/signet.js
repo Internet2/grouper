@@ -32,27 +32,15 @@ function CheckAll(){
 	document.checkform.row6.checked = document.checkform.allbox.checked;
 }
 
+var req;
+
 // This code was adapted from www.xml.com/pub/a/2005/02/09/xml-http-request.html.
 function loadXMLDoc(url)
 {
-  // branch for native XMLHttpRequest object
-  if (window.XMLHttpRequest) // standard, non-Microsoft version
-  {
-    req = new XMLHttpRequest();
-    req.onreadystatechange = processReqChange;
-    req.open("GET", url, true);
-    req.send(null);
-  }
-  else if (window.ActiveXObject) // IE/Windows/ActiveX version
-  {
-    req = new ActiveXObject("Microsoft.XMLHTTP");
-    if (req)
-    {
-      req.onreadystatechange = processReqChange;
-      req.open("GET", url, true);
-      req.send();
-    }
-  }
+  req = new XMLHttpRequest();
+  req.onreadystatechange = processReqChange;
+  req.open("GET", url, true);
+  req.send(null);
 }
 
 function printXMLDoc(xmlDoc)
@@ -136,11 +124,6 @@ function processReqChange()
       // method. This makes is possible for this method to detect, parse, and forward
       // query-response data to any number of methods that actually do something useful
       // with that data.
-      
-//      newWindow = window.open("", "newWindow", "");
-//      newWindow.focus();
-//      newWindow.document.write(printXMLDoc(req.responseXML));
-//      newWindow.document.close();
          
       response = req.responseXML.documentElement;
       
@@ -177,6 +160,20 @@ function showPersonSearchResults(personSearchResults)
 {
   var resultsDiv = document.getElementById('PersonSearchResults');
   resultsDiv.style.display = 'block';
-  resultsDiv.removeChild(resultsDiv.firstChild);
-  resultsDiv.appendChild(personSearchResults);
+  
+  if (resultsDiv.firstChild != null)
+  {
+    resultsDiv.removeChild(resultsDiv.firstChild);
+  }
+
+  var resultStr = Sarissa.serialize(personSearchResults);
+  // Here's an embarrassing little hack: On FireFox, Sarissa.serialize includes an
+  // XML namespace of "a0" on each element. This prevents it from recognizing those
+  // tags as legitimate HTML. So, we'll strip those namespace-prefixes off if they're
+  // present. There's probably some way of preventing them in the first place, but
+  // I haven't figured that out yet.
+  var re = new RegExp("a0:", "g");
+  resultStr = resultStr.replace(re, "");
+  
+  resultsDiv.innerHTML = resultStr;
 }
