@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.11 2005-03-25 19:50:58 blair Exp $
+ * @version $Id: Group.java,v 1.12 2005-03-25 20:33:45 blair Exp $
  */
 abstract class Group {
 
@@ -513,7 +513,7 @@ abstract class Group {
     if (key != null) {
       try {
         g = (Group) s.dbSess().session().get(Group.class, key);
-        g.load(s);
+        g.load(s); // TODO Remove explicit calls in GG and GS?
       } catch (HibernateException e) {
         throw new RuntimeException("Error loading group: " + e);
       }
