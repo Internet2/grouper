@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.13 2005-02-24 23:52:13 jvine Exp $
-  $Date: 2005-02-24 23:52:13 $
+  $Id: main.jsp,v 1.14 2005-02-25 18:32:53 acohen Exp $
+  $Date: 2005-02-25 18:32:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -183,7 +183,7 @@
               </td> <!-- privilege -->
               
               <td> <!-- scope -->
-                &nbsp;
+                 <%=assignment.getScope().getName()%>
               </td> <!-- scope -->
               
               <td> <!-- limits -->
