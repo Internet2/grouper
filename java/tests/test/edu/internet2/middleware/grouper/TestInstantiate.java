@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestInstantiate.java,v 1.3 2004-11-12 16:38:29 blair Exp $
+ * $Id: TestInstantiate.java,v 1.4 2004-11-12 17:40:57 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -125,14 +125,6 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
-  // Instantiate a GrouperSubjectImpl instance 
-  public void testGrouperSubjectImplInstantiate() {
-    GrouperSubjectImpl obj = new GrouperSubjectImpl();
-    Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperSubjectImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
-
   // Instantiate a GrouperType instance 
   public void testGrouperTypeInstantiate() {
     GrouperType obj = new GrouperType();
@@ -141,12 +133,19 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
-
   // Instantiate a GrouperTypeDef instance 
   public void testGrouperTypeDefInstantiate() {
     GrouperTypeDef obj = new GrouperTypeDef();
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
+    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+  }
+
+  // Instantiate a SubjectImpl instance 
+  public void testGrouperSubjectImplInstantiate() {
+    SubjectImpl obj = new SubjectImpl();
+    Assert.assertNotNull(obj);
+    String klass = "edu.internet2.middleware.grouper.SubjectImpl";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
