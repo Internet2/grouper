@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.47 2005-03-15 04:22:59 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.48 2005-03-15 15:33:31 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -129,6 +129,7 @@ public class GrouperNamingImpl implements GrouperNaming {
          * FIXME I should be doing a GroupField lookup on `priv'
          */
         if (this.has(s, g, Grouper.PRIV_STEM)) {
+          // TODO Go through GG, not GB?
           if (
               GrouperBackend.listAddVal(
                 s, new GrouperList(g, m, (String) privMap.get(priv))

@@ -45,6 +45,7 @@ CREATE TABLE grouper_group (
 
 _DROP_TABLE(`grouper_list')
 CREATE  TABLE grouper_list (
+  listKey       _TYPE_UUID() NOT NULL PRIMARY KEY,
   groupKey      _TYPE_UUID() NOT NULL,
   groupField    _TYPE_STRING() NOT NULL,
   memberKey     _TYPE_UUID() NOT NULL,

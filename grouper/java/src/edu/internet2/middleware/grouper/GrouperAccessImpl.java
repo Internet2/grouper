@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.52 2005-03-15 04:22:59 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.53 2005-03-15 15:33:31 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -129,6 +129,7 @@ public class GrouperAccessImpl implements GrouperAccess {
          * FIXME I should be doing a GroupField lookup on `priv'
          */
         if (this.has(s, g, Grouper.PRIV_ADMIN)) {
+          // TODO Go through GG, not GB?
           if (
               GrouperBackend.listAddVal(
                 s, new GrouperList(g, m, (String) privMap.get(priv))
