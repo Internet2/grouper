@@ -5,6 +5,16 @@
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
 
+  <class name="GrouperAttribute" table="grouper_attributes" mutable="true">
+    <composite-id access="field">
+      <key-property name="groupKey"   type="string" column="groupKey"/>
+      <key-property name="groupField" type="string" column="groupField"/>
+    </composite-id>
+    <property name="groupFieldValue">
+      <column name="groupFieldValue" length="255" not-null="true"/>
+    </property>
+  </class>
+
   <class name="GrouperField" table="grouper_fields" mutable="false">
     <cache usage="read-only"/>
     <id name="groupField" type="string" unsaved-value="null" >

@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.19 2004-08-06 18:37:20 blair Exp $
+ * $Id: GrouperTest.java,v 1.20 2004-08-11 15:21:07 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -329,6 +329,21 @@ public class GrouperTest extends TestCase {
     String expKlass = "edu.internet2.middleware.grouper.GrouperSchema";
 
     Assert.assertNotNull(schema);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  /*
+   * Class: GrouperAttribute
+   */
+
+  /* Instantiate a GrouperAttribute instance */
+  public void testGrouperAttributeInstantiate() {
+    GrouperAttribute attr = new GrouperAttribute();
+
+    Class  klass    = attr.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperAttribute";
+
+    Assert.assertNotNull(attr);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
