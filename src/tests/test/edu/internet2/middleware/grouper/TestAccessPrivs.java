@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.27 2005-03-04 20:46:35 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.28 2005-03-07 17:18:22 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -94,28 +94,28 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(g0);
     Assert.assertTrue( Util.klassGG.equals( g0.getClass().getName() ) );
     Assert.assertNotNull( g0.type() );
-    Assert.assertNotNull( g0.attribute(s, "stem") );
-    Assert.assertTrue( g0.attribute(s, "stem").value().equals(Util.stem0) );
-    Assert.assertNotNull( g0.attribute(s, "extension") );
-    Assert.assertTrue( g0.attribute(s, "extension").value().equals(Util.extn0) );
+    Assert.assertNotNull( g0.attribute("stem") );
+    Assert.assertTrue( g0.attribute("stem").value().equals(Util.stem0) );
+    Assert.assertNotNull( g0.attribute("extension") );
+    Assert.assertTrue( g0.attribute("extension").value().equals(Util.extn0) );
     // g1
     GrouperGroup    g1  = GrouperGroup.load(s, Util.stem1, Util.extn1);
     Assert.assertNotNull(g1);
     Assert.assertTrue( Util.klassGG.equals( g1.getClass().getName() ) );
     Assert.assertNotNull( g1.type() );
-    Assert.assertNotNull( g1.attribute(s, "stem") );
-    Assert.assertTrue( g1.attribute(s, "stem").value().equals(Util.stem1) );
-    Assert.assertNotNull( g1.attribute(s, "extension") );
-    Assert.assertTrue( g1.attribute(s, "extension").value().equals(Util.extn1) );
+    Assert.assertNotNull( g1.attribute("stem") );
+    Assert.assertTrue( g1.attribute("stem").value().equals(Util.stem1) );
+    Assert.assertNotNull( g1.attribute("extension") );
+    Assert.assertTrue( g1.attribute("extension").value().equals(Util.extn1) );
     // g2
     GrouperGroup    g2  = GrouperGroup.load(s, Util.stem2, Util.extn2);
     Assert.assertNotNull(g2);
     Assert.assertTrue( Util.klassGG.equals( g2.getClass().getName() ) );
     Assert.assertNotNull( g2.type() );
-    Assert.assertNotNull( g2.attribute(s, "stem") );
-    Assert.assertTrue( g2.attribute(s, "stem").value().equals(Util.stem2) );
-    Assert.assertNotNull( g2.attribute(s, "extension") );
-    Assert.assertTrue( g2.attribute(s, "extension").value().equals(Util.extn2) );
+    Assert.assertNotNull( g2.attribute("stem") );
+    Assert.assertTrue( g2.attribute("stem").value().equals(Util.stem2) );
+    Assert.assertNotNull( g2.attribute("extension") );
+    Assert.assertTrue( g2.attribute("extension").value().equals(Util.extn2) );
     // Fetch the members
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.load(Util.m0i, Util.m0t);
@@ -438,7 +438,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     // Act
-    Assert.assertFalse( g.attribute(s, "description", "new desc") );
+    Assert.assertFalse( g.attribute("description", "new desc") );
     // We're done
     s.stop();
   }
@@ -453,7 +453,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     // Act
-    Assert.assertFalse( g.attribute(s, "description", null) );
+    Assert.assertFalse( g.attribute("description", null) );
     // We're done
     s.stop();
   }
@@ -538,7 +538,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     // Act
-    Assert.assertFalse( g.attribute(s, "description", "new desc") );
+    Assert.assertFalse( g.attribute("description", "new desc") );
     // We're done
     s.stop();
   }
@@ -567,7 +567,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     // Act
-    Assert.assertTrue( g.attribute(s, "description", "new desc") );
+    Assert.assertTrue( g.attribute("description", "new desc") );
     // We're done
     s.stop();
   }
@@ -581,7 +581,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     // Act
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     // We're done
     s.stop();
   }

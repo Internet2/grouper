@@ -151,13 +151,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull("g !null", g);
     Assert.assertNotNull("g id !null", g.id() );
     Assert.assertNotNull("g type !null", g.type() );
-    Assert.assertNotNull("g stem !null", g.attribute(s, "stem") );
-    Assert.assertTrue("g stem value", g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull("g extn !null", g.attribute(s, "extension") );
-    Assert.assertTrue("g extn value", g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull("g stem !null", g.attribute("stem") );
+    Assert.assertTrue("g stem value", g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull("g extn !null", g.attribute("extension") );
+    Assert.assertTrue("g extn value", g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull("g name !null", name);
-    Assert.assertTrue("g name value", g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull("g desc null", g.attribute(s, "description") );
+    Assert.assertTrue("g name value", g.attribute("name").value().equals(name) );
+    Assert.assertNull("g desc null", g.attribute("description") );
     Assert.assertNull("g createSource null", g.createSource() );
     Assert.assertNotNull("g createSubject !null", g.createSubject().getId() );
     Assert.assertNotNull("g createTime !null", g.createTime() );
@@ -181,13 +181,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -210,13 +210,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -239,13 +239,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -269,13 +269,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -299,13 +299,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -329,13 +329,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -359,13 +359,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -392,7 +392,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -410,7 +410,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -427,7 +427,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -444,7 +444,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -462,7 +462,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -480,7 +480,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -498,7 +498,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -516,7 +516,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -541,14 +541,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -573,14 +573,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -604,14 +604,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -635,14 +635,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -667,14 +667,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -699,14 +699,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -731,14 +731,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -763,14 +763,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -796,7 +796,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -814,7 +814,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -831,7 +831,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -848,7 +848,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -866,7 +866,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -884,7 +884,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -902,7 +902,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -920,7 +920,7 @@ public class TestGroupAttrs extends TestCase {
     String desc = "My New Description: " + name;
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", desc) );
+    Assert.assertTrue( g.attribute("description", desc) );
     s.stop();
   }
 
@@ -945,14 +945,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -977,14 +977,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1008,14 +1008,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1039,14 +1039,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1071,14 +1071,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1103,14 +1103,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1135,14 +1135,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1167,14 +1167,14 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNotNull( g.attribute(s, "description") );
-    Assert.assertTrue( g.attribute(s, "description").value().equals(desc) );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNotNull( g.attribute("description") );
+    Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1199,7 +1199,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1216,7 +1216,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1232,7 +1232,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1248,7 +1248,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1265,7 +1265,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1282,7 +1282,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1299,7 +1299,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1316,7 +1316,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertTrue( g.attribute(s, "description", null) );
+    Assert.assertTrue( g.attribute("description", null) );
     s.stop();
   }
 
@@ -1339,13 +1339,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1369,13 +1369,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1398,13 +1398,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1427,13 +1427,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1457,13 +1457,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1487,13 +1487,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1517,13 +1517,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1547,13 +1547,13 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull( g.attribute("stem") );
+    Assert.assertTrue( g.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( g.attribute("extension") );
+    Assert.assertTrue( g.attribute("extension").value().equals(extn) );
     Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
+    Assert.assertTrue( g.attribute("name").value().equals(name) );
+    Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
     Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
@@ -1579,7 +1579,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertFalse( g.attribute(s, "stem", null) );
+    Assert.assertFalse( g.attribute("stem", null) );
     s.stop();
   }
 
@@ -1596,7 +1596,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertFalse( g.attribute(s, "stem", extn) );
+    Assert.assertFalse( g.attribute("stem", extn) );
     s.stop();
   }
 
@@ -1613,7 +1613,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertFalse( g.attribute(s, "extension", null) );
+    Assert.assertFalse( g.attribute("extension", null) );
     s.stop();
   }
 
@@ -1630,7 +1630,7 @@ public class TestGroupAttrs extends TestCase {
     String name = GrouperGroup.groupName(stem, extn);
     GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
     Assert.assertNotNull(g);
-    Assert.assertFalse( g.attribute(s, "extension", stem) );
+    Assert.assertFalse( g.attribute("extension", stem) );
     s.stop();
   }
 
