@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.10 2005-02-24 01:54:53 acohen Exp $
-  $Date: 2005-02-24 01:54:53 $
+  $Id: main.jsp,v 1.11 2005-02-24 22:17:55 acohen Exp $
+  $Date: 2005-02-24 22:17:55 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -161,7 +161,7 @@
             <tr>
               <td> <!-- person -->
                 <a
-                  href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>">
+                  href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
                   <%=grantee.getName()%>
                 </a>
               </td> <!-- person -->
