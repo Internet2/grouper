@@ -107,57 +107,79 @@ public class TestNamespaces extends TestCase {
     s.stop();
   }
 
-  // Create namespaces
-  public void testCreateGroups() {
+  public void testCreateNS0() {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
-    // Create the namespaces
-    // ns0
-    GrouperGroup ns0 = GrouperGroup.create(s, stem0, extn0, naming);
-    Assert.assertNotNull(ns0);
-    Assert.assertTrue( klass.equals( ns0.getClass().getName() ) );
-    Assert.assertNotNull( ns0.type() );
-    Assert.assertTrue( ns0.type().equals(naming) ); 
-    Assert.assertNotNull( ns0.attribute("stem") );
-    Assert.assertTrue( ns0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( ns0.attribute("extension") );
-    Assert.assertTrue( ns0.attribute("extension").value().equals(extn0) );
+    // Create ns0
+    String stem = stem0;
+    String extn = extn0;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn, naming);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(naming) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
 
-    // ns1
-    GrouperGroup ns1 = GrouperGroup.create(s, stem1, extn1, naming);
-    Assert.assertNotNull(ns1);
-    Assert.assertTrue( klass.equals( ns1.getClass().getName() ) );
-    Assert.assertNotNull( ns1.type() );
-    Assert.assertTrue( ns1.type().equals(naming) ); 
-    Assert.assertNotNull( ns1.attribute("stem") );
-    Assert.assertTrue( ns1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( ns1.attribute("extension") );
-    Assert.assertTrue( ns1.attribute("extension").value().equals(extn1) );
+  public void testCreateNS1() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create ns00
+    String stem = stem00;
+    String extn = extn00;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn, naming);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(naming) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
 
-    // ns2
-    GrouperGroup ns2 = GrouperGroup.create(s, stem2, extn2, naming);
-    Assert.assertNotNull(ns2);
-    Assert.assertTrue( klass.equals( ns2.getClass().getName() ) );
-    Assert.assertNotNull( ns2.type() );
-    Assert.assertTrue( ns2.type().equals(naming) ); 
-    Assert.assertNotNull( ns2.attribute("stem") );
-    Assert.assertTrue( ns2.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( ns2.attribute("extension") );
-    Assert.assertTrue( ns2.attribute("extension").value().equals(extn2) );
+  public void testCreateNS2() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create ns1
+    String stem = stem1;
+    String extn = extn1;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn, naming);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(naming) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
 
-    // ns00
-    GrouperGroup ns00 = GrouperGroup.create(s, stem00, extn00, naming);
-    Assert.assertNotNull(ns00);
-    Assert.assertTrue( klass.equals( ns00.getClass().getName() ) );
-    Assert.assertNotNull( ns00.type() );
-    Assert.assertTrue( ns00.type().equals(naming) ); 
-    Assert.assertNotNull( ns00.attribute("stem") );
-    Assert.assertTrue( ns00.attribute("stem").value().equals(stem00) );
-    Assert.assertNotNull( ns00.attribute("extension") );
-    Assert.assertTrue( ns00.attribute("extension").value().equals(extn00) );
-
-    // We're done
+  public void testCreateNS3() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create ns2
+    String stem = stem2;
+    String extn = extn2;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn, naming);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(naming) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
     s.stop();
   }
 
@@ -166,15 +188,17 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns0
-    GrouperGroup ns = GrouperGroup.lookup(s, stem0, extn0, naming);
+    String stem = stem0;
+    String extn = extn0;
+    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(naming) ); 
     Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem0) );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
     Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn0) );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
     // We're done
     s.stop();
   }
@@ -184,15 +208,17 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns00
-    GrouperGroup ns = GrouperGroup.lookup(s, stem00, extn00, naming);
+    String stem = stem00;
+    String extn = extn00;
+    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(naming) ); 
     Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem00) );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
     Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn00) );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
     // We're done
     s.stop();
   }
@@ -202,15 +228,17 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns1
-    GrouperGroup ns = GrouperGroup.lookup(s, stem1, extn1, naming);
+    String stem = stem1;
+    String extn = extn1;
+    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(naming) ); 
     Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem1) );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
     Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn1) );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
     // We're done
     s.stop();
   }
@@ -220,15 +248,17 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns2
-    GrouperGroup ns = GrouperGroup.lookup(s, stem2, extn2, naming);
+    String stem = stem2;
+    String extn = extn2;
+    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(naming) ); 
     Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem2) );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
     Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn2) );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
     // We're done
     s.stop();
   }

@@ -66,9 +66,9 @@ public class TestGroups extends TestCase {
   private String  extn1   = "extn.1";
   private String  stem2   = "stem.2";
   private String  extn2   = "extn.2";
-  private String  stem3   = "stem.3";
+  private String  stem3   = "stem.0";
   private String  extn3   = "extn.3";
-  private String  stem4   = "stem.4";
+  private String  stem4   = "stem.0";
   private String  extn4   = "extn.4";
   
 
@@ -112,60 +112,98 @@ public class TestGroups extends TestCase {
     s.stop();
   }
 
-  // Create groups
-  public void testCreateGroups() {
+  public void testCreateG0() {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
+    // Create g0
+    String stem = stem0;
+    String extn = extn0;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
 
-    // Create the groups
-    // g0
-    GrouperGroup    g0  = GrouperGroup.create(s, stem0, extn0);
-    Assert.assertNotNull(g0);
-    Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
-    Assert.assertNotNull( g0.type() );
-    Assert.assertNotNull( g0.attribute("stem") );
-    Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( g0.attribute("extension") );
-    Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
-    // g1
-    GrouperGroup    g1  = GrouperGroup.create(s, stem1, extn1);
-    Assert.assertNotNull(g1);
-    Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
-    Assert.assertNotNull( g1.type() );
-    Assert.assertNotNull( g1.attribute("stem") );
-    Assert.assertTrue( g1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( g1.attribute("extension") );
-    Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
-    // g2
-    GrouperGroup    g2  = GrouperGroup.create(s, stem2, extn2);
-    Assert.assertNotNull(g2);
-    Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
-    Assert.assertNotNull( g2.type() );
-    Assert.assertNotNull( g2.attribute("stem") );
-    Assert.assertTrue( g2.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( g2.attribute("extension") );
-    Assert.assertTrue( g2.attribute("extension").value().equals(extn2) );
-    // g3
-    GrouperGroup    g3  = GrouperGroup.create(s, stem3, extn3);
-    Assert.assertNotNull(g3);
-    Assert.assertTrue( klass.equals( g3.getClass().getName() ) );
-    Assert.assertNotNull( g3.type() );
-    Assert.assertNotNull( g3.attribute("stem") );
-    Assert.assertTrue( g3.attribute("stem").value().equals(stem3) );
-    Assert.assertNotNull( g3.attribute("extension") );
-    Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
-    // g4
-    GrouperGroup    g4  = GrouperGroup.create(s, stem4, extn4);
-    Assert.assertNotNull(g4);
-    Assert.assertTrue( klass.equals( g4.getClass().getName() ) );
-    Assert.assertNotNull( g4.type() );
-    Assert.assertNotNull( g4.attribute("stem") );
-    Assert.assertTrue( g4.attribute("stem").value().equals(stem4) );
-    Assert.assertNotNull( g4.attribute("extension") );
-    Assert.assertTrue( g4.attribute("extension").value().equals(extn4) );
+  public void testCreateG1() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create g1
+    String stem = stem1;
+    String extn = extn1;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
 
-    // We're done
+  public void testCreateG2() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create g2
+    String stem = stem2;
+    String extn = extn2;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
+
+  public void testCreateG3() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create g3
+    String stem = stem3;
+    String extn = extn3;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    s.stop();
+  }
+
+  public void testCreateG4() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create g4
+    String stem = stem4;
+    String extn = extn4;
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
+    Assert.assertNotNull(ns);
+    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertNotNull( ns.type() );
+    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
+    Assert.assertNotNull( ns.attribute("stem") );
+    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute("extension") );
+    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
     s.stop();
   }
 
