@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.17 2005-01-23 19:09:33 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.18 2005-01-23 19:14:18 blair Exp $ 
  */
 class csv2group {
 
@@ -212,16 +212,22 @@ class csv2group {
     boolean rv = false;
     String stem = (String) tokens.get(0);
     String extn = (String) tokens.get(1);
+    String name = null; // For pretty printing
     String sid  = null;
     String stid = Grouper.DEF_SUBJ_TYPE;
     if        (tokens.size() == 3)  {
-      sid = (String) tokens.get(2);
+      // Adding a non-group as a member
+      sid  = (String) tokens.get(2);
+      name = sid;
     } else if (tokens.size() > 1)   {
+      // Adding a group as a member
+
       // Ye Olde Silent Ignore Trick
       String mS = (String) tokens.get(2);
       String mE = (String) tokens.get(3);
       GrouperGroup mAsG = GrouperGroup.load(s, mS, mE);
       if (mAsG != null) {
+        name  = mAsG.name();
         sid   = mAsG.id();
         stid  = "group";
       } else {
@@ -236,16 +242,12 @@ class csv2group {
       if (m != null) {
         if (g.listAddVal(s, m)) {
           rv = true;
-          _report(
-            "Added member: `" + sid + "' to `" + stem + "':`" + extn + "'"
-          );
+          _report("Added member: " + name + " to " + g.name());
         }
       }
     }
     if (rv != true) {
-      _report(
-        "Failed to add `" + sid + "' to `" + stem + "':`" + extn + "'"
-      );
+      _report("Failed to add " + name + " to " + g.name());
     }
     return rv;
   }
