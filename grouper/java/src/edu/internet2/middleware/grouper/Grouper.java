@@ -20,20 +20,23 @@ import  java.util.*;
 import  net.sf.hibernate.*;
 
 /** 
- * Class representing the {@link Grouper} environment.
+ * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.24 2004-08-24 17:37:57 blair Exp $
+ * @version $Id: Grouper.java,v 1.25 2004-09-08 16:40:21 blair Exp $
  */
 public class Grouper {
 
-  private Properties      conf        = new Properties();
-  // XXX That's just wrong.  But it'll do for now.
-  private String          confFile    = "conf/grouper.properties";
+  private static Properties  conf;
+  private static String      confFile; 
 
-  private GrouperSession  intSess;
+  // Grouper executive session
+  private static GrouperSession  grprSession;
+  // Cached Grouper group fields
   private static GrouperFields   groupFields;
+  // Cached Grouper group types
   private static GrouperTypes    groupTypes;
+  // Cached Grouper group typeDefs
   private static GrouperTypeDefs groupTypeDefs;
 
 
@@ -41,39 +44,46 @@ public class Grouper {
    * Create {@link Grouper} environment.
    */
   public Grouper() {
-    this.groupFields   = new GrouperFields();
-    this.groupTypes    = new GrouperTypes();
-    this.groupTypeDefs = new GrouperTypeDefs();
+    this.conf           = new Properties();
+    this.confFile       = "conf/grouper.properties";
+    this.grprSession    = null;
+    this.groupFields    = new GrouperFields();
+    this.groupTypes     = new GrouperTypes();
+    this.groupTypeDefs  = new GrouperTypeDefs();
   }
 
   /**
    * Initialize {@link Grouper} environment.
    * <p>
    * <ul>
-   *  <li>Reads run-time configuration file.</li>
+   *  <li>Reads run-time configuration</li>
    *  <li>Starts executive {@link GrouperSession} used for 
    *      boostrapping all other sessions.</li>
    *  <li>Reads and caches the following tables:</li>
    *  <ul>
    *   <li><i>grouper_fields</i></li>
-   *   <li><i>grouper_groupTypeDefs</i></li>
-   *   <li><i>grouper_groupTypes</i></li>
+   *   <li><i>grouper_typeDefs</i></li>
+   *   <li><i>grouper_types</i></li>
    * </ul>
    */
-  public void initialize() {
+  public void init() {
+    // TODO Isn't there a mechanism by which the confFile can be found
+    //      via $CLASSPATH and read in more (in)directly?
     try {
       FileInputStream in = new FileInputStream(confFile);
       try {
         conf.load(in);
       } catch (IOException e) {
         System.err.println("Unable to read '" + confFile + "'");
+        System.exit(1); 
       }
     } catch (FileNotFoundException e) {
       System.err.println("Failed to find '" + confFile + "'");
+      System.exit(1); 
     }
 
-    this.intSess = new GrouperSession();
-    this.intSess.start(this, this.config("member.system"), true);
+    this.grprSession = new GrouperSession();
+    this.grprSession.start(this, this.config("member.system"), true);
     // TODO Perform data validation of some sort for these tables?
     this._readFields();
     this._readTypes();
@@ -89,16 +99,16 @@ public class Grouper {
    */ 
   public void destroy() {
     // TODO Throw an exception if null??
-    if (this.intSess != null) {
-      this.intSess.end();
+    if (this.grprSession != null) {
+      this.grprSession.end();
     }
   }
 
   /**
-   * Fetch a {@link Grouper} configuration parameter.
+   * Get {@link Grouper} configuration parameter.
    * <p>
    * <ul>
-   *  <li>Fetches and returns value of requested run-time configuration
+   *  <li>Returns value of requested run-time configuration
    *      parameter.</li>
    * </ul> 
    * 
@@ -117,7 +127,7 @@ public class Grouper {
     // XXX Hack.  And I shouldn't need the temporary variable
     //     'session', should I?
     try {
-      Session session = this.intSess.session();
+      Session session = this.grprSession.session();
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_FIELDS " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperField"
@@ -136,9 +146,8 @@ public class Grouper {
   private void _readTypeDefs() {
     // XXX Hack.  And I shouldn't need the temporary variable
     //     'session', should I?
-    // XXX Fuck.  How do I Hibernate-map this table?!?!?!
     try {
-      Session session = this.intSess.session();
+      Session session = this.grprSession.session();
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPEDEFS " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperTypeDef"
@@ -158,7 +167,7 @@ public class Grouper {
     // XXX Hack.  And I shouldn't need the temporary variable
     //     'session', should I?
     try {
-      Session session = this.intSess.session();
+      Session session = this.grprSession.session();
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPES " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperType"
@@ -175,39 +184,39 @@ public class Grouper {
   }
 
   /**
-   * Provides access to {@link GrouperField} definitions.
+   * Valid group fields.
    * <p>
-   * The <i>grouper_fields</i> table is read and cached
-   * at {@link Grouper} initialization.
+   * Reads and caches the <i>grouper_fields</i> table at
+   * {@link Grouper} initialization.
    * 
-   * @return  TODO
+   * @return  {@link GrouperFields} object.
    */
   public GrouperFields getGroupFields() {
     return this.groupFields;
   }
 
   /**
-   * Provides access to {@link GrouperType} definitions.
+   * Valid group type definitions.
    * <p>
-   * The <i>grouper_types</i> table is read and cached at 
-   * {@link Grouper} initialization.
-   * 
-   * @return  TODO
-   */
-  public GrouperTypes getGroupTypes() {
-    return groupTypes;
-  }
-
-  /**
-   * Provides access to {@link GrouperTypeDef} definitions.
-   * <p>
-   * The <i>grouper_typeDefs</i> table is read and cached at 
+   * Reads and caches the <i>grouper_typeDefs</i> table at
    * {@link Grouper} initialization.
    *
-   * @return  TODO
+   * @return  {@link GrouperTypeDefs} object.
    */
   public GrouperTypeDefs getGroupTypeDefs() {
     return groupTypeDefs;
+  }
+
+  /**
+   * Valid group types.
+   * <p>
+   * Reads and caches the <i>grouper_types</i> table at
+   * {@link Grouper} initialization.
+   * 
+   * @return  {@link GrouperTypes} object.
+   */
+  public GrouperTypes getGroupTypes() {
+    return groupTypes;
   }
 
 }
