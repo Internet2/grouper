@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.1 2004-12-05 16:13:38 blair Exp $
+$Id: LAYOUT,v 1.2 2004-12-07 19:10:22 blair Exp $
 
 ---
 
@@ -98,7 +98,7 @@ Java source used for testing Grouper.
 
 ## LICENSE
 
-A copy of the Academic Free License v. 2.1
+Grouper licensing information.
 
 ## README
 
