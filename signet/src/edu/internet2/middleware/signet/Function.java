@@ -1,6 +1,6 @@
 /*--
-$Id: Function.java,v 1.3 2005-02-14 02:33:28 acohen Exp $
-$Date: 2005-02-14 02:33:28 $
+$Id: Function.java,v 1.4 2005-02-15 00:31:20 acohen Exp $
+$Date: 2005-02-15 00:31:20 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -36,7 +36,7 @@ extends SubsystemPart, HelpText, Name, Comparable
   
   /**
    * Gets the Limits associated with this Function's Permissions.
-   * @return Returns the limits.
+   * @return Returns the limits, in ascending order of Limit.getDisplayOrder().
    */
   public Limit[] getLimitsArray();
 

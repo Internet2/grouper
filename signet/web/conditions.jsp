@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.2 2005-02-14 02:33:28 acohen Exp $
-  $Date: 2005-02-14 02:33:28 $
+  $Id: conditions.jsp,v 1.3 2005-02-15 00:31:20 acohen Exp $
+  $Date: 2005-02-15 00:31:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -35,6 +35,7 @@
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Limit" %>
+<%@ page import="edu.internet2.middleware.signet.ui.LimitRenderer" %>
 
 <% 
   Signet signet
@@ -177,15 +178,27 @@
             <div class="tableheader">
               Set Limits
             </div> <!-- tableheader -->
-            WE HAVE <%= currentLimits.length %> LIMITS TO DISPLAY:
+            <div class="textcontent">	
 <%
-            for (int i = 0; i < currentLimits.length; i++)
-            {
+    for (int i = 0; i < currentLimits.length; i++)
+    {
 %>
-              <br />
-              <%=currentLimits[i]%>
+              <fieldset>
+                <legend>
+                  <%=currentLimits[i].getName()%>
+                </legend>
+                <p>
+                  <%=currentLimits[i].getHelpText()%>
+                </p>
+                <blockquote>
+                  <%=LimitRenderer.render(currentLimits[i])%>
+                </blockquote>
+              </fieldset>
 <%
-            }
+    }
+%>
+            </div> <!-- textcontent -->
+<%
   }
 %>
 		 

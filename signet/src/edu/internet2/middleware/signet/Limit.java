@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.5 2005-02-14 02:33:28 acohen Exp $
-$Date: 2005-02-14 02:33:28 $
+$Id: Limit.java,v 1.6 2005-02-15 00:31:20 acohen Exp $
+$Date: 2005-02-15 00:31:20 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -64,4 +64,10 @@ public interface Limit
 	 * before higher numbers.
 	 */
 	public int getDisplayOrder();
+	
+	/**
+	 * A Limit's DataType can be used to fine-tune its display to a user.
+	 * @return the DataType of this Limit.
+	 */
+	public DataType getDataType();
 }

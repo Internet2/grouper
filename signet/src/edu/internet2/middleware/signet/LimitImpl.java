@@ -178,7 +178,7 @@ final class LimitImpl implements Limit
       			.getSubsystem(this.subsystemId)
       				.getChoiceSet(this.choiceSetId);
     }
-    
+
     return this.choiceSet;
   }
   
@@ -292,7 +292,7 @@ final class LimitImpl implements Limit
   /**
    * @return Returns the dataType.
    */
-  DataType getDataType()
+  public DataType getDataType()
   {
     return this.dataType;
   }
@@ -360,5 +360,15 @@ final class LimitImpl implements Limit
   void setDisplayOrder(int displayOrder)
   {
     this.displayOrder = displayOrder;
+  }
+  
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  public String toString()
+  {
+    // TODO Auto-generated method stub
+    return "[id='" + this.getId() + "]";
   }
 }

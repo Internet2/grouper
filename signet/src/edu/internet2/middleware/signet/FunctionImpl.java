@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.4 2005-02-14 02:33:28 acohen Exp $
-$Date: 2005-02-14 02:33:28 $
+$Id: FunctionImpl.java,v 1.5 2005-02-15 00:31:20 acohen Exp $
+$Date: 2005-02-15 00:31:20 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,11 +8,17 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import org.apache.commons.collections.list.LazyList;
 import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -325,7 +331,17 @@ implements Function
    */
   public Limit[] getLimitsArray()
   {
-    Set functionLimits = new HashSet();
+    Comparator displayOrderComparator
+    	= new Comparator()
+    	    {
+            public int compare(Object o1, Object o2)
+            {
+              return
+              	((Limit)o1).getDisplayOrder() - ((Limit)o2).getDisplayOrder();
+            }
+    	    };
+    	    
+    SortedSet functionLimits = new TreeSet(displayOrderComparator);
     Set permissions = this.getPermissions();
     Iterator permissionsIterator = permissions.iterator();
     
@@ -333,6 +349,17 @@ implements Function
     {
       Permission permission = (Permission)(permissionsIterator.next());
       Set permissionLimits = ((PermissionImpl)permission).getLimits();
+      
+      Iterator permissionLimitsIterator = permissionLimits.iterator();
+      while (permissionLimitsIterator.hasNext())
+      {
+        LimitImpl limitImpl = (LimitImpl)(permissionLimitsIterator.next());
+        if (this.getSignet() != null)
+        {
+          limitImpl.setSignet(this.getSignet());
+        }
+      }
+      
       functionLimits.addAll(permissionLimits);
     }
 

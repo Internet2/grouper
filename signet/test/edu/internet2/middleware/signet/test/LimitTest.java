@@ -99,6 +99,7 @@ public class LimitTest extends TestCase
       // Limit 0 contains ChoiceSet 0, Limit 1 contains ChoiceSet 1,
       // and so forth.
       ChoiceSet choiceSet = limit.getChoiceSet();
+      assertNotNull(choiceSet);
       assertEquals
       	(choiceSet,
       	 signet.getChoiceSet(fixtures.makeChoiceSetId(limitIndex)));

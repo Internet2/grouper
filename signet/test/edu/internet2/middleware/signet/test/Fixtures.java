@@ -273,7 +273,7 @@ public class Fixtures
       			 makeLimitName(limitNumber),
       		   makeLimitHelpText(limitNumber),
       		   Status.ACTIVE,
-      		   "dummyLimitRenderer.jsp");
+      		   "singleChoicePullDown.jsp");
     
       // Fetch that newly-stored Limit object from the subsystem.
       // This step is not really necessary, but exercises a little
