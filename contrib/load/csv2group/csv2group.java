@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.7 2004-12-06 02:10:28 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.8 2004-12-07 20:12:06 blair Exp $ 
  */
 class csv2group {
 
@@ -81,7 +81,7 @@ class csv2group {
               "', stem=`" + stem + "', extn=`" + extn + "'"
             );
             if (!_dispatch(category, action, stem, extn)) {
-              System.err.println("ERROR: " + line);
+              _verbose("Error dispatching '" + line + "'");
             }
           } else {
             System.err.println("Skipping, invalid format: '" + line + "'");
