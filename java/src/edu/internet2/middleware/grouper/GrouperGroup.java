@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.13 2004-04-30 14:14:36 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.14 2004-04-30 17:11:05 blair Exp $
  */
 public class GrouperGroup {
 
@@ -124,79 +124,6 @@ public class GrouperGroup {
    * @return  Metadata value.
    */
   public String getMetadata(String groupField) {
-    return null;
-  }
-
-  /**
-   * Returns a list of immediate members of type groupField for
-   * a {@link Grouper} group.
-   * <p>
-   * <ul>
-   *  <li>Verify that "subjectID" has VIEW and READ access to the
-   *      group for group field groupField.</li>
-   *  <li>Fetch rows with appropriate groupID, groupField, and
-   *      isImmediate values from the <i>grouper_membership</i>
-   *      table.</li>
-   * </ul>
-   *
-   * @param   groupField  Type of group field to return.
-   * @return  List of group members
-   */
-  public List immediateMembers(String groupField) {
-    return null;
-  }
-
-  /**
-   * Returns a list of effective members of type groupField for
-   * a {@link Grouper} group.
-   * <p>
-   * <ul>
-   *  <li>Verify that "subjectID" has VIEW and READ access to the
-   *      group for group field groupField.</li>
-   *  <li>Fetch rows with appropriate groupID, groupField, and
-   *      isImmediate values from the <i>grouper_membership</i>
-   *      table.</li>
-   * </ul>
-   * 
-   * @param   groupField  Type of group field to return.
-   * @return  List of group members
-   */
-  public List effectiveMembers(String groupField) {
-    return null;
-  }
-
-  /**
-   * Return a map of nonlist member data for a {@link Grouper} group.
-   * <p>
-   * <ul>
-   *  <li>Verify that "subjectID" has READ access to the group
-   *      metadata</li>
-   *  <li>Fetch rows with appropriate groupID from the 
-   *      <i>grouper_metadata</i> table.</li>
-   *  <li>XXX This name sucks.</li>
-   * </ul>
-   *
-   * @return  Map of group metadata.
-   */
-  public Map nonListData() {
-    return null;
-  }
-
-  /**
-   * Return a map of nonlist member data for a {@link Grouper} group.
-   * <p>
-   * <ul>
-   *  <li>Verify that "subjectID" has READ access to the group
-   *      metadata</li>
-   *  <li>Fetch row(s) with appropriate groupID and groupField from
-   *      the <i>grouper_metadata</i> table.</li>
-   *  <li>XXX This name sucks.</li>
-   * </ul>
-   *
-   * @param   groupField Type of group field to return.
-   * @return  Metadata value.
-   */
-  public String nonListData(String groupField) {
     return null;
   }
 
