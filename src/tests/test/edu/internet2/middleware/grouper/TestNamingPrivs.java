@@ -88,7 +88,7 @@ public TestNamingPrivs(String name) {
 
   // Test requirements for other *real* tests
   public void testRequirements() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
@@ -136,10 +136,10 @@ public TestNamingPrivs(String name) {
     Assert.assertTrue( ns2.attribute("extension").value().equals(Util.ns2e) );
     // Fetch the members
     // Fetch m0
-    GrouperMember m0 = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m0 = GrouperMember.load(Util.m0i, Util.m0t);
     Assert.assertNotNull(m0);
     // Fetch m1
-    GrouperMember m1 = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m1 = GrouperMember.load(Util.m1i, Util.m1t);
     Assert.assertNotNull(m1);
 
     // We're done
@@ -147,7 +147,7 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas0() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -164,7 +164,7 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas1() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -181,7 +181,7 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas2() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -198,7 +198,7 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas3() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -215,14 +215,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas4() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup ns = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
@@ -234,14 +234,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas5() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup ns = GrouperGroup.load(s, stem00, extn00, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
@@ -253,14 +253,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas6() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup ns = GrouperGroup.load(s, stem1, extn1, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
@@ -272,14 +272,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas7() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup ns = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
@@ -291,14 +291,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testGrant0() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Grant STEM to m
     Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_STEM) );
     // We're done
@@ -306,14 +306,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas8() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -325,14 +325,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testGrant1() {
-    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Grant CREATE to m
     Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
@@ -340,14 +340,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas9() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -359,14 +359,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testGrant2() {
-    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Grant CREATE to m
     Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
@@ -374,14 +374,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas10() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -393,14 +393,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testGrant3() {
-    Subject subj  = GrouperSubject.lookup(Util.m1i, Util.m1t);
+    Subject subj  = GrouperSubject.load(Util.m1i, Util.m1t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Fail to grant STEM to self
     Assert.assertFalse( Grouper.naming().grant(s, g, m, Grouper.PRIV_STEM) );
     // We're done
@@ -408,14 +408,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas11() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -427,14 +427,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testRevoke0() {
-    Subject subj  = GrouperSubject.lookup(Util.m1i, Util.m1t);
+    Subject subj  = GrouperSubject.load(Util.m1i, Util.m1t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Fail to revoke CREATE from self
     Assert.assertFalse( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
@@ -442,14 +442,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas12() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -461,14 +461,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testRevoke1() {
-    Subject subj  = GrouperSubject.lookup(Util.m1i, Util.m1t);
+    Subject subj  = GrouperSubject.load(Util.m1i, Util.m1t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Fail to revoke CREATE from m0
     Assert.assertFalse( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
@@ -476,14 +476,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas13() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -495,14 +495,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testRevoke2() {
-    Subject subj  = GrouperSubject.lookup(Util.m1i, Util.m1t);
+    Subject subj  = GrouperSubject.load(Util.m1i, Util.m1t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // m1 !revoke m0, STEM
     Assert.assertFalse( Grouper.naming().revoke(s, g, m, Grouper.PRIV_STEM) );
     // We're done
@@ -510,14 +510,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas14() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -530,14 +530,14 @@ public TestNamingPrivs(String name) {
 
 
   public void testRevoke3() {
-    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // m0 revoke m1, CREATE
     Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
@@ -545,14 +545,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas15() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -565,14 +565,14 @@ public TestNamingPrivs(String name) {
 
 
   public void testRevoke4() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // root revoke m0, CREATE
     Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
@@ -580,14 +580,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas16() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
@@ -600,14 +600,14 @@ public TestNamingPrivs(String name) {
 
 
   public void testRevoke5() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // root revoke m0, STEM
     Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_STEM) );
     // We're done
@@ -615,14 +615,14 @@ public TestNamingPrivs(String name) {
   }
 
   public void testHas17() {
-    Subject subj  = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch ns
     GrouperGroup g = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     // Assert what privs m has on the ns
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);

@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.38 2004-12-06 00:52:22 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.39 2004-12-06 02:10:28 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -149,7 +149,7 @@ public class GrouperAccessImpl implements GrouperAccess {
   public List has(GrouperSession s, GrouperGroup g) {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
-    GrouperMember m     = GrouperMember.lookup( s.subject() );
+    GrouperMember m     = GrouperMember.load( s.subject() );
     Iterator      iter  = privMap.keySet().iterator();
     while (iter.hasNext()) {
       String  priv  = (String) iter.next();
@@ -172,7 +172,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      GrouperMember m     = GrouperMember.lookup( s.subject() ); 
+      GrouperMember m     = GrouperMember.load( s.subject() ); 
       privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
     } 
     // TODO Throw exception if invalid priv?
@@ -218,7 +218,7 @@ public class GrouperAccessImpl implements GrouperAccess {
       if (this._isRoot(s)) {
         rv = true;
       } else {
-        GrouperMember m = GrouperMember.lookup( s.subject() );
+        GrouperMember m = GrouperMember.load( s.subject() );
         rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
       }
     } else {

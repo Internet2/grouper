@@ -90,7 +90,7 @@ public class TestNamespaces extends TestCase {
 
   // Fetch a non-existent namespaces
   public void testGroupsExistFalse() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -108,7 +108,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS0() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -128,7 +128,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS1() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -148,7 +148,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS2() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -168,7 +168,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS3() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -188,7 +188,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS0() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -209,7 +209,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS1() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -230,7 +230,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS2() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -251,7 +251,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS3() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 

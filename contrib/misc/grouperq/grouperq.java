@@ -37,7 +37,7 @@ import  org.apache.commons.cli.*;
  * </ol>
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.5 2004-12-06 00:16:29 blair Exp $
+ * @version $Id: grouperq.java,v 1.6 2004-12-06 02:10:28 blair Exp $
  */
 class grouperq {
 
@@ -109,7 +109,7 @@ class grouperq {
              subj.getId() + ":"              +
              subj.getSubjectType().getId()
             );
-    mem = GrouperMember.lookup(subj);
+    mem = GrouperMember.load(subj);
     _verbose("Loaded member " + mem.subjectID() + ":" + mem.typeID());
   }
 
@@ -223,7 +223,7 @@ class grouperq {
     }
     _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = GrouperSubject.lookup(subjectID, Grouper.DEF_SUBJ_TYPE);
+    subj = GrouperSubject.load(subjectID, Grouper.DEF_SUBJ_TYPE);
   }
 
   /* (!javadoc)

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.128 2004-12-06 01:29:20 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.129 2004-12-06 02:10:28 blair Exp $
  */
 public class GrouperGroup {
 
@@ -259,7 +259,7 @@ public class GrouperGroup {
         if        (value == null) {
           // Delete an existing attribute
           this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+          GrouperMember mem = GrouperMember.load( this.gs.subject());
           this.setModifySubject( mem.key() );
           if (
               (this._canModAttr(this.gs, this))             &&
@@ -287,7 +287,7 @@ public class GrouperGroup {
                                   );
           if (initialized == true) {
             this.setModifyTime(    GrouperGroup._now()       );
-            GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+            GrouperMember mem = GrouperMember.load( this.gs.subject());
             this.setModifySubject( mem.key() );
             if (
                 (attr != null)                              && 
@@ -319,7 +319,7 @@ public class GrouperGroup {
                                     this.key, attribute, value
                                   );
           this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+          GrouperMember mem = GrouperMember.load( this.gs.subject());
           this.setModifySubject( mem.key() );
           if (
               (attr != null)                              &&
@@ -774,7 +774,7 @@ public class GrouperGroup {
            *      handled by Hibernate interceptors.  A task for another day.
            */
           g.setCreateTime(    GrouperGroup._now() );
-          GrouperMember mem = GrouperMember.lookup( s.subject() );
+          GrouperMember mem = GrouperMember.load( s.subject() );
           g.setCreateSubject( mem.key() );
 
           // Verify that we have everything we need to create a group
@@ -831,7 +831,7 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+    GrouperMember mem = GrouperMember.load( this.gs.subject());
     this.setModifySubject( mem.key() );
     if (GrouperBackend.listAddVal(s, this, m, list) == true) {
       rv = true;
@@ -856,7 +856,7 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+    GrouperMember mem = GrouperMember.load( this.gs.subject());
     this.setModifySubject( mem.key() );
     if (GrouperBackend.listDelVal(s, this, m, list) == true) {
       rv = true;
@@ -878,7 +878,7 @@ public class GrouperGroup {
     if (memberKey != null) {
       GrouperMember mem = GrouperBackend.member(memberKey);
       if (mem != null) {
-        subj = GrouperSubject.lookup(mem.subjectID(), mem.typeID());
+        subj = GrouperSubject.load(mem.subjectID(), mem.typeID());
       }
     }
     if (subj == null) {

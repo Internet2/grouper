@@ -86,7 +86,7 @@ public class TestGroupLists extends TestCase {
 
 
   public void testAddListData0() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -97,10 +97,10 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.lookup("blair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m0      = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.lookup("notblair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g0.listAddVal(s, m0) );
@@ -114,7 +114,7 @@ public class TestGroupLists extends TestCase {
     // g0 (m0)  ()
     // g1 ()    ()
     // g2 (m1)  ()
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -204,7 +204,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testFetchInvalidListData0() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -247,7 +247,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddInvalidListData0() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -258,10 +258,10 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.lookup("blair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m0      = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.lookup("notblair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
    // FIXME  (#269) Assert.assertFalse( g0.listAddVal(s, m0, "invalid members") );
@@ -272,7 +272,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddListData1() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -283,7 +283,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     // Fetch g1 as m0
-    GrouperMember   m0      = GrouperMember.lookup( g1.id(), "group");
+    GrouperMember   m0      = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m0);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g0.listAddVal(s, m0) );
@@ -295,7 +295,7 @@ public class TestGroupLists extends TestCase {
     // g0 (m0, g1)  ()
     // g1 ()        ()
     // g2 (m1)      ()
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -385,7 +385,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddListData2() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -396,7 +396,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch g2 as m0
-    GrouperMember   m0      = GrouperMember.lookup( g2.id(), "group");
+    GrouperMember   m0      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m0);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g0.listAddVal(s, m0) );
@@ -410,7 +410,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()            ()
     // g2 (m1)          ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -500,7 +500,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testRemoveListData0() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -511,10 +511,10 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.lookup("blair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m0      = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.lookup("notblair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Remove m0 from g0 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g0.listDelVal(s, m0) );
@@ -528,7 +528,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()        ()
     // g2 (m1)      ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -618,7 +618,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testRemoveListData2() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -629,7 +629,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g1    = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     // Fetch g1 as m1
-    GrouperMember   m1      = GrouperMember.lookup( g1.id(), "group");
+    GrouperMember   m1      = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m1);
     // Remove m1 (g1) from g0 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g0.listDelVal(s, m1) );
@@ -643,7 +643,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()    ()
     // g2 (m1)  ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -733,7 +733,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testRemoveListData3() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -744,7 +744,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch g2 as m2
-    GrouperMember   m2      = GrouperMember.lookup( g2.id(), "group");
+    GrouperMember   m2      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m2);
     // Remove m2 (g2) from g0 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g0.listDelVal(s, m2) );
@@ -758,7 +758,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()    ()
     // g2 (m1)  ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -848,7 +848,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddListData3() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -859,7 +859,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch g2 as m2
-    GrouperMember   m2      = GrouperMember.lookup( g2.id(), "group");
+    GrouperMember   m2      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m2);
     // Add m2/g2 to g0
     Assert.assertTrue( g0.listAddVal(s, m2) );
@@ -873,7 +873,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()    ()
     // g2 (m1)  ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -963,7 +963,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testRemoveListData4() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -971,10 +971,10 @@ public class TestGroupLists extends TestCase {
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch m1
-    GrouperMember   m1      = GrouperMember.lookup("notblair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Fetch g2 as m2
-    GrouperMember   m2      = GrouperMember.lookup( g2.id(), "group");
+    GrouperMember   m2      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m2);
     // Remove m1 from g2 Grouper.DEF_LIST_TYPE
     Assert.assertTrue( g2.listDelVal(s, m1) );
@@ -988,7 +988,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1078,7 +1078,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testPrep0() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1089,10 +1089,10 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g1 = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     // Fetch m1
-    GrouperMember m0 = GrouperMember.lookup("blair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember m0 = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Fetch g1 as m1
-    GrouperMember m1 = GrouperMember.lookup( g1.id(), "group");
+    GrouperMember m1 = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m1);
     // Add m0 to g1
     Assert.assertTrue( g1.listAddVal(s, m0) );
@@ -1108,7 +1108,7 @@ public class TestGroupLists extends TestCase {
     // g1 (m0)      ()
     // g2 ()        ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1166,7 +1166,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testPrep1() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1180,7 +1180,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testPrep2() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1191,7 +1191,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g1 = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     // Fetch g1 as m1
-    GrouperMember m1 = GrouperMember.lookup( g1.id(), "group");
+    GrouperMember m1 = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m1);
     // Remove g1 from g0
     Assert.assertTrue( g0.listDelVal(s, m1) );
@@ -1200,7 +1200,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testGroupDel0() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1214,7 +1214,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testPrep3() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1222,7 +1222,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g1 = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     // Fetch m0
-    GrouperMember m0 = GrouperMember.lookup("blair", Grouper.DEF_SUBJ_TYPE);
+    GrouperMember m0 = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Remove m0 from g1
     Assert.assertTrue( g1.listDelVal(s, m0) );
@@ -1231,7 +1231,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testGroupDel1() {
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1249,7 +1249,7 @@ public class TestGroupLists extends TestCase {
     // g0 (g2)  ()
     // g2 ()    ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1293,7 +1293,7 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testCreateG0() {
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -1311,7 +1311,7 @@ public class TestGroupLists extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
