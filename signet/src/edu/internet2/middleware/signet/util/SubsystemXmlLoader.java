@@ -188,46 +188,67 @@ public class SubsystemXmlLoader {
         }
     }
 
-    private void processLimit(Signet signet, Subsystem subsystem, Element rootElem)
-        throws ObjectNotFoundException {
-        List limits = rootElem.getChildren("Limit");
-        Iterator limitIter = limits.iterator();
-        while (limitIter.hasNext()) {
-            System.out.println("- - Limit");
+    private void processLimit
+      (Signet signet, Subsystem subsystem, Element rootElem)
+    throws ObjectNotFoundException
+    {
+      List limits = rootElem.getChildren("Limit");
+      Iterator limitIter = limits.iterator();
+      int limitNumber = 0;
+      
+      while (limitIter.hasNext())
+      {
+        System.out.println("- - Limit");
 
-            Element limitElem = (Element) limitIter.next();
+        Element limitElem = (Element) limitIter.next();
 
-            Element limitIdElem = limitElem.getChild("Id");
-            String limitId = limitIdElem.getTextTrim();
-            System.out.println("- - - Id = " + limitId);
+        Element limitIdElem = limitElem.getChild("Id");
+        String limitId = limitIdElem.getTextTrim();
+        System.out.println("- - - Id = " + limitId);
 
-            Element limitNameElem = limitElem.getChild("Name");
-            String limitName = limitNameElem.getTextTrim();
-            System.out.println("- - - Name = " + limitName);
+        Element limitNameElem = limitElem.getChild("Name");
+        String limitName = limitNameElem.getTextTrim();
+        System.out.println("- - - Name = " + limitName);
 
-            Element limitHelpTextElem = limitElem.getChild("HelpText");
-            String limitHelpText = limitHelpTextElem.getTextTrim();
-            System.out.println("- - - HelpText = " + limitHelpText);
+        Element limitHelpTextElem = limitElem.getChild("HelpText");
+        String limitHelpText = limitHelpTextElem.getTextTrim();
+        System.out.println("- - - HelpText = " + limitHelpText);
 
-            Element limitChoiceSetElem = limitElem.getChild("LimitChoiceSet");
-            String limitChoiceSetId = limitChoiceSetElem.getTextTrim();
-            System.out.println("- - - LimitChoiceSet = " + limitChoiceSetId);
+        Element limitChoiceSetElem = limitElem.getChild("LimitChoiceSet");
+        String limitChoiceSetId = limitChoiceSetElem.getTextTrim();
+        System.out.println("- - - LimitChoiceSet = " + limitChoiceSetId);
 
-            Element rendererElem = limitElem.getChild("Renderer");
-            String rendererId = rendererElem.getTextTrim();
-            System.out.println("- - - Renderer = " + rendererId);
+        Element rendererElem = limitElem.getChild("Renderer");
+        String rendererId = rendererElem.getTextTrim();
+        System.out.println("- - - Renderer = " + rendererId);
 
-            ChoiceSet limitChoiceSet = (ChoiceSet) this.choiceSetMap.get(limitChoiceSetId);
-            if (limitChoiceSet == null) {
-                throw new ObjectNotFoundException("Limit " + limitId + " -- ChoiceSet \""
-                    + limitChoiceSetId + "\" is not defined");
-            }
-
-            Limit limit = signet.newLimit(subsystem, limitId, DataType.TEXT, limitChoiceSet,
-                    limitName, limitHelpText, Status.ACTIVE, rendererId);
-            signet.save(limit);
-            this.limitMap.put(limitId, limit);
+        ChoiceSet limitChoiceSet
+        	= (ChoiceSet) this.choiceSetMap.get(limitChoiceSetId);
+        if (limitChoiceSet == null)
+        {
+          throw new ObjectNotFoundException
+          	("Limit "
+          	 + limitId
+          	 + " -- ChoiceSet \""
+             + limitChoiceSetId + "\" is not defined");
         }
+
+        Limit limit
+        	= signet.newLimit
+        			(subsystem,
+        			 limitId,
+        			 DataType.TEXT,
+        			 limitChoiceSet,
+               limitName,
+               limitNumber,
+               limitHelpText,
+               Status.ACTIVE,
+               rendererId);
+        signet.save(limit);
+        this.limitMap.put(limitId, limit);
+        
+        limitNumber++;
+      }
     }
 
     private void processPermission(Signet signet, Subsystem subsystem, Element rootElem)
