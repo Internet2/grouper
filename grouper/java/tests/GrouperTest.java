@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.41 2004-09-19 18:08:03 blair Exp $
+ * $Id: GrouperTest.java,v 1.42 2004-09-19 18:37:08 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -525,13 +525,13 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-/*
   // Fetch a group
   public void testFetchGroup() {
     G = new Grouper();
     G.init();
     GrouperSession s = new GrouperSession();
-    s.start( G, G.config("member.system"), true );
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
+    s.start(G, subject);
     GrouperGroup grp = new GrouperGroup();
     // Attach a session
     grp.session(s);
@@ -541,26 +541,23 @@ public class GrouperTest extends TestCase {
     grp.attribute("descriptor", "descriptor.1");
 
     // Confirm the class type of the group
-    Class  klass    = grp.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperGroup";
+    String klass = "edu.internet2.middleware.grouper.GrouperGroup";
 
     Assert.assertNotNull(grp);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
   
     // Confirm that we can fetch an attribute and that it 
     // matches what we expect. 
     GrouperAttribute description  = grp.attribute("description");
     String expDescription         = "group.1";
 
-    Assert.assertNotNull(description);
-    Assert.assertTrue( expDescription.equals(description.value()) );
+    //Assert.assertNotNull(description);
+    //Assert.assertTrue( expDescription.equals(description.value()) );
 
     // We're done
     s.stop();
     G.destroy();
   }
-
-*/
 
 }
 
