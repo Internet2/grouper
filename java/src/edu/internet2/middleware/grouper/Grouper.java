@@ -62,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.75 2005-03-23 21:35:24 blair Exp $
+ * @version $Id: Grouper.java,v 1.76 2005-03-26 02:59:08 blair Exp $
  */
 public class Grouper {
 
@@ -152,6 +152,8 @@ public class Grouper {
    * PRIVATE CLASS VARIABLES 
    */
 
+  // A Hibernate session
+  private static DbSess         dbSess;
   // Is the environment initialized?
   private static boolean        initialized   = false;
   // A place to hold the run-time environment
@@ -320,6 +322,14 @@ public class Grouper {
    * PROTECTED CLASS METHODS
    */
 
+  /*
+   * Provide access to the root Hibernate session.
+   */
+  protected static DbSess dbSess() {
+    Grouper._init();
+    return dbSess;
+  }
+
   /**
    * Retrieves the {@link GrouperLog} logging object.
    * <p />
@@ -349,15 +359,18 @@ public class Grouper {
         throw new RuntimeException("Unable to read '"+ confFile + "'");
       }
 
-      // TODO Perform data validation of some sort for these tables?
-      DbSess dbSess = new DbSess();
+      /*
+       * TODO I never explicitly close this session.  Will garbage
+       *      collection and Hibernate do the right thing?  Do I
+       *      need a finalize()?  Do I need a singleton?
+       */
+      dbSess = new DbSess();
 
+      // TODO Perform data validation of some sort for these tables?
       groupFields   = GrouperField.all(dbSess);
       groupTypeDefs = GrouperTypeDef.all(dbSess);
       groupTypes    = GrouperType.all(dbSess);
       subjectTypes  = SubjectTypeImpl.all(dbSess);
-
-      dbSess.stop();
 
       initialized = true;
     }

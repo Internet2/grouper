@@ -64,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.16 2005-03-25 03:00:39 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.17 2005-03-26 02:59:08 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
@@ -97,11 +97,10 @@ public class  SubjectTypeAdapterGroupImpl
    * @return  A {@link Subject} object.
    */
   public Subject getSubject(SubjectType type, String id) {
-    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
     String  qry     = "Group.by.id";
     Subject subj    = null;
     try {
-      Query q = dbSess.session().getNamedQuery(qry);
+      Query q = Grouper.dbSess().session().getNamedQuery(qry);
       q.setString(0, id);
       try {
         // Find the group
@@ -120,7 +119,6 @@ public class  SubjectTypeAdapterGroupImpl
                   "Unable to get query " + qry + ": " + e
                 );
     }
-    dbSess.stop();
     return subj;
   }
 

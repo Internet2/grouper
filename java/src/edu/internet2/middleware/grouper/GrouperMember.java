@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.71 2005-03-25 14:20:52 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.72 2005-03-26 02:59:08 blair Exp $
  */
 public class GrouperMember {
 
@@ -85,19 +85,17 @@ public class GrouperMember {
    * Null-argument constructor for Hibernate.
    */
   public GrouperMember() {
-    this._init();
+    // Nothing
   }
 
   /* (!javadoc)
    * This should <b>only</b> be used within this class.
    */
-  protected GrouperMember(DbSess dbSess, String subjectID, String subjectTypeID) {
-    this._init();
+  protected GrouperMember(String subjectID, String subjectTypeID) {
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
   }
   private GrouperMember(GrouperSession s, String subjectID, String subjectTypeID) {
-    this._init();
     this.s              = s;
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
@@ -110,10 +108,8 @@ public class GrouperMember {
 
   // FIXME Can I kill this?
   public static GrouperMember load(Subject subj) {
-    DbSess dbSess = new DbSess();
-
     // Attempt to load an already existing member
-    GrouperMember m = loadByIdAndType(dbSess, subj);
+    GrouperMember m = loadByIdAndType(Grouper.dbSess(), subj);
     if (m == null) {
       /*
        * If the subject is valid but a matching member object does not
@@ -123,7 +119,7 @@ public class GrouperMember {
       //      `subjectID' and `subjectTypeID' passed as params to
       //      this method?
       m = new GrouperMember(
-                dbSess, subj.getId(), subj.getSubjectType().getId()
+                subj.getId(), subj.getSubjectType().getId()
               );
       // Give it a private UUID
       m.setMemberKey( new GrouperUUID().toString() );
@@ -131,12 +127,10 @@ public class GrouperMember {
       m.setMemberID(  new GrouperUUID().toString() );
 
       // Save the new member object
-      m.save(dbSess);
+      m.save(Grouper.dbSess());
 
       Grouper.log().memberAdd(m, subj);
     } 
-
-    dbSess.stop();
 
     return m;
   }
@@ -466,17 +460,6 @@ public class GrouperMember {
   /*
    * PRIVATE INSTANCE MTHODS
    */
-
-  /*
-   * Initialize instance variables.
-   */
-  private void _init() {
-    this.memberID       = null;
-    this.memberKey      = null;
-    this.s              = null;
-    this.subjectID      = null;
-    this.subjectTypeID  = null;
-  }
 
   /*
    * @return List of {@link GrouperList} objects for this member.

@@ -64,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.17 2005-03-23 21:52:49 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.18 2005-03-26 02:59:08 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter
@@ -98,11 +98,10 @@ public class  SubjectTypeAdapterPersonImpl
    * @return  A {@link Subject} object.
    */
   public Subject getSubject(SubjectType type, String id) {
-    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
     String  qry     = "SubjectImpl.by.subjectid.and.typeid";
     Subject subj    = null;
     try {
-      Query q = dbSess.session().getNamedQuery(qry);
+      Query q = Grouper.dbSess().session().getNamedQuery(qry);
       q.setString(0, id);
       q.setString(1, type.getId());
       try {
@@ -120,7 +119,6 @@ public class  SubjectTypeAdapterPersonImpl
                   "Unable to get query " + qry + ": " + e
                 );
     }
-    dbSess.stop();
     return subj;
   }
 
