@@ -19,13 +19,14 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.45 2004-11-28 01:26:56 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.46 2004-11-28 05:00:02 blair Exp $
  */
 public class GrouperMember {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
+  private String memberID;
   private String memberKey;
   private String subjectID;
   private String subjectTypeID;
@@ -90,8 +91,10 @@ public class GrouperMember {
                                subj.getId(),
                                subj.getSubjectType().getId()
                               );
-    // Give it a UUID
+    // Give it a private UUID
     member.setMemberKey( GrouperBackend.uuid() );
+    // Give it a public UUID
+    member.setMemberID(  GrouperBackend.uuid() );
 
     // Hibernate and return the member
     member = GrouperBackend.memberAdd(member);
@@ -126,33 +129,10 @@ public class GrouperMember {
     return GrouperMember.lookup(subj);
   }
 
-  /**
-   * Retrieve a {@link GrouperMember} object based upon its
-   * <i>memberKey</i>.
-   * <p>
-   * TODO This method should not remain, at least it in its current
-   *      form.  At the least it should be made <i>protected</i>.
-   *
-   * @param   subjectID     Subject ID
-   * @param   subjectTypeID Subject Type ID
-   * @param   key   <i>memberKey</i> of {@link GrouperMember} object to
-   * retrieve.
-   * @return  A {@link GrouperMember} object
-   */
-
 
   /*
    * PUBLIC INSTANCE METHODS
    */
-
-  /**
-   * Return Subject ID.
-   *
-   * @return Subject ID of the {@link GrouperMember}
-   */
-  public String id() {
-    return this.getSubjectID();
-  }
 
   /**
    * Return all group memberships of default list type for this 
@@ -223,13 +203,29 @@ public class GrouperMember {
     return GrouperBackend.listImmVals(s, this, list);
   }
 
+  /**
+   * Return member ID.
+   *
+   * @return Member ID of the {@link GrouperMember}
+   */
+  public String memberID() {
+    return this.getMemberID();
+  }
+
+  /**
+   * Return subject ID.
+   *
+   * @return Subject ID of the {@link GrouperMember}
+   */
+  public String subjectID() {
+    return this.getSubjectID();
+  }
 
   public String toString() {
-    // TODO Remove key
     return this.getClass().getName()  + ":" +
-           this.key()                 + ":" +
+           this.memberID()            + ":" +
            this.typeID()              + ":" +
-           this.id();
+           this.subjectID();
   }
 
   /**
@@ -266,6 +262,7 @@ public class GrouperMember {
    * Initialize instance variables.
    */
   private void _init() {
+    this.memberID       = null;
     this.memberKey      = null;
     this.subjectID      = null;
     this.subjectTypeID  = null;
@@ -275,6 +272,14 @@ public class GrouperMember {
   /*
    * HIBERNATE
    */
+
+  private String getMemberID() {
+    return this.memberID;
+  }
+
+  private void setMemberID(String memberID) {
+    this.memberID = memberID;
+  }
 
   private String getSubjectID() {
     return this.subjectID;
