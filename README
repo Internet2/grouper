@@ -1,6 +1,35 @@
 #
-# $Id: README,v 1.5 2004-03-21 00:13:22 blair Exp $
+# $Id: README,v 1.6 2004-03-25 01:43:20 blair Exp $
 #
+
+ -------------
+/ INTEGRATE /
+------------
+
+The API's security interface is "hard coded" to refer to list
+groupFieldIDs named "viewers" and "admins" to determine whether a given
+subject has these privileges. 
+
+This hierarchical stem creation and delegation capability is disabled
+by default. A configuration option can be used to enable it.
+
+The following characters are deemed illegal for use in groupNames,
+unless chosen as the stem hierarchy delimiter: "/", "\", "|", "?", "*",
+";", ",".
+
+- personal groups - yea or nay.
+- personal stem? e.g., personal-tbarton:blah
+  - i wonder about this one...in terms of implementation
+- do hierarchical stemming?
+- stem hierarchy delimiter
+- stem hierarchy depth
+
+- principal for API
+- principal for members table maintenance program
+
+
+XXX Have a test postgres setup as well to keep myself a bit more sane
+
 
  ---------
 / LINKS /
@@ -20,7 +49,6 @@
   + <http://members.internet2.edu/intellectualproperty.html>
 + Contract!?!?
 + Sync with "official" roadmap
-+ RDBMS tables
 + API Specification
 + Command line arguments
 + Returning errors/diagnostic messages?
@@ -31,10 +59,15 @@
 / TODO /
 -------
 
++ Cascading foreign keys for deletes (and updates?)
++ XXX Prefix table names and columns with 'grouper_'?
+  + Or provide mappings in the configuration file?
+    + Ugh
++ Describe the tables and columns!
+
 + Basically everything
 + Ant
 + Javadoc
-+ Crib package/source layout from Shibboleth
 * AuthN/AuthZ interfaces OR:
   * Management of authorization internal to Grouper.
   * Lookup and presentation of memberIDs, i.e., the opaque identifiers
