@@ -4,19 +4,20 @@ import  edu.internet2.middleware.directory.grouper.*;
 import  java.io.*;
 import  java.sql.*;
 import  java.util.List;
+import  java.util.ArrayList;
 import  java.util.Properties;
 
 /** 
- * Provides a Grouper environment.
+ * Class representing the {@link Grouper} environment.
  *
- * @author blair christensen.
- * @version $Id: Grouper.java,v 1.12 2004-04-30 19:04:39 blair Exp $
+ * @author  blair christensen.
+ * @version $Id: Grouper.java,v 1.13 2004-05-02 00:12:54 blair Exp $
  */
 public class Grouper {
 
   private Properties      conf      = new Properties();
   private String          confFile  = "grouper.cf";
-  private GrouperSession  s         = null;
+  private GrouperSession  intSess   = null;
   private List            fields    = null;
   private List            types     = null;
   private List            typedefs  = null;
@@ -29,13 +30,13 @@ public class Grouper {
   }
 
   /**
-   * Initializes {@link Grouper} environment.
+   * Initialize {@link Grouper} environment.
    * <p>
    * <ul>
-   *  <li>Reads configuration</li>
-   *  <li>Starts executive {@link GrouperSession} session used for
-   *      bootstrapping and verifying other sessions.</li>
-   *  <li>Reads and cache:</li>
+   *  <li>Reads run-time configuration file.</li>
+   *  <li>Starts executive {@link GrouperSession} used for 
+   *      boostrapping all other sessions.</li>
+   *  <li>Reads and caches the following tables:</li>
    *  <ul>
    *   <li><i>grouper_fields</i></li>
    *   <li><i>grouper_typeDefs</i></li>
@@ -53,29 +54,27 @@ public class Grouper {
     } catch (FileNotFoundException e) {
       System.err.println("Failed to find '" + confFile + "'");
     }
-    s = new GrouperSession(this);
-    s.start("GrouperSystem", true);
+    this.intSess = new GrouperSession(this);
+    this.intSess.start( this.config("member.system"), true);
   }
 
   /**
-   * Destroys {@link Grouper} environment.
+   * Destroy {@link Grouper} environment.
    * <p>
    * <ul>
-   *  <li>Stops executive {@link GrouperSession} session used for
-   *      bootstrapping and verifying other sessions.</li>
+   *  <li>Stops executive {@link GrouperSession}.</li>
    * </ul>
    */ 
   public void destroy() {
-    // Nothing -- Yet
+    this.intSess.end();
   }
 
   /**
-   * Return a {@link Grouper} configuration parameter.
+   * Fetch a {@link Grouper} configuration parameter.
    * <p>
    * <ul>
-   *  <li>Returns value of requested parameter from the internal
-   *      Map (or whatever) of runtime configuration information.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Fetches and returns value of requested run-time configuration
+   *      parameter.</li>
    * </ul> 
    * 
    * @param   parameter Requested configuration parameter.
@@ -86,27 +85,40 @@ public class Grouper {
   }
 
   /**
-   * @return  List of {@link GrouperFIeld} objects representing the
-   *   <i>grouper_fields</i> table.
+   * Provides access to {@link GrouperField} definitions.
+   * <p>
+   * The <i>grouper_fields</i> table is read and cached
+   * at {@link Grouper} initialization.
+   * 
+   * @return  List of {@link GrouperFIeld} objects.
    */
   public List getField() {
-    return null;
+    List fields = new ArrayList();
+    return fields;
   }
 
   /**
-   * @return  List of {@link GrouperType} objects representing the
-   *   <i>grouper_types</i> table.
+   * Provides access to {@link GrouperType} definitions.
+   * <p>
+   * The <i>grouper_types</i> table is read and cached at 
+   * {@link Grouper} initialization.
+   * 
+   * @return  List of {@link GrouperType} objects.
    */
   public List getType() {
-    return null;
+    List types = new ArrayList();
+    return types;
   }
 
   /**
-   * @return  List of {@link GrouperTypeDef} objects representing the
-   *   <i>grouper_typeDefs</i> table.
+   * Provides access to {@link GrouperTypeDef} definitions.
+   * <p>
+   * The <i>grouper_typeDefs</i> table is read and cached at 
+   * {@link Grouper} initialization.
    */
   public List getTypeDef() {
-    return null;
+    List typedefs = new ArrayList();
+    return typedefs;
   }
 
 }
