@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.50 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.51 2004-12-03 00:43:50 blair Exp $
  */
 public class GrouperMember {
 
@@ -273,7 +273,7 @@ public class GrouperMember {
     return new ToStringBuilder(this)                    .
       append("memberID"     , this.getMemberID()      ) .
       append("subjectTypeID", this.getSubjectTypeID() ) .
-      append("subjectType"  , this.getSubjectID()     ) .
+      append("subjectID"    , this.getSubjectID()     ) .
       toString();
   }
 
