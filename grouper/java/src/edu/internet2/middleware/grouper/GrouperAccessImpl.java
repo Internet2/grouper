@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.30 2004-11-28 17:09:45 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.31 2004-11-28 17:34:09 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -234,6 +234,31 @@ public class GrouperAccessImpl implements GrouperAccess {
         rv = true;
       }
     } 
+    // TODO I should probably throw an exception if invalid priv
+    return rv;
+  }
+
+  /**
+   * Revoke all privileges of the specified type on the specified
+   * group.
+   * <p />
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   priv  Privilege to revoke.
+   */
+  public boolean revoke(GrouperSession s, GrouperGroup g, String priv) {
+    GrouperAccessImpl._init();
+    boolean rv = false;
+    if (this.can(priv) == true) {
+      Iterator iter = this.whoHas(s, g, priv).iterator();
+      while (iter.hasNext()) {
+        GrouperMember m = (GrouperMember) iter.next();
+        this.revoke(s, g, m, priv);
+      }
+      rv = true; // FIXME
+    }
+    // TODO Should this return a list of deleted members?
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
