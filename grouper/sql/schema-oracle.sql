@@ -1,7 +1,7 @@
 
 -- 
 -- Grouper Database Schema
--- $Id: schema-oracle.sql,v 1.2 2005-02-16 20:23:08 blair Exp $
+-- $Id: schema-oracle.sql,v 1.3 2005-02-16 20:39:54 blair Exp $
 -- 
 
 DROP TABLE grouper_attribute;
