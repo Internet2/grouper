@@ -14,7 +14,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public interface HTMLLimitRenderer
+interface HTMLLimitRenderer
 {
   /**
    * @param string

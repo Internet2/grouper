@@ -16,7 +16,7 @@
 		<timestamp name="modifyDatetime"/>
 	
 		<property
-			name="displayValue" type="string" not-null="true"/>
+			name="displayValue" column="label" type="string" not-null="true"/>
 		<property
 			name="rank" type="integer" not-null="true"/>
 		<property

@@ -89,12 +89,12 @@
           <forward name="success" path="/org-browse.jsp" />
       </action>
 
-      <!-- Signet limits-selection page -->
-      <action    path="/Limits"
-                 type="edu.internet2.middleware.signet.ui.LimitsAction">
+      <!-- Signet conditions-selection page -->
+      <action    path="/Conditions"
+                 type="edu.internet2.middleware.signet.ui.ConditionsAction">
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
-          <forward name="success" path="/limits.jsp" />
+          <forward name="success" path="/conditions.jsp" />
       </action>
 
       <!-- Signet grant-confirmation page -->

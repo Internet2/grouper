@@ -75,7 +75,7 @@
 			cascade="save-update"
 			not-null="true">
 			
-			<column name="scopeTreeID"/>
+			<column name="scopeID"/>
 			<column name="scopeNodeID"/>
 		</many-to-one>
 		
@@ -92,6 +92,7 @@
 			type="boolean"
 			not-null="true"/>
 			
+<!--
 		<property name="effectiveDate" type="timestamp" not-null="true"/>
 		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
@@ -101,5 +102,6 @@
 		<property name="modifyUserID" type="string" not-null="false"/>
 		<property name="modifyContext" type="string" not-null="false"/>
 		<property name="comment" type="string" not-null="false"/>
+-->
 	</class>
 </hibernate-mapping>

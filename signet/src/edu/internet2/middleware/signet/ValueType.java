@@ -7,10 +7,9 @@
 package edu.internet2.middleware.signet;
 
 /**
- * @author acohen
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * This is a typesafe enumeration that identifies the various types that a
+ * Signet Limit-value may have.
+ *  
  */
 public class ValueType
 	extends TypeSafeEnumeration

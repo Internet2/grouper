@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.3 2005-02-01 19:48:20 acohen Exp $
-$Date: 2005-02-01 19:48:20 $
+$Id: Limit.java,v 1.4 2005-02-03 00:49:42 acohen Exp $
+$Date: 2005-02-03 00:49:42 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,14 +11,23 @@ package edu.internet2.middleware.signet;
 
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
+/**
+* Limit organizes a group of {@link Choice}s. Each Assignment definition
+* includes some number of Limits.
+* 
+*/
+
 public interface Limit
 {
 	/**
+	 * Get the ID of this Limit.
+	 * 
 	 * @return the limit ID.
 	 */
 	public String getId();
 	
 	/**
+	 * Get the ChoiceSet associated with this Limit.
 	 * 
 	 * @return the ChoiceSet associated with this Limit.
 	 * @throws ObjectNotFoundException
@@ -26,12 +35,24 @@ public interface Limit
 	public ChoiceSet getChoiceSet() throws ObjectNotFoundException;
 	
 	/**
+	 * Get the name of this Limit.
+	 * 
 	 * @return the limit name.
 	 */
 	public String getName();
 	
 	/**
+	 * Get the help-text associated with this Limit.
+	 * 
 	 * @return the help text for this limit.
 	 */
 	public String getHelpText();
+	
+	/**
+	 * Get the renderer associated with this Limit.
+	 * 
+	 * @return the renderer for this Limit, which is the name of a JSP file
+	 * that implements a Struts Tile for display of this Limit.
+	 */
+	public String getRenderer();
 }

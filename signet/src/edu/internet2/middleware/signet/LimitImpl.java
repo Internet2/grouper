@@ -32,6 +32,9 @@ final class LimitImpl implements Limit
   private String						helpText;
   private Date							modifyDatetime;
   private Status						status;
+  private String						renderer;
+  
+  private final String			limitType="reserved";
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -44,15 +47,15 @@ final class LimitImpl implements Limit
 
   
   LimitImpl
-    (Signet							signet,
-     Subsystem					subsystem,
-     String 						id,
-     ValueType					valueType,
-     ChoiceSet					choiceSet,
-     HTMLLimitRenderer	htmlRenderer,
-     String 						name,
-     String 						helpText,
-     Status							status)
+    (Signet			signet,
+     Subsystem	subsystem,
+     String 		id,
+     ValueType	valueType,
+     ChoiceSet	choiceSet,
+     String 		name,
+     String 		helpText,
+     Status			status,
+     String			renderer)
   {
     super();
     this.setSignet(signet);
@@ -65,6 +68,7 @@ final class LimitImpl implements Limit
     this.name = name;
     this.helpText = helpText;
     this.status = status;
+    this.renderer = renderer;
   }
   
   void setSignet(Signet signet)
@@ -114,15 +118,6 @@ final class LimitImpl implements Limit
   void setHelpText(String helpText)
   {
     this.helpText = helpText;
-  }
-  
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Limit#getHTMLselections(javax.servlet.http.HttpServletRequest)
-   */
-  public Set getHTMLselections(HttpServletRequest request)
-  {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   /* (non-Javadoc)
@@ -279,19 +274,14 @@ final class LimitImpl implements Limit
     this.status = status;
   }
   
-  void setShape(LimitShape shape)
+  void setRenderer(String renderer)
   {
-    // This method is not yet implemented, and exists only to
-    // satisfy Hibernate's mapping to the not-yet-used (but not-null)
-    // column in the database.
+      this.renderer = renderer;
   }
   
-  LimitShape getShape()
+  public String getRenderer()
   {
-    // This method is not yet implemented, and exists only to
-    // satisfy Hibernate's mapping to the not-yet-used (but not-null)
-    // column in the database.
-    return LimitShape.CHOICE_SET;
+      return this.renderer;
   }
   
   /**
@@ -308,5 +298,21 @@ final class LimitImpl implements Limit
   void setValueType(ValueType valueType)
   {
     this.valueType = valueType;
+  }
+  
+  /**
+   * @return Returns the limitType.
+   */
+  String getLimitType()
+  {
+    return this.limitType;
+  }
+  
+  /**
+   * @param limitType The limitType to set.
+   */
+  void setLimitType(String limitType)
+  {
+    // This method does nothing, and is just a place-holder.
   }
 }

@@ -29,9 +29,7 @@
 		<!-- The limitType can be a Tree or a ChoiceSet.
 			 For the moment, only a ChoiceSet is possible. -->
 		<property
-			name="shape"
-			column="limitType"
-			type="edu.internet2.middleware.signet.LimitShapeType"
+			name="limitType"
 			not-null="true">
 		</property>
 		
@@ -59,6 +57,14 @@
 		<property
 			name="valueType"
 			type="edu.internet2.middleware.signet.ValueTypeType"
+			not-null="true">
+		</property>
+		
+		<!-- The presentationClass is the name of a JSP file that implements
+			 a Struts Tile which displays this Limit. -->
+		<property
+			name="renderer"
+			column="presentationClass"
 			not-null="true">
 		</property>
 	</class>

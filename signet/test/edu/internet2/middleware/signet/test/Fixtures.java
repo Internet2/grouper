@@ -8,7 +8,6 @@ package edu.internet2.middleware.signet.test;
 
 import javax.naming.OperationNotSupportedException;
 
-import edu.internet2.middleware.signet.HTMLLimitRenderer;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
@@ -147,9 +146,7 @@ public class Fixtures
       			(makeLimitId(limitNumber));
     }
     catch (ObjectNotFoundException onfe)
-    {
-      HTMLLimitRenderer htmlRenderer = new HTMLRendererImpl();
-      
+    {      
       // Limit 0 contains ChoiceSet 0, Limit 1 contains ChoiceSet 1,
       // and so forth.
       limit
@@ -158,10 +155,10 @@ public class Fixtures
       			 makeLimitId(limitNumber),
       			 makeLimitValueType(limitNumber),
       			 subsystem.getChoiceSet(makeChoiceSetId(limitNumber)),
-      			 htmlRenderer,
       			 makeLimitName(limitNumber),
       		   makeLimitHelpText(limitNumber),
-      		   Status.ACTIVE);
+      		   Status.ACTIVE,
+      		   "dummyLimitRenderer.jsp");
     }
       
     signet.save(limit);

@@ -1,6 +1,6 @@
 /*--
- $Id: LimitShape.java,v 1.1 2005-02-01 19:48:20 acohen Exp $
- $Date: 2005-02-01 19:48:20 $
+ $Id: LimitShape.java,v 1.2 2005-02-03 00:49:42 acohen Exp $
+ $Date: 2005-02-03 00:49:42 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@ package edu.internet2.middleware.signet;
  * a Signet Limit may have.
  *  
  */
-public class LimitShape
+class LimitShape
 	extends TypeSafeEnumeration
 {
   /**

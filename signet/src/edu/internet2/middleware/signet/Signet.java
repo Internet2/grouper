@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.9 2005-02-01 19:48:20 acohen Exp $
- $Date: 2005-02-01 19:48:20 $
+ $Id: Signet.java,v 1.10 2005-02-03 00:49:42 acohen Exp $
+ $Date: 2005-02-03 00:49:42 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -2208,10 +2208,10 @@ public final class Signet
   	 String 			id,
   	 ValueType		valueType,
   	 ChoiceSet 		choiceSet,
-  	 HTMLLimitRenderer	htmlRenderer,
   	 String	   		name,
   	 String 			helpText,
-  	 Status				status)
+  	 Status				status,
+  	 String				renderer)
   {
     Limit limit
     	= new LimitImpl
@@ -2220,10 +2220,10 @@ public final class Signet
     			 id,
     			 valueType,
     			 choiceSet,
-    			 htmlRenderer,
     			 name,
     			 helpText,
-    			 status);
+    			 status,
+    			 renderer);
     
     subsystem.add(limit);
     
