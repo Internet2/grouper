@@ -58,7 +58,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class representing a via (or lack of via) relationship.
  *
  * @author  blair christensen.
- * @version $Id: GrouperVia.java,v 1.5 2004-11-30 01:36:26 blair Exp $
+ * @version $Id: GrouperVia.java,v 1.6 2004-11-30 02:26:53 blair Exp $
  */
 public class GrouperVia {
 
@@ -94,13 +94,16 @@ public class GrouperVia {
    */
 
   /**
-   * TODO
+   * Return a string representation of the {@link GrouperVia} object.
+   * <p />
+   *
+   * @return  String representation of the object.
    */
   public String toString() {
-    return new ToStringBuilder(this).
-      append("member", this.member).
-      append("group", this.group).
-      append("via", this.via).
+    return new ToStringBuilder(this)    .
+      append("member",  this.member() ) .
+      append("group",   this.group()  ) .
+      append("via",     this.via()    ) .
       toString();
   }
 

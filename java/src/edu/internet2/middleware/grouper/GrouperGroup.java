@@ -53,13 +53,14 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.89 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.90 2004-11-30 02:26:53 blair Exp $
  */
 public class GrouperGroup {
 
@@ -429,17 +430,18 @@ public class GrouperGroup {
   }
 
   /**
-   * Returns a string representation of the {@link GrouperGroup}
+   * Return a string representation of the {@link GrouperSchema}
    * object.
-   *
-   * @return  A string representation of the object.
+   * <p />
+   * @return String representation of the object.
    */
   public String toString() {
-    // TODO Switch to toString builder...
-    return this.getClass().getName()              + ":" +
-           this.id                                + ":" + 
-           this.attribute("stem").value()         + ":" +
-           this.attribute("extension").value();
+    return new ToStringBuilder(this)                            .
+      append("type"     , this.type()                         ) .
+      append("id"       , this.getGroupID()                   ) .
+      append("stem"     , this.attribute("stem").value()      ) .
+      append("extension", this.attribute("extension").value() ) .
+      toString();
   }
 
 

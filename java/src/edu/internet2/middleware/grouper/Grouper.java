@@ -56,7 +56,6 @@ import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.lang.reflect.*;
 import  java.util.*;
-import  org.apache.commons.lang.builder.ToStringBuilder;
 import  org.apache.log4j.*;
 
 
@@ -64,7 +63,7 @@ import  org.apache.log4j.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.51 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: Grouper.java,v 1.52 2004-11-30 02:26:53 blair Exp $
  */
 public class Grouper {
 

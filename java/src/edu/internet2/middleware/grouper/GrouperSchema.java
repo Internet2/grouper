@@ -54,13 +54,14 @@ package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.13 2004-11-30 01:36:26 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.14 2004-11-30 02:26:53 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -107,8 +108,19 @@ public class GrouperSchema implements Serializable {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
+  /**
+   * Return a string representation of the {@link GrouperSchema}
+   * object.
+   * <p />
+   * TODO Do I want to add in `key'?  Or perhaps, given the key,
+   *      return the group `id'?
+   * 
+   * @return String representation of the object.
+   */
   public String toString() {
-    return this.getGroupKey() + ":" + this.getGroupType();
+    return new ToStringBuilder(this)      .
+      append("type", this.getGroupType()) .
+      toString();
   }
 
   public String type() {
