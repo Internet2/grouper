@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.144 2004-12-09 02:26:05 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.145 2004-12-09 04:29:58 blair Exp $
  */
 public class GrouperGroup {
 
@@ -330,35 +330,25 @@ public class GrouperGroup {
           GrouperAttribute attr = GrouperBackend.attrAdd(
                                     this.key, attribute, value
                                   );
-          if (initialized == true) {
-            this.setModifyTime(    GrouperGroup._now()       );
-            GrouperMember mem = GrouperMember.load( s.subject());
-            this.setModifySubject( mem.key() );
-            if (
-                (attr != null)                        && 
-                (this._canModAttr(s, this))           &&
-                (this._attrAdd(attribute, attr))      &&
-                (GrouperBackend.groupUpdate(s, this)) 
-               )
-            {
-              rv = true;
-            }
-            Grouper.log().groupAttrAdd(rv, s, this, attribute, value);
-            if (rv != true) {
-              // We only need to revert modify* attr changes as there is
-              // no attribute value to revert back to in this case.
-              this.setModifyTime(curModTime);
-              this.setModifySubject(curModSubj);
-              rv = false; // TODO Overkill?
-            }
-          } else {
-            if (
-                (attr != null)                   &&
-                (this._attrAdd(attribute, attr))
-               )
-            {
-              rv = true;
-            }
+          this.setModifyTime(    GrouperGroup._now()       );
+          GrouperMember mem = GrouperMember.load( s.subject());
+          this.setModifySubject( mem.key() );
+          if (
+              (attr != null)                        && 
+              (this._canModAttr(s, this))           &&
+              (this._attrAdd(attribute, attr))      &&
+              (GrouperBackend.groupUpdate(s, this)) 
+             )
+          {
+            rv = true;
+          }
+          Grouper.log().groupAttrAdd(rv, s, this, attribute, value);
+          if (rv != true) {
+            // We only need to revert modify* attr changes as there is
+            // no attribute value to revert back to in this case.
+            this.setModifyTime(curModTime);
+            this.setModifySubject(curModSubj);
+            rv = false; // TODO Overkill?
           }
         } else {
           // Update attribute value
