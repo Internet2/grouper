@@ -63,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.83 2005-03-14 19:16:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.84 2005-03-15 16:13:25 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -266,7 +266,7 @@ public class GrouperSession implements Serializable {
 
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
-    this.setSessionID( GrouperBackend.uuid() );
+    this.setSessionID( new GrouperUUID().toString() );
     java.util.Date now = new java.util.Date();
     this.setStartTime( Long.toString(now.getTime()) );
 

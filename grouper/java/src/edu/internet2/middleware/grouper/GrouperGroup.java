@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.169 2005-03-11 02:55:44 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.170 2005-03-15 16:13:25 blair Exp $
  */
 public class GrouperGroup {
 
@@ -996,8 +996,8 @@ public class GrouperGroup {
           // TODO Can I move all|most of this to GrouperBackend?
           g = new GrouperGroup();
           // Generate the UUIDs
-          g.setGroupKey( GrouperBackend.uuid() );
-          g.setGroupID(  GrouperBackend.uuid() );
+          g.setGroupKey( new GrouperUUID().toString() );
+          g.setGroupID(  new GrouperUUID().toString() ); 
 
           // Set attributes
           GrouperAttribute stem_attr = new GrouperAttribute(

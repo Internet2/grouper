@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.63 2005-03-14 19:17:16 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.64 2005-03-15 16:13:25 blair Exp $
  */
 public class GrouperMember {
 
@@ -145,9 +145,9 @@ public class GrouperMember {
                                  subj.getSubjectType().getId()
                                 );
       // Give it a private UUID
-      member.setMemberKey( GrouperBackend.uuid() );
+      member.setMemberKey( new GrouperUUID().toString() );
       // Give it a public UUID
-      member.setMemberID(  GrouperBackend.uuid() );
+      member.setMemberID(  new GrouperUUID().toString() );
 
       // Hibernate and return the member
       member = GrouperBackend.memberAdd(dbSess, member);
