@@ -4,7 +4,7 @@ package edu.internet2.middleware.directory.grouper;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.5 2004-04-28 16:12:38 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.6 2004-04-28 16:24:42 blair Exp $
  */
 public class GrouperSession {
 
@@ -92,6 +92,22 @@ public class GrouperSession {
    * </ul>
    */
   public void end() { 
+    // Nothing -- Yet
+  }
+
+  /**
+   * Identifies subject that a given session is running as.
+   * <p>
+   * <ul>
+   *  <li>Calls the internal {@link GrouperMember} object's
+   *     <i>whoami</i> method.</li>
+   *  <li>XXX Add to docs/examples/.</li>
+   * </ul>
+   *
+   * @return String representing the <i>memberID</i> for this session's
+   * subject.
+   */
+  public String whoami() {
     // Nothing -- Yet
   }
 
