@@ -18,14 +18,13 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.6 2004-11-05 19:21:36 blair Exp $
+ * @version $Id: GrouperList.java,v 1.7 2004-11-06 03:57:09 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
   private String  groupKey;
   private String  groupField;
   private String  memberKey;
-  private boolean isImmediate;
   private String  via;
   private String  removeAfter;
 
@@ -33,7 +32,6 @@ public class GrouperMembership implements Serializable {
     groupKey    = null;
     groupField  = null;
     memberKey   = null;
-    isImmediate = false;
     via         = null;
     removeAfter = null;
   }
@@ -61,7 +59,6 @@ public class GrouperMembership implements Serializable {
     this.groupKey     = key;
     this.groupField   = field;
     this.memberKey    = subject;
-    this.isImmediate  = immediate;
   }
 
 
@@ -91,14 +88,6 @@ public class GrouperMembership implements Serializable {
 
   private void setMemberKey(String memberKey) {
     this.memberKey = memberKey;
-  }
-
-  private boolean getIsImmediate() {
-    return this.isImmediate;
-  }
-
-  private void setIsImmediate(boolean isImmediate) {
-    this.isImmediate = isImmediate;
   }
 
   private String getVia() {

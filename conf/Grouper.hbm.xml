@@ -37,13 +37,8 @@
       <key-property name="groupKey"   type="string" column="groupKey"/>
       <key-property name="groupField" type="string" column="groupField"/>
       <key-property name="memberKey"  type="string" column="memberKey"/>
+      <key-property name="via"        type="string" column="via"/>
     </composite-id>
-    <property name="isImmediate">
-      <column name="isImmediate" length="255" not-null="true"/>
-    </property>
-    <property name="via">
-      <column name="via" length="255"/>
-    </property>
     <property name="removeAfter">
       <column name="removeAfter" length="255"/>
     </property>
