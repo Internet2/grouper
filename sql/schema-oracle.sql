@@ -35,6 +35,7 @@ CREATE TABLE grouper_group (
 
 DROP TABLE grouper_list;
 CREATE  TABLE grouper_list (
+  listKey       VARCHAR2(64) NOT NULL PRIMARY KEY,
   groupKey      VARCHAR2(64) NOT NULL,
   groupField    VARCHAR2(64) NOT NULL,
   memberKey     VARCHAR2(64) NOT NULL,

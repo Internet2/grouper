@@ -38,13 +38,14 @@
   </class>
 
   <class name="GrouperList" table="grouper_list" mutable="true">
-    <composite-id access="field">
-      <key-property name="groupKey"   type="string" column="groupKey"/>
-      <key-property name="groupField" type="string" column="groupField"/>
-      <key-property name="memberKey"  type="string" column="memberKey"/>
-      <key-property name="pathKey"    type="string" column="pathKey"/>
-      <key-property name="viaKey"     type="string" column="viaKey"/>
-    </composite-id>
+    <id name="listKey" type="string" unsaved-value="null">
+      <generator class="assigned"/>
+    </id>
+    <property name="groupKey"   type="string" column="groupKey"/>
+    <property name="groupField" type="string" column="groupField"/>
+    <property name="memberKey"  type="string" column="memberKey"/>
+    <property name="pathKey"    type="string" column="pathKey"/>
+    <property name="viaKey"     type="string" column="viaKey"/>
 <!--
     <list name="elements" table="grouper_viaElement">
       <key    column="pathKey"/>
