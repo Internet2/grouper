@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.9 2004-12-07 20:30:22 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.10 2004-12-07 21:29:18 blair Exp $ 
  */
 class csv2group {
 
@@ -69,9 +69,8 @@ class csv2group {
         String          line  = null; 
         while ((line=br.readLine()) != null){ 
           StringTokenizer st = new StringTokenizer(line, ",");
-          // FIXME Blindly assume that if we have two tokens, they are two
-          //       *good* tokens
-          if (st.countTokens() == 4) {
+          // Trust the dispatch engine to DTRT
+          if ( (st.countTokens() > 3) && (st.countTokens() < 6) ) {
             List tokens = new ArrayList();
             while (st.hasMoreTokens()) {
               tokens.add(st.nextToken());
@@ -99,9 +98,11 @@ class csv2group {
   private static boolean _dispatch(List tokens) {
     boolean rv = false;
     String cat = (String) tokens.remove(0);
-    if        (cat.equals("group")) {
+    if        (cat.equals("group"))   {
       rv = _dispatchGroup(tokens);
-    } else if (cat.equals("stem")) {
+    } else if (cat.equals("member"))  {
+      rv = _dispatchMember(tokens);
+    } else if (cat.equals("stem"))    {
       rv = _dispatchStem(tokens);
     } else {
       System.err.println("ERROR: Invalid category: `" + cat + "'");
@@ -119,6 +120,20 @@ class csv2group {
       rv = _groupAdd(tokens);
     } else {
       System.err.println("ERROR: Invalid group action: `" + act + "'");
+    }
+    return rv;
+  }
+
+  /* (!javadoc)
+   * Member Dispatch Handler
+   */
+  private static boolean _dispatchMember(List tokens) {
+    boolean rv = false;
+    String act = (String) tokens.remove(0);
+    if (act.equals("add")) {
+      rv = _memberAdd(tokens);
+    } else {
+      System.err.println("ERROR: Invalid member action: `" + act + "'");
     }
     return rv;
   }
@@ -179,6 +194,39 @@ class csv2group {
    */
   private static void _grouperStop() {
     s.stop();
+  }
+
+  /* (!javadoc)
+   * Add a member to the registry.
+   */
+  private static boolean _memberAdd(List tokens) {
+    boolean rv = false;
+    String stem = (String) tokens.get(0);
+    String extn = (String) tokens.get(1);
+    String sid  = (String) tokens.get(2);
+    // Load the group
+    GrouperGroup g = GrouperGroup.load(s, stem, extn);
+    if (g != null) {
+      // Load the member
+      Subject subj = GrouperSubject.load(sid, Grouper.DEF_SUBJ_TYPE);
+      if (subj != null) {
+        GrouperMember m = GrouperMember.load(subj);
+        if (m != null) {
+          if (g.listAddVal(s, m)) {
+            rv = true;
+            System.err.println(
+              "Added `" + sid + "' to `" + stem + "':`" + extn + "'"
+            );
+          }
+        }
+      }
+    }
+    if (rv != true) {
+      System.err.println(
+        "Failed to add `" + sid + "' to `" + stem + "':`" + extn + "'"
+      );
+    }
+    return rv;
   }
 
   /* (!javadoc)
