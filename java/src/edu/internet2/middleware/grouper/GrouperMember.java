@@ -8,7 +8,7 @@ import  java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.16 2004-04-30 18:41:42 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.17 2004-05-01 17:54:18 blair Exp $
  */
 public class GrouperMember {
 
@@ -80,7 +80,8 @@ public class GrouperMember {
    * @return  List of group memberships.
    */
   public List getMembership() {
-    return null;
+    List membership = null;
+    return membership;
   }
 
   /**
@@ -98,7 +99,8 @@ public class GrouperMember {
    * @return  List of group memberships.
    */
   public List getMembership(String groupField) {
-    return null;
+    List membership = null;
+    return membership;
   }
 
   /**
@@ -118,7 +120,8 @@ public class GrouperMember {
    * @return  List of group memberships..
    */
   public List getMembership(String groupField, boolean isImmediate) {
-    return null;
+    List membership = null;
+    return membership;
   }
 
   /**
