@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.37 2004-11-16 18:04:17 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.38 2004-11-16 19:27:12 blair Exp $
  */
 public class GrouperBackend {
 
@@ -221,7 +221,7 @@ public class GrouperBackend {
         session.save(mship);
 
         // TODO Update effective memberships
-        // XXX BROKEN! GrouperBackend._memberOf(g, list, session);
+        // TODO GrouperBackend._memberOf(session, g, list);
 
         // Commit it
         t.commit();
@@ -234,6 +234,7 @@ public class GrouperBackend {
         System.err.println(e);
         System.exit(1);
       }
+      // TODO Is this right?
       GrouperBackend._hibernateSessionClose(session);
       return true;
     } 
@@ -302,6 +303,7 @@ public class GrouperBackend {
           return true;
         } else {
           // TODO Raise an exception of some sort?
+          GrouperBackend._hibernateSessionClose(session);
           return false;
         }
       } catch (Exception e) {
@@ -538,7 +540,7 @@ public class GrouperBackend {
     Session       session = GrouperBackend._init();
     // TODO G+H Session validation 
     // TODO Priv validation
-    GrouperGroup  g       = GrouperBackend._groupLoad(session, stem, descriptor);
+    GrouperGroup g = GrouperBackend._groupLoad(session, stem, descriptor);
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
@@ -635,6 +637,13 @@ public class GrouperBackend {
   }
 
   private static GrouperGroup _groupLoad(String key) {
+    /*
+     * While most private class methods take a Session as an argument,
+     * this method does not because during the process of loading and
+     * initializing a *proper* group object, we are likely to run into
+     * non-uniqueness issues with partially loaded groups in parent
+     * sessions.
+     */
     Session       session = GrouperBackend._init();
     GrouperGroup  g       = new GrouperGroup();
 
@@ -644,10 +653,10 @@ public class GrouperBackend {
       session.load(g, key);
   
       // Its schema
-      GrouperBackend._groupLoadSchema(g, key);
+      GrouperBackend._groupLoadSchema(session, g, key);
    
       // And its attributes
-      GrouperBackend._groupLoadAttributes(g, key);
+      GrouperBackend._groupLoadAttributes(session, g, key);
 
       // FIXME Attach s to object?
 
@@ -719,19 +728,16 @@ public class GrouperBackend {
     return g;
   }
 
-  private static void _groupLoadAttributes(GrouperGroup g, String key) {
-    Session session = GrouperBackend._init();
+  private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
     // TODO Do I even need `key' passed in?
     List    attrs   = GrouperBackend.attributes(g);
     for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
       GrouperAttribute attr = (GrouperAttribute) attrIter.next();
       g.attribute( attr.field(), attr.value() );
     }
-    GrouperBackend._hibernateSessionClose(session);
   }
 
-  private static void _groupLoadSchema(GrouperGroup g, String key) { 
-    Session session = GrouperBackend._init();
+  private static void _groupLoadSchema(Session session, GrouperGroup g, String key) { 
     List    schemas = GrouperBackend.schemas(g);
     if (schemas.size() == 1) {
       GrouperSchema schema = (GrouperSchema) schemas.get(0);
@@ -741,7 +747,6 @@ public class GrouperBackend {
                          " schema definitions.");
       System.exit(1);
     }
-    GrouperBackend._hibernateSessionClose(session);
   }
 
   private static void _hibernateSessionClose(Session session) {
@@ -822,15 +827,37 @@ public class GrouperBackend {
          * - Statically instantiate a s.2/d.2 object in this method at every
          *   invocation and attempt to query it
          */
-        String        key = m.key();
-        GrouperGroup  g   = GrouperBackend._groupLoad(session, "stem.2", "desc.2");
-        GrouperMember mm  = GrouperMember.lookup( g.key(), "group" );
+        //String        key = m.key();
+        GrouperGroup g = GrouperBackend._groupLoad(session, "stem.2", "desc.2");
+        String gkey = null;
+        if ( g.exists() == true ) {
+          gkey = g.key();
+          System.err.println("GROUP EXISTS! (2|2)");
+        } else {
+          g = GrouperBackend._groupLoad(session, "stem.1", "desc.1");
+          if ( g.exists() == true ) {
+            gkey = g.key();
+            System.err.println("GROUP EXISTS! (1|1)");
+          } else {
+            g = GrouperBackend._groupLoad(session, "stem.1", "desc.1");
+            if ( g.exists() == true ) {
+              gkey = g.key();
+              System.err.println("GROUP EXISTS! (0|0)");
+            } else {
+              System.err.println("NO GROUPS SEEM TO EXIST?!?!");
+            }
+          }
+        }
+        //GrouperMember mm  = GrouperMember.lookup( g.key(), "group" );
         Query q = session.createQuery(
-          "FROM GrouperMembership AS mem "        +
-          "WHERE "                                +
-          "mem.id.memberKey='" + key + "'"        +
-          "OR "                                   +
-          "mem.id.memberKey='" + mm.key() + "'"
+          "FROM GrouperMembership AS mem"         +
+          " WHERE "                               +
+          "mem.id.groupKey='"   + gkey   + "'"    +
+          " OR "                                  +
+          "mem.id.memberKey='" + m.key() + "'"
+          //"mem.id.memberKey='" + key + "'"        +
+          //"OR "                                   +
+          //"mem.id.memberKey='" + mm.key() + "'"
         );   
         // TODO Behave different depending upon the size?
         System.err.println("QUERY: " + q.getQueryString());
@@ -849,18 +876,19 @@ public class GrouperBackend {
    * <http://middleware.internet2.edu/dir/groups/docs/internet2-mace-dir-groups-best-practices-200210.htm>
    * Section 7.1
    */
-  private static void _memberOf(GrouperGroup g, String list, Session session) {
+  private static void _memberOf(Session session, GrouperGroup g, String list) {
     // TODO Use a set instead of a list?
     List memberships  = new ArrayList();
+    // TODO Use a set instead of a list?
     List newGroups    = new ArrayList();
 
     // TODO Or should I just cheat and go straight to the GB method?
     GrouperMember m   = GrouperMember.lookup( g.key(), "group" );
     while (true) {
-      System.err.println("_memberOf: Treating group " + g);
-      System.err.println("_memberOf: as member " + m.key());
+      System.err.println("_memberOf: GROUP  " + g);
+      System.err.println("_memberOf: MEMBER " + m);
       List tmp = GrouperBackend._listVals(session, m, list);
-      System.err.println("GOT: " + tmp.size());
+      //System.err.println("GOT: " + tmp.size());
       break;
     }
     /*
