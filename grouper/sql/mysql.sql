@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.11 2004-05-01 17:06:16 blair Exp $
+-- $Id: mysql.sql,v 1.12 2004-05-01 18:29:45 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -53,8 +53,8 @@ CREATE UNIQUE INDEX grouper_members_mid_pid_idx
 CREATE TABLE grouper_membership (
   groupID           INTEGER UNSIGNED NOT NULL,
   groupField        VARCHAR(255) NOT NULL,
-  memberID          INTEGER UNSIGNED,
-  groupMemberID     INTEGER UNSIGNED,
+  memberID          VARCHAR(255) NOT NULL,
+  groupMemberID     VARCHAR(255) NOT NULL,
   -- XXX Boolean types are not supported everywhere.  Alas.  Right now
   -- XXX I am thinking that an ENUM is the most portable option.
   isImmediate       ENUM('TRUE', 'FALSE'),
@@ -184,3 +184,24 @@ INSERT INTO grouper_members (memberID, presentationID)
 INSERT INTO grouper_members (memberID, presentationID)
   VALUES ("a8cca1b06", "tbarton");
 
+-- Insert some test groups
+INSERT INTO grouper_group (groupID)
+  VALUES (1);
+INSERT INTO grouper_metadata (groupID, groupField, groupFieldValue)
+  VALUES (1, "name", "group.1");
+INSERT INTO grouper_metadata (groupID, groupField, groupFieldValue)
+  VALUES (1, "description", "this is group.1");
+INSERT INTO grouper_group (groupID)
+  VALUES (2);
+INSERT INTO grouper_metadata (groupID, groupField, groupFieldValue)
+  VALUES (2, "name", "group.2");
+INSERT INTO grouper_metadata (groupID, groupField, groupFieldValue)
+  VALUES (2, "description", "this is group.2");
+
+-- Insert some test memberships
+INSERT INTO grouper_membership (groupID, groupField, memberID, isImmediate)
+  VALUES (1, "members", "2f8996715", "TRUE");
+INSERT INTO grouper_membership (groupID, groupField, memberID, isImmediate)
+  VALUES (2, "members", "2f8996715", "TRUE");
+INSERT INTO grouper_membership (groupID, groupField, memberID, isImmediate)
+  VALUES (1, "members", "a8cca1b06", "TRUE");
