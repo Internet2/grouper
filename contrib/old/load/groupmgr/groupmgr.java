@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.4 2004-12-08 04:22:58 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.5 2004-12-08 04:35:23 blair Exp $ 
  */
 class groupmgr {
 
@@ -45,6 +45,7 @@ class groupmgr {
   private static Subject        subj;
   private static String         subjectID;
   private static boolean        toAdd;
+  private static boolean        toDel;
   private static boolean        verbose = false;
 
 
@@ -73,23 +74,38 @@ class groupmgr {
    */
   private static boolean _dispatch() {
     boolean rv = false;
-    if (toAdd == true) {
-      if (actUponG && actUponNS) {
-        System.err.println("Can only act upon one item at a time!");
-        _usage();
-      } else {
-        if        (actUponG == true)  {
-          rv = _groupAdd();
-        } else if (actUponNS == true) {
-          rv = _stemAdd();
+    if (toAdd && toDel) {
+      System.err.println("Can only add or delete, not both!");
+      _usage();
+    } else { 
+      if (toAdd == true) {
+        if (actUponG && actUponNS) {
+          System.err.println("Can only act upon one item at a time!");
+          _usage();
         } else {
-          System.err.println("No additions specified!");
+          if        (actUponG == true)  {
+            rv = _groupAdd();
+          } else if (actUponNS == true) {
+            rv = _stemAdd();
+          } else {
+            System.err.println("No additions specified!");
+            _usage();
+          }
+        }
+      } else if (toDel == true) {
+        if        (actUponG  == true) {
+          rv = _groupDel(); 
+        } else if (actUponNS == true) {
+          System.err.println("Namespace deletions not supported!");
+          _usage();
+        } else {
+          System.err.println("No deletions specified!");
           _usage();
         }
+      } else {
+        System.err.println("No actions specified!"); 
+        _usage();
       }
-    } else {
-      System.err.println("No actions specified!"); 
-      _usage();
     }
     return rv;
   }
@@ -105,13 +121,40 @@ class groupmgr {
                          s, stem, extn, Grouper.DEF_GROUP_TYPE
                        );
       if (g != null) {
-        _verbose("Added group: " + g);
+        _verbose("Added group `" + g.name() + "'");
         rv = true;
       } else {
         System.err.println(
-          "Failed to add group=`" + stem + "', extn=`" + extn + "'"
+          "Failed to add group `" + 
+          GrouperBackend.groupName(stem, extn) + "'"
         );
       }
+    }
+    return rv;
+  }
+
+  /* (!javadoc)
+   * Delete a group from the registry.
+   */
+  private static boolean _groupDel() {
+    boolean rv = false;
+    if ( (stem != null) && (extn != null) ) {
+      stem = _translateRoot(stem);
+      GrouperGroup g = GrouperGroup.load(
+                         s, stem, extn, Grouper.DEF_GROUP_TYPE
+                       );
+      if (g != null) {
+        if (GrouperGroup.delete(s, g)) {
+          rv = true;
+          _verbose("Deleted group `" + g.name() + "'");
+        }
+      }
+    }  
+    if (rv != true) {
+      System.err.println(
+        "Failed to delete group `" + 
+        GrouperBackend.groupName(stem, extn) + "'"
+      );
     }
     return rv;
   }
@@ -204,6 +247,7 @@ class groupmgr {
   private static void _optsParse(String[] args) {
     options = new Options();
     options.addOption("a", false, "Add Mode");
+    options.addOption("d", false, "Delete Mode");
     options.addOption(
                       OptionBuilder.withArgName("extension")
                         .withDescription("Specify extension to act upon")
@@ -258,7 +302,11 @@ class groupmgr {
     // And now everything else
     if (cmd.hasOption("a")) {
       toAdd   = true;
-      _verbose("Enabling adding mode");
+      _verbose("Enabling add mode");
+    }
+    if (cmd.hasOption("d")) {
+      toDel   = true;
+      _verbose("Enabling delete mode");
     }
     if (cmd.hasOption("e")) {
       extn = cmd.getOptionValue("e");
@@ -291,11 +339,12 @@ class groupmgr {
       stem = _translateRoot(stem);
       GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
       if (g != null) {
-        _verbose("Added stem: " + g);
+        _verbose("Added stem `" + g + "'");
         rv = true;
       } else {
         System.err.println(
-        "Failed to add stem=`" + stem + "', extn=`" + extn + "'"
+          "Failed to add stem `" + 
+          GrouperBackend.groupName(stem, extn) + "'"
         );
       }
     }
