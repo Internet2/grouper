@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.51 2004-10-11 20:23:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.52 2004-10-12 17:18:47 blair Exp $
  */
 public class GrouperSession {
 
@@ -85,20 +85,6 @@ public class GrouperSession {
    */
   public GrouperMember subject() {
     return (GrouperMember) this.subject;
-  }
-
-  /**
-   * Identify the subject of this session.
-   * <p>
-   * <ul>
-   *  <li>Calls <i>whoAmI()</i> on the {@link GrouperMember} object
-   *      that represents the current subject.</li>
-   * </ul>
-   *
-   * @return  Identity of the current session's subject.
-   */
-  public String whoAmI() {
-    return this.subject.memberID();
   }
 
   /**
