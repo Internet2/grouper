@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.7 2004-11-23 19:43:26 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.8 2004-11-23 22:16:43 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -117,23 +117,23 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m0   = GrouperMember.lookup(m0id, m0type);
 
     // Assert what privs m0 has on grp0
-    List privs0 = GrouperPrivilege.has(s, grp0, m0);
+    List privs0 = Grouper.access().has(s, grp0, m0);
     Assert.assertNotNull(privs0);
     Assert.assertTrue( privs0.size() == 0 );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "ADMIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTOUT") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "READ") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "UPDATE") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "VIEW") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "ADMIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "OPTIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "OPTOUT") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "READ") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "UPDATE") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "VIEW") );
 
     // Take a broader view and see where m0 has each of the privs
-    List privs0a  = GrouperPrivilege.has(s, m0, "ADMIN");
-    List privs0oi = GrouperPrivilege.has(s, m0, "OPTIN");
-    List privs0oo = GrouperPrivilege.has(s, m0, "OPTOUT");
-    List privs0r  = GrouperPrivilege.has(s, m0, "READ");
-    List privs0u  = GrouperPrivilege.has(s, m0, "UPDATE");
-    List privs0v  = GrouperPrivilege.has(s, m0, "VIEW");
+    List privs0a  = Grouper.access().has(s, m0, "ADMIN");
+    List privs0oi = Grouper.access().has(s, m0, "OPTIN");
+    List privs0oo = Grouper.access().has(s, m0, "OPTOUT");
+    List privs0r  = Grouper.access().has(s, m0, "READ");
+    List privs0u  = Grouper.access().has(s, m0, "UPDATE");
+    List privs0v  = Grouper.access().has(s, m0, "VIEW");
     Assert.assertNotNull(privs0a);
     Assert.assertTrue( privs0a.size() == 0 );
     Assert.assertNotNull(privs0oi);
@@ -148,31 +148,31 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertTrue( privs0v.size() == 0 );
 
     // Grant m0 all privs on grp0
-    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "ADMIN") );
-    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "OPTIN") );
-    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "OPTOUT") );
-    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "READ") );
-    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "UPDATE") );
-    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "VIEW") );
+    Assert.assertTrue( Grouper.access().grant(s, grp0, m0, "ADMIN") );
+    Assert.assertTrue( Grouper.access().grant(s, grp0, m0, "OPTIN") );
+    Assert.assertTrue( Grouper.access().grant(s, grp0, m0, "OPTOUT") );
+    Assert.assertTrue( Grouper.access().grant(s, grp0, m0, "READ") );
+    Assert.assertTrue( Grouper.access().grant(s, grp0, m0, "UPDATE") );
+    Assert.assertTrue( Grouper.access().grant(s, grp0, m0, "VIEW") );
 
     // Assert what privs m0 has on grp0
-    List privs1 = GrouperPrivilege.has(s, grp0, m0);
+    List privs1 = Grouper.access().has(s, grp0, m0);
     Assert.assertNotNull(privs1);
     Assert.assertTrue( privs1.size() == 6 );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "ADMIN") );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "OPTIN") );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "OPTOUT") );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "READ") );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "UPDATE") );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "VIEW") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, m0, "ADMIN") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, m0, "OPTIN") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, m0, "OPTOUT") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, m0, "READ") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, m0, "UPDATE") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, m0, "VIEW") );
 
     // Take a broader view and see where m0 has each of the privs
-    List privs1a  = GrouperPrivilege.has(s, m0, "ADMIN");
-    List privs1oi = GrouperPrivilege.has(s, m0, "OPTIN");
-    List privs1oo = GrouperPrivilege.has(s, m0, "OPTOUT");
-    List privs1r  = GrouperPrivilege.has(s, m0, "READ");
-    List privs1u  = GrouperPrivilege.has(s, m0, "UPDATE");
-    List privs1v  = GrouperPrivilege.has(s, m0, "VIEW");
+    List privs1a  = Grouper.access().has(s, m0, "ADMIN");
+    List privs1oi = Grouper.access().has(s, m0, "OPTIN");
+    List privs1oo = Grouper.access().has(s, m0, "OPTOUT");
+    List privs1r  = Grouper.access().has(s, m0, "READ");
+    List privs1u  = Grouper.access().has(s, m0, "UPDATE");
+    List privs1v  = Grouper.access().has(s, m0, "VIEW");
     Assert.assertNotNull(privs1a);
     Assert.assertTrue( privs1a.size() == 1 );
     Assert.assertNotNull(privs1oi);
@@ -187,31 +187,31 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertTrue( privs1v.size() == 1 );
 
     // Revoke all privs m0 has on grp0
-    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "ADMIN") );
-    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "OPTIN") );
-    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "OPTOUT") );
-    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "READ") );
-    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "UPDATE") );
-    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "VIEW") );
+    Assert.assertTrue( Grouper.access().revoke(s, grp0, m0, "ADMIN") );
+    Assert.assertTrue( Grouper.access().revoke(s, grp0, m0, "OPTIN") );
+    Assert.assertTrue( Grouper.access().revoke(s, grp0, m0, "OPTOUT") );
+    Assert.assertTrue( Grouper.access().revoke(s, grp0, m0, "READ") );
+    Assert.assertTrue( Grouper.access().revoke(s, grp0, m0, "UPDATE") );
+    Assert.assertTrue( Grouper.access().revoke(s, grp0, m0, "VIEW") );
 
     // Assert what privs m0 has on grp0
-    List privs2 = GrouperPrivilege.has(s, grp0, m0);
+    List privs2 = Grouper.access().has(s, grp0, m0);
     Assert.assertNotNull(privs2);
     Assert.assertTrue( privs2.size() == 0 );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "ADMIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTOUT") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "READ") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "UPDATE") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "VIEW") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "ADMIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "OPTIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "OPTOUT") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "READ") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "UPDATE") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, m0, "VIEW") );
 
     // Take a broader view and see where m0 has each of the privs
-    List privs2a  = GrouperPrivilege.has(s, m0, "ADMIN");
-    List privs2oi = GrouperPrivilege.has(s, m0, "OPTIN");
-    List privs2oo = GrouperPrivilege.has(s, m0, "OPTOUT");
-    List privs2r  = GrouperPrivilege.has(s, m0, "READ");
-    List privs2u  = GrouperPrivilege.has(s, m0, "UPDATE");
-    List privs2v  = GrouperPrivilege.has(s, m0, "VIEW");
+    List privs2a  = Grouper.access().has(s, m0, "ADMIN");
+    List privs2oi = Grouper.access().has(s, m0, "OPTIN");
+    List privs2oo = Grouper.access().has(s, m0, "OPTOUT");
+    List privs2r  = Grouper.access().has(s, m0, "READ");
+    List privs2u  = Grouper.access().has(s, m0, "UPDATE");
+    List privs2v  = Grouper.access().has(s, m0, "VIEW");
     Assert.assertNotNull(privs2a);
     Assert.assertTrue( privs2a.size() == 0 );
     Assert.assertNotNull(privs2oi);
@@ -249,46 +249,46 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember   m1      = GrouperMember.lookup(m1id, m1type);
 
     // What privs does the current subject have on grp0?
-    List privs0 = GrouperPrivilege.has(s, grp0);
+    List privs0 = Grouper.access().has(s, grp0);
     Assert.assertNotNull(privs0);
     Assert.assertTrue( privs0.size() == 1 );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp0, "ADMIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, "OPTIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, "OPTOUT") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, "READ") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, "UPDATE") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp0, "VIEW") );
+    Assert.assertTrue( Grouper.access().has(s, grp0, "ADMIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, "OPTIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, "OPTOUT") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, "READ") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, "UPDATE") );
+    Assert.assertFalse( Grouper.access().has(s, grp0, "VIEW") );
     
     // What privs does the current subject have on grp1?
-    List privs1 = GrouperPrivilege.has(s, grp1);
+    List privs1 = Grouper.access().has(s, grp1);
     Assert.assertNotNull(privs1);
     Assert.assertTrue( privs1.size() == 1 );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp1, "ADMIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp1, "OPTIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp1, "OPTOUT") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp1, "READ") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp1, "UPDATE") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp1, "VIEW") );
+    Assert.assertTrue( Grouper.access().has(s, grp1, "ADMIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp1, "OPTIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp1, "OPTOUT") );
+    Assert.assertFalse( Grouper.access().has(s, grp1, "READ") );
+    Assert.assertFalse( Grouper.access().has(s, grp1, "UPDATE") );
+    Assert.assertFalse( Grouper.access().has(s, grp1, "VIEW") );
     
     // What privs does the current subject have on grp2?
-    List privs2 = GrouperPrivilege.has(s, grp2);
+    List privs2 = Grouper.access().has(s, grp2);
     Assert.assertNotNull(privs2);
     Assert.assertTrue( privs2.size() == 1 );
-    Assert.assertTrue( GrouperPrivilege.has(s, grp2, "ADMIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp2, "OPTIN") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp2, "OPTOUT") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp2, "READ") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp2, "UPDATE") );
-    Assert.assertFalse( GrouperPrivilege.has(s, grp2, "VIEW") );
+    Assert.assertTrue( Grouper.access().has(s, grp2, "ADMIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp2, "OPTIN") );
+    Assert.assertFalse( Grouper.access().has(s, grp2, "OPTOUT") );
+    Assert.assertFalse( Grouper.access().has(s, grp2, "READ") );
+    Assert.assertFalse( Grouper.access().has(s, grp2, "UPDATE") );
+    Assert.assertFalse( Grouper.access().has(s, grp2, "VIEW") );
    
     // Take a broader view and see where the current subject has each
     // of the privs
-    List privs3a  = GrouperPrivilege.has(s, "ADMIN");
-    List privs3oi = GrouperPrivilege.has(s, "OPTIN");
-    List privs3oo = GrouperPrivilege.has(s, "OPTOUT");
-    List privs3r  = GrouperPrivilege.has(s, "READ");
-    List privs3u  = GrouperPrivilege.has(s, "UPDATE");
-    List privs3v  = GrouperPrivilege.has(s, "VIEW");
+    List privs3a  = Grouper.access().has(s, "ADMIN");
+    List privs3oi = Grouper.access().has(s, "OPTIN");
+    List privs3oo = Grouper.access().has(s, "OPTOUT");
+    List privs3r  = Grouper.access().has(s, "READ");
+    List privs3u  = Grouper.access().has(s, "UPDATE");
+    List privs3v  = Grouper.access().has(s, "VIEW");
     Assert.assertNotNull(privs3a);
     Assert.assertTrue( privs3a.size() == 7 );
     Assert.assertNotNull(privs3oi);
@@ -308,9 +308,9 @@ public class TestAccessPrivs extends TestCase {
 
     // TODO All of the above
     // TODO Do GrouperSystem for below as well?
-    // TODO GrouperPrivilege.has(s, grp0, m0);
-    // TODO GrouperPrivilege.has(s, m0, "ADMIN");
-    // TODO boolean GrouperPrivilege.has(s, grp0, m0, "ADMIN");
+    // TODO Grouper.access().has(s, grp0, m0);
+    // TODO Grouper.access().has(s, m0, "ADMIN");
+    // TODO boolean Grouper.access().has(s, grp0, m0, "ADMIN");
 
     // TODO Grant
     // TODO Revoke

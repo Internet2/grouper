@@ -12,13 +12,16 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
+import  java.lang.reflect.*;
 import  java.util.*;
+import  org.apache.commons.lang.builder.ToStringBuilder;
+
 
 /** 
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.47 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: Grouper.java,v 1.48 2004-11-23 22:16:43 blair Exp $
  */
 public class Grouper {
 
@@ -34,24 +37,41 @@ public class Grouper {
    */
 
   // Is the environment initialized
-  private static boolean    initialized   = false;
+  private static boolean        initialized   = false;
+  // Are the interfaces initialized
+  private static boolean        interfaces    = false;
+  // Access priv interface
+  private static GrouperAccess  access; 
+  // Naming priv interface
+  private static GrouperNaming  naming; 
   // A place to hold the run-time environment
-  private static Properties conf          = new Properties();
+  private static Properties     conf          = new Properties();
   // Run-time configuration file
-  private static String      confFile     = "grouper.properties"; 
+  private static String         confFile      = "grouper.properties"; 
   // Cached Grouper group fields
-  private static List       groupFields   = new ArrayList();
+  private static List           groupFields   = new ArrayList();
   // Cached Grouper group types
-  private static List       groupTypes    = new ArrayList();  
+  private static List           groupTypes    = new ArrayList();  
   // Cached Grouper group typeDefs
-  private static List       groupTypeDefs = new ArrayList();
+  private static List           groupTypeDefs = new ArrayList();
   // Cached Grouper subject types
-  private static List       subjectTypes  = new ArrayList();
+  private static List           subjectTypes  = new ArrayList();
 
 
   /*
    * PUBLIC CLASS METHODS
    */
+
+  /**
+   * Retrieves a {@link GrouperAccess} access privilege object.
+   * <p />
+   *
+   * @return  {@link GrouperAccess} object.
+   */
+  public static GrouperAccess access() {
+    Grouper._initInterfaces();  
+    return access;
+  }
 
   /**
    * Class method to return a run-time configuration setting.
@@ -60,7 +80,7 @@ public class Grouper {
    * @return  Value of configuration parameter.
    */
   public static String config(String parameter) {
-    _init();
+    Grouper._init();
     return conf.getProperty(parameter);
   }
 
@@ -73,7 +93,7 @@ public class Grouper {
    * false otherwise.
    */
   public static boolean groupField(String type, String field) {
-    _init();
+    Grouper._init();
     // TODO Do I need another version of this method to distinguish
     //      between valid attribute and list data?
     Iterator iter = Grouper.groupTypeDefs().iterator();
@@ -98,7 +118,7 @@ public class Grouper {
    * @return  List of {@link GrouperField} objects.
    */
   public static List groupFields() {
-    _init();
+    Grouper._init();
     return groupFields;
   }
 
@@ -109,7 +129,7 @@ public class Grouper {
    * @return  Boolean true if the type is valid, false otherwise.
    */
   public static boolean groupType(String type) {
-    _init();
+    Grouper._init();
     Iterator iter = Grouper.groupTypes().iterator();
     while (iter.hasNext()) {
       GrouperType t = (GrouperType) iter.next();
@@ -127,7 +147,7 @@ public class Grouper {
    * @return  List of {@link GrouperTypeDef} objects.
    */
   public static List groupTypeDefs() {
-    _init();
+    Grouper._init();
     return groupTypeDefs;
   }
 
@@ -138,7 +158,7 @@ public class Grouper {
    * @return  List of {@link GrouperType} objects.
    */
   public static List groupTypes() {
-    _init();
+    Grouper._init();
     return groupTypes;
   }
 
@@ -149,7 +169,7 @@ public class Grouper {
    * @return  Boolean true if the type is valid, false otherwise.
    */
   public static boolean hasSubjectType(String type) {
-    _init();
+    Grouper._init();
     Iterator iter = Grouper.subjectTypes().iterator();
     while (iter.hasNext()) {
       SubjectType t = (SubjectType) iter.next();
@@ -160,8 +180,19 @@ public class Grouper {
     return false;
   }
 
+  /**
+   * Retrieves a {@link GrouperNaming} naming privilege object.
+   * <p />
+   *
+   * @return  {@link GrouperNaming} object.
+   */
+  public static GrouperNaming naming() {
+    Grouper._initInterfaces();  
+    return naming;
+  }
+
   public static SubjectType subjectType(String type) {
-    _init();
+    Grouper._init();
     SubjectType st    = null;
     Iterator    iter  = Grouper.subjectTypes().iterator();
     while (iter.hasNext()) {
@@ -173,13 +204,14 @@ public class Grouper {
     return st;
   }
 
+
   /**
    * Class method to fetch all valid subject types.
    *
    * @return List of {@link SubjectType} objects.
    */
   public static List subjectTypes() {
-    _init();
+    Grouper._init();
     return subjectTypes;
   }
 
@@ -207,9 +239,52 @@ public class Grouper {
       groupTypeDefs = GrouperBackend.groupTypeDefs();
       groupTypes    = GrouperBackend.groupTypes();
       subjectTypes  = GrouperBackend.subjectTypes();
-
       initialized = true;
     }
+  }
+
+  /*
+   * Initialize privilege interfaces.
+   */
+  private static void _initInterfaces() {
+    Grouper._init();
+    if (interfaces == false) {
+      // Initialize static interfaces
+      access = (GrouperAccess) Grouper._interfaceCreate( 
+                Grouper.config("interface.access" ) 
+               );
+      naming = (GrouperNaming) Grouper._interfaceCreate( 
+                Grouper.config("interface.naming" ) 
+               );
+      interfaces = true;
+    }
+  }
+
+  /*
+   * Instantiate an interface reflectively
+   */
+  private static Object _interfaceCreate(String name) {
+    try {
+      Class classType     = Class.forName(name);
+      Class[] paramsClass = new Class[] { };
+      try {
+        Constructor con     = classType.getDeclaredConstructor(paramsClass);
+        Object[] params     = new Object[] { };
+        try {
+          return con.newInstance(params);
+        } catch (Exception e) {
+          System.err.println("Unable to instantiate class: " + name);
+          System.exit(1);
+        }
+      } catch (NoSuchMethodException e) {
+        System.err.println("Unable to find constructor for class: " + name);
+        System.exit(1);
+      }
+    } catch (ClassNotFoundException e) {
+      System.err.println("Unable to find class: " + name);
+      System.exit(1);
+    }
+    return null;
   }
 
 }
