@@ -1,35 +1,6 @@
 #
-# $Id: README,v 1.6 2004-03-25 01:43:20 blair Exp $
+# $Id: README,v 1.7 2004-03-26 17:39:02 blair Exp $
 #
-
- -------------
-/ INTEGRATE /
-------------
-
-The API's security interface is "hard coded" to refer to list
-groupFieldIDs named "viewers" and "admins" to determine whether a given
-subject has these privileges. 
-
-This hierarchical stem creation and delegation capability is disabled
-by default. A configuration option can be used to enable it.
-
-The following characters are deemed illegal for use in groupNames,
-unless chosen as the stem hierarchy delimiter: "/", "\", "|", "?", "*",
-";", ",".
-
-- personal groups - yea or nay.
-- personal stem? e.g., personal-tbarton:blah
-  - i wonder about this one...in terms of implementation
-- do hierarchical stemming?
-- stem hierarchy delimiter
-- stem hierarchy depth
-
-- principal for API
-- principal for members table maintenance program
-
-
-XXX Have a test postgres setup as well to keep myself a bit more sane
-
 
  ---------
 / LINKS /
@@ -40,56 +11,9 @@ XXX Have a test postgres setup as well to keep myself a bit more sane
 + Grouper Roadmap:
     <http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-pre01-2.html>
 
-
  -----------
 / ROADMAP /
 ----------
-
-+ Resolve Internet2 IP questions:
-  + <http://members.internet2.edu/intellectualproperty.html>
-+ Contract!?!?
-+ Sync with "official" roadmap
-+ API Specification
-+ Command line arguments
-+ Returning errors/diagnostic messages?
-  + Is this part of logging?
-
-
- --------
-/ TODO /
--------
-
-+ Cascading foreign keys for deletes (and updates?)
-+ XXX Prefix table names and columns with 'grouper_'?
-  + Or provide mappings in the configuration file?
-    + Ugh
-+ Describe the tables and columns!
-
-+ Basically everything
-+ Ant
-+ Javadoc
-* AuthN/AuthZ interfaces OR:
-  * Management of authorization internal to Grouper.
-  * Lookup and presentation of memberIDs, i.e., the opaque identifiers
-    of external objects that are members of groups.
-  * Determination of last activity time of a group.
-
-    Grouper will include an implementation of the authorization
-    interface that relies on groups within the Groups Registry to
-    express who the Groups API will permit what access to the Groups
-    Registry and to the API.
-
-    Grouper will include an implementation of a lookup and presentation
-    interface that refers to a member table in the Groups Registry.
-    This table will translate memberIDs into presentationIDs,
-    enabling the UI to search for and present member identifiers
-    in terms that may be more meaningful to humans than memberIDs.
-    Grouper will also include a program to perform batch maintenance
-    of this table from external sources, and the API will include
-    a corresponding lookup function. A site may wish to implement
-    the member lookup and presentation interface in a manner that
-    refers instead to their LDAP directory, for example.
-
 
 
  ---------
