@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.26 2004-09-08 22:17:41 blair Exp $
+ * @version $Id: Grouper.java,v 1.27 2004-09-08 22:25:53 blair Exp $
  */
 public class Grouper {
 
@@ -186,9 +186,9 @@ public class Grouper {
    * Reads and caches the <i>grouper_fields</i> table at
    * {@link Grouper} initialization.
    * 
-   * @return  {@link GrouperFields} object.
+   * @return  List of {@link GrouperField} objects.
    */
-  public List getGroupFields() {
+  public List groupFields() {
     return this.groupFields;
   }
 
@@ -198,9 +198,9 @@ public class Grouper {
    * Reads and caches the <i>grouper_typeDefs</i> table at
    * {@link Grouper} initialization.
    *
-   * @return  {@link GrouperTypeDefs} object.
+   * @return  List of {@link GrouperTypeDef} objects.
    */
-  public List getGroupTypeDefs() {
+  public List groupTypeDefs() {
     return groupTypeDefs;
   }
 
@@ -210,9 +210,9 @@ public class Grouper {
    * Reads and caches the <i>grouper_types</i> table at
    * {@link Grouper} initialization.
    * 
-   * @return  {@link GrouperTypes} object.
+   * @return  List of {@link GrouperType} objects.
    */
-  public List getGroupTypes() {
+  public List groupTypes() {
     return groupTypes;
   }
 

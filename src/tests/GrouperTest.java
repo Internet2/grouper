@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.27 2004-09-08 22:17:42 blair Exp $
+ * $Id: GrouperTest.java,v 1.28 2004-09-08 22:25:53 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -211,17 +211,15 @@ public class GrouperTest extends TestCase {
   }
 
   /* Get cached GrouperFields */
-/*
   public void testGetGrouperFields() {
     G = new Grouper();
     G.init();
     GrouperSession  s       = new GrouperSession();
-    List            fields  = G.getGroupFields();
+    List            fields  = G.groupFields();
     Assert.assertNotNull(fields);
     Assert.assertEquals(9, fields.size());
     G.destroy();
   }
-*/
 
 
   /*
@@ -256,17 +254,15 @@ public class GrouperTest extends TestCase {
   }
 
   /* Get cached GrouperTypes */
-/*
   public void testGetGrouperTypes() {
     G = new Grouper();
     G.init();
     GrouperSession s  = new GrouperSession();
-    List types        = G.getGroupTypes();
+    List types        = G.groupTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
     G.destroy();
   }
-*/
 
 
   /*
@@ -301,17 +297,15 @@ public class GrouperTest extends TestCase {
   }
 
   /* Get cached GrouperTypeDefs */
-/*
   public void testGetGrouperTypeDefs() {
     G = new Grouper();
     G.init();
     GrouperSession  s         = new GrouperSession();
-    List            typeDefs  = G.getGroupTypeDefs();
+    List            typeDefs  = G.groupTypeDefs();
     Assert.assertNotNull(typeDefs);
     Assert.assertEquals(9, typeDefs.size());
     G.destroy();
   }
-*/
  
   /*
    * Class: GrouperGroup
