@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.6 2004-10-12 20:32:00 blair Exp $
+# $Id: API,v 1.7 2004-10-12 20:37:01 blair Exp $
 #
 # TODO Interfaces
 #
@@ -69,12 +69,6 @@ GrouperBackend
     String uuid()
 
 
-GrouperDescriptor
-  XXX Revisit class
-  Class Methods
-    GrouperDescriptor()
-
-
 GrouperField
   XXX Revisit class
   Class Methods
@@ -128,6 +122,12 @@ GrouperMembership
   Instance Methods
     void set(String key, String field, String subject, boolean immediate)
       XXX I don't like this approach.
+
+
+GrouperName
+  XXX Revisit class
+  Class Methods
+    GrouperName()
 
 
 GrouperNamespace
