@@ -6,50 +6,44 @@ import  java.sql.*;
 import  java.util.Date;
 import  java.util.ArrayList;
 import  java.util.List;
+import  java.util.Properties;
+import  net.sf.hibernate.*;
+import  net.sf.hibernate.cfg.*;
 
 /** 
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.25 2004-07-02 18:56:35 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.26 2004-07-14 02:46:20 blair Exp $
  */
 public class GrouperSession {
 
-  private Grouper         intG            = null;
-  private GrouperNaming   intNaming       = null;
-  private GrouperAccess   intAccess       = null;
-  private GrouperSubject  intSubject      = null;
+  // XXX Clarify the purpose of all of these variables
   private Connection      con             = null;
-  private GrouperMember   subject         = null;
-  private String          subjectID       = null;
+  private Grouper         intG            = null;
+  private GrouperAccess   intAccess       = null;
+  private GrouperNaming   intNaming       = null;
+  private GrouperSubject  intSubject      = null;
   private String          presentationID  = null;
+  private SessionFactory  sessionFactory  = null;
+  private GrouperMember   subject         = null;
+  private Session         session         = null;
+  private String          subjectID       = null;
+
+  // XXX HACK HACK HACK
+  private String          cred            = null;
+  private String          sessionID       = null;
+  private String          startTime       = null;
+
+  private SessionFactory  sessions        = null;
+
 
   /**
    * Create a session object that will provide a context for future
    * operations.
-   * <p>
-   * <ul>
-   *  <li>Opens JDBC connection to groups registry</li>
-   * </ul>
-   *
-   * @param   G Grouper environment.
    */
-  public GrouperSession(Grouper G) {
-    // Internal reference to the Grouper object
-    this.intG = G;
-
-    try {
-      Class.forName( intG.config("jdbc.driver") ).newInstance();
-      con = DriverManager.getConnection(intG.config("jdbc.url"),
-                                        intG.config("jdbc.username"),
-                                        intG.config("jdbc.password"));
-    }
-    catch(Exception e) {
-      System.err.println("Failed to load JDBC driver '" + 
-                          intG.config("jdbc.driver") + "'");
-      System.exit(1);
-    }
-
+  public GrouperSession() {
+    // Nothing 
   }
 
   /**
@@ -60,23 +54,20 @@ public class GrouperSession {
    *      {@link GrouperMember} object.</li>
    *  <li>Update <i>grouper_session</i> table.</li>
    *
+   * @param   G         @{link Grouper} environment
    * @param   subjectID The subject to act as for the duration of this
    *   session.
    */
-  public void start(String subjectID) {
-    // XXX Bad assumptions!
-    this.subject    = this.lookupSubject(subjectID);
+  public void start(Grouper G, String subjectID) {
+    // Internal reference to the Grouper object
+    this.intG = G;
+
+    // XXX Ugh
     this.subjectID  = subjectID;
+    this.cred       = subjectID;
 
-    if (this.subject != null) {
-      // Create internal representations of the various Grouper
-      // interfaces
-      this._createInterfaces();
-
-      // Register a new session
-      this._registerSession();
-    } // XXX else...
-
+    // Register a new session
+    this._registerSession();
   }
 
   /**
@@ -87,23 +78,22 @@ public class GrouperSession {
    *      {@link GrouperMember} object.</li>
    *  <li>Update <i>grouper_session</i> table.</li>
    *
+   * @param   G         @{link Grouper} environment
    * @param   subjectID The subject to act as for the duration of this
    *   session.
    * @param   isMember  If true, the subjectID is assumed to be a
    *  memberID and not a presentationID.
    */
-  public void start(String subjectID, boolean isMember) {
-    // Create internal representations of the various Grouper
-    // interfaces
-    this._createInterfaces();
+  public void start(Grouper G, String subjectID, boolean isMember) {
+    // Internal reference to the Grouper object
+    this.intG = G;
 
     // XXX Bad assumptions!
-    this.subject    = this.lookupSubject(subjectID);
     this.subjectID  = subjectID;
+    this.cred       = subjectID;
 
     // Register a new session
     this._registerSession();
-
   }
 
   /**
@@ -329,7 +319,41 @@ public class GrouperSession {
    * Register a new session with the groups registry.
    */
   private void _registerSession() {
-    Statement stmt = null;
+    // Create internal representations of the various Grouper
+    // interfaces
+    this._createInterfaces();
+
+    // XXX Bad assumption!
+    this.subject = this.lookupSubject(subjectID);
+
+    try {
+      Class.forName( this.intG.config("jdbc.driver") ).newInstance();
+      con = DriverManager.getConnection( this.intG.config("jdbc.url"),
+                                         this.intG.config("jdbc.username"),
+                                         this.intG.config("jdbc.password") );
+      try {
+        Properties props  = new Properties();
+        Configuration cfg = new Configuration()
+          .addFile("conf/GrouperSession.hbm.xml")
+          .setProperties(props);
+        try {
+          sessions = cfg.buildSessionFactory();
+        } catch (Exception e) {
+          System.err.println(e);
+          System.exit(1);
+        }
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    } catch(Exception e) {
+      System.err.println("Failed to load JDBC driver '" + 
+                          this.intG.config("jdbc.driver") + "'");
+      System.exit(1);
+    }
+
+    // Initiate Hibernate session
+    this.session = this.sessions.openSession(this.con);
 
     // TODO Make this configurable.  Or something.
     this._cullSessions();
@@ -338,22 +362,19 @@ public class GrouperSession {
      *     sessions -- which I *know* exists -- be crude about it. */
     Date now = new Date();
 
-    try { 
-      stmt = this.connection().createStatement();
-      String insertSession = "INSERT INTO grouper_session " +
-                             "(cred, startTime) " +
-                             "VALUES (" +
-                             "'" + this.subjectID + "', " +
-                             "'" + now.getTime() + "'" +
-                             ")";
-      try { 
-        stmt.executeUpdate(insertSession);
-      } catch (Exception e) {
-        System.err.println("Unable to insert session: " + insertSession);
-        System.exit(1);
-      }
+    this.setCred( this.cred );
+    // XXX Switch to a generated sequence?
+    this.setSessionID( Long.toString(now.getTime()) );
+    // TODO Switch to GMT/UTC
+    this.setStartTime( Long.toString(now.getTime()) );
+
+    try {
+      Transaction t = session.beginTransaction();
+      session.save(this);
+      t.commit();
     } catch (Exception e) {
-      System.err.println("Unable to create statement");
+      System.err.println(e);
+      e.printStackTrace();
       System.exit(1);
     }
   }
@@ -362,57 +383,84 @@ public class GrouperSession {
    * Cull old sessions
    */
   private void _cullSessions() {
-    Statement stmt = null;
-    boolean   cull = false;
-
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
     Date now     = new Date();
-    long nowTime = (long) now.getTime();
+    long nowTime = now.getTime();
+    long tooOld  = nowTime - 360000;
 
-    try { 
-      stmt            = this.connection().createStatement();
-      String    query = "SELECT * FROM grouper_session";
-      ResultSet rs    = stmt.executeQuery(query);
-      while (rs.next()) {
-        int    sessionID  = rs.getInt("sessionID");
-        String cred       = rs.getString("cred"); 
-        long   startTime  = rs.getLong("startTime");
-
-        if (startTime > nowTime) {
-          // Session started in the future
-          cull = true;
-        }
-        // Argh.  Milliseconds, *not* seconds
-        // TOOD Yes, this is a completely arbitrary number that I made
-        //      up for testing.  Make it configurable at a later date.
-        long tooOld = startTime + 3600000;
-        if (nowTime > tooOld) {
-          // Session too old
-          cull = true;
-        }
-
-        if (cull) {
-          try { 
-            String deleteSession = "DELETE FROM grouper_SESSION WHERE " +
-                                   "sessionID='" + sessionID + "'";
-            try { 
-              stmt.executeUpdate(deleteSession);
-            } catch (Exception e) {
-              System.err.println("Unable to delete session: " + deleteSession);
-              System.exit(1);
-            }
-          } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-          }
+    try {
+      int cnt = ( (Integer) this.session.iterate(
+                  "SELECT count(*) FROM grouper_session " +
+                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "WHERE startTime > " + nowTime
+                  ).next() ).intValue();
+      if (cnt > 0) {
+        // XXX This is sort of redundant.
+        try {
+          this.session.delete(
+                  "FROM grouper_session " +
+                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "WHERE startTime > " + nowTime
+                  );
+        } catch (Exception e) {
+          System.err.println(e);
+          System.exit(1);
         }
       }
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
     }
+    try {
+      int cnt = ( (Integer) this.session.iterate(
+                  "SELECT count(*) FROM grouper_session " +
+                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "WHERE " + tooOld + " > startTime"
+                  ).next() ).intValue();
+      if (cnt > 0) {
+        // XXX This is sort of redundant.
+        try {
+          this.session.delete(
+                  "FROM grouper_session " +
+                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "WHERE " + tooOld + " > startTime"
+                  );
+        } catch (Exception e) {
+          System.err.println(e);
+          System.exit(1);
+        }
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+
   }
 
+  /* XXX HACK HACK HACK */
+  private String getSessionID() {
+    return this.sessionID;
+  }
+
+  private void setSessionID(String sessionID) {
+    this.sessionID = sessionID;
+  }
+
+  private String getCred() {
+    return this.cred;
+  }
+
+  private void setCred(String cred) {
+    this.cred = cred;
+  }
+
+  private String getStartTime() {
+    return this.startTime;
+  }
+
+  private void setStartTime(String startTime) {
+    this.startTime = startTime;
+  }
 }
 
