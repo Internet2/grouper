@@ -13,14 +13,13 @@
  */
 
 /*
- * $Id: TestInstantiate.java,v 1.4 2004-11-12 17:40:57 blair Exp $
+ * $Id: TestInstantiate.java,v 1.5 2004-11-12 20:21:59 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.lang.reflect.*;
 import  junit.framework.*;
 
 
