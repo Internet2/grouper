@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.7 2005-02-09 22:00:35 acohen Exp $
-  $Date: 2005-02-09 22:00:35 $
+  $Id: main.jsp,v 1.8 2005-02-24 00:19:50 acohen Exp $
+  $Date: 2005-02-24 00:19:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -35,6 +35,8 @@
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 
 <% 
   Signet signet
@@ -157,13 +159,14 @@
 %>
 	
             <tr>
-              <td>
+              <td> <!-- person -->
                 <a
                   href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>">
                   <%=grantee.getName()%>
                 </a>
-              </td>
-              <td>
+              </td> <!-- person -->
+              
+              <td> <!-- privilege -->
                 <a
                   style="float: right;"
                   href
@@ -180,22 +183,22 @@
                     height="20" />
                 </a>
                 <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
-              </td>
-              <td>&nbsp;</td>
-              <td>
-                <span class="dropback">  
-                </span> <!-- dropback -->
-                <br />
-                <span class="dropback">
-                </span> <!-- dropback -->
-              </td>
-              <td>
+              </td> <!-- privilege -->
+              
+              <td> <!-- scope -->
+                &nbsp;
+              </td> <!-- scope -->
+              
+              <td> <!-- limits -->
+                <%=Common.displayLimitValues(assignment)%>
+              </td> <!-- limits -->
+              <td> <!-- status -->
 <%=
   assignment.getStatus().getName()
   + (assignment.isGrantOnly()==false?", can use":"")
   + (assignment.isGrantable()?", can grant":"")
 %>
-              </td>
+              </td> <!-- status -->
               <td nowrap="nowrap">
 <%=
   // assignment.getCreateDateTime() is no longer supported. Eventually,
