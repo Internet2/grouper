@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.44 2004-11-19 05:14:51 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.45 2004-11-19 06:00:35 blair Exp $
  */
 public class GrouperBackend {
 
@@ -979,21 +979,21 @@ public class GrouperBackend {
       String via_txt = "";
       if (via != null) {
         if        ( via.equals("effective") ) {
-          via_txt = " AND via IS NOT NULL";
+          via_txt = " AND mem.via IS NOT NULL";
         } else if ( via.equals("immediate") ) {
-          via_txt = " AND via IS NULL";
+          via_txt = " AND mem.via IS NULL";
         } // TODO else ...
       }
       // Query away!
       Query q = session.createQuery(
-        "SELECT ALL FROM grouper_lists "  +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperMembership " +
-        "WHERE "                          +
-        "groupKey='"    + g.key() + "' "  +
-        "AND "                            +
-        "groupField='"  + list + "' "     +
+        "FROM GrouperMembership AS mem"         +
+        " WHERE "                               +
+        "mem.groupKey='"      + g.key() + "'"   +
+        " AND "                                 +
+        "mem.groupField='"    + list    + "'"   +
         via_txt
       );   
+      // XXX System.err.println("QUERY " + q.getQueryString());
       // TODO Behave different depending upon the size?
       members = q.list();
     } catch (Exception e) {
