@@ -17,20 +17,20 @@ import  edu.internet2.middleware.grouper.*;
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectType.java,v 1.6 2004-11-05 18:46:27 blair Exp $
+ * @version $Id: GrouperSubjectType.java,v 1.7 2004-11-11 18:28:59 blair Exp $
  */
-public class GrouperMemberType {
+public class GrouperSubjectType {
 
-  // What we need to identify a member type
+  // What we need to identify a subject type
   private String adapterClass;
   private String name;
   private String typeID;
 
 
   /**
-   * Create a {@link GrouperMemberType} object.
+   * Create a {@link GrouperSubjectType} object.
    */
-  public GrouperMemberType() {
+  public GrouperSubjectType() {
     this._init();
   }
 
@@ -40,7 +40,7 @@ public class GrouperMemberType {
    */
 
   /**
-   * Return member type adapter class.
+   * Return subject type adapter class.
    *
    * @return Adapter class of type.
    */
@@ -49,7 +49,7 @@ public class GrouperMemberType {
   }
 
   /**
-   * Return member type name.
+   * Return subject type name.
    *
    * @return  Name of type.
    */
@@ -65,12 +65,12 @@ public class GrouperMemberType {
   }
 
   /**
-   * Return member type ID.
+   * Return subject type ID.
    *
    * @return ID of type.
    */
   public String typeID() {
-    return this.getMemberTypeID();
+    return this.getSubjectTypeID();
   }
 
 
@@ -100,11 +100,11 @@ public class GrouperMemberType {
     this.adapterClass = adapterClass;
   }
 
-  private String getMemberTypeID() {
+  private String getSubjectTypeID() {
     return this.typeID;
   }
 
-  private void setMemberTypeID(String id) {
+  private void setSubjectTypeID(String id) {
     this.typeID = id;
   }
 

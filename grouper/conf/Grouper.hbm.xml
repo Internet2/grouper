@@ -77,44 +77,11 @@
       <column name="memberKey" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="memberID">
-      <column name="memberID" sql-type="char(255)"/>
+    <property name="subjectID">
+      <column name="subjectID" sql-type="char(255)"/>
     </property>
-    <property name="memberTypeID">
-      <column name="memberTypeID" sql-type="char(255)"/>
-    </property>
-  </class>
-
-  <class name="GrouperMemberAttribute" table="grouper_memberAttribute">
-    <composite-id access="field">
-      <key-property name="memberKey"    type="string" column="memberKey"/>
-      <key-property name="memberTypeID" type="string" column="memberTypeID"/>
-    </composite-id> 
-    <property name="name">
-      <column name="name" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="instance">
-      <column name="instance" sql-type="integer"/>
-    </property>
-    <property name="value">
-      <column name="value" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="searchValue">
-      <column name="searchValue" sql-type="char(255)" not-null="true"/>
-    </property>
-  </class>
-
-  <class name="GrouperMemberType" table="grouper_memberType" mutable="false">
-    <cache usage="read-only"/>
-    <id name="memberTypeID" type="string" unsaved-value="null">
-      <column name="memberTypeID" sql-type="char(255)" not-null="true"/>
-      <generator class="assigned"/>
-    </id>
-    <property name="name">
-      <column name="name" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="adapterClass">
-      <column name="adapterClass" sql-type="char(255)" not-null="true"/>
+    <property name="subjectTypeID">
+      <column name="subjectTypeID" sql-type="char(255)"/>
     </property>
   </class>
 
@@ -135,6 +102,49 @@
     </property>
     <property name="startTime">
       <column name="startTime" length="255" not-null="true"/>
+    </property>
+  </class>
+
+  <class name="GrouperSubject" table="grouper_subject">
+    <id name="subjectID" type="string" unsaved-value="null" >
+      <column name="subjectID" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="subjectTypeID">
+      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
+    </property>
+  </class>
+
+  <class name="GrouperSubjectAttribute" table="grouper_SubjectAttribute">
+    <composite-id access="field">
+      <key-property name="subjectID"     type="string" column="subjectID"/>
+      <key-property name="subjectTypeID" type="string" column="subjectTypeID"/>
+    </composite-id> 
+    <property name="name">
+      <column name="name" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="instance">
+      <column name="instance" sql-type="integer"/>
+    </property>
+    <property name="value">
+      <column name="value" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="searchValue">
+      <column name="searchValue" sql-type="char(255)" not-null="true"/>
+    </property>
+  </class>
+
+  <class name="GrouperSubjectType" table="grouper_subjectType" mutable="false">
+    <cache usage="read-only"/>
+    <id name="subjectTypeID" type="string" unsaved-value="null">
+      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="name">
+      <column name="name" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="adapterClass">
+      <column name="adapterClass" sql-type="char(255)" not-null="true"/>
     </property>
   </class>
 

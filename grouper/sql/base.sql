@@ -1,5 +1,5 @@
 -- 
--- $Id: base.sql,v 1.10 2004-11-05 18:46:27 blair Exp $
+-- $Id: base.sql,v 1.11 2004-11-11 18:28:59 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -47,17 +47,14 @@ INSERT INTO grouper_typeDefs (groupType, groupField)
 INSERT INTO grouper_typeDefs (groupType, groupField) 
   VALUES ('base', 'optouts');
 
-INSERT INTO grouper_memberType (memberTypeID, name, adapterClass)
+INSERT INTO grouper_subjectType (subjectTypeID, name, adapterClass)
   VALUES ('person', 'Person', 
           'edu.internet2.middleware.grouper.GrouperSubjectImpl');
 
-INSERT INTO grouper_member (memberKey, memberID, memberTypeID)
-  VALUES ('dc56fb33-4d04-4ab9-b0fd-117c8f6e47a6',
-          'GrouperSystem', 'person');
-INSERT INTO grouper_member (memberKey, memberID, memberTypeID)
-  VALUES ('6377aa8c-a4cc-46cb-91e6-57d38ac1dbb8',
-          'blair', 'person');
-INSERT INTO grouper_member (memberKey, memberID, memberTypeID)
-  VALUES ('ad8167a2-3897-4e52-8820-8fd70c990f81',
-          'notblair', 'person');
+INSERT INTO grouper_subject (subjectID, subjectTypeID)
+  VALUES ('GrouperSystem', 'person');
+INSERT INTO grouper_subject (subjectID, subjectTypeID)
+  VALUES ('blair', 'person');
+INSERT INTO grouper_subject (subjectID, subjectTypeID)
+  VALUES ('notblair', 'person');
 

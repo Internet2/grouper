@@ -17,7 +17,7 @@ import  edu.internet2.middleware.grouper.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.30 2004-11-08 20:11:57 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.31 2004-11-11 18:28:59 blair Exp $
  */
 public class GrouperMember {
 
@@ -57,7 +57,7 @@ public class GrouperMember {
    * @return Member ID of the {@link GrouperMember}
    */
   public String id() {
-    return this.getMemberID();
+    return this.getSubjectID();
   }
 
   /**
@@ -93,7 +93,7 @@ public class GrouperMember {
    * @return Member Type ID of {@link GrouperMember}.
    */
   public String typeID() {
-    return this.getMemberTypeID();
+    return this.getSubjectTypeID();
   }
 
 
@@ -116,11 +116,11 @@ public class GrouperMember {
    * HIBERNATE
    */
 
-  private String getMemberID() {
+  private String getSubjectID() {
     return this.id;
   }
 
-  private void setMemberID(String id) {
+  private void setSubjectID(String id) {
     this.id = id;
   }
 
@@ -140,11 +140,11 @@ public class GrouperMember {
     this.type = type;
   }
 
-  private String getMemberTypeID() {
+  private String getSubjectTypeID() {
     return this.typeID;
   }
 
-  private void setMemberTypeID(String typeID) {
+  private void setSubjectTypeID(String typeID) {
     this.typeID = typeID;
   }
 
