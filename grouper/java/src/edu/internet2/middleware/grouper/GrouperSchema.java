@@ -52,6 +52,8 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -62,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.20 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.21 2005-03-22 02:15:54 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -81,17 +83,64 @@ public class GrouperSchema implements Serializable {
    * Null-argument constructor for Hibernate.
    */
   public GrouperSchema() {
-    this._init();
+    // Nothing
   }
 
-  /* (!javadoc)
-   * TODO This should <b>only</b> be used within Grouper and I'd
-   *      prefer to not be relying upon <i>protected</i> for that...
+  /*
+   * Create a new {@link GrouperSchema} object.
    */
   protected GrouperSchema(String key, String type) {
-    this._init();
     this.setGroupKey(key);
     this.setGroupType(type);
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Delete group schema.
+   */
+  protected static void delete(GrouperSession s, GrouperGroup g) {
+    String qry = "GrouperSchema.by.key";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperSchema gs = (GrouperSchema) iter.next();
+          try {
+            s.dbSess().session().delete(gs);
+          } catch (HibernateException e) {
+            throw new RuntimeException(
+                        "Error deleting schema: " + e
+                      );
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+  }
+ 
+  /*
+   * Save group schema.
+   */
+  protected static void save(GrouperSession s, GrouperGroup g) {
+    GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
+    try {
+      s.dbSess().session().save(schema);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error saving group schema: " + e);
+    }
   }
 
 
@@ -153,19 +202,6 @@ public class GrouperSchema implements Serializable {
    */
   protected String key() {
     return this.getGroupKey();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.setGroupKey(null);   
-    this.setGroupType(null);
   }
 
 
