@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.4 2004-04-09 14:45:03 blair Exp $
+-- $Id: mysql.sql,v 1.5 2004-04-22 17:43:57 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -26,7 +26,7 @@ USE    grouper;
 -- TODO ) TYPE=InnoDB;
 
 CREATE TABLE grouper_fields (
-  groupFieldID      INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
+  groupFieldID      VARCHAR(255) NOT NULL PRIMARY KEY UNIQUE,
   readPriv          VARCHAR(255),
   writePriv         VARCHAR(255),
   -- XXX Boolean types are not supported everywhere.  Alas.  Right now
@@ -52,19 +52,19 @@ CREATE TABLE grouper_members (
 
 CREATE TABLE grouper_membership (
   groupID           INTEGER UNSIGNED NOT NULL,
-  groupFieldID      INTEGER UNSIGNED NOT NULL,
+  groupFieldID      VARCHAR(255) NOT NULL,
   memberID          INTEGER UNSIGNED,
   groupMemberID     INTEGER UNSIGNED,
   -- XXX Boolean types are not supported everywhere.  Alas.  Right now
   -- XXX I am thinking that an ENUM is the most portable option.
-  isImmediate       ENUM('TRUE', 'FALSE')
+  isImmediate       ENUM('TRUE', 'FALSE'),
   -- XXX I don't even want to think about portable date/time formats.
   -- XXX Maybe just store this as a string and rely on Java to Do The
   -- XXX Right Thing?  Good thing we don't care about aging -- yet.
   removeAfter       VARCHAR(255),
   INDEX(groupID),
   INDEX(groupFieldID),
-  CONSTRAINT FOREIGN KEY (groupID)      REFERENCES grouper_group(groupID),
+  CONSTRAINT FOREIGN KEY (groupID)      REFERENCES grouper_group (groupID),
   CONSTRAINT FOREIGN KEY (groupFieldID) REFERENCES grouper_fields (groupFieldID)
 ) TYPE=InnoDB;
 CREATE INDEX member_groupmember_idx 
@@ -72,7 +72,7 @@ CREATE INDEX member_groupmember_idx
 
 CREATE TABLE grouper_metadata (
   groupID           INTEGER UNSIGNED NOT NULL,
-  groupFieldID      INTEGER UNSIGNED NOT NULL,
+  groupFieldID      VARCHAR(255) NOT NULL,
   -- XXX No idea
   groupFieldValue   VARCHAR(255),
   INDEX(groupID),
@@ -107,7 +107,7 @@ CREATE TABLE grouper_session (
 
 CREATE TABLE grouper_typedefs (
   groupTypeID       INTEGER UNSIGNED NOT NULL,
-  groupFieldID      INTEGER UNSIGNED NOT NULL,
+  groupFieldID      VARCHAR(255) NOT NULL,
   INDEX(groupTypeID),
   INDEX(groupFieldID),
   FOREIGN KEY (groupTypeID)  REFERENCES grouper_types(groupTypeID),
@@ -129,4 +129,44 @@ CREATE INDEX via_idx
 GRANT ALL ON grouper.* 
   TO 'grouper'@'localhost'
   IDENTIFIED BY 'gr0up3r';
+
+-- Insert the base group type
+INSERT INTO grouper_types (groupTypeID, groupTypeName)
+  VALUES (1, "base");
+
+-- Insert the fields of the base group
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("description", "READ",   "ADMIN",  'FALSE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("members",     "READ",   "UPDATE", 'TRUE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("viewers",     "UPDATE", "UPDATE", 'TRUE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("readers",     "UPDATE", "UPDATE", 'TRUE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("updaters",    "UPDATE", "UPDATE", 'TRUE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("admins",      "ADMIN",  "ADMIN",  'TRUE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("optins",      "READ",   "UPDATE", 'TRUE');
+INSERT INTO grouper_fields (groupFieldID, readPriv, writePriv, isList)
+  VALUES ("optouts",     "READ",   "UPDATE", 'TRUE');
+
+-- Assign the fields to the base group
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "description");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "members");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "viewers");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "readers");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "updaters");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "admins");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "optins");
+INSERT INTO grouper_typedefs (groupTypeID, groupFieldID)
+  VALUES (1, "optouts");
 
