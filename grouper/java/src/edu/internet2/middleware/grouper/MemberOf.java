@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.2 2005-03-15 15:37:00 blair Exp $
+ * @version $Id: MemberOf.java,v 1.3 2005-03-16 22:51:57 blair Exp $
  */
 public class MemberOf {
 
@@ -98,39 +98,25 @@ public class MemberOf {
   public List memberOf(GrouperList gl) {
     List vals = new ArrayList();
 
-    // TODO ADD VALIDATE CLASS!
-
-    // Shortcuts for convenience
-    GrouperGroup  g = gl.group();
-    GrouperMember m = gl.member();
-    String        l = gl.groupField();
-
     // Add m to g's gl
     vals.add(gl);
 
     // Where is g a member?
-    GrouperMember gAsM  = GrouperMember.load(s, g.id(), "group");
+    GrouperMember gAsM  = GrouperMember.load(
+                            s, gl.group().id(), "group"
+                          );
     if (gAsM == null) {
       throw new RuntimeException("Error converting group to member");
     }
-    List isMem = gAsM.listVals(l);
+    List isMem = gAsM.listVals( gl.groupField() );
 
-    Iterator iter = isMem.iterator();
-    while (iter.hasNext()) {
-      GrouperList lv = (GrouperList) iter.next();
-      lv.load(this.s);
-      GrouperGroup via = lv.via();
-      if (via == null) {
-        via = g;
-      }
-      // Add m to each
-      vals.add(new GrouperList(lv.group(), m, l, via));
-    }
+    // Add m to groups where g is a member
+    vals.addAll( this._addWhereIsMem(gl, isMem) );
 
     // If m is a group...
-    if (m.typeID().equals("group")) {
+    if (gl.member().typeID().equals("group")) {
       // ...add additional list values
-      vals.addAll( this._addMembers(gl, isMem) );
+      vals.addAll( this._addHasMembers(gl, isMem) );
     }
 
     return vals;
@@ -142,45 +128,58 @@ public class MemberOf {
    */
 
   /*
-   * Dtermine members of m that are affected by this list value change.
+   * Determine members of m that are affected by this list value change.
    */
-  private List _addMembers(GrouperList gl, List isMem) {
+  private List _addHasMembers(GrouperList gl, List isMem) {
     List vals = new ArrayList();
-
-    // Shortcuts for convenience
-    GrouperGroup  g = gl.group();
-    GrouperMember m = gl.member();
-    String        l = gl.groupField();
 
     // TODO Go through GG, not GB
     GrouperGroup  mAsG  = GrouperBackend.groupLoadByID(
-                                  this.s, m.subjectID()
+                                  this.s, gl.member().subjectID()
                                 );
-    Iterator      iterM = mAsG.listVals(l).iterator();
-    while (iterM.hasNext()) {
-      GrouperList lvM = (GrouperList) iterM.next();
-      lvM.load(this.s);
-      GrouperGroup viaM = lvM.via();
-      if (lvM.via() == null) {
-        viaM = mAsG;
-      }
+    Iterator hasIter = mAsG.listVals( gl.groupField() ).iterator();
+    while (hasIter.hasNext()) {
+      GrouperList glM = (GrouperList) hasIter.next();
+      glM.load(this.s);
+      GrouperGroup viaM = glM.via();
+      List chain = new ArrayList();
+      chain.addAll( glM.chain() );     // m's via chain...
+      chain.add( new MemberVia(glM) ); // plus m
       // Add m's members to g
-      vals.add( new GrouperList(g, lvM.member(), l, viaM) );
-
-      Iterator iterG = isMem.iterator();
-      while (iterG.hasNext()) {
-        GrouperList lvG = (GrouperList) iterG.next();
-        lvG.load(this.s);
-        GrouperGroup viaG = lvG.via();
-        if (lvG.via() == null) {
-          viaG = mAsG;
-        }
-        // Add m's members to where g is a member
-        vals.add(
-          new GrouperList(lvG.group(), lvM.member(), l, viaG)
+      vals.add(
+        new GrouperList(
+              gl.group(), glM.member(), gl.groupField(), viaM, chain
+            )
         );
-      }
+      // And now add to where g is a member
+      vals.addAll( this._addWhereIsMem(glM, isMem) );
     }
+
+    return vals;
+  }
+
+  /*
+   * Add m to where g is a member
+   */
+  private List _addWhereIsMem(GrouperList gl, List isMem) {
+    List vals = new ArrayList();
+
+    Iterator iter = isMem.iterator();
+    while (iter.hasNext()) {
+      GrouperList glM = (GrouperList) iter.next();
+      glM.load(this.s);
+      GrouperGroup via = glM.via();
+      List chain = new ArrayList();
+      chain.add( new MemberVia(glM) );  // m's via chain...
+      chain.addAll( glM.chain() );      // plus g's chain
+        // Add m to where g is a member
+      vals.add(
+        new GrouperList(
+              glM.group(), gl.member(), gl.groupField(), via, chain
+            )
+        );
+    }
+
     return vals;
   }
 
