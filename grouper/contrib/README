@@ -1,14 +1,10 @@
 #
 # Grouper Contributed Software README
-# $Id: README,v 1.2 2004-09-20 15:41:09 blair Exp $
+# $Id: README,v 1.3 2004-11-02 16:51:30 blair Exp $
 #
 
 Contributions:
 
-  load/hsqldb-init.sh
-    - Initializes and populates a HSQLDB database (for testing).
-    - Contributed by The University Of Chicago on 20040920
-    
   load/LoadGrouperMembersTableFromCSV
     - Populates 'members_table' from CSV file.
     - Contributed by The University Of Chicago on 20040702
