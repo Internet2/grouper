@@ -15,10 +15,10 @@ import  java.lang.reflect.*;
 
 
 /** 
- * Implementation of the I2MI {{@link SubjectType}} interface.
+ * Implementation of the I2MI {@link SubjectType} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.4 2004-11-12 17:36:33 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.5 2004-11-22 04:20:32 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
