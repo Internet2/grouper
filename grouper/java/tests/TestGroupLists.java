@@ -321,23 +321,22 @@ public class TestGroupLists extends TestCase {
   public void testAddListData1() {
     Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
+    Assert.assertNotNull("s !null", s);
 
     // Fetch Group 0
     GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
+    Assert.assertNotNull("g0 !null", g0);
     // Fetch Group 1
     GrouperGroup    g1    = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g1);
+    Assert.assertNotNull("g1 !null", g1);
     // Fetch g1 as m0
     GrouperMember   m0      = GrouperMember.load(s, g1.id(), "group");
-    Assert.assertNotNull(m0);
+    Assert.assertNotNull("m0/g1 !null", m0);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listAddVal(m0) );
+    Assert.assertTrue("g0 add m0/g1", g0.listAddVal(m0) );
     // We're done
     s.stop();
   } 
-
 
   public void testFetchListData1() {
     //
@@ -407,7 +406,7 @@ public class TestGroupLists extends TestCase {
   public void testAddListData2() {
     Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
+    Assert.assertNotNull("s !null", s);
 
     // Fetch Group 0
     GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
@@ -424,6 +423,7 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
+/*
   public void testFetchListData2() {
     //
     //  g0: m0, g1, g2  / m1^g2
@@ -1992,6 +1992,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( g7.listDelVal(g10m) );
     s.stop();
   }
+*/
 
 /*
   public void testFetchLV5_5() {

@@ -180,6 +180,16 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
+  // Instantiate a MemberVia instance 
+  public void testMemberViaInstantiate() {
+    MemberVia obj = new MemberVia();
+    Assert.assertNotNull("obj !null", obj);
+    Assert.assertTrue(
+                      "correct class",
+                      Util.KLASS_MV.equals( obj.getClass().getName() ) 
+                     );
+  }
+
   // Instantiate a SubjectImpl instance 
   public void testGrouperSubjectImplInstantiate() {
     SubjectImpl obj = new SubjectImpl();
@@ -210,16 +220,6 @@ public class TestInstantiate extends TestCase {
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.SubjectTypeImpl";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
-
-  // Instantiate a ViaElement instance 
-  public void testViaElementInstantiate() {
-    ViaElement obj = new ViaElement();
-    Assert.assertNotNull("obj !null", obj);
-    Assert.assertTrue(
-                      "correct class",
-                      Util.KLASS_VE.equals( obj.getClass().getName() ) 
-                     );
   }
 
 }
