@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.67 2005-03-20 00:47:40 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.68 2005-03-22 17:15:36 blair Exp $
  */
 public class GrouperMember {
 
@@ -255,17 +255,32 @@ public class GrouperMember {
    * @return  A {@link GrouperMember} object
    */
   public static GrouperMember load(GrouperSession s, String memberID) {
-    // Attempt to load an already existing member
-    // TODO Why am I not using the constructor?
-    GrouperMember member = GrouperBackend.memberByID(s, memberID);
-    if (member == null) {
+    // TODO This displeases me
+    String        qry = "GrouperMember.by.id";
+    GrouperMember m   = new GrouperMember();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, memberID);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          m = (GrouperMember) vals.get(0);
+          m.s = s;
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                   "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
       throw new RuntimeException(
-                                 "memberID " + memberID + 
-                                 " does not exist!"
-                                );
+                  "Unable to get query " + qry + ": " + e
+                );
+    } 
+    if (m == null) {
+      throw new RuntimeException("Error loading member " + memberID);
     }
-    member.s = s;
-    return member;
+    return m;
   }
 
 
