@@ -8,7 +8,7 @@ import  java.sql.*;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.12 2004-04-29 15:42:00 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.13 2004-04-29 15:44:04 blair Exp $
  */
 public class GrouperSession {
 
@@ -119,14 +119,14 @@ public class GrouperSession {
    * <p>
    * <ul>
    *  <li>Calls the internal {@link GrouperMember} object's
-   *     <i>whoami</i> method.</li>
+   *     <i>whoAmI</i> method.</li>
    *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
    * @return String representing the <i>memberID</i> for this session's
    * subject.
    */
-  public String whoami() {
+  public String whoAmI() {
     return this.subjectID;
   }
 
