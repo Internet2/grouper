@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.4 2004-03-12 18:34:22 blair Exp $
+# $Id: README,v 1.5 2004-03-21 00:13:22 blair Exp $
 #
 
  ---------
@@ -22,9 +22,6 @@
 + Sync with "official" roadmap
 + RDBMS tables
 + API Specification
-+ Configuration files
-  + What format?  Please don't say XML!
-    + java.util.Properties (davel)
 + Command line arguments
 + Returning errors/diagnostic messages?
   + Is this part of logging?
@@ -178,5 +175,28 @@ data and membership modifying functions?
       we go through the API?
 
 - XXX Make note of all site configurable options
-- Pedantic: s,Blair Christensen,blair christensen.,
+
+
+g = new Grouper()
+s = new Grouper.Session()
+
+// Create group
+group0 = new Grouper.Group()
+group0.create_group("group0")
+
+// Add member(s)
+- How do we know if '0' is a group or a member?
+  - Polymporhpic?  Pass in groups?  We have a 'member' type and a
+    'group' type?
+group0.add_value(MEMBERS, 0)
+
+// Delete group
+group1 = new Grouper.Group()
+group0.delete_group("group1")
+
+// Create group ?
+group0 = new Grouper.Group("group0")
+
+s.start("foo")
+s.end()
 
