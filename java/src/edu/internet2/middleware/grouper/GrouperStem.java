@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.13 2005-03-22 19:13:57 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.14 2005-03-23 22:11:36 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -91,7 +91,7 @@ public class GrouperStem extends Group {
       rv = true;
     } else {
       // TODO This can be improved.
-      GrouperGroup ns = GrouperBackend.groupLoadByName(
+      GrouperGroup ns = GrouperGroup._loadByName(
                           s, stem, Grouper.NS_TYPE
                         );
       if (ns != null) {
