@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.31 2004-12-09 01:31:50 blair Exp $ -->
+<!-- $Id: build.xml,v 1.32 2004-12-13 20:08:43 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -66,7 +66,7 @@
 
   <target name="all" depends="dist,test,html" />
 
-  <target name="html" description="generate public api docs" >
+  <target name="html" depends="init" description="generate public api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
     <delete dir="${javadoc.dest.public}" />
     <javadoc sourcepath="${javadoc.source}" 
@@ -78,7 +78,7 @@
       author="true"/>
   </target>
 
-  <target name="html-internal" description="generate internal api docs" >
+  <target name="html-internal" depends="init" description="generate internal api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
     <delete dir="${javadoc.dest.internal}" />
     <javadoc sourcepath="${javadoc.source}" 
@@ -165,7 +165,7 @@
     <copy file="${dist}/run/grouper.script.orig" tofile="${dist}/run/grouper.script"/>
   </target>
 
-  <target name="db" description="Launch HSQLDB UI">
+  <target name="db" depends="init" description="Launch HSQLDB UI">
     <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
       <classpath refid="project.class.path"/>
@@ -178,7 +178,7 @@
     </java>
   </target>
 
-  <target name="db-init" 
+  <target name="db-init" depends="init"
     description="Initialize HSQDBL database">
     <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
@@ -205,7 +205,7 @@
     </java>
   </target>
 
-  <target name="db-init-test" 
+  <target name="db-init-test" depends="init"
     description="Populate HSQLDB database with some test data">
     <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
