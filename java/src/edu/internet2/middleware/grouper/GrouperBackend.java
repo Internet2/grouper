@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.130 2004-12-07 21:25:59 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.131 2004-12-08 00:58:24 blair Exp $
  */
 public class GrouperBackend {
 
@@ -440,28 +440,29 @@ public class GrouperBackend {
     Session       session = GrouperBackend._init();
     GrouperGroup  g       = new GrouperGroup();
 
-    // TODO Verify that key != null
-    try {
-      // Attempt to load a stored group into the current object
-      session.load(g, key);
+    if (key != null) {
+      try {
+        // Attempt to load a stored group into the current object
+        session.load(g, key);
   
-      // Its schema
-      GrouperSchema schema = GrouperBackend._groupSchema(session, g);
-      if (
-          (schema != null)                                &&
-          (GrouperBackend._groupAttachAttrs(session, g))  &&
-          (g.type( schema.type() ) )
-         )
-      {
-        // TODO Attach s to object?
-      } else {
-        System.err.println("Unable to properly load group");
+        // Its schema
+        GrouperSchema schema = GrouperBackend._groupSchema(session, g);
+        if (
+            (schema != null)                                &&
+            (GrouperBackend._groupAttachAttrs(session, g))  &&
+            (g.type( schema.type() ) )
+           )
+        {
+          // TODO Nothing?
+        } else {
+          System.err.println("Unable to properly load group");
+          System.exit(1);
+        }
+      } catch (Exception e) {
+        // TODO Rollback if load fails?  Unset this.exists?
+        System.err.println(e);
         System.exit(1);
       }
-    } catch (Exception e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      System.err.println(e);
-      System.exit(1);
     }
     GrouperBackend._hibernateSessionClose(session);
     return g;
