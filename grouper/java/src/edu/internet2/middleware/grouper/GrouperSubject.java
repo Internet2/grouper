@@ -14,42 +14,29 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.grouper.*;
+import  java.util.*;
+
 /** 
- * {@link Grouper} subject lookup interface.
- * <p>
- * See {@link InternalGrouperSubject} for the default implementation
- * of this interface.
+ * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.9 2004-09-10 18:23:09 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.10 2004-09-19 03:03:24 blair Exp $
  */
-public interface GrouperSubject {
+public class GrouperSubject {
 
   /**
-   * Looks up "subject" via the class specified in the
-   * "interface.subject" configuration directive.
-   * <p>
-   * If successful, "subject" will be mapped to a {@link GrouperMember} object.
+   * Query the <i>grouper_member</i> table for a specific member.
    *
-   * @param   subjectID   A <i>memberID</i> or <i>presentationID</i>
-   * @return  {@link GrouperMember} object representing
-   *   <i>subjectID</i>.
+   * @param   id    Member ID
+   * @param   type  Member Type
+   * @return  {@link GrouperMember} object or null.
    */
-  public GrouperMember lookup(String subjectID);
-
-  /**
-   * Looks up "subject" via the class specified in the
-   * "interface.subject" configuration directive.
-   * <p>
-   * If successful, "subject" will be mapped to a {@link GrouperMember} object.
-   *
-   * @param   subjectID   A <i>memberID</i> or <i>presentationID</i>
-   * @param   isMember    True if <i>subjectID</i> is a
-   *   <i>memberID</i>, false if it is a <i>presentationID</i>.
-   * @return  {@link GrouperMember} object representing
-   *   <i>subjectID</i>.
-   */
-  public GrouperMember lookup(String subjectID, boolean isMember);
+  public static final GrouperMember lookup(String id, String type) {
+    //GrouperMember m = GrouperBackend.member(id, type);
+    return GrouperBackend.member(id, type);
+    //return m;
+  }
 
 }
 
