@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.40 2005-03-17 20:33:49 blair Exp $ -->
+<!-- $Id: build.xml,v 1.41 2005-03-17 20:51:51 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -102,6 +102,12 @@
     </javac>
   </target>
 
+  <!-- 
+    TODO Now that tests are stateless I shouldn't need to manually
+         specific everything, right?  Actually no.  I need to wait
+         until I have all of the test classes updated before I make
+         that switch.
+    -->
   <target name="test-run" depends="test-build,db-init-test">
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
@@ -141,6 +147,11 @@
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestGroupsAdd" />
+      <classpath refid="project.class.path" />
+    </java>
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestGroupsDelete" />
       <classpath refid="project.class.path" />
     </java>
 <!--
