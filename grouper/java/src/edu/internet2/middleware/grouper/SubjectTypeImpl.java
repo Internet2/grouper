@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.lang.reflect.*;
@@ -63,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.16 2005-03-23 21:35:24 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.17 2005-03-29 16:27:10 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -83,35 +84,7 @@ public class SubjectTypeImpl implements SubjectType {
    * Create a {@link SubjectTypeImpl} object.
    */
   public SubjectTypeImpl() {
-    // Nothing -- Yet
-  }
-
-
-  /*
-   * PROTECTED CLASS METHODS
-   */
-
-  /*
-   * @return List of all subject types.
-   */
-  protected static List all(DbSess dbSess) {
-    String  qry   = "SubjectTypeImpl.all";
-    List    vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
+    // Nothing 
   }
 
 
@@ -126,6 +99,7 @@ public class SubjectTypeImpl implements SubjectType {
    * @return {@link SubjectTypeAdapter} object.
    */
   public SubjectTypeAdapter getAdapter() {
+    SubjectTypeAdapter adapter = null;
     if (this.getAdapterClass() != null) {
       /*
        * Attempt to reflectively create an instance of the appropriate
@@ -136,13 +110,14 @@ public class SubjectTypeImpl implements SubjectType {
         Class[] paramsClass = new Class[] { };
         Constructor con     = classType.getDeclaredConstructor(paramsClass);
         Object[] params     = new Object[] { };
-        return (SubjectTypeAdapter) con.newInstance(params);
+        adapter = (SubjectTypeAdapter) con.newInstance(params);
       } catch (Exception e) {
-        // TODO Well, this is blatantly the wrong thing to do
-        throw new RuntimeException(e);
+        throw new RuntimeException(
+                    "Error instantiating subject type adapter: " + e
+                  );
       }
     }
-    return null;
+    return adapter;
   }
 
   /**
@@ -173,6 +148,34 @@ public class SubjectTypeImpl implements SubjectType {
            this.getId()               + ":" +
            this.getName()             + ":" +
            this.getAdapter();
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Return list of all valid subject types.
+   */
+  protected static List all(DbSess dbSess) {
+    String  qry   = "SubjectTypeImpl.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 
