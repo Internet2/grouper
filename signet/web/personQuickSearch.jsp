@@ -28,13 +28,21 @@
 
   Set privilegedSubjects
     = signet.getPrivilegedSubjects();
-      
+    
+  String searchString = request.getParameter("searchString");
   SortedSet sortSet = new TreeSet(privilegedSubjects);
   Iterator sortSetIterator = sortSet.iterator();
   while (sortSetIterator.hasNext())
   {
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
+      
+    // This is a shameful little hack to temporarily simulate person-quicksearch
+    // until it's implemented in the upcoming new version of the Subject interface:
+    if ((searchString == null)
+        || (searchString.equals(""))
+        || (listSubject.getName().toUpperCase().contains(searchString.toUpperCase())))
+    {
 %>
             <a href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId())%>'))">
               <%=listSubject.getName()%>
@@ -42,6 +50,7 @@
             <span class="dropback"><%=listSubject.getDescription()%></span>
             <br />
 <%
+    }
   }
 %>
       </div> <!-- scroll -->

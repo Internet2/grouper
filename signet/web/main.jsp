@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.18 2005-03-16 16:26:27 acohen Exp $
-  $Date: 2005-03-16 16:26:27 $
+  $Id: main.jsp,v 1.19 2005-03-16 23:11:12 acohen Exp $
+  $Date: 2005-03-16 23:11:12 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -226,7 +226,7 @@
               name="searchbutton"
               type="button"
               class="button1"
-              onclick="javascript:loadXMLDoc('personQuickSearch.jsp');"
+              onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
               value="Search" />
           <br />
           <span class="dropback">Enter a person's name, and click "Search."
