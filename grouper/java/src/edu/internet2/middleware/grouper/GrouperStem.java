@@ -53,6 +53,8 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
+import  net.sf.hibernate.*;
 
 
 /** 
@@ -60,7 +62,7 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.12 2005-03-21 03:12:39 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.13 2005-03-22 19:13:57 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -73,6 +75,80 @@ public class GrouperStem extends Group {
    */
   public GrouperStem() {
     // Nothing
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+  
+  /*
+   * @return true if the stem exists
+   */
+  protected static boolean exists(GrouperSession s, String stem) {
+    boolean rv = false;
+    if (stem.equals(Grouper.NS_ROOT)) {
+      rv = true;
+    } else {
+      // TODO This can be improved.
+      GrouperGroup ns = GrouperBackend.groupLoadByName(
+                          s, stem, Grouper.NS_TYPE
+                        );
+      if (ns != null) {
+        rv = true;
+      }
+    }
+    return rv;
+  }
+
+  /*
+   * TODO What exactly is this supposed to do?
+   * TODO And should it be public?
+   */ 
+  protected static List extensions(GrouperSession s, String extn) {
+    String  qry   = "GrouperAttribute.by.extension";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, extn);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * TODO What exactly is this supposed to do?
+   * TODO And should it be public?
+   */
+  protected static List stems(GrouperSession s, String stem) {
+    String  qry   = "GrouperAttribute.by.stem";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, stem);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 }

@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.188 2005-03-22 19:02:16 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.189 2005-03-22 19:13:57 blair Exp $
  */
 public class GrouperBackend {
 
@@ -509,7 +509,7 @@ public class GrouperBackend {
   {
     boolean rv = false;
     GrouperAttribute stem = (GrouperAttribute) g.attribute("stem");
-    if (_stemLookup(s, (String) stem.value())) {
+    if (GrouperStem.exists(s, (String) stem.value())) {
       rv = true;
     }
     return rv;
@@ -570,22 +570,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  // TODO
-  /**
-   * Query for attributes with a field of <i>extension</i> and 
-   * the specified value.
-   * <p />
-   * 
-   * @param   s     Perform query within this {@link
-   *   GrouperSession}.
-   * @param   extn  Query for extensions of this type.
-   * @return  List of {@link GrouperAttribute} objects.
-   */
-  protected static List extensions(GrouperSession s, String extn) {
-    List    extensions  = GrouperBackend._extensions(s, extn);
-    return extensions;
   }
 
   /**
@@ -827,12 +811,6 @@ public class GrouperBackend {
     return vals;
   }
 
-  // TODO
-  protected static List stems(GrouperSession s, String stem) {
-    List    stems   = GrouperBackend._stems(s, stem);
-    return stems;
-  }
-
   /**
    * Query for a single {@link Subject} of type "group".
    *
@@ -981,27 +959,6 @@ public class GrouperBackend {
     return rv;
   }
 
-  protected static List _extensions(GrouperSession s, String extension) {
-    String  qry   = "GrouperAttribute.by.extension";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, extension);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
   /* (!javadoc)
    * Attach attributes to a group.
    * FIXME Won't calling g.attribute(...) eventually cause the group's
@@ -1030,7 +987,7 @@ public class GrouperBackend {
                               )
   {
     GrouperGroup g = null;
-    if (GrouperBackend._stemLookup(s, stem)) {
+    if (GrouperStem.exists(s, stem)) {
       String name = GrouperGroup.groupName(stem, extn);
       g = GrouperBackend.groupLoadByName(s, name, type);
       // FIXME WTF? Should I do *something* here?
@@ -1183,44 +1140,5 @@ public class GrouperBackend {
     return vals;
   }
 
-  /* (!javadoc)
-   * True if the stem exists.
-   */
-  protected static boolean _stemLookup(GrouperSession s, String stem) {
-    boolean rv = false;
-    if (stem.equals(Grouper.NS_ROOT)) {
-      rv = true;
-    } else {
-      GrouperGroup g = GrouperBackend.groupLoadByName(
-                         s, stem, Grouper.NS_TYPE
-                       );
-      if (g != null) {
-        rv = true;
-      }
-    }
-    return rv;
-  }
-
-  protected static List _stems(GrouperSession s, String stem) {
-    String  qry   = "GrouperAttribute.by.stem";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, stem);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-  
 }
  
