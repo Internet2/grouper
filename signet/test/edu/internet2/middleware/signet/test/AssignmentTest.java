@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.5 2005-04-05 23:11:38 acohen Exp $
-$Date: 2005-04-05 23:11:38 $
+$Id: AssignmentTest.java,v 1.6 2005-04-06 23:31:35 acohen Exp $
+$Date: 2005-04-06 23:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -101,6 +101,14 @@ public class AssignmentTest extends TestCase
       //     Permission 0
       //       Limit 0
       //         limit-value: 0
+      //    Function 2
+      //      Permission 2
+      //        Limit 0
+      //          limit-value: 0
+      //        Limit 1
+      //          limit-value: 0
+      //        Limit 2
+      //          limit-value: 0
       //  Subject 1
       //    Function 1
       //      Permission 1
@@ -118,7 +126,15 @@ public class AssignmentTest extends TestCase
       //        Limit 2
       //          limit-value: 2
       
-      assertEquals(1, assignmentsReceived.size());
+      // subject 0 should have 2 Assignments. All others should have just 1.
+      if (subjectIndex == 0)
+      {
+        assertEquals(2, assignmentsReceived.size());
+      }
+      else
+      {
+        assertEquals(1, assignmentsReceived.size());
+      }
       Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
 
       LimitValue limitValues[] = assignment.getLimitValuesArray();
