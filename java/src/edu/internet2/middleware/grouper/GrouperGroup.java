@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.66 2004-11-10 17:21:54 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.67 2004-11-13 04:28:20 blair Exp $
  */
 public class GrouperGroup {
 
@@ -272,7 +272,7 @@ public class GrouperGroup {
     //      handled by Hibernate interceptors.  A task for another day.
     java.util.Date now = new java.util.Date();
     this.setCreateTime( Long.toString(now.getTime()) );
-    this.setCreateSubject( s.subject().id() );
+    this.setCreateSubject( s.subject().getId() );
   }
 
   /*

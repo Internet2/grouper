@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.29 2004-11-12 21:54:41 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.30 2004-11-13 04:28:20 blair Exp $
  */
 public class GrouperBackend {
 
@@ -101,7 +101,6 @@ public class GrouperBackend {
       System.exit(1);
     }
   }
-
 
   /**
    * Add a new {@link GrouperSession}.
@@ -535,6 +534,39 @@ public class GrouperBackend {
       System.exit(1);
     }
     return m;
+  }
+
+  /**
+   * Add a {@link GrouperMember} to backend store.
+   *
+   * @param   member  {@link GrouperMember} object to store.
+   * @return  {@link GrouperMember} object.
+   */
+  protected static GrouperMember memberAdd(GrouperMember member) {
+    // TODO Should I have session/security restrictions in place?
+    GrouperBackend._init();
+    if ( 
+        ( member.id()     != null ) &&
+        ( member.typeID() != null )
+       ) 
+    {
+      try {
+        Transaction t = session.beginTransaction();
+
+        // Save it
+        session.save(member);
+
+        // Commit it
+        t.commit();
+      } catch (Exception e) {
+        // TODO We probably need a rollback in here in case of failure
+        //      above.
+        System.err.println(e);
+        System.exit(1);
+      }
+      return GrouperBackend.member( member.id(), member.typeID() );
+    }
+    return null;
   }
 
   protected static GrouperGroup group(GrouperSession s, 
