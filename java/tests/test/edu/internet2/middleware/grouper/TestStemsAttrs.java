@@ -83,11 +83,11 @@ public class TestStemsAttrs extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
+    GrouperStem ns0 = GrouperStem.create(
                          s, Constants.ns0s, Constants.ns0e
                        );
     // Fetch ns0
-    GrouperGroup ns = GrouperGroup.load(
+    GrouperStem ns = GrouperStem.load(
                         s, Constants.ns0s, Constants.ns0e
                       );
 
@@ -114,7 +114,7 @@ public class TestStemsAttrs extends TestCase {
     Assert.assertTrue(
                       "name value", 
                       name.value().equals( 
-                        GrouperGroup.groupName(
+                        GrouperStem.groupName(
                           Constants.ns0s, Constants.ns0e
                         )
                       )
@@ -125,8 +125,8 @@ public class TestStemsAttrs extends TestCase {
     Assert.assertNotNull("createSubject null", ns.createSubject());
     Assert.assertNotNull("createTime null", ns.createTime());
     Assert.assertNull("modifySource null", ns.modifySource());
-    // FIXME Assert.assertNull("modifySubject null", ns.modifySubject());
-    // FIXME Assert.assertNull("modifyTime null", ns.modifyTime());
+    Assert.assertNull("modifySubject null", ns.modifySubject());
+    Assert.assertNull("modifyTime null", ns.modifyTime());
 
     s.stop();
   }
