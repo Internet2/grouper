@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.30 2004-11-13 04:28:20 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.31 2004-11-13 05:26:48 blair Exp $
  */
 public class GrouperBackend {
 
@@ -570,8 +570,8 @@ public class GrouperBackend {
   }
 
   protected static GrouperGroup group(GrouperSession s, 
-                                   String stem,
-                                   String descriptor) 
+                                      String stem,
+                                      String descriptor) 
   {
     GrouperBackend._init();
 
@@ -621,6 +621,9 @@ public class GrouperBackend {
         }
       }
     }
+    // TODO Here I return a dummy object while elsewhere, and with
+    //      other classes, I return null.  Standardize.  I *probably*
+    //      should return null.
     return new GrouperGroup();
   }
 

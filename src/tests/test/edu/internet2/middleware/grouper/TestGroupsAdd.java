@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupsAdd.java,v 1.1 2004-11-12 20:32:57 blair Exp $
+ * $Id: TestGroupsAdd.java,v 1.2 2004-11-13 05:26:48 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -43,7 +43,7 @@ public class TestGroups extends TestCase {
    */
   
 
-  // Does Group exist?  No.
+  // Fetch a non-existent group.
   public void testGroupExistFalse() {
     Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
@@ -55,6 +55,72 @@ public class TestGroups extends TestCase {
     // We're done
     s.stop();
   }
+
+  // Create a group
+  public void testCreateGroup() {
+    Grouper         G     = new Grouper();
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Create the group
+    String          stem  = "stem.0";
+    String          desc  = "desc.0";
+    GrouperGroup grp      = GrouperGroup.create(s, stem, desc);
+    Assert.assertNotNull(grp);
+    String klass          = "edu.internet2.middleware.grouper.GrouperGroup";
+    Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
+    Assert.assertTrue( grp.exists() );
+    Assert.assertNotNull( grp.type() );
+    Assert.assertNotNull( grp.attribute("stem") );
+    Assert.assertTrue( grp.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( grp.attribute("descriptor") );
+    Assert.assertTrue( grp.attribute("descriptor").value().equals(desc) );
+    // We're done
+    s.stop();
+  }
+
+  // Fetch a valid group
+  public void testFetchValidGroup() {
+    Grouper         G     = new Grouper();
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch the group
+    String          stem  = "stem.0";
+    String          desc  = "desc.0";
+    GrouperGroup grp      = GrouperGroup.load(s, stem, desc);
+    Assert.assertNotNull(grp);
+    String klass          = "edu.internet2.middleware.grouper.GrouperGroup";
+    Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
+    Assert.assertTrue( grp.exists() );
+    Assert.assertNotNull( grp.type() );
+    Assert.assertNotNull( grp.attribute("stem") );
+    Assert.assertTrue( grp.attribute("stem").value().equals(stem) );
+    Assert.assertNotNull( grp.attribute("descriptor") );
+    Assert.assertTrue( grp.attribute("descriptor").value().equals(desc) );
+    // We're done
+    s.stop();
+  }
+
+  // Fetch an invalid group
+  public void testFetchInvalidGroup() {
+    Grouper         G     = new Grouper();
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch the group
+    String          stem  = "stem.not0";
+    String          desc  = "desc.not0";
+    GrouperGroup grp      = GrouperGroup.load(s, stem, desc);
+    // TODO This will fail (or rather, should be changed) if I start
+    //      returning null rather than a desolate object
+    Assert.assertFalse( grp.exists() );
+    // We're done
+    s.stop();
+  }
+
+  // TODO Assert ADMIN priv (create + fetch)
+  // TODO Delete group
 
 }
 
