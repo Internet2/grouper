@@ -3,7 +3,6 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
-import  java.text.SimpleDateFormat;
 import  java.util.Date;
 import  java.util.ArrayList;
 import  java.util.List;
@@ -12,7 +11,7 @@ import  java.util.List;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.24 2004-07-02 17:26:23 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.25 2004-07-02 18:56:35 blair Exp $
  */
 public class GrouperSession {
 
@@ -332,10 +331,12 @@ public class GrouperSession {
   private void _registerSession() {
     Statement stmt = null;
 
+    // TODO Make this configurable.  Or something.
+    this._cullSessions();
+
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
     Date now = new Date();
-    SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
     try { 
       stmt = this.connection().createStatement();
@@ -343,7 +344,7 @@ public class GrouperSession {
                              "(cred, startTime) " +
                              "VALUES (" +
                              "'" + this.subjectID + "', " +
-                             "'" + format.format(now) + "'" +
+                             "'" + now.getTime() + "'" +
                              ")";
       try { 
         stmt.executeUpdate(insertSession);
@@ -353,6 +354,62 @@ public class GrouperSession {
       }
     } catch (Exception e) {
       System.err.println("Unable to create statement");
+      System.exit(1);
+    }
+  }
+
+  /*
+   * Cull old sessions
+   */
+  private void _cullSessions() {
+    Statement stmt = null;
+    boolean   cull = false;
+
+    /* XXX Until I find the time to identify a better way of managing
+     *     sessions -- which I *know* exists -- be crude about it. */
+    Date now     = new Date();
+    long nowTime = (long) now.getTime();
+
+    try { 
+      stmt            = this.connection().createStatement();
+      String    query = "SELECT * FROM grouper_session";
+      ResultSet rs    = stmt.executeQuery(query);
+      while (rs.next()) {
+        int    sessionID  = rs.getInt("sessionID");
+        String cred       = rs.getString("cred"); 
+        long   startTime  = rs.getLong("startTime");
+
+        if (startTime > nowTime) {
+          // Session started in the future
+          cull = true;
+        }
+        // Argh.  Milliseconds, *not* seconds
+        // TOOD Yes, this is a completely arbitrary number that I made
+        //      up for testing.  Make it configurable at a later date.
+        long tooOld = startTime + 3600000;
+        if (nowTime > tooOld) {
+          // Session too old
+          cull = true;
+        }
+
+        if (cull) {
+          try { 
+            String deleteSession = "DELETE FROM grouper_SESSION WHERE " +
+                                   "sessionID='" + sessionID + "'";
+            try { 
+              stmt.executeUpdate(deleteSession);
+            } catch (Exception e) {
+              System.err.println("Unable to delete session: " + deleteSession);
+              System.exit(1);
+            }
+          } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.err.println(e);
       System.exit(1);
     }
   }
