@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.196 2005-03-25 19:50:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.197 2005-03-26 01:42:20 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -163,6 +163,9 @@ public class GrouperGroup extends Group {
                                String extn, String type
                              )
   {
+    if (type.equals(Grouper.NS_TYPE)) {
+      throw new RuntimeException("Use GrouperStem for namespaces");
+    }
     GrouperGroup g;
     if (!GrouperStem.exists(s, stem)) {
       throw new RuntimeException("Parent stem does not exist");
@@ -216,6 +219,9 @@ public class GrouperGroup extends Group {
                                String extn, String type
                              )
   {
+    if (type.equals(Grouper.NS_TYPE)) {
+      throw new RuntimeException("Use GrouperStem for namespaces");
+    }
     String key = Group.findKey(s, stem, extn, type);
     if (key != null) {
       GrouperGroup g = (GrouperGroup) Group.loadByKey(s, key);

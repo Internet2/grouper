@@ -56,69 +56,75 @@ import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
 
-public class TestAll extends TestCase {
+public class TestStemsAsGroups extends TestCase {
 
-  public TestAll(String name) {
+  public TestStemsAsGroups(String name) {
     super(name);
   }
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
+  protected void setUp () {
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
+  }
 
-    suite.addTestSuite(TestInstantiate.class);
-    suite.addTestSuite(TestConfigAndSchema.class);
-    suite.addTestSuite(TestSubjects.class);
-    suite.addTestSuite(TestSessions.class);
-    suite.addTestSuite(TestMembers.class);
-    suite.addTestSuite(TestStemsAdd.class);
-    suite.addTestSuite(TestStemsChildren.class);
-    suite.addTestSuite(TestStemsDelete.class);
-    suite.addTestSuite(TestStemsAttrs.class);
-    // TODO TestStemsAttrsAdd
-    // TODO TestStemsAttrsMod
-    // TODO TestStemsAttrsDel
-    suite.addTestSuite(TestStemsAsGroups.class);
-    suite.addTestSuite(TestStemsMoF.class);
-    // TODO TestStemsMoFAdd
-    // TODO TestStemsMoFDel
-    suite.addTestSuite(TestGroupsAdd.class);
-    suite.addTestSuite(TestGroupsDelete.class);
-    suite.addTestSuite(TestGroupsAttrs.class);
-    // TODO TestGroupsAttrsAdd
-    // TODO TestGroupsAttrsMod
-    // TODO TestGroupsAttrsDel
-    suite.addTestSuite(TestGroupsMoF.class);
-    suite.addTestSuite(TestGroupsMoFAdd0.class);
-    suite.addTestSuite(TestGroupsMoFChain0.class);
-    suite.addTestSuite(TestGroupsMoFAdd1.class);
-    suite.addTestSuite(TestGroupsMoFChain1.class);
-    suite.addTestSuite(TestGroupsMoFAdd2.class);
-    suite.addTestSuite(TestGroupsMoFAdd3.class);
-    suite.addTestSuite(TestGroupsMoFAdd4.class);
-    suite.addTestSuite(TestGroupsMoFAdd5.class);
-    suite.addTestSuite(TestGroupsMoFAdd6.class);
-    suite.addTestSuite(TestGroupsMoFAdd7.class);
-    suite.addTestSuite(TestGroupsMoFAdd8.class);
-    suite.addTestSuite(TestGroupsMoFAdd9.class);
-    suite.addTestSuite(TestGroupsMoFAdd10.class);
-    suite.addTestSuite(TestGroupsMoFChain10.class);
-    suite.addTestSuite(TestGroupsMoFDel0.class);
-    suite.addTestSuite(TestGroupsMoFDel1.class);
-    // TODO TestMixedMoF
-    // TODO TestMixedMoFAdd
-    // TODO TestMixedMoFDel
-    // TODO Flesh out
-    suite.addTestSuite(TestNamingPrivs.class);
-    // TODO TestNamingPrivsGrant
-    // TODO TestNamingPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestAccessPrivs.class);
-    // TODO TestAccessPrivsGrant
-    // TODO TestAccessPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestQueries.class);
+  protected void tearDown () {
+    // Nothing -- Yet
+  }
 
-    return suite;
+
+  /*
+   * TESTS
+   */
+ 
+  // Fail to create a stem via GrouperGroup 
+  public void testCreateNSViaGG() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subj !null", subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
+
+    // Create ns0
+    try {
+      GrouperGroup ns0 = GrouperGroup.create(
+                           s, Constants.ns0s, Constants.ns0e,
+                           Grouper.NS_TYPE
+                         );
+      Assert.fail("create ns0 via gg");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("create ns0 via gg", true);
+    }
+  
+    // We're done
+    s.stop();
+  }
+
+  // Fail to load a stem via GrouperGroup 
+  public void testFetchNSViaGG() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subj !null", subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
+
+    // Create g0
+    GrouperStem ns0 = GrouperStem.create(
+                        s, Constants.ns0s, Constants.ns0e
+                      );
+    Assert.assertNotNull("create ns0", ns0);
+
+    // Load ns0
+    try {
+      GrouperGroup ns = GrouperGroup.create(
+                           s, Constants.ns0s, Constants.ns0e,
+                           Grouper.NS_TYPE
+                         );
+      Assert.fail("load ns0 via gg");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("load ns0 via gg", true);
+    }
+  
+    // We're done
+    s.stop();
   }
 
 }
