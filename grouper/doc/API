@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.21 2004-11-10 17:21:54 blair Exp $
+# $Id: API,v 1.22 2004-11-11 18:50:02 blair Exp $
 #
 # TODO Interfaces
 #
@@ -11,20 +11,12 @@ Grouper
       XXX What needs this?
     String config(String parameter)
     boolean groupField(String type, String field)
-      XXX Rename?
-      XXX Move to different class?
     List groupFields()
-      XXX Rename?
-      XXX Move to different class?
-    List groupTypeDefs()
-      XXX Rename?
-      XXX Move to different class?
-    List groupTypes()
-      XXX Rename?
-      XXX Move to different class?
     boolean groupType(String type)
-      XXX Rename?
-      XXX Move to different class?
+    List groupTypeDefs()
+    List groupTypes()
+    boolean subjectType(String)
+    List subjectTypes()
 
 
 GrouperAttribute

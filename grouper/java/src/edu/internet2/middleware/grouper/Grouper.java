@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.37 2004-11-11 15:39:35 blair Exp $
+ * @version $Id: Grouper.java,v 1.38 2004-11-11 18:50:02 blair Exp $
  */
 public class Grouper {
 
@@ -38,6 +38,8 @@ public class Grouper {
   private static List       groupTypes    = new ArrayList();  
   // Cached Grouper group typeDefs
   private static List       groupTypeDefs = new ArrayList();
+  // Cached Grouper subject types
+  private static List       subjectTypes  = new ArrayList();
 
 
   /**
@@ -144,6 +146,35 @@ public class Grouper {
     return groupTypes;
   }
 
+  /**
+   * Class method to confirm validity of a subject type.
+   * <p>
+   *
+   * @return  Boolean true if the type is valid, false otherwise.
+   */
+  public static boolean subjectType(String type) {
+    _init();
+    // TODO Why the convert?
+    List types = Grouper.subjectTypes();
+    for (Iterator iter = types.iterator(); iter.hasNext();) {
+      GrouperSubjectType t = (GrouperSubjectType) iter.next();
+      if ( t.toString().equals(type) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Class method to fetch all valid subject types.
+   *
+   * @return List of {@link GrouperSubjectType} objects.
+   */
+  public static List subjectTypes() {
+    _init();
+    return subjectTypes;
+  }
+
 
   /*
    * PRIVATE CLASS METHODS
@@ -173,6 +204,7 @@ public class Grouper {
       groupFields   = GrouperBackend.groupFields();
       groupTypeDefs = GrouperBackend.groupTypeDefs();
       groupTypes    = GrouperBackend.groupTypes();
+      subjectTypes  = GrouperBackend.subjectTypes();
 
       initialized = true;
     }
