@@ -64,7 +64,7 @@
  * % javac subject2csv.java
  * % java subject2csv /path/to/csv/file
  *
- * $Id: csv2subject.java,v 1.6 2004-12-03 16:05:47 blair Exp $ 
+ * $Id: csv2subject.java,v 1.7 2004-12-03 16:23:18 blair Exp $ 
  */
 
 import  java.io.*;
@@ -77,7 +77,8 @@ class csv2subject {
   /*
    * PRIVATE CONSTANTS
    */
-  private static final String cf = "csv2subject.properties";
+  private static final String CF    = "csv2subject.properties";
+  private static final String TABLE = "grouper_subject";
 
 
   /*
@@ -90,42 +91,22 @@ class csv2subject {
 
 
   public static void main(String[] args) {
-    _cfRead();
-    _jdbcConnect();
-
+    _cfRead();            // Read configuration
+    _jdbcConnect();       // Open JDBC connection
     if (args.length == 1) {
-      _csvRead(args[0]);
+      _csvRead(args[0]);  // Read and parse input file
     } else {
       System.err.println("USAGE: subject2csv /path/to/csv/file");
       System.exit(64);
     }
-
-    _jdbcDisconnect();
+    _csvAdd();            // Add subjects
+    _jdbcDisconnect();    // Close JDBC connection
   }
 
-/*
-  private static void _insertMember(String memberID, String presentationID) {
-    Statement stmt = null;
-    try { 
-      stmt = con.createStatement();
-      String insertMember = "INSERT INTO grouper_members " +
-                             "(memberID, presentationID) " +
-                             "VALUES (" +
-                             "'" + memberID + "', " +
-                             "'" + presentationID + "'" +
-                             ")";
-      try { 
-        stmt.executeUpdate(insertMember);
-      } catch (Exception e) {
-        System.err.println("Unable to insert session: " + insertMember);
-        System.exit(1);
-      }
-    } catch (Exception e) {
-      System.err.println("Unable to create statement");
-      System.exit(1);
-    }
-  }
-*/
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
 
   /* (!javadoc)
    * Read configuration file.
@@ -134,21 +115,49 @@ class csv2subject {
    */
   private static void _cfRead() {
     try {
-      FileInputStream in = new FileInputStream(cf);
+      FileInputStream in = new FileInputStream(CF);
       try { 
         conf.load(in);
       } catch (IOException ie) { 
-        System.err.println("Unable to read '" + cf + "'");
+        System.err.println("Unable to read '" + CF + "'");
         System.exit(1);
       }
     } catch (FileNotFoundException fe) {
-      System.err.println("Could not find '" + cf + "'");
+      System.err.println("Could not find '" + CF + "'");
       System.exit(1);
     }
     _verbose("driver    " + conf.get("jdbc.driver"));
     _verbose("url       " + conf.get("jdbc.url"));
     _verbose("username  " + conf.get("jdbc.username"));
     _verbose("password  " + conf.get("jdbc.password"));
+  }
+
+  /* (!javadoc)
+   * Add CSV contents to registry.
+   */
+  private static void _csvAdd() {
+    if (newSubs != null) {
+      Set keys = newSubs.keySet();
+      _verbose("There are " + keys.size() + " subjects to add.");
+      Iterator iter = keys.iterator();
+      while (iter.hasNext()) {
+        String subjID     = (String) iter.next();
+        String subjTypeID = (String) newSubs.get(subjID);
+        if (_sqlAdd(subjID, subjTypeID)) {
+          _verbose(
+            "Added sid=`" + subjID + "', subjTypeID=`" + 
+            subjTypeID + "'"
+          );
+        } else {
+          _verbose(
+            "Unable to add sid=`" + subjID + "', subjTypeID=`" + 
+            subjTypeID + "'"
+          );
+        }
+      }
+    } else {
+      _verbose("Subject list is not valid.");
+    }
   }
 
   /* (!javadoc)
@@ -239,6 +248,37 @@ class csv2subject {
         System.exit(1);
       }
     }
+  }
+
+  /* (!javadoc)
+   * Add subject 
+   */
+  private static boolean _sqlAdd(String subjID, String subjTypeID) {
+    boolean rv = false;
+    Statement stmt = null;
+    try {
+      stmt = conn.createStatement();
+      try {
+        String insert = "INSERT INTO " + TABLE        +
+                        "(subjectID, subjectTypeID) " +
+                        "VALUES ("                    +
+                        "'" + subjID      + "', "     +
+                        "'" + subjTypeID  + "'"       +
+                        ")";
+        int cnt = stmt.executeUpdate(insert);
+        if (cnt == 1) {
+          _verbose("Added 1 row to '" + TABLE + "'");
+          rv = true;
+        } else {
+          _verbose("??? " + cnt);
+        }
+      } catch (SQLException eue) {
+        System.err.println("Error executing statement: " + eue);
+      }
+    } catch (SQLException cse) {
+      System.err.println("Error creating insert statement: " + cse);
+    }
+    return rv;
   }
 
   // Inserts the memberID, presentationID pair into the
