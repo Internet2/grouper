@@ -24,8 +24,8 @@ while (choicesIterator.hasNext())
   Choice choice = (Choice)(choicesIterator.next());
 %>
 
- <option <%=(isFirstChoice ? " selected" : "")%> label=<%=choice.getDisplayValue()%>>
-    <%=choice.getValue()%>
+ <option <%=(isFirstChoice ? " selected" : "")%> value=<%=choice.getValue()%>>
+    <%=choice.getDisplayValue()%>
   </option>
 
 <%
