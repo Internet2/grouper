@@ -10,12 +10,15 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
+
 
 /** 
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.5 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperList.java,v 1.6 2004-11-05 19:21:36 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
@@ -35,6 +38,19 @@ public class GrouperMembership implements Serializable {
     removeAfter = null;
   }
 
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
            this.getMemberKey();
@@ -48,8 +64,9 @@ public class GrouperMembership implements Serializable {
     this.isImmediate  = immediate;
   }
 
+
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
 
   private String getGroupKey() {
@@ -98,21 +115,6 @@ public class GrouperMembership implements Serializable {
 
   private void setRemoveAfter(String removeAfter) {
     this.removeAfter = removeAfter;
-  }
-
-  // XXX Simplistic!  And probably wrong!
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    return false;
-  }
-
-  // XXX Is this wise?  Correct?  Sufficient?
-  public int hashCode() {
-    return java.lang.Math.abs( this.getGroupKey().hashCode()   ) + 
-           java.lang.Math.abs( this.getGroupField().hashCode() ) +
-           java.lang.Math.abs( this.getMemberKey().hashCode()  );
   }
 
 }
