@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.8 2005-03-01 22:54:28 acohen Exp $
-  $Date: 2005-03-01 22:54:28 $
+  $Id: functions.jsp,v 1.9 2005-03-04 23:56:11 acohen Exp $
+  $Date: 2005-03-04 23:56:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -20,6 +20,33 @@
   </head>
 
   <body>
+    <script type="text/javascript">
+      function selectFunction()
+      {
+        document.form1.continueButton.disabled=false;
+        
+        var selectedFunctionId
+          = document.getElementById("functionSelectList").value;
+          
+        var categoryNameSpanId = "CATEGORY_NAME:" + selectedFunctionId;
+        var categoryName = document.getElementById(categoryNameSpanId).innerHTML;
+          
+        var functionNameSpanId = "FUNCTION_NAME:" + selectedFunctionId;
+        var functionName = document.getElementById(functionNameSpanId).innerHTML;
+          
+        var functionHelpTextSpanId = "FUNCTION_HELPTEXT:" + selectedFunctionId;
+        var functionHelpText
+          = document.getElementById(functionHelpTextSpanId).innerHTML;
+        
+        var categoryNameElement = document.getElementById("categoryName");
+        var functionNameElement = document.getElementById("functionName");
+        var functionDescriptionElement = document.getElementById("functionDescription");
+        
+        categoryNameElement.firstChild.nodeValue=categoryName + " : ";
+        functionNameElement.firstChild.nodeValue=functionName;
+        functionDescriptionElement.firstChild.nodeValue=functionHelpText;
+      }
+  </script>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -103,10 +130,10 @@
 							</p>
 							
                	<select
-               		name="step3"
+               		name="functionSelectList"
                		size="10"
-               		id="step3"
-              		onchange="javascript:document.form1.continueButton.disabled=false">
+               		id="functionSelectList"
+              		onchange="javascript:selectFunction();">
  	<%
   Iterator grantableCategoriesIterator = grantableCategories.iterator();
   while (grantableCategoriesIterator.hasNext())
@@ -121,9 +148,9 @@
     {
       Function function = (Function)(functionsIterator.next());
 %>
-                   	<option value="<%=function.getId()%>">
+                   	  <option value="<%=function.getId()%>">
                      	<%=function.getName()%>
-                   	</option>
+                   	  </option>
 	<%
     }
 %>
@@ -132,11 +159,49 @@
   }
 %>
                	</select>
+               	
+               	<!-- Now, let's loop again, to lay down a series of SPAN elements
+               	     that will hold useful stuff like category name, function name,
+               	     and function help-text.
+               	-->
+ <%
+  grantableCategoriesIterator = grantableCategories.iterator();
+  while (grantableCategoriesIterator.hasNext())
+  {
+    Category grantableCategory = (Category)(grantableCategoriesIterator.next());
+    Set functions = loggedInPrivilegedSubject.getGrantableFunctions(grantableCategory);
+    Iterator functionsIterator = functions.iterator();
+    while (functionsIterator.hasNext())
+    {
+      Function function = (Function)(functionsIterator.next());
+%>
+                <span style="visibility:hidden" id="CATEGORY_NAME:<%=function.getId()%>">
+                  <%=grantableCategory.getName()%>
+                </span>
+                <span style="visibility:hidden" id="FUNCTION_NAME:<%=function.getId()%>">
+                  <%=function.getName()%>
+                </span>
+                <span style="visibility:hidden" id="FUNCTION_HELPTEXT:<%=function.getId()%>">
+                  <%=function.getHelpText()%>
+                </span>
+	<%
+    }
+  }
+%>
      
-							<div class="description" style="display: none;">Category name : <span class="keyname">Function name</span><br />
-		 						Description goes here.
-							</div>  <!-- description -->
-					 </div> 	<!-- section -->
+                <div class="description">
+                  <span id="categoryName">
+                    <!-- category name gets inserted by Javascript -->
+                  </span> <!-- categoryName -->
+                  <span class="keyname" id="functionName">
+                    <!-- function name gets inserted by Javascript -->
+                  </span> <!-- functionName -->
+                  <br />
+                  <span id="functionDescription">
+                    <!-- function description gets inserted by Javascript -->
+                  </span>
+                </div>  <!-- description -->
+              </div> 	<!-- section -->
 					
            <div class="section">
              	<input
