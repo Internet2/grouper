@@ -13,14 +13,14 @@ package edu.internet2.middleware.grouper;
  * Class representing the name portion of a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperDescriptor.java,v 1.7 2004-10-12 20:37:01 blair Exp $
+ * @version $Id: GrouperDescriptor.java,v 1.8 2004-10-28 14:34:39 blair Exp $
  */
-public class GrouperName {
+public class GrouperDescriptor {
 
   /**
-   * Create a {@link GrouperName} object.
+   * Create a {@link GrouperDescriptor} object.
    */
-  public GrouperName() {
+  public GrouperDescriptor() {
     // Nothing -- Yet
   }
 

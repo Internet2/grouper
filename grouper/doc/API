@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.9 2004-10-13 18:32:53 blair Exp $
+# $Id: API,v 1.10 2004-10-28 14:34:39 blair Exp $
 #
 # TODO Interfaces
 #
@@ -66,6 +66,12 @@ GrouperBackend
     String uuid()
 
 
+GrouperDescriptor
+  XXX Revisit class
+  Class Methods
+    GrouperDescriptor()
+
+
 GrouperField
   XXX Revisit class
   Class Methods
@@ -121,18 +127,6 @@ GrouperMembership
       XXX I don't like this approach.
 
 
-GrouperName
-  XXX Revisit class
-  Class Methods
-    GrouperName()
-
-
-GrouperNamespace
-  XXX Revisit class
-  Class Methods
-    GrouperNamespace()
-
-
 GrouperSchema
   Class Methods
     GrouperSchema()
@@ -160,6 +154,12 @@ GrouperSession
     void start(Grouper G, GrouperMember s)
     void stop()
     GrouperMember subject()
+
+
+GrouperStem
+  XXX Revisit class
+  Class Methods
+    GrouperStem()
 
 
 GrouperSubject
