@@ -21,11 +21,11 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.22 2004-08-24 17:37:57 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.23 2004-09-08 19:31:08 blair Exp $
  */
 public class GrouperMember {
 
-  private GrouperSession  intSess     = null;
+  private GrouperSession  grprSession     = null;
   /* groupID || memberID */
   private String          subjectID   = null;
   /* groupName || presentationID */
@@ -64,7 +64,7 @@ public class GrouperMember {
    */
   public GrouperMember(GrouperSession s, String member, boolean isGroup) {
     // Internal reference to the session we are using.
-    this.intSess  = s;
+    this.grprSession  = s;
 
     // XXX Bad assumptions!
     if (isGroup == true) {
