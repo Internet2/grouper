@@ -25,7 +25,7 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.39 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.40 2004-09-16 17:23:31 blair Exp $
  */
 public class GrouperSession {
 
@@ -357,7 +357,18 @@ public class GrouperSession {
    * @return Hibernate session
    */
   public Session session() {
-    return this.session;
+    if (this.session != null) {
+      return this.session;
+    } else {
+      try {
+        this.session = this.factory.openSession();
+        return this.session;
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    } 
+    return null;
   }
 
   /*
@@ -441,8 +452,8 @@ public class GrouperSession {
       Configuration cfg = new Configuration()
         .addFile("conf/Grouper.hbm.xml");
       try {
-        factory = cfg.buildSessionFactory();
-        this.session = factory.openSession();
+        this.factory = cfg.buildSessionFactory();
+        this.session = this.session();
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
