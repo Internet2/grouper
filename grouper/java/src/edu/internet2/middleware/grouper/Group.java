@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.12 2005-03-25 20:33:45 blair Exp $
+ * @version $Id: Group.java,v 1.13 2005-03-25 20:57:42 blair Exp $
  */
 abstract class Group {
 
@@ -323,6 +323,23 @@ abstract class Group {
     // Right priv required
     if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
       throw new RuntimeException("Deletion requires ADMIN priv");
+    }
+    if (g.type().equals(Grouper.NS_TYPE)) {
+      GrouperStem ns = (GrouperStem) g;
+      // Are there child stems?
+      if (ns.stems().size() > 0) {
+        throw new RuntimeException(
+                    "Cannot delete stem with child stems: " +
+                    ns.stems().size()
+                  );
+      }
+      // Are there child groups?
+      if (ns.groups().size() > 0) {
+        throw new RuntimeException(
+                    "Cannot delete stem with child groups: " +
+                    ns.groups().size()
+                  );
+      }
     }
     // Are there any members?
     /*
