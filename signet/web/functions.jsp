@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.7 2005-02-25 23:13:06 acohen Exp $
-  $Date: 2005-02-25 23:13:06 $
+  $Id: functions.jsp,v 1.8 2005-03-01 22:54:28 acohen Exp $
+  $Date: 2005-03-01 22:54:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -102,7 +102,11 @@
              	 Select the privilege you want to grant. Only privileges you are authorized to grant are listed.
 							</p>
 							
-               	<select name="step3" size="10" id="step3">
+               	<select
+               		name="step3"
+               		size="10"
+               		id="step3"
+              		onchange="javascript:document.form1.continueButton.disabled=false">
  	<%
   Iterator grantableCategoriesIterator = grantableCategories.iterator();
   while (grantableCategoriesIterator.hasNext())
@@ -136,7 +140,8 @@
 					
            <div class="section">
              	<input
-                  name="Button"
+                  name="continueButton"
+        		  disabled="true"
                   type="submit"
                   class="button-def"
                   value="Continue &gt;&gt;" />

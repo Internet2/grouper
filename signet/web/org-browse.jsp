@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.7 2005-02-25 23:13:06 acohen Exp $
-  $Date: 2005-02-25 23:13:06 $
+  $Id: org-browse.jsp,v 1.8 2005-03-01 22:54:28 acohen Exp $
+  $Date: 2005-03-01 22:54:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -137,7 +137,7 @@
              	<select
               	name="scope"
               	size=17
-              	onclick="javascript:document.form1.continueButton.disabled=false">
+              	onchange="javascript:document.form1.continueButton.disabled=false">
                	<%=signet.printTreeNodesInContext
                     ("<option disabled value=\"",  // ancestorPrefix
                      "<option value=\"",           // selfPrefix
