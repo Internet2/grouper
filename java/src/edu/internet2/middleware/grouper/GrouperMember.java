@@ -1,15 +1,20 @@
 package edu.internet2.middleware.directory.grouper;
 
-import java.util.List;
+import  edu.internet2.middleware.directory.grouper.*;
+import  java.util.List;
 
 /** 
  * Class representing a {@link Grouper} member, whether an individual
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.10 2004-04-28 17:24:10 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.11 2004-04-29 05:23:36 blair Exp $
  */
 public class GrouperMember {
+
+  private GrouperSession  intSess = null;
+  private String          subject = null;
+  private boolean         isGroup = false; 
 
   /**
    * Create a {@link GrouperMember} object that represents a single
@@ -36,7 +41,13 @@ public class GrouperMember {
    * </ul>
    */
   public GrouperMember(GrouperSession s, String member, boolean isGroup) {
-    // Nothing -- Yet
+    // Internal reference to the session we are using.
+    this.intSess  = s;
+
+    // XXX Bad assumptions!
+    this.subject = member;
+    this.isGroup = false;
+
   }
 
   /**
@@ -49,9 +60,9 @@ public class GrouperMember {
    *  <li>XXX What authZ considerations are here?</li>
    * </ul>
    * 
-   * @param  groupField  Type of group field to return.
-   * @return List of {@link GrouperGroup} objects representing
-   * immediate memberships.
+   * @param   groupField  Type of group field to return.
+   * @return  List of {@link GrouperGroup} objects representing
+   *  immediate memberships.
    */
   public List immediateMemberships(String groupField) {
     return null;
@@ -67,9 +78,9 @@ public class GrouperMember {
    *  <li>XXX What authZ considerations are here?</li>
    * </ul>
    * 
-   * @param  groupField  Type of group field to return.
-   * @return List of {@link GrouperGroup} objects representing
-   * effective memberships
+   * @param   groupField  Type of group field to return.
+   * @return  List of {@link GrouperGroup} objects representing
+   *  effective memberships
    */
   public List effectiveMemberships(String groupField) {
     return null;
@@ -77,16 +88,12 @@ public class GrouperMember {
 
   /**
    * Returns true if member object is a group.
-   * <p>
-   * <ul>
-   *  <li>XXX Determine what exactly is being set internally</li>
-   * </ul>
    *
-   * @return True if @{lilnk Grouper} member is a {@link Grouper}
-   * group, false otherwise.
+   * @return  True if @{link Grouper} member is a {@link Grouper}
+   *  group, false otherwise.
    */
   public boolean isGroup() {
-    return false;
+    return this.isGroup;
   }
 
   /**
@@ -96,11 +103,11 @@ public class GrouperMember {
    *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
-   * @return String representing the <i>memberID</i> for this 
-   *         {@link GrouperMember} object.
+   * @return  String representing the <i>memberID</i> for this 
+   *   {@link GrouperMember} object.
    */
   public String whoami() {
-    return null;
+    return this.subject;
   }
 
 }
