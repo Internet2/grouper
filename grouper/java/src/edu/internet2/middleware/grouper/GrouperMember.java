@@ -21,27 +21,69 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.23 2004-09-08 19:31:08 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.24 2004-09-10 18:16:49 blair Exp $
  */
 public class GrouperMember {
 
-  private GrouperSession  grprSession     = null;
-  /* groupID || memberID */
-  private String          subjectID   = null;
-  /* groupName || presentationID */
-  private String          subjectName = null;
-  private boolean         isGroup     = false; 
+  // Grouper Session
+  private static GrouperSession grprSession;
 
-  /* For Hibernate */
-  private String memberKey;
-  private String memberType;
-  private String memberID;
+  // FIXME How many of these variables are actually used?
+  // FIXME And what is the purpose of those that are used?
+  private static boolean  isGroup;
+  private static String   memberKey;
+  private static String   memberType;
+  private static String   memberID;
+  private static String   subjectID;
 
+  /**
+   * Create new {@link GrouperMember} object.
+   */
   public GrouperMember() {
-    memberKey   = null;
-    memberType  = null;
-    memberID    = null;
+    this._init();
   }
+
+  /**
+   * Create a new {@link GrouperMember} object.
+   */
+  public GrouperMember(GrouperSession s, String id, String type) {
+    this._init();
+    this.grprSession  = s;
+    this.subjectID    = id;
+    this.memberType   = type;
+  }
+
+  /**
+   * Return subject ID of this {@link GrouperMember} object.
+   * <p>
+   * XXX Is this needed?  Necessary?  Wanted?
+   *
+   * @return  Subject ID of this {@link GrouperMember} object.
+   */
+  public String subjectID() {
+    // XXX WTF is the subjectID?
+    return this.subjectID;
+  }
+
+  /*
+   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW 
+   */
+
+  /*
+   * Initialize {@GrouperMember} object.
+   */
+  private void _init() {
+    this.grprSession = null;
+    this.isGroup     = false;
+    this.memberKey   = null;
+    this.memberType  = null;
+    this.memberID    = null;
+    this.subjectID   = null;
+  }
+
+  /*
+   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
+   */
 
   /**
    * Create an object that represents a group member.
