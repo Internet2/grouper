@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.100 2004-12-02 07:41:27 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.101 2004-12-02 07:46:11 blair Exp $
  */
 public class GrouperGroup {
 
@@ -523,7 +523,7 @@ public class GrouperGroup {
    * Retrieve a group from the groups registry
    */
   private static GrouperGroup _loadByKey(GrouperSession s, String key, String type) {
-    GrouperGroup g = GrouperBackend._groupLoadByKey(key);
+    GrouperGroup g = GrouperBackend.groupLoadByKey(key);
     // Attach session
     g.grprSession = s;
     // Attach type  
