@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.133 2004-12-08 03:03:36 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.134 2004-12-08 10:02:23 blair Exp $
  */
 public class GrouperBackend {
 
@@ -436,25 +436,7 @@ public class GrouperBackend {
                                   String type
                                 ) 
   {
-    // FIXME Why don't we call GB._groupLoadByID?
-    Session       session = GrouperBackend._init();
-    GrouperGroup  g       = new GrouperGroup();
-    // First find the key
-    List vals = GrouperBackend._queryKV(
-                  session, "GrouperGroup",
-                  "groupID", id
-                );
-    if (vals.size() == 1) {
-      g = (GrouperGroup) vals.get(0);
-      g = GrouperBackend.groupLoadByKey(g.key());
-      if (!type.equals(g.type())) {
-        Grouper.log().backend(
-          "Type mismatching when loading by id=" + id
-        );
-        g = null;
-      }
-    }
-    GrouperBackend._hibernateSessionClose(session);
+    GrouperGroup g = GrouperBackend._groupLoadByID(id);
     return g;
   }
 
@@ -579,46 +561,61 @@ public class GrouperBackend {
                   );
       // Doesn't exist
       if (vals.size() == 0) {
+        session.clear(); // FIXME
         try {
           Transaction t = session.beginTransaction();
 
-          // Update immediate list data
+          // Update immediate list data first
           GrouperBackend._listAddVal(session, g, m, list, null);
 
-          GrouperGroup memberOfBase = g;
-          // Is this member a group?
-          if (m.typeID().equals("group")) {
-            memberOfBase = GrouperBackend._groupLoadByID( m.subjectID() );
+          /* 
+           * Find where `g' is a member and make `m' an effective
+           * member, via `g', of those groups.
+           */
+          GrouperMember mg = GrouperMember.load(g.id(), "group");
+          List groups = new ArrayList();
+          Iterator mgA = GrouperBackend.listVals(s, mg, list).iterator();
+          while (mgA.hasNext()) {
+            GrouperList glA = (GrouperList) mgA.next();
+            GrouperBackend._listAddVal(
+              session, glA.group(), m, list, g
+            );
+            groups.add(glA.group());
           }
 
-          // Grab immediate list data to update
-          List imms = GrouperBackend._listVals(
-                                               session, memberOfBase, null,
-                                               list, Grouper.MEM_IMM
-                                              );
-
-          // Update effective list data
-          Iterator effIter = GrouperBackend._memberOf(
-                              session, memberOfBase, list
-                             ).iterator();
-          while (effIter.hasNext()) {
-            GrouperVia via = (GrouperVia) effIter.next();
-            GrouperBackend._listAddVal(
-                                       session, via.group(),
-                                       via.member(), list, via.via()
-                                      );
-            Iterator immsIter = imms.iterator();
-            while(immsIter.hasNext()) {
-              GrouperList   gl  = (GrouperList) immsIter.next();
-              GrouperMember mem = (GrouperMember) gl.member();
-              if (mem != null) {
+          /*
+           * If `m' is a group, convert it from a member to a group
+	         * object.  Then, query to see who its effective and
+	         * immediate list members are and then add those members
+           * to all groups where `m' is a member.
+           */
+          if (m.typeID().equals("group")) {
+            groups.add(g);
+            GrouperGroup gm = GrouperBackend._groupLoadByID(m.subjectID());
+            Iterator imms = GrouperBackend.listImmVals(s, gm, list).iterator();
+            while (imms.hasNext()) {
+              GrouperList glI = (GrouperList) imms.next();
+              Iterator iterI = groups.iterator();
+              while (iterI.hasNext()) {
+                GrouperGroup ggI = (GrouperGroup) iterI.next();
                 GrouperBackend._listAddVal(
-                                           session, via.group(),
-                                           mem, list, memberOfBase
-                                          );
-              } // TODO else...
+                  session, ggI, glI.member(), list, gm
+                );
+              }
+            }
+            Iterator effs = GrouperBackend.listEffVals(s, gm, list).iterator();
+            while (effs.hasNext()) {
+              GrouperList glE = (GrouperList) effs.next();
+              Iterator iterE = groups.iterator();
+              while (iterE.hasNext()) {
+                GrouperGroup ggE = (GrouperGroup) iterE.next();
+                GrouperBackend._listAddVal(
+                  session, ggE, glE.member(), list, glE.via()
+                );
+              }
             }
           }
+
           // Update modify information
           session.update(g);
           // Commit it
@@ -660,50 +657,61 @@ public class GrouperBackend {
       try {
         Transaction t = session.beginTransaction();
 
-        // TODO Verify that the subject has privilege to remove this list data
-
-        /*
-         * When deleting a list value, take the following approach:
-         * - Delete (`g', `m', `list', null)
-         * - Delete ( * , `m', `list', `g' )
-         * - If `m' is a group:
-         *   - Delete ( *, * , `list', `m' )
-         */
-
-        // Update immediate list data for `m'
+        // Update immediate list data for `m' first
         GrouperBackend._listDelVal(session, g, m, list, null);
 
-        // Update effective list data for `m'
+        /* 
+         * Find where `m' is a member via `g' and remove those
+         * effective memberships.
+         */
         Iterator iterViaG = GrouperBackend._queryGrouperList(
                               session, GrouperBackend.VAL_NOTNULL,
-                              GrouperBackend.VAL_NOTNULL, list, g.key()
+                              m.key(), list, g.key()
                             ).iterator();
+        List groups = new ArrayList();
         while (iterViaG.hasNext()) {
           GrouperList   gl  = (GrouperList) iterViaG.next();
           GrouperGroup  grp = gl.group();
           GrouperMember mem = gl.member();
           if ( (grp != null) && (mem != null) ) {
             GrouperBackend._listDelVal(session, grp, mem, list, g);
+            groups.add(grp);
           }
         }
 
-        // If `m' is a group, delete effective list data via `m'
+        /*
+         * If `m' is a group, convert it from a member to a group
+         * object.  Then, query to see who its effective and
+         * immediate list members are and then remove those memberships
+         * from all groups where `m' was a member.
+         */
         if (m.typeID().equals("group")) {
-          GrouperGroup  mAsG        = GrouperBackend._groupLoadByID( 
-                                        m.subjectID() 
-                                      );
-          Iterator      iterViaMAsG = GrouperBackend._queryGrouperList(
-                                        session, 
-                                        GrouperBackend.VAL_NOTNULL, 
-                                        GrouperBackend.VAL_NOTNULL, 
-                                        list, mAsG.key()
-                                      ).iterator();
-          while (iterViaMAsG.hasNext()) {
-            GrouperList   gl  = (GrouperList) iterViaMAsG.next();
-            GrouperGroup  grp = gl.group();
-            GrouperMember mem = gl.member();
-            if ( (grp != null) && (mem != null) ) {
-              GrouperBackend._listDelVal(session, grp, mem, list, mAsG);
+          groups.add(g);
+          GrouperGroup gm = GrouperBackend._groupLoadByID(m.subjectID());
+          Iterator imms = GrouperBackend.listImmVals(
+                            s, gm, list
+                          ).iterator();
+          while (imms.hasNext()) {
+            GrouperList glI = (GrouperList) imms.next(); 
+            Iterator iter = groups.iterator();
+            while (iter.hasNext()) {
+              GrouperGroup ggI = (GrouperGroup) iter.next();
+              GrouperBackend._listDelVal(
+                session, ggI, glI.member(), list, gm
+              );
+            }
+          }
+          Iterator effs = GrouperBackend.listEffVals(
+                            s, gm, list
+                          ).iterator();
+          while (effs.hasNext()) {
+            GrouperList glE = (GrouperList) effs.next(); 
+            Iterator iter = groups.iterator();
+            while (iter.hasNext()) {
+              GrouperGroup ggE = (GrouperGroup) iter.next();
+              GrouperBackend._listDelVal(
+                session, ggE, glE.member(), list, glE.via()
+              );
             }
           }
         }
@@ -1822,97 +1830,6 @@ public class GrouperBackend {
                                             session, gkey_param, 
                                             mkey_param, list, via_param
                                            );
-  }
-   
-  /*
-   * The memberOf algorithim: Grouper's one trick pony
-   * <http://middleware.internet2.edu/dir/groups/docs/internet2-mace-dir-groups-best-practices-200210.htm>
-   * Section 7.1
-   */
-  private static Set _memberOf(Session session, GrouperGroup g, String list) {
-    Set memberships = new HashSet();
-    Set newGroups   = new HashSet();
-
-    // Get initial group memberships for group `g' and assign to
-    // `newGroups'.
-    newGroups = GrouperBackend._memberOfQuery(session, g, list);
-    // For each group in `newGroups', convert to a membership object
-    // and assign to `memberships'
-    GrouperMember member  = GrouperMember.load( g.id(), "group");
-    Iterator      immIter = newGroups.iterator();
-    while (immIter.hasNext()) {
-      GrouperGroup  immediate = (GrouperGroup) immIter.next();
-      memberships.add( new GrouperVia(member, immediate, null) );
-      // XXX System.err.println("I MEMBER " + g);
-      // XXX System.err.println("I OF     " + immediate);
-    }
-    while (true) {
-      // While there are `newGroups'
-      if (newGroups.size() > 0) {
-        Set       nextGroups  = new HashSet();
-        Iterator  newIter     = newGroups.iterator();
-        while (newIter.hasNext()) {
-          // Lookup group membership for each group in `newGroups'
-          GrouperGroup  via       = (GrouperGroup) newIter.next();
-          Set           effGroups = GrouperBackend._memberOfQuery(session, via, list);
-          Iterator      effIter   = effGroups.iterator();
-          while (effIter.hasNext()) {
-            GrouperGroup effective = (GrouperGroup) effIter.next();
-            // Add to `memberships'
-            memberships.add( new GrouperVia(member, effective, via) );
-            // TODO I need to update the !group memberships as well
-            // Add additional groups to `nextGroups'
-            nextGroups.add(effective);
-            // XXX System.err.println("E MEMBER " + g);
-            // XXX System.err.println("E OF     " + effective);
-            // XXX System.err.println("E VIA    " + via);
-          }
-        }
-        // Set `newGroups' to the next set of groups to query
-        newGroups = nextGroups;
-      } else {
-        break;
-      }
-    }
-    return memberships;
-  }
-  
-  /*
-   * TODO
-   */
-  private static Set _memberOfQuery(Session session, GrouperGroup g, String list) {
-    //List  vals    = new ArrayList();
-    Set   groups  = new HashSet();
-    // TODO Better validation efforts, please.
-    // TODO Refactor validation to a method?
-    // TODO Better check of session
-    // TODO Grouper.groupField(g.type(), list)
-    if (session != null) {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      // TODO I should stop relying upon the .key() methods.  RSN.
-
-      try {
-        // Query away!
-        // Make group a member
-        // TODO Or should I just cheat and go straight to the GB method?
-        GrouperMember m     = GrouperMember.load( g.id(), "group" );
-        if (m != null) { // FIXME Bah!
-          Iterator      iter  = GrouperBackend._queryGrouperList(
-                                  session, GrouperBackend.VAL_NOTNULL, 
-                                  m.key(), list, GrouperBackend.VAL_NULL
-                                ).iterator();
-          while (iter.hasNext()) {
-            GrouperList   gl  = (GrouperList) iter.next();
-            GrouperGroup  grp = gl.group();
-            groups.add(grp);
-          }
-        }
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
-      }
-    }
-    return groups;
   }
    
   /*
