@@ -3,7 +3,11 @@
 
 Inspired by _Parrot's_ RELEASE_INSTRUCTIONS file.
 
-$Id: RELEASE_INSTRUCTIONS,v 1.5 2004-12-08 03:28:45 blair Exp $
+$Id: RELEASE_INSTRUCTIONS,v 1.6 2005-01-23 16:37:59 blair Exp $
+
+/**************************
+ * TODO REVISE AND UPDATE *
+ **************************/
 
 ---
 
@@ -21,15 +25,24 @@ Update _doc/NEWS_ as appropriate.
 
 * Prep javadoc
 
-Build, move to _doc/javadoc, fix cvs tags, and then commit.
+    % ant html
+    % mv dist/api doc/javadoc
+    % cd doc/javadoc
+    % find . -type f -name \*.html | xargs perl -i -pe 's/\$Id: RELEASE_INSTRUCTIONS,v 1.6 2005-01-23 16:37:59 blair Exp $GrouperId: /g'
 
-* Tag CVS with a tag of the form _RELEASE_MAJOR_MINOR_
+* Tag CVS with a tag of the form _GROUPER_MAJOR_MINOR_
+
+* Checkout tagged version
+
+* Test
+
+* Checkout tagged version (EXPORT!)
 
 * Generate _CHANGES_ file
 
 * Generate HTML versions of _Markdown_-formatted files
 
-* Generate versioned tarball.
+* Generate versioned directory and tarball.
 
 * Extract tarball and confirm test harness succeeds.
 
