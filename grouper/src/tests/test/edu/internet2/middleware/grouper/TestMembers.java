@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestMembers.java,v 1.4 2004-11-23 19:43:26 blair Exp $
+ * $Id: TestMembers.java,v 1.5 2004-11-28 05:00:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -51,8 +51,9 @@ public class TestMembers extends TestCase {
     Assert.assertNotNull(m);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
-    Assert.assertNotNull( m.id() );
-    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.memberID() );
+    Assert.assertNotNull( m.subjectID() );
+    Assert.assertTrue( m.subjectID().equals( id) );
     Assert.assertNotNull( m.typeID() );
     Assert.assertTrue( m.typeID().equals( type ) );
   }
@@ -65,8 +66,9 @@ public class TestMembers extends TestCase {
     Assert.assertNotNull(m);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
-    Assert.assertNotNull( m.id() );
-    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.memberID() );
+    Assert.assertNotNull( m.subjectID() );
+    Assert.assertTrue( m.subjectID().equals( id) );
     Assert.assertNotNull( m.typeID() );
     Assert.assertTrue( m.typeID().equals( type ) );
   }

@@ -80,6 +80,9 @@
       <column name="memberKey" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
+    <property name="memberID">
+      <column name="memberID" length="255" not-null="true"/>
+    </property>
     <property name="subjectID">
       <column name="subjectID" sql-type="char(255)"/>
     </property>

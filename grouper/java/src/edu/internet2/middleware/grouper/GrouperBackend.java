@@ -27,7 +27,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.71 2004-11-28 04:17:47 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.72 2004-11-28 05:00:02 blair Exp $
  */
 public class GrouperBackend {
 
@@ -300,7 +300,7 @@ public class GrouperBackend {
         GrouperGroup memberOfBase = g;
         // Is this member a group?
         if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLoadByID( m.id() );
+          memberOfBase = GrouperBackend._groupLoadByID( m.subjectID() );
         }
 
         // Grab immediate list data to update
@@ -387,7 +387,7 @@ public class GrouperBackend {
         Iterator      viaIter;
         if (m.typeID().equals("group")) {
           // Behave one way if the member is a group
-          memberOfBase  = GrouperBackend._groupLoadByID( m.id() );
+          memberOfBase  = GrouperBackend._groupLoadByID( m.subjectID() );
           // Find effective memberships created in group `g' due to `m'
           // being a group.
           viaIter = GrouperBackend._queryGrouperList(
@@ -597,17 +597,21 @@ public class GrouperBackend {
   }
 
   /**
-   * Query for a single {@link GrouperMember} by member id and type.
+   * Query for a single {@link GrouperMember} by subject id and type.
    *
    * @return  {@link GrouperMember} object or null.
    */
-  protected static GrouperMember member(String id, String typeID) {
+  protected static GrouperMember member(
+                                        String subjectID, 
+                                        String subjectTypeID
+                                       ) 
+  {
     Session       session = GrouperBackend._init();
     GrouperMember m       = null;
     List          vals    = GrouperBackend._queryKVKV(
                               session, "GrouperMember",
-                              "subjectID", id,
-                              "subjectTypeID", typeID
+                              "subjectID", subjectID,
+                              "subjectTypeID", subjectTypeID
                             );
     // We only want one
     if (vals.size() == 1) {
@@ -627,8 +631,9 @@ public class GrouperBackend {
     // TODO Should I have session/security restrictions in place?
     Session session = GrouperBackend._init();
     if ( 
-        ( member.id()     != null ) &&
-        ( member.typeID() != null )
+        ( member.memberID()   != null) &&
+        ( member.subjectID()  != null) &&
+        ( member.typeID()     != null)
        ) 
     {
       try {
@@ -646,7 +651,7 @@ public class GrouperBackend {
         System.exit(1);
       }
       GrouperBackend._hibernateSessionClose(session);
-      return GrouperBackend.member( member.id(), member.typeID() );
+      return GrouperBackend.member(member.subjectID(), member.typeID());
     }
     GrouperBackend._hibernateSessionClose(session);
     return null;
