@@ -9,7 +9,7 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.16 2004-04-30 14:40:26 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.17 2004-04-30 15:17:10 blair Exp $
  */
 public class GrouperSession {
 
@@ -151,18 +151,49 @@ public class GrouperSession {
   }
 
   public void grantPriv(GrouperGroup g, GrouperMember m, String priv) {
-    // XXX Do something
-    this.intAccess.grant(g, m, priv);
+    // XXX DTRT depending upon whether it is an "access" or a "naming"
+    //     privilege
+    // this.intAccess.grant(g, m, priv);
+    // this.intNaming.grant(g, m, priv);
   }
 
   public void revokePriv(GrouperGroup g, GrouperMember m, String priv) {
-    // XXX Do something
-    this.intAccess.revoke(g, m, priv);
+    // XXX DTRT depending upon whether it is an "access" or a "naming"
+    //     privilege
+    // this.intAccess.revoke(g, m, priv);
+    // this.intNaming.revoke(g, m, priv);
+  }
+
+  public List hasPriv(GrouperGroup g) {
+    // XXX DTRT depending upon whether it is an "access" or a "naming"
+    //     privilege
+    // return this.intAccess.has(g);
+    // return this.intNaming.has(g);
+    return null;
+  }
+
+  public List hasPriv(GrouperGroup g, GrouperMember m) {
+    // XXX DTRT depending upon whether it is an "access" or a "naming"
+    //     privilege
+    // return this.intAccess.has(g, m);
+    // return this.intNaming.has(g, m);
+    return null;
+  }
+
+  public boolean hasPriv(GrouperGroup g, String priv) {
+    // XXX DTRT depending upon whether it is an "access" or a "naming"
+    //     privilege
+    // return this.intAccess.has(g, priv);
+    // return this.intNaming.has(g, priv);
+    return false;
   }
 
   public boolean hasPriv(GrouperGroup g, GrouperMember m, String priv) {
-    // XXX Do something
-    return this.intAccess.has(g, m, priv);
+    // XXX DTRT depending upon whether it is an "access" or a "naming"
+    //     privilege
+    // return this.intAccess.has(g, m, priv);
+    // return this.intNaming.has(g, m, priv);
+    return false;
   }
 
   private GrouperMember _lookupSubject(String subjectID) {
