@@ -55,6 +55,7 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -63,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.64 2005-03-15 16:13:25 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.65 2005-03-19 20:25:54 blair Exp $
  */
 public class GrouperMember {
 
@@ -125,6 +126,7 @@ public class GrouperMember {
     }
     return m;
   }
+  // FIXME Can I kill this?
   public static GrouperMember load(Subject subj) {
     DbSess dbSess = new DbSess();
 
@@ -159,6 +161,19 @@ public class GrouperMember {
 
     return member;
   }
+  protected static GrouperMember loadByKey(GrouperSession s, String key) {
+    GrouperSession.validate(s);
+    GrouperMember m = new GrouperMember();
+    try {
+      m = (GrouperMember) s.dbSess().session().get(
+                            GrouperMember.class, key
+                          );
+      m.s = s; // TOO Argh!
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error loading member: " + e);
+    }
+    return m;
+  }
 
   /**
    * Retrieve a {@link GrouperMember} object.
@@ -176,6 +191,8 @@ public class GrouperMember {
                                 String subjectTypeID
                               ) 
   {
+    GrouperSession.validate(s);
+
     GrouperMember m     = null;
     Subject       subj  = GrouperSubject.load(subjectID, subjectTypeID);
 
@@ -302,6 +319,23 @@ public class GrouperMember {
    */
   public String subjectID() {
     return this.getSubjectID();
+  }
+
+  /**
+   * Retrieve {@link GrouperGroup} object for this 
+   * {@link GrouperMember}.
+   * </p>
+   * @return {@link GrouperObject} object
+   */
+  public GrouperGroup toGroup() {
+    GrouperSession.validate(this.s);
+    GrouperGroup g = GrouperGroup.loadByID(
+                       this.s, this.getSubjectID()
+                     );
+    if (g == null) {
+      throw new RuntimeException("Error converting member to group");
+    }
+    return g;
   }
 
   /**
