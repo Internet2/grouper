@@ -55,6 +55,7 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.lang.reflect.*;
+import  net.sf.hibernate.*;
 
 
 /** 
@@ -62,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.87 2005-03-20 00:03:39 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.88 2005-03-22 14:38:00 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -140,11 +141,18 @@ public class GrouperSession implements Serializable {
     // Register the Grouper session
     if (subj != null) {
       s = new GrouperSession(subj);
-      // Initialize and attach the Hibernate session
       s.dbSess.txStart();
-      boolean rv = s._registerSession();
+      /*
+       * FIXME Until I find the time to identify a better way of
+       * managing sessions -- which I *know* exists -- be crude 
+       * about it. 
+       */
+      s.setSessionID( new GrouperUUID().toString() );
+      java.util.Date now = new java.util.Date();
+      s.setStartTime( Long.toString(now.getTime()) );
+      s._save();
       s.dbSess.txCommit();
-      Grouper.log().sessionStart(rv, s);
+      Grouper.log().sessionStart(s);
     }
     return s;
   }
@@ -181,16 +189,11 @@ public class GrouperSession implements Serializable {
     boolean rv = false;
     if (this.sessionID != null) {
       this.dbSess.txStart();
-      if (GrouperBackend.sessionDel(this)) {
-        this.dbSess.txCommit();
-        rv = true;
-      } else {
-        this.dbSess.txRollback();
-        rv = true;
-      }
+      this._delete();
+      this.dbSess.txCommit();
     }
     this.dbSess.stop();
-    Grouper.log().sessionStop(rv, this);
+    Grouper.log().sessionStop(this);
     return rv;
   }
 
@@ -228,20 +231,31 @@ public class GrouperSession implements Serializable {
    */
 
   /*
+   * Delete a session from the groups registry.
+   */
+  private void _delete() {
+    try {
+      this.dbSess.session().delete(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error deleting sessin: " + e);
+    }
+  }
+
+  /*
    * Initialize instance variables
    */
   private void _init() {
     this.access     = (GrouperAccess) _interfaceCreate(
                         Grouper.config("interface.access")
                       );
-    this.dbSess     = null;
-    this.memberID   = null;
+    //this.dbSess     = null;
+    //this.memberID   = null;
     this.naming     = (GrouperNaming) _interfaceCreate(
                         Grouper.config("interface.naming")
                       );
-    this.sessionID  = null;
-    this.startTime  = null;
-    this.subject    = null;
+    //this.sessionID  = null;
+    //this.startTime  = null;
+    //this.subject    = null;
   }
 
   // Deserialize the session
@@ -272,22 +286,14 @@ public class GrouperSession implements Serializable {
   }
 
   /*
-   * Register a new session with the groups registry.
+   * Save a session to the groups registry.
    */
-  private boolean _registerSession() {
-    // TODO Make this configurable.  Or something.
-    // GrouperBackend.sessionsCull();
-
-    /* XXX Until I find the time to identify a better way of managing
-     *     sessions -- which I *know* exists -- be crude about it. */
-    this.setSessionID( new GrouperUUID().toString() );
-    java.util.Date now = new java.util.Date();
-    this.setStartTime( Long.toString(now.getTime()) );
-
-    // And now save the session
-    GrouperBackend.sessionAdd(this);
-
-    return true;
+  private void _save() {
+    try {
+      this.dbSess.session().save(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error saving session: " + e);
+    }
   }
 
 
