@@ -7,10 +7,10 @@ import  java.util.ArrayList;
 import  java.util.List;
 
 /** 
- * Provides a GrouperSession.
+ * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.22 2004-05-02 04:45:16 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.23 2004-05-02 14:26:36 blair Exp $
  */
 public class GrouperSession {
 

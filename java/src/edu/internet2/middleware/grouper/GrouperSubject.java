@@ -1,13 +1,13 @@
 package edu.internet2.middleware.directory.grouper;
 
 /** 
- * Interface for identifying {@link Grouper} subjects.
+ * {@link Grouper} subject lookup interface.
  * <p>
  * See {@link InternalGrouperSubject} for the default implementation
  * of this interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.5 2004-05-02 04:45:16 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.6 2004-05-02 14:27:23 blair Exp $
  */
 public interface GrouperSubject {
 
