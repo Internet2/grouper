@@ -10,57 +10,31 @@
       <key-property name="groupKey"   type="string" column="groupKey"/>
       <key-property name="groupField" type="string" column="groupField"/>
     </composite-id>
-    <property name="groupFieldValue">
-      <column name="groupFieldValue" length="255"/>
-    </property>
+    <property name="groupFieldValue" type="string"/>
   </class>
 
   <class name="GrouperField" table="grouper_field" mutable="false">
     <cache usage="read-only"/>
     <id name="groupField" type="string" unsaved-value="null" >
-      <column name="groupField" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="readPriv">
-      <column name="readPriv" length="255" not-null="true"/>
-    </property>
-    <property name="writePriv">
-      <column name="writePriv" length="255" not-null="true"/>
-    </property>
-    <property name="isList">
-      <column name="isList" length="255" not-null="true"/>
-    </property>
+    <property name="readPriv"   type="string" not-null="true"/>
+    <property name="writePriv"  type="string" not-null="true"/>
+    <property name="isList"     type="string" not-null="true"/>
   </class>
 
   <class name="GrouperGroup" table="grouper_group" mutable="true">
-    <id name="groupKey" type="string">
-      <column name="groupKey" sql-type="char(255)" not-null="true"/>
+    <id name="groupKey" type="string" unsaved-value="null">
       <generator class="assigned"/>
     </id>
-    <property name="groupID">
-      <column name="groupID" length="255" not-null="true"/>
-    </property>
-    <property name="createTime">
-      <column name="createTime" length="255"/>
-    </property>
-    <property name="createSubject">
-      <column name="createSubject" length="255"/>
-    </property>
-    <property name="createSource">
-      <column name="createSource" length="255"/>
-    </property>
-    <property name="modifyTime">
-      <column name="modifyTime" length="255"/>
-    </property>
-    <property name="modifySubject">
-      <column name="modifySubject" length="255"/>
-    </property>
-    <property name="modifySource">
-      <column name="modifySource" length="255"/>
-    </property>
-    <property name="comment">
-      <column name="comment" length="255"/>
-    </property>
+    <property name="groupID"        type="string" not-null="true"/>
+    <property name="createTime"     type="string"/>
+    <property name="createSubject"  type="string"/>
+    <property name="createSource"   type="string"/>
+    <property name="modifyTime"     type="string"/>
+    <property name="modifySubject"  type="string"/>
+    <property name="modifySource"   type="string"/>
+    <property name="comment"        type="string"/>
   </class>
 
   <class name="GrouperList" table="grouper_list" mutable="true">
@@ -77,18 +51,11 @@
 
   <class name="GrouperMember" table="grouper_member">
     <id name="memberKey" type="string" unsaved-value="null">
-      <column name="memberKey" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="memberID">
-      <column name="memberID" length="255" not-null="true"/>
-    </property>
-    <property name="subjectID">
-      <column name="subjectID" sql-type="char(255)"/>
-    </property>
-    <property name="subjectTypeID">
-      <column name="subjectTypeID" sql-type="char(255)"/>
-    </property>
+    <property name="memberID"       type="string"/>
+    <property name="subjectID"      type="string"/>
+    <property name="subjectTypeID"  type="string"/>
   </class>
 
   <class name="GrouperSchema" table="grouper_schema" mutable="true">
@@ -100,15 +67,10 @@
 
   <class name="GrouperSession" table="grouper_session">
     <id name="sessionID" type="string" unsaved-value="null" >
-      <column name="sessionID" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="subjectID">
-      <column name="subjectID" length="255" not-null="true"/>
-    </property>
-    <property name="startTime">
-      <column name="startTime" length="255" not-null="true"/>
-    </property>
+    <property name="subjectID"  type="string" not-null="true"/>
+    <property name="startTime"  type="string" not-null="true"/>
   </class>
 
   <class name="GrouperSubjectAttribute" table="grouper_SubjectAttribute">
@@ -116,24 +78,15 @@
       <key-property name="subjectID"     type="string" column="subjectID"/>
       <key-property name="subjectTypeID" type="string" column="subjectTypeID"/>
     </composite-id> 
-    <property name="name">
-      <column name="name" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="instance">
-      <column name="instance" sql-type="integer"/>
-    </property>
-    <property name="value">
-      <column name="value" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="searchValue">
-      <column name="searchValue" sql-type="char(255)" not-null="true"/>
-    </property>
+    <property name="name"         type="string" not-null="true"/>
+    <property name="instance"     type="integer"/>
+    <property name="value"        type="string" not-null="true"/>
+    <property name="searchValue"  type="string" not-null="true"/>
   </class>
 
   <class name="GrouperType" table="grouper_type" mutable="false">
     <cache usage="read-only"/>
     <id name="groupType" type="string" unsaved-value="null" >
-      <column name="groupType" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
   </class>
@@ -142,13 +95,12 @@
     <cache usage="read-only"/>
     <composite-id access="field">
       <key-property name="groupType"  type="string" column="groupType"/>
-      <key-property name="groupField" type="string"  column="groupField"/>
+      <key-property name="groupField" type="string" column="groupField"/>
     </composite-id>
   </class>
 
   <class name="SubjectImpl" table="grouper_subject">
     <id name="subjectID" type="string" unsaved-value="null" >
-      <column name="subjectID" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
     <property name="subjectTypeID">
@@ -159,15 +111,10 @@
   <class name="SubjectTypeImpl" table="grouper_subjectType" mutable="false">
     <cache usage="read-only"/>
     <id name="subjectTypeID" type="string" unsaved-value="null">
-      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="name">
-      <column name="name" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="adapterClass">
-      <column name="adapterClass" sql-type="char(255)" not-null="true"/>
-    </property>
+    <property name="name"         type="string" not-null="true"/>
+    <property name="adapterClass" type="string" not-null="true"/>
   </class>
 
 </hibernate-mapping>
