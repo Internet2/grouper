@@ -63,9 +63,9 @@ import  net.sf.hibernate.*;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: BackendQuery.java,v 1.2 2005-01-27 02:41:03 blair Exp $
+ * @version $Id: BackendQuery.java,v 1.3 2005-01-31 00:57:18 blair Exp $
  */
-public class GBQuery {
+public class BackendQuery {
 
   /*
    * PROTECTED CLASS METHODS

@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.grouper.backend.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.sql.*;
@@ -68,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.143 2005-01-30 20:48:36 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.144 2005-01-31 00:57:18 blair Exp $
  */
 public class GrouperBackend {
 
@@ -341,7 +340,7 @@ public class GrouperBackend {
    */
   protected static List attributes(GrouperGroup g) {
     Session session = GrouperBackend._init();
-    List vals = GBQuery.kv(
+    List vals = BackendQuery.kv(
                   session, "GrouperAttribute", "groupKey", g.key()
                 );
     GrouperBackend._hibernateSessionClose(session);
@@ -528,7 +527,7 @@ public class GrouperBackend {
        */
       
       // Remove attributes
-      Iterator attrIter = GBQuery.kv(
+      Iterator attrIter = BackendQuery.kv(
                             session, "GrouperAttribute",
                             "groupKey", g.key()
                           ).iterator();
@@ -538,7 +537,7 @@ public class GrouperBackend {
       }
                 
       // Remove schema
-      Iterator schemaIter = GBQuery.kv(
+      Iterator schemaIter = BackendQuery.kv(
                               session, "GrouperSchema",
                               "groupKey", g.key()
                             ).iterator();
@@ -569,7 +568,7 @@ public class GrouperBackend {
    */
   protected static List groupFields() {
     Session session = GrouperBackend._init();
-    List    vals    = GBQuery.all(session, "GrouperField");
+    List    vals    = BackendQuery.all(session, "GrouperField");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
@@ -957,7 +956,7 @@ public class GrouperBackend {
    */
   protected static List groupTypeDefs() {
     Session session = GrouperBackend._init();
-    List    vals    = GBQuery.all(session, "GrouperTypeDef");
+    List    vals    = BackendQuery.all(session, "GrouperTypeDef");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
@@ -973,7 +972,7 @@ public class GrouperBackend {
   protected static List groupType(GrouperSession s, String type) {
     Session   session = GrouperBackend._init();
     List      vals    = new ArrayList();
-    Iterator  iter    = GBQuery.kv(
+    Iterator  iter    = BackendQuery.kv(
                           session, "GrouperSchema", "groupType", type
                         ).iterator();
     while (iter.hasNext()) {
@@ -998,7 +997,7 @@ public class GrouperBackend {
   protected static List groupCreatedAfter(java.util.Date d) {
     Session   session = GrouperBackend._init();
     List      vals    = new ArrayList();
-    Iterator  iter    = GBQuery.kvgt(
+    Iterator  iter    = BackendQuery.kvgt(
                           session, "GrouperGroup",
                           "createTime", Long.toString(d.getTime())
                         ).iterator();
@@ -1017,7 +1016,7 @@ public class GrouperBackend {
   protected static List groupCreatedBefore(java.util.Date d) {
     Session   session = GrouperBackend._init();
     List      vals    = new ArrayList();
-    Iterator  iter    = GBQuery.kvlt(
+    Iterator  iter    = BackendQuery.kvlt(
                           session, "GrouperGroup",
                           "createTime", Long.toString(d.getTime())
                         ).iterator();
@@ -1036,7 +1035,7 @@ public class GrouperBackend {
   protected static List groupModifiedAfter(java.util.Date d) {
     Session   session = GrouperBackend._init();
     List      vals    = new ArrayList();
-    Iterator  iter    = GBQuery.kvgt(
+    Iterator  iter    = BackendQuery.kvgt(
                           session, "GrouperGroup",
                           "modifyTime", Long.toString(d.getTime())
                         ).iterator();
@@ -1055,7 +1054,7 @@ public class GrouperBackend {
   protected static List groupModifiedBefore(java.util.Date d) {
     Session   session = GrouperBackend._init();
     List      vals    = new ArrayList();
-    Iterator  iter    = GBQuery.kvlt(
+    Iterator  iter    = BackendQuery.kvlt(
                           session, "GrouperGroup",
                           "modifyTime", Long.toString(d.getTime())
                         ).iterator();
@@ -1072,7 +1071,7 @@ public class GrouperBackend {
    */
   protected static List groupTypes() {
     Session session = GrouperBackend._init();
-    List    vals    = GBQuery.all(session, "GrouperType");
+    List    vals    = BackendQuery.all(session, "GrouperType");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
@@ -1113,7 +1112,7 @@ public class GrouperBackend {
   {
     Session       session = GrouperBackend._init();
     GrouperMember m       = null;
-    List          vals    = GBQuery.kvkv(
+    List          vals    = BackendQuery.kvkv(
                               session, "GrouperMember", "subjectID", 
                               subjectID, "subjectTypeID", subjectTypeID
                             );
@@ -1168,7 +1167,7 @@ public class GrouperBackend {
    */
   protected static List schemas(GrouperGroup g) {
     Session session = GrouperBackend._init();
-    List    vals    = GBQuery.kv(
+    List    vals    = BackendQuery.kv(
                         session, "GrouperSchema", "groupKey", g.key()
                       );
     GrouperBackend._hibernateSessionClose(session);
@@ -1225,7 +1224,7 @@ public class GrouperBackend {
     boolean rv = false;
     Session session = GrouperBackend._init();
     if (s != null) {
-      List vals = GBQuery.kv(
+      List vals = BackendQuery.kv(
                     session, "GrouperSession", "sessionID", s.id()
                   );
       if (vals.size() == 1) {
@@ -1279,7 +1278,7 @@ public class GrouperBackend {
   protected static Subject subjectLookupTypeGroup(String id, String typeID) {
     Session session = GrouperBackend._init();
     Subject subj    = null;
-    List    vals    = GBQuery.kv(
+    List    vals    = BackendQuery.kv(
                         session, "GrouperGroup", "groupID", id
                       );
     // We only want one
@@ -1316,7 +1315,7 @@ public class GrouperBackend {
   protected static Subject subjectLookupTypePerson(String id, String typeID) {
     Session session = GrouperBackend._init();
     Subject subj    = null;
-    List    vals    = GBQuery.kvkv(
+    List    vals    = BackendQuery.kvkv(
                         session, "SubjectImpl", "subjectID", id,
                         "subjectTypeID", typeID
                       );
@@ -1335,7 +1334,7 @@ public class GrouperBackend {
    */
   protected static List subjectTypes() {
     Session session = GrouperBackend._init();
-    List    vals    = GBQuery.all(session, "SubjectTypeImpl");
+    List    vals    = BackendQuery.all(session, "SubjectTypeImpl");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
@@ -1364,7 +1363,7 @@ public class GrouperBackend {
                                   )
   {
     GrouperAttribute attr = null;
-    List vals = GBQuery.grouperAttr(session, key, field);
+    List vals = BackendQuery.grouperAttr(session, key, field);
     if (vals.size() == 0) {
       // We've got a new one.  Store it.
       try {
@@ -1400,7 +1399,7 @@ public class GrouperBackend {
                          ) 
   {
     boolean rv = false;
-    List vals = GBQuery.grouperAttr(session, key, field);
+    List vals = BackendQuery.grouperAttr(session, key, field);
     if (vals.size() == 1) {
       try {
         GrouperAttribute attr = (GrouperAttribute) vals.get(0);
@@ -1414,7 +1413,7 @@ public class GrouperBackend {
   }
 
   private static List _extensions(Session session, String extension) {
-    return GBQuery.kvkv(
+    return BackendQuery.kvkv(
              session, "GrouperAttribute", "groupField", 
              "extension", "groupFieldValue", extension
            );
@@ -1464,7 +1463,7 @@ public class GrouperBackend {
   private static GrouperGroup _groupLoadByID(String id) {
     Session session = GrouperBackend._init();
     String  key     = null;
-    List    vals    = GBQuery.kv(session, "GrouperGroup", "groupID", id);
+    List    vals    = BackendQuery.kv(session, "GrouperGroup", "groupID", id);
     // We only want one
     if (vals.size() == 1) {
       GrouperGroup g = (GrouperGroup) vals.get(0);
@@ -1484,14 +1483,14 @@ public class GrouperBackend {
                  ) 
   {
     GrouperGroup g = null;
-    List names = GBQuery.kvkv(
+    List names = BackendQuery.kvkv(
                    session, "GrouperAttribute", "groupField", "name",
                    "groupFieldValue", name
                  );
     Iterator iter = names.iterator();
     while (iter.hasNext()) {
       GrouperAttribute attr = (GrouperAttribute) iter.next();
-      List gs = GBQuery.kvkv(
+      List gs = BackendQuery.kvkv(
                   session, "GrouperSchema", "groupKey", attr.key(),
                   "groupType", type
                 );
@@ -1521,7 +1520,7 @@ public class GrouperBackend {
   private static GrouperSchema _groupSchema(Session session, GrouperGroup g) {
     GrouperSchema schema = null;
     if (g != null) {
-      List    vals  = GBQuery.kv(
+      List    vals  = BackendQuery.kv(
                         session, "GrouperSchema", "groupKey", g.key()
                       );
       // TODO For now, we only want one.
@@ -1630,7 +1629,7 @@ public class GrouperBackend {
       } else {
         via_param = via.key();
       }
-      vals = GBQuery.grouperList(
+      vals = BackendQuery.grouperList(
                session, g.key(), m.key(), list, via_param
              );
       // We only want one
@@ -1762,7 +1761,7 @@ public class GrouperBackend {
         throw new RuntimeException("Invalid via requirement: " + via);
       }
     }
-    return GBQuery.grouperList(
+    return BackendQuery.grouperList(
              session, gkey_param, mkey_param, list, via_param
            );
   }
@@ -1790,7 +1789,7 @@ public class GrouperBackend {
   }
 
   private static List _stems(Session session, String stem) {
-    return GBQuery.kvkv(
+    return BackendQuery.kvkv(
              session, "GrouperAttribute", "groupField", 
              "stem", "groupFieldValue", stem
            );
