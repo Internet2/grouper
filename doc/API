@@ -1,12 +1,10 @@
 
 # Grouper API 
 
-.
-
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.44 2004-12-09 22:02:39 blair Exp $
+$Id: API,v 1.45 2004-12-09 22:03:03 blair Exp $
 
 ---
 
