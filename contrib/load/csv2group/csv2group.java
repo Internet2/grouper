@@ -56,7 +56,7 @@
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.1 2004-12-04 02:12:13 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.2 2004-12-04 02:45:25 blair Exp $ 
  */
 
 import  edu.internet2.middleware.grouper.*;
@@ -305,7 +305,7 @@ class csv2group {
     if (stem.equals("Grouper.NS_ROOT")) {
       stem = Grouper.NS_ROOT;
     }
-    GrouperGroup g = GrouperGroup.create(s, stem, extn, "naming");
+    GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
     if (g != null) {
       _verbose("Added stem: " + g);
       rv = true;
