@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.9 2004-08-11 19:17:43 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.10 2004-08-11 20:14:19 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
@@ -21,8 +21,13 @@ CREATE TABLE grouper_fields (
 
 CREATE TABLE grouper_group (
   groupKey      VARCHAR(255) NOT NULL PRIMARY KEY,
-  compoundExpr  VARCHAR(255),
-  flattenedExpr VARCHAR(255),
+  createTime    VARCHAR(255),
+  createSubject VARCHAR(255),
+  createSource  VARCHAR(255),
+  modifyTime    VARCHAR(255),
+  modifySubject VARCHAR(255),
+  modifySource  VARCHAR(255),
+  comment       VARCHAR(255),
   CONSTRAINT    uniq_gk UNIQUE (groupKey)
 );
 
