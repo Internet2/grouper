@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.13 2004-06-17 16:53:07 blair Exp $
+# $Id: README,v 1.14 2004-07-03 03:01:44 blair Exp $
 #
 
  ------------------
@@ -45,8 +45,9 @@
 -------------------------
 
   % ant build
+  % mysql -u root -p < sql/mysql.sql
+  % vi grouper.cf
   % ant test
-  % mysql -u root -p -h <your-mysql-host> < sql/mysql.sql
 
 To build the javadoc(1) documentation:
   % ant javadoc
