@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.9 2004-11-18 20:15:48 blair Exp $
+ * $Id: TestGroupLists.java,v 1.10 2004-11-19 04:18:45 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -468,11 +468,11 @@ public class TestGroupLists extends TestCase {
     // Fetch g0 "members"
     List            mem0    = grp0.listVals(s, "members");
     Assert.assertNotNull(mem0);
-    Assert.assertTrue(mem0.size() == 2);
+    Assert.assertTrue(mem0.size() == 1);
     // Fetch g1 "members"
     List            mem1    = grp1.listVals(s, "members");
     Assert.assertNotNull(mem1);
-    Assert.assertTrue(mem1.size() == 1);
+    Assert.assertTrue(mem1.size() == 0);
     // Fetch g2 "members"
     List            mem2    = grp2.listVals(s, "members");
     Assert.assertNotNull(mem2);
