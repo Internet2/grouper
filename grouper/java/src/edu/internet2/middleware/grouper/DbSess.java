@@ -61,7 +61,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.5 2005-03-14 00:00:42 blair Exp $
+ * @version $Id: DbSess.java,v 1.6 2005-03-14 19:15:15 blair Exp $
  */
 public class DbSess {
 
@@ -115,17 +115,10 @@ public class DbSess {
    */
   public void stop() {
     try {
-      this.session.connection().commit();
-      try {
-        this.session.close();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error closing database session: " + e
-                  );
-      }
-    } catch (Exception e) {
+      this.session.close();
+    } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Error committing database session: " + e
+                  "Error closing database session: " + e
                 );
     }
   }
