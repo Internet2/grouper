@@ -25,42 +25,41 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.41 2004-09-17 17:17:33 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.42 2004-09-19 03:10:42 blair Exp $
  */
 public class GrouperSession {
 
   // Internal reference to the Grouper environment
-  private static Grouper         _G;
+  private Grouper         _G;
   // Internal reference to the Access interface
-  private static GrouperAccess   intAccess;
+  private GrouperAccess   intAccess;
   // Internal reference to the Naming interface
-  private static GrouperNaming   intNaming;
-  // Interface reference to the Subject interface
-  private static GrouperSubject  intSubject;
-
+  private GrouperNaming   intNaming;
   // FIXME How many of these variables are actually used?
   // FIXME And what is the purpose of those that are used?
-  private static Connection      con;
-  private static String          cred;
-  private static SessionFactory  factory;
-  private static String          presentationID;
-  private static Session         session;
-  private static String          sessionID;
-  private static String          startTime;
-  private static GrouperMember   subject;
-  private static String          subjectID;
+  private Connection      con;
+  private String          cred;
+  private SessionFactory  factory;
+  private String          presentationID;
+  private Session         session;
+  private String          sessionID;
+  private String          startTime;
+  private GrouperMember   subject;
+  private String          subjectID;
+
+  private Configuration   cfg;
 
   /**
    * Create a session object that will provide a context for future
    * operations.
    */
   public GrouperSession() {
+    this.cfg            = null;
     this._G             = null;
     this.con            = null;
     this.cred           = null;
     this.intAccess      = null;
     this.intNaming      = null;
-    this.intSubject     = null;
     this.factory        = null;
     this.presentationID = null;
     this.session        = null;
@@ -100,12 +99,13 @@ public class GrouperSession {
    * @return  Boolean true if {@link GroupField} is valid for the given
    * {@link GroupType}, false otherwise.
    */
-  public boolean groupField(int type, String field) {
+  public boolean groupField(String type, String field) {
     List typeDefs = this._G.groupTypeDefs();
     for (Iterator iter = typeDefs.iterator(); iter.hasNext();) {
       GrouperTypeDef td = (GrouperTypeDef) iter.next();
-      if ( (td.groupType() == type) &&      // If the group type matches
-           (td.groupField().equals(field))  // .. and the group field matches
+      if ( 
+          (td.groupType().equals(type)) && // If the group type matches
+          (td.groupField().equals(field))  // .. and the group field matches
          )
       {
         // Then we are considered validated.
@@ -118,17 +118,16 @@ public class GrouperSession {
   /**
    * Confirm validity of a group type.
    * <p>
-   * TODO Standardize as String, not int?
    * FIXME This belongs elsewhere.
    *
    * @return  Boolean true if {@link GroupType} is valid, false
    * otherwise.
    */
-  public boolean groupType(int type) {
+  public boolean groupType(String type) {
     List types = this._G.groupTypes();
     for (Iterator iter = types.iterator(); iter.hasNext();) {
       GrouperType t = (GrouperType) iter.next();
-      if ( t.toString().equals( Integer.toString(type) ) ) {
+      if ( t.toString().equals(type) ) {
         return true;
       }
     }
@@ -222,7 +221,8 @@ public class GrouperSession {
    * @return  Identity of the current session's subject.
    */
   public String whoAmI() {
-    return this.subject.whoAmI();
+    System.err.println("whoAmI()");
+    return this.subject.memberID();
   }
 
   /**
@@ -363,13 +363,18 @@ public class GrouperSession {
     } else {
       try {
         if (this.factory == null) {
+          this._hibernateConf();
           // TODO Should we attempt to create a factory and then return
           //      a session?
-          return null;
-        } else {
-          this.session = this.factory.openSession();
-          return this.session;
+          try {
+            this.factory = this.cfg.buildSessionFactory();
+          } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+          }
         }
+        this.session = this.factory.openSession();
+        return this.session;
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
@@ -390,7 +395,6 @@ public class GrouperSession {
     // Create internal references to the various interfaces
     this.intAccess  = (GrouperAccess)  this._createObject( _G.config("interface.access") );
     this.intNaming  = (GrouperNaming)  this._createObject( _G.config("interface.naming") );
-    this.intSubject = (GrouperSubject) this._createObject( _G.config("interface.subject") );
   }
 
   /*
@@ -424,21 +428,14 @@ public class GrouperSession {
   private GrouperMember _lookup(String id) {
     GrouperMember m = null;
 
-    if (subjectID.equals( this._G.config("member.system") )) {
-      // TODO Don't hardcode type
-      m = new GrouperMember(this, id, "person");
-    } else {
-      m = this.intSubject.lookup(id);
-      if (m != null) {
-        this.subjectID = id;
-      }
-    }
-
+    // TODO Don't hardcode type
+    m = GrouperSubject.lookup(id, "person");
     if (m == null) {
       // XXX This should instead throw some sort of an exception.
       //     Or something.
       System.exit(1);
     }
+    this.subjectID = id;
 
     return m;
   }
@@ -446,6 +443,18 @@ public class GrouperSession {
   /*
    * Register a new session with the groups registry.
    */
+  private void _hibernateConf() {
+    if (this.cfg == null) {
+      try {
+        this.cfg = new Configuration()
+          .addFile("conf/Grouper.hbm.xml");
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    }
+  }
+
   private void _registerSession() {
     // Create internal representations of the various Grouper
     // interfaces
@@ -454,20 +463,8 @@ public class GrouperSession {
     // XXX Bad assumption!
     this.subject = this.lookup(subjectID);
 
-    try {
-      Configuration cfg = new Configuration()
-        .addFile("conf/Grouper.hbm.xml");
-      try {
-        this.factory = cfg.buildSessionFactory();
-        this.session = this.session();
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
+    // Open or fetch a Hibernate session
+    this.session = this.session();
 
     // TODO Make this configurable.  Or something.
     this._cullSessions();
@@ -483,8 +480,8 @@ public class GrouperSession {
     this.setStartTime( Long.toString(now.getTime()) );
 
     try {
-      Transaction t = session.beginTransaction();
-      session.save(this);
+      Transaction t = this.session.beginTransaction();
+      this.session.save(this);
       t.commit();
     } catch (Exception e) {
       System.err.println(e);

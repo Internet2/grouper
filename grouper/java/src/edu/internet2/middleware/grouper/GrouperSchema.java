@@ -20,23 +20,23 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.4 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.5 2004-09-19 03:10:42 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
-  private String  groupKey;
-  private int     groupType;
+  private String groupKey;
+  private String groupType;
 
   public GrouperSchema() {
     groupKey  = null;
-    groupType = 0;
+    groupType = null;
   }
 
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupType();
   }
 
-  public void set(String key, int type) {
+  public void set(String key, String type) {
     this.groupKey   = key;
     this.groupType  = type;
   }
@@ -53,11 +53,11 @@ public class GrouperSchema implements Serializable {
     this.groupKey = groupKey;
   }
 
-  private int getGroupType() {
+  private String getGroupType() {
     return this.groupType;
   }
 
-  private void setGroupType(int groupType) {
+  private void setGroupType(String groupType) {
     this.groupType = groupType;
   }
 
@@ -72,7 +72,7 @@ public class GrouperSchema implements Serializable {
   // XXX Is this wise?  Correct?  Sufficient?
   public int hashCode() {
     return java.lang.Math.abs( this.getGroupKey().hashCode() ) + 
-           this.getGroupType(); 
+           java.lang.Math.abs( this.getGroupType().hashCode() ); 
   }
 
 }
