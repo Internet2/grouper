@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.178 2005-03-22 16:45:01 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.179 2005-03-22 16:50:03 blair Exp $
  */
 public class GrouperBackend {
 
@@ -254,7 +254,7 @@ public class GrouperBackend {
                                                    (String) iter.next() 
                                                  );
       // TODO Error checking, anyone? 
-      GrouperBackend._attrAdd(
+      GrouperBackend.attrAdd(
                               s, g.key(), attr.field(), attr.value()
                              );
       rv = true; // FIXME This *cannot* be correct
@@ -648,44 +648,6 @@ public class GrouperBackend {
   /*
    * PROTECTED CLASS METHODS 
    */
-
-  /**
-   * Store a {@link GrouperAttribute} in the registry.
-   * <p />
-   *
-   * @param   key     {@link GrouperGroup} key.
-   * @param   field   {@link GrouperField} field.
-   * @param   value   {@link GrouperField} value.
-   * @return  The added {@link GrouperAttribute} object.
-   */
-  protected static GrouperAttribute attrAdd(
-                                            GrouperSession s,
-                                            String key, String field, 
-                                            String value
-                                           ) 
-  {
-    GrouperAttribute attr = GrouperBackend._attrAdd(
-                              s, key, field, value
-                            ); 
-    return attr;
-  }
-
-  /**
-   * Delete a {@link GrouperAttribute} from the registry.
-   * <p />
-   *
-   * @param   key     {@link GrouperGroup} key.
-   * @param   field   {@link GrouperField} field.
-   * @return  The added {@link GrouperAttribute} object.
-   */
-  protected static boolean attrDel(
-                             GrouperSession s, String key, String field
-                           ) 
-  {
-    boolean rv = false;
-    rv = GrouperBackend._attrDel(s, key, field);
-    return rv;
-  }
 
   /**
    * Query for all of a group's attributes.
@@ -1411,7 +1373,7 @@ public class GrouperBackend {
   /*
    * Hibernate an attribute
    */
-  private static GrouperAttribute _attrAdd(
+  protected static GrouperAttribute attrAdd(
                                     GrouperSession s, String key,
                                     String  field,   String value
                                   )
@@ -1465,7 +1427,7 @@ public class GrouperBackend {
     return attr;
   }
 
-  private static boolean _attrDel(
+  protected static boolean attrDel(
                            GrouperSession s, String key, String field
                          ) 
   {
