@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.15 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.16 2004-12-02 07:25:42 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -126,6 +126,20 @@ public class GrouperSchema implements Serializable {
 
   public String type() {
     return this.getGroupType();
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /**
+   * Return group key.
+   * <p />
+   * @return  {@link GrouperGroup} key.
+   */
+  protected String key() {
+    return this.getGroupKey();
   }
 
 
