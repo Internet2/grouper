@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.20 2004-11-22 01:40:23 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.21 2004-11-22 02:28:48 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -119,7 +119,18 @@ public class GrouperAccessImpl implements GrouperAccess {
    */
   public boolean has(GrouperSession s, GrouperGroup g, String priv) {
     GrouperAccessImpl._init();
-    return false;
+    boolean rv = false;
+    if (privMap.containsKey(priv)) {
+      GrouperMember m = GrouperMember.lookup(
+                                             s.subject().getId(),
+                                             s.subject().getSubjectType().getId()
+                                            );
+      rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
+    } else {
+      // TODO I should probably throw an exception
+      rv = false;
+    }
+    return rv;
   }
 
   /**
