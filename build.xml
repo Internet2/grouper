@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.42 2005-03-19 16:28:46 blair Exp $ -->
+<!-- $Id: build.xml,v 1.43 2005-03-19 16:40:29 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -149,6 +149,12 @@
       <arg value="test.edu.internet2.middleware.grouper.TestStemsAttrs" />
       <classpath refid="project.class.path" />
     </java>
+<!-- TODO TestStemsAttrsAdd -->
+<!-- TODO TestStemsAttrsMod -->
+<!-- TODO TestStemsAttrsDel -->
+<!-- TODO TestStemsMemberOf -->
+<!-- TODO TestStemsMemberOfAdd -->
+<!-- TODO TestStemsMemberOfDel -->
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestGroupsAdd" />
@@ -159,22 +165,18 @@
       <arg value="test.edu.internet2.middleware.grouper.TestGroupsDelete" />
       <classpath refid="project.class.path" />
     </java>
-<!--
-    TODO TestStemAttrs
-    TODO TestGroupAttrs
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupAttrs" />
+      <arg value="test.edu.internet2.middleware.grouper.TestGroupsAttrs" />
       <classpath refid="project.class.path" />
     </java>
--->
+<!-- TODO TestGroupsAttrsAdd -->
+<!-- TODO TestGroupsAttrsMod -->
+<!-- TODO TestGroupsAttrsDel -->
+<!-- TODO TestGroupsMemberOf -->
+<!-- TODO TestGroupsMemberOfAdd -->
+<!-- TODO TestGroupsMemberOfDel -->
 <!--
-    TODO TestStemLists
-    TODO TestStemMemberOfAdd
-    TODO TestStemMemberOfDelete
-    TODO TestGroupLists
-    TODO TestStemMemberOfAdd
-    TODO TestStemMemberOfDelete
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestGroupLists" />
