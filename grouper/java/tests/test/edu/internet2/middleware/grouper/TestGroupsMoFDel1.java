@@ -92,13 +92,13 @@ public class TestGroupsMoFDel1 extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     Assert.assertNotNull("ns0 !null", ns0);
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     Assert.assertNotNull("ns0 !null", ns0);
     // Create g0
@@ -129,7 +129,12 @@ public class TestGroupsMoFDel1 extends TestCase {
       Assert.fail("add m0 to g1");
     }
     // Delete m0 from g1's "members"
-    Assert.assertTrue("delete m0 from g1", g1.listDelVal(m0));
+    try {
+      g1.listDelVal(m0);
+      Assert.assertTrue("delete m0 from g1", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete m0 from g1");
+    }
 
     // Now inspect g0's, resulting list values
     Assert.assertTrue(
