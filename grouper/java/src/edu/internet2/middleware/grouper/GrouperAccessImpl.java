@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.61 2005-03-22 21:26:58 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.62 2005-03-24 20:45:49 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -108,16 +108,16 @@ public class GrouperAccessImpl implements GrouperAccess {
   }
 
   /**
-   * Grant an access privilege on a {@link GrouperGroup}.
+   * Grant an access privilege on a {@link Group}.
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   g     Grant privileges on this {@link Group}.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
   public boolean grant(
-                       GrouperSession s, GrouperGroup g, 
+                       GrouperSession s, Group g, 
                        GrouperMember m, String priv
                       ) 
   {
@@ -129,11 +129,15 @@ public class GrouperAccessImpl implements GrouperAccess {
        */
       if (this.has(s, g, Grouper.PRIV_ADMIN)) {
         s.dbSess().txStart();
-        if (g.listAddVal(m, (String) privMap.get(priv))) {
-          rv = true;
+        try {
+          g.listAddVal(m, (String) privMap.get(priv));
           s.dbSess().txCommit();
-        } else {
+          rv = true;
+        } catch (RuntimeException e) {
           s.dbSess().txRollback();
+          throw new RuntimeException(
+                      "Error granting privilege: " + e
+                    );
         }
       }
     } 
@@ -150,7 +154,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   g   List privileges on this group.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g) {
+  public List has(GrouperSession s, Group g) {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     GrouperMember m     = GrouperMember.load(s, s.subject());
@@ -170,7 +174,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link Group} groups.
    */
   public List has(GrouperSession s, String priv) {
     GrouperAccessImpl._init();
@@ -188,11 +192,11 @@ public class GrouperAccessImpl implements GrouperAccess {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   g     Return privileges for this {@link Group}.
    * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g, GrouperMember m) {
+  public List has(GrouperSession s, Group g, GrouperMember m) {
     GrouperAccessImpl._init();
     List      privs = new ArrayList();
     Iterator  iter  = privMap.keySet().iterator();
@@ -215,7 +219,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperSession s, GrouperGroup g, String priv) {
+  public boolean has(GrouperSession s, Group g, String priv) {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
@@ -242,7 +246,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   s     Act within this {@link GrouperSession}.
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link Group} groups.
    */
   public List has(GrouperSession s, GrouperMember m, String priv) {
     GrouperAccessImpl._init();
@@ -265,7 +269,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(
-                     GrouperSession s, GrouperGroup g, 
+                     GrouperSession s, Group g, 
                      GrouperMember m, String priv
                     )
   {
@@ -288,10 +292,10 @@ public class GrouperAccessImpl implements GrouperAccess {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   g     Revoke privilege on this {@link Group}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperGroup g, String priv) {
+  public boolean revoke(GrouperSession s, Group g, String priv) {
     GrouperAccessImpl._init();
     boolean rv = false;
     Iterator iter = this.whoHas(s, g, priv).iterator();
@@ -310,12 +314,12 @@ public class GrouperAccessImpl implements GrouperAccess {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   g     Revoke privilege on this {@link Group}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(
-                        GrouperSession s, GrouperGroup g, 
+                        GrouperSession s, Group g, 
                         GrouperMember m, String priv
                        ) 
   {
@@ -347,11 +351,11 @@ public class GrouperAccessImpl implements GrouperAccess {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   g     Query for this {@link Group}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperMember} members.
    */
-  public List whoHas(GrouperSession s, GrouperGroup g, String priv) {
+  public List whoHas(GrouperSession s, Group g, String priv) {
     GrouperAccessImpl._init();
     List members = new ArrayList();
     

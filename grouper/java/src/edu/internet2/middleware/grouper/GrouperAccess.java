@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.29 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.30 2005-03-24 20:45:49 blair Exp $
  */
 public interface GrouperAccess {
 
@@ -74,16 +74,16 @@ public interface GrouperAccess {
   public boolean can(String priv);
 
   /**
-   * Grant an access privilege on a {@link GrouperGroup}.
+   * Grant an access privilege on a {@link Group}.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   g     Grant privileges on this {@link Group}.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public boolean grant(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean grant(GrouperSession s, Group g, GrouperMember m, String priv);
 
   /**
    * List access privileges for current subject on the specified group.
@@ -94,7 +94,7 @@ public interface GrouperAccess {
    * @param   g   List privileges on this group.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g);
+  public List has(GrouperSession s, Group g);
 
   /**
    * List groups where the current subject has the specified privilege.
@@ -103,7 +103,7 @@ public interface GrouperAccess {
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link Group} groups.
    */
   public List has(GrouperSession s, String priv);
 
@@ -113,11 +113,11 @@ public interface GrouperAccess {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   g     Return privileges for this {@link Group}.
    * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g, GrouperMember m);
+  public List has(GrouperSession s, Group g, GrouperMember m);
 
   /**
    * Verify whether current subject has the specified privilege on the
@@ -130,7 +130,7 @@ public interface GrouperAccess {
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperSession s, GrouperGroup g, String priv);
+  public boolean has(GrouperSession s, Group g, String priv);
 
   /**
    * List groups where the specified member has the specified
@@ -141,7 +141,7 @@ public interface GrouperAccess {
    * @param   s     Act within this {@link GrouperSession}.
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link Group} groups.
    */
   public List has(GrouperSession s, GrouperMember m, String priv);
 
@@ -157,7 +157,7 @@ public interface GrouperAccess {
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean has(GrouperSession s, Group g, GrouperMember m, String priv);
 
   /**
    * Revoke all privileges of the specified type on the specified
@@ -166,10 +166,10 @@ public interface GrouperAccess {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   g     Revoke privilege on this {@link Group}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperGroup g, String priv);
+  public boolean revoke(GrouperSession s, Group g, String priv);
 
   /**
    * Revoke an access privilege.
@@ -177,11 +177,11 @@ public interface GrouperAccess {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   g     Revoke privilege on this {@link Group}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean revoke(GrouperSession s, Group g, GrouperMember m, String priv);
 
   /**
    * List members who have the specified privilege on the 
@@ -190,11 +190,11 @@ public interface GrouperAccess {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   g     Query for this {@link Group}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperMember} members.
    */
-  public List whoHas(GrouperSession s, GrouperGroup g, String priv);
+  public List whoHas(GrouperSession s, Group g, String priv);
 
 }
 
