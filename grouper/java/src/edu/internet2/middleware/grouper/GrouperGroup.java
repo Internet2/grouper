@@ -21,7 +21,7 @@ import  net.sf.hibernate.*;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.27 2004-08-24 17:37:57 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.28 2004-08-26 18:22:24 blair Exp $
  */
 public class GrouperGroup {
 
@@ -104,22 +104,62 @@ public class GrouperGroup {
 
   public boolean exist() {
     // SELECT * FROM grouper_attributes WHERE name=$name
-    try {
-      // FIXME This query is incredibly wrong -- but that's ok as I a
-      //        am fine with this returning false indefinitely for the
-      //        time being.
-      int cnt = ( (Integer) this.session.iterate(
-                    "SELECT count(*) FROM grouper_attributes " +
+    // XXX The above is no longer correct.
+
+    if (this.exists == true) {
+      return true;
+    } else {
+      if (attributes.containsKey("stem") && 
+          attributes.containsKey("descriptor")) 
+      {
+        String stem = (String) attributes.get("stem");
+        String desc = (String) attributes.get("descriptor");
+        // TODO Please.  Make this better.  Please, please, please.
+        try {
+          String query = "SELECT FROM grouper_attributes " +
+                         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
+                         "WHERE " +
+                         "groupField='descriptor' " + 
+                         "AND " +
+                         "groupFieldValue='" + desc + "'";
+          List descs = this.session.find(query);
+          if (descs.size() > 0) {
+            // We found one or more potential descriptors.  Now look
+            // for matching stems.
+            query = "SELECT FROM grouper_attributes " +
                     "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-                    "WHERE groupField = '" + attributes.get("stem") + 
-                    ":" + attributes.get("descriptor") + "'"
-                    ).next() ).intValue();
-      if (cnt > 0) {
-        return true;
-      } 
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1); 
+                    "WHERE " +
+                    "groupField='stem' " + 
+                    "AND " +
+                    "groupFieldValue='" + stem + "'";
+            List stems = this.session.find(query);
+  
+            if (stems.size() > 0) {
+              // We have potential stems and potential descriptors.
+              // Now see if we have the *right* stem and the *right*
+              // descriptor.
+              for (Iterator iterDesc = descs.iterator(); iterDesc.hasNext();) {
+                GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
+                for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
+                  GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
+                  if (desc.equals( possDesc.value() ) &&
+                      stem.equals( possStem.value() ) &&
+                      possDesc.key().equals( possStem.key() ))
+                  {
+                    // We have found an appropriate stem and descriptor
+                    // with matching keys.  We exist!
+                    this.exists = true;
+                    return this.exists;
+                  }
+                }
+              }
+            }
+          } 
+        } catch (Exception e) {
+          System.err.println(e);
+          System.exit(1); 
+        }
+      }
     }
     return false;
   }
