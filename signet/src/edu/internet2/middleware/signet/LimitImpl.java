@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 /**
@@ -368,5 +371,26 @@ final class LimitImpl implements Limit
   {
     // TODO Auto-generated method stub
     return "[id='" + this.getId() + "]";
+  }
+
+  public boolean equals(Object obj)
+  {
+    if (!(obj instanceof LimitImpl))
+    {
+      return false;
+    }
+
+    LimitImpl rhs = (LimitImpl) obj;
+    return new EqualsBuilder().append(this.getId(), rhs.getId()).isEquals();
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode()
+  {
+    // you pick a hard-coded, randomly chosen, non-zero, odd number
+    // ideally different for each class
+    return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
   }
 }

@@ -109,7 +109,7 @@ public class AssignmentTest extends TestCase
       	 limitValue.getLimit());
       
       assertEquals
-      	(fixtures.makeLimitValue(subjectIndex),
+      	(fixtures.makeChoiceValue(subjectIndex),
       	 limitValue.getValue());
     }
   }

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.4 2005-02-20 07:31:14 acohen Exp $
- $Date: 2005-02-20 07:31:14 $
+ $Id: PrivilegedSubject.java,v 1.5 2005-02-21 23:27:34 acohen Exp $
+ $Date: 2005-02-21 23:27:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -77,7 +77,7 @@ public interface PrivilegedSubject extends Subject, Comparable
    * @param grantee
    * @param scope
    * @param function
-   * @param limitValues a Map indexed by Limit, whose values are Strings.
+   * @param limitValues
    * @param canGrant
    * @param grantOnly
    * 
@@ -89,7 +89,7 @@ public interface PrivilegedSubject extends Subject, Comparable
   (PrivilegedSubject 	grantee,
    TreeNode 					scope,
    Function 					function,
-   Map								limitValues,
+   Set								limitValues,
    boolean 						canGrant,
    boolean 						grantOnly)
   throws

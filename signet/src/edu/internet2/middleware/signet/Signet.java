@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.14 2005-02-20 07:31:14 acohen Exp $
- $Date: 2005-02-20 07:31:14 $
+ $Id: Signet.java,v 1.15 2005-02-21 23:27:34 acohen Exp $
+ $Date: 2005-02-21 23:27:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -118,6 +118,8 @@ public final class Signet
   private static final String   SUPERSUBJECT_DISPLAYID         = "SignetSuperSubject";
 
   private static SessionFactory sessionFactory;
+  
+  private static HousekeepingInterceptor interceptor;
 
   private Session               session;
 
@@ -173,6 +175,7 @@ public final class Signet
     try
     {
       session = sessionFactory.openSession();
+      interceptor.setConnection(session.connection());
     }
     catch (HibernateException he)
     {
@@ -306,9 +309,11 @@ public final class Signet
       // directory of the classpath.
       cfg.configure();
       String dbAccount = cfg.getProperty("hibernate.connection.username");
-      cfg.setInterceptor(new HousekeepingInterceptor(dbAccount));
+      interceptor = new HousekeepingInterceptor(dbAccount);
+      cfg.setInterceptor(interceptor);
 
       sessionFactory = cfg.buildSessionFactory();
+      interceptor.setSessionFactory(sessionFactory);
     }
     catch (HibernateException he)
     {
@@ -739,6 +744,71 @@ public final class Signet
     }
 
     return children;
+  }
+  
+  Set getLimitValues(Assignment assignment)
+  {
+    Query query;
+    List resultList;
+
+    try
+    {
+      query
+      	= session
+          	.createQuery
+          		("from edu.internet2.middleware.signet.AssignmentLimitValue"
+               + " as assignmentLimitValue"
+               + " where assignmentID = :assignmentId");
+
+      query.setInteger("assignmentId", assignment.getNumericId().intValue());
+
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+
+    Set resultSet = new HashSet(resultList);
+    Set limitValues = new HashSet();
+
+    Iterator resultSetIterator = resultSet.iterator();
+    while (resultSetIterator.hasNext())
+    {
+      AssignmentLimitValue alv
+      	= (AssignmentLimitValue) (resultSetIterator.next());
+      Limit limit = null;
+      
+      Query singleLimitQuery;
+      List singleLimitResultList;
+
+      try
+      {
+        singleLimitQuery = session
+            .createQuery("from edu.internet2.middleware.signet.LimitImpl"
+                + " as limit" + " where limitID = :id");
+
+        singleLimitQuery.setString("id", alv.getLimitId());
+
+        singleLimitResultList = singleLimitQuery.list();
+      }
+      catch (HibernateException e)
+      {
+        throw new SignetRuntimeException(e);
+      }
+
+      Set singleLimitResultSet = new HashSet(singleLimitResultList);
+
+      Iterator singleLimitResultSetIterator = singleLimitResultSet.iterator();
+      while (singleLimitResultSetIterator.hasNext())
+      {
+        limit = (Limit)(singleLimitResultSetIterator.next());
+      }
+      
+      limitValues.add(new LimitValue(limit, alv.getValue()));
+    }
+
+    return limitValues;
   }
 
   // I really want to do away with this method, having the PrivilegedSubject

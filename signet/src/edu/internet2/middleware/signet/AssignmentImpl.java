@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.5 2005-02-20 07:31:14 acohen Exp $
- $Date: 2005-02-20 07:31:14 $
+ $Id: AssignmentImpl.java,v 1.6 2005-02-21 23:27:34 acohen Exp $
+ $Date: 2005-02-21 23:27:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -10,12 +10,19 @@ package edu.internet2.middleware.signet;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
+import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 import edu.internet2.middleware.subject.Subject;
 
 /* These are the columns in the Assignment database table:
@@ -70,13 +77,16 @@ implements Assignment, Comparable
   private boolean						grantOnly;
   private Date							effectiveDate;
   
+  private boolean						limitValuesAlreadyFetched = false;
+  boolean										hasUnsavedLimitValues = false;
+  
   /**
    * Hibernate requires the presence of a default constructor.
    */
   public AssignmentImpl()
   {
     super();
-    this.limitValues = new HashSet();
+    this.limitValues = new HashSet(0);
   }
   
   public AssignmentImpl
@@ -85,13 +95,15 @@ implements Assignment, Comparable
      PrivilegedSubject 	grantee,
      TreeNode						scope,
      Function						function,
-     Map								limitValues,
+     Set								limitValues,
      boolean						canGrant,
      boolean						grantOnly)
   throws
   	SignetAuthorityException
   {
     super(signet, null, null, Status.ACTIVE);
+    
+    this.hasUnsavedLimitValues = true;
     
     if (function == null)
     {
@@ -106,14 +118,13 @@ implements Assignment, Comparable
           + " and grantOnly attributes set true.");
     }
     
-    this.limitValues = new HashSet();
+    this.limitValues = limitValues;
 
     this.setGrantor(grantor);
     this.setGrantee(grantee);
     
     this.scope = scope;
     this.function = (FunctionImpl)function;
-    this.setAllLimitValues(function, limitValues);
     this.grantable = canGrant;
     this.grantOnly = grantOnly;
     
@@ -132,20 +143,28 @@ implements Assignment, Comparable
        + "'. "
        + this.grantor.editRefusalExplanation(this, "grantor"));
     }
+    
+    this.checkAllLimitValues(function, limitValues);
   }
   
-  private void setAllLimitValues
-  	(Function function,
-  	 Map			limitValues)
+  /**
+   * Check to make sure that there's at least one LimitValue for every Limit
+   * that's associated with the Function.
+   * 
+   * @param function
+   * @param limitValues
+   * @throws IllegalArgumentException
+   */
+  private void checkAllLimitValues
+  	(Function	function,
+  	 Set			limitValues)
   throws IllegalArgumentException
   {
     Limit limits[] = function.getLimitsArray();
     for (int i = 0; i < limits.length; i++)
     {
       Limit limit = limits[i];
-      String value = (String)(limitValues.get(limit));
-      
-      if (value == null)
+      if (!(limitValueExists(limit, limitValues)))
       {
         throw new IllegalArgumentException
         	("An attempt to grant an Assignment for the Function '"
@@ -155,15 +174,39 @@ implements Assignment, Comparable
         	 + limit.getId()
         	 + "'.");
       }
-      
-      this.limitValues.add(new LimitValue(limit, value));
     }
+  }
+  
+  /**
+   * Check to make sure that there's at least one LimitValue for the specified
+   * Limit.
+   * 
+   * @param limit
+   * @param limitValues
+   * @return
+   */
+  private boolean limitValueExists
+  	(Limit	limit,
+  	 Set		limitValues)
+  {
+    Iterator limitValuesIterator = limitValues.iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());  
+      if (limitValue.getLimit().equals(limit))
+      {
+        return true;
+      }
+    }
+    
+    // If we got this far, we found no match.
+    return false;
   }
   
   public LimitValue[] getLimitValuesArray()
   {
     LimitValue limitValuesArray[] = new LimitValue[0];
-    return (LimitValue[])(this.limitValues.toArray(limitValuesArray));
+    return (LimitValue[])(this.getLimitValues().toArray(limitValuesArray));
   }
   
   /* (non-Javadoc)
@@ -528,5 +571,34 @@ implements Assignment, Comparable
   void setEffectiveDate(Date date)
   {
     this.effectiveDate = date;
+  }
+  
+  /**
+   * @return Returns the limitValues.
+   */
+  Set getLimitValues()
+  {
+    Set unsavedLimitValues;
+    
+    if (limitValuesAlreadyFetched == false)
+    {
+      // Let's make sure we don't throw out any associated but not-yet-saved
+      // LimitValues.
+      unsavedLimitValues = this.limitValues;
+      this.limitValues = this.getSignet().getLimitValues(this);
+
+      limitValuesAlreadyFetched = true;
+
+      this.limitValues.addAll(unsavedLimitValues);
+    }
+    return this.limitValues;
+  }
+
+  /**
+   * @param limitValues The limitValues to set.
+   */
+  void setLimitValues(Set limitValues)
+  {
+    this.limitValues = limitValues;
   }
 }

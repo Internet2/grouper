@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.5 2005-02-14 02:33:28 acohen Exp $
- $Date: 2005-02-14 02:33:28 $
+ $Id: HousekeepingInterceptor.java,v 1.6 2005-02-21 23:27:34 acohen Exp $
+ $Date: 2005-02-21 23:27:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,22 +9,40 @@
 package edu.internet2.middleware.signet;
 
 import java.io.Serializable;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
 
 
 import net.sf.hibernate.CallbackException;
+import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Interceptor;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.Transaction;
 import net.sf.hibernate.type.Type;
 
 class HousekeepingInterceptor implements Interceptor, Serializable
 {
-  private String dbAccount;
+  private String					dbAccount;
+  private SessionFactory 	sessionFactory;
+  private Connection			connection;
   
   public HousekeepingInterceptor
   	(String dbAccount)
   {
     this.dbAccount = dbAccount;
+  }
+  
+  void setSessionFactory(SessionFactory sessionFactory)
+  {
+    this.sessionFactory = sessionFactory;
+  }
+  
+  void setConnection(Connection connection)
+  {
+    this.connection = connection;
   }
   
   /* (non-Javadoc)
@@ -147,7 +165,77 @@ class HousekeepingInterceptor implements Interceptor, Serializable
    */
   public void postFlush(Iterator entities) throws CallbackException
   {
-    // Do nothing, let the operation proceed.
+    Transaction tx;
+    
+    System.out.println("DEBUG: HousekeepingInterceptor.postFlush():");
+    while (entities.hasNext())
+    {
+      Object entity = entities.next();
+      
+      if (entity instanceof AssignmentImpl)
+      {
+        AssignmentImpl assignment = (AssignmentImpl)entity;
+        
+        if (assignment.hasUnsavedLimitValues)
+        {
+          System.out.println
+          	("DEBUG: assignment.getNumericId()=" + assignment.getNumericId());
+        
+          Set limitValues = assignment.getLimitValues();
+          System.out.println
+          	("DEBUG: limitValues.size()=" + limitValues.size());
+          Iterator limitValuesIterator = limitValues.iterator();
+          Session tempSession
+          	= this.sessionFactory.openSession(this.connection);
+        
+          try
+          {
+            tx = tempSession.beginTransaction();
+          }
+          catch (HibernateException he)
+          {
+            throw new CallbackException(he);
+          }
+        
+          while (limitValuesIterator.hasNext())
+          {
+            LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+
+            try
+            {
+              System.out.println
+              	("DEBUG: assignment.getNumericId().intValue()="
+            	   + assignment.getNumericId().intValue());
+              AssignmentLimitValue alv
+              	= new AssignmentLimitValue
+           					(assignment.getNumericId().intValue(),
+           			     limitValue.getLimit().getId(),
+           			     limitValue.getValue());
+
+              System.out.println
+              	("DEBUG: alv.getAssignmentId()=" + alv.getAssignmentId());
+              tempSession.save(alv);
+            }
+            catch (Exception e)
+            {
+              throw new CallbackException(e);
+            }
+          }
+        
+          try
+          {
+            tx.commit();
+            tempSession.close();
+          }
+          catch (HibernateException he)
+          {
+            throw new CallbackException(he);
+          }
+          
+          assignment.hasUnsavedLimitValues = false;
+        }
+      }
+    }
   }
   
   /* (non-Javadoc)

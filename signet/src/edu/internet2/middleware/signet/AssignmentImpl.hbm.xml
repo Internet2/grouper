@@ -58,6 +58,23 @@
 			<column name="scopeNodeID"/>
 		</many-to-one>
 		
+		<!-- Limit values are mapped as a collection of value types. This mapping
+			 is modeled after an example on page 212 of "Hibernate in Action".
+		-->
+<!--
+		<set
+			name="limitValues"
+			lazy="true"
+			table="AssignmentLimitValue">
+			<key column="assignmentID"/>
+			<element
+				type="edu.internet2.middleware.signet.LimitValueCompositeUserType">
+				<column name="limitID"/>
+				<column name="value"/>
+			</element>
+		</set>
+-->
+		
 		<property
 			name="status"
 			type="edu.internet2.middleware.signet.StatusType"

@@ -7,6 +7,7 @@
 package edu.internet2.middleware.signet.test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
@@ -75,8 +77,18 @@ public class Fixtures
    *             Choice 1
    *             Choice 2
    * 
-   * 
-   * 
+   *   Assignment 0
+   *     grantor: SuperPrivilegedSubject
+   *     grantee: Subject 0
+   *     Function 0
+   *   Assignment 1
+   *     grantor: SuperPrivilegedSubject
+   *     grantee: Subject 1
+   *     Function 1
+   *   Assignment 2
+   *     grantor: SuperPrivilegedSubject
+   *     grantee: Subject 2
+   *     Function 2
    */
   public Fixtures(Signet signet)
   throws
@@ -87,6 +99,13 @@ public class Fixtures
   {
     super();
     this.signet = signet;
+    
+    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+    {
+      Subject subject = getOrCreateSubject(i);
+      signet.save(subject);
+    }
+    
     this.subsystem = getOrCreateSubsystem();
     
     this.tree = getOrCreateTree();
@@ -124,15 +143,15 @@ public class Fixtures
     
     signet.save(this.subsystem);
     
-//    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
-//    {
-//      Assignment assignment = getOrCreateAssignment(i);
-//      this.signet.save(assignment);
-//    }
+    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+    {
+      Assignment assignment = createAssignment(i);
+      this.signet.save(assignment);
+    }
     
   }
   
-  private Assignment getOrCreateAssignment(int assignmentNumber)
+  private Assignment createAssignment(int assignmentNumber)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException
@@ -143,6 +162,9 @@ public class Fixtures
 
     Subject subject = getOrCreateSubject(assignmentNumber);
     Function function = getOrCreateFunction(assignmentNumber);
+    LimitValue limitValue = getLimitValue(function, assignmentNumber);
+    Set limitValues = new HashSet(1);
+    limitValues.add(limitValue);
     
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
     Assignment assignment
@@ -150,30 +172,44 @@ public class Fixtures
     			(pSubject,
     	     rootNode,
     	     function,
-    	     getLimitValueMap(function),
+    	     limitValues,
     	     true,    // canGrant
     	     false);  // grantOnly
     
     return assignment;
   }
 
-  private Map getLimitValueMap(Function function)
+  /**
+   * Gets the Nth choice-value of the first limit for the specified function.
+   * 
+   * @param function
+   * @param limitValueNumber
+   * @return
+   * @throws ObjectNotFoundException
+   */
+  private LimitValue getLimitValue
+  	(Function function,
+  	 int			limitValueNumber)
   throws ObjectNotFoundException
   {
     Limit limit = function.getLimitsArray()[0];
     Set choices = limit.getChoiceSet().getChoices();
+    String desiredChoiceValue = makeChoiceValue(limitValueNumber);
     Choice choice = null;
     
     Iterator choicesIterator = choices.iterator();
     while (choicesIterator.hasNext())
     {
-      choice = (Choice)(choicesIterator.next());
+      Choice candidateChoice = (Choice)(choicesIterator.next());
+      if (desiredChoiceValue.equals(candidateChoice.getValue()))
+      {
+        choice = candidateChoice;
+        break;
+      }
     }
     
-    Map limitValueMap = new HashMap();
-    limitValueMap.put(limit, choice.getValue());
-    
-    return limitValueMap;
+    LimitValue limitValue = new LimitValue(limit, choice.getValue());
+    return limitValue;
   }
 
   /**

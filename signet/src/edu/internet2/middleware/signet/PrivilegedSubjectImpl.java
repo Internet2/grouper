@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.5 2005-02-20 07:31:14 acohen Exp $
- $Date: 2005-02-20 07:31:14 $
+ $Id: PrivilegedSubjectImpl.java,v 1.6 2005-02-21 23:27:34 acohen Exp $
+ $Date: 2005-02-21 23:27:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -695,7 +695,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     	(grantee,
     	 scope,
     	 function,
-    	 null,
+    	 new HashSet(0),
     	 canGrant,
     	 grantOnly);
   }
@@ -704,7 +704,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   	(PrivilegedSubject 	grantee,
   	 TreeNode 					scope,
      Function 					function,
-     Map								limitValues,
+     Set								limitValues,
      boolean 						canGrant,
      boolean 						grantOnly)
   throws
