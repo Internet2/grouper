@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.16 2005-02-25 23:13:07 acohen Exp $
-  $Date: 2005-02-25 23:13:07 $
+  $Id: main.jsp,v 1.17 2005-03-09 07:53:43 acohen Exp $
+  $Date: 2005-03-09 07:53:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -245,7 +245,7 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-            <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>">
+            <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
               <%=listSubject.getName()%>
 						</a><br /><!-- it's important for the br to be on the same line as the a -->
             <span class="dropback"><%=listSubject.getDescription()%></span>
