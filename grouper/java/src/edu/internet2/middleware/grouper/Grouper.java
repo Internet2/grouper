@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.36 2004-11-08 20:39:19 blair Exp $
+ * @version $Id: Grouper.java,v 1.37 2004-11-11 15:39:35 blair Exp $
  */
 public class Grouper {
 
@@ -33,13 +33,10 @@ public class Grouper {
   // TODO Make this more dynamic
   private static String      confFile     = "conf/grouper.properties"; 
   // Cached Grouper group fields
-  // TODO Switch to GrouperFields collection object?
   private static List       groupFields   = new ArrayList();
   // Cached Grouper group types
-  // TODO Switch to GrouperTypes collection object?
   private static List       groupTypes    = new ArrayList();  
   // Cached Grouper group typeDefs
-  // TODO Switch to GrouperTypeDefs collection object?
   private static List       groupTypeDefs = new ArrayList();
 
 
@@ -51,8 +48,9 @@ public class Grouper {
     // TODO Throw an exception if called?
   }
 
+
   /*
-   * CLASS METHODS
+   * PUBLIC CLASS METHODS
    */
 
   /**
@@ -146,21 +144,13 @@ public class Grouper {
     return groupTypes;
   }
 
+
   /*
-   * PRIVATE METHODS
+   * PRIVATE CLASS METHODS
    */
 
   /*
    * Initialize {@link Grouper} environment.
-   * <p>
-   * <ul>
-   *  <li>Reads run-time configuration</li>
-   *  <li>Reads and caches the following tables:</li>
-   *  <ul>
-   *   <li><i>grouper_fields</i></li>
-   *   <li><i>grouper_typeDefs</i></li>
-   *   <li><i>grouper_types</i></li>
-   * </ul>
    */
   private static void _init() {
     // TODO Isn't there a mechanism by which the confFile can be found

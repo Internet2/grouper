@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.75 2004-11-10 18:59:48 blair Exp $
+ * $Id: GrouperTest.java,v 1.76 2004-11-11 15:39:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -216,43 +216,6 @@ public class GrouperTest extends TestCase {
 
 
   //
-  // Class: GrouperMember
-  //
-   
-  // Instantiate a GrouperMember instance 
-  public void testGrouperMemberInstantiate() {
-    GrouperMember member = new GrouperMember();
-
-    Class  klass    = member.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
-
-    Assert.assertNotNull(member);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-  }
-
-  // Set+Get Member id and type
-  public void testGrouperMemberSetGetIdAndType() {
-    // FIXME I should probably test after fetching a *real* member, no?
-    GrouperMember member = new GrouperMember("GrouperSystem", "person");
- 
-    Class  klass    = member.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
-
-    Assert.assertNotNull(member);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-
-    Assert.assertTrue( member.id().equals( "GrouperSystem" ) );
-    Assert.assertTrue( member.type().equals( "person" ) );
-  }
-
-  // TODO Get Valid Member 
-  // public void testGrouperMemberGetValidMember() { }
-
-  // TODO Get Invalid Member
-  // public void testGrouperMemberGetInvalidMember() { }
-
-
-  //
   // Class: GrouperSubject
   //
    
@@ -294,6 +257,44 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( id.equals( m.id() ) );
     Assert.assertTrue( typeID.equals( m.typeID() ) );
   }
+
+
+  //
+  // Class: GrouperMember
+  //
+   
+  // Instantiate a GrouperMember instance 
+  public void testGrouperMemberInstantiate() {
+    GrouperMember member = new GrouperMember();
+
+    Class  klass    = member.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+
+    Assert.assertNotNull(member);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  // Set+Get Member id and type
+  public void testGrouperMemberSetGetIdAndType() {
+    // FIXME I should probably test after fetching a *real* member, no?
+    GrouperMember member = new GrouperMember("GrouperSystem", "person");
+ 
+    Class  klass    = member.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+
+    Assert.assertNotNull(member);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+
+    Assert.assertTrue( member.id().equals( "GrouperSystem" ) );
+    Assert.assertTrue( member.type().equals( "person" ) );
+  }
+
+  // TODO Get Valid Member 
+  // public void testGrouperMemberGetValidMember() { }
+
+  // TODO Get Invalid Member
+  // public void testGrouperMemberGetInvalidMember() { }
+
 
   //
   // Class: GrouperSession
