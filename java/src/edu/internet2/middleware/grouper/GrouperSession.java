@@ -4,7 +4,7 @@ package edu.internet2.middleware.directory.grouper;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1 2004-04-02 21:04:11 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.2 2004-04-11 03:13:44 blair Exp $
  */
 public class GrouperSession {
 
@@ -105,20 +105,6 @@ public class GrouperSession {
     return true;
     */
     return false;
-  }
-
-  /**
-   * XXX THIS SHOULD NOT BE HERE
-   */
-  public GrouperMember lookupSubject(String subject, boolean isMember) {
-    /*
-      + GrouperMember lookupSubject(String subjectID, boolean isMember)
-        - This is an interface (or something like that)
-        - subjectID == memberID || presentationID
-        - XXX Why can I not recall what 'isMember' is supposed to
-            represent?
-    */
-    return null;
   }
 
 }
