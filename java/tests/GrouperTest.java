@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.71 2004-11-09 17:41:30 blair Exp $
+ * $Id: GrouperTest.java,v 1.72 2004-11-09 18:51:36 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -572,15 +572,59 @@ public class GrouperTest extends TestCase {
     s.stop();
   }
 
+  // Remove valid list data from a group
+  public void testRemoveValidListDataFromGroup() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Fetch a member
+    GrouperMember member = GrouperSubject.lookup( "blair", "person" );
+
+    // Assert that the returned member is not null
+    Assert.assertNotNull(member);
+
+    // Remove a member from the group's "members" list
+    Assert.assertTrue( grp.listRemove(s, member, "members") );
+
+    // We're done
+    s.stop();
+  }
+
+  // Remove invalid list data from a group
+  public void testRemoveInvalidListDataFromGroup() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Fetch a member
+    GrouperMember member = GrouperSubject.lookup( "blair", "person" );
+
+    // Assert that the returned member is not null
+    Assert.assertNotNull(member);
+
+    // Remove a member from the group's "members" list
+    Assert.assertFalse( grp.listRemove(s, member, "notmembers") );
+
+    // We're done
+    s.stop();
+  }
+
   // TODO Add list data (plural)
   // TODO Add duplicate list data (plural)
   // TODO Fetch list data (single)
   // TODO Fetch list data (plural)
   // TODO Fetch invalid list data  (type)
-  // TODO Remove list data (single)
   // TODO Remove list data (plural)
   // TODO Remove invalid list data 
-  // TODO Remove invalid list data (type)
 
 
   //
