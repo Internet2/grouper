@@ -138,5 +138,188 @@
     </list>
   </class>
 
+  <query name="GrouperAttribute.by.extension"><![CDATA[
+    from GrouperAttribute           where 
+      groupField      = 'extension' and
+      groupFieldValue = ?
+  ]]></query>
+
+  <query name="GrouperAttribute.by.key"><![CDATA[
+    from GrouperAttribute where groupKey = ?
+  ]]></query>
+
+  <query name="GrouperAttribute.by.key.and.value"><![CDATA[
+    from GrouperAttribute where 
+      groupKey    = ?     and
+      groupField  = ?
+  ]]></query>
+
+  <query name="GrouperAttribute.by.name"><![CDATA[
+    from GrouperAttribute      where 
+      groupField      = 'name' and
+      groupFieldValue = ?
+  ]]></query>
+
+  <query name="GrouperAttribute.by.stem"><![CDATA[
+    from GrouperAttribute      where 
+      groupField      = 'stem' and
+      groupFieldValue = ?
+  ]]></query>
+
+  <query name="GrouperField.all"><![CDATA[
+    from GrouperField
+  ]]></query>
+
+  <query name="GrouperGroup.by.created.after"><![CDATA[
+    from GrouperGroup where createTime > ?
+  ]]></query>
+
+  <query name="GrouperGroup.by.created.before"><![CDATA[
+    from GrouperGroup where createTime < ?
+  ]]></query>
+
+  <query name="GrouperGroup.by.id"><![CDATA[
+    from GrouperGroup where groupID = ?
+  ]]></query>
+
+  <query name="GrouperGroup.by.modified.after"><![CDATA[
+    from GrouperGroup where modifyTime > ?
+  ]]></query>
+
+  <query name="GrouperGroup.by.modified.before"><![CDATA[
+    from GrouperGroup where modifyTime < ?
+  ]]></query>
+
+  <query name="GrouperList.by.group.and.list"><![CDATA[
+    from GrouperList          where
+      groupKey    = ?         and
+      memberKey   is not null and
+      groupField  = ?
+  ]]></query>
+
+  <query name="GrouperList.by.group.and.member.and.list.and.is.eff"><![CDATA[
+    from GrouperList          where
+      groupKey    = ?         and
+      memberKey   = ?         and
+      groupField  = ?         and
+      via         is not null 
+  ]]></query>
+
+  <query name="GrouperList.by.group.and.member.and.list.and.is.imm"><![CDATA[
+    from GrouperList          where
+      groupKey    = ?         and
+      memberKey   = ?         and
+      groupField  = ?         and
+      via         is null 
+  ]]></query>
+
+  <query name="GrouperList.by.group.and.list.and.is.eff"><![CDATA[
+    from GrouperList          where
+      groupKey    = ?         and
+      memberKey   is not null and
+      groupField  = ?         and
+      via         is not null 
+  ]]></query>
+
+  <query name="GrouperList.by.group.and.list.and.is.imm"><![CDATA[
+    from GrouperList          where
+      groupKey    = ?         and
+      memberKey   is not null and
+      groupField  = ?         and
+      via         is null 
+  ]]></query>
+
+  <query name="GrouperList.by.list"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   is not null and
+      groupField  = ?
+  ]]></query>
+
+  <query name="GrouperList.by.list.and.is.eff"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   is not null and
+      groupField  = ?         and
+      via         is not null 
+  ]]></query>
+
+  <query name="GrouperList.by.list.and.is.imm"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   is not null and
+      groupField  = ?         and
+      via         is null 
+  ]]></query>
+
+  <query name="GrouperList.by.member.and.list"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   = ?         and
+      groupField  = ?
+  ]]></query>
+
+  <query name="GrouperList.by.member.and.list.and.is.eff"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   = ?         and
+      groupField  = ?         and
+      via         is not null 
+  ]]></query>
+
+  <query name="GrouperList.by.member.and.list.and.is.imm"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   = ?         and
+      groupField  = ?         and
+      via         is null 
+  ]]></query>
+
+  <query name="GrouperMember.by.id"><![CDATA[
+    from GrouperMember where memberID = ?
+  ]]></query>
+
+  <query name="GrouperMember.by.subjectid.and.typeid"><![CDATA[
+    from GrouperMember  where 
+      subjectID     = ? and
+      subjectTypeID = ?
+  ]]></query>
+
+  <query name="GrouperSchema.by.key"><![CDATA[
+    from GrouperSchema where groupKey = ?
+  ]]></query>
+
+  <query name="GrouperSchema.by.type"><![CDATA[
+    from GrouperSchema where groupType = ?
+  ]]></query>
+
+  <query name="GrouperSchema.by.key.and.type"><![CDATA[
+    from GrouperSchema where 
+      groupKey  = ?    and
+      groupType = ?
+  ]]></query>
+
+  <query name="GrouperSession.by.id"><![CDATA[
+    from GrouperSession where sessionID = ?
+  ]]></query>
+
+  <query name="GrouperType.all"><![CDATA[
+    from GrouperType
+  ]]></query>
+
+  <query name="GrouperTypeDef.all"><![CDATA[
+    from GrouperTypeDef
+  ]]></query>
+
+  <query name="SubjectImpl.by.subjectid.and.typeid"><![CDATA[
+    from SubjectImpl     where
+      subjectID     = ?  and
+      subjectTypeID = ?
+  ]]></query>
+
+  <query name="SubjectTypeImpl.all"><![CDATA[
+    from SubjectTypeImpl
+  ]]></query>
+
 </hibernate-mapping>
 
