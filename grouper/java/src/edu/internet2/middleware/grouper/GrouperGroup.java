@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.147 2004-12-09 14:09:56 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.148 2004-12-09 14:59:34 blair Exp $
  */
 public class GrouperGroup {
 
@@ -875,7 +875,7 @@ public class GrouperGroup {
    */
 
   /*
-   * Add an attribute persistently
+   * Add an attribute
    */
   private boolean _attrAdd(String attribute, GrouperAttribute attr) {
     boolean rv = false;
@@ -884,18 +884,6 @@ public class GrouperGroup {
       rv = true;
     }
     return rv;
-  }
-
-  /*
-   * Add an attribute
-   */
-  private void _attrAdd(String attribute, String value) {
-    GrouperAttribute attr = new GrouperAttribute(
-                              this.key, attribute, value
-                            );
-    if (attr != null) {
-      attributes.put(attribute, attr);
-    }
   }
 
   /*
@@ -931,10 +919,23 @@ public class GrouperGroup {
           // Generate the UUIDs
           g.setGroupKey( GrouperBackend.uuid() );
           g.setGroupID(  GrouperBackend.uuid() );
+
           // Set attributes
-          g._attrAdd("stem",      stem);
-          g._attrAdd("extension", extn);
-          g._attrAdd("name",      name);
+          GrouperAttribute stem_attr = new GrouperAttribute(
+                                        g.getGroupKey(),
+                                        "stem", stem
+                                       );
+          GrouperAttribute extn_attr = new GrouperAttribute(
+                                        g.getGroupKey(),
+                                        "extension", extn
+                                       );
+          GrouperAttribute name_attr = new GrouperAttribute(
+                                        g.getGroupKey(),
+                                        "name", name
+                                       );
+          g._attrAdd("stem",      stem_attr);
+          g._attrAdd("extension", extn_attr);
+          g._attrAdd("name",      name_attr);
           /*
            * TODO Add `displayName' support
            *      Will I run into priv (for fetching of stem's
