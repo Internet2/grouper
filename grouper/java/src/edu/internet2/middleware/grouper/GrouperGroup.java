@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.124 2004-12-05 19:35:48 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.125 2004-12-05 22:22:34 blair Exp $
  */
 public class GrouperGroup {
 
@@ -255,6 +255,7 @@ public class GrouperGroup {
           this.setModifyTime(    GrouperGroup._now()       );
           this.setModifySubject( this.gs.subject().getId() );
           if (
+              (this._canModAttr(this.gs, this))             &&
               (GrouperBackend.attrDel(this.key, attribute)) &&
               (GrouperBackend.groupUpdate(this.gs, this))
              )
@@ -281,7 +282,8 @@ public class GrouperGroup {
             this.setModifyTime(    GrouperGroup._now()       );
             this.setModifySubject( this.gs.subject().getId() );
             if (
-                (attr != null)                              &&
+                (attr != null)                              && 
+                (this._canModAttr(this.gs, this))           &&
                 (this._attrAdd(attribute, attr))            &&
                 (GrouperBackend.groupUpdate(this.gs, this))   
                )
@@ -312,6 +314,7 @@ public class GrouperGroup {
           this.setModifySubject( this.gs.subject().getId() );
           if (
               (attr != null)                              &&
+              (this._canModAttr(this.gs, this))           &&
               (this._attrAdd(attribute, attr))            &&
               (GrouperBackend.groupUpdate(this.gs, this))   
              )
@@ -573,12 +576,23 @@ public class GrouperGroup {
   /* (!javadoc)
    * Does the current subject have permission to delete the group?
    */
-  private static boolean _canDelete(
-                           GrouperSession s, GrouperGroup g
-                         )
-  {
+  private static boolean _canDelete(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     // FIXME Support for multiple list types
+    if ( (s != null) && (g != null) ) {
+      if (Grouper.access().has(s, g, Grouper.PRIV_ADMIN)) {
+        rv = true;
+      }
+    }
+    return rv;
+  }
+
+  /* (!javadoc)
+   * Does the current subject have permission to modify attrs on the
+   * specified group?
+   */
+  private static boolean _canModAttr(GrouperSession s, GrouperGroup g) {
+    boolean rv = false;
     if ( (s != null) && (g != null) ) {
       if (Grouper.access().has(s, g, Grouper.PRIV_ADMIN)) {
         rv = true;

@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.114 2004-12-05 19:20:09 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.115 2004-12-05 22:22:34 blair Exp $
  */
 public class GrouperBackend {
 
@@ -279,7 +279,7 @@ public class GrouperBackend {
             }
           } else {
             // For all other group types default to `ADMIN'
-            if (Grouper.access().grant(s, g, m, "ADMIN") == true) {
+            if (Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
               GrouperBackend.LOGGER.debug("Granted ADMIN to " + m);
               t.commit(); // XXX Is this commit necessary?
               granted = true;
