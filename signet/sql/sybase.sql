@@ -1,24 +1,15 @@
 ##### Subsystem tables
 
 drop table ProxyType_Function
-go
 drop table Permission_Limit
-go
 drop table Function_Permission
-go
 
 drop table Category
-go
 drop table Function
-go
 drop table Permission
-go
 drop table ProxyType
-go
 drop table Limit
-go
 drop table Subsystem
-go
 
 
 create table Subsystem
@@ -32,7 +23,6 @@ modifyDatetime      smalldatetime       default getdate(),
 
 primary key clustered (subsystemID)
 )
-go
 
 
 
@@ -47,7 +37,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, categoryID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
-go
 
 
 
@@ -64,7 +53,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, functionID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
-go
 
 
 create table Permission
@@ -77,7 +65,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, permissionID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
-go
 
 
 create table ProxyType
@@ -92,7 +79,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, proxyTypeID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
-go
 
 
 create table Limit
@@ -113,7 +99,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, limitID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
-go
 
 
 create table Function_Permission
@@ -126,7 +111,6 @@ primary key (subsystemID, functionID, permissionID),
 foreign key (subsystemID, functionID) references Function (subsystemID, functionID),
 foreign key (subsystemID, permissionID) references Permission (subsystemID, permissionID)
 )
-go
 
 
 create table Permission_Limit
@@ -140,7 +124,6 @@ primary key (subsystemID, permissionID, limitID),
 foreign key (subsystemID, permissionID) references Permission (subsystemID, permissionID),
 foreign key (subsystemID, limitID) references Limit (subsystemID, limitID)
 )
-go
 
 
 create table ProxyType_Function
@@ -153,18 +136,14 @@ primary key (subsystemID, proxyTypeID, functionID),
 foreign key (subsystemID, proxyTypeID) references ProxyType (subsystemID, proxyTypeID),
 foreign key (subsystemID, functionID) references Function (subsystemID, functionID)
 )
-go
 
 
 
 ##### Subject tables
 
 drop table SubjectAttribute
-go
 drop table Subject
-go
 drop table SubjectType
-go
 
 
 create table SubjectType (
@@ -174,7 +153,6 @@ create table SubjectType (
   modifyDateTime    smalldatetime   default getdate(),
   primary key (subjectTypeID)
   )
-go
 
 
 create table Subject (
@@ -186,7 +164,6 @@ create table Subject (
   modifyDateTime    smalldatetime   default getdate(),
   primary key (subjectTypeID, subjectID)
   )
-go
 
 
 create table SubjectAttribute (
@@ -199,17 +176,13 @@ create table SubjectAttribute (
   modifyDateTime    smalldatetime   default getdate(),
   primary key (subjectTypeID, subjectID, name)
   )
-go
 
 
 ##### Tree tables
 
 drop table TreeNodeRelationship
-go
 drop table TreeNode
-go
 drop table Tree
-go
 
 
 create table Tree
@@ -221,7 +194,6 @@ modifyDatetime      smalldatetime       default getdate(),
 
 primary key (treeID)
 )
-go
 
 
 create table TreeNode
@@ -236,7 +208,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (treeID, nodeID),
 foreign key (treeID, nodeID) references TreeNode (treeID, nodeID)
 )
-go
 
 
 create table TreeNodeRelationship
@@ -248,15 +219,12 @@ parentNodeID        varchar(64)         NOT NULL,
 primary key (treeID, nodeID, parentNodeID),
 foreign key (treeID) references Tree (treeID)
 )
-go
 
 
 ##### ChoiceSet tables
 
 drop table Choice
-go
 drop table ChoiceSet
-go
 
 
 create table ChoiceSet
@@ -268,7 +236,6 @@ modifyDatetime      smalldatetime       default getdate(),
 
 primary key (choiceSetID)
 )
-go
 
 
 create table Choice
@@ -283,16 +250,13 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (choiceSetID, value),
 foreign key (choiceSetID) references ChoiceSet (choiceSetID)
 )
-go
 
 
 
 ##### Assignment tables
 
 drop table Assignment
-go
 drop table AssignmentLimitValue
-go
 
 
 create table Assignment
@@ -318,7 +282,6 @@ modifyDatetime      smalldatetime       default getdate(),
 
 unique clustered (assignmentID)
 )
-go
 
 
 create table AssignmentLimitValue
@@ -330,7 +293,4 @@ limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
 unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
 )
-go
-
-
 
