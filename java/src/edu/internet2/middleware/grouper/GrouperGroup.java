@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.6 2004-04-20 17:19:28 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.7 2004-04-28 15:51:15 blair Exp $
  */
 public class GrouperGroup {
 
@@ -21,13 +21,13 @@ public class GrouperGroup {
   }
 
   /**
-   * Returns a list of immediate members of type groupFieldID for
+   * Returns a list of immediate members of type groupField for
    * a {@link Grouper} group.
    * <p>
    * <ul>
    *  <li>Verify that "subjectID" has VIEW and READ access to the
    *      group for group field groupField.</li>
-   *  <li>Fetch rows with appropriate groupID, groupFieldID, and
+   *  <li>Fetch rows with appropriate groupID, groupField, and
    *      isImmediate values from the <i>grouper_membership</i>
    *      table.</li>
    * </ul>
@@ -40,13 +40,13 @@ public class GrouperGroup {
   }
 
   /**
-   * Returns a list of effective members of type groupFieldID for
+   * Returns a list of effective members of type groupField for
    * a {@link Grouper} group.
    * <p>
    * <ul>
    *  <li>Verify that "subjectID" has VIEW and READ access to the
    *      group for group field groupField.</li>
-   *  <li>Fetch rows with appropriate groupID, groupFieldID, and
+   *  <li>Fetch rows with appropriate groupID, groupField, and
    *      isImmediate values from the <i>grouper_membership</i>
    *      table.</li>
    * </ul>
