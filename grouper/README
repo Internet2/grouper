@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.19 2004-12-04 06:09:46 blair Exp $
+# $Id: README,v 1.20 2004-12-05 03:01:09 blair Exp $
 #
 
  ------------------
@@ -30,6 +30,8 @@
     Grouper FAQ.
   - NEWS
     Release Notes.
+  - PLATFORMS
+    Platforms where Grouper has been tested and is known to work.
 
 - java/
   - lib/
