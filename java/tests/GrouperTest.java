@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.72 2004-11-09 18:51:36 blair Exp $
+ * $Id: GrouperTest.java,v 1.73 2004-11-09 19:58:56 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -572,6 +572,66 @@ public class GrouperTest extends TestCase {
     s.stop();
   }
 
+  // TODO Add list data (plural)
+  // TODO Add duplicate list data (plural)
+
+  public void testFetchValidListDataForGroup() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Fetch list data of type "admins"
+    List admins = grp.list(s, "admins");
+
+    // "admins" list assertions
+    Assert.assertNotNull(admins);
+    Assert.assertTrue(admins.size() == 1);
+
+    // Fetch list data of type "members"
+    List members = grp.list(s, "members");
+
+    // "members" list assertions
+    Assert.assertNotNull(members);
+    Assert.assertTrue(members.size() == 1);
+
+    // We're done
+    s.stop(); 
+  }
+
+  // TODO Fetch list data (plural)
+
+  public void testFetchInvalidListDataForGroup() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Fetch list data of type "admins"
+    List admins = grp.list(s, "nonadmins");
+
+    // "admins" list assertions
+    Assert.assertNotNull(admins);
+    Assert.assertTrue(admins.size() == 0);
+
+    // Fetch list data of type "members"
+    List members = grp.list(s, "nonmembers");
+
+    // "members" list assertions
+    Assert.assertNotNull(members);
+    Assert.assertTrue(members.size() == 0);
+
+    // We're done
+    s.stop(); 
+  }
+
+
   // Remove valid list data from a group
   public void testRemoveValidListDataFromGroup() {
     G = new Grouper();
@@ -618,11 +678,6 @@ public class GrouperTest extends TestCase {
     s.stop();
   }
 
-  // TODO Add list data (plural)
-  // TODO Add duplicate list data (plural)
-  // TODO Fetch list data (single)
-  // TODO Fetch list data (plural)
-  // TODO Fetch invalid list data  (type)
   // TODO Remove list data (plural)
   // TODO Remove invalid list data 
 

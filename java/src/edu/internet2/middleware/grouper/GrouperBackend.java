@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.18 2004-11-09 18:51:36 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.19 2004-11-09 19:58:56 blair Exp $
  */
 public class GrouperBackend {
 
@@ -186,14 +186,56 @@ public class GrouperBackend {
   }
 
   /**
+   * Return list data from the backend store.
+   *
+   * @param s     Return list data within this session context.
+   * @param list  Return this list type.
+   */
+  public static List list(GrouperGroup g, GrouperSession s, String list) {
+    List members = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+
+      try {
+        // Query away!
+        Query q = session.createQuery(
+          "SELECT ALL FROM grouper_lists "  +
+          "IN CLASS edu.internet2.middleware.grouper.GrouperMembership " +
+          "WHERE "                          +
+          "groupKey='"    + g.key() + "' "  +
+          "AND "                            +
+          "groupField='"  + list + "' "     +
+          "AND "                            +
+          "via=null"
+        );   
+        // TODO Behave different depending upon the size?
+        members = q.list();
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    }
+    return members;
+  }
+   
+  /**
    * Add new list data to the backend store.
    *
+   * @param g     Add member to this {@link GrouperGroup}.
    * @param s     Add member within this session context.
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
   public static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
     if (
         g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
         s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
@@ -231,12 +273,14 @@ public class GrouperBackend {
   /**
    * Remove list data from the backend store.
    *
+   * @param g     Remove member from this {@link GrouperGroup}.
    * @param s     Remove member within this session context.
    * @param m     Remove this member.
    * @param list  Remove member from this list.
    */
   public static boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
     if (
         g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
         s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&

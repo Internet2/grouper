@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.64 2004-11-09 18:51:36 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.65 2004-11-09 19:58:56 blair Exp $
  */
 public class GrouperGroup {
 
@@ -199,6 +199,16 @@ public class GrouperGroup {
     return this.type;
   }
 
+  /**
+   * Return list data.
+   *
+   * @param s     Return list data within this session context.
+   * @param list  Return this list type.
+   */
+  public List list(GrouperSession s, String list) {
+    return GrouperBackend.list(this, s, list);
+  }
+   
   /**
    * Add a member to a list.
    *

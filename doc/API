@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.18 2004-11-09 18:53:19 blair Exp $
+# $Id: API,v 1.19 2004-11-09 19:58:56 blair Exp $
 #
 # TODO Interfaces
 #
@@ -58,6 +58,10 @@ GrouperBackend
       XXX Hrm...isn't this also in Grouper?
     List groupTypes()
       XXX Hrm...isn't this also in Grouper?
+    List list(GrouperGroup g, GrouperSession s, String list)
+      XXX Is this a wise name?
+      XXX Should this return immediate + effective?
+      XXX I also need methods for just immediate and just effective
     boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list)
     boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember member, String list)
     void loadGroup(GrouperSession s, GrouperGroup g, String key)
@@ -93,6 +97,8 @@ GrouperGroup
     boolean exists()
     String key()
       XXX Should NOT be public
+    List list(GrouperSession s, String list)
+      XXX Is this a wise name?
     boolean listAdd(GrouperSession s, GrouperMember member, String list)
     boolean listRemove(GrouperSession s, GrouperMember member, String list)
     String type()
