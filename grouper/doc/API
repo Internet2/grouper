@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.19 2004-11-09 19:58:56 blair Exp $
+# $Id: API,v 1.20 2004-11-10 17:07:27 blair Exp $
 #
 # TODO Interfaces
 #
@@ -41,34 +41,6 @@ GrouperAttribute
 
 GrouperBackend
   Class Methods
-    GrouperBackend()
-      XXX What needs this?
-    void addGroup(GrouperSession s, GrouperGroup g)
-    void addSession(GrouperSession s)
-    List attributes(GrouperGroup g)
-    void cullSessions()
-      XXX I don't know...but this just seems inappropriate.  Especially
-          as a public method.  And why is it here?  I know, I know,
-          "all backend methods go here"...
-    List names(GrouperSession s, String name)
-    GrouperGroup group(GrouperSession s, String namespace, String name)
-    List groupFields()
-      XXX Hrm...isn't this also in Grouper?
-    List groupTypeDefs()
-      XXX Hrm...isn't this also in Grouper?
-    List groupTypes()
-      XXX Hrm...isn't this also in Grouper?
-    List list(GrouperGroup g, GrouperSession s, String list)
-      XXX Is this a wise name?
-      XXX Should this return immediate + effective?
-      XXX I also need methods for just immediate and just effective
-    boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list)
-    boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember member, String list)
-    void loadGroup(GrouperSession s, GrouperGroup g, String key)
-      XXX Rename?
-    GrouperMember member(String id, String type)
-    List schemas(GrouperGroup g)
-    List namespaces(GrouperSession s, String namespace)
     String uuid()
 
 
