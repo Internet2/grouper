@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.14 2005-03-26 05:44:03 blair Exp $
+ * @version $Id: Group.java,v 1.15 2005-03-27 17:29:48 blair Exp $
  */
 abstract class Group {
 
@@ -144,24 +144,6 @@ abstract class Group {
       }
     }
     return name;
-  }
-
-
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
-
-  /*
-   * Convert a string to a date object.
-   * <p />
-   * @return Date object.
-   */
-  protected Date string2date(String seconds) {
-    Date d = null;
-    if (seconds != null) {
-      d = new Date(Long.parseLong(seconds));
-    } 
-    return d; 
   }
 
 
@@ -257,9 +239,33 @@ abstract class Group {
   }
 
   /*
+   * Find and return the group key for (id).
+   */
+  protected static String findKeyByID(GrouperSession s, String id) {
+    String qry = "Group.key.by.id";
+    String key = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, id);
+      try {
+        key = (String) q.uniqueResult();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving result for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return key;
+  }
+
+  /*
    * Find and return the group key for (name, type).
    */
-  protected static String findKeyByName(
+  protected static String findKeyByNameAndType(
                             GrouperSession s, String name, String type
                           )
   {
@@ -285,11 +291,57 @@ abstract class Group {
   }
 
   /*
+   * Load {@link Group} by id.
+   */
+  protected static Group loadByID(GrouperSession s, String id) {
+    return Group.loadByKey( s, Group.findKeyByID(s, id) );
+  }
+
+  /*
+   * Load {@link Group} by key.
+   */
+  protected static Group loadByKey(GrouperSession s, String key) {
+    Group g = null;
+    if (key != null) {
+      try {
+        g = (Group) s.dbSess().session().get(Group.class, key);
+        g.load(s); // TODO Remove explicit calls in GG and GS?
+      } catch (HibernateException e) {
+        throw new RuntimeException("Error loading group: " + e);
+      }
+    }
+    return g;
+  }
+
+  /*
+   * Load {@link Group} by name and type.
+   */
+  protected static Group loadByNameAndType(
+                           GrouperSession s, String name, String type
+                         )
+  {
+    return Group.loadByKey(s, Group.findKeyByNameAndType(s, name, type));
+  }
+
+  /*
    * Number of seconds since the epoch.
    */
   protected String now() {
     java.util.Date now = new java.util.Date();
     return Long.toString(now.getTime());
+  }
+
+  /*
+   * Convert a string to a date object.
+   * <p />
+   * @return Date object.
+   */
+  protected Date string2date(String seconds) {
+    Date d = null;
+    if (seconds != null) {
+      d = new Date(Long.parseLong(seconds));
+    } 
+    return d; 
   }
 
   /*
@@ -319,7 +371,7 @@ abstract class Group {
                         )
   {
     // Load stem for priv checking
-    String key = Group.findKeyByName(s, stem, Grouper.NS_TYPE);
+    String key = Group.findKeyByNameAndType(s, stem, Grouper.NS_TYPE);
     if (key != null) {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
       if (ns != null) { // TODO Flail if null?
@@ -342,7 +394,7 @@ abstract class Group {
                         )
   {
     // Load stem for priv checking
-    String key = Group.findKeyByName(s, stem, Grouper.NS_TYPE);
+    String key = Group.findKeyByNameAndType(s, stem, Grouper.NS_TYPE);
     if (key != null) {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
       if (ns != null) { // TODO Flail if null?
@@ -555,53 +607,6 @@ abstract class Group {
       s.dbSess().txRollback();
       throw new RuntimeException("Error deleting group: " + e);
     }
-  }
-
-  /*
-   * Find and return the group key for (id).
-   */
-  private static String findKeyByID(GrouperSession s, String id) {
-    String qry = "Group.key.by.id";
-    String key = null;
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, id);
-      try {
-        key = (String) q.uniqueResult();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving result for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return key;
-  }
-
-  /*
-   * Load {@link Group} by id.
-   */
-  public static Group loadByID(GrouperSession s, String id) {
-    return Group.loadByKey( s, Group.findKeyByID(s, id) );
-  }
-
-  /*
-   * Load {@link Group} by key.
-   */
-  protected static Group loadByKey(GrouperSession s, String key) {
-    Group g = null;
-    if (key != null) {
-      try {
-        g = (Group) s.dbSess().session().get(Group.class, key);
-        g.load(s); // TODO Remove explicit calls in GG and GS?
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error loading group: " + e);
-      }
-    }
-    return g;
   }
 
 

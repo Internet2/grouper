@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.27 2005-03-26 17:35:03 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.28 2005-03-27 17:29:48 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -190,6 +190,31 @@ public class GrouperStem extends Group {
     return null; 
   }
 
+  /**
+   * Retrieve a namespace by id.
+   * <p />
+   * @param   s           Session to load the namespace within.
+   * @param   id          Namespace ID.
+   * @return  A {@link Group} object.
+   */
+  public static Group loadByID(GrouperSession s, String id) {
+    return Group.loadByID(s, id);
+  }
+
+  /**
+   * Retrieve a namespace by name.
+   * <p />
+   * @param   s           Session to load the namespace within.
+   * @param   name        Name of namespace.
+   * @return  A {@link GrouperStem} object.
+   */
+  public static GrouperStem loadByName(
+                              GrouperSession s, String name
+                            )
+  {
+    return (GrouperStem) Group.loadByNameAndType(s, name, Grouper.NS_TYPE);
+  }
+
 
   /*
    * PUBLIC INSTANCE METHODS
@@ -215,6 +240,15 @@ public class GrouperStem extends Group {
    */
   public void attribute(String attribute, String value) {
     this.attribute(this.s, this, attribute, value);
+  }
+
+  /** 
+   * Retrieve all of this namespace's attributes.
+   * <p />
+   * @return  A map of {@link GrouperAttribute} objects.
+   */
+  public Map attributes() {
+    return this.attributes;
   }
 
   /**
@@ -277,6 +311,15 @@ public class GrouperStem extends Group {
                 );
     }
     return vals;
+  }
+
+  /**
+   * Retrieve namespace's public id.
+   * <p />
+   * @return Public id.
+   */
+  public String id() {
+    return this.getGroupID();
   }
 
   /**
@@ -472,9 +515,9 @@ public class GrouperStem extends Group {
   }
 
   /**
-   * Retrieve group's type.
+   * Retrieve namespace's type.
    * <p />
-   * @return Type of group.
+   * @return Type of namespace.
    */
   public String type() {
     return this.type;
@@ -493,7 +536,7 @@ public class GrouperStem extends Group {
     if (stem.equals(Grouper.NS_ROOT)) {
       rv = true;
     } else {
-      if (Group.findKeyByName(s, stem, Grouper.NS_TYPE) != null) {
+      if (Group.findKeyByNameAndType(s, stem, Grouper.NS_TYPE) != null) {
         rv = true;
       }
     }

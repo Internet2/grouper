@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.199 2005-03-26 17:35:03 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.200 2005-03-27 17:29:48 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -224,10 +224,49 @@ public class GrouperGroup extends Group {
     }
     String key = Group.findKey(s, stem, extn, type);
     if (key != null) {
-      GrouperGroup g = (GrouperGroup) Group.loadByKey(s, key);
-      return g;
+      return (GrouperGroup) Group.loadByKey(s, key);
     }
     return null; 
+  }
+
+  /**
+   * Retrieve a group by id.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   id          Group ID.
+   * @return  A {@link Group} object.
+   */
+  public static Group loadByID(GrouperSession s, String id) {
+    return Group.loadByID(s, id);
+  }
+
+  /**
+   * Retrieve a group by name.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   name        Name of group.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup loadByName(
+                               GrouperSession s, String name
+                             )
+  {
+    return GrouperGroup.loadByName(s, name, Grouper.DEF_GROUP_TYPE);
+  }
+
+  /**
+   * Retrieve a group by name.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   name        Name of group.
+   * @param   type        The type of group to retrieve.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup loadByName(
+                               GrouperSession s, String name, String type
+                             )
+  {
+    return (GrouperGroup) Group.loadByNameAndType(s, name, type);
   }
 
 
@@ -257,6 +296,15 @@ public class GrouperGroup extends Group {
     this.attribute(this.s, this, attribute, value);
   }
 
+  /** 
+   * Retrieve all of this group's attributes.
+   * <p />
+   * @return  A map of {@link GrouperAttribute} objects.
+   */
+  public Map attributes() {
+    return this.attributes;
+  }
+
   /**
    * Retrieve the <i>createSource</i> value.
    * <p  />
@@ -283,6 +331,15 @@ public class GrouperGroup extends Group {
    */
   public Date createTime() {
     return this.string2date(this.getCreateTime());
+  }
+
+  /**
+   * Retrieve group's public id.
+   * <p />
+   * @return Public id.
+   */
+  public String id() {
+    return this.getGroupID();
   }
 
   /**
@@ -431,6 +488,15 @@ public class GrouperGroup extends Group {
     return m;
   }
 
+  /**
+   * Retrieve group's type.
+   * <p />
+   * @return Type of group.
+   */
+  public String type() {
+    return this.type;
+  }
+
 
   /*
    * PROTECTED CLASS METHODS
@@ -539,76 +605,6 @@ public class GrouperGroup extends Group {
    */
 
 
-  /**
-   * Retrieve a group by public GUID.
-   * <p />
-   * @param   s           Session to load the group within.
-   * @param   id          Group GUID.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static Group loadByID(GrouperSession s, String id) {
-    return Group.loadByID(s, id);
-  }
-
-  /**
-   * Retrieve a group by name.
-   * <p />
-   * FIXME NOT IMPLEMENTED
-   * <p />
-   * @param   s           Session to load the group within.
-   * @param   name        Name of group.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static GrouperGroup loadByName(
-                               GrouperSession s, String name
-                             )
-  {
-    return GrouperGroup.loadByName(s, name, Grouper.DEF_GROUP_TYPE);
-  }
-
-  /**
-   * Retrieve a group by name.
-   * <p />
-   * FIXME NOT IMPLEMENTED
-   * <p />
-   * @param   s           Session to load the group within.
-   * @param   name        Name of group.
-   * @param   type        The type of group to retrieve.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static GrouperGroup loadByName(
-                               GrouperSession s, String name, String type
-                             )
-  {
-    return null;
-  }
-
-  /** 
-   * Retrieve all of this group's attributes.
-   * <p />
-   * @return  A map of {@link GrouperAttribute} objects.
-   */
-  public Map attributes() {
-    return this.attributes;
-  }
-
-  /**
-   * Retrieve group's public GUID.
-   * <p />
-   * @return Public GUID.
-   */
-  public String id() {
-    return this.getGroupID();
-  }
-
-  /**
-   * Retrieve group's type.
-   * <p />
-   * @return Type of group.
-   */
-  public String type() {
-    return this.type;
-  }
   protected void type(String type) {
     this.type = type;
   }
