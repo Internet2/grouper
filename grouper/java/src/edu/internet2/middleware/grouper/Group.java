@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.5 2005-03-25 14:20:52 blair Exp $
+ * @version $Id: Group.java,v 1.6 2005-03-25 14:37:24 blair Exp $
  */
 abstract class Group {
 
@@ -89,6 +89,10 @@ abstract class Group {
   abstract protected boolean        listDelVal(GrouperMember m, String list);
   abstract protected List           listVals();
   abstract protected List           listVals(String list);
+  abstract protected List           listEffVals();
+  abstract protected List           listEffVals(String list);
+  abstract protected List           listImmVals();
+  abstract protected List           listImmVals(String list);
   abstract protected void           load(GrouperSession s);
   abstract protected String         modifySource();
   abstract protected Subject        modifySubject();
@@ -338,6 +342,35 @@ abstract class Group {
 
 
   /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /*
+   * Retrieve list values from specified list.
+   */
+  protected List listVals(GrouperSession s, Group g, String list) {
+    String  qry  = "GrouperList.by.group.and.list";
+    return this.queryListVals(s, qry, g.key(), list);
+  }
+
+  /*
+   * Retrieve effective list values from specified list.
+   */
+  protected List listEffVals(GrouperSession s, Group g, String list) {
+    String  qry   = "GrouperList.by.group.and.list.and.is.eff";
+    return this.queryListVals(s, qry, g.key(), list);
+  }
+
+  /*
+   * Retrieve immediate list values from specified list.
+   */
+  protected List listImmVals(GrouperSession s, Group g, String list) {
+    String  qry   = "GrouperList.by.group.and.list.and.is.imm";
+    return this.queryListVals(s, qry, g.key(), list);
+  }
+
+
+  /*
    * PRIVATE CLASS METHODS
    */
 
@@ -386,6 +419,44 @@ abstract class Group {
       }
     }
     return g;
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Return list values for specified query.
+   */
+  private List queryListVals(
+                 GrouperSession s, String qry, String key, String list
+               ) 
+  {
+    List vals = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      q.setString(1, list);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 }
