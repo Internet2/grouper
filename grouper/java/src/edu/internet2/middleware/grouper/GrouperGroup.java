@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.91 2004-11-30 17:20:46 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.92 2004-11-30 17:57:29 blair Exp $
  */
 public class GrouperGroup {
 
@@ -379,7 +379,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
-    return GrouperBackend.listAddVal(s, this, m, Grouper.DEF_LIST_TYPE);
+    return this._listAddVal(s, m, Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -395,7 +395,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m, String list) {
-    return GrouperBackend.listAddVal(s, this, m, list);
+    return this._listAddVal(s, m, list);
   }
 
   /**
@@ -410,7 +410,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
-    return GrouperBackend.listDelVal(s, this, m, Grouper.DEF_LIST_TYPE);
+    return this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -426,7 +426,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
-    return GrouperBackend.listDelVal(s, this, m, list);
+    return this._listDelVal(s, m, list);
   }
 
   /**
@@ -557,6 +557,54 @@ public class GrouperGroup {
     this.modifySubject  = null;
     this.modifySource   = null;
     this.type           = null; // FIXME Is this right?
+  }
+
+  /*
+   * Add list value and update modify* attributes.
+   */
+  private boolean _listAddVal(GrouperSession s, GrouperMember m, String list) {
+    boolean rv = false;
+    // Set some of the operational attributes
+    /*
+     * TODO Most, if not all, of the operational attributes should be
+     *      handled by Hibernate interceptors.  A task for another day.
+     */
+    String curModTime = this.getModifyTime();
+    String curModSubj = this.getModifySubject();
+    this.setModifyTime( GrouperGroup._now() );
+    this.setModifySubject( s.subject().getId() );
+    if (GrouperBackend.listAddVal(s, this, m, list) == true) {
+      rv = true;
+    } else {
+      // Revert changes
+      this.setModifyTime(curModTime);
+      this.setModifySubject(curModSubj);
+    }
+    return rv;
+  }
+
+  /*
+   * Delete list value and update modify* attributes.
+   */
+  private boolean _listDelVal(GrouperSession s, GrouperMember m, String list) {
+    boolean rv = false;
+    // Set some of the operational attributes
+    /*
+     * TODO Most, if not all, of the operational attributes should be
+     *      handled by Hibernate interceptors.  A task for another day.
+     */
+    String curModTime = this.getModifyTime();
+    String curModSubj = this.getModifySubject();
+    this.setModifyTime( GrouperGroup._now() );
+    this.setModifySubject( s.subject().getId() );
+    if (GrouperBackend.listDelVal(s, this, m, list) == true) {
+      rv = true;
+    } else {
+      // Revert changes
+      this.setModifyTime(curModTime);
+      this.setModifySubject(curModSubj);
+    }
+    return rv;
   }
 
   /*
