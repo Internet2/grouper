@@ -1,7 +1,5 @@
-# --- Create local Subject population for Signet Demo2 database (March, 2005)
-
+-- Create local Subject population for Signet Demo2 database (March, 2005)
 insert into SubjectType values ('person', 'Person', 'edu.internet2.middleware.signet.SubjectTypeAdapterImpl', getdate())
-
 insert into Subject          values ('person', 'K0000001', 'McRae, Lynn',    'Chair, Signet Working Group',  'lmcrae',   getdate())
 insert into Subject          values ('person', 'K0000002', 'Nguyen, Minh',   'Signet Application Architect', 'mnguyen',  getdate())
 insert into Subject          values ('person', 'K0000003', 'Cohen, Andy',    'Signet, Principal Developer', 'acohen',   getdate())

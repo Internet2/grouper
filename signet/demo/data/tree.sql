@@ -1,9 +1,6 @@
-# --- Create "admin_orgs" tree for Signet Demo2 database (March, 2005)
-
+-- Create "admin_orgs" tree for Signet Demo2 database (March, 2005)
 insert into Tree values ('admin_orgs', 'Administrative Organizations', 'edu.internet2.middleware.signet.TreeAdapterImpl', getdate())
-
 insert       into TreeNode values ('admin_orgs', 'KITN',        'organization', 'active', 'Kansas Institute of Technology', getdate()) 
-
   insert     into TreeNode values ('admin_orgs', 'PRES',        'organization', 'active', 'Office of the President',        getdate())
     insert   into TreeNode values ('admin_orgs', 'REGISTRAR',   'organization', 'active', 'University Registrar',           getdate())
       insert into TreeNode values ('admin_orgs', 'ADMISSION',   'organization', 'active', 'Admissions',                     getdate())
@@ -24,7 +21,6 @@ insert       into TreeNode values ('admin_orgs', 'KITN',        'organization', 
       insert into TreeNode values ('admin_orgs', 'ACADCOMP',    'organization', 'active', 'Academic Computing',             getdate())
       insert into TreeNode values ('admin_orgs', 'ADMINCOMP',   'organization', 'active', 'Administrative Computing',       getdate())
       insert into TreeNode values ('admin_orgs', 'DEVELOPMENT', 'organization', 'active', 'Development',                    getdate())
-
   insert     into TreeNode values ('admin_orgs', 'PROVOST',     'organization', 'active', 'Office of the Provost',          getdate())
     insert   into TreeNode values ('admin_orgs', 'ARCH',        'school',       'active', 'School of Architecture',         getdate())
     insert   into TreeNode values ('admin_orgs', 'BUSINESS',    'school',       'active', 'Business School',                getdate())
@@ -42,7 +38,6 @@ insert       into TreeNode values ('admin_orgs', 'KITN',        'organization', 
       insert into TreeNode values ('admin_orgs', 'PHYSICS',     'department',   'active', 'Physics',                        getdate())
     insert   into TreeNode values ('admin_orgs', 'LAW',         'school',       'active', 'Law School',                     getdate())
     insert   into TreeNode values ('admin_orgs', 'MEDICINE',    'school',       'active', 'School of Medicine',             getdate())
-
 insert into TreeNodeRelationship values ('admin_orgs', 'PRES', 'KITN')
 insert into TreeNodeRelationship values ('admin_orgs', 'REGISTRAR', 'PRES')
 insert into TreeNodeRelationship values ('admin_orgs', 'ADMISSION', 'REGISTRAR')
