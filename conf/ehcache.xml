@@ -78,7 +78,7 @@
   />
 
   <!-- XXX I have no idea what is appropriate for this cache -->
-  <cache name="edu.internet2.middleware.group.GrouperMembers"
+  <cache name="edu.internet2.middleware.group.GrouperMemberAttribute"
     maxElementsInMemory="10000"
     eternal="false"
     timeToIdleSeconds="300"

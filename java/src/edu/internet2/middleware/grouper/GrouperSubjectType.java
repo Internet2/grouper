@@ -9,49 +9,112 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.grouper.*;
+
+
 /** 
+ * Class representing a 
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectType.java,v 1.5 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperSubjectType.java,v 1.6 2004-11-05 18:46:27 blair Exp $
  */
 public class GrouperMemberType {
 
-  private String memberType;
-  private String displayName;
+  // What we need to identify a member type
+  private String adapterClass;
+  private String name;
+  private String typeID;
+
 
   /**
    * Create a {@link GrouperMemberType} object.
    */
   public GrouperMemberType() {
-    memberType  = null;
-    displayName = null;
+    this._init();
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS 
+   */
+
+  /**
+   * Return member type adapter class.
+   *
+   * @return Adapter class of type.
+   */
+  public String adapterClass() {
+    return this.getAdapterClass();
+  }
+
+  /**
+   * Return member type name.
+   *
+   * @return  Name of type.
+   */
+  public String name() {
+    return this.getName();
   }
 
   public String toString() {
-    return "" + this.getMemberType() + ":" + this.getDisplayName();
+    return this.getClass().getName()  + ":" +
+           this.typeID()              + ":" +
+           this.name()                + ":" +
+           this.adapterClass();
   }
+
+  /**
+   * Return member type ID.
+   *
+   * @return ID of type.
+   */
+  public String typeID() {
+    return this.getMemberTypeID();
+  }
+
 
   /*
-   * Below for Hibernate
+   * PRIVATE INSTANCE METHODS
    */
 
-  private String getMemberType() {
-    return this.memberType;
+  /*
+   * Initialize instance variables.
+   */
+  private void _init() {
+    this.adapterClass = null;
+    this.typeID       = null;
+    this.name         = null;
   }
 
-  // XXX Do we really want to allow write access? 
-  private void setMemberType(String memberType) {
-    this.memberType = memberType;
+
+  /*
+   * HIBERNATE
+   */
+
+  private String getAdapterClass() {
+    return this.adapterClass;
   }
 
-  private String getDisplayName() {
-    return this.displayName;
+  private void setAdapterClass(String adapterClass) {
+    this.adapterClass = adapterClass;
   }
 
-  // XXX Do we really want to allow write access? 
-  private void setDisplayName(String displayName) {
-    this.displayName = displayName;
+  private String getMemberTypeID() {
+    return this.typeID;
   }
+
+  private void setMemberTypeID(String id) {
+    this.typeID = id;
+  }
+
+  private String getName() {
+    return this.name;
+  }
+
+  private void setName(String name) {
+    this.name = name;
+  }
+
 }
 

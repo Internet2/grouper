@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.11 2004-11-02 19:40:22 blair Exp $
+# $Id: API,v 1.12 2004-11-05 18:46:27 blair Exp $
 #
 # TODO Interfaces
 #
@@ -94,27 +94,40 @@ GrouperGroup
     String groupType()
 
 
+XXX
+
 GrouperMember
   Class Methods
     GrouperMember()
     GrouperMember(String id, String type)
-      XXX Needed?
+      XXX Needed?  Accurate?
 
   Instance Methods
     String id()
     String type()
+    String typeID()
+
+
+GrouperMemberAttribute
+  Class Methods
+    GrouperMemberAttribute()
+    GrouperMemberAttribute(String typeID, String name, String value)
+
+  Instance Methods
+    String name()
+    String searchValue()
+    String typeID()
+    String value()
 
 
 GrouperMemberType
-  XXX Revisit class
   Class Methods
     GrouperMemberType()
 
-
-GrouperMembers
-  XXX Revisit class
-  Class Methods
-    GrouperMembers()
+  Instance Methods 
+    String adapterClass()
+    String name()
+    String typeID()
 
 
 GrouperMembership

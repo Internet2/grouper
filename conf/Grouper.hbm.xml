@@ -82,29 +82,44 @@
       <column name="memberKey" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="memberType">
-      <column name="memberType" sql-type="char(255)"/>
-    </property>
     <property name="memberID">
       <column name="memberID" sql-type="char(255)"/>
     </property>
+    <property name="memberTypeID">
+      <column name="memberTypeID" sql-type="char(255)"/>
+    </property>
   </class>
 
-  <class name="GrouperMembers" table="grouper_members" mutable="true">
+  <class name="GrouperMemberAttribute" table="grouper_memberAttribute">
     <composite-id access="field">
-      <key-property name="memberID"        type="string" column="memberID"/>
-      <key-property name="presentationID"  type="string" column="presentationID"/>
+      <key-property name="memberKey"    type="string" column="memberKey"/>
+      <key-property name="memberTypeID" type="string" column="memberTypeID"/>
     </composite-id> 
+    <property name="name">
+      <column name="name" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="instance">
+      <column name="instance" sql-type="integer"/>
+    </property>
+    <property name="value">
+      <column name="value" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="searchValue">
+      <column name="searchValue" sql-type="char(255)" not-null="true"/>
+    </property>
   </class>
 
-  <class name="GrouperMemberType" table="grouper_memberTypes" mutable="false">
+  <class name="GrouperMemberType" table="grouper_memberType" mutable="false">
     <cache usage="read-only"/>
-    <id name="memberType" type="string" unsaved-value="null">
-      <column name="memberType" sql-type="char(255)" not-null="true"/>
+    <id name="memberTypeID" type="string" unsaved-value="null">
+      <column name="memberTypeID" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
-    <property name="displayName">
-      <column name="displayName" length="255"/>
+    <property name="name">
+      <column name="name" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="adapterClass">
+      <column name="adapterClass" sql-type="char(255)" not-null="true"/>
     </property>
   </class>
 
