@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.182 2005-03-22 20:56:15 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.183 2005-03-22 21:08:34 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -1393,17 +1393,31 @@ public class GrouperGroup extends Group {
     this.setModifyTime( GrouperGroup._now() );
     GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
     this.setModifySubject( mem.key() );
-    if (
-        GrouperBackend.listAddVal(
-          this.s, new GrouperList(this, m, list)
-        ) == true
-       )
-    {
-      s.dbSess().txCommit();
-      rv = true;
+    GrouperList gl = new GrouperList(this, m, list);
+    gl.load(this.s); // TODO Necessary?
+    GrouperList.validate(gl);
+    gl.load(this.s);
+
+    if (GrouperList.exists(s, gl) == false) {
+      // The GrouperList objects that we will need to add
+      MemberOf mof = new MemberOf(this.s);
+      List listVals = mof.memberOf(gl);
+          
+      // Now add the list values
+      // TODO Refactor out to _listAddVal(List vals)
+      Iterator iter = listVals.iterator();
+      while (iter.hasNext()) {
+        GrouperList lv = (GrouperList) iter.next();
+        lv.load(this.s); // TODO Is this necessary?
+        GrouperList.save(this.s, lv);
+      }
+      rv = true; // TODO This seems naive
+    }
+    if (rv) { 
+      this.s.dbSess().txCommit();
     } else {
       // Revert changes
-      s.dbSess().txRollback();
+      this.s.dbSess().txRollback();
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
     }
