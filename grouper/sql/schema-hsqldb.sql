@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.26 2005-02-07 03:03:25 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.27 2005-02-07 20:23:21 blair Exp $
 -- 
 
 DROP   TABLE grouper_attribute IF EXISTS;
@@ -122,4 +122,6 @@ CREATE TABLE grouper_type (
   groupType   VARCHAR NOT NULL PRIMARY KEY,
   CONSTRAINT  uniq_gtype_gt UNIQUE (groupType)
 );
+
+COMMIT;
 

@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.8 2004-12-06 14:28:51 blair Exp $
+-- $Id: init.sql,v 1.9 2005-02-07 20:23:21 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -90,4 +90,6 @@ INSERT INTO grouper_subjectType (subjectTypeID, name, adapterClass)
 
 INSERT INTO grouper_subject (subjectID, subjectTypeID)
   VALUES ('GrouperSystem', 'person');
+
+COMMIT;
 
