@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.33 2005-02-07 03:03:25 blair Exp $ -->
+<!-- $Id: build.xml,v 1.34 2005-02-16 20:06:15 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -18,7 +18,7 @@
   <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
   <property name="jdbc.driver"            value="org.hsqldb.jdbcDriver"/>
   <property name="jdbc.url"               value="jdbc:hsqldb:${dist}/run/grouper"/>
-  <property name="sql.create"             value="sql/hsqldb.sql"/>
+  <property name="sql.create"             value="sql/schema-hsqldb.sql"/>
 
   <target name="init">
     <tstamp />
