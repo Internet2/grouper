@@ -1,3 +1,16 @@
+/* 
+ * Copyright (C) 2004 TODO
+ * All Rights Reserved. 
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted only as authorized by the Academic
+ * Free License version 2.1.
+ *
+ * A copy of this license is available in the file LICENSE in the
+ * top-level directory of the distribution or, alternatively, at
+ * <http://www.opensource.org/licenses/afl-2.1.php>
+ */
+
 package edu.internet2.middleware.grouper;
 
 import  java.sql.*;
@@ -8,7 +21,7 @@ import  net.sf.hibernate.*;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.26 2004-08-19 19:24:43 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.27 2004-08-24 17:37:57 blair Exp $
  */
 public class GrouperGroup {
 
