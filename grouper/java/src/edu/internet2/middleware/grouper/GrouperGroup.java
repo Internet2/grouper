@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.180 2005-03-22 18:58:15 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.181 2005-03-22 20:23:49 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -1132,17 +1132,21 @@ public class GrouperGroup extends Group {
           // Verify that we have everything we need to create a group
           // and that this subject is privileged to create this group.
           if (g._validateCreate()) {
-            // And now attempt to add the group to the store
-            if (GrouperBackend.groupAdd(s, g)) {
-              g.initialized = true; // FIXME UGLY HACK!
-            } else {
-              g = null;  
-            }
+            try {
+              s.dbSess().session().save(g);
+              // Add schema
+              GrouperSchema.save(s, g);
+              // Add attributes
+              if (g._saveAttributes()) {
+                if (g._privGrantUponCreate()) {
+                  g.initialized = true; // FIXME UGLY HACK!
+                }
+              }
+            } catch (HibernateException e) {
+              throw new RuntimeException("Error saving group: " + g);
+            } 
           }
-        } else {
-          // TODO Log
-          g = null;
-        }
+        } 
       }
     } else {
       Grouper.log().event(
@@ -1151,12 +1155,114 @@ public class GrouperGroup extends Group {
       );
     }
     if (g != null) {
-      s.dbSess().txCommit();
+      if (g.initialized != true) {
+  System.err.println("23");
+        g = null;
+      } else {
+        s.dbSess().txCommit();
+      }
     } else {
       s.dbSess().txRollback();
     }
     Grouper.log().groupAdd(s, g, name, type);
     return g;
+  }
+
+  /*
+   * Save group's attributes.
+   * TODO Make part of save()?
+   */
+  private boolean _saveAttributes() {
+    boolean rv = false;
+    Iterator iter = this.attributes().keySet().iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) this.attribute(
+                                                   (String) iter.next() 
+                                                 );
+      try {
+        GrouperAttribute.save(
+          this.s, new GrouperAttribute(this.key(), attr.field(), attr.value())
+        );
+      } catch (RuntimeException e) {
+        // TODO Less than ideal
+        rv = false;
+        break;
+      }
+      rv = true; 
+    }
+    return rv;
+  }
+
+  /* 
+   * Grant PRIV_ADMIN to group creator upon creation
+   */
+  private boolean _privGrantAdminUponCreate(
+                    GrouperSession s, GrouperMember m
+                  )
+  {
+    boolean rv = false;
+    if (s.access().grant(s, this, m, Grouper.PRIV_ADMIN)) {
+      Grouper.log().backend("Granted " + Grouper.PRIV_ADMIN + " to " + m);
+      rv = true;
+    } else {
+      // TODO Exception?
+      Grouper.log().backend(
+                            "Unable to grant " + Grouper.PRIV_ADMIN + 
+                            " to " + m
+                           );
+    }
+    return rv;
+  }
+
+  /* 
+   * Grant PRIV_STEM to stem creator upon creation
+   */
+  protected boolean _privGrantStemUponCreate(
+                      GrouperSession s, GrouperMember m
+                    )
+  {
+    boolean rv = false;
+    if (s.naming().grant(s, this, m, Grouper.PRIV_STEM)) {
+      Grouper.log().backend("Granted " + Grouper.PRIV_STEM + " to " + m);
+      rv = true;
+    } else {
+      Grouper.log().backend(
+        "Unable to grant " + Grouper.PRIV_STEM + " to " + m
+      );
+    }
+    return rv;
+  }
+
+  /* 
+   * Grant appropriate privilege to group|stem creator upon creation
+   */
+  protected boolean _privGrantUponCreate() {
+    GrouperSession.validate(this.s);
+    boolean rv = false;
+    // We need a root session for for bootstrap privilege granting
+    // TODO Replace with Grouper root session?
+    Subject root = GrouperSubject.load(
+                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+                   );
+    GrouperSession rs = GrouperSession.start(root);
+    if (rs != null) {
+      // Now grant privileges to the group creator
+      GrouperMember m = GrouperMember.load(this.s.subject() );
+      if (m != null) { // FIXME Bah
+        if (this.type().equals(Grouper.NS_TYPE)) {
+          if (this._privGrantStemUponCreate(rs, m)) {
+            // NS_TYPE groups get PRIV_STEM
+            rv = true;
+          } 
+        } else if (this._privGrantAdminUponCreate(rs, m)) {
+          // All other group types get PRIV_ADMIN
+          rv = true;
+        }
+      }
+      // Close root session
+      rs.stop();
+    }
+    return rv;
   }
 
   /*
@@ -1225,7 +1331,6 @@ public class GrouperGroup extends Group {
     this.setModifyTime( GrouperGroup._now() );
     GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
     this.setModifySubject( mem.key() );
-    //if (GrouperBackend.listDelVal(s, this, m, list) == true) {
     if (
         GrouperBackend.listDelVal(
           this.s, new GrouperList(this, m, list) 
@@ -1306,11 +1411,14 @@ public class GrouperGroup extends Group {
    * Validate whether a group can be created.
    */
   private boolean _validateCreate() {
+    // TODO Break these down into individual error reporting conditions
     if (
         // Do we have a valid group type?
         (Grouper.groupType(this.type) == true) &&
         // And a stem?
         (attributes.containsKey("stem"))       &&
+        // And stem exists
+        (GrouperStem.exists(this.s, this.attribute("stem").value())) &&
         // And an extension?
         (attributes.containsKey("extension"))  && 
         // And are the group attributes valid?
