@@ -28,7 +28,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.5 2004-09-19 18:08:03 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.6 2004-09-21 16:40:48 blair Exp $
  */
 public class GrouperBackend {
 
@@ -373,8 +373,8 @@ public class GrouperBackend {
               // return it.
               try {
                 Query q = session.createQuery(
-                  "SELECT ALL FROM GROUPER_MEMBER " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperMember " +
+                  "SELECT ALL FROM GROUPER_GROUP " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
                   "WHERE "                          +
                   "groupKey='" + possDesc.key()     + "'"
                 );
