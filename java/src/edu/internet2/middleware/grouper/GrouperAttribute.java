@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.20 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.21 2004-12-09 14:50:01 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -85,9 +85,7 @@ public class GrouperAttribute implements Serializable {
     this._init();
   }
 
-  /**
-   * Construct a new {@link GrouperAttribute} object.
-   * <p />
+  /* (!javadoc)
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
