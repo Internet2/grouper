@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.7 2004-11-10 16:34:05 blair Exp $ -->
+<!-- $Id: build.xml,v 1.8 2004-11-11 18:17:56 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -27,8 +27,8 @@
       </fileset>
       <fileset dir="${dist}/lib">
         <include name="${app.name}-${DSTAMP}.jar" />
-        <include name="${app.name}-Test.jar" />
       </fileset>
+      <pathelement location="${build}/test/"/>
     </path>
   </target>
 
@@ -65,7 +65,7 @@
 
   <target name="doc" depends="javadoc" />
 
-  <target name="test" depends="test-jar,test-run">
+  <target name="test" depends="test-run">
   </target>
 
   <target name="test-build" depends="jar">
@@ -76,14 +76,15 @@
     </javac>
   </target>
 
-  <target name="test-jar" depends="test-build">
-    <jar jarfile="${dist}/lib/${app.name}-Test.jar" basedir="${build-test}" />
-  </target>
-
   <target name="test-run" depends="test-build">
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.GrouperTest" />
+      <arg value="test.edu.internet2.middleware.grouper.TestInstantiate" />
+      <classpath refid="project.class.path" />
+    </java>
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestConfigAndSchema" />
       <classpath refid="project.class.path" />
     </java>
     <!-- Yes, yes.  Ugly, ugly hacks.  I know.  -->
