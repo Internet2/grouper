@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.3 2004-12-02 03:02:00 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.4 2004-12-02 07:43:22 blair Exp $
  */
 public class GrouperQuery {
 
@@ -89,6 +89,19 @@ public class GrouperQuery {
    */
 
   /**
+   * Set {@link GrouperGroup} type filter.
+   * <p />
+   * TODO How do I unset?
+   *
+   * @param   type  Type of {@link GrouperGroup} to query on.
+   * @return  Boolean true if matching items were found, otherwise
+   *   false.
+   */
+  public boolean groupType(String type) throws GrouperException {
+    return this._queryGroupType(type);
+  }
+
+  /**
    * Set membership query filter.
    * <p />
    *
@@ -112,6 +125,11 @@ public class GrouperQuery {
    */
   public List query() {
     List    vals  = new ArrayList();
+    /*
+     * TODO Ideally I would sort the candidate lists by size in an
+     *      attempt to optimize the candidate selection.  Or I would
+     *      just replace this with something entirely better, no?
+     */
     Iterator  iter = this.candidates.keySet().iterator();
     while (iter.hasNext()) {
       List cands = (List) this.candidates.get( iter.next() );
@@ -147,18 +165,19 @@ public class GrouperQuery {
   private List _candidateSelect(List vals, List candidates) {
     List      selected  = new ArrayList();
     Iterator  iter      = candidates.iterator();
-    while (iter.hasNext()) {
-      /*
-       * TODO This assumes I'll only be dealing with GrouperList
-       *      objects.  Is that a safe assumption?
-       */
-      GrouperList gl = (GrouperList) iter.next();
-      if        (vals.size() == 0)  {
-        selected.add(gl);
-      } else if (vals.size() > 0)   {
-        if (vals.contains(gl)) {
+    if (candidates.size() > 0) {
+      while (iter.hasNext()) {
+        /*
+         * TODO This assumes I'll only be dealing with GrouperList
+         *      objects.  Is that a safe assumption?
+         */
+        GrouperList gl = (GrouperList) iter.next();
+        if        (vals.size() == 0)  {
           selected.add(gl);
-        } else {
+        } else if (vals.size() > 0)   {
+          if (vals.contains(gl)) {
+            selected.add(gl);
+          }
         }
       }
     }
@@ -182,6 +201,33 @@ public class GrouperQuery {
   }
 
   /* (!javadoc)
+   * Perform groupType query.
+   */
+  private boolean _queryGroupType(String type) throws GrouperException {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    // Find all groups of matching type
+    List      groups  = GrouperBackend.groupType(this.gs, type);
+    // Find all list values for matching groups
+    Iterator  iter    = groups.iterator();
+    while (iter.hasNext()) {
+      GrouperGroup g = (GrouperGroup) iter.next();
+      Iterator lvIter =  GrouperBackend.listVals(
+                           this.gs, g, Grouper.DEF_LIST_TYPE
+                         ).iterator();
+      while (lvIter.hasNext()) {
+        GrouperList gl = (GrouperList) lvIter.next();
+        vals.add(gl);
+      }
+    }
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put("grouptype", vals);
+    return rv; 
+  }
+
+  /* (!javadoc)
    * Perform membership query.
    */
   private boolean _queryMembership(String type) throws GrouperException {
@@ -200,9 +246,9 @@ public class GrouperQuery {
       throw new GrouperException("Unknown membership type: " + type);
     } 
     if ( (vals != null) && (vals.size() > 0) ) {
-      this.candidates.put("membership", vals);
       rv = true;
     }
+    this.candidates.put("membership", vals);
     return rv; 
   }
 
