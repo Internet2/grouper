@@ -51,7 +51,11 @@
 
 package edu.internet2.middleware.grouper;
 
+
+import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
+import  net.sf.hibernate.*;
 
 
 /** 
@@ -60,7 +64,7 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.16 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.17 2005-03-23 21:52:49 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter
@@ -94,7 +98,30 @@ public class  SubjectTypeAdapterPersonImpl
    * @return  A {@link Subject} object.
    */
   public Subject getSubject(SubjectType type, String id) {
-    return GrouperBackend.subjectLookupTypePerson(id, type.getId());
+    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
+    String  qry     = "SubjectImpl.by.subjectid.and.typeid";
+    Subject subj    = null;
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      q.setString(0, id);
+      q.setString(1, type.getId());
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          subj = (Subject) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    dbSess.stop();
+    return subj;
   }
 
   /**
