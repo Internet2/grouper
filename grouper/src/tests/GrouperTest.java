@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.26 2004-08-27 18:33:41 blair Exp $
+ * $Id: GrouperTest.java,v 1.27 2004-09-08 22:17:42 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -24,6 +24,7 @@ import  java.io.FileReader;
 import  java.io.IOException;
 import  java.lang.reflect.*;
 import  java.sql.*;
+import  java.util.*;
 import  junit.framework.*;
 
 public class GrouperTest extends TestCase {
@@ -64,7 +65,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
 
     try {
-      G.initialize();
+      G.init();
     } catch(Exception e) {
       Assert.fail("Exception thrown when initializing Grouper");
     }
@@ -74,7 +75,7 @@ public class GrouperTest extends TestCase {
   /* Get a runtime configuration setting */
   public void testGetRuntimeConfigSetting() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     
     String expVal = "GrouperSystem";
     Assert.assertTrue( expVal.equals( G.config("member.system") ) );
@@ -90,7 +91,7 @@ public class GrouperTest extends TestCase {
   public void testSessionInstantiate() {
     // Establish a new Grouper instance
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s = new GrouperSession();
 
     Class klass     = s.getClass();
@@ -104,7 +105,7 @@ public class GrouperTest extends TestCase {
   /* Start a session as SubjectID "member.system", 1 argument method */
   public void testSessionStartAsMemberSystemOneArgMethod() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s = new GrouperSession();
     try {
       s.start( G, G.config("member.system") );
@@ -117,7 +118,7 @@ public class GrouperTest extends TestCase {
   /* Start a session as SubjectID "member.system", 2 argument method */
   public void testSessionStartAsMemberSystemTwoArgMethod() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s= new GrouperSession();
     try {
       s.start( G, G.config("member.system"), true );
@@ -130,7 +131,7 @@ public class GrouperTest extends TestCase {
   /* Start and end a session as SubjectID "member.system", 1 argument method */
   public void testSessionStartEndAsMemberSystemOneArgMethod() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s= new GrouperSession();
     try {
       s.start( G, G.config("member.system") );
@@ -148,7 +149,7 @@ public class GrouperTest extends TestCase {
   /* Start and end a session as SubjectID "member.system", 2 argument method */
   public void testSessionStartEndAsMemberSystemTwoArgMethod() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s= new GrouperSession();
     try {
       s.start( G, G.config("member.system"), true );
@@ -166,7 +167,7 @@ public class GrouperTest extends TestCase {
   /* Attempt to end a session that hasn't been started */
   public void testSessionEndWithoutStart() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s = new GrouperSession();
     try {
       // XXX This may fail if we start throwing exceptions. 
@@ -210,18 +211,17 @@ public class GrouperTest extends TestCase {
   }
 
   /* Get cached GrouperFields */
+/*
   public void testGetGrouperFields() {
     G = new Grouper();
-    G.initialize();
-    GrouperSession s = new GrouperSession();
-    GrouperFields fields = G.getGroupFields();
+    G.init();
+    GrouperSession  s       = new GrouperSession();
+    List            fields  = G.getGroupFields();
     Assert.assertNotNull(fields);
-    Class  klass    = fields.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperFields";
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
     Assert.assertEquals(9, fields.size());
     G.destroy();
   }
+*/
 
 
   /*
@@ -256,18 +256,17 @@ public class GrouperTest extends TestCase {
   }
 
   /* Get cached GrouperTypes */
+/*
   public void testGetGrouperTypes() {
     G = new Grouper();
-    G.initialize();
-    GrouperSession s = new GrouperSession();
-    GrouperTypes types = G.getGroupTypes();
+    G.init();
+    GrouperSession s  = new GrouperSession();
+    List types        = G.getGroupTypes();
     Assert.assertNotNull(types);
-    Class  klass    = types.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperTypes";
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
     Assert.assertEquals(1, types.size());
     G.destroy();
   }
+*/
 
 
   /*
@@ -302,18 +301,17 @@ public class GrouperTest extends TestCase {
   }
 
   /* Get cached GrouperTypeDefs */
+/*
   public void testGetGrouperTypeDefs() {
     G = new Grouper();
-    G.initialize();
-    GrouperSession s = new GrouperSession();
-    GrouperTypeDefs typeDefs = G.getGroupTypeDefs();
+    G.init();
+    GrouperSession  s         = new GrouperSession();
+    List            typeDefs  = G.getGroupTypeDefs();
     Assert.assertNotNull(typeDefs);
-    Class  klass    = typeDefs.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDefs";
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
     Assert.assertEquals(9, typeDefs.size());
     G.destroy();
   }
+*/
  
   /*
    * Class: GrouperGroup
@@ -424,7 +422,7 @@ public class GrouperTest extends TestCase {
    */
   public void testGroupExistFalse() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s = new GrouperSession();
     s.start( G, G.config("member.system"), true );
     GrouperGroup grp = new GrouperGroup();
@@ -448,7 +446,7 @@ public class GrouperTest extends TestCase {
    */
   public void testCreateGroup() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s = new GrouperSession();
     s.start( G, G.config("member.system"), true );
     GrouperGroup grp = new GrouperGroup();
@@ -477,7 +475,7 @@ public class GrouperTest extends TestCase {
    */
   public void testFetchGroup() {
     G = new Grouper();
-    G.initialize();
+    G.init();
     GrouperSession s = new GrouperSession();
     s.start( G, G.config("member.system"), true );
     GrouperGroup grp = new GrouperGroup();
