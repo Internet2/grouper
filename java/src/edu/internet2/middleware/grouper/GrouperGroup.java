@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.187 2005-03-23 23:15:48 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.188 2005-03-23 23:26:05 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -178,7 +178,7 @@ public class GrouperGroup extends Group {
   private boolean _deleteAttributes() {
     boolean rv = false;
     // TODO 
-    Iterator iter = GrouperBackend.attributes(this.s, this).iterator();
+    Iterator iter = GrouperGroup._attributes(this.s, this).iterator();
     while (iter.hasNext()) {
       GrouperAttribute attr = (GrouperAttribute) iter.next();
       try {
@@ -191,6 +191,43 @@ public class GrouperGroup extends Group {
       }
     }
     return rv;
+  }
+
+  /*
+   * @return List of a group's attributes
+   * TODO Why not just use the attrs HashMap?  
+   * TODO Why static?
+   */
+  private static List _attributes(GrouperSession s, GrouperGroup g) {
+    String  qry   = "GrouperAttribute.by.key";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * Attach attributes to a group.
+   */
+  private static void _attachAttributes(GrouperSession s, GrouperGroup g) {
+    Iterator iter = GrouperGroup._attributes(s, g).iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
+      g.attribute( attr.field(), attr );
+    }
   }
 
   /* 
@@ -979,11 +1016,8 @@ public class GrouperGroup extends Group {
         // Its schema
         GrouperSchema schema = GrouperSchema.load(s, g.key());
         if (schema != null) {
-          if (GrouperBackend._groupAttachAttrs(s, g)) {
-            g.type( schema.type() );
-          } else {
-            g = null;
-          }
+          GrouperGroup._attachAttributes(s, g);
+          g.type( schema.type() );
         } else {
           g = null;
         }

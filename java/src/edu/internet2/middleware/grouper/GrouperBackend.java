@@ -65,37 +65,9 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.202 2005-03-23 23:15:48 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.203 2005-03-23 23:26:05 blair Exp $
  */
 public class GrouperBackend {
-
-  /**
-   * Query for all of a group's attributes.
-   * <p />
-   *
-   * @param g Group object
-   * @return List of a {@link GrouperAttribute} objects.
-   */
-  protected static List attributes(GrouperSession s, GrouperGroup g) {
-    String  qry   = "GrouperAttribute.by.key";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, g.key());
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
 
   protected static boolean attrDel(
                            GrouperSession s, String key, String field
@@ -130,27 +102,6 @@ public class GrouperBackend {
       throw new RuntimeException(
                   "Unable to get query " + qry + ": " + e
                 );
-    }
-    return rv;
-  }
-
-  /* (!javadoc)
-   * Attach attributes to a group.
-   * FIXME Won't calling g.attribute(...) eventually cause the group's
-   *       modify attrs to be updated every time this group is loaded?
-   *      
-   *       But perhaps the `initialized' hack that I added for another
-   *       reason will work?
-   */
-  protected static boolean _groupAttachAttrs(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    if (g != null) {
-      Iterator iter = GrouperBackend.attributes(s, g).iterator();
-      while (iter.hasNext()) {
-        GrouperAttribute attr = (GrouperAttribute) iter.next();
-        g.attribute( attr.field(), attr );
-        rv = true;
-      }
     }
     return rv;
   }
