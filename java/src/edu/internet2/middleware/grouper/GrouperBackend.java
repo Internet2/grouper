@@ -65,46 +65,9 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.203 2005-03-23 23:26:05 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.204 2005-03-23 23:30:14 blair Exp $
  */
 public class GrouperBackend {
-
-  protected static boolean attrDel(
-                           GrouperSession s, String key, String field
-                         ) 
-  {
-    String  qry   = "GrouperAttribute.by.key.and.value";
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, key);
-      q.setString(1, field);
-      try {
-        vals = q.list();
-        if (vals.size() == 1) {
-          try {
-            GrouperAttribute attr = (GrouperAttribute) vals.get(0);
-            s.dbSess().session().delete(attr);
-            rv = true;
-          } catch (HibernateException e) {
-            throw new RuntimeException(
-                        "Error deleting attribute: " + e
-                      );
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return rv;
-  }
 
 }
  
