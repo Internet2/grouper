@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.10 2005-03-01 20:42:49 acohen Exp $
-  $Date: 2005-03-01 20:42:49 $
+  $Id: confirm.jsp,v 1.11 2005-03-16 23:33:43 acohen Exp $
+  $Date: 2005-03-16 23:33:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -243,39 +243,19 @@
             </h2>
             <p>
               <input name="words" type="text" class="short" id="words" style="width:100px" size="15" maxlength="500" />
-              <input name="searchbutton" type="button" class="button1" onclick="javascript:showResult();" value="Search" />
+              <input
+                name="searchbutton"
+                type="button"
+                class="button1"
+                onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
+                value="Search" />
               <br />
               <span class="dropback">
                 Enter a person's name, and click "Search."
               </span>
             </p>
-            <div id="Results" style="display:none">
-              Your search found:
-							<div class="scroll">								
-          
-<%
-  Set privilegedSubjects
-    = signet.getPrivilegedSubjects();
-      
-  SortedSet sortSet = new TreeSet(privilegedSubjects);
-  Iterator sortSetIterator = sortSet.iterator();
-  while (sortSetIterator.hasNext())
-  {
-    PrivilegedSubject listSubject
-      = (PrivilegedSubject)(sortSetIterator.next());
-%>
-
-              <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
-                <%=listSubject.getName()%>
-              </a><br /><!-- it's important for the br to be on the same line as the a -->
-              <%=listSubject.getDescription()%>
-          	  <br />
-<%
-  }
-%>
-
-							</div> <!-- scroll -->
-            </div> <!-- results -->
+            <div id="PersonSearchResults" style="display:none">
+            </div> <!-- PersonSearchResults -->
           </div> <!-- findperson -->
 
           <div class="views">

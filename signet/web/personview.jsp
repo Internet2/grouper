@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.14 2005-03-09 07:53:43 acohen Exp $
-  $Date: 2005-03-09 07:53:43 $
+  $Id: personview.jsp,v 1.15 2005-03-16 23:33:43 acohen Exp $
+  $Date: 2005-03-16 23:33:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -407,56 +407,34 @@
 <%
   }
 %>
-         <div class="findperson">
-            <h2>
-              find a person
-            </h2>
-           <p>
-             <input
-                  name="words"
-                  type="text"
-                  class="short"
-                  id="words"
-                  style="width:100px"
-                  size="15"
-                  maxlength="500" />
-             <input
-                  name="searchbutton"
-                  type="button"
-                  class="button1"
-                  onClick="javascript:showResult();"
-                  value="Search" /> 
-             <br />
-             <span class="dropback">
-               Enter a person's name, and click "Search."
-              </span>
-           </p>
-           <div id="Results" style="display:none">
-             Your search found:
-            <div class="scroll">             
-                       
-<%
-  Set privilegedSubjects
-    = signet.getPrivilegedSubjects();
-      
-  SortedSet sortSet = new TreeSet(privilegedSubjects);
-  Iterator sortSetIterator = sortSet.iterator();
-  while (sortSetIterator.hasNext())
-  {
-    PrivilegedSubject listSubject
-      = (PrivilegedSubject)(sortSetIterator.next());
-%>
-               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%><%=(currentSubsystem == null) ? "" : ("&subsystemId=" + currentSubsystem.getId())%>">
-                 <%=listSubject.getName()%>
-               </a><br /><!-- it's important for the br to be on the same line as the a -->
-               <span class="dropback"><%=listSubject.getDescription()%></span>
-               <br />
-<%
-  }
-%>
-              </div> <!-- scroll -->
-             </div> <!-- results -->
-          </div> <!-- findperson -->         
+        <div class="findperson">
+          <h2>
+            find a person
+          </h2>
+          <p>
+            <input
+              name="words"
+              type="text"
+              class="short"
+              id="words"
+              style="width:100px"
+              size="15"
+              maxlength="500" />
+            <input
+              name="searchbutton"
+              type="button"
+              class="button1"
+              onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
+              value="Search" /> 
+            <br />
+            <span class="dropback">
+              Enter a person's name, and click "Search."
+            </span>
+          </p>
+          <div id="PersonSearchResults" style="display:none">
+          </div> <!-- PersonSearchResults -->
+        </div> <!-- findperson -->     
+            
           <div class="views">
             <h2>
               View privileges...
