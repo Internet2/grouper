@@ -62,12 +62,10 @@ public class TestQueries extends TestCase {
   private String extn0    = "extn.0";
   private String extn1    = "extn.1";
   private String extn2    = "extn.2";
-  private String klass    = "edu.internet2.middleware.grouper.GrouperQuery";
-  private String klassGL  = "edu.internet2.middleware.grouper.GrouperList";
-  private String m0id     = "blair";
-  private String m0type   = Grouper.DEF_SUBJ_TYPE;
-  private String m1id     = "notblair";
-  private String m1type   = Grouper.DEF_SUBJ_TYPE;
+  private String id0      = Constants.mem0I;
+  private String id1      = Constants.mem1I;
+  private String type0    = Constants.mem0T;
+  private String type1    = Constants.mem1T;
   private String stem0    = "stem.0";
   private String stem1    = "stem.1";
   private String stem2    = "stem.2";
@@ -94,7 +92,7 @@ public class TestQueries extends TestCase {
 
   // Test requirements for other *real* tests
   public void testRequirements() {
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
@@ -111,23 +109,23 @@ public class TestQueries extends TestCase {
     Assert.assertNotNull(g2);
     // Fetch the members
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.load(s, m0id, m0type);
+    GrouperMember   m0      = GrouperMember.load(s, id0, type0);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.load(s, m1id, m1type);
+    GrouperMember   m1      = GrouperMember.load(s, id1, type1);
     Assert.assertNotNull(m1);
     // We're done
     s.stop();
   }
 
   public void testQueryInstantiate() {
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     GrouperQuery    q0    = new GrouperQuery(s);
     Assert.assertNotNull(q0);
-    Assert.assertTrue(klass.equals( q0.getClass().getName() ) );
+    Assert.assertTrue(Constants.KLASS_GQ.equals( q0.getClass().getName() ) );
     s.stop();
   }
 
@@ -137,7 +135,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -153,7 +151,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       Object obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
     } catch (GrouperException e) {
       Assert.fail("Exception: MEM_ALL");
     }
@@ -173,7 +171,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       Object obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
     } catch (GrouperException e) {
       Assert.fail("Exception: MEM_IMM");
     }
@@ -188,7 +186,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -205,7 +203,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       Object obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
       // Now with MEM_ALL
       Assert.assertTrue( q.membershipType(Grouper.MEM_ALL) );
       vals = q.query();
@@ -213,7 +211,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
     } catch (GrouperException e) {
       Assert.fail("Exception: DEF_GROUP_TYPE,MEM_ALL");
     }
@@ -229,7 +227,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       Object obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
       // Now with MEM_EFF
       Assert.assertFalse( q.membershipType(Grouper.MEM_EFF) );
       vals = q.query();
@@ -250,7 +248,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       Object obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
       // Now with MEM_IMM
       Assert.assertTrue( q.membershipType(Grouper.MEM_IMM) );
       vals = q.query();
@@ -258,7 +256,7 @@ public class TestQueries extends TestCase {
       Assert.assertTrue( vals.size() == 1 );
       obj = vals.get(0);
       Assert.assertNotNull(obj);
-      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
     } catch (GrouperException e) {
       Assert.fail("Exception: DEF_GROUP_TYPE,MEM_IMM");
     }
@@ -273,7 +271,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -331,7 +329,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -354,7 +352,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -377,7 +375,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -400,7 +398,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -423,7 +421,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -447,7 +445,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -471,7 +469,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object
@@ -495,7 +493,7 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create query object

@@ -86,35 +86,29 @@ public class TestSubjects extends TestCase {
   }
 
   public void testSubjectInterfaceLookupFailureInvalidType() {
-    String id     = Grouper.config("member.system");
-    String type   = "notaperson";
-    Subject subj  = GrouperSubject.load(id, type);
+    Subject subj  = GrouperSubject.load(Constants.rootI, "bad type");
     Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupMemberSystem() {
-    String id     = Grouper.config("member.system");
-    String type   = Grouper.DEF_SUBJ_TYPE;
-    Subject subj  = GrouperSubject.load(id, type);
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
-    String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
-    Assert.assertTrue( klass.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( id.equals( subj.getId() ) );
+    Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
+    Assert.assertTrue( Constants.rootI.equals( subj.getId() ) );
     String name   = "Person";
     Assert.assertNotNull( subj.getSubjectType() );
     Assert.assertTrue( name.equals( subj.getSubjectType().getName() ) );
-    Assert.assertTrue( type.equals( subj.getSubjectType().getId() ) );
+    Assert.assertTrue( Constants.rootT.equals( subj.getSubjectType().getId() ) );
   }
 
   public void testSubjectInterfaceLookup() {
-    String id     = "blair";
-    String type   = Grouper.DEF_SUBJ_TYPE;
+    String id   = Constants.mem0I;
+    String type = Constants.mem0T;
     Subject subj  = GrouperSubject.load(id, type);
     Assert.assertNotNull("subj not null", subj);
-    String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
     Assert.assertTrue(
                       "subj right class",  
-                      klass.equals( subj.getClass().getName() ) 
+                      Constants.KLASS_SI.equals( subj.getClass().getName() ) 
                      );
     Assert.assertTrue("id matches",  id.equals( subj.getId() ) );
     String name   = "Person";
@@ -132,27 +126,27 @@ public class TestSubjects extends TestCase {
   // begin: testLoadOneParam
 
   public void testLoadOneParam_0() {
-    Subject subj = GrouperSubject.load(Constants.rooti);
+    Subject subj = GrouperSubject.load(Constants.rootI);
     Assert.assertNotNull(subj);
     Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( subj.getId().equals(Constants.rooti) );
+    Assert.assertTrue( subj.getId().equals(Constants.rootI) );
     Assert.assertNotNull( subj.getSubjectType() );
-    Assert.assertTrue( subj.getSubjectType().getId().equals(Constants.roott));
+    Assert.assertTrue( subj.getSubjectType().getId().equals(Constants.rootT));
     Assert.assertTrue( subj.getSubjectType().getName().equals("Person") );
   }
 
   public void testLoadOneParam_1() {
-    Subject subj = GrouperSubject.load(Constants.m0i);
+    Subject subj = GrouperSubject.load(Constants.mem0I);
     Assert.assertNotNull("subj not null", subj);
     Assert.assertTrue(
                       "subj right class",  
                       Constants.KLASS_SI.equals( subj.getClass().getName() ) 
                      );
-    Assert.assertTrue("subj id matches", subj.getId().equals(Constants.m0i) );
+    Assert.assertTrue("subj id matches", subj.getId().equals(Constants.mem0I) );
     Assert.assertNotNull("subj type not null", subj.getSubjectType() );
     Assert.assertTrue(
                       "subjtype id matches",  
-                      subj.getSubjectType().getId().equals(Constants.m0t));
+                      subj.getSubjectType().getId().equals(Constants.mem0T));
     Assert.assertTrue(
                       "subjtype name matches",
                       subj.getSubjectType().getName().equals("Person") 

@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.32 2005-03-17 16:42:05 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.33 2005-03-17 17:33:09 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -83,9 +83,10 @@ public class TestAccessPrivs extends TestCase {
    */
   
 
+/*
   // Test requirements for other *real* tests
   public void testRequirements() {
-    Subject         subj  = GrouperSubject.load(Constants.rooti, Constants.roott );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT );
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
@@ -120,17 +121,17 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertTrue( g2.attribute("extension").value().equals(Constants.extn2) );
     // Fetch the members
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember   m0      = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember   m1      = GrouperMember.load(s, Constants.mem1I, Constants.mem1T);
     Assert.assertNotNull(m1);
     // We're done
     s.stop();
   }
 
   public void testHasGrantHasRevokeHas() {
-    Subject         subj  = GrouperSubject.load(Constants.rooti, Constants.roott );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT );
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
@@ -138,7 +139,7 @@ public class TestAccessPrivs extends TestCase {
     // Fetch g0
     GrouperGroup  g0 = GrouperGroup.load(s, Constants.stem0, Constants.extn0);
     // Fetch Member 0
-    GrouperMember m0   = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m0   = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
 
     // Assert what privs m0 has on g0
     List privs0 = s.access().has(s, g0, m0);
@@ -314,7 +315,7 @@ public class TestAccessPrivs extends TestCase {
   }
 
   public void testHasPrivsCurrentSubject() {
-    Subject         subj  = GrouperSubject.load(Constants.rooti, Constants.roott );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT );
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
@@ -331,10 +332,10 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(g2);
     // Fetch the members
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember   m0      = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember   m1      = GrouperMember.load(s, Constants.mem1I, Constants.mem1T);
     Assert.assertNotNull(m1);
 
     // What privs does the current subject have on g0?
@@ -397,14 +398,14 @@ public class TestAccessPrivs extends TestCase {
 
   // add test group to muck around with
   public void testPrep0() {
-    Subject subj = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     GrouperGroup g = GrouperGroup.create(s, Constants.stem4, Constants.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember m = GrouperMember.load(s, Constants.mem1I, Constants.mem1T);
     Assert.assertNotNull(m);
     Assert.assertTrue( g.listAddVal(m) );
     s.stop();
@@ -412,7 +413,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 !add g0 as member of g4
   public void testAddVal0() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -432,7 +433,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 !add attribute to g4
   public void testAddVal1() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -447,7 +448,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 !remove attribute to g4
   public void testDelVal0() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -462,7 +463,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 !remove m1 as member of g4
   public void testDelVal1() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -482,7 +483,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 !delete g4
   public void testDel0() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -497,14 +498,14 @@ public class TestAccessPrivs extends TestCase {
 
   // grant UPDATE to m0
   public void testPrep1() {
-    Subject subj = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     GrouperGroup g = GrouperGroup.load(s, Constants.stem4, Constants.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
     Assert.assertNotNull(m);
     Assert.assertTrue( s.access().grant(s, g, m, Grouper.PRIV_UPDATE) );
     s.stop();
@@ -512,7 +513,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 add g0 as member of g4
   public void testAddVal2() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -532,7 +533,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 add attribute to g4
   public void testAddVal3() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -547,13 +548,13 @@ public class TestAccessPrivs extends TestCase {
 
   // grant ADMIN to m0
   public void testPrep2() {
-    Subject subj = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     GrouperGroup g = GrouperGroup.load(s, Constants.stem4, Constants.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
     Assert.assertNotNull(m);
     Assert.assertTrue( s.access().grant(s, g, m, Grouper.PRIV_ADMIN) );
     Assert.assertTrue( s.access().has(s, g, m, Grouper.PRIV_ADMIN) );
@@ -562,7 +563,7 @@ public class TestAccessPrivs extends TestCase {
 
   // create a "description" for m0 to then delete
   public void testPrep2_0() {
-    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Fetch g
@@ -576,7 +577,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 remove attribute to g4
   public void testDelVal2() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Fetch g
@@ -590,7 +591,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 remove g0 as member of g4
   public void testDelVal4() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -610,14 +611,14 @@ public class TestAccessPrivs extends TestCase {
 
   // revoke ADMIN from m0
   public void testPrep4() {
-    Subject subj = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     GrouperGroup g = GrouperGroup.load(s, Constants.stem4, Constants.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
     Assert.assertNotNull(m);
     Assert.assertTrue( s.access().revoke(s, g, m, Grouper.PRIV_ADMIN) );
     s.stop();
@@ -625,14 +626,14 @@ public class TestAccessPrivs extends TestCase {
 
   // revoke UPDATE from m0
   public void testPrep5() {
-    Subject subj = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     GrouperGroup g = GrouperGroup.load(s, Constants.stem4, Constants.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
     Assert.assertNotNull(m);
     Assert.assertTrue( s.access().revoke(s, g, m, Grouper.PRIV_UPDATE) );
     s.stop();
@@ -640,7 +641,7 @@ public class TestAccessPrivs extends TestCase {
 
   // m0 !remove m1 as member of g4
   public void testDelVal3() {
-    Subject subj  = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    Subject subj  = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -660,19 +661,20 @@ public class TestAccessPrivs extends TestCase {
 
   // delete test group
   public void testPrep6() {
-    Subject subj = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     GrouperGroup g = GrouperGroup.load(s, Constants.stem4, Constants.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember m = GrouperMember.load(s, Constants.mem1I, Constants.mem1T);
     Assert.assertNotNull(m);
     Assert.assertTrue( g.listDelVal(m) );
     Assert.assertTrue( GrouperGroup.delete(s, g) );
     s.stop();
   }
+*/
 
 }
 

@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.25 2005-03-17 16:42:05 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.26 2005-03-17 17:33:09 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -464,13 +464,12 @@ public class TestConfigAndSchema extends TestCase {
     List types = Grouper.groupTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(2, types.size());
-    String klass  = "edu.internet2.middleware.grouper.GrouperType";
     String type0 = Grouper.DEF_GROUP_TYPE;
     Assert.assertTrue( type0.equals( types.get(0).toString() ) );
-    Assert.assertTrue( klass.equals( types.get(0).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GT.equals( types.get(0).getClass().getName() ) );
     String type1 = Grouper.NS_TYPE;
     Assert.assertTrue( type1.equals( types.get(1).toString() ) );
-    Assert.assertTrue( klass.equals( types.get(1).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GT.equals( types.get(1).getClass().getName() ) );
   }
 
   // Get cached GrouperTypeDefs 
@@ -478,127 +477,122 @@ public class TestConfigAndSchema extends TestCase {
     List typeDefs  = Grouper.groupTypeDefs();
     Assert.assertNotNull(typeDefs);
     Assert.assertEquals(21, typeDefs.size());
-    String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
     int idx = 0;
     typeDef = "base:extension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:name";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:description";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
     typeDef = "base:displayExtension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:displayName";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:members";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:viewers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:readers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:updaters";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:admins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:optins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "base:optouts";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:displayExtension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:displayName";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:extension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:name";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:description";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:creators";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
     idx += 1;
     typeDef = "naming:stemmers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( typeDefs.get(idx).getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( typeDefs.get(idx).getClass().getName() ) );
   }
 
   // Get cached SubjectTypes 
   public void testGetSubjectTypes() {
-    List    types           = Grouper.subjectTypes();
+    List types = Grouper.subjectTypes();
     Assert.assertNotNull(types);
-    Assert.assertEquals(2, types.size());
+    Assert.assertEquals("types == 2", 2, types.size());
 
-    SubjectType stGroup         = Grouper.subjectType("group");
-    Assert.assertNotNull(stGroup);
-    String klassGroup           = "edu.internet2.middleware.grouper.SubjectTypeImpl";
-    Assert.assertTrue( klassGroup.equals( stGroup.getClass().getName()) );
-    Assert.assertNotNull( stGroup.getId() );
-    Assert.assertTrue( stGroup.getId().equals( "group" ) );
-    Assert.assertNotNull( stGroup.getName() );
-    Assert.assertTrue( stGroup.getName().equals( "Group" ) );
+    SubjectType stGroup = Grouper.subjectType("group");
+    Assert.assertNotNull("stGroup !null", stGroup);
+    Assert.assertTrue("stGroup right class ",  Constants.KLASS_STI.equals( stGroup.getClass().getName()) );
+    Assert.assertNotNull("stGroup id !null",  stGroup.getId() );
+    Assert.assertTrue("stGroup right id",  stGroup.getId().equals( "group" ) );
+    Assert.assertNotNull("stGroup name !null",  stGroup.getName() );
+    Assert.assertTrue("stGroup right name",  stGroup.getName().equals( "Group" ) );
     SubjectTypeAdapter staGroup = stGroup.getAdapter();
-    Assert.assertNotNull( staGroup );
-    String klassGroupAdapter    = "edu.internet2.middleware.grouper.SubjectTypeAdapterGroupImpl";
-    Assert.assertTrue( klassGroupAdapter.equals( staGroup.getClass().getName() ) );
-    Assert.assertNotNull( staGroup.getClass().getName() );
+    Assert.assertNotNull("staGroup !null",  staGroup );
+    Assert.assertTrue("staGroup right class",  Constants.KLASS_STAGI.equals( staGroup.getClass().getName() ) );
+    Assert.assertNotNull("staGroup name !null", staGroup.getClass().getName() );
     
-    SubjectType stPerson        = Grouper.subjectType(Grouper.DEF_SUBJ_TYPE);
-    Assert.assertNotNull(stPerson);
-    String klassPerson          = "edu.internet2.middleware.grouper.SubjectTypeImpl";
-    Assert.assertTrue( klassPerson.equals( stPerson.getClass().getName()) );
-    Assert.assertNotNull( stPerson.getId() );
-    Assert.assertTrue( stPerson.getId().equals( Grouper.DEF_SUBJ_TYPE ) );
-    Assert.assertNotNull( stPerson.getName() );
-    Assert.assertTrue( stPerson.getName().equals( "Person" ) );
+    SubjectType stPerson = Grouper.subjectType(Grouper.DEF_SUBJ_TYPE);
+    Assert.assertNotNull("stPerson !null", stPerson);
+    Assert.assertTrue("stPerson right class",  Constants.KLASS_STI.equals( stPerson.getClass().getName()) );
+    Assert.assertNotNull("stPerson id !null",  stPerson.getId() );
+    Assert.assertTrue("stPerson right id",  stPerson.getId().equals( Grouper.DEF_SUBJ_TYPE ) );
+    Assert.assertNotNull("stPerson name !null", stPerson.getName() );
+    Assert.assertTrue("stPerson right name",  stPerson.getName().equals( "Person" ) );
     SubjectTypeAdapter staPerson = stPerson.getAdapter();
-    Assert.assertNotNull( staPerson );
-    String klassPersonAdapter    = "edu.internet2.middleware.grouper.SubjectTypeAdapterPersonImpl";
-    Assert.assertTrue( klassPersonAdapter.equals( staPerson.getClass().getName() ) );
-    Assert.assertNotNull( staPerson.getClass().getName() );
+    Assert.assertNotNull("staPerson !null",  staPerson );
+    Assert.assertTrue("staPerson right class", Constants.KLASS_STAPI.equals( staPerson.getClass().getName() ) );
+    Assert.assertNotNull("staPerson name !null", staPerson.getClass().getName() );
   }
 
   // TODO Test boolean assertion|validity methods
