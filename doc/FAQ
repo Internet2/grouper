@@ -1,16 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.5 2004-12-09 01:09:07 blair Exp $
-
----
-
-## General Questions
-
-## Q: What's with the formatting?
-
-A: The text version of this file is written using [Markdown
-syntax](http://daringfireball.net/projects/markdown/).  I will be
-adding a generated-HTML version of this document shortly.
+$Id: FAQ,v 1.6 2004-12-09 01:15:12 blair Exp $
 
 ---
 
@@ -23,6 +13,36 @@ adding a generated-HTML version of this document shortly.
 A: Use the `Grouper.config()' method.
   
     String delim = Grouper.config("hierarchy.delimiter");
+
+### Privileges - Access
+
+#### Q: How do I grant an access privilege?
+
+A: Use the `Grouper.access().grant()' method.
+
+    Grouper.access().grant(s, g, m, Grouper.PRIV_UPDATE);
+
+#### Q: How do I revoke an access privilege?
+
+A: Use the `Grouper.access().revoke()' method.
+
+    Grouper.access().revoke(s, g, m, Grouper.PRIV_ADMIN);
+
+### Privileges - Naming
+
+#### Q: How do I grant a naming privilege?
+
+A: Use the `Grouper.naming().grant()' method.
+
+    Grouper.naming().grant(s, ns, m, Grouper.PRIV_STEM);
+
+#### Q: How do I revoke a naming privilege?
+
+A: Use the `Grouper.access().revoke()' method.
+
+    Grouper.naming().revoke(s, ns, m, Grouper.PRIV_CREATE);
+
+...
 
 ### List Values
 
