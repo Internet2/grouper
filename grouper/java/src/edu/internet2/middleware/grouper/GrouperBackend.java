@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.20 2004-11-10 17:07:27 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.21 2004-11-10 17:10:44 blair Exp $
  */
 public class GrouperBackend {
 
@@ -60,6 +60,7 @@ public class GrouperBackend {
    * @param g {@link GrouperGroup} to add
    */
   protected static void addGroup(GrouperSession s, GrouperGroup g) {
+    GrouperBackend._init();
     try {
       Transaction t = session.beginTransaction();
 
@@ -104,6 +105,7 @@ public class GrouperBackend {
    * @param s Session to add.
    */
   protected static void addSession(GrouperSession s) {
+    GrouperBackend._init();
     try {
       Transaction t = session.beginTransaction();
       session.save(s);
@@ -141,6 +143,7 @@ public class GrouperBackend {
    * Cull old sessions.
    */
   protected static void cullSessions() {
+    GrouperBackend._init();
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
     java.util.Date now     = new java.util.Date();
@@ -182,6 +185,7 @@ public class GrouperBackend {
 
   // TODO
   protected static List descriptors(GrouperSession s, String descriptor) {
+    GrouperBackend._init();
     List descriptors = new ArrayList();
     try {
       Query q = session.createQuery(
@@ -207,6 +211,7 @@ public class GrouperBackend {
    * @param list  Return this list type.
    */
   protected static List list(GrouperGroup g, GrouperSession s, String list) {
+    GrouperBackend._init();
     List members = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -249,6 +254,7 @@ public class GrouperBackend {
    * @param list  Add member to this list.
    */
   protected static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+    GrouperBackend._init();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -294,6 +300,7 @@ public class GrouperBackend {
    * @param list  Remove member from this list.
    */
   protected static boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+    GrouperBackend._init();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -356,6 +363,7 @@ public class GrouperBackend {
 
   // TODO
   protected static void loadGroup(GrouperSession s, GrouperGroup g, String key) {
+    GrouperBackend._init();
     try {
       // Attempt to load a stored group into the current object
       Transaction tx = session.beginTransaction();
@@ -391,6 +399,7 @@ public class GrouperBackend {
 
   // TODO
   protected static List stems(GrouperSession s, String stem) {
+    GrouperBackend._init();
     List stems = new ArrayList();
     try {
       Query q = session.createQuery(
@@ -458,6 +467,7 @@ public class GrouperBackend {
    * @return List of a group's schema
    */
   protected static List schemas(GrouperGroup g) {
+    GrouperBackend._init();
     List schemas = new ArrayList();
     try {
       Query q = session.createQuery(
