@@ -1,12 +1,12 @@
 package edu.internet2.middleware.directory.grouper;
 
-import  java.util.List;
+import  java.util.*;
 
 /** 
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.10 2004-05-28 17:49:42 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.11 2004-08-03 01:31:21 blair Exp $
  */
 public interface GrouperAccess {
   /**

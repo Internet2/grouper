@@ -3,11 +3,7 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
-import  java.util.Date;
-import  java.util.ArrayList;
-import  java.util.Iterator;
-import  java.util.List;
-import  java.util.Properties;
+import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
 
@@ -15,7 +11,7 @@ import  net.sf.hibernate.cfg.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.30 2004-08-03 01:19:01 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.31 2004-08-03 01:31:21 blair Exp $
  */
 public class GrouperSession {
 
@@ -366,7 +362,7 @@ public class GrouperSession {
 
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
-    Date now = new Date();
+    java.util.Date now = new java.util.Date();
 
     this.setCred( this.cred );
     // XXX Switch to a generated sequence?
@@ -391,7 +387,7 @@ public class GrouperSession {
   private void _cullSessions() {
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
-    Date now     = new Date();
+    java.util.Date now     = new java.util.Date();
     long nowTime = now.getTime();
     long tooOld  = nowTime - 360000;
 
