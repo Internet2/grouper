@@ -84,7 +84,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsAdd.class);
     suite.addTestSuite(TestGroupsDelete.class);
     suite.addTestSuite(TestGroupsAttrs.class);
-    // TODO TestGroupsAttrsAdd
+    suite.addTestSuite(TestGroupsAttrsAdd.class);
     // TODO TestGroupsAttrsMod
     // TODO TestGroupsAttrsDel
     suite.addTestSuite(TestGroupsMoF.class);

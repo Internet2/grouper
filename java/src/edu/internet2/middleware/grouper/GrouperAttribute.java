@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.25 2005-03-25 03:00:39 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.26 2005-03-26 05:44:03 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -84,7 +84,7 @@ public class GrouperAttribute implements Serializable {
    * Null-argument constructor for Hibernate.
    */
   public GrouperAttribute() {
-    this._init();
+    // Nothing
   }
 
   /* (!javadoc)
@@ -92,9 +92,8 @@ public class GrouperAttribute implements Serializable {
    *      prefer to not be relying upon <i>protected</i> for that...
    */
   protected GrouperAttribute(String key, String field, String value) {
-    this._init();
     this.groupKey         = key;
-    this.groupField       = field;
+    this.groupField       = field.toLowerCase();
     this.groupFieldValue  = value;
   }
 
@@ -250,20 +249,6 @@ public class GrouperAttribute implements Serializable {
   protected String key() {
     // TODO This does expose the group key.  Do we want that?
     return this.getGroupKey();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.groupKey        = null;
-    this.groupField      = null;
-    this.groupFieldValue = null;
   }
 
 

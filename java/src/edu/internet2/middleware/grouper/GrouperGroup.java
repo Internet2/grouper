@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.197 2005-03-26 01:42:20 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.198 2005-03-26 05:44:03 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -234,6 +234,28 @@ public class GrouperGroup extends Group {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Retrieve the specified attribute.
+   * <p />
+   * @param   attribute The attribute to retrieve.
+   * @return  A {@link GrouperAttribute} object.
+   */
+  public GrouperAttribute attribute(String attribute) {
+    return (GrouperAttribute) this.attributes.get(attribute.toLowerCase());
+  }
+
+  /**
+   * Set an attribute value.
+   * <p />
+   * If <i>value</i> is <i>null</i>, the attribute will be deleted.
+   * <p /> 
+   * @param   attribute   Set this attribute.
+   * @param   value       To this value.
+   */
+  public void attribute(String attribute, String value) {
+    this.attribute(this.s, this, attribute, value);
+  }
 
   /**
    * Retrieve the <i>createSource</i> value.
@@ -442,6 +464,22 @@ public class GrouperGroup extends Group {
    */
 
   /*
+   * Add new attribute.
+   */
+  protected void attributeAdd(GrouperAttribute attr) {
+    GrouperAttribute.save(this.s, attr);
+    this.attributes.put(attr.field(), attr);
+  }
+
+  /*
+   * Delete an attribute
+   */
+  protected void attributeDel(GrouperAttribute attr) {
+    GrouperAttribute.delete(this.s, attr);
+    this.attributes.remove(attr.field());
+  }
+
+  /*
    * Is this group initialized?
    */
   protected boolean initialized() {
@@ -475,14 +513,6 @@ public class GrouperGroup extends Group {
   /*
    * PRIVATE INSTANCE METHODS
    */
-
-  /*
-   * Add new attribute.
-   */
-  private void attributeAdd(GrouperAttribute attr) {
-    this.attributes.put(attr.field(), attr);
-    GrouperAttribute.save(s, attr);
-  }
 
   /*
   /*
@@ -535,17 +565,6 @@ public class GrouperGroup extends Group {
     return vals;
   }
 
-  /*
-   * Attach attributes to a group.
-   */
-  private static void _attachAttributes(GrouperSession s, GrouperGroup g) {
-    Iterator iter = GrouperGroup._attributes(s, g).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      g.attribute( attr.field(), attr );
-    }
-  }
-
   /**
    * Retrieve a group by public GUID.
    * <p />
@@ -560,6 +579,8 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group by name.
    * <p />
+   * FIXME NOT IMPLEMENTED
+   * <p />
    * @param   s           Session to load the group within.
    * @param   name        Name of group.
    * @return  A {@link GrouperGroup} object.
@@ -568,13 +589,13 @@ public class GrouperGroup extends Group {
                                GrouperSession s, String name
                              )
   {
-    return GrouperGroup._loadByName(
-             s, name, Grouper.DEF_GROUP_TYPE
-           );
+    return GrouperGroup.loadByName(s, name, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
    * Retrieve a group by name.
+   * <p />
+   * FIXME NOT IMPLEMENTED
    * <p />
    * @param   s           Session to load the group within.
    * @param   name        Name of group.
@@ -585,72 +606,7 @@ public class GrouperGroup extends Group {
                                GrouperSession s, String name, String type
                              )
   {
-    return GrouperGroup._loadByName(s, name, type);
-  }
-
-
-  /**
-   * Retrieve a group attribute.
-   * <p />
-   * @param   attribute The attribute to retrieve.
-   * @return  A {@link GrouperAttribute} object.
-   */
-  public GrouperAttribute attribute(String attribute) {
-    return (GrouperAttribute) attributes.get(attribute);
-  }
-
-  /**
-   * Set the value of a group attribute.
-   * <p />
-   * If <i>value</i> is <i>null</i>, the attribute will be deleted.
-   * 
-   * @param   s           Set attribute using this session.
-   * @param   attribute   Set this attribute.
-   * @param   value       Set attribute to this value.
-   * @return  True if the attribute was set.
-   */
-  public boolean attribute(String attribute, String value) {
-    boolean rv = false;
-    // Attempt to validate whether the attribute is allowed
-    if (this._validateAttribute(attribute)) {
-      // FIXME We don't handle renames yet -- if ever?
-      // FIXME If I actually paid any attention to the contents
-      //       of `grouper_field', I wouldn't need to do some of
-      //       this...
-      if ( 
-          (this.initialized == true) && 
-           (
-            (attribute.equals("displayName")) ||
-            (attribute.equals("name"))        ||
-            (attribute.equals("stem"))        ||
-            (attribute.equals("extension"))
-           )
-         ) 
-      {
-        Grouper.log().groupAttrNoMod(attribute);
-      } else {
-        s.dbSess().txStart();
-        // TODO Validate?
-        GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
-        // For logging
-        if        (value == null) {
-          // Delete an existing attribute
-          rv = this._attributeDelete(attribute);
-        } else if (cur == null) {
-          // Add a new attribute value
-          rv = this._attributeAdd(attribute, value);
-        } else {
-          // Update attribute value
-          rv = this._attributeUpdate(attribute, value);
-        }
-        if (rv) {
-          s.dbSess().txCommit();
-        } else {
-          s.dbSess().txRollback();
-        }
-      }
-    }
-    return rv;
+    return null;
   }
 
   /** 
@@ -718,17 +674,6 @@ public class GrouperGroup extends Group {
   }
 
 
-  // FIXME Does this method I can *really* clean up the public version?
-  protected void attribute(String attr, GrouperAttribute value) {
-    if (attr != null) {
-      if (value != null) {
-        attributes.put(attr, value);
-      } else {
-        attributes.remove(attr);
-      }
-    }
-  }
-
   /*
    * Flesh out the group a bit.
    */
@@ -748,358 +693,6 @@ public class GrouperGroup extends Group {
     return this.getGroupKey();
   }
 
-
-  /* (!javadoc)
-   * Does the current subject have permission to modify attrs on the
-   * specified group?
-   */
-  private static boolean _canModAttr(GrouperGroup g) {
-    boolean rv = false;
-    if (g != null) {
-      if (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
-        rv = true;
-      }
-    }
-    return rv;
-  }
-
-  /*
-   * Retrieve a group from the groups registry
-   */ 
-  private static GrouperGroup _loadByID(
-                                GrouperSession s, String id,
-                                String type
-                              ) 
-  {
-    GrouperGroup  g     = null;
-    String        key   = null;
-    String        qry   = "Group.by.id";
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, id);
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          g = (GrouperGroup) vals.get(0);
-          if ( (g != null) && (g.key() != null) ) {
-            key = g.key();
-            g = GrouperGroup.loadByKey(s, g, key);
-            if (g != null) {
-              // Attach type  
-              g.type = type; 
-              g.initialized = true; // FIXME UGLY HACK!
-              g.s = s; // Attach GrouperSession
-            }
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return g;
-  }
-
-  protected static GrouperGroup loadByKey(
-                                  GrouperSession s, GrouperGroup g,
-                                  String key
-                                )
-  { 
-    GrouperSession.validate(s);
-    try {
-      // Attempt to load a stored group into the current object
-      g = (GrouperGroup) s.dbSess().session().get(GrouperGroup.class, key);
-      if (g != null) {
-        // Its schema
-        GrouperSchema schema = GrouperSchema.load(s, g.key());
-        if (schema != null) {
-          GrouperGroup._attachAttributes(s, g);
-          g.type( schema.type() );
-        } else {
-          g = null;
-        }
-      }
-    } catch (HibernateException e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      throw new RuntimeException("Error loading group: " + e);
-    }
-
-    if (g != null) {
-      g.initialized = true; // FIXME UGLY HACK!
-      g.s = s; // Attach GrouperSession
-    }
-    return g;
-  }
-
-  // TODO Move to _Group_
-  protected static GrouperGroup _loadByName(
-                                GrouperSession s, String name,
-                                String type
-                              )
-  {
-    // FIXME Kill me.  Please.
-    GrouperGroup  g           = null;
-    String        qryGG       = "GrouperAttribute.by.name";
-    String        qryGS       = "GrouperSchema.by.key.and.type";
-    boolean       initialized = false;
-    try {
-      Query qGG = s.dbSess().session().getNamedQuery(qryGG);
-      qGG.setString(0, name);
-      try {
-        List names = qGG.list();
-        if (names.size() > 0) {
-          Iterator iter = names.iterator();
-          while (iter.hasNext()) {
-            GrouperAttribute attr = (GrouperAttribute) iter.next();
-            try {
-              Query qGS = s.dbSess().session().getNamedQuery(qryGS); 
-              qGS.setString(0, attr.key());
-              qGS.setString(1, type);
-              try {
-                List gs = qGS.list();
-                if (gs.size() == 1) {
-                  GrouperSchema schema = (GrouperSchema) gs.get(0);
-                  if (schema.type().equals(type)) {
-                    g = GrouperGroup.loadByKey(s, g, attr.key());
-                    if (g != null) {
-                      if (g.type().equals(type)) {
-                        initialized = true;
-                        //g.type = type;
-                        g.initialized = true; // FIXME UGLY HACK!
-                        g.s = s; // Attach GrouperSession
-                      }
-                    }
-                  }
-                }
-              } catch (HibernateException e) {
-                throw new RuntimeException(
-                            "Error retrieving results for " + 
-                            qryGS + ": " + e
-                          );
-              }
-            } catch (HibernateException e) {
-              throw new RuntimeException(
-                          "Unable to get query " + qryGS + ": " + e
-                        );
-            }
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qryGG + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qryGG + ": " + e
-                );
-    }
-    if (!initialized) {
-      // We failed to load a group.  Null out the object.
-      g = null;
-    }
-    return g;
-  }
-
-  // Add and persist attribute 
-  private boolean _attributeAdd(String attribute, String value) {
-    boolean rv = false;
-
-    // In case we need to revert
-    String curModTime = this.getModifyTime();
-    String curModSubj = this.getModifySubject();
-
-    // Verify subject has sufficient privs
-    if (this._canModAttr(this)) {
-      // Hibernate the attribute
-      GrouperAttribute attr = new GrouperAttribute(
-                                    this.key, attribute, value
-                                  );
-      try {
-        GrouperAttribute.save(this.s, attr);
-        // Now update this object and save it to persist the opattrs
-        this.setModifyTime( this.now() );
-        GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
-        this.setModifySubject( mem.key() );
-        this.attributes.put(attribute, attr);
-        this.update();
-      } catch (RuntimeException e) {
-        rv = false;
-      }
-    }
-    Grouper.log().groupAttrAdd(rv, this.s, this, attribute, value);
-    if (rv != true) {
-      // Revert modify* attr changes 
-      this.setModifyTime(curModTime);
-      this.setModifySubject(curModSubj);
-    }
-    return rv;
-  }
-
-  // TODO Does this actually work?
-  // TODO Is this needed?
-  protected void update() {
-    try {
-      this.s.dbSess().session().update(this);
-    } catch (HibernateException e) {
-      throw new RuntimeException("Error updating group: " + e);
-    }
-  }
-
-  // Delete and persist attribute 
-  private boolean _attributeDelete(String attribute) {
-    boolean rv = false;
-    // In case we need to revert
-    GrouperAttribute cur  = (GrouperAttribute) attributes.get(attribute);
-    String curModTime     = this.getModifyTime();
-    String curModSubj     = this.getModifySubject();
-
-    // Verify subject has sufficient privs
-    if (this._canModAttr(this)) {
-      if (this._attrDel(attribute)) {
-        // Now update this object and save it to persist the opattrs
-        this.setModifyTime( this.now() );
-        GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
-        this.setModifySubject( mem.key() );
-        this.attributes.remove(attribute);
-        try {
-          this.update();
-          rv = true;
-        } catch (RuntimeException e) {
-          rv = false; 
-        }
-      }
-    }
-    Grouper.log().groupAttrDel(rv, this.s, this, attribute);
-    if (rv != true) {
-      // Revert attribute value change
-      this.attributes.put(attribute, cur);
-      // Revert modify* attr changes 
-      this.setModifyTime(curModTime);
-      this.setModifySubject(curModSubj);
-    }
-    return rv;
-  }
-
-  private boolean _attrDel(String field) {
-    String  qry   = "GrouperAttribute.by.key.and.value";
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key);
-      q.setString(1, field);
-      try {
-        vals = q.list();
-        if (vals.size() == 1) {
-          try {
-            GrouperAttribute attr = (GrouperAttribute) vals.get(0);
-            this.s.dbSess().session().delete(attr);
-            rv = true;
-          } catch (HibernateException e) {
-            throw new RuntimeException(
-                        "Error deleting attribute: " + e
-                      );
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return rv;
-  }
-
-  // Update and persist attribute 
-  private boolean _attributeUpdate(String attribute, String value) {
-    boolean rv = false;
-    // In case we need to revert
-    GrouperAttribute cur  = (GrouperAttribute) attributes.get(attribute);
-    String curModTime     = this.getModifyTime();
-    String curModSubj     = this.getModifySubject();
-
-    // Verify subject has sufficient privs
-    if (this._canModAttr(this)) {
-      // Hibernate the attribute
-      GrouperAttribute attr = new GrouperAttribute(
-                                    this.key, attribute, value
-                                  );
-      try {
-        // Now update this object and save it to persist the opattrs
-        GrouperAttribute.save(this.s, attr);
-        this.setModifyTime( this.now() );
-        GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
-        this.setModifySubject( mem.key() );
-        this.attributes.put(attribute, attr);
-        try {
-          this.update();
-          rv = true;
-        } catch (RuntimeException e) {
-          rv = false;
-        }
-      } catch (RuntimeException e) {
-        rv = false;
-      }
-    }
-    Grouper.log().groupAttrUpdate(rv, this.s, this, attribute, value);
-    if (rv != true) {
-      // Revert attribute value change
-      this.attributes.put(attribute, cur);
-      // Revert modify* attr changes 
-      this.setModifyTime(curModTime);
-      this.setModifySubject(curModSubj);
-    }
-    return rv;
-  }
-
-  /* (!javadoc)
-   * Validate whether an attribute is valid for the current group type.
-   */
-  private boolean _validateAttribute(String attribute) {
-    boolean rv = false;
-    if (this.type != null) { // FIXME I can do better than this.
-      // We have a group type.  Now what?
-      if (Grouper.groupField(this.type, attribute) == true) {
-        // Our attribute passes muster.
-        rv = true;
-      }
-    } else {
-      // We don't know the group type so we can't validate.  Shrug our
-      // shoulders and say "good enough" for now.
-      rv = true;
-    }
-    return rv;
-  }
-
-  /* (!javadoc)
-   * Validate whether all attributes are valid for the current group
-   * type.
-   */
-  private boolean _validateAttributes() {
-    Iterator iter = attributes.keySet().iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-      // TODO I should (possibly) revalidate the attributes due to
-      //      lack of a group type -- or a changed group type.  Add
-      //      some sort of dirty flag to trigger|!trigger this from
-      //      occurring.
-      if ( !this._validateAttribute( attr.field()) ) {
-        return false;
-      }
-    }
-    return true;
-  }
- 
 
   /*
    * HIBERNATE
