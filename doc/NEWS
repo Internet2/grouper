@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.27 2005-02-08 21:30:44 blair Exp $
+$Id: NEWS,v 1.28 2005-02-14 00:29:26 blair Exp $
 
 ---
 
@@ -22,6 +22,11 @@ $Id: NEWS,v 1.27 2005-02-08 21:30:44 blair Exp $
     * Support for comments in input files
     * -c option
     * -q option
+
+### Incompabilities
+* Databases created with earlier versions of HSQLDB may not work with
+  the newer unless upgraded.
+* The schema of the `grouper_session' database table has changed.
 
 ---
 
