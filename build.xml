@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.2 2004-06-17 16:50:24 blair Exp $ -->
+<!-- $Id: build.xml,v 1.3 2004-07-14 02:51:03 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -16,9 +16,12 @@
   <target name="init">
     <tstamp />
     <mkdir dir="${build}" />
+    <mkdir dir="${dist}/lib" />
     <!-- only define our classpath once -->
     <path id="project.class.path">
       <pathelement path="${classpath}"/>
+      <!-- for configuration files -->
+      <pathelement path="${basedir}/conf"/>
       <fileset dir="java/lib">
         <include name="**/*.jar"/>
       </fileset>
@@ -31,11 +34,12 @@
 
   <target name="build" depends="init"
         description="compile the source " >
-    <javac srcdir="${src}" destdir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="project.class.path"/>
+    </javac>
   </target>
 
   <target name="dist" depends="build" description="generate the distribution" >
-    <mkdir dir="${dist}/lib" />
     <jar jarfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build}" />
     <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
   </target>
