@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.13 2004-08-03 00:45:25 blair Exp $
+ * $Id: GrouperTest.java,v 1.14 2004-08-03 01:45:16 blair Exp $
  */
 
 package test.edu.internet2.middleware.directory.grouper;
@@ -160,6 +160,17 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
+  /* Instantiate a GrouperFields instance */
+  public void testGrouperFieldsInstantiate() {
+    GrouperFields fields = new GrouperFields();
+
+    Class  klass    = fields.getClass();
+    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperFields";
+
+    Assert.assertNotNull(fields);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
   /* Instantiate a GrouperType instance */
   public void testGrouperTypeInstantiate() {
     GrouperType type = new GrouperType();
@@ -171,6 +182,17 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
+  /* Instantiate a GrouperTypes instance */
+  public void testGrouperTypesInstantiate() {
+    GrouperTypes types = new GrouperTypes();
+
+    Class  klass    = types.getClass();
+    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypes";
+
+    Assert.assertNotNull(types);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
   /* Instantiate a GrouperTypeDef instance */
   public void testGrouperTypeDefInstantiate() {
     GrouperTypeDef typeDef = new GrouperTypeDef();
@@ -179,6 +201,17 @@ public class GrouperTest extends TestCase {
     String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDef";
 
     Assert.assertNotNull(typeDef);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  /* Instantiate a GrouperTypeDefs instance */
+  public void testGrouperTypeDefsInstantiate() {
+    GrouperTypeDefs typeDefs = new GrouperTypeDefs();
+
+    Class  klass    = typeDefs.getClass();
+    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDefs";
+
+    Assert.assertNotNull(typeDefs);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
