@@ -66,7 +66,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.167 2005-03-15 16:13:25 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.168 2005-03-16 22:54:08 blair Exp $
  */
 public class GrouperBackend {
 
@@ -187,6 +187,10 @@ public class GrouperBackend {
         Iterator iter = listVals.iterator();
         while (iter.hasNext()) {
           GrouperList lv = (GrouperList) iter.next();
+          Iterator i = lv.chain().iterator();
+          while (i.hasNext()) {
+            MemberVia el = (MemberVia) i.next();
+          }
           _listAddVal(s, lv);
         }
         rv = true; // TODO This seems naive
@@ -289,7 +293,23 @@ public class GrouperBackend {
       Grouper.log().backend("_listAddVal() (v) null");
     }
 
-    // Confirm that list value doesn't already exist
+    /*
+     * If a via chain is present, either save it or find out what
+     * its key is
+     */
+    if (gl.chain().size() > 0) {
+      int     idx   = 0;
+      String  uuid = new GrouperUUID().toString();
+      gl.listKey(uuid);
+      Iterator iter = gl.chain().iterator();
+      while (iter.hasNext()) {
+        MemberVia mv = (MemberVia) iter.next();
+        mv.key(uuid);
+        mv.idx(idx);
+        mv.save(s);
+        idx++;
+      }
+    }
     try {
       if (!s.dbSess().session().contains(gl)) {
         s.dbSess().session().save(gl);
