@@ -60,7 +60,7 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.11 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.12 2004-12-09 03:49:59 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
@@ -79,35 +79,58 @@ public class  SubjectTypeAdapterGroupImpl
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Not Implemented.
+   */
   public void destroy() { 
     // XXX Nothing -- Yet
     Grouper.log().notimpl("SubjectTypeAdapterGroupImpldestroy");
   }
 
+  /**
+   * Retrieve a <i>group</i> subject from the groups registry.
+   * <p />
+   * @return  A {@link Subject} object.
+   */
   public Subject getSubject(SubjectType type, String id) {
     return GrouperBackend.subjectLookupTypeGroup(id, type.getId());
   }
 
+  /**
+   * Not Implemented.
+   */
   public Subject getSubjectByDisplayId(SubjectType type, String displayId) {
     Grouper.log().notimpl("SubjectTypeAdapterGroupImplgetSubjectByDisplayId");
     return null;
   }
  
+  /**
+   * Not Implemented.
+   */
   public Subject[] getSubjects(SubjectType type) {
     Grouper.log().notimpl("SubjectTypeAdapterGroupImplgetSubjects");
     return null;
   }
 
+  /**
+   * Not Implemented.
+   */
   public void init() {
     // XXX Nothing -- Yet
     Grouper.log().notimpl("SubjectTypeAdapterGroupImplinit");
   }
 
+  /**
+   * Not Implemented.
+   */
   public boolean isModifiable() {
     Grouper.log().notimpl("SubjectTypeAdapterGroupImplisModifiable");
     return false;
   }
 
+  /**
+   * Not Implemented.
+   */
   public Subject newSubject(SubjectType type, 
                             String      id, 
                             String      name, 
@@ -118,11 +141,17 @@ public class  SubjectTypeAdapterGroupImpl
     return null;
   }
 
+  /**
+   * Not Implemented.
+   */
   public Subject quickSearch(String searchValue) {
     Grouper.log().notimpl("SubjectTypeAdapterGroupImplquickSearch");
     return null;
   }
 
+  /**
+   * Not Implemented.
+   */
   public Subject[] searchByIdentifier(SubjectType type, String id) {
     Grouper.log().notimpl("SubjectTypeAdapterGroupImplsearchByIdentifier");
     return null;
