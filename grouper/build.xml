@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.27 2004-12-07 02:21:33 blair Exp $ -->
+<!-- $Id: build.xml,v 1.28 2004-12-07 02:45:33 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -9,6 +9,7 @@
   <property name="src.test"               location="${src}/tests"/>
   <property name="build"                  location="build"/>
   <property name="build.grouper"          location="${build}/grouper"/>
+  <property name="build.lib"              location="${build}/lib"/>
   <property name="build.test"             location="${build}/test"/>
   <property name="dist"                   location="dist"/>
   <property name="javadoc.source"         value="${src.grouper}"/>
@@ -51,7 +52,13 @@
     <mkdir dir="${dist}/lib" />
     <jar jarfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}" />
     <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
-    <jar jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" basedir="java/lib"/>
+    <!-- This bothers me for some reason -->
+    <unzip dest="${build.lib}">
+      <fileset dir="java/lib">
+        <include name="*.jar"/>
+      </fileset>
+    </unzip>
+    <jar jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" basedir="${build.lib}"/>
     <copy file="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" tofile="${dist}/lib/${app.name}-lib.jar" />
   </target>
 
