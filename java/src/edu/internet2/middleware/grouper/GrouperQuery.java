@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -61,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.22 2005-03-24 20:46:23 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.23 2005-03-29 21:40:12 blair Exp $
  */
 public class GrouperQuery {
 
@@ -126,7 +127,16 @@ public class GrouperQuery {
    * @return  True if one or more matches found.
    */
   public boolean createdAfter(Date date) throws GrouperException {
-    return this._queryCreatedAfter(date);
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_CA);
+    // Find all groups created after this date
+    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedAfter(date));
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_CA, vals);
+    return rv; 
   }
 
   /**
@@ -137,7 +147,16 @@ public class GrouperQuery {
    * @return  True if one or more matches found.
    */
   public boolean createdBefore(Date date) throws GrouperException {
-    return this._queryCreatedBefore(date);
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_CB);
+    // Find all groups created before this date
+    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedBefore(date));
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_CB, vals);
+    return rv; 
   }
 
   /**
@@ -148,20 +167,61 @@ public class GrouperQuery {
    */
   public boolean groupType(String type) throws GrouperException {
     // TODO How do I unset?  `null'?
-    return this._queryGroupType(type);
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+
+    this.candidates.remove(KEY_GT);
+    // Find all groups of matching type
+    List      groups  = this._queryByGroupType(type);
+    // Find all list values for matching groups
+    Iterator  iter    = groups.iterator();
+    while (iter.hasNext()) {
+      Group g = (Group) iter.next();
+      // FIXME Wlll g.s be defined?
+      Iterator lvIter = g.listVals(Grouper.DEF_LIST_TYPE).iterator();
+      while (lvIter.hasNext()) {
+        GrouperList gl = (GrouperList) lvIter.next();
+        gl.load(this.s);
+        vals.add(gl);
+      }
+    }
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_GT, vals);
+
+    return rv; 
   }
 
   /**
    * Set <i>membershipType</i> query filter.
    * <p />
-   *
    * @param   type  Type of membership to query on.  Valid options are
    *   <i>Grouper.MEM_ALL</i>, <i>Grouper.MEM_EFF</i>, and
   *    <i>Grouper.MEM_IMM</i>.
    * @return  True if one or more matches found.
    */
   public boolean membershipType(String type) throws GrouperException {
-    return this._queryMembershipType(type);
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_MT);
+    if        (type.equals(Grouper.MEM_ALL)) {
+      // Query for both effective + immediate memberships
+      vals = this._queryMembershipTypeAll(Grouper.DEF_LIST_TYPE);
+    } else if (type.equals(Grouper.MEM_EFF)) {
+      // Query for effective memberships
+      vals = this._queryMembershipTypeEff(Grouper.DEF_LIST_TYPE);
+    } else if (type.equals(Grouper.MEM_IMM)) {
+      // Query for immediate memberships
+      vals = this._queryMembershipTypeImm(Grouper.DEF_LIST_TYPE);
+    } else {
+      throw new GrouperException("Unknown membership type: " + type);
+    } 
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_MT, vals);
+    return rv; 
   }
 
   /**
@@ -172,7 +232,16 @@ public class GrouperQuery {
    * @return  True if one or more matches found.
    */
   public boolean modifiedAfter(Date date) throws GrouperException {
-    return this._queryModifiedAfter(date);
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_MA);
+    // Find all groups modified after this date
+    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedAfter(date));
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_MA, vals);
+    return rv; 
   }
 
   /**
@@ -183,7 +252,16 @@ public class GrouperQuery {
    * @return  True if one or more matches found.
    */
   public boolean modifiedBefore(Date date) throws GrouperException {
-    return this._queryModifiedBefore(date);
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_MB);
+    // Find all groups modified before this date
+    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedBefore(date));
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_MB, vals);
+    return rv; 
   }
 
   /**
@@ -208,8 +286,7 @@ public class GrouperQuery {
         break;
       }
     }
-    // Filter candidates through privilege interfaces
-    // FIXME vals  = this._candidateFilter(vals);
+    // TODO Filter candidates through privilege interfaces
     return vals;
   }
 
@@ -250,14 +327,6 @@ public class GrouperQuery {
       }
     }
     return selected;
-  }
-
-  /* (!javadoc)
-   * Perform query candidate privilege selection.
-   */
-  private List _candidateFilter(List candidates) {
-    // FIXME Just a passthrough for now
-    return candidates;
   }
 
   /*
@@ -380,68 +449,6 @@ public class GrouperQuery {
     return vals;
   }
 
-  /* (!javadoc)
-   * Perform createdAfter query.
-   */
-  private boolean _queryCreatedAfter(Date date) {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_CA);
-    // Find all groups created after this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedAfter(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_CA, vals);
-    return rv; 
-  }
-
-  /* (!javadoc)
-   * Perform createdBefore query.
-   */
-  private boolean _queryCreatedBefore(Date date) {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_CB);
-    // Find all groups created before this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedBefore(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_CB, vals);
-    return rv; 
-  }
-
-  /* (!javadoc)
-   * Perform groupType query.
-   */
-  private boolean _queryGroupType(String type) throws GrouperException {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-
-    this.candidates.remove(KEY_GT);
-    // Find all groups of matching type
-    List      groups  = this._queryByGroupType(type);
-    // Find all list values for matching groups
-    Iterator  iter    = groups.iterator();
-    while (iter.hasNext()) {
-      Group g = (Group) iter.next();
-      // FIXME Wlll g.s be defined?
-      Iterator lvIter = g.listVals(Grouper.DEF_LIST_TYPE).iterator();
-      while (lvIter.hasNext()) {
-        GrouperList gl = (GrouperList) lvIter.next();
-        gl.load(this.s);
-        vals.add(gl);
-      }
-    }
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_GT, vals);
-
-    return rv; 
-  }
-
   // TODO Bleh
   private List _queryByGroupType(String type) {
     String  qry   = "GrouperSchema.by.type";
@@ -470,32 +477,6 @@ public class GrouperQuery {
                 );
     }
     return vals;
-  }
-
-  /* (!javadoc)
-   * Perform membership type query.
-   */
-  private boolean _queryMembershipType(String type) throws GrouperException {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_MT);
-    if        (type.equals(Grouper.MEM_ALL)) {
-      // Query for both effective + immediate memberships
-      vals = this._queryMembershipTypeAll(Grouper.DEF_LIST_TYPE);
-    } else if (type.equals(Grouper.MEM_EFF)) {
-      // Query for effective memberships
-      vals = this._queryMembershipTypeEff(Grouper.DEF_LIST_TYPE);
-    } else if (type.equals(Grouper.MEM_IMM)) {
-      // Query for immediate memberships
-      vals = this._queryMembershipTypeImm(Grouper.DEF_LIST_TYPE);
-    } else {
-      throw new GrouperException("Unknown membership type: " + type);
-    } 
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_MT, vals);
-    return rv; 
   }
 
   private List _queryMembershipTypeAll(String list) {
@@ -582,38 +563,6 @@ public class GrouperQuery {
     return vals;
   }
   
-  /* (!javadoc)
-   * Perform modifiedAfter query.
-   */
-  private boolean _queryModifiedAfter(Date date) {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_MA);
-    // Find all groups modified after this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedAfter(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_MA, vals);
-    return rv; 
-  }
-
-  /* (!javadoc)
-   * Perform modifiedBefore query.
-   */
-  private boolean _queryModifiedBefore(Date date) {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_MB);
-    // Find all groups modified before this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedBefore(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_MB, vals);
-    return rv; 
-  }
-
   /* (!javadoc)
    * Iterate through a list of groups, find list values for group, and
    * add list values to a List that will be returned.
