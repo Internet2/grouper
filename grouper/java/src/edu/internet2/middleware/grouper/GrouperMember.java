@@ -17,7 +17,7 @@ import  edu.internet2.middleware.grouper.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.29 2004-11-05 18:46:27 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.30 2004-11-08 20:11:57 blair Exp $
  */
 public class GrouperMember {
 
@@ -54,10 +54,21 @@ public class GrouperMember {
   /**
    * Return Member ID.
    *
-   * @return Member ID of {@link GrouperMember}.
+   * @return Member ID of the {@link GrouperMember}
    */
   public String id() {
     return this.getMemberID();
+  }
+
+  /**
+   * Return Member Key.
+   * <p />
+   * FIXME REMOVE, REPLACE, REFACTOR
+   *
+   * @return Member key of the {@link GrouperMember}
+   */
+  public String key() {
+    return this.getMemberKey();
   }
 
   public String toString() {

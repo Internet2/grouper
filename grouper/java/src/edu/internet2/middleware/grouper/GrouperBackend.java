@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.15 2004-11-05 18:46:27 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.16 2004-11-08 20:11:57 blair Exp $
  */
 public class GrouperBackend {
 
@@ -81,6 +81,7 @@ public class GrouperBackend {
       System.exit(1);
     }
   }
+
 
   /**
    * Add a new {@link GrouperSession}.
@@ -183,6 +184,49 @@ public class GrouperBackend {
     }
     return descriptors;
   }
+
+  /**
+   * Add new list data to the backend store.
+   *
+   * @param s     Add member within this session context.
+   * @param m     Add this member.
+   * @param list  Add member to this list.
+   */
+  public static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+    // TODO Verify that g, s, m, and list are all valid
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")
+       ) 
+    {
+      // TODO Verify that the subject has privilege to add this list data
+      // TODO Verify that this data does not already exist
+
+      try {
+        Transaction t = session.beginTransaction();
+
+        // Instantiate the GrouperMembership object
+        GrouperMembership mship = new GrouperMembership(g, m, list);
+
+        // Save it
+        session.save(mship);
+
+        // TODO Update effective memberships
+  
+        // Commit it
+        t.commit();
+      } catch (Exception e) {
+        // TODO We probably need a rollback in here in case of failure
+        //      above.
+        System.err.println(e);
+        System.exit(1);
+      }
+      return true;
+    } 
+    return false;
+  }
+
 
   // TODO
   public static void loadGroup(GrouperSession s, GrouperGroup g, String key) {
@@ -334,6 +378,7 @@ public class GrouperBackend {
         // We only want *one* member.
         m = (GrouperMember) q.list().get(0);
       }
+      // TODO Throw an exception?
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);

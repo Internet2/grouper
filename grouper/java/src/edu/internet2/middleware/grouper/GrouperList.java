@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.7 2004-11-06 03:57:09 blair Exp $
+ * @version $Id: GrouperList.java,v 1.8 2004-11-08 20:11:57 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
@@ -28,12 +28,19 @@ public class GrouperMembership implements Serializable {
   private String  via;
   private String  removeAfter;
 
+
   public GrouperMembership() {
-    groupKey    = null;
-    groupField  = null;
-    memberKey   = null;
-    via         = null;
-    removeAfter = null;
+    this._init();
+  }
+
+  public GrouperMembership(GrouperGroup g, GrouperMember m, String list) {
+    this._init();
+    // FIXME Stop relying upon the groupKey!
+    this.groupKey   = g.groupKey();
+    // FIXME This isn't going to work
+    this.memberKey  = m.key();
+    // FIXME Validation?
+    this.groupField = list;
   }
 
 
@@ -59,6 +66,22 @@ public class GrouperMembership implements Serializable {
     this.groupKey     = key;
     this.groupField   = field;
     this.memberKey    = subject;
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.groupKey     = null;
+    this.groupField   = null;
+    this.memberKey    = null;
+    this.via          = null;
+    this.removeAfter  = null;
   }
 
 
