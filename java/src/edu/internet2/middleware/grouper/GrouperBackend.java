@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.33 2004-11-15 17:17:19 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.34 2004-11-15 17:27:14 blair Exp $
  */
 public class GrouperBackend {
 
@@ -556,9 +556,9 @@ public class GrouperBackend {
                                           String stem,
                                           String descriptor) 
   {
-    // TODO Refactor out common code in the two versions of groupLoad()
-    Session session = GrouperBackend._init();
-    String  key     = null;
+    Session       session = GrouperBackend._init();
+    GrouperGroup  g       = new GrouperGroup();
+    String        key     = null;
 
     // TODO Please.  Make this better.  Please, please, please.
     //      For whatever reason, SQL and quality code are evading
@@ -578,15 +578,12 @@ public class GrouperBackend {
             GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
             if (
                 descriptor.equals( possDesc.value() )   &&
-                stem.equals( possStem.value() )         &&
+                stem.equals(       possStem.value() )   &&
                 possDesc.key().equals( possStem.key() )
                )
             {
               // We have found an appropriate stem and descriptor
               // with matching keys.  We exist!
-
-              // Now query for the group with the appropriate key and
-              // return it.
               try {
                 Query q = session.createQuery(
                   "SELECT ALL FROM GROUPER_GROUP " +
@@ -595,17 +592,9 @@ public class GrouperBackend {
                   "groupKey='" + possDesc.key()     + "'"
                 );
                 if (q.list().size() == 1) {
-                  // Restore group
-                  //g   = (GrouperGroup) q.list().get(0);
+                  // We have a group to restore.  
                   key = possDesc.key();
-                  GrouperBackend._hibernateSessionClose(session);
-                  //GrouperGroup g = new GrouperGroup();
-                  //GrouperGroup ng = new GrouperGroup();
-                  // Move|Duplicate Hibernate load here?
-                  GrouperGroup g = GrouperBackend.groupLoad(s, key);
-                  //return ng;
-                  GrouperBackend._hibernateSessionClose(session);
-                  return g;
+                  break;
                 }
               } catch (Exception e) {
                 System.err.println(e);
@@ -616,11 +605,14 @@ public class GrouperBackend {
         }
       }
     }
+    if (key != null) {
+      g = GrouperBackend.groupLoad(s, key);
+    }
     // TODO Here I return a dummy object while elsewhere, and with
     //      other classes, I return null.  Standardize.  I *probably*
     //      should return null.
     GrouperBackend._hibernateSessionClose(session);
-    return new GrouperGroup();
+    return g;
   }
 
   protected static GrouperGroup groupLoad(GrouperSession s, String key) {
@@ -649,32 +641,6 @@ public class GrouperBackend {
     return g;
   }
 
-  /**
-   * Retrieve {@link GrouperGroup} from backend store.
-   */
-  protected static void groupLoad(GrouperSession s, GrouperGroup g, String key) {
-    Session session = GrouperBackend._init();
-    try {
-      // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction();
-      session.load(g, key);
-  
-      // Its schema
-      GrouperBackend._groupLoadSchema(g, key);
-   
-      // And its attributes
-      GrouperBackend._groupLoadAttributes(g, key);
-
-      // FIXME Attach s to object?
-
-      tx.commit();
-    } catch (Exception e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-  }
 
   /**
    * Query for a single {@link Subject} using the default, internal
@@ -711,7 +677,6 @@ public class GrouperBackend {
   /*
    * PRIVATE INSTANCE METHODS
    */
-
 
 
   /*
