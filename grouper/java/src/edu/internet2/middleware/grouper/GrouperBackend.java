@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.155 2005-03-04 20:27:38 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.156 2005-03-07 17:18:22 blair Exp $
  */
 public class GrouperBackend {
 
@@ -291,7 +291,7 @@ public class GrouperBackend {
     Iterator iter = g.attributes().keySet().iterator();
     while (iter.hasNext()) {
       GrouperAttribute attr = (GrouperAttribute) g.attribute(
-                                                   s, (String) iter.next() 
+                                                   (String) iter.next() 
                                                  );
       // TODO Error checking, anyone? 
       GrouperBackend._attrAdd(

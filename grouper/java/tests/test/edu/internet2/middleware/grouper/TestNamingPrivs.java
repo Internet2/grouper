@@ -100,40 +100,40 @@ public TestNamingPrivs(String name) {
     Assert.assertTrue( klass.equals( ns0.getClass().getName() ) );
     Assert.assertNotNull( ns0.type() );
     Assert.assertTrue( ns0.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns0.attribute(s, "stem") );
-    Assert.assertTrue( ns0.attribute(s, "stem").value().equals(stem0) );
-    Assert.assertNotNull( ns0.attribute(s, "extension") );
-    Assert.assertTrue( ns0.attribute(s, "extension").value().equals(extn0) );
+    Assert.assertNotNull( ns0.attribute("stem") );
+    Assert.assertTrue( ns0.attribute("stem").value().equals(stem0) );
+    Assert.assertNotNull( ns0.attribute("extension") );
+    Assert.assertTrue( ns0.attribute("extension").value().equals(extn0) );
     // ns00
     GrouperGroup ns00 = GrouperGroup.load(s, stem00, extn00, Grouper.NS_TYPE);
     Assert.assertNotNull(ns00);
     Assert.assertTrue( klass.equals( ns00.getClass().getName() ) );
     Assert.assertNotNull( ns00.type() );
     Assert.assertTrue( ns00.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns00.attribute(s, "stem") );
-    Assert.assertTrue( ns00.attribute(s, "stem").value().equals(stem00) );
-    Assert.assertNotNull( ns00.attribute(s, "extension") );
-    Assert.assertTrue( ns00.attribute(s, "extension").value().equals(extn00) );
+    Assert.assertNotNull( ns00.attribute("stem") );
+    Assert.assertTrue( ns00.attribute("stem").value().equals(stem00) );
+    Assert.assertNotNull( ns00.attribute("extension") );
+    Assert.assertTrue( ns00.attribute("extension").value().equals(extn00) );
     // ns1
     GrouperGroup ns1 = GrouperGroup.load(s, stem1, extn1, Grouper.NS_TYPE);
     Assert.assertNotNull(ns1);
     Assert.assertTrue( klass.equals( ns1.getClass().getName() ) );
     Assert.assertNotNull( ns1.type() );
     Assert.assertTrue( ns1.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns1.attribute(s, "stem") );
-    Assert.assertTrue( ns1.attribute(s, "stem").value().equals(stem1) );
-    Assert.assertNotNull( ns1.attribute(s, "extension") );
-    Assert.assertTrue( ns1.attribute(s, "extension").value().equals(extn1) );
+    Assert.assertNotNull( ns1.attribute("stem") );
+    Assert.assertTrue( ns1.attribute("stem").value().equals(stem1) );
+    Assert.assertNotNull( ns1.attribute("extension") );
+    Assert.assertTrue( ns1.attribute("extension").value().equals(extn1) );
     // ns2
     GrouperGroup ns2 = GrouperGroup.load(s, Util.ns2s, Util.ns2e, Grouper.NS_TYPE);
     Assert.assertNotNull(ns2);
     Assert.assertTrue( klass.equals( ns2.getClass().getName() ) );
     Assert.assertNotNull( ns2.type() );
     Assert.assertTrue( ns2.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns2.attribute(s, "stem") );
-    Assert.assertTrue( ns2.attribute(s, "stem").value().equals(Util.ns2s) );
-    Assert.assertNotNull( ns2.attribute(s, "extension") );
-    Assert.assertTrue( ns2.attribute(s, "extension").value().equals(Util.ns2e) );
+    Assert.assertNotNull( ns2.attribute("stem") );
+    Assert.assertTrue( ns2.attribute("stem").value().equals(Util.ns2s) );
+    Assert.assertNotNull( ns2.attribute("extension") );
+    Assert.assertTrue( ns2.attribute("extension").value().equals(Util.ns2e) );
     // Fetch the members
     // Fetch m0
     GrouperMember m0 = GrouperMember.load(Util.m0i, Util.m0t);

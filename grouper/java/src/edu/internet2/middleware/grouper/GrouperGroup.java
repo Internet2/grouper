@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.162 2005-03-04 20:46:35 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.163 2005-03-07 17:18:22 blair Exp $
  */
 public class GrouperGroup {
 
@@ -286,7 +286,7 @@ public class GrouperGroup {
    * @param   attribute The attribute to retrieve.
    * @return  A {@link GrouperAttribute} object.
    */
-  public GrouperAttribute attribute(GrouperSession s, String attribute) {
+  public GrouperAttribute attribute(String attribute) {
     return (GrouperAttribute) attributes.get(attribute);
   }
 
@@ -300,7 +300,7 @@ public class GrouperGroup {
    * @param   value       Set attribute to this value.
    * @return  True if the attribute was set.
    */
-  public boolean attribute(GrouperSession s, String attribute, String value) {
+  public boolean attribute(String attribute, String value) {
     boolean rv = false;
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
@@ -325,13 +325,13 @@ public class GrouperGroup {
         // For logging
         if        (value == null) {
           // Delete an existing attribute
-          rv = this._attributeDelete(s, attribute);
+          rv = this._attributeDelete(attribute);
         } else if (cur == null) {
           // Add a new attribute value
-          rv = this._attributeAdd(s, attribute, value);
+          rv = this._attributeAdd(attribute, value);
         } else {
           // Update attribute value
-          rv = this._attributeUpdate(s, attribute, value);
+          rv = this._attributeUpdate(attribute, value);
         }
       }
     }
@@ -610,11 +610,6 @@ public class GrouperGroup {
    */
 
   // FIXME Does this method I can *really* clean up the public version?
-  protected GrouperAttribute attribute(String attr) {
-    return (GrouperAttribute) attributes.get(attr);
-  }
-
-  // FIXME Does this method I can *really* clean up the public version?
   protected void attribute(String attr, GrouperAttribute value) {
     if (attr != null) {
       if (value != null) {
@@ -722,11 +717,11 @@ public class GrouperGroup {
    * Does the current subject have permission to modify attrs on the
    * specified group?
    */
-  private static boolean _canModAttr(GrouperSession s, GrouperGroup g) {
+  private static boolean _canModAttr(GrouperGroup g) {
     boolean rv = false;
-    if (GrouperBackend.sessionValid(s)) {
+    if (GrouperBackend.sessionValid(g.s)) {
       if (g != null) {
-        if (Grouper.access().has(s, g, Grouper.PRIV_ADMIN)) {
+        if (Grouper.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
           rv = true;
         }
       }
@@ -871,7 +866,7 @@ public class GrouperGroup {
   }
 
   // Add and persist attribute 
-  private boolean _attributeAdd(GrouperSession s, String attribute, String value) {
+  private boolean _attributeAdd(String attribute, String value) {
     boolean rv = false;
 
     // In case we need to revert
@@ -879,7 +874,7 @@ public class GrouperGroup {
     String curModSubj = this.getModifySubject();
 
     // Verify subject has sufficient privs
-    if (this._canModAttr(s, this)) {
+    if (this._canModAttr(this)) {
       // Hibernate the attribute
       GrouperAttribute attr = GrouperBackend.attrAdd(
                                 this.key, attribute, value
@@ -887,7 +882,7 @@ public class GrouperGroup {
       if (attr != null) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
-        GrouperMember mem = GrouperMember.load( s.subject() );
+        GrouperMember mem = GrouperMember.load( this.s.subject() );
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
         if (GrouperBackend.groupUpdate(s, this)) {
@@ -895,7 +890,7 @@ public class GrouperGroup {
         }
       }
     }
-    Grouper.log().groupAttrAdd(rv, s, this, attribute, value);
+    Grouper.log().groupAttrAdd(rv, this.s, this, attribute, value);
     if (rv != true) {
       // Revert modify* attr changes 
       this.setModifyTime(curModTime);
@@ -905,7 +900,7 @@ public class GrouperGroup {
   }
 
   // Delete and persist attribute 
-  private boolean _attributeDelete(GrouperSession s, String attribute) {
+  private boolean _attributeDelete(String attribute) {
     boolean rv = false;
     // In case we need to revert
     GrouperAttribute cur  = (GrouperAttribute) attributes.get(attribute);
@@ -913,19 +908,19 @@ public class GrouperGroup {
     String curModSubj     = this.getModifySubject();
 
     // Verify subject has sufficient privs
-    if (this._canModAttr(s, this)) {
+    if (this._canModAttr(this)) {
       if (GrouperBackend.attrDel(this.key, attribute)) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
-        GrouperMember mem = GrouperMember.load( s.subject() );
+        GrouperMember mem = GrouperMember.load( this.s.subject() );
         this.setModifySubject( mem.key() );
         this.attributes.remove(attribute);
-        if (GrouperBackend.groupUpdate(s, this)) {
+        if (GrouperBackend.groupUpdate(this.s, this)) {
           rv = true;
         }
       }
     }
-    Grouper.log().groupAttrDel(rv, s, this, attribute);
+    Grouper.log().groupAttrDel(rv, this.s, this, attribute);
     if (rv != true) {
       // Revert attribute value change
       this.attributes.put(attribute, cur);
@@ -937,7 +932,7 @@ public class GrouperGroup {
   }
 
   // Update and persist attribute 
-  private boolean _attributeUpdate(GrouperSession s, String attribute, String value) {
+  private boolean _attributeUpdate(String attribute, String value) {
     boolean rv = false;
     // In case we need to revert
     GrouperAttribute cur  = (GrouperAttribute) attributes.get(attribute);
@@ -945,7 +940,7 @@ public class GrouperGroup {
     String curModSubj     = this.getModifySubject();
 
     // Verify subject has sufficient privs
-    if (this._canModAttr(s, this)) {
+    if (this._canModAttr(this)) {
       // Hibernate the attribute
       GrouperAttribute attr = GrouperBackend.attrAdd(
                                 this.key, attribute, value
@@ -953,15 +948,15 @@ public class GrouperGroup {
       if (attr != null) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
-        GrouperMember mem = GrouperMember.load( s.subject() );
+        GrouperMember mem = GrouperMember.load( this.s.subject() );
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
-        if (GrouperBackend.groupUpdate(s, this)) {
+        if (GrouperBackend.groupUpdate(this.s, this)) {
           rv = true;
         }
       }
     }
-    Grouper.log().groupAttrUpdate(rv, s, this, attribute, value);
+    Grouper.log().groupAttrUpdate(rv, this.s, this, attribute, value);
     if (rv != true) {
       // Revert attribute value change
       this.attributes.put(attribute, cur);
