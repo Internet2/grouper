@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.87 2004-11-28 04:17:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.88 2004-11-29 18:54:00 blair Exp $
  */
 public class GrouperGroup {
 
@@ -93,6 +93,19 @@ public class GrouperGroup {
                                    )
   {
     return GrouperGroup._create(s, stem, extension, type);
+  }
+
+  /** 
+   * Class method to delete a {@link GrouperGroup}.
+   * <p />
+   * TODO Version that takes a stem and extension?  And type?
+   *
+   * @param   s   Session to delete the group within.
+   * @param   g   Group to delete.
+   * @return  Boolean true if group was deleted, false otherwise.
+   */
+  public static boolean delete(GrouperSession s, GrouperGroup g) {
+    return GrouperBackend.groupDelete(s, g);
   }
 
   /**

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupsAdd.java,v 1.10 2004-11-28 04:17:47 blair Exp $
+ * $Id: TestGroupsAdd.java,v 1.11 2004-11-29 18:54:00 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -28,9 +28,13 @@ public class TestGroups extends TestCase {
   private String stem0  = "stem.0";
   private String stem1  = "stem.1";
   private String stem2  = "stem.2";
+  private String stem3  = "stem.3";
+  private String stem4  = "stem.4";
   private String extn0  = "extn.0";
   private String extn1  = "extn.1";
   private String extn2  = "extn.2";
+  private String extn3  = "extn.3";
+  private String extn4  = "extn.4";
   
   private String klass  = "edu.internet2.middleware.grouper.GrouperGroup";
 
@@ -52,101 +56,229 @@ public class TestGroups extends TestCase {
    */
   
 
-  // Fetch a non-existent group.
+  // Fetch non-existent groups
   public void testGroupsExistFalse() {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
+
     // Confirm that groups don't exist
-    GrouperGroup    grp0  = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertFalse( grp0.exists() );
-    GrouperGroup    grp1  = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertFalse( grp1.exists() );
-    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertFalse( grp2.exists() );
+    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertFalse( g0.exists() );
+    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertFalse( g1.exists() );
+    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertFalse( g2.exists() );
+    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
+    Assert.assertFalse( g3.exists() );
+    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
+    Assert.assertFalse( g4.exists() );
+
     // We're done
     s.stop();
   }
 
-  // Create a group
+  // Create groups
   public void testCreateGroups() {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
+
     // Create the groups
-    // Group 0
-    GrouperGroup    grp0  = GrouperGroup.create(s, stem0, extn0);
-    Assert.assertNotNull(grp0);
-    Assert.assertTrue( klass.equals( grp0.getClass().getName() ) );
-    Assert.assertTrue( grp0.exists() );
-    Assert.assertNotNull( grp0.type() );
-    Assert.assertNotNull( grp0.attribute("stem") );
-    Assert.assertTrue( grp0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( grp0.attribute("extension") );
-    Assert.assertTrue( grp0.attribute("extension").value().equals(extn0) );
-    // Group 1
-    GrouperGroup    grp1  = GrouperGroup.create(s, stem1, extn1);
-    Assert.assertNotNull(grp1);
-    Assert.assertTrue( klass.equals( grp1.getClass().getName() ) );
-    Assert.assertTrue( grp1.exists() );
-    Assert.assertNotNull( grp1.type() );
-    Assert.assertNotNull( grp1.attribute("stem") );
-    Assert.assertTrue( grp1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( grp1.attribute("extension") );
-    Assert.assertTrue( grp1.attribute("extension").value().equals(extn1) );
-    // Group 2
-    GrouperGroup    grp2  = GrouperGroup.create(s, stem2, extn2);
-    Assert.assertNotNull(grp2);
-    Assert.assertTrue( klass.equals( grp2.getClass().getName() ) );
-    Assert.assertTrue( grp2.exists() );
-    Assert.assertNotNull( grp2.type() );
-    Assert.assertNotNull( grp2.attribute("stem") );
-    Assert.assertTrue( grp2.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( grp2.attribute("extension") );
-    Assert.assertTrue( grp2.attribute("extension").value().equals(extn2) );
+    // g0
+    GrouperGroup    g0  = GrouperGroup.create(s, stem0, extn0);
+    Assert.assertNotNull(g0);
+    Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
+    Assert.assertTrue( g0.exists() );
+    Assert.assertNotNull( g0.type() );
+    Assert.assertNotNull( g0.attribute("stem") );
+    Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
+    Assert.assertNotNull( g0.attribute("extension") );
+    Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
+    // g1
+    GrouperGroup    g1  = GrouperGroup.create(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
+    Assert.assertTrue( g1.exists() );
+    Assert.assertNotNull( g1.type() );
+    Assert.assertNotNull( g1.attribute("stem") );
+    Assert.assertTrue( g1.attribute("stem").value().equals(stem1) );
+    Assert.assertNotNull( g1.attribute("extension") );
+    Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
+    // g2
+    GrouperGroup    g2  = GrouperGroup.create(s, stem2, extn2);
+    Assert.assertNotNull(g2);
+    Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
+    Assert.assertTrue( g2.exists() );
+    Assert.assertNotNull( g2.type() );
+    Assert.assertNotNull( g2.attribute("stem") );
+    Assert.assertTrue( g2.attribute("stem").value().equals(stem2) );
+    Assert.assertNotNull( g2.attribute("extension") );
+    Assert.assertTrue( g2.attribute("extension").value().equals(extn2) );
+    // g3
+    GrouperGroup    g3  = GrouperGroup.create(s, stem3, extn3);
+    Assert.assertNotNull(g3);
+    Assert.assertTrue( klass.equals( g3.getClass().getName() ) );
+    Assert.assertTrue( g3.exists() );
+    Assert.assertNotNull( g3.type() );
+    Assert.assertNotNull( g3.attribute("stem") );
+    Assert.assertTrue( g3.attribute("stem").value().equals(stem3) );
+    Assert.assertNotNull( g3.attribute("extension") );
+    Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
+    // g4
+    GrouperGroup    g4  = GrouperGroup.create(s, stem4, extn4);
+    Assert.assertNotNull(g4);
+    Assert.assertTrue( klass.equals( g4.getClass().getName() ) );
+    Assert.assertTrue( g4.exists() );
+    Assert.assertNotNull( g4.type() );
+    Assert.assertNotNull( g4.attribute("stem") );
+    Assert.assertTrue( g4.attribute("stem").value().equals(stem4) );
+    Assert.assertNotNull( g4.attribute("extension") );
+    Assert.assertTrue( g4.attribute("extension").value().equals(extn4) );
+
     // We're done
     s.stop();
   }
 
-  // Fetch a valid group
-  public void testFetchValidGroups() {
+  // Fetch valid groups
+  public void testFetchGroups0() {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
+
     // Fetch the groups
-    // Group 0
-    GrouperGroup    grp0  = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(grp0);
-    Assert.assertTrue( klass.equals( grp0.getClass().getName() ) );
-    Assert.assertTrue( grp0.exists() );
-    Assert.assertNotNull( grp0.id() );
-    Assert.assertNotNull( grp0.type() );
-    Assert.assertNotNull( grp0.attribute("stem") );
-    Assert.assertTrue( grp0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( grp0.attribute("extension") );
-    Assert.assertTrue( grp0.attribute("extension").value().equals(extn0) );
-    // Group 1
-    GrouperGroup    grp1  = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(grp1);
-    Assert.assertTrue( klass.equals( grp1.getClass().getName() ) );
-    Assert.assertTrue( grp1.exists() );
-    Assert.assertNotNull( grp1.id() );
-    Assert.assertNotNull( grp1.type() );
-    Assert.assertNotNull( grp1.attribute("stem") );
-    Assert.assertTrue( grp1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( grp1.attribute("extension") );
-    Assert.assertTrue( grp1.attribute("extension").value().equals(extn1) );
-    // Group 2
-    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(grp2);
-    Assert.assertTrue( klass.equals( grp2.getClass().getName() ) );
-    Assert.assertTrue( grp2.exists() );
-    Assert.assertNotNull( grp2.id() );
-    Assert.assertNotNull( grp2.type() );
-    Assert.assertNotNull( grp2.attribute("stem") );
-    Assert.assertTrue( grp2.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( grp2.attribute("extension") );
-    Assert.assertTrue( grp1.attribute("extension").value().equals(extn1) );
+    // g0
+    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(g0);
+    Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
+    Assert.assertTrue( g0.exists() );
+    Assert.assertNotNull( g0.id() );
+    Assert.assertNotNull( g0.type() );
+    Assert.assertNotNull( g0.attribute("stem") );
+    Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
+    Assert.assertNotNull( g0.attribute("extension") );
+    Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
+    // g1
+    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
+    Assert.assertTrue( g1.exists() );
+    Assert.assertNotNull( g1.id() );
+    Assert.assertNotNull( g1.type() );
+    Assert.assertNotNull( g1.attribute("stem") );
+    Assert.assertTrue( g1.attribute("stem").value().equals(stem1) );
+    Assert.assertNotNull( g1.attribute("extension") );
+    Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
+    // g2
+    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(g2);
+    Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
+    Assert.assertTrue( g2.exists() );
+    Assert.assertNotNull( g2.id() );
+    Assert.assertNotNull( g2.type() );
+    Assert.assertNotNull( g2.attribute("stem") );
+    Assert.assertTrue( g2.attribute("stem").value().equals(stem2) );
+    Assert.assertNotNull( g2.attribute("extension") );
+    Assert.assertTrue( g2.attribute("extension").value().equals(extn2) );
+    // g3
+    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
+    Assert.assertNotNull(g3);
+    Assert.assertTrue( klass.equals( g3.getClass().getName() ) );
+    Assert.assertTrue( g3.exists() );
+    Assert.assertNotNull( g3.id() );
+    Assert.assertNotNull( g3.type() );
+    Assert.assertNotNull( g3.attribute("stem") );
+    Assert.assertTrue( g3.attribute("stem").value().equals(stem3) );
+    Assert.assertNotNull( g3.attribute("extension") );
+    Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
+    // g4
+    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
+    Assert.assertNotNull(g4);
+    Assert.assertTrue( klass.equals( g4.getClass().getName() ) );
+    Assert.assertTrue( g4.exists() );
+    Assert.assertNotNull( g4.id() );
+    Assert.assertNotNull( g4.type() );
+    Assert.assertNotNull( g4.attribute("stem") );
+    Assert.assertTrue( g4.attribute("stem").value().equals(stem4) );
+    Assert.assertNotNull( g4.attribute("extension") );
+    Assert.assertTrue( g4.attribute("extension").value().equals(extn4) );
+
+    // We're done
+    s.stop();
+  }
+
+  // Delete a group
+  public void testDeleteGroups0() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+
+    // Delete g4
+    GrouperGroup  g4 = GrouperGroup.load(s, stem4, extn4);
+    Assert.assertNotNull(g4);
+    Assert.assertTrue( g4.exists() );
+    Assert.assertTrue( GrouperGroup.delete(s, g4) );
+
+    // We're done
+    s.stop();
+  }
+
+  // Fetch valid groups
+  public void testFetchGroups1() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+
+    // Fetch the groups
+    // g0
+    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(g0);
+    Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
+    Assert.assertTrue( g0.exists() );
+    Assert.assertNotNull( g0.id() );
+    Assert.assertNotNull( g0.type() );
+    Assert.assertNotNull( g0.attribute("stem") );
+    Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
+    Assert.assertNotNull( g0.attribute("extension") );
+    Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
+    // g1
+    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
+    Assert.assertTrue( g1.exists() );
+    Assert.assertNotNull( g1.id() );
+    Assert.assertNotNull( g1.type() );
+    Assert.assertNotNull( g1.attribute("stem") );
+    Assert.assertTrue( g1.attribute("stem").value().equals(stem1) );
+    Assert.assertNotNull( g1.attribute("extension") );
+    Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
+    // g2
+    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(g2);
+    Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
+    Assert.assertTrue( g2.exists() );
+    Assert.assertNotNull( g2.id() );
+    Assert.assertNotNull( g2.type() );
+    Assert.assertNotNull( g2.attribute("stem") );
+    Assert.assertTrue( g2.attribute("stem").value().equals(stem2) );
+    Assert.assertNotNull( g2.attribute("extension") );
+    Assert.assertTrue( g2.attribute("extension").value().equals(extn2) );
+    // g3
+    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
+    Assert.assertNotNull(g3);
+    Assert.assertTrue( klass.equals( g3.getClass().getName() ) );
+    Assert.assertTrue( g3.exists() );
+    Assert.assertNotNull( g3.id() );
+    Assert.assertNotNull( g3.type() );
+    Assert.assertNotNull( g3.attribute("stem") );
+    Assert.assertTrue( g3.attribute("stem").value().equals(stem3) );
+    Assert.assertNotNull( g3.attribute("extension") );
+    Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
+    // g4
+    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
+    Assert.assertNotNull(g4);
+    Assert.assertFalse( g4.exists() );
+
     // We're done
     s.stop();
   }

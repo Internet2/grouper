@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.10 2004-11-28 17:09:45 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.11 2004-11-29 18:54:00 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -350,7 +350,7 @@ public class TestAccessPrivs extends TestCase {
     List privs3u  = Grouper.access().has(s, "UPDATE");
     List privs3v  = Grouper.access().has(s, "VIEW");
     Assert.assertNotNull(privs3a);
-    Assert.assertTrue( privs3a.size() == 9 );
+    Assert.assertTrue( privs3a.size() == 8 );
     Assert.assertNotNull(privs3oi);
     Assert.assertTrue( privs3oi.size() == 0 );
     Assert.assertNotNull(privs3oo);
