@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.16 2004-11-11 18:28:59 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.17 2004-11-20 02:19:27 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
@@ -11,12 +11,12 @@ CREATE TABLE grouper_attributes (
 );
 
 -- XXX Right types?
--- XXX Do I need a unique constraint on groupField?
 CREATE TABLE grouper_fields (
   groupField  VARCHAR(255) NOT NULL PRIMARY KEY,
   readPriv    VARCHAR(255),
   writePriv   VARCHAR(255),
-  isList      VARCHAR(255)
+  isList      VARCHAR(255),
+  CONSTRAINT  uniq_gf UNIQUE (groupField)
 );
 
 CREATE TABLE grouper_group (
