@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.20 2005-03-22 19:25:14 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.21 2005-03-23 22:29:50 blair Exp $
  */
 public class GrouperQuery {
 
@@ -421,7 +421,7 @@ public class GrouperQuery {
 
     this.candidates.remove(KEY_GT);
     // Find all groups of matching type
-    List      groups  = GrouperBackend.groupType(this.s, type);
+    List      groups  = this._queryByGroupType(type);
     // Find all list values for matching groups
     Iterator  iter    = groups.iterator();
     while (iter.hasNext()) {
@@ -440,6 +440,36 @@ public class GrouperQuery {
     this.candidates.put(KEY_GT, vals);
 
     return rv; 
+  }
+
+  // TODO Bleh
+  private List _queryByGroupType(String type) {
+    String  qry   = "GrouperSchema.by.type";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, type);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperSchema gs = (GrouperSchema) iter.next();
+          // TODO What a hack
+          GrouperGroup g = GrouperGroup.loadByKey(this.s, gs.key());
+          if (g != null) {
+            vals.add(g);
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error getting results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
   /* (!javadoc)

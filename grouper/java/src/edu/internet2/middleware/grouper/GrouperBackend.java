@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.199 2005-03-23 22:11:36 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.200 2005-03-23 22:29:50 blair Exp $
  */
 public class GrouperBackend {
 
@@ -87,43 +87,6 @@ public class GrouperBackend {
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query for all groups of the specified type.
-   * <p />
-   *
-   * @param   s     Perform query within this session.
-   * @param   type  Query on this {@link GrouperGroup} type.
-   * @return  List of {@link GrouperGroup} objects.
-   */
-  protected static List groupType(GrouperSession s, String type) {
-    String  qry   = "GrouperSchema.by.type";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, type);
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          GrouperSchema gs = (GrouperSchema) iter.next();
-          // TODO What a hack
-          GrouperGroup g = GrouperGroup.loadByKey(s, gs.key());
-          if (g != null) {
-            vals.add(g);
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error getting results for " + qry + ": " + e
                   );
       }
     } catch (HibernateException e) {
