@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.108 2004-12-04 05:12:14 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.109 2004-12-04 05:28:30 blair Exp $
  */
 public class GrouperBackend {
 
@@ -120,7 +120,16 @@ public class GrouperBackend {
       name = extn;
     } else {
       String delim = Grouper.config("hierarchy.delimiter");
-      name = stem + delim + extn;
+      if (extn.indexOf(delim) != -1) {
+        // FIXME Throw an exception?  And then test for failure?
+        //       Or settle for ye olde null
+        Grouper.LOGGER.warn(
+          "Extension `" + extn + "' contains delimiter `" + delim + "'"
+        );
+        name = null;
+      } else {
+        name = stem + delim + extn;
+      }
     }
     return name;
   }
