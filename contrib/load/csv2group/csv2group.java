@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.12 2004-12-08 05:42:36 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.13 2004-12-08 17:04:25 blair Exp $ 
  */
 class csv2group {
 
@@ -224,21 +224,17 @@ class csv2group {
         System.err.println("Unable to fetch member group!");
       }
     }
-    // Load the subject
-    Subject subj = GrouperSubject.load(sid, stid);
-    if (subj != null) {
-      // Load the group
-      GrouperGroup g = GrouperGroup.load(s, stem, extn);
-      if (g != null) {
-        // Load the member
-        GrouperMember m = GrouperMember.load(subj);
-        if (m != null) {
-          if (g.listAddVal(s, m)) {
-            rv = true;
-            System.err.println(
-              "Added `" + sid + "' to `" + stem + "':`" + extn + "'"
-            );
-          }
+    // Load the group
+    GrouperGroup g = GrouperGroup.load(s, stem, extn);
+    if (g != null) {
+      // Load the member
+      GrouperMember m = GrouperMember.load(sid, stid);
+      if (m != null) {
+        if (g.listAddVal(s, m)) {
+          rv = true;
+          System.err.println(
+            "Added `" + sid + "' to `" + stem + "':`" + extn + "'"
+          );
         }
       }
     }
