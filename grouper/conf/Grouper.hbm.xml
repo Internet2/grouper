@@ -110,8 +110,8 @@
 
   <class name="GrouperSchema" table="grouper_schema" mutable="true">
     <composite-id access="field">
-      <key-property name="groupKey"   type="string"  column="groupKey"/>
-      <key-property name="groupType"  type="integer" column="groupType"/>
+      <key-property name="groupKey"   type="string" column="groupKey"/>
+      <key-property name="groupType"  type="string" column="groupType"/>
     </composite-id>
   </class>
 
@@ -130,8 +130,8 @@
 
   <class name="GrouperType" table="grouper_types" mutable="false">
     <cache usage="read-only"/>
-    <id name="groupType" type="integer" unsaved-value="null" >
-      <column name="groupType" sql-type="integer" not-null="true"/>
+    <id name="groupType" type="string" unsaved-value="null" >
+      <column name="groupType" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
     </id>
   </class>
@@ -139,7 +139,7 @@
   <class name="GrouperTypeDef" table="grouper_typeDefs" mutable="false">
     <cache usage="read-only"/>
     <composite-id access="field">
-      <key-property name="groupType"  type="integer" column="groupType"/>
+      <key-property name="groupType"  type="string" column="groupType"/>
       <key-property name="groupField" type="string"  column="groupField"/>
     </composite-id>
   </class>
