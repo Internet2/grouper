@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.59 2005-03-22 18:58:15 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.60 2005-03-22 21:08:34 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -129,13 +129,7 @@ public class GrouperAccessImpl implements GrouperAccess {
        */
       if (this.has(s, g, Grouper.PRIV_ADMIN)) {
         s.dbSess().txStart();
-        // TODO Go through GG, not GB?
-        if (
-            GrouperBackend.listAddVal(
-              s, new GrouperList(g, m, (String) privMap.get(priv))
-            ) == true
-           )
-        {
+        if (g.listAddVal(m, (String) privMap.get(priv))) {
           rv = true;
           s.dbSess().txCommit();
         } else {

@@ -65,53 +65,14 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.193 2005-03-22 20:56:15 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.194 2005-03-22 21:08:34 blair Exp $
  */
 public class GrouperBackend {
 
-  /**
-   * Add list values to the backend store.
-   *
-   * @param s     Add member within this session context.
-   * @param gl    Add this {@link GrouperList} object.
-   */
-  protected static boolean listAddVal(GrouperSession s, GrouperList gl) {
-    GrouperSession.validate(s);
-    GrouperList.validate(gl);
-    gl.load(s);
-
-    boolean rv = false; 
-    if (GrouperList.exists(s, gl) == false) {
-      // The GrouperList objects that we will need to add
-      MemberOf mof = new MemberOf(s);
-      List listVals = mof.memberOf(gl);
-          
-      // Now add the list values
-      // TODO Refactor out to _listAddVal(List vals)
-      Iterator iter = listVals.iterator();
-      while (iter.hasNext()) {
-        GrouperList lv = (GrouperList) iter.next();
-        lv.load(s); // TODO Is this necessary?
-        _listAddVal(s, lv);
-      }
-      rv = true; // TODO This seems naive
-    }
-    return rv;
-  }
-
-  /**
-   * Remove list values from the backend store.
-   *
-   * @param s     Delete list value within this session context.
-   * @param gl    Delete this {@link GrouperList} object.
-   */
   protected static boolean listDelVal(GrouperSession s, GrouperList gl) {
     GrouperSession.validate(s);
     gl.load(s);
     boolean rv = false;
-    try {
-      s.dbSess().txStart(); // FIXME Grr
-
       // TODO Confirm gl exists before calculating mof?
       // The GrouperList objects that we will need to delete
       MemberOf mof = new MemberOf(s);
@@ -124,42 +85,8 @@ public class GrouperBackend {
         GrouperList lv = (GrouperList) listValIter.next();
         _listDelVal(s, lv);
       }
-      // FIXME Needed?
-      try {
-        s.dbSess().session().flush();
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error flushing session: " + e);
-      }
-
-      // Update modify information
-      s.dbSess().session().update(gl.group()); // FIXME Grr...
-      s.dbSess().txCommit(); // FIXME Grr...
       rv = true;
-    } catch (HibernateException e) {
-      s.dbSess().txRollback(); // FIXME Grr...
-      throw new RuntimeException("Error deleting list value: " + e);
-    }
     return rv;
-  }
-
-  /* !javadoc
-   * Add a GrouperList object
-   */
-  protected static void _listAddVal(GrouperSession s, GrouperList gl) {
-    GrouperSession.validate(s);
-    GrouperList.validate(gl);
-
-    // TODO Refactor out
-    Grouper.log().backend("_listAddVal() (g) " + gl.group().name());
-    Grouper.log().backend("_listAddVal() (m) " + gl.member().subjectID());
-    Grouper.log().backend("_listAddVal() (t) " + gl.groupField());
-    if (gl.via() != null) {
-      Grouper.log().backend("_listAddVal() (v) " + gl.via().name());
-    } else {
-      Grouper.log().backend("_listAddVal() (v) null");
-    }
-
-    GrouperList.save(s, gl);
   }
 
   /* !javadoc
