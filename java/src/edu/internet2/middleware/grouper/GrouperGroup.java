@@ -54,6 +54,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -62,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.173 2005-03-20 05:15:31 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.174 2005-03-21 02:26:46 blair Exp $
  */
 public class GrouperGroup {
 
