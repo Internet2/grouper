@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.15 2004-04-30 18:04:44 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.16 2004-05-01 17:54:18 blair Exp $
  */
 public class GrouperGroup {
 
@@ -51,7 +51,8 @@ public class GrouperGroup {
    * @return  List of group memberships.
    */
   public List getMembership() {
-    return null;
+    List membership = null;
+    return membership;
   }
 
   /**
@@ -71,7 +72,8 @@ public class GrouperGroup {
    * @return  List of group memberships.
    */
   public List getMembership(String groupField) {
-    return null;
+    List membership = null;
+    return membership;
   }
 
   /**
@@ -93,7 +95,8 @@ public class GrouperGroup {
    * @return  List of group memberships..
    */
   public List getMembership(String groupField, boolean isImmediate) {
-    return null;
+    List membership = null;
+    return membership;
   }
 
   /*
@@ -109,7 +112,8 @@ public class GrouperGroup {
    * @return  Map of all accessible group metadata.
   */
   public Map getMetadata() {
-    return null;
+    Map metadata = null;
+    return metadata;
   }
 
   /*
