@@ -62,6 +62,7 @@
 			<fileset dir="../lib">
 			<include name="**/*" /> 
 			<exclude name="**/servlet-api.jar" />
+			<exclude name="**/jconn2.jar" />
 			</fileset>
 		</copy>
 	</target>
