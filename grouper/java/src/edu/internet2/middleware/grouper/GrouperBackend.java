@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.117 2004-12-05 23:44:36 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.118 2004-12-06 00:52:22 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1147,6 +1147,31 @@ public class GrouperBackend {
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
+  }
+
+  /**
+   * Is the {@link GrouperSession} still valid?
+   * <p />
+   *
+   * @param   s   Session to validate. 
+   * @return  Boolean true if still valid, false otherwise.
+   */
+  protected static boolean sessionValid(GrouperSession s) {
+    boolean rv = false;
+    Session session = GrouperBackend._init();
+    if (s != null) {
+      List vals = GrouperBackend._queryKV(
+                    session, "GrouperSession",
+                    "sessionID", s.id()
+                  );
+      if (vals.size() == 1) {
+        rv = true;
+      } else {
+        Grouper.LOGGER.warn("Attempt to use an invalid session");
+      }
     }
     GrouperBackend._hibernateSessionClose(session);
     return rv;
