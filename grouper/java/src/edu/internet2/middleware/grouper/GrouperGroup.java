@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.30 2004-08-27 02:33:54 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.31 2004-08-27 18:35:39 blair Exp $
  */
 public class GrouperGroup {
 
@@ -43,6 +43,7 @@ public class GrouperGroup {
   private String          name;
   private String          groupID   = null;
   private boolean         exists    = false;
+  private GrouperSchema   schema;
   private Map             attributes;
 
   /**
@@ -75,16 +76,19 @@ public class GrouperGroup {
     modifySource  = null;
     comment       = null;
 
+    schema        = null;
     attributes    = new HashMap();
     intSess       = null;
     name          = null;
   }
 
   public String toString() {
-    return this.getClass()        + ":" +
-           this.groupKey          + ":" + 
-           attributes.get("stem") + ":" +
-           attributes.get("descriptor");
+    GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
+    GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
+    return this.getClass()  + ":" +
+           this.groupKey    + ":" + 
+           stem.value()     + ":" +
+           desc.value(); 
   }
 
   public void session(GrouperSession s) {
@@ -97,6 +101,7 @@ public class GrouperGroup {
     return this.intSess;
   }
 
+  //public void attribute(String attribute, String value) {
   public void attribute(String attribute, String value) {
     // TODO Attribute validation
     /* 
@@ -104,33 +109,54 @@ public class GrouperGroup {
      * later as we need to have a valid groupKey.  And yes, this 
      * can be improved upon.
      */
-    attributes.put(attribute, value);
+    //attributes.put(attribute, value);
+    GrouperAttribute attr = new GrouperAttribute();
+    attr.set(this.groupKey, attribute, value);
+    attributes.put(attribute, attr);
+
+    // An ugly hack to attempt to autoload an object from the
+    // persistent store.  If we know the `stem' and the 
+    // `descriptor' and the group is not currently known to exist,
+    // attempt to autoload it.
+    if ( 
+        (this.exists == false) &&
+        attributes.containsKey("stem") &&
+        attributes.containsKey("descriptor")
+       )
+    {
+      if (this.exist() == true) {
+        this._load(this.groupKey);
+      }
+    }
   }
 
-  public String attribute(String attribute) {
-    return (String) attributes.get(attribute);
+  //public String attribute(String attribute) {
+  public GrouperAttribute attribute(String attribute) {
+    //return (String) attributes.get(attribute);
+    return (GrouperAttribute) attributes.get(attribute);
   }
-
+ 
   public boolean exist() {
-    // SELECT * FROM grouper_attributes WHERE name=$name
-    // XXX The above is no longer correct.
-
     if (this.exists == true) {
       return true;
     } else {
       if (attributes.containsKey("stem") && 
           attributes.containsKey("descriptor")) 
       {
-        String stem = (String) attributes.get("stem");
-        String desc = (String) attributes.get("descriptor");
+        //String stem = (String) attributes.get("stem");
+        //String desc = (String) attributes.get("descriptor");
+        GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
+        GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
         // TODO Please.  Make this better.  Please, please, please.
+        //      For whatever reason, SQL and quality code are evading
+        //      me this week.
         try {
           String query = "SELECT FROM grouper_attributes " +
                          "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
                          "WHERE " +
                          "groupField='descriptor' " + 
                          "AND " +
-                         "groupFieldValue='" + desc + "'";
+                         "groupFieldValue='" + desc.value() + "'";
           List descs = this.session.find(query);
           if (descs.size() > 0) {
             // We found one or more potential descriptors.  Now look
@@ -140,7 +166,7 @@ public class GrouperGroup {
                     "WHERE " +
                     "groupField='stem' " + 
                     "AND " +
-                    "groupFieldValue='" + stem + "'";
+                    "groupFieldValue='" + stem.value() + "'";
             List stems = this.session.find(query);
   
             if (stems.size() > 0) {
@@ -151,19 +177,18 @@ public class GrouperGroup {
                 GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
                 for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
                   GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
-                  if (desc.equals( possDesc.value() ) &&
-                      stem.equals( possStem.value() ) &&
+                  if (desc.value().equals( possDesc.value() ) &&
+                      stem.value().equals( possStem.value() ) &&
                       possDesc.key().equals( possStem.key() ))
                   {
                     // We have found an appropriate stem and descriptor
                     // with matching keys.  We exist!
-                    this.exists = true;
 
                     // Set groupKey
                     this.groupKey = possDesc.key();
-
-                    // And not acknowledge our existence
-                    return this.exists;
+                    
+                    // And now acknowledge our existence
+                    return true;
                   }
                 }
               }
@@ -176,6 +201,48 @@ public class GrouperGroup {
       }
     }
     return false;
+  }
+
+  private void _load(String key) {
+    Transaction   tx  = null;
+    try {
+      // Attempt to load a stored group into the current object
+      tx = session.beginTransaction();
+      session.load(this, key);
+      
+      // Its schema
+      String schemaQuery = "SELECT FROM grouper_schema " +
+                           "IN CLASS " +
+                           "edu.internet2.middleware.grouper.GrouperSchema " +
+                           "WHERE groupKey='" + key + "'";
+      List schemas = session.find(schemaQuery);
+      if (schemas.size() == 1) {
+        GrouperSchema schema = (GrouperSchema) schemas.get(0);
+      } else {
+        System.err.println("Found " + schemas.size() + 
+                           " schema definitions.");
+        System.exit(1);
+      }
+
+      // And its attributes
+      String attrQuery = "SELECT FROM grouper_attributes " +
+                         "IN CLASS " +
+                         "edu.internet2.middleware.grouper.GrouperAttribute " +
+                         "WHERE groupKey='" + key + "'";
+      List attrs = session.find(attrQuery);
+      for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
+        GrouperAttribute attr = (GrouperAttribute) attrIter.next();
+        attributes.put( attr.field(), attr );
+      }
+
+      tx.commit();
+
+      // Mark that it exists
+      this.exists = true;
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
   }
 
   public void create() {
@@ -203,9 +270,8 @@ public class GrouperGroup {
       // And its attributes
       Iterator iter = attributes.keySet().iterator();
       while (iter.hasNext()) {
-        GrouperAttribute attr = new GrouperAttribute();
-        String key = (String) iter.next();
-        attr.set(this.groupKey, key, (String) attributes.get(key));
+        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+        attr.set(this.groupKey, attr.field(), attr.value());
         session.save(attr);
       }
 
