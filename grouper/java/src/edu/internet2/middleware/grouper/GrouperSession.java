@@ -8,7 +8,7 @@ import  java.sql.*;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.11 2004-04-29 15:24:44 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.12 2004-04-29 15:42:00 blair Exp $
  */
 public class GrouperSession {
 
@@ -139,10 +139,25 @@ public class GrouperSession {
   }
 
   private GrouperMember _lookupSubject(String subjectID) {
-    GrouperMember m = this.intSubj.lookup(subjectID);
-    if (m != null) {
-      this.subjectID = subjectID;
+    GrouperMember m = null;
+
+    // XXX Grab this from config
+    if (subjectID == "GrouperSystem") {
+      m = new GrouperMember(this, subjectID, false);
+    } else {
+      m = this.intSubj.lookup(subjectID);
+      if (m != null) {
+        this.subjectID = subjectID;
+      }
     }
+
+    if (m == null) {
+      // XXX This should instead throw some sort of an exception.
+      //     Or something.
+      System.err.println("XXX " + subjectID + " IS NOT A VALID CREDENTIAL!");
+      System.exit(1);
+    }
+
     return m;
   }
 
