@@ -3,25 +3,29 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.io.*;
 import  java.sql.*;
-import  java.util.List;
 import  java.util.ArrayList;
+import  java.util.Iterator;
+import  java.util.List;
+import  java.util.Map;
 import  java.util.Properties;
+import  net.sf.hibernate.*;
 
 /** 
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.18 2004-07-26 17:02:54 blair Exp $
+ * @version $Id: Grouper.java,v 1.19 2004-08-03 01:21:29 blair Exp $
  */
 public class Grouper {
 
-  private Properties      conf      = new Properties();
+  private Properties      conf        = new Properties();
   // XXX That's just wrong.  But it'll do for now.
-  private String          confFile  = "conf/grouper.properties";
-  private GrouperSession  intSess   = null;
-  private List            fields    = null;
-  private List            types     = null;
-  private List            typedefs  = null;
+  private String          confFile    = "conf/grouper.properties";
+
+  private GrouperSession  intSess;
+  private GrouperFields   groupFields;
+  private GrouperTypes    groupTypes;
+  private GrouperTypeDefs groupTypeDefs;
 
   /**
    * Create {@link Grouper} environment.
@@ -57,6 +61,13 @@ public class Grouper {
     }
     this.intSess = new GrouperSession();
     this.intSess.start(this, this.config("member.system"), true);
+    // TODO Perform data validation of some sort for these tables?
+    groupFields   = new GrouperFields();
+    this._readFields();
+    groupTypes    = new GrouperTypes();
+    this._readTypes();
+    groupTypeDefs = new GrouperTypeDefs();
+    this._readTypeDefs();
   }
 
   /**
@@ -88,17 +99,81 @@ public class Grouper {
     return conf.getProperty(parameter);
   }
 
+  /*
+   * XXX All of the below is utter madness.  Make sense of it.
+   */
+
+  private void _readFields() {
+    // XXX Hack.  And I shouldn't need the temporary variable
+    //     'session', should I?
+    try {
+      Session session = this.intSess.session();
+      Query q = session.createQuery(
+        "SELECT ALL FROM GROUPER_FIELDS " +
+        "IN CLASS edu.internet2.middleware.directory.grouper.GrouperField"
+        );
+      for (Iterator iter = q.list().iterator(); iter.hasNext();) {
+        GrouperField field = (GrouperField) iter.next();
+        groupFields.add(field);
+        // TODO groupFields.add( (GrouperField) iter.next() );
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+  }
+
+  private void _readTypeDefs() {
+    // XXX Hack.  And I shouldn't need the temporary variable
+    //     'session', should I?
+    // XXX Fuck.  How do I Hibernate-map this table?!?!?!
+    try {
+      Session session = this.intSess.session();
+      Query q = session.createQuery(
+        "SELECT ALL FROM GROUPER_GROUPTYPEDEFS " +
+        "IN CLASS edu.internet2.middleware.directory.grouper.GrouperTypeDef"
+        );
+      for (Iterator iter = q.list().iterator(); iter.hasNext();) {
+        GrouperTypeDef typeDef = (GrouperTypeDef) iter.next();
+        groupTypeDefs.add(typeDef);
+        // TODO groupTypeDefs.add( (GrouperTypeDefs) iter.next() );
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+  }
+
+  private void _readTypes() {
+    // XXX Hack.  And I shouldn't need the temporary variable
+    //     'session', should I?
+    try {
+      Session session = this.intSess.session();
+      Query q = session.createQuery(
+        "SELECT ALL FROM GROUPER_GROUPTYPES " +
+        "IN CLASS edu.internet2.middleware.directory.grouper.GrouperType"
+        );
+      for (Iterator iter = q.list().iterator(); iter.hasNext();) {
+        GrouperType type = (GrouperType) iter.next();
+        groupTypes.add(type);
+        // TODO groupTypes.add( (GrouperType) iter.next() );
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+  }
+
   /**
    * Provides access to {@link GrouperField} definitions.
    * <p>
    * The <i>grouper_fields</i> table is read and cached
    * at {@link Grouper} initialization.
    * 
-   * @return  List of {@link GrouperField} objects.
+   * @return  TODO
    */
-  public List getField() {
-    List fields = new ArrayList();
-    return fields;
+  public GrouperFields getGroupFields() {
+    return groupFields;
   }
 
   /**
@@ -107,11 +182,10 @@ public class Grouper {
    * The <i>grouper_types</i> table is read and cached at 
    * {@link Grouper} initialization.
    * 
-   * @return  List of {@link GrouperType} objects.
+   * @return  TODO
    */
-  public List getType() {
-    List types = new ArrayList();
-    return types;
+  public GrouperTypes getGroupTypes() {
+    return groupTypes;
   }
 
   /**
@@ -119,10 +193,11 @@ public class Grouper {
    * <p>
    * The <i>grouper_typeDefs</i> table is read and cached at 
    * {@link Grouper} initialization.
+   *
+   * @return  TODO
    */
-  public List getTypeDef() {
-    List typedefs = new ArrayList();
-    return typedefs;
+  public GrouperTypeDefs getTypeDef() {
+    return groupTypeDefs;
   }
 
 }
