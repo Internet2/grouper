@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.157 2005-03-07 19:30:41 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.158 2005-03-07 20:47:35 blair Exp $
  */
 public class GrouperBackend {
 
@@ -497,12 +497,12 @@ public class GrouperBackend {
      *      privs
      */
     if (
-        Grouper.access().revoke(s, g, Grouper.PRIV_OPTIN)   &&
-        Grouper.access().revoke(s, g, Grouper.PRIV_OPTOUT)  &&
-        Grouper.access().revoke(s, g, Grouper.PRIV_VIEW)    &&
-        Grouper.access().revoke(s, g, Grouper.PRIV_READ)    &&
-        Grouper.access().revoke(s, g, Grouper.PRIV_UPDATE)  &&
-        Grouper.access().revoke(s, g, Grouper.PRIV_ADMIN)
+        s.access().revoke(s, g, Grouper.PRIV_OPTIN)   &&
+        s.access().revoke(s, g, Grouper.PRIV_OPTOUT)  &&
+        s.access().revoke(s, g, Grouper.PRIV_VIEW)    &&
+        s.access().revoke(s, g, Grouper.PRIV_READ)    &&
+        s.access().revoke(s, g, Grouper.PRIV_UPDATE)  &&
+        s.access().revoke(s, g, Grouper.PRIV_ADMIN)
        )
     {
       rv = true;
@@ -519,7 +519,7 @@ public class GrouperBackend {
                          )
   {
     boolean rv = false;
-    if (Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
+    if (s.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
       Grouper.log().backend("Granted " + Grouper.PRIV_ADMIN + " to " + m);
       rv = true;
     } else {
@@ -540,7 +540,7 @@ public class GrouperBackend {
                          )
   {
     boolean rv = false;
-    if (Grouper.naming().grant(s, g, m, Grouper.PRIV_STEM)) {
+    if (s.naming().grant(s, g, m, Grouper.PRIV_STEM)) {
       Grouper.log().backend("Granted " + Grouper.PRIV_STEM + " to " + m);
       rv      = true;
     } else {
@@ -600,8 +600,8 @@ public class GrouperBackend {
     // Revoke all privileges
     // FIXME This is ugly 
     if (
-        Grouper.naming().revoke(s, g, Grouper.PRIV_STEM)    &&
-        Grouper.naming().revoke(s, g, Grouper.PRIV_CREATE) 
+        s.naming().revoke(s, g, Grouper.PRIV_STEM)    &&
+        s.naming().revoke(s, g, Grouper.PRIV_CREATE) 
        )
     {       
       rv = true;

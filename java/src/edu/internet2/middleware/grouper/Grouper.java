@@ -54,7 +54,6 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
-import  java.lang.reflect.*;
 import  java.util.*;
 
 
@@ -63,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.70 2005-02-17 18:44:43 blair Exp $
+ * @version $Id: Grouper.java,v 1.71 2005-03-07 20:47:35 blair Exp $
  */
 public class Grouper {
 
@@ -155,12 +154,6 @@ public class Grouper {
 
   // Is the environment initialized?
   private static boolean        initialized   = false;
-  // Are the interfaces initialized?
-  private static boolean        interfaces    = false;
-  // Access priv interface
-  private static GrouperAccess  access; 
-  // Naming priv interface
-  private static GrouperNaming  naming; 
   // A place to hold the run-time environment
   private static Properties     conf          = new Properties();
   // Run-time configuration file
@@ -180,17 +173,6 @@ public class Grouper {
   /*
    * PUBLIC CLASS METHODS
    */
-
-  /**
-   * Retrieve a {@link GrouperAccess} access privilege resolver.
-   * <p />
-   *
-   * @return  {@link GrouperAccess} object.
-   */
-  public static GrouperAccess access() {
-    Grouper._initInterfaces();  
-    return access;
-  }
 
   /**
    * Retrieve a {@link Grouper} configuration parameter.
@@ -303,17 +285,6 @@ public class Grouper {
   }
 
   /**
-   * Retrieve a {@link GrouperNaming} naming privilege resolver.
-   * <p />
-   *
-   * @return  {@link GrouperNaming} object.
-   */
-  public static GrouperNaming naming() {
-    Grouper._initInterfaces();  
-    return naming;
-  }
-
-  /**
    * Retrieve a I2MI {@link SubjectType}.
    * <p />
    *
@@ -384,46 +355,6 @@ public class Grouper {
       groupTypes    = GrouperBackend.groupTypes();
       subjectTypes  = GrouperBackend.subjectTypes();
       initialized = true;
-    }
-  }
-
-  /*
-   * Initialize privilege interfaces.
-   */
-  private static void _initInterfaces() {
-    Grouper._init();
-    if (interfaces == false) {
-      // Initialize static interfaces
-      access = (GrouperAccess) Grouper._interfaceCreate( 
-                Grouper.config("interface.access" ) 
-               );
-      naming = (GrouperNaming) Grouper._interfaceCreate( 
-                Grouper.config("interface.naming" ) 
-               );
-      interfaces = true;
-    }
-  }
-
-  /*
-   * Instantiate an interface reflectively
-   */
-  private static Object _interfaceCreate(String name) {
-    try {
-      Class classType     = Class.forName(name);
-      Class[] paramsClass = new Class[] { };
-      try {
-        Constructor con     = classType.getDeclaredConstructor(paramsClass);
-        Object[] params     = new Object[] { };
-        try {
-          return con.newInstance(params);
-        } catch (Exception e) {
-          throw new RuntimeException("Unable to instantiate class: " + name);
-        }
-      } catch (NoSuchMethodException e) {
-        throw new RuntimeException("Unable to find constructor for class: " + name);
-      }
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException("Unable to find class: " + name);
     }
   }
 
