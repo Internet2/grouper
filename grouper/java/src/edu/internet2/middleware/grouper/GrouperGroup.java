@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.79 2004-11-22 20:15:28 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.80 2004-11-23 01:46:06 blair Exp $
  */
 public class GrouperGroup {
 
@@ -333,6 +333,9 @@ public class GrouperGroup {
     GrouperGroup g = GrouperBackend.groupLoad(s, stem, descriptor, type);
     // Attach session
     g.grprSession = s;
+    // Attach type  
+    // FIXME Grr....
+    g.type = type;
     return g;
   }
 
@@ -344,13 +347,12 @@ public class GrouperGroup {
   /*
    * Initialize aspects of the group before creating it.
    *
-   * @param s     Session to create the group within.
-   * @param stem  Stem of the group to be created.
-   * @param desc  Descriptor of group to be created.
+   * @param   s           Session to create the group within.
+   * @param   stem        Stem of the group to be created.
+   * @param   descriptor  Descriptor of group to be created.
+   * @param   type        Type of group to be created.
+   * @return  A {@link GrouperGroup} object.
    */
-  private void _create(GrouperSession s, String stem, String desc) {
-  }
-
   private static GrouperGroup _create(
                                     GrouperSession s, String stem, 
                                     String descriptor, String type
@@ -367,6 +369,7 @@ public class GrouperGroup {
 
     g.attribute("stem", stem);
     g.attribute("descriptor", descriptor);
+    g.type = type;
 
     // Set some of the operational attributes
     /*
@@ -403,7 +406,7 @@ public class GrouperGroup {
     this.modifyTime     = null;
     this.modifySubject  = null;
     this.modifySource   = null;
-    this.type           = defaultType; // FIXME Can't I do better than this? 
+    this.type           = null; // FIXME Is this right?
   }
 
   /*

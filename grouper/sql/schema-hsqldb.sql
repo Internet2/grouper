@@ -1,12 +1,12 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.18 2004-11-20 02:47:05 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.19 2004-11-23 01:46:06 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
   groupKey        VARCHAR(255) NOT NULL,
   groupField      VARCHAR(255) NOT NULL,
-  groupFieldValue VARCHAR(255) NOT NULL,
+  groupFieldValue VARCHAR(255),
   CONSTRAINT      uniq_gk_gf UNIQUE (groupKey, groupField)
 );
 
