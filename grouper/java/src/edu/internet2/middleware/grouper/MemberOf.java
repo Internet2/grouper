@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.4 2005-03-17 05:32:37 blair Exp $
+ * @version $Id: MemberOf.java,v 1.5 2005-03-19 20:19:52 blair Exp $
  */
 public class MemberOf {
 
@@ -81,6 +81,7 @@ public class MemberOf {
    * @return  new {@link MemberOf} object.
    */
   public MemberOf(GrouperSession s) {
+    GrouperSession.validate(s);
     this.s = s;
   }
 
@@ -98,17 +99,15 @@ public class MemberOf {
   public List memberOf(GrouperList gl) {
     List vals = new ArrayList();
 
+    // Ensure that the grouper list is properly loaded
+    gl.load(this.s); // TODO Argh!
+
     // Add m to g's gl
     vals.add(gl);
 
     // Where is g a member?
-    GrouperMember gAsM  = GrouperMember.load(
-                            s, gl.group().id(), "group"
-                          );
-    if (gAsM == null) {
-      throw new RuntimeException("Error converting group to member");
-    }
-    List isMem = gAsM.listVals( gl.groupField() );
+    GrouperMember m = gl.group().toMember();
+    List isMem = m.listVals( gl.groupField() );
 
     // Add m to groups where g is a member
     vals.addAll( this._addWhereIsMem(gl, isMem) );
@@ -131,13 +130,12 @@ public class MemberOf {
    * Determine members of m that are affected by this list value change.
    */
   private List _addHasMembers(GrouperList gl, List isMem) {
+    GrouperList.validate(gl);
+
     List vals = new ArrayList();
 
-    // TODO Go through GG, not GB
-    GrouperGroup  mAsG  = GrouperBackend.groupLoadByID(
-                                  this.s, gl.member().subjectID()
-                                );
-    Iterator hasIter = mAsG.listVals( gl.groupField() ).iterator();
+    GrouperGroup g = gl.member().toGroup();
+    Iterator hasIter = g.listVals( gl.groupField() ).iterator();
     while (hasIter.hasNext()) {
       GrouperList glM = (GrouperList) hasIter.next();
       glM.load(this.s);
