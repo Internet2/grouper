@@ -297,6 +297,18 @@
     from GrouperTypeDef
   ]]></query>
 
+  <query name="MemberVia.by.key"><![CDATA[
+    from MemberVia where 
+      chainKey = ? 
+      order by chainIdx asc
+  ]]></query>
+
+  <query name="MemberVia.by.list.and.first"><![CDATA[
+    from MemberVia  where
+      chainIdx  = 0 and
+      listKey   = ?
+  ]]></query>
+
   <query name="SubjectImpl.by.subjectid.and.typeid"><![CDATA[
     from SubjectImpl     where
       subjectID     = ?  and

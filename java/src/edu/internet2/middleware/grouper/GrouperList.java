@@ -54,6 +54,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -64,14 +65,14 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.41 2005-03-16 22:54:08 blair Exp $
+ * @version $Id: GrouperList.java,v 1.42 2005-03-17 03:33:16 blair Exp $
  */
 public class GrouperList implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private List            elements;
+  private List            elements = new ArrayList();
   private GrouperGroup    g;
   private GrouperMember   m;
   private GrouperSession  s;
@@ -92,17 +93,24 @@ public class GrouperList implements Serializable {
    * Null-argument constructor for Hibernate.
    */
   public GrouperList() {
-    this._init();
+    // Nothing
   }
 
+  protected static void save(GrouperSession s, GrouperList gl) {
+    if (gl.getListKey() == null) {
+      gl.setListKey( new GrouperUUID().toString() );
+    }
+    try {
+      s.dbSess().session().save(gl);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error saving list value: " + e);
+    }
+  }
   /* (!javadoc)
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
   protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
-    this._init();
-    // Generate UUID
-    this.setListKey( new GrouperUUID().toString() );
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -120,9 +128,6 @@ public class GrouperList implements Serializable {
     this.via        = null;
   }
   protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
-    this._init();
-    // Generate UUID
-    this.setListKey( new GrouperUUID().toString() );
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -147,9 +152,6 @@ public class GrouperList implements Serializable {
               GrouperGroup via, List chain
             ) 
   {
-    this._init();
-    // Generate UUID
-    this.setListKey( new GrouperUUID().toString() );
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -176,7 +178,6 @@ public class GrouperList implements Serializable {
               String list, String viaKey
             ) 
   {
-    this._init();
     // FIXME Use this.load(s)?
     this.g          = GrouperGroup.loadByKey(s, groupKey);
     this.m          = GrouperBackend.member(s, memberKey);
@@ -219,10 +220,13 @@ public class GrouperList implements Serializable {
   }
 
   protected String key() {
+    if (this.getListKey() == null) {
+      this.setListKey( new GrouperUUID().toString());
+    }
     return this.getListKey();
   }
-  protected void listKey(String key) {
-    this.setListKey(key);
+  protected void chainKey(String key) {
+    this.setChainKey(key);
   }
 
 
@@ -309,26 +313,6 @@ public class GrouperList implements Serializable {
   public String toString() {
     // TODO Add more information.
     return new ToStringBuilder(this).toString();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.elements     = new ArrayList();
-    this.g            = null;
-    this.m            = null;
-    this.via          = null;
-    this.chainKey     = null;
-    this.groupKey     = null;
-    this.groupField   = null;
-    this.memberKey    = null;
-    this.viaKey       = null;
   }
 
 
