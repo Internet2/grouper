@@ -229,10 +229,10 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g.attribute("extension") );
     Assert.assertTrue( g.attribute("extension").value().equals(extn0) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
     s.stop();
   }
@@ -252,10 +252,10 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g.attribute("extension") );
     Assert.assertTrue( g.attribute("extension").value().equals(extn1) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
     s.stop();
   }
@@ -275,10 +275,10 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g.attribute("extension") );
     Assert.assertTrue( g.attribute("extension").value().equals(extn2) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
     s.stop();
   }
@@ -298,10 +298,10 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g.attribute("extension") );
     Assert.assertTrue( g.attribute("extension").value().equals(extn3) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
     s.stop();
   }
@@ -321,10 +321,10 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g.attribute("extension") );
     Assert.assertTrue( g.attribute("extension").value().equals(extn4) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
     s.stop();
   }

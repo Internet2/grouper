@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.115 2004-12-05 22:22:34 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.116 2004-12-05 23:31:41 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1017,14 +1017,18 @@ public class GrouperBackend {
   protected static GrouperMember member(String key) {
     Session       session = GrouperBackend._init();
     GrouperMember m       = new GrouperMember();
-    try {
-      session.load(m, key);
-    } catch (ObjectNotFoundException e) {
-      // No proper member to return
+    if (key != null) {
+      try {
+        session.load(m, key);
+      } catch (ObjectNotFoundException e) {
+        // No proper member to return
+        m = null;
+      } catch (HibernateException e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    } else {
       m = null;
-    } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
     }
     GrouperBackend._hibernateSessionClose(session);
     return m;
