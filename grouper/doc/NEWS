@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.26 2005-02-08 20:15:55 blair Exp $
+$Id: NEWS,v 1.27 2005-02-08 21:30:44 blair Exp $
 
 ---
 
@@ -49,27 +49,6 @@ $Id: NEWS,v 1.26 2005-02-08 20:15:55 blair Exp $
 * Contributed: Group Loader
 * Contributed: Member Loader
 * Contributed: Query Program
-
-
-### Postponed From This Release
-
-* Group renaming (#262)
-* `displayName' and `displayExtension' attribute support (#270)
-* Proper schema validation (#267)
-* Custom group types are not very well supported (#269)
-* Groups having multiple types (#271)
-* Changing group type(s) (#272)
-* Group Hierarchy depth restrictions
-* Group Hierarchy delimiter configuration
-* Personal Groups
-* Removal of _GrouperMember_ objects
-* Testing with non-HSQLDB databases
-* READ, VIEW, OPTIN, and OPTOUT access privilege checking
-* More advanced multiple criteria searching
-* _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
-* Grouper is lacking a good and coherent logging policy (#226)
-* Contributed: provisioning code
-
 
 ### Known Bugs
 
