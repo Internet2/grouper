@@ -1194,15 +1194,17 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testGroupDel0() {
-    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load(
+                     Grouper.config("member.system"), 
+                     Grouper.DEF_SUBJ_TYPE
+                   );
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
+    Assert.assertNotNull("sess !null", s);
     // Fetch g1
     GrouperGroup g1 = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g1);
+    Assert.assertNotNull("loaded g1 !null", g1);
     // Fail to delete g1 as it still has a member 
-    Assert.assertFalse(GrouperGroup.delete(s, g1) );
+    Assert.assertFalse("fail to delete g1", GrouperGroup.delete(s, g1) );
     // We're done
     s.stop();
   }
@@ -2138,9 +2140,7 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-  /*
-   * grouperzilla#286
-   */
+  // grouperzilla#286
   public void testLoop0Setup() {
     //
     //  g11: m0
@@ -2276,9 +2276,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( GrouperGroup.delete(s, g12) );
   }
 
-  /*
-   * grouperzilla#286
-   */
+  // grouperzilla#286
   public void testLoop1Setup() {
     //
     //  g11: 
