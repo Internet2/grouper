@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.52 2005-03-07 17:18:22 blair Exp $
+$Id: API,v 1.53 2005-03-07 19:30:41 blair Exp $
 
 ---
 
@@ -155,18 +155,18 @@ $Id: API,v 1.52 2005-03-07 17:18:22 blair Exp $
 
 #### Class Methods
 
-* GrouperMember       load(subjectID, subjectTypeID)
-* GrouperMember       load(subject)
-* GrouperMember       load(memberID)
+* GrouperMember       load(session, subjectID, subjectTypeID)
+* GrouperMember       load(session, subject)
+* GrouperMember       load(session, memberID)
 
 #### Instance Methods
 
-* List                listEffVals(session)
-* List                listEffVals(session)
-* List                listImmVals(session, listType)
-* List                listImmVals(session, listType)
-* List                listVals(session)
-* List                listVals(session, listType)
+* List                listEffVals()
+* List                listEffVals()
+* List                listImmVals(listType)
+* List                listImmVals(listType)
+* List                listVals()
+* List                listVals(listType)
 * String              memberID()
 * String              subjectID()
 * String              typeID()
@@ -287,6 +287,7 @@ $Id: API,v 1.52 2005-03-07 17:18:22 blair Exp $
 * SubjectTypeAdapter  getAdapter()
 * String              getId()
 * String              getName()
+
 
 
 

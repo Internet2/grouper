@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.44 2005-03-04 19:14:38 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.45 2005-03-07 19:30:41 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -156,7 +156,7 @@ public class GrouperNamingImpl implements GrouperNaming {
   public List has(GrouperSession s, GrouperGroup g) {
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
-    GrouperMember m     = GrouperMember.load( s.subject() );
+    GrouperMember m     = GrouperMember.load(s, s.subject());
     Iterator      iter  = privMap.keySet().iterator();
     while (iter.hasNext()) {
       String  priv  = (String) iter.next();
@@ -179,7 +179,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      GrouperMember m     = GrouperMember.load( s.subject() ); 
+      GrouperMember m     = GrouperMember.load(s, s.subject()); 
       privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
     } 
     // TODO Throw exception if invalid priv?
@@ -225,7 +225,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       if (this._isRoot(s)) {
         rv = true;
       } else {
-        GrouperMember m = GrouperMember.load( s.subject() );
+        GrouperMember m = GrouperMember.load(s, s.subject());
         rv = GrouperBackend.listVal(
                s, new GrouperList(g, m, (String) privMap.get(priv), null)
              );

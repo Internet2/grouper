@@ -62,17 +62,18 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.59 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.60 2005-03-07 19:30:41 blair Exp $
  */
 public class GrouperMember {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private String memberID;
-  private String memberKey;
-  private String subjectID;
-  private String subjectTypeID;
+  private String          memberID;
+  private String          memberKey;
+  private GrouperSession  s;
+  private String          subjectID;
+  private String          subjectTypeID;
 
 
   /*
@@ -89,8 +90,9 @@ public class GrouperMember {
   /* (!javadoc)
    * This should <b>only</b> be used within this class.
    */
-  private GrouperMember(String subjectID, String subjectTypeID) {
+  private GrouperMember(GrouperSession s, String subjectID, String subjectTypeID) {
     this._init();
+    this.s              = s;
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
   }
@@ -106,15 +108,15 @@ public class GrouperMember {
    * This method will create a new entry in the <i>grouper_member</i>
    * table if this subject does not already have an entry.
    * 
+   * @param   s     Load {@link GrouperMember} within this session.
    * @param   subj  A {@link Subject} object.
    * @return  A {@link GrouperMember} object.
    */
-  public static GrouperMember load(Subject subj) {
+  public static GrouperMember load(GrouperSession s, Subject subj) {
     // Attempt to load an already existing member
     GrouperMember member = GrouperBackend.member(
-                                                 subj.getId(),
-                                                 subj.getSubjectType().getId()
-                                                );
+                             subj.getId(), subj.getSubjectType().getId()
+                           );
     /*
      * We have an already existing member.  Return the un-Hibernated
      * object.
@@ -129,7 +131,7 @@ public class GrouperMember {
     //      `subjectID' and `subjectTypeID' passed as params to
     //      this method?
     member = new GrouperMember(
-                               subj.getId(),
+                               s, subj.getId(),
                                subj.getSubjectType().getId()
                               );
     // Give it a private UUID
@@ -150,11 +152,16 @@ public class GrouperMember {
    * This method will create a new entry in the <i>grouper_member</i>
    * table if this subject does not already have an entry.
    *
+   * @param   s             Load {@link GrouperMember} within this session.
    * @param   subjectID     Subject ID
    * @param   subjectTypeID Subject Type ID
    * @return  A {@link GrouperMember} object
    */
-  public static GrouperMember load(String subjectID, String subjectTypeID) {
+  public static GrouperMember load(
+                                GrouperSession s, String subjectID, 
+                                String subjectTypeID
+                              ) 
+  {
     Subject subj = GrouperSubject.load(subjectID, subjectTypeID);
 
     /*
@@ -167,7 +174,7 @@ public class GrouperMember {
     //      and then fall back to subject?
     if (subj == null)  { return null; }
 
-    return GrouperMember.load(subj);
+    return GrouperMember.load(s, subj);
   }
 
   /**
@@ -176,11 +183,13 @@ public class GrouperMember {
    * This method will throw a runtime exception if the specified 
    * <i>memberID</i> does not exist.
    *
+   * @param   s         Load {@link GrouperMember} within this session.
    * @param   memberID  ID of member to retrieve.
    * @return  A {@link GrouperMember} object
    */
-  public static GrouperMember load(String memberID) {
+  public static GrouperMember load(GrouperSession s, String memberID) {
     // Attempt to load an already existing member
+    // TODO Why am I not using the constructor?
     GrouperMember member = GrouperBackend.memberByID(memberID);
     if (member == null) {
       throw new RuntimeException(
@@ -188,6 +197,7 @@ public class GrouperMember {
                                  " does not exist!"
                                 );
     }
+    member.s = s;
     return member;
   }
 
@@ -199,68 +209,62 @@ public class GrouperMember {
   /**
    * Retrieve group memberships of the default list type for this member.
    * <p />
-   * @param   s       Retrieve values using this session.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listVals(GrouperSession s) {
-    return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
+  public List listVals() {
+    return GrouperBackend.listVals(this.s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Retrieve group memberships of the specified type for this member.
    * <p />
-   * @param   s       Retrieve values using this session.
    * @param   list    Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listVals(GrouperSession s, String list) {
-    return GrouperBackend.listVals(s, this, list);
+  public List listVals(String list) {
+    return GrouperBackend.listVals(this.s, this, list);
   }
 
   /**
    * Retrieve effective group memberships of the default list type for
    * this member.
    * <p />
-   * @param   s       Retrieve values using this session.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listEffVals(GrouperSession s) {
-    return GrouperBackend.listEffVals(s, this, Grouper.DEF_LIST_TYPE);
+  public List listEffVals() {
+    return GrouperBackend.listEffVals(this.s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Retrieve effective group memberships of the specified type for
    * this member.
    * <p />
-   * @param   s       Retrieve values using this session.
    * @param   list    Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listEffVals(GrouperSession s, String list) {
-    return GrouperBackend.listEffVals(s, this, list);
+  public List listEffVals(String list) {
+    return GrouperBackend.listEffVals(this.s, this, list);
   }
 
   /**
    * Retrieve immediate group memberships of the default list type for
    * this member.
    * <p />
-   * @param   s       Retrieve values using this session.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listImmVals(GrouperSession s) {
-    return GrouperBackend.listImmVals(s, this, Grouper.DEF_LIST_TYPE);
+  public List listImmVals() {
+    return GrouperBackend.listImmVals(this.s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Retrieve immediate group memberships of the specified type for
    * this member.
    * <p />
-   * @param   s       Retrieve values using this session.
    * @param   list    Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listImmVals(GrouperSession s, String list) {
-    return GrouperBackend.listImmVals(s, this, list);
+  public List listImmVals(String list) {
+    return GrouperBackend.listImmVals(this.s, this, list);
   }
 
   /**
@@ -330,6 +334,7 @@ public class GrouperMember {
   private void _init() {
     this.memberID       = null;
     this.memberKey      = null;
+    this.s              = null;
     this.subjectID      = null;
     this.subjectTypeID  = null;
   }

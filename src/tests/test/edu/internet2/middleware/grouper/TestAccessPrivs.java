@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.28 2005-03-07 17:18:22 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.29 2005-03-07 19:30:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -118,10 +118,10 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertTrue( g2.attribute("extension").value().equals(Util.extn2) );
     // Fetch the members
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember   m0      = GrouperMember.load(s, Util.m0i, Util.m0t);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember   m1      = GrouperMember.load(s, Util.m1i, Util.m1t);
     Assert.assertNotNull(m1);
     // We're done
     s.stop();
@@ -136,7 +136,7 @@ public class TestAccessPrivs extends TestCase {
     // Fetch g0
     GrouperGroup  g0 = GrouperGroup.load(s, Util.stem0, Util.extn0);
     // Fetch Member 0
-    GrouperMember m0   = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m0   = GrouperMember.load(s, Util.m0i, Util.m0t);
 
     // Assert what privs m0 has on g0
     List privs0 = Grouper.access().has(s, g0, m0);
@@ -329,10 +329,10 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(g2);
     // Fetch the members
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember   m0      = GrouperMember.load(s, Util.m0i, Util.m0t);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember   m1      = GrouperMember.load(s, Util.m1i, Util.m1t);
     Assert.assertNotNull(m1);
 
     // What privs does the current subject have on g0?
@@ -402,7 +402,7 @@ public class TestAccessPrivs extends TestCase {
 
     GrouperGroup g = GrouperGroup.create(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(s, Util.m1i, Util.m1t);
     Assert.assertNotNull(m);
     Assert.assertTrue( g.listAddVal(m) );
     s.stop();
@@ -420,7 +420,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g1 = GrouperGroup.load(s, Util.stem0, Util.extn0);
     Assert.assertNotNull(g1);
     // Fetch m
-    GrouperMember m = GrouperMember.load(g1.id(), "group");
+    GrouperMember m = GrouperMember.load(s, g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
     Assert.assertFalse( g.listAddVal(m) );
@@ -470,7 +470,7 @@ public class TestAccessPrivs extends TestCase {
     // Fetch g1 as m1
     GrouperGroup g1 = GrouperGroup.load(s, Util.stem1, Util.extn1);
     Assert.assertNotNull(g1);
-    GrouperMember m = GrouperMember.load( g1.id(), "group");
+    GrouperMember m = GrouperMember.load(s, g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
     Assert.assertFalse( g.listDelVal(m) );
@@ -502,7 +502,7 @@ public class TestAccessPrivs extends TestCase {
 
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(s, Util.m0i, Util.m0t);
     Assert.assertNotNull(m);
     Assert.assertTrue( Grouper.access().grant(s, g, m, Grouper.PRIV_UPDATE) );
     s.stop();
@@ -520,7 +520,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g1 = GrouperGroup.load(s, Util.stem0, Util.extn0);
     Assert.assertNotNull(g1);
     // Fetch m
-    GrouperMember m = GrouperMember.load(g1.id(), "group");
+    GrouperMember m = GrouperMember.load(s, g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
     Assert.assertTrue( g.listAddVal(m) );
@@ -551,7 +551,7 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(s);
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(s, Util.m0i, Util.m0t);
     Assert.assertNotNull(m);
     Assert.assertTrue( Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN) );
     Assert.assertTrue( Grouper.access().has(s, g, m, Grouper.PRIV_ADMIN) );
@@ -598,7 +598,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperGroup g1 = GrouperGroup.load(s, Util.stem0, Util.extn0);
     Assert.assertNotNull(g1);
     // Fetch m
-    GrouperMember m = GrouperMember.load(g1.id(), "group");
+    GrouperMember m = GrouperMember.load(s, g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
     Assert.assertTrue( g.listDelVal(m) );
@@ -615,7 +615,7 @@ public class TestAccessPrivs extends TestCase {
 
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(s, Util.m0i, Util.m0t);
     Assert.assertNotNull(m);
     Assert.assertTrue( Grouper.access().revoke(s, g, m, Grouper.PRIV_ADMIN) );
     s.stop();
@@ -630,7 +630,7 @@ public class TestAccessPrivs extends TestCase {
 
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m = GrouperMember.load(s, Util.m0i, Util.m0t);
     Assert.assertNotNull(m);
     Assert.assertTrue( Grouper.access().revoke(s, g, m, Grouper.PRIV_UPDATE) );
     s.stop();
@@ -648,7 +648,7 @@ public class TestAccessPrivs extends TestCase {
     // Fetch g1 as m1
     GrouperGroup g1 = GrouperGroup.load(s, Util.stem1, Util.extn1);
     Assert.assertNotNull(g1);
-    GrouperMember m = GrouperMember.load( g1.id(), "group");
+    GrouperMember m = GrouperMember.load(s, g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
     Assert.assertFalse( g.listDelVal(m) );
@@ -665,7 +665,7 @@ public class TestAccessPrivs extends TestCase {
 
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
-    GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.load(s, Util.m1i, Util.m1t);
     Assert.assertNotNull(m);
     Assert.assertTrue( g.listDelVal(m) );
     Assert.assertTrue( GrouperGroup.delete(s, g) );

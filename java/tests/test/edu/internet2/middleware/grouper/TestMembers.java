@@ -78,9 +78,12 @@ public class TestMembers extends TestCase {
 
   // Initialize a valid subject as a member object
   public void testCreateMemberFromValidSubject() {
+    Subject        subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+
     String        id    = "blair";
     String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.load(id, type);
+    GrouperMember m     = GrouperMember.load(s, id, type);
     Assert.assertNotNull(m);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
@@ -89,13 +92,18 @@ public class TestMembers extends TestCase {
     Assert.assertTrue( m.subjectID().equals( id) );
     Assert.assertNotNull( m.typeID() );
     Assert.assertTrue( m.typeID().equals( type ) );
+
+    s.stop();
   }
 
   // Fetch an already existing member object
   public void testFetchMemberFromValidSubject() {
+    Subject        subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+
     String        id    = "blair";
     String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.load(id, type);
+    GrouperMember m     = GrouperMember.load(s, id, type);
     Assert.assertNotNull(m);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
@@ -104,14 +112,21 @@ public class TestMembers extends TestCase {
     Assert.assertTrue( m.subjectID().equals( id) );
     Assert.assertNotNull( m.typeID() );
     Assert.assertTrue( m.typeID().equals( type ) );
+
+    s.stop();
   }
 
   // Initialize an invalid subject as a member object
   public void testCreateMemberFromInvalidSubject() {
+    Subject        subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+
     String        id    = "invalid id";
     String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.load(id, type);
+    GrouperMember m     = GrouperMember.load(s, id, type);
     Assert.assertNull(m);
+
+    s.stop();
   }
 
   // TODO Valid member, invalid subject

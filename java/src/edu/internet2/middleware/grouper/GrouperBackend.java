@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.156 2005-03-07 17:18:22 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.157 2005-03-07 19:30:41 blair Exp $
  */
 public class GrouperBackend {
 
@@ -168,7 +168,7 @@ public class GrouperBackend {
      *      with other custom fields...
      */
     if (_validateGroupDel(s, g)) {
-      Session session = GrouperBackend._init();
+      Session session = s.dbSess().session();
       try {
         Transaction t = session.beginTransaction();
         // Delete attributes
@@ -193,7 +193,6 @@ public class GrouperBackend {
         //      above.
         throw new RuntimeException(e);
       }
-      GrouperBackend._hibernateSessionClose(session);
     }
     return rv;
   }
@@ -455,7 +454,7 @@ public class GrouperBackend {
     }
 
     // Find where `g' is a member
-    GrouperMember gAsM = GrouperMember.load(g.id(), "group");
+    GrouperMember gAsM = GrouperMember.load(s, g.id(), "group");
     memOf.addAll( listVals(s, gAsM, field) );
     // Add the immediate membership
     mships.add( new GrouperList(g, m, field, null) );
@@ -569,7 +568,7 @@ public class GrouperBackend {
     if (rs != null) {
       // Now grant privileges to the group creator
       Grouper.log().backend("Converting subject " + s);
-      GrouperMember m = GrouperMember.load( s.subject() );
+      GrouperMember m = GrouperMember.load(s, s.subject() );
       if (m != null) { // FIXME Bah
         Grouper.log().backend("Converted to member " + m);
         if (g.type().equals(Grouper.NS_TYPE)) {
@@ -674,14 +673,16 @@ public class GrouperBackend {
   {
     boolean rv = false;
     // Convert the group to member to see if it has any mships
-    GrouperMember asMem = GrouperMember.load(g.id(), "group");
-    if ((g.listVals().size() != 0) || (asMem.listVals(s).size() != 0)) {
-      if (g.listVals().size() != 0) {
+    GrouperMember asMem = GrouperMember.load(s, g.id(), "group");
+    List valsG = listVals(s, g, Grouper.DEF_LIST_TYPE);
+    List valsM = listVals(s, asMem, Grouper.DEF_LIST_TYPE);
+    if ( (valsG.size() != 0) || (valsM.size() != 0) ) {
+      if (valsG.size() != 0) {
         Grouper.log().event(
           "ERROR: Unable to delete group as it still has members"
         );
       }
-      if (asMem.listVals(s).size() != 0) {
+      if (valsM.size() != 0) {
         Grouper.log().event(
           "ERROR: Unable to delete group as it is a member of other groups"
         );
@@ -927,7 +928,7 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, String list) {
-    Session session = GrouperBackend._init();
+    Session session = s.dbSess().session();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -939,7 +940,6 @@ public class GrouperBackend {
                                       list, Grouper.MEM_ALL
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1003,7 +1003,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, GrouperMember m, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1014,11 +1013,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, null, m, 
+                                      s.dbSess().session(), null, m, 
                                       list, Grouper.MEM_ALL
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
