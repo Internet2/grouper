@@ -64,7 +64,7 @@ import  org.apache.log4j.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.57 2004-12-04 03:14:35 blair Exp $
+ * @version $Id: Grouper.java,v 1.58 2004-12-05 04:08:18 blair Exp $
  */
 public class Grouper {
 
@@ -79,6 +79,8 @@ public class Grouper {
   public static final String MEM_IMM        = "immediate";
   public static final String NS_ROOT        = "";
   public static final String NS_TYPE        = "naming";
+  public static final String PRIV_CREATE    = "CREATE";
+  public static final String PRIV_STEM      = "STEM";
 
 
   /*

@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.112 2004-12-05 01:01:19 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.113 2004-12-05 04:08:18 blair Exp $
  */
 public class GrouperBackend {
 
@@ -362,8 +362,8 @@ public class GrouperBackend {
       Grouper.access().revoke(s, g, "UPDATE");
       Grouper.access().revoke(s, g, "VIEW");
 
-      Grouper.naming().revoke(s, g, "CREATE");
-      Grouper.naming().revoke(s, g, "STEM");
+      Grouper.naming().revoke(s, g, Grouper.PRIV_CREATE);
+      Grouper.naming().revoke(s, g, Grouper.PRIV_STEM);
 
       /*
        * FIXME Remove effected memberships created by this group.
