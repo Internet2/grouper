@@ -97,15 +97,15 @@ public class TestGroups extends TestCase {
     s.start(subj);
 
     // Confirm that groups don't exist
-    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    GrouperGroup    g0  = GrouperGroup.lookup(s, stem0, extn0);
     Assert.assertNull(g0);
-    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    GrouperGroup    g1  = GrouperGroup.lookup(s, stem1, extn1);
     Assert.assertNull(g1);
-    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    GrouperGroup    g2  = GrouperGroup.lookup(s, stem2, extn2);
     Assert.assertNull(g2);
-    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
+    GrouperGroup    g3  = GrouperGroup.lookup(s, stem3, extn3);
     Assert.assertNull(g3);
-    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
+    GrouperGroup    g4  = GrouperGroup.lookup(s, stem4, extn4);
     Assert.assertNull(g4);
 
     // We're done
@@ -174,7 +174,7 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch g0
-    GrouperGroup g = GrouperGroup.load(s, stem0, extn0);
+    GrouperGroup g = GrouperGroup.lookup(s, stem0, extn0);
     Assert.assertNotNull(g);
     Assert.assertTrue( klass.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
@@ -197,7 +197,7 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch g1
-    GrouperGroup g = GrouperGroup.load(s, stem1, extn1);
+    GrouperGroup g = GrouperGroup.lookup(s, stem1, extn1);
     Assert.assertNotNull(g);
     Assert.assertTrue( klass.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
@@ -220,7 +220,7 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch g2
-    GrouperGroup g = GrouperGroup.load(s, stem2, extn2);
+    GrouperGroup g = GrouperGroup.lookup(s, stem2, extn2);
     Assert.assertNotNull(g);
     Assert.assertTrue( klass.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
@@ -243,7 +243,7 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch g3
-    GrouperGroup g = GrouperGroup.load(s, stem3, extn3);
+    GrouperGroup g = GrouperGroup.lookup(s, stem3, extn3);
     Assert.assertNotNull(g);
     Assert.assertTrue( klass.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
@@ -266,7 +266,7 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch g4
-    GrouperGroup g = GrouperGroup.load(s, stem4, extn4);
+    GrouperGroup g = GrouperGroup.lookup(s, stem4, extn4);
     Assert.assertNotNull(g);
     Assert.assertTrue( klass.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
@@ -291,7 +291,7 @@ public class TestGroups extends TestCase {
     s.start(subj);
 
     // Delete g4
-    GrouperGroup  g4 = GrouperGroup.load(s, stem4, extn4);
+    GrouperGroup  g4 = GrouperGroup.lookup(s, stem4, extn4);
     Assert.assertNotNull(g4);
     Assert.assertTrue( GrouperGroup.delete(s, g4) );
 
@@ -307,7 +307,7 @@ public class TestGroups extends TestCase {
 
     // Fetch the groups
     // g0
-    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    GrouperGroup    g0  = GrouperGroup.lookup(s, stem0, extn0);
     Assert.assertNotNull(g0);
     Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
     Assert.assertNotNull( g0.id() );
@@ -317,7 +317,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g0.attribute("extension") );
     Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
     // g1
-    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    GrouperGroup    g1  = GrouperGroup.lookup(s, stem1, extn1);
     Assert.assertNotNull(g1);
     Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
     Assert.assertNotNull( g1.id() );
@@ -327,7 +327,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g1.attribute("extension") );
     Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
     // g2
-    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    GrouperGroup    g2  = GrouperGroup.lookup(s, stem2, extn2);
     Assert.assertNotNull(g2);
     Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
     Assert.assertNotNull( g2.id() );
@@ -337,7 +337,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g2.attribute("extension") );
     Assert.assertTrue( g2.attribute("extension").value().equals(extn2) );
     // g3
-    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
+    GrouperGroup    g3  = GrouperGroup.lookup(s, stem3, extn3);
     Assert.assertNotNull(g3);
     Assert.assertTrue( klass.equals( g3.getClass().getName() ) );
     Assert.assertNotNull( g3.id() );
@@ -347,7 +347,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull( g3.attribute("extension") );
     Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
     // g4
-    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
+    GrouperGroup    g4  = GrouperGroup.lookup(s, stem4, extn4);
     Assert.assertNull(g4);
 
     // We're done

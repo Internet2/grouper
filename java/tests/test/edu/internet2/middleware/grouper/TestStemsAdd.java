@@ -95,13 +95,13 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Confirm that namespaces don't exist
-    GrouperGroup    ns0   = GrouperGroup.load(s, stem0, extn0, naming);
+    GrouperGroup    ns0   = GrouperGroup.lookup(s, stem0, extn0, naming);
     Assert.assertNull(ns0);
-    GrouperGroup    ns00  = GrouperGroup.load(s, stem00, extn00, naming);
+    GrouperGroup    ns00  = GrouperGroup.lookup(s, stem00, extn00, naming);
     Assert.assertNull(ns00);
-    GrouperGroup    ns1   = GrouperGroup.load(s, stem1, extn1, naming);
+    GrouperGroup    ns1   = GrouperGroup.lookup(s, stem1, extn1, naming);
     Assert.assertNull(ns1);
-    GrouperGroup    ns2   = GrouperGroup.load(s, stem2, extn2, naming);
+    GrouperGroup    ns2   = GrouperGroup.lookup(s, stem2, extn2, naming);
     Assert.assertNull(ns2);
     // We're done
     s.stop();
@@ -166,7 +166,7 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns0
-    GrouperGroup ns = GrouperGroup.load(s, stem0, extn0, naming);
+    GrouperGroup ns = GrouperGroup.lookup(s, stem0, extn0, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
@@ -184,7 +184,7 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns00
-    GrouperGroup ns = GrouperGroup.load(s, stem00, extn00, naming);
+    GrouperGroup ns = GrouperGroup.lookup(s, stem00, extn00, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
@@ -202,7 +202,7 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns1
-    GrouperGroup ns = GrouperGroup.load(s, stem1, extn1, naming);
+    GrouperGroup ns = GrouperGroup.lookup(s, stem1, extn1, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
@@ -220,7 +220,7 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch ns2
-    GrouperGroup ns = GrouperGroup.load(s, stem2, extn2, naming);
+    GrouperGroup ns = GrouperGroup.lookup(s, stem2, extn2, naming);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );

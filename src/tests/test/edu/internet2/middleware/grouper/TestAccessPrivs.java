@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.14 2004-12-02 18:26:56 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.15 2004-12-03 03:46:40 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -102,7 +102,7 @@ public class TestAccessPrivs extends TestCase {
     s.start(subj);
     // Fetch the groups
     // g0
-    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    GrouperGroup    g0  = GrouperGroup.lookup(s, stem0, extn0);
     Assert.assertNotNull(g0);
     Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
     Assert.assertNotNull( g0.type() );
@@ -111,7 +111,7 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull( g0.attribute("extension") );
     Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
     // g1
-    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    GrouperGroup    g1  = GrouperGroup.lookup(s, stem1, extn1);
     Assert.assertNotNull(g1);
     Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
     Assert.assertNotNull( g1.type() );
@@ -120,7 +120,7 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull( g1.attribute("extension") );
     Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
     // g2
-    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    GrouperGroup    g2  = GrouperGroup.lookup(s, stem2, extn2);
     Assert.assertNotNull(g2);
     Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
     Assert.assertNotNull( g2.type() );
@@ -146,7 +146,7 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch g0
-    GrouperGroup  g0 = GrouperGroup.load(s, stem0, extn0);
+    GrouperGroup  g0 = GrouperGroup.lookup(s, stem0, extn0);
     // Fetch Member 0
     GrouperMember m0   = GrouperMember.lookup(m0id, m0type);
 
@@ -331,11 +331,11 @@ public class TestAccessPrivs extends TestCase {
     s.start(subj);
     // Fetch the groups
     // g0
-    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
+    GrouperGroup    g0  = GrouperGroup.lookup(s, stem0, extn0);
     // g1
-    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
+    GrouperGroup    g1  = GrouperGroup.lookup(s, stem1, extn1);
     // g2
-    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
+    GrouperGroup    g2  = GrouperGroup.lookup(s, stem2, extn2);
     // Fetch the members
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup(m0id, m0type);
