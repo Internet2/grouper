@@ -16,11 +16,11 @@ import  edu.internet2.middleware.subject.*;
  * Implementation of the I2MI {{@link Subject}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.1 2004-11-02 19:40:22 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.2 2004-11-12 17:36:03 blair Exp $
  */
-public class GrouperSubjectImpl implements Subject {
+public class SubjectImpl implements Subject {
 
-  public GrouperSubjectImpl() {
+  public SubjectImpl() {
     super();
   }
 
