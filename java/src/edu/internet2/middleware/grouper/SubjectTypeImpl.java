@@ -18,7 +18,7 @@ import  java.lang.reflect.*;
  * Implementation of the I2MI {{@link SubjectType}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.3 2004-11-12 16:38:29 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.4 2004-11-12 17:36:33 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -55,10 +55,7 @@ public class SubjectTypeImpl implements SubjectType {
         Class[] paramsClass = new Class[] { };
         Constructor con     = classType.getDeclaredConstructor(paramsClass);
         Object[] params     = new Object[] { };
-        //return (SubjectTypeAdapter) con.newInstance(params);
-        SubjectTypeAdapter sta = (SubjectTypeAdapter) con.newInstance(params);
-        System.err.println("sta: " + sta.getClass().getName());
-        return sta;
+        return (SubjectTypeAdapter) con.newInstance(params);
       } catch (Exception e) {
         // TODO Well, this is blatantly the wrong thing to do
         System.err.println(e);
