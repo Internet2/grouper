@@ -141,6 +141,24 @@
   />
 
   <!-- NOTE These are not optimal settings -->
+  <cache name="edu.internet2.middleware.group.ViaElement"
+    maxElementsInMemory="25000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- NOTE These are not optimal settings -->
+  <cache name="edu.internet2.middleware.group.ViaPath"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- NOTE These are not optimal settings -->
   <cache name="net.sf.hibernate.cache.QueryCache"
     maxElementsInMemory="10000"
     eternal="false"
