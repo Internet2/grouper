@@ -1,4 +1,4 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
 
@@ -6,7 +6,7 @@ import  java.io.Serializable;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.3 2004-08-03 04:36:11 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.4 2004-08-06 15:19:51 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 

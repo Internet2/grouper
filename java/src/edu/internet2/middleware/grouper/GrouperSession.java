@@ -1,6 +1,6 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.directory.grouper.*;
+import  edu.internet2.middleware.grouper.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
 import  java.util.*;
@@ -11,7 +11,7 @@ import  net.sf.hibernate.cfg.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.32 2004-08-03 04:28:39 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.33 2004-08-06 15:19:51 blair Exp $
  */
 public class GrouperSession {
 
@@ -393,7 +393,7 @@ public class GrouperSession {
     try {
       int cnt = ( (Integer) this.session.iterate(
                   "SELECT count(*) FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
                   "WHERE startTime > " + nowTime
                   ).next() ).intValue();
       if (cnt > 0) {
@@ -401,7 +401,7 @@ public class GrouperSession {
         try {
           this.session.delete(
                   "FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
                   "WHERE startTime > " + nowTime
                   );
         } catch (Exception e) {
@@ -416,7 +416,7 @@ public class GrouperSession {
     try {
       int cnt = ( (Integer) this.session.iterate(
                   "SELECT count(*) FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
                   "WHERE " + tooOld + " > startTime"
                   ).next() ).intValue();
       if (cnt > 0) {
@@ -424,7 +424,7 @@ public class GrouperSession {
         try {
           this.session.delete(
                   "FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.directory.grouper.GrouperSession " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
                   "WHERE " + tooOld + " > startTime"
                   );
         } catch (Exception e) {

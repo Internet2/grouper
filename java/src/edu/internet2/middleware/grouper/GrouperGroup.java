@@ -1,4 +1,4 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
 import  java.sql.*;
 import  java.util.*;
@@ -7,7 +7,7 @@ import  java.util.*;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.22 2004-08-03 01:31:21 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.23 2004-08-06 15:19:51 blair Exp $
  */
 public class GrouperGroup {
 

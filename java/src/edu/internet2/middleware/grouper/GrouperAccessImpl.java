@@ -1,13 +1,13 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.directory.grouper.*;
+import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 
 /** 
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.9 2004-08-03 01:31:21 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.10 2004-08-06 15:19:51 blair Exp $
  */
 public class InternalGrouperAccess implements GrouperAccess {
 

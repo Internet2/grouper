@@ -1,6 +1,6 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.directory.grouper.*;
+import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 
 /** 
@@ -8,7 +8,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.19 2004-08-03 01:31:21 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.20 2004-08-06 15:19:51 blair Exp $
  */
 public class GrouperMember {
 

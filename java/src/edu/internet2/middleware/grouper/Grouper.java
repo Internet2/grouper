@@ -1,6 +1,6 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.directory.grouper.*;
+import  edu.internet2.middleware.grouper.*;
 import  java.io.*;
 import  java.sql.*;
 import  java.util.*;
@@ -10,7 +10,7 @@ import  net.sf.hibernate.*;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.22 2004-08-03 04:26:25 blair Exp $
+ * @version $Id: Grouper.java,v 1.23 2004-08-06 15:19:51 blair Exp $
  */
 public class Grouper {
 
@@ -107,7 +107,7 @@ public class Grouper {
       Session session = this.intSess.session();
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_FIELDS " +
-        "IN CLASS edu.internet2.middleware.directory.grouper.GrouperField"
+        "IN CLASS edu.internet2.middleware.grouper.GrouperField"
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
         GrouperField field = (GrouperField) iter.next();
@@ -128,7 +128,7 @@ public class Grouper {
       Session session = this.intSess.session();
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPEDEFS " +
-        "IN CLASS edu.internet2.middleware.directory.grouper.GrouperTypeDef"
+        "IN CLASS edu.internet2.middleware.grouper.GrouperTypeDef"
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
         GrouperTypeDef typeDef = (GrouperTypeDef) iter.next();
@@ -148,7 +148,7 @@ public class Grouper {
       Session session = this.intSess.session();
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPES " +
-        "IN CLASS edu.internet2.middleware.directory.grouper.GrouperType"
+        "IN CLASS edu.internet2.middleware.grouper.GrouperType"
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
         GrouperType type = (GrouperType) iter.next();

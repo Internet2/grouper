@@ -1,4 +1,4 @@
-package edu.internet2.middleware.directory.grouper;
+package edu.internet2.middleware.grouper;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import java.util.*;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.7 2004-08-03 01:31:21 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.8 2004-08-06 15:19:51 blair Exp $
  */
 public interface GrouperNaming {
 

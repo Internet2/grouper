@@ -42,7 +42,7 @@
   -->
 
   <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.directory.grouper.GrouperField"
+  <cache name="edu.internet2.middleware.grouper.GrouperField"
     maxElementsInMemory="100"
     eternal="true"
     timeToIdleSeconds="300"
@@ -51,7 +51,7 @@
   />
 
   <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.directory.grouper.GrouperType"
+  <cache name="edu.internet2.middleware.grouper.GrouperType"
     maxElementsInMemory="100"
     eternal="true"
     timeToIdleSeconds="300"
@@ -60,7 +60,7 @@
   />
 
   <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.directory.grouper.GrouperTypeDef"
+  <cache name="edu.internet2.middleware.grouper.GrouperTypeDef"
     maxElementsInMemory="100"
     eternal="true"
     timeToIdleSeconds="300"
