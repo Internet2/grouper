@@ -58,9 +58,9 @@ import  junit.framework.*;
 
 public class TestNamespaces extends TestCase {
 
-  private String stem0  = null;
-  private String stem1  = null;
-  private String stem2  = null;
+  private String stem0  = "";
+  private String stem1  = "";
+  private String stem2  = "";
   private String stem00 = "stem.0";
   private String extn0  = "stem.0";
   private String extn1  = "stem.1";
