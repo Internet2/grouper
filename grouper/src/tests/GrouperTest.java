@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.55 2004-10-11 17:44:37 blair Exp $
+ * $Id: GrouperTest.java,v 1.56 2004-10-11 17:52:23 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -59,13 +59,6 @@ public class GrouperTest extends TestCase {
 
     Assert.assertNotNull(G);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
-    G.destroy();
-  }
-
-  // Initialize Grouper environment
-  public void testGrouperInitialize() {
-    G = new Grouper();
-    G.destroy();
   }
 
   // Get a runtime configuration setting 
@@ -74,7 +67,6 @@ public class GrouperTest extends TestCase {
     
     String expVal = "GrouperSystem";
     Assert.assertTrue( expVal.equals( Grouper.config("member.system") ) );
-    G.destroy();
   }
 
 
@@ -134,7 +126,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( field.equals( fields.get(9).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(9).getClass().getName() ) );
 
-    G.destroy();
   }
 
   //
@@ -164,7 +155,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( type.equals( types.get(0).toString() ) );
     Assert.assertTrue( expKlass.equals( types.get(0).getClass().getName() ) );
 
-    G.destroy();
   }
 
   //
@@ -222,7 +212,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(9).getClass().getName() ) );
 
-    G.destroy();
   }
  
   //
@@ -269,7 +258,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
     Assert.assertTrue( id.equals( m.memberID() ) );
     Assert.assertTrue( type.equals( m.memberType() ) );
-    G.destroy();
   }
 
   public void testGrouperSubjectClassLookup() {
@@ -282,7 +270,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
     Assert.assertTrue( id.equals( m.memberID() ) );
     Assert.assertTrue( type.equals( m.memberType() ) );
-    G.destroy();
   }
 
   //
@@ -297,7 +284,6 @@ public class GrouperTest extends TestCase {
     String klass = "edu.internet2.middleware.grouper.GrouperSession";
     Assert.assertNotNull(s);
     Assert.assertTrue( klass.equals( s.getClass().getName() ) );
-    G.destroy();
   }
 
   // Start a session as SubjectID "member.system"
@@ -310,7 +296,6 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
-    G.destroy();
   }
   
   // Start and end a session as SubjectID "member.system"
@@ -328,7 +313,6 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending session");
     }
-    G.destroy();
   }
   
   // Attempt to end a session that hasn't been started 
@@ -341,7 +325,6 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending unstarted session");
     }
-    G.destroy();
   }
 
   // Verify the subject of the current session 
@@ -359,7 +342,6 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(m);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
 
-    G.destroy();
   }
 
   //
@@ -468,7 +450,6 @@ public class GrouperTest extends TestCase {
 
     // We're done
     s.stop();
-    G.destroy();
   }
 
   // Create a group
@@ -486,7 +467,6 @@ public class GrouperTest extends TestCase {
    
     // We're done
     s.stop();
-    G.destroy();
   }
 
   // Fetch a group
@@ -511,7 +491,6 @@ public class GrouperTest extends TestCase {
    
     // We're done
     s.stop();
-    G.destroy();
   }
 
 /*
@@ -544,7 +523,6 @@ public class GrouperTest extends TestCase {
 
     // We're done
     s.stop();
-    G.destroy();
   }
 */
 
