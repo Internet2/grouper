@@ -1,0 +1,14 @@
+stem,add,Grouper.NS_ROOT,alt
+stem,add,alt,test
+group,add,alt:test,group
+group,add,alt:test,hello-world
+stem,add,Grouper.NS_ROOT,comp
+stem,add,comp,lang
+stem,add,comp:lang,java
+stem,add,comp:lang,perl
+group,add,comp:lang,awk
+group,add,comp:lang,ruby
+group,add,comp:lang,java
+group,add,comp:lang:java,announce
+group,add,comp:lang,perl
+group,add,comp:lang:perl,misc
