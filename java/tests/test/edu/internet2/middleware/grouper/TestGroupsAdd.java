@@ -58,18 +58,19 @@ import  junit.framework.*;
 
 public class TestGroups extends TestCase {
 
-  private String stem0  = "stem.0";
-  private String stem1  = "stem.1";
-  private String stem2  = "stem.2";
-  private String stem3  = "stem.3";
-  private String stem4  = "stem.4";
-  private String extn0  = "extn.0";
-  private String extn1  = "extn.1";
-  private String extn2  = "extn.2";
-  private String extn3  = "extn.3";
-  private String extn4  = "extn.4";
+  private String  klass   = "edu.internet2.middleware.grouper.GrouperGroup";
+
+  private String  stem0   = "stem.0";
+  private String  extn0   = "extn.0";
+  private String  stem1   = "stem.1";
+  private String  extn1   = "extn.1";
+  private String  stem2   = "stem.2";
+  private String  extn2   = "extn.2";
+  private String  stem3   = "stem.3";
+  private String  extn3   = "extn.3";
+  private String  stem4   = "stem.4";
+  private String  extn4   = "extn.4";
   
-  private String klass  = "edu.internet2.middleware.grouper.GrouperGroup";
 
   public TestGroups(String name) {
     super(name);
@@ -97,15 +98,15 @@ public class TestGroups extends TestCase {
 
     // Confirm that groups don't exist
     GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
-    // FIXME Assert.assertFalse( g0.exists() );
+    Assert.assertNull(g0);
     GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
-    //Assert.assertFalse( g1.exists() );
+    Assert.assertNull(g1);
     GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
-    //Assert.assertFalse( g2.exists() );
+    Assert.assertNull(g2);
     GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
-    //Assert.assertFalse( g3.exists() );
+    Assert.assertNull(g3);
     GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
-    //Assert.assertFalse( g4.exists() );
+    Assert.assertNull(g4);
 
     // We're done
     s.stop();
@@ -297,7 +298,7 @@ public class TestGroups extends TestCase {
     Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
     // g4
     GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
-    Assert.assertNotNull(g4);
+    Assert.assertNull(g4);
 
     // We're done
     s.stop();

@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.88 2004-12-02 16:09:02 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.89 2004-12-02 19:48:52 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1244,6 +1244,8 @@ public class GrouperBackend {
     }
     if (key != null) {
       g = GrouperBackend.groupLoadByKey(key);
+    } else {
+      g = null;
     }
     // TODO Here I return a dummy object while elsewhere, and with
     //      other classes, I return null.  Standardize.  I *probably*
