@@ -6,7 +6,7 @@ import java.util.List;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.4 2004-05-02 04:45:16 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.5 2004-05-28 17:54:53 blair Exp $
  */
 public interface GrouperNaming {
 
@@ -77,6 +77,29 @@ public interface GrouperNaming {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv);
+
+  /**
+   * List stems where the current subject has the specified privilege.
+   * <p>
+   * See implementations for more information.
+   * <p>
+   *
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperStem} stems.
+   */
+  public List has(String priv);
+
+  /**
+   * List stems where the specified member has the specified
+   * privilege.
+   * <p>
+   * See implementations for more information.
+   *
+   * @param   m     Query for this {@link GrouperMember}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperStem} stems.
+   */
+  public List has(GrouperMember m, String priv);
 
 }
 

@@ -8,7 +8,7 @@ import  java.util.List;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.5 2004-05-02 04:45:16 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.6 2004-05-28 17:54:53 blair Exp $
  */
 public class InternalGrouperNaming implements GrouperNaming {
 
@@ -70,6 +70,34 @@ public class InternalGrouperNaming implements GrouperNaming {
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv) {
     return false;
+  }
+
+  /**
+   * List stems where the current subject has the specified privilege.
+   * <p>
+   * TODO 
+   *
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperStem} stems.
+   */
+  public List has(String priv) {
+    List stems = new ArrayList();
+    return stems;
+  }
+
+  /**
+   * List stems where the specified member has the specified
+   * privilege.
+   * <p>
+   * TODO 
+   *
+   * @param   m     Query for this {@link GrouperMember}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperStem} stems.
+   */
+  public List has(GrouperMember m, String priv) {
+    List stems = new ArrayList();
+    return stems;
   }
 
 }
