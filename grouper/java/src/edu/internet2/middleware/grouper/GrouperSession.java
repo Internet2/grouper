@@ -24,7 +24,7 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.37 2004-09-10 01:49:29 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.38 2004-09-10 17:53:47 blair Exp $
  */
 public class GrouperSession {
 
@@ -70,8 +70,31 @@ public class GrouperSession {
   }
 
   /**
+   * {@link Grouper} run-time configuration parameter getter.
+   * 
+   * @param   parameter Requested configuration parameter.
+   * @return  Value of configuration parameter.
+   */
+  public String config(String parameter) {
+    return this._G.config(parameter);
+  }
+
+  /**
+   * Return subject of current session as a {@link GrouperMember}
+   * object.
+   *
+   * @return  Subject of current session as {@link GrouperMember}
+   * object.
+   */
+  public GrouperMember subject() {
+    return (GrouperMember) this.subject;
+  }
+
+  /**
    * Confirm whether a given group field is valid for a given group
    * type.
+   * <p>
+   * FIXME This belongs elsewhere.
    *
    * @return  Boolean true if {@link GroupField} is valid for the given
    * {@link GroupType}, false otherwise.
@@ -95,6 +118,7 @@ public class GrouperSession {
    * Confirm validity of a group type.
    * <p>
    * TODO Standardize as String, not int?
+   * FIXME This belongs elsewhere.
    *
    * @return  Boolean true if {@link GroupType} is valid, false
    * otherwise.
@@ -201,24 +225,15 @@ public class GrouperSession {
   }
 
   /**
-   * Looks up subject via {@link GrouperSubject} interface.
+   * Look up a subject via the {@link GrouperSubject} interface.
+   * <p>
+   * XXX What is meant by "id"?
    *
-   * @param   subjectID The subject to look up.
-   * @return  GrouperMember object.
+   * @param   id  The identity of the subject to look up.
+   * @return  A {@link GrouperMember} object.
    */
-  public GrouperMember lookupSubject(String subjectID) {
-    return _lookupSubject(subjectID);
-  }
-
-  /**
-   * Looks up subject via {@link GrouperSubject} interface.
-   *
-   * @param   subjectID The subject to look up.
-   * @param   isMember  ...
-   * @return  GrouperMember object.
-   */
-  public GrouperMember lookupSubject(String subjectID, boolean isMember) {
-    return _lookupSubject(subjectID);
+  public GrouperMember lookup(String id) {
+    return _lookup(subjectID);
   }
 
   /**
@@ -381,16 +396,22 @@ public class GrouperSession {
      
   /*
    * Look up a subject via subject interface.
+   * <p>
+   * TODO Add a `type' parameter?
+   *
+   * @param id  The identify of the subject to look up.
+   * @return  A {@link GrouperMember} object.
    */
-  private GrouperMember _lookupSubject(String subjectID) {
+  private GrouperMember _lookup(String id) {
     GrouperMember m = null;
 
-    if (subjectID.equals( _G.config("member.system") )) {
-      m = new GrouperMember(this, subjectID, false);
+    if (subjectID.equals( this._G.config("member.system") )) {
+      // TODO Don't hardcode type
+      m = new GrouperMember(this, id, "person");
     } else {
-      m = this.intSubject.lookup(subjectID);
+      m = this.intSubject.lookup(id);
       if (m != null) {
-        this.subjectID = subjectID;
+        this.subjectID = id;
       }
     }
 
@@ -413,7 +434,7 @@ public class GrouperSession {
     this._createInterfaces();
 
     // XXX Bad assumption!
-    this.subject = this.lookupSubject(subjectID);
+    this.subject = this.lookup(subjectID);
 
     try {
       Configuration cfg = new Configuration()
