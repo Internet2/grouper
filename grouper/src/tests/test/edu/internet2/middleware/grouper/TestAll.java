@@ -115,15 +115,15 @@ public class TestAll extends TestCase {
     // TODO TestMixedMoFAdd
     // TODO TestMixedMoFDel
     // TODO Flesh out
-    //suite.addTestSuite(TestNamingPrivs.class);
+    suite.addTestSuite(TestNamingPrivs.class);
     // TODO TestNamingPrivsGrant
     // TODO TestNamingPrivsRevoke
     // TODO Flesh out
-    //suite.addTestSuite(TestAccessPrivs.class);
+    suite.addTestSuite(TestAccessPrivs.class);
     // TODO TestAccessPrivsGrant
     // TODO TestAccessPrivsRevoke
     // TODO Flesh out
-    //suite.addTestSuite(TestQueries.class);
+    suite.addTestSuite(TestQueries.class);
 
     return suite;
   }
