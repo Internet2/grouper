@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  *
  * You may use and distribute under the same terms as Grouper itself
@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.13 2004-12-30 03:03:50 blair Exp $
+ * @version $Id: grouperq.java,v 1.14 2005-02-07 21:07:01 blair Exp $
  */
 class grouperq {
 

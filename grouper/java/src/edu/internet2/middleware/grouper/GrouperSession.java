@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import  java.io.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.74 2005-02-06 04:18:52 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.75 2005-02-07 21:07:02 blair Exp $
  */
 public class GrouperSession implements Serializable {
 

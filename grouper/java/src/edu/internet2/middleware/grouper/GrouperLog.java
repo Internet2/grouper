@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.6 2005-01-31 00:57:18 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.7 2005-02-07 21:07:01 blair Exp $
  */
 public class GrouperLog {
 

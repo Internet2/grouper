@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ package edu.internet2.middleware.grouper;
  * Base {@link Grouper} exception class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperException.java,v 1.1 2004-12-01 03:01:09 blair Exp $
+ * @version $Id: GrouperException.java,v 1.2 2005-02-07 21:07:01 blair Exp $
  */
 public class GrouperException extends Exception {
 

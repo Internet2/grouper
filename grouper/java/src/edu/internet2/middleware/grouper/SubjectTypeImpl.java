@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.14 2005-01-27 02:41:03 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.15 2005-02-07 21:07:02 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 

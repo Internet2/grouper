@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.25 2004-12-09 17:01:49 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.26 2005-02-07 21:07:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
