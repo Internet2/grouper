@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.198 2005-03-23 21:52:49 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.199 2005-03-23 22:11:36 blair Exp $
  */
 public class GrouperBackend {
 
@@ -217,119 +217,6 @@ public class GrouperBackend {
       }
     }
     return rv;
-  }
-
-  // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLoad(
-                                GrouperSession s, String stem, 
-                                String extn, String type
-                              )
-  {
-    GrouperGroup g = null;
-    if (GrouperStem.exists(s, stem)) {
-      String name = GrouperGroup.groupName(stem, extn);
-      g = GrouperBackend.groupLoadByName(s, name, type);
-      // FIXME WTF? Should I do *something* here?
-    }
-    return g;
-  }
-
-  // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLoadByID(GrouperSession s, String id) {
-    GrouperGroup  g     = null;
-    String        key   = null;
-    String        qry   = "GrouperGroup.by.id";
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, id);
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          g = (GrouperGroup) vals.get(0);
-          if ( (g != null) && (g.key() != null) ) {
-            key = g.key();
-            g = GrouperGroup.loadByKey(s, g, key);
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return g;
-  }
-
-  /* (!javadoc)
-   * Load a group by name.
-   */
-  // FIXME Now *this* is ugly
-  protected static GrouperGroup groupLoadByName(
-                   GrouperSession s, String name, String type
-                 ) 
-  {
-    GrouperGroup  g           = null;
-    String        qryGG       = "GrouperAttribute.by.name";
-    String        qryGS       = "GrouperSchema.by.key.and.type";
-    boolean       initialized = false;
-    try {
-      Query qGG = s.dbSess().session().getNamedQuery(qryGG);
-      qGG.setString(0, name);
-      try {
-        List names = qGG.list();
-        if (names.size() > 0) {
-          Iterator iter = names.iterator();
-          while (iter.hasNext()) {
-            GrouperAttribute attr = (GrouperAttribute) iter.next();
-            try {
-              Query qGS = s.dbSess().session().getNamedQuery(qryGS); 
-              qGS.setString(0, attr.key());
-              qGS.setString(1, type);
-              try {
-                List gs = qGS.list();
-                if (gs.size() == 1) {
-                  GrouperSchema schema = (GrouperSchema) gs.get(0);
-                  if (schema.type().equals(type)) {
-                    g = GrouperGroup.loadByKey(s, g, attr.key());
-                    if (g != null) {
-                      if (g.type().equals(type)) {
-                        initialized = true;
-                      }
-                    }
-                  }
-                }
-              } catch (HibernateException e) {
-                throw new RuntimeException(
-                            "Error retrieving results for " + 
-                            qryGS + ": " + e
-                          );
-              }
-            } catch (HibernateException e) {
-              throw new RuntimeException(
-                          "Unable to get query " + qryGS + ": " + e
-                        );
-            }
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qryGG + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qryGG + ": " + e
-                );
-    }
-    if (!initialized) {
-      // We failed to load a group.  Null out the object.
-      g = null;
-    }
-    return g;
   }
 
   /* (!javadoc)

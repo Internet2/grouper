@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.185 2005-03-23 21:45:40 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.186 2005-03-23 22:11:36 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -744,7 +744,7 @@ public class GrouperGroup extends Group {
         rv = true;
       }
     } else {
-      GrouperGroup ns = GrouperBackend.groupLoadByName(
+      GrouperGroup ns = GrouperGroup._loadByName(
                           s, stem, Grouper.NS_TYPE
                         );
       if (ns != null) {
@@ -925,16 +925,40 @@ public class GrouperGroup extends Group {
    * Retrieve a group from the groups registry
    */ 
   private static GrouperGroup _loadByID(
-                                GrouperSession s, String id, String type
+                                GrouperSession s, String id,
+                                String type
                               ) 
   {
-    GrouperGroup g = GrouperBackend.groupLoadByID(s, id);
-    if (g != null) {
-      // Attach type  
-      // FIXME Grr....wait.  Is this even needed now that I have // type()?
-      g.type = type; 
-      g.initialized = true; // FIXME UGLY HACK!
-      g.s = s; // Attach GrouperSession
+    GrouperGroup  g     = null;
+    String        key   = null;
+    String        qry   = "GrouperGroup.by.id";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, id);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          g = (GrouperGroup) vals.get(0);
+          if ( (g != null) && (g.key() != null) ) {
+            key = g.key();
+            g = GrouperGroup.loadByKey(s, g, key);
+            if (g != null) {
+              // Attach type  
+              g.type = type; 
+              g.initialized = true; // FIXME UGLY HACK!
+              g.s = s; // Attach GrouperSession
+            }
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return g;
   }
@@ -976,18 +1000,72 @@ public class GrouperGroup extends Group {
     return g;
   }
 
-  private static GrouperGroup _loadByName(
+  // TODO Move to _Group_
+  protected static GrouperGroup _loadByName(
                                 GrouperSession s, String name,
                                 String type
                               )
   {
-    GrouperGroup g = GrouperBackend.groupLoadByName(s, name, type);
-    if (g != null) {
-      // Attach type  
-      // FIXME Grr....
-      g.type = type;
-      g.initialized = true; // FIXME UGLY HACK!
-      g.s = s; // Attach GrouperSession
+    // FIXME Kill me.  Please.
+    GrouperGroup  g           = null;
+    String        qryGG       = "GrouperAttribute.by.name";
+    String        qryGS       = "GrouperSchema.by.key.and.type";
+    boolean       initialized = false;
+    try {
+      Query qGG = s.dbSess().session().getNamedQuery(qryGG);
+      qGG.setString(0, name);
+      try {
+        List names = qGG.list();
+        if (names.size() > 0) {
+          Iterator iter = names.iterator();
+          while (iter.hasNext()) {
+            GrouperAttribute attr = (GrouperAttribute) iter.next();
+            try {
+              Query qGS = s.dbSess().session().getNamedQuery(qryGS); 
+              qGS.setString(0, attr.key());
+              qGS.setString(1, type);
+              try {
+                List gs = qGS.list();
+                if (gs.size() == 1) {
+                  GrouperSchema schema = (GrouperSchema) gs.get(0);
+                  if (schema.type().equals(type)) {
+                    g = GrouperGroup.loadByKey(s, g, attr.key());
+                    if (g != null) {
+                      if (g.type().equals(type)) {
+                        initialized = true;
+                        //g.type = type;
+                        g.initialized = true; // FIXME UGLY HACK!
+                        g.s = s; // Attach GrouperSession
+                      }
+                    }
+                  }
+                }
+              } catch (HibernateException e) {
+                throw new RuntimeException(
+                            "Error retrieving results for " + 
+                            qryGS + ": " + e
+                          );
+              }
+            } catch (HibernateException e) {
+              throw new RuntimeException(
+                          "Unable to get query " + qryGS + ": " + e
+                        );
+            }
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qryGG + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qryGG + ": " + e
+                );
+    }
+    if (!initialized) {
+      // We failed to load a group.  Null out the object.
+      g = null;
     }
     return g;
   }
@@ -997,13 +1075,17 @@ public class GrouperGroup extends Group {
                                 String extn, String type
                               )
   {
-    GrouperGroup g = GrouperBackend.groupLoad(s, stem, extn, type);
-    if (g != null) {
-      // Attach type  
-      // FIXME Grr....
-      g.type = type;
-      g.initialized = true; // FIXME UGLY HACK!
-      g.s = s; // Attach GrouperSession
+    GrouperGroup g = null;
+    if (GrouperStem.exists(s, stem)) {
+      String name = GrouperGroup.groupName(stem, extn);
+      g = GrouperGroup._loadByName(s, name, type);
+      if (g != null) {
+        // Attach type  
+        // FIXME Grr....
+        g.type = type;
+        g.initialized = true; // FIXME UGLY HACK!
+        g.s = s; // Attach GrouperSession
+      }
     }
     return g;
   }
