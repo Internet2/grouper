@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.158 2005-03-03 00:38:59 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.159 2005-03-04 19:16:08 blair Exp $
  */
 public class GrouperGroup {
 
@@ -140,12 +140,10 @@ public class GrouperGroup {
    */
   public static boolean delete(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
-    s.dbSessStart();
     if (GrouperGroup._canDelete(s, g)) {
       rv = GrouperBackend.groupDelete(s, g);
       Grouper.log().groupDel(rv, s, g);
     }
-    s.dbSessStop();
     return rv;
   }
 
@@ -303,7 +301,6 @@ public class GrouperGroup {
    */
   public boolean attribute(GrouperSession s, String attribute, String value) {
     boolean rv = false;
-    s.dbSessStart();
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
       // FIXME We don't handle renames yet -- if ever?
@@ -337,7 +334,6 @@ public class GrouperGroup {
         }
       }
     }
-    s.dbSessStop();
     return rv;
   }
 
@@ -781,9 +777,7 @@ public class GrouperGroup {
    * Retrieve list values.
    */
   private List _listVals(GrouperSession s, GrouperGroup g, String list) {
-    s.dbSessStart();
     List vals = GrouperBackend.listVals(s, g, list);
-    s.dbSessStop();
     return vals;
   }
 
@@ -791,9 +785,7 @@ public class GrouperGroup {
    * Retrieve effective list values.
    */
   private List _listEffVals(GrouperSession s, GrouperGroup g, String list) {
-    s.dbSessStart();
     List vals = GrouperBackend.listEffVals(s, g, list);
-    s.dbSessStop();
     return vals;
   }
 
@@ -801,9 +793,7 @@ public class GrouperGroup {
    * Retrieve immediate list values.
    */
   private List _listImmVals(GrouperSession s, GrouperGroup g, String list) {
-    s.dbSessStart();
     List vals = GrouperBackend.listImmVals(s, g, list);
-    s.dbSessStop();
     return vals;
   }
 
@@ -814,7 +804,6 @@ public class GrouperGroup {
                                 GrouperSession s, String id, String type
                               ) 
   {
-    s.dbSessStart();
     GrouperGroup g = GrouperBackend.groupLoadByID(s, id, type);
     if (g != null) {
       // Attach type  
@@ -822,7 +811,6 @@ public class GrouperGroup {
       g.type = type; 
       g.initialized = true; // FIXME UGLY HACK!
     }
-    s.dbSessStop();
     return g;
   }
 
@@ -831,7 +819,6 @@ public class GrouperGroup {
                                 String type
                               ) 
   {
-    s.dbSessStart();
     GrouperGroup g = GrouperBackend.groupLoadByKey(key);
     if (g != null) {
       // Attach type  
@@ -839,7 +826,6 @@ public class GrouperGroup {
       g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
     }
-    s.dbSessStop();
     return g;
   }
 
@@ -848,7 +834,6 @@ public class GrouperGroup {
                                 String type
                               )
   {
-    s.dbSessStart();
     GrouperGroup g = GrouperBackend.groupLoadByName(s, name, type);
     if (g != null) {
       // Attach type  
@@ -856,7 +841,6 @@ public class GrouperGroup {
       g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
     }
-    s.dbSessStop();
     return g;
   }
 
@@ -865,7 +849,6 @@ public class GrouperGroup {
                                 String extn, String type
                               )
   {
-    s.dbSessStart();
     GrouperGroup g = GrouperBackend.groupLoad(s, stem, extn, type);
     if (g != null) {
       // Attach type  
@@ -873,7 +856,6 @@ public class GrouperGroup {
       g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
     }
-    s.dbSessStop();
     return g;
   }
 
@@ -1019,7 +1001,6 @@ public class GrouperGroup {
                                      )
   {
     GrouperGroup g = null;
-    s.dbSessStart();
     String name = GrouperGroup.groupName(stem, extn);
     if (GrouperGroup._canCreate(s, stem, type)) {
       // Check to see if the group already exists.
@@ -1093,7 +1074,6 @@ public class GrouperGroup {
       );
     }
     Grouper.log().groupAdd(s, g, name, type);
-    s.dbSessStop();
     return g;
   }
 
@@ -1118,7 +1098,6 @@ public class GrouperGroup {
    */
   private boolean _listAddVal(GrouperSession s, GrouperMember m, String list) {
     boolean rv = false;
-    s.dbSessStart();
     // Set some of the operational attributes
     /*
      * TODO Most, if not all, of the operational attributes should be
@@ -1141,7 +1120,6 @@ public class GrouperGroup {
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
     }
-    s.dbSessStop();
     return rv;
   }
 
@@ -1150,7 +1128,6 @@ public class GrouperGroup {
    */
   private boolean _listDelVal(GrouperSession s, GrouperMember m, String list) {
     boolean rv = false;
-    s.dbSessStart();
     // Set some of the operational attributes
     /*
      * TODO Most, if not all, of the operational attributes should be
@@ -1174,7 +1151,6 @@ public class GrouperGroup {
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
     }
-    s.dbSessStop();
     return rv;
   }
 
