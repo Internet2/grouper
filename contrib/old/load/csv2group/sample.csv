@@ -12,3 +12,15 @@ group,add,comp:lang,java
 group,add,comp:lang:java,announce
 group,add,comp:lang,perl
 group,add,comp:lang:perl,misc
+member,add,comp:lang,ruby,adams
+member,add,comp:lang,ruby,bartlett
+member,add,comp:lang,ruby,braxton
+member,add,comp:lang,ruby,carroll
+member,add,comp:lang:java,announce,adams
+member,add,comp:lang:java,announce,chase
+member,add,comp:lang:java,announce,clark
+member,add,comp:lang:java,announce,clymer
+member,add,comp:lang,perl,ellery
+member,add,comp:lang,perl,franklin
+member,add,comp:lang,perl,gerry
+member,add,comp:lang:perl,misc,gerry
