@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.49 2005-02-17 18:59:09 blair Exp $
+$Id: API,v 1.50 2005-03-04 20:27:38 blair Exp $
 
 ---
 
@@ -130,12 +130,12 @@ $Id: API,v 1.49 2005-02-17 18:59:09 blair Exp $
 * boolean             listAddVal(session, member, listType)
 * boolean             listDelVal(session, member)
 * boolean             listDelVal(session, member, listType)
-* List                listEffVals(session)
-* List                listEffVals(session, listType)
-* List                listImmVals(session)
-* List                listImmVals(session)
-* List                listVals(session)
-* List                listVals(session, listType)
+* List                listEffVals()
+* List                listEffVals(listType)
+* List                listImmVals()
+* List                listImmVals(listType)
+* List                listVals()
+* List                listVals(listType)
 * String              modifySource()
 * Subject             modifySubject()
 * Date                modifyTime()

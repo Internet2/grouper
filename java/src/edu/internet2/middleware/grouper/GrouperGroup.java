@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.160 2005-03-04 20:04:09 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.161 2005-03-04 20:27:38 blair Exp $
  */
 public class GrouperGroup {
 
@@ -403,68 +403,62 @@ public class GrouperGroup {
   /**
    * Retrieve list values of the default list type for this group.
    * <p />
-   * @param   s     Retrieve list values using this session.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listVals(GrouperSession s) {
-    return _listVals(s, this, Grouper.DEF_LIST_TYPE);
+  public List listVals() {
+    return _listVals(this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Retrieve list values of the specified type for this group.
    * <p />
-   * @param   s     Retrieve list values using this session.
    * @param   list  Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listVals(GrouperSession s, String list) {
-    return _listVals(s, this, list);
+  public List listVals(String list) {
+    return _listVals(this, list);
   }
 
   /**
    * Retrieve effective list values of the default list type for this
    * group.
    * <p />
-   * @param   s     Retrieve list values using this session.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listEffVals(GrouperSession s) {
-    return _listEffVals(s, this, Grouper.DEF_LIST_TYPE);
+  public List listEffVals() {
+    return _listEffVals(this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Retrieve effective list values of the specified type for this
    * group.
    * <p />
-   * @param   s     Retrieve list values using this session.
    * @param   list  Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listEffVals(GrouperSession s, String list) {
-    return _listEffVals(s, this, list);
+  public List listEffVals(String list) {
+    return _listEffVals(this, list);
   }
 
   /**
    * Retrieve immediate list values of the default list type for this
    * group.
    * <p />
-   * @param   s     Retrieve list values using this session.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listImmVals(GrouperSession s) {
-    return _listImmVals(s, this, Grouper.DEF_LIST_TYPE);
+  public List listImmVals() {
+    return _listImmVals(this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Retrieve immediate list values of the specified type for this
    * group.
    * <p />
-   * @param   s     Retrieve list values using this session.
    * @param   list  Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  public List listImmVals(GrouperSession s, String list) {
-    return _listImmVals(s, this, list);
+  public List listImmVals(String list) {
+    return _listImmVals(this, list);
   }
 
   /**
@@ -777,24 +771,24 @@ public class GrouperGroup {
   /*
    * Retrieve list values.
    */
-  private List _listVals(GrouperSession s, GrouperGroup g, String list) {
-    List vals = GrouperBackend.listVals(s, g, list);
+  private List _listVals(GrouperGroup g, String list) {
+    List vals = GrouperBackend.listVals(this.s, g, list);
     return vals;
   }
 
   /*
    * Retrieve effective list values.
    */
-  private List _listEffVals(GrouperSession s, GrouperGroup g, String list) {
-    List vals = GrouperBackend.listEffVals(s, g, list);
+  private List _listEffVals(GrouperGroup g, String list) {
+    List vals = GrouperBackend.listEffVals(this.s, g, list);
     return vals;
   }
 
   /*
    * Retrieve immediate list values.
    */
-  private List _listImmVals(GrouperSession s, GrouperGroup g, String list) {
-    List vals = GrouperBackend.listImmVals(s, g, list);
+  private List _listImmVals(GrouperGroup g, String list) {
+    List vals = GrouperBackend.listImmVals(this.s, g, list);
     return vals;
   }
 
