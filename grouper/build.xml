@@ -1,15 +1,17 @@
-<!-- $Id: build.xml,v 1.26 2004-12-03 21:30:01 blair Exp $ -->
+<!-- $Id: build.xml,v 1.27 2004-12-07 02:21:33 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
   <!-- set global properties for this build -->
   <property name="app.name"               value="Grouper"/>
-  <property name="src"                    location="java/src"/>
+  <property name="src"                    location="java"/>
+  <property name="src.grouper"            location="${src}/src"/>
+  <property name="src.test"               location="${src}/tests"/>
   <property name="build"                  location="build"/>
-  <property name="src-test"               location="java/tests"/>
-  <property name="build-test"             location="build/test"/>
+  <property name="build.grouper"          location="${build}/grouper"/>
+  <property name="build.test"             location="${build}/test"/>
   <property name="dist"                   location="dist"/>
-  <property name="javadoc.source"         value="${src}"/>
+  <property name="javadoc.source"         value="${src.grouper}"/>
   <property name="javadoc.dest.internal"  value="${dist}/api-int"/>
   <property name="javadoc.dest.public"    value="${dist}/api"/>
   <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
@@ -18,7 +20,8 @@
 
   <target name="init">
     <tstamp />
-    <mkdir dir="${build}" />
+    <mkdir dir="${build.grouper}" />
+    <mkdir dir="${build.test}" />
     <!-- only define our classpath once -->
     <path id="project.class.path">
       <pathelement path="${classpath}"/>
@@ -27,26 +30,29 @@
       <fileset dir="java/lib">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement location="${build}/"/>
-      <pathelement location="${build}/test/"/>
+      <pathelement location="${build.grouper}"/>
+      <pathelement location="${build.test}"/>
     </path>
   </target>
 
   <target name="build" depends="init"
         description="compile the source " >
-    <javac srcdir="${src}" destdir="${build}">
+    <javac srcdir="${src.grouper}" destdir="${build.grouper}">
       <classpath refid="project.class.path"/>
     </javac>
+<!-- FIXME -->
     <copy file="${basedir}/conf/grouper.properties" 
-          tofile="${build}/edu/internet2/middleware/grouper/grouper.properties"/>
+          tofile="${build.grouper}/edu/internet2/middleware/grouper/grouper.properties"/>
     <copy file="${basedir}/conf/Grouper.hbm.xml"
-          tofile="${build}/edu/internet2/middleware/grouper/Grouper.hbm.xml"/>
+          tofile="${build.grouper}/edu/internet2/middleware/grouper/Grouper.hbm.xml"/>
   </target>
 
   <target name="dist" depends="build" description="generate the distribution" >
     <mkdir dir="${dist}/lib" />
-    <jar jarfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build}" />
+    <jar jarfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}" />
     <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
+    <jar jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" basedir="java/lib"/>
+    <copy file="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" tofile="${dist}/lib/${app.name}-lib.jar" />
   </target>
 
   <target name="jar" depends="dist" />
@@ -84,8 +90,7 @@
   </target>
 
   <target name="test-build" depends="build">
-    <mkdir dir="${build-test}" />
-    <javac srcdir="${src-test}" destdir="${build-test}">
+    <javac srcdir="${src.test}" destdir="${build.test}">
       <classpath refid="project.class.path" />
       <include name="**/*.java" />
     </javac>
