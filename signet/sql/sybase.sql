@@ -1,1 +1,336 @@
-alter table Permission drop constraint FK57F7A1EFC04829CAalter table Tree drop constraint FK27E7BE28A16313alter table Assignment drop constraint FKB3FD62ED72AD026Falter table Assignment drop constraint FKB3FD62EDFC41E6F3alter table Assignment drop constraint FKB3FD62EDC04829CAalter table Assignment drop constraint FKB3FD62EDDBC0580Ealter table Assignment drop constraint FKB3FD62ED1D3ED888alter table Subject drop constraint FKF3E2ED0C89D6221alter table Category drop constraint FK6DD211EC04829CAalter table Function_Permission drop constraint FKA507F4962ECB972Aalter table Function_Permission drop constraint FKA507F496FC41E6F3alter table Function drop constraint FK5629D7F84D477E99alter table Function drop constraint FK5629D7F8C04829CAalter table TreeNode drop constraint FK5676FAE0CC680D39alter table TreeNodeRelationship drop constraint FKF6A57538368D8BE7alter table TreeNodeRelationship drop constraint FKF6A57538C2003E9Dalter table Subsystem drop constraint FK9758A04FCC680D39drop table Permission if existsdrop table SubjectType if existsdrop table Tree if existsdrop table Assignment if existsdrop table PrivilegedSubject if existsdrop table TreeType if existsdrop table Subject if existsdrop table Category if existsdrop table Function_Permission if existsdrop table Function if existsdrop table TreeNode if existsdrop table TreeNodeRelationship if existsdrop table Subsystem if existscreate table Permission (  permissionID varchar(255) not null,  modifyDateTime timestamp not null,  subsystemID varchar(255) not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (permissionID)  )create table SubjectType (  subjectTypeID varchar(255) not null,  modifyDateTime timestamp not null,  adapterClass varchar(255),  name varchar(255) not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (subjectTypeID)  )create table Tree (  treeID varchar(255) not null,  modifyDateTime timestamp not null,  treeTypeID varchar(255) not null,  name varchar(255) not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (treeID)  )  create table Assignment (  assignmentID    numeric(12,0) identity,  status          varchar(16)   not null,  subsystemID     varchar(64)   not null,  functionID      varchar(64)   not null,  grantorTypeID   varchar(32)   not null,  grantorID       varchar(64)   not null,  granteeTypeID   varchar(32)   not null,  granteeID       varchar(64)   not null,  proxyTypeID     varchar(64)   null,  proxyID         varchar(64)   null,  scopeTreeID	  varchar(64)   null,  scopeNodeID     varchar(64)   null,  canGrant        bit           not null,  grantOnly       bit           not null,  effectiveDate   smalldatetime not null,  revokerTypeID   varchar(32)   null,  revokerID       varchar(64)   null,  createDatetime  smalldatetime not null,  createDbAccount varchar(255)  not null,  createUserID    varchar(64)   null,  createContext   varchar(64)   null,  modifyDatetime  smalldatetime not null,  modifyDbAccount varchar(64)   not null,  modifyUserID    varchar(255)  null,  modifyContext   varchar(255)  null,  comment         varchar(255)  null  )  create table PrivilegedSubject (  subjectID varchar(255) not null,  subjectTypeID varchar(255) not null,  modifyDateTime timestamp not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (subjectID, subjectTypeID)  )create table TreeType (  treeTypeID varchar(255) not null,  modifyDateTime timestamp not null,  adapterClass varchar(255),  name varchar(255) not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (treeTypeID)  )create table Subject (  subjectID varchar(255) not null,  modifyDateTime timestamp not null,  subjectTypeID varchar(255) not null,  name varchar(255) not null,  description varchar(255),  displayId varchar(255),  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (subjectID)  )create table Category (  categoryID varchar(255) not null,  modifyDateTime timestamp not null,  subsystemID varchar(255) not null,  status varchar(255) not null,  name varchar(255) not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (categoryID)  )create table Function_Permission (  functionID varchar(255) not null,  permissionID varchar(255) not null,  primary key (permissionID, functionID)  )create table Function (  functionID varchar(255) not null,  modifyDateTime timestamp not null,  subsystemID varchar(255) not null,  categoryID varchar(255) not null,  status varchar(255) not null,  name varchar(255) not null,  helpText varchar(255) not null,  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (functionID)  )create table TreeNode (  nodeID varchar(255) not null,  modifyDateTime timestamp not null,  treeID varchar(255) not null,  status varchar(255) not null,  name varchar(255) not null,  type varchar(255),  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (nodeID)  )create table TreeNodeRelationship (  nodeID varchar(255) not null,  parentNodeID varchar(255) not null,  primary key (parentNodeID, nodeID)  )create table Subsystem (  subsystemID varchar(255) not null,  modifyDateTime timestamp not null,  status varchar(255) not null,  name varchar(255) not null,  helpText varchar(255) not null,  treeID varchar(255),  createDateTime timestamp not null,  createDbAccount varchar(255) not null,  createUserID varchar(255),  createContext varchar(255),  modifyDbAccount varchar(255) not null,  modifyUserID varchar(255),  modifyContext varchar(255),  comment varchar(255),  primary key (subsystemID)  )alter table Permission add constraint FK57F7A1EFC04829CA foreign key (subsystemID) references Subsystemalter table Tree add constraint FK27E7BE28A16313 foreign key (treeTypeID) references TreeTypealter table Assignment add constraint FKB3FD62ED72AD026F foreign key (scopeID) references TreeNodealter table Assignment add constraint FKB3FD62EDFC41E6F3 foreign key (functionID) references Functionalter table Assignment add constraint FKB3FD62EDC04829CA foreign key (subsystemID) references Subsystemalter table Assignment add constraint FKB3FD62EDDBC0580E foreign key (grantorID, grantorTypeID) references PrivilegedSubjectalter table Assignment add constraint FKB3FD62ED1D3ED888 foreign key (granteeID, granteeTypeID) references PrivilegedSubjectalter table Subject add constraint FKF3E2ED0C89D6221 foreign key (subjectTypeID) references SubjectTypealter table Category add constraint FK6DD211EC04829CA foreign key (subsystemID) references Subsystemalter table Function_Permission add constraint FKA507F4962ECB972A foreign key (permissionID) references Permissionalter table Function_Permission add constraint FKA507F496FC41E6F3 foreign key (functionID) references Functionalter table Function add constraint FK5629D7F84D477E99 foreign key (categoryID) references Categoryalter table Function add constraint FK5629D7F8C04829CA foreign key (subsystemID) references Subsystemalter table TreeNode add constraint FK5676FAE0CC680D39 foreign key (treeID) references Treealter table TreeNodeRelationship add constraint FKF6A57538368D8BE7 foreign key (parentNodeID) references TreeNodealter table TreeNodeRelationship add constraint FKF6A57538C2003E9D foreign key (nodeID) references TreeNodealter table Subsystem add constraint FK9758A04FCC680D39 foreign key (treeID) references Tree
+##### Subsystem tables
+
+drop table ProxyType_Function
+go
+drop table Permission_Limit
+go
+drop table Function_Permission
+go
+
+drop table Category
+go
+drop table Function
+go
+drop table Permission
+go
+drop table ProxyType
+go
+drop table Limit
+go
+drop table Subsystem
+go
+
+
+create table Subsystem
+(
+subsystemID         varchar(64)         NOT NULL,
+status              varchar(16)         NOT NULL,
+name                varchar(120)        NOT NULL,
+helpText            text                NOT NULL,
+scopeTreeID         varchar(64)         NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key clustered (subsystemID)
+)
+go
+
+
+
+create table Category
+(
+subsystemID         varchar(64)         NOT NULL,
+categoryID          varchar(64)         NOT NULL,
+status              varchar(16)         NOT NULL,
+name                varchar(120)        NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (subsystemID, categoryID),
+foreign key (subsystemID) references Subsystem (subsystemID)
+)
+go
+
+
+
+create table Function
+(
+subsystemID         varchar(64)         NOT NULL,
+functionID          varchar(64)         NOT NULL,
+categoryID          varchar(64)         NULL,
+status              varchar(16)         NOT NULL,
+name                varchar(120)        NOT NULL,
+helpText            text                NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (subsystemID, functionID),
+foreign key (subsystemID) references Subsystem (subsystemID)
+)
+go
+
+
+create table Permission
+(
+subsystemID         varchar(64)         NOT NULL,
+permissionID        varchar(64)         NOT NULL,
+status              varchar(16)         NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (subsystemID, permissionID),
+foreign key (subsystemID) references Subsystem (subsystemID)
+)
+go
+
+
+create table ProxyType
+(
+subsystemID         varchar(64)         NOT NULL,
+proxyTypeID         varchar(64)         NOT NULL,
+status              varchar(16)         NOT NULL,
+name                varchar(120)        NOT NULL,
+helpText            text                NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (subsystemID, proxyTypeID),
+foreign key (subsystemID) references Subsystem (subsystemID)
+)
+go
+
+
+create table Limit
+(
+subsystemID         varchar(64)         NOT NULL,
+limitID             varchar(64)         NOT NULL,
+status              varchar(16)         NOT NULL,
+limitType           varchar(16)         NOT NULL,
+limitTypeID         varchar(64)         NOT NULL,
+name                varchar(120)        NOT NULL,
+helpText            text                NULL,
+dataType            varchar(32)         NOT NULL,
+valueType           varchar(32)         NOT NULL,
+displayOrder        smallint            NOT NULL,
+renderer            varchar(255)        NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (subsystemID, limitID),
+foreign key (subsystemID) references Subsystem (subsystemID)
+)
+go
+
+
+create table Function_Permission
+(
+subsystemID         varchar(64)         NOT NULL,
+functionID          varchar(64)         NOT NULL,
+permissionID        varchar(64)         NOT NULL,
+
+primary key (subsystemID, functionID, permissionID),
+foreign key (subsystemID, functionID) references Function (subsystemID, functionID),
+foreign key (subsystemID, permissionID) references Permission (subsystemID, permissionID)
+)
+go
+
+
+create table Permission_Limit
+(
+subsystemID         varchar(64)         NOT NULL,
+permissionID        varchar(64)         NOT NULL,
+limitID             varchar(64)         NOT NULL,
+defaultLimitValueValue  varchar(64)    NULL,
+
+primary key (subsystemID, permissionID, limitID),
+foreign key (subsystemID, permissionID) references Permission (subsystemID, permissionID),
+foreign key (subsystemID, limitID) references Limit (subsystemID, limitID)
+)
+go
+
+
+create table ProxyType_Function
+(
+subsystemID         varchar(64)         NOT NULL,
+proxyTypeID         varchar(64)         NOT NULL,
+functionID          varchar(64)         NOT NULL,
+
+primary key (subsystemID, proxyTypeID, functionID),
+foreign key (subsystemID, proxyTypeID) references ProxyType (subsystemID, proxyTypeID),
+foreign key (subsystemID, functionID) references Function (subsystemID, functionID)
+)
+go
+
+
+
+##### Subject tables
+
+drop table SubjectAttribute
+go
+drop table Subject
+go
+drop table SubjectType
+go
+
+
+create table SubjectType (
+  subjectTypeID     varchar(32)     NOT NULL,
+  name              varchar(120)    NOT NULL,
+  adapterClass      varchar(255)    NOT NULL,
+  modifyDateTime    smalldatetime   default getdate(),
+  primary key (subjectTypeID)
+  )
+go
+
+
+create table Subject (
+  subjectTypeID     varchar(32)     NOT NULL,
+  subjectID         varchar(64)     NOT NULL,
+  name              varchar(120)    NOT NULL,
+  description       varchar(255)    NOT NULL,
+  displayId         varchar(64)     NOT NULL,
+  modifyDateTime    smalldatetime   default getdate(),
+  primary key (subjectTypeID, subjectID)
+  )
+go
+
+
+create table SubjectAttribute (
+  subjectTypeID     varchar(32)     NOT NULL,
+  subjectID         varchar(64)     NOT NULL,
+  name              varchar(120)    NOT NULL,
+  instance          smallint        NOT NULL,
+  value             varchar(255)    NOT NULL,
+  searchValue       varchar(255)    NOT NULL,
+  modifyDateTime    smalldatetime   default getdate(),
+  primary key (subjectTypeID, subjectID, name)
+  )
+go
+
+
+##### Tree tables
+
+drop table TreeNodeRelationship
+go
+drop table TreeNode
+go
+drop table Tree
+go
+
+
+create table Tree
+(
+treeID              varchar(64)         NOT NULL,
+name                varchar(120)        NOT NULL,
+adapterClass        varchar(255)        NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (treeID)
+)
+go
+
+
+create table TreeNode
+(
+treeID              varchar(64)         NOT NULL,
+nodeID              varchar(64)         NOT NULL,
+nodeType            varchar(32)         NOT NULL,
+status              varchar(16)         NOT NULL,
+name                varchar(120)        NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (treeID, nodeID),
+foreign key (treeID, nodeID) references TreeNode (treeID, nodeID)
+)
+go
+
+
+create table TreeNodeRelationship
+(
+treeID              varchar(64)         NOT NULL,
+nodeID              varchar(64)         NOT NULL,
+parentNodeID        varchar(64)         NOT NULL,
+
+primary key (treeID, nodeID, parentNodeID),
+foreign key (treeID) references Tree (treeID)
+)
+go
+
+
+##### ChoiceSet tables
+
+drop table Choice
+go
+drop table ChoiceSet
+go
+
+
+create table ChoiceSet
+(
+choiceSetID         varchar(64)         NOT NULL,
+adapterClass        varchar(255)        NOT NULL,
+subsystemID         varchar(64)         NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (choiceSetID)
+)
+go
+
+
+create table Choice
+(
+choiceSetID         varchar(64)         NOT NULL,
+value               varchar(32)         NOT NULL,
+label               varchar(64)         NOT NULL,
+rank                smallint            NOT NULL,
+displayOrder        smallint            NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+primary key (choiceSetID, value),
+foreign key (choiceSetID) references ChoiceSet (choiceSetID)
+)
+go
+
+
+
+##### Assignment tables
+
+drop table Assignment
+go
+drop table AssignmentLimitValue
+go
+
+
+create table Assignment
+(
+assignmentID        numeric(12,0)       IDENTITY,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+functionID          varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+proxyTypeID         varchar(64)         NULL,
+proxyID             varchar(64)         NULL,
+scopeID             varchar(64)         NULL,
+scopeNodeID         varchar(64)         NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       smalldatetime       NOT NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+modifyDatetime      smalldatetime       default getdate(),
+
+unique clustered (assignmentID)
+)
+go
+
+
+create table AssignmentLimitValue
+(
+assignmentID        numeric(12,0)       NOT NULL,
+limitSubsystemID    varchar(64)         NOT NULL,
+limitType           varchar(32)         NOT NULL,
+limitTypeID         varchar(64)         NOT NULL,
+value               varchar(32)         NOT NULL,
+unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
+)
+go
+
+
+
