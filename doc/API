@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.28 2004-12-05 23:31:41 blair Exp $
+$Id: API,v 1.29 2004-12-06 00:16:29 blair Exp $
 
 ---
 
@@ -190,9 +190,12 @@ $Id: API,v 1.28 2004-12-05 23:31:41 blair Exp $
 
 ### GrouperSession
 
+#### Class Methods
+
+* GrouperSession      start(subject)
+
 #### Instance Methods
 
-* boolean             start(subject)
 * boolean             stop()
 * Subject             subject()
 

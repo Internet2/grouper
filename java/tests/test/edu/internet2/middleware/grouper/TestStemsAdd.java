@@ -90,9 +90,10 @@ public class TestNamespaces extends TestCase {
 
   // Fetch a non-existent namespaces
   public void testGroupsExistFalse() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Confirm that namespaces don't exist
     GrouperGroup    ns0   = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
     Assert.assertNull(ns0);
@@ -107,9 +108,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS0() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create ns0
     String stem = stem0;
     String extn = extn0;
@@ -126,9 +128,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS1() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create ns00
     String stem = stem00;
     String extn = extn00;
@@ -145,9 +148,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS2() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create ns1
     String stem = stem1;
     String extn = extn1;
@@ -164,9 +168,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS3() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create ns2
     String stem = stem2;
     String extn = extn2;
@@ -183,9 +188,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS0() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch ns0
     String stem = stem0;
     String extn = extn0;
@@ -203,9 +209,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS1() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch ns00
     String stem = stem00;
     String extn = extn00;
@@ -223,9 +230,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS2() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch ns1
     String stem = stem1;
     String extn = extn1;
@@ -243,9 +251,10 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS3() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch ns2
     String stem = stem2;
     String extn = extn2;

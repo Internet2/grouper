@@ -92,11 +92,11 @@ public class TestQueries extends TestCase {
 
   // Test requirements for other *real* tests
   public void testRequirements() {
-    GrouperSession  s     = new GrouperSession();
-    Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch the groups
     // g0
     GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
@@ -119,9 +119,10 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryInstantiate() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     GrouperQuery    q0    = new GrouperQuery(s);
     Assert.assertNotNull(q0);
     Assert.assertTrue(klass.equals( q0.getClass().getName() ) );
@@ -134,9 +135,10 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
 
     // Create query object
     GrouperQuery    q     = new GrouperQuery(s);
@@ -184,9 +186,10 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
 
     // Create query object
     GrouperQuery    q     = new GrouperQuery(s);
@@ -266,9 +269,10 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
 
     // Create query object
     GrouperQuery    q     = new GrouperQuery(s);

@@ -148,7 +148,7 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
-  // Instantiate a GrouperSession instance
+  // Instantiate a GrouperSession instance 
   public void testGrouperSessionInstantiate() {
     GrouperSession obj = new GrouperSession();
     Assert.assertNotNull(obj);

@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.5 2004-12-05 04:15:14 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.6 2004-12-06 00:16:28 blair Exp $ 
  */
 class csv2group {
 
@@ -172,8 +172,7 @@ class csv2group {
    */
   private static void _grouperStart() {
     _subject();
-    s = new GrouperSession();
-    s.start(subj);
+    s = GrouperSession.start(subj);
     _verbose(
              "Started session as "           + 
              subj.getId() + ":"              +

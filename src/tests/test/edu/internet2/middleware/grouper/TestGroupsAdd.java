@@ -99,9 +99,10 @@ public class TestGroups extends TestCase {
 
   // Fetch non-existent groups
   public void testGroupsExistFalse() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
 
     // Confirm that groups don't exist
     GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
@@ -120,9 +121,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG0() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create g0
     String stem = stem0;
     String extn = extn0;
@@ -139,9 +141,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG1() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create g1
     String stem = stem1;
     String extn = extn1;
@@ -158,9 +161,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG2() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create g2
     String stem = stem2;
     String extn = extn2;
@@ -177,9 +181,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG3() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create g3
     String stem = stem3;
     String extn = extn3;
@@ -196,9 +201,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG4() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Create g4
     String stem = stem4;
     String extn = extn4;
@@ -215,9 +221,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG0() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch g0
     GrouperGroup g = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(g);
@@ -238,9 +245,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG1() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch g1
     GrouperGroup g = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g);
@@ -261,9 +269,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG2() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch g2
     GrouperGroup g = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g);
@@ -284,9 +293,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG3() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch g3
     GrouperGroup g = GrouperGroup.load(s, stem3, extn3);
     Assert.assertNotNull(g);
@@ -307,9 +317,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG4() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Fetch g4
     GrouperGroup g = GrouperGroup.load(s, stem4, extn4);
     Assert.assertNotNull(g);
@@ -331,9 +342,10 @@ public class TestGroups extends TestCase {
 
   // Delete a group
   public void testDeleteGroups0() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
 
     // Delete g4
     GrouperGroup  g4 = GrouperGroup.load(s, stem4, extn4);
@@ -346,9 +358,10 @@ public class TestGroups extends TestCase {
 
   // Fetch valid groups
   public void testFetchGroups1() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
 
     // Fetch the groups
     // g0
@@ -400,9 +413,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG5() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to recreate g0
     String stem = stem0;
     String extn = extn0;
@@ -412,9 +426,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG5() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to fetch a DEF_GROUP_TYPE group as a NS_TYPE group
     // g0
     GrouperGroup g  = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
@@ -423,9 +438,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG6() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to fetch a NS_TYPE type group (explicitly) as a DEF_GROUP_TYPE group
     // ns0
     GrouperGroup g  = GrouperGroup.load(s, ns_stem0, ns_extn0, Grouper.DEF_GROUP_TYPE);
@@ -434,9 +450,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG7() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
     // ns0
     GrouperGroup g  = GrouperGroup.load(s, ns_stem0, ns_extn0);
@@ -445,9 +462,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG8() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to fetch a NS_TYPE type group (explicitly) as a DEF_GROUP_TYPE group
     // ns00
     GrouperGroup g  = GrouperGroup.load(s, ns_stem00, ns_extn00, Grouper.DEF_GROUP_TYPE);
@@ -456,9 +474,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG9() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
     // ns00
     GrouperGroup g  = GrouperGroup.load(s, ns_stem00, ns_extn00);
@@ -467,9 +486,10 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG6() {
-    GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to create a group with bad chars in extn
     String stem = stem5;
     String extn = extn5;
@@ -479,10 +499,11 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG7() {
-    GrouperSession  s     = new GrouperSession();
     //Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Subject subj = GrouperSubject.lookup(Util.m0i, Util.m0t);
-    s.start(subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+
     // Attempt to create a group in a ns where the subject does not
     // have the STEM priv
     String stem = Util.stem6;
