@@ -1,6 +1,6 @@
 /*--
-$Id: TreeKey.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: TreeKey.java,v 1.3 2005-01-12 17:28:05 acohen Exp $
+$Date: 2005-01-12 17:28:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,15 +14,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeType;
-import edu.internet2.middleware.signet.tree.TreeTypeAdapter;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
 
 class TreeKey
 implements Serializable
 {
 private Signet					signet;
 private String 					treeId;
-private TreeTypeAdapter	adapter;
+private TreeAdapter	adapter;
 
 /**
  * 
@@ -33,7 +32,7 @@ TreeKey()
   // TODO Auto-generated constructor stub
 }
 
-TreeKey(Signet signet, String treeId, TreeTypeAdapter adapter)
+TreeKey(Signet signet, String treeId, TreeAdapter adapter)
 {
   this.signet = signet;
   this.treeId = treeId;
@@ -62,17 +61,17 @@ void setTreeId(String treeId)
 }
 
 /**
- * @return Returns the treeType.
+ * @return Returns the adapter.
  */
-TreeTypeAdapter getAdapter()
+TreeAdapter getAdapter()
 {
   return this.adapter;
 }
 
 /**
- * @param treeType The treeType to set.
+ * @param adapter The adapter to use with this Tree.
  */
-void setAdapter(TreeTypeAdapter adapter)
+void setAdapter(TreeAdapter adapter)
 {
   this.adapter = adapter;
 }
@@ -85,7 +84,7 @@ String getAdapterName()
 void setAdapterName(String adapterName)
 throws ObjectNotFoundException
 {
-  this.adapter = this.signet.getTreeTypeAdapter(adapterName);
+  this.adapter = this.signet.getTreeAdapter(adapterName);
 }
 
 boolean isComplete()
@@ -139,7 +138,7 @@ public String toString()
   String outStr
   	= "id='"
   	  + this.treeId 
-  	  + "', treeType='" 
+  	  + "', adapter='" 
   	  + this.adapter
   	  + "'";
   

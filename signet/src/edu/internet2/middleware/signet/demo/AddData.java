@@ -1,6 +1,6 @@
 /*--
-$Id: AddData.java,v 1.3 2005-01-05 21:02:22 acohen Exp $
-$Date: 2005-01-05 21:02:22 $
+$Id: AddData.java,v 1.4 2005-01-12 17:28:05 acohen Exp $
+$Date: 2005-01-12 17:28:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -17,8 +17,6 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeType;
-import edu.internet2.middleware.signet.tree.TreeTypeAdapter;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;

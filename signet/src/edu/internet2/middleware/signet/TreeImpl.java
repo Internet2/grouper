@@ -1,6 +1,6 @@
 /*--
- $Id: TreeImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: TreeImpl.java,v 1.4 2005-01-12 17:28:05 acohen Exp $
+ $Date: 2005-01-12 17:28:05 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -18,9 +18,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeType;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.signet.tree.TreeTypeAdapter;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
 
 //COLUMNS IN THE TreeNode TABLE:
 //treeID
@@ -63,7 +62,7 @@ class TreeImpl extends EntityImpl implements Tree
 
   private Set             nodes;
 
-  private TreeTypeAdapter adapter;
+  private TreeAdapter adapter;
 
   private String          adapterClassName;
 
@@ -73,7 +72,7 @@ class TreeImpl extends EntityImpl implements Tree
     this.nodes = new HashSet();
   }
 
-  TreeImpl(Signet signet, TreeTypeAdapter adapter, String id, String name)
+  TreeImpl(Signet signet, TreeAdapter adapter, String id, String name)
   {
     super(signet, id, name, Status.ACTIVE);
     this.setAdapter(adapter);
@@ -85,9 +84,9 @@ class TreeImpl extends EntityImpl implements Tree
   {
     super.setSignet(signet);
 
-    if (this.adapter instanceof TreeTypeAdapterImpl)
+    if (this.adapter instanceof TreeAdapterImpl)
     {
-      ((TreeTypeAdapterImpl) (this.adapter)).setSignet(signet);
+      ((TreeAdapterImpl) (this.adapter)).setSignet(signet);
     }
   }
 
@@ -245,23 +244,23 @@ class TreeImpl extends EntityImpl implements Tree
     return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
   }
 
-  public TreeTypeAdapter getAdapter()
+  public TreeAdapter getAdapter()
   {
     if ((this.adapter == null) && (this.adapterClassName != null))
     {
-      this.adapter = this.getSignet().getTreeTypeAdapter(this.adapterClassName);
+      this.adapter = this.getSignet().getTreeAdapter(this.adapterClassName);
     }
     return this.adapter;
   }
 
-  void setAdapter(TreeTypeAdapter adapter)
+  void setAdapter(TreeAdapter adapter)
   {
     this.adapter = adapter;
     this.adapterClassName = adapter.getClass().getName();
 
-    if (this.adapter instanceof TreeTypeAdapterImpl)
+    if (this.adapter instanceof TreeAdapterImpl)
     {
-      ((TreeTypeAdapterImpl) (this.adapter)).setSignet(this.getSignet());
+      ((TreeAdapterImpl) (this.adapter)).setSignet(this.getSignet());
     }
   }
 
@@ -271,7 +270,7 @@ class TreeImpl extends EntityImpl implements Tree
 
     if (this.getSignet() != null)
     {
-      this.adapter = this.getSignet().getTreeTypeAdapter(name);
+      this.adapter = this.getSignet().getTreeAdapter(name);
     }
   }
 

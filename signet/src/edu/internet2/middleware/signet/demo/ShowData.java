@@ -1,6 +1,6 @@
 /*--
-$Id: ShowData.java,v 1.4 2005-01-05 21:02:22 acohen Exp $
-$Date: 2005-01-05 21:02:22 $
+$Id: ShowData.java,v 1.5 2005-01-12 17:28:05 acohen Exp $
+$Date: 2005-01-12 17:28:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -32,7 +32,7 @@ import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
-import edu.internet2.middleware.signet.tree.TreeTypeAdapter;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 public class ShowData

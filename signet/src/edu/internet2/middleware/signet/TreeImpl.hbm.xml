@@ -10,10 +10,6 @@
 			<generator class="assigned"/>
 		</id>
 		<timestamp name="modifyDatetime"/>
-		
-<!--
-		<many-to-one name="treeType" column="treeTypeID" cascade="save-update" class="edu.internet2.middleware.signet.TreeTypeImpl" not-null="true"/>
--->
 	
 		<property
 			name="adapterClassName"

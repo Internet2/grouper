@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: SubsystemImpl.java,v 1.4 2005-01-12 17:28:05 acohen Exp $
+ $Date: 2005-01-12 17:28:05 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -270,11 +270,6 @@ class SubsystemImpl
 
     return function;
   }
-
-  //  public Scope getScope(TreeType treeType, String treeId)
-  //  {
-  //    return (Tree)(this.scopesMap.get(treeId));
-  //  }
 
   void add(Function function)
   {

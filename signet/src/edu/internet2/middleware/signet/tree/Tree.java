@@ -1,6 +1,6 @@
 /*--
-$Id: Tree.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Tree.java,v 1.3 2005-01-12 17:28:05 acohen Exp $
+$Date: 2005-01-12 17:28:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -20,9 +20,8 @@ public interface Tree
 {    
 /**
  * @return Returns a short mnemonic ID which will appear in XML
- * 		documents and other documents used by analysts. This ID, when
- * 		paired with a {@link TreeType}, uniquely identifies a
- * 		single Tree.
+ * 		documents and other documents used by analysts. This ID
+ * 		uniquely identifies a single Tree.
  */
 public String getId();
 
@@ -44,5 +43,5 @@ public Set getTreeNodes();
 
 public TreeNode getNode(String nodeId);
 
-public TreeTypeAdapter getAdapter();
+public TreeAdapter getAdapter();
 }

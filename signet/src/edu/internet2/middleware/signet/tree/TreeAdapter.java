@@ -1,6 +1,6 @@
 /*--
-$Id: TreeTypeAdapter.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: TreeAdapter.java,v 1.1 2005-01-12 17:28:05 acohen Exp $
+$Date: 2005-01-12 17:28:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -18,7 +18,7 @@ import edu.internet2.middleware.signet.Subsystem;
 * one provided with Signet.
 * 
 */
-public interface TreeTypeAdapter
+public interface TreeAdapter
 {
 
 public Tree getTree(String id)

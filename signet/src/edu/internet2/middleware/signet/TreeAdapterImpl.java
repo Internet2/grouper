@@ -1,6 +1,6 @@
 /*--
-$Id: TreeTypeAdapterImpl.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: TreeAdapterImpl.java,v 1.1 2005-01-12 17:28:05 acohen Exp $
+$Date: 2005-01-12 17:28:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,30 +10,29 @@ package edu.internet2.middleware.signet;
 
 import javax.naming.OperationNotSupportedException;
 
-import edu.internet2.middleware.signet.tree.AbstractTreeTypeAdapter;
+import edu.internet2.middleware.signet.tree.AbstractTreeAdapter;
 import edu.internet2.middleware.signet.tree.AdapterUnavailableException;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
-import edu.internet2.middleware.signet.tree.TreeType;
-import edu.internet2.middleware.signet.tree.TreeTypeAdapter;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
-* This implementation of TreeTypeAdapter provides Signet's own native,
+* This implementation of TreeAdapter provides Signet's own native,
 * database-persisted trees.
 */
-class TreeTypeAdapterImpl
-extends AbstractTreeTypeAdapter
-implements TreeTypeAdapter
+class TreeAdapterImpl
+extends AbstractTreeAdapter
+implements TreeAdapter
 {
 private Signet signet;
 
-public TreeTypeAdapterImpl()
+public TreeAdapterImpl()
 {
   super();
 }
 
-public TreeTypeAdapterImpl(Signet signet)
+public TreeAdapterImpl(Signet signet)
 {
   super();
   this.signet = signet;
@@ -68,7 +67,7 @@ throws TreeNotFoundException
   if (tree == null)
   {
     throw new TreeNotFoundException
-  	  ("The native Signet TreeTypeAdapter was unable to find the"
+  	  ("The native Signet TreeAdapter was unable to find the"
   	   + " Tree with ID='"
   	   + id
   	   + "'.");
@@ -79,7 +78,7 @@ throws TreeNotFoundException
 
 public void init() throws AdapterUnavailableException
 {
-  // This TreeTypeAdapter has no initialization to perform.
+  // This TreeAdapter has no initialization to perform.
 }
 
 public void destroy()
@@ -95,7 +94,7 @@ throws OperationNotSupportedException
   if (this.isModifiable() == false)
   {
     throw new OperationNotSupportedException
-  	  					("The TreeTypeAdapter '" 
+  	  					("The TreeAdapter '" 
   		  				 + this.getClass().getName() 
   			  			 + "' is read-only. The attempt to create the new"
   				  		 + " Tree '"
@@ -119,7 +118,7 @@ throws OperationNotSupportedException
 }
 
 /* (non-Javadoc)
- * @see edu.internet2.middleware.signet.tree.TreeTypeAdapter#newTreeNode(edu.internet2.middleware.signet.tree.Tree, java.lang.String, java.lang.String, java.lang.String)
+ * @see edu.internet2.middleware.signet.tree.TreeAdapter#newTreeNode(edu.internet2.middleware.signet.tree.Tree, java.lang.String, java.lang.String, java.lang.String)
  */
 public TreeNode newTreeNode
 	(Tree tree, String id, String name)

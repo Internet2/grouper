@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.6 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: Signet.java,v 1.7 2005-01-12 17:28:05 acohen Exp $
+ $Date: 2005-01-12 17:28:05 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -24,9 +24,8 @@ import org.apache.commons.collections.list.UnmodifiableList;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
-import edu.internet2.middleware.signet.tree.TreeType;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.signet.tree.TreeTypeAdapter;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectTypeAdapter;
@@ -56,7 +55,7 @@ public final class Signet
   // moves there.
   static final String           SCOPE_PART_DELIMITER           = ":";
 
-  private static final String   DEFAULT_TREE_TYPE_ADAPTER_NAME = "edu.internet2.middleware.signet.TreeTypeAdapterImpl";
+  private static final String   DEFAULT_TREE_TYPE_ADAPTER_NAME = "edu.internet2.middleware.signet.TreeAdapterImpl";
 
   /**
    * This constant denotes the "first name" attribute of a Subject, as it is
@@ -362,7 +361,7 @@ public final class Signet
   }
 
   /**
-   * Creates a new Tree, using the default Signet TreeTypeAdapter.
+   * Creates a new Tree, using the default Signet TreeAdapter.
    * 
    * @param treeId
    * @param treeName
@@ -370,7 +369,7 @@ public final class Signet
    */
   public final Tree newTree(String treeId, String treeName)
   {
-    TreeTypeAdapter defaultTreeAdapter = getTreeTypeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
+    TreeAdapter defaultTreeAdapter = getTreeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
     Tree newTree = new TreeImpl(this, defaultTreeAdapter, treeId, treeName);
     return newTree;
   }
@@ -383,7 +382,7 @@ public final class Signet
    * @param treeName
    * @return the new Tree
    */
-  public final Tree newTree(TreeTypeAdapter adapter, String treeId,
+  public final Tree newTree(TreeAdapter adapter, String treeId,
       String treeName)
   {
     Tree newTree = new TreeImpl(this, adapter, treeId, treeName);
@@ -1154,7 +1153,7 @@ public final class Signet
   }
 
   /**
-   * This method is only for use by the native Signet TreeTypeAdapter.
+   * This method is only for use by the native Signet TreeAdapter.
    * 
    * @return null if the Tree is not found.
    * @throws SignetRuntimeException
@@ -1177,7 +1176,7 @@ public final class Signet
       throw new SignetRuntimeException(he);
     }
 
-    treeImpl.setAdapter(new TreeTypeAdapterImpl(this));
+    treeImpl.setAdapter(new TreeAdapterImpl(this));
 
     return treeImpl;
   }
@@ -1289,7 +1288,7 @@ public final class Signet
 
   /**
    * Gets a single TreeNode by treeID and nodeID, using the default Signet
-   * TreeTypeAdapter.
+   * TreeAdapter.
    * 
    * @param treeId
    * @param treeNodeId
@@ -1300,8 +1299,8 @@ public final class Signet
   public TreeNode getTreeNode(String treeId, String treeNodeId)
       throws ObjectNotFoundException
   {
-    TreeTypeAdapter adapter = this
-        .getTreeTypeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
+    TreeAdapter adapter = this
+        .getTreeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
     return getTreeNode(adapter, treeId, treeNodeId);
   }
 
@@ -1314,7 +1313,7 @@ public final class Signet
    * @return the specified TreeNode
    * @throws ObjectNotFoundException
    */
-  public TreeNode getTreeNode(TreeTypeAdapter adapter, String treeId,
+  public TreeNode getTreeNode(TreeAdapter adapter, String treeId,
       String treeNodeId) throws ObjectNotFoundException
   {
     Tree tree = null;
@@ -1349,24 +1348,28 @@ public final class Signet
     int secondDelimIndex = scopeString.indexOf(SCOPE_PART_DELIMITER,
         firstDelimIndex + SCOPE_PART_DELIMITER.length());
 
-    String treeTypeAdapterName = scopeString.substring(0, firstDelimIndex);
+    String treeAdapterName = scopeString.substring(0, firstDelimIndex);
     String treeId = scopeString.substring(firstDelimIndex
         + SCOPE_PART_DELIMITER.length(), secondDelimIndex);
     String treeNodeId = (scopeString.substring(secondDelimIndex
         + SCOPE_PART_DELIMITER.length()));
 
-    TreeTypeAdapter adapter = getTreeTypeAdapter(treeTypeAdapterName);
+    TreeAdapter adapter = getTreeAdapter(treeAdapterName);
     return getTreeNode(adapter, treeId, treeNodeId);
   }
 
   /**
+   * This method loads the named TreeAdapter class, instantiates it
+   * using its parameterless constructor, and passes back the new
+   * instance.
    * 
-   * @param treeTypeId
-   * @return
+   * @param adapterName The fully-qualified class-name of the
+   * 		TreeAdapter.
+   * @return the new TreeAdapter.
    */
-  public TreeTypeAdapter getTreeTypeAdapter(String adapterName)
+  public TreeAdapter getTreeAdapter(String adapterName)
   {
-    TreeTypeAdapter adapter;
+    TreeAdapter adapter;
     Class clazz = null;
 
     try
@@ -1376,7 +1379,7 @@ public final class Signet
     catch (ClassNotFoundException cnfe)
     {
       throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeTypeAdapter which"
+          "A Tree in the Signet database uses a TreeAdapter which"
               + " is implemented by the class named '" + adapterName
               + "'. This class cannot be found in Signet's classpath.", cnfe);
     }
@@ -1391,7 +1394,7 @@ public final class Signet
     catch (NoSuchMethodException nsme)
     {
       throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeTypeAdapter which"
+          "A Tree in the Signet database uses a TreeAdapter which"
               + " is implemented by the class named '"
               + adapterName
               + "'. This class is in Signet's classpath, but it does not provide"
@@ -1400,12 +1403,12 @@ public final class Signet
 
     try
     {
-      adapter = (TreeTypeAdapter) (constructor.newInstance(noParams));
+      adapter = (TreeAdapter) (constructor.newInstance(noParams));
     }
     catch (Exception e)
     {
       throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeTypeAdapter which"
+          "A Tree in the Signet database uses a TreeAdapter which"
               + " is implemented by the class named '"
               + adapterName
               + "'. This class is in Signet's classpath, and it does provide"
@@ -1413,56 +1416,93 @@ public final class Signet
               + " in invoking that constructor.", e);
     }
 
-    if (adapter instanceof TreeTypeAdapterImpl)
+    if (adapter instanceof TreeAdapterImpl)
     {
-      ((TreeTypeAdapterImpl) (adapter)).setSignet(this);
+      ((TreeAdapterImpl) (adapter)).setSignet(this);
     }
 
     return adapter;
   }
 
   /**
-   * Formats a scope-tree for display. This method should probably be moved to
-   * some new, display-oriented class.
+   * Formats a scope-tree for display. This method should probably be
+   * moved to some new, display-oriented class.
    * 
    * @param treeNode
+   * 		The TreeNode whose ancestry is to be displayed.
    * @param childSeparatorPrefix
+   * 		A String which is to appear before every instance of a
+   * 		child-node (that is, before every TreeNode except the root).
    * @param levelPrefix
+   * 		A String which is to appear before every instance of TreeNode
+   *    which is a child of its immediate predecessor (that is,
+   *    between a parent-node and its first child-node).
    * @param levelSuffix
+   *    A String which is to appear after every instance of TreeNode
+   *    which is a parent of its immediate successor (that is,
+   *    between a parent-node and its first child-node).
    * @param childSeparatorSuffix
+   *    A String which is to appear after every instance of a
+   *    child-node (that is, after every TreeNode except the root).
+   * 
    * @return
+   * 	A String representation of the specified node and its
+   *  ancestors.
+   * 
    * @throws ObjectNotFoundException
    */
-  public String displayAncestry(TreeNode treeNode, String childSeparatorPrefix,
-      String levelPrefix, String levelSuffix, String childSeparatorSuffix)
-      throws ObjectNotFoundException
+  public String displayAncestry
+  	(TreeNode treeNode,
+  	 String 	childSeparatorPrefix,
+     String 	levelPrefix,
+     String 	levelSuffix,
+     String 	childSeparatorSuffix)
+  throws ObjectNotFoundException
   {
     StringBuffer display = new StringBuffer();
     int depth = 0;
+    Set roots = new HashSet();
 
-    buildAncestry(display, treeNode, childSeparatorPrefix + levelPrefix,
-        levelSuffix + childSeparatorSuffix);
-
-    try
+    buildAncestry
+    	(display,
+    	 treeNode,
+    	 childSeparatorPrefix + levelPrefix,
+    	 levelSuffix + childSeparatorSuffix,
+    	 roots);
+    
+    Iterator rootsIterator = roots.iterator();
+    while (rootsIterator.hasNext())
     {
-      display.insert(0, treeNode.getTree().getName());
-    }
-    catch (TreeNotFoundException tnfe)
-    {
-      throw new ObjectNotFoundException(tnfe);
-    }
-
+      TreeNode root = (TreeNode)(rootsIterator.next());
+      display.insert(0, root.getName());  
+    }  
+    
     display.insert(0, levelPrefix);
     display.append(levelSuffix);
-
+    
     return display.toString();
   }
 
-  private void buildAncestry(StringBuffer display, TreeNode node,
-      String prefix, String suffix)
+  /**
+   * 
+   * @param display
+   * @param node
+   * @param prefix
+   * @param suffix
+   * @return a Set of roots of the specified TreeNode.
+   */
+  private void buildAncestry
+    (StringBuffer	display,
+     TreeNode			node,
+     String				prefix,
+     String				suffix,
+     Set					roots)
   {
-    if (node == null)
+    if (node.getParents().size() == 0)
     {
+      // This method does not display the roots of the Tree.
+      // That is handled by this method's caller.
+      roots.add(node);
       return;
     }
 
@@ -1474,8 +1514,12 @@ public final class Signet
     Iterator parentsIterator = parents.iterator();
     while (parentsIterator.hasNext())
     {
-      buildAncestry(display, (TreeNode) (parentsIterator.next()), prefix,
-          suffix);
+      buildAncestry
+      	(display,
+      	 (TreeNode)(parentsIterator.next()),
+      	 prefix,
+         suffix,
+         roots);
     }
   }
 
@@ -1831,13 +1875,28 @@ public final class Signet
     return treeDisplay.toString();
   }
 
-  private void printTreeNode(StringBuffer scopesDisplay, String prefix,
-      String prefixIncrement, String infix, String infixIncrement,
-      String suffix, Set allGrantableScopes, TreeType treeType, Tree tree,
-      TreeNode treeNode)
+  private void printTreeNode
+    (StringBuffer scopesDisplay,
+     String prefix,
+     String prefixIncrement,
+     String infix,
+     String infixIncrement,
+     String suffix,
+     Set allGrantableScopes,
+     Tree tree,
+     TreeNode treeNode)
   {
-    printTreeNode(scopesDisplay, prefix, prefix, prefix, prefixIncrement,
-        infix, infixIncrement, suffix, allGrantableScopes, treeNode);
+    printTreeNode
+      (scopesDisplay,
+       prefix,
+       prefix,
+       prefix,
+       prefixIncrement,
+       infix,
+       infixIncrement,
+       suffix,
+       allGrantableScopes,
+       treeNode);
   }
 
   private void printTreeNode(StringBuffer scopesDisplay, String ancestorPrefix,
