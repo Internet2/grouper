@@ -8,16 +8,17 @@ import  java.sql.*;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.8 2004-04-29 03:52:43 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.9 2004-04-29 05:22:40 blair Exp $
  */
 public class GrouperSession {
 
-  private Grouper           intG    = null;
-  private GrouperNaming     intName = null;
-  private GrouperPrivilege  intPriv = null;
-  private GrouperSubject    intSubj = null;
-  private Connection        con     = null;
-  private String            subject = null;
+  private Grouper           intG      = null;
+  private GrouperNaming     intName   = null;
+  private GrouperPrivilege  intPriv   = null;
+  private GrouperSubject    intSubj   = null;
+  private Connection        con       = null;
+  private GrouperMember     subject   = null;
+  private String            subjectID = null;
 
   /**
    * Create a {@link GrouperSession} object through which all further
@@ -60,14 +61,16 @@ public class GrouperSession {
    */
   public void start(String subjectID) {
     // XXX Bad assumption!
-    this.subject = subjectID;
+    this.subject = this.lookup(subjectID);
 
-    // Create internal representations of the various Grouper
-    // interfaces
-    this.createInterfaces();
+    if (this.subject != null) {
+      // Create internal representations of the various Grouper
+      // interfaces
+      this.createInterfaces();
 
-    // Register a new session
-    this.registerSession();
+      // Register a new session
+      this.registerSession();
+    } // XXX else...
 
   }
 
@@ -86,12 +89,13 @@ public class GrouperSession {
    * memberID and not a presentationID.
    */
   public void start(String subjectID, boolean isMember) {
-    // XXX Bad assumption!
-    this.subject = subjectID;
-
     // Create internal representations of the various Grouper
     // interfaces
     this.createInterfaces();
+
+    // XXX Bad assumptions!
+    this.subject    = this.lookup(subjectID);
+    this.subjectID  = this.subjectID;
 
     // Register a new session
     this.registerSession();
@@ -123,7 +127,23 @@ public class GrouperSession {
    * subject.
    */
   public String whoami() {
-    return this.subject;
+    return this.subjectID;
+  }
+
+  public GrouperMember lookup(String subjectID) {
+    return _lookup(subjectID);
+  }
+
+  public GrouperMember lookup(String subjectID, boolean isMember) {
+    return _lookup(subjectID);
+  }
+
+  private GrouperMember _lookup(String subjectID) {
+    GrouperMember m = this.intSubj.lookup(subjectID);
+    if (m != null) {
+      this.subjectID = subjectID;
+    }
+    return m;
   }
 
   private void createInterfaces() {
@@ -149,16 +169,20 @@ public class GrouperSession {
   
     return object;
   }
-      
+     
+  public Connection connection() {
+    return this.con;
+  }
+ 
   private void registerSession() {
     Statement stmt = null;
 
     try { 
-      stmt = con.createStatement();
+      stmt = this.connection().createStatement();
       String insertSession = "INSERT INTO grouper_session " +
                              "(cred, startTime) " +
                              "VALUES (" +
-                             "'" + this.subject + "', " +
+                             "'" + this.subjectID + "', " +
                              "'RIGHT NOW'" +
                              ")";
       try { 
