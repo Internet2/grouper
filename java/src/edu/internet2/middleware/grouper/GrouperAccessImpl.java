@@ -58,7 +58,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.33 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.34 2004-11-29 19:14:57 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -256,31 +256,6 @@ public class GrouperAccessImpl implements GrouperAccess {
   }
 
   /**
-   * Revoke an access privilege.
-   * <p>
-   *
-   * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
-   * @param   m     Revoke privilege for this{@link GrouperMember}.
-   * @param   priv  Privilege to revoke.
-   */
-  public boolean revoke(
-                        GrouperSession s, GrouperGroup g, 
-                        GrouperMember m, String priv
-                       ) 
-  {
-    GrouperAccessImpl._init();
-    boolean rv = false;
-    if (this.can(priv) == true) {
-      if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
-        rv = true;
-      }
-    } 
-    // TODO I should probably throw an exception if invalid priv
-    return rv;
-  }
-
-  /**
    * Revoke all privileges of the specified type on the specified
    * group.
    * <p />
@@ -301,6 +276,31 @@ public class GrouperAccessImpl implements GrouperAccess {
       rv = true; // FIXME
     }
     // TODO Should this return a list of deleted members?
+    // TODO I should probably throw an exception if invalid priv
+    return rv;
+  }
+
+  /**
+   * Revoke an access privilege.
+   * <p>
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   m     Revoke privilege for this{@link GrouperMember}.
+   * @param   priv  Privilege to revoke.
+   */
+  public boolean revoke(
+                        GrouperSession s, GrouperGroup g, 
+                        GrouperMember m, String priv
+                       ) 
+  {
+    GrouperAccessImpl._init();
+    boolean rv = false;
+    if (this.can(priv) == true) {
+      if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
+        rv = true;
+      }
+    } 
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
