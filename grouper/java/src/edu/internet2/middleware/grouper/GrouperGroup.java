@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.59 2004-10-28 14:34:39 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.60 2004-10-29 13:25:30 blair Exp $
  */
 public class GrouperGroup {
 
@@ -164,7 +164,7 @@ public class GrouperGroup {
       if (this.attributes.containsKey("stem")) {
         // We need a stem
         // BDC String stem = this.attribute("stem").value();
-        if (this.attributes.containsKey("name")) {
+        if (this.attributes.containsKey("descriptor")) {
           // And a descriptor
           // BDC String desc = this.attribute("descriptor").value();
           if (this.grprSession != null) {

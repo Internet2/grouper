@@ -15,98 +15,98 @@ import java.util.*;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.13 2004-10-13 16:53:15 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.14 2004-10-29 13:25:30 blair Exp $
  */
 public interface GrouperNaming {
 
   /**
-   * Grant a naming privilege on a {@link Grouper} namespace.
+   * Grant a naming privilege on a {@link Grouper} stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   namespace  Grant privileges on this {@link Grouper} namespace.
+   * @param   stem  Grant privileges on this {@link Grouper} stem.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public void grant(GrouperNamespace namespace, GrouperMember m, String priv);
+  public void grant(GrouperStem stem, GrouperMember m, String priv);
 
   /**
-   * Revoke a naming privilege on a {@link Grouper} namespace.
+   * Revoke a naming privilege on a {@link Grouper} stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   namespace  Revoke privilege on this {@link Grouper} namespace.
+   * @param   stem  Revoke privilege on this {@link Grouper} stem.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public void revoke(GrouperNamespace namespace, GrouperMember m, String priv);
+  public void revoke(GrouperStem stem, GrouperMember m, String priv);
 
   /**
-   * List naming privileges for current subject on the specified namespace.
+   * List naming privileges for current subject on the specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   namespace  List privileges on this namespace.
+   * @param   stem  List privileges on this stem.
    * @return  List of privileges.
    */
-  public List has(GrouperNamespace namespace);
+  public List has(GrouperStem stem);
 
   /**
-   * List access privileges for specified member on the specified namespace.
+   * List access privileges for specified member on the specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   namespace  Return privileges for this {@link Grouper} namespace.
+   * @param   stem  Return privileges for this {@link Grouper} stem.
    * @param   m     List privileges for this @link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperNamespace namespace, GrouperMember m);
+  public List has(GrouperStem stem, GrouperMember m);
 
   /**
    * Verify whether current subject has the specified privilege on the
-   * specified namespace.
+   * specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   namespace  Verify privilege for this namespace.
+   * @param   stem  Verify privilege for this stem.
    * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the namespace.
+   * @return  True if subject has this privilege on the stem.
    */
-  public boolean has(GrouperNamespace namespace, String priv);
+  public boolean has(GrouperStem stem, String priv);
 
   /**
    * Verify whether the specified member has the specified privilege
-   * on the specified namespace.
+   * on the specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   namespace  Verify privilege for this namespace.
+   * @param   stem  Verify privilege for this stem.
    * @param   m     Verify privilege for this member.
    * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the namespace.
+   * @return  True if subject has this privilege on the stem.
    */
-  public boolean has(GrouperNamespace namespace, GrouperMember m, String priv);
+  public boolean has(GrouperStem stem, GrouperMember m, String priv);
 
   /**
-   * List namespaces where the current subject has the specified privilege.
+   * List stems where the current subject has the specified privilege.
    * <p>
    * See implementations for more information.
    * <p>
    *
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperNamespace} namespaces.
+   * @return  List of {@link GrouperStem} stems.
    */
   public List has(String priv);
 
   /**
-   * List namespaces where the specified member has the specified
+   * List stems where the specified member has the specified
    * privilege.
    * <p>
    * See implementations for more information.
    *
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperNamespace} namespaces.
+   * @return  List of {@link GrouperStem} stems.
    */
   public List has(GrouperMember m, String priv);
 

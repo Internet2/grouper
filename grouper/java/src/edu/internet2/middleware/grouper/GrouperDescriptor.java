@@ -10,10 +10,10 @@
 package edu.internet2.middleware.grouper;
 
 /** 
- * Class representing the name portion of a {@link GrouperGroup}.
+ * Class representing the descriptor portion of a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperDescriptor.java,v 1.8 2004-10-28 14:34:39 blair Exp $
+ * @version $Id: GrouperDescriptor.java,v 1.9 2004-10-29 13:25:30 blair Exp $
  */
 public class GrouperDescriptor {
 

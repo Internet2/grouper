@@ -1,14 +1,14 @@
 -- 
--- $Id: base.sql,v 1.8 2004-10-13 18:32:53 blair Exp $
+-- $Id: base.sql,v 1.9 2004-10-29 13:25:31 blair Exp $
 -- 
 
 -- Base Grouper group type
 INSERT INTO grouper_types (groupType) VALUES ('base');
 
 INSERT INTO grouper_Fields (groupField, readPriv, writePriv, isList) 
-  VALUES ('namespace', 'READ', 'ADMIN', 'FALSE');
+  VALUES ('descriptor', 'READ', 'ADMIN', 'FALSE');
 INSERT INTO grouper_Fields (groupField, readPriv, writePriv, isList) 
-  VALUES ('name', 'READ', 'ADMIN', 'FALSE');
+  VALUES ('stem', 'READ', 'ADMIN', 'FALSE');
 INSERT INTO grouper_Fields (groupField, readPriv, writePriv, isList) 
   VALUES ('description', 'READ', 'ADMIN', 'FALSE');
 INSERT INTO grouper_Fields (groupField, readPriv, writePriv, isList) 
@@ -27,9 +27,9 @@ INSERT INTO grouper_Fields (groupField, readPriv, writePriv, isList)
   VALUES ('optouts', 'READ', 'UPDATE', 'TRUE');
 
 INSERT INTO grouper_typeDefs (groupType, groupField) 
-  VALUES ('base', 'namespace');
+  VALUES ('base', 'descriptor');
 INSERT INTO grouper_typeDefs (groupType, groupField) 
-  VALUES ('base', 'name');
+  VALUES ('base', 'stem');
 INSERT INTO grouper_typeDefs (groupType, groupField) 
   VALUES ('base', 'description');
 INSERT INTO grouper_typeDefs (groupType, groupField) 

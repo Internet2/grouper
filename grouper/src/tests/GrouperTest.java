@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.63 2004-10-28 19:17:34 blair Exp $
+ * $Id: GrouperTest.java,v 1.64 2004-10-29 13:25:30 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -180,10 +180,11 @@ public class GrouperTest extends TestCase {
 
     String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
-    typeDef = "base:stem";
+
+    typeDef = "base:descriptor";
     Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(0).getClass().getName() ) );
-    typeDef = "base:descriptor";
+    typeDef = "base:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(1).getClass().getName() ) );
     typeDef = "base:description";
@@ -441,7 +442,7 @@ public class GrouperTest extends TestCase {
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subject);
 
-    GrouperGroup g = GrouperGroup.load(s, "namespace.0", "name.0");
+    GrouperGroup g = GrouperGroup.load(s, "stem.0", "descriptor.0");
 
     // Confirm that group doesn't exist
     Assert.assertFalse( g.exists() );
@@ -458,7 +459,7 @@ public class GrouperTest extends TestCase {
     s.start(subject);
 
     // Create the group
-    GrouperGroup grp = GrouperGroup.create(s, "namespace.1", "name.1");
+    GrouperGroup grp = GrouperGroup.create(s, "stem.1", "descriptor.1");
 
     // Confirm that the group exists
     Assert.assertTrue( grp.exists() );
@@ -475,7 +476,7 @@ public class GrouperTest extends TestCase {
     s.start(subject);
 
     // Fetch the group
-    GrouperGroup grp = GrouperGroup.load(s, "namespace.1", "name.1");
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
 
     // Assert that the returned group is not null
     Assert.assertNotNull(grp);
