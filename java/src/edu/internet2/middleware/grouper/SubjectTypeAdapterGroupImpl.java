@@ -17,7 +17,7 @@ import  edu.internet2.middleware.subject.*;
  * for type "group".
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.1 2004-11-15 19:56:27 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.2 2004-11-15 20:05:28 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
@@ -38,7 +38,7 @@ public class  SubjectTypeAdapterGroupImpl
   }
 
   public Subject getSubject(SubjectType type, String id) {
-    return GrouperBackend.subject(id, type.getId());
+    return GrouperBackend.subjectLookupTypeGroup(id, type.getId());
   }
 
   public Subject getSubjectByDisplayId(SubjectType type, String displayId) {
