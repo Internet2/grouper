@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.41 2004-09-19 18:08:03 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.42 2004-09-19 18:37:07 blair Exp $
  */
 public class GrouperGroup {
 
@@ -127,11 +127,9 @@ public class GrouperGroup {
 
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
-      // Setup the attribute, add it to the stash, and then attempt to
-      // load the hibernated group if appropriate.
+      // Setup the attribute, add it to the stash.
       attr.set(this.groupKey, attribute, value);
       attributes.put(attribute, attr);
-      // BDC this._autoload();
     } 
   }
 
@@ -203,36 +201,6 @@ public class GrouperGroup {
   /*
    * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
    */
-
-  /*
-   * An ugly hack to attempt to autoload an object from the
-   * persistent store.  If we know the `stem' and the 
-   * `descriptor' and the group is not currently known to exist,
-   * attempt to autoload it.
-   */
-  private void _autoload() {
-    if ( 
-        (this.exists == false)         &&     // The group is not
-                                              // marked as existing,
-        attributes.containsKey("stem") &&     // But it has a stem...
-        attributes.containsKey("descriptor")  // And a descriptor
-       )
-    {
-      // Now run the exist() method.  If successful, load the 
-      // hibernating group.
-      if (this.exist() == true) {
-        // BDC this._load(this.groupKey);
-      }
-    }
-  }
-
-  /*
-   * Load group from hibernated state.
-   */
-  private void _load(String key) {
-    GrouperBackend.loadGroup(this.grprSession, this, key);
-    this.exists = true;
-  }
 
   /*
    * Validate whether an attribute is valid for the current group type.
