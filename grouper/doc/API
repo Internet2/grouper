@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.12 2004-11-05 18:46:27 blair Exp $
+# $Id: API,v 1.13 2004-11-06 03:45:06 blair Exp $
 #
 # TODO Interfaces
 #
@@ -152,19 +152,7 @@ GrouperSession
     GrouperSession()
 
   Instance Methods
-    void grantPriv(GrouperGroup g, GrouperMember m, String priv)
-      XXX Why here?
-    boolean hasPriv(GrouperGroup g, GrouperMember m, String priv)
-      XXX Why here?
-    boolean hasPriv(GrouperGroup g, String priv)
-      XXX Why here?
-    List hasPriv(GrouperGroup g)
-      XXX Why here?
-    List hasPriv(GrouperGroup g, GrouperMember m)
-      XXX Why here?
-    GrouperMember lookup(String id)
-    void revokePriv(GrouperGroup g, GrouperMember m, String priv)
-    void start(Grouper G, GrouperMember s)
+    void start(GrouperMember s)
     void stop()
     GrouperMember subject()
 
