@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.3 2004-12-08 04:12:23 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.4 2004-12-08 04:22:58 blair Exp $ 
  */
 class groupmgr {
 
@@ -33,6 +33,7 @@ class groupmgr {
   /*
    * PRIVATE CLAS VARIABLES
    */
+  private static boolean        actUponG;
   private static boolean        actUponNS;
   private static CommandLine    cmd;
   private static String         extn;
@@ -73,13 +74,22 @@ class groupmgr {
   private static boolean _dispatch() {
     boolean rv = false;
     if (toAdd == true) {
-      if (actUponNS == true) {
-        rv = _stemAdd();
+      if (actUponG && actUponNS) {
+        System.err.println("Can only act upon one item at a time!");
+        _usage();
       } else {
-        System.err.println("No additions specified");
+        if        (actUponG == true)  {
+          rv = _groupAdd();
+        } else if (actUponNS == true) {
+          rv = _stemAdd();
+        } else {
+          System.err.println("No additions specified!");
+          _usage();
+        }
       }
     } else {
-      System.err.println("No actions specified");
+      System.err.println("No actions specified!"); 
+      _usage();
     }
     return rv;
   }
@@ -87,20 +97,21 @@ class groupmgr {
   /* (!javadoc)
    * Add a group to the registry.
    */
-  private static boolean _groupAdd(List tokens) {
+  private static boolean _groupAdd() {
     boolean rv = false;
-    String stem = (String) tokens.get(0);
-    String extn = (String) tokens.get(0);
-    GrouperGroup g = GrouperGroup.create(
-                       s, stem, extn, Grouper.DEF_GROUP_TYPE
-                     );
-    if (g != null) {
-      _verbose("Added group: " + g);
-      rv = true;
-    } else {
-      System.err.println(
-        "Failed to add group=`" + stem + ", extn=`" + extn + "'"
-      );
+    if ( (stem != null) && (extn != null) ) {
+      stem = _translateRoot(stem);
+      GrouperGroup g = GrouperGroup.create(
+                         s, stem, extn, Grouper.DEF_GROUP_TYPE
+                       );
+      if (g != null) {
+        _verbose("Added group: " + g);
+        rv = true;
+      } else {
+        System.err.println(
+          "Failed to add group=`" + stem + "', extn=`" + extn + "'"
+        );
+      }
     }
     return rv;
   }
@@ -199,6 +210,7 @@ class groupmgr {
                         .hasArg()
                         .create("e")
                      );
+    options.addOption("g", false, "Act upon a group");
     options.addOption("h", false, "Print usage information");
     options.addOption("n", false, "Act upon a namespace");
     options.addOption(
@@ -252,6 +264,10 @@ class groupmgr {
       extn = cmd.getOptionValue("e");
       _verbose("Using extension '" + extn + "'");
     }
+    if (cmd.hasOption("g")) {
+      actUponG = true;
+      _verbose("Will act upon a group");
+    }
     if (cmd.hasOption("n")) {
       actUponNS = true;
       _verbose("Will act upon a namespace");
@@ -272,10 +288,7 @@ class groupmgr {
   private static boolean _stemAdd() {
     boolean rv = false;
     if ( (stem != null) && (extn != null) ) {
-      // TODO Bah.  I have to interpolate.
-      if (stem.equals("Grouper.NS_ROOT")) {
-        stem = Grouper.NS_ROOT;
-      }
+      stem = _translateRoot(stem);
       GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
       if (g != null) {
         _verbose("Added stem: " + g);
@@ -304,6 +317,17 @@ class groupmgr {
     _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
     subj = GrouperSubject.load(subjectID, Grouper.DEF_SUBJ_TYPE);
+  }
+
+  /* (!javadoc)
+   * Interpolate, if necessary, the namespace root
+   */
+  private static String _translateRoot(String stem) {
+    // TODO Bah.  I have to interpolate.
+    if (stem.equals("Grouper.NS_ROOT")) {
+      stem = Grouper.NS_ROOT;
+    }
+    return stem;
   }
 
   /* (!javadoc)

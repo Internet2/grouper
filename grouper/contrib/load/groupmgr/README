@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.3 2004-12-08 04:12:23 blair Exp $
+$Id: README,v 1.4 2004-12-08 04:22:58 blair Exp $
 
 ---
 
@@ -24,13 +24,17 @@ Add a top-level namespace _test_:
 
     % java -a -n -s Grouper.NS_ROOT -e test
 
+Add a group within _test_:
+
+    % java -a -g -s test -e foo
+
 --
 
 ## Bugs
 
-* No support for adding groups
 * No support for removing groups
 * No support for adding members
 * No support for removing members
 * No support for modifying attributes
+
 
