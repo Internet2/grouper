@@ -56,9 +56,9 @@ package edu.internet2.middleware.grouper;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.19 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperField.java,v 1.20 2005-02-17 18:59:09 blair Exp $
  */
-public class GrouperField {
+public class GrouperField implements Comparable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -82,6 +82,48 @@ public class GrouperField {
    * PUBLIC INSTANCE METHODS
    */
 
+
+  /**
+   * Sort {@link GrouperField} objects by field name.
+   * <p />
+   */
+  public int compareTo(Object anotherField) throws ClassCastException {
+    if (!(anotherField instanceof GrouperField))  {
+      throw new ClassCastException("GrouperField object expected.");
+    }
+    String fieldA = this.getGroupField();
+    String fieldB = ( (GrouperField) anotherField ).getGroupField();
+    return ( (String) fieldA ).compareTo( (String) fieldB  );
+  }
+
+  /** 
+   * Return the name of the group field.
+   * <p />
+   * @return Field name.
+   */
+  public String groupField() {
+    return this.getGroupField();
+  }
+
+  /**
+   * Return whether this is a list field or not.
+   * <p />
+   * TODO This should probably be boolean.
+   * @return List field status.
+   */
+  public String isList() {
+    return this.getIsList();
+  }
+
+  /**
+   * Return read privilege for this field.
+   * <p />
+   * @return Read privilege.
+   */
+  public String readPriv() {
+    return this.getReadPriv();
+  }
+
   /**
    * Return a string representation of this object.
    * <p />
@@ -92,6 +134,15 @@ public class GrouperField {
             this.getReadPriv()    + ":" +
             this.getWritePriv()   + ":" +
             this.getIsList();
+  }
+
+  /**
+   * Return write privilege for this field.
+   * <p />
+   * @return Write privilege.
+   */
+  public String writePriv() {
+    return this.getWritePriv();
   }
 
 
