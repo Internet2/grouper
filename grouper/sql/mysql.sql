@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.6 2004-04-28 15:51:15 blair Exp $
+-- $Id: mysql.sql,v 1.7 2004-04-28 15:59:22 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -78,22 +78,21 @@ CREATE TABLE grouper_metadata (
   INDEX(groupID),
   INDEX(groupField),
   FOREIGN KEY (groupID)     REFERENCES grouper_group(groupID),
-  FOREIGN KEY (groupField)  REFERENCES grouper_fields(groupField),
+  FOREIGN KEY (groupField)  REFERENCES grouper_fields(groupField)
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_types (
-  groupTypeID       INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-  groupTypename     VARCHAR(255) NOT NULL
+  groupType         VARCHAR(255) NOT NULL PRIMARY KEY UNIQUE
 ) TYPE=InnoDB;
-CREATE INDEX grouptypeid_idx ON grouper_types (groupTypeID);
+CREATE INDEX grouptype_idx ON grouper_types (groupType);
 
 CREATE TABLE grouper_schema (
   groupID           INTEGER UNSIGNED NOT NULL,
-  groupTypeID       INTEGER UNSIGNED NOT NULL,
+  groupType         VARCHAR(255) NOT NULL,
   INDEX(groupID),
-  INDEX(groupTypeID),
-  FOREIGN KEY (groupID)     REFERENCES grouper_group(groupID),
-  FOREIGN KEY (groupTypeID) REFERENCES grouper_types(groupTypeID)
+  INDEX(groupType),
+  FOREIGN KEY (groupID)   REFERENCES grouper_group(groupID),
+  FOREIGN KEY (groupType) REFERENCES grouper_types(groupType)
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_session (
@@ -106,11 +105,11 @@ CREATE TABLE grouper_session (
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_typedefs (
-  groupTypeID       INTEGER UNSIGNED NOT NULL,
+  groupType         VARCHAR(255) NOT NULL,
   groupField        VARCHAR(255) NOT NULL,
-  INDEX(groupTypeID),
+  INDEX(groupType),
   INDEX(groupField),
-  FOREIGN KEY (groupTypeID) REFERENCES grouper_types(groupTypeID),
+  FOREIGN KEY (groupType)   REFERENCES grouper_types(groupType),
   FOREIGN KEY (groupField)  REFERENCES grouper_fields(groupField)
 ) TYPE=InnoDB;
 
@@ -131,8 +130,8 @@ GRANT ALL ON grouper.*
   IDENTIFIED BY 'gr0up3r';
 
 -- Insert the base group type
-INSERT INTO grouper_types (groupTypeID, groupTypeName)
-  VALUES (1, "base");
+INSERT INTO grouper_types (groupType)
+  VALUES ("base");
 
 -- Insert the fields of the base group
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
@@ -153,20 +152,20 @@ INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
   VALUES ("optouts",     "READ",   "UPDATE", 'TRUE');
 
 -- Assign the fields to the base group
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "description");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "members");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "viewers");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "readers");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "updaters");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "admins");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "optins");
-INSERT INTO grouper_typedefs (groupTypeID, groupField)
-  VALUES (1, "optouts");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "description");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "members");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "viewers");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "readers");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "updaters");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "admins");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "optins");
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "optouts");
 
