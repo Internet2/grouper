@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.57 2004-11-23 01:46:06 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.58 2004-11-23 18:06:14 blair Exp $
  */
 public class GrouperBackend {
 
@@ -126,6 +126,79 @@ public class GrouperBackend {
     GrouperBackend._hibernateSessionClose(session);
   }
 
+  // TODO
+  protected static List descriptors(GrouperSession s, String descriptor) {
+    Session session     = GrouperBackend._init();
+    List    descriptors = GrouperBackend._descriptors(session, descriptor);
+    GrouperBackend._hibernateSessionClose(session);
+    return descriptors;
+  }
+
+  /**
+   * Add {@link GrouperGroup} to backend store.
+   *
+   * @param s {@link GrouperSession}
+   * @param g {@link GrouperGroup} to add
+   */
+  protected static void groupAdd(GrouperSession s, GrouperGroup g) {
+    Session session = GrouperBackend._init();
+    try {
+      Transaction t = session.beginTransaction();
+
+      // The Group object
+      session.save(g);
+
+      // The Group schema
+      GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
+      session.save(schema);
+
+      // The Group attributes
+      Map       attributes  = g.attributes();
+      Iterator  iter        = attributes.keySet().iterator();
+      while (iter.hasNext()) {
+        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+        attr.set(g.key(), attr.field(), attr.value());
+        session.save(attr);
+      }
+
+      /*
+       * I need to commit the group to the groups registry before
+       * granting the ADMIN privs as the act of granting, especially if
+       * using the default access privilege implementation, may need to
+       * load the group from the groups registry.  If it hasn't been
+       * committed, that will obviously fail and Java will go BOOM!
+       *
+       * Of course, this may make rolling back even the granting fails
+       * even more interesting.
+       */
+      t.commit();
+
+      // And grant ADMIN privilege to the list creator
+      GrouperMember m = GrouperMember.lookup( s.subject() );
+      if (
+          (m != null) && // FIXME Bah
+          (GrouperPrivilege.grant(s, g, m, "ADMIN") == true)
+         )
+      {
+        t.commit(); // XXX Is this commit necessary?
+      } else {
+        /*
+         * TODO Rollback?  Exception?  The rollback would also need to
+         *      rollback the granting of the ADMIN privilege.  Or at
+         *      least try to.
+         */
+        System.err.println("Unable to create group " + g);
+        System.exit(1);
+      }
+    } catch (Exception e) {
+      // TODO We probably need a rollback in here in case of failure
+      //      above.
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+  }
+
   /**
    * Valid {@link GrouperField} items.
    *
@@ -148,12 +221,20 @@ public class GrouperBackend {
     return fields;
   }
 
-  // TODO
-  protected static List descriptors(GrouperSession s, String descriptor) {
-    Session session     = GrouperBackend._init();
-    List    descriptors = GrouperBackend._descriptors(session, descriptor);
+  /**
+   * Retrieve {@link GrouperGroup} from backend store.
+   */
+  protected static GrouperGroup groupLoad(
+                                          GrouperSession s, String stem,
+                                          String descriptor, String type
+                                         ) 
+  {
+    Session session = GrouperBackend._init();
+    // TODO G+H Session validation 
+    // TODO Priv validation
+    GrouperGroup g = GrouperBackend._groupLoad(session, stem, descriptor, type);
     GrouperBackend._hibernateSessionClose(session);
-    return descriptors;
+    return g;
   }
 
   /**
@@ -180,6 +261,160 @@ public class GrouperBackend {
     return rv;
   }
 
+  /**
+   * Add new list data to the backend store.
+   *
+   * @param g     Add member to this {@link GrouperGroup}.
+   * @param s     Add member within this session context.
+   * @param m     Add this member.
+   * @param list  Add member to this list.
+   */
+  protected static boolean listAddVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+    Session session = GrouperBackend._init();
+    boolean rv      = false;
+    // TODO  Reorder params.  Sessions should always come first?  Check
+    //       with other methods as well.
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    // TODO  Refactor commonality with listDelVal
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to add this list data
+      // TODO Verify that this data does not already exist
+
+      try {
+        Transaction t = session.beginTransaction();
+
+        // Update immediate list data
+        GrouperBackend._listAddVal(session, g, m, list, null);
+
+        GrouperGroup memberOfBase = g;
+        // Is this member a group?
+        if (m.typeID().equals("group")) {
+          memberOfBase = GrouperBackend._groupLoad( m.id() );
+        }
+
+        // Grab immediate list data to update
+        List imms = GrouperBackend._listVals(
+                                             session, memberOfBase,
+                                             list, "immediate"
+                                            );
+
+        // Update effective list data
+        Iterator effIter = GrouperBackend._memberOf(
+                            session, memberOfBase, list
+                           ).iterator();
+        while (effIter.hasNext()) {
+          GrouperVia via = (GrouperVia) effIter.next();
+          GrouperBackend._listAddVal(
+                                     session, via.group(),
+                                     via.member(), list, via.via()
+                                    );
+          Iterator immsIter = imms.iterator();
+          while(immsIter.hasNext()) {
+            GrouperMembership mship = (GrouperMembership) immsIter.next();
+            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
+            GrouperBackend._listAddVal(
+                                       session, via.group(),
+                                       mem, list, memberOfBase
+                                      );
+          }
+        }
+
+        // Commit it
+        t.commit();
+        
+        rv = true;
+      } catch (Exception e) {
+        // TODO We probably need a rollback in here in case of failure
+        //      above.
+        System.err.println(e);
+        System.exit(1);
+      }
+    } 
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
+  }
+
+
+  /**
+   * Remove list data from the backend store.
+   *
+   * @param g     Remove member from this {@link GrouperGroup}.
+   * @param s     Remove member within this session context.
+   * @param m     Remove this member.
+   * @param list  Remove member from this list.
+   */
+  protected static boolean listDelVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+    Session session = GrouperBackend._init();
+    boolean rv      = false;
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      try {
+        Transaction t = session.beginTransaction();
+
+        // TODO Verify that the subject has privilege to remove this list data
+
+        // Update immediate list data
+        GrouperBackend._listDelVal(session, g, m, list, null);
+
+        GrouperGroup memberOfBase = g;
+        // Is this member a group?
+        if (m.typeID().equals("group")) {
+          memberOfBase = GrouperBackend._groupLoad( m.id() );
+        }
+
+        // Grab immediate list data to update
+        List imms = GrouperBackend._listVals(
+                                             session, memberOfBase,
+                                             list, "immediate"
+                                            );
+
+        // Update effective list data
+        Iterator effIter = GrouperBackend._memberOf(
+                             session, memberOfBase, list
+                           ).iterator();
+        while (effIter.hasNext()) {
+          GrouperVia via = (GrouperVia) effIter.next();
+          GrouperBackend._listDelVal(
+                                     session, via.group(),
+                                     via.member(), list, via.via()
+                                    );
+          Iterator immsIter = imms.iterator();
+          while(immsIter.hasNext()) {
+            GrouperMembership mship = (GrouperMembership) immsIter.next();
+            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
+            GrouperBackend._listDelVal(
+                                       session, via.group(),
+                                       mem, list, memberOfBase
+                                      );
+          }
+        }
+
+        // Commit it
+        t.commit();
+
+        rv = true;
+      } catch (HibernateException e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    } 
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
+  }
 
   /**
    * Return list data from the backend store.
@@ -316,169 +551,6 @@ public class GrouperBackend {
     return groups;
   }
 
-
-  /**
-   * Add new list data to the backend store.
-   *
-   * @param g     Add member to this {@link GrouperGroup}.
-   * @param s     Add member within this session context.
-   * @param m     Add this member.
-   * @param list  Add member to this list.
-   */
-  protected static boolean listAddVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
-    Session session = GrouperBackend._init();
-    boolean rv      = false;
-    // TODO  Reorder params.  Sessions should always come first?  Check
-    //       with other methods as well.
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    // TODO  Refactor commonality with listDelVal
-    if (
-        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
-        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
-        Grouper.groupField(g.type(), list)
-       ) 
-    {
-      // TODO Verify that the subject has privilege to add this list data
-      // TODO Verify that this data does not already exist
-
-      try {
-        Transaction t = session.beginTransaction();
-
-        // Update immediate list data
-        GrouperBackend._listAddVal(session, g, m, list, null);
-
-        GrouperGroup memberOfBase = g;
-        // Is this member a group?
-        if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLoad( m.id() );
-        }
-
-        // Grab immediate list data to update
-        List imms = GrouperBackend._listVals(
-                                             session, memberOfBase,
-                                             list, "immediate"
-                                            );
-
-        // Update effective list data
-        Iterator effIter = GrouperBackend._memberOf(
-                            session, memberOfBase, list
-                           ).iterator();
-        while (effIter.hasNext()) {
-          GrouperVia via = (GrouperVia) effIter.next();
-          GrouperBackend._listAddVal(
-                                     session, via.group(),
-                                     via.member(), list, via.via()
-                                    );
-          Iterator immsIter = imms.iterator();
-          while(immsIter.hasNext()) {
-            GrouperMembership mship = (GrouperMembership) immsIter.next();
-            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
-            GrouperBackend._listAddVal(
-                                       session, via.group(),
-                                       mem, list, memberOfBase
-                                      );
-          }
-        }
-
-        // Commit it
-        t.commit();
-        
-        rv = true;
-      } catch (Exception e) {
-        // TODO We probably need a rollback in here in case of failure
-        //      above.
-        System.err.println(e);
-        System.exit(1);
-      }
-    } 
-    GrouperBackend._hibernateSessionClose(session);
-    return rv;
-  }
-
-  /**
-   * Remove list data from the backend store.
-   *
-   * @param g     Remove member from this {@link GrouperGroup}.
-   * @param s     Remove member within this session context.
-   * @param m     Remove this member.
-   * @param list  Remove member from this list.
-   */
-  protected static boolean listDelVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
-    Session session = GrouperBackend._init();
-    boolean rv      = false;
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
-        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
-        Grouper.groupField(g.type(), list)
-       ) 
-    {
-      try {
-        Transaction t = session.beginTransaction();
-
-        // TODO Verify that the subject has privilege to remove this list data
-
-        // Update immediate list data
-        GrouperBackend._listDelVal(session, g, m, list, null);
-
-        GrouperGroup memberOfBase = g;
-        // Is this member a group?
-        if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLoad( m.id() );
-        }
-
-        // Grab immediate list data to update
-        List imms = GrouperBackend._listVals(
-                                             session, memberOfBase,
-                                             list, "immediate"
-                                            );
-
-        // Update effective list data
-        Iterator effIter = GrouperBackend._memberOf(
-                             session, memberOfBase, list
-                           ).iterator();
-        while (effIter.hasNext()) {
-          GrouperVia via = (GrouperVia) effIter.next();
-          GrouperBackend._listDelVal(
-                                     session, via.group(),
-                                     via.member(), list, via.via()
-                                    );
-          Iterator immsIter = imms.iterator();
-          while(immsIter.hasNext()) {
-            GrouperMembership mship = (GrouperMembership) immsIter.next();
-            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
-            GrouperBackend._listDelVal(
-                                       session, via.group(),
-                                       mem, list, memberOfBase
-                                      );
-          }
-        }
-
-        // Commit it
-        t.commit();
-
-        rv = true;
-      } catch (HibernateException e) {
-        System.err.println(e);
-        System.exit(1);
-      }
-    } 
-    GrouperBackend._hibernateSessionClose(session);
-    return rv;
-  }
-
-  // TODO
-  protected static List stems(GrouperSession s, String stem) {
-    Session session = GrouperBackend._init();
-    List    stems   = GrouperBackend._stems(session, stem);
-    GrouperBackend._hibernateSessionClose(session);
-    return stems;
-  }
-
   /**
    * Valid {@link GrouperTypeDef} items.
    *
@@ -513,52 +585,6 @@ public class GrouperBackend {
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPES " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperType"
-        );
-      types = q.list();
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return types;
-  }
-
-  /**
-   * Query a group's schema.
-   *
-   * @param g Group object
-   * @return List of a group's schema
-   */
-  protected static List schemas(GrouperGroup g) {
-    Session session = GrouperBackend._init();
-    List    schemas = new ArrayList();
-    try {
-      Query q = session.createQuery(
-        "SELECT FROM grouper_schema " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperSchema " +
-        "WHERE groupKey='" + g.key() + "'"
-      );
-      schemas = q.list();
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return schemas;
-  }
-
-  /**
-   * Valid {@link SubjectType} items.
-   *
-   * @return List of subject types.
-   */
-  protected static List subjectTypes() {
-    Session session = GrouperBackend._init();
-    List    types   = new ArrayList();
-    try {
-      Query q = session.createQuery(
-        "SELECT ALL FROM grouper_subjectType " +
-        "IN CLASS edu.internet2.middleware.grouper.SubjectTypeImpl"
         );
       types = q.list();
     } catch (Exception e) {
@@ -635,84 +661,35 @@ public class GrouperBackend {
   }
 
   /**
-   * Add {@link GrouperGroup} to backend store.
+   * Query a group's schema.
    *
-   * @param s {@link GrouperSession}
-   * @param g {@link GrouperGroup} to add
+   * @param g Group object
+   * @return List of a group's schema
    */
-  protected static void groupAdd(GrouperSession s, GrouperGroup g) {
+  protected static List schemas(GrouperGroup g) {
     Session session = GrouperBackend._init();
+    List    schemas = new ArrayList();
     try {
-      Transaction t = session.beginTransaction();
-
-      // The Group object
-      session.save(g);
-
-      // The Group schema
-      GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
-      session.save(schema);
-
-      // The Group attributes
-      Map       attributes  = g.attributes();
-      Iterator  iter        = attributes.keySet().iterator();
-      while (iter.hasNext()) {
-        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        attr.set(g.key(), attr.field(), attr.value());
-        session.save(attr);
-      }
-
-      /*
-       * I need to commit the group to the groups registry before
-       * granting the ADMIN privs as the act of granting, especially if
-       * using the default access privilege implementation, may need to
-       * load the group from the groups registry.  If it hasn't been
-       * committed, that will obviously fail and Java will go BOOM!
-       *
-       * Of course, this may make rolling back even the granting fails
-       * even more interesting.
-       */
-      t.commit();
-
-      // And grant ADMIN privilege to the list creator
-      GrouperMember m = GrouperMember.lookup( s.subject() );
-      if (
-          (m != null) && // FIXME Bah
-          (GrouperPrivilege.grant(s, g, m, "ADMIN") == true)
-         )
-      {
-        t.commit(); // XXX Is this commit necessary?
-      } else {
-        /*
-         * TODO Rollback?  Exception?  The rollback would also need to
-         *      rollback the granting of the ADMIN privilege.  Or at
-         *      least try to.
-         */
-        System.err.println("Unable to create group " + g);
-        System.exit(1);
-      }
+      Query q = session.createQuery(
+        "SELECT FROM grouper_schema " +
+        "IN CLASS edu.internet2.middleware.grouper.GrouperSchema " +
+        "WHERE groupKey='" + g.key() + "'"
+      );
+      schemas = q.list();
     } catch (Exception e) {
-      // TODO We probably need a rollback in here in case of failure
-      //      above.
       System.err.println(e);
       System.exit(1);
     }
     GrouperBackend._hibernateSessionClose(session);
+    return schemas;
   }
 
-  /**
-   * Retrieve {@link GrouperGroup} from backend store.
-   */
-  protected static GrouperGroup groupLoad(
-                                          GrouperSession s, String stem,
-                                          String descriptor, String type
-                                         ) 
-  {
+  // TODO
+  protected static List stems(GrouperSession s, String stem) {
     Session session = GrouperBackend._init();
-    // TODO G+H Session validation 
-    // TODO Priv validation
-    GrouperGroup g = GrouperBackend._groupLoad(session, stem, descriptor, type);
+    List    stems   = GrouperBackend._stems(session, stem);
     GrouperBackend._hibernateSessionClose(session);
-    return g;
+    return stems;
   }
 
   /**
@@ -781,6 +758,28 @@ public class GrouperBackend {
     }
     GrouperBackend._hibernateSessionClose(session);
     return subj;
+  }
+
+  /**
+   * Valid {@link SubjectType} items.
+   *
+   * @return List of subject types.
+   */
+  protected static List subjectTypes() {
+    Session session = GrouperBackend._init();
+    List    types   = new ArrayList();
+    try {
+      Query q = session.createQuery(
+        "SELECT ALL FROM grouper_subjectType " +
+        "IN CLASS edu.internet2.middleware.grouper.SubjectTypeImpl"
+        );
+      types = q.list();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return types;
   }
 
 
@@ -1009,6 +1008,49 @@ public class GrouperBackend {
     return null;
   }
 
+  private static GrouperMembership _listVal(
+                                            GrouperGroup g,
+                                            GrouperMember m,
+                                            String list,
+                                            GrouperGroup via
+                                           )
+  {
+    /*
+     * While most private class methods take a Session as an argument,
+     * this method does not because to do so would possibly cause
+     * non-uniqueness issues.
+     */
+    // TODO Refactor overlap with ._listValExist()
+    // TODO Have GrouperMembership call this and its kin?
+    Session           session = GrouperBackend._init();
+    GrouperMembership mship   = null;
+    String            via_txt = null;
+    if (via != null) {
+      via_txt = "'" + via.key() + "'";
+    }
+    try {
+      Query q = session.createQuery(
+        "FROM GrouperMembership AS mem"         +
+        " WHERE "                               +
+        "mem.id.groupKey='"   + g.key() + "'"   +
+        " AND "                                 +
+        "mem.id.memberKey='"  + m.key() + "'"   +
+        " AND "                                 +
+        "mem.groupField='"    + list    + "'"   +
+        " AND "                                 +
+        "mem.via=" + via_txt
+      );   
+      if (q.list().size() == 1) {
+        mship = (GrouperMembership) q.list().get(0);
+      } 
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return mship;
+  }
+
   private static void _listAddVal(
                                   Session session, 
                                   GrouperGroup g, 
@@ -1080,49 +1122,6 @@ public class GrouperBackend {
     GrouperBackend._hibernateSessionClose(session); // XXX
   }
 
-  private static GrouperMembership _listVal(
-                                            GrouperGroup g,
-                                            GrouperMember m,
-                                            String list,
-                                            GrouperGroup via
-                                           )
-  {
-    /*
-     * While most private class methods take a Session as an argument,
-     * this method does not because to do so would possibly cause
-     * non-uniqueness issues.
-     */
-    // TODO Refactor overlap with ._listValExist()
-    // TODO Have GrouperMembership call this and its kin?
-    Session           session = GrouperBackend._init();
-    GrouperMembership mship   = null;
-    String            via_txt = null;
-    if (via != null) {
-      via_txt = "'" + via.key() + "'";
-    }
-    try {
-      Query q = session.createQuery(
-        "FROM GrouperMembership AS mem"         +
-        " WHERE "                               +
-        "mem.id.groupKey='"   + g.key() + "'"   +
-        " AND "                                 +
-        "mem.id.memberKey='"  + m.key() + "'"   +
-        " AND "                                 +
-        "mem.groupField='"    + list    + "'"   +
-        " AND "                                 +
-        "mem.via=" + via_txt
-      );   
-      if (q.list().size() == 1) {
-        mship = (GrouperMembership) q.list().get(0);
-      } 
-    } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return mship;
-  }
-
     // TODO Add session disclaimer
   private static boolean _listValExist(
                                        GrouperGroup g, 
@@ -1165,6 +1164,7 @@ public class GrouperBackend {
     GrouperBackend._hibernateSessionClose(session);
     return rv;
   }
+
                       
   // TODO REFACTOR!          
   private static List _listVals(Session session, GrouperMember m, String list, String via) {
@@ -1343,7 +1343,7 @@ public class GrouperBackend {
   /*
    * TODO
    */
-  protected static Set _memberOfQuery(Session session, GrouperGroup g, String list) {
+  private static Set _memberOfQuery(Session session, GrouperGroup g, String list) {
     List  members = new ArrayList();
     Set   groups  = new HashSet();
     // TODO Better validation efforts, please.
