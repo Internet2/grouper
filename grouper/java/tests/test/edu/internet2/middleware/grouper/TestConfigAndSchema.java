@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.13 2004-12-02 16:09:02 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.14 2004-12-03 04:15:09 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -144,7 +144,7 @@ public class TestConfigAndSchema extends TestCase {
   public void testGetGrouperTypeDefs() {
     List typeDefs  = Grouper.groupTypeDefs();
     Assert.assertNotNull(typeDefs);
-    Assert.assertEquals(15, typeDefs.size());
+    Assert.assertEquals(17, typeDefs.size());
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
     typeDef = "base:extension";
@@ -153,45 +153,51 @@ public class TestConfigAndSchema extends TestCase {
     typeDef = "base:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(1).getClass().getName() ) );
-    typeDef = "base:description";
+    typeDef = "base:name";
     Assert.assertTrue( typeDef.equals( typeDefs.get(2).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(2).getClass().getName() ) );
-    typeDef = "base:members";
+    typeDef = "base:description";
     Assert.assertTrue( typeDef.equals( typeDefs.get(3).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(3).getClass().getName() ) );
-    typeDef = "base:viewers";
+    typeDef = "base:members";
     Assert.assertTrue( typeDef.equals( typeDefs.get(4).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(4).getClass().getName() ) );
-    typeDef = "base:readers";
+    typeDef = "base:viewers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(5).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(5).getClass().getName() ) );
-    typeDef = "base:updaters";
+    typeDef = "base:readers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(6).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(6).getClass().getName() ) );
-    typeDef = "base:admins";
+    typeDef = "base:updaters";
     Assert.assertTrue( typeDef.equals( typeDefs.get(7).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(7).getClass().getName() ) );
-    typeDef = "base:optins";
+    typeDef = "base:admins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(8).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(8).getClass().getName() ) );
-    typeDef = "base:optouts";
+    typeDef = "base:optins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(9).getClass().getName() ) );
-    typeDef = "naming:extension";
+    typeDef = "base:optouts";
     Assert.assertTrue( typeDef.equals( typeDefs.get(10).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(10).getClass().getName() ) );
-    typeDef = "naming:stem";
+    typeDef = "naming:extension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(11).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(11).getClass().getName() ) );
-    typeDef = "naming:description";
+    typeDef = "naming:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(12).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(12).getClass().getName() ) );
-    typeDef = "naming:creators";
+    typeDef = "naming:name";
     Assert.assertTrue( typeDef.equals( typeDefs.get(13).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(13).getClass().getName() ) );
-    typeDef = "naming:stemmers";
+    typeDef = "naming:description";
     Assert.assertTrue( typeDef.equals( typeDefs.get(14).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(14).getClass().getName() ) );
+    typeDef = "naming:creators";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(15).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(15).getClass().getName() ) );
+    typeDef = "naming:stemmers";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(16).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(16).getClass().getName() ) );
   }
 
   // Get cached SubjectTypes 
