@@ -1,7 +1,7 @@
 
 -- 
 -- Grouper Database Schema
--- $Id: schema-hsqldb.sql,v 1.29 2005-02-16 20:10:18 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.30 2005-02-16 20:39:54 blair Exp $
 -- 
 
 DROP TABLE grouper_attribute IF EXISTS;
