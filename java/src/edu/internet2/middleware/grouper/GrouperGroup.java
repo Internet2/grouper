@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.4 2004-04-14 03:06:24 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.5 2004-04-20 17:15:55 blair Exp $
  */
 public class GrouperGroup {
 
@@ -58,7 +58,38 @@ public class GrouperGroup {
     return null;
   }
 
+  /*
+   * Return a map of nonlist member data for a {@link Grouper} group.
+   * <p>
+   * <ul>
+   *  <li>Verify that "subjectID" has READ access to the group
+   *      metadata</li>
+   *  <li>Fetch rows with appropriate groupID from the 
+   *      <i>grouper_metadata</i> table.</li>
+   *  <li>XXX This name sucks.</li>
+   * </ul>
+   *
+   * @return Map of group metadata.
+   */
   public Map nonListData() {
+    return null;
+  }
+
+  /**
+   * Return a map of nonlist member data for a {@link Grouper} group.
+   * <p>
+   * <ul>
+   *  <li>Verify that "subjectID" has READ access to the group
+   *      metadata</li>
+   *  <li>Fetch row(s) with appropriate groupID and groupField from
+   *      the <i>grouper_metadata</i> table.</li>
+   *  <li>XXX This name sucks.</li>
+   * </ul>
+   *
+   * @param  groupField Type of group field to return.
+   * @return Metadata value.
+   */
+  public String nonListData(String groupField) {
     return null;
   }
 
@@ -190,10 +221,49 @@ public class GrouperGroup {
     // Nothing -- Yet
   }
 
+  /**
+   * Remove group metadata.
+   * <p>
+   * <ul>
+   *  <li>Verify that "subjectID" has sufficient privileges to ADMIN
+   *      (?) the group.</li>
+   *  <li>Remove fields from the <i>grouper_metadata</i> table with the
+   *      appropriate "groupID", "groupField", and "value".</li>
+   *  <li>XXX Should value be required?  What if it was optional?
+   *      Requiring the value looks like it may be an extra hoop
+   *      that we don't need to jump through.</li>
+   * </ul>
+   * 
+   * @param groupField  The metadata field.
+   * @param value       The value to remove.
+   */
   public void  removeValue(String groupField, String value) {
     // Nothing -- Yet
   }
 
+  /**
+   * Remove group member..
+   * <p>
+   * <ul>
+   *  <li>Verify that "subjectID" has sufficient privileges to ADMIN
+   *      (?) the group.</li>
+   *  <li>Remove fields from the <i>grouper_metadata</i> table with the
+   *      appropriate "groupID", "groupField", and "value".</li>
+   *  <li>XXX Should value be required?  What if it was optional?
+   *      Requiring the value looks like it may be an extra hoop
+   *      that we don't need to jump through.</li>
+   *  <li>Verify that "subjectID" has sufficient privileges to VIEW and
+   *      either UPDATE or OPTIN the group.</li>
+   *  <li>Remove "member" from "groupField" for "groupID" in the 
+   *      <i>grouper_membership</i> table.</li>
+   *  <li>XXX Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables to reflect any changes in effective memberships that 
+   *      may have resulted from this change.</li>
+   * </ul>
+   * 
+   * @param groupField  The field type for this member.
+   * @param member      The member to add.
+   */
   public void  removeValue(String groupField, GrouperMember member) {
     // Nothing -- Yet
   }
