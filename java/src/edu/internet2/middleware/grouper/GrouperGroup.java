@@ -61,29 +61,26 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.112 2004-12-04 01:32:35 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.113 2004-12-04 04:47:09 blair Exp $
  */
 public class GrouperGroup {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private String id;
-  private String key;
-  private String type;
-  // Operational attributes and information
-  // TODO Stuff into a map?
-  private String createTime;
-  private String createSubject;
-  private String createSource;
-  private String modifyTime;
-  private String modifySubject;
-  private String modifySource;
-  private String comment;
-  // Grouper attributes (fields)
-  private Map  attributes;
-  // Grouper Session
+  private Map             attributes;
+  private String          comment;
+  private String          createTime;
+  private String          createSubject;
+  private String          createSource;
   private GrouperSession  grprSession;
+  private String          id;
+  private boolean         initialized   = false; // FIXME UGLY HACK!
+  private String          key;
+  private String          modifyTime;
+  private String          modifySubject;
+  private String          modifySource;
+  private String          type;
 
 
   /*
@@ -228,51 +225,65 @@ public class GrouperGroup {
     boolean rv = false;
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
-      // TODO Validate?
-      GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
-      if        (value == null) {
-        // Delete an existing attribute
-        if (GrouperBackend.attrDel(this.key, attribute)) {
-          this.attributes.remove(attribute);
-          rv = true;
-        }
-        if (rv != true) {
-          // FIXME Revert
-        }
-      } else if (cur == null) {
-        // Add a new attribute value
-        // FIXME Update modify* opattrs
-        GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
-        if (
-            (attr != null)                   &&
-            (this._attrAdd(attribute, attr)) //&&
-            //(GrouperBackend.groupUpdate(this.grprSession, this))   
+      // FIXME We don't handle renames yet -- if ever?
+      if ( 
+          (this.initialized == true) &&
+           (
+            (attribute.equals("stem"))      ||
+            (attribute.equals("extension"))
            )
-        {
-          /* 
-           * We do not need to revert changes in this situation as
-           * there should not be an old value to revert to...
-           */
-          rv = true;
-        } 
+         ) 
+      {
+        Grouper.LOGGER.warn(
+          "ERROR: `" + attribute + "' modification is not currently supported!"
+        );
       } else {
-        // Update attribute value
-        GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
-        if (
-            (attr != null)                   &&
-            (this._attrAdd(attribute, attr)) //&&
-            //(GrouperBackend.groupUpdate(this.grprSession, this))   
-           )
-        {
+        // TODO Validate?
+        GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
+        if        (value == null) {
+          // Delete an existing attribute
+          if (GrouperBackend.attrDel(this.key, attribute)) {
+            this.attributes.remove(attribute);
           rv = true;
-        } else {
-          // Revert changes
-          // FIXME Revert opattr changes
-          if (!this._attrAdd(attribute, cur)) {
-            Grouper.LOGGER.warn("Unable to revert failed attribute update!");
-            System.exit(1);
           }
-          rv = false;
+          if (rv != true) {
+            // FIXME Revert
+          }
+        } else if (cur == null) {
+          // Add a new attribute value
+          // FIXME Update modify* opattrs
+          GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
+          if (
+              (attr != null)                   &&
+              (this._attrAdd(attribute, attr)) //&&
+              //(GrouperBackend.groupUpdate(this.grprSession, this))   
+             )
+          {
+            /* 
+             * We do not need to revert changes in this situation as
+             * there should not be an old value to revert to...
+             */
+            rv = true;
+          } 
+        } else {
+          // Update attribute value
+          GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
+          if (
+              (attr != null)                   &&
+              (this._attrAdd(attribute, attr)) //&&
+              //(GrouperBackend.groupUpdate(this.grprSession, this))   
+             )
+          {
+            rv = true;
+          } else {
+            // Revert changes
+            // FIXME Revert opattr changes
+            if (!this._attrAdd(attribute, cur)) {
+              Grouper.LOGGER.warn("Unable to revert failed attribute update!");
+              System.exit(1);
+            }
+            rv = false;
+          }
         }
       }
     }
@@ -525,6 +536,7 @@ public class GrouperGroup {
       // Attach type  
       // FIXME Grr....
       g.type = type;
+      g.initialized = true; // FIXME UGLY HACK!
     }
     return g;
   }
@@ -541,6 +553,7 @@ public class GrouperGroup {
       // Attach type  
       // FIXME Grr....
       g.type = type;
+      g.initialized = true; // FIXME UGLY HACK!
     }
     return g;
   }
@@ -644,6 +657,7 @@ public class GrouperGroup {
       if (g._validateCreate()) {
         // And now attempt to add the group to the store
         if (GrouperBackend.groupAdd(s, g)) {
+          g.initialized = true; // FIXME UGLY HACK!
         } else {
           g = null;  
         }
