@@ -1,60 +1,67 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.1 2004-12-04 06:09:46 blair Exp $
+$Id: NEWS,v 1.2 2004-12-05 03:49:50 blair Exp $
 
 ---
-
-(This file will need some good bashing)
 
 ## Version 0.5-cvs
 
 ### Added
 
-* Immediate Memberships.
-* Effective Memberships.
-* Simple membership queries for both groups and members.
-* Access privilege interface.
-* Naming privilege interface.
-* An implementation of the access privilege interface that uses groups to manage privileges.
-* An implementation of the naming privilege interface that uses groups to manage privileges.
-* People in a local table as subjects via an implementation of the I2MI Subject Interface.
-* Groups as subjects via an implementation of the I2MI Subject Interface.
+* "Base" and "Naming" group types
+* Immediate Memberships
+* Effective Memberships
+* Search: By immediate and effective membership
+* Search: By group type
+* Access privilege interface
+* Naming privilege interface
+* An implementation of the access privilege interface that uses groups to manage privileges
+* An implementation of the naming privilege interface that uses groups to manage privileges
+* CREATE and STEM naming privileges
+* An implementation of the I2MI Subject interface for locally-defined _people_ subjects
+* An implementation of the I2MI Subject interface  for groups as subjects
+* Contributed: I2MI Subject Loader
+* Contributed: Group Loader
+* Contributed: Query and modest export tool
+
 
 ### Will Be Added
 
-* Updated javadoc for all public methods
-* Multiple criteria searching.
-* Improved modeling of the naming group type.
-* Use of naming groups as namespaces.
-* Using memberKey for the createSubject and modifySubject operational attributes.
-* ADMIN and UPDATE access privilege checking.
-* CREATE and STEM naming privilege checking.
-* Contributed code to load I2MI Subjects.
-* Contributed code to load groups.
-* Contributed code to query group registry (and possibly export query results into a somewhat portable format, whether it be csv, LDIF-like, XML, etc.).
-* Automatically persistent group attributes.
-* Updating of modify* operational attributes.
+* ADMIN and UPDATE access privilege checking (#213)
+* _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
+* Basic Event Logging (#253)
+* GrouperSession validation before performing operations (#180)
+* Contributed: Member Loader (#246)
+* Javadoc API documentation (#132)
+* Search: By group create time (#155)
+* Search: By group modify time (#155)
+* Using memberKey for the createSubject and modifySubject operational attributes (#157)
+
 
 ### Postponed From This Release
 
-* Testing with non-HSQLDB databases.
-* Remove GrouperMember objects.
-* GrouperSession validation before performing operations.
-* READ, VIEW, OPTIN, and OPTOUT access privilege checking. (One or more of these may make it in)
-* More advanced multiple criteria searching.
-* Coherent logging policy.
-* Contributed provisioning code.
+* Group renaming (#262)
+* Proper schema validation (#267)
+* Group Hierarchy Depth Restrictions
+* Personal Groups
+* Removal of _GrouperMember_ objects
+* Testing with non-HSQLDB databases
+* READ, VIEW, OPTIN, and OPTOUT access privilege checking
+* More advanced multiple criteria searching
+* Grouper is lacking a good and coherent logging policy (#226)
+* Contributed: provisioning code
+
 
 ### Known Bugs
 
-(Add grouperzilla #'s)
-
-* Insufficient documentation.
-* Slow.
-* Code does not fail gracefully.
-* Not all of our database updates are atomic transactions. This could leave the group registry in an inconsistent state.
-* Insufficient data validation. This could leave the group registry in an inconsistent state.
-* Insufficient test coverage.
-* Session Handling.
+* Grouper does not fail gracefully or even necessarily informatively
+* Insufficient data validation within code
+* Not all database updates are atomic transactions (#233) (#248)
+* _GrouperQuery_ objects do not properly reset their state (#255)
+* _Modify_ attributes _may_ be be incorrect (#247)
+* Session Handling is dubious at best (#173)
+* Insufficient documentation
+* Insufficient test coverage
+* Slow
 
