@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.69 2005-03-22 18:58:15 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.70 2005-03-24 20:54:48 blair Exp $
  */
 public class GrouperMember {
 
@@ -108,23 +108,6 @@ public class GrouperMember {
    * PUBLIC CLASS METHODS
    */
 
-  /**
-   * Retrieve a {@link GrouperMember} object.
-   * <p />
-   * This method will create a new entry in the <i>grouper_member</i>
-   * table if this subject does not already have an entry.
-   * 
-   * @param   s     Load {@link GrouperMember} within this session.
-   * @param   subj  A {@link Subject} object.
-   * @return  A {@link GrouperMember} object.
-   */
-  protected static GrouperMember load(GrouperSession s, Subject subj) { 
-    GrouperMember m = GrouperMember.load(subj);
-    if (m != null) {
-      m.s = s;
-    }
-    return m;
-  }
   // FIXME Can I kill this?
   public static GrouperMember load(Subject subj) {
     DbSess dbSess = new DbSess();
@@ -157,6 +140,48 @@ public class GrouperMember {
 
     return m;
   }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Create and save a new {@link GrouperMember} object.
+   */
+  protected static GrouperMember create(
+                                   GrouperSession s, String subjectID, 
+                                   String subjectTypeID
+                                 ) 
+  {
+    GrouperMember m = new GrouperMember(s, subjectID, subjectTypeID);
+    m.setMemberKey( new GrouperUUID().toString() );
+    m.setMemberID(  new GrouperUUID().toString() );
+    m.save(s.dbSess());
+    return m;
+  }
+
+  /**
+   * Retrieve a {@link GrouperMember} object.
+   * <p />
+   * This method will create a new entry in the <i>grouper_member</i>
+   * table if this subject does not already have an entry.
+   * 
+   * @param   s     Load {@link GrouperMember} within this session.
+   * @param   subj  A {@link Subject} object.
+   * @return  A {@link GrouperMember} object.
+   */
+  protected static GrouperMember load(GrouperSession s, Subject subj) { 
+    GrouperMember m = GrouperMember.load(subj);
+    if (m != null) {
+      m.s = s;
+    }
+    return m;
+  }
+
+  /*
+   * Save a {@link GrouperMember} to the groups registry.
+   */
   protected void save(DbSess dbSess) {
     try {
       dbSess.txStart();
@@ -167,6 +192,7 @@ public class GrouperMember {
       throw new RuntimeException("Error saving member: " + e);
     }
   }
+
   private static GrouperMember loadByIdAndType(DbSess dbSess, Subject subj) {
     GrouperMember m     = null;
     String        qry   = "GrouperMember.by.subjectid.and.typeid";
@@ -368,14 +394,14 @@ public class GrouperMember {
   }
 
   /**
-   * Retrieve {@link GrouperGroup} object for this 
+   * Retrieve {@link Group} object for this 
    * {@link GrouperMember}.
    * </p>
    * @return {@link GrouperObject} object
    */
-  public GrouperGroup toGroup() {
+  public Group toGroup() {
     GrouperSession.validate(this.s);
-    GrouperGroup g = GrouperGroup.loadByID(
+    Group g = Group.loadByID(
                        this.s, this.getSubjectID()
                      );
     if (g == null) {
