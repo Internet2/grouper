@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.200 2005-03-27 17:29:48 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.201 2005-03-27 17:41:51 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -237,6 +237,7 @@ public class GrouperGroup extends Group {
    * @return  A {@link Group} object.
    */
   public static Group loadByID(GrouperSession s, String id) {
+    // TODO Should I check for NS_TYPE in returned group?
     return Group.loadByID(s, id);
   }
 
@@ -266,6 +267,9 @@ public class GrouperGroup extends Group {
                                GrouperSession s, String name, String type
                              )
   {
+    if (type.equals(Grouper.NS_TYPE)) {
+      throw new RuntimeException("Use GrouperStem for namespaces");
+    }
     return (GrouperGroup) Group.loadByNameAndType(s, name, type);
   }
 
