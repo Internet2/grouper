@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.8 2004-12-07 20:12:06 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.9 2004-12-07 20:30:22 blair Exp $ 
  */
 class csv2group {
 
@@ -72,15 +72,12 @@ class csv2group {
           // FIXME Blindly assume that if we have two tokens, they are two
           //       *good* tokens
           if (st.countTokens() == 4) {
-            String category = st.nextToken();
-            String action   = st.nextToken();
-            String stem     = st.nextToken();
-            String extn     = st.nextToken();
-            _verbose(
-              "Found cat=`" + category + "', action=`" + action + 
-              "', stem=`" + stem + "', extn=`" + extn + "'"
-            );
-            if (!_dispatch(category, action, stem, extn)) {
+            List tokens = new ArrayList();
+            while (st.hasMoreTokens()) {
+              tokens.add(st.nextToken());
+            }
+            _verbose("Received tokens " + tokens);
+            if (!_dispatch(tokens)) {
               _verbose("Error dispatching '" + line + "'");
             }
           } else {
@@ -99,16 +96,13 @@ class csv2group {
   /* (!javadoc)
    * CSV Dispatch Handler
    */
-  private static boolean _dispatch( 
-                           String cat, String act, 
-                           String stem, String extn
-                         )
-  {
+  private static boolean _dispatch(List tokens) {
     boolean rv = false;
+    String cat = (String) tokens.remove(0);
     if        (cat.equals("group")) {
-      rv = _dispatchGroup(act, stem, extn);
+      rv = _dispatchGroup(tokens);
     } else if (cat.equals("stem")) {
-      rv = _dispatchStem(act, stem, extn);
+      rv = _dispatchStem(tokens);
     } else {
       System.err.println("ERROR: Invalid category: `" + cat + "'");
     }
@@ -118,13 +112,11 @@ class csv2group {
   /* (!javadoc)
    * Group Dispatch Handler
    */
-  private static boolean _dispatchGroup(
-                           String act, String stem, String extn
-                         )
-  {
+  private static boolean _dispatchGroup(List tokens) {
     boolean rv = false;
+    String act = (String) tokens.remove(0);
     if (act.equals("add")) {
-      rv = _groupAdd(stem, extn);
+      rv = _groupAdd(tokens);
     } else {
       System.err.println("ERROR: Invalid group action: `" + act + "'");
     }
@@ -134,13 +126,11 @@ class csv2group {
   /* (!javadoc)
    * Stem Dispatch Handler
    */
-  private static boolean _dispatchStem(
-                           String act, String stem, String extn
-                         )
-  {
+  private static boolean _dispatchStem(List tokens) {
     boolean rv = false;
+    String act = (String) tokens.remove(0);
     if (act.equals("add")) {
-      rv = _stemAdd(stem, extn);
+      rv = _stemAdd(tokens);
     } else {
       System.err.println("ERROR: Invalid stem action: `" + act + "'");
     }
@@ -150,8 +140,10 @@ class csv2group {
   /* (!javadoc)
    * Add a group to the registry.
    */
-  private static boolean _groupAdd(String stem, String extn) {
+  private static boolean _groupAdd(List tokens) {
     boolean rv = false;
+    String stem = (String) tokens.get(0);
+    String extn = (String) tokens.get(0);
     GrouperGroup g = GrouperGroup.create(
                        s, stem, extn, Grouper.DEF_GROUP_TYPE
                      );
@@ -253,8 +245,10 @@ class csv2group {
   /* (!javadoc)
    * Add a group to the registry.
    */
-  private static boolean _stemAdd(String stem, String extn) {
+  private static boolean _stemAdd(List tokens) {
     boolean rv = false;
+    String stem = (String) tokens.remove(0);
+    String extn = (String) tokens.remove(0);
     // TODO Bah.  I have to do the interpolation for the config file.
     if (stem.equals("Grouper.NS_ROOT")) {
       stem = Grouper.NS_ROOT;
