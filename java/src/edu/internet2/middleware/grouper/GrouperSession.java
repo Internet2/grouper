@@ -21,47 +21,63 @@ import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
 
 /** 
- * Class representing a {@link Grouper} session.
+ * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.34 2004-08-24 17:37:58 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.35 2004-09-08 16:52:29 blair Exp $
  */
 public class GrouperSession {
 
-  // XXX Clarify the purpose of all of these variables
-  private Connection      con             = null;
-  private Grouper         intG            = null;
-  private GrouperAccess   intAccess       = null;
-  private GrouperNaming   intNaming       = null;
-  private GrouperSubject  intSubject      = null;
-  private String          presentationID  = null;
-  private GrouperMember   subject         = null;
-  private Session         session         = null;
-  private SessionFactory  factory         = null;
-  private String          subjectID       = null;
+  // Internal reference to the Grouper environment
+  private static Grouper         _G;
+  // Internal reference to the Access interface
+  private static GrouperAccess   intAccess;
+  // Internal reference to the Naming interface
+  private static GrouperNaming   intNaming;
+  // Interface reference to the Subject interface
+  private static GrouperSubject  intSubject;
 
-  // XXX HACK HACK HACK
-  private String          cred            = null;
-  private String          sessionID       = null;
-  private String          startTime       = null;
-
-
+  // FIXME How many of these variables are actually used?
+  // FIXME And what is the purpose of those that are used?
+  private static Connection      con;
+  private static String          cred;
+  private static SessionFactory  factory;
+  private static String          presentationID;
+  private static Session         session;
+  private static String          sessionID;
+  private static String          startTime;
+  private static GrouperMember   subject;
+  private static String          subjectID;
 
   /**
    * Create a session object that will provide a context for future
    * operations.
    */
   public GrouperSession() {
-    // Nothing 
+    this._G             = null;
+    this.con            = null;
+    this.cred           = null;
+    this.intAccess      = null;
+    this.intNaming      = null;
+    this.intSubject     = null;
+    this.factory        = null;
+    this.presentationID = null;
+    this.session        = null;
+    this.sessionID      = null;
+    this.startTime      = null;
+    this.subject        = null;
+    this.subjectID      = null;
   }
 
   /**
-   * Start a session.
+   * Start a {@link Grouper} session.
    * <p>
    * <ul>
-   *  <li>Using the executive session, lookup "subjectID" and return a
-   *      {@link GrouperMember} object.</li>
+   *  <li>Use executive session and subject interface to identify
+   *      subject</li>
    *  <li>Update <i>grouper_session</i> table.</li>
+   * <p>
+   * TODO Plugin an external session handling mechanism?  Yes, please.
    *
    * @param   G         @{link Grouper} environment
    * @param   subjectID The subject to act as for the duration of this
@@ -69,7 +85,7 @@ public class GrouperSession {
    */
   public void start(Grouper G, String subjectID) {
     // Internal reference to the Grouper object
-    this.intG = G;
+    this._G = G;
 
     // XXX Ugh
     this.subjectID  = subjectID;
@@ -95,7 +111,7 @@ public class GrouperSession {
    */
   public void start(Grouper G, String subjectID, boolean isMember) {
     // Internal reference to the Grouper object
-    this.intG = G;
+    this._G = G;
 
     // XXX Bad assumptions!
     this.subjectID  = subjectID;
@@ -293,9 +309,9 @@ public class GrouperSession {
    */ 
   private void _createInterfaces() {
     // Create internal references to the various interfaces
-    this.intAccess  = (GrouperAccess)  this._createObject( intG.config("interface.access") );
-    this.intNaming  = (GrouperNaming)  this._createObject( intG.config("interface.naming") );
-    this.intSubject = (GrouperSubject) this._createObject( intG.config("interface.subject") );
+    this.intAccess  = (GrouperAccess)  this._createObject( _G.config("interface.access") );
+    this.intNaming  = (GrouperNaming)  this._createObject( _G.config("interface.naming") );
+    this.intSubject = (GrouperSubject) this._createObject( _G.config("interface.subject") );
   }
 
   /*
@@ -324,7 +340,7 @@ public class GrouperSession {
   private GrouperMember _lookupSubject(String subjectID) {
     GrouperMember m = null;
 
-    if (subjectID.equals( intG.config("member.system") )) {
+    if (subjectID.equals( _G.config("member.system") )) {
       m = new GrouperMember(this, subjectID, false);
     } else {
       m = this.intSubject.lookup(subjectID);
