@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.45 2004-11-19 06:00:35 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.46 2004-11-19 19:44:05 blair Exp $
  */
 public class GrouperBackend {
 
@@ -219,6 +219,7 @@ public class GrouperBackend {
     boolean rv      = false;
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
+    // TODO  Refactor commonality with listDelVal
     if (
         g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
         s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
@@ -232,19 +233,39 @@ public class GrouperBackend {
       try {
         Transaction t = session.beginTransaction();
 
-        // Update the immediate list data
+        // Update immediate list data
         GrouperBackend._listAddVal(session, g, m, list, null);
 
+        GrouperGroup memberOfBase = g;
+        // Is this member a group?
+        if (m.typeID().equals("group")) {
+          memberOfBase = GrouperBackend._groupLoad( m.id() );
+        }
+
+        // Grab immediate list data to update
+        List imms = GrouperBackend._listVals(
+                                             session, memberOfBase,
+                                             list, "immediate"
+                                            );
+
         // Update effective list data
-        Set effective = GrouperBackend._memberOf(session, g, list);
+        Set effective = GrouperBackend._memberOf(session, memberOfBase, list);
         Iterator iter = effective.iterator();
         while (iter.hasNext()) {
           GrouperVia via = (GrouperVia) iter.next();
-          // XXX System.err.println("E + " + via);
           GrouperBackend._listAddVal(
                                      session, via.group(),
                                      via.member(), list, via.via()
                                     );
+          Iterator immsIter = imms.iterator();
+          while(immsIter.hasNext()) {
+            GrouperMembership mship = (GrouperMembership) immsIter.next();
+            GrouperMember     mem   = GrouperMember.lookup( mship.memberKey() );
+            GrouperBackend._listAddVal(
+                                       session, via.group(),
+                                       mem, list, memberOfBase
+                                      );
+          }
         }
 
         // Commit it
@@ -287,19 +308,39 @@ public class GrouperBackend {
 
         // TODO Verify that the subject has privilege to remove this list data
 
-        // Update the immediate list data
+        // Update immediate list data
         GrouperBackend._listDelVal(session, g, m, list, null);
 
-        // Update effective memberships
-        Set effective = GrouperBackend._memberOf(session, g, list);
+        GrouperGroup memberOfBase = g;
+        // Is this member a group?
+        if (m.typeID().equals("group")) {
+          memberOfBase = GrouperBackend._groupLoad( m.id() );
+        }
+
+        // Grab immediate list data to update
+        List imms = GrouperBackend._listVals(
+                                             session, memberOfBase,
+                                             list, "immediate"
+                                            );
+
+        // Update effective list data
+        Set effective = GrouperBackend._memberOf(session, memberOfBase, list);
         Iterator iter = effective.iterator();
         while (iter.hasNext()) {
           GrouperVia via = (GrouperVia) iter.next();
-          // XXX System.err.println("E - " + via);
           GrouperBackend._listDelVal(
                                      session, via.group(),
                                      via.member(), list, via.via()
                                     );
+          Iterator immsIter = imms.iterator();
+          while(immsIter.hasNext()) {
+            GrouperMembership mship = (GrouperMembership) immsIter.next();
+            GrouperMember     mem   = GrouperMember.lookup( mship.memberKey() );
+            GrouperBackend._listDelVal(
+                                       session, via.group(),
+                                       mem, list, memberOfBase
+                                      );
+          }
         }
 
         // Commit it
@@ -826,13 +867,13 @@ public class GrouperBackend {
                                   GrouperGroup via
                                  ) 
   {
-    // XXX System.err.println("_LISTADDVAL " + g);
-    // XXX System.err.println("_LISTADDVAL " + m);
-    // XXX System.err.println("_LISTADDVAL " + list);
+    // XXX System.err.println("_LISTADDVAL G " + g);
+    // XXX System.err.println("_LISTADDVAL M " + m);
+    // XXX System.err.println("_LISTADDVAL T " + list);
     if (via != null) {
-      // XXX System.err.println("_LISTADDVAL " + via);
+      // XXX System.err.println("_LISTADDVAL V " + via);
     } else {
-      // XXX System.err.println("_LISTADDVAL null");
+      // XXX System.err.println("_LISTADDVAL V null");
     }
 
     // Confirm that list data doesn't already exist
@@ -862,13 +903,13 @@ public class GrouperBackend {
     //      this problem or have I just not triggered it yet?  Or if I
     //      can't, add the disclaimer.
     Session session = GrouperBackend._init(); // XXX
-    // XXX System.err.println("_LISTDELVAL " + g);
-    // XXX System.err.println("_LISTDELVAL " + m);
-    // XXX System.err.println("_LISTDELVAL " + list);
+    // XXX System.err.println("_LISTDELVAL G " + g);
+    // XXX System.err.println("_LISTDELVAL M " + m);
+    // XXX System.err.println("_LISTDELVAL T " + list);
     if (via != null) {
-      // XXX System.err.println("_LISTDELVAL " + via);
+      // XXX System.err.println("_LISTDELVAL V " + via);
     } else {
-      // XXX System.err.println("_LISTDELVAL null");
+      // XXX System.err.println("_LISTDELVAL V null");
     }
 
     // Confirm that the data exists
@@ -1032,11 +1073,11 @@ public class GrouperBackend {
         Iterator  iter        = newGroups.iterator();
         while (iter.hasNext()) {
           // Lookup group membership for each group in `newGroups'
-          GrouperGroup via  = (GrouperGroup) iter.next();
-          Set moreGroups = GrouperBackend._memberOfQuery(session, via, list);
-          Iterator moreIter = moreGroups.iterator();
-          while (moreIter.hasNext()) {
-            GrouperGroup effective = (GrouperGroup) moreIter.next();
+          GrouperGroup  via       = (GrouperGroup) iter.next();
+          Set           effGroups = GrouperBackend._memberOfQuery(session, via, list);
+          Iterator      effIter   = effGroups.iterator();
+          while (effIter.hasNext()) {
+            GrouperGroup effective = (GrouperGroup) effIter.next();
             // Add to `memberships'
             memberships.add( new GrouperVia(member, effective, via) );
             // TODO I need to update the !group memberships as well
