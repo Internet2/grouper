@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.159 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.160 2005-03-10 16:12:14 blair Exp $
  */
 public class GrouperBackend {
 
@@ -141,7 +141,6 @@ public class GrouperBackend {
      */
     if (_validateGroupDel(s, g)) {
       try {
-        Transaction t = s.dbSess().session().beginTransaction();
         // Delete attributes
         if (_attributesDel(s, g))  {
           // Delete schema
@@ -153,7 +152,6 @@ public class GrouperBackend {
                 // Delete group
                 s.dbSess().session().delete(g);
                 // Commit
-                t.commit();
                 rv = true;
               }
             }
@@ -212,8 +210,6 @@ public class GrouperBackend {
     boolean rv = false;
     if (_validateListVal(s, gl)) {
       try {
-        Transaction t = s.dbSess().session().beginTransaction();
-
         // The GrouperList objects that we will need to delete
         Set listVals = _memberOf(s, gl);
 
@@ -227,8 +223,6 @@ public class GrouperBackend {
 
         // Update modify information
         s.dbSess().session().update(gl.group());
-        // Commit it
-        t.commit();
         rv = true;
       } catch (HibernateException e) {
         throw new RuntimeException(e);
@@ -1283,13 +1277,8 @@ public class GrouperBackend {
        ) 
     {
       try {
-        Transaction t = dbSess.session().beginTransaction();
-
         // Save it
         dbSess.session().save(member);
-      
-        // Commit it
-        t.commit();
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
