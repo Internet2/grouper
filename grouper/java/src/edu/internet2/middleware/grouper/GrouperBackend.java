@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.182 2005-03-22 18:07:29 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.183 2005-03-22 18:14:09 blair Exp $
  */
 public class GrouperBackend {
 
@@ -720,21 +720,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  /**
-   * TODO Does this actually work?
-   */
-  protected static boolean groupUpdate(GrouperSession s, GrouperGroup g) {
-    boolean rv      = false;
-    try {
-      s.dbSess().session().update(g);
-      rv = true;
-    } catch (HibernateException e) {
-      rv = false; 
-      Grouper.log().backend("Unable to update group " + g);
-    }
-    return rv;
   }
 
   // TODO Why not just listValExist directly?

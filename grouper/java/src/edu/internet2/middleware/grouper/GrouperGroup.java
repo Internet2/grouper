@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.177 2005-03-22 18:07:29 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.178 2005-03-22 18:14:09 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -901,9 +901,7 @@ public class GrouperGroup extends Group {
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
-        if (GrouperBackend.groupUpdate(s, this)) {
-          rv = true;
-        }
+        this.update();
       } catch (RuntimeException e) {
         rv = false;
       }
@@ -915,6 +913,16 @@ public class GrouperGroup extends Group {
       this.setModifySubject(curModSubj);
     }
     return rv;
+  }
+
+  // TODO Does this actually work?
+  // TODO Is this needed?
+  protected void update() {
+    try {
+      this.s.dbSess().session().update(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error updating group: " + e);
+    }
   }
 
   // Delete and persist attribute 
@@ -933,8 +941,11 @@ public class GrouperGroup extends Group {
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.remove(attribute);
-        if (GrouperBackend.groupUpdate(this.s, this)) {
+        try {
+          this.update();
           rv = true;
+        } catch (RuntimeException e) {
+          rv = false; 
         }
       }
     }
@@ -970,8 +981,11 @@ public class GrouperGroup extends Group {
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
-        if (GrouperBackend.groupUpdate(this.s, this)) {
+        try {
+          this.update();
           rv = true;
+        } catch (RuntimeException e) {
+          rv = false;
         }
       } catch (RuntimeException e) {
         rv = false;
