@@ -61,7 +61,7 @@ import  edu.internet2.middleware.subject.*;
  * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.65 2004-12-06 00:52:22 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.66 2004-12-06 02:12:44 blair Exp $
  */
 public class GrouperSession {
 
@@ -190,7 +190,7 @@ public class GrouperSession {
    */
   private boolean _registerSession() {
     // TODO Make this configurable.  Or something.
-    GrouperBackend.sessionsCull();
+    // GrouperBackend.sessionsCull();
 
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
