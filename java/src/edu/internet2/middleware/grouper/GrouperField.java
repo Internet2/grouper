@@ -52,11 +52,11 @@
 package edu.internet2.middleware.grouper;
 
 /** 
- * Class representing a {@Grouper} group field.
+ * Class representing a {@link Grouper} group field.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.14 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperField.java,v 1.15 2004-12-01 04:25:55 blair Exp $
  */
 public class GrouperField {
 
