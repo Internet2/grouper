@@ -1,0 +1,22 @@
+<!-- $Id: build.xml,v 1.1 2004-07-03 03:10:56 blair Exp $ -->
+
+<project name="LoadGrouperMembersTableFromCSV" default="build" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src"   location="."/>
+  <property name="build" location="."/>
+
+  <target name="build">
+    <tstamp />
+    <mkdir dir="${build}" />
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+
+  <target name="clean">
+    <delete>
+      <fileset dir="${build}" includes="*.class"/>
+    </delete>
+  </target>
+
+</project>
+
