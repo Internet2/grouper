@@ -52,6 +52,8 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -62,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.22 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.23 2005-03-22 17:08:58 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -94,6 +96,58 @@ public class GrouperAttribute implements Serializable {
     this.groupKey         = key;
     this.groupField       = field;
     this.groupFieldValue  = value;
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Save an attribute in the groups registry.
+   */
+  protected static void save(GrouperSession s, GrouperAttribute attr) {
+    String            qry   = "GrouperAttribute.by.key.and.value";
+    List              vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, attr.key());
+      q.setString(1, attr.value());
+      try {
+        vals = q.list();
+        if (vals.size() == 0) {
+          // We've got a new one: save it.
+          try {
+            s.dbSess().session().save(attr);   
+          } catch (HibernateException e) {
+            throw new RuntimeException(
+                        "Error saving attribute " + attr + ": " + e
+                      );
+          }
+        } else if (vals.size() == 1) {
+          // Attribute already exists.  Check to see if the value has
+          // changed.
+          GrouperAttribute cur = (GrouperAttribute) vals.get(0);
+          if (!attr.value().equals(cur.value())) {
+            try {
+              s.dbSess().session().update(attr);
+            } catch (HibernateException e) {
+              throw new RuntimeException(
+                          "Error updating attribute " + attr + ": " + e
+                        );
+            }
+          }
+        } 
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
   }
 
 
