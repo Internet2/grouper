@@ -65,24 +65,28 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.46 2005-03-20 05:15:31 blair Exp $
+ * @version $Id: GrouperList.java,v 1.47 2005-03-21 20:41:59 blair Exp $
  */
 public class GrouperList implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
+
+  // Transient
   private transient List            elements = new ArrayList();
   private transient GrouperGroup    g;
   private transient GrouperMember   m;
   private transient GrouperSession  s;
   private transient GrouperGroup    via;
-  private String          chainKey;
-  private String          groupField;
-  private String          groupKey;
-  private String          listKey;
-  private String          memberKey;
-  private String          viaKey;
+
+  // And persistent
+  private String chainKey;
+  private String groupField;
+  private String groupKey;
+  private String listKey;
+  private String memberKey;
+  private String viaKey;
 
 
   /*
@@ -96,26 +100,13 @@ public class GrouperList implements Serializable {
     // Nothing
   }
 
-  protected static void save(GrouperSession s, GrouperList gl) {
-    if (gl.getListKey() == null) {
-      gl.setListKey( new GrouperUUID().toString() );
-    }
-    try {
-      // BDC s.dbSess().txStart();
-      s.dbSess().session().save(gl);
-      // BDC s.dbSess().txCommit();
-    } catch (HibernateException e) {
-      // BDC s.dbSess().txRollback();
-      throw new RuntimeException("Error saving list value: " + e);
-    }
-  }
-  /* (!javadoc)
-   * TODO This should <b>only</b> be used within Grouper and I'd
-   *      prefer to not be relying upon <i>protected</i> for that...
+  /*
+   * Create a new {@link GrouperList} object.
+   * TODO Refactor
    */
   protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
     // TODO See if it exists?
-    // BDC
+    // TODO Load chain?
     if (this.getListKey() == null) {
       this.setListKey( new GrouperUUID().toString() );
     }
@@ -134,13 +125,20 @@ public class GrouperList implements Serializable {
     this.memberKey  = m.key();
     this.groupField = list;
     this.via        = null;
+    GrouperList.validate(this);
   }
+
+  /*
+   * Create a new {@link GrouperList} object.
+   * TODO Refactor
+   */
   protected GrouperList(
               GrouperSession s, GrouperGroup g, GrouperMember m, 
               String list, List chain
             ) 
   {
-    // BDC
+    // TODO See if it exists?
+    // TODO Load chain?
     if (this.getListKey() == null) {
       this.setListKey( new GrouperUUID().toString() );
     }
@@ -165,12 +163,18 @@ public class GrouperList implements Serializable {
       this.via    = gl.group();
       this.viaKey = gl.group().key();
     }
+    GrouperList.validate(this);
   }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
   protected void load(GrouperSession s) {
     // TODO Load chain?
     GrouperSession.validate(s);
     if (this.g == null) {
-      // FIXME Validator!
       if (this.groupKey == null) {
         throw new RuntimeException("Unable to load group as key is null");
       }
@@ -187,13 +191,26 @@ public class GrouperList implements Serializable {
         this.via = GrouperGroup.loadByKey(s, this.viaKey);
       }
     }
-    if (this.g == null) {
-      throw new RuntimeException("Unable to load group");
+    GrouperList.validate(this);
+  }
+
+  /*
+   * Save a {@link GrouperList} object to the groups registry.
+   */
+  protected static void save(GrouperSession s, GrouperList gl) {
+    if (gl.getListKey() == null) {
+      gl.setListKey( new GrouperUUID().toString() );
     }
-    if (this.m == null) {
-      throw new RuntimeException("Unable to load member");
+    try {
+      s.dbSess().session().save(gl);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error saving list value: " + e);
     }
   }
+
+  /*
+   * Basic validation of {@link GrouperList} object.
+   */
   protected static void validate(GrouperList gl) {
     if (gl == null) {
       throw new RuntimeException("list is null");
@@ -209,6 +226,16 @@ public class GrouperList implements Serializable {
     }
   }
 
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Retrieve this list's via chain.
+   * <p />
+   * @return  List of {@link MemberVia} objects.
+   */
   public List chain() {
     Iterator iter = this.elements.iterator();
     while (iter.hasNext()) {
@@ -217,20 +244,16 @@ public class GrouperList implements Serializable {
     return this.elements;
   }
 
-  protected String key() {
-    if (this.getListKey() == null) {
-      this.setListKey( new GrouperUUID().toString());
-    }
-    return this.getListKey();
-  }
-  protected void chainKey(String key) {
-    this.setChainKey(key);
-  }
-
-
-  /*
-   * PUBLIC INSTANCE METHODS
+  /**
+   * Returns the {@link GrouperGroup} object referenced by this 
+   * {@link GrouperList} object.
+   * <p />
+   *
+   * @return  A {@link GrouperGroup} object.
    */
+  public GrouperGroup group() {
+    return this.g;
+  }
 
   /**
    * Return the group field for this list value.
@@ -254,17 +277,6 @@ public class GrouperList implements Serializable {
   }
 
   /**
-   * Returns the {@link GrouperGroup} object referenced by this 
-   * {@link GrouperList} object.
-   * <p />
-   *
-   * @return  A {@link GrouperGroup} object.
-   */
-  public GrouperGroup group() {
-    return this.g;
-  }
-
-  /**
    * If this object represents an effective membership, returning the
    * {@link GrouperGroup} object that caused the effective membership.
    * <p />
@@ -274,15 +286,6 @@ public class GrouperList implements Serializable {
     return this.via;
   }
 
-  protected String groupKey() {
-    return this.groupKey;
-  }
-  protected String memberKey() {
-    return this.memberKey;
-  }
-  protected String viaKey() {
-    return this.viaKey;
-  }
 
   /**
    * Compares the specified object with this list value for equality.
@@ -311,6 +314,51 @@ public class GrouperList implements Serializable {
   public String toString() {
     // TODO Add more information.
     return new ToStringBuilder(this).toString();
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+
+  /*
+   * Set this object's chainKey.
+   */
+  protected void chainKey(String key) {
+    this.setChainKey(key);
+  }
+
+  /*
+   * @return This object's groupKey.
+   */
+  protected String groupKey() {
+    return this.groupKey;
+  }
+
+  /*
+   * Return - and possibly assign - a listKey.
+   * @return This object's listKey.
+   */
+  protected String key() {
+    if (this.getListKey() == null) {
+      this.setListKey( new GrouperUUID().toString());
+    }
+    return this.getListKey();
+  }
+
+  /*
+   * @return This object's memberKey.
+   */
+  protected String memberKey() {
+    return this.memberKey;
+  }
+
+  /*
+   * @return This object's viaKey.
+   */
+  protected String viaKey() {
+    return this.viaKey;
   }
 
 
