@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.46 2004-09-21 18:18:12 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.47 2004-09-21 18:27:57 blair Exp $
  */
 public class GrouperGroup {
 
@@ -90,14 +90,11 @@ public class GrouperGroup {
 
     // Verify that we have everything we need to create a group
     // and that this subject is privileged to create this group.
-    // FIXME if (g._validateCreate()) {
+    if (g._validateCreate()) {
       // And now attempt to add the group to the store
-      // FIXME Should this return a Group?
-      // FIXME How do update that this group exists?
       GrouperBackend.addGroup(s, g);
-      //g.exists = true;
-      //return true;
-    // FIXME }
+      g.exists = true;
+    }
     return g;
   }
 
@@ -344,11 +341,11 @@ public class GrouperGroup {
         // Do we have a valid group type?
         (this._G.groupType(this.groupType) == true) &&
         // And a stem?
-        (attributes.containsKey("stem")) &&
+        (attributes.containsKey("stem"))            &&
         // And a descriptor?
-        (attributes.containsKey("descriptor")) && 
+        (attributes.containsKey("descriptor"))      && 
         // And do the stem and descriptor already exist?
-        (this.exist() == false) && 
+        (this.exist() == false)                     && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
         // TODO Member Object for the admin of the group
