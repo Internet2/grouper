@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.52 2004-12-06 02:10:28 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.53 2004-12-06 23:43:48 blair Exp $
  */
 public class GrouperMember {
 
@@ -140,7 +140,17 @@ public class GrouperMember {
 
     // Hibernate and return the member
     member = GrouperBackend.memberAdd(member);
-  
+    if (member != null) { 
+      Grouper.LOG.info(
+        "Added member " + member.memberID() + "/" +
+        member.subjectID() + " to member table"
+      );
+    } else {
+      Grouper.LOG.info(
+        "Failed to add member " + member.memberID() + "/" +
+        member.subjectID() + " to member table"
+      );
+    }
     return member;
   }
 
