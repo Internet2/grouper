@@ -58,11 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} group schema definition.
+ * Class modeling a {@link GrouperGroup} schema definition.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.18 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.19 2004-12-09 03:26:13 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -84,9 +84,7 @@ public class GrouperSchema implements Serializable {
     this._init();
   }
 
-  /**
-   * Construct a new {@link GrouperSchema} object.
-   * <p />
+  /* (!javadoc)
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
@@ -134,6 +132,11 @@ public class GrouperSchema implements Serializable {
       toString();
   }
 
+  /**
+   * Retrieve the group type.
+   * <p />
+   * @return  The group type.
+   */
   public String type() {
     return this.getGroupType();
   }

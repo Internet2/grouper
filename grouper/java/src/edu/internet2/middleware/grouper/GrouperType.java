@@ -52,11 +52,11 @@
 package edu.internet2.middleware.grouper;
 
 /** 
- * Class modeling a {@link Grouper} group type.
+ * Class modeling a {@link GrouperGroup} type.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.15 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperType.java,v 1.16 2004-12-09 03:26:13 blair Exp $
  */
 public class GrouperType {
 
