@@ -2,6 +2,14 @@
 <project
 	name="Signet"
 	default="db" basedir=".">
+	
+	<!-- Version number -->
+	<property name="version" value="0.2"/>
+	
+	<property name="zipfile" value="signet-${version}-bin.zip"/>
+	<property name="tarfile" value="signet-${version}-bin.tar"/>
+	<property name="gzipfile" value="signet-${version}-bin.tar.gz"/>
+	
 	<!-- Set up properties containing important project directories -->
 	<property name="source.root" value="src"/>
 	<property name="class.root" value="classes"/>
@@ -218,6 +226,22 @@ against the database file--use when application is not running">
 		</copy>
 
 	</target>
+
+	<target name="create-dist" depends="build-dist">
+		<zip destfile="${zipfile}">
+			<fileset dir="${webapp.dist}">
+			<include name="**/*" />
+			</fileset>
+		</zip>
+		<tar destfile="${tarfile}">
+			<tarfileset dir="${webapp.dist}">
+			<include name="**/*" />
+			</tarfileset>
+		</tar>
+		<gzip src="${tarfile}" destfile="${gzipfile}"/>
+		<delete file="${tarfile}"/>
+	</target>
+
 
 	<target name="config-webapp" depends="build-webapp"
 		description="Sets database parameter and mailto href">
