@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.7 2005-02-25 22:07:57 jvine Exp $
-  $Date: 2005-02-25 22:07:57 $
+  $Id: assignment.jsp,v 1.8 2005-03-04 18:52:48 acohen Exp $
+  $Date: 2005-03-04 18:52:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -62,7 +62,7 @@
       </h2>
     </div>
     
-    <span class="description">Function description text goes here.
+    <span class="description"><%=currentAssignment.getFunction().getHelpText()%>
  	</span>
     <table class="invis">
     
