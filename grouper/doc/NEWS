@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.17 2004-12-13 14:47:55 blair Exp $
+$Id: NEWS,v 1.18 2005-01-24 17:10:24 blair Exp $
 
 ---
 
@@ -9,6 +9,7 @@ $Id: NEWS,v 1.17 2004-12-13 14:47:55 blair Exp $
 
 ### Changes
 * Fixed sessionID generation bug (#278)
+* Contributed: Added comment, -c and -q support to _csv2group_
 
 ---
 
