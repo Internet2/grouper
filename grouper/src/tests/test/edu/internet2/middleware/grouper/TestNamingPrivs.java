@@ -157,8 +157,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -174,8 +174,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -191,8 +191,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -208,8 +208,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, ns, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -227,8 +227,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 0 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -246,8 +246,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 0 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -265,8 +265,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 0 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -284,8 +284,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 0 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, ns, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, ns, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -300,7 +300,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
     // Grant STEM to m
-    Assert.assertTrue( Grouper.naming().grant(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -318,8 +318,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -334,7 +334,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
     // Grant CREATE to m
-    Assert.assertTrue( Grouper.naming().grant(s, g, m, "CREATE") );
+    Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
     s.stop();
   }
@@ -352,8 +352,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 2 );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -368,7 +368,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
     // Grant CREATE to m
-    Assert.assertTrue( Grouper.naming().grant(s, g, m, "CREATE") );
+    Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
     s.stop();
   }
@@ -386,8 +386,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -402,7 +402,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
     // Fail to grant STEM to self
-    Assert.assertFalse( Grouper.naming().grant(s, g, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().grant(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -420,8 +420,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -436,7 +436,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
     // Fail to revoke CREATE from self
-    Assert.assertFalse( Grouper.naming().revoke(s, g, m, "CREATE") );
+    Assert.assertFalse( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
     s.stop();
   }
@@ -454,8 +454,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -470,7 +470,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
     // Fail to revoke CREATE from m0
-    Assert.assertFalse( Grouper.naming().revoke(s, g, m, "CREATE") );
+    Assert.assertFalse( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
     s.stop();
   }
@@ -488,8 +488,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 2 );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -504,7 +504,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
     // m1 !revoke m0, STEM
-    Assert.assertFalse( Grouper.naming().revoke(s, g, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().revoke(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -522,8 +522,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 2 );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -539,7 +539,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
     // m0 revoke m1, CREATE
-    Assert.assertTrue( Grouper.naming().revoke(s, g, m, "CREATE") );
+    Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
     s.stop();
   }
@@ -557,8 +557,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 0 );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -574,7 +574,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
     // root revoke m0, CREATE
-    Assert.assertTrue( Grouper.naming().revoke(s, g, m, "CREATE") );
+    Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
     // We're done
     s.stop();
   }
@@ -592,8 +592,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertTrue( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertTrue( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -609,7 +609,7 @@ public TestNamingPrivs(String name) {
     // Fetch m
     GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
     // root revoke m0, STEM
-    Assert.assertTrue( Grouper.naming().revoke(s, g, m, "STEM") );
+    Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }
@@ -627,8 +627,8 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, g, m);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 0 );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "CREATE") );
-    Assert.assertFalse( Grouper.naming().has(s, g, m, "STEM") );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_CREATE) );
+    Assert.assertFalse( Grouper.naming().has(s, g, m, Grouper.PRIV_STEM) );
     // We're done
     s.stop();
   }

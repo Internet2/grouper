@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.119 2004-12-05 01:02:33 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.120 2004-12-05 04:08:18 blair Exp $
  */
 public class GrouperGroup {
 
@@ -582,7 +582,7 @@ public class GrouperGroup {
                           s, stem, Grouper.NS_TYPE
                         );
       if (ns != null) {
-        if (Grouper.naming().has(s, ns, "CREATE")) {
+        if (Grouper.naming().has(s, ns, Grouper.PRIV_CREATE)) {
           rv = true;
         }
       }
@@ -737,7 +737,10 @@ public class GrouperGroup {
         }
       }
     } else {
-      Grouper.LOGGER.warn("Subject does not have CREATE priv on this stem");
+      Grouper.LOGGER.warn(
+        "Subject does not have "  + 
+        Grouper.PRIV_CREATE       +
+        " privileges on this stem");
     }
     return g;
   }

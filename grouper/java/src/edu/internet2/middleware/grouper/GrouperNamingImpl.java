@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.31 2004-12-05 02:37:37 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.32 2004-12-05 04:08:18 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -126,7 +126,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       /*
        * FIXME I should be doing a GroupField lookup on `priv'
        */
-      if (this.has(s, g, "STEM")) { 
+      if (this.has(s, g, Grouper.PRIV_STEM)) {
         if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
           rv = true;
         }
@@ -288,7 +288,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       /*
        * FIXME I should be doing a GroupField lookup on `priv'
        */
-      if (this.has(s, g, "STEM")) { 
+      if (this.has(s, g, Grouper.PRIV_STEM)) {
         Iterator iter = this.whoHas(s, g, priv).iterator();
         while (iter.hasNext()) {
           GrouperMember m = (GrouperMember) iter.next();
@@ -323,7 +323,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       /*
        * FIXME I should be doing a GroupField lookup on `priv'
        */
-      if (this.has(s, g, "STEM")) { 
+      if (this.has(s, g, Grouper.PRIV_STEM)) {
         if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
           rv = true;
         }
@@ -368,8 +368,8 @@ public class GrouperNamingImpl implements GrouperNaming {
        *      group fields information?
        */
       privMap = new HashMap();
-      privMap.put("CREATE", "creators");
-      privMap.put("STEM", "stemmers");
+      privMap.put(Grouper.PRIV_CREATE, "creators");
+      privMap.put(Grouper.PRIV_STEM,   "stemmers");
       initialized = true;
     }
   }
