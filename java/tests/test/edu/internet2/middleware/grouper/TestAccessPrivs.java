@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.20 2004-12-05 19:31:32 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.21 2004-12-05 22:22:34 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -393,24 +393,73 @@ public class TestAccessPrivs extends TestCase {
     s.stop();
   }
 
-  // m0 !add m1 as member of g0
+  // add test group to muck around with
+  public void testPrep0() {
+    GrouperSession s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    GrouperGroup g = GrouperGroup.create(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    Assert.assertNotNull(m);
+    Assert.assertTrue( g.listAddVal(s, m) );
+    s.stop();
+  }
+
+  // m0 !add g0 as member of g4
   public void testAddVal0() {
     GrouperSession  s = new GrouperSession();
     Assert.assertNotNull(s);
     Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
     s.start(subj);
     // Fetch g
-    GrouperGroup g = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperGroup g1 = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    Assert.assertNotNull(g1);
     // Fetch m
-    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    GrouperMember m = GrouperMember.lookup(g1.id(), "group");
+    Assert.assertNotNull(m);
     // Act
     Assert.assertFalse( g.listAddVal(s, m) );
     // We're done
     s.stop();
   }
 
-  // m0 !remove g2 as member of g0
+  // m0 !add attribute to g4
+  public void testAddVal1() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    // Act
+    Assert.assertFalse( g.attribute("description", "new desc") );
+    // We're done
+    s.stop();
+  }
+
+  // m0 !remove attribute to g4
   public void testDelVal0() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    // Act
+    Assert.assertFalse( g.attribute("description", null) );
+    // We're done
+    s.stop();
+  }
+
+  // m0 !remove m1 as member of g4
+  public void testDelVal1() {
     GrouperSession  s = new GrouperSession();
     Assert.assertNotNull(s);
     Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
@@ -429,18 +478,184 @@ public class TestAccessPrivs extends TestCase {
     s.stop();
   }
 
-  // m0 !delete g1
+  // m0 !delete g4
   public void testDel0() {
     GrouperSession  s = new GrouperSession();
     Assert.assertNotNull(s);
     Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
     s.start(subj);
     // Fetch g
-    GrouperGroup g = GrouperGroup.load(s, Util.stem1, Util.extn1);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     // Act
     Assert.assertFalse( GrouperGroup.delete(s, g) );
     // We're done
+    s.stop();
+  }
+
+  // grant UPDATE to m0
+  public void testPrep1() {
+    GrouperSession s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    Assert.assertNotNull(m);
+    Assert.assertTrue( Grouper.access().grant(s, g, m, Grouper.PRIV_UPDATE) );
+    s.stop();
+  }
+
+  // m0 add g0 as member of g4
+  public void testAddVal2() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperGroup g1 = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    Assert.assertNotNull(g1);
+    // Fetch m
+    GrouperMember m = GrouperMember.lookup(g1.id(), "group");
+    Assert.assertNotNull(m);
+    // Act
+    Assert.assertTrue( g.listAddVal(s, m) );
+    // We're done
+    s.stop();
+  }
+
+  // m0 add attribute to g4
+  public void testAddVal3() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    // Act
+    Assert.assertFalse( g.attribute("description", "new desc") );
+    // We're done
+    s.stop();
+  }
+
+  // grant ADMIN to m0
+  public void testPrep2() {
+    GrouperSession s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    Assert.assertNotNull(m);
+    Assert.assertTrue( Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN) );
+    s.stop();
+  }
+
+  // m0 remove attribute to g4
+  public void testDelVal2() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    // Act
+    Assert.assertTrue( g.attribute("description", null) );
+    // We're done
+    s.stop();
+  }
+
+  // m0 remove g0 as member of g4
+  public void testDelVal4() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperGroup g1 = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    Assert.assertNotNull(g1);
+    // Fetch m
+    GrouperMember m = GrouperMember.lookup(g1.id(), "group");
+    Assert.assertNotNull(m);
+    // Act
+    Assert.assertTrue( g.listDelVal(s, m) );
+    // We're done
+    s.stop();
+  }
+
+  // revoke ADMIN from m0
+  public void testPrep4() {
+    GrouperSession s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    Assert.assertNotNull(m);
+    Assert.assertTrue( Grouper.access().revoke(s, g, m, Grouper.PRIV_ADMIN) );
+    s.stop();
+  }
+
+  // revoke UPDATE from m0
+  public void testPrep5() {
+    GrouperSession s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperMember m = GrouperMember.lookup(Util.m0i, Util.m0t);
+    Assert.assertNotNull(m);
+    Assert.assertTrue( Grouper.access().revoke(s, g, m, Grouper.PRIV_UPDATE) );
+    s.stop();
+  }
+
+  // m0 !remove m1 as member of g4
+  public void testDelVal3() {
+    GrouperSession  s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj  = GrouperSubject.lookup(Util.m0i, Util.m0t);
+    s.start(subj);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    Assert.assertNotNull(g);
+    // Fetch g1 as m1
+    GrouperGroup g1 = GrouperGroup.load(s, Util.stem1, Util.extn1);
+    Assert.assertNotNull(g1);
+    GrouperMember m = GrouperMember.lookup( g1.id(), "group");
+    Assert.assertNotNull(m);
+    // Act
+    Assert.assertFalse( g.listDelVal(s, m) );
+    // We're done
+    s.stop();
+  }
+
+  // delete test group
+  public void testPrep6() {
+    GrouperSession s = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject subj = GrouperSubject.lookup(Util.rooti, Util.roott);
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    GrouperMember m = GrouperMember.lookup(Util.m1i, Util.m1t);
+    Assert.assertNotNull(m);
+    Assert.assertTrue( g.listDelVal(s, m) );
+    Assert.assertTrue( GrouperGroup.delete(s, g) );
     s.stop();
   }
 
