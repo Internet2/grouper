@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.9 2004-04-28 17:31:53 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.10 2004-04-28 17:37:47 blair Exp $
  */
 public class GrouperGroup {
 
@@ -20,7 +20,7 @@ public class GrouperGroup {
     // Nothing -- Yet
   }
 
-  /*
+  /**
    * Returns a list of all {@link GrouperGroup} memberships of type
    * "members".
    * <p>
@@ -34,10 +34,12 @@ public class GrouperGroup {
    * </ul>
    *
    * @return  List of group memberships.
-  public List getValue() {
+   */
+  public List getMembership() {
     return null;
   }
 
+  /**
    * Returns a list of all {@link GrouperGroup} memberships of type
    * <i>groupField</li>.
    * <p>
@@ -47,14 +49,17 @@ public class GrouperGroup {
    *  <li>Fetch and return rows from the <i>grouper_membership</i>
    *      table with the appropriate <i>groupID</i> and <i>groupField</i>
    *      values.</li>
+   *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
    * @param   groupField  Type of group to return.
    * @return  List of group memberships.
-  public List getValue(String groupField) {
+   */
+  public List getMembership(String groupField) {
     return null;
   }
 
+  /**
    * Returns a list of all {@link GrouperGroup} memberships of type
    * <i>groupField</li>.
    * <p>
@@ -64,29 +69,33 @@ public class GrouperGroup {
    *  <li>Fetch and return rows from the <i>grouper_membership</i>
    *      table with the appropriate <i>groupID</i>, <i>groupField</i>,
    *      and <i>isImmediate</i> values.</li>
+   *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
    * @param   groupField  Type of group to return.
    * @param   isImmediate Return only immediate or non-immediate
    *          memberships.
    * @return  List of group memberships..
-  public List getValue(String groupField, boolean isImmediate) {
+   */
+  public List getMembership(String groupField, boolean isImmediate) {
     return null;
   }
 
+  /*
    * Returns a map of all the metadata for a {@link GrouperGroup}.
    * <p>
    * <ul>
    *  <li>Fetch and return rows from the <i>grouper_metadata</i>
    *      table that this session's subject has sufficient privileges
    *      to read.</li>
+   *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
    * @return  Map of all accessible group metadata.
-  public Map getValue() {
+  */
+  public Map getMetadata() {
     return null;
   }
-  */
 
   /*
    * Returns a single item of metadata for a {link GrouperGroup}.
@@ -96,11 +105,13 @@ public class GrouperGroup {
    *      to read the desired item of metadata.</li>
    *  <li>Fetch and return the desired metadata from the
    *      <i>grouper_metadata</i> table.</li>
+   *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
    * @param   groupField Desired metadata for this {@link GrouperGroup}.
    * @return  Metadata value.
-  public String getValue(String groupField) {
+   */
+  public String getMetadata(String groupField) {
     return null;
   }
 
