@@ -1,19 +1,20 @@
-<!-- $Id: build.xml,v 1.23 2004-12-02 07:48:49 blair Exp $ -->
+<!-- $Id: build.xml,v 1.24 2004-12-02 15:18:46 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
   <!-- set global properties for this build -->
-  <property name="app.name"         value="Grouper"/>
-  <property name="src"              location="java/src"/>
-  <property name="build"            location="build"/>
-  <property name="src-test"         location="java/tests"/>
-  <property name="build-test"       location="build/test"/>
-  <property name="dist"             location="dist"/>
-  <property name="javadoc.source"   value="${src}"/>
-  <property name="javadoc.dest"     value="${dist}/api"/>
-  <property name="javadoc.packages" value="edu.internet2.middleware.grouper.*"/>
-  <property name="jdbc.driver"      value="org.hsqldb.jdbcDriver"/>
-  <property name="jdbc.url"         value="jdbc:hsqldb:${dist}/run/grouper"/>
+  <property name="app.name"               value="Grouper"/>
+  <property name="src"                    location="java/src"/>
+  <property name="build"                  location="build"/>
+  <property name="src-test"               location="java/tests"/>
+  <property name="build-test"             location="build/test"/>
+  <property name="dist"                   location="dist"/>
+  <property name="javadoc.source"         value="${src}"/>
+  <property name="javadoc.dest.internal"  value="${dist}/api-int"/>
+  <property name="javadoc.dest.public"    value="${dist}/api"/>
+  <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
+  <property name="jdbc.driver"            value="org.hsqldb.jdbcDriver"/>
+  <property name="jdbc.url"               value="jdbc:hsqldb:${dist}/run/grouper"/>
 
   <target name="init">
     <tstamp />
@@ -57,14 +58,25 @@
 
   <target name="all" depends="dist,test,html" />
 
-  <target name="html">
+  <target name="html" description="generate public api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
-    <delete dir="${javadoc.dest}" />
+    <delete dir="${javadoc.dest.public}" />
     <javadoc sourcepath="${javadoc.source}" 
-      destdir="${javadoc.dest}" 
+      destdir="${javadoc.dest.public}" 
       packagenames="${javadoc.packages}" 
       classpathref="project.class.path" 
-      private="false"   
+      access="public"
+      author="true"/>
+  </target>
+
+  <target name="html-internal" description="generate internal api docs" >
+    <!-- Let's be sure we clear out old cruft first... -->
+    <delete dir="${javadoc.dest.internal}" />
+    <javadoc sourcepath="${javadoc.source}" 
+      destdir="${javadoc.dest.internal}" 
+      packagenames="${javadoc.packages}" 
+      classpathref="project.class.path" 
+      access="protected"
       author="true"/>
   </target>
 
