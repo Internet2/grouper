@@ -66,7 +66,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.169 2005-03-17 03:33:16 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.170 2005-03-19 20:23:46 blair Exp $
  */
 public class GrouperBackend {
 
@@ -174,6 +174,10 @@ public class GrouperBackend {
    * @param gl    Add this {@link GrouperList} object.
    */
   protected static boolean listAddVal(GrouperSession s, GrouperList gl) {
+    GrouperSession.validate(s);
+    GrouperList.validate(gl);
+    gl.load(s);
+
     boolean rv = false; 
     if (_validateListVal(s, gl)) {
       // TODO Remove existence validation from _lAV?
@@ -187,6 +191,8 @@ public class GrouperBackend {
         Iterator iter = listVals.iterator();
         while (iter.hasNext()) {
           GrouperList lv = (GrouperList) iter.next();
+          lv.load(s); // TODO Is this necessary?
+          /* BDC */
           Iterator i = lv.chain().iterator();
           while (i.hasNext()) {
             MemberVia el = (MemberVia) i.next();
@@ -206,6 +212,8 @@ public class GrouperBackend {
    * @param gl    Delete this {@link GrouperList} object.
    */
   protected static boolean listDelVal(GrouperSession s, GrouperList gl) {
+    GrouperSession.validate(s);
+    gl.load(s);
     boolean rv = false;
     if (_validateListVal(s, gl)) {
       try {
@@ -283,6 +291,9 @@ public class GrouperBackend {
    * Add a GrouperList object
    */
   private static void _listAddVal(GrouperSession s, GrouperList gl) {
+    GrouperSession.validate(s);
+    GrouperList.validate(gl);
+
     // TODO Refactor out
     Grouper.log().backend("_listAddVal() (g) " + gl.group().name());
     Grouper.log().backend("_listAddVal() (m) " + gl.member().subjectID());
@@ -639,9 +650,11 @@ public class GrouperBackend {
   {
     boolean rv = false;
     // Convert the group to member to see if it has any mships
-    GrouperMember asMem = GrouperMember.load(s, g.id(), "group");
+    GrouperMember m = g.toMember();
+    // TODO Go through GG
     List valsG = listVals(s, g, Grouper.DEF_LIST_TYPE);
-    List valsM = listVals(s, asMem, Grouper.DEF_LIST_TYPE);
+    // TODO Go through GM
+    List valsM = listVals(s, m, Grouper.DEF_LIST_TYPE);
     if ( (valsG.size() != 0) || (valsM.size() != 0) ) {
       if (valsG.size() != 0) {
         Grouper.log().event(
@@ -1447,27 +1460,6 @@ public class GrouperBackend {
   }
 
   /**
-   * Query for a single {@link GrouperMember} by key.
-   *
-   * @return  {@link GrouperMember} object or null.
-   */
-  protected static GrouperMember member(GrouperSession s, String key) {
-    GrouperMember m = new GrouperMember();
-    if (key != null) {
-      try {
-        m = (GrouperMember) s.dbSess().session().get(
-                              GrouperMember.class, key
-                            );
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error loading member: " + e);
-      }
-    } else {
-      m = null;
-    }
-    return m;
-  }
-
-  /**
    * Query for a single {@link GrouperMember} by subject id and type.
    *
    * @return  {@link GrouperMember} object or null.
@@ -1783,10 +1775,10 @@ public class GrouperBackend {
             attr = new GrouperAttribute(key, field, value);
             s.dbSess().session().save(attr);   
           } catch (HibernateException e) {
-            attr = null;
-            Grouper.log().backend(
-              "Unable to store attribute " + field + "=" + value
-            );
+            throw new RuntimeException(
+                        "Error saving attribute '" + field +
+                        "'='" + value + "': " + e
+                      );
           }
         } else if (vals.size() == 1) {
           // Attribute already exists.  Check to see if the value has
@@ -1797,10 +1789,10 @@ public class GrouperBackend {
               attr = new GrouperAttribute(key, field, value);
               s.dbSess().session().update(attr);
             } catch (HibernateException e) {
-              attr = null;
-              Grouper.log().backend(
-                "Unable to update attribute " + field + "=" + value
-              );
+              throw new RuntimeException(
+                          "Error updating attribute '" + field +
+                          "'='" + value + "': " + e
+                        );
             }
           }
         } 
