@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.69 2005-02-07 21:41:38 blair Exp $
+ * @version $Id: Grouper.java,v 1.70 2005-02-17 18:44:43 blair Exp $
  */
 public class Grouper {
 
@@ -97,7 +97,7 @@ public class Grouper {
   /**
    * Root namespace.
    */
-  public static final String NS_ROOT        = "";
+  public static final String NS_ROOT        = "Grouper.NS_ROOT";
   /**
     * {@link GrouperGroup} type for namespaces.
     */
