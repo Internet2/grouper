@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.54 2004-11-22 04:17:38 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.55 2004-11-22 15:23:25 blair Exp $
  */
 public class GrouperBackend {
 
@@ -362,10 +362,11 @@ public class GrouperBackend {
                                             );
 
         // Update effective list data
-        Set effective = GrouperBackend._memberOf(session, memberOfBase, list);
-        Iterator iter = effective.iterator();
-        while (iter.hasNext()) {
-          GrouperVia via = (GrouperVia) iter.next();
+        Iterator effIter = GrouperBackend._memberOf(
+                            session, memberOfBase, list
+                           ).iterator();
+        while (effIter.hasNext()) {
+          GrouperVia via = (GrouperVia) effIter.next();
           GrouperBackend._listAddVal(
                                      session, via.group(),
                                      via.member(), list, via.via()
@@ -437,10 +438,11 @@ public class GrouperBackend {
                                             );
 
         // Update effective list data
-        Set effective = GrouperBackend._memberOf(session, memberOfBase, list);
-        Iterator iter = effective.iterator();
-        while (iter.hasNext()) {
-          GrouperVia via = (GrouperVia) iter.next();
+        Iterator effIter = GrouperBackend._memberOf(
+                             session, memberOfBase, list
+                           ).iterator();
+        while (effIter.hasNext()) {
+          GrouperVia via = (GrouperVia) effIter.next();
           GrouperBackend._listDelVal(
                                      session, via.group(),
                                      via.member(), list, via.via()
@@ -653,8 +655,9 @@ public class GrouperBackend {
       session.save(schema);
 
       // The Group attributes
-      Map attributes = g.attributes();
-      for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
+      Map       attributes  = g.attributes();
+      Iterator  iter        = attributes.keySet().iterator();
+      while (iter.hasNext()) {
         GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
         attr.set(g.key(), attr.field(), attr.value());
         session.save(attr);
@@ -856,9 +859,11 @@ public class GrouperBackend {
         // We have potential stems and potential descriptors.
         // Now see if we have the *right* stem and the *right*
         // descriptor.
-        for (Iterator iterDescs = descriptors.iterator(); iterDescs.hasNext();) {
-          GrouperAttribute possDesc = (GrouperAttribute) iterDescs.next();
-          for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
+        Iterator iterDesc = descriptors.iterator();
+        while (iterDesc.hasNext()) {
+          GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
+          Iterator iterStem = stems.iterator();
+          while (iterStem.hasNext()) {
             GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
             if (
                 descriptor.equals( possDesc.value() )   &&
@@ -900,9 +905,9 @@ public class GrouperBackend {
 
   private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
     // TODO Do I even need `key' passed in?
-    List    attrs   = GrouperBackend.attributes(g);
-    for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
-      GrouperAttribute attr = (GrouperAttribute) attrIter.next();
+    Iterator iter = GrouperBackend.attributes(g).iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
       g.attribute( attr.field(), attr.value() );
     }
   }
@@ -1264,10 +1269,10 @@ public class GrouperBackend {
     newGroups = GrouperBackend._memberOfQuery(session, g, list);
     // For each group in `newGroups', convert to a membership object
     // and assign to `memberships'
-    GrouperMember member   = GrouperMember.lookup( g.key(), "group");
-    Iterator immediateIter = newGroups.iterator();
-    while (immediateIter.hasNext()) {
-      GrouperGroup  immediate = (GrouperGroup) immediateIter.next();
+    GrouperMember member  = GrouperMember.lookup( g.key(), "group");
+    Iterator      immIter = newGroups.iterator();
+    while (immIter.hasNext()) {
+      GrouperGroup  immediate = (GrouperGroup) immIter.next();
       memberships.add( new GrouperVia(member, immediate, null) );
       // XXX System.err.println("I MEMBER " + g);
       // XXX System.err.println("I OF     " + immediate);
@@ -1276,10 +1281,10 @@ public class GrouperBackend {
       // While there are `newGroups'
       if (newGroups.size() > 0) {
         Set       nextGroups  = new HashSet();
-        Iterator  iter        = newGroups.iterator();
-        while (iter.hasNext()) {
+        Iterator  newIter     = newGroups.iterator();
+        while (newIter.hasNext()) {
           // Lookup group membership for each group in `newGroups'
-          GrouperGroup  via       = (GrouperGroup) iter.next();
+          GrouperGroup  via       = (GrouperGroup) newIter.next();
           Set           effGroups = GrouperBackend._memberOfQuery(session, via, list);
           Iterator      effIter   = effGroups.iterator();
           while (effIter.hasNext()) {

@@ -18,7 +18,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.44 2004-11-20 16:10:24 blair Exp $
+ * @version $Id: Grouper.java,v 1.45 2004-11-22 15:23:25 blair Exp $
  */
 public class Grouper {
 
@@ -69,9 +69,8 @@ public class Grouper {
     _init();
     // TODO Do I need another version of this method to distinguish
     //      between valid attribute and list data?
-    // TODO Why the convert?
-    List typeDefs = Grouper.groupTypeDefs();
-    for (Iterator iter = typeDefs.iterator(); iter.hasNext();) {
+    Iterator iter = Grouper.groupTypeDefs().iterator();
+    while (iter.hasNext()) {
       GrouperTypeDef td = (GrouperTypeDef) iter.next();
       if ( 
           (td.groupType().equals(type)) && // If the group type matches
@@ -104,9 +103,8 @@ public class Grouper {
    */
   public static boolean groupType(String type) {
     _init();
-    // TODO Why the convert?
-    List types = Grouper.groupTypes();
-    for (Iterator iter = types.iterator(); iter.hasNext();) {
+    Iterator iter = Grouper.groupTypes().iterator();
+    while (iter.hasNext()) {
       GrouperType t = (GrouperType) iter.next();
       if ( t.toString().equals(type) ) {
         return true;
@@ -145,9 +143,8 @@ public class Grouper {
    */
   public static boolean hasSubjectType(String type) {
     _init();
-    // TODO Why the convert?
-    List types = Grouper.subjectTypes();
-    for (Iterator iter = types.iterator(); iter.hasNext();) {
+    Iterator iter = Grouper.subjectTypes().iterator();
+    while (iter.hasNext()) {
       SubjectType t = (SubjectType) iter.next();
       if ( t.toString().equals(type) ) {
         return true;
@@ -158,10 +155,9 @@ public class Grouper {
 
   public static SubjectType subjectType(String type) {
     _init();
-    SubjectType st = null;
-    // TODO Why the convert?
-    List types = Grouper.subjectTypes();
-    for (Iterator iter = types.iterator(); iter.hasNext();) {
+    SubjectType st    = null;
+    Iterator    iter  = Grouper.subjectTypes().iterator();
+    while (iter.hasNext()) {
       SubjectType t = (SubjectType) iter.next();
       if ( t.getId().equals(type) ) {
         return t;
