@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.7 2004-12-09 02:26:04 blair Exp $
+$Id: FAQ,v 1.8 2004-12-09 02:30:36 blair Exp $
 
 ---
 
@@ -8,13 +8,13 @@ $Id: FAQ,v 1.7 2004-12-09 02:26:04 blair Exp $
 
 ### Environment
 
-
 #### Q: How do I access _Grouper_ configuration parameters?
 
 A: Use the `Grouper.config()' method.
   
     String delim = Grouper.config("hierarchy.delimiter");
 
+---
 
 ### Groups
 
@@ -126,6 +126,29 @@ A: Use the `GrouperGroup.modifySubject()' method.
 
     Subject modifier = g.modifySubject();
 
+---
+
+### List Values
+
+#### Q: How do I retrieve a _GrouperGroup_ object from a _GrouperList_ result?
+
+A: Use the `GrouperList.group()` method.
+
+    GrouperGroup g = (GrouperGroup) gl.group();
+
+#### Q: How do I retrieve a _GrouperMember_ object from a _GrouperList_ result?
+
+A: Use the `GrouperList.member()` method.
+
+    GrouperMember m = (GrouperGroup) gl.member();
+
+#### Q: How do I retrieve the _via_ group from a _GrouperList_ result?
+
+A: Use the `GrouperList.via()' method.
+
+    GrouperGroup via = (GrouperGroup) gl.via();
+
+---
 
 ### Privileges - Access
 
@@ -141,6 +164,7 @@ A: Use the `Grouper.access().revoke()' method.
 
     Grouper.access().revoke(s, g, m, Grouper.PRIV_ADMIN);
 
+---
 
 ### Privileges - Naming
 
@@ -158,22 +182,6 @@ A: Use the `Grouper.access().revoke()' method.
 
 
 ...
-
-### List Values
-
-#### Q: How do I retrieve a _GrouperGroup_ object from a _GrouperList_ result?
-
-A: Use the `GrouperList.group()` method.
-
-    GrouperGroup g = (GrouperGroup) gl.group();
-
-#### Q: How do I retrieve a _GrouperMember_ object from a _GrouperList_ result?
-
-A: Use the `GrouperList.member()` method.
-
-    GrouperMember m = (GrouperGroup) gl.member();
-
----
 
 ### Subjects
 
