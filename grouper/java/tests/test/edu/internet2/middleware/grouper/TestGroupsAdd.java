@@ -75,6 +75,8 @@ public class TestGroups extends TestCase {
   private String  extn3   = "extn.3";
   private String  stem4   = "stem.0";
   private String  extn4   = "extn.4";
+  private String  stem5   = "stem.0";
+  private String  extn5   = "ext:n.5";
   
 
   public TestGroups(String name) {
@@ -460,6 +462,18 @@ public class TestGroups extends TestCase {
     // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
     // ns00
     GrouperGroup g  = GrouperGroup.lookup(s, ns_stem00, ns_extn00);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  public void testCreateG6() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Attempt to create a group with bad chars in extn
+    String stem = stem5;
+    String extn = extn5;
+    GrouperGroup g = GrouperGroup.create(s, stem, extn);
     Assert.assertNull(g);
     s.stop();
   }

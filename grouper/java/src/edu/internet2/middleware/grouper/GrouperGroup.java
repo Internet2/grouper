@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.114 2004-12-04 05:12:14 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.115 2004-12-04 05:28:30 blair Exp $
  */
 public class GrouperGroup {
 
@@ -629,37 +629,40 @@ public class GrouperGroup {
     
       g = null;
     } else {
-      // TODO Can I move all|most of this to GrouperBackend?
-      g = new GrouperGroup();
+      String name = GrouperBackend.groupName(stem, extn);
+      if (name != null) {
+        // TODO Can I move all|most of this to GrouperBackend?
+        g = new GrouperGroup();
 
-      // Attach session
-      g.grprSession  = s;
+        // Attach session
+        g.grprSession  = s;
 
-      // Generate the UUIDs
-      g.setGroupKey( GrouperBackend.uuid() );
-      g.setGroupID(  GrouperBackend.uuid() );
+        // Generate the UUIDs
+        g.setGroupKey( GrouperBackend.uuid() );
+        g.setGroupID(  GrouperBackend.uuid() );
 
-      g._attrAdd("stem",      stem);
-      g._attrAdd("extension", extn);
-      g._attrAdd("name",      GrouperBackend.groupName(stem, extn));
-      g.type = type;
+        g._attrAdd("stem",      stem);
+        g._attrAdd("extension", extn);
+        g._attrAdd("name",      name);
+        g.type = type;
 
-      // Set some of the operational attributes
-      /*
-       * TODO Most, if not all, of the operational attributes should be
-       *      handled by Hibernate interceptors.  A task for another day.
-       */
-      g.setCreateTime(    GrouperGroup._now() );
-      g.setCreateSubject( s.subject().getId() );
+        // Set some of the operational attributes
+        /*
+         * TODO Most, if not all, of the operational attributes should be
+         *      handled by Hibernate interceptors.  A task for another day.
+         */
+        g.setCreateTime(    GrouperGroup._now() );
+        g.setCreateSubject( s.subject().getId() );
 
-      // Verify that we have everything we need to create a group
-      // and that this subject is privileged to create this group.
-      if (g._validateCreate()) {
-        // And now attempt to add the group to the store
-        if (GrouperBackend.groupAdd(s, g)) {
-          g.initialized = true; // FIXME UGLY HACK!
-        } else {
-          g = null;  
+        // Verify that we have everything we need to create a group
+        // and that this subject is privileged to create this group.
+        if (g._validateCreate()) {
+          // And now attempt to add the group to the store
+          if (GrouperBackend.groupAdd(s, g)) {
+            g.initialized = true; // FIXME UGLY HACK!
+          } else {
+            g = null;  
+          }
         }
       } else {
         // TODO Log
