@@ -8,14 +8,15 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.12 2004-04-29 16:21:46 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.13 2004-04-30 14:14:36 blair Exp $
  */
 public class GrouperGroup {
 
   /*
    * TODO
-   * - field level access
-   *   - two caches: one for ui, one for api?
+   * - GrouperFieldPrivileges
+   *  - field level access
+   *    - two caches: one for ui, one for api?
    */
 
   /**
