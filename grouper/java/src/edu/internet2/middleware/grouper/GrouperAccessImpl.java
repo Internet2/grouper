@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.44 2005-02-07 16:33:23 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.45 2005-02-07 20:49:17 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -129,7 +129,12 @@ public class GrouperAccessImpl implements GrouperAccess {
          * FIXME I should be doing a GroupField lookup on `priv'
          */
         if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-          if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
+          if (
+              GrouperBackend.listAddVal(
+                s, new GrouperList(g, m, (String) privMap.get(priv), null)
+              ) == true
+             )
+          {
             rv = true;
           }
         }
@@ -221,7 +226,9 @@ public class GrouperAccessImpl implements GrouperAccess {
         rv = true;
       } else {
         GrouperMember m = GrouperMember.load( s.subject() );
-        rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
+        rv = GrouperBackend.listVal(
+               s, new GrouperList(g, m, (String) privMap.get(priv), null)
+             );
       }
     } else {
       // TODO I should probably throw an exception
@@ -268,7 +275,9 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
+      rv = GrouperBackend.listVal(
+             s, new GrouperList(g, m, (String) privMap.get(priv), null)
+           );
     } else {
       // TODO I should probably throw an exception
       rv = false;
@@ -321,7 +330,12 @@ public class GrouperAccessImpl implements GrouperAccess {
          * FIXME I should be doing a GroupField lookup on `priv'
          */
         if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-          if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
+          if (
+              GrouperBackend.listDelVal(
+                s, new GrouperList(g, m, (String) privMap.get(priv), null)
+              ) == true
+             )
+          {
             rv = true;
           }
         }

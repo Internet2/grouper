@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.146 2005-02-07 17:35:17 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.147 2005-02-07 20:49:17 blair Exp $
  */
 public class GrouperBackend {
 
@@ -146,50 +146,42 @@ public class GrouperBackend {
   /**
    * Add list values to the backend store.
    *
-   * @param g     Add member to this {@link GrouperGroup}.
    * @param s     Add member within this session context.
-   * @param m     Add this member.
-   * @param field Add member from this field.
+   * @param gl    Add this {@link GrouperList} object.
    */
-  protected static boolean listAddVal(
-                             GrouperSession s, GrouperGroup g, 
-                             GrouperMember m, String field
-                           ) 
-  {
-    Session session = _init();
-    boolean rv      = false;
-    if (_validateListVal(s, g, m, field)) {
+  protected static boolean listAddVal(GrouperSession s, GrouperList gl) {
+    Session session = _init(); 
+    boolean rv      = false; 
+    if (_validateListVal(s, gl)) {
       // TODO Remove existence validation from _lAV?
-      if (_listValExist(g, m, field, null) == false) {
-        session.clear(); // FIXME
+      if (_listValExist(gl) == false) {
         try {
           Transaction t = session.beginTransaction();
-
+          
           // The GrouperList objects that we will need to add
-          Set listVals = _memberOf(session, s, g, m, field);
-
+          Set listVals = _memberOf(session, s, gl);
+          
           // Now add the list values
-        // TODO Refactor out to _listAddVal(List vals)
+          // TODO Refactor out to _listAddVal(List vals)
           Iterator iter = listVals.iterator();
           while (iter.hasNext()) {
             GrouperList lv = (GrouperList) iter.next();
-            _listAddVal(
-              session, lv.group(), lv.member(), lv.groupField(), lv.via()
-            );
+            _listAddVal(session, lv);
           }
 
           // Update modify information
-          session.update(g);
+          session.update(gl.group()); 
           // Commit it
           t.commit();
           rv = true;
         } catch (Exception e) {
-          // TODO We probably need a rollback in here in case of failure
+          // TODO We probably need a rollback in here in case of
+          // failure
           //      above.
           throw new RuntimeException(e);
         }
       }
-    } 
+    }
     _hibernateSessionClose(session);
     return rv;
   }
@@ -197,44 +189,36 @@ public class GrouperBackend {
   /**
    * Remove list values from the backend store.
    *
-   * @param g     Remove member from this {@link GrouperGroup}.
-   * @param s     Remove member within this session context.
-   * @param m     Remove this member.
-   * @param field Remove member from this field.
+   * @param s     Delete list value within this session context.
+   * @param gl    Delete this {@link GrouperList} object.
    */
-  protected static boolean listDelVal(
-                             GrouperSession s, GrouperGroup g,
-                             GrouperMember m, String field
-                           ) 
-  {
+  protected static boolean listDelVal(GrouperSession s, GrouperList gl) {
     Session session = _init();
-    boolean rv      = false;
-    if (_validateListVal(s, g, m, field)) {
+    boolean rv = false;
+    if (_validateListVal(s, gl)) {
       try {
         Transaction t = session.beginTransaction();
 
         // The GrouperList objects that we will need to delete
-        Set listVals = _memberOf(session, s, g, m, field);
+        Set listVals = _memberOf(session, s, gl);
 
         // Now delete the list values
         // TODO Refactor out to _listDelVal(List vals)
         Iterator listValIter = listVals.iterator();
         while (listValIter.hasNext()) {
           GrouperList lv = (GrouperList) listValIter.next();
-          _listDelVal(
-            session, lv.group(), lv.member(), lv.groupField(), lv.via()
-          );
+          _listDelVal(session, lv);
         }
 
         // Update modify information
-        session.update(g);
+        session.update(gl.group());
         // Commit it
         t.commit();
         rv = true;
       } catch (HibernateException e) {
         throw new RuntimeException(e);
       }
-    } 
+    }
     _hibernateSessionClose(session);
     return rv;
   }
@@ -263,17 +247,124 @@ public class GrouperBackend {
   } 
 
   /* !javadoc
+   * Add a GrouperList object
+   */
+  private static void _listAddVal(Session session, GrouperList gl) {
+    // TODO Refactor out
+    Grouper.log().backend("_listAddVal() (g) " + gl.group().name());
+    Grouper.log().backend("_listAddVal() (m) " + gl.member().subjectID());
+    Grouper.log().backend("_listAddVal() (t) " + gl.groupField());
+    if (gl.via() != null) {
+      Grouper.log().backend("_listAddVal() (v) " + gl.via().name());
+    } else {
+      Grouper.log().backend("_listAddVal() (v) null");
+    }
+
+    // Confirm that list value doesn't already exist
+    if (GrouperBackend._listValExist(gl) == false) {
+      Grouper.log().backend("_listAddVal() Value does not exist");
+      Grouper.log().backend("_listAddVal() Adding " + gl);
+      // Save it
+      try {
+        session.save(gl);
+        Grouper.log().backend("_listAddVal() added");
+      } catch (HibernateException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      Grouper.log().backend("_listAddVal() Value already exists");
+    }
+  }
+
+  /* !javadoc
+   * Delete a GrouperList object
+   */
+  private static void _listDelVal(Session session, GrouperList gl) {
+    // TODO Refactor out
+    Grouper.log().backend("_listDelVal() (g) " + gl.group().name());
+    Grouper.log().backend("_listDelVal() (m) " + gl.member().subjectID());
+    Grouper.log().backend("_listDelVal() (t) " + gl.groupField());
+    if (gl.via() != null) {
+      Grouper.log().backend("_listDelVal() (v) " + gl.via().name());
+    } else {
+      Grouper.log().backend("_listDelVal() (v) null");
+    }
+
+    // Confirm that the data exists
+    if (GrouperBackend._listValExist(gl) == true) {
+      Grouper.log().backend("_listDelVal() Value exists");
+      Grouper.log().backend("_listDelVal() Deleting " + gl);
+      try {
+        // Delete it
+        session.delete(gl); 
+        Grouper.log().backend("_listDelVal() deleted");
+      } catch (HibernateException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      Grouper.log().backend("_listDelVal() Value doesn't exist");
+    }
+  }
+
+  /* !javadoc
+   * Retrieve list value from registry
+   */
+  private static GrouperList _listVal(GrouperList gl) {
+    // TODO Have GrouperList call this and its kin?
+    // TODO Run within parent session?
+    Session     session   = GrouperBackend._init();
+    if (gl.group() != null) { // TODO 
+      List    vals      = new ArrayList();
+      String  via_param;
+      if (gl.via() == null)  {
+        via_param = GrouperBackend.VAL_NULL;
+      } else {
+        via_param = gl.via().key();
+      }
+      // TODO Take GL
+      vals = BackendQuery.grouperList(
+               session, gl.group().key(), gl.member().key(),
+               gl.groupField(), via_param
+             );
+      // We only want one
+      if (vals.size() == 1) {
+        gl = (GrouperList) vals.get(0);
+      } else {
+        gl = null; // TODO Null Object
+      }
+      GrouperBackend._hibernateSessionClose(session);
+    }
+    return gl;
+  }
+
+  /* !javadoc
+   * Check whether a list value exists.
+   */
+  // TODO Run within parent session?
+  private static boolean _listValExist(GrouperList gl) {
+    boolean rv = false;
+    GrouperList lv = GrouperBackend._listVal(gl);
+    if (lv != null) { // FIXME Can I do better than this?
+      rv = true;
+    }
+    return rv;
+  }
+
+  /* !javadoc
    * Return set of GrouperList objects generated by this list value.
    * TODO I can break this method down even further.
    */
   private static Set _memberOf(
-                       Session session, GrouperSession s, GrouperGroup g,
-                       GrouperMember m, String field
-                     )
+                       Session session, GrouperSession s, GrouperList gl
+                     ) 
   {
     Set members = new HashSet();
     Set memOf   = new HashSet();
     Set mships  = new HashSet();
+
+    GrouperGroup  g     = gl.group();
+    GrouperMember m     = gl.member();
+    String        field = gl.groupField();
 
     // Determine if `m' is a group and has any members
     if (m.typeID().equals("group")) {
@@ -300,7 +391,7 @@ public class GrouperBackend {
     Iterator iterG = memOf.iterator();
     while (iterG.hasNext()) {
       GrouperList lvG = (GrouperList) iterG.next();
-      // FIXME Should this be lvMG.via() || mAsG || g instead?
+      // FIXME This should be the first element in the via path
       GrouperGroup via = lvG.via();
       if (via == null) {
         via = g;
@@ -327,20 +418,20 @@ public class GrouperBackend {
                          ) 
   {
     boolean rv = false;
-    // Revoke all privileges
-    // FIXME This is ugly 
-    if (Grouper.access().revoke(s, g, Grouper.PRIV_OPTIN)) {
-      if (Grouper.access().revoke(s, g, Grouper.PRIV_OPTOUT)) {
-        if (Grouper.access().revoke(s, g, Grouper.PRIV_VIEW)) {
-          if (Grouper.access().revoke(s, g, Grouper.PRIV_READ)) {
-            if (Grouper.access().revoke(s, g, Grouper.PRIV_UPDATE)) {
-              if (Grouper.access().revoke(s, g, Grouper.PRIV_ADMIN)) {
-                rv = true;
-              }
-            }
-          }
-        }
-      }
+    /* 
+     * TODO This could be prettier, especially if/when there are custom
+     *      privs
+     */
+    if (
+        Grouper.access().revoke(s, g, Grouper.PRIV_OPTIN)   &&
+        Grouper.access().revoke(s, g, Grouper.PRIV_OPTOUT)  &&
+        Grouper.access().revoke(s, g, Grouper.PRIV_VIEW)    &&
+        Grouper.access().revoke(s, g, Grouper.PRIV_READ)    &&
+        Grouper.access().revoke(s, g, Grouper.PRIV_UPDATE)  &&
+        Grouper.access().revoke(s, g, Grouper.PRIV_ADMIN)
+       )
+    {
+      rv = true;
     }
     return rv;
   }
@@ -355,10 +446,12 @@ public class GrouperBackend {
     boolean rv = false;
     // Revoke all privileges
     // FIXME This is ugly 
-    if (Grouper.naming().revoke(s, g, Grouper.PRIV_STEM)) {
-      if (Grouper.naming().revoke(s, g, Grouper.PRIV_CREATE)) {
-        rv = true;
-      }
+    if (
+        Grouper.naming().revoke(s, g, Grouper.PRIV_STEM)    &&
+        Grouper.naming().revoke(s, g, Grouper.PRIV_CREATE) 
+       )
+    {       
+      rv = true;
     }
     return rv;
   }
@@ -378,7 +471,7 @@ public class GrouperBackend {
         session.delete(gs);
         rv = true;
       } catch (HibernateException e) {
-        // FIXME LOG
+        // FIXME LOG.  Hell, anything.
       }
     }
     return rv;
@@ -415,16 +508,17 @@ public class GrouperBackend {
    * Return true if the list value appears remotely legitimate.
    */
   private static boolean _validateListVal(
-                            GrouperSession s, GrouperGroup g, 
-                            GrouperMember m, String field
+                            GrouperSession s, GrouperList gl
                           )
   {
     // TODO Better validation would be appreciated
     if (
-        s.getClass().getName().equals(Grouper.KLASS_GS) && 
-        g.getClass().getName().equals(Grouper.KLASS_GG) &&
-        m.getClass().getName().equals(Grouper.KLASS_GM) &&
-        Grouper.groupField(g.type(), field)
+        s   != null                                               &&
+        gl  != null                                               &&
+        s.getClass().getName().equals(Grouper.KLASS_GS)           && 
+        gl.group().getClass().getName().equals(Grouper.KLASS_GG)  &&
+        gl.member().getClass().getName().equals(Grouper.KLASS_GM) &&
+        Grouper.groupField(gl.group().type(), gl.groupField())
        ) 
     {
       return true;
@@ -617,7 +711,6 @@ public class GrouperBackend {
       	throw new RuntimeException(e);
       }
     } else { 
-      System.err.println("STEM " + stem.value() + " DOES NOT EXIST!");
       Grouper.log().event(
         "Unable to add group as stem=`" + stem.value() + "' does not exist."
       );
@@ -734,25 +827,12 @@ public class GrouperBackend {
     return rv;
   }
 
-  /**
-   * Verify whether the specified group, member, list, and via
-   * combination exists within the groups registry.
-   *
-   * @param   s     Verify data within this session context.
-   * @param   g     Verify data for this group.
-   * @param   m     Verify data for this member
-   * @param   list  Verify data for this list type.
-   * @return  True if the value combination exists.
-   */
-  protected static boolean listVal(
-                                   GrouperSession s, GrouperGroup g,
-                                   GrouperMember m, String list
-                                  ) 
-  {
+  // TODO Why not just listValExist directly?
+  protected static boolean listVal(GrouperSession s, GrouperList gl) {
     // TODO Basic input data validation
     Session session = GrouperBackend._init();
     boolean rv      = false;
-    rv = GrouperBackend._listValExist(g, m, list, null); 
+    rv = GrouperBackend._listValExist(gl);
     GrouperBackend._hibernateSessionClose(session);
     return rv;
   }
@@ -1688,130 +1768,6 @@ public class GrouperBackend {
       }  
     }
     return vals;
-  }
-
-  private static GrouperList _listVal(
-                                      GrouperGroup g, GrouperMember m,
-                                      String list, GrouperGroup via
-                                     )
-  {
-    /*
-     * While most private class methods take a Session as an argument,
-     * this method does not because to do so would possibly cause
-     * non-uniqueness issues.
-     */
-    // TODO Have GrouperList call this and its kin?
-    Session     session   = GrouperBackend._init();
-    GrouperList gl        = null;
-    if (g != null) { // TODO 
-      List        vals      = new ArrayList();
-      String      via_param;
-      if (via == null)  {
-        via_param = GrouperBackend.VAL_NULL;
-      } else {
-        via_param = via.key();
-      }
-      vals = BackendQuery.grouperList(
-               session, g.key(), m.key(), list, via_param
-             );
-      // We only want one
-      if (vals.size() == 1) {
-        gl = (GrouperList) vals.get(0);
-      }
-      GrouperBackend._hibernateSessionClose(session);
-    }
-    return gl;
-  }
-
-  private static void _listAddVal(
-                                  Session session, 
-                                  GrouperGroup g, 
-                                  GrouperMember m, 
-                                  String list, 
-                                  GrouperGroup via
-                                 ) 
-  {
-/* XXX
-    System.err.println("_LISTADDVAL G " + g.name());
-    System.err.println("_LISTADDVAL M " + m.subjectID());
-    System.err.println("_LISTADDVAL T " + list);
-    if (via != null) {
-      System.err.println("_LISTADDVAL V " + via.name());
-    } else {
-      System.err.println("_LISTADDVAL V null");
-    }
-*/
-    // Confirm that list data doesn't already exist
-    if (GrouperBackend._listValExist(g, m, list, via) == false) {
-      // XXX System.err.println("_lISTADDVAL VALUES DO NOT EXIST");
-      // Instantiate the GrouperList object
-      GrouperList gl = new GrouperList(g, m, list, via);
-      // Save it
-      try {
-        session.save(gl);
-      } catch (HibernateException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      // XXX System.err.println("_LISTADDVAL VALUES EXIST");
-    }
-  }
-
-  private static void _listDelVal(
-                                  Session sess,   // TODO Fix
-                                  GrouperGroup g,
-                                  GrouperMember m,
-                                  String list,
-                                  GrouperGroup via
-                                 )
-  {
-    // TODO Resolve non-uniqueness errors generated when I use the
-    //      parent session.  Is the addition of list vals immune to
-    //      this problem or have I just not triggered it yet?  Or if I
-    //      can't, add the disclaimer.
-    Session session = GrouperBackend._init(); // XXX
-    Grouper.log().backend("_listDelVal() (g) " + g);
-    Grouper.log().backend("_listDelVal() (m) " + m);
-    Grouper.log().backend("_listDelVal() (t) " + list);
-    if (via != null) {
-      Grouper.log().backend("_listDelVal() (v) " + via);
-    } else {
-      Grouper.log().backend("_listDelVal() (v) null");
-    }
-
-    // Confirm that the data exists
-    if (GrouperBackend._listValExist(g, m, list, via) == true) {
-      Grouper.log().backend("_listDelVal() Value exists");
-      GrouperList gl = GrouperBackend._listVal(g, m, list, via);
-      Grouper.log().backend("_listDelVal() Deleting " + gl);
-      try {
-        // Delete it
-        session.delete(gl); 
-        session.flush(); // XXX
-        Grouper.log().backend("_listDelVal() deleted");
-      } catch (HibernateException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      Grouper.log().backend("_listDelVal() Value doesn't exist");
-    }
-    GrouperBackend._hibernateSessionClose(session); // XXX
-  }
-
-    // TODO Add session disclaimer
-  private static boolean _listValExist(
-                                       GrouperGroup g, 
-                                       GrouperMember m, 
-                                       String list, 
-                                       GrouperGroup via
-                                      ) 
-  {
-    boolean rv = false;
-    GrouperList gl = GrouperBackend._listVal(g, m, list, via);
-    if (gl != null) { // FIXME Can I do better than this?
-      rv = true;
-    }
-    return rv;
   }
 
   // TODO REFACTOR!          
