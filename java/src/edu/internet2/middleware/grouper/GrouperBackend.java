@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.77 2004-11-30 19:25:10 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.78 2004-12-01 01:18:53 blair Exp $
  */
 public class GrouperBackend {
 
@@ -134,6 +134,19 @@ public class GrouperBackend {
       System.exit(1);
     }
     GrouperBackend._hibernateSessionClose(session);
+  }
+
+  protected static GrouperAttribute attrAdd(
+                                            String key, String field, 
+                                            String value
+                                           ) 
+  {
+    Session session = GrouperBackend._init();
+    GrouperAttribute attr = GrouperBackend._attributeStore(
+                              session, key, field, value
+                            ); 
+    GrouperBackend._hibernateSessionClose(session);
+    return attr;
   }
 
   /**
@@ -912,18 +925,45 @@ public class GrouperBackend {
    * PRIVATE CLASS METHODS
    */
 
+  /*
+   * Hibernate an attribute
+   */
   private static GrouperAttribute _attributeStore(
                                     Session session, String key,
                                     String  field,   String value
                                   )
   {
-    GrouperAttribute attr = new GrouperAttribute(key, field, value);
-    try {
-      session.save(attr);   
-    } catch (HibernateException e) {
-      // TODO Fuck.
-      attr = null;
-    }
+    GrouperAttribute attr = null;
+    List vals = GrouperBackend._queryGrouperAttr(session, key, field);
+    if (vals.size() == 0) {
+      // We've got a new one.  Store it.
+      try {
+        attr = new GrouperAttribute(key, field, value);
+        session.save(attr);   
+      } catch (HibernateException e) {
+        attr = null;
+        GrouperBackend.LOGGER_GB.warn(
+                                      "Unable to store attribute " +
+                                      field + "=" + value
+                                     );
+      }
+    } else if (vals.size() == 1) {
+      // Attribute already exists.  Check to see if the value has
+      // changed.
+      attr = (GrouperAttribute) vals.get(0); 
+      if (!attr.value().equals(value)) {
+        try {
+          attr = new GrouperAttribute(key, field, value);
+          session.save(attr);
+        } catch (HibernateException e) {
+          attr = null;
+          GrouperBackend.LOGGER_GB.warn(
+                                        "Unable to update attribute " +
+                                        field + "=" + value
+                                       );
+        }
+      }
+    } // TODO else...
     return attr;
   }
 
@@ -1406,6 +1446,32 @@ public class GrouperBackend {
                                       q.getQueryString()
                                      );
       vals    = q.list();
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return vals;
+  }
+
+  private static List _queryGrouperAttr(
+                                        Session session, String key,
+                                        String field
+                                       )
+  {
+    List vals = new ArrayList();
+    try {
+      Query q = session.createQuery(
+        "FROM GrouperAttribute AS ga"   +
+        " WHERE "                       +
+        "ga.groupKey='"   + key   + "'" +
+        " AND "                         +
+        "ga.groupField='" + field + "'"
+      );          
+      GrouperBackend.LOGGER_GBQ.debug(
+                                      "_queryGrouperAttr() " +
+                                      q.getQueryString()
+                                     );
+      vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
       System.exit(1);

@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.95 2004-11-30 20:26:42 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.96 2004-12-01 01:18:53 blair Exp $
  */
 public class GrouperGroup {
 
@@ -204,27 +204,34 @@ public class GrouperGroup {
   /**
    * Set a group attribute.
    * 
-   * @param attribute Attribute to set.
-   * @param value     Value of attribute.
+   * @param   attribute Attribute to set.
+   * @param   value     Value of attribute.
+   * @return  Boolean true if attribute added successfully, false
+   *   otherwise.
    */
-  public void attribute(String attribute, String value) {
+  public boolean attribute(String attribute, String value) {
+    boolean rv = false;
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
       // Setup the attribute, add it to the stash.
       // TODO Validate?
-      // TODO Why do I create an object first?
-      // TODO The attribute is not properly Hibernated
       GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
-      if        (value == null) {
-        System.err.println("DELETE " + attribute);
-        // FIXME this._attrDel(attribute);
-      } else if (cur == null)   {
-        this._attrAdd(attribute, value);  
-      } else {
-        System.err.println("UPDATE " + attribute);
-        // FIXME this._attrUpdate(attribute, value);
-      }
+      if (value == null) {
+        // Delete an existing attribute
+        // FIXME Implement...  this._attrDel(attribute); ???
+      } else             {
+        // Add a new attribute value
+        // TODO Change params.  `this, s, attribute, value' so I can
+        //      update modify?
+        GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
+        if (attr != null) {
+          if (this._attrAdd(attribute, attr) == true) {
+            rv = true;
+          }
+        }
+      } 
     }
+    return rv;
   }
 
   /** 
@@ -504,6 +511,20 @@ public class GrouperGroup {
    */
 
   /*
+   * Add an attribute persistently
+   */
+  private boolean _attrAdd(String attribute, GrouperAttribute attr) {
+    boolean rv = false;
+    if (attr != null) {
+      attributes.put(attribute, attr);
+      rv = true;
+    } else {
+      Grouper.LOGGER.warn("Unable to add attribute " + attribute);
+    }
+    return rv;
+  }
+
+  /*
    * Add an attribute
    */
   private void _attrAdd(String attribute, String value) {
@@ -523,32 +544,10 @@ public class GrouperGroup {
    */
   private void _attrDel(String attribute) {
     GrouperAttribute attr = null;
-/*
-    GrouperAttribute attr = new GrouperAttribute(
-                              this.key, attribute, value
-                            );
-*/
     if (attr != null) {
-      System.err.println("DELETE " + attribute);
       attributes.remove(attribute);
     } else {
       Grouper.LOGGER.warn("Unable to remove attribute " + attribute);
-    }
-  }
-
-  /*
-   * Update an attribute
-   */
-  private void _attrUpdate(String attribute, String value) {
-    GrouperAttribute attr = new GrouperAttribute(
-                              this.key, attribute, value
-                            );
-    if (attr != null) {
-      System.err.println("UPDATE " + attribute);
-      attributes.put(attribute, attr);
-    } else {
-      Grouper.LOGGER.warn("Unable to update attribute " +
-                          attribute + "=" + value);
     }
   }
 
