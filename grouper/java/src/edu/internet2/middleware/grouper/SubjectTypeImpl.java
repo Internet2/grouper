@@ -54,6 +54,8 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.lang.reflect.*;
+import  java.util.*;
+import  net.sf.hibernate.*;
 
 
 /** 
@@ -61,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.15 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.16 2005-03-23 21:35:24 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -82,6 +84,34 @@ public class SubjectTypeImpl implements SubjectType {
    */
   public SubjectTypeImpl() {
     // Nothing -- Yet
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * @return List of all subject types.
+   */
+  protected static List all(DbSess dbSess) {
+    String  qry   = "SubjectTypeImpl.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 

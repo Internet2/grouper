@@ -51,12 +51,17 @@
 
 package edu.internet2.middleware.grouper;
 
+
+import  java.util.*;
+import  net.sf.hibernate.*;
+
+
 /** 
  * Class modeling a {@link GrouperGroup} type.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.17 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: GrouperType.java,v 1.18 2005-03-23 21:35:24 blair Exp $
  */
 public class GrouperType {
 
@@ -75,6 +80,34 @@ public class GrouperType {
    */
   public GrouperType() {
     this._init();
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * @return List of all group types
+   */
+  protected static List all(DbSess dbSess) {
+    String  qry   = "GrouperType.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 

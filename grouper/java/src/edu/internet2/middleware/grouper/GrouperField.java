@@ -51,12 +51,17 @@
 
 package edu.internet2.middleware.grouper;
 
+
+import  java.util.*;
+import  net.sf.hibernate.*;
+
+
 /** 
  * Class modeling a {@link GrouperGroup} field.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.20 2005-02-17 18:59:09 blair Exp $
+ * @version $Id: GrouperField.java,v 1.21 2005-03-23 21:35:24 blair Exp $
  */
 public class GrouperField implements Comparable {
 
@@ -75,6 +80,34 @@ public class GrouperField implements Comparable {
 
   public GrouperField() {
     this._init();
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * @return List of all group fields
+   */
+  protected static List all(DbSess dbSess) {
+    String  qry   = "GrouperField.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 

@@ -62,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.74 2005-03-20 00:03:39 blair Exp $
+ * @version $Id: Grouper.java,v 1.75 2005-03-23 21:35:24 blair Exp $
  */
 public class Grouper {
 
@@ -352,10 +352,10 @@ public class Grouper {
       // TODO Perform data validation of some sort for these tables?
       DbSess dbSess = new DbSess();
 
-      groupFields   = GrouperBackend.groupFields(dbSess);
-      groupTypeDefs = GrouperBackend.groupTypeDefs(dbSess);
-      groupTypes    = GrouperBackend.groupTypes(dbSess);
-      subjectTypes  = GrouperBackend.subjectTypes(dbSess);
+      groupFields   = GrouperField.all(dbSess);
+      groupTypeDefs = GrouperTypeDef.all(dbSess);
+      groupTypes    = GrouperType.all(dbSess);
+      subjectTypes  = SubjectTypeImpl.all(dbSess);
 
       dbSess.stop();
 
