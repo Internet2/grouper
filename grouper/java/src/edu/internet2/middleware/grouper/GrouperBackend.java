@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.189 2005-03-22 19:13:57 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.190 2005-03-22 19:25:14 blair Exp $
  */
 public class GrouperBackend {
 
@@ -597,105 +597,6 @@ public class GrouperBackend {
     return vals;
   }
 
-  /**
-   * Query for memberships in the specified list.
-   * <p />
-   *
-   * @param   s     Perform query within this session.
-   * @param   list  Query on this list type.
-   * @return  List of {@link GrouperList} objects.
-   */
-  protected static List listVals(GrouperSession s, String list) {
-    String  qry   = "GrouperList.by.list";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query for effective memberships in the specified list.
-   * <p />
-   *
-   * @param   s     Perform query within this session.
-   * @param   list  Query on this list type.
-   * @return  List of {@link GrouperList} objects.
-   */
-  protected static List listEffVals(GrouperSession s, String list) {
-    String  qry   = "GrouperList.by.list.and.is.eff";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  protected static List listImmVals(GrouperSession s, String list) {
-    String  qry   = "GrouperList.by.list.and.is.imm";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);  
-      q.setString(0, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-  
   /**
    * Valid {@link GrouperTypeDef} items.
    *
