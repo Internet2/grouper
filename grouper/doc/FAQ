@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.2 2004-12-03 14:46:59 blair Exp $
+$Id: FAQ,v 1.3 2004-12-04 19:03:10 blair Exp $
 
 ---
 
@@ -38,6 +38,10 @@ A: Use the `GrouperList.member()` method.
 
 A: Use the `GrouperSubject.lookup(subjID, subjType)` method.
 
+    Subject subj = GrouperSubject.lookup(subjID, Grouper.DEF_SUBJ_TYPE);
+
+Or:
+
     Subject subj = GrouperSubject.lookup(subjID, "person");
 
 The `GrouperSubject.lookup()` method will call the appropriate subject
@@ -52,7 +56,7 @@ A: Use the `GrouperSubject.lookup(subjID, subjType)` method.
 The `GrouperSubject.lookup()` method will call the appropriate subject
 type adapter for the type of subject specified.
 
-#### Q: How do I _Subject_ object into a _GrouperMember_ object?
+#### Q: How do I convert a _Subject_ object into a _GrouperMember_ object?
 
 A: Use the `GrouperMember.lookup(subject)` method.
 
