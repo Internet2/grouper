@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.54 2005-03-22 18:46:28 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.55 2005-03-22 18:58:15 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -178,7 +178,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
       GrouperMember m     = GrouperMember.load(s, s.subject()); 
-      privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
+      privs = m.listVals( (String) privMap.get(priv) );
     } 
     // TODO Throw exception if invalid priv?
     return privs;
@@ -249,7 +249,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
+      privs = m.listVals( (String) privMap.get(priv) );
     } // TODO Exception if invalid priv?
     return privs;
   }
