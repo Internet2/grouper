@@ -68,7 +68,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.141 2005-01-27 02:41:03 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.142 2005-01-28 18:13:02 blair Exp $
  */
 public class GrouperBackend {
 
@@ -537,8 +537,11 @@ public class GrouperBackend {
         try {
           Transaction t = session.beginTransaction();
 
-          // Update immediate list data first
-          GrouperBackend._listAddVal(session, g, m, list, null);
+          // The GrouperList objects that we will need to add
+          Set listVals = new HashSet();
+          
+          // Immediate membership
+          listVals.add( new GrouperList(g, m, list, null) );
 
           // TODO Refactor to a method
           /* 
@@ -546,13 +549,13 @@ public class GrouperBackend {
            * member, via `g', of those groups.
            */
           GrouperMember mg = GrouperMember.load(g.id(), "group");
-          List groups = new ArrayList();
+          // List groups = new ArrayList();
+          Set groups = new HashSet();
           Iterator mgA = GrouperBackend.listVals(s, mg, list).iterator();
           while (mgA.hasNext()) {
             GrouperList glA = (GrouperList) mgA.next();
-            GrouperBackend._listAddVal(
-              session, glA.group(), m, list, g
-            );
+            // Effective memberships via group
+            listVals.add( new GrouperList(glA.group(), m, list, g) );
             groups.add(glA.group());
           }
 
@@ -581,11 +584,19 @@ public class GrouperBackend {
               Iterator iter = groups.iterator();
               while (iter.hasNext()) {
                 GrouperGroup group = (GrouperGroup) iter.next();
-                GrouperBackend._listAddVal(
-                  session, group, gl.member(), list, v
-                );
+                // Effective membership via member
+                listVals.add( new GrouperList(group, gl.member(), list, v) );
               }
             }
+          }
+
+          // Now add the list values
+          Iterator listValIter = listVals.iterator();
+          while (listValIter.hasNext()) {
+            GrouperList lv = (GrouperList) listValIter.next();
+            GrouperBackend._listAddVal(
+              session, lv.group(), lv.member(), lv.groupField(), lv.via()
+            );
           }
 
           // Update modify information
@@ -628,8 +639,11 @@ public class GrouperBackend {
       try {
         Transaction t = session.beginTransaction();
 
+        // The GrouperList objects that we will need to delete
+        Set listVals = new HashSet();
+
         // Update immediate list data for `m' first
-        GrouperBackend._listDelVal(session, g, m, list, null);
+        listVals.add( new GrouperList(g, m, list, null) );
 
         // TODO Refactor to a method
         /* 
@@ -646,7 +660,7 @@ public class GrouperBackend {
           GrouperGroup  grp = gl.group();
           GrouperMember mem = gl.member();
           if ( (grp != null) && (mem != null) ) {
-            GrouperBackend._listDelVal(session, grp, mem, list, g);
+            listVals.add( new GrouperList(grp, mem, list, g) );
             groups.add(grp);
           }
         }
@@ -676,11 +690,18 @@ public class GrouperBackend {
             Iterator iter = groups.iterator();
             while (iter.hasNext()) {
               GrouperGroup group = (GrouperGroup) iter.next();
-              GrouperBackend._listDelVal(
-                session, group, gl.member(), list, v
-              );
+              listVals.add( new GrouperList(group, gl.member(), list, v) );
             }
           }
+        }
+
+        // Now delete the list values
+        Iterator listValIter = listVals.iterator();
+        while (listValIter.hasNext()) {
+          GrouperList lv = (GrouperList) listValIter.next();
+          GrouperBackend._listDelVal(
+            session, lv.group(), lv.member(), lv.groupField(), lv.via()
+          );
         }
 
         // Update modify information
@@ -1655,15 +1676,16 @@ public class GrouperBackend {
                                   GrouperGroup via
                                  ) 
   {
-    // XXX System.err.println("_LISTADDVAL G " + g);
-    // XXX System.err.println("_LISTADDVAL M " + m);
-    // XXX System.err.println("_LISTADDVAL T " + list);
+/* XXX
+    System.err.println("_LISTADDVAL G " + g.name());
+    System.err.println("_LISTADDVAL M " + m.subjectID());
+    System.err.println("_LISTADDVAL T " + list);
     if (via != null) {
-      // XXX System.err.println("_LISTADDVAL V " + via);
+      System.err.println("_LISTADDVAL V " + via.name());
     } else {
-      // XXX System.err.println("_LISTADDVAL V null");
+      System.err.println("_LISTADDVAL V null");
     }
-
+*/
     // Confirm that list data doesn't already exist
     if (GrouperBackend._listValExist(g, m, list, via) == false) {
       // XXX System.err.println("_lISTADDVAL VALUES DO NOT EXIST");

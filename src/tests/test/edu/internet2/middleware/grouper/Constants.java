@@ -112,6 +112,12 @@ public class Util {
   public static final String extn9  = "extn.9";
   public static final String stem10 = "stem.1";
   public static final String extn10 = "extn.10";
+  public static final String stem11 = "stem.1";
+  public static final String extn11 = "extn.11";
+  public static final String stem12 = "stem.1";
+  public static final String extn12 = "extn.12";
+  public static final String stem13 = "stem.1";
+  public static final String extn13 = "extn.13";
 
 }
 
