@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.89 2004-12-02 19:48:52 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.90 2004-12-03 02:00:59 blair Exp $
  */
 public class GrouperBackend {
 
@@ -298,7 +298,7 @@ public class GrouperBackend {
       Grouper.naming().revoke(s, g, "CREATE");
       Grouper.naming().revoke(s, g, "STEM");
 
-      // Remove all members
+      // Remove all members of this group
       Iterator membersIter = g.listVals(s).iterator();
       while (membersIter.hasNext()) {
         GrouperList   gl  = (GrouperList) membersIter.next();
@@ -306,10 +306,23 @@ public class GrouperBackend {
         if (m != null) {
           if (g.listDelVal(s, m) != true) {
             Grouper.LOGGER.warn("Unable to delete " + m + " from " + g);
+          } else {
+            GrouperBackend.LOGGER_GB.debug(
+              "Deleted " + m + " from " + g
+            );
           }
         } // TODO else...
       }
 
+      // FIXME Remove memberships of this group-as-member
+      // Subject       asSubj  = GrouperSubject.lookup(g.id(), "group");
+      // GrouperMember asMem   = GrouperMember.lookup(asSubj);
+
+      /*
+       * FIXME Remove effected memberships created by this group.
+       *       Although, will the above take care of this for me?
+       */
+      
       // Remove attributes
       Iterator attrIter = GrouperBackend._queryKV(
                             session, "GrouperAttribute",
