@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.10 2004-12-06 19:37:06 blair Exp $
+$Id: NEWS,v 1.11 2004-12-06 23:44:50 blair Exp $
 
 ---
 
@@ -24,6 +24,7 @@ $Id: NEWS,v 1.10 2004-12-06 19:37:06 blair Exp $
 * CREATE and STEM naming privileges
 * A partial implementation of the I2MI Subject interface for locally-defined people subjects
 * A partial implementation of the I2MI Subject interface  for groups as subjects
+* Basic Event Logging 
 * Contributed: I2MI Subject Loader
 * Contributed: Group Loader
 * Contributed: Query and modest export tool
@@ -32,7 +33,6 @@ $Id: NEWS,v 1.10 2004-12-06 19:37:06 blair Exp $
 ### Will Be Added
 
 * _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
-* Basic Event Logging (#253)
 * Javadoc API documentation (#132)
 * More thorough FAQ
 * Contributed: Member Loader (#246)
