@@ -1,5 +1,5 @@
 /*
- * $Id: Grouper.java,v 1.4 2004-03-25 01:41:57 blair Exp $
+ * $Id: Grouper.java,v 1.5 2004-03-25 20:28:58 blair Exp $
  */
 
 package edu.internet2.middleware.directory.grouper;
@@ -15,7 +15,7 @@ public class Grouper {
   private String      cred;
 
   private Properties  conf     = new Properties();
-  private String      confFile = "../../grouper.cf";
+  private String      confFile = "grouper.cf";
 
   private String jdbcDriver;
   private String jdbcPassword;
