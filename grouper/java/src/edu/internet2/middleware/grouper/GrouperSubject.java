@@ -59,29 +59,32 @@ import  java.util.*;
 /** 
  * Class for performing I2MI {@link Subject} lookups.
  * <p />
- * TODO Is this class really needed?
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.29 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.30 2004-12-09 03:38:36 blair Exp $
  */
 public class GrouperSubject {
+
+  // TODO Is this class really needed?
 
   /*
    * PUBLIC CLASS METHODS 
    */
 
   /**
-   * TODO
-   *
+   * Retrieve an I2MI {@link Subject}.
+   * <p />
    * @param   id      Subject ID
    * @param   typeID  Subject Type ID
-   * @return  {@link GrouperSubject} object
+   * @return  A {@link GrouperSubject} object
    */
   public static Subject load(String id, String typeID) {
     Subject     subj  = null;
-    // TODO Add static map of adapters and instantiated objects for
-    //      each?
-    SubjectType st    = Grouper.subjectType(typeID);
+    /*
+     * FIXME Add a static map of adapters and instantiated objects
+     *       instead of performing a fresh instantion with every load.
+     */
+    SubjectType st = Grouper.subjectType(typeID);
     if (st != null) {
       SubjectTypeAdapter sta = st.getAdapter();
       if (sta != null) {

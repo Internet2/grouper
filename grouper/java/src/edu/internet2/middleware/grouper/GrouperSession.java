@@ -58,10 +58,9 @@ import  edu.internet2.middleware.subject.*;
 /** 
  * Class modeling a {@link Grouper} session.
  * <p />
- * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.70 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.71 2004-12-09 03:38:36 blair Exp $
  */
 public class GrouperSession {
 
@@ -70,9 +69,11 @@ public class GrouperSession {
    */
   // Subject this session is running under
   private Subject subject;
-  // The id of the session's subject.  Despite the fact that I can get
-  // this via the subject object, I stash it into a variable to play
-  // nicer with Hibernate.
+  /* 
+   * The id of the session's subject.  Despite the fact that I can get
+   * this via the subject object, I stash it into a variable to play
+   * nicer with Hibernate.
+   */
   private String  subjectID;
   private String  sessionID;
   private String  startTime;
@@ -106,14 +107,13 @@ public class GrouperSession {
   /**
    * Start a {@link Grouper} session.
    * <p />
-   * TODO Plugin an external session handling mechanism?  Yes, please.
-   * TODO Cache privs|memberships?
-   *
-   * @param   s   {@link Subject} subject object to act as
-   *  for the duration of this session.
-   * @return  Boolean true if successful, false otherwise.
+   * @param   s   I2MI {@link Subject} to act as for the duration
+   *   of this session.
+   * @return  True if session started.
    */
   public static GrouperSession start(Subject s) {
+    // TODO Plugin an external session handling mechanism?  Yes, please!
+    // TODO Should I cache privs + memberships?
     GrouperSession gs = null;
     if (s != null) {
       gs = new GrouperSession(s);
@@ -132,9 +132,7 @@ public class GrouperSession {
   /**
    * Stop the {@link Grouper} session.
    * <p />
-   *
-   * @return  Boolean true if session stopped successfully, otherwise
-   *   false.
+   * @return  True if session stopped.
    */
   public boolean stop() { 
     boolean rv = false;
@@ -148,11 +146,9 @@ public class GrouperSession {
   }
 
   /**
-   * Return subject of current session as a {@link Subject}
-   * object.
-   *
-   * @return  Subject of current session as a {@link Subject}
-   * object.
+   * Retrieve session's {@link Subject}.
+   * <p />
+   * @return  A {@link Subject} object.
    */
   public Subject subject() {
     return (Subject) this.subject;

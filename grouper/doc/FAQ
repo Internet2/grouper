@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.10 2004-12-09 03:22:41 blair Exp $
+$Id: FAQ,v 1.11 2004-12-09 03:38:36 blair Exp $
 
 ---
 
@@ -13,6 +13,22 @@ $Id: FAQ,v 1.10 2004-12-09 03:22:41 blair Exp $
 A: Use the `Grouper.config()' method.
   
     String delim = Grouper.config("hierarchy.delimiter");
+
+---
+
+### Sessions
+
+#### Q: How do I start a session?
+
+A: Use the `GrouperSession.start()' method.
+
+    GrouperSession s = GrouperSession.start(subject);
+
+#### Q: How do I stop a session?
+
+A: Use the `GrouperSession.stop()' method.
+
+    s.stop();
 
 ---
 
