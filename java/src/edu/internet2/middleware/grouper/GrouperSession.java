@@ -60,7 +60,7 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.71 2004-12-09 03:38:36 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.72 2004-12-13 14:47:55 blair Exp $
  */
 public class GrouperSession {
 
@@ -187,11 +187,8 @@ public class GrouperSession {
 
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
+    this.setSessionID( GrouperBackend.uuid() );
     java.util.Date now = new java.util.Date();
-
-    // XXX Switch to a generated sequence?
-    this.setSessionID( Long.toString(now.getTime()) );
-    // TODO Switch to GMT/UTC
     this.setStartTime( Long.toString(now.getTime()) );
 
     // And now save the session
