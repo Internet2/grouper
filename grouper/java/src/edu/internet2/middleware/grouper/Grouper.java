@@ -11,7 +11,7 @@ import  java.util.Properties;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.13 2004-05-02 00:12:54 blair Exp $
+ * @version $Id: Grouper.java,v 1.14 2004-05-02 01:09:23 blair Exp $
  */
 public class Grouper {
 
@@ -90,7 +90,7 @@ public class Grouper {
    * The <i>grouper_fields</i> table is read and cached
    * at {@link Grouper} initialization.
    * 
-   * @return  List of {@link GrouperFIeld} objects.
+   * @return  List of {@link GrouperField} objects.
    */
   public List getField() {
     List fields = new ArrayList();
