@@ -299,9 +299,9 @@ ol {
 	
 #Results {
 	height: 250px;
-	border: 1px solid #CCC;
+/*	border: 1px solid #CCC;
 	background-color: #FFF;		
-/*	overflow: auto;	*/
+	overflow: auto;	*/
 }	
 	
 #ViewHead {
@@ -427,6 +427,12 @@ ol {
 .label {
 	color: #666;
 }
+.scroll{
+	height: 230px;
+	border: 1px solid #CCC;
+	background-color: #FFF;		
+	overflow: auto;	
+}	
 .select {
 	font-weight: normal;
 	font-style: italic;
