@@ -61,7 +61,7 @@ import  edu.internet2.middleware.subject.*;
  * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.64 2004-12-06 00:16:29 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.65 2004-12-06 00:52:22 blair Exp $
  */
 public class GrouperSession {
 
@@ -159,6 +159,15 @@ public class GrouperSession {
    */
   public Subject subject() {
     return (Subject) this.subject;
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  protected String id() {
+    return this.getSessionID();
   }
 
 

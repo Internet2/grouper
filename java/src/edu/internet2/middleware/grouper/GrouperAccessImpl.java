@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.37 2004-12-05 22:22:34 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.38 2004-12-06 00:52:22 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -122,13 +122,15 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-        Grouper.LOGGER.debug("Grant " + priv + " on " + g + " to " + m);
-        if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
-          rv = true;
+      if (GrouperBackend.sessionValid(s)) {
+        /*
+         * FIXME I should be doing a GroupField lookup on `priv'
+         */
+        if (this.has(s, g, Grouper.PRIV_ADMIN)) {
+          Grouper.LOGGER.debug("Grant " + priv + " on " + g + " to " + m);
+          if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
+            rv = true;
+          }
         }
       }
     } 
@@ -285,16 +287,18 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-        Iterator iter = this.whoHas(s, g, priv).iterator();
-        while (iter.hasNext()) {
-          GrouperMember m = (GrouperMember) iter.next();
-          this.revoke(s, g, m, priv);
+      if (GrouperBackend.sessionValid(s)) {
+        /*
+         * FIXME I should be doing a GroupField lookup on `priv'
+         */
+        if (this.has(s, g, Grouper.PRIV_ADMIN)) {
+          Iterator iter = this.whoHas(s, g, priv).iterator();
+          while (iter.hasNext()) {
+            GrouperMember m = (GrouperMember) iter.next();
+            this.revoke(s, g, m, priv);
+          }
+          rv = true; // FIXME
         }
-        rv = true; // FIXME
       }
     }
     // TODO Should this return a list of deleted members?
@@ -319,12 +323,14 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-        if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
-          rv = true;
+      if (GrouperBackend.sessionValid(s)) {
+        /*
+         * FIXME I should be doing a GroupField lookup on `priv'
+         */
+        if (this.has(s, g, Grouper.PRIV_ADMIN)) {
+          if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
+            rv = true;
+          }
         }
       }
     } 
