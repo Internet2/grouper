@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.40 2005-03-15 17:13:27 blair Exp $
+ * @version $Id: GrouperList.java,v 1.41 2005-03-16 22:54:08 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -74,13 +74,13 @@ public class GrouperList implements Serializable {
   private List            elements;
   private GrouperGroup    g;
   private GrouperMember   m;
+  private GrouperSession  s;
   private GrouperGroup    via;
-  private String          groupKey;
+  private String          chainKey;
   private String          groupField;
+  private String          groupKey;
   private String          listKey;
   private String          memberKey;
-  private String          pathKey;
-  private GrouperSession  s;
   private String          viaKey;
 
 
@@ -142,6 +142,34 @@ public class GrouperList implements Serializable {
       this.viaKey   = via.key(); 
     }
   }
+  protected GrouperList(
+              GrouperGroup g, GrouperMember m, String list, 
+              GrouperGroup via, List chain
+            ) 
+  {
+    this._init();
+    // Generate UUID
+    this.setListKey( new GrouperUUID().toString() );
+    if (g == null) {
+      throw new RuntimeException("GrouperList: null group");
+    }
+    if (m == null) {
+      throw new RuntimeException("GrouperList: null member");
+    }
+    if (list == null) {
+      throw new RuntimeException("GrouperList: null list");
+    }
+    this.g          = g;
+    this.groupKey   = g.key();
+    this.m          = m;
+    this.memberKey  = m.key();
+    this.groupField = list;
+    this.via        = via;
+    if (via != null) {
+      this.viaKey   = via.key(); 
+    }
+    this.elements = chain;
+  }
   // FIXME Or would I rather just lazily load the objects?
   protected GrouperList(
               GrouperSession s, String groupKey, String memberKey, 
@@ -180,6 +208,21 @@ public class GrouperList implements Serializable {
     if (this.m == null) {
       throw new RuntimeException("Unable to load member");
     }
+  }
+
+  public List chain() {
+    Iterator iter = this.elements.iterator();
+    while (iter.hasNext()) {
+      MemberVia el = (MemberVia) iter.next();
+    }
+    return this.elements;
+  }
+
+  protected String key() {
+    return this.getListKey();
+  }
+  protected void listKey(String key) {
+    this.setListKey(key);
   }
 
 
@@ -281,6 +324,7 @@ public class GrouperList implements Serializable {
     this.g            = null;
     this.m            = null;
     this.via          = null;
+    this.chainKey     = null;
     this.groupKey     = null;
     this.groupField   = null;
     this.memberKey    = null;
@@ -292,12 +336,12 @@ public class GrouperList implements Serializable {
    * HIBERNATE
    */
 
-  private List getElements() {
-    return this.elements;
+  private String getChainKey() {
+    return this.chainKey;
   }
 
-  private void setElements(List elements) {
-    this.elements = elements;
+  private void setChainKey(String chainKey) {
+    this.chainKey = chainKey;
   }
 
   private String getGroupKey() {
@@ -330,14 +374,6 @@ public class GrouperList implements Serializable {
 
   private void setMemberKey(String memberKey) {
     this.memberKey = memberKey;
-  }
-
-  private String getPathKey() {
-    return this.pathKey;
-  }
-
-  private void setPathKey(String pathKey) {
-    this.pathKey = pathKey;
   }
 
   private String getViaKey() {

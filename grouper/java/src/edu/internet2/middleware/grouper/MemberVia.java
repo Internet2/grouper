@@ -51,10 +51,8 @@
 
 package edu.internet2.middleware.grouper;
 
-
-import  java.io.Serializable;
-import  org.apache.commons.lang.builder.EqualsBuilder;
-import  org.apache.commons.lang.builder.HashCodeBuilder;
+import  edu.internet2.middleware.grouper.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -63,24 +61,45 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.2 2005-03-15 17:13:27 blair Exp $
+ * @version $Id: MemberVia.java,v 1.3 2005-03-16 22:54:08 blair Exp $
  */
-public class ViaElement implements Serializable {
+public class MemberVia  {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private String  groupKey;
-  private Long    pathIdx;
-  private String  pathKey;
+  private String  chainKey;
+  private int     chainIdx;
+  private String  listKey;
 
 
   /*
    * CONSTRUCTORS
    */
 
-  public ViaElement() {
+  public MemberVia() {
     this._init();
+  }
+  protected MemberVia(GrouperList lv) {
+    this._init();
+    // this.setPathKey( new GrouperUUID().toString() );
+    this.setListKey( lv.group().key() );
+  }
+  protected void key(String key) {
+    this.chainKey = key;
+  }
+  protected void idx(int idx) {
+    this.chainIdx = idx;
+  }
+  protected void save(GrouperSession s) {
+    // TODO I should validate our state first
+    try {
+      s.dbSess().session().save(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error saving chain element " + this + ": " + e
+                );
+    }   
   }
 
 
@@ -89,35 +108,17 @@ public class ViaElement implements Serializable {
    */
 
   /**
-   * Compares the specified object with this via element for equality.
-   * <p />
-   * @param o Object to be compared for equality with this via element.
-   * @return  True if the specified object is equal to this via element.
-   */
-  public boolean equals(Object o) {
-     return EqualsBuilder.reflectionEquals(this, o);
-   }
-
-  /**
-   * Returns the hash code value for this via element.
-   * <p />
-   * @return  The hash code value for this via element.
-   */
-  public int hashCode() {
-     return HashCodeBuilder.reflectionHashCode(this);
-   }
-
-  /**
    * Return a string representation of this object.
    * <p />
    * @return String representation of this object.
    */
   public String toString() {
-    // TODO Spit out group name as well?
-    return  this.getPathKey() + ":" +
-            this.getPathIdx();
+    return new ToStringBuilder(this)      .
+      append("chain", this.getChainKey()) .
+      append("index", this.getChainIdx()) .
+      append("list",  this.getListKey())  .
+      toString();
   }
-
 
   /*
    * PRIVATE INSTANCE METHODS
@@ -127,9 +128,17 @@ public class ViaElement implements Serializable {
    * Initialize instance variables
    */
   private void _init() {
-    this.groupKey = null;
-    //this.pathIdx;
-    this.pathKey  = null;
+    this.chainKey = null;
+    this.chainIdx = -1;
+    this.listKey  = null;
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+  protected String key() {
+    return this.getChainKey();
   }
 
 
@@ -137,28 +146,28 @@ public class ViaElement implements Serializable {
    * HIBERNATE
    */
 
-  private String getGroupKey() {
-    return this.groupKey;
+  private String getChainKey() {
+    return this.chainKey;
   }
 
-  private void setGroupKey(String key) {
-    this.groupKey = key;
+  private void setChainKey(String key) {
+    this.chainKey = key;
   } 
 
-  private Long getPathIdx() {
-    return this.pathIdx;
+  private int getChainIdx() {
+    return this.chainIdx;
   }
 
-  private void setPathIdx(Long idx) {
-    this.pathIdx = idx;
+  private void setChainIdx(int idx) {
+    this.chainIdx = idx;
   } 
 
-  private String getPathKey() {
-    return this.pathKey;
+  private String getListKey() {
+    return this.listKey;
   }
 
-  private void setPathKey(String key) {
-    this.pathKey = key;
+  private void setListKey(String key) {
+    this.listKey = key;
   } 
 
 }
