@@ -8,7 +8,7 @@ import java.util.Properties;
  * Provides a Grouper environment.
  *
  * @author blair christensen.
- * @version $Id: Grouper.java,v 1.9 2004-04-14 03:05:42 blair Exp $
+ * @version $Id: Grouper.java,v 1.10 2004-04-28 19:00:22 blair Exp $
  */
 public class Grouper {
 
@@ -61,5 +61,20 @@ public class Grouper {
     // Nothing -- Yet
   }
 
+  /**
+   * Return a {@link Grouper} configuration parameter.
+   * <p>
+   * <ul>
+   *  <li>Returns value of requested parameter from the internal
+   *      Map (or whatever) of runtime configuration information.</li>
+   *  <li>XXX Add to docs/examples/.</li>
+   * </ul> 
+   * 
+   * @param   parameter Requested configuration parameter.
+   * @return  Value of configuration parameter.
+   */
+  public String config(String parameter) {
+    return conf.getProperty(parameter);
+  }
 }
 
