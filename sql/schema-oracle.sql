@@ -1,12 +1,12 @@
 
 -- 
 -- Grouper Database Schema
--- $Id: schema-oracle.sql,v 1.3 2005-02-16 20:39:54 blair Exp $
+-- $Id: schema-oracle.sql,v 1.4 2005-02-16 23:24:24 blair Exp $
 -- 
 
 DROP TABLE grouper_attribute;
 CREATE TABLE grouper_attribute (
-  groupKey        VARCHAR2(16) NOT NULL,
+  groupKey        VARCHAR2(64) NOT NULL,
   groupField      VARCHAR2(32) NOT NULL,
   groupFieldValue VARCHAR2(64),
   CONSTRAINT      uniq_ga_gk_gf UNIQUE (groupKey, groupField)
@@ -22,13 +22,13 @@ CREATE TABLE grouper_field (
 
 DROP TABLE grouper_group;
 CREATE TABLE grouper_group (
-  groupKey      VARCHAR2(16) NOT NULL PRIMARY KEY,
-  groupID       VARCHAR2(16) NOT NULL,
+  groupKey      VARCHAR2(64) NOT NULL PRIMARY KEY,
+  groupID       VARCHAR2(64) NOT NULL,
   createTime    VARCHAR2(16),
-  createSubject VARCHAR2(16),
+  createSubject VARCHAR2(64),
   createSource  VARCHAR2(32),
   modifyTime    VARCHAR2(16),
-  modifySubject VARCHAR2(16),
+  modifySubject VARCHAR2(64),
   modifySource  VARCHAR2(32),
   groupComment  VARCHAR2(256),
   CONSTRAINT    uniq_gg_gid  UNIQUE (groupID)
@@ -36,11 +36,11 @@ CREATE TABLE grouper_group (
 
 DROP TABLE grouper_list;
 CREATE  TABLE grouper_list (
-  groupKey      VARCHAR2(16) NOT NULL,
+  groupKey      VARCHAR2(64) NOT NULL,
   groupField    VARCHAR2(32) NOT NULL,
-  memberKey     VARCHAR2(16) NOT NULL,
-  pathKey       VARCHAR2(16),
-  via           VARCHAR2(16),
+  memberKey     VARCHAR2(64) NOT NULL,
+  pathKey       VARCHAR2(64),
+  via           VARCHAR2(64),
   removeAfter   VARCHAR2(16)
 );
 CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list 
@@ -48,8 +48,8 @@ CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list
 
 DROP TABLE grouper_member;
 CREATE TABLE grouper_member (
-  memberKey     VARCHAR2(16) NOT NULL PRIMARY KEY,
-  memberID      VARCHAR2(16) NOT NULL,
+  memberKey     VARCHAR2(64) NOT NULL PRIMARY KEY,
+  memberID      VARCHAR2(64) NOT NULL,
   subjectID     VARCHAR2(32) NOT NULL,
   subjectTypeID VARCHAR2(32) NOT NULL
 );
@@ -58,15 +58,15 @@ CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
 
 DROP TABLE grouper_schema;
 CREATE TABLE grouper_schema (
-  groupKey    VARCHAR2(16) NOT NULL,
+  groupKey    VARCHAR2(64) NOT NULL,
   groupType   VARCHAR2(32) NOT NULL,
   CONSTRAINT  uniq_gsch_gk_gt  UNIQUE (groupKey, groupType)
 );
 
 DROP TABLE grouper_session;
 CREATE TABLE grouper_session (
-  sessionID  VARCHAR2(16) NOT NULL PRIMARY KEY,
-  memberID   VARCHAR2(16) NOT NULL,
+  sessionID  VARCHAR2(64) NOT NULL PRIMARY KEY,
+  memberID   VARCHAR2(64) NOT NULL,
   startTime  VARCHAR2(16)
 );
 
@@ -109,9 +109,9 @@ CREATE TABLE grouper_type (
 
 DROP TABLE grouper_viaElement;
 CREATE  TABLE grouper_viaElement (
-  pathKey       VARCHAR2(16) NOT NULL,
+  pathKey       VARCHAR2(64) NOT NULL,
   pathIdx       INTEGER NOT NULL,
-  groupKey      VARCHAR2(16) NOT NULL,
+  groupKey      VARCHAR2(64) NOT NULL,
   CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
 );
 -- TODO Are these the right indices for this table?
@@ -120,7 +120,7 @@ CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
 
 DROP TABLE grouper_viaPath;
 CREATE  TABLE grouper_viaPath (
-  pathKey       VARCHAR2(16) NOT NULL PRIMARY KEY
+  pathKey       VARCHAR2(64) NOT NULL PRIMARY KEY
 );
 
 COMMIT;
