@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.70 2004-11-08 20:39:19 blair Exp $
+ * $Id: GrouperTest.java,v 1.71 2004-11-09 17:41:30 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -573,9 +573,14 @@ public class GrouperTest extends TestCase {
   }
 
   // TODO Add list data (plural)
+  // TODO Add duplicate list data (plural)
   // TODO Fetch list data (single)
   // TODO Fetch list data (plural)
-  // TODO Fetch invalid list data 
+  // TODO Fetch invalid list data  (type)
+  // TODO Remove list data (single)
+  // TODO Remove list data (plural)
+  // TODO Remove invalid list data 
+  // TODO Remove invalid list data (type)
 
 
   //
