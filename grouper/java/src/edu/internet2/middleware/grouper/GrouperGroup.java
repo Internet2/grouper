@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.76 2004-11-19 05:14:51 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.77 2004-11-19 05:27:35 blair Exp $
  */
 public class GrouperGroup {
 
@@ -243,6 +243,10 @@ public class GrouperGroup {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
+  // TODO Test!
+  public boolean listAddVal(GrouperSession s, GrouperMember m) {
+    return GrouperBackend.listAddVal(this, s, m, "members");
+  }
   public boolean listAddVal(GrouperSession s, GrouperMember m, String list) {
     return GrouperBackend.listAddVal(this, s, m, list);
   }
@@ -254,6 +258,11 @@ public class GrouperGroup {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
+  // TODO Test!
+  // TODO "members" should really be a constant
+  public boolean listDelVal(GrouperSession s, GrouperMember m) {
+    return GrouperBackend.listDelVal(this, s, m, "members");
+  }
   public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
     return GrouperBackend.listDelVal(this, s, m, list);
   }
