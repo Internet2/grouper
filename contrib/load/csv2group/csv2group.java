@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.18 2005-01-23 19:14:18 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.19 2005-01-23 19:20:06 blair Exp $ 
  */
 class csv2group {
 
@@ -175,9 +175,7 @@ class csv2group {
       _report("Added group: " + g.name());
       rv = true;
     } else {
-      System.err.println(
-        "Failed to add group=`" + stem + ", extn=`" + extn + "'"
-      );
+      System.err.println("Failed to add group " + stem + ":" + extn);
     }
     return rv;
   }
@@ -247,7 +245,7 @@ class csv2group {
       }
     }
     if (rv != true) {
-      _report("Failed to add " + name + " to " + g.name());
+      _report("Failed to add member " + name + " to " + stem + ":" + extn);
     }
     return rv;
   }
@@ -348,9 +346,7 @@ class csv2group {
       _report("Added stem: " + g.name());
       rv = true;
     } else {
-      _report(
-        "Failed to add stem=`" + stem + ", extn=`" + extn + "'"
-      );
+      _report("Failed to add stem " + stem + ":" + extn);
     }
     return rv;
   }
