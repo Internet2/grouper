@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.5 2004-12-08 04:35:23 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.6 2004-12-08 05:28:53 blair Exp $ 
  */
 class groupmgr {
 
@@ -34,10 +34,13 @@ class groupmgr {
    * PRIVATE CLAS VARIABLES
    */
   private static boolean        actUponG;
+  private static boolean        actUponM;
   private static boolean        actUponNS;
   private static CommandLine    cmd;
   private static String         extn;
   private static GrouperMember  mem;
+  private static String         member;
+  private static boolean        memberIsGroup = false;
   private static Options        options;
   private static String         path;
   private static GrouperSession s;
@@ -74,38 +77,30 @@ class groupmgr {
    */
   private static boolean _dispatch() {
     boolean rv = false;
-    if (toAdd && toDel) {
-      System.err.println("Can only add or delete, not both!");
-      _usage();
-    } else { 
-      if (toAdd == true) {
-        if (actUponG && actUponNS) {
-          System.err.println("Can only act upon one item at a time!");
-          _usage();
-        } else {
-          if        (actUponG == true)  {
-            rv = _groupAdd();
-          } else if (actUponNS == true) {
-            rv = _stemAdd();
-          } else {
-            System.err.println("No additions specified!");
-            _usage();
-          }
-        }
-      } else if (toDel == true) {
-        if        (actUponG  == true) {
-          rv = _groupDel(); 
-        } else if (actUponNS == true) {
-          System.err.println("Namespace deletions not supported!");
-          _usage();
-        } else {
-          System.err.println("No deletions specified!");
-          _usage();
-        }
+    if (toAdd == true) {
+      if        (actUponG  == true)  {
+        rv = _groupAdd();
+      } else if (actUponM  == true) {
+        rv = _memberAdd();
+      } else if (actUponNS == true) {
+        rv = _stemAdd();
       } else {
-        System.err.println("No actions specified!"); 
+        System.err.println("No additions specified!");
         _usage();
       }
+    } else if (toDel == true) {
+      if        (actUponG  == true) {
+        rv = _groupDel(); 
+      } else if (actUponNS == true) {
+        System.err.println("Namespace deletions not supported!");
+        _usage();
+      } else {
+        System.err.println("No deletions specified!");
+        _usage();
+      }
+    } else {
+      System.err.println("No actions specified!"); 
+      _usage();
     }
     return rv;
   }
@@ -185,47 +180,54 @@ class groupmgr {
   /* (!javadoc)
    * Add a member to the registry.
    */
-  private static boolean _memberAdd(List tokens) {
+  private static boolean _memberAdd() {
     boolean rv = false;
-    String stem = (String) tokens.get(0);
-    String extn = (String) tokens.get(1);
-    String sid  = null;
-    String stid = Grouper.DEF_SUBJ_TYPE;
-    if        (tokens.size() == 3)  {
-      sid = (String) tokens.get(2);
-    } else if (tokens.size() > 1)   {
-      // Ye Olde Silent Ignore Trick
-      String mS = (String) tokens.get(2);
-      String mE = (String) tokens.get(3);
-      GrouperGroup mAsG = GrouperGroup.load(s, mS, mE);
-      if (mAsG != null) {
-        sid   = mAsG.id();
-        stid  = "group";
+    if ( (stem != null) && (extn != null) && (mem != null) ) {
+      stem = _translateRoot(stem);
+      GrouperMember m     = null;
+      String        sid   = null;
+      String        stid  = null;
+      if (memberIsGroup) {
+        GrouperGroup mg = GrouperGroup.loadByName(s, member);
+        if (mg != null) {
+          sid   = mg.id();
+          stid  = "group";
+        } else {
+          System.err.println(
+            "Unable to fetch member `" + 
+            GrouperBackend.groupName(stem, extn) + "'"
+          );
+        }
       } else {
-        System.err.println("Unable to fetch member group!");
+        sid   = member;
+        stid  = Grouper.DEF_SUBJ_TYPE;
       }
-    }
-    // Load the subject
-    Subject subj = GrouperSubject.load(sid, stid);
-    if (subj != null) {
-      // Load the group
-      GrouperGroup g = GrouperGroup.load(s, stem, extn);
-      if (g != null) {
-        // Load the member
-        GrouperMember m = GrouperMember.load(subj);
-        if (m != null) {
+      // Load the member
+      m = GrouperMember.load(sid, stid);
+      if (m != null) {
+        // Load the group
+        GrouperGroup g = GrouperGroup.load(s, stem, extn);
+        if (g != null) {
           if (g.listAddVal(s, m)) {
             rv = true;
-            System.err.println(
-              "Added `" + sid + "' to `" + stem + "':`" + extn + "'"
-            );
+            _verbose("Added `" + member + "' to `" + g.name() + "'");
           }
+        } else {
+          System.err.println(
+            "Unable to fetch group `" +
+            GrouperBackend.groupName(stem, extn) + "'"
+          );
         }
+      } else {
+        System.err.println(
+          "Unable to fetch member `" + member + "'"
+        );
       }
     }
     if (rv != true) {
       System.err.println(
-        "Failed to add `" + sid + "' to `" + stem + "':`" + extn + "'"
+        "Failed to add `" + member + "' to `" + 
+        GrouperBackend.groupName(stem, extn) + "'"
       );
     }
     return rv;
@@ -254,8 +256,15 @@ class groupmgr {
                         .hasArg()
                         .create("e")
                      );
+    options.addOption("G", false, "Treat argument to -m as a group name");
     options.addOption("g", false, "Act upon a group");
     options.addOption("h", false, "Print usage information");
+    options.addOption(
+                      OptionBuilder.withArgName("member")
+                        .withDescription("Specify member to act upon")
+                        .hasArg()
+                        .create("m")
+                     );
     options.addOption("n", false, "Act upon a namespace");
     options.addOption(
                       OptionBuilder.withArgName("subject")
@@ -303,27 +312,36 @@ class groupmgr {
     if (cmd.hasOption("a")) {
       toAdd   = true;
       _verbose("Enabling add mode");
-    }
+    } 
     if (cmd.hasOption("d")) {
       toDel   = true;
       _verbose("Enabling delete mode");
-    }
+    } 
     if (cmd.hasOption("e")) {
       extn = cmd.getOptionValue("e");
       _verbose("Using extension '" + extn + "'");
-    }
+    } 
+    if (cmd.hasOption("G")) {
+      memberIsGroup = true;
+      _verbose("Will treat -m value as a group");
+    } 
     if (cmd.hasOption("g")) {
       actUponG = true;
       _verbose("Will act upon a group");
-    }
+    } 
+    if (cmd.hasOption("m")) {
+      actUponM  = true;
+      member    = cmd.getOptionValue("m");
+      _verbose("Will act upon a member `" + member + "'");
+    } 
     if (cmd.hasOption("n")) {
       actUponNS = true;
       _verbose("Will act upon a namespace");
-    }
+    } 
     if (cmd.hasOption("S")) {
       subjectID = cmd.getOptionValue("S");
       _verbose("Using subjectID '" + subjectID + "'");
-    }
+    } 
     if (cmd.hasOption("s")) {
       stem = cmd.getOptionValue("s");
       _verbose("Using stem '" + stem + "'");
