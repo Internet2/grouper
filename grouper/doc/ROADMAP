@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.2 2005-01-27 02:41:03 blair Exp $
+$Id: ROADMAP,v 1.3 2005-01-27 17:01:56 blair Exp $
 
 ---
 
@@ -45,4 +45,9 @@ $Id: ROADMAP,v 1.2 2005-01-27 02:41:03 blair Exp $
 * Improved session handling
 * Improved testing
 * New and updated contributed code
+
+
+# Grouper 0.7
+
+* Support for external data validators
 
