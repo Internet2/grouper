@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.30 2005-03-07 20:47:35 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.31 2005-03-17 16:36:36 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -68,7 +68,9 @@ public class TestAccessPrivs extends TestCase {
   }
 
   protected void setUp () {
-    // Nothing -- Yet
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
   }
 
   protected void tearDown () {
