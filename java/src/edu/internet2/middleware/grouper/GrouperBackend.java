@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.49 2004-11-20 16:00:07 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.50 2004-11-22 01:20:23 blair Exp $
  */
 public class GrouperBackend {
 
@@ -155,6 +155,31 @@ public class GrouperBackend {
     GrouperBackend._hibernateSessionClose(session);
     return descriptors;
   }
+
+  /**
+   * Verify whether the specified group, member, list, and via
+   * combination exists within the groups registry.
+   *
+   * @param s     Verify data within this session context.
+   * @param g     Verify data for this group.
+   * @param m     Verify data for this member
+   * @param list  Verify data for this list type.
+   * @return  Boolean true if value combination exists, boolean false
+   *   otherwise.
+   */
+  protected static boolean listVal(
+                                   GrouperSession s, GrouperGroup g,
+                                   GrouperMember m, String list
+                                  ) 
+  {
+    // TODO Basic input data validation
+    Session session = GrouperBackend._init();
+    boolean rv      = false;
+    rv = GrouperBackend._listValExist(g, m, list, null); 
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
+  }
+
 
   /**
    * Return list data from the backend store.
@@ -303,6 +328,8 @@ public class GrouperBackend {
   protected static boolean listAddVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
     boolean rv      = false;
+    // TODO  Reorder params.  Sessions should always come first?  Check
+    //       with other methods as well.
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     // TODO  Refactor commonality with listDelVal
