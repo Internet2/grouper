@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.171 2005-03-20 00:03:39 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.172 2005-03-20 00:47:40 blair Exp $
  */
 public class GrouperBackend {
 
@@ -191,11 +191,6 @@ public class GrouperBackend {
         while (iter.hasNext()) {
           GrouperList lv = (GrouperList) iter.next();
           lv.load(s); // TODO Is this necessary?
-          /* BDC */
-          Iterator i = lv.chain().iterator();
-          while (i.hasNext()) {
-            MemberVia el = (MemberVia) i.next();
-          }
           _listAddVal(s, lv);
         }
         rv = true; // TODO This seems naive
@@ -216,6 +211,8 @@ public class GrouperBackend {
     boolean rv = false;
     if (_validateListVal(s, gl)) {
       try {
+        s.dbSess().txStart();
+
         // TODO Confirm gl exists before calculating mof?
         // The GrouperList objects that we will need to delete
         MemberOf mof = new MemberOf(s);
@@ -236,9 +233,11 @@ public class GrouperBackend {
 
         // Update modify information
         s.dbSess().session().update(gl.group());
+        s.dbSess().txCommit();
         rv = true;
       } catch (HibernateException e) {
-        throw new RuntimeException(e);
+        s.dbSess().txRollback();
+        throw new RuntimeException("Error deleting list value: " + e);
       }
     }
     return rv;
@@ -280,7 +279,7 @@ public class GrouperBackend {
         s.dbSess().session().delete(ga);
         rv = true;
       } catch (HibernateException e) {
-        // FIXME LOG
+        throw new RuntimeException("Error deleting attributes: " + e);
       }
     }
     return rv;
@@ -1456,68 +1455,6 @@ public class GrouperBackend {
                 );
     } 
     return m;
-  }
-
-  /**
-   * Query for a single {@link GrouperMember} by subject id and type.
-   *
-   * @return  {@link GrouperMember} object or null.
-   */
-  protected static GrouperMember member(
-                                   DbSess dbSess, String subjectID, 
-                                   String subjectTypeID
-                                 ) 
-  {
-    GrouperMember m     = null;
-    String        qry   = "GrouperMember.by.subjectid.and.typeid";
-    List          vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      q.setString(0, subjectID);
-      q.setString(1, subjectTypeID);
-      try {
-        vals = q.list();
-        if (vals.size() == 1) {
-          m = (GrouperMember) vals.get(0);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return m;
-  }
-
-  /**
-   * Add a {@link GrouperMember} to backend store.
-   *
-   * @param   member  {@link GrouperMember} object to store.
-   * @return  {@link GrouperMember} object.
-   */
-  protected static GrouperMember memberAdd(DbSess dbSess, GrouperMember member) {
-    // TODO Should I have session/security restrictions in place?
-    if ( 
-        ( member.memberID()   != null) &&
-        ( member.subjectID()  != null) &&
-        ( member.typeID()     != null)
-       ) 
-    {
-      try {
-        // Save it
-        dbSess.session().save(member);
-      } catch (Exception e) {
-        // TODO We probably need a rollback in here in case of failure
-        //      above.
-        throw new RuntimeException(e);
-      }
-      return GrouperBackend.member(dbSess, member.subjectID(), member.typeID());
-    }
-    return null;
   }
 
   /**

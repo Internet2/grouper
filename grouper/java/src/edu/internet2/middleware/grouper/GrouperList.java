@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.44 2005-03-19 20:22:13 blair Exp $
+ * @version $Id: GrouperList.java,v 1.45 2005-03-20 00:47:40 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -101,8 +101,11 @@ public class GrouperList implements Serializable {
       gl.setListKey( new GrouperUUID().toString() );
     }
     try {
+      s.dbSess().txStart();
       s.dbSess().session().save(gl);
+      s.dbSess().txCommit();
     } catch (HibernateException e) {
+      s.dbSess().txRollback();
       throw new RuntimeException("Error saving list value: " + e);
     }
   }

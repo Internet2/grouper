@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.66 2005-03-20 00:03:39 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.67 2005-03-20 00:47:40 blair Exp $
  */
 public class GrouperMember {
 
@@ -130,10 +130,8 @@ public class GrouperMember {
     DbSess dbSess = new DbSess();
 
     // Attempt to load an already existing member
-    GrouperMember member = GrouperBackend.member(
-                             dbSess, subj.getId(), subj.getSubjectType().getId()
-                           );
-    if (member == null) {
+    GrouperMember m = loadByIdAndType(dbSess, subj);
+    if (m == null) {
       /*
        * If the subject is valid but a matching member object does not
        * exist, create a new one, assign a key, etc.
@@ -141,24 +139,58 @@ public class GrouperMember {
       // TODO Is there a reason why I am not just passing in the
       //      `subjectID' and `subjectTypeID' passed as params to
       //      this method?
-      member = new GrouperMember(
-                                 dbSess, subj.getId(),
-                                 subj.getSubjectType().getId()
-                                );
+      m = new GrouperMember(
+                dbSess, subj.getId(), subj.getSubjectType().getId()
+              );
       // Give it a private UUID
-      member.setMemberKey( new GrouperUUID().toString() );
+      m.setMemberKey( new GrouperUUID().toString() );
       // Give it a public UUID
-      member.setMemberID(  new GrouperUUID().toString() );
+      m.setMemberID(  new GrouperUUID().toString() );
 
-      // Hibernate and return the member
-      member = GrouperBackend.memberAdd(dbSess, member);
+      // Save the new member object
+      m.save(dbSess);
 
-      Grouper.log().memberAdd(member, subj);
+      Grouper.log().memberAdd(m, subj);
     } 
 
     dbSess.stop();
 
-    return member;
+    return m;
+  }
+  protected void save(DbSess dbSess) {
+    try {
+      dbSess.txStart();
+      dbSess.session().save(this);
+      dbSess.txCommit();
+    } catch (HibernateException e) {
+      dbSess.txRollback();
+      throw new RuntimeException("Error saving member: " + e);
+    }
+  }
+  private static GrouperMember loadByIdAndType(DbSess dbSess, Subject subj) {
+    GrouperMember m     = null;
+    String        qry   = "GrouperMember.by.subjectid.and.typeid";
+    List          vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      q.setString(0, subj.getId());
+      q.setString(1, subj.getSubjectType().getId());
+      try {
+        vals = q.list();
+        if (vals.size() == 1) {
+          m = (GrouperMember) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return m;
   }
   protected static GrouperMember loadByKey(GrouperSession s, String key) {
     GrouperSession.validate(s);

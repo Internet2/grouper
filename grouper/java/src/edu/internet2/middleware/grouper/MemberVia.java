@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.5 2005-03-17 05:32:37 blair Exp $
+ * @version $Id: MemberVia.java,v 1.6 2005-03-20 00:47:40 blair Exp $
  */
 public class MemberVia  {
 
@@ -106,8 +106,11 @@ public class MemberVia  {
   protected void save(GrouperSession s) {
     // TODO I should validate our state first
     try {
+      s.dbSess().txStart();
       s.dbSess().session().save(this);
+      s.dbSess().txCommit();
     } catch (HibernateException e) {
+      s.dbSess().txRollback();
       throw new RuntimeException(
                   "Error saving chain element " + this + ": " + e
                 );
@@ -197,13 +200,7 @@ public class MemberVia  {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, key);
       try {
-        // BDC chain.addAll( q.list() );
-        List vals = q.list();
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          MemberVia mv = (MemberVia) iter.next();
-          chain.add(mv);
-        }
+        chain.addAll( q.list() );
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
