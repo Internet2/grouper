@@ -8,7 +8,7 @@ import  java.util.List;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.6 2004-05-28 17:54:53 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.7 2004-05-28 18:39:03 blair Exp $
  */
 public class InternalGrouperNaming implements GrouperNaming {
 
@@ -25,50 +25,50 @@ public class InternalGrouperNaming implements GrouperNaming {
   }
 
   /**
-   * Grant a naming privilege on a {@link Grouper} group.
+   * Grant a naming privilege on a {@link Grouper} stem.
    */
-  public void grant(GrouperGroup g, GrouperMember m, String priv) {
+  public void grant(GrouperStem stem, GrouperMember m, String priv) {
     // Nothing -- Yet
   }
 
   /**
-   * Revoke a naming privilege on a {@link Grouper} group.
+   * Revoke a naming privilege on a {@link Grouper} stem.
    */
-  public void revoke(GrouperGroup g, GrouperMember m, String priv) {
+  public void revoke(GrouperStem stem, GrouperMember m, String priv) {
     // Nothing -- Yet
   }
 
   /**
    * Return all naming privileges that the current session's subject has on 
-   * a {@link GrouperGroup}.
+   * a {@link Grouper} stem.
    */
-  public List has(GrouperGroup g) {
+  public List has(GrouperStem stem) {
     List privs = new ArrayList();
     return privs; 
   }
 
   /**
    * Return all naming privileges for a {@link GrouperMember} on a 
-   * {@link GrouperGroup}.
+   * {@link Grouper} stem.
    */
-  public List has(GrouperGroup g, GrouperMember m) {
+  public List has(GrouperStem stem, GrouperMember m) {
     List privs = new ArrayList();
     return privs; 
   }
 
   /**
    * Verify whether the current session's subject has a specified 
-   * naming privilege on a {@link GrouperGroup}.
+   * naming privilege on a {@link Grouper} stem.
    */
-  public boolean has(GrouperGroup g, String priv) {
+  public boolean has(GrouperStem stem, String priv) {
     return false;
   }
 
   /**
    * Verify whether a {@link GrouperMember} has a specified naming privilege
-   * on a {@link GrouperGroup}.
+   * on a {@link Grouper} stem.
    */
-  public boolean has(GrouperGroup g, GrouperMember m, String priv) {
+  public boolean has(GrouperStem stem, GrouperMember m, String priv) {
     return false;
   }
 

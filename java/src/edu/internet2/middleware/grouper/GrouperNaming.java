@@ -6,77 +6,77 @@ import java.util.List;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.5 2004-05-28 17:54:53 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.6 2004-05-28 18:39:03 blair Exp $
  */
 public interface GrouperNaming {
 
   /**
-   * Grant a naming privilege on a {@link Grouper} group.
+   * Grant a naming privilege on a {@link Grouper} stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   stem  Grant privileges on this {@link Grouper} stem.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public void grant(GrouperGroup g, GrouperMember m, String priv);
+  public void grant(GrouperStem stem, GrouperMember m, String priv);
 
   /**
-   * Revoke a naming privilege on a {@link Grouper} group.
+   * Revoke a naming privilege on a {@link Grouper} stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   stem  Revoke privilege on this {@link Grouper} stem.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public void revoke(GrouperGroup g, GrouperMember m, String priv);
+  public void revoke(GrouperStem stem, GrouperMember m, String priv);
 
   /**
-   * List naming privileges for current subject on the specified group.
+   * List naming privileges for current subject on the specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   g   List privileges on this group.
+   * @param   stem  List privileges on this stem.
    * @return  List of privileges.
    */
-  public List has(GrouperGroup g);
+  public List has(GrouperStem stem);
 
   /**
-   * List access privileges for specified member on the specified group.
+   * List access privileges for specified member on the specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   stem  Return privileges for this {@link Grouper} stem.
    * @param   m     List privileges for this @link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperGroup g, GrouperMember m);
+  public List has(GrouperStem stem, GrouperMember m);
 
   /**
    * Verify whether current subject has the specified privilege on the
-   * specified group.
+   * specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Verify privilege for this group.
+   * @param   stem  Verify privilege for this stem.
    * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the group.
+   * @return  True if subject has this privilege on the stem.
    */
-  public boolean has(GrouperGroup g, String priv);
+  public boolean has(GrouperStem stem, String priv);
 
   /**
    * Verify whether the specified member has the specified privilege
-   * on the specified group.
+   * on the specified stem.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Verify privilege for this group.
+   * @param   stem  Verify privilege for this stem.
    * @param   m     Verify privilege for this member.
    * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the group.
+   * @return  True if subject has this privilege on the stem.
    */
-  public boolean has(GrouperGroup g, GrouperMember m, String priv);
+  public boolean has(GrouperStem stem, GrouperMember m, String priv);
 
   /**
    * List stems where the current subject has the specified privilege.
