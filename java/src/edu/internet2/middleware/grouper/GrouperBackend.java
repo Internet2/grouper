@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.32 2004-11-15 16:25:32 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.33 2004-11-15 17:17:19 blair Exp $
  */
 public class GrouperBackend {
 
@@ -32,9 +32,6 @@ public class GrouperBackend {
   private static Configuration   cfg;
   // Hibernate session factory
   private static SessionFactory  factory;
-  // Hibernate session
-  // TODO Should this really be static?
-  private static Session session;
 
   /*
    * PUBLIC CLASS METHODS 
@@ -60,7 +57,7 @@ public class GrouperBackend {
    * @param s Session to add.
    */
   protected static void addSession(GrouperSession s) {
-    GrouperBackend._init();
+    Session session = GrouperBackend._init();
     try {
       Transaction t = session.beginTransaction();
       session.save(s);
@@ -69,6 +66,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
   /**
@@ -78,8 +76,8 @@ public class GrouperBackend {
    * @return List of a group's attributes.
    */
   protected static List attributes(GrouperGroup g) {
-    GrouperBackend._init();
-    List attributes = new ArrayList();
+    Session session     = GrouperBackend._init();
+    List    attributes = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT FROM grouper_attributes " +
@@ -91,6 +89,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return attributes;
   }
 
@@ -98,10 +97,10 @@ public class GrouperBackend {
    * Cull old sessions.
    */
   protected static void cullSessions() {
-    GrouperBackend._init();
+    Session         session = GrouperBackend._init();
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
-    java.util.Date now     = new java.util.Date();
+    java.util.Date  now     = new java.util.Date();
     long nowTime = now.getTime();
     long tooOld  = nowTime - 360000;
 
@@ -115,6 +114,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
   /**
@@ -123,8 +123,8 @@ public class GrouperBackend {
    * @return List of group fields.
    */
   protected static List groupFields() {
-    GrouperBackend._init();
-    List fields = new ArrayList();
+    Session session = GrouperBackend._init();
+    List    fields  = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_FIELDS " +
@@ -135,13 +135,14 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return fields;
   }
 
   // TODO
   protected static List descriptors(GrouperSession s, String descriptor) {
-    GrouperBackend._init();
-    List descriptors = new ArrayList();
+    Session session     = GrouperBackend._init();
+    List    descriptors = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT FROM grouper_attributes " +
@@ -156,6 +157,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return descriptors;
   }
 
@@ -166,8 +168,8 @@ public class GrouperBackend {
    * @param list  Return this list type.
    */
   protected static List listVals(GrouperGroup g, GrouperSession s, String list) {
-    GrouperBackend._init();
-    List members = new ArrayList();
+    Session session = GrouperBackend._init();
+    List    members = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -197,6 +199,7 @@ public class GrouperBackend {
         System.exit(1);
       }
     }
+    GrouperBackend._hibernateSessionClose(session);
     return members;
   }
    
@@ -209,7 +212,7 @@ public class GrouperBackend {
    * @param list  Add member to this list.
    */
   protected static boolean listAddVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
-    GrouperBackend._init();
+    Session session = GrouperBackend._init();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -241,8 +244,10 @@ public class GrouperBackend {
         System.err.println(e);
         System.exit(1);
       }
+      GrouperBackend._hibernateSessionClose(session);
       return true;
     } 
+    GrouperBackend._hibernateSessionClose(session);
     return false;
   }
 
@@ -255,7 +260,7 @@ public class GrouperBackend {
    * @param list  Remove member from this list.
    */
   protected static boolean listDelVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
-    GrouperBackend._init();
+    Session session = GrouperBackend._init();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -303,6 +308,7 @@ public class GrouperBackend {
             System.err.println(e);
             System.exit(1);
           }
+          GrouperBackend._hibernateSessionClose(session);
           return true;
         } else {
           // TODO Raise an exception of some sort?
@@ -313,13 +319,14 @@ public class GrouperBackend {
         System.exit(1);
       }
     }
+    GrouperBackend._hibernateSessionClose(session);
     return false;
   }
 
   // TODO
   protected static List stems(GrouperSession s, String stem) {
-    GrouperBackend._init();
-    List stems = new ArrayList();
+    Session session = GrouperBackend._init();
+    List    stems   = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT FROM grouper_attributes " +
@@ -334,6 +341,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return stems;
   }
   
@@ -343,8 +351,8 @@ public class GrouperBackend {
    * @return List of group type definitions.
    */
   protected static List groupTypeDefs() {
-    GrouperBackend._init();
-    List typeDefs = new ArrayList();
+    Session session   = GrouperBackend._init();
+    List    typeDefs  = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPEDEFS " +
@@ -355,6 +363,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return typeDefs;
   }
 
@@ -364,8 +373,8 @@ public class GrouperBackend {
    * @return List of group types.
    */
   protected static List groupTypes() {
-    GrouperBackend._init();
-    List types = new ArrayList();
+    Session session = GrouperBackend._init();
+    List    types   = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_GROUPTYPES " +
@@ -376,6 +385,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return types;
   }
 
@@ -386,8 +396,8 @@ public class GrouperBackend {
    * @return List of a group's schema
    */
   protected static List schemas(GrouperGroup g) {
-    GrouperBackend._init();
-    List schemas = new ArrayList();
+    Session session = GrouperBackend._init();
+    List    schemas = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT FROM grouper_schema " +
@@ -399,6 +409,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return schemas;
   }
 
@@ -408,8 +419,8 @@ public class GrouperBackend {
    * @return List of subject types.
    */
   protected static List subjectTypes() {
-    GrouperBackend._init();
-    List types = new ArrayList();
+    Session session = GrouperBackend._init();
+    List    types   = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM grouper_subjectType " +
@@ -420,6 +431,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return types;
   }
 
@@ -429,8 +441,8 @@ public class GrouperBackend {
    * @return  {@link GrouperMember} object or null.
    */
   protected static GrouperMember member(String id, String typeID) {
-    GrouperBackend._init();
-    GrouperMember m = null;
+    Session       session = GrouperBackend._init();
+    GrouperMember m       = null;
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_MEMBER "     +
@@ -449,6 +461,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return m;
   }
 
@@ -460,7 +473,7 @@ public class GrouperBackend {
    */
   protected static GrouperMember memberAdd(GrouperMember member) {
     // TODO Should I have session/security restrictions in place?
-    GrouperBackend._init();
+    Session session = GrouperBackend._init();
     if ( 
         ( member.id()     != null ) &&
         ( member.typeID() != null )
@@ -480,8 +493,10 @@ public class GrouperBackend {
         System.err.println(e);
         System.exit(1);
       }
+      GrouperBackend._hibernateSessionClose(session);
       return GrouperBackend.member( member.id(), member.typeID() );
     }
+    GrouperBackend._hibernateSessionClose(session);
     return null;
   }
 
@@ -492,7 +507,7 @@ public class GrouperBackend {
    * @param g {@link GrouperGroup} to add
    */
   protected static void groupAdd(GrouperSession s, GrouperGroup g) {
-    GrouperBackend._init();
+    Session session = GrouperBackend._init();
     try {
       Transaction t = session.beginTransaction();
 
@@ -531,6 +546,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
   /**
@@ -541,10 +557,8 @@ public class GrouperBackend {
                                           String descriptor) 
   {
     // TODO Refactor out common code in the two versions of groupLoad()
-    GrouperBackend._init();
-
-    GrouperGroup  g   = null;
-    String        key = null;
+    Session session = GrouperBackend._init();
+    String  key     = null;
 
     // TODO Please.  Make this better.  Please, please, please.
     //      For whatever reason, SQL and quality code are evading
@@ -582,12 +596,15 @@ public class GrouperBackend {
                 );
                 if (q.list().size() == 1) {
                   // Restore group
-                  g   = (GrouperGroup) q.list().get(0);
+                  //g   = (GrouperGroup) q.list().get(0);
                   key = possDesc.key();
+                  GrouperBackend._hibernateSessionClose(session);
+                  //GrouperGroup g = new GrouperGroup();
                   //GrouperGroup ng = new GrouperGroup();
                   // Move|Duplicate Hibernate load here?
-                  GrouperBackend.groupLoad(s, g, key);
+                  GrouperGroup g = GrouperBackend.groupLoad(s, key);
                   //return ng;
+                  GrouperBackend._hibernateSessionClose(session);
                   return g;
                 }
               } catch (Exception e) {
@@ -602,14 +619,13 @@ public class GrouperBackend {
     // TODO Here I return a dummy object while elsewhere, and with
     //      other classes, I return null.  Standardize.  I *probably*
     //      should return null.
+    GrouperBackend._hibernateSessionClose(session);
     return new GrouperGroup();
   }
 
-  /**
-   * Retrieve {@link GrouperGroup} from backend store.
-   */
-  protected static void groupLoad(GrouperSession s, GrouperGroup g, String key) {
-    GrouperBackend._init();
+  protected static GrouperGroup groupLoad(GrouperSession s, String key) {
+    Session       session = GrouperBackend._init();
+    GrouperGroup  g       = new GrouperGroup();
     try {
       // Attempt to load a stored group into the current object
       Transaction tx = session.beginTransaction();
@@ -629,6 +645,35 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
+    return g;
+  }
+
+  /**
+   * Retrieve {@link GrouperGroup} from backend store.
+   */
+  protected static void groupLoad(GrouperSession s, GrouperGroup g, String key) {
+    Session session = GrouperBackend._init();
+    try {
+      // Attempt to load a stored group into the current object
+      Transaction tx = session.beginTransaction();
+      session.load(g, key);
+  
+      // Its schema
+      GrouperBackend._groupLoadSchema(g, key);
+   
+      // And its attributes
+      GrouperBackend._groupLoadAttributes(g, key);
+
+      // FIXME Attach s to object?
+
+      tx.commit();
+    } catch (Exception e) {
+      // TODO Rollback if load fails?  Unset this.exists?
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
   /**
@@ -638,8 +683,8 @@ public class GrouperBackend {
    * @return  {@link Subject} object or null.
    */
   protected static Subject subject(String id, String typeID) {
-    GrouperBackend._init();
-    Subject subj = null;
+    Session session = GrouperBackend._init();
+    Subject subj    = null;
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM GROUPER_SUBJECT "     +
@@ -658,6 +703,7 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
     return subj;
   }
 
@@ -667,10 +713,11 @@ public class GrouperBackend {
    */
 
 
+
   /*
-   * Initialize static Hibernate session.
+   * Initialize Hibernate session
    */
-  private static void _init() {
+  private static Session _init() {
     if (cfg == null) {
       try {
       cfg = new Configuration()
@@ -688,27 +735,29 @@ public class GrouperBackend {
         System.exit(1);
       }
     }
-    if (session == null) {
-      try {
-        session = factory.openSession();
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
-      }
+    try {
+      return factory.openSession();
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
     }
+    return null;
   }
 
   private static void _groupLoadAttributes(GrouperGroup g, String key) {
+    Session session = GrouperBackend._init();
     // TODO Do I even need `key' passed in?
-    List attrs = GrouperBackend.attributes(g);
+    List    attrs   = GrouperBackend.attributes(g);
     for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
       GrouperAttribute attr = (GrouperAttribute) attrIter.next();
       g.attribute( attr.field(), attr.value() );
     }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
   private static void _groupLoadSchema(GrouperGroup g, String key) { 
-    List schemas = GrouperBackend.schemas(g);
+    Session session = GrouperBackend._init();
+    List    schemas = GrouperBackend.schemas(g);
     if (schemas.size() == 1) {
       GrouperSchema schema = (GrouperSchema) schemas.get(0);
       // TODO Attach this to the group object.
@@ -717,7 +766,16 @@ public class GrouperBackend {
                          " schema definitions.");
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
+  private static void _hibernateSessionClose(Session session) {
+    try {
+      session.close();
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }      
+  }
 }
  
