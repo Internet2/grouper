@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.16 2004-09-20 15:41:09 blair Exp $
+# $Id: README,v 1.17 2004-10-11 18:23:53 blair Exp $
 #
 
  ------------------
@@ -20,6 +20,10 @@
     Destination for javadoc-generated documentation.
   - lib/
     Project .jar files.
+
+- doc/
+  - API
+    API class and method summary.
 
 - java/
   - lib/
