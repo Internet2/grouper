@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.151 2004-12-09 20:20:21 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.152 2005-02-07 20:49:17 blair Exp $
  */
 public class GrouperGroup {
 
@@ -1084,7 +1084,12 @@ public class GrouperGroup {
     this.setModifyTime( GrouperGroup._now() );
     GrouperMember mem = GrouperMember.load( s.subject());
     this.setModifySubject( mem.key() );
-    if (GrouperBackend.listAddVal(s, this, m, list) == true) {
+    if (
+        GrouperBackend.listAddVal(
+          s, new GrouperList(this, m, list, null)
+        ) == true
+       )
+    {
       rv = true;
     } else {
       // Revert changes
@@ -1109,7 +1114,13 @@ public class GrouperGroup {
     this.setModifyTime( GrouperGroup._now() );
     GrouperMember mem = GrouperMember.load( s.subject());
     this.setModifySubject( mem.key() );
-    if (GrouperBackend.listDelVal(s, this, m, list) == true) {
+    //if (GrouperBackend.listDelVal(s, this, m, list) == true) {
+    if (
+        GrouperBackend.listDelVal(
+          s, new GrouperList(this, m, list, null) 
+        ) == true
+       )
+    {
       rv = true;
     } else {
       // Revert changes
