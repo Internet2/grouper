@@ -1,6 +1,55 @@
 #
-# $Id: README,v 1.8 2004-03-26 20:42:23 blair Exp $
+# $Id: README,v 1.9 2004-03-26 21:09:45 blair Exp $
 #
+
+ ------------------
+/ PROJECT LAYOUT /
+-----------------
+
+- Makefile
+    Yes, Grouper is (currently) built using make(1).
+- docs/
+  - API
+      Grouper API Reference.
+  - API-EXAMPLES
+      Examples of using the Grouper API.
+  - TODO
+      Incomplete or unstarted tasks.
+- java/
+  - classes/
+      Destined for compiled Java source code.
+  - lib/
+      Third-party JAR files included with Grouper.
+  - src/
+      Grouper's Java source code.  
+  - tests/
+      Java source used for testing Grouper.
+- LICENSE
+    XXX Ha!
+- README
+    This file.
+- sql/
+    SQL commands for creating and populating the Groups registry
+    database.
+
+
+ --------------------------
+/ BUILD AND INSTALLATION /
+-------------------------
+
+  % make
+  % make test
+  % mysql -u root -p -h <your-mysql-host> < sql/mysql.sql
+
+Yes, I *know*.  This will not be sufficient.
+
+
+ -----------
+/ ROADMAP /
+----------
+
+...
+
 
  ---------
 / LINKS /
@@ -8,48 +57,9 @@
 
 + Grouper Architecture:
     <file:///home/blair/cvs/work/docs/draft-barton-grouptools-arch-02.html>
+    XXX Better link
 + Grouper Roadmap:
     <http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-pre01-2.html>
+    XXX Is this still the right link?
 
- -----------
-/ ROADMAP /
-----------
-
-
- -----------------------
-/ RUBBISH TO ORGANIZE /
-----------------------
-
-- Is this correct?  Or should it reflect the additional types of
-  privileges?
-   member:hasPriv (subjectID, groupName, CREATE || VIEW || READ || UPDATE || DELETE)
-- How does one specify *everyone can join* for an optin list?
-  - Does one take the same approach for optouts?
-    - I suppose one could just have a group of *everyone*
-      - Should the default be 'everyone' or 'nobody'?
-- optouts/views formatting
-- Consistent use of "opt(in|out)/opt-(in|out)"
-- 'admin' is all inclusive
-- "Likewise, search hits for groups and membership specifications for
-  groups are filtered by the subject's viewing privilege,"
-  - Does viewing only allow the display of the group's existence or
-    does it also allow display of members?
-  - What is meant by "membership specifications"?
-- Optional namespace for personal groups that is site-configurable?
-- General questions/concerns about the security model and the extension
-  of the security model that I can't exactly formulate.  Something is
-  bugging me but I'm not sure what.
-
-- ??? Where/When is cf sucked in?
-  - cf jsp case
-    - remind myself how jsps work
-      - when 
-  - Grouper object as singleton?
-- XXX each instance of the grouper class represent single groups
-- ??? maintenance of member table; how do we add new members?
-  - NOTE: 'members', *not* 'membership' table
-    - separate program for batch/diff mods to 'members' table?  Or do
-      we go through the API?
-
-- XXX Make note of all site configurable options
 
