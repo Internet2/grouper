@@ -114,10 +114,39 @@ public class TestStemsAsGroups extends TestCase {
 
     // Load ns0
     try {
-      GrouperGroup ns = GrouperGroup.create(
+      GrouperGroup ns = GrouperGroup.load(
                            s, Constants.ns0s, Constants.ns0e,
                            Grouper.NS_TYPE
                          );
+      Assert.fail("load ns0 via gg");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("load ns0 via gg", true);
+    }
+  
+    // We're done
+    s.stop();
+  }
+
+  // Fail to load a stem via GrouperGroup 
+  public void testFetchNSViaGGByNameAndType() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subj !null", subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
+
+    // Create ns0
+    GrouperStem ns0 = GrouperStem.create(
+                        s, Constants.ns0s, Constants.ns0e
+                      );
+    Assert.assertNotNull("create ns0", ns0);
+
+    // Load ns0
+    try {
+      GrouperGroup ns = GrouperGroup.loadByName(
+                          s, 
+                          GrouperGroup.groupName(Constants.ns0s, Constants.ns0e),
+                          Grouper.NS_TYPE
+                        );
       Assert.fail("load ns0 via gg");
     } catch (RuntimeException e) {
       Assert.assertTrue("load ns0 via gg", true);
