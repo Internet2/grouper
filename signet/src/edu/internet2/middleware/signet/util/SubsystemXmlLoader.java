@@ -45,7 +45,7 @@ public class SubsystemXmlLoader {
 //  private Logger logger;
 
     /**
-     * @param Properties config properties:
+     * Default constructor.
      *
      */
     public SubsystemXmlLoader() throws Exception {
@@ -56,9 +56,9 @@ public class SubsystemXmlLoader {
         if (! readYesOrNo(
         		"\nYou are about to delete data for subsystem "
         		+ subsystemId
-        		+ " and the associated assignments."
+        		+ " and the associated assignments. "
 				+ "\nDo you wish"
-				+ " to continue?")) {
+				+ " to continue (y or n)? ")) {
         	System.exit(0);
         }
 
