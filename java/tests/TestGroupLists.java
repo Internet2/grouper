@@ -404,6 +404,7 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
+/*
   public void testAddListData2() {
     Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
@@ -411,15 +412,15 @@ public class TestGroupLists extends TestCase {
 
     // Fetch Group 0
     GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
+    Assert.assertNotNull("g0 !null", g0);
     // Fetch Group 2
     GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(g2);
+    Assert.assertNotNull("g2 !null", g2);
     // Fetch g2 as m0
     GrouperMember   m0      = GrouperMember.load(s, g2.id(), "group");
-    Assert.assertNotNull(m0);
+    Assert.assertNotNull("m0 !null", m0);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listAddVal(m0) );
+    Assert.assertTrue("add m0 to g0",  g0.listAddVal(m0));
     // We're done
     s.stop();
   }
@@ -2422,6 +2423,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( GrouperGroup.delete(s, g13) );
     s.stop();
   }
+*/
 
 }
 

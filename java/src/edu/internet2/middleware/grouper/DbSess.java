@@ -61,7 +61,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.3 2005-03-10 16:27:57 blair Exp $
+ * @version $Id: DbSess.java,v 1.4 2005-03-11 01:17:58 blair Exp $
  */
 public class DbSess {
 
@@ -80,8 +80,9 @@ public class DbSess {
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private net.sf.hibernate.Session  session;
-  private Transaction               tx;
+  private Session     session;
+  private Transaction tx;
+  private int         txCnt;
 
 
   /*
@@ -96,6 +97,7 @@ public class DbSess {
     _sessionFactory();
     try {
       this.session = factory.openSession();
+      this.txCnt = 0;
     } catch (HibernateException e) {
       throw new RuntimeException(
                   "Unable to start database session: " + e
@@ -129,17 +131,36 @@ public class DbSess {
   }
 
   public void txStart() {
-    try {
-      this.tx = this.session.beginTransaction();
-    } catch (HibernateException e) {
-      throw new RuntimeException("Error starting transaction: " + e);
+    if (this.txCnt == 0) {
+      try {
+        this.tx = this.session.beginTransaction();
+      } catch (HibernateException e) {
+        throw new RuntimeException("Error starting transaction: " + e);
+      }
     }
+    this.txCnt++;
   }
   public void txCommit() {
+    this.txCnt--;
+    if (this.txCnt == 0) {
+      try {
+        this.tx.commit();
+      } catch (HibernateException e) {
+        this.txRollback();
+        throw new RuntimeException(
+                    "Error committing transaction: " + e
+                  );
+      }
+    }
+  }
+  public void txRollback() {
     try {
-      this.tx.commit();
+      this.tx.rollback();
+      this.txCnt = 0;
     } catch (HibernateException e) {
-      throw new RuntimeException("Error committing transaction: " + e);
+      throw new RuntimeException(
+                  "Error rolling back transactin: " + e
+                );
     }
   }
   
