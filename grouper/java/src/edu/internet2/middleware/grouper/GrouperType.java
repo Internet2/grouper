@@ -61,7 +61,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.18 2005-03-23 21:35:24 blair Exp $
+ * @version $Id: GrouperType.java,v 1.19 2005-03-29 17:32:02 blair Exp $
  */
 public class GrouperType {
 
@@ -76,10 +76,24 @@ public class GrouperType {
    */
 
   /**
-   * Create a {@link GrouperType} object.
+   * Null-argument constructor for Hibernate.
    */
   public GrouperType() {
-    this._init();
+    // Nothing
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return "" + this.getGroupType();
   }
 
 
@@ -88,7 +102,7 @@ public class GrouperType {
    */
 
   /*
-   * @return List of all group types
+   * Return list of all valid {@link Group} types.
    */
   protected static List all(DbSess dbSess) {
     String  qry   = "GrouperType.all";
@@ -108,32 +122,6 @@ public class GrouperType {
                 );
     }
     return vals;
-  }
-
-
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
-
-  /**
-   * Return a string representation of this object.
-   * <p />
-   * @return String representation of this object.
-   */
-  public String toString() {
-    return "" + this.getGroupType();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.groupType = null;
   }
 
 

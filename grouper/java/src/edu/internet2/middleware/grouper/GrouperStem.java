@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.28 2005-03-27 17:29:48 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.29 2005-03-29 17:32:02 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -126,7 +126,6 @@ public class GrouperStem extends Group {
 
     this.setCreated();
   }
-
 
 
   /*

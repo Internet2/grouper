@@ -84,7 +84,9 @@ public class TestMembers extends TestCase {
     String type = Constants.mem0T;
 
     Subject        subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
 
     GrouperMember m     = GrouperMember.load(s, id, type);
     Assert.assertNotNull(m);
@@ -130,6 +132,7 @@ public class TestMembers extends TestCase {
 
     s.stop();
   }
+
 
   // TODO Valid member, invalid subject
 

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.62 2005-03-27 17:29:48 blair Exp $
+$Id: API,v 1.63 2005-03-29 17:32:02 blair Exp $
 
 ---
 
@@ -89,13 +89,14 @@ $Id: API,v 1.62 2005-03-27 17:29:48 blair Exp $
 * String              field()
 * String              value()
 
+---
 
 ### GrouperField
 
 #### Instance Methods
 
-* String              groupField()
-* String              isList()
+* String              field()
+* boolean             isList()
 * String              readPriv()
 * String              writePriv()
 
@@ -254,18 +255,28 @@ $Id: API,v 1.62 2005-03-27 17:29:48 blair Exp $
 * String              typeID()
 * String              value()
 
+---
+
 ### GrouperTypeDef
 
 #### Instance Methods
 
-* FIXME String              groupField()
-* FIXME String              groupType()
+* String              field();
+* String              type();
+
+---
 
 ### GrouperUUID
 
 #### Class Methods
 
 * GrouperUUID         GrouperUUID()
+
+#### Instance Methods
+
+* String              toString()
+
+---
 
 ### MemberOf
 

@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
@@ -63,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.72 2005-03-26 02:59:08 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.73 2005-03-29 17:32:02 blair Exp $
  */
 public class GrouperMember {
 
@@ -88,17 +89,24 @@ public class GrouperMember {
     // Nothing
   }
 
-  /* (!javadoc)
-   * This should <b>only</b> be used within this class.
+  /* 
+   * Create a member with assigned id and type.
    */
   protected GrouperMember(String subjectID, String subjectTypeID) {
+    // Give it a public UUID
+    this.setMemberID(  new GrouperUUID().toString() );
+    // Give it a private UUID
+    this.setMemberKey( new GrouperUUID().toString() );
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
   }
+
+  /*
+   * Create member with assigned session, id and type.
+   */
   private GrouperMember(GrouperSession s, String subjectID, String subjectTypeID) {
-    this.s              = s;
-    this.subjectID      = subjectID;
-    this.subjectTypeID  = subjectTypeID;
+    this(subjectID, subjectTypeID);
+    this.s = s;
   }
 
 
@@ -106,175 +114,27 @@ public class GrouperMember {
    * PUBLIC CLASS METHODS
    */
 
-  // FIXME Can I kill this?
+  /**
+   * Retrieve a {@link GrouperMember} object.
+   * <p />
+   * @param   subj  {@link Subject} to load as {@link GrouperMember}.
+   * @return {@link GrouperMember} object.
+   */
   public static GrouperMember load(Subject subj) {
     // Attempt to load an already existing member
     GrouperMember m = loadByIdAndType(Grouper.dbSess(), subj);
     if (m == null) {
       /*
        * If the subject is valid but a matching member object does not
-       * exist, create a new one, assign a key, etc.
+       * exist, create a new one.
        */ 
-      // TODO Is there a reason why I am not just passing in the
-      //      `subjectID' and `subjectTypeID' passed as params to
-      //      this method?
       m = new GrouperMember(
                 subj.getId(), subj.getSubjectType().getId()
               );
-      // Give it a private UUID
-      m.setMemberKey( new GrouperUUID().toString() );
-      // Give it a public UUID
-      m.setMemberID(  new GrouperUUID().toString() );
-
       // Save the new member object
       m.save(Grouper.dbSess());
-
       Grouper.log().memberAdd(m, subj);
     } 
-
-    return m;
-  }
-
-
-  /*
-   * PROTECTED CLASS METHODS
-   */
-
-  /*
-   * Create and save a new {@link GrouperMember} object.
-   */
-  protected static GrouperMember create(
-                                   GrouperSession s, String subjectID, 
-                                   String subjectTypeID
-                                 ) 
-  {
-    GrouperMember m = new GrouperMember(s, subjectID, subjectTypeID);
-    m.setMemberKey( new GrouperUUID().toString() );
-    m.setMemberID(  new GrouperUUID().toString() );
-    m.save(s.dbSess());
-    return m;
-  }
-
-  /**
-   * Retrieve a {@link GrouperMember} object.
-   * <p />
-   * This method will create a new entry in the <i>grouper_member</i>
-   * table if this subject does not already have an entry.
-   * 
-   * @param   s     Load {@link GrouperMember} within this session.
-   * @param   subj  A {@link Subject} object.
-   * @return  A {@link GrouperMember} object.
-   */
-  protected static GrouperMember load(GrouperSession s, Subject subj) { 
-    GrouperMember m = GrouperMember.load(subj);
-    if (m != null) {
-      m.s = s;
-    }
-    return m;
-  }
-
-  /*
-   * Save a {@link GrouperMember} to the groups registry.
-   */
-  protected void save(DbSess dbSess) {
-    try {
-      dbSess.txStart();
-      dbSess.session().save(this);
-      dbSess.txCommit();
-    } catch (HibernateException e) {
-      dbSess.txRollback();
-      throw new RuntimeException("Error saving member: " + e);
-    }
-  }
-
-  /*
-   * Convert memberKey into Subject
-   */
-  protected static Subject toSubject(GrouperSession s, String key) {
-    Subject subj = null; // TODO All of this damn reliance upon null
-    if (key != null) {
-      GrouperMember m = GrouperMember.loadByKey(s, key);
-      if (m != null) {
-        subj = GrouperSubject.load(m.subjectID(), m.typeID());
-      }
-    }
-    return subj;
-  }
-    
-  private static GrouperMember loadByIdAndType(DbSess dbSess, Subject subj) {
-    GrouperMember m     = null;
-    String        qry   = "GrouperMember.by.subjectid.and.typeid";
-    List          vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      q.setString(0, subj.getId());
-      q.setString(1, subj.getSubjectType().getId());
-      try {
-        vals = q.list();
-        if (vals.size() == 1) {
-          m = (GrouperMember) vals.get(0);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return m;
-  }
-  protected static GrouperMember loadByKey(GrouperSession s, String key) {
-    GrouperSession.validate(s);
-    GrouperMember m = new GrouperMember();
-    try {
-      m = (GrouperMember) s.dbSess().session().get(
-                            GrouperMember.class, key
-                          );
-      m.s = s; // TODO Argh!
-    } catch (HibernateException e) {
-      throw new RuntimeException("Error loading member: " + e);
-    }
-    return m;
-  }
-
-  /**
-   * Retrieve a {@link GrouperMember} object.
-   * <p />
-   * This method will create a new entry in the <i>grouper_member</i>
-   * table if this subject does not already have an entry.
-   *
-   * @param   s             Load {@link GrouperMember} within this session.
-   * @param   subjectID     Subject ID
-   * @param   subjectTypeID Subject Type ID
-   * @return  A {@link GrouperMember} object
-   */
-  public static GrouperMember load(
-                                GrouperSession s, String subjectID, 
-                                String subjectTypeID
-                              ) 
-  {
-    GrouperSession.validate(s);
-
-    GrouperMember m     = null;
-    Subject       subj  = GrouperSubject.load(subjectID, subjectTypeID);
-
-    /*
-     * If no subject is returned via the subject interface, assume that
-     * the member either doesn't exist or should no longer exist.  Bail
-     * out.
-     */
-    // TODO What if member can be found but matching subject cannot be
-    //      found?  Or: should I check if the member is defined first
-    //      and then fall back to subject?
-    if (subj == null)  { return null; }
-
-    m = GrouperMember.load(subj);
-    if (m != null) { // TOOD Argh!
-      m.s = s;
-    }
     return m;
   }
 
@@ -313,6 +173,34 @@ public class GrouperMember {
     } 
     if (m == null) {
       throw new RuntimeException("Error loading member " + memberID);
+    }
+    return m;
+  }
+
+  /**
+   * Retrieve a {@link GrouperMember} object.
+   * <p />
+   * This method will create a new entry in the <i>grouper_member</i>
+   * table if this subject does not already have an entry.
+   *
+   * @param   s             Load {@link GrouperMember} within this session.
+   * @param   subjectID     Subject ID
+   * @param   subjectTypeID Subject Type ID
+   * @return  A {@link GrouperMember} object
+   */
+  public static GrouperMember load(
+                                GrouperSession s, String subjectID, 
+                                String subjectTypeID
+                              ) 
+  {
+    GrouperSession.validate(s);
+    GrouperMember m     = null;
+    Subject       subj  = GrouperSubject.load(subjectID, subjectTypeID);
+    if (subj != null) {
+      m = GrouperMember.load(subj);
+      if (m != null) { // TODO Bah
+        m.s = s;
+      }
     }
     return m;
   }
@@ -402,8 +290,7 @@ public class GrouperMember {
   }
 
   /**
-   * Retrieve {@link Group} object for this 
-   * {@link GrouperMember}.
+   * Retrieve {@link Group} object for this * {@link GrouperMember}.
    * </p>
    * @return {@link GrouperObject} object
    */
@@ -442,10 +329,84 @@ public class GrouperMember {
 
 
   /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Create and save a new {@link GrouperMember} object.
+   */
+  protected static GrouperMember create(
+                                   GrouperSession s, String subjectID, 
+                                   String subjectTypeID
+                                 ) 
+  {
+    GrouperMember m = new GrouperMember(s, subjectID, subjectTypeID);
+    m.save(s.dbSess());
+    return m;
+  }
+
+  /*
+   * Load and/or create a {@link GrouperMember} object.
+   */
+  protected static GrouperMember load(GrouperSession s, Subject subj) { 
+    GrouperMember m = GrouperMember.load(subj);
+    if (m != null) { // TODO Bah
+      m.s = s;
+    }
+    return m;
+  }
+
+  /*
+   * Load {@link GrouperMember} by key.
+   */
+  protected static GrouperMember loadByKey(GrouperSession s, String key) {
+    GrouperSession.validate(s);
+    GrouperMember m = new GrouperMember();
+    try {
+      m = (GrouperMember) s.dbSess().session().get(
+                            GrouperMember.class, key
+                          );
+      m.s = s; // TODO Argh!
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error loading member: " + e);
+    }
+    return m;
+  }
+
+  /*
+   * Save a {@link GrouperMember} to the groups registry.
+   */
+  protected void save(DbSess dbSess) {
+    try {
+      dbSess.txStart();
+      dbSess.session().save(this);
+      dbSess.txCommit();
+    } catch (HibernateException e) {
+      dbSess.txRollback();
+      throw new RuntimeException("Error saving member: " + e);
+    }
+  }
+
+  /*
+   * Convert memberKey into {@link Subject}.
+   */
+  protected static Subject toSubject(GrouperSession s, String key) {
+    Subject subj = null; // TODO All of this damn reliance upon null
+    if (key != null) {
+      GrouperMember m = GrouperMember.loadByKey(s, key);
+      if (m != null) {
+        subj = GrouperSubject.load(m.subjectID(), m.typeID());
+      }
+    }
+    return subj;
+  }
+
+
+  /*
    * PROTECTED INSTANCE METHODS
    */
 
-  /**
+  /*
    * Return member key.
    * <p />
    * FIXME Can I eventually make this private?
@@ -454,6 +415,40 @@ public class GrouperMember {
    */
   protected String key() {
     return this.getMemberKey();
+  }
+
+
+  /*
+   * PRIVATE CLASS METHODS
+   */  
+
+  /*
+   * Load member by id and type.
+   */
+  private static GrouperMember loadByIdAndType(DbSess dbSess, Subject subj) {
+    GrouperMember m     = null;
+    String        qry   = "GrouperMember.by.subjectid.and.typeid";
+    List          vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      q.setString(0, subj.getId());
+      q.setString(1, subj.getSubjectType().getId());
+      try {
+        vals = q.list();
+        if (vals.size() == 1) {
+          m = (GrouperMember) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return m;
   }
 
 
@@ -556,6 +551,7 @@ public class GrouperMember {
     }
     return vals;
   }
+
 
   /*
    * HIBERNATE
