@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>	
+	<class
+		name="edu.internet2.middleware.signet.LimitImpl"
+		table="Limit">
+
+		<composite-id
+			name="fullyQualifiedId"
+			class="edu.internet2.middleware.signet.LimitFullyQualifiedId">
+			<key-property
+				name="limitId"
+				column="limitID" />
+			<key-property
+				name="subsystemId"
+				column="subsystemID" />
+		</composite-id>
+
+		<timestamp name="modifyDatetime"/>
+			
+		<property
+			name="status"
+			type="edu.internet2.middleware.signet.StatusType"
+			not-null="true">
+			<meta attribute="use-in-tostring">true</meta>
+		</property>
+		
+		<!-- The limitType can be a Tree or a ChoiceSet.
+			 For the moment, only a ChoiceSet is possible. -->
+		<property
+			name="shape"
+			column="limitType"
+			type="edu.internet2.middleware.signet.LimitShapeType"
+			not-null="true">
+		</property>
+		
+		<!-- the ID of the ChoiceSet or Tree whose
+			 values/nodes are the domain of limit values.
+			 For the moment, only a ChoiceSet is possible. -->
+		<property
+			name="choiceSetId"
+			column="limitTypeID"
+			not-null="true" />
+		
+		<property
+			name="name" type="string" not-null="true"/>
+		<property
+			name="helpText" type="text" not-null="true"/>
+		
+		<!-- The dataType will someday be used as some sort
+			 of XML tag, but is so far unused. -->
+		<property
+			name="dataType"
+			not-null="true">
+		</property>
+		
+		<!-- The valueType can be STRING, NUMERIC, or DATE. -->
+		<property
+			name="valueType"
+			type="edu.internet2.middleware.signet.ValueTypeType"
+			not-null="true">
+		</property>
+	</class>
+</hibernate-mapping>
