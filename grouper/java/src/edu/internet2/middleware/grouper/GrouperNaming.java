@@ -16,7 +16,7 @@ import java.util.*;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.17 2004-11-22 01:25:45 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.18 2004-11-22 01:40:23 blair Exp $
  */
 public interface GrouperNaming {
 
@@ -30,7 +30,7 @@ public interface GrouperNaming {
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public void grant(GrouperSession s, GrouperStem stem, GrouperMember m, String priv);
+  public boolean grant(GrouperSession s, GrouperStem stem, GrouperMember m, String priv);
 
   /**
    * List stems where the current subject has the specified privilege.
@@ -116,7 +116,7 @@ public interface GrouperNaming {
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public void revoke(GrouperSession s, GrouperStem stem, GrouperMember m, String priv);
+  public boolean revoke(GrouperSession s, GrouperStem stem, GrouperMember m, String priv);
 
 }
 

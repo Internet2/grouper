@@ -17,7 +17,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.20 2004-11-20 18:38:54 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.21 2004-11-22 01:40:23 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -42,12 +42,13 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public void grant(
+  public boolean grant(
                     GrouperSession s, GrouperStem stem, 
                     GrouperMember m, String priv
                    ) 
   {
-    // Nothing -- Yet
+    boolean rv = false;
+    return rv;
   }
 
   /**
@@ -116,7 +117,8 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @return  True if subject has this privilege on the stem.
    */
   public boolean has(GrouperSession s, GrouperStem stem, String priv) {
-    return false;
+    boolean rv = false;
+    return rv;
   }
 
   /**
@@ -135,7 +137,8 @@ public class GrouperNamingImpl implements GrouperNaming {
                      GrouperMember m, String priv
                     ) 
   {
-    return false;
+    boolean rv = false;
+    return rv;
   }
 
   /**
@@ -147,12 +150,13 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public void revoke(
+  public boolean revoke(
                      GrouperSession s, GrouperStem stem, 
                      GrouperMember m, String priv
                     ) 
   {
-    // Nothing -- Yet
+    boolean rv = false;
+    return rv;
   }
 
 }
