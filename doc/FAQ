@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.16 2004-12-09 18:18:39 blair Exp $
+$Id: FAQ,v 1.17 2004-12-09 18:29:18 blair Exp $
 
 ---
 
@@ -268,7 +268,7 @@ more filters, and then query for results.
     q.groupType(Grouper.DEF_GROUP_TYPE);
 
     // And that have one or more members
-    q.membership(Grouper.MEM_ALL);
+    q.membershipType(Grouper.MEM_ALL);
 
     List results = q.query();
 
