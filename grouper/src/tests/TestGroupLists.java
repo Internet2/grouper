@@ -1059,7 +1059,6 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-/*
   public void testPrep0() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
@@ -1153,8 +1152,69 @@ public class TestGroupLists extends TestCase {
     // Fetch g1
     GrouperGroup g1 = GrouperGroup.lookup(s, stem1, extn1);
     Assert.assertNotNull(g1);
-    // Delete g1
-    Assert.assertTrue( GrouperGroup.delete(s, g1) );
+    // Fail to delete g1 become it has a member and is a member
+    Assert.assertFalse(GrouperGroup.delete(s, g1) );
+    // We're done
+    s.stop();
+  }
+
+  public void testPrep2() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Fetch g0
+    GrouperGroup g0 = GrouperGroup.lookup(s, stem0, extn0);
+    Assert.assertNotNull(g0);
+    // Fetch g1
+    GrouperGroup g1 = GrouperGroup.lookup(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    // Fetch g1 as m1
+    GrouperMember m1 = GrouperMember.lookup( g1.id(), "group");
+    Assert.assertNotNull(m1);
+    // Remove g1 from g0
+    Assert.assertTrue( g0.listDelVal(s, m1, Grouper.DEF_LIST_TYPE) );
+    // We're done
+    s.stop();
+  }
+
+  public void testGroupDel0() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Fetch g1
+    GrouperGroup g1 = GrouperGroup.lookup(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    // Fail to delete g1 as it still has a member 
+    Assert.assertFalse(GrouperGroup.delete(s, g1) );
+    // We're done
+    s.stop();
+  }
+
+  public void testPrep3() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Fetch g1
+    GrouperGroup g1 = GrouperGroup.lookup(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    // Fetch m0
+    GrouperMember m0 = GrouperMember.lookup("blair", Grouper.DEF_SUBJ_TYPE);
+    Assert.assertNotNull(m0);
+    // Remove m0 from g1
+    Assert.assertTrue( g1.listDelVal(s, m0, Grouper.DEF_LIST_TYPE) );
+    // We're done
+    s.stop();
+  }
+
+  public void testGroupDel1() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Fetch g1
+    GrouperGroup g1 = GrouperGroup.lookup(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    // Delete g1 
+    Assert.assertTrue(GrouperGroup.delete(s, g1) );
     // We're done
     s.stop();
   }
@@ -1179,7 +1239,7 @@ public class TestGroupLists extends TestCase {
     // Fetch g0 Grouper.DEF_LIST_TYPE
     List            mem0    = g0.listVals(s, Grouper.DEF_LIST_TYPE);
     Assert.assertNotNull(mem0);
-    Assert.assertTrue(mem0.size() == 0);
+    Assert.assertTrue(mem0.size() == 1);
     List            mem0c   = g0.listVals(s);
     Assert.assertNotNull(mem0c);
     Assert.assertTrue(mem0c.size() == 1);
@@ -1205,7 +1265,79 @@ public class TestGroupLists extends TestCase {
     // We're done
     s.stop(); 
   }
-*/
+
+  public void testCreateG0() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Create g1
+    String stem = "stem.1";
+    String extn = "extn.1";
+    GrouperGroup g = GrouperGroup.create(s, stem, extn);
+    Assert.assertNotNull(g);
+    s.stop();
+  }
+
+  public void testFetchLV2() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    g0    = GrouperGroup.lookup(s, stem0, extn0);
+    Assert.assertNotNull(g0);
+    // Fetch Group 1
+    GrouperGroup    g1    = GrouperGroup.lookup(s, stem1, extn1);
+    Assert.assertNotNull(g1);
+    // Fetch Group 2
+    GrouperGroup    g2    = GrouperGroup.lookup(s, stem2, extn2);
+    Assert.assertNotNull(g2);
+    // Fetch g0 Grouper.DEF_LIST_TYPE
+    List            mem0    = g0.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull(mem0);
+    Assert.assertTrue(mem0.size() == 1);
+    List            mem0c   = g0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 1);
+    List            mem0e   = g0.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull(mem0e);
+    Assert.assertTrue(mem0e.size() == 0); 
+    List            mem0i   = g0.listImmVals(s); 
+    Assert.assertNotNull(mem0i);
+    Assert.assertTrue(mem0i.size() == 1); 
+    // Fetch g1 Grouper.DEF_LIST_TYPE
+    List            mem1    = g1.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull(mem1);
+    Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = g1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
+    List            mem1e   = g1.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull(mem1e);
+    Assert.assertTrue(mem1e.size() == 0);
+    List            mem1i   = g1.listImmVals(s); 
+    Assert.assertNotNull(mem1i);
+    Assert.assertTrue(mem1i.size() == 0);
+    // Fetch g2 Grouper.DEF_LIST_TYPE
+    List            mem2    = g2.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull(mem2);
+    Assert.assertTrue(mem2.size() == 0);
+    List            mem2c   = g2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 0);
+    List            mem2e   = g2.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull(mem2e);
+    Assert.assertTrue(mem2e.size() == 0);
+    List            mem2i   = g2.listImmVals(s); 
+    Assert.assertNotNull(mem2i);
+    Assert.assertTrue(mem2i.size() == 0);
+    // We're done
+    s.stop(); 
+  }
 
 }
 
