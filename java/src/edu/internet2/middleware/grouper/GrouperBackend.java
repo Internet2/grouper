@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.43 2004-11-19 04:47:00 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.44 2004-11-19 05:14:51 blair Exp $
  */
 public class GrouperBackend {
 
@@ -165,11 +165,46 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      members = GrouperBackend._listVals(session, g, list);
+      members = GrouperBackend._listVals(session, g, list, null);
     }
     GrouperBackend._hibernateSessionClose(session);
     return members;
   }
+  protected static List listEffVals(GrouperGroup g, GrouperSession s, String list) {
+    Session session = GrouperBackend._init();
+    List    members = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      members = GrouperBackend._listVals(session, g, list, "effective");
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return members;
+  }
+  protected static List listImmVals(GrouperGroup g, GrouperSession s, String list) {
+    Session session = GrouperBackend._init();
+    List    members = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      members = GrouperBackend._listVals(session, g, list, "immediate");
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return members;
+  }
+
 
   /**
    * Add new list data to the backend store.
@@ -937,9 +972,18 @@ public class GrouperBackend {
     return rv;
   }
                                 
-  private static List _listVals(Session session, GrouperGroup g, String list) {
+  private static List _listVals(Session session, GrouperGroup g, String list, String via) {
     List members = new ArrayList();
     try {
+      // Well isn't this an ugly hack...
+      String via_txt = "";
+      if (via != null) {
+        if        ( via.equals("effective") ) {
+          via_txt = " AND via IS NOT NULL";
+        } else if ( via.equals("immediate") ) {
+          via_txt = " AND via IS NULL";
+        } // TODO else ...
+      }
       // Query away!
       Query q = session.createQuery(
         "SELECT ALL FROM grouper_lists "  +
@@ -948,8 +992,7 @@ public class GrouperBackend {
         "groupKey='"    + g.key() + "' "  +
         "AND "                            +
         "groupField='"  + list + "' "     +
-        "AND "                            +
-        "via=null"
+        via_txt
       );   
       // TODO Behave different depending upon the size?
       members = q.list();
