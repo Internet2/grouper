@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.5 2004-12-04 19:33:38 blair Exp $
+-- $Id: init.sql,v 1.6 2004-12-05 01:27:31 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -27,7 +27,11 @@ INSERT INTO grouper_field (groupField, readPriv, writePriv, isList)
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('optouts', 'READ', 'UPDATE', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('name', 'READ', '', 'TRUE');
+  VALUES ('name', 'READ', '', 'FALSE');
+INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
+  VALUES ('stemmers', 'STEM', 'STEM', 'TRUE');
+INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
+  VALUES ('creators', 'STEM', 'STEM', 'TRUE');
 
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'extension');

@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.17 2004-12-04 19:33:38 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.18 2004-12-05 01:27:31 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -91,42 +91,61 @@ public class TestConfigAndSchema extends TestCase {
   public void testGetGrouperFields() {
     List fields = Grouper.groupFields();
     Assert.assertNotNull(fields);
-    Assert.assertEquals(11, fields.size());
+    Assert.assertEquals(13, fields.size());
     String klass = "edu.internet2.middleware.grouper.GrouperField";
     String field;
+    int idx = 0;
     field = "admins:ADMIN:ADMIN:TRUE";
-    Assert.assertTrue( field.equals( fields.get(0).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(0).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
+    field = "creators:STEM:STEM:TRUE";
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "description:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(1).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(1).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "extension:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(2).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(2).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "members:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(3).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(3).getClass().getName() ) );
-    field = "name:READ::TRUE";
-    Assert.assertTrue( field.equals( fields.get(4).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(4).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
+    field = "name:READ::FALSE";
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "optins:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(5).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(5).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "optouts:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(6).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(6).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "readers:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(7).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(7).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "stem:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(8).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(8).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    idx += 1;
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    field = "stemmers:STEM:STEM:TRUE";
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "updaters:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(9).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(9).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
     field = "viewers:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(10).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(10).getClass().getName() ) );
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
   }
 
   // Get cached GrouperTypes 
