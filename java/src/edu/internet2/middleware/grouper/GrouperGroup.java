@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.56 2004-10-13 18:32:53 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.57 2004-10-27 17:59:57 blair Exp $
  */
 public class GrouperGroup {
 
@@ -69,18 +69,16 @@ public class GrouperGroup {
   /**
    * Class method to create a group.
    *
-   * @param   s           Session to create the group within.
-   * @param   namespace   Namespace to create the group within.
-   * @param   name        Name of the group to be created.
+   * @param   s     Session to create the group within.
+   * @param   stem  Namespace to create the group within.
+   * @param   desc  Descriptor to assign to group.
    */ 
-  public static GrouperGroup create(GrouperSession s, 
-                                    String namespace,
-                                    String name)
+  public static GrouperGroup create(GrouperSession s, String stem, String desc)
   {
     GrouperGroup g = new GrouperGroup();
 
     // Initalize aspects of the group.
-    g._create(s, namespace, name);
+    g._create(s, stem, descriptor);
 
     // Verify that we have everything we need to create a group
     // and that this subject is privileged to create this group.
@@ -95,16 +93,14 @@ public class GrouperGroup {
   /**
    * Class method to retrieve a group from the persistent store.
    *
-   * @param   s           Session to create the group within.
-   * @param   namespace   Namespace of the group to load.
-   * @param   name        Name of the group to load.
+   * @param   s     Session to load the group within.
+   * @param   stem  Namespace of the group to load.
+   * @param   desc  Descriptor of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup load(GrouperSession s, 
-                                  String namespace,
-                                  String name)
+  public static GrouperGroup load(GrouperSession s, String stem, String desc)
   {
-    return GrouperBackend.group(s, namespace, name);
+    return GrouperBackend.group(s, stem, desc);
   }
 
   /*
