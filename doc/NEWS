@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.19 2005-01-24 17:12:18 blair Exp $
+$Id: NEWS,v 1.20 2005-01-24 17:34:38 blair Exp $
 
 ---
 
@@ -9,10 +9,11 @@ $Id: NEWS,v 1.19 2005-01-24 17:12:18 blair Exp $
 
 ### Changes
 * Fixed sessionID generation bug (#278)
-* Contributed: csv2group
-  * Support for comments in input files
-  * -c option
-  * -q option
+* Contributed
+  * csv2group updated
+    * Support for comments in input files
+    * -c option
+    * -q option
 
 ---
 
@@ -74,5 +75,6 @@ $Id: NEWS,v 1.19 2005-01-24 17:12:18 blair Exp $
 * Insufficient documentation
 * Insufficient test coverage
 * Slow
+
 
 
