@@ -143,5 +143,55 @@ public class TestStemsDelete extends TestCase {
     s.stop();
   }
 
+  // NS with child stem
+  public void testDeleteNS0WithChildStem() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
+                       );
+    // Create ns1
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
+                       );
+
+    // Delete ns0
+    try {
+      GrouperStem.delete(s, ns0);
+      Assert.fail("delete ns0 with child stem");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("delete ns with child stem0", true);
+    }
+
+    s.stop();
+  }
+
+  // NS with child group
+  public void testDeleteNS0WithChildGroup() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
+                       );
+    // Create g0
+    GrouperGroup g0 = GrouperGroup.create(
+                         s, Constants.g0s, Constants.g0e
+                       );
+
+    // Delete ns0
+    try {
+      GrouperStem.delete(s, ns0);
+      Assert.fail("delete ns0 with child group");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("delete ns with child group", true);
+    }
+
+    s.stop();
+  }
+
 }
 
