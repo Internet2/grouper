@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.2 2004-11-15 18:22:19 blair Exp $
+ * $Id: TestGroupLists.java,v 1.3 2004-11-15 20:12:51 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -181,24 +181,84 @@ public class TestGroupLists extends TestCase {
   // TODO Remove list data (plural)
   // TODO Remove invalid list data 
 
+  // Initialize a valid group as a member object
+  public void testCreateMemberFromValidSubjectTypeGroup() {
+    Grouper         G     = new Grouper();
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch the group
+    GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
+    Assert.assertNotNull(grp);
+    String klassGroup     = "edu.internet2.middleware.grouper.GrouperGroup";
+    Assert.assertTrue( klassGroup.equals( grp.getClass().getName() ) );
+    Assert.assertTrue( grp.exists() );
+    String          id    = grp.key();  // TODO ARGH!!!
+    String          type  = "group";
+    GrouperMember   m     = GrouperMember.lookup(id, type);
+    Assert.assertNotNull(m);
+    String klassMember     = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klassMember.equals( m.getClass().getName() ) );
+    Assert.assertNotNull( m.id() );
+    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.typeID() );
+    Assert.assertTrue( m.typeID().equals( type ) );
+  }
+
+  // Fetch an already existing group-as-member object
+  public void testFetchMemberFromValidGroupSubjectTypeGroup() {
+    Grouper       G     = new Grouper();
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch the group
+    GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
+    Assert.assertNotNull(grp);
+    String klassGroup     = "edu.internet2.middleware.grouper.GrouperGroup";
+    Assert.assertTrue( klassGroup.equals( grp.getClass().getName() ) );
+    Assert.assertTrue( grp.exists() );
+    String          id    = grp.key();  // TODO ARGH!!!
+    String          type  = "group";
+    GrouperMember   m     = GrouperMember.lookup(id, type);
+    Assert.assertNotNull(m);
+    String klassMember     = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klassMember.equals( m.getClass().getName() ) );
+    Assert.assertNotNull( m.id() );
+    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.typeID() );
+    Assert.assertTrue( m.typeID().equals( type ) );
+  }
+
+  // TODO Invalid group 
+
   // Add group as immediate member
+/*
   public void testAddGroupAsImmediateMember() {
     Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch the first group
-    GrouperGroup    grp1 = GrouperGroup.load(s, stem, desc);
+    GrouperGroup    grp1  = GrouperGroup.load(s, stem, desc);
     Assert.assertNotNull(grp1);
     Assert.assertTrue( grp1.exists() );
     // Create the second group
-    GrouperGroup    grp2 = GrouperGroup.create(s, stem1, desc1);
+    GrouperGroup    grp2  = GrouperGroup.create(s, stem1, desc1);
     Assert.assertNotNull(grp2);
     Assert.assertTrue( grp2.exists() );
     // TODO Make `grp2' a member of `grp1'
+    // Fetch a member
+    // TOOD The call to .key() will obviously need to change
+    //GrouperMember   m     = GrouperMember.lookup( grp2.key(), "group" ); 
+    //Assert.assertNotNull(m);
+    //String          klassM  = "edu.internet2.middleware.grouper.GrouperMember";
+    //Assert.assertTrue( klassM.equals( m.getClass().getName() ) );
+    // Add member to "members" list
+    //Assert.assertTrue( grp.listAddVal(s, m, "members") );
     // We're done
     s.stop();
   }
+*/
 
   // TODO Delete group with immediate members
   // TODO Delete groups that provide/have effective members
