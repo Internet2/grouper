@@ -102,11 +102,11 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listAddVal(s, m0) );
+    Assert.assertTrue( g0.listAddVal(s, m0, Grouper.DEF_LIST_TYPE) );
     // Do not silently fail when adding a list value that already exists
-    Assert.assertFalse( g0.listAddVal(s, m0) );
+    Assert.assertFalse( g0.listAddVal(s, m0, Grouper.DEF_LIST_TYPE) );
     // Add m1 to g2 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g2.listAddVal(s, m1) );
+    Assert.assertTrue( g2.listAddVal(s, m1, Grouper.DEF_LIST_TYPE) );
     // We're done
     s.stop();
   }
