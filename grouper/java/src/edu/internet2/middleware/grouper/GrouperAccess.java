@@ -16,12 +16,12 @@ import  java.util.*;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.17 2004-11-20 16:42:13 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.18 2004-11-20 18:38:54 blair Exp $
  */
 public interface GrouperAccess {
 
   /**
-   * Grant an access privilege.
+   * Grant an access privilege on a {@link GrouperGroup}.
    * <p>
    * See implementations for more information.
    *

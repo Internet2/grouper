@@ -17,7 +17,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.19 2004-11-20 18:08:55 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.20 2004-11-20 18:38:54 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -34,7 +34,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    */
 
   /**
-   * Grant a naming privilege on a {@link Grouper} stem.
+   * Grant a naming privilege on a {@link GrouperStem}.
    * <p>
    *
    * @param   s     Act within this {@link GrouperSession}.

@@ -16,12 +16,12 @@ import java.util.*;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.15 2004-11-20 16:27:42 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.16 2004-11-20 18:38:54 blair Exp $
  */
 public interface GrouperNaming {
 
   /**
-   * Grant a naming privilege on a {@link Grouper} stem.
+   * Grant a naming privilege on a {@link GrouperStem}.
    * <p>
    * See implementations for more information.
    *
