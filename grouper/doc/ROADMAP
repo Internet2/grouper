@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.5 2005-02-06 04:18:52 blair Exp $
+$Id: ROADMAP,v 1.6 2005-02-07 03:03:25 blair Exp $
 
 ---
 
@@ -17,7 +17,6 @@ $Id: ROADMAP,v 1.5 2005-02-06 04:18:52 blair Exp $
 * Initial cleanup of internal, backend methods
 * Refactoring of test suite
 * Add new tests to the test suite
-* Use cli HSQLDB SqlTool rather than gui when initializing database
 * Additional documentation and documentation fixes
 * GrouperAccess.has()
 * Log addition/deletion of effective memberships
