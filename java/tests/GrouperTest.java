@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.60 2004-10-13 18:16:50 blair Exp $
+ * $Id: GrouperTest.java,v 1.61 2004-10-13 18:32:53 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -101,12 +101,12 @@ public class GrouperTest extends TestCase {
     field = "description:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(1).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(1).getClass().getName() ) );
-    field = "descriptor:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(2).toString() ) );
-    Assert.assertTrue( expKlass.equals( fields.get(2).getClass().getName() ) );
     field = "members:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(3).toString() ) );
+    Assert.assertTrue( field.equals( fields.get(2).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(3).getClass().getName() ) );
+    field = "name:READ:ADMIN:FALSE";
+    Assert.assertTrue( field.equals( fields.get(3).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(2).getClass().getName() ) );
     field = "namespace:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(4).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(4).getClass().getName() ) );
@@ -132,7 +132,6 @@ public class GrouperTest extends TestCase {
   //
  
   // Instantiate a GrouperType instance 
-/*
   public void testGrouperTypeInstantiate() {
     GrouperType type = new GrouperType();
 
@@ -156,14 +155,12 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( types.get(0).getClass().getName() ) );
 
   }
-*/
 
   //
   // Class: GrouperTypeDef
   // 
  
   // Instantiate a GrouperTypeDef instance 
-/*
   public void testGrouperTypeDefInstantiate() {
     GrouperTypeDef typeDef = new GrouperTypeDef();
 
@@ -173,10 +170,8 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(typeDef);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
-*/
 
   // Get cached GrouperTypeDefs 
-/*
   public void testGetGrouperTypeDefs() {
     G = new Grouper();
     List typeDefs  = G.groupTypeDefs();
@@ -188,7 +183,7 @@ public class GrouperTest extends TestCase {
     typeDef = "base:namespace";
     Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(0).getClass().getName() ) );
-    typeDef = "base:descriptor";
+    typeDef = "base:name";
     Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(1).getClass().getName() ) );
     typeDef = "base:description";
@@ -216,7 +211,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(9).getClass().getName() ) );
   }
-*/
  
   //
   // Class: GrouperMember
@@ -447,7 +441,7 @@ public class GrouperTest extends TestCase {
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subject);
 
-    GrouperGroup g = GrouperGroup.load(s, "namespace.0", "desc.0");
+    GrouperGroup g = GrouperGroup.load(s, "namespace.0", "name.0");
 
     // Confirm that group doesn't exist
     Assert.assertFalse( g.exists() );
@@ -457,7 +451,6 @@ public class GrouperTest extends TestCase {
   }
 
   // Create a group
-/*
   public void testCreateGroup() {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
@@ -465,7 +458,7 @@ public class GrouperTest extends TestCase {
     s.start(subject);
 
     // Create the group
-    GrouperGroup grp = GrouperGroup.create(s, "namespace.1", "descriptor.1");
+    GrouperGroup grp = GrouperGroup.create(s, "namespace.1", "name.1");
 
     // Confirm that the group exists
     Assert.assertTrue( grp.exists() );
@@ -473,10 +466,8 @@ public class GrouperTest extends TestCase {
     // We're done
     s.stop();
   }
-*/
 
   // Fetch a group
-/*
   public void testFetchGroup() {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
@@ -484,7 +475,7 @@ public class GrouperTest extends TestCase {
     s.start(subject);
 
     // Fetch the group
-    GrouperGroup grp = GrouperGroup.load(s, "namespace.1", "descriptor.1");
+    GrouperGroup grp = GrouperGroup.load(s, "namespace.1", "name.1");
 
     // Assert that the returned group is not null
     Assert.assertNotNull(grp);
@@ -499,40 +490,6 @@ public class GrouperTest extends TestCase {
     // We're done
     s.stop();
   }
-*/
-
-/*
-  public void testFetchGroup() {
-    G = new Grouper();
-    GrouperSession s = new GrouperSession();
-    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(subject);
-    GrouperGroup grp = new GrouperGroup();
-    // Attach a session
-    grp.session(s);
-
-    // Identify the group
-    grp.attribute("namespace", "namespace.1");
-    grp.attribute("descriptor", "descriptor.1");
-
-    // Confirm the class type of the group
-    String klass = "edu.internet2.middleware.grouper.GrouperGroup";
-
-    Assert.assertNotNull(grp);
-    Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
-  
-    // Confirm that we can fetch an attribute and that it 
-    // matches what we expect. 
-    GrouperAttribute description  = grp.attribute("description");
-    String expDescription         = "group.1";
-
-    // Assert.assertNotNull(description);
-    //Assert.assertTrue( expDescription.equals(description.value()) );
-
-    // We're done
-    s.stop();
-  }
-*/
 
 }
 

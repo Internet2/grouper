@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.55 2004-10-13 18:16:50 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.56 2004-10-13 18:32:53 blair Exp $
  */
 public class GrouperGroup {
 
@@ -164,9 +164,9 @@ public class GrouperGroup {
       if (this.attributes.containsKey("namespace")) {
         // We need a namespace
         // BDC String namespace = this.attribute("namespace").value();
-        if (this.attributes.containsKey("descriptor")) {
-          // And a descriptor
-          // BDC String desc = this.attribute("descriptor").value();
+        if (this.attributes.containsKey("name")) {
+          // And a name
+          // BDC String name = this.attribute("name").value();
           if (this.grprSession != null) {
             // And a session to load a group
             // FIXME Provide a method of confirming a group's existence
@@ -174,7 +174,7 @@ public class GrouperGroup {
             //       the presence of a `groupKey'.
             GrouperGroup g = GrouperBackend.group(this.grprSession,
                                                   this.attribute("namespace").value(),
-                                                  this.attribute("descriptor").value());
+                                                  this.attribute("name").value());
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
             if (g.groupKey() != null) {
@@ -217,11 +217,11 @@ public class GrouperGroup {
    */
   public String toString() {
     GrouperAttribute namespace = (GrouperAttribute) attributes.get("namespace");
-    GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
+    GrouperAttribute name = (GrouperAttribute) attributes.get("name");
     return this.getClass()  + ":" +
            this.groupKey    + ":" + 
            namespace.value()     + ":" +
-           desc.value(); 
+           name.value(); 
   }
 
   /*
@@ -233,9 +233,9 @@ public class GrouperGroup {
    *
    * @param s           Session to create the group within.
    * @param namespace        Namespace of the group to be created.
-   * @param descriptor  Descriptor of group to be created.
+   * @param name  Name of group to be created.
    */
-  private void _create(GrouperSession s, String namespace, String descriptor) {
+  private void _create(GrouperSession s, String namespace, String name) {
     // Attach session
     this.grprSession  = s;
 
@@ -243,7 +243,7 @@ public class GrouperGroup {
     this.setGroupKey( GrouperBackend.uuid() );
 
     this.attribute("namespace", namespace);
-    this.attribute("descriptor", descriptor);
+    this.attribute("name", name);
 
     // Set some of the operational attributes
     // TODO Most, if not all, of the operational attributes should be
@@ -308,9 +308,9 @@ public class GrouperGroup {
         (Grouper.groupType(this.groupType) == true) &&
         // And a namespace?
         (attributes.containsKey("namespace"))            &&
-        // And a descriptor?
-        (attributes.containsKey("descriptor"))      && 
-        // And do the namespace and descriptor already exist?
+        // And a name?
+        (attributes.containsKey("name"))      && 
+        // And do the namespace and name already exist?
         (this.exists() == false)                    && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
