@@ -10,10 +10,10 @@
 package edu.internet2.middleware.grouper;
 
 /** 
- * Class representing the namespace of a {@link GrouperGroup}
+ * Class representing the stem of a {@link GrouperGroup}
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.8 2004-10-28 19:19:14 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.9 2004-10-29 13:25:30 blair Exp $
  */
 public class GrouperStem {
 
