@@ -1,6 +1,6 @@
 <!--
-  $Id: limits.jsp,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: limits.jsp,v 1.2 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -112,67 +112,70 @@
       
       <div id="Layout">
         <div id="Content">
-          <div class="table1">
-            Granting new privilege to
-            <h1>
-              <%=currentGranteePrivilegedSubject.getName()%>
-       	    </h1>
-       	    <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
-            <br />
-            <br />
-          
-            <div class="tableheader">
-              New <%=currentSubsystem.getName()%> privilege
-            </div>
-            <div class="textcontent">
-              <ul class="none">
-                <li>
-                  <%=currentCategory.getName()%>
-                  <ul class="arrow">
-                    <li>
-                      <%=currentFunction.getName()%>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-              <input
+          <div id="ViewHead">
+						Granting new privilege to
+           	<h1>
+             	<%=currentGranteePrivilegedSubject.getName()%>
+     	    	</h1>
+     	    	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+         	</div>
+
+         	<div class="section">
+          	<h2>
+           	New <%=currentSubsystem.getName()%> privilege
+         		</h2>
+          	<ul class="none">
+             	<li>
+               	<%=currentCategory.getName()%>
+               	<ul class="arrow">
+                 	<li>
+                   	<%=currentFunction.getName()%>
+                 	</li>
+               	</ul>
+             	</li>
+           	</ul>
+           	<input
                 name="Button"
                 type="button"
-                class="button1"
+                class="button2"
                 onclick=(parent.location='<%=functionsHref%>')
                 value="&lt;&lt; Change privilege" />
-            </div> <!-- textcontent -->
-            
-            <div class="tableheader">
-              scope
-            </div> <!-- tableheader -->
-            <div class="textcontent">
-              <ul class="none">
-              
-                <%=signet.displayAncestry
+         	</div>
+					            	
+
+         	
+         	<div class="section">
+         		<h2>
+           	Scope
+         		</h2>
+           	<ul class="none">
+              	
+              <%=signet.displayAncestry
                     (currentScope,
                      "<ul class=\"arrow\">\n",  // childSeparatorPrefix
                      "\n<li>\n",                // levelPrefix
                      "\n</li>\n",               // levelSuffix
                      "\n</ul>")                 // childSeparatorSuffix
                  %>
-              
-              </ul>
-            
-              <input
+              	
+            </ul>
+            	
+            <input
                 name="Button"
                 type="button"
-                class="button1"
+                class="button2"
                 onclick=(parent.location='<%=orgBrowseHref%>')
                 value="&lt;&lt; Change scope" />
-            </div> <!-- textcontent -->
+         	</div>
+         	<!-- section -->
+          	
+          <!--
           
-<!--
-          
-          <div class="tableheader">
-            Select limits
-          </div>
-          <div class="textcontent">	
+
+          <div class="section">	
+          <h2>
+            Limits
+          </h2>
             <fieldset>
               <legend>
                 Approval limit
@@ -215,19 +218,16 @@
           </div>
           
 -->
-		 
-          <div class="tableheader">
-            Set Conditions
-          </div>
-          <div class="textcontent">
-<!--
+		 	
+         	<div class="section">
+          <h2>
+           	Conditions
+         	</h2>
+		<!--
             <fieldset>
               <legend>
-                Begins
-              </legend>
-              <p>
                 Privilege will be effective:
-              </p>
+              </legend>
               <blockquote>  		
               <p>
                 <select name="2day">
@@ -289,7 +289,7 @@
                 </select>
               </p>
               <p>
-                <span class="line">
+                <span>
                   <a href="javascript:openWindow('prerequisites.html','popup','scrollbars=yes,resizable=yes,width=500,height=400');" class="status">
                     Prerequisites
                   </a>
@@ -300,11 +300,8 @@
  	</fieldset>
  	<fieldset>
  	  <legend>
- 	    Duration
+ 	    Duration:
  	  </legend>
- 	  <p>
- 	    Privilege holder will have this privilege:
- 	  </p>
  	  <blockquote>
  	    <input name="radiobutton" type="radio" value="radiobutton" checked="checked" />
   	    while 
@@ -379,49 +376,39 @@
       </fieldset>
       
 -->
-      
+      		
       <fieldset>
-        <legend>
-          Extensibility
-        </legend>
-        <p>
-          Privilege holder can:
-        </p>
-        <blockquote>
-          <input name="can_use" type="checkbox" value="checkbox" checked="checked" />
-          use this privilege
-          <br />
-          <input name="can_grant" type="checkbox" value="checkbox" />
-          grant this privilege to others
-        </blockquote>
-      </fieldset>
-      <p>
-        <input
+     		<legend>
+     		Privilege holder can:
+   		</legend>
+     		<blockquote>
+       		<input name="can_use" type="checkbox" value="checkbox" checked="checked" />
+       		use this privilege
+       		<br />
+       		<input name="can_grant" type="checkbox" value="checkbox" />
+       		grant this privilege to others
+     		</blockquote>
+      		</fieldset>
+      		</div><div class="section">
+        		<input
           name="Button"
           type="submit"
           class="button-def"
           value="Complete assignment" />
-      </p>
-      <p>
-        <a href="<%=personViewHref%>">
-          <img src="images/icon_arrow_left.gif" width="16" height="16" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
-        </a>
-      </p>
-    </div>
-  </div>
-	<jsp:include page="footer.jsp" flush="true" />
-</div>
-<div id="Sidebar">
-  <div class="box1">
-    <div class="actionheader">
-      Info
-    </div>
-    <div class="actionbox">
-      <p>
-        Contextual help goes here.
-      </p>
-    </div>
-  </div>
+      		<p>
+        		<a href="<%=personViewHref%>">
+         		<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+        		</a>
+      		</p>
+            		</div>
+            	<jsp:include page="footer.jsp" flush="true" />
+		</div>
+		<div id="Sidebar">
+  <div class="helpbox">
+   	<h2>Help</h2>
+   	<!-- actionheader -->
+   	<jsp:include page="grant-help.jsp" flush="true" />          
+	</div>  <!-- end helpbox -->
 </div>
 </div>	
 </form>

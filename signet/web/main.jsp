@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.5 2005-02-08 19:20:50 acohen Exp $
-  $Date: 2005-02-08 19:20:50 $
+  $Id: main.jsp,v 1.6 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -99,7 +99,7 @@
               class="icon" />
             Printable version
           </a>
-          Privileges you have granted
+          <h2>Privileges you have granted</h2>
 
 <!--
           <select name="subsystem" class="long" id="subsystem">
@@ -130,6 +130,7 @@
               <td nowrap="nowrap" class="columnhead">
                 Privilege
               </td>
+              <td nowrap="nowrap" class="columnhead">Scope</td>
               <td nowrap="nowrap" class="columnhead">
                 Limits
               </td>
@@ -150,24 +151,24 @@
   {
     Assignment assignment = (Assignment)(assignmentIterator.next());
     PrivilegedSubject grantee = assignment.getGrantee();
-    Subsystem subsystem = assignment.getFunction().getSubsystem();
+    Subsystem subsystem = assignment.getSubsystem();
     Function function = assignment.getFunction();
     Category category = function.getCategory();
 %>
 	
             <tr>
-              <td class="line">
+              <td>
                 <a
                   href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>">
                   <%=grantee.getName()%>
                 </a>
               </td>
-              <td class="line">
+              <td>
                 <a
                   style="float: right;"
                   href
                     ="javascript:openWindow
-                        ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
+                        ('Assignment.do?assignmentId=<%=assignment.getId()%>',
                          'popup',
                          'scrollbars=yes,
                          resizable=yes,
@@ -180,25 +181,24 @@
                 </a>
                 <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
               </td>
-              <td class="line">
+              <td>&nbsp;</td>
+              <td>
                 <span class="dropback">  
                 </span> <!-- dropback -->
                 <br />
                 <span class="dropback">
                 </span> <!-- dropback -->
               </td>
-              <td class="line">
+              <td>
 <%=
   assignment.getStatus().getName()
   + (assignment.isGrantOnly()==false?", can use":"")
   + (assignment.isGrantable()?", can grant":"")
 %>
               </td>
-              <td nowrap="nowrap" class="line">
+              <td nowrap="nowrap">
 <%=
-  // getCreateDateTime() is not currently part of the Assignment API.
-  // dateFormat.format(assignment.getCreateDatetime())
-  ""
+  dateFormat.format(assignment.getCreateDateTime())
 %>
               </td>
             </tr>
@@ -213,11 +213,60 @@
       </div>
       <jsp:include page="footer.jsp" flush="true" />
     </div>
-    <div id="Sidebar"> 
-      <div class="box1">
-        <div class="actionheader">
+    <div id="Sidebar">
+			<div class="findperson"> 
+        <h2>
+          find a person
+        </h2> 
+        <div class="actionbox">
+          <p>
+            <input
+              name="words"
+              type="text"
+              class="short"
+              id="words"
+              style="width:100px"
+              size="15"
+              maxlength="500" />
+            <input
+              name="searchbutton"
+              type="button"
+              class="button1"
+              onclick="javascript:showResult();"
+              value="Search" />
+            <br />
+            <span class="dropback">Enter a person's name, and click "Search."
+            </span> </p>
+          <div id="Results" style="display:none">
+            Your search found:<br />
+          
+<%
+  Set privilegedSubjects
+    = signet.getPrivilegedSubjects();
+      
+  SortedSet sortSet = new TreeSet(privilegedSubjects);
+  Iterator sortSetIterator = sortSet.iterator();
+  while (sortSetIterator.hasNext())
+  {
+    PrivilegedSubject listSubject
+      = (PrivilegedSubject)(sortSetIterator.next());
+%>
+            <br />
+              <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
+                <%=listSubject.getName()%>
+              </a>
+              <br />
+              <!--Stanford Linear Accelerator Center, --><span class="dropback"><%=listSubject.getDescription()%></span>
+<%
+  }
+%>
+        </div> <!-- results -->
+      </div> <!-- actionbox -->
+    </div> <!-- findperson -->		 
+      <div class="views">
+        <h2>
           View privileges...
-        </div> <!-- actionheader -->
+        </h2> 
         <div class="actionbox">
           <p>
             <a
@@ -237,61 +286,18 @@
                 width="16"
                 height="16"
                 class="icon" />
-              by type & scope
+              by scope
             </a>
           </p>
         </div> <!-- actionbox -->
-      </div> <!-- box1-->
-      <div class="box1"> 
-        <div class="actionheader">
-          find a person
-        </div> <!-- actionheader -->
-        <div class="actionbox">
-          <p>
-            <input
-              name="words"
-              type="text"
-              class="short"
-              id="words"
-              style="width:100px"
-              size="15"
-              maxlength="500" />
-            <input
-              name="searchbutton"
-              type="button"
-              class="button1"
-              onclick="javascript:showResult();"
-              value="Search" />
-          </p>
-          <div id="Results" style="display:none">
-            Your search found:
-            <ol>
-          
-<%
-  Set privilegedSubjects
-    = signet.getPrivilegedSubjects();
+      </div> <!-- views-->
+	    <div class="helpbox">
+       <h2>
+          Help
+       </h2>
+				<jsp:include page="main-help.jsp" flush="true" />
+      </div> <!-- helpbox-->	
       
-  SortedSet sortSet = new TreeSet(privilegedSubjects);
-  Iterator sortSetIterator = sortSet.iterator();
-  while (sortSetIterator.hasNext())
-  {
-    PrivilegedSubject listSubject
-      = (PrivilegedSubject)(sortSetIterator.next());
-%>
-            <li>
-              <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
-                <%=listSubject.getName()%>
-              </a>
-              <br />
-              <!--Stanford Linear Accelerator Center, --><%=listSubject.getDescription()%>
-            </li>
-<%
-  }
-%>
-          </ol>
-        </div> <!-- results -->
-      </div> <!-- actionbox -->
-    </div> <!-- box1 -->
   </div> <!-- Sidebar -->
  </div>	
 </form>

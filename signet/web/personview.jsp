@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.4 2005-01-11 20:38:44 acohen Exp $
-  $Date: 2005-01-11 20:38:44 $
+  $Id: personview.jsp,v 1.5 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -109,16 +109,13 @@
    
    PrivilegedSubject currentGranteePrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute
-         		("currentGranteePrivilegedSubject"));
+         (request.getSession().getAttribute("currentGranteePrivilegedSubject"));
          
    Subsystem currentSubsystem
      = (Subsystem)
-         (request.getSession().getAttribute
-         		("currentSubsystem"));
+         (request.getSession().getAttribute("currentSubsystem"));
          
-   Set grantableSubsystems
-   	= loggedInPrivilegedSubject.getGrantableSubsystems();
+   Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
          
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
@@ -151,53 +148,52 @@
   
   <div id="Layout"> 
     <div id="Content">
-      <div class="table1">
-        Privileges assigned to
-        <h1>
-          <%=currentGranteePrivilegedSubject.getName()%>
-        </h1>
-        <span class="dropback">
-          <%=currentGranteePrivilegedSubject.getDescription()%>
-        </span> <!-- dropback -->	
-        <br />
-        <div class="tableheader">
-          <form name="pickSubsystem" action="PersonView.do" style="margin: 0px;">
-            <!-- the following two a tags must be within the form tag, but
+      <div id="ViewHead">
+				Privileges assigned to
+       	<h1>
+         	<%=currentGranteePrivilegedSubject.getName()%>
+       	</h1>
+       	<span class="dropback">
+         	<%=currentGranteePrivilegedSubject.getDescription()%>
+       	</span> <!-- dropback -->	
+     	</div>
+     	<div class="tableheader">
+       	<form name="pickSubsystem" action="PersonView.do">
+         	<!-- the following two a tags must be within the form tag, but
                  before the generated text that appears in the tableheader row -->
-            <a
+         	<a
               style="float: right;"
               href="javascript:;"
               onClick="alert('This will download the data shown in the table in an Excel-readable format.')">
-              <img
+           	<img
                 src="images/icon_spread.gif"
                 width="20"
                 height="20"
                 class="icon"
                 style="margin-left: 10px;" />
-              Export to Excel
-            </a>
-            <a
+           	Export to Excel
+         	</a>
+         	<a
               style="float: right;"
               href="PersonViewPrint.do">
-              <img
+           	<img
                 src="images/icon_printsion.gif"
                 width="21"
                 height="20"
                 class="icon" />
-              Printable version
-            </a>
-            <%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges
-            <select
+           	Printable version
+         	</a>
+         	<h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
+         	<select
               name="subsystemId"
-              class="long"
               id="subsystem">
-
-              <option
+	
+            <option
                 selected="selected"
                 onClick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=true">
-                (assigned privilege types)
-              </option>
-              
+             	(assigned privilege types)
+           	</option>
+              	
 <%
   Set assignmentsReceived
   	= new TreeSet
@@ -211,7 +207,7 @@
     Assignment receivedAssignment
       = (Assignment)(assignmentsReceivedIterator.next());
     subsystemsOfReceivedAssignments.add
-    	(receivedAssignment.getFunction().getSubsystem());
+    	(receivedAssignment.getSubsystem());
   }
 
   Iterator subsystemsIterator
@@ -220,28 +216,29 @@
   {
     Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
 %>
-              <option
+           	<option
                 value="<%=subsystem.getId()%>"
                 onClick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=false">
-                <%=subsystem.getName()%>
-              </option>
-              
+             	<%=subsystem.getName()%>
+           	</option>
+              	
 <%
   }
 %>
-
-            </select>
-                    
-            <input
+	
+          </select>
+                    	
+          <input
               class="button1"
               disabled="true"
               type="submit"
               name="showSubsystemPrivs"
               value="Show"/>
-          </form> <!-- pickSubsystem -->
-        </div> <!-- tableheader -->
-            
-        <form
+       	</form> <!-- pickSubsystem -->
+     	</div>
+     	<!-- tableheader -->
+            	
+      <form
           onSubmit
             ="return confirm
                ('Are you sure you want to revoke the '
@@ -255,33 +252,34 @@
           method="post"
           name="checkform"
           id="checkform">
-          <div class="tablecontent">
-            <table class="full">
-              <tr class="columnhead">
-                <td width="30%">
-                  <img
+       	<div class="tablecontent">
+         	<table class="full">
+           	<tr class="columnhead">
+             	<td width="30%">
+               	<img
                     src="images/icon_down_unsel.gif"
                     width="17"
                     height="17" />
-                  Privilege
-                </td>
-                <td width="20%">
-                  Scope
-                </td>
-                <td>
-                  Limits
-                </td>
-                <td width="10%" align="left">
-                  All:
-                  <input
+               	Privilege
+             	</td>
+             	<td width="20%">
+               	Scope
+             	</td>
+             	<td>
+               	Limits
+             	</td>
+             	<td width="10%" align="left">Status</td>
+             	<td width="10%" align="left">
+               	All:
+               	<input
                     name="checkAll"
                     type="checkbox"
                     id="checkAll"
                     onClick="selectAll(this.checked);"
                     value="Check All" />
-                </td>
-              </tr>
-                
+             	</td>
+           	</tr>
+                	
 <%
   if (currentSubsystem != null)
   {
@@ -295,92 +293,95 @@
     {
       Assignment assignment = (Assignment)(assignmentsIterator.next());
 %>
-
-                <tr class="line" >
-                  <td class="line" >
-                    <a
+	
+              <tr>
+               	<td>
+                 	<a
                       style="float: right;"
                       href="javascript:openWindow
-                              ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
+                              ('Assignment.do?assignmentId=<%=assignment.getId()%>',
                       	       'popup',
                       	       'scrollbars=yes,
                       	        resizable=yes,
                       	        width=500,
                       	        height=100');">
-                      <img
+                   	<img
                         src="images/info.gif"
                         width="20"
                         height="20" />
-                    </a>
-                    <%=assignment.getFunction().getCategory().getName()%>
-                    : 
-                    <%=assignment.getFunction().getName()%>
-                  </td>
-                  <td class="line" >
-                    <%=assignment.getScope().getName()%>
-                  </td>
-                  <td class="line"  >
-                    <a
+                 	</a>
+                 	<%=assignment.getFunction().getCategory().getName()%>
+                 	: 
+                 	<%=assignment.getFunction().getName()%>
+               	</td>
+               	<td>
+                 	<%=assignment.getScope().getName()%>
+               	</td>
+               	<td >
+                 	<a
                       style="float: right;"
                       href="NotYetImplemented.do">
-                      <img
+                   	<img
                         src="images/icon_arrow_right.gif"
                         width="16"
                         height="16"
                         class="icon" />
-                      edit
-                    </a>
-                    <span class="dropback">
-                      <!--Approval limit:--> 
-                    </span>
-                    <!--$500-->
-                    <br />
-                    <span class="dropback">
-                      <!--Account:--> 
-                    </span>
-                    <!--1003321, 1003329-567, 1003329-992, 1003354, 1003372-001-->
-                  </td>
-                  <td align="center" class="line"  >
-                    <input
+                   	edit
+                 	</a>
+                 	<span class="dropback">
+                   	<!--Approval limit:--> 
+                 	</span>
+                 	<!--$500-->
+                 	<br />
+                 	<span class="dropback">
+                   	<!--Account:--> 
+                 	</span>
+                 	<!--1003321, 1003329-567, 1003329-992, 1003354, 1003372-001-->
+               	</td>
+               	<td align="center" >&nbsp;</td>
+               	<td align="center" >
+                 	<input
                       name="revoke"
                       type="checkbox"
-                      id="<%=assignment.getNumericId()%>"
-                      value="<%=assignment.getNumericId()%>"
+                      id="<%=assignment.getId()%>"
+                      value="<%=assignment.getId()%>"
                       <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "disabled=\"true\"")%>
                       onClick="selectThis(this.checked);">
-                  </td>
-                </tr>
-                
+               	</td>
+             	</tr>
+                	
 <%
     }
   }
 %>
-
-                <tr class="line"  >
-                  <td class="line" >&nbsp;
-                    
-                  </td>
-                  <td class="line" >&nbsp;
-                    
-                  </td>
-                  <td class="line"  >&nbsp;
-                    
-                  </td>
-                  <td align="center" class="line"  >
-                    <input
+	
+              <tr >
+               	<td>&nbsp;
+                    	
+                </td>
+               	<td>&nbsp;
+                    	
+                </td>
+               	<td >&nbsp;
+                    	
+                </td>
+               	<td align="center" >&nbsp;</td>
+               	<td align="center" >
+                 	<input
                       name="revokeButton"
                       type="submit"
                       disabled="true"
                       class="button1"
                       value="Revoke" />
-                  </td>
-                </tr>
-              </table>
-            </div> <!-- tablecontent -->
-          </form> <!-- checkform -->
-        </div> <!-- table1 -->
-        <jsp:include page="footer.jsp" flush="true" />
-      </div> <!-- Content -->
+               	</td>
+             	</tr>
+           	</table>
+       	</div> <!-- tablecontent -->
+     	</form>
+     	<!-- checkform -->
+        	<!-- table1 -->
+	<jsp:include page="footer.jsp" flush="true" />
+   	</div><!-- Content -->
       <div id="Sidebar">
         
 <% 
@@ -388,10 +389,10 @@
   {
 %>
 
-        <div class="box1">
-          <div class="actionheader">
+        <div class="grant">
+          <h2>
             Grant to <%=currentGranteePrivilegedSubject.getName()%>
-          </div> <!-- actionheader -->
+          </h2>
           <form action="Functions.do">
             <div class="actionbox"> 
               <p>
@@ -420,22 +421,74 @@
                 <input
                   type="submit"
                   name="Button"
-                  class="button2"
+                  class="button1"
                   <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
                   value="Start &gt;&gt;" />
-                </p>
-              </div> <!-- actionbox -->
-            </form>
-          </div> <!-- box1 -->
+									<br />
+							<span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
+            </div> <!-- actionbox -->
+          </form>
+        </div> <!-- grant -->
           
 <%
   }
 %>
-          
-          <div class="box1">
-            <div class="actionheader">
+				 <div class="findperson">
+            <h2>
+              find a person
+            </h2>
+            
+            <div class="actionbox">
+              <p>
+                <input
+                  name="words"
+                  type="text"
+                  class="short"
+                  id="words"
+                  style="width:100px"
+                  size="15"
+                  maxlength="500" />
+                <input
+                  name="searchbutton"
+                  type="button"
+                  class="button1"
+                  onClick="javascript:showResult();"
+                  value="Search" /> 
+								<br />
+		            <span class="dropback">
+									Enter a person's name, and click "Search."
+    		        </span>
+              </p>
+              <div id="Results" style="display:none">
+                Your search found:<br />
+                       
+<%
+  Set privilegedSubjects
+    = signet.getPrivilegedSubjects();
+      
+  SortedSet sortSet = new TreeSet(privilegedSubjects);
+  Iterator sortSetIterator = sortSet.iterator();
+  while (sortSetIterator.hasNext())
+  {
+    PrivilegedSubject listSubject
+      = (PrivilegedSubject)(sortSetIterator.next());
+%>
+									<br />
+                  <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
+                    <%=listSubject.getName()%>
+                  </a>
+                  <br />
+                  <span class="dropback"><%=listSubject.getDescription()%></span>
+<%
+  }
+%>
+       	     </div> <!-- results -->
+        	  </div> <!-- actionbox -->
+     	  </div> <!-- findperson -->         
+          <div class="views">
+            <h2>
               View privileges...
-            </div> <!-- actionheader -->
+            </h2>
             <div class="actionbox">
               <p>
                 <a href="Start.do">
@@ -444,7 +497,7 @@
                     width="16"
                     height="16"
                     class="icon" />
-                  you have granted (home page)
+                  you have granted
                 </a>
               </p>
               <p>
@@ -464,65 +517,21 @@
                    width="16"
                    height="16"
                    class="icon" />
-                  by type &amp; scope
+                  by scope
                 </a>
               </p>
             </div> <!-- actionbox -->
-          </div> <!-- box1 -->
+        </div> <!-- views -->
             
-          <div class="box1">
-            <div class="actionheader">
-              find a person
-            </div> <!-- actionheader -->
-            
-            <div class="actionbox">
-              <p>
-                <input
-                  name="words"
-                  type="text"
-                  class="short"
-                  id="words"
-                  style="width:100px"
-                  size="15"
-                  maxlength="500" />
-                <input
-                  name="searchbutton"
-                  type="button"
-                  class="button1"
-                  onClick="javascript:showResult();"
-                  value="Search" />
-              </p>
-              <div id="Results" style="display:none">
-                Your search found:
-                <ol>
           
-<%
-  Set privilegedSubjects
-    = signet.getPrivilegedSubjects();
-      
-  SortedSet sortSet = new TreeSet(privilegedSubjects);
-  Iterator sortSetIterator = sortSet.iterator();
-  while (sortSetIterator.hasNext())
-  {
-    PrivilegedSubject listSubject
-      = (PrivilegedSubject)(sortSetIterator.next());
-%>
-
-                <li>
-                  <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
-                    <%=listSubject.getName()%>
-                  </a>
-                  <br />
-                  <%=listSubject.getDescription()%>
-                </li>
-<%
-  }
-%>
-              </ol>
-            </div> <!-- results -->
-          </div> <!-- actionbox -->
-        </div> <!-- box1 -->
-      </div> <!-- Sidebar -->
-    </div> <!-- Layout -->
+				<div class="helpbox">
+       		<h2>
+          	Help
+		      </h2>
+					<jsp:include page="personview-help.jsp" flush="true" />
+	      </div> <!-- helpbox-->	
+      </div> 
+      <!-- Sidebar -->
+</div> <!-- Layout -->
   </body>
 </html>

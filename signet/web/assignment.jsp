@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.3 2005-01-04 19:06:43 acohen Exp $
-  $Date: 2005-01-04 19:06:43 $
+  $Id: assignment.jsp,v 1.4 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -50,14 +50,16 @@
          
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
-    <div class="tableheader">
-      <%=currentAssignment.getFunction().getSubsystem().getName()%>
+    <div class="section">
+			<h2>
+      <%=currentAssignment.getSubsystem().getName()%>
       :
       <%=currentAssignment.getFunction().getCategory().getName()%>
       :
       <%=currentAssignment.getFunction().getName()%>
-    </div>
-    <table border="0">
+      </h2>
+		</div>
+    <table class="invis">
 	    <tr>
         <td class="dropback">
           Scope:

@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: functions.jsp,v 1.2 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -94,77 +94,77 @@
     
       <div id="Layout"> 
         <div id="Content">
-          <div class="table1"> 
-            Granting new privilege to
-            <h1><%=currentGranteePrivilegedSubject.getName()%></h1>
-            <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
-            <br />
-            <br /> 
-            <div class="tableheader">
-              Select a <%=currentSubsystem.getName()%> privilege to grant
-            </div> <!-- tableheader -->
-            <div class="tablecontent">
-              <p>
-              </p>
-              <ul class="none">
-                <li>
-                
-                <select name="step3" class="long" id="step3">
- <%
+          <div id="ViewHead">
+						Granting new privilege to
+           	<h1><%=currentGranteePrivilegedSubject.getName()%></h1>
+           	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+         	</div>
+         
+         	<div class="section">
+					<h2>
+           	New <%=currentSubsystem.getName()%> privilege
+         	</h2> 
+           	<p>
+						 	<span class="dropback">
+             	 Select the privilege you want to grant. Only privileges you are authorized to grant are listed.
+						  </span>
+							</p>
+							
+               	<select name="step3" size="10" class="long" id="step3" style="float: left;">
+ 	<%
   Iterator grantableCategoriesIterator = grantableCategories.iterator();
   while (grantableCategoriesIterator.hasNext())
   {
     Category grantableCategory = (Category)(grantableCategoriesIterator.next());
  %>
-                  <optgroup label="<%=grantableCategory.getName()%>">
- <%
+                 	<optgroup label="<%=grantableCategory.getName()%>">
+ 	<%
     Set functions = loggedInPrivilegedSubject.getGrantableFunctions(grantableCategory);
     Iterator functionsIterator = functions.iterator();
     while (functionsIterator.hasNext())
     {
       Function function = (Function)(functionsIterator.next());
 %>
-                    <option value="<%=function.getId()%>">
-                      <%=function.getName()%>
-                    </option>
-<%
+                   	<option value="<%=function.getId()%>">
+                     	<%=function.getName()%>
+                   	</option>
+	<%
     }
 %>
-                  </optgroup>
-<%
+                 	</optgroup>
+	<%
   }
 %>
-                </select>
-                  <br />
-                  <br />
-                </li>
-              </ul>
-              <p></p>
-              <p>
-                <input
+               	</select>
+     
+			<div class="description">Category name : <span class="keyname">Function name</span><br />
+		 					Description goes here.
+				</div>
+				</div> 	<!-- section -->
+					
+           <div class="section">
+             	<input
                   name="Button"
                   type="submit"
                   class="button-def"
                   value="Continue &gt;&gt;" />
-              </p>
-              <p>
-                <a href="<%=personViewHref%>">
-                  <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
-                </a>
-              </p>
-            </div> <!-- tablecontent -->
-          </div> <!-- table1 -->
-					<jsp:include page="footer.jsp" flush="true" />
-        </div> <!-- Content -->
+           	
+           	<p>
+             	<a href="<%=personViewHref%>">
+               	<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+             	</a>
+           	</p>
+         	</div>
+         	<!-- section -->
+					
+	<jsp:include page="footer.jsp" flush="true" />
+       	</div><!-- Content -->
         <div id="Sidebar">
-          <div class="box2">
-            <div class="actionheader">
-              Info
-            </div> <!-- actionheader -->
-            <div class="actionbox">
-              <p>Contextual help goes here. </p>
-            </div> <!-- actionbox -->
-          </div> <!-- box2 -->
+          <div class="helpbox">
+          	<h2>Help</h2>
+          	<!-- actionheader -->
+          	<jsp:include page="grant-help.jsp" flush="true" />          
+					</div>  <!-- end helpbox -->
         </div> <!-- Sidebar -->
       </div> <!-- Layout -->
     </form>

@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.2 2005-02-03 00:49:42 acohen Exp $
-  $Date: 2005-02-03 00:49:42 $
+  $Id: org-browse.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -72,7 +72,7 @@
        + currentSubsystem.getId();
 %>
 
-    <form name="form1" action="Conditions.do">  
+    <form name="form1" action="Limits.do">  
       <div id="Header">  
         <div id="Logo">
           <img src="images/KITN.gif" alt="logo" height="60" width="216">
@@ -101,42 +101,44 @@
       </div>
       <div id="Layout">
         <div id="Content">
-          <div class="table1">
-            Granting  privilege to
-       	    <h1>
-       	      <%=currentGranteePrivilegedSubject.getName()%>
-       	    </h1>
-       	    <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
-            <br />
-            <br />
-            <div class="tableheader">
-              New <%=currentSubsystem.getName()%> privilege
-            </div>
-            <div class="textcontent">
-              <ul class="none">
-                <li>
-                  <%=currentCategory.getName()%>
-                  <ul class="arrow">
-                    <li>
-                      <%=currentFunction.getName()%>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-              <input
+          <div id="ViewHead">
+				  	Granting privilege to
+     	    	<h1>
+     	      	<%=currentGranteePrivilegedSubject.getName()%>
+     	    	</h1>
+     	    	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+         	</div>
+
+         	<div class="section">
+         	<h2>
+           	New <%=currentSubsystem.getName()%> privilege
+         	</h2>
+           	<ul class="none">
+             	<li>
+               	<%=currentCategory.getName()%>
+               	<ul class="arrow">
+                 	<li>
+                   	<%=currentFunction.getName()%>
+                 	</li>
+               	</ul>
+             	</li>
+           	</ul>
+           	<input
                 name="Button"
-                class="button1"
+                class="button2"
                 onclick=(parent.location='<%=functionsHref%>')
                 value="&lt;&lt; Change privilege"
                 type="button">
-            </div> <!-- end textcontent -->
-              <div class="tableheader">
-                Organizational scope
-              </div>
-              <div class="textcontent">
-                <table border="0" width="200">
-                  <tbody>
-<!--
+         	</div>
+         	<!-- end section -->
+
+           	<div class="section">
+           	<h2>
+             	Scope
+         	 </h2>
+             	<table border="0" width="200">
+               	<tbody>
+	<!--
                     <tr>
                       <td nowrap="nowrap">
                         <select class="long">
@@ -212,20 +214,20 @@
                     </a>
                   </td>
 -->
-                </tbody>
-              </table>
-              <span class="columnhead">
-                Complete organizational hierarchy
-              </span>
-              <br>
-<!--
+               	</tbody>
+             	</table>
+             	<p>
+								<span class="dropback">
+               	Select the organization to which this privilege applies. </span>
+             	</p>
+	<!--
               <div id="Scroll">
 -->
-              <select
+             	<select
               	name="scope"
               	size=17
               	onclick="javascript:document.form1.continueButton.disabled=false">
-                <%=signet.printTreeNodesInContext
+               	<%=signet.printTreeNodesInContext
                     ("<option disabled value=\"",  // ancestorPrefix
                      "<option value=\"",           // selfPrefix
                      "<option value=\"",           // descendantPrefix
@@ -234,39 +236,37 @@
                      ". ",                         // infixIncrement
                      "</option>\n",                // suffix
                      loggedInPrivilegedSubject.getGrantableScopes(currentFunction))%>
-              </select>
+             	</select>
+              	
               
-              
-<!--
+	<!--
             </div>
 -->
-          </div> <!-- end textcontent -->
-
-    <p>
-      <input
+              	</div>
+         	<!-- end section -->
+	
+          <div class="section">
+      	<input
         name="continueButton"
         disabled="true"
         type="submit"
         class="button-def"
         value="Continue >>" />
-    </p>
-            <p>
-              <a href="<%=personViewHref%>">
-                <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
-              </a>
-            </p>
-          </div> <!-- end table1 -->
-          <jsp:include page="footer.jsp" flush="true" />
-        </div> <!-- end Content -->
+         
+         	<p>
+           	<a href="<%=personViewHref%>">
+             	<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+           	</a>
+            	</p>
+         </div>     	
+          	<jsp:include page="footer.jsp" flush="true" />
+       	</div><!-- end Content -->
         <div id="Sidebar">     
-          <div class="box2">
-            <div class="actionheader">
-              Info
-            </div>
-            <div class="actionbox">
-              <p>Contextual help goes here. </p>
-            </div>
-   	  </div> <!-- end box1 -->
+          <div class="helpbox">
+          	<h2>Help</h2>
+          	<!-- actionheader -->
+          	<jsp:include page="grant-help.jsp" flush="true" />          
+					</div>  <!-- end helpbox -->
         </div> <!-- end Sidebar -->
       </div>	<!-- end Layout -->
     </form>

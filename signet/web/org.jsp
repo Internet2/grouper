@@ -1,6 +1,6 @@
 <!--
-  $Id: org.jsp,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: org.jsp,v 1.2 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,

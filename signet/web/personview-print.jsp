@@ -1,6 +1,6 @@
 <!--
-  $Id: personview-print.jsp,v 1.2 2004-12-24 04:15:46 acohen Exp $
-  $Date: 2004-12-24 04:15:46 $
+  $Id: personview-print.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
+  $Date: 2005-02-08 21:43:41 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -69,7 +69,7 @@
       <div id="Layout"> 
 			<a href="PersonView.do"><img src="images/icon_arrow_left.gif" class="icon" />return</a>
         <h1>
-          <%=(currentSubsystem == null ? "NO" : currentSubsystem.getName())%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
+          <%=currentSubsystem.getName()%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
         </h1>
       	<span class="dropback">
       	  <%=currentGranteePrivilegedSubject.getDescription()%>
@@ -81,9 +81,10 @@
             
       	  <table class="full">
             <tr>
-              <td class="line"><b>Privilege</b></td>
-              <td class="line"><b>Scope</b></td>
-              <td class="line"><b>Limits</b></td>
+              <td><b>Privilege</b></td>
+              <td><b>Scope</b></td>
+              <td><b>Limits</b></td>
+              <td><b>Status</b></td>
             </tr>
 <%
   if (currentSubsystem != null)
@@ -97,17 +98,18 @@
       Assignment assignment = (Assignment)(assignmentsIterator.next());
 %>
   
-            <tr class="line" >
-              <td class="line" >
+            <tr >
+              <td >
                 <%=assignment.getFunction().getCategory().getName()%>
                 :
                 <%=assignment.getFunction().getName()%>
               </td>
-              <td class="line" >
+              <td >
                 <%=assignment.getScope().getName()%>
               </td>
-              <td class="line"  >
+              <td  >
               </td>
+              <td  ></td>
             </tr>
 <%
     }
@@ -115,7 +117,8 @@
 %>
             
           </table>
-        </div> <!-- tablecontent -->
+        </div> 
+        <!-- tablecontent -->
 			<jsp:include page="footer.jsp" flush="true" />	
       </div> <!-- layout -->
     </form>
