@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.9 2005-03-04 23:56:11 acohen Exp $
-  $Date: 2005-03-04 23:56:11 $
+  $Id: functions.jsp,v 1.10 2005-03-07 06:06:15 acohen Exp $
+  $Date: 2005-03-07 06:06:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -28,15 +28,15 @@
         var selectedFunctionId
           = document.getElementById("functionSelectList").value;
           
-        var categoryNameSpanId = "CATEGORY_NAME:" + selectedFunctionId;
-        var categoryName = document.getElementById(categoryNameSpanId).innerHTML;
+        var categoryNameDivId = "CATEGORY_NAME:" + selectedFunctionId;
+        var categoryName = document.getElementById(categoryNameDivId).innerHTML;
           
-        var functionNameSpanId = "FUNCTION_NAME:" + selectedFunctionId;
-        var functionName = document.getElementById(functionNameSpanId).innerHTML;
+        var functionNameDivId = "FUNCTION_NAME:" + selectedFunctionId;
+        var functionName = document.getElementById(functionNameDivId).innerHTML;
           
-        var functionHelpTextSpanId = "FUNCTION_HELPTEXT:" + selectedFunctionId;
+        var functionHelpTextDivId = "FUNCTION_HELPTEXT:" + selectedFunctionId;
         var functionHelpText
-          = document.getElementById(functionHelpTextSpanId).innerHTML;
+          = document.getElementById(functionHelpTextDivId).innerHTML;
         
         var categoryNameElement = document.getElementById("categoryName");
         var functionNameElement = document.getElementById("functionName");
@@ -130,6 +130,7 @@
 							</p>
 							
                	<select
+               	    style="float: left;"
                		name="functionSelectList"
                		size="10"
                		id="functionSelectList"
@@ -175,25 +176,25 @@
     {
       Function function = (Function)(functionsIterator.next());
 %>
-                <span style="visibility:hidden" id="CATEGORY_NAME:<%=function.getId()%>">
+                <div style="display:none" id="CATEGORY_NAME:<%=function.getId()%>">
                   <%=grantableCategory.getName()%>
-                </span>
-                <span style="visibility:hidden" id="FUNCTION_NAME:<%=function.getId()%>">
+                </div>
+                <div style="display:none" id="FUNCTION_NAME:<%=function.getId()%>">
                   <%=function.getName()%>
-                </span>
-                <span style="visibility:hidden" id="FUNCTION_HELPTEXT:<%=function.getId()%>">
+                </div>
+                <div style="display:none" id="FUNCTION_HELPTEXT:<%=function.getId()%>">
                   <%=function.getHelpText()%>
-                </span>
+                </div>
 	<%
     }
   }
 %>
      
-                <div class="description">
-                  <span id="categoryName">
+                <div class="description" style="float: left; width: 300px;">
+                  <span style="font-weight: bold;" id="categoryName">
                     <!-- category name gets inserted by Javascript -->
                   </span> <!-- categoryName -->
-                  <span class="keyname" id="functionName">
+                  <span style="font-weight: bold;" class="keyname" id="functionName">
                     <!-- function name gets inserted by Javascript -->
                   </span> <!-- functionName -->
                   <br />
