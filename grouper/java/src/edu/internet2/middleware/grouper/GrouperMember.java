@@ -8,13 +8,16 @@ import  java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.14 2004-04-30 17:30:29 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.15 2004-04-30 17:58:28 blair Exp $
  */
 public class GrouperMember {
 
-  private GrouperSession  intSess = null;
-  private String          subject = null;
-  private boolean         isGroup = false; 
+  private GrouperSession  intSess     = null;
+  /* groupID || memberID */
+  private String          subjectID   = null;
+  /* groupName || presentationID */
+  private String          subjectName = null;
+  private boolean         isGroup     = false; 
 
   /**
    * Create a {@link GrouperMember} object that represents a single
@@ -44,8 +47,22 @@ public class GrouperMember {
     this.intSess  = s;
 
     // XXX Bad assumptions!
-    this.subject = member;
-    this.isGroup = false;
+    if (isGroup == true) {
+      // This member is a group
+      this.isGroup    = true;
+      // XXX "member" is *probably* the groupID.  What should we store
+      //     as subjectID?  If groupName, we need to perform another
+      //     query to identify the groupName.  If groupID, we will need
+      //     to lazy query for the groupName at a later time (i.e. in
+      //     whoAmI()).
+      this.subjectID  = member;
+    } else {
+      // This member is an individual
+      this.isGroup    = false;
+      // XXX Assuming member == memberID.  Confirm that this is true.
+      this.subjectID  = member;
+    }
+
 
   }
 
@@ -125,7 +142,14 @@ public class GrouperMember {
    *   {@link GrouperMember} object.
    */
   public String whoAmI() {
-    return this.subject;
+    if (this.isGroup() == true) {
+      // XXX Right now this returns the groupID.  We need to lookup,
+      //     cache, and return the groupName.
+      return this.subjectID;
+    } else {
+      // Return memberID for an individual member
+      return this.subjectID;
+    }
   }
 
 }

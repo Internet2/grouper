@@ -9,17 +9,18 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.17 2004-04-30 15:17:10 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.18 2004-04-30 17:58:28 blair Exp $
  */
 public class GrouperSession {
 
-  private Grouper         intG        = null;
-  private GrouperNaming   intNaming   = null;
-  private GrouperAccess   intAccess   = null;
-  private GrouperSubject  intSubject  = null;
-  private Connection      con         = null;
-  private GrouperMember   subject     = null;
-  private String          subjectID   = null;
+  private Grouper         intG            = null;
+  private GrouperNaming   intNaming       = null;
+  private GrouperAccess   intAccess       = null;
+  private GrouperSubject  intSubject      = null;
+  private Connection      con             = null;
+  private GrouperMember   subject         = null;
+  private String          subjectID       = null;
+  private String          presentationID  = null;
 
   /**
    * Create a {@link GrouperSession} object through which all further
@@ -124,11 +125,10 @@ public class GrouperSession {
    *  <li>XXX Add to docs/examples/.</li>
    * </ul>
    *
-   * @return String representing the <i>memberID</i> for this session's
-   * subject.
+   * @return  Identity of the current session's subject.
    */
   public String whoAmI() {
-    return this.subjectID;
+    return this.subject.whoAmI();
   }
 
   public GrouperMember lookupSubject(String subjectID) {
