@@ -18,187 +18,6 @@ body {
 	font-size: 11px; 
 	font-weight: normal;
 	}
-
-h1 {
-	margin: 0px 0px 3px 3px;
-	padding: 0px 0px 0px 0px;
-	background-color: #FFF;
-	color: #016582; 
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 16px; 
-	font-weight: bold;
-	}
-
-form {
-	margins: 0px 0px 0px 0px;
-	padding: 0px 0px 0px 0px;
-	}
-
-fieldset {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: normal;
-	width: 50%;
-	border: 1px solid #DDD;
-	margin: 0px 0px 5px 0px;
-	padding: 10px 10px 10px 10px;
-}
-
-legend {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: bold;
-}
-
-iframe {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	height: 200px;
-	scrolling: auto;
-	border: 1px solid #DDD;
-}
-
-p {
-	margin: 0px 0px 10px 0px;
-}
-
-p.nomarg {
-	margin: 0px 0px 0px 0px;
-}
-	
-img {
-	border-width: 0px;
-	}
-	
-img.popup {
-	float: right;
-	border-width: 0px;
-	margin: 2px;
-	}
-	
-img.icon {
-	vertical-align: middle;
-	}
-		
-optgroup {
-	text-decoration: none;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	text-transform : uppercase;
-	font-weight: normal;
-	font-style: normal;	
-	background-color: #DDD;
-}
-
-option {
-	background-color: #FFF;
-	text-decoration: none;
-	text-transform : none;
-}
-
-select {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: normal;
-	}
-	
-select.long {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: normal;
-	text-transform : none;	
-	width: 170px;
-	}
-	
-select.short {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: normal;
-	text-transform : none;
-	width: 100px;
-	}	
-
-table.invis {
-	border: 0px 0px 0px 0px;
-	padding: 0px 0px 0px 0px;
-	margin: 0px 0px 0px 0px;
-	}
-	
-table.full {
-	border: 0px 0px 0px 0px;
-	padding: 0px 0px 0px 0px;
-	margin: 0px 0px 0px 0px;
-	width: 100%;
-	}
-
-td {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: normal;
-	padding: 3px;
-	vertical-align: top;
-	}
-
-td.line {
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	font-size: 11px; 
-	font-weight: normal;
-	padding: 3px;
-	vertical-align: top;
-	border-bottom: 1px solid #DDD;
-	}
-
-hr {
-	color: #009CCE;
-	height: 1px;
-	}
-
-/* UNORDERED LIST */
-ul {
-	font-size: 11px/16px;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	list-style-position: outside; 
-	marker-offset: 4px; 
-	list-style-type: square;
-	margin-top: 0px;
-	}
-
-ul.arrow {
-	font-size: 11px/16px;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	list-style-position: outside;
-	marker-offset: 4px;
-	list-style-type: disc;
-	list-style-image: url(../images/arrow.gif);
-	margin-top: 0px;	
-	}
-
-ul.circle {
-	font-size: 11px/16px;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	list-style-position: outside; 
-	marker-offset: 4px; 
-	list-style-type: circle;
-	margin-top: 0px;	
-	}
-
-ul.none {
-	font-size: 11px/16px;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	list-style-position: outside; 
-	list-style-type: none;
-	margin-top: 0px;	
-	}		
-	
-/* ORDERED LIST */
-ol {
-	font-size: 11px/16px;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
-	list-style-position: outside; 
-	marker-offset: 4px; 
-	list-style-type: decimal
-	}
-	
 /* DEFINITION LIST */
 dl {
 	font-size: 11px/16px;
@@ -217,39 +36,218 @@ dd  {
 	margin: 0px 0px 5px 20px;
 	}	
 
+fieldset {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	width: 50%;
+	border: 1px solid #DDD;
+	margin: 0px 0px 5px 0px;
+	padding: 10px 10px 10px 10px;
+}
+form {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	}
+
+h1 {
+	margin: 0px 0px 3px 3px;
+	padding: 0px 0px 0px 0px;
+	background-color: #FFF;
+	color: #016582; 
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 16px; 
+	font-weight: bold;
+	}
+
+hr {
+	color: #009CCE;
+	height: 1px;
+}
+legend {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: bold;
+}
+/*
+iframe {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	height: 200px;
+	scrolling: auto;
+	border: 1px solid #DDD;
+}
+*/
+img {
+	border-width: 0px;
+	}
+img.popup {
+	float: right;
+	border-width: 0px;
+	margin: 2px;
+	}
+img.icon {
+	vertical-align: middle;
+	}
+optgroup {
+	text-decoration: none;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : uppercase;
+	font-weight: normal;
+	font-style: normal;	
+	background-color: #DDD;
+}
+option {
+	background-color: #FFF;
+	text-decoration: none;
+	text-transform : none;
+}
+p {
+	margin: 0px 0px 10px 0px;
+}
+p.nomarg {
+	margin: 0px 0px 0px 0px;
+}
+.section {
+	clear: both;
+}
+.section h2 {
+	text-decoration: none;
+	color: #333333;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : uppercase;
+	font-weight: bold;
+	background-color: #BAD7DA;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 10px 0px;
+	vertical-align: middle;
+}	
+select {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+}
+select.long {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	text-transform : none;	
+	width: 170px;
+}
+select.short {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	text-transform : none;
+	width: 100px;
+}	
+table {
+	border: 0px;
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	caption-side: bottom;
+}
+table.invis {
+	border: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	margin: 0px 0px 0px 0px;
+}
+table.invis td {
+	border-bottom: none;	
+}
+td {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	padding: 3px;
+	vertical-align: top;
+	border-bottom: 1px solid #DDD;		
+}
+table.invis td {
+	border: none;
+}
+th {
+	text-align: left;
+	vertical-align: middle;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	background-color: #4AA8C1;
+	text-decoration: none;
+	color: #FFF;
+	padding: 0px 3px 1px 3px;
+	white-space: nowrap;
+}
+
+/* UNORDERED LIST */
+ul {
+	font-size: 11px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	list-style-position: outside; 
+	marker-offset: 4px; 
+	list-style-type: square;
+	margin-top: 0px;
+	}
+
+ul.arrow {
+	list-style-type: disc;
+	list-style-image: url(../images/arrow.gif);
+	}
+
+ul.none {
+	list-style-type: none;
+	}		
+	
+/* ORDERED LIST */
+ol {
+	font-size: 11px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	list-style-position: outside; 
+	marker-offset: 4px; 
+	list-style-type: decimal
+	}
+	
+
 /* LAYOUT AND POSITIONING */
+
+#Content {
+	margin-left: 186px;
+	margin-right: 0px;
+	background-color: #fff;
+	padding: 0px 0px 0px 0px;
+	}
+#Footer {
+	clear: left;
+	margin-top: 50px;
+	color: #666;
+}	
 #Header {
 	position: absolute;
 	top: 0px;
 	left: 0px;
 	width: 100%;
 	margin: 6px 6px 0px 6px;
-/* Again, the ugly brilliant hack. */
-	voice-family: "\"}\"";
-	voice-family:inherit;
-	}
-/* Again, "be nice to Opera 5". */
-body>#Header {width: 98%;}
+}
+
+#Layout {
+	position: absolute;
+	top: 93px;
+	left: 6px;
+	right: 6px;
+	padding: 0px 0px 0px 0px;
+	background-color: #FFF;
+}
 
 #Logo {
 	position: absolute;
 	top: 0px;
 	left: 0px;
 	height: 60px;
-	voice-family: "\"}\"";
-	voice-family:inherit;
 	}
-	
-#Signet {
-	position: absolute;
-	top: 0px;
-	right: 12px;
-	height: 60px;
-/* Again, the ugly brilliant hack. */
-	voice-family: "\"}\"";
-	voice-family:inherit;
-	}
-	
+		
 #Navbar {
 	position: absolute;
 	top: 70px;
@@ -258,55 +256,26 @@ body>#Header {width: 98%;}
 	padding: 2px 0px 2px 2px;
 	color: #fff;
 	background-color: #016582; /* per GP; was #10104A  */
-	font-style: normal;
-	font-weight: normal;
 	text-align: left;
-/* Again, the ugly brilliant hack. */
-	voice-family: "\"}\"";
-	voice-family:inherit;
-	}
-/* Again, "be nice to Opera 5". */
-body>#Navbar {width: 98%;}
-
+}
 
 #Navbar a { 
 	text-decoration: none; 
 	color: #FFF;  
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
 	font-style: normal;
-	font-weight: normal;
 	}
 	
 #Navbar a:hover { 
 	text-decoration: underline; 
 	color: #FFF;  
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
 	font-style: italic;
-	font-weight: normal;
 	}
 	
-#Layout {
+#Signet {
 	position: absolute;
-	top: 93px;
-	left: 6px;
-	right: 6px;
-	/* width: 98%; */
-	padding: 0px 0px 0px 0px;
-	background-color: #FFF;
-	voice-family: "\"}\"";
-	voice-family:inherit;
-	}
-/* Again, "be nice to Opera 5". */
-body>#Layout {width: 98%;}
-
-#Content {
-	margin-left: 186px;
-	margin-right: 0px;
-	background-color: #fff;
-	padding: 0px 0px 0px 0px;
-/* Again, the ugly brilliant hack. */
-	voice-family: "\"}\"";
-	voice-family:inherit;
+	top: 0px;
+	right: 12px;
+	height: 60px;
 	}
 
 #Sidebar {
@@ -316,13 +285,7 @@ body>#Layout {width: 98%;}
 	width: 180px;
 	text-align: left;
 	background-color: #fff;
-	/* top and bottom borders: 1px; left and right borders: 0px */
-/* Again, the ugly brilliant hack. */
-	voice-family: "\"}\"";
-	voice-family:inherit;
-	}
-/* Again, "be nice to Opera 5". */
-body>#Sidebar {width:250px;}
+}
 
 #Scroll {
 	position: relative;
@@ -340,70 +303,19 @@ body>#Sidebar {width:250px;}
 	overflow: auto;	
 }	
 	
-#Notes {
-	border-top: 2px solid #900;
-	color: #900;
-	margin-top: 100px;
-	margin-bottom: 100px;
-	margin-left: 6px;
-	padding-top: 0px;
-	padding-right: 100px;
-	padding-left: 100px;
-	background-color: #FFF;
-/* Again, the ugly brilliant hack. */
-	voice-family: "\"}\"";
-	voice-family:inherit;
-	}
-	
-#Footer {
-	margin-top: 50px;
-	color: #666;
+#ViewHead {
+	border: 1px solid #BAD7DA;
+	margin: 0px 0px 5px 0px;
+	padding: 3px;
 }	
+
 
 /* CONTENT SPECIFIC */
-.tableheader {
-	text-decoration: none;
-	color: #000000;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	text-transform : uppercase;
-	font-weight: bold;
-	background-color: #BAD7DA;
-	padding: 3px 3px 3px 3px;
-	margin: 0px 0px 0px 0px;
-	}
-.tableheader a{
-	text-transform : none;
-	font-weight: normal;	
-}	
-	
-.tablebg1 {
-	background-color: #EEF;
-	}
 
-.tablecontent {
-	text-decoration: none;
-	color: #000;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	background-color: #FFF;
-	padding: 0px 0px 0px 0px;
-	margin: 0px 0px 10px 0px;
-	}
-	
-.textcontent {
-	text-decoration: none;
-	color: #000;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	background-color: #FFF;
-	padding: 3px 3px 3px 3px;
-	margin: 0px 0px 10px 0px;
-	}
 
-.actionheader {
+#Sidebar h2 {
 	text-decoration: none;
-	color: #016582;
+	color: #333333;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	font-size: 11px;
 	text-transform : uppercase;
@@ -424,6 +336,28 @@ body>#Sidebar {width:250px;}
 	margin: 0px 0px 10px 0px;
 	}
 
+.button1 {
+	margin: 0px 0px 0px 3px;
+	background-color: #EEE;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;	
+}
+.button-def {
+	margin: 15px 0px 15px 0px;
+	background-color: #EEE;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;	
+}
+
+.button2 {
+	margin: 15px 0px 15px 0px;
+	background-color: #EEE;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;	
+}
 .columnhead {
 	text-decoration: none;
 	color: #FFF;
@@ -433,61 +367,76 @@ body>#Sidebar {width:250px;}
 	background-color: #4AA8C1;
 	padding: 0px 3px 1px 3px;
 }
-.columnhead a {
-display: block;
-text-decoration: none;
-color: #FFF;
-}
-.columnhead a:hover {
-display: block;
-text-decoration: none;
-color: #4AA8C1;
-background-color: #FFF;
-}
-.columnhead img {
-float: left;
-}
-.colheaddata {
-	font-weight: bold;	
-}	
-.select {
-	font-weight: normal;
-	font-style: italic;
-}
 
+.columnhead img {
+	float: left;
+}
+.description {
+	float: left;
+	width: 300px;
+	z-index: 100;
+	height: 120px;
+	margin: 0px 0px 0px 15px;
+}
 .dropback {
 	color: #666;
 }
-
+.ident {
+	color: #666;
+}
+.info {
+	float: right;
+}
 .logout {
 	float: right;
 	margin-right: 12px;
 }
-
-.button1 {
-	margin-top: 0px;
-	background-color: #EEE;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	font-weight: normal;	
+.label {
+	color: #666;
 }
-.button-def {
-	margin-top: 0px;
-	background-color: #EEE;
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	font-weight: bold;	
+.select {
+	font-weight: normal;
+	font-style: italic;
 }
-
-.button2 {
-	margin-top: 5px;
-	background-color: #EEE;
-	/* vertical-align: -3px; */
-	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	font-weight: normal;	
-}
-
 .status {
 	color: #CC0000;
+} 
+/*
+.tablecontrols {
+	text-decoration: none;
+	color: #333333;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : none;
+	font-weight: normal;
+	background-color: #D8EDEF;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 0px 0px;
+	white-space: nowrap;
+	vertical-align: middle;	
+} 
+*/
+.tableheader {
+	background-color: #BAD7DA; 
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 0px 0px;
+	vertical-align: middle;
 }
+.tableheader h2 {
+  display: inline;
+	text-decoration: none;
+	color: #333333;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : uppercase;
+	font-weight: bold;
+	margin: 0px 10px 0px 0px;
+}
+.tableheader a{
+	text-transform : none;
+	font-weight: normal;
+	float: right;
+	margin-left: 10px;
+	margin-top: -3px;
+	vertical-align: middle;
+}	
