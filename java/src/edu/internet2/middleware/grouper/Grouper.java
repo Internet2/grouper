@@ -59,37 +59,80 @@ import  java.util.*;
 
 
 /** 
- * Base {@link Grouper} class.
+ * Class providing access to the {@link Grouper} environment.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.62 2004-12-07 03:56:41 blair Exp $
+ * @version $Id: Grouper.java,v 1.63 2004-12-09 01:09:07 blair Exp $
  */
 public class Grouper {
 
   /*
    * PUBLIC CONSTANTS
    */
-  // Default Values
+  /**
+   * Default group type.
+   */
   public static final String DEF_GROUP_TYPE = "base";
+  /**
+   * Default list type.
+   */
   public static final String DEF_LIST_TYPE  = "members";
+  /**
+   * Default subject type.
+   */
   public static final String DEF_SUBJ_TYPE  = "person";
-  // Membership Queries
+  /**
+   * Effective and immediate memberships.
+   */ 
   public static final String MEM_ALL        = "all";
+  /**
+   * Effective memberships only.
+   */
   public static final String MEM_EFF        = "effective";
+  /**
+   * Immediate memberships only.
+   */
   public static final String MEM_IMM        = "immediate";
-  // Namespaces
+  /**
+   * Root namespace.
+   */
   public static final String NS_ROOT        = "";
+  /**
+    * {@link GrouperGroup} type for namespaces.
+    */
   public static final String NS_TYPE        = "naming";
-  // Access Privs
+  /**
+   * {@link GrouperAccess} <i>ADMIN</i> privilege.
+   */
   public static final String PRIV_ADMIN     = "ADMIN";
+  /**
+   * {@link GrouperAccess} <i>OPTIN</i> privilege.
+   */
   public static final String PRIV_OPTIN     = "OPTIN";
+  /**
+   * {@link GrouperAccess} <i>OPTOUT</i> privilege.
+   */
   public static final String PRIV_OPTOUT    = "OPTOUT";
+  /**
+   * {@link GrouperAccess} <i>READ</i> privilege.
+   */
   public static final String PRIV_READ      = "READ";
+  /**
+   * {@link GrouperAccess} <i>UPDATE</i> privilege.
+   */
   public static final String PRIV_UPDATE    = "UPDATE";
+  /**
+   * {@link GrouperAccess} <i>VIEW</i> privilege.
+   */
   public static final String PRIV_VIEW      = "VIEW";
-  // Naming Privs
+  /**
+   * {@link GrouperNaming} <i>CREATE</i> privilege.
+   */
   public static final String PRIV_CREATE    = "CREATE";
+  /**
+   * {@link GrouperNaming} <i>STEM</i> privilege.
+   */
   public static final String PRIV_STEM      = "STEM";
 
 
@@ -97,9 +140,9 @@ public class Grouper {
    * PRIVATE CLASS VARIABLES 
    */
 
-  // Is the environment initialized
+  // Is the environment initialized?
   private static boolean        initialized   = false;
-  // Are the interfaces initialized
+  // Are the interfaces initialized?
   private static boolean        interfaces    = false;
   // Access priv interface
   private static GrouperAccess  access; 
@@ -126,7 +169,7 @@ public class Grouper {
    */
 
   /**
-   * Retrieves a {@link GrouperAccess} access privilege object.
+   * Retrieve a {@link GrouperAccess} access privilege resolver.
    * <p />
    *
    * @return  {@link GrouperAccess} object.
@@ -137,7 +180,8 @@ public class Grouper {
   }
 
   /**
-   * Class method to return a run-time configuration setting.
+   * Retrieve a {@link Grouper} configuration parameter.
+   * <p />
    * 
    * @param   parameter Requested configuration parameter.
    * @return  Value of configuration parameter.
@@ -148,12 +192,13 @@ public class Grouper {
   }
 
   /**
-   * Class method to confirm whether a given group field is valid 
-   * for a given group type.
-   * <p>
+   * Check whether a group field is valid for a given group type.
+   * <p />
    *
+   * @param   type  {@link GrouperGroup} type
+   * @param   field {@link GrouperGroup} field
    * @return  Boolean true if the field is valid for the group type,
-   * false otherwise.
+   *   false otherwise.
    */
   public static boolean groupField(String type, String field) {
     Grouper._init();
@@ -175,8 +220,8 @@ public class Grouper {
   }
 
   /**
-   * Class method to fetch all valid group fields.
-   * <p>
+   * Retrieve all valid group fields.
+   * <p />
    * 
    * @return  List of {@link GrouperField} objects.
    */
@@ -186,9 +231,10 @@ public class Grouper {
   }
 
   /**
-   * Class method to confirm validity of a group type.
-   * <p>
+   * Check whether a group type is valid.
+   * <p />
    *
+   * @param   type  {@link GrouperGroup} type
    * @return  Boolean true if the type is valid, false otherwise.
    */
   public static boolean groupType(String type) {
@@ -204,8 +250,8 @@ public class Grouper {
   }
 
   /**
-   * Class method to fetch all valid group type definitions.
-   * <p>
+   * Retrieve all group type definitions.
+   * <p />
    *
    * @return  List of {@link GrouperTypeDef} objects.
    */
@@ -215,8 +261,8 @@ public class Grouper {
   }
 
   /**
-   * Class method to fetch all valid group types.
-   * <p>
+   * Retrieve all group types.
+   * <p />
    * 
    * @return  List of {@link GrouperType} objects.
    */
@@ -226,9 +272,10 @@ public class Grouper {
   }
 
   /**
-   * Class method to confirm validity of a subject type.
-   * <p>
+   * Check whether an I2MI {@link Subject} type is valid.
+   * <p />
    *
+   * @param   type  {@link Subject} type 
    * @return  Boolean true if the type is valid, false otherwise.
    */
   public static boolean hasSubjectType(String type) {
@@ -244,7 +291,7 @@ public class Grouper {
   }
 
   /**
-   * Retrieves a {@link GrouperNaming} naming privilege object.
+   * Retrieve a {@link GrouperNaming} naming privilege resolver.
    * <p />
    *
    * @return  {@link GrouperNaming} object.
@@ -254,6 +301,13 @@ public class Grouper {
     return naming;
   }
 
+  /**
+   * Retrieve a I2MI {@link SubjectType}.
+   * <p />
+   *
+   * @param   type  {@link SubjectType} to return.
+   * @return  A {@link SubjectType} object.
+   */
   public static SubjectType subjectType(String type) {
     Grouper._init();
     SubjectType st    = null;
@@ -267,9 +321,9 @@ public class Grouper {
     return st;
   }
 
-
   /**
-   * Class method to fetch all valid subject types.
+   * Retrieve all I2MI {@link Subject} types.
+   * <p />
    *
    * @return List of {@link SubjectType} objects.
    */

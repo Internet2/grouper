@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.4 2004-12-06 02:10:28 blair Exp $
+$Id: FAQ,v 1.5 2004-12-09 01:09:07 blair Exp $
 
 ---
 
@@ -15,6 +15,14 @@ adding a generated-HTML version of this document shortly.
 ---
 
 ## Using The API
+
+### Environment
+
+#### Q: How do I access _Grouper_ configuration parameters?
+
+A: Use the `Grouper.config()' method.
+  
+    String delim = Grouper.config("hierarchy.delimiter");
 
 ### List Values
 
