@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouper;
  * Class representing a field within a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.8 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: GrouperField.java,v 1.9 2004-09-10 18:27:47 blair Exp $
  */
 public class GrouperField {
 
@@ -51,7 +51,7 @@ public class GrouperField {
    * Below for Hibernate
    */
 
-  protected String getGroupField() {
+  private String getGroupField() {
     return this.groupField;
   }
 
@@ -59,7 +59,7 @@ public class GrouperField {
     this.groupField = groupField;
   }
 
-  protected String getReadPriv() {
+  private String getReadPriv() {
     return this.readPriv;
   }
 
@@ -67,7 +67,7 @@ public class GrouperField {
     this.readPriv = readPriv;
   }
 
-  protected String getWritePriv() {
+  private String getWritePriv() {
     return this.writePriv;
   }
 
@@ -75,7 +75,7 @@ public class GrouperField {
     this.writePriv = writePriv;
   }
 
-  protected String getIsList() {
+  private String getIsList() {
     return this.isList;
   }
 
