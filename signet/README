@@ -25,6 +25,24 @@ To populate the Signet demo application with sample data:
 (2) Use the SubsystemXmlLoader to create the demo sample Subsystem by executing the util/subsystemloader/run.sh script with the sample demo/Subsystem.xml file, e.g., > run.sh ../../demo/data/Subsystem.xml
 (3) Execute the sql/subject.sql script to load the sample person data.
 (4) Execute the sql/tree.sql script to load the sample organization tree data.
+(5) Add the following login-names to your web server's authentication mechanism, with any passwords you like. This will allow you to log in to Signet as any Signet subject.
+      lmcrae
+      mnguyen
+      acohen
+      jvine
+      morgan
+      tbarton
+      hazelton
+      wjones
+      tcramer
+      jklemm
+      kkatz
+      shelley
+      tgarons
+      steveo
+      albertwu
+      rwfrost
+    
 
 
 License
