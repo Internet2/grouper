@@ -8,16 +8,9 @@ import java.util.Properties;
  * Provides a Grouper environment.
  *
  * @author blair christensen.
- * @version $Id: Grouper.java,v 1.8 2004-04-13 21:27:39 blair Exp $
+ * @version $Id: Grouper.java,v 1.9 2004-04-14 03:05:42 blair Exp $
  */
 public class Grouper {
-
-  /*
-    - Read and cache (in a Map?)
-      - XXX types
-      - XXX typeDefs
-      - XXX fields
-  */
 
   private static final Properties conf     = new Properties();
   private static final String     confFile = "grouper.cf";
@@ -26,7 +19,7 @@ public class Grouper {
    * Create {@link Grouper} environment.
    */
   public Grouper() {
-
+    // Nothing
   }
 
   /**
@@ -36,6 +29,11 @@ public class Grouper {
    *  <li>Reads configuration</li>
    *  <li>Starts executive {@link GrouperSession} session used for
    *      bootstrapping and verifying other sessions.</li>
+   *  <li>Reads and caches:</li>
+   *  <ul>
+   *   <li><i>grouper_fields</i></li>
+   *   <li><i>grouper_typeDefs</i></li>
+   *   <li><i>grouper_types</i></li>
    * </ul>
    */
   public void initialize() {
@@ -60,6 +58,7 @@ public class Grouper {
    * </ul>
    */ 
   public void destroy() {
+    // Nothing -- Yet
   }
 
 }
