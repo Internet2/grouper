@@ -8,7 +8,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.20 2004-08-06 15:19:51 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.21 2004-08-11 22:33:45 blair Exp $
  */
 public class GrouperMember {
 
@@ -18,6 +18,17 @@ public class GrouperMember {
   /* groupName || presentationID */
   private String          subjectName = null;
   private boolean         isGroup     = false; 
+
+  /* For Hibernate */
+  private String memberKey;
+  private String memberType;
+  private String memberID;
+
+  public GrouperMember() {
+    memberKey   = null;
+    memberType  = null;
+    memberID    = null;
+  }
 
   /**
    * Create an object that represents a group member.
@@ -198,6 +209,34 @@ public class GrouperMember {
   public List via(GrouperGroup g, GrouperMember m, String groupField) {
     List via = new ArrayList();
     return via;
+  }
+
+  /*
+   * Below for Hibernate
+   */
+
+  private String getMemberKey() {
+    return this.memberKey;
+  }
+
+  private void setMemberKey(String memberKey) {
+    this.memberKey = memberKey;
+  }
+
+  private String getMemberType() {
+    return this.memberType;
+  }
+
+  private void setMemberType(String memberType) {
+    this.memberType = memberType;
+  }
+
+  private String getMemberID() {
+    return this.memberID;
+  }
+
+  private void setMemberID(String memberID) {
+    this.memberID = memberID;
   }
 
 }

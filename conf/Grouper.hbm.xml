@@ -77,6 +77,37 @@
     </property>
   </class>
 
+  <class name="GrouperMember" table="grouper_member">
+    <id name="memberKey" type="string" unsaved-value="null">
+      <column name="memberKey" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="memberType">
+      <column name="memberType" sql-type="char(255)"/>
+    </property>
+    <property name="memberID">
+      <column name="memberID" sql-type="char(255)"/>
+    </property>
+  </class>
+
+  <class name="GrouperMembers" table="grouper_members" mutable="true">
+    <composite-id access="field">
+      <key-property name="memberID"        type="string" column="memberID"/>
+      <key-property name="presentationID"  type="string" column="presentationID"/>
+    </composite-id> 
+  </class>
+
+  <class name="GrouperMemberType" table="grouper_memberTypes" mutable="false">
+    <cache usage="read-only"/>
+    <id name="memberType" type="string" unsaved-value="null">
+      <column name="memberType" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="displayName">
+      <column name="displayName" length="255"/>
+    </property>
+  </class>
+
   <class name="GrouperSchema" table="grouper_schema" mutable="true">
     <composite-id access="field">
       <key-property name="groupKey"   type="string"  column="groupKey"/>

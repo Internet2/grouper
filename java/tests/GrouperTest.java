@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.21 2004-08-11 19:17:43 blair Exp $
+ * $Id: GrouperTest.java,v 1.22 2004-08-11 22:33:45 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -362,5 +362,48 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
+  /*
+   * Class: GrouperMember
+   */
+
+  /* Instantiate a GrouperMembership instance */
+  public void testGrouperMemberInstantiate() {
+    GrouperMember member = new GrouperMember();
+
+    Class  klass    = member.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+
+    Assert.assertNotNull(member);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  /*
+   * Class: GrouperMembers
+   */
+
+  /* Instantiate a GrouperMembership instance */
+  public void testGrouperMembersInstantiate() {
+    GrouperMembers members = new GrouperMembers();
+
+    Class  klass    = members.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMembers";
+
+    Assert.assertNotNull(members);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+  /*
+   * Class: GrouperMemberType
+   */
+
+  /* Instantiate a GrouperMembership instance */
+  public void testGrouperMemberTypeInstantiate() {
+    GrouperMemberType memberType = new GrouperMemberType();
+
+    Class  klass    = memberType.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMemberType";
+
+    Assert.assertNotNull(memberType);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
 }
 
