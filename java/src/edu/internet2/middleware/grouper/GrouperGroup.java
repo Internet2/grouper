@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.3 2004-04-14 03:05:42 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.4 2004-04-14 03:06:24 blair Exp $
  */
 public class GrouperGroup {
 
@@ -185,7 +185,6 @@ public class GrouperGroup {
    * @param groupField  The field type for this member.
    * @param member      The member to add.
    * @param ttl         When the membership expires.
-   * @param 
    */
   public void addValue(String groupField, GrouperMember member, Date ttl) {
     // Nothing -- Yet
