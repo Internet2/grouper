@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.73 2004-11-16 22:09:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.74 2004-11-18 20:16:51 blair Exp $
  */
 public class GrouperGroup {
 
@@ -220,6 +220,9 @@ public class GrouperGroup {
 
   /**
    * Add a member to a list.
+   *
+   * TODO Make a variant that takes a GrouperGroup instead of a
+   *      GrouperMember?
    *
    * @param s     Add member within this session context.
    * @param m     Add this member.
