@@ -8,9 +8,15 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.11 2004-04-29 15:53:53 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.12 2004-04-29 16:21:46 blair Exp $
  */
 public class GrouperGroup {
+
+  /*
+   * TODO
+   * - field level access
+   *   - two caches: one for ui, one for api?
+   */
 
   /**
    * Create a new object that represents a single {@link Grouper}
@@ -205,6 +211,12 @@ public class GrouperGroup {
    *  <li>Update the <i>grouper_membership</i> table by making
    *      "subjectID" an "admin".</li>
    *  <li>Update the <i>grouper_metadata</i> table</li>
+   *  <li>XXX If group was automatically created, admin list is
+	 *      empty.  If manually created, the creator is the admin.
+	 *       But how do we know if the list was created automatically
+	 *      or manually?</li>
+   *  <li>XXX Granting of "admin" after creating may fail.  So be
+   *      it.</li>
    * </ul>
    */
   public void create() {
