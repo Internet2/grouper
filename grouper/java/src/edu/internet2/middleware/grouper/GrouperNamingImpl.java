@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.30 2004-12-05 01:00:26 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.31 2004-12-05 02:37:37 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -123,8 +123,13 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
-        rv = true;
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, "STEM")) { 
+        if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
+          rv = true;
+        }
       }
     } 
     // TODO I should probably throw an exception if invalid priv
@@ -280,12 +285,18 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      Iterator iter = this.whoHas(s, g, priv).iterator();
-      while (iter.hasNext()) {
-        GrouperMember m = (GrouperMember) iter.next();
-        this.revoke(s, g, m, priv);
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, "STEM")) { 
+        Iterator iter = this.whoHas(s, g, priv).iterator();
+        while (iter.hasNext()) {
+          GrouperMember m = (GrouperMember) iter.next();
+          // TODO What if this fails for one or more members?
+          this.revoke(s, g, m, priv);
+        }
+        rv = true; // FIXME
       }
-      rv = true; // FIXME
     }
     // TODO Should this return a list of deleted members?
     // TODO I should probably throw an exception if invalid priv
@@ -309,8 +320,13 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
-        rv = true;
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, "STEM")) { 
+        if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
+          rv = true;
+        }
       }
     } 
     // TODO I should probably throw an exception if invalid priv

@@ -481,7 +481,7 @@ public class TestGroups extends TestCase {
   public void testCreateG7() {
     GrouperSession  s     = new GrouperSession();
     //Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Subject subj = GrouperSubject.lookup(Util.m0id, Util.m0t);
+    Subject subj = GrouperSubject.lookup(Util.m0i, Util.m0t);
     s.start(subj);
     // Attempt to create a group in a ns where the subject does not
     // have the STEM priv
