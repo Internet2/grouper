@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.131 2004-12-06 14:28:03 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.132 2004-12-06 19:16:34 blair Exp $
  */
 public class GrouperGroup {
 
@@ -550,6 +550,22 @@ public class GrouperGroup {
     return this.getGroupKey();
   }
 
+  /**
+   * Set {@link GrouperGroup} type.
+   * <p />
+   * 
+   * @param   type  Set group to this type.
+   * @return  Boolean true is type set, false otherwise.
+   */
+  protected boolean type(String type) {
+    boolean rv = false;
+    if (type != null) {
+      this.type = type;
+      rv = true;
+    }
+    return rv;
+  }
+
 
   /*
    * PRIVATE CLASS METHODS
@@ -641,7 +657,7 @@ public class GrouperGroup {
 
   /*
    * Retrieve a group from the groups registry
-   */
+   */ 
   private static GrouperGroup _loadByKey(
                                 GrouperSession s, String key, 
                                 String type
