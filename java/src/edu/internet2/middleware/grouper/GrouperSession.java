@@ -17,7 +17,7 @@ import  edu.internet2.middleware.subject.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.56 2004-11-20 17:26:49 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.57 2004-11-23 17:08:37 blair Exp $
  */
 public class GrouperSession {
 
@@ -59,9 +59,9 @@ public class GrouperSession {
    * TODO Plugin an external session handling mechanism?  Yes, please.
    * TODO Cache privs|memberships?
    *
-   * @param G {@link Grouper} object.
-   * @param s {@link Subject} subject object to act as
-   * for the duration of this session.
+   * @param   s   {@link Subject} subject object to act as
+   *  for the duration of this session.
+   * @return  Boolean true if successful, false otherwise.
    */
   public boolean start(Subject s) {
     // Keep track of who we are

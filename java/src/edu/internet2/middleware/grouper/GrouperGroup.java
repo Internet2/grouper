@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.80 2004-11-23 01:46:06 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.81 2004-11-23 17:08:37 blair Exp $
  */
 public class GrouperGroup {
 
@@ -25,6 +25,7 @@ public class GrouperGroup {
    * PRIVATE CONSTANTS
    */
   private static final String defaultType = "base";
+  // TODO "members", both code and javadoc
 
 
   /*
@@ -70,9 +71,9 @@ public class GrouperGroup {
   /**
    * Class method to create a group.
    *
-   * @param   s     Session to create the group within.
-   * @param   stem  Stem to create the group within.
-   * @param   desc  Descriptor to assign to group.
+   * @param   s           Session to create the group within.
+   * @param   stem        Stem to create the group within.
+   * @param   descriptor  Descriptor to assign to group.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
@@ -86,10 +87,10 @@ public class GrouperGroup {
   /**
    * Class method to create a group.
    *
-   * @param   s     Session to create the group within.
-   * @param   stem  Stem to create the group within.
-   * @param   desc  Descriptor to assign to group.
-   * @param   type  Type of group to create.
+   * @param   s           Session to create the group within.
+   * @param   stem        Stem to create the group within.
+   * @param   descriptor  Descriptor to assign to group.
+   * @param   type        Type of group to create.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
@@ -104,9 +105,9 @@ public class GrouperGroup {
    * Class method to retrieve a group from the groups registry.
    * <p />
    *
-   * @param   s     Session to load the group within.
-   * @param   stem  Stem of the group to load.
-   * @param   desc  Descriptor of the group to load.
+   * @param   s           Session to load the group within.
+   * @param   stem        Stem of the group to load.
+   * @param   descriptor  Descriptor of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
@@ -121,10 +122,10 @@ public class GrouperGroup {
    * Class method to retrieve a group from the groups registry.
    * <p />
    *
-   * @param   s     Session to load the group within.
-   * @param   stem  Stem of the group to load.
-   * @param   desc  Descriptor of the group to load.
-   * @param   type  Type of group to load.
+   * @param   s           Session to load the group within.
+   * @param   stem        Stem of the group to load.
+   * @param   descriptor  Descriptor of the group to load.
+   * @param   type        Type of group to load.
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
@@ -244,60 +245,138 @@ public class GrouperGroup {
   }
 
   /**
-   * Return list data.
+   * Return list values of type "members" for this 
+   * {@link GrouperGroup}.
+   * <p />
    *
-   * @param s     Return list data within this session context.
-   * @param list  Return this list type.
+   * @param   s     Return list data within this session context.
+   * @return  List of effective {@link GrouperMembership} objects.
    */
-  public List listEffVals(GrouperSession s) {
-    return GrouperBackend.listEffVals(this, s, "members");
-  }
-  public List listEffVals(GrouperSession s, String list) {
-    return GrouperBackend.listEffVals(this, s, list);
-  }
-  public List listImmVals(GrouperSession s) {
-    return GrouperBackend.listImmVals(this, s, "members");
-  }
-  public List listImmVals(GrouperSession s, String list) {
-    return GrouperBackend.listImmVals(this, s, list);
-  }
   public List listVals(GrouperSession s) {
     return GrouperBackend.listVals(this, s, "members");
   }
+
+  /**
+   * Return list values of the specified type for this
+   * {@link GrouperGroup}.
+   * <p />
+   *
+   * @param   s     Return list data within this session context.
+   * @param   list  Return this list type.
+   * @return  List of effective {@link GrouperMembership} objects.
+   */
   public List listVals(GrouperSession s, String list) {
     return GrouperBackend.listVals(this, s, list);
   }
 
   /**
-   * Add a member to a list.
+   * Return effective list values of type "members" for this 
+   * {@link GrouperGroup}.
+   * <p />
    *
+   * @param   s     Return list data within this session context.
+   * @return  List of effective {@link GrouperMembership} objects.
+   */
+  public List listEffVals(GrouperSession s) {
+    return GrouperBackend.listEffVals(this, s, "members");
+  }
+
+  /**
+   * Return effective list values of the specified type for this
+   * {@link GrouperGroup}.
+   * <p />
+   *
+   * @param   s     Return list data within this session context.
+   * @param   list  Return this list type.
+   * @return  List of effective {@link GrouperMembership} objects.
+   */
+  public List listEffVals(GrouperSession s, String list) {
+    return GrouperBackend.listEffVals(this, s, list);
+  }
+
+  /**
+   * Return immediate list values of type "members" for this 
+   * {@link GrouperGroup}.
+   * <p />
+   *
+   * @param   s     Return list data within this session context.
+   * @return  List of effective {@link GrouperMembership} objects.
+   */
+  public List listImmVals(GrouperSession s) {
+    return GrouperBackend.listImmVals(this, s, "members");
+  }
+
+  /**
+   * Return immediate list values of the specified type for this
+   * {@link GrouperGroup}.
+   * <p />
+   *
+   * @param   s     Return list data within this session context.
+   * @param   list  Return this list type.
+   * @return  List of effective {@link GrouperMembership} objects.
+   */
+  public List listImmVals(GrouperSession s, String list) {
+    return GrouperBackend.listImmVals(this, s, list);
+  }
+
+  /**
+   * Add a {@link GrouperMember} to the "members" list.
+   * <p />
+   * TODO Test
    * TODO Make a variant that takes a GrouperGroup instead of a
    *      GrouperMember?
    *
-   * @param s     Add member within this session context.
-   * @param m     Add this member.
-   * @param list  Add member to this list.
+   * @param   s     Add member within this session context.
+   * @param   m     Add this member.
+   * @return  Boolean true if successful, false otherwise.
    */
-  // TODO Test!
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
     return GrouperBackend.listAddVal(this, s, m, "members");
   }
+
+  /**
+   * Add a {@link GrouperMember} to the specified list.
+   * <p />
+   * TODO Test
+   * TODO Make a variant that takes a GrouperGroup instead of a
+   *      GrouperMember?
+   *
+   * @param   s     Add member within this session context.
+   * @param   m     Add this member.
+   * @param   list  Add member to this list.
+   * @return  Boolean true if successful, false otherwise.
+   */
   public boolean listAddVal(GrouperSession s, GrouperMember m, String list) {
     return GrouperBackend.listAddVal(this, s, m, list);
   }
 
   /**
-   * Remove a member from a list.
+   * Delete a {@link GrouperMember} from the "members" list.
+   * <p />
+   * TODO Test
+   * TODO Make a variant that takes a GrouperGroup instead of a
+   *      GrouperMember?
    *
-   * @param s     Add member within this session context.
-   * @param m     Add this member.
-   * @param list  Add member to this list.
+   * @param   s     Delete member within this session context.
+   * @param   m     Delete this member.
+   * @return  Boolean true if successful, false otherwise.
    */
-  // TODO Test!
-  // TODO "members" should really be a constant
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
     return GrouperBackend.listDelVal(this, s, m, "members");
   }
+
+  /**
+   * Delete a {@link GrouperMember} from the specified list.
+   * <p />
+   * TODO Test
+   * TODO Make a variant that takes a GrouperGroup instead of a
+   *      GrouperMember?
+   *
+   * @param   s     Delete member within this session context.
+   * @param   m     Delete this member.
+   * @param   list  Delete member from this list.
+   * @return  Boolean true if successful, false otherwise.
+   */
   public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
     return GrouperBackend.listDelVal(this, s, m, list);
   }

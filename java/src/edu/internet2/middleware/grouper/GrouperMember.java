@@ -19,7 +19,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.40 2004-11-22 03:24:04 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.41 2004-11-23 17:08:37 blair Exp $
  */
 public class GrouperMember {
 
@@ -57,7 +57,7 @@ public class GrouperMember {
    * object.
    * <p>
    * 
-   * @param subj  A {@Subject} object.
+   * @param   subj  A {@link Subject} object.
    * @return  A {@link GrouperMember} object.
    */
   public static GrouperMember lookup(Subject subj) {
