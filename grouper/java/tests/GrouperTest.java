@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.74 2004-11-10 17:21:54 blair Exp $
+ * $Id: GrouperTest.java,v 1.75 2004-11-10 18:59:48 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -680,6 +680,39 @@ public class GrouperTest extends TestCase {
 
   // TODO Remove list data (plural)
   // TODO Remove invalid list data 
+
+  // Add group as immediate member
+  public void testAddGroupAsImmediateMember() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the first group
+    GrouperGroup grp1 = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Create the second group
+    // Create the group
+    GrouperGroup grp2 = GrouperGroup.create(s, "stem.2", "descriptor.2");
+
+    // Confirm that both groups exist
+    // TODO Assert.assertTrue( grp1.exists() );
+    // TODO Assert.assertTrue( grp2.exists() );
+ 
+    // TODO Everything below!
+ 
+    // Fetch a member
+    //GrouperMember member = GrouperSubject.lookup( "blair", "person" );
+
+    // Assert that the returned member is not null
+    //Assert.assertNotNull(member);
+
+    // Add a member to the group's "members" list
+    //Assert.assertTrue( grp.listAddVal(s, member, "members") );
+
+    // We're done
+    s.stop();
+  }
 
 
   //
