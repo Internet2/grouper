@@ -1,7 +1,14 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.16 2004-12-09 22:32:37 blair Exp $
+$Id: NEWS,v 1.17 2004-12-13 14:47:55 blair Exp $
+
+---
+
+## Version 0.5.1-cvs
+
+### Changes
+* Fixed sessionID generation bug (#278)
 
 ---
 
