@@ -9,8 +9,8 @@ import  java.util.Map;
 /** 
  * Class representing a {@link Grouper} group.
  *
- * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.17 2004-05-01 18:31:14 blair Exp $
+ * @author  blair christensen.
+ * @version $Id: GrouperGroup.java,v 1.18 2004-05-02 00:19:38 blair Exp $
  */
 public class GrouperGroup {
 
