@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.79 2004-12-01 02:02:39 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.80 2004-12-01 03:51:26 blair Exp $
  */
 public class GrouperBackend {
 
@@ -525,61 +525,48 @@ public class GrouperBackend {
         Transaction t = session.beginTransaction();
 
         // TODO Verify that the subject has privilege to remove this list data
-        // Update immediate list data
-        GrouperBackend._listDelVal(session, g, m, list, null);
 
         /*
-         * FIXME I am not at all confident in this code.  Add more
-         *       stress-testing code to the test harness to verify how 
-         *       well this works -- or fails.
+         * When deleting a list value, take the following approach:
+         * - Delete (`g', `m', `list', null)
+         * - Delete ( * , `m', `list', `g' )
+         * - If `m' is a group:
+         *   - Delete ( *, * , `list', `m' )
          */
-        /* 
-         *FIXME Whatever happened to strictly using the memberOf algorithim?  I
-         *      am taking this refactoring to mean that my initial 
-         *      implementation of the algorithm is flawed, flawed, flawed.
-         */
-        GrouperGroup memberOfBase = g;
-        Iterator      viaIter;
+
+        // Update immediate list data for `m'
+        GrouperBackend._listDelVal(session, g, m, list, null);
+
+        // Update effective list data for `m'
+        Iterator iterViaG = GrouperBackend._queryGrouperList(
+                              session, GrouperBackend.VAL_NOTNULL,
+                              GrouperBackend.VAL_NOTNULL, list, g.key()
+                            ).iterator();
+        while (iterViaG.hasNext()) {
+          GrouperList   gl  = (GrouperList) iterViaG.next();
+          GrouperGroup  grp = GrouperBackend._groupLoadByKey( gl.groupKey() );
+          GrouperMember mem = GrouperBackend.member( gl.memberKey() );
+          if ( (grp != null) && (mem != null) ) {
+            GrouperBackend._listDelVal(session, grp, mem, list, g);
+          }
+        }
+
+        // If `m' is a group, delete effective list data via `m'
         if (m.typeID().equals("group")) {
-          // Behave one way if the member is a group
-          memberOfBase  = GrouperBackend._groupLoadByID( m.subjectID() );
-          // Find effective memberships created in group `g' due to `m'
-          // being a group.
-          viaIter = GrouperBackend._queryGrouperList(
-                      session, g.key(), GrouperBackend.VAL_NOTNULL,
-                      list, memberOfBase.key()
-                    ).iterator();
-          while (viaIter.hasNext()) {
-            GrouperList   lv  = (GrouperList) viaIter.next();
-            GrouperMember mem = GrouperBackend.member( lv.memberKey());
-            if (mem != null) {
-              GrouperBackend._listDelVal(session, g, mem, list, memberOfBase);
-            } // TODO else...
-          }
-          // Update effective list data
-          Iterator effIter = GrouperBackend._memberOf(
-                              session, memberOfBase, list
-                             ).iterator();
-          while (effIter.hasNext()) {
-            GrouperVia via = (GrouperVia) effIter.next();
-            GrouperBackend._listDelVal(
-                                       session, via.group(),
-                                       via.member(), list, via.via()
-                                      );
-          }
-        } else {
-          // ... And another if it is not.
-          viaIter = GrouperBackend._queryGrouperList(
-                      session, GrouperBackend.VAL_NOTNULL,
-                      GrouperBackend.VAL_NOTNULL, list, memberOfBase.key()
-                    ).iterator();
-          while (viaIter.hasNext()) {
-            GrouperList   lv  = (GrouperList) viaIter.next();
-            GrouperGroup  grp = GrouperBackend._groupLoadByKey( lv.groupKey() );
-            GrouperMember mem = GrouperBackend.member( lv.memberKey());
-            if (mem != null) {
-              GrouperBackend._listDelVal(session, grp, mem, list, memberOfBase);
-            } // TODO else...
+          GrouperGroup  mAsG        = GrouperBackend._groupLoadByID( m.subjectID() );
+          Iterator      iterViaMAsG = GrouperBackend._queryGrouperList(
+                                        session, 
+                                        GrouperBackend.VAL_NOTNULL, 
+                                        GrouperBackend.VAL_NOTNULL, 
+                                        list, mAsG.key()
+                                      ).iterator();
+          while (iterViaMAsG.hasNext()) {
+            GrouperList   gl  = (GrouperList) iterViaMAsG.next();
+            GrouperGroup  grp = GrouperBackend._groupLoadByKey( gl.groupKey() );
+            GrouperMember mem = GrouperBackend.member( gl.memberKey() );
+            if ( (grp != null) && (mem != null) ) {
+              GrouperBackend._listDelVal(session, grp, mem, list, mAsG);
+            }
           }
         }
 
