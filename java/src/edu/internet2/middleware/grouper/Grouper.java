@@ -3,13 +3,8 @@
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted only as authorized by the Academic
- * Free License version 2.1.
- *
- * A copy of this license is available in the file LICENSE in the
- * top-level directory of the distribution or, alternatively, at
- * <http://www.opensource.org/licenses/afl-2.1.php>
+ * See the LICENSE file in the top-level directory of the 
+ * distribution for licensing information.
  */
 
 package edu.internet2.middleware.grouper;
@@ -22,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.32 2004-09-20 00:13:47 blair Exp $
+ * @version $Id: Grouper.java,v 1.33 2004-10-05 18:35:54 blair Exp $
  */
 public class Grouper {
 
