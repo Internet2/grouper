@@ -1,9 +1,11 @@
-/*
- * Created on Dec 14, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+/*--
+$Id: AssignmentLimitValue.java,v 1.3 2005-02-25 18:42:02 acohen Exp $
+$Date: 2005-02-25 18:42:02 $
+
+Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
+Licensed under the Signet License, Version 1,
+see doc/license.txt in this distribution.
+*/
 package edu.internet2.middleware.signet;
 
 import java.io.Serializable;
