@@ -61,9 +61,9 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.2 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: DbSess.java,v 1.3 2005-03-10 16:27:57 blair Exp $
  */
-public class Session {
+public class DbSess {
 
   /*
    * PRIVATE CLASS CONSTANTS
@@ -80,7 +80,7 @@ public class Session {
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private net.sf.hibernate.Session  dbSess;
+  private net.sf.hibernate.Session  session;
   private Transaction               tx;
 
 
@@ -91,11 +91,11 @@ public class Session {
   /**
    * Create a Hibernate database session.
    */
-  public Session() {
+  public DbSess() {
     _configuration();
     _sessionFactory();
     try {
-      this.dbSess = factory.openSession();
+      this.session = factory.openSession();
     } catch (HibernateException e) {
       throw new RuntimeException(
                   "Unable to start database session: " + e
@@ -113,9 +113,9 @@ public class Session {
    */
   public void stop() {
     try {
-      this.dbSess.connection().commit();
+      this.session.connection().commit();
       try {
-        this.dbSess.close();
+        this.session.close();
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error closing database session: " + e
@@ -130,7 +130,7 @@ public class Session {
 
   public void txStart() {
     try {
-      this.tx = this.dbSess.beginTransaction();
+      this.tx = this.session.beginTransaction();
     } catch (HibernateException e) {
       throw new RuntimeException("Error starting transaction: " + e);
     }
@@ -151,7 +151,7 @@ public class Session {
    * Return the Hibernate session object.
    */
   public net.sf.hibernate.Session session() {
-    return this.dbSess;
+    return this.session;
   }
 
 

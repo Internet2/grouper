@@ -63,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.80 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.81 2005-03-10 16:27:57 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -75,7 +75,7 @@ public class GrouperSession implements Serializable {
   private transient Subject         subject;
 
   // Object containing the Hibernate session for this session
-  private transient Session         dbSess;
+  private transient DbSess          dbSess;
 
   // Access and Naming privilege interfaces
   private transient GrouperAccess   access; 
@@ -107,7 +107,7 @@ public class GrouperSession implements Serializable {
    */
   private GrouperSession(Subject subj) {
     this._init();
-    this.dbSess   = new Session(); 
+    this.dbSess   = new DbSess(); 
     this.subject  = subj;
     this.m        = GrouperMember.load(subj);
     if (m == null) {
@@ -203,7 +203,7 @@ public class GrouperSession implements Serializable {
   /*
    * Return the database session.
    */
-  protected Session dbSess() {
+  protected DbSess dbSess() {
     return this.dbSess;
   }
 
@@ -245,7 +245,7 @@ public class GrouperSession implements Serializable {
     // Perform default deserialization
      ois.defaultReadObject();
 
-    this.dbSess = new Session(); 
+    this.dbSess = new DbSess(); 
 
     // Restore GrouperMember object
     this.m = GrouperMember.load(this, this.memberID);

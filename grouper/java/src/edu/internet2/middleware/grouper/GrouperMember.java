@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.61 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.62 2005-03-10 16:27:57 blair Exp $
  */
 public class GrouperMember {
 
@@ -91,7 +91,7 @@ public class GrouperMember {
   /* (!javadoc)
    * This should <b>only</b> be used within this class.
    */
-  protected GrouperMember(Session dbSess, String subjectID, String subjectTypeID) {
+  protected GrouperMember(DbSess dbSess, String subjectID, String subjectTypeID) {
     this._init();
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
@@ -125,10 +125,8 @@ public class GrouperMember {
     }
     return m;
   }
-  //protected static GrouperMember load(Session dbSess, Subject subj) {
-  //}
   public static GrouperMember load(Subject subj) {
-    Session dbSess = new Session();
+    DbSess dbSess = new DbSess();
 
     // Attempt to load an already existing member
     GrouperMember member = GrouperBackend.member(

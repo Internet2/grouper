@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.160 2005-03-10 16:12:14 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.161 2005-03-10 16:27:57 blair Exp $
  */
 public class GrouperBackend {
 
@@ -768,7 +768,7 @@ public class GrouperBackend {
    *
    * @return List of group fields.
    */
-  protected static List groupFields(edu.internet2.middleware.grouper.database.Session dbSess) {
+  protected static List groupFields(DbSess dbSess) {
     List vals = BackendQuery.all(dbSess.session(), "GrouperField");
     return vals;
   }
@@ -1094,7 +1094,7 @@ public class GrouperBackend {
    *
    * @return List of group type definitions.
    */
-  protected static List groupTypeDefs(edu.internet2.middleware.grouper.database.Session dbSess) {
+  protected static List groupTypeDefs(DbSess dbSess) {
     List    vals    = BackendQuery.all(dbSess.session(), "GrouperTypeDef");
     return vals;
   }
@@ -1197,7 +1197,7 @@ public class GrouperBackend {
    *
    * @return List of {@link GrouperType} objects.
    */
-  protected static List groupTypes(edu.internet2.middleware.grouper.database.Session dbSess) {
+  protected static List groupTypes(DbSess dbSess) {
     List    vals    = BackendQuery.all(dbSess.session(), "GrouperType");
     return vals;
   }
@@ -1245,7 +1245,7 @@ public class GrouperBackend {
    * @return  {@link GrouperMember} object or null.
    */
   protected static GrouperMember member(
-                                        edu.internet2.middleware.grouper.database.Session dbSess,
+                                        DbSess dbSess,
                                         String subjectID, 
                                         String subjectTypeID
                                        ) 
@@ -1268,7 +1268,7 @@ public class GrouperBackend {
    * @param   member  {@link GrouperMember} object to store.
    * @return  {@link GrouperMember} object.
    */
-  protected static GrouperMember memberAdd(edu.internet2.middleware.grouper.database.Session dbSess, GrouperMember member) {
+  protected static GrouperMember memberAdd(DbSess dbSess, GrouperMember member) {
     // TODO Should I have session/security restrictions in place?
     if ( 
         ( member.memberID()   != null) &&
@@ -1392,8 +1392,8 @@ public class GrouperBackend {
                            ) 
   {
     Subject subj    = null;
-    edu.internet2.middleware.grouper.database.Session dbSess = 
-      new edu.internet2.middleware.grouper.database.Session();
+    DbSess dbSess = 
+      new DbSess();
     List    vals    = BackendQuery.kv(
                         dbSess.session(), "GrouperGroup", "groupID", id
                       );
@@ -1433,8 +1433,8 @@ public class GrouperBackend {
                            ) 
   {
     Subject subj    = null;
-    edu.internet2.middleware.grouper.database.Session dbSess = 
-      new edu.internet2.middleware.grouper.database.Session();
+    DbSess dbSess = 
+      new DbSess();
     List    vals    = BackendQuery.kvkv(
                         dbSess.session(), "SubjectImpl", "subjectID", id,
                         "subjectTypeID", typeID
@@ -1452,7 +1452,7 @@ public class GrouperBackend {
    *
    * @return List of subject types.
    */
-  protected static List subjectTypes(edu.internet2.middleware.grouper.database.Session dbSess) {
+  protected static List subjectTypes(DbSess dbSess) {
     List    vals    = BackendQuery.all(dbSess.session(), "SubjectTypeImpl");
     return vals;
   }
