@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -64,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.65 2005-03-19 20:25:54 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.66 2005-03-20 00:03:39 blair Exp $
  */
 public class GrouperMember {
 

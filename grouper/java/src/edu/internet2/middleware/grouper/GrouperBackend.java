@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.sql.*;
@@ -66,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.170 2005-03-19 20:23:46 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.171 2005-03-20 00:03:39 blair Exp $
  */
 public class GrouperBackend {
 

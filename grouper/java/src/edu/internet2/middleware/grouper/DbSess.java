@@ -49,7 +49,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package edu.internet2.middleware.grouper.database;
+package edu.internet2.middleware.grouper;
 
 import  java.io.*;
 import  net.sf.hibernate.*;
@@ -61,7 +61,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.6 2005-03-14 19:15:15 blair Exp $
+ * @version $Id: DbSess.java,v 1.7 2005-03-20 00:03:39 blair Exp $
  */
 public class DbSess {
 
