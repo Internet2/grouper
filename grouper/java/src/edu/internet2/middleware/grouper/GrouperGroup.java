@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.106 2004-12-03 03:46:40 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.107 2004-12-03 03:58:17 blair Exp $
  */
 public class GrouperGroup {
 
@@ -164,7 +164,10 @@ public class GrouperGroup {
                                     String stem, String extension
                                    )
   {
-    return GrouperGroup._lookup(s, stem, extension, Grouper.DEF_GROUP_TYPE);
+    return GrouperGroup._lookupByStemExtn(
+                                         s, stem, extension, 
+                                         Grouper.DEF_GROUP_TYPE
+                                        );
   }
 
   /**
@@ -193,7 +196,7 @@ public class GrouperGroup {
                                     String extension, String type
                                    )
   {
-    return GrouperGroup._lookup(s, stem, extension, type);
+    return GrouperGroup._lookupByStemExtn(s, stem, extension, type);
   }
 
 
@@ -503,10 +506,10 @@ public class GrouperGroup {
     return g;
   }
 
-  private static GrouperGroup _lookup(
-                                      GrouperSession s, String stem, 
-                                      String extension, String type
-                                     )
+  private static GrouperGroup _lookupByStemExtn(
+                                                GrouperSession s, String stem, 
+                                                String extension, String type
+                                               )
   {
     GrouperGroup g = GrouperBackend.groupLookup(s, stem, extension, type);
     if (g != null) {
