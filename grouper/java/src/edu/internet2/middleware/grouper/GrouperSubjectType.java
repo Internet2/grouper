@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouper;
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectType.java,v 1.3 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: GrouperSubjectType.java,v 1.4 2004-09-10 18:27:47 blair Exp $
  */
 public class GrouperMemberType {
 
@@ -41,7 +41,7 @@ public class GrouperMemberType {
    * Below for Hibernate
    */
 
-  protected String getMemberType() {
+  private String getMemberType() {
     return this.memberType;
   }
 
@@ -50,7 +50,7 @@ public class GrouperMemberType {
     this.memberType = memberType;
   }
 
-  protected String getDisplayName() {
+  private String getDisplayName() {
     return this.displayName;
   }
 

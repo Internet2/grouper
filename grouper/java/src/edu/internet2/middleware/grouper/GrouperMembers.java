@@ -20,7 +20,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperMembers.java,v 1.3 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: GrouperMembers.java,v 1.4 2004-09-10 18:27:47 blair Exp $
  */
 public class GrouperMembers implements Serializable {
 
@@ -40,7 +40,7 @@ public class GrouperMembers implements Serializable {
    * Below for Hibernate
    */
 
-  protected String getMemberID() {
+  private String getMemberID() {
     return this.memberID;
   }
 
@@ -48,7 +48,7 @@ public class GrouperMembers implements Serializable {
     this.memberID = memberID;
   }
 
-  protected String getPresentationID() {
+  private String getPresentationID() {
     return this.presentationID;
   }
 
