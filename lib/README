@@ -58,7 +58,7 @@ Contents:
   hibernate2.jar
     "Hibernate is a powerful, ultra-high performance object/relational
     persistence and query service for Java."
-    - Version:  2.1.7c
+    - Version:  2.1.8
     - Source:   <http://www.hibernate.org/>
     - License:  LGPL
 
@@ -105,5 +105,5 @@ Contents:
     - Source:   TODO
     - License:  TODO
 
-$Id: README,v 1.8 2004-12-08 18:28:09 blair Exp $
+$Id: README,v 1.9 2005-02-07 20:54:47 blair Exp $
 
