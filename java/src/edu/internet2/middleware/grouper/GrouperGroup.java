@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.172 2005-03-19 20:25:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.173 2005-03-20 05:15:31 blair Exp $
  */
 public class GrouperGroup {
 
@@ -573,6 +573,10 @@ public class GrouperGroup {
    * @return A {@link Subject} object.
    */
   public Subject modifySubject() {
+    /* 
+     * FIXME What a mess.  Did this break again when I started having
+     *       GNI go through GG rather than GB for list val changes?
+     */
     return this._returnSubjectObject(this.getModifySubject()); 
   }
 
@@ -1019,6 +1023,10 @@ public class GrouperGroup {
         if (name != null) {
           // TODO Can I move all|most of this to GrouperBackend?
           g = new GrouperGroup();
+
+          // BDC 
+          g.s = s;
+
           // Generate the UUIDs
           g.setGroupKey( new GrouperUUID().toString() );
           g.setGroupID(  new GrouperUUID().toString() ); 
@@ -1061,7 +1069,6 @@ public class GrouperGroup {
             // And now attempt to add the group to the store
             if (GrouperBackend.groupAdd(s, g)) {
               g.initialized = true; // FIXME UGLY HACK!
-              g.s = s;  // Attach the GrouperSession
             } else {
               g = null;  
             }

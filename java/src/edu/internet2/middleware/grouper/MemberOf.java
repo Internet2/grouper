@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.5 2005-03-19 20:19:52 blair Exp $
+ * @version $Id: MemberOf.java,v 1.6 2005-03-20 05:15:31 blair Exp $
  */
 public class MemberOf {
 
@@ -118,7 +118,49 @@ public class MemberOf {
       vals.addAll( this._addHasMembers(gl, isMem) );
     }
 
+    vals = this._addAndCache(vals);
+
     return vals;
+  }
+
+
+  private List _addAndCache(List vals) {
+    Map   cache       = new HashMap();
+    List  chainedVals = new ArrayList();
+
+    DbSess dbSess = new DbSess();
+
+    Iterator valIter = vals.iterator();
+    while (valIter.hasNext()) {
+      GrouperList lv = (GrouperList) valIter.next();
+      String  chainKey  = null;
+      int     idx       = 0;
+      chainKey = MemberVia.load(s, lv.key(), lv.chain());
+      if (chainKey == null) {
+        if (cache.containsKey(lv.key())) {
+          chainKey = (String) cache.get(lv.key());
+          cache.put(lv.key(), chainKey);
+        } else {
+          chainKey = new GrouperUUID().toString();
+        }
+        Iterator chains = lv.chain().iterator();
+        while (chains.hasNext()) {
+          MemberVia mv = (MemberVia) chains.next();
+          mv.key(chainKey);
+          mv.idx(idx);
+          dbSess.txStart();
+          mv.save(dbSess);
+          dbSess.txCommit();
+          idx++;
+        } 
+      }
+      lv.chainKey(chainKey);
+      chainedVals.add( lv );
+    }
+
+    dbSess.stop();
+
+    return chainedVals;
   }
 
 

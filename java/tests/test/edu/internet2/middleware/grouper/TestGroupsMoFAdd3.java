@@ -53,11 +53,12 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
-public class TestGroupsAttrs extends TestCase {
+public class TestGroupsMoFAdd3 extends TestCase {
 
-  public TestGroupsAttrs(String name) {
+  public TestGroupsMoFAdd3(String name) {
     super(name);
   }
 
@@ -77,8 +78,14 @@ public class TestGroupsAttrs extends TestCase {
    */
   
 
-  // Group at root-level
-  public void testAttrsNS0() {
+  //
+  // Add m0 to gA
+  // Add gA to 1
+  // Add gB to gC
+  //
+  // m0 -> gA -> gB -> gC
+  //
+  public void testMoF() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
@@ -86,52 +93,61 @@ public class TestGroupsAttrs extends TestCase {
     GrouperGroup ns0 = GrouperGroup.create(
                          s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
                        );
-    // Create g0
-    GrouperGroup g0  = GrouperGroup.create(
-                         s, Constants.g0s, Constants.g0e
+    // Create gA
+    GrouperGroup gA  = GrouperGroup.create(
+                         s, Constants.gAs, Constants.gAe
                        );
-    
-    // Fetch g0
-    GrouperGroup g = GrouperGroup.load(
-                        s, Constants.g0s, Constants.g0e
-                      );
+    // Create gB
+    GrouperGroup gB  = GrouperGroup.create(
+                         s, Constants.gBs, Constants.gBe
+                       );
+    // Create gC
+    GrouperGroup gC  = GrouperGroup.create(
+                         s, Constants.gCs, Constants.gCe
+                       );
+    // Load m0
+    GrouperMember m0 = GrouperMember.load(
+                         s, Constants.mem0I, Constants.mem0T
+                       );
+    // Add m0 to gA's "members"
+    Assert.assertTrue(gA.listAddVal(m0));
+    // Add gA to gB's "members"
+    Assert.assertTrue(gB.listAddVal(gA.toMember()));
+    // Add gB to gC's "members"
+    Assert.assertTrue(gC.listAddVal(gB.toMember()));
 
-    GrouperAttribute stem = g.attribute("stem");
-    Assert.assertNotNull("stem !null", stem);
+    // Now inspect gA's resulting list values
     Assert.assertTrue(
-                      "stem class", 
-                      Constants.KLASS_GA.equals(stem.getClass().getName()) 
-                     );
-    Assert.assertTrue("stem value", stem.value().equals(Constants.g0s));
-    GrouperAttribute extn = g.attribute("extension");
-    Assert.assertNotNull("extn !null", extn);
+      "gA members == 1", gA.listVals("members").size() == 1
+    );
     Assert.assertTrue(
-                      "extn class", 
-                      Constants.KLASS_GA.equals(extn.getClass().getName()) 
-                     );
-    Assert.assertTrue("extn value", extn.value().equals(Constants.g0e));
-    GrouperAttribute name = g.attribute("name");
-    Assert.assertNotNull("name !null", name);
+      "gA imm members == 1", gA.listImmVals("members").size() == 1
+    );
     Assert.assertTrue(
-                      "name class", 
-                      Constants.KLASS_GA.equals(name.getClass().getName()) 
-                     );
+      "gA eff members == 0", gA.listEffVals("members").size() == 0
+    );
+
+    // Now inspect gB's resulting list values
     Assert.assertTrue(
-                      "name value", 
-                      name.value().equals( 
-                        GrouperGroup.groupName(
-                          Constants.g0s, Constants.g0e
-                        )
-                      )
-                     );
-    GrouperAttribute desc = g.attribute("desc");
-    Assert.assertNull("desc null", desc);
-    Assert.assertNull("createSource null", g.createSource());
-    Assert.assertNotNull("createSubject null", g.createSubject());
-    Assert.assertNotNull("createTime null", g.createTime());
-    Assert.assertNull("modifySource null", g.modifySource());
-    // FIXME Assert.assertNull("modifySubject null", g.modifySubject());
-    // FIXME Assert.assertNull("modifyTime null", g.modifyTime());
+      "gB members == 2", gB.listVals("members").size() == 2
+    );
+    Assert.assertTrue(
+      "gB imm members == 1", gB.listImmVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "gB eff members == 1", gB.listEffVals("members").size() == 1
+    );
+
+    // Now inspect gC's resulting list values
+    Assert.assertTrue(
+      "gC members == 3", gC.listVals("members").size() == 3
+    );
+    Assert.assertTrue(
+      "gC imm members == 1", gC.listImmVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "gC eff members == 2", gC.listEffVals("members").size() == 2
+    );
 
     s.stop();
   }

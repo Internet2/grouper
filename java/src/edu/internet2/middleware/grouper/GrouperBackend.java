@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.172 2005-03-20 00:47:40 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.173 2005-03-20 05:15:31 blair Exp $
  */
 public class GrouperBackend {
 
@@ -302,30 +302,6 @@ public class GrouperBackend {
       Grouper.log().backend("_listAddVal() (v) null");
     }
 
-    /*
-     * If a via chain is present, either save it or find out what
-     * its key is
-     */
-    if (gl.chain().size() > 0) {
-      /*
-       * Check to see if this chain is already defined.  If not,
-       * create-and-save it.
-       */
-      String uuid = MemberVia.load(s, gl.key(), gl.chain());
-      if (uuid == null) {
-        int idx = 0;
-        uuid = new GrouperUUID().toString();
-        Iterator iter = gl.chain().iterator();
-        while (iter.hasNext()) {
-          MemberVia mv = (MemberVia) iter.next();
-          mv.key(uuid);
-          mv.idx(idx);
-          mv.save(s);
-          idx++;
-        }
-      }
-      gl.chainKey(uuid);
-    }
     GrouperList.save(s, gl);
   }
 
@@ -503,6 +479,7 @@ public class GrouperBackend {
                            GrouperMember m
                          )
   {
+    GrouperSession.validate(s);
     boolean rv = false;
     if (s.naming().grant(s, g, m, Grouper.PRIV_STEM)) {
       Grouper.log().backend("Granted " + Grouper.PRIV_STEM + " to " + m);
@@ -522,6 +499,7 @@ public class GrouperBackend {
                            GrouperSession s, GrouperGroup g
                          )
   {
+    GrouperSession.validate(s);
     boolean rv = false;
     // We need a root session for for bootstrap privilege granting
     Subject root = GrouperSubject.load(

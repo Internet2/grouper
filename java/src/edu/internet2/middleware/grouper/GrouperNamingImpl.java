@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.49 2005-03-20 00:47:40 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.50 2005-03-20 05:15:31 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -121,6 +121,7 @@ public class GrouperNamingImpl implements GrouperNaming {
                        GrouperMember m, String priv
                       ) 
   {
+    GrouperSession.validate(s);
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
@@ -129,18 +130,21 @@ public class GrouperNamingImpl implements GrouperNaming {
          * FIXME I should be doing a GroupField lookup on `priv'
          */
         if (this.has(s, g, Grouper.PRIV_STEM)) {
-          s.dbSess().txStart();
+          // BDC s.dbSess().txStart();
           // TODO Go through GG, not GB?
+/* BDC 
           if (
               GrouperBackend.listAddVal(
                 s, new GrouperList(g, m, (String) privMap.get(priv))
               ) == true
              )
           {
+*/
+          if (g.listAddVal(m, (String) privMap.get(priv))) {
             rv = true;
-            s.dbSess().txCommit();
+            // BDC s.dbSess().txCommit();
           } else {
-            s.dbSess().txRollback();
+            // BDC s.dbSess().txRollback();
           }
         }
       }

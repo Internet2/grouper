@@ -52,8 +52,11 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -62,9 +65,9 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.6 2005-03-20 00:47:40 blair Exp $
+ * @version $Id: MemberVia.java,v 1.7 2005-03-20 05:15:31 blair Exp $
  */
-public class MemberVia  {
+public class MemberVia implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -82,8 +85,9 @@ public class MemberVia  {
     this._init();
   }
   protected MemberVia(GrouperList gl) {
+    // TODO Try to load?  If not, save chainKey setting for later.
     this._init();
-    this.setListKey( gl.key() );
+    this.listKey = gl.key();
   }
   protected GrouperList toList(GrouperSession s) {
     GrouperList gl = null;
@@ -93,7 +97,9 @@ public class MemberVia  {
                          );
       gl.load(s);
     } catch (HibernateException e) {
-  
+      throw new RuntimeException(
+                  "Error converting MemberVia to list: " + e
+                ); 
     }
     return gl;
   }
@@ -103,19 +109,42 @@ public class MemberVia  {
   protected void idx(int idx) {
     this.chainIdx = idx;
   }
-  protected void save(GrouperSession s) {
+  protected String listKey() {
+    return this.listKey;
+  }
+  protected void save(DbSess dbSess) {
     // TODO I should validate our state first
     try {
-      s.dbSess().txStart();
-      s.dbSess().session().save(this);
-      s.dbSess().txCommit();
+      //s.dbSess().txStart();
+      dbSess.session().save(this);
+      //s.dbSess().txCommit();
     } catch (HibernateException e) {
-      s.dbSess().txRollback();
+      //s.dbSess().txRollback();
       throw new RuntimeException(
                   "Error saving chain element " + this + ": " + e
                 );
     }   
   }
+  /**
+   * Compares the specified object with this type definition for equality.
+   * <p />
+   * @param o Object to be compared for equality with this type
+   *   definition.
+   * @return  True if the specified object is equal to this type
+   *   definition.
+   */
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+  /**
+   * Returns the hash code value for this type definition.
+   * <p />
+   * @return  The hash code value for this type definition.
+   */
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+  // FIXME RENAME!
   protected static String load(
                             GrouperSession s, String listKey, List chain
                           ) 
