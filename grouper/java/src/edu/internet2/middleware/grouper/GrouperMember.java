@@ -18,15 +18,15 @@ import  edu.internet2.middleware.subject.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.32 2004-11-12 21:54:41 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.33 2004-11-13 04:28:20 blair Exp $
  */
 public class GrouperMember {
 
   // What we need to identify a member
-  private String id;
-  private String key;
-  private String type;
-  private String typeID;
+  private String memberKey;
+  private String subjectID;
+  private String subjectTypeID;
+
 
   /**
    * Create a new {@link GrouperMember} object.
@@ -38,13 +38,13 @@ public class GrouperMember {
   /**
    * Create a new {@link GrouperMember} object.
    *
-   * @param id    Member ID
-   * @param type  Member Type
+   * @param subjectID       Subject ID
+   * @param subjectTypeID   Subject Type ID
    */
-  public GrouperMember(String id, String type) {
+  public GrouperMember(String subjectID, String subjectTypeID) {
     this._init();
-    this.id   = id;
-    this.type = type;
+    this.subjectID      = subjectID;
+    this.subjectTypeID  = subjectTypeID;
   }
 
 
@@ -55,12 +55,13 @@ public class GrouperMember {
   /**
    * TODO
    *
-   * @param   id      Subject ID
-   * @param   typeID  Subject Type ID
+   * @param   subjectID       Subject ID
+   * @param   subjecctTypeID  Subject Type ID
    * @return  {@link GrouperMember} object
    */
-  public static GrouperMember lookup(String id, String typeID) {
-    Subject subj = GrouperSubject.lookup(id, typeID);
+  public static GrouperMember lookup(String subjectID, String subjectTypeID) {
+    Subject subj = GrouperSubject.lookup(subjectID, subjectTypeID);
+
     /*
      * If no subject is returned via the subject interface, assume that
      * the member either doesn't exist or should no longer exist.  Bail
@@ -71,8 +72,9 @@ public class GrouperMember {
     //      and then fall back to subject?
     if (subj == null)  { return null; }
 
-    // TODO Is there a reason why I am not just passing in the `id' and
-    //      `typeID' passed as params to this method?
+    // TODO Is there a reason why I am not just passing in the
+    //      `subjectID' and `subjectTypeID' passed as params to
+    //      this method?
     GrouperMember member = GrouperBackend.member(
                                                  subj.getId(),
                                                  subj.getSubjectType().getId()
@@ -87,15 +89,19 @@ public class GrouperMember {
      * If the subject is valid but a matching member object does not
      * exist, create a new one, assign a key, etc.
      */ 
+    // TODO Is there a reason why I am not just passing in the
+    //      `subjectID' and `subjectTypeID' passed as params to
+    //      this method?
     member = new GrouperMember(
-                                subj.getId(),
-                                subj.getSubjectType().getId()
+                               subj.getId(),
+                               subj.getSubjectType().getId()
                               );
-    if (member != null) {
-      // Give the member a key and then store Hibernate it
-      member.setMemberKey( GrouperBackend.uuid() );
-    }
+    // Give it a UUID
+    member.setMemberKey( GrouperBackend.uuid() );
 
+    // Hibernate and return the member
+    member = GrouperBackend.memberAdd(member);
+    
     return member;
   }
 
@@ -105,9 +111,9 @@ public class GrouperMember {
    */
 
   /**
-   * Return Member ID.
+   * Return Subject ID.
    *
-   * @return Member ID of the {@link GrouperMember}
+   * @return Subject ID of the {@link GrouperMember}
    */
   public String id() {
     return this.getSubjectID();
@@ -127,23 +133,13 @@ public class GrouperMember {
   public String toString() {
     return this.getClass().getName()  + ":" +
            this.typeID()              + ":" +
-           this.type()                + ":" +
            this.id();
   }
 
   /**
-   * Return Member Type.
+   * Return Subject Type ID
    *
-   * @return Member Type of {@link GrouperMember}.
-   */
-  public String type() {
-    return this.getMemberType();
-  }
-
-  /**
-   * Return Member Type ID
-   *
-   * @return Member Type ID of {@link GrouperMember}.
+   * @return Subject Type ID of {@link GrouperMember}.
    */
   public String typeID() {
     return this.getSubjectTypeID();
@@ -158,10 +154,9 @@ public class GrouperMember {
    * Initialize instance variables.
    */
   private void _init() {
-    this.id     = null;
-    this.key    = null;
-    this.type   = null;
-    this.typeID = null;
+    this.memberKey      = null;
+    this.subjectID      = null;
+    this.subjectTypeID  = null;
   }
 
 
@@ -170,35 +165,27 @@ public class GrouperMember {
    */
 
   private String getSubjectID() {
-    return this.id;
+    return this.subjectID;
   }
 
-  private void setSubjectID(String id) {
-    this.id = id;
+  private void setSubjectID(String subjectID) {
+    this.subjectID = subjectID;
   }
 
   private String getMemberKey() {
-    return this.key;
+    return this.memberKey;
   }
 
   private void setMemberKey(String key) {
-    this.key = key;
-  }
-
-  private String getMemberType() {
-    return this.type;
-  }
-
-  private void setMemberType(String type) {
-    this.type = type;
+    this.memberKey = key;
   }
 
   private String getSubjectTypeID() {
-    return this.typeID;
+    return this.subjectTypeID;
   }
 
-  private void setSubjectTypeID(String typeID) {
-    this.typeID = typeID;
+  private void setSubjectTypeID(String subjectTypeID) {
+    this.subjectTypeID = subjectTypeID;
   }
 
 }

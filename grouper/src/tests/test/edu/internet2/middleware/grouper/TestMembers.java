@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestMembers.java,v 1.1 2004-11-12 21:54:41 blair Exp $
+ * $Id: TestMembers.java,v 1.2 2004-11-13 04:28:20 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -45,36 +45,44 @@ public class TestMembers extends TestCase {
 
   // Initialize a valid subject as a member object
   public void testCreateMemberFromValidSubject() {
-    Grouper       G = new Grouper();
-    GrouperMember m = GrouperMember.lookup("blair", "person");
+    Grouper       G     = new Grouper();
+    String        id    = "blair";
+    String        type  = "person";
+    GrouperMember m     = GrouperMember.lookup(id, type);
     Assert.assertNotNull(m);
+    String klass = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klass.equals( m.getClass().getName() ) );
+    Assert.assertNotNull( m.id() );
+    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.typeID() );
+    Assert.assertTrue( m.typeID().equals( type ) );
+  }
+
+  // Fetch an already existing member object
+  public void testFetchMemberFromValidSubject() {
+    Grouper       G     = new Grouper();
+    String        id    = "blair";
+    String        type  = "person";
+    GrouperMember m     = GrouperMember.lookup(id, type);
+    Assert.assertNotNull(m);
+    String klass = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klass.equals( m.getClass().getName() ) );
+    Assert.assertNotNull( m.id() );
+    Assert.assertTrue( m.id().equals( id) );
+    Assert.assertNotNull( m.typeID() );
+    Assert.assertTrue( m.typeID().equals( type ) );
   }
 
   // Initialize an invalid subject as a member object
-  // Fetch an already existing member object
-
-/*
-  // Set+Get Member id and type
-  public void testGrouperMemberSetGetIdAndType() {
-    // FIXME I should probably test after fetching a *real* member, no?
-    GrouperMember member = new GrouperMember("GrouperSystem", "person");
- 
-    Class  klass    = member.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
-
-    Assert.assertNotNull(member);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-
-    Assert.assertTrue( member.id().equals( "GrouperSystem" ) );
-    Assert.assertTrue( member.type().equals( "person" ) );
+  public void testCreateMemberFromInvalidSubject() {
+    Grouper       G     = new Grouper();
+    String        id    = "invalid id";
+    String        type  = "person";
+    GrouperMember m     = GrouperMember.lookup(id, type);
+    Assert.assertNull(m);
   }
 
-  // TODO Get Valid Member 
-  // public void testGrouperMemberGetValidMember() { }
-
-  // TODO Get Invalid Member
-  // public void testGrouperMemberGetInvalidMember() { }
-*/
+  // TODO Valid member, invalid subject
 
 }
 
