@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.15 2005-03-04 19:14:38 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.16 2005-03-04 19:49:40 blair Exp $
  */
 public class GrouperQuery {
 
@@ -78,7 +78,7 @@ public class GrouperQuery {
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private GrouperSession  gs;
+  private GrouperSession  s;
   private Map             candidates;
 
 
@@ -91,7 +91,7 @@ public class GrouperQuery {
    */
   public GrouperQuery(GrouperSession s) {
     this._init();
-    this.gs = s;
+    this.s = s;
   }
 
 
@@ -265,7 +265,7 @@ public class GrouperQuery {
    */
   private void _init() {
     this.candidates = new HashMap();
-    this.gs         = null;
+    this.s          = null;
   }
 
   /* (!javadoc)
@@ -277,7 +277,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_CA);
     // Find all groups created after this date
     vals = GrouperQuery._iterGroup(
-             this.gs, GrouperBackend.groupCreatedAfter(date)
+             this.s, GrouperBackend.groupCreatedAfter(date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -295,7 +295,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_CB);
     // Find all groups created before this date
     vals = GrouperQuery._iterGroup(
-             this.gs, GrouperBackend.groupCreatedBefore(date)
+             this.s, GrouperBackend.groupCreatedBefore(date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -313,13 +313,13 @@ public class GrouperQuery {
 
     this.candidates.remove(KEY_GT);
     // Find all groups of matching type
-    List      groups  = GrouperBackend.groupType(this.gs, type);
+    List      groups  = GrouperBackend.groupType(this.s, type);
     // Find all list values for matching groups
     Iterator  iter    = groups.iterator();
     while (iter.hasNext()) {
       GrouperGroup g = (GrouperGroup) iter.next();
       Iterator lvIter =  GrouperBackend.listVals(
-                           this.gs, g, Grouper.DEF_LIST_TYPE
+                           this.s, g, Grouper.DEF_LIST_TYPE
                          ).iterator();
       while (lvIter.hasNext()) {
         GrouperList gl = (GrouperList) lvIter.next();
@@ -343,13 +343,13 @@ public class GrouperQuery {
     this.candidates.remove(KEY_MT);
     if        (type.equals(Grouper.MEM_ALL)) {
       // Query for both effective + immediate memberships
-      vals = GrouperBackend.listVals(this.gs, Grouper.DEF_LIST_TYPE);
+      vals = GrouperBackend.listVals(this.s, Grouper.DEF_LIST_TYPE);
     } else if (type.equals(Grouper.MEM_EFF)) {
       // Query for effective memberships
-      vals = GrouperBackend.listEffVals(this.gs, Grouper.DEF_LIST_TYPE);
+      vals = GrouperBackend.listEffVals(this.s, Grouper.DEF_LIST_TYPE);
     } else if (type.equals(Grouper.MEM_IMM)) {
       // Query for immediate memberships
-      vals = GrouperBackend.listImmVals(this.gs, Grouper.DEF_LIST_TYPE);
+      vals = GrouperBackend.listImmVals(this.s, Grouper.DEF_LIST_TYPE);
     } else {
       throw new GrouperException("Unknown membership type: " + type);
     } 
@@ -369,7 +369,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_MA);
     // Find all groups modified after this date
     vals = GrouperQuery._iterGroup(
-             this.gs, GrouperBackend.groupModifiedAfter(date)
+             this.s, GrouperBackend.groupModifiedAfter(date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -387,7 +387,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_MB);
     // Find all groups modified before this date
     vals = GrouperQuery._iterGroup(
-             this.gs, GrouperBackend.groupModifiedBefore(date)
+             this.s, GrouperBackend.groupModifiedBefore(date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -400,7 +400,7 @@ public class GrouperQuery {
    * Iterate through a list of groups, find list values for group, and
    * add list values to a List that will be returned.
    */
-  private static List _iterGroup(GrouperSession gs, List groups) {
+  private static List _iterGroup(GrouperSession s, List groups) {
     List vals = new ArrayList();
 
     if (groups != null) {
@@ -408,7 +408,7 @@ public class GrouperQuery {
       while (iter.hasNext()) {
         GrouperGroup g = (GrouperGroup) iter.next();
         Iterator lvIter =  GrouperBackend.listVals(
-                             gs, g, Grouper.DEF_LIST_TYPE
+                             s, g, Grouper.DEF_LIST_TYPE
                            ).iterator();
         while (lvIter.hasNext()) {
           GrouperList gl = (GrouperList) lvIter.next();
