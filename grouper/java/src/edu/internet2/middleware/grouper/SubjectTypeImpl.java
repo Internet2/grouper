@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -18,7 +18,7 @@ import  java.lang.reflect.*;
  * Implementation of the I2MI {@link SubjectType} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.6 2004-11-23 17:08:37 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.7 2004-11-23 19:43:26 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 

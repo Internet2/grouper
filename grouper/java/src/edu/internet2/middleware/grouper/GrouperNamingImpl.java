@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -17,7 +17,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.22 2004-11-22 15:22:49 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.23 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -19,7 +19,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class representing a {@link Grouper} subject attribute.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.3 2004-11-11 18:28:59 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.4 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperSubjectAttribute implements Serializable{
 

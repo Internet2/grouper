@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.84 2004-11-23 19:28:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.85 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperGroup {
 

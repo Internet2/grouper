@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestMembers.java,v 1.3 2004-11-20 16:10:24 blair Exp $
+ * $Id: TestMembers.java,v 1.4 2004-11-23 19:43:26 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;

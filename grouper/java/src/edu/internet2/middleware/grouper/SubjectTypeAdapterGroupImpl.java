@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -17,7 +17,7 @@ import  edu.internet2.middleware.subject.*;
  * for type "group".
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.3 2004-11-22 04:20:32 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.4 2004-11-23 19:43:26 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
