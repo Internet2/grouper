@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.1 2005-04-05 23:11:38 acohen Exp $
-$Date: 2005-04-05 23:11:38 $
+$Id: PrivilegedSubjectTest.java,v 1.2 2005-04-06 23:14:22 acohen Exp $
+$Date: 2005-04-06 23:14:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -76,6 +77,38 @@ public class PrivilegedSubjectTest extends TestCase
   public PrivilegedSubjectTest(String name)
   {
     super(name);
+  }
+  
+  public final void testCanEdit()
+  throws ObjectNotFoundException
+  {
+    Subject subject0 = signet.getSubject(fixtures.makeSubjectId(0));
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    
+    Subject subject2 = signet.getSubject(fixtures.makeSubjectId(2));
+    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    
+    Set assignmentsForSubject2
+    	= pSubject2.getAssignmentsReceived(null, null, null);
+    
+    Assignment assignmentForSubject2
+    	= (Assignment)(getSingleSetMember(assignmentsForSubject2));
+    
+    assertFalse(pSubject0.canEdit(assignmentForSubject2));
+  }
+  
+  private Object getSingleSetMember(Set set)
+  {
+    assertEquals(1, set.size());
+
+    Object obj = null;
+    Iterator setIterator = set.iterator();
+    while (setIterator.hasNext())
+    {
+      obj = setIterator.next();
+    }
+    
+    return obj;
   }
 
   public final void testGetGrantableChoices()

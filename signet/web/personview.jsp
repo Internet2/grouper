@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.18 2005-04-05 23:11:38 acohen Exp $
-  $Date: 2005-04-05 23:11:38 $
+  $Id: personview.jsp,v 1.19 2005-04-06 23:14:22 acohen Exp $
+  $Date: 2005-04-06 23:14:22 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -330,6 +330,7 @@
                       id="<%=assignment.getNumericId()%>"
                       value="<%=assignment.getNumericId()%>"
                       <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "disabled=\"true\"")%>
+                      <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "title=\"" + loggedInPrivilegedSubject.editRefusalExplanation(assignment, "logged-in user") + "\"")%>
                       onClick="selectThis(this.checked);">
                  </td>
                </tr>

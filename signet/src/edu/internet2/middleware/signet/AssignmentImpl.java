@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.8 2005-03-07 18:55:43 acohen Exp $
- $Date: 2005-03-07 18:55:43 $
+ $Id: AssignmentImpl.java,v 1.9 2005-04-06 23:14:22 acohen Exp $
+ $Date: 2005-04-06 23:14:22 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -592,6 +592,17 @@ implements Assignment, Comparable
 
       this.limitValues.addAll(unsavedLimitValues);
     }
+    
+    // Let's make sure all of these LimitValues have their Signet members
+    // set.
+    Iterator limitValuesIterator = this.limitValues.iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+      LimitImpl limit = (LimitImpl)(limitValue.getLimit());
+      limit.setSignet(this.getSignet());
+    }
+    
     return this.limitValues;
   }
 

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.8 2005-04-05 23:11:38 acohen Exp $
- $Date: 2005-04-05 23:11:38 $
+ $Id: PrivilegedSubjectImpl.java,v 1.9 2005-04-06 23:14:22 acohen Exp $
+ $Date: 2005-04-06 23:14:22 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,20 +9,16 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
-import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
@@ -145,6 +141,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       return true;
     }
+    
+    // Next, let's see whether or not this Assignment is in a Scope that we can
+    // grant this particular Function in, and if so, whether or not this
+    // Assignment has any Limit-values that exceed the ones we're allowed to
+    // work with in this particular combination of Scope and Function.
 
     Set grantableScopes = getGrantableScopes(anAssignment.getFunction());
 
@@ -155,24 +156,65 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       if (grantableScope.equals(anAssignment.getScope())
           || grantableScope.isAncestorOf(anAssignment.getScope()))
       {
-        return true;
+        // This scope is indeed one that we can grant this Function in.
+        // Now, let's see whether or not we're allowed to work with all of the
+        // Limit-values in this particular Assignment.
+        LimitValue[] limitValues = anAssignment.getLimitValuesArray();
+        for (int i = 0; i < limitValues.length; i++)
+        {
+          Limit limit = limitValues[i].getLimit();
+          Choice choice = null;
+          
+          try
+          {
+            choice
+            	= limit
+            			.getChoiceSet()
+            				.getChoiceByValue
+            					(limitValues[i].getValue());
+          }
+          catch (Exception e)
+          {
+            throw new SignetRuntimeException(e);
+          }
+          
+          Set grantableChoices
+          	= this.getGrantableChoices
+          			(anAssignment.getFunction(), anAssignment.getScope(), limit);
+          
+          if (grantableChoices.contains(choice) == false)
+          {
+            return false;
+          } 
+        }
       }
     }
+    
+    if (grantableScopes.size() == 0)
+    {
+      // We have no grantable Scopes at all, so there's no way we can edit
+      // any Assignments.
+      return false;
+    }
 
-    return false;
+    // If we've gotten this far, the Assignment must be editable by this
+    // PrivilegedSubject.
+    return true;
   }
 
-  public String editRefusalExplanation(Assignment refusedAssignment,
-      String actor) // 'grantor', 'revoker', etc.
+  public String editRefusalExplanation
+  	(Assignment refusedAssignment,
+     String			actor) // 'grantor', 'revoker', etc.
   {
     // First, check to see if this subject and the grantee are the same.
     // No one, not even the SignetSuperSubject, is allowed to grant
     // privileges to herself.
     if (this.equals(refusedAssignment.getGrantee()))
     {
-      return ("It is illegal to grant an assignment to oneself,"
-          + " or to modify or revoke"
-          + " an assignment which is granted to oneself.");
+      return
+      	("It is illegal to grant an assignment to oneself,"
+         + " or to modify or revoke"
+         + " an assignment which is granted to oneself.");
     }
 
     // Next, , check to see if the grantor is the Signet superSubject.
@@ -195,7 +237,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     Set grantableScopes = getGrantableScopes(refusedAssignment.getFunction());
-
+    boolean scopeIsGrantable = false;
+    
     Iterator grantableScopesIterator = grantableScopes.iterator();
     while (grantableScopesIterator.hasNext())
     {
@@ -203,7 +246,52 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       if (grantableScope.equals(refusedAssignment.getScope())
           || grantableScope.isAncestorOf(refusedAssignment.getScope()))
       {
-        return "There is no reason to refuse this request.";
+        scopeIsGrantable = true;
+        
+        // This scope is indeed one that we can grant this Function in.
+        // Now, let's see whether or not we're allowed to work all of the
+        // Limit-values in this particular Assignment.
+        LimitValue[] limitValues = refusedAssignment.getLimitValuesArray();
+        for (int i = 0; i < limitValues.length; i++)
+        {
+          Limit limit = limitValues[i].getLimit();
+          Choice choice = null;
+          
+          try
+          {
+            choice
+            	= limit
+            			.getChoiceSet()
+            				.getChoiceByValue
+            					(limitValues[i].getValue());
+          }
+          catch (Exception e)
+          {
+            throw new SignetRuntimeException(e);
+          }
+          
+          Set grantableChoices
+          	= this.getGrantableChoices
+          			(refusedAssignment.getFunction(),
+          			 refusedAssignment.getScope(),
+          			 limit);
+          
+          if (grantableChoices.contains(choice) == false)
+          {
+            return
+            	"The "
+              + actor
+              + " has grantable privileges in regard to this function,"
+              + " and they do encompass the scope of this request, but"
+              + " this assignment includes the Limit-value '"
+              + choice.getDisplayValue()
+              + "' for the limit '"
+              + limit.getName()
+              + "', which this "
+              + actor
+              + " does not have sufficient privileges to work with.";
+          } 
+        }
       }
     }
 
@@ -212,12 +300,16 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       return "The " + actor
           + " has no grantable privileges in regard to this function.";
     }
-    else
+    else if (scopeIsGrantable == false)
     {
       return "The " + actor
           + " has grantable privileges in regard to this function,"
           + " but they do not encompass the scope associated with this"
           + " request.";
+    }
+    else
+    {
+      return "There is no reason to refuse this request.";
     }
   }
 
@@ -568,7 +660,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   private Set filterAssignments(Set all, Function function)
-      throws ObjectNotFoundException
   {
     if (function == null)
     {
@@ -745,8 +836,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
      boolean 						canGrant,
      boolean 						grantOnly)
   throws
-  	SignetAuthorityException,
-  	ObjectNotFoundException
+  	SignetAuthorityException
   {
     if (function == null)
     {
@@ -854,7 +944,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public String toString()
   {
-    Subject subject = null;
     String displayId = null;
     String name = null;
     String typeId = null;

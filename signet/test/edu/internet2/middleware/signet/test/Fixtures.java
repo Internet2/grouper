@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.10 2005-04-05 23:11:38 acohen Exp $
-$Date: 2005-04-05 23:11:38 $
+$Id: Fixtures.java,v 1.11 2005-04-06 23:14:22 acohen Exp $
+$Date: 2005-04-06 23:14:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,30 +169,44 @@ public class Fixtures
       this.signet.save(assignment);
     }
     
+    // This is intended to create an Assignment for Subject 0 that can
+    // be edited by Subject 2, but does not allow Subject 0 to edit the
+    // similar (but using different Limit-values) Assignment held by
+    // Subject 2.
+    int[] limitChoiceNumbers = {0, 0, 0};
+    Assignment assignment
+    	= getOrCreateAssignment
+    			(0,  // subject-number
+    			 2,  // function-number
+    			 limitChoiceNumbers);
+    this.signet.save(assignment);
   }
   
-  private Assignment getOrCreateAssignment(int assignmentNumber)
+  private Assignment getOrCreateAssignment
+    (int   subjectNumber,
+     int   functionNumber,
+     int[] limitValueNumbers)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException
   {
     PrivilegedSubject superPrivilegedSubject
-    	= signet.getSuperPrivilegedSubject();
+  	  = signet.getSuperPrivilegedSubject();
     TreeNode rootNode = getRoot(tree);
-
-    Subject subject = getOrCreateSubject(assignmentNumber);
-    Function function = getOrCreateFunction(assignmentNumber);
+    Subject subject = getOrCreateSubject(subjectNumber);
+    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    Function function = getOrCreateFunction(functionNumber);
     Limit[] limitsInDisplayOrder = function.getLimitsArray();
-    Set limitValues = new HashSet();
     
-    for (int i = 0; i < limitsInDisplayOrder.length; i++)
+    Set limitValues = new HashSet();
+    for (int i = 0; i < limitValueNumbers.length; i++)
     {
-      LimitValue limitValue
-      	= new LimitValue(limitsInDisplayOrder[i], makeChoiceValue(i));
+      Limit limit = limitsInDisplayOrder[i];
+      int limitChoiceNumber = limitValueNumbers[i];
+      String value = makeChoiceValue(limitChoiceNumber);
+      LimitValue limitValue = new LimitValue(limit, value);
       limitValues.add(limitValue);
     }
-    
-    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
     
     // Before granting this new Assignment, let's see if it already exists
     // in the database.
@@ -226,6 +241,25 @@ public class Fixtures
     	     false);  // grantOnly
     
     return assignment;
+  }
+  
+  private Assignment getOrCreateAssignment(int assignmentNumber)
+  throws
+  	SignetAuthorityException,
+  	ObjectNotFoundException
+  {
+    int[] limitChoiceNumbers = new int[assignmentNumber + 1];
+    for (int i = 0; i <= assignmentNumber; i++)
+    {
+      // We'll choose the first LimitChoice for Limit 0, the second for Limit 1,
+      // and so forth.
+      limitChoiceNumbers[i] = i;
+    }
+    
+    return getOrCreateAssignment
+    	(assignmentNumber, // subjectNumber
+       assignmentNumber, // functionNumber,
+       limitChoiceNumbers);
   }
 
   /**
