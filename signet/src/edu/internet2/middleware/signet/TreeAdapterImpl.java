@@ -1,6 +1,6 @@
 /*--
-$Id: TreeAdapterImpl.java,v 1.1 2005-01-12 17:28:05 acohen Exp $
-$Date: 2005-01-12 17:28:05 $
+$Id: TreeAdapterImpl.java,v 1.2 2005-01-12 23:47:28 mnguyen Exp $
+$Date: 2005-01-12 23:47:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,8 +10,8 @@ package edu.internet2.middleware.signet;
 
 import javax.naming.OperationNotSupportedException;
 
+import edu.internet2.middleware.signet.AdapterUnavailableException;
 import edu.internet2.middleware.signet.tree.AbstractTreeAdapter;
-import edu.internet2.middleware.signet.tree.AdapterUnavailableException;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 import edu.internet2.middleware.signet.tree.TreeAdapter;
@@ -22,10 +22,10 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 * database-persisted trees.
 */
 class TreeAdapterImpl
-extends AbstractTreeAdapter
-implements TreeAdapter
+	extends AbstractTreeAdapter
+	implements TreeAdapter
 {
-private Signet signet;
+	private Signet signet;
 
 public TreeAdapterImpl()
 {

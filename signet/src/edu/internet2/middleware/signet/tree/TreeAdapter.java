@@ -1,6 +1,6 @@
 /*--
-$Id: TreeAdapter.java,v 1.1 2005-01-12 17:28:05 acohen Exp $
-$Date: 2005-01-12 17:28:05 $
+$Id: TreeAdapter.java,v 1.2 2005-01-12 23:47:28 mnguyen Exp $
+$Date: 2005-01-12 23:47:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,8 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.tree;
 
 import javax.naming.OperationNotSupportedException;
+
+import edu.internet2.middleware.signet.AdapterUnavailableException;
 
 import edu.internet2.middleware.signet.Subsystem;
 
@@ -21,25 +23,25 @@ import edu.internet2.middleware.signet.Subsystem;
 public interface TreeAdapter
 {
 
-public Tree getTree(String id)
-  throws TreeNotFoundException;
+	public Tree getTree(String id)
+		throws TreeNotFoundException;
 
-public void init()
-	throws AdapterUnavailableException;
+	public void init()
+		throws AdapterUnavailableException;
 
-boolean isModifiable();
+	boolean isModifiable();
 
-public Tree newTree
-	(String 		id,
-	 String 		name)
-	throws OperationNotSupportedException;
+	public Tree newTree
+		(String 		id,
+		 String 		name)
+		throws OperationNotSupportedException;
 
-/**
- * @param tree
- * @param id
- * @param name
- */
-TreeNode newTreeNode(Tree tree, String id, String name);
+	/**
+	 * @param tree
+	 * @param id
+	 * @param name
+	 */
+	TreeNode newTreeNode(Tree tree, String id, String name);
 
-public void destroy();
+	public void destroy();
 }
