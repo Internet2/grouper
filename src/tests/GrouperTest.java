@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.24 2004-08-25 20:06:08 blair Exp $
+ * $Id: GrouperTest.java,v 1.25 2004-08-26 18:19:34 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -432,8 +432,8 @@ public class GrouperTest extends TestCase {
     grp.session(s);
 
     // Identify the group
-    grp.attribute("stem", "a stem");
-    grp.attribute("descriptor", "a descriptor");
+    grp.attribute("stem", "stem.0");
+    grp.attribute("descriptor", "descriptor.0");
 
     // Confirm that group doesn't exist
     Assert.assertFalse( grp.exist() );
@@ -456,10 +456,10 @@ public class GrouperTest extends TestCase {
     grp.session(s);
 
     // Identify the group
-    grp.attribute("stem", "a stem");
-    grp.attribute("descriptor", "a descriptor");
+    grp.attribute("stem", "stem.1");
+    grp.attribute("descriptor", "descriptor.1");
     // Describe the group
-    grp.attribute("description", "a group");
+    grp.attribute("description", "group.1");
 
     // Create it
     grp.create();
