@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.9 2004-12-09 02:52:32 blair Exp $
+$Id: FAQ,v 1.10 2004-12-09 03:22:41 blair Exp $
 
 ---
 
@@ -215,7 +215,30 @@ A: Use the `Grouper.access().revoke()' method.
 
     Grouper.naming().revoke(s, ns, m, Grouper.PRIV_CREATE);
 
+---
 
+### Queries
+
+#### Q: How do I use the _GrouperQuery_ class?
+
+A: You will need to instantiate a _GrouperQuery_ object, set one or
+more filters, and then query for results.
+
+    GrouperQuery q = new GrouperQuery(s);
+
+    // We want all groups created since yesterday
+    Date now        = new Date();
+    Date yesterday  = new Date(now.getTime() - 86400000);
+    q.createdAfter(yesterday);
+
+    // That are of type DEF_GROUP_TYPE
+    q.groupType(Grouper.DEF_GROUP_TYPE);
+
+    // And that have one or more members
+    q.membership(Grouper.MEM_ALL);
+
+    List results = q.query();
+    
 ...
 
 ### Subjects
