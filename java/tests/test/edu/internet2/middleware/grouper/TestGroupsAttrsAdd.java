@@ -128,5 +128,93 @@ public class TestGroupsAttrsAdd extends TestCase {
     s.stop();
   }
 
+  // Group at root-level
+  public void testAddThenFetchDescSameSession() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
+                       );
+    // Create g0
+    GrouperGroup g0 = GrouperGroup.create(
+                         s, Constants.g0s, Constants.g0e
+                       );
+    // Set description
+    String text = "test description";
+    try {
+      g0.attribute("description", text);
+      Assert.assertTrue("add description to g0", true);
+    } catch (RuntimeException e) {
+      Assert.fail("add description to g0");
+    }
+
+    // Load g0
+    GrouperGroup g  = GrouperGroup.load(
+                        s, Constants.g0s, Constants.g0e
+                      );
+    // Check values
+    GrouperAttribute setDesc = g.attribute("description");
+    Assert.assertNotNull("set description !null", setDesc);
+    Assert.assertTrue(
+      "set description class", 
+      Constants.KLASS_GA.equals(setDesc.getClass().getName()) 
+    );
+    Assert.assertTrue(
+      "set description value", setDesc.value().equals(text)
+    );
+    Assert.assertNull("modifySource null", g.modifySource());
+    Assert.assertNotNull("modifySubject !null", g.modifySubject());
+    Assert.assertNotNull("modifyTime !null", g.modifyTime());
+
+    s.stop();
+  }
+
+  // Group at root-level
+  public void testAddThenFetchDescNewSession() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
+                       );
+    // Create g0
+    GrouperGroup g0 = GrouperGroup.create(
+                         s, Constants.g0s, Constants.g0e
+                       );
+    // Set description
+    String text = "test description";
+    try {
+      g0.attribute("description", text);
+      Assert.assertTrue("add description to g0", true);
+    } catch (RuntimeException e) {
+      Assert.fail("add description to g0");
+    }
+    s.stop();
+
+    s = GrouperSession.start(subj);
+    // Load g0
+    GrouperGroup g  = GrouperGroup.load(
+                        s, Constants.g0s, Constants.g0e
+                      );
+    // Check values
+    GrouperAttribute setDesc = g.attribute("description");
+    Assert.assertNotNull("set description !null", setDesc);
+    Assert.assertTrue(
+      "set description class", 
+      Constants.KLASS_GA.equals(setDesc.getClass().getName()) 
+    );
+    Assert.assertTrue(
+      "set description value", setDesc.value().equals(text)
+    );
+    Assert.assertNull("modifySource null", g.modifySource());
+    Assert.assertNotNull("modifySubject !null", g.modifySubject());
+    Assert.assertNotNull("modifyTime !null", g.modifyTime());
+
+    s.stop();
+  }
+
 }
 
