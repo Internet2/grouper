@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.29 2004-11-28 04:12:01 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.30 2004-11-28 17:09:45 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -236,6 +236,26 @@ public class GrouperAccessImpl implements GrouperAccess {
     } 
     // TODO I should probably throw an exception if invalid priv
     return rv;
+  }
+
+  /**
+   * List members who have the specified privilege on the 
+   * specified group.
+   * <p />
+   * See implementations for more information.
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperMember} members.
+   */
+  public List whoHas(GrouperSession s, GrouperGroup g, String priv) {
+    GrouperAccessImpl._init();
+    List members = new ArrayList();
+    if (this.can(priv) == true) {
+      members = GrouperBackend.listVals(s, g, (String) privMap.get(priv));
+    } // TODO Exception if invalid priv?
+    return members;
   }
 
 

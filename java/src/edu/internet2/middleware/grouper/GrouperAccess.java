@@ -16,7 +16,7 @@ import  java.util.*;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.22 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.23 2004-11-28 17:09:45 blair Exp $
  */
 public interface GrouperAccess {
 
@@ -127,6 +127,19 @@ public interface GrouperAccess {
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+
+  /**
+   * List members who have the specified privilege on the 
+   * specified group.
+   * <p />
+   * See implementations for more information.
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperMember} members.
+   */
+  public List whoHas(GrouperSession s, GrouperGroup g, String priv);
 
 }
 
