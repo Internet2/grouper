@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.10 2004-12-07 21:29:18 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.11 2004-12-07 21:49:21 blair Exp $ 
  */
 class csv2group {
 
@@ -69,8 +69,13 @@ class csv2group {
         String          line  = null; 
         while ((line=br.readLine()) != null){ 
           StringTokenizer st = new StringTokenizer(line, ",");
-          // Trust the dispatch engine to DTRT
-          if ( (st.countTokens() > 3) && (st.countTokens() < 6) ) {
+          /*
+           * Trust the dispatch engine to DTRT.
+           * Right now, if an action receives more tokens than it
+           * wants, it silently ignores them.  I can't decide if I want
+           * to change that or not.
+           */
+          if ( (st.countTokens() > 3) && (st.countTokens() < 7) ) {
             List tokens = new ArrayList();
             while (st.hasMoreTokens()) {
               tokens.add(st.nextToken());
@@ -203,13 +208,29 @@ class csv2group {
     boolean rv = false;
     String stem = (String) tokens.get(0);
     String extn = (String) tokens.get(1);
-    String sid  = (String) tokens.get(2);
-    // Load the group
-    GrouperGroup g = GrouperGroup.load(s, stem, extn);
-    if (g != null) {
-      // Load the member
-      Subject subj = GrouperSubject.load(sid, Grouper.DEF_SUBJ_TYPE);
-      if (subj != null) {
+    String sid  = null;
+    String stid = Grouper.DEF_SUBJ_TYPE;
+    if        (tokens.size() == 3)  {
+      sid = (String) tokens.get(2);
+    } else if (tokens.size() > 1)   {
+      // Ye Olde Silent Ignore Trick
+      String mS = (String) tokens.get(2);
+      String mE = (String) tokens.get(3);
+      GrouperGroup mAsG = GrouperGroup.load(s, mS, mE);
+      if (mAsG != null) {
+        sid   = mAsG.id();
+        stid  = "group";
+      } else {
+        System.err.println("Unable to fetch member group!");
+      }
+    }
+    // Load the subject
+    Subject subj = GrouperSubject.load(sid, stid);
+    if (subj != null) {
+      // Load the group
+      GrouperGroup g = GrouperGroup.load(s, stem, extn);
+      if (g != null) {
+        // Load the member
         GrouperMember m = GrouperMember.load(subj);
         if (m != null) {
           if (g.listAddVal(s, m)) {
