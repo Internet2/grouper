@@ -1,16 +1,15 @@
 /*
- * $Id: GrouperTest.java,v 1.1.1.1 2004-02-27 17:55:52 blair Exp $
+ * $Id: GrouperTest.java,v 1.2 2004-03-25 01:40:37 blair Exp $
  */
 
-// XXX package edu.internet2.middleware.mace.grouper;
-
+import edu.internet2.middleware.directory.grouper.*;
 import junit.framework.*;
 
 public class GrouperTest extends TestCase {
 
   private boolean rv;
   private int     sessionID;
-  private Grouper g;
+  public  Grouper g;
 
   public GrouperTest(String name) {
     super(name);
