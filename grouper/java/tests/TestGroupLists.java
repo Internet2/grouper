@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.7 2004-11-16 17:59:58 blair Exp $
+ * $Id: TestGroupLists.java,v 1.8 2004-11-16 22:08:34 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -113,6 +113,21 @@ public class TestGroupLists extends TestCase {
     List members = grp.listVals(s, "members");
     Assert.assertNotNull(members);
     Assert.assertTrue(members.size() == 1);
+    // Get the member
+    GrouperMembership mship = (GrouperMembership) members.get(0);
+    Assert.assertNotNull(mship);
+    Assert.assertNotNull( mship.groupKey() );
+    Assert.assertNotNull( mship.groupField() );
+    Assert.assertNotNull( mship.memberKey() );
+    Assert.assertNull( mship.via() );
+    GrouperMember m = GrouperMember.lookup( mship.memberKey() );
+    Assert.assertNotNull(m);
+    Assert.assertNotNull( m.id() );
+    Assert.assertNotNull( m.key() );
+    Assert.assertNotNull( m.typeID() );
+    Assert.assertTrue( m.id().equals( "blair" ) );
+    Assert.assertTrue( m.typeID().equals( "person" ) );
+    Assert.assertTrue( m.key().equals( mship.memberKey() ) );
     // We're done
     s.stop(); 
   }
@@ -263,48 +278,40 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
-  // Add group as immediate member
-  public void testAddEffectiveMember() {
-    Grouper         G     = new Grouper();
-    GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+  public void testFetchGroupAsImmediateMember() {
+    Grouper         G       = new Grouper();
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
-    // Fetch the first group
-    GrouperGroup    grp1  = GrouperGroup.load(s, stem, desc);
-    Assert.assertNotNull(grp1);
-    Assert.assertTrue( grp1.exists() );
-    // Create the second group
-    GrouperGroup    grp2  = GrouperGroup.create(s, stem2, desc2);
-    Assert.assertNotNull(grp2);
-    Assert.assertTrue( grp2.exists() );
-    // Fetch person-as-member
-    String          id1   = "notblair";       
-    String          type1 = "person";
-    GrouperMember   m1    = GrouperMember.lookup(id1, type1);
+    // Fetch the group
+    GrouperGroup    grp     = GrouperGroup.load(s, stem, desc);
+    Assert.assertTrue( grp.exists() );
+    // Fetch list data of type "admins"
+    List            admins  = grp.listVals(s, "admins");
+    Assert.assertNotNull(admins);
+    Assert.assertTrue(admins.size() == 1);
+    // Fetch list data of type "members"
+    List members = grp.listVals(s, "members");
+    Assert.assertNotNull(members);
+    Assert.assertTrue(members.size() == 1);
+    // Get the first member 
+    // XXX Can I rely upon ordering?
+    GrouperMembership mship1 = (GrouperMembership) members.get(0);
+    Assert.assertNotNull(mship1);
+    Assert.assertNotNull( mship1.groupKey() );
+    Assert.assertNotNull( mship1.groupField() );
+    Assert.assertNotNull( mship1.memberKey() );
+    Assert.assertNull( mship1.via() );
+    GrouperMember m1 = GrouperMember.lookup( mship1.memberKey() );
     Assert.assertNotNull(m1);
-    String klassMember1    = "edu.internet2.middleware.grouper.GrouperMember";
-    Assert.assertTrue( klassMember1.equals( m1.getClass().getName() ) );
     Assert.assertNotNull( m1.id() );
-    Assert.assertTrue( m1.id().equals( id1 ) );
+    Assert.assertNotNull( m1.key() );
     Assert.assertNotNull( m1.typeID() );
-    Assert.assertTrue( m1.typeID().equals( type1 ) );
-    // Add person-as-member to second group
-    Assert.assertTrue( grp2.listAddVal(s, m1, "members") );
-    // Fetch group-as-member
-    String          id2   = grp2.key();  // TODO ARGH!!!
-    String          type2 = "group";
-    GrouperMember   m2    = GrouperMember.lookup(id2, type2);
-    Assert.assertNotNull(m2);
-    String klassMember2    = "edu.internet2.middleware.grouper.GrouperMember";
-    Assert.assertTrue( klassMember2.equals( m2.getClass().getName() ) );
-    Assert.assertNotNull( m2.id() );
-    Assert.assertTrue( m2.id().equals( id2) );
-    Assert.assertNotNull( m2.typeID() );
-    Assert.assertTrue( m2.typeID().equals( type2 ) );
-    // Add group-as-member to the first group
-    Assert.assertTrue( grp1.listAddVal(s, m2, "members") );
+    Assert.assertTrue( m1.key().equals( mship1.memberKey() ) );
+    // TODO Assert.assertTrue( m1.id().equals( "???" ) );
+    // TODO Assert.assertTrue( m1.typeID().equals( "group" ) );
     // We're done
-    s.stop();
+    s.stop(); 
   }
 
   public void testFetchValidEffectiveAndImmediateMembers() {
