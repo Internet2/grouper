@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.190 2005-03-24 20:56:44 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.191 2005-03-25 03:00:39 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -761,7 +761,15 @@ public class GrouperGroup extends Group {
     }
   }
 
-  /**
+  /*
+   * Flesh out the group a bit.
+   */
+  protected void load(GrouperSession s) {
+    this.s = s;
+    this.initialized = true;
+  }
+
+  /*
    * Return group key.
    * <p >
    * FIXME Can I eventually make this private?

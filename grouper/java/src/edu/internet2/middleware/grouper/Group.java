@@ -61,7 +61,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.3 2005-03-25 01:41:29 blair Exp $
+ * @version $Id: Group.java,v 1.4 2005-03-25 03:00:39 blair Exp $
  */
 abstract class Group {
 
@@ -85,6 +85,7 @@ abstract class Group {
   abstract protected boolean        listDelVal(GrouperMember m, String list);
   abstract protected List           listVals();
   abstract protected List           listVals(String list);
+  abstract protected void           load(GrouperSession s);
   abstract protected String         name();
   abstract protected void           setCreateSource(String createSource);
   abstract protected void           setCreateSubject(String createSubject);
@@ -265,6 +266,36 @@ abstract class Group {
   }
 
   /*
+   * Does the current subject have privs to delete the current group?
+   */
+  protected static void subjectCanDelete(GrouperSession s, Group g) {
+    // Right priv required
+    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+      throw new RuntimeException("Deletion requires ADMIN priv");
+    }
+    // Are there any members?
+    /*
+     * TODO The problem with this is that we assume far too much
+     *      about the importantance of "members"
+     */
+    if (g.listVals().size() > 0) {
+      throw new RuntimeException(
+                  "Cannot delete group with members: " + 
+                  g.listVals().size() 
+                );
+    }
+    // Is the group a member?
+    // TODO Again, the problem with relying upon "members"
+    GrouperMember m = g.toMember();
+    if (m.listVals().size() > 0) {
+      throw new RuntimeException(
+                  "Cannot delete group that is member: " + 
+                  m.listVals().size() 
+                );
+    }
+  }
+
+  /*
    * Does the current subject have privs to modify the specified list?
    */
   protected static boolean subjectCanModListVal(
@@ -323,7 +354,8 @@ abstract class Group {
     Group g = null;
     if (key != null) {
       try {
-        g = (GrouperStem) s.dbSess().session().get(GrouperStem.class, key);
+        g = (Group) s.dbSess().session().get(Group.class, key);
+        g.load(s);
       } catch (HibernateException e) {
         throw new RuntimeException("Error loading namespace: " + e);
       }

@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.24 2005-03-22 20:56:15 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.25 2005-03-25 03:00:39 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -103,6 +103,35 @@ public class GrouperAttribute implements Serializable {
    * PROTECTED CLASS METHODS
    */
 
+  /*
+   * Delete all of a group's attributes.
+   */
+  protected static void delete(GrouperSession s, Group g) {
+    String qry = "GrouperAttribute.by.key";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperAttribute attr = (GrouperAttribute) iter.next();
+          GrouperAttribute.delete(s, attr);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e);
+    }
+                
+  }
+
+  /*
+   * Delete a single attribute.
+   */
   protected static void delete(GrouperSession s, GrouperAttribute attr) {
     try {
       s.dbSess().session().delete(attr);
