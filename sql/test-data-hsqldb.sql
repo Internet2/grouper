@@ -1,6 +1,6 @@
 
 -- 
--- $Id: test-data-hsqldb.sql,v 1.2 2005-02-16 23:24:24 blair Exp $
+-- Grouper Test Data
 -- 
 
 INSERT INTO grouper_subject (subjectID, subjectTypeID)
