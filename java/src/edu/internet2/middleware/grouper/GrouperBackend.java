@@ -68,9 +68,18 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.138 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.139 2004-12-09 04:01:01 blair Exp $
  */
 public class GrouperBackend {
+
+  /*
+   * FIXME This entire class needs to be gutted and refactored.  I
+   *       won't complain if all of this code were to disappear.
+   *       In fact, I'd probably celebrate.  
+   *       
+   *       Unfortunately, I don't have time to refactor this before the
+   *       release of 0.5.  Alas.
+   */
 
   /*
    * PROTECTED CONSTANTS
