@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.96 2004-12-03 06:44:48 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.97 2004-12-03 17:39:29 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1124,12 +1124,12 @@ public class GrouperBackend {
                                              );
     // We only want one
     if (vals.size() == 1) {
+      /*
+       * TODO Do I want/need to fully load the group to validate it
+       *      before continuing?  I don't think so, but...
+      */
       GrouperGroup g = (GrouperGroup) vals.get(0);
       if (g != null) {
-        // ... And fully populate it (explicitly) since I'm not (yet)
-        // making full use of everything Hibernate has to offer.
-        // TODO Is this necessary?
-        g = GrouperBackend.groupLookupByKey(g.key());
         // ... And convert it to a subject object
         subj = new SubjectImpl(id, typeID);
       } else {
