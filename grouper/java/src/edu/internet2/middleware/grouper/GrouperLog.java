@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.1 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.2 2004-12-08 02:03:47 blair Exp $
  */
 public class GrouperLog {
 
@@ -106,15 +106,13 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    // TODO Make this cleaner|easier?
-    String  name = g.attribute("name").value();
     Subject tgt  = GrouperSubject.load(
                               m.subjectID(), m.typeID()
                             );
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + priv + "' to memberID='" + m.memberID() + 
                   "' subjectID='" + tgt.getId() + "' on '" +
-                  name + "'";
+                  g.name() + "'";
     if (rv == true) {
       LOG.info(pre + "granted" + post);
     } else {
@@ -154,11 +152,9 @@ public class GrouperLog {
                    String attr, String value
                  )
   {
-    // TODO Make this cleaner|easier?
-    GrouperAttribute name = g.attribute("name");
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " attribute '" + attr + "'='" + value +
-                  "' to '" + name + "'";
+                  "' to '" + g.name() + "'";
     if (rv == true) {
       LOG.info(pre + "added" + post);
     } else {
@@ -172,9 +168,8 @@ public class GrouperLog {
                    String attr
                  ) 
   {
-    String name = g.attribute("name").value();
     String pre  = "'" + s.subject().getId() + "' ";
-    String post = " attribute '" + attr + "' from '" + name + "'";
+    String post = " attribute '" + attr + "' from '" + g.name() + "'";
     if (rv == true) {
       LOG.info(pre + "deleted" + post);
     } else {
@@ -195,10 +190,9 @@ public class GrouperLog {
                    String attr, String value
                  )
   {
-    String name = g.attribute("name").value();
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " attribute '" + attr + "'='" + value +
-                  "' to '" + name + "'";
+                  "' to '" + g.name() + "'";
     if (rv == true) {
       LOG.info(pre + "updated" + post);
     } else {
@@ -208,12 +202,11 @@ public class GrouperLog {
 
   // Group: Delete
   protected void groupDel(
-                   boolean rv, GrouperSession s, GrouperGroup g) 
+                   boolean rv, GrouperSession s, GrouperGroup g
+                 ) 
   {
-    // TODO Make this cleaner|easier?
-    String name = g.attribute("name").value();
     String pre  = "'" + s.subject().getId() + "' ";
-    String post = " '" + name + "' (" + g.type() + ")";
+    String post = " '" + g.name() + "' (" + g.type() + ")";
     if (rv == true) {
       LOG.info(pre + "deleted" + post);
     } else {
@@ -227,10 +220,9 @@ public class GrouperLog {
                    GrouperMember m
                  )
   {
-    String name = g.attribute("name").value();
     String pre  = "'" + s.subject().getId() + "' ";
     String post = "memberID='" + m.memberID() + "' subjectID='" +
-                  m.subjectID() + "' to '" + name + "' (" +
+                  m.subjectID() + "' to '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
     if (rv == true) {
       LOG.info(pre + "added" + post);
@@ -245,10 +237,9 @@ public class GrouperLog {
                    GrouperMember m
                  )
   {
-    String name = g.attribute("name").value();
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " memberID='" + m.memberID() + "' subjectID='" +
-                  m.subjectID() + "' from '" + name + "' (" +
+                  m.subjectID() + "' from '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
     if (rv == true) {
       LOG.info(pre + "removed" + post);
@@ -284,15 +275,13 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    // TODO Make this cleaner|easier?
-    String  name = g.attribute("name").value();
     Subject tgt  = GrouperSubject.load(
                               m.subjectID(), m.typeID()
                             );
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + priv + "' from memberID='" + m.memberID() + 
                   "' subjectID='" + tgt.getId() + "' on '" +
-                  name + "'";
+                  g.name() + "'";
     if (rv == true) {
       LOG.info(pre + "revoked" + post);
     } else {
