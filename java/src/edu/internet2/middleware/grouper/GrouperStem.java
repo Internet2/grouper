@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.18 2005-03-25 14:20:52 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.19 2005-03-25 14:37:24 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -322,8 +322,6 @@ public class GrouperStem extends Group {
   /**
    * List members of this stem's default list.
    * <p />
-   * FIXME NOT IMPLEMENTED 
-   * <p />
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals() {
@@ -333,13 +331,49 @@ public class GrouperStem extends Group {
   /**
    * List members of this stem's specified list.
    * <p />
-   * FIXME NOT IMPLEMENTED
-   * <p />
    * @param list  Return members of this list.
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(String list) {
-    return new ArrayList();
+    return this.listVals(this.s, this, list);
+  }
+
+  /**
+   * Effective members of this stem's default list.
+   * <p />
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listEffVals() {
+    return this.listEffVals(Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Effective list members of this stem's specified list.
+   * <p />
+   * @param list  Return effective members of this list.
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listEffVals(String list) {
+    return this.listEffVals(this.s, this, list);
+  }
+
+  /**
+   * Immediate list members of this stem's default list.
+   * <p />
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listImmVals() {
+    return this.listImmVals(Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Immediate list members of this stem's specified list.
+   * <p />
+   * @param list  Return immediate members of this list.
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listImmVals(String list) {
+    return this.listImmVals(this.s, this, list);
   }
 
   /**

@@ -76,7 +76,7 @@ public class TestAll extends TestCase {
     // TODO TestStemsAttrsAdd
     // TODO TestStemsAttrsMod
     // TODO TestStemsAttrsDel
-    //suite.addTestSuite(TestStemsMoF.class);
+    suite.addTestSuite(TestStemsMoF.class);
     // TODO TestStemsMoFAdd
     // TODO TestStemsMoFDel
     //suite.addTestSuite(TestGroupsAdd.class);
