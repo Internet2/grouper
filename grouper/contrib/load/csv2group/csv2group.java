@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.15 2005-01-23 17:44:42 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.16 2005-01-23 19:05:07 blair Exp $ 
  */
 class csv2group {
 
@@ -37,6 +37,7 @@ class csv2group {
   private static GrouperMember  mem;
   private static Options        options;
   private static String         path;
+  private static boolean        quiet = false;
   private static GrouperSession s;
   private static Subject        subj;
   private static String         subjectID;
@@ -171,7 +172,7 @@ class csv2group {
                        s, stem, extn, Grouper.DEF_GROUP_TYPE
                      );
     if (g != null) {
-      _verbose("Added group: " + g.name());
+      _report("Added group: " + g.name());
       rv = true;
     } else {
       System.err.println(
@@ -235,8 +236,8 @@ class csv2group {
       if (m != null) {
         if (g.listAddVal(s, m)) {
           rv = true;
-          System.err.println(
-            "Added `" + sid + "' to `" + stem + "':`" + extn + "'"
+          _report(
+            "Added member: `" + sid + "' to `" + stem + "':`" + extn + "'"
           );
         }
       }
@@ -273,7 +274,8 @@ class csv2group {
                                    .create("f")
                      );
     options.addOption("h", false, "Print usage information");
-    options.addOption("v", false, "Be more verbose");
+    options.addOption("q", false, "Be more quiet");
+    options.addOption("v", false, "Be more verbose [Overrides -q]");
     CommandLineParser parser = new PosixParser();
     try {
       cmd = parser.parse(options, args);
@@ -308,6 +310,24 @@ class csv2group {
       path = cmd.getOptionValue("f");
       _verbose("Using input file '" + path + "'");
     }
+    if (cmd.hasOption("q")) {
+      quiet = true;
+      _verbose("Enabling quiet mode");
+    }
+  }
+
+  /* (!javadoc)
+   *
+   * Conditionally print default messages.
+   * <p />
+   * @param msg Message to print if not running in quiet mode.
+   */
+  private static void _report(String msg) {
+    if (quiet == true) {
+      _verbose(msg);
+    } else {
+      System.err.println(msg);
+    }
   }
 
   /* (!javadoc)
@@ -323,7 +343,7 @@ class csv2group {
     }
     GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
     if (g != null) {
-      _verbose("Added stem: " + g.name());
+      _report("Added stem: " + g.name());
       rv = true;
     } else {
       System.err.println(
@@ -361,9 +381,9 @@ class csv2group {
 
   /* (!javadoc)
    *
-   * Conditionally print messages depending upon verbosity level.
+   * Conditionally print verbose messages.
    * <p />
-   * @param   msg Message to print if running verbosely.
+   * @param msg Message to print if running verbosely.
    */
   private static void _verbose(String msg) {
     if (verbose == true) {
