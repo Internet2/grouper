@@ -7,14 +7,26 @@ import  java.util.*;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.23 2004-08-06 15:19:51 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.24 2004-08-06 18:21:35 blair Exp $
  */
 public class GrouperGroup {
+
+  private String groupKey;
+  // XXX Expect this to change.
+  private String compoundExpr;
+  // XXX Expect this to change.
+  private String flattenedExpr;
 
   private GrouperSession  intSess   = null;
   private String          groupID   = null;
   private String          groupName = null;
   private boolean         exists    = false;
+
+  public GrouperGroup() {
+    groupKey      = null;
+    compoundExpr  = null;
+    flattenedExpr = null;
+  }
 
   /**
    * Create a new object that represents a single {@link Grouper}
@@ -31,6 +43,10 @@ public class GrouperGroup {
    * @param   groupName Name of group.
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
+    groupKey      = null;
+    compoundExpr  = null;
+    flattenedExpr = null;
+
     // Internal reference to the session we are using.
     this.intSess    = s;
     // XXX Hrm...
@@ -381,5 +397,33 @@ public class GrouperGroup {
     return this.groupName;
   }
 
+  /*
+   * Below for Hibernate
+   */
+
+  private String getGroupKey() {
+    return this.groupKey;
+  }
+
+  private void setGroupKey(String groupKey) {
+    this.groupKey = groupKey;
+  }
+
+  private String getCompoundExpr() {
+    return this.compoundExpr;
+  }
+ 
+  private void setCompoundExpr(String compoundExpr) {
+    this.compoundExpr = compoundExpr;
+  }
+ 
+  private String getFlattenedExpr() {
+    return this.flattenedExpr;
+  }
+ 
+  private void setFlattenedExpr(String flattenedExpr) {
+    this.flattenedExpr = flattenedExpr;
+  }
+ 
 }
 
