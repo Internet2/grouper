@@ -16,64 +16,53 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.14 2004-11-20 16:32:17 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.15 2004-11-20 16:41:49 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
   /**
-   * Create a access interface object.
-   *
-   * @param   s   Session context.
-   */
-  public GrouperAccessImpl(GrouperSession s) {
-    // Nothing -- Yet
-  }
-
-  /**
    * Grant an access privilege.
    * <p>
-   * <ul>
-   *  <li>Verify that the current subject has sufficient
-   *      privileges to grant the privilege.</li>
-   *  <li>Update <i>grouper_membership</i> table with new access
-   *      privilege.</li>
-   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
-   *      tables as appropriate to reflect any new effective
-   *      memberships.</li>
-   * </ul>
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   m     Grant privileges for this {@link GrouperMember}.
+   * @param   priv  Privilege to grant.
    */
-  public void grant(GrouperGroup g, GrouperMember m, String priv) {
+  public void grant(
+                    GrouperSession s, GrouperGroup g, 
+                    GrouperMember m, String priv
+                   ) 
+  {
     // Nothing -- Yet
   }
 
   /**
    * Revoke an access privilege.
    * <p>
-   * <ul>
-   *  <li>Verify that the current subject has sufficient
-   *      privileges to grant the privilege.</li>
-   *  <li>Update <i>grouper_membership</i> table to reflect revoked
-   *      access privilege.</li>
-   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
-   *      tables as appropriate to reflect any new effective
-   *      memberships.</li>
-   * </ul>
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   m     Revoke privilege for this{@link GrouperMember}.
+   * @param   priv  Privilege to revoke.
    */
-  public void revoke(GrouperGroup g, GrouperMember m, String priv) {
+  public void revoke(
+                     GrouperSession s, GrouperGroup g, 
+                     GrouperMember m, String priv
+                    ) 
+  {
     // Nothing -- Yet
   }
 
   /**
    * List access privileges for current subject on the specified group.
    * <p>
-   * <ul>
-   *  <li>Verify that the current subject has sufficient
-   *      privileges to view the privileges.</li>
-   *  <li>Fetch rows from the <i>grouper_membership</i> table with the
-   *      appropriate <i>groupID</i> and <i>memberID</i> values.</li>
-   * </ul>
+   *
+   * @param   s   Act within this {@link GrouperSession}.
+   * @param   g   List privileges on this group.
+   * @return  List of privileges.
    */
-  public List has(GrouperGroup g) {
+  public List has(GrouperSession s, GrouperGroup g) {
     List privs = new ArrayList();
     return privs;
   }
@@ -81,73 +70,76 @@ public class GrouperAccessImpl implements GrouperAccess {
   /**
    * List access privileges for specified member on the specified group.
    * <p>
-   * <ul>
-   *  <li>Verify that the current subject has sufficient
-   *      privileges to view the privileges.</li>
-   *  <li>Fetch rows from the <i>grouper_membership</i> table with the
-   *      appropriate <i>groupID</i> and <i>memberID</i> or
-   *      <i>groupMemberID</i> values.</li>
-   * </ul>
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   m     List privileges for this {@link GrouperMember}.
+   * @return  List of privileges.
    */
-  public List has(GrouperGroup g, GrouperMember m) {
+  public List has(GrouperSession s, GrouperGroup g, GrouperMember m) {
     List privs = new ArrayList();
     return privs;
   }
 
   /**
-   * Verify whether the current session's subject has a specified 
-   * access privilege on a {@link GrouperGroup}.
+   * Verify whether current subject has the specified privilege on the
+   * specified group.
    * <p>
-   * <ul>
-   *  <li>Verify that the current subject has sufficient
-   *      privileges to view the specified privilege.</li>
-   *  <li>Verify the privilege.</li>
-   * </ul>
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Verify privilege for this group.
+   * @param   priv  Verify this privilege.
+   * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperGroup g, String priv) {
+  public boolean has(GrouperSession s, GrouperGroup g, String priv) {
     return false;
   }
 
   /**
-   * Verify whether a {@link GrouperMember} has a specified privilege
-   * access on a {@link GrouperGroup}.
+   * Verify whether the specified member has the specified privilege
+   * on the specified group.
    * <p>
-   * <ul>
-   *  <li>Verify that the current subject has sufficient
-   *      privileges to view the specified privilege.</li>
-   *  <li>Verify the privilege.</li>
-   * </ul>
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Verify privilege for this group.
+   * @param   m     Verify privilege for this member.
+   * @param   priv  Verify this privilege.
+   * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperGroup g, GrouperMember m, String priv) {
+  public boolean has(
+                     GrouperSession s, GrouperGroup g, 
+                     GrouperMember m, String priv
+                    )
+  {
     return false;
   }
 
   /**
    * List groups where the current subject has the specified privilege.
    * <p>
-   * TODO 
    *
+   * @param   s     Act within this {@link GrouperSession}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperGroup} groups.
    */
-  public List has(String priv) {
-    List groups = new ArrayList();
-    return groups;
+  public List has(GrouperSession s, String priv) {
+    List privs = new ArrayList();
+    return privs;
   }
 
   /**
    * List groups where the specified member has the specified
    * privilege.
    * <p>
-   * TODO 
    *
+   * @param   s     Act within this {@link GrouperSession}.
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperGroup} groups.
    */
-  public List has(GrouperMember m, String priv) {
-    List groups = new ArrayList();
-    return groups;
+  public List has(GrouperSession s, GrouperMember m, String priv) {
+    List privs = new ArrayList();
+    return privs;
   }
 
 }
