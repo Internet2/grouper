@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.43 2004-09-19 05:11:10 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.44 2004-09-19 15:52:54 blair Exp $
  */
 public class GrouperSession {
 
@@ -51,6 +51,15 @@ public class GrouperSession {
   }
 
   /**
+   * Create a session object that will provide a context for future
+   * operations.
+   */
+  public GrouperSession(Grouper G) {
+    this._init();
+    this._G = G;
+  }
+
+  /**
    * Start a {@link Grouper} session.
    * <p>
    * TODO Plugin an external session handling mechanism?  Yes, please.
@@ -74,7 +83,8 @@ public class GrouperSession {
    * TODO Update <i>grouper_session</i> table.
    */
   public void stop() { 
-    this._init();
+    // FIXME What do we do here?
+    // this._init();
   }
 
   /*
