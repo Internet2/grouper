@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.2 2004-02-27 19:27:25 blair Exp $
+# $Id: README,v 1.3 2004-03-11 18:24:53 blair Exp $
 #
 
  ---------
@@ -16,12 +16,15 @@
 / ROADMAP /
 ----------
 
++ Resolve Internet2 IP questions:
+  + <http://members.internet2.edu/intellectualproperty.html>
++ Contract!?!?
 + Sync with "official" roadmap
 + RDBMS tables
-+ JDBC Support
 + API Specification
 + Configuration files
   + What format?  Please don't say XML!
+    + java.util.Properties (davel)
 + Command line arguments
 + Returning errors/diagnostic messages?
   + Is this part of logging?
