@@ -16,4 +16,4 @@ insert into Subject          values ('person', 'K0000013', 'Arons, Tom', 'UC Dav
 insert into Subject          values ('person', 'K0000014', 'Olshansky, Steve', 'Internet2 Middleware Flywheel', 'steveo', getdate());
 insert into Subject          values ('person', 'K0000015', 'Wu, Albert', 'UCLA, Technology Infrastructure Group', 'albertwu', getdate());
 insert into Subject          values ('person', 'K0000016', 'Frost, Renee', 'Internet2, Middleware and Security', 'rwfrost', getdate());
-insert into Subject          values ('person', 'K0000017', 'Poole, Jean', 'VO Principal Investigator', 'rwfrost', getdate());
+insert into Subject          values ('person', 'K0000017', 'Poole, Jean', 'VO Principal Investigator', 'jpoole', getdate());
