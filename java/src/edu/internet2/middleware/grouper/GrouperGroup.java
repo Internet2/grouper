@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.130 2004-12-06 02:25:26 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.131 2004-12-06 14:28:03 blair Exp $
  */
 public class GrouperGroup {
 
@@ -793,7 +793,7 @@ public class GrouperGroup {
         }
       }
     } else {
-      Grouper.LOGGER.warn(
+      Grouper.LOGGER.info(
         "Subject does not have "  + 
         Grouper.PRIV_CREATE       +
         " privileges on this stem");
