@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.201 2005-03-23 22:40:06 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.202 2005-03-23 23:15:48 blair Exp $
  */
 public class GrouperBackend {
 
@@ -153,35 +153,6 @@ public class GrouperBackend {
       }
     }
     return rv;
-  }
-
-  /* (!javadoc)
-   * Given a {@link GrouperGroup} object, return its matching 
-   * {@link GrouperSchema} object.
-   * TODO This will need poking when we support multiple types.
-   */
-  protected static GrouperSchema _groupSchema(GrouperSession s, GrouperGroup g) {
-    String        qry     = "GrouperSchema.by.key";
-    GrouperSchema schema  = null;
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, g.key());
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          schema = (GrouperSchema) vals.get(0);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return schema;
   }
 
 }

@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.186 2005-03-23 22:11:36 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.187 2005-03-23 23:15:48 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -977,7 +977,7 @@ public class GrouperGroup extends Group {
       g = (GrouperGroup) s.dbSess().session().get(GrouperGroup.class, key);
       if (g != null) {
         // Its schema
-        GrouperSchema schema = GrouperBackend._groupSchema(s, g);
+        GrouperSchema schema = GrouperSchema.load(s, g.key());
         if (schema != null) {
           if (GrouperBackend._groupAttachAttrs(s, g)) {
             g.type( schema.type() );
