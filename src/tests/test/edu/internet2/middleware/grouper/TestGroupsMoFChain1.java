@@ -138,12 +138,12 @@ public class TestGroupsMoFChain1 extends TestCase {
     Iterator iter0I = gc0.listImmVals("members").iterator();
     while (iter0I.hasNext()) {
       GrouperList lv = (GrouperList) iter0I.next();
-      Assert.assertTrue("empty chain", lv.chain().size() == 0);
+      Assert.assertTrue("g0 empty chain", lv.chain().size() == 0);
     }
     Iterator iter1I = gc1.listImmVals("members").iterator();
     while (iter1I.hasNext()) {
       GrouperList lv = (GrouperList) iter1I.next();
-      Assert.assertTrue("empty chain", lv.chain().size() == 0);
+      Assert.assertTrue("g1 empty chain", lv.chain().size() == 0);
     }
 
     s1.stop();

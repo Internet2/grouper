@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.8 2005-03-21 19:41:22 blair Exp $
+ * @version $Id: MemberVia.java,v 1.9 2005-03-22 01:49:18 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -149,6 +149,34 @@ public class MemberVia implements Serializable {
              )
            );
     return key;
+  }
+
+  /*
+   * Load a via chain list.
+   * <p />
+   * @return List of {@link MemberVia} objects.
+   */
+  protected static List load(GrouperSession s, String key) {
+    String  qry   = "MemberVia.by.key";
+    List    chain = new ArrayList();
+
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      try {
+        chain.addAll( q.list() );
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+
+    return chain;
   }
 
 
