@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.50 2005-04-01 16:02:22 blair Exp $ -->
+<!-- $Id: build.xml,v 1.51 2005-04-01 16:30:39 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -104,6 +104,8 @@
   </target>
 
   <target name="test-run" depends="test-build,db-init-test">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
     <java fork="yes" 
           classname="junit.textui.TestRunner"
           taskname="junit" 
