@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.51 2004-11-22 02:20:21 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.52 2004-11-22 03:02:33 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1151,7 +1151,8 @@ public class GrouperBackend {
     GrouperBackend._hibernateSessionClose(session);
     return rv;
   }
-                                
+                      
+  // TODO REFACTOR!          
   private static List _listVals(Session session, GrouperMember m, String list, String via) {
     List groups = new ArrayList();
     try {
@@ -1182,6 +1183,7 @@ public class GrouperBackend {
     }
     return groups;
   }
+  // TODO REFACTOR!          
   private static List _listVals(Session session, GrouperGroup g, String list, String via) {
     List members = new ArrayList();
     try {
@@ -1211,6 +1213,44 @@ public class GrouperBackend {
       System.exit(1);
     }
     return members;
+  }
+  // TODO REFACTOR!          
+  private static List _listVals(Session session, GrouperGroup g, GrouperMember m, String list, String via) {
+    List vals = new ArrayList();
+    try {
+      // Well isn't this an ugly hack...
+      String list_txt = " AND mem.groupField";
+      if (list == null) {
+        list_txt = list_txt + " IS NOT NULL";
+      } else {
+        list_txt = list_txt + "='" + list + "'";
+      }
+      String via_txt  = "";
+      if (via != null) {
+        if        ( via.equals("effective") ) {
+          via_txt = " AND mem.via IS NOT NULL";
+        } else if ( via.equals("immediate") ) {
+          via_txt = " AND mem.via IS NULL";
+        } // TODO else ...
+      }
+      // Query away!
+      Query q = session.createQuery(
+        "FROM GrouperMembership AS mem"         +
+        " WHERE "                               +
+        "mem.groupKey='"      + g.key() + "'"   +
+        " AND "                                 +
+        "mem.memberKey='"     + m.key() + "'"   +
+        list_txt                                +
+        via_txt
+      );   
+      System.err.println("QUERY " + q.getQueryString());
+      // TODO Behave different depending upon the size?
+      vals = q.list();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return vals;
   }
    
   /*
