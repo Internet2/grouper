@@ -1,6 +1,6 @@
 <!--
-  $Id: not-yet-implemented.jsp,v 1.3 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: not-yet-implemented.jsp,v 1.4 2005-02-28 19:26:26 jvine Exp $
+  $Date: 2005-02-28 19:26:26 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -57,17 +57,7 @@
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
     <form name="form1" action="">
-      <div id="Header">  
-        <div id="Logo">
-          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
-        </div> 
-        <!-- Logo -->
-
-        <div id="Signet">
-          <img src="images/signet.gif" width="49" height="60" alt="Signet" />
-        </div> <!-- Signet -->
-      </div> <!-- Header -->
-      
+      <jsp:include page="header.jsp" flush="true" />
       <div id="Navbar">
         <span class="logout">
 <!--
