@@ -15,9 +15,21 @@
 			</key-property>
 			
 			<key-property
+				name="limitSubsystemId"
+				type="string">
+				<column name="limitSubsystemID"></column>
+			</key-property>
+			
+			<key-property
+				name="limitType"
+				type="string">
+				<column name="limitType"></column>
+			</key-property>
+			
+			<key-property
 				name="limitId"
 				type="string">
-				<column name="limitID"></column>
+				<column name="limitTypeID"></column>
 			</key-property>
 
 			<key-property

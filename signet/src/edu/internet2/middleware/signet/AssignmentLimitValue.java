@@ -24,16 +24,19 @@ class AssignmentLimitValue
 implements Serializable
 {
   private int     assignmentId;
+  private String  limitSubsystemId;
   private String 	limitId;
   private String 	value;
   
   AssignmentLimitValue
   	(int assignmentId,
-  	 String  limitId,
-  	 String  value)
+  	 String	limitSubsystemId,
+  	 String	limitId,
+  	 String	value)
   {
     super();
     this.assignmentId = assignmentId;
+    this.limitSubsystemId = limitSubsystemId;
     this.limitId = limitId;
     this.value = value;
   }
@@ -53,6 +56,16 @@ implements Serializable
     this.assignmentId = assignmentId;
   }
 
+  String getLimitSubsystemId()
+  {
+    return this.limitSubsystemId;
+  }
+
+  private void setLimitSubsystemId(String limitSubsystemId)
+  {
+    this.limitSubsystemId = limitSubsystemId;
+  }
+
   String getLimitId()
   {
     return this.limitId;
@@ -61,6 +74,25 @@ implements Serializable
   private void setLimitId(String limitId)
   {
     this.limitId = limitId;
+  }
+
+  String getLimitType()
+  {
+    /**
+     * Someday, the "limitType" attribute of this class will indicate
+     * whether this Limit has the shape of a Tree or a ChoiceSet.
+     * Not yet, though.
+     */
+    return "reserved";
+  }
+
+  private void setLimitType(String limitId)
+  {
+    /**
+     * Someday, the "limitType" attribute of this class will indicate
+     * whether this Limit has the shape of a Tree or a ChoiceSet.
+     * Not yet, though.
+     */
   }
   
   String getValue()
@@ -87,6 +119,7 @@ implements Serializable
     AssignmentLimitValue rhs = (AssignmentLimitValue) obj;
     return new EqualsBuilder()
     	.append(this.assignmentId, rhs.assignmentId)
+      .append(this.limitSubsystemId, rhs.limitSubsystemId)
       .append(this.limitId, rhs.limitId)
       .append(this.value, rhs.value)
       .isEquals();
@@ -101,6 +134,7 @@ implements Serializable
     // ideally different for each class
     return new HashCodeBuilder(17, 37)
   		.append(this.assignmentId)
+  		.append(this.limitSubsystemId)
   		.append(this.limitId)
   		.append(this.value)
       .toHashCode();

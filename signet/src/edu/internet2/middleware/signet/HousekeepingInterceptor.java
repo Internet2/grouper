@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.6 2005-02-21 23:27:34 acohen Exp $
- $Date: 2005-02-21 23:27:34 $
+ $Id: HousekeepingInterceptor.java,v 1.7 2005-02-22 18:31:51 acohen Exp $
+ $Date: 2005-02-22 18:31:51 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -206,9 +206,21 @@ class HousekeepingInterceptor implements Interceptor, Serializable
               System.out.println
               	("DEBUG: assignment.getNumericId().intValue()="
             	   + assignment.getNumericId().intValue());
+              
+              /**
+               * Note that the AssignmentLimitValue constructor takes a
+               * Subsystem ID. That Subsystem ID is actually the ID of the
+               * Subsystem that's associated with this particlar Limit in case
+               * (someday in the future) that Limit comes from another
+               * Subsystem, or the shared "signet" subsystem.
+               * 
+               * For now, the subsystemID of the assignment can be safely
+               * placed there.
+               */
               AssignmentLimitValue alv
               	= new AssignmentLimitValue
            					(assignment.getNumericId().intValue(),
+           					 assignment.getFunction().getSubsystem().getId(),
            			     limitValue.getLimit().getId(),
            			     limitValue.getValue());
 
