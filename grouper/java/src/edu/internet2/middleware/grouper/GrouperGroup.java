@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.48 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.49 2004-10-11 18:07:02 blair Exp $
  */
 public class GrouperGroup {
 
@@ -36,7 +36,6 @@ public class GrouperGroup {
   // Grouper attributes (fields)
   private Map  attributes;
 
-  private Grouper         _G;
   // Grouper Session
   private GrouperSession  grprSession;
 
@@ -58,7 +57,6 @@ public class GrouperGroup {
     groupKey      = null;
     groupType     = "base"; // TODO Don't hardcode this
     grprSession   = null;
-    _G            = null;
     modifyTime    = null;
     modifySubject = null;
     modifySource  = null;
@@ -260,7 +258,6 @@ public class GrouperGroup {
   private void _create(GrouperSession s, String stem, String descriptor) {
     // Attach session
     this.grprSession  = s;
-    this._G           = s.env(); 
 
     // Generate the UUID (groupKey)
     this.setGroupKey( GrouperBackend.uuid() );
@@ -286,15 +283,9 @@ public class GrouperGroup {
     boolean rv = false;
     if (this.groupType != null) { // FIXME I can do better than this.
       // We have a group type.  Now what?
-      // FIXME Why isn't this being properly set elsewhere?
-      if ( (this._G == null) && (this.grprSession != null) ) {
-        this._G = this.grprSession.env();
-      }
-      if (this._G != null) {
-        if (this._G.groupField(this.groupType, attribute) == true) {
-          // Our attribute passes muster.
-          rv = true;
-        }
+      if (Grouper.groupField(this.groupType, attribute) == true) {
+        // Our attribute passes muster.
+        rv = true;
       }
     } else {
       // We don't know the group type so we can't validate.  Shrug our
@@ -334,7 +325,7 @@ public class GrouperGroup {
   private boolean _validateCreate() {
     if (
         // Do we have a valid group type?
-        (this._G.groupType(this.groupType) == true) &&
+        (Grouper.groupType(this.groupType) == true) &&
         // And a stem?
         (attributes.containsKey("stem"))            &&
         // And a descriptor?
