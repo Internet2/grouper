@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.13 2004-09-19 05:03:27 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.14 2004-11-05 18:46:27 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
@@ -42,23 +42,31 @@ CREATE TABLE grouper_lists (
 );
 
 CREATE TABLE grouper_member (
-  memberKey   VARCHAR(255) NOT NULL PRIMARY KEY,
-  memberType  VARCHAR(255) NOT NULL,
-  memberID    VARCHAR(255) NOT NULL,
-  CONSTRAINT  uniq_mk UNIQUE (memberKey)
+  memberKey     VARCHAR(255) NOT NULL PRIMARY KEY,
+  memberID      VARCHAR(255) NOT NULL,
+  -- TODO Foreign Key
+  memberTypeID  VARCHAR(255) NOT NULL,
+  CONSTRAINT    uniq_mk UNIQUE (memberKey)
 );
 
-CREATE TABLE grouper_members (
-  memberID        VARCHAR(255) NOT NULL PRIMARY KEY,
-  presentationID  VARCHAR(255),
-  CONSTRAINT      uniq_mi  UNIQUE (memberID),
-  CONSTRAINT      uniq_pi  UNIQUE (presentationID)
+CREATE TABLE grouper_memberAttribute (
+  -- TODO Foreign Key
+  memberKey     VARCHAR(255) NOT NULL,
+  -- TODO Foreign Key
+  memberTypeID  VARCHAR(255) NOT NULL,
+  name          VARCHAR(255) NOT NULL,
+  instance      INTEGER,
+  value         VARCHAR(255) NOT NULL,
+  searchValue   VARCHAR(255),
+  -- TODO Include `instance' (if made !null)?
+  CONSTRAINT    uniq_mk_mtid UNIQUE (memberKey, memberTypeID)
 );
 
-CREATE TABLE grouper_memberTypes (
-  memberType    VARCHAR(255) NOT NULL PRIMARY KEY,
-  displayName   VARCHAR(255),
-  CONSTRAINT    uniq_mt UNIQUE (memberType)
+CREATE TABLE grouper_memberType (
+  memberTypeID  VARCHAR(255) NOT NULL PRIMARY KEY,
+  name          VARCHAR(255) NOT NULL,
+  adapterClass  VARCHAR(255) NOT NULL,
+  CONSTRAINT    uniq_mtid UNIQUE (memberTypeID)
 );
 
 CREATE TABLE grouper_schema (

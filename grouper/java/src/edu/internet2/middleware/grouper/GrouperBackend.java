@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.14 2004-11-05 02:00:23 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.15 2004-11-05 18:46:27 blair Exp $
  */
 public class GrouperBackend {
 
@@ -318,17 +318,17 @@ public class GrouperBackend {
    *
    * @return  {@link GrouperMember} object or null.
    */
-  public static GrouperMember member(String id, String type) {
+  public static GrouperMember member(String id, String typeID) {
     GrouperBackend._init();
     GrouperMember m = null;
     try {
       Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_MEMBER " +
+        "SELECT ALL FROM GROUPER_MEMBER "     +
         "IN CLASS edu.internet2.middleware.grouper.GrouperMember " +
-        "WHERE "                          +
-        "memberID='"    + id    + "' "    + 
-        "AND "                            +
-        "memberType='"  + type  + "'"
+        "WHERE "                              +
+        "memberID='"      + id      + "' "    + 
+        "AND "                                +
+        "memberTypeID='"  + typeID  + "'"
       );
       if (q.list().size() == 1) {
         // We only want *one* member.

@@ -10,14 +10,14 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  java.util.*;
+
 
 /** 
  * Class representing a {@link Grouper} member, whether an individual
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.28 2004-10-12 18:37:50 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.29 2004-11-05 18:46:27 blair Exp $
  */
 public class GrouperMember {
 
@@ -25,6 +25,7 @@ public class GrouperMember {
   private String id;
   private String key;
   private String type;
+  private String typeID;
 
   /**
    * Create a new {@link GrouperMember} object.
@@ -45,11 +46,6 @@ public class GrouperMember {
     this.type = type;
   }
 
-  public String toString() {
-    return this.getClass().getName()  + ":" +
-           this.type()                + ":" +
-           this.id();
-  }
 
   /*
    * PUBLIC INSTANCE METHODS
@@ -64,6 +60,13 @@ public class GrouperMember {
     return this.getMemberID();
   }
 
+  public String toString() {
+    return this.getClass().getName()  + ":" +
+           this.typeID()              + ":" +
+           this.type()                + ":" +
+           this.id();
+  }
+
   /**
    * Return Member Type.
    *
@@ -71,6 +74,15 @@ public class GrouperMember {
    */
   public String type() {
     return this.getMemberType();
+  }
+
+  /**
+   * Return Member Type ID
+   *
+   * @return Member Type ID of {@link GrouperMember}.
+   */
+  public String typeID() {
+    return this.getMemberTypeID();
   }
 
 
@@ -82,16 +94,24 @@ public class GrouperMember {
    * Initialize instance variables.
    */
   private void _init() {
-    this.id   = null;
-    this.key  = null;
-    this.type = null;
+    this.id     = null;
+    this.key    = null;
+    this.type   = null;
+    this.typeID = null;
   }
 
 
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
 
+  private String getMemberID() {
+    return this.id;
+  }
+
+  private void setMemberID(String id) {
+    this.id = id;
+  }
 
   private String getMemberKey() {
     return this.key;
@@ -109,12 +129,12 @@ public class GrouperMember {
     this.type = type;
   }
 
-  private String getMemberID() {
-    return this.id;
+  private String getMemberTypeID() {
+    return this.typeID;
   }
 
-  private void setMemberID(String id) {
-    this.id = id;
+  private void setMemberTypeID(String typeID) {
+    this.typeID = typeID;
   }
 
 }

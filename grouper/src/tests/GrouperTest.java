@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.67 2004-11-05 01:59:12 blair Exp $
+ * $Id: GrouperTest.java,v 1.68 2004-11-05 18:46:27 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -213,7 +213,8 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(9).getClass().getName() ) );
   }
- 
+
+
   //
   // Class: GrouperMember
   //
@@ -244,6 +245,13 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( member.type().equals( "person" ) );
   }
 
+  // TODO Get Valid Member 
+  // public void testGrouperMemberGetValidMember() { }
+
+  // TODO Get Invalid Member
+  // public void testGrouperMemberGetInvalidMember() { }
+
+
   //
   // Class: GrouperSubject
   //
@@ -265,26 +273,26 @@ public class GrouperTest extends TestCase {
 
   public void testGrouperSubjectClassLookupMemberSystem() {
     Grouper G = new Grouper();
-    String id   = Grouper.config("member.system");
-    String type = "person";
-    GrouperMember m = GrouperSubject.lookup(id, type);
+    String id     = Grouper.config("member.system");
+    String typeID = "person";
+    GrouperMember m = GrouperSubject.lookup(id, typeID);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertNotNull(m);
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
     Assert.assertTrue( id.equals( m.id() ) );
-    Assert.assertTrue( type.equals( m.type() ) );
+    Assert.assertTrue( typeID.equals( m.typeID() ) );
   }
 
   public void testGrouperSubjectClassLookup() {
     Grouper G = new Grouper();
-    String id   = "blair";
-    String type = "person";
-    GrouperMember m = GrouperSubject.lookup(id, type);
+    String id     = "blair";
+    String typeID = "person";
+    GrouperMember m = GrouperSubject.lookup(id, typeID);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertNotNull(m);
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
     Assert.assertTrue( id.equals( m.id() ) );
-    Assert.assertTrue( type.equals( m.type() ) );
+    Assert.assertTrue( typeID.equals( m.typeID() ) );
   }
 
   //
@@ -356,8 +364,8 @@ public class GrouperTest extends TestCase {
 
     Assert.assertNotNull(m);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
-
   }
+
 
   //
   // Class: GrouperSchema
@@ -405,36 +413,42 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
+
   //
-  // Class: GrouperMembers
+  // Class: GrouperMemberAttribute
   //
-   
 
-  // Instantiate a GrouperMembership instance 
-  public void testGrouperMembersInstantiate() {
-    GrouperMembers members = new GrouperMembers();
+  // Instantiate a GrouperMemberAttribute instance 
+  public void testGrouperMemberAttributeInstantiate() {
+    GrouperMemberAttribute mattr = new GrouperMemberAttribute();
 
-    Class  klass    = members.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMembers";
+    Class  klass    = mattr.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMemberAttribute";
 
-    Assert.assertNotNull(members);
+    Assert.assertNotNull(mattr);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  //
-  // Class: GrouperMemberType
+  // TODO More tests
+
+
   // 
+  // Class; GrouperMemberType
+  //
 
-  // Instantiate a GrouperMembership instance 
+  // Instantiate a GrouperMemberType instance 
   public void testGrouperMemberTypeInstantiate() {
-    GrouperMemberType memberType = new GrouperMemberType();
+    GrouperMemberType mtype = new GrouperMemberType();
 
-    Class  klass    = memberType.getClass();
+    Class  klass    = mtype.getClass();
     String expKlass = "edu.internet2.middleware.grouper.GrouperMemberType";
 
-    Assert.assertNotNull(memberType);
+    Assert.assertNotNull(mtype);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
+
+  // TODO More tests
+
 
   //
   // Class: GrouperGroup
