@@ -20,66 +20,55 @@ import  org.doomdark.uuid.UUIDGenerator;
 
 
 /** 
- * Class representing a {@link Grouper} group.
+ * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.32 2004-08-27 18:38:09 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.33 2004-09-08 19:26:55 blair Exp $
  */
 public class GrouperGroup {
 
-  private Session         session;
+  // Operational attributes and information
+  private static String groupKey;
+  private static int    groupType;
+  // TODO Stuff into a map?
+  private static String createTime;
+  private static String createSubject;
+  private static String createSource;
+  private static String modifyTime;
+  private static String modifySubject;
+  private static String modifySource;
+  private static String comment;
 
-  private String groupKey;
-  private int groupType;
-  private String createTime;
-  private String createSubject;
-  private String createSource;
-  private String modifyTime;
-  private String modifySubject;
-  private String modifySource;
-  private String comment;
+  // Grouper attributes (fields)
+  private static Map  attributes;
 
-  private GrouperSession  intSess;
-  private String          name;
-  private String          groupID   = null;
-  private boolean         exists    = false;
-  private GrouperSchema   schema;
-  private Map             attributes;
+  // Grouper Session
+  private static GrouperSession grprSession;
+  // Hibernate Session
+  private static Session        session;
+
+  // Does the group exist?
+  private static boolean  exists;
 
   /**
-   * TODO 
-   *
-   * Create a new object that represents a single {@link Grouper}
-   * group. 
+   * Create a new object representing a single {@link Grouper} group.
    * <p>
-   * <ul>
-   *  <li>Caches the group name.</li>
-   *  <li>Checks and caches whether group exists.</li>
-   *  <li>If group exists, the privileges of the current subject   
-   *      on this group will be cached.</li>
-   * </ul>
-   * 
-   * @param   s         Session context.
-   * @param   name Name of group.
+   * TODO Document further
    */
   public GrouperGroup() {
-    session       = null;
-
-    // TODO Merge with 'attributes'?
-    groupKey      = null;
-    groupType     = 1;    // TODO Don't hardcode this
+    attributes    = new HashMap();
+    comment       = null;
     createTime    = null;
     createSubject = null;
     createSource  = null;
+    exists        = false;
+    groupKey      = null;
+    groupType     = 1;    // TODO Don't hardcode this
+    grprSession   = null;
     modifyTime    = null;
     modifySubject = null;
     modifySource  = null;
-    comment       = null;
-
-    schema        = null;
-    attributes    = new HashMap();
-    intSess       = null;
-    name          = null;
+    session       = null;
   }
 
   public String toString() {
@@ -91,16 +80,12 @@ public class GrouperGroup {
            desc.value(); 
   }
 
-  public void session(GrouperSession s) {
-    this.intSess = s;
-    this.session = this.intSess.session();
-  }
-
-  public GrouperSession session() {
-    // TODO Return an exception if !defined?
-    return this.intSess;
-  }
-
+  /**
+   * Set a group attribute.
+   * 
+   * @param attribute Attribute to set.
+   * @param value     Value of attribute.
+   */
   public void attribute(String attribute, String value) {
     // TODO Attribute validation
     GrouperAttribute attr = new GrouperAttribute();
@@ -112,21 +97,86 @@ public class GrouperGroup {
     // `descriptor' and the group is not currently known to exist,
     // attempt to autoload it.
     if ( 
-        (this.exists == false)         &&
-        attributes.containsKey("stem") &&
-        attributes.containsKey("descriptor")
+        (this.exists == false)         &&     // The group is not
+                                              // marked as existing,
+        attributes.containsKey("stem") &&     // But it has a stem...
+        attributes.containsKey("descriptor")  // And a descriptor
        )
     {
+      // Now run the exist() method.  If successful, load the 
+      // hibernating group.
       if (this.exist() == true) {
         this._load(this.groupKey);
       }
     }
   }
 
+  /**
+   * Get a group attribute.
+   *
+   * @param   attribute The attribute to get.
+   * @return  A {@link GrouperAttribute} object.
+   */
   public GrouperAttribute attribute(String attribute) {
     return (GrouperAttribute) attributes.get(attribute);
   }
- 
+
+  /**
+   * Create a {@link Grouper} group.
+   */ 
+  public void create() {
+    // FIXME Damn this is ugly.
+
+    // Set some of the operational attributes
+    // TODO Most, if not all, of the operational attributes should be
+    //      handled by Hibernate interceptors.  A task for another day.
+    java.util.Date now = new java.util.Date();
+    this.setCreateTime( Long.toString(now.getTime()) );
+    this.setCreateSubject( this.grprSession.whoAmI() );
+
+    // And now attempt to add the group to the store
+    try {
+      Transaction t = session.beginTransaction();
+
+      // Generate the UUID (groupKey)
+      org.doomdark.uuid.UUID uuid = UUIDGenerator.getInstance().generateRandomBasedUUID();
+      this.groupKey = uuid.toString();
+
+      // The Group object
+      session.save(this);
+
+      // The Group schema
+      GrouperSchema schema = new GrouperSchema();
+      schema.set(this.groupKey, this.groupType);
+      session.save(schema);
+
+      // The Group attributes
+      Iterator iter = attributes.keySet().iterator();
+      while (iter.hasNext()) {
+        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+        attr.set(this.groupKey, attr.field(), attr.value());
+        session.save(attr);
+      }
+
+      // And make the creator a member of the "admins" list
+      GrouperMembership mship = new GrouperMembership(); 
+      mship.set(this.groupKey, "admins", this.grprSession.whoAmI(), true);
+      session.save(mship);
+
+      t.commit();
+    } catch (Exception e) {
+      // TODO We probably need a rollback in here in case of failure
+      //      above.
+      System.err.println(e);
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Does this {@link Grouper} group exist?
+   *
+   * @return Boolean true if the group exists, otherwise false.
+   */
   public boolean exist() {
     if (this.exists == true) {
       return true;
@@ -192,6 +242,31 @@ public class GrouperGroup {
     return false;
   }
 
+  /** 
+   * Attach a Grouper session to this object.
+   */
+  public void session(GrouperSession s) {
+    this.grprSession = s;
+    this.session = this.grprSession.session();
+  }
+
+  /**
+   * Return the current Grouper session.
+   *
+   * @return Returns the Grouper session.
+   */
+  public GrouperSession session() {
+    // TODO Return an exception if !defined?
+    return this.grprSession;
+  }
+
+  /*
+   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
+   */
+
+  /*
+   * Load group from hibernated state.
+   */
   private void _load(String key) {
     Transaction   tx  = null;
     try {
@@ -229,48 +304,7 @@ public class GrouperGroup {
       // Mark that it exists
       this.exists = true;
     } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
-
-  public void create() {
-    // FIXME Damn this is ugly.
-
-    // Set some of the operational attributes
-    java.util.Date now = new java.util.Date();
-    this.setCreateTime( Long.toString(now.getTime()) );
-    this.setCreateSubject( this.intSess.whoAmI() );
-
-    // And now attempt to add the group to the store
-    try {
-      Transaction t = session.beginTransaction();
-      org.doomdark.uuid.UUID uuid = UUIDGenerator.getInstance().generateRandomBasedUUID();
-      this.groupKey = uuid.toString();
-
-      // The Group object
-      session.save(this);
-
-      // Its schema
-      GrouperSchema schema = new GrouperSchema();
-      schema.set(this.groupKey, this.groupType);
-      session.save(schema);
-
-      // And its attributes
-      Iterator iter = attributes.keySet().iterator();
-      while (iter.hasNext()) {
-        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        attr.set(this.groupKey, attr.field(), attr.value());
-        session.save(attr);
-      }
-
-      // And make the creator a member of the "admins" list
-      GrouperMembership mship = new GrouperMembership(); 
-      mship.set(this.groupKey, "admins", this.intSess.whoAmI(), true);
-      session.save(mship);
-
-      t.commit();
-    } catch (Exception e) {
+      // TODO Rollback if load fails?  Unset this.exists?
       System.err.println(e);
       System.exit(1);
     }
