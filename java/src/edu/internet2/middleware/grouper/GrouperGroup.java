@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.107 2004-12-03 03:58:17 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.108 2004-12-03 06:44:48 blair Exp $
  */
 public class GrouperGroup {
 
@@ -165,9 +165,9 @@ public class GrouperGroup {
                                    )
   {
     return GrouperGroup._lookupByStemExtn(
-                                         s, stem, extension, 
-                                         Grouper.DEF_GROUP_TYPE
-                                        );
+                                          s, stem, extension, 
+                                          Grouper.DEF_GROUP_TYPE
+                                         );
   }
 
   /**
@@ -508,10 +508,10 @@ public class GrouperGroup {
 
   private static GrouperGroup _lookupByStemExtn(
                                                 GrouperSession s, String stem, 
-                                                String extension, String type
+                                                String extn, String type
                                                )
   {
-    GrouperGroup g = GrouperBackend.groupLookup(s, stem, extension, type);
+    GrouperGroup g = GrouperBackend.groupLookup(s, stem, extn, type);
     if (g != null) {
       // Attach session
       g.grprSession = s;
@@ -587,39 +587,47 @@ public class GrouperGroup {
    */
   private static GrouperGroup _create(
                                       GrouperSession s, String stem, 
-                                      String extension, String type
+                                      String extn, String type
                                      )
   {
-    // TODO Can I move all|most of this to GrouperBackend?
-    GrouperGroup g = new GrouperGroup();
+    // Check to see if the group already exists.
+    GrouperGroup g = GrouperGroup._lookupByStemExtn(s, stem, extn, type);
+    if (g == null) {
+      // TODO Can I move all|most of this to GrouperBackend?
+      g = new GrouperGroup();
 
-    // Attach session
-    g.grprSession  = s;
+      // Attach session
+      g.grprSession  = s;
 
-    // Generate the UUIDs
-    g.setGroupKey( GrouperBackend.uuid() );
-    g.setGroupID(  GrouperBackend.uuid() );
+      // Generate the UUIDs
+      g.setGroupKey( GrouperBackend.uuid() );
+      g.setGroupID(  GrouperBackend.uuid() );
 
-    g._attrAdd("stem", stem);
-    g._attrAdd("extension", extension);
-    g.type = type;
+      g._attrAdd("stem",      stem);
+      g._attrAdd("extension", extn);
+      g._attrAdd("name",      GrouperBackend.groupName(stem, extn));
+      g.type = type;
 
-    // Set some of the operational attributes
-    /*
-     * TODO Most, if not all, of the operational attributes should be
-     *      handled by Hibernate interceptors.  A task for another day.
-     */
-    g.setCreateTime(    GrouperGroup._now() );
-    g.setCreateSubject( s.subject().getId() );
+      // Set some of the operational attributes
+      /*
+       * TODO Most, if not all, of the operational attributes should be
+       *      handled by Hibernate interceptors.  A task for another day.
+       */
+      g.setCreateTime(    GrouperGroup._now() );
+      g.setCreateSubject( s.subject().getId() );
 
-    // Verify that we have everything we need to create a group
-    // and that this subject is privileged to create this group.
-    if (g._validateCreate()) {
-      // And now attempt to add the group to the store
-      GrouperBackend.groupAdd(s, g);
-    } else {
-      // TODO Log
-      g = null;
+      // Verify that we have everything we need to create a group
+      // and that this subject is privileged to create this group.
+      if (g._validateCreate()) {
+        // And now attempt to add the group to the store
+        if (GrouperBackend.groupAdd(s, g)) {
+        } else {
+          g = null;  
+        }
+      } else {
+        // TODO Log
+        g = null;
+      }
     }
     return g;
   }
@@ -744,9 +752,9 @@ public class GrouperGroup {
         // Do we have a valid group type?
         (Grouper.groupType(this.type) == true) &&
         // And a stem?
-        (attributes.containsKey("stem"))            &&
+        (attributes.containsKey("stem"))       &&
         // And an extension?
-        (attributes.containsKey("extension"))      && 
+        (attributes.containsKey("extension"))  && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
         // TODO Member Object for the admin of the group

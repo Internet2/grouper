@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.95 2004-12-03 03:46:40 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.96 2004-12-03 06:44:48 blair Exp $
  */
 public class GrouperBackend {
 
@@ -168,87 +168,100 @@ public class GrouperBackend {
    * @param s {@link GrouperSession}
    * @param g {@link GrouperGroup} to add
    */
-  protected static void groupAdd(GrouperSession s, GrouperGroup g) {
+  protected static boolean groupAdd(GrouperSession s, GrouperGroup g) {
+    boolean rv      = false;
     Session session = GrouperBackend._init();
-    try {
-      Transaction t = session.beginTransaction();
+    GrouperAttribute stem = (GrouperAttribute) g.attribute("stem");
+    if (GrouperBackend._stemLookup(s, session, (String) stem.value())) {
+      try {
+        Transaction t = session.beginTransaction();
 
-      // The Group object
-      session.save(g);
+        // The Group object
+        session.save(g);
 
-      // The Group schema
-      GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
-      session.save(schema);
+        // The Group schema
+        GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
+        session.save(schema);
 
-      // The Group attributes
-      Map       attributes  = g.attributes();
-      Iterator  iter        = attributes.keySet().iterator();
-      while (iter.hasNext()) {
-        // FIXME WTF?
-        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        // TODO Error checking, anyone? 
-        GrouperBackend._attributeStore(
-                                       session, g.key(), 
-                                       attr.field(), attr.value()
-                                      );
-      }
+        // The Group attributes
+        Map       attributes  = g.attributes();
+        Iterator  iter        = attributes.keySet().iterator();
+        while (iter.hasNext()) {
+          // FIXME WTF?
+          GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+          // TODO Error checking, anyone? 
+          GrouperBackend._attributeStore(
+                                         session, g.key(), 
+                                         attr.field(), attr.value()
+                                        );
+        }
         
-      /*
-       * I need to commit the group to the groups registry before
-       * granting the ADMIN privs as the act of granting, especially if
-       * using the default access privilege implementation, may need to
-       * load the group from the groups registry.  If it hasn't been
-       * committed, that will obviously fail and Java will go BOOM!
-       *
-       * Of course, this may make rolling back even the granting fails
-       * even more interesting.
-       */
-      t.commit();
+        /*
+         * I need to commit the group to the groups registry before
+         * granting the ADMIN privs as the act of granting, especially if
+         * using the default access privilege implementation, may need to
+         * load the group from the groups registry.  If it hasn't been
+         * committed, that will obviously fail and Java will go BOOM!
+         *
+         * Of course, this may make rolling back even the granting fails
+         * even more interesting.
+         */
+        t.commit();
 
-      // And grant ADMIN privilege to the list creator
-      GrouperBackend.LOGGER.debug("Converting subject " + s);
-      GrouperMember m       = GrouperMember.lookup( s.subject() );
-      boolean       granted = false;
-      if (m != null) { // FIXME Bah
-        GrouperBackend.LOGGER.debug("Converted to member " + m);
-        // `naming' groups get `STEM', not `ADMIN'
-        if (g.type().equals("naming")) {
-          if (Grouper.naming().grant(s, g, m, "STEM") == true) {
-            GrouperBackend.LOGGER.debug("Granted STEM to " + m);
-            t.commit(); // XXX Is this commit necessary?
-            granted = true;
+        // And grant ADMIN privilege to the list creator
+        GrouperBackend.LOGGER.debug("Converting subject " + s);
+        GrouperMember m       = GrouperMember.lookup( s.subject() );
+        boolean       granted = false;
+        if (m != null) { // FIXME Bah
+          GrouperBackend.LOGGER.debug("Converted to member " + m);
+          // `naming' groups get `STEM', not `ADMIN'
+          if (g.type().equals("naming")) {
+            if (Grouper.naming().grant(s, g, m, "STEM") == true) {
+              GrouperBackend.LOGGER.debug("Granted STEM to " + m);
+              t.commit(); // XXX Is this commit necessary?
+              granted = true;
+              rv      = true;
+            } else {
+              GrouperBackend.LOGGER.debug("Unable to grant STEM to " + m);
+            }
           } else {
-            GrouperBackend.LOGGER.debug("Unable to grant STEM to " + m);
+            // For all other group types default to `ADMIN'
+            if (Grouper.access().grant(s, g, m, "ADMIN") == true) {
+              GrouperBackend.LOGGER.debug("Granted ADMIN to " + m);
+              t.commit(); // XXX Is this commit necessary?
+              granted = true;
+              rv      = true;
+            } else {
+              GrouperBackend.LOGGER.debug("Unable to grant ADMIN to " + m);
+            }
           }
         } else {
-          // For all other group types default to `ADMIN'
-          if (Grouper.access().grant(s, g, m, "ADMIN") == true) {
-            GrouperBackend.LOGGER.debug("Granted ADMIN to " + m);
-            t.commit(); // XXX Is this commit necessary?
-            granted = true;
-          } else {
-            GrouperBackend.LOGGER.debug("Unable to grant ADMIN to " + m);
-          }
+          GrouperBackend.LOGGER.debug("Unable to convert to member");
         }
-      } else {
-        GrouperBackend.LOGGER.debug("Unable to convert to member");
-      }
-      if (granted == false) {
-        /*
-         * TODO Rollback?  Exception?  The rollback would also need to
-         *      rollback the granting of the ADMIN privilege.  Or at
-         *      least try to.
-         */
-        System.err.println("Unable to create group " + g);
+        if (granted == false) {
+          /*
+           * TODO Rollback?  Exception?  The rollback would also need to
+           *      rollback the granting of the ADMIN privilege.  Or at
+           *      least try to.
+           */
+          System.err.println("Unable to create group " + g);
+          System.exit(1);
+        }
+      } catch (Exception e) {
+        // TODO We probably need a rollback in here in case of failure
+        //      above.
+        System.err.println(e);
         System.exit(1);
       }
-    } catch (Exception e) {
-      // TODO We probably need a rollback in here in case of failure
-      //      above.
-      System.err.println(e);
-      System.exit(1);
+    } else { 
+      System.err.println("STEM " + stem.value() + " DOES NOT EXIST!");
+      Grouper.LOGGER.info(
+                          "Unable to add group as stem=`" +
+                          stem.value() + "' does not exist."
+                         );
     }
     GrouperBackend._hibernateSessionClose(session);
+    return rv;
   }
 
   /**
@@ -362,7 +375,7 @@ public class GrouperBackend {
     // TODO G+H Session validation 
     // TODO Priv validation
     GrouperGroup g = GrouperBackend._groupLookup(
-                                                 session, stem, 
+                                                 s, session, stem, 
                                                  extn, type
                                                 );
     GrouperBackend._hibernateSessionClose(session);
@@ -406,13 +419,24 @@ public class GrouperBackend {
     return g;
   }
 
-  private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
-    // TODO Do I even need `key' passed in?
-    Iterator iter = GrouperBackend.attributes(g).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      g.attribute( attr.field(), attr.value() );
+  /**
+   * Formats {@link GrouperGroup} name.
+   * <p />
+   *
+   * @param   stem  Stem of the {@link GrouperGroup}.
+   * @param   extn  Extension of the {@link GrouperGroup}.
+   * @return  String representation of the group <i>stem</i>,
+   *   delimiter, and <i>extension</i>.
+   */
+  protected static String groupName(String stem, String extn) {
+    String name;
+    if (stem.equals(Grouper.NS_ROOT)) {
+      name = extn;
+    } else {
+      // TODO Configurable
+      name = stem + ":" + extn;
     }
+    return name;
   }
 
   /**
@@ -1226,70 +1250,18 @@ public class GrouperBackend {
 
   // FIXME Refactor.  Mercilesssly.
   private static GrouperGroup _groupLookup(
-                                           Session session, String stem, 
-                                           String extn, String type
-                                        ) 
+                                GrouperSession s, Session session, String stem, 
+                                String extn, String type
+                              )
   {
-    GrouperGroup  g   = new GrouperGroup();
-    String        key = null;
-
-    // TODO Please.  Make this better.  Please, please, please.
-    //      For whatever reason, SQL and quality code are evading
-    //      me this week.
-    List extensions = GrouperBackend._extensions(session, extn);
-    if (extensions.size() > 0) {
-      // We found one or more potential extensions.  Now look
-      // for matching stems.
-      List stems = GrouperBackend._stems(session, stem);
-      if (stems.size() > 0) {
-        // We have potential stems and potential extensions.
-        // Now see if we have the *right* stem and the *right*
-        // extension.
-        Iterator iterExtn = extensions.iterator();
-        while (iterExtn.hasNext()) {
-          GrouperAttribute possExtn = (GrouperAttribute) iterExtn.next();
-          Iterator iterStem = stems.iterator();
-          while (iterStem.hasNext()) {
-            GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
-            if (
-                extn.equals( possExtn.value() )         &&
-                stem.equals( possStem.value() )         &&
-                possExtn.key().equals( possStem.key() )
-               )
-            {
-              // We have found an appropriate stem and extension
-              // with matching keys.  We exist!
-              List extns = GrouperBackend._queryKV(
-                             session, "GrouperGroup",
-                             "groupKey", possExtn.key()
-                           );
-              if (extns.size() == 1) {
-                // We may have a group to restore.  Now check to see
-                // if a group of the proper type exists.
-                List schema = GrouperBackend._queryKVKV(
-                                session, "GrouperSchema",
-                                "groupKey", possExtn.key(),
-                                "groupType", type
-                              );
-                // We only want one
-                if (schema.size() == 1) {
-                  key = possExtn.key();
-                  break;
-                }
-              }
-            }
-          }
-        }
+    GrouperGroup g = null;
+    if (GrouperBackend._stemLookup(s, session, stem)) {
+      String name = GrouperBackend.groupName(stem, extn);
+      g = GrouperBackend._groupLookupByName(s, session, name, type);
+      if (g != null) {
+      } else {
       }
     }
-    if (key != null) {
-      g = GrouperBackend.groupLookupByKey(key);
-    } else {
-      g = null;
-    }
-    // TODO Here I return a dummy object while elsewhere, and with
-    //      other classes, I return null.  Standardize.  I *probably*
-    //      should return null.
     return g;
   }
 
@@ -1310,6 +1282,44 @@ public class GrouperBackend {
     GrouperBackend._hibernateSessionClose(session);
     // TODO Verify that key != null or let ByKey() handle that?
     return GrouperBackend.groupLookupByKey(key);
+  }
+
+  private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
+    // TODO Do I even need `key' passed in?
+    Iterator iter = GrouperBackend.attributes(g).iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
+      g.attribute( attr.field(), attr.value() );
+    }
+  }
+
+  /* (!javadoc)
+   * Load a group by name.
+   */
+  private static GrouperGroup _groupLookupByName(
+                   GrouperSession s, Session session, 
+                   String name, String type
+                 ) 
+  {
+    GrouperGroup g = null;
+    List names = GrouperBackend._queryKVKV(
+                   session, "GrouperAttribute",
+                   "groupField", "name",
+                   "groupFieldValue", name
+                 );
+    Iterator iter = names.iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
+      GrouperGroup grp = GrouperGroup.lookupByKey(
+                           s, attr.key(), type
+                         );
+      if (grp != null) {
+        if (grp.type().equals(type)) {
+          g = grp; 
+        }
+      }
+    }
+    return g;
   }
 
   // TODO This is becoming really misnamed
@@ -1792,6 +1802,28 @@ public class GrouperBackend {
       val = "='" + val + "'";
     }
     return val;
+  }
+
+  /* (!javadoc)
+   * Boolean true if stem exists, false otherwise.
+   */
+  private static boolean _stemLookup(
+                           GrouperSession s, Session session, 
+                           String stem
+                         ) 
+  {
+    boolean rv = false;
+    if (stem.equals(Grouper.NS_ROOT)) {
+      rv = true;
+    } else {
+      GrouperGroup g = GrouperBackend._groupLookupByName(
+                         s, session, stem, "naming"
+                       );
+      if (g != null) {
+        rv = true;
+      }
+    }
+    return rv;
   }
 
   private static List _stems(Session session, String stem) {
