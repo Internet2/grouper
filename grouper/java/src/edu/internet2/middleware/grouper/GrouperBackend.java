@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.190 2005-03-22 19:25:14 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.191 2005-03-22 19:26:12 blair Exp $
  */
 public class GrouperBackend {
 
@@ -77,14 +77,6 @@ public class GrouperBackend {
    *       Unfortunately, I don't have time to refactor this before the
    *       release of 0.5.  Alas.
    */
-
-  /*
-   * PROTECTED CONSTANTS
-   */
-  protected static final String VAL_NOTNULL = "**NOTNULL**";  // FIXME
-  protected static final String VAL_NULL    = "**NULL**";     // FIXME
-
-
 
   /*
    * PROTECTED CLASS METHODS
