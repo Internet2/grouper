@@ -56,11 +56,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class representing a {@link Grouper} registry query.
+ * Class modeling a {@link Grouper} registry query.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.6 2004-12-09 01:28:38 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.7 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperQuery {
 
@@ -93,8 +93,7 @@ public class GrouperQuery {
    * <p />
    *
    * @param   date  Query for items created after this {@link Date}.
-   * @return  Boolean true if matching items were found, otherwise
-   *   false.
+   * @return  True if one or more matches found.
    */
   public boolean createdAfter(Date date) throws GrouperException {
     return this._queryCreatedAfter(date);
@@ -105,8 +104,7 @@ public class GrouperQuery {
    * <p />
    *
    * @param   date  Query for items created before this {@link Date}.
-   * @return  Boolean true if matching items were found, otherwise
-   *   false.
+   * @return  True if one or more matches found.
    */
   public boolean createdBefore(Date date) throws GrouperException {
     return this._queryCreatedBefore(date);
@@ -118,8 +116,7 @@ public class GrouperQuery {
    * TODO How do I unset?
    *
    * @param   type  Type of {@link GrouperGroup} to query on.
-   * @return  Boolean true if matching items were found, otherwise
-   *   false.
+   * @return  True if one or more matches found.
    */
   public boolean groupType(String type) throws GrouperException {
     return this._queryGroupType(type);
@@ -132,8 +129,7 @@ public class GrouperQuery {
    * @param   type  Type of membership to query on.  Valid options are
    *   <i>Grouper.MEM_ALL</i>, <i>Grouper.MEM_EFF</i>, and
   *    <i>Grouper.MEM_IMM</i>.
-   * @return  Boolean true if matching items were found, otherwise
-   *   false.
+   * @return  True if one or more matches found.
    */
   public boolean membership(String type) throws GrouperException {
     return this._queryMembership(type);
@@ -144,8 +140,7 @@ public class GrouperQuery {
    * <p />
    *
    * @param   date  Query for items modified after this {@link Date}.
-   * @return  Boolean true if matching items were found, otherwise
-   *   false.
+   * @return  True if one or more matches found.
    */
   public boolean modifiedAfter(Date date) throws GrouperException {
     return this._queryModifiedAfter(date);
@@ -156,8 +151,7 @@ public class GrouperQuery {
    * <p />
    *
    * @param   date  Query for items modifed before this {@link Date}.
-   * @return  Boolean true if matching items were found, otherwise
-   *   false.
+   * @return  True if one or more matches found.
    */
   public boolean modifiedBefore(Date date) throws GrouperException {
     return this._queryModifiedBefore(date);

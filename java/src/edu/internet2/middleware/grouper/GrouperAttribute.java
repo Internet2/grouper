@@ -58,11 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class representing a {@link GrouperGroup} attribute.
+ * Class modeling a {@link GrouperGroup} attribute.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.19 2004-12-09 01:34:13 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.20 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 

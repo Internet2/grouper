@@ -56,12 +56,12 @@ import  edu.internet2.middleware.subject.*;
 
 
 /** 
- * Class representing a {@link Grouper} session.
+ * Class modeling a {@link Grouper} session.
  * <p />
  * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.69 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.70 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperSession {
 

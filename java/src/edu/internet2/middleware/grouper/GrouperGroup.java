@@ -58,11 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class representing a {@link Grouper} group.
+ * Class modeling a {@link Grouper} group.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.142 2004-12-09 01:28:38 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.143 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperGroup {
 
@@ -141,7 +141,7 @@ public class GrouperGroup {
    *
    * @param   s   Session to delete the group within.
    * @param   g   Group to delete.
-   * @return  Boolean true if group was deleted, false otherwise.
+   * @return  True if the group was deleted.
    */
   public static boolean delete(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
@@ -254,8 +254,7 @@ public class GrouperGroup {
    * 
    * @param   attribute Attribute to set.
    * @param   value     Value of attribute.
-   * @return  Boolean true if attribute added successfully, false
-   *   otherwise.
+   * @return  True if the attribute was added.
    */
   public boolean attribute(GrouperSession s, String attribute, String value) {
     boolean rv = false;
@@ -510,7 +509,7 @@ public class GrouperGroup {
    *
    * @param   s     Add member within this session context.
    * @param   m     Add this member.
-   * @return  Boolean true if successful, false otherwise.
+   * @return  True if the list value was added.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
     boolean rv = false;
@@ -530,7 +529,7 @@ public class GrouperGroup {
    *
    * @param   s     Delete member within this session context.
    * @param   m     Delete this member.
-   * @return  Boolean true if successful, false otherwise.
+   * @return  True if the list value was deleted.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
     boolean rv = false;
@@ -614,7 +613,7 @@ public class GrouperGroup {
    * <p />
    * 
    * @param   type  Set group to this type.
-   * @return  Boolean true is type set, false otherwise.
+   * @return  True if the type was set.
    */
   protected boolean type(String type) {
     boolean rv = false;
@@ -982,11 +981,8 @@ public class GrouperGroup {
     return subj;
   }
 
-  /*
+  /* (!javadoc)
    * Validate whether an attribute is valid for the current group type.
-   *
-   * @return Boolean true if attribute is valid for type or we are
-   * unable to valid the attribute at this type, false otherwise.
    */
   private boolean _validateAttribute(String attribute) {
     boolean rv = false;
@@ -1004,12 +1000,9 @@ public class GrouperGroup {
     return rv;
   }
 
-  /*
+  /* (!javadoc)
    * Validate whether all attributes are valid for the current group
    * type.
-   *
-   * @return Boolean true if the attributes are valid for the group
-   * type, false otherwise.
    */
   private boolean _validateAttributes() {
     Iterator iter = attributes.keySet().iterator();
@@ -1026,11 +1019,8 @@ public class GrouperGroup {
     return true;
   }
  
-  /*
+  /* (!javadoc)
    * Validate whether a group can be created.
-   *
-   * @return Boolean true if the group is valid to be created,
-   * false otherwise.
    */
   private boolean _validateCreate() {
     if (
