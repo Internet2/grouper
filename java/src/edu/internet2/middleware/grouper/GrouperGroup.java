@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.68 2004-11-15 16:25:32 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.69 2004-11-15 18:22:19 blair Exp $
  */
 public class GrouperGroup {
 
@@ -69,6 +69,7 @@ public class GrouperGroup {
   {
     GrouperGroup g = new GrouperGroup();
 
+    // TODO Can I move all|most of this to GrouperBackend?
     // Initalize aspects of the group.
     g._create(s, stem, descriptor);
 
@@ -94,7 +95,10 @@ public class GrouperGroup {
                                   String stem, 
                                   String descriptor)
   {
-    return GrouperBackend.groupLoad(s, stem, descriptor);
+    GrouperGroup g = GrouperBackend.groupLoad(s, stem, descriptor);
+    // Attach session
+    g.grprSession = s;
+    return g;
   }
 
   /*
@@ -160,12 +164,15 @@ public class GrouperGroup {
             // FIXME Provide a method of confirming a group's existence
             //       that doesn't rely upon loading a group and checking for
             //       the presence of a `key'.
-            GrouperGroup g = GrouperBackend.groupLoad(this.grprSession,
-                                                      this.attribute("stem").value(),
-                                                      this.attribute("descriptor").value());
+            GrouperGroup g = GrouperGroup.load(
+                                               this.grprSession,
+                                               this.attribute("stem").value(),
+                                               this.attribute("descriptor").value()
+                                              );
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
-            if (g.key() != null) {
+            //if (g.key() != null) {
+            if ( ( g != null) && ( g.key() != null ) ) {
               this.exists = true;
               return true;
             }

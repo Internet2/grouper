@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.1 2004-11-13 06:40:47 blair Exp $
+ * $Id: TestGroupLists.java,v 1.2 2004-11-15 18:22:19 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -52,18 +52,21 @@ public class TestGroupLists extends TestCase {
  
   // Add valid list data to a group
   public void testAddValidListDataToGroup() {
-    Grouper         G     = new Grouper();
-    GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Grouper         G       = new Grouper();
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch a group
-    GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
-    // TODO Assert.assertTrue( grp.exists() );
+    GrouperGroup    grp     = GrouperGroup.load(s, stem, desc);
+    Assert.assertNotNull(grp);
+    String          klassG  = "edu.internet2.middleware.grouper.GrouperGroup";
+    Assert.assertTrue( klassG.equals( grp.getClass().getName() ) );
+    Assert.assertTrue( grp.exists() );
     // Fetch a member
-    GrouperMember   m     = GrouperMember.lookup("blair", "person");
+    GrouperMember   m       = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m);
-    String          klass = "edu.internet2.middleware.grouper.GrouperMember";
-    Assert.assertTrue( klass.equals( m.getClass().getName() ) );
+    String          klassM  = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klassM.equals( m.getClass().getName() ) );
     // Add member to "members" list
     Assert.assertTrue( grp.listAddVal(s, m, "members") );
     // We're done
@@ -78,7 +81,7 @@ public class TestGroupLists extends TestCase {
     s.start(subj);
     // Fetch a group
     GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
-    // TODO Assert.assertTrue( grp.exists() );
+    Assert.assertTrue( grp.exists() );
     // Fetch a member
     GrouperMember   m     = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m);
@@ -100,7 +103,7 @@ public class TestGroupLists extends TestCase {
     s.start(subj);
     // Fetch a group
     GrouperGroup    grp     = GrouperGroup.load(s, stem, desc);
-    // TODO Assert.assertTrue( grp.exists() );
+    Assert.assertTrue( grp.exists() );
     // Fetch list data of type "admins"
     List            admins  = grp.listVals(s, "admins");
     Assert.assertNotNull(admins);
@@ -114,7 +117,6 @@ public class TestGroupLists extends TestCase {
   }
 
   // TODO Fetch list data (plural)
-
   public void testFetchInvalidListDataForGroup() {
     Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
@@ -122,7 +124,7 @@ public class TestGroupLists extends TestCase {
     s.start(subj);
     // Fetch a group
     GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
-    // TODO Assert.assertTrue( grp.exists() );
+    Assert.assertTrue( grp.exists() );
     // Fetch list data of type "nonadmins"
     List admins = grp.listVals(s, "nonadmins");
     Assert.assertNotNull(admins);
@@ -144,7 +146,7 @@ public class TestGroupLists extends TestCase {
     s.start(subj);
     // Fetch a group
     GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
-    // TODO Assert.assertTrue( grp.exists() );
+    Assert.assertTrue( grp.exists() );
     // Fetch a member
     GrouperMember   m     = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m);
@@ -164,7 +166,7 @@ public class TestGroupLists extends TestCase {
     s.start(subj);
     // Fetch a group
     GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
-    // TODO Assert.assertTrue( grp.exists() );
+    Assert.assertTrue( grp.exists() );
     // Fetch a member
     GrouperMember   m     = GrouperMember.lookup("blair", "person");
     Assert.assertNotNull(m);
@@ -188,15 +190,18 @@ public class TestGroupLists extends TestCase {
     // Fetch the first group
     GrouperGroup    grp1 = GrouperGroup.load(s, stem, desc);
     Assert.assertNotNull(grp1);
-    // TODO Assert.assertTrue( grp1.exists() );
+    Assert.assertTrue( grp1.exists() );
     // Create the second group
     GrouperGroup    grp2 = GrouperGroup.create(s, stem1, desc1);
-    // TODO Assert.assertNotNull(grp2);
-    //Assert.assertTrue( grp2.exists() );
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue( grp2.exists() );
     // TODO Make `grp2' a member of `grp1'
     // We're done
     s.stop();
   }
+
+  // TODO Delete group with immediate members
+  // TODO Delete groups that provide/have effective members
 
 }
 

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupsAdd.java,v 1.2 2004-11-13 05:26:48 blair Exp $
+ * $Id: TestGroupsAdd.java,v 1.3 2004-11-15 18:22:19 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -24,6 +24,11 @@ import  junit.framework.*;
 
 
 public class TestGroups extends TestCase {
+
+  private String stem   = "stem.0";
+  private String stem1  = "stem.1";
+  private String desc   = "desc.0";
+  private String desc1  = "desc.1";
 
   public TestGroups(String name) {
     super(name);
@@ -49,7 +54,7 @@ public class TestGroups extends TestCase {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
-    GrouperGroup g = GrouperGroup.load(s, "stem.0", "descriptor.0");
+    GrouperGroup    g     = GrouperGroup.load(s, stem, desc);
     // Confirm that group doesn't exist
     Assert.assertFalse( g.exists() );
     // We're done
@@ -63,8 +68,6 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Create the group
-    String          stem  = "stem.0";
-    String          desc  = "desc.0";
     GrouperGroup grp      = GrouperGroup.create(s, stem, desc);
     Assert.assertNotNull(grp);
     String klass          = "edu.internet2.middleware.grouper.GrouperGroup";
@@ -86,9 +89,7 @@ public class TestGroups extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch the group
-    String          stem  = "stem.0";
-    String          desc  = "desc.0";
-    GrouperGroup grp      = GrouperGroup.load(s, stem, desc);
+    GrouperGroup    grp   = GrouperGroup.load(s, stem, desc);
     Assert.assertNotNull(grp);
     String klass          = "edu.internet2.middleware.grouper.GrouperGroup";
     Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
@@ -102,16 +103,13 @@ public class TestGroups extends TestCase {
     s.stop();
   }
 
-  // Fetch an invalid group
   public void testFetchInvalidGroup() {
     Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
     // Fetch the group
-    String          stem  = "stem.not0";
-    String          desc  = "desc.not0";
-    GrouperGroup grp      = GrouperGroup.load(s, stem, desc);
+    GrouperGroup grp      = GrouperGroup.load(s, stem1, desc1);
     // TODO This will fail (or rather, should be changed) if I start
     //      returning null rather than a desolate object
     Assert.assertFalse( grp.exists() );
