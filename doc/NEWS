@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.5 2004-12-05 23:31:41 blair Exp $
+$Id: NEWS,v 1.6 2004-12-06 00:53:19 blair Exp $
 
 ---
 
@@ -31,7 +31,6 @@ $Id: NEWS,v 1.5 2004-12-05 23:31:41 blair Exp $
 
 * _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
 * Basic Event Logging (#253)
-* GrouperSession validation before performing operations (#180)
 * Contributed: Member Loader (#246)
 * Javadoc API documentation (#132)
 * Search: By group create time (#155)
