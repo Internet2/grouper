@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.14 2004-11-08 18:30:35 blair Exp $
+# $Id: API,v 1.15 2004-11-08 20:11:57 blair Exp $
 #
 # TODO Interfaces
 #
@@ -58,6 +58,7 @@ GrouperBackend
       XXX Hrm...isn't this also in Grouper?
     List groupTypes()
       XXX Hrm...isn't this also in Grouper?
+    boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list)
     void loadGroup(GrouperSession s, GrouperGroup g, String key)
       XXX Rename?
     GrouperMember member(String id, String type)
@@ -90,9 +91,9 @@ GrouperGroup
     Map attributes()
     boolean exists()
     String groupKey()
-      XXX Probably shouldn't be public
+      XXX Should NOT be public
     String groupType()
-    listAdd(GrouperSession s, GrouperMember member, String list)
+    boolean listAdd(GrouperSession s, GrouperMember member, String list)
 
 
 GrouperMember
@@ -103,6 +104,8 @@ GrouperMember
 
   Instance Methods
     String id()
+    String key()
+      XXX Should NOT be public
     String type()
     String typeID()
 
