@@ -18,14 +18,9 @@ import  java.lang.reflect.*;
  * Implementation of the I2MI {{@link SubjectType}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.1 2004-11-12 04:25:41 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.2 2004-11-12 04:55:41 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
-
-  // Class reference to the appropriate adapter
-  // private static SubjectTypeAdapter   sta;
-  // Has adapter been initialized?
-  // private static boolean              initialized = false;
 
   // What we need to identify a subject type
   private String adapterClass;
@@ -38,7 +33,6 @@ public class SubjectTypeImpl implements SubjectType {
    */
   public SubjectTypeImpl() {
     super();
-    this._init();
   }
 
 
@@ -108,20 +102,6 @@ public class SubjectTypeImpl implements SubjectType {
    */
   public String typeID() {
     return this.getSubjectTypeID();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables.
-   */
-  private void _init() {
-    this.adapterClass = null;
-    this.typeID       = null;
-    this.name         = null;
   }
 
 
