@@ -37,7 +37,7 @@ import  org.apache.commons.cli.*;
  * </ol>
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.3 2004-12-05 04:13:18 blair Exp $
+ * @version $Id: grouperq.java,v 1.4 2004-12-05 16:43:43 blair Exp $
  */
 class grouperq {
 
@@ -91,7 +91,7 @@ class grouperq {
       _verbose("Using default group field (" + Grouper.DEF_LIST_TYPE + ")");
       field = Grouper.DEF_LIST_TYPE;
     }
-    _verbose("Looking up field '" + subjectID + "'");
+    _verbose("Looking up field '" + field + "'");
     vals = mem.listVals(s, field);
     return vals;
   } 
