@@ -58,7 +58,7 @@ import  java.util.*;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.24 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.25 2004-11-29 19:14:57 blair Exp $
  */
 public interface GrouperNaming {
 
@@ -159,18 +159,6 @@ public interface GrouperNaming {
   public boolean has(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
 
   /**
-   * Revoke an naming privilege.
-   * <p>
-   * See implementations for more information.
-   *
-   * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
-   * @param   m     Revoke privilege for this{@link GrouperMember}.
-   * @param   priv  Privilege to revoke.
-   */
-  public boolean revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
-
-  /**
    * Revoke all privileges of the specified type on the specified
    * group.
    * <p />
@@ -181,6 +169,18 @@ public interface GrouperNaming {
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(GrouperSession s, GrouperGroup g, String priv);
+
+  /**
+   * Revoke an naming privilege.
+   * <p>
+   * See implementations for more information.
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   m     Revoke privilege for this{@link GrouperMember}.
+   * @param   priv  Privilege to revoke.
+   */
+  public boolean revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
 
   /**
    * List members who have the specified privilege on the 
