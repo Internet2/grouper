@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.16 2004-12-09 01:28:38 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.17 2004-12-09 03:49:59 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
@@ -87,9 +87,7 @@ public class SubjectImpl
     this._init();
   }
 
-  /**
-   * Construct a new {@link SubjectImpl} object.
-   * <p />
+  /* (!javadoc)
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
@@ -104,35 +102,58 @@ public class SubjectImpl
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Not Implemented.
+   */
   public void addAttribute(String name, String value) {
     // XXX Nothing -- Yet
     Grouper.log().notimpl("SubjectImpl.addAttribute");
   }
 
+  /**
+   * Not Implemented.
+   */
   public String[] getAttributeArray(String name) {
     Grouper.log().notimpl("SubjectImpl.getAttributeArray");
     return null; 
   }
 
+  /**
+   * Not Implemented.
+   */
   public String getDescription() {
     Grouper.log().notimpl("SubjectImpl.getDescription");
     return null;
   }
 
+  /**
+   * Not Implemented.
+   */
   public String getDisplayId() {
     Grouper.log().notimpl("SubjectImpl.getDisplayId");
     return null; 
   }
 
+  /**
+   * Not Implemented.
+   */
   public String getId() {
     return this.getSubjectID();
   }
 
+  /**
+   * Not Implemented.
+   */
   public String getName() {
     Grouper.log().notimpl("SubjectImpl.getName");
     return null; 
   }
 
+  /** 
+   * Retrieve this subject's type.
+   * <p />
+   * @return  A {@link SubjectType} object.
+   */
   public SubjectType getSubjectType()  {
     return Grouper.subjectType(this.typeID);
   }

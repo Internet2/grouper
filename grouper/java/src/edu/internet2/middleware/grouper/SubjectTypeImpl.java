@@ -61,7 +61,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.12 2004-12-09 01:28:38 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.13 2004-12-09 03:49:59 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -90,15 +90,17 @@ public class SubjectTypeImpl implements SubjectType {
    */
 
   /**
-   * Return an instance of the {@link SubjectTypeAdapter} class for
+   * Retrieve an instance of the {@link SubjectTypeAdapter} class for
    * this {@link SubjectType}.
-   *
+   * <p />
    * @return {@link SubjectTypeAdapter} object.
    */
   public SubjectTypeAdapter getAdapter() {
     if (this.getAdapterClass() != null) {
-      // Attempt to reflectively create an instance of the
-      // appropriate subject type adapter
+      /*
+       * Attempt to reflectively create an instance of the appropriate
+       * subjectTypeAdapter
+       */
       try {
         Class classType     = Class.forName( this.getAdapterClass() );
         Class[] paramsClass = new Class[] { };
@@ -115,19 +117,18 @@ public class SubjectTypeImpl implements SubjectType {
   }
 
   /**
-   * Return subject type ID.
-   *
-   * @return ID of type.
+   * Retrieve typeID.
+   * <p />
+   * @return  This subject type's id.
    */
-
   public String getId() {
     return this.getSubjectTypeID();
   }
 
   /**
-   * Return subject type name.
-   *
-   * @return  Name of type.
+   * Retrieve name.
+   * <p />
+   * @return  This subject type's name.
    */
   public String getName() {
     return this.name;
