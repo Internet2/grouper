@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.1 2005-03-14 19:27:48 blair Exp $
+ * @version $Id: MemberOf.java,v 1.2 2005-03-15 15:37:00 blair Exp $
  */
 public class MemberOf {
 
@@ -79,7 +79,6 @@ public class MemberOf {
    * <p />
    * @param s Operate within this {@link GrouperSession}.
    * @return  new {@link MemberOf} object.
-   * Null-argument constructor for Hibernate.
    */
   public MemberOf(GrouperSession s) {
     this.s = s;
