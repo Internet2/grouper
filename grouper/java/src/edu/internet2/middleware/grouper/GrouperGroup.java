@@ -63,25 +63,30 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.189 2005-03-23 23:30:14 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.190 2005-03-24 20:56:44 blair Exp $
  */
 public class GrouperGroup extends Group {
 
   /*
+   * PROTECTED INSTANCE VARIABLES
+   */
+  private GrouperSession  s;
+
+
+  /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private Map             attributes;
+  private Map             attributes = new HashMap();
   private String          createTime;
   private String          createSubject;
   private String          createSource;
   private String          id;
-  private boolean         initialized   = false; // FIXME UGLY HACK!
+  private boolean         initialized = false; 
   private String          groupComment;
   private String          key;
   private String          modifyTime;
   private String          modifySubject;
   private String          modifySource;
-  private GrouperSession  s;
   private String          type;
 
 
@@ -93,6 +98,14 @@ public class GrouperGroup extends Group {
    */
   public GrouperGroup() {
     this._init();
+  }
+
+  /*
+   * Instantiate a stem object
+   */
+  private GrouperGroup(GrouperSession s, String key) {
+    this.key  = key;
+    this.s    = s;
   }
 
 
@@ -169,6 +182,28 @@ public class GrouperGroup extends Group {
       s.dbSess().txRollback();
     }
     Grouper.log().groupDel(rv, s, g);
+    return rv;
+  }
+
+  /**
+   * Check for group existence.
+   * <p />
+   * @param s     Act within this session.
+   * @param stem  Group stem.
+   * @param extn  Group extension.
+   * @param type  Group type.
+   * @return true if group exists.
+   */
+  public static boolean exists(
+                          GrouperSession s, String stem, 
+                          String extn, String type
+                        )
+  {
+    boolean rv = false;
+    String key = Group.findKey(s, stem, extn, type);
+    if (key != null) {
+      rv = true;
+    }
     return rv;
   }
 
@@ -259,6 +294,7 @@ public class GrouperGroup extends Group {
   protected boolean _privNamingRevokeAll() {
     boolean rv = false;
     // Revoke all privileges
+/* BDC
     // FIXME This is ugly 
     if (
         this.s.naming().revoke(this.s, this, Grouper.PRIV_STEM)    &&
@@ -267,6 +303,7 @@ public class GrouperGroup extends Group {
     {       
       rv = true;
     }
+*/
     return rv;
   }
 
@@ -283,9 +320,8 @@ public class GrouperGroup extends Group {
                                String stem, String extension
                              )
   {
-    return GrouperGroup._loadByStemExtn(
-             s, stem, extension, Grouper.DEF_GROUP_TYPE
-           );
+    String key = Group.findKey(s, stem, extension, Grouper.DEF_GROUP_TYPE);
+    return new GrouperGroup(s, key);
   }
 
   /**
@@ -302,7 +338,8 @@ public class GrouperGroup extends Group {
                                String extension, String type
                              )
   {
-    return GrouperGroup._loadByStemExtn(s, stem, extension, type);
+    String key = Group.findKey(s, stem, extension, Grouper.DEF_GROUP_TYPE);
+    return new GrouperGroup(s, key);
   }
 
   /**
@@ -312,28 +349,8 @@ public class GrouperGroup extends Group {
    * @param   id          Group GUID.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup loadByID(
-                               GrouperSession s, String id
-                             )
-  {
-    return GrouperGroup._loadByID(
-             s, id, Grouper.DEF_GROUP_TYPE
-           );
-  }
-
-  /**
-   * Retrieve a group by public GUID.
-   * <p />
-   * @param   s           Session to load the group within.
-   * @param   id          Group GUID.
-   * @param   type        The type of group to retrieve.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static GrouperGroup loadByID(
-                               GrouperSession s, String id, String type
-                             )
-  {
-    return GrouperGroup._loadByID(s, id, type);
+  public static Group loadByID(GrouperSession s, String id) {
+    return Group.loadByID(s, id);
   }
 
   /**
@@ -375,7 +392,6 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group attribute.
    * <p />
-   * @param   s         Retrieve attribute using this session.
    * @param   attribute The attribute to retrieve.
    * @return  A {@link GrouperAttribute} object.
    */
@@ -569,17 +585,15 @@ public class GrouperGroup extends Group {
    * @param   m     Add this member.
    * @return  True if the list value was added.
    */
-  public boolean listAddVal(GrouperMember m) {
+  public void listAddVal(GrouperMember m) {
     /* 
      * TODO Add a variant that takes a GrouperGroup instead of a
      * GrouperMember?
      */
-    boolean rv = false;
     if (GrouperGroup._canModListVal(this, Grouper.DEF_LIST_TYPE)) {
-      rv = this._listAddVal(m, Grouper.DEF_LIST_TYPE);
-      Grouper.log().groupListAdd(rv, this.s, this, m);
+      this._listAddVal(m, Grouper.DEF_LIST_TYPE);
+      Grouper.log().groupListAdd(this.s, this, m);
     }
-    return rv;
   }
 
   /**
@@ -589,17 +603,15 @@ public class GrouperGroup extends Group {
    * @param   list  Add member to this list type.
    * @return  True if the list value was added.
    */
-  public boolean listAddVal(GrouperMember m, String list) {
+  public void listAddVal(GrouperMember m, String list) {
     /* 
      * TODO Add a variant that takes a GrouperGroup instead of a
      * GrouperMember?
      */
-    boolean rv = false;
     if (GrouperGroup._canModListVal(this, list)) {
-      rv = this._listAddVal(m, list);
-      Grouper.log().groupListAdd(rv, this.s, this, m);
+      this._listAddVal(m, list);
+      Grouper.log().groupListAdd(this.s, this, m);
     }
-    return rv;
   }
 
   /**
@@ -784,6 +796,7 @@ public class GrouperGroup extends Group {
       GrouperGroup ns = GrouperGroup._loadByName(
                           s, stem, Grouper.NS_TYPE
                         );
+/* BDC
       if (ns != null) {
         if (type.equals("naming")) {
           // If a naming group, does the subject have STEM on `stem'?
@@ -793,6 +806,7 @@ public class GrouperGroup extends Group {
           rv = s.naming().has(s, ns, Grouper.PRIV_CREATE);
         }
       }
+*/
     }
     return rv;
   }
@@ -968,7 +982,7 @@ public class GrouperGroup extends Group {
   {
     GrouperGroup  g     = null;
     String        key   = null;
-    String        qry   = "GrouperGroup.by.id";
+    String        qry   = "Group.by.id";
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, id);
@@ -1000,9 +1014,6 @@ public class GrouperGroup extends Group {
     return g;
   }
 
-  protected static GrouperGroup loadByKey(GrouperSession s, String key) {
-    return GrouperGroup.loadByKey(s, new GrouperGroup(), key);
-  }
   protected static GrouperGroup loadByKey(
                                   GrouperSession s, GrouperGroup g,
                                   String key
@@ -1104,35 +1115,6 @@ public class GrouperGroup extends Group {
     return g;
   }
 
-  private static GrouperGroup _loadByStemExtn(
-                                GrouperSession s, String stem, 
-                                String extn, String type
-                              )
-  {
-    GrouperGroup g = null;
-    if (GrouperStem.exists(s, stem)) {
-      String name = GrouperGroup.groupName(stem, extn);
-      g = GrouperGroup._loadByName(s, name, type);
-      if (g != null) {
-        // Attach type  
-        // FIXME Grr....
-        g.type = type;
-        g.initialized = true; // FIXME UGLY HACK!
-        g.s = s; // Attach GrouperSession
-      }
-    }
-    return g;
-  }
-
-  /*
-   * Return the number of seconds since the epoch.
-   */
-  private static String _now() {
-    // TODO Do I want to store in non-epoch format?
-    java.util.Date  now = new java.util.Date();
-    return Long.toString(now.getTime());
-  }
-
   /*
    * PRIVATE INSTANCE METHODS
    */
@@ -1166,7 +1148,7 @@ public class GrouperGroup extends Group {
       try {
         GrouperAttribute.save(this.s, attr);
         // Now update this object and save it to persist the opattrs
-        this.setModifyTime( GrouperGroup._now() );
+        this.setModifyTime( this.now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
@@ -1206,7 +1188,7 @@ public class GrouperGroup extends Group {
     if (this._canModAttr(this)) {
       if (this._attrDel(attribute)) {
         // Now update this object and save it to persist the opattrs
-        this.setModifyTime( GrouperGroup._now() );
+        this.setModifyTime( this.now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.remove(attribute);
@@ -1280,7 +1262,7 @@ public class GrouperGroup extends Group {
       try {
         // Now update this object and save it to persist the opattrs
         GrouperAttribute.save(this.s, attr);
-        this.setModifyTime( GrouperGroup._now() );
+        this.setModifyTime( this.now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
@@ -1324,7 +1306,10 @@ public class GrouperGroup extends Group {
     String name = GrouperGroup.groupName(stem, extn);
     if (GrouperGroup._canCreate(s, stem, type)) {
       // Check to see if the group already exists.
-      g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
+      // TODO This should just be ane exists method, perhaps?
+      // BDC g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
+      String key = Group.findKey(s, stem, extn, type);
+      g = new GrouperGroup(s, key);
       if (g != null) {
         /*
          * TODO Group already exists.  Ideally we'd throw an exception or
@@ -1370,7 +1355,7 @@ public class GrouperGroup extends Group {
            * TODO Most, if not all, of the operational attributes should be
            *      handled by Hibernate interceptors.  A task for another day.
            */
-          g.setCreateTime(    GrouperGroup._now() );
+          g.setCreateTime( g.now() );
           GrouperMember mem = GrouperMember.load(s, s.subject());
           g.setCreateSubject( mem.key() );
 
@@ -1401,7 +1386,6 @@ public class GrouperGroup extends Group {
     }
     if (g != null) {
       if (g.initialized != true) {
-  System.err.println("23");
         g = null;
       } else {
         s.dbSess().txCommit();
@@ -1462,11 +1446,13 @@ public class GrouperGroup extends Group {
                     )
   {
     boolean rv = false;
+/* BDC
     if (s.naming().grant(s, this, m, Grouper.PRIV_STEM)) {
       rv = true;
     } else {
       // TODO Exception!
     }
+*/
     return rv;
   }
 
@@ -1532,7 +1518,7 @@ public class GrouperGroup extends Group {
      */
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
-    this.setModifyTime( GrouperGroup._now() );
+    this.setModifyTime( this.now() );
     GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
     this.setModifySubject( mem.key() );
     GrouperList gl = new GrouperList(this, m, list);
@@ -1579,7 +1565,7 @@ public class GrouperGroup extends Group {
      */
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
-    this.setModifyTime( GrouperGroup._now() );
+    this.setModifyTime( this.now() );
     GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
     this.setModifySubject( mem.key() );
 
@@ -1703,75 +1689,75 @@ public class GrouperGroup extends Group {
    * HIBERNATE
    */
 
-  private String getGroupID() {
+  protected String getGroupID() {
     return this.id;
   }
 
-  private void setGroupID(String id) {
+  protected void setGroupID(String id) {
     this.id = id;
   }
 
-  private String getGroupKey() {
+  protected String getGroupKey() {
     return this.key;
   }
 
-  private void setGroupKey(String key) {
+  protected void setGroupKey(String key) {
     this.key = key;
   }
 
-  private String getCreateTime() {
+  protected String getCreateTime() {
     return this.createTime;
   }
  
-  private void setCreateTime(String createTime) {
+  protected void setCreateTime(String createTime) {
     this.createTime = createTime;
   }
  
-  private String getCreateSubject() {
+  protected String getCreateSubject() {
     return this.createSubject;
   }
  
-  private void setCreateSubject(String createSubject) {
+  protected void setCreateSubject(String createSubject) {
     this.createSubject = createSubject;
   }
  
-  private String getCreateSource() {
+  protected String getCreateSource() {
     return this.createSource;
   }
  
-  private void setCreateSource(String createSource) {
+  protected void setCreateSource(String createSource) {
     this.createSource = createSource;
   }
  
-  private String getModifyTime() {
+  protected String getModifyTime() {
     return this.modifyTime;
   }
  
-  private void setModifyTime(String modifyTime) {
+  protected void setModifyTime(String modifyTime) {
     this.modifyTime = modifyTime;
   }
  
-  private String getModifySubject() {
+  protected String getModifySubject() {
     return this.modifySubject;
   }
  
-  private void setModifySubject(String modifySubject) {
+  protected void setModifySubject(String modifySubject) {
     this.modifySubject = modifySubject;
   }
  
-  private String getModifySource() {
+  protected String getModifySource() {
     return this.modifySource;
   }
  
-  private void setModifySource(String modifySource) {
+  protected void setModifySource(String modifySource) {
     this.modifySource = modifySource;
   }
 
-  private String getGroupComment() {
+  protected String getGroupComment() {
     return this.groupComment;
   }
 
-  private void setGroupComment(String comment) {
+  protected void setGroupComment(String comment) {
     this.groupComment = comment;
   } 
 
