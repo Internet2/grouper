@@ -1,64 +1,156 @@
-#
-# $Id: README,v 1.20 2004-12-05 03:01:09 blair Exp $
-#
 
- ------------------
-/ PROJECT LAYOUT /
------------------
+# Grouper README
 
-- build/
-  Destination for all compiled Java classes.
+Welcome to _Grouper_.  
 
-- build.xml
-  Used by Ant. 
+This file is intended to give you a brief overview of how this
+directory tree is structured and how to get started with compiling,
+testing, and running Grouper.
 
-- conf/
-  Configuration directory.
+We will start with the project layout and then move on to building
+Grouper, testing Grouper, and building Grouper's javadoc documentation.
 
-- dist/
-  - api/
-    Destination for javadoc-generated documentation.
-  - lib/
-    Compiled .jar files.
-  - run/
-    HSQLDB data directory.
+$Id: README,v 1.21 2004-12-05 03:18:25 blair Exp $
 
-- doc/
-  - API
-    API class and method summary.
-  - FAQ
-    Grouper FAQ.
-  - NEWS
-    Release Notes.
-  - PLATFORMS
-    Platforms where Grouper has been tested and is known to work.
+---
 
-- java/
-  - lib/
-      Third-party JAR files included with Grouper.
-  - src/
-      Grouper's Java source code.  
-  - tests/
-      Java source used for testing Grouper.
+## Project Layout
 
-- LICENSE
-  A copy of the Academic Free License v. 2.1
+### build/
 
-- README
-    This file.
+Destination for all compiled Java classes.
 
-- sql/
-    SQL commands for creating and populating the Groups registry
-    database.
+### build.xml
 
+Ant build configuration file.
 
- --------------------------
-/ BUILD AND INSTALLATION /
--------------------------
+### conf/
 
-  % ant build
-  % ant db-init db-init-test
-  % ant test
+Configuration directory.
+
+#### conf/ehcache.xml
+
+Hibernate cache configuration file.
+
+#### conf/hibernate.properties
+
+Hibernate configuration file.
+
+#### conf/Grouper.hbm.xml
+
+Grouper's Hibernating mapping configuration file.
+
+#### conf/grouper.properties
+
+Grouper configuration file.
+
+#### conf/log4j.properties
+
+Logging configuratin file.
+
+### contrib/
+
+Contributed loaders, provisioners, and other programs for use with
+Grouper.  See _contrib/README_ for more information.
+
+### dist/
+
+#### api/
+
+Destination for javadoc-generated documentation.
+
+#### lib/
+
+Destination for compiled .jar files.
+
+#### run/
+
+HSQLDB data directory.
+
+### doc/
+
+#### API
+
+API class and method summary.
+
+#### FAQ
+
+Grouper FAQ.
+
+#### NEWS
+
+Release Notes.
+
+#### PLATFORMS
+
+Platforms where Grouper has been tested and is known to work.
+
+### java/
+
+#### lib/
+
+Third-party jar files included with Grouper.  See _java/lib/README_ for
+more details on the jar files included.
+
+#### src/
+
+Grouper's Java source code.  
+
+#### tests/
+
+Java source used for testing Grouper.
+
+### LICENSE
+
+A copy of the Academic Free License v. 2.1
+
+### README
+
+This file.
+
+### sql/
+
+#### sql/hsqldb.sql
+
+HSQLDB database schema specification.
+
+#### sql/init.sql
+
+Grouper schema data.
+
+#### sql/test.sql
+
+Data necessary to run the test harness.
+
+---
+
+## Building
+
+    % ant build
+
+---
+
+## Testing
+
+First, create the HSQLDB database and load it with some default data:
+
+    % ant db-init db-init-test
+
+Now, run the Grouper test suite.
+
+    % ant test
+
+Do not be surprised if you receive (some) warnings during the running
+of the test suite.  Some tests call code that will fail and send
+warning messages to log4j, some of which may end up on the console.
+
+If the test suite fails, it may leave the HSQLDB database in an
+state different from what the test harness is expecting.  To remedy
+this, rerun the database initialization commands specified above.
+
+---
+
+## Building Documentation
 
 To build the javadoc(1) documentation:
 
