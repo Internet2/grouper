@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.122 2004-12-05 19:20:09 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.123 2004-12-05 19:31:32 blair Exp $
  */
 public class GrouperGroup {
 
@@ -144,7 +144,11 @@ public class GrouperGroup {
    * @return  Boolean true if group was deleted, false otherwise.
    */
   public static boolean delete(GrouperSession s, GrouperGroup g) {
-    return GrouperBackend.groupDelete(s, g);
+    boolean rv = false;
+    if (GrouperGroup._canDelete(s, g)) {
+      rv = GrouperBackend.groupDelete(s, g);
+    }
+    return rv;
   }
 
   /**
@@ -561,6 +565,23 @@ public class GrouperGroup {
         if (Grouper.naming().has(s, ns, Grouper.PRIV_CREATE)) {
           rv = true;
         }
+      }
+    }
+    return rv;
+  }
+
+  /* (!javadoc)
+   * Does the current subject have permission to delete the group?
+   */
+  private static boolean _canDelete(
+                           GrouperSession s, GrouperGroup g
+                         )
+  {
+    boolean rv = false;
+    // FIXME Support for multiple list types
+    if ( (s != null) && (g != null) ) {
+      if (Grouper.access().has(s, g, Grouper.PRIV_ADMIN)) {
+        rv = true;
       }
     }
     return rv;
