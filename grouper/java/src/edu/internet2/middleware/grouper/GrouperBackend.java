@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.164 2005-03-14 03:19:40 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.165 2005-03-15 04:39:40 blair Exp $
  */
 public class GrouperBackend {
 
@@ -137,16 +137,20 @@ public class GrouperBackend {
      * TODO I envision problems when people start creating group types
      *      with other custom fields...
      */
+    /*
+     * TODO Do I need to validate the privs and then delete with a root
+     *      session?
+     */
     if (_validateGroupDel(s, g)) {
       try {
-        // Delete attributes
-        if (_attributesDel(s, g))  {
-          // Delete schema
-          if (_schemaDel(s, g)) {
-            // Revoke access privileges
-            if (_privAccessRevokeAll(s, g)) {
-              // Revoke naming privileges
-              if (_privNamingRevokeAll(s, g)) {
+        // Revoke access privileges
+        if (_privAccessRevokeAll(s, g)) {
+          // Revoke naming privileges
+          if (_privNamingRevokeAll(s, g)) {
+            // Delete attributes
+            if (_attributesDel(s, g))  {
+              // Delete schema
+              if (_schemaDel(s, g)) {
                 // Delete group
                 s.dbSess().session().delete(g);
                 // Commit
@@ -176,7 +180,8 @@ public class GrouperBackend {
       // TODO Remove existence validation from _lAV?
       if (_listValExist(s, gl) == false) {
         // The GrouperList objects that we will need to add
-        Set listVals = _memberOf(s, gl);
+        MemberOf mof = new MemberOf(s);
+        List listVals = mof.memberOf(gl);
           
         // Now add the list values
         // TODO Refactor out to _listAddVal(List vals)
@@ -201,8 +206,10 @@ public class GrouperBackend {
     boolean rv = false;
     if (_validateListVal(s, gl)) {
       try {
+        // TODO Confirm gl exists before calculating mof?
         // The GrouperList objects that we will need to delete
-        Set listVals = _memberOf(s, gl);
+        MemberOf mof = new MemberOf(s);
+        List listVals = mof.memberOf(gl);
 
         // Now delete the list values
         // TODO Refactor out to _listDelVal(List vals)
@@ -210,6 +217,11 @@ public class GrouperBackend {
         while (listValIter.hasNext()) {
           GrouperList lv = (GrouperList) listValIter.next();
           _listDelVal(s, lv);
+        }
+        try {
+          s.dbSess().session().flush();
+        } catch (HibernateException e) {
+          throw new RuntimeException("Error flushing session: " + e);
         }
 
         // Update modify information
@@ -280,8 +292,11 @@ public class GrouperBackend {
 
     // Confirm that list value doesn't already exist
     try {
-      s.dbSess().session().save(gl);
-      Grouper.log().backend("_listAddVal() added");
+      if (!s.dbSess().session().contains(gl)) {
+        s.dbSess().session().save(gl);
+        Grouper.log().backend("_listAddVal() added");
+      } else {
+      }
     } catch (HibernateException e) {
       throw new RuntimeException("Error adding list value: " + e);
     }
@@ -290,31 +305,75 @@ public class GrouperBackend {
   /* !javadoc
    * Delete a GrouperList object
    */
+  // TODO Refactor into smaller components
   private static void _listDelVal(GrouperSession s, GrouperList gl) {
+    Query   q;
     // TODO Refactor out
     Grouper.log().backend("_listDelVal() (g) " + gl.group().name());
     Grouper.log().backend("_listDelVal() (m) " + gl.member().subjectID());
     Grouper.log().backend("_listDelVal() (t) " + gl.groupField());
     if (gl.via() != null) {
+      try {
+        // TODO Why can't I use delete() with a parameterized query?
+        q = s.dbSess().session().createQuery(
+              "FROM GrouperList AS gl WHERE " +
+              "gl.groupKey    = ? AND "       +
+              "gl.memberKey   = ? AND "       +
+              "gl.groupField  = ? AND "       +
+              "gl.via         = ?"
+            );
+        q.setString(0, gl.group().key());
+        q.setString(1, gl.member().key());
+        q.setString(2, gl.groupField());
+        q.setString(3, gl.via().key());
+      } catch (HibernateException e) {
+        throw new RuntimeException("Unable to create query: " + e);
+      }
       Grouper.log().backend("_listDelVal() (v) " + gl.via().name());
     } else {
+      try {
+        // TODO Why can't I use delete() with a parameterized query?
+        q = s.dbSess().session().createQuery(
+              "FROM GrouperList AS gl WHERE " +
+              "gl.groupKey    = ? AND "       +
+              "gl.memberKey   = ? AND "       +
+              "gl.groupField  = ? AND "       +
+              "gl.via         IS NULL"
+            );
+        q.setString(0, gl.group().key());
+        q.setString(1, gl.member().key());
+        q.setString(2, gl.groupField());
+      } catch (HibernateException e) {
+        throw new RuntimeException("Unable to create query: " + e);
+      }
       Grouper.log().backend("_listDelVal() (v) null");
     }
 
-    // Confirm that the data exists
-    if (GrouperBackend._listValExist(s, gl) == true) {
-      Grouper.log().backend("_listDelVal() Value exists");
-      Grouper.log().backend("_listDelVal() Deleting " + gl);
-      try {
-        // Delete it
-        s.dbSess().session().delete(gl); 
-        Grouper.log().backend("_listDelVal() deleted");
-      } catch (HibernateException e) {
-        throw new RuntimeException(e);
+    try {
+      List vals = q.list();
+      if (vals.size() == 1) {
+        GrouperList del = (GrouperList) vals.get(0);
+        try {
+          s.dbSess().session().delete(del);
+          Grouper.log().backend("_listDelVal() deleted");
+        } catch (HibernateException e) {
+          throw new RuntimeException(
+                      "Error deleting list value: " + e
+                    );
+        }
+      } else {
+/* TODO Later, later...
+        throw new RuntimeException(
+                    "Wrong number of values to delete: " + vals.size()
+                  );
+*/
       }
-    } else {
-      Grouper.log().backend("_listDelVal() Value doesn't exist");
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error finding values: " + e
+                );
     }
+
   }
 
   /* !javadoc
@@ -351,6 +410,7 @@ public class GrouperBackend {
     try {
       List vals = q.list();
       if (vals.size() == 1) {
+        GrouperList lv = (GrouperList) vals.get(0);
         rv = true;
       }
     } catch (HibernateException e) {
@@ -359,78 +419,6 @@ public class GrouperBackend {
                 );
     }
     return rv;
-  }
-
-  /* !javadoc
-   * Return set of GrouperList objects generated by this list value.
-   * TODO I can break this method down even further.
-   */
-  private static Set _memberOf(GrouperSession s, GrouperList gl) {
-    Set members = new HashSet();
-    Set memOf   = new HashSet();
-    Set mships  = new HashSet();
-
-    GrouperGroup  g     = gl.group();
-    GrouperMember m     = gl.member();
-    String        field = gl.groupField();
-
-    // Determine if `m' is a group and has any members
-    if (m.typeID().equals("group")) {
-      GrouperGroup mAsG = groupLoadByID(s, m.subjectID());
-      members.addAll( listVals(s, mAsG, field) );
-      // For each member of `m'
-      Iterator iterM = members.iterator();
-      while (iterM.hasNext()) {
-        GrouperList lvM = (GrouperList) iterM.next();
-        // TODO Argh!
-        lvM = new GrouperList(
-                    s, lvM.groupKey(), lvM.memberKey(), 
-                    lvM.groupField(), lvM.viaKey()
-                  );
-        // Add to membership list for `g' via `m'
-        mships.add( new GrouperList(g, lvM.member(), field, mAsG) );
-      }
-    }
-
-    // Find where `g' is a member
-    GrouperMember gAsM = GrouperMember.load(s, g.id(), "group");
-    memOf.addAll( listVals(s, gAsM, field) );
-    // Add the immediate membership
-    mships.add( new GrouperList(g, m, field, null) );
-    // Now add effective memberships
-    Iterator iter = memOf.iterator();
-
-    // For each membership of `g'
-    Iterator iterG = memOf.iterator();
-    while (iterG.hasNext()) {
-      GrouperList lvG = (GrouperList) iterG.next();
-      // TODO Argh!
-      lvG = new GrouperList(
-                  s, lvG.groupKey(), lvG.memberKey(), 
-                   lvG.groupField(), lvG.viaKey()
-                 );
-      // FIXME This should be the first element in the via path
-      GrouperGroup via = lvG.via();
-      if (via == null) {
-        via = g;
-      }
-      // Add for each member of `m'
-      Iterator iterMG = members.iterator();
-      while (iterMG.hasNext()) {
-        GrouperList lvMG = (GrouperList) iterMG.next();
-        // TODO Argh!
-        lvMG = new GrouperList(
-                     s, lvMG.groupKey(), lvMG.memberKey(), 
-                     lvMG.groupField(), lvMG.viaKey()
-                   );
-        mships.add( 
-                   new GrouperList(lvG.group(), lvMG.member(), field, via) 
-                  );
-      }
-      // And for `m'
-      mships.add( new GrouperList(lvG.group(), m, field, via) );
-    }
-    return mships;
   }
 
   /* !javadoc
@@ -827,12 +815,12 @@ public class GrouperBackend {
         if (g != null) {
           // Its schema
           GrouperSchema schema = GrouperBackend._groupSchema(s, g);
-          if (
-              (schema != null)                         &&
-              (GrouperBackend._groupAttachAttrs(s, g)) 
-             )
-          {
-            g.type( schema.type() );
+          if (schema != null) {
+            if (GrouperBackend._groupAttachAttrs(s, g)) {
+              g.type( schema.type() );
+            } else {
+              g = null;
+            }
           } else {
             g = null;
           }
@@ -883,17 +871,12 @@ public class GrouperBackend {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, list);
       try {
-        // vals = q.list();
+        // TODO Argh!
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          vals.add( 
-            new GrouperList(
-              s, gl.groupKey(), gl.memberKey(), 
-              gl.groupField(), gl.viaKey()
-            )
-          );
+          vals.add(gl);
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -926,7 +909,13 @@ public class GrouperBackend {
       q.setString(0, g.key());
       q.setString(1, list);
       try {
-        vals = q.list();
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
@@ -954,11 +943,27 @@ public class GrouperBackend {
     String  qry   = "GrouperList.by.member.and.list";
     List    vals  = new ArrayList();
     try {
+      if (s == null) {
+        throw new RuntimeException("s == null");
+      }
+      if (s.dbSess() == null) {
+        throw new RuntimeException("s.dbSess() == null");
+      }
+      if (s.dbSess().session() == null) {
+        throw new RuntimeException("s.dbSess().session() == null");
+      }
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, m.key());
       q.setString(1, list);
       try {
-        vals = q.list();
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
@@ -987,7 +992,14 @@ public class GrouperBackend {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, list);
       try {
-        vals = q.list();
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
@@ -1019,7 +1031,14 @@ public class GrouperBackend {
       q.setString(0, g.key());
       q.setString(1, list);
       try {
-        vals = q.list();
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
@@ -1051,7 +1070,14 @@ public class GrouperBackend {
       q.setString(0, m.key());
       q.setString(1, list);
       try {
-        vals = q.list();
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
@@ -1080,7 +1106,14 @@ public class GrouperBackend {
       Query q = s.dbSess().session().getNamedQuery(qry);  
       q.setString(0, list);
       try {
-        vals = q.list();
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
@@ -1143,7 +1176,14 @@ public class GrouperBackend {
       q.setString(0, m.key());
       q.setString(1, list);
       try {
-        vals = q.list();
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error retrieving results for " + qry + ": " + e
