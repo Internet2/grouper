@@ -22,6 +22,19 @@
     </property>
   </class>
 
+  <class name="GrouperSession" table="grouper_session">
+    <id name="sessionID" type="string" unsaved-value="null" >
+      <column name="sessionID" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="cred">
+      <column name="cred" length="255" not-null="true"/>
+    </property>
+    <property name="startTime">
+      <column name="startTime" length="255" not-null="true"/>
+    </property>
+  </class>
+
   <class name="GrouperType" table="grouper_Types" mutable="false">
     <cache usage="read-only"/>
     <id name="groupType" type="integer" unsaved-value="null" >
@@ -36,19 +49,6 @@
       <key-property name="groupType"  type="integer" column="groupType"/>
       <key-property name="groupField" type="string"  column="groupField"/>
     </composite-id>
-  </class>
-
-  <class name="GrouperSession" table="grouper_session">
-    <id name="sessionID" type="string" unsaved-value="null" >
-      <column name="sessionID" sql-type="char(255)" not-null="true"/>
-      <generator class="assigned"/>
-    </id>
-    <property name="cred">
-      <column name="cred" length="255" not-null="true"/>
-    </property>
-    <property name="startTime">
-      <column name="startTime" length="255" not-null="true"/>
-    </property>
   </class>
 
 </hibernate-mapping>
