@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.195 2005-03-22 21:26:58 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.196 2005-03-23 21:35:24 blair Exp $
  */
 public class GrouperBackend {
 
@@ -82,56 +82,6 @@ public class GrouperBackend {
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, g.key());
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Valid {@link GrouperField} items.
-   *
-   * @return List of group fields.
-   */
-  protected static List groupFields(DbSess dbSess) {
-    String  qry   = "GrouperField.all";
-    List    vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Valid {@link GrouperTypeDef} items.
-   *
-   * @return List of group type definitions.
-   */
-  protected static List groupTypeDefs(DbSess dbSess) {
-    String  qry   = "GrouperTypeDef.all";
-    List    vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
       try {
         vals = q.list();
       } catch (HibernateException e) {
@@ -174,32 +124,6 @@ public class GrouperBackend {
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error getting results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Retrieve all valid {@link GrouperGroup} types.
-   * <p />
-   *
-   * @return List of {@link GrouperType} objects.
-   */
-  protected static List groupTypes(DbSess dbSess) {
-    String  qry   = "GrouperType.all";
-    List    vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
                   );
       }
     } catch (HibernateException e) {
@@ -320,35 +244,6 @@ public class GrouperBackend {
     dbSess.stop();
     return subj;
   }
-
-  /**
-   * Valid {@link SubjectType} items.
-   *
-   * @return List of subject types.
-   */
-  protected static List subjectTypes(DbSess dbSess) {
-    String  qry   = "SubjectTypeImpl.all";
-    List    vals  = new ArrayList();
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /*
-   * PRIVATE CLASS METHODS
-   */
 
   protected static boolean attrDel(
                            GrouperSession s, String key, String field

@@ -52,6 +52,8 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -61,7 +63,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.19 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.20 2005-03-23 21:35:24 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -85,6 +87,34 @@ public class GrouperTypeDef implements Serializable {
    */
   public GrouperTypeDef() {
     this._init();
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * @return List of all type definitions
+   */
+  protected static List all(DbSess dbSess) {
+    String  qry   = "GrouperTypeDef.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
 
