@@ -127,96 +127,124 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
-  public void testFetchListData0() {
+  public void testFetchListData0_0() {
     //
     //  g0: m0  / 
     //  g1:     /
     //  g2: m1  /
     //
-    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
+    Assert.assertNotNull("s !null", s);
 
-    // Fetch Group 0
-    GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
-    // Fetch Group 1
-    GrouperGroup    g1    = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g1);
-    // Fetch Group 2
-    GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(g2);
-    // Fetch g0 "admins"
-    List            admin0  = g0.listVals(s, "admins");
-    Assert.assertNotNull(admin0);
-    Assert.assertTrue(admin0.size() == 1);
-    List            admin0e = g0.listEffVals(s, "admins");
-    Assert.assertNotNull(admin0e);
-    Assert.assertTrue(admin0e.size() == 0);
-    List            admin0i = g0.listImmVals(s, "admins");
-    Assert.assertNotNull(admin0i);
-    Assert.assertTrue(admin0i.size() == 1);
-    // Fetch g1 "admins"
-    List            admin1  = g1.listVals(s, "admins");
-    Assert.assertNotNull(admin1);
-    Assert.assertTrue(admin1.size() == 1);
-    List            admin1e = g1.listEffVals(s, "admins");
-    Assert.assertNotNull(admin1e);
-    Assert.assertTrue(admin1e.size() == 0);
-    List            admin1i = g1.listImmVals(s, "admins");
-    Assert.assertNotNull(admin1i);
-    Assert.assertTrue(admin1i.size() == 1);
-    // Fetch g2 "admins"
-    List            admin2  = g2.listVals(s, "admins");
-    Assert.assertNotNull(admin2);
-    Assert.assertTrue(admin2.size() == 1);
-    List            admin2e = g2.listEffVals(s, "admins");
-    Assert.assertNotNull(admin2e);
-    Assert.assertTrue(admin2e.size() == 0);
-    List            admin2i = g2.listImmVals(s, "admins");
-    Assert.assertNotNull(admin2i);
-    Assert.assertTrue(admin2i.size() == 1);
-    // Fetch g0 Grouper.DEF_LIST_TYPE
-    List            mem0    = g0.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem0);
-    Assert.assertTrue(mem0.size() == 1);
-    List            mem0c   = g0.listVals(s);
-    Assert.assertNotNull(mem0c);
-    Assert.assertTrue(mem0c.size() == 1);
-    List            mem0e   = g0.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem0e);
-    Assert.assertTrue(mem0e.size() == 0);
-    List            mem0i   = g0.listImmVals(s); 
-    Assert.assertNotNull(mem0i);
-    Assert.assertTrue(mem0i.size() == 1);
-    // Fetch g1 Grouper.DEF_LIST_TYPE
-    List            mem1    = g1.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem1);
-    Assert.assertTrue(mem1.size() == 0);
-    List            mem1c   = g1.listVals(s);
-    Assert.assertNotNull(mem1c);
-    Assert.assertTrue(mem1c.size() == 0);
-    List            mem1e   = g1.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem1e);
-    Assert.assertTrue(mem1e.size() == 0);
-    List            mem1i   = g1.listImmVals(s); 
-    Assert.assertNotNull(mem1i);
-    Assert.assertTrue(mem1i.size() == 0);
-    // Fetch g2 Grouper.DEF_LIST_TYPE
-    List            mem2    = g2.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem2);
-    Assert.assertTrue(mem2.size() == 1);
-    List            mem2c   = g2.listVals(s);
-    Assert.assertNotNull(mem2c);
-    Assert.assertTrue(mem2c.size() == 1);
-    List            mem2e   = g2.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem2e);
-    Assert.assertTrue(mem2e.size() == 0);
-    List            mem2i   = g2.listImmVals(s); 
-    Assert.assertNotNull(mem2i);
-    Assert.assertTrue(mem2i.size() == 1);
+    // Fetch group g0
+    GrouperGroup g = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull("g !null", g);
+    // Fetch g's "admins"
+    List admins = g.listVals(s, "admins");
+    Assert.assertNotNull("admins !null", admins);
+    Assert.assertTrue("admins == 1", admins.size() == 1);
+    List adminsE = g.listEffVals(s, "admins");
+    Assert.assertNotNull("adminsE !null", adminsE);
+    Assert.assertTrue("adminsE == 0", adminsE.size() == 0);
+    List adminsI = g.listImmVals(s, "admins");
+    Assert.assertNotNull("adminsI !null", adminsI);
+    Assert.assertTrue("adminsI == 1", adminsI.size() == 1);
+    // Fetch g's Grouper.DEF_LIST_TYPE
+    List mems = g.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("mems !null", mems);
+    Assert.assertTrue("mems == 1", mems.size() == 1);
+    List memsD = g.listVals(s);
+    Assert.assertNotNull("memsD !null", memsD);
+    Assert.assertTrue("memsD == 1", memsD.size() == 1);
+    List memsE = g.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("memsE !null", memsE);
+    Assert.assertTrue("memsE == 0", memsE.size() == 0);
+    List memsI = g.listImmVals(s);
+    Assert.assertNotNull("memsI !null", memsI);
+    Assert.assertTrue("memsI == 1", memsI.size() == 1);
 
-    // TODO Assert details about the individual members
+    // We're done
+    s.stop(); 
+  }
+
+  public void testFetchListData0_1() {
+    //
+    //  g0: m0  / 
+    //  g1:     /
+    //  g2: m1  /
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("s !null", s);
+
+    // Fetch group g1
+    GrouperGroup g = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull("g !null", g);
+    // Fetch g's "admins"
+    List admins = g.listVals(s, "admins");
+    Assert.assertNotNull("admins !null", admins);
+    Assert.assertTrue("admins == 1", admins.size() == 1);
+    List adminsE = g.listEffVals(s, "admins");
+    Assert.assertNotNull("adminsE !null", adminsE);
+    Assert.assertTrue("adminsE == 0", adminsE.size() == 0);
+    List adminsI = g.listImmVals(s, "admins");
+    Assert.assertNotNull("adminsI !null", adminsI);
+    Assert.assertTrue("adminsI == 1", adminsI.size() == 1);
+    // Fetch g's Grouper.DEF_LIST_TYPE
+    List mems = g.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("mems !null", mems);
+    Assert.assertTrue("mems == 0", mems.size() == 0);
+    List memsD = g.listVals(s);
+    Assert.assertNotNull("memsD !null", memsD);
+    Assert.assertTrue("memsD == 0", memsD.size() == 0);
+    List memsE = g.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("memsE !null", memsE);
+    Assert.assertTrue("memsE == 0", memsE.size() == 0);
+    List memsI = g.listImmVals(s);
+    Assert.assertNotNull("memsI !null", memsI);
+    Assert.assertTrue("memsI == 0", memsI.size() == 0);
+
+    // We're done
+    s.stop(); 
+  }
+
+  public void testFetchListData0_2() {
+    //
+    //  g0: m0  / 
+    //  g1:     /
+    //  g2: m1  /
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("s !null", s);
+
+    // Fetch group g1
+    GrouperGroup g = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull("g !null", g);
+    // Fetch g's "admins"
+    List admins = g.listVals(s, "admins");
+    Assert.assertNotNull("admins !null", admins);
+    Assert.assertTrue("admins == 1", admins.size() == 1);
+    List adminsE = g.listEffVals(s, "admins");
+    Assert.assertNotNull("adminsE !null", adminsE);
+    Assert.assertTrue("adminsE == 0", adminsE.size() == 0);
+    List adminsI = g.listImmVals(s, "admins");
+    Assert.assertNotNull("adminsI !null", adminsI);
+    Assert.assertTrue("adminsI == 1", adminsI.size() == 1);
+    // Fetch g's Grouper.DEF_LIST_TYPE
+    List mems = g.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("mems !null", mems);
+    Assert.assertTrue("mems == 1", mems.size() == 1);
+    List memsD = g.listVals(s);
+    Assert.assertNotNull("memsD !null", memsD);
+    Assert.assertTrue("memsD == 1", memsD.size() == 1);
+    List memsE = g.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("memsE !null", memsE);
+    Assert.assertTrue("memsE == 0", memsE.size() == 0);
+    List memsI = g.listImmVals(s);
+    Assert.assertNotNull("memsI !null", memsI);
+    Assert.assertTrue("memsI == 1", memsI.size() == 1);
 
     // We're done
     s.stop(); 
@@ -310,94 +338,65 @@ public class TestGroupLists extends TestCase {
     s.stop();
   } 
 
+
   public void testFetchListData1() {
     //
     //  g0: m0, g1  / 
     //  g1:         /
     //  g2: m1      /
     //
-    Subject         subj    = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
+    Assert.assertNotNull("s !null", s);
 
-    // Fetch Group 0
-    GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
-    // Fetch Group 1
-    GrouperGroup    g1    = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g1);
-    // Fetch Group 2
-    GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(g2);
-    // Fetch g0 "admins"
-    List            admin0  = g0.listVals(s, "admins");
-    Assert.assertNotNull(admin0);
-    Assert.assertTrue(admin0.size() == 1);
-    List            admin0e = g0.listEffVals(s, "admins");
-    Assert.assertNotNull(admin0e);
-    Assert.assertTrue(admin0e.size() == 0);
-    List            admin0i = g0.listImmVals(s, "admins");
-    Assert.assertNotNull(admin0i);
-    Assert.assertTrue(admin0i.size() == 1);
-    // Fetch g1 "admins"
-    List            admin1  = g1.listVals(s, "admins");
-    Assert.assertNotNull(admin1);
-    Assert.assertTrue(admin1.size() == 1);
-    List            admin1e = g1.listEffVals(s, "admins");
-    Assert.assertNotNull(admin1e);
-    Assert.assertTrue(admin1e.size() == 0);
-    List            admin1i = g1.listImmVals(s, "admins");
-    Assert.assertNotNull(admin1i);
-    Assert.assertTrue(admin1i.size() == 1);
-    // Fetch g2 "admins"
-    List            admin2  = g2.listVals(s, "admins");
-    Assert.assertNotNull(admin2);
-    Assert.assertTrue(admin2.size() == 1);
-    List            admin2e = g2.listEffVals(s, "admins");
-    Assert.assertNotNull(admin2e);
-    Assert.assertTrue(admin2e.size() == 0);
-    List            admin2i = g2.listImmVals(s, "admins");
-    Assert.assertNotNull(admin2i);
-    Assert.assertTrue(admin2i.size() == 1);
+    // Fetch Group g0
+    GrouperGroup g0 = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull("g0 !null", g0);
+    // Fetch Group g1
+    GrouperGroup g1 = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull("g1 !null", g1);
+    // Fetch Group g2
+    GrouperGroup g2 = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull("g2 !null", g2);
     // Fetch g0 Grouper.DEF_LIST_TYPE
-    List            mem0    = g0.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem0);
-    Assert.assertTrue(mem0.size() == 2);
-    List            mem0c   = g0.listVals(s);
-    Assert.assertNotNull(mem0c);
-    Assert.assertTrue(mem0c.size() == 2);
-    List            mem0e   = g0.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem0e);
-    Assert.assertTrue(mem0e.size() == 0);
-    List            mem0i   = g0.listImmVals(s); 
-    Assert.assertNotNull(mem0i);
-    Assert.assertTrue(mem0i.size() == 2);
+    List mems0 = g0.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("mems0 !null", mems0);
+    Assert.assertTrue("mems0 == 2", mems0.size() == 2);
+    List mems0d = g0.listVals(s);
+    Assert.assertNotNull("mems0d !null", mems0d);
+    Assert.assertTrue("mems0d == 2", mems0d.size() == 2);
+    List mems0e = g0.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("mems0e !null", mems0e);
+    Assert.assertTrue("mems0e == 0", mems0e.size() == 0);
+    List mems0i = g0.listImmVals(s); 
+    Assert.assertNotNull("mems0i !null", mems0i);
+    Assert.assertTrue("mems0i == 2", mems0i.size() == 2);
     // Fetch g1 Grouper.DEF_LIST_TYPE
-    List            mem1    = g1.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem1);
-    Assert.assertTrue(mem1.size() == 0);
-    List            mem1c   = g1.listVals(s);
-    Assert.assertNotNull(mem1c);
-    Assert.assertTrue(mem1c.size() == 0);
-    List            mem1e   = g1.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem1e);
-    Assert.assertTrue(mem1e.size() == 0);
-    List            mem1i   = g1.listImmVals(s); 
-    Assert.assertNotNull(mem1i);
-    Assert.assertTrue(mem1i.size() == 0);
+    List mems1 = g1.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("mems1 !null", mems1);
+    Assert.assertTrue("mems1 == 0", mems1.size() == 0);
+    List mems1d = g1.listVals(s);
+    Assert.assertNotNull("mems1d !null", mems1d);
+    Assert.assertTrue("mems1d == 0", mems1d.size() == 0);
+    List mems1e = g1.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("mems1e !null", mems1e);
+    Assert.assertTrue("mems1e == 0", mems1e.size() == 0);
+    List mems1i = g1.listImmVals(s); 
+    Assert.assertNotNull("mems1i !=null", mems1i);
+    Assert.assertTrue("mems1i == 0", mems1i.size() == 0);
     // Fetch g2 Grouper.DEF_LIST_TYPE
-    List            mem2    = g2.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem2);
-    Assert.assertTrue(mem2.size() == 1);
-    List            mem2c   = g2.listVals(s);
-    Assert.assertNotNull(mem2c);
-    Assert.assertTrue(mem2c.size() == 1);
-    List            mem2e   = g2.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem2e);
-    Assert.assertTrue(mem2e.size() == 0);
-    List            mem2i   = g2.listImmVals(s); 
-    Assert.assertNotNull(mem2i);
-    Assert.assertTrue(mem2i.size() == 1);
+    List mems2 = g2.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("mems2 !null", mems2);
+    Assert.assertTrue("mems2 == 1", mems2.size() == 1);
+    List mems2d = g2.listVals(s);
+    Assert.assertNotNull("mems2d !null", mems2d);
+    Assert.assertTrue("mems2d == 1", mems2d.size() == 1);
+    List mems2e = g2.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("mems2e !null", mems2e);
+    Assert.assertTrue("mems2e == 0", mems2e.size() == 0);
+    List mems2i = g2.listImmVals(s); 
+    Assert.assertNotNull("mems2i !null", mems2i);
+    Assert.assertTrue("mems2i == 1", mems2i.size() == 1);
 
     // TODO Assert details about the individual members
 
