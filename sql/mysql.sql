@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.3 2004-03-25 01:39:35 blair Exp $
+-- $Id: mysql.sql,v 1.4 2004-04-09 14:45:03 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -27,8 +27,8 @@ USE    grouper;
 
 CREATE TABLE grouper_fields (
   groupFieldID      INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-  readGroupFieldID  INTEGER UNSIGNED NOT NULL,
-  writeGroupFieldID INTEGER UNSIGNED NOT NULL,
+  readPriv          VARCHAR(255),
+  writePriv         VARCHAR(255),
   -- XXX Boolean types are not supported everywhere.  Alas.  Right now
   -- XXX I am thinking that an ENUM is the most portable option.
   isList            ENUM('TRUE', 'FALSE')
@@ -55,6 +55,9 @@ CREATE TABLE grouper_membership (
   groupFieldID      INTEGER UNSIGNED NOT NULL,
   memberID          INTEGER UNSIGNED,
   groupMemberID     INTEGER UNSIGNED,
+  -- XXX Boolean types are not supported everywhere.  Alas.  Right now
+  -- XXX I am thinking that an ENUM is the most portable option.
+  isImmediate       ENUM('TRUE', 'FALSE')
   -- XXX I don't even want to think about portable date/time formats.
   -- XXX Maybe just store this as a string and rely on Java to Do The
   -- XXX Right Thing?  Good thing we don't care about aging -- yet.
