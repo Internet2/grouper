@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.200 2005-03-23 22:29:50 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.201 2005-03-23 22:40:06 blair Exp $
  */
 public class GrouperBackend {
 
@@ -78,33 +78,6 @@ public class GrouperBackend {
    */
   protected static List attributes(GrouperSession s, GrouperGroup g) {
     String  qry   = "GrouperAttribute.by.key";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, g.key());
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query a group's schema.
-   *
-   * @param g Group object
-   * @return List of a group's schema
-   */
-  protected static List schemas(GrouperSession s, GrouperGroup g) {
-    String  qry   = "GrouperSchema.by.key";
     List    vals  = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
