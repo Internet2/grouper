@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.10 2004-07-14 19:36:31 blair Exp $
+ * $Id: GrouperTest.java,v 1.11 2004-07-15 01:48:20 blair Exp $
  */
 
 package test.edu.internet2.middleware.directory.grouper;
@@ -66,20 +66,18 @@ public class GrouperTest extends TestCase {
       System.err.println(e);
       System.exit(1);
     }
-
-    // TODO Make this into a test of its own and move out of setUp()
-    // Establish a new Grouper instance
-    G = new Grouper();
   }
 
   protected void tearDown () {
-    // TODO Make this into a test of its own and move out of tearDown()
     // Destroy our Grouper instance
     G.destroy();
   }
 
   /* Instantiate a Grouper instance */
   public void testGrouperInstantiate() {
+    // Establish a new Grouper instance
+    G = new Grouper();
+
     Class  klass    = G.getClass();
     String expKlass = "edu.internet2.middleware.directory.grouper.Grouper";
 
@@ -89,6 +87,8 @@ public class GrouperTest extends TestCase {
 
   /* Initialize Grouper environment */
   public void testGrouperInitialize() {
+    G = new Grouper();
+
     try {
       G.initialize();
     } catch(Exception e) {
@@ -98,6 +98,7 @@ public class GrouperTest extends TestCase {
 
   /* Get a runtime configuration setting */
   public void testGetRuntimeConfigSetting() {
+    G = new Grouper();
     G.initialize();
     
     String expVal = "GrouperSystem";
@@ -106,6 +107,8 @@ public class GrouperTest extends TestCase {
 
   /* Instantiate a Grouper session */
   public void testSessionInstantiate() {
+    // Establish a new Grouper instance
+    G = new Grouper();
     G.initialize();
     GrouperSession s = new GrouperSession();
 
@@ -118,6 +121,7 @@ public class GrouperTest extends TestCase {
 
   /* Start a session as SubjectID "member.system", 1 argument method */
   public void testSessionStartAsMemberSystemOneArgMethod() {
+    G = new Grouper();
     G.initialize();
     GrouperSession s = new GrouperSession();
     try {
@@ -129,6 +133,7 @@ public class GrouperTest extends TestCase {
   
   /* Start a session as SubjectID "member.system", 2 argument method */
   public void testSessionStartAsMemberSystemTwoArgMethod() {
+    G = new Grouper();
     G.initialize();
     GrouperSession s= new GrouperSession();
     try {
@@ -140,6 +145,7 @@ public class GrouperTest extends TestCase {
   
   /* Start and end a session as SubjectID "member.system", 1 argument method */
   public void testSessionStartEndAsMemberSystemOneArgMethod() {
+    G = new Grouper();
     G.initialize();
     GrouperSession s= new GrouperSession();
     try {
@@ -156,6 +162,7 @@ public class GrouperTest extends TestCase {
   
   /* Start and end a session as SubjectID "member.system", 2 argument method */
   public void testSessionStartEndAsMemberSystemTwoArgMethod() {
+    G = new Grouper();
     G.initialize();
     GrouperSession s= new GrouperSession();
     try {
@@ -172,6 +179,7 @@ public class GrouperTest extends TestCase {
 
   /* Attempt to end a session that hasn't been started */
   public void testSessionEndWithoutStart() {
+    G = new Grouper();
     G.initialize();
     GrouperSession s = new GrouperSession();
     try {
@@ -181,13 +189,6 @@ public class GrouperTest extends TestCase {
       Assert.fail("Exception thrown when ending unstarted session");
     }
   }
-
-  /*
-   * TODO Tests To Write
-   * - Session creation as memberID ???
-   * - Session creation as subjectID ???
-   * - TODO And all the ones I haven't thought of or written down yet
-   */
 
 }
 
