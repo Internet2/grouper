@@ -1,13 +1,13 @@
--- Subsystem tables
-drop table ProxyType_Function
-drop table Permission_Limit
-drop table Function_Permission
-drop table Category
-drop table Function
-drop table Permission
-drop table ProxyType
-drop table Limit
-drop table Subsystem
+--  Subsystem tables
+drop table ProxyType_Function;
+drop table Permission_Limit;
+drop table Function_Permission;
+drop table Category;
+drop table Function;
+drop table Permission;
+drop table ProxyType;
+drop table Limit;
+drop table Subsystem;
 create table Subsystem
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -106,9 +106,9 @@ foreign key (subsystemID, proxyTypeID) references ProxyType (subsystemID, proxyT
 foreign key (subsystemID, functionID) references Function (subsystemID, functionID)
 )
 -- Subject tables
-drop table SubjectAttribute
-drop table Subject
-drop table SubjectType
+drop table SubjectAttribute;
+drop table Subject;
+drop table SubjectType;
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
@@ -136,9 +136,9 @@ create table SubjectAttribute (
   primary key (subjectTypeID, subjectID, name)
   )
 -- Tree tables
-drop table TreeNodeRelationship
-drop table TreeNode
-drop table Tree
+drop table TreeNodeRelationship;
+drop table TreeNode;
+drop table Tree;
 create table Tree
 (
 treeID              varchar(64)         NOT NULL,
@@ -167,8 +167,8 @@ primary key (treeID, nodeID, parentNodeID),
 foreign key (treeID) references Tree (treeID)
 )
 -- ChoiceSet tables
-drop table Choice
-drop table ChoiceSet
+drop table Choice;
+drop table ChoiceSet;
 create table ChoiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -188,9 +188,9 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (choiceSetID, value),
 foreign key (choiceSetID) references ChoiceSet (choiceSetID)
 )
--- Assignment tables
-drop table Assignment
-drop table AssignmentLimitValue
+--  Assignment tables
+drop table Assignment;
+drop table AssignmentLimitValue;
 create table Assignment
 (
 assignmentID        numeric(12,0)       IDENTITY,
