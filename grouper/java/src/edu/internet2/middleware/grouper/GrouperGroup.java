@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.108 2004-12-03 06:44:48 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.109 2004-12-03 20:55:18 blair Exp $
  */
 public class GrouperGroup {
 
@@ -255,19 +255,33 @@ public class GrouperGroup {
     boolean rv = false;
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
-      // Setup the attribute, add it to the stash.
       // TODO Validate?
       GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
-      if (value == null) {
+      if        (value == null) {
         // Delete an existing attribute
         // FIXME Implement...  this._attrDel(attribute); ???
-      } else             {
+      } else if (cur == null) {
         // Add a new attribute value
         // FIXME Update modify* opattrs
         GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
         if (
-            (attr != null)                                      &&
-            (this._attrAdd(attribute, attr))                    //&&
+            (attr != null)                   &&
+            (this._attrAdd(attribute, attr)) //&&
+            //(GrouperBackend.groupUpdate(this.grprSession, this))   
+           )
+        {
+          /* 
+           * We do not need to revert changes in this situation as
+           * there should not be an old value to revert to...
+           */
+          rv = true;
+        } 
+      } else {
+        // Update attribute value
+        GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
+        if (
+            (attr != null)                   &&
+            (this._attrAdd(attribute, attr)) //&&
             //(GrouperBackend.groupUpdate(this.grprSession, this))   
            )
         {
@@ -276,12 +290,12 @@ public class GrouperGroup {
           // Revert changes
           // FIXME Revert opattr changes
           if (!this._attrAdd(attribute, cur)) {
-            Grouper.LOGGER.warn("Unable to revert failed attribute change!");
+            Grouper.LOGGER.warn("Unable to revert failed attribute update!");
             System.exit(1);
           }
           rv = false;
         }
-      } 
+      }
     }
     return rv;
   }
