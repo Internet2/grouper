@@ -6,16 +6,6 @@
  */
 
 
-/**
- * Sample laoder for populating the <i>grouper_subject</i> table from a
- * CVS input file.
- * <p />
- * See <i>README</i> for more information.
- * 
- * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.10 2004-12-05 04:13:18 blair Exp $ 
- */
-
 import  java.io.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
@@ -23,6 +13,15 @@ import  java.util.*;
 import  org.apache.commons.cli.*;
 
 
+/**
+ * Sample laoder for populating the <i>grouper_subject</i> table from a
+ * CVS input file.
+ * <p />
+ * See <i>README</i> for more information.
+ * 
+ * @author  blair christensen.
+ * @version $Id: csv2subject.java,v 1.11 2004-12-05 04:15:14 blair Exp $ 
+ */
 class csv2subject {
 
   /*

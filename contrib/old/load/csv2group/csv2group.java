@@ -6,16 +6,6 @@
  */
 
 
-/**
- * Sample loader for adding groups and memberships to the registry
- * using the {@link Grouper} API.
- * <p />
- * See <i>README</i> for more information.
- * 
- * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.4 2004-12-05 04:13:18 blair Exp $ 
- */
-
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
@@ -23,6 +13,15 @@ import  java.util.*;
 import  org.apache.commons.cli.*;
 
 
+/**
+ * Sample loader for adding groups and memberships to the registry
+ * using the {@link Grouper} API.
+ * <p />
+ * See <i>README</i> for more information.
+ * 
+ * @author  blair christensen.
+ * @version $Id: csv2group.java,v 1.5 2004-12-05 04:15:14 blair Exp $ 
+ */
 class csv2group {
 
   /*
