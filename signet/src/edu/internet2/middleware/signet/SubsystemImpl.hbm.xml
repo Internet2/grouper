@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<class
+		name="edu.internet2.middleware.signet.SubsystemImpl"
+		table="Subsystem">
+		
+		<meta attribute="class-description">
+			Subsystem describes a business entity within the
+			enterprise, such as the financial department.
+			@author Andy Cohen
+		</meta>
+		<id name="id" type="string" column="subsystemID">
+			<generator class="assigned"/>
+		</id>
+		<timestamp name="modifyDateTime"/>
+		<property name="status" type="edu.internet2.middleware.signet.StatusType" not-null="true">
+			<meta attribute="use-in-tostring">true</meta>
+		</property>
+		<property name="name" type="string" not-null="true"/>
+		<property name="helpText" type="string" not-null="true"/>
+		<set name="categories" inverse="true" cascade="save-update">
+			<key column="subsystemID"/>
+			<one-to-many class="edu.internet2.middleware.signet.CategoryImpl"/>
+		</set>
+		<set name="functions" inverse="true" cascade="save-update">
+			<key column="subsystemID"/>
+			<one-to-many class="edu.internet2.middleware.signet.FunctionImpl"/>
+		</set>
+<!--		<set name="permissions" inverse="true" cascade="save-update">
+			<key column="subsystemID"/>
+			<one-to-many class="edu.internet2.middleware.signet.PermissionImpl"/>
+		</set>
+-->
+		<many-to-one name="tree" column="treeID" cascade="save-update" class="edu.internet2.middleware.signet.TreeImpl" not-null="false"/>
+
+		<property name="createDateTime" type="timestamp" not-null="true"/>
+		<property name="createDbAccount" type="string" not-null="true"/>
+		<property name="createUserID" type="string" not-null="false"/>
+		<property name="createContext" type="string" not-null="false"/>
+		<property name="modifyDbAccount" type="string" not-null="true"/>
+		<property name="modifyUserID" type="string" not-null="false"/>
+		<property name="modifyContext" type="string" not-null="false"/>
+		<property name="comment" type="string" not-null="false"/>
+	</class>
+</hibernate-mapping>

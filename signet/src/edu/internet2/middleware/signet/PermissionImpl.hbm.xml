@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<class
+		name="edu.internet2.middleware.signet.PermissionImpl"
+		table="Permission"
+		lazy="true">
+		
+		<meta attribute="class-description">
+			@author Andy Cohen
+		</meta>
+		<id name="id" type="string" column="permissionID">
+			<generator class="assigned"/>
+		</id>
+		<timestamp name="modifyDateTime"/>
+		
+		<set name="functions" table="Function_Permission" inverse="true">
+			<key column="permissionID"/>
+			<many-to-many class="edu.internet2.middleware.signet.FunctionImpl" column="functionID"/>
+		</set>
+		
+		<many-to-one name="subsystem" column="subsystemID" class="edu.internet2.middleware.signet.SubsystemImpl" not-null="true"/>
+		<property name="createDateTime" type="timestamp" not-null="true"/>
+		<property name="createDbAccount" type="string" not-null="true"/>
+		<property name="createUserID" type="string" not-null="false"/>
+		<property name="createContext" type="string" not-null="false"/>
+		<property name="modifyDbAccount" type="string" not-null="true"/>
+		<property name="modifyUserID" type="string" not-null="false"/>
+		<property name="modifyContext" type="string" not-null="false"/>
+		<property name="comment" type="string" not-null="false"/>
+	</class>
+</hibernate-mapping>

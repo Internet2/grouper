@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<class
+		name="edu.internet2.middleware.signet.FunctionImpl"
+		table="Function">
+		
+		<meta attribute="class-description">
+			@author Andy Cohen
+		</meta>
+		<id name="id" type="string" column="functionID">
+			<generator class="assigned"/>
+		</id>
+		<timestamp name="modifyDateTime"/>
+		<many-to-one name="subsystem" column="subsystemID" class="edu.internet2.middleware.signet.SubsystemImpl" not-null="true"/>
+		<many-to-one name="category" column="categoryID" class="edu.internet2.middleware.signet.CategoryImpl" not-null="true" cascade="save-update"/>
+		<set name="permissions" table="Function_Permission" cascade="save-update">
+			<key column="functionID"/>
+			<many-to-many class="edu.internet2.middleware.signet.PermissionImpl" column="permissionID"/>
+		</set>
+		
+		<property name="status" type="edu.internet2.middleware.signet.StatusType" not-null="true">
+			<meta attribute="use-in-tostring">true</meta>
+		</property>
+		<property name="name" type="string" not-null="true"/>
+		<property name="helpText" type="string" not-null="true"/>
+		<property name="createDateTime" type="timestamp" not-null="true"/>
+		<property name="createDbAccount" type="string" not-null="true"/>
+		<property name="createUserID" type="string" not-null="false"/>
+		<property name="createContext" type="string" not-null="false"/>
+		<property name="modifyDbAccount" type="string" not-null="true"/>
+		<property name="modifyUserID" type="string" not-null="false"/>
+		<property name="modifyContext" type="string" not-null="false"/>
+		<property name="comment" type="string" not-null="false"/>
+	</class>
+</hibernate-mapping>

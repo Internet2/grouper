@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<class
+		name="edu.internet2.middleware.signet.SubjectAttributeValue"
+		table="SubjectAttribute"
+		lazy="true">
+		
+		<composite-id name="key" class="edu.internet2.middleware.signet.SubjectAttrKey">
+			<key-property name="subjectType" 	column="subjectTypeID" type="string"/>
+			<key-property name="subjectId" 		column="subjectID" 		type="string"/>
+			<key-property name="name" 		column="name" 			type="string"/>
+			<key-property name="instance" 		column="instance" 		type="integer"/>
+		</composite-id>
+		<property name="value"/>
+	</class>
+</hibernate-mapping>
