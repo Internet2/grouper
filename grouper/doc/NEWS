@@ -1,16 +1,18 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.20 2005-01-24 17:34:38 blair Exp $
+$Id: NEWS,v 1.21 2005-01-27 02:41:03 blair Exp $
 
 ---
 
 ## Version 0.5.1-cvs
 
 ### Changes
-* Fixed sessionID generation bug (#278)
-* Contributed
-  * csv2group updated
+* Fixed: sessionID generation bug (#278)
+* Fixed: calls to system.exit() (#179) 
+  (David Langenberg, The University Of Chicago)
+* Contributed:
+  * Updated: csv2group
     * Support for comments in input files
     * -c option
     * -q option

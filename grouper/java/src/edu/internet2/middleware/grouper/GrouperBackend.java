@@ -68,7 +68,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.140 2004-12-09 14:09:56 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.141 2005-01-27 02:41:03 blair Exp $
  */
 public class GrouperBackend {
 
@@ -265,14 +265,12 @@ public class GrouperBackend {
            *      rollback the granting of the ADMIN privilege.  Or at
            *      least try to.
            */
-          System.err.println("Unable to create group " + g);
-          System.exit(1);
+          throw new RuntimeException("Unable to create group " + g);
         }
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
-        System.err.println(e);
-        System.exit(1);
+      	throw new RuntimeException(e);
       }
     } else { 
       System.err.println("STEM " + stem.value() + " DOES NOT EXIST!");
@@ -366,8 +364,7 @@ public class GrouperBackend {
     } catch (HibernateException e) {
       // TODO We probably need a rollback in here in case of failure
       //      above.
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     GrouperBackend._hibernateSessionClose(session);
     return rv;
@@ -438,13 +435,11 @@ public class GrouperBackend {
         {
           // TODO Nothing?
         } else {
-          System.err.println("Unable to properly load group");
-          System.exit(1);
+          throw new RuntimeException("Unable to properly load group");
         }
       } catch (Exception e) {
         // TODO Rollback if load fails?  Unset this.exists?
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     }
     GrouperBackend._hibernateSessionClose(session);
@@ -601,8 +596,7 @@ public class GrouperBackend {
         } catch (Exception e) {
           // TODO We probably need a rollback in here in case of failure
           //      above.
-          System.err.println(e);
-          System.exit(1);
+          throw new RuntimeException(e);
         }
       }
     } 
@@ -697,8 +691,7 @@ public class GrouperBackend {
 
         rv = true;
       } catch (HibernateException e) {
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     } 
     GrouperBackend._hibernateSessionClose(session);
@@ -1104,8 +1097,7 @@ public class GrouperBackend {
         // No proper member to return
         m = null;
       } catch (HibernateException e) {
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     } else {
       m = null;
@@ -1164,8 +1156,7 @@ public class GrouperBackend {
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
       GrouperBackend._hibernateSessionClose(session);
       return GrouperBackend.member(member.subjectID(), member.typeID());
@@ -1201,8 +1192,7 @@ public class GrouperBackend {
       session.save(s);
       t.commit();
     } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     GrouperBackend._hibernateSessionClose(session);
   }
@@ -1223,8 +1213,7 @@ public class GrouperBackend {
       t.commit();
       rv = true;
     } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     GrouperBackend._hibernateSessionClose(session);
     return rv;
@@ -1274,8 +1263,7 @@ public class GrouperBackend {
         "gs.startTime > " + nowTime
       );
     } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     GrouperBackend._hibernateSessionClose(session);
   }
@@ -1567,14 +1555,12 @@ public class GrouperBackend {
         Grouper.log().backend("Calling commit() on Hibernate connection");
         session.connection().commit();
       } catch (SQLException e) {
-        System.err.println("SQL Commit Exception:" + e);
-        System.exit(1);
+        throw new RuntimeException("SQL Commit Exception:" + e);
       }
       Grouper.log().backend("Closing Hibernate session");
       session.close();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }      
   }
 
@@ -1592,25 +1578,22 @@ public class GrouperBackend {
         cfg = new Configuration()
           .addInputStream(in);
       } catch (MappingException e) {
-        System.err.println(e);
-        System.exit(1); 
+        throw new RuntimeException(e);
       }
     }
     if (factory == null) {
       try {
         factory = cfg.buildSessionFactory();
       } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     }
     try {
       return factory.openSession();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
-    return null;
+    //return null;
   }
 
   /* (!javadoc)
@@ -1690,8 +1673,7 @@ public class GrouperBackend {
       try {
         session.save(gl);
       } catch (HibernateException e) {
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     } else {
       // XXX System.err.println("_LISTADDVAL VALUES EXIST");
@@ -1731,8 +1713,7 @@ public class GrouperBackend {
         session.flush(); // XXX
         Grouper.log().backend("_listDelVal() deleted");
       } catch (HibernateException e) {
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     } else {
       Grouper.log().backend("_listDelVal() Value doesn't exist");
@@ -1782,8 +1763,7 @@ public class GrouperBackend {
       } else if (via.equals(Grouper.MEM_IMM)) {
         via_param = GrouperBackend.VAL_NULL;
       } else {
-        System.err.println("Invalid via requirement: " + via);
-        System.exit(1);
+        throw new RuntimeException("Invalid via requirement: " + via);
       }
     }
     return GBQuery.grouperList(

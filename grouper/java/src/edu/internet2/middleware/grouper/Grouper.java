@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.65 2004-12-09 17:12:25 blair Exp $
+ * @version $Id: Grouper.java,v 1.66 2005-01-27 02:41:03 blair Exp $
  */
 public class Grouper {
 
@@ -371,8 +371,7 @@ public class Grouper {
       try {
         conf.load(in);
       } catch (IOException e) {
-        System.err.println("Unable to read '" + confFile + "'");
-        System.exit(1); 
+        throw new RuntimeException("Unable to read '"+ confFile + "'");
       }
 
       // TODO Perform data validation of some sort for these tables?
@@ -414,18 +413,14 @@ public class Grouper {
         try {
           return con.newInstance(params);
         } catch (Exception e) {
-          System.err.println("Unable to instantiate class: " + name);
-          System.exit(1);
+          throw new RuntimeException("Unable to instantiate class: " + name);
         }
       } catch (NoSuchMethodException e) {
-        System.err.println("Unable to find constructor for class: " + name);
-        System.exit(1);
+        throw new RuntimeException("Unable to find constructor for class: " + name);
       }
     } catch (ClassNotFoundException e) {
-      System.err.println("Unable to find class: " + name);
-      System.exit(1);
+      throw new RuntimeException("Unable to find class: " + name);
     }
-    return null;
   }
 
 }
