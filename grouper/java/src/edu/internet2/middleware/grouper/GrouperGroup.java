@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.145 2004-12-09 04:29:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.146 2004-12-09 04:42:58 blair Exp $
  */
 public class GrouperGroup {
 
@@ -417,11 +417,16 @@ public class GrouperGroup {
   /**
    * Retrieve the <i>createTime</i> operational attribute value.
    * <p  />
-   * @return <i>createTime</i> value in seconds since the epoch.
+   * @return <i>createTime</i> as a {@link Date} object.
    */
-  public String createTime() {
-    // TODO Return date object?
-    return this.getCreateTime();
+  public Date createTime() {
+    // TODO Refactor out commonality with `modifyTime'
+    Date d = null;
+    String since = this.getCreateTime();
+    if (since != null) {
+      d = new Date(Long.parseLong(since));
+    }
+    return d;
   }
 
   /**
@@ -572,11 +577,16 @@ public class GrouperGroup {
   /**
    * Retrieve the <i>modifyTime</i> operational attribute.
    * <p  />
-   * @return <i>modifyTime</i> value in seconds since the epoch.
+   * @return <i>modifyTime</i> as a {@link Date} object.
    */
-  public String modifyTime() {
-    // TODO Return date object?
-    return this.getModifyTime();
+  public Date modifyTime() {
+    // TODO Refactor out commonality with `createTime'
+    Date d = null;
+    String since = this.getModifyTime();
+    if (since != null) {
+      d = new Date(Long.parseLong(since));
+    }
+    return d;
   }
 
   /**
