@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupsAdd.java,v 1.9 2004-11-25 03:04:47 blair Exp $
+ * $Id: TestGroupsAdd.java,v 1.10 2004-11-28 04:17:47 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -119,6 +119,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull(grp0);
     Assert.assertTrue( klass.equals( grp0.getClass().getName() ) );
     Assert.assertTrue( grp0.exists() );
+    Assert.assertNotNull( grp0.id() );
     Assert.assertNotNull( grp0.type() );
     Assert.assertNotNull( grp0.attribute("stem") );
     Assert.assertTrue( grp0.attribute("stem").value().equals(stem0) );
@@ -129,6 +130,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull(grp1);
     Assert.assertTrue( klass.equals( grp1.getClass().getName() ) );
     Assert.assertTrue( grp1.exists() );
+    Assert.assertNotNull( grp1.id() );
     Assert.assertNotNull( grp1.type() );
     Assert.assertNotNull( grp1.attribute("stem") );
     Assert.assertTrue( grp1.attribute("stem").value().equals(stem1) );
@@ -139,6 +141,7 @@ public class TestGroups extends TestCase {
     Assert.assertNotNull(grp2);
     Assert.assertTrue( klass.equals( grp2.getClass().getName() ) );
     Assert.assertTrue( grp2.exists() );
+    Assert.assertNotNull( grp2.id() );
     Assert.assertNotNull( grp2.type() );
     Assert.assertNotNull( grp2.attribute("stem") );
     Assert.assertTrue( grp2.attribute("stem").value().equals(stem2) );

@@ -17,13 +17,14 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.86 2004-11-25 03:04:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.87 2004-11-28 04:17:47 blair Exp $
  */
 public class GrouperGroup {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
+  private String id;
   private String key;
   private String type;
   // Operational attributes and information
@@ -217,15 +218,13 @@ public class GrouperGroup {
   }
 
   /**
-   * Return group's unique key (UUID).
-   * <p>
-   * FIXME Do I really want to this to be public information?  Scale
-   *       back if at all possible.
+   * Return group ID.
+   * <p />
    *
-   * @return Group key
+   * @return Group ID of the {@link GrouperGroup}
    */
-  public String key() {
-    return this.getGroupKey();
+  public String id() {
+    return this.getGroupID();
   }
 
   /**
@@ -381,12 +380,27 @@ public class GrouperGroup {
    * @return  A string representation of the object.
    */
   public String toString() {
-    // TODO This should probably return UUID, not key
     // TODO Switch to toString builder...
     return this.getClass().getName()              + ":" +
-           this.key                               + ":" + 
+           this.id                                + ":" + 
            this.attribute("stem").value()         + ":" +
            this.attribute("extension").value();
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /**
+   * Return group key.
+   * <p>
+   * FIXME Can I eventuall make this private?
+   *
+   * @return Group key of the {@link GrouperGroup}
+   */
+  protected String key() {
+    return this.getGroupKey();
   }
 
 
@@ -436,8 +450,9 @@ public class GrouperGroup {
     // Attach session
     g.grprSession  = s;
 
-    // Generate the UUID (key)
+    // Generate the UUIDs
     g.setGroupKey( GrouperBackend.uuid() );
+    g.setGroupID(  GrouperBackend.uuid() );
 
     g.attribute("stem", stem);
     g.attribute("extension", extension);
@@ -556,6 +571,14 @@ public class GrouperGroup {
   /*
    * HIBERNATE
    */
+
+  private String getGroupID() {
+    return this.id;
+  }
+
+  private void setGroupID(String id) {
+    this.id = id;
+  }
 
   private String getGroupKey() {
     return this.key;
