@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.43 2005-03-17 05:32:37 blair Exp $
+ * @version $Id: GrouperList.java,v 1.44 2005-03-19 20:22:13 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -155,6 +155,7 @@ public class GrouperList implements Serializable {
     }
   }
   protected void load(GrouperSession s) {
+    GrouperSession.validate(s);
     // FIXME Validator!
     if (this.groupKey == null) {
       throw new RuntimeException("Unable to load group as key is null");
@@ -162,8 +163,8 @@ public class GrouperList implements Serializable {
     if (this.memberKey == null) {
       throw new RuntimeException("Unable to load member as key is null");
     }
-    this.g          = GrouperGroup.loadByKey(s, this.groupKey);
-    this.m          = GrouperBackend.member(s, this.memberKey);
+    this.g = GrouperGroup.loadByKey(s, this.groupKey);
+    this.m = GrouperMember.loadByKey(s, this.memberKey);
     if (this.viaKey != null) {
       this.via        = GrouperGroup.loadByKey(s, this.viaKey);
     }
@@ -172,6 +173,20 @@ public class GrouperList implements Serializable {
     }
     if (this.m == null) {
       throw new RuntimeException("Unable to load member");
+    }
+  }
+  protected static void validate(GrouperList gl) {
+    if (gl == null) {
+      throw new RuntimeException("list is null");
+    }
+    if (gl.group() == null) {
+      throw new RuntimeException("list group is null");
+    }
+    if (gl.member() == null) {
+      throw new RuntimeException("list member is null");
+    }
+    if (gl.groupField() == null) {
+      throw new RuntimeException("list field is null");
     }
   }
 
