@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.grouper.backend.*;
 import  edu.internet2.middleware.subject.*;
 import  net.sf.hibernate.*;
 import  org.apache.log4j.*;
@@ -63,7 +64,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.3 2004-12-08 05:15:00 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.4 2004-12-08 17:53:00 blair Exp $
  */
 public class GrouperLog {
 
@@ -72,10 +73,12 @@ public class GrouperLog {
    */
   private static final Logger LOG     = 
     Logger.getLogger(Grouper.class.getName());
+  private static final Logger LOG_EVT = 
+    Logger.getLogger(Grouper.class.getName() + ".event");
   private static final Logger LOG_GB  = 
     Logger.getLogger(GrouperBackend.class.getName());
   private static final Logger LOG_QRY = 
-    Logger.getLogger(GrouperBackend.class.getName() + ".Query");
+    Logger.getLogger(GBQuery.class.getName());
 
 
   /*
@@ -97,7 +100,7 @@ public class GrouperLog {
 
   // General events
   protected void event(String msg) {
-    LOG.info(msg);
+    LOG_EVT.info(msg);
   }
 
   // Privilege: Grant
@@ -114,9 +117,9 @@ public class GrouperLog {
                   "' subjectID='" + tgt.getId() + "' on '" +
                   g.name() + "'";
     if (rv == true) {
-      LOG.info(pre + "granted" + post);
+      LOG_EVT.info(pre + "granted" + post);
     } else {
-      LOG.info(pre + "failed to grant" + post);
+      LOG_EVT.info(pre + "failed to grant" + post);
     }
   }
 
@@ -129,9 +132,9 @@ public class GrouperLog {
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + name + "' (" + type + ")";
     if (g != null) {
-      LOG.info(pre + "created" + post);
+      LOG_EVT.info(pre + "created" + post);
     } else {
-      LOG.info(pre + "failed to create" + post);
+      LOG_EVT.info(pre + "failed to create" + post);
     }
   }
 
@@ -140,7 +143,7 @@ public class GrouperLog {
                    GrouperSession s, String name, String type
                  ) 
   {
-    LOG.info(
+    LOG_EVT.info(
       "'" + s.subject().getId() + "' cannot create '" + name + 
       "' (" + type + ") as it already exists"
     );
@@ -156,9 +159,9 @@ public class GrouperLog {
     String post = " attribute '" + attr + "'='" + value +
                   "' to '" + g.name() + "'";
     if (rv == true) {
-      LOG.info(pre + "added" + post);
+      LOG_EVT.info(pre + "added" + post);
     } else {
-      LOG.info(pre + "failed to add" + post);
+      LOG_EVT.info(pre + "failed to add" + post);
     }
   }
 
@@ -171,15 +174,15 @@ public class GrouperLog {
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " attribute '" + attr + "' from '" + g.name() + "'";
     if (rv == true) {
-      LOG.info(pre + "deleted" + post);
+      LOG_EVT.info(pre + "deleted" + post);
     } else {
-      LOG.info(pre + "failed to delete" + post);
+      LOG_EVT.info(pre + "failed to delete" + post);
     }
   }
 
   // Group: Attribute No Modification
   protected void groupAttrNoMod(String attribute) {
-    LOG.info(
+    LOG_EVT.info(
       "'" + attribute + "' modification is not currently supported"
     );
   }
@@ -194,9 +197,9 @@ public class GrouperLog {
     String post = " attribute '" + attr + "'='" + value +
                   "' to '" + g.name() + "'";
     if (rv == true) {
-      LOG.info(pre + "updated" + post);
+      LOG_EVT.info(pre + "updated" + post);
     } else {
-      LOG.info(pre + "failed to update" + post);
+      LOG_EVT.info(pre + "failed to update" + post);
     }
   }
 
@@ -208,9 +211,9 @@ public class GrouperLog {
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + g.name() + "' (" + g.type() + ")";
     if (rv == true) {
-      LOG.info(pre + "deleted" + post);
+      LOG_EVT.info(pre + "deleted" + post);
     } else {
-      LOG.info(pre + "failed to delete" + post);
+      LOG_EVT.info(pre + "failed to delete" + post);
     }
   }
 
@@ -225,9 +228,9 @@ public class GrouperLog {
                   m.subjectID() + "' to '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
     if (rv == true) {
-      LOG.info(pre + "added" + post);
+      LOG_EVT.info(pre + "added" + post);
     } else {
-      LOG.info(pre + "failed to add" + post);
+      LOG_EVT.info(pre + "failed to add" + post);
     }
   }
 
@@ -242,9 +245,9 @@ public class GrouperLog {
                   m.subjectID() + "' from '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
     if (rv == true) {
-      LOG.info(pre + "removed" + post);
+      LOG_EVT.info(pre + "removed" + post);
     } else {
-      LOG.info(pre + "failed to remove" + post);
+      LOG_EVT.info(pre + "failed to remove" + post);
     }
   }
 
@@ -252,12 +255,12 @@ public class GrouperLog {
   protected void memberAdd(GrouperMember m, Subject subj) {
     String post = " to member table";
     if (m != null) { 
-      LOG.info(
+      LOG_EVT.info(
         "Added memberID='" + m.memberID() + "' " +
         "subjectID='" + m.subjectID() + "'" + post
       );
     } else {
-      LOG.info(
+      LOG_EVT.info(
         "Failed to add subjectID='" + subj.getId() + "' (" +
         subj.getSubjectType().getId() + ")" + post
       );
@@ -283,9 +286,9 @@ public class GrouperLog {
                   "' subjectID='" + tgt.getId() + "' on '" +
                   g.name() + "'";
     if (rv == true) {
-      LOG.info(pre + "revoked" + post);
+      LOG_EVT.info(pre + "revoked" + post);
     } else {
-      LOG.info(pre + "failed to revoke" + post);
+      LOG_EVT.info(pre + "failed to revoke" + post);
     }
   }
 
@@ -298,18 +301,18 @@ public class GrouperLog {
   protected void sessionStart(boolean rv, GrouperSession s) {
     String post = " session for '" + s.subject().getId() + "'";
     if (rv == true) {
-      LOG.info("Started" + post);
+      LOG_EVT.info("Started" + post);
     } else {
-      LOG.info("Failed to start" + post);
+      LOG_EVT.info("Failed to start" + post);
     }
   }
 
   // Session: Stop
   protected void sessionStop(boolean rv, GrouperSession s) {
     if (rv == true) {
-      LOG.info("Stopped session for '" + s.subject().getId() + "'");
+      LOG_EVT.info("Stopped session for '" + s.subject().getId() + "'");
     } else {
-      LOG.info("Failed to stop session");
+      LOG_EVT.info("Failed to stop session");
     }
   }
 
