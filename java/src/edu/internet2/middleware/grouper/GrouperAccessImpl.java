@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.17 2004-11-20 18:08:55 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.18 2004-11-20 18:38:54 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -33,7 +33,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    */
 
   /**
-   * Grant an access privilege.
+   * Grant an access privilege on a {@link GrouperGroup}.
    * <p>
    *
    * @param   s     Act within this {@link GrouperSession}.
