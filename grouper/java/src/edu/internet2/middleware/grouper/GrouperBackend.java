@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.102 2004-12-04 01:19:07 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.103 2004-12-04 01:52:24 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1382,12 +1382,23 @@ public class GrouperBackend {
     Iterator iter = names.iterator();
     while (iter.hasNext()) {
       GrouperAttribute attr = (GrouperAttribute) iter.next();
-      GrouperGroup grp = GrouperGroup.lookupByKey(
-                           s, attr.key(), type
-                         );
-      if (grp != null) {
-        if (grp.type().equals(type)) {
-          g = grp; 
+      List gs = GrouperBackend._queryKVKV(
+                  session, "GrouperSchema",
+                  "groupKey", attr.key(),
+                  "groupType", type
+                );
+      if (gs.size() == 1) {
+        GrouperSchema schema = (GrouperSchema) gs.get(0);
+        if (schema.type().equals(type)) {
+          // FIXME Isn't this circular?
+          GrouperGroup grp = GrouperGroup.lookupByKey(
+                               s, attr.key(), type
+                             );
+          if (grp != null) {
+            if (grp.type().equals(type)) {
+              g = grp; 
+            }
+          }
         }
       }
     }
