@@ -2,7 +2,6 @@ define(`_DROP_TABLE',dnl
 ifdef(`ORACLE', `DROP TABLE $1;', `DROP TABLE $1 IF EXISTS;')dnl
 )dnl
 define(`_TYPE_INT',         `INTEGER')dnl
-define(`_TYPE_LONG',        `BIGINT')dnl
 define(`_TYPE_STRING',      `_TYPE_STRING_VAR(64)')dnl
 define(`_TYPE_STRING_VAR',dnl
 ifdef(`ORACLE', `VARCHAR2($1)', `VARCHAR($1)')dnl
@@ -50,11 +49,11 @@ CREATE  TABLE grouper_list (
   groupKey      _TYPE_UUID() NOT NULL,
   groupField    _TYPE_STRING() NOT NULL,
   memberKey     _TYPE_UUID() NOT NULL,
-  pathKey       _TYPE_UUID(),
+  chainKey      _TYPE_UUID(),
   viaKey        _TYPE_UUID()
 );
-CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list 
-  (groupKey, groupField, memberKey, pathKey);
+CREATE UNIQUE INDEX idx_gl_gk_gf_mk_ck ON grouper_list 
+  (groupKey, groupField, memberKey, chainKey);
 
 _DROP_TABLE(`grouper_member')
 CREATE TABLE grouper_member (
@@ -65,6 +64,18 @@ CREATE TABLE grouper_member (
 );
 CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
   (subjectID, subjectTypeID);
+
+_DROP_TABLE(`grouper_memberVia')
+CREATE  TABLE grouper_memberVia (
+  chainKey    _TYPE_UUID() NOT NULL,
+  chainIdx    _TYPE_INT() NOT NULL,
+  listKey     _TYPE_UUID() NOT NULL,
+  CONSTRAINT  uniq_gmv_ck_ci_lk UNIQUE (chainKey, chainIdx, listKey)
+);
+
+-- TODO Are these the right indices for this table?
+CREATE  INDEX idx_mv_ck ON grouper_memberVia (chainKey);
+CREATE  INDEX idx_mv_lk ON grouper_memberVia (listKey);
 
 _DROP_TABLE(`grouper_schema')
 CREATE TABLE grouper_schema (
@@ -116,18 +127,6 @@ _DROP_TABLE(`grouper_type')
 CREATE TABLE grouper_type (
   groupType   _TYPE_STRING() NOT NULL PRIMARY KEY
 );
-
-_DROP_TABLE(`grouper_viaElement')
-CREATE  TABLE grouper_viaElement (
-  pathKey       _TYPE_UUID() NOT NULL,
-  pathIdx       _TYPE_LONG() NOT NULL,
-  groupKey      _TYPE_UUID() NOT NULL,
-  CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
-);
-
--- TODO Are these the right indices for this table?
-CREATE  INDEX gve_pk ON grouper_viaElement (pathKey);
-CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
 
 COMMIT;
 
