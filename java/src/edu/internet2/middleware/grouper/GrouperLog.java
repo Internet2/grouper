@@ -59,12 +59,12 @@ import  org.apache.log4j.*;
 
 
 /** 
- * Internal logging class.
+ * Class used within {@link Grouper} for logging.
  * <p />
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.4 2004-12-08 17:53:00 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.5 2004-12-09 02:31:22 blair Exp $
  */
 public class GrouperLog {
 
