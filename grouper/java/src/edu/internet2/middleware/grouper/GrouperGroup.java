@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.150 2004-12-09 17:12:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.151 2004-12-09 20:20:21 blair Exp $
  */
 public class GrouperGroup {
 
@@ -487,6 +487,30 @@ public class GrouperGroup {
   }
 
   /**
+   * Add a list value of the specified list type.
+   * <p />
+   * @param   s     Add member using this session. 
+   * @param   m     Add this member.
+   * @param   list  Add member to this list type.
+   * @return  True if the list value was added.
+   */
+  public boolean listAddVal(
+                   GrouperSession s, GrouperMember m, String list
+                 ) 
+  {
+    /* 
+     * TODO Add a variant that takes a GrouperGroup instead of a
+     * GrouperMember?
+     */
+    boolean rv = false;
+    if (GrouperGroup._canModListVal(s, this, list)) {
+      rv = this._listAddVal(s, m, list);
+      Grouper.log().groupListAdd(rv, s, this, m);
+    }
+    return rv;
+  }
+
+  /**
    * Delete a list value of the default list type.
    * <p />
    * @param   s     Delete member using this session.
@@ -499,8 +523,34 @@ public class GrouperGroup {
      * GrouperMember?
      */
     boolean rv = false;
+    // TODO Refactor into _listDelVal
     if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
       rv = this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
+    }  
+    Grouper.log().groupListDel(rv, s, this, m);
+    return rv;
+  }
+
+  /**
+   * Delete a list value of the specified list type.
+   * <p />
+   * @param   s     Delete member using this session.
+   * @param   m     Delete this member.
+   * @param   list  Delete member from this list type.
+   * @return  True if the list value was deleted.
+   */
+  public boolean listDelVal(
+                   GrouperSession s, GrouperMember m, String list
+                 ) 
+  {
+    /* 
+     * TODO Add a variant that takes a GrouperGroup instead of a
+     * GrouperMember?
+     */
+    boolean rv = false;
+    // TODO Refactor into _listDelVal
+    if (GrouperGroup._canModListVal(s, this, list)) {
+      rv = this._listDelVal(s, m, list);
     }  
     Grouper.log().groupListDel(rv, s, this, m);
     return rv;
