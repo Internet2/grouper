@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.8 2004-11-20 16:10:24 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.9 2004-11-22 18:23:30 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -93,18 +93,21 @@ public class TestConfigAndSchema extends TestCase {
   public void testGetGrouperTypes() {
     List types = Grouper.groupTypes();
     Assert.assertNotNull(types);
-    Assert.assertEquals(1, types.size());
-    String type = "base";
-    Assert.assertTrue( type.equals( types.get(0).toString() ) );
+    Assert.assertEquals(2, types.size());
     String klass  = "edu.internet2.middleware.grouper.GrouperType";
+    String type0 = "base";
+    Assert.assertTrue( type0.equals( types.get(0).toString() ) );
     Assert.assertTrue( klass.equals( types.get(0).getClass().getName() ) );
+    String type1 = "naming";
+    Assert.assertTrue( type1.equals( types.get(1).toString() ) );
+    Assert.assertTrue( klass.equals( types.get(1).getClass().getName() ) );
   }
 
   // Get cached GrouperTypeDefs 
   public void testGetGrouperTypeDefs() {
     List typeDefs  = Grouper.groupTypeDefs();
     Assert.assertNotNull(typeDefs);
-    Assert.assertEquals(10, typeDefs.size());
+    Assert.assertEquals(22, typeDefs.size());
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
     typeDef = "base:descriptor";
@@ -137,6 +140,42 @@ public class TestConfigAndSchema extends TestCase {
     typeDef = "base:optouts";
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(9).getClass().getName() ) );
+    typeDef = "naming:descriptor";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(10).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(10).getClass().getName() ) );
+    typeDef = "naming:stem";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(11).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(11).getClass().getName() ) );
+    typeDef = "naming:description";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(12).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(12).getClass().getName() ) );
+    typeDef = "naming:members";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(13).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(13).getClass().getName() ) );
+    typeDef = "naming:viewers";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(14).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(14).getClass().getName() ) );
+    typeDef = "naming:readers";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(15).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(15).getClass().getName() ) );
+    typeDef = "naming:updaters";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(16).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(16).getClass().getName() ) );
+    typeDef = "naming:admins";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(17).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(17).getClass().getName() ) );
+    typeDef = "naming:optins";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(18).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(18).getClass().getName() ) );
+    typeDef = "naming:optouts";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(19).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(19).getClass().getName() ) );
+    typeDef = "naming:creators";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(20).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(20).getClass().getName() ) );
+    typeDef = "naming:stemmers";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(21).toString() ) );
+    Assert.assertTrue( klass.equals( typeDefs.get(21).getClass().getName() ) );
   }
 
   // Get cached SubjectTypes 
