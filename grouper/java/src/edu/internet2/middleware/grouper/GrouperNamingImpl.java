@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.13 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.14 2004-10-12 20:32:00 blair Exp $
  */
 public class InternalGrouperNaming implements GrouperNaming {
 
@@ -33,79 +33,79 @@ public class InternalGrouperNaming implements GrouperNaming {
   }
 
   /**
-   * Grant a naming privilege on a {@link Grouper} stem.
+   * Grant a naming privilege on a {@link Grouper} namespace.
    */
-  public void grant(GrouperStem stem, GrouperMember m, String priv) {
+  public void grant(GrouperNamespace namespace, GrouperMember m, String priv) {
     // Nothing -- Yet
   }
 
   /**
-   * Revoke a naming privilege on a {@link Grouper} stem.
+   * Revoke a naming privilege on a {@link Grouper} namespace.
    */
-  public void revoke(GrouperStem stem, GrouperMember m, String priv) {
+  public void revoke(GrouperNamespace namespace, GrouperMember m, String priv) {
     // Nothing -- Yet
   }
 
   /**
    * Return all naming privileges that the current session's subject has on 
-   * a {@link Grouper} stem.
+   * a {@link Grouper} namespace.
    */
-  public List has(GrouperStem stem) {
+  public List has(GrouperNamespace namespace) {
     List privs = new ArrayList();
     return privs; 
   }
 
   /**
    * Return all naming privileges for a {@link GrouperMember} on a 
-   * {@link Grouper} stem.
+   * {@link Grouper} namespace.
    */
-  public List has(GrouperStem stem, GrouperMember m) {
+  public List has(GrouperNamespace namespace, GrouperMember m) {
     List privs = new ArrayList();
     return privs; 
   }
 
   /**
    * Verify whether the current session's subject has a specified 
-   * naming privilege on a {@link Grouper} stem.
+   * naming privilege on a {@link Grouper} namespace.
    */
-  public boolean has(GrouperStem stem, String priv) {
+  public boolean has(GrouperNamespace namespace, String priv) {
     return false;
   }
 
   /**
    * Verify whether a {@link GrouperMember} has a specified naming privilege
-   * on a {@link Grouper} stem.
+   * on a {@link Grouper} namespace.
    */
-  public boolean has(GrouperStem stem, GrouperMember m, String priv) {
+  public boolean has(GrouperNamespace namespace, GrouperMember m, String priv) {
     return false;
   }
 
   /**
-   * List stems where the current subject has the specified privilege.
+   * List namespaces where the current subject has the specified privilege.
    * <p>
    * TODO 
    *
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperStem} stems.
+   * @return  List of {@link GrouperNamespace} namespaces.
    */
   public List has(String priv) {
-    List stems = new ArrayList();
-    return stems;
+    List namespaces = new ArrayList();
+    return namespaces;
   }
 
   /**
-   * List stems where the specified member has the specified
+   * List namespaces where the specified member has the specified
    * privilege.
    * <p>
    * TODO 
    *
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperStem} stems.
+   * @return  List of {@link GrouperNamespace} namespaces.
    */
   public List has(GrouperMember m, String priv) {
-    List stems = new ArrayList();
-    return stems;
+    List namespaces = new ArrayList();
+    return namespaces;
   }
 
 }
