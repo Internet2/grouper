@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.18 2005-03-22 16:45:01 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.19 2005-03-22 18:07:29 blair Exp $
  */
 public class GrouperQuery {
 
@@ -274,7 +274,7 @@ public class GrouperQuery {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          g = GrouperGroup.loadByKey(this.s, g, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -304,7 +304,7 @@ public class GrouperQuery {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          g = GrouperGroup.loadByKey(this.s, g, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -334,7 +334,7 @@ public class GrouperQuery {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          g = GrouperGroup.loadByKey(this.s, g, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -364,7 +364,7 @@ public class GrouperQuery {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          g = GrouperGroup.loadByKey(this.s, g, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
