@@ -11,32 +11,34 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-// TODO Needed?
-import  java.lang.reflect.*;  
-// TODO Needed?
-import  java.util.*;
+
 
 /** 
- * {@link Grouper} session class.
+ * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.55 2004-11-12 20:18:00 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.56 2004-11-20 17:26:49 blair Exp $
  */
 public class GrouperSession {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   // Subject this session is running under
   private Subject subject;
   // The subjectID of the session's subject
+  // The id of the session's subject.  Despite the fact that I can get
+  // this via the subject object, I stash it into a variable to play
+  // nicer with Hibernate.
   private String  subjectID;
-
-  // Internal reference to the Access interface
-  private GrouperAccess   intAccess;
-  // Internal reference to the Naming interface
-  private GrouperNaming   intNaming;
-  // FIXME How many of these variables are actually used?
-  // FIXME And what is the purpose of those that are used?
+  // FIXME
   private String sessionID;
   private String startTime;
+
+
+  /*
+   * CONSTRUCTORS
+   */
 
   /**
    * Create a session object that will provide a context for future
@@ -108,8 +110,6 @@ public class GrouperSession {
    * Initialize instance variables
    */
   private void _init() {
-    this.intAccess  = null;
-    this.intNaming  = null;
     this.sessionID  = null;
     this.startTime  = null;
     this.subject    = null;
@@ -117,47 +117,9 @@ public class GrouperSession {
   }
 
   /*
-   * Instantiate internal references to the  access, naming, and
-   * subject interfaces.
-   *
-   * TODO Is this the right location for such code?
-   */ 
-  private void _createInterfaces() {
-    // Create internal references to the various interfaces
-    this.intAccess  = (GrouperAccess)  this._createObject( Grouper.config("interface.access") );
-    this.intNaming  = (GrouperNaming)  this._createObject( Grouper.config("interface.naming") );
-  }
-
-  /*
-   * Instantiate an object -- reflectively
-   *
-   * TODO Is this the right location for such code?
-   */
-  private Object _createObject(String name) {
-    Object    object      = null;
-    Class[]   paramsClass = new Class[]  { GrouperSession.class };
-    Object[]  params      = new Object[] { this };
-
-    try {
-      Class classType         = Class.forName(name);
-      Constructor constructor = classType.getDeclaredConstructor(paramsClass);
-      object                  = constructor.newInstance(params);
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  
-    return object;
-  }
-     
-  /*
    * Register a new session with the groups registry.
    */
   private boolean _registerSession() {
-    // Create internal representations of the various Grouper
-    // interfaces
-    this._createInterfaces();
-
     // TODO Make this configurable.  Or something.
     GrouperBackend.cullSessions();
 
