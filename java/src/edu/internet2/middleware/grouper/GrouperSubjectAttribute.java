@@ -16,36 +16,36 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
- * Class representing a {@link Grouper} member attribute.
+ * Class representing a {@link Grouper} subject attribute.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.2 2004-11-05 19:21:36 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.3 2004-11-11 18:28:59 blair Exp $
  */
-public class GrouperMemberAttribute implements Serializable{
+public class GrouperSubjectAttribute implements Serializable{
 
-  // What we need to identify a member attribute
+  // What we need to identify a subject attribute
+  private String  id;
   private int     instance;
-  private String  key;
   private String  name;
   private String  searchValue;
   private String  typeID;
   private String  value;
 
   /**
-   * Create a new {@link GrouperMemberAttribute} object.
+   * Create a new {@link GrouperSubjectAttribute} object.
    */
-  public GrouperMemberAttribute() {
+  public GrouperSubjectAttribute() {
     this._init();
   }
 
   /**
-   * Create a new {@link GrouperMemberAttribute} object.
+   * Create a new {@link GrouperSubjectAttribute} object.
    *
-   * @param typeID  Member Type ID
+   * @param typeID  Subject Type ID
    * @param name    Attribute name
    * @param value   Attribute value
    */
-  public GrouperMemberAttribute(String typeID, String name, String value) {
+  public GrouperSubjectAttribute(String typeID, String name, String value) {
     this._init();
     this.typeID = typeID;
     this.name   = name;
@@ -92,12 +92,12 @@ public class GrouperMemberAttribute implements Serializable{
   }
 
   /**
-   * Return Member Type ID
+   * Return Subject Type ID
    *
-   * @return Member Type ID of {@link GrouperMemberAttribute}.
+   * @return Subject Type ID of {@link GrouperSubjectAttribute}.
    */
     public String typeID() {
-      return this.getMemberTypeID();
+      return this.getSubjectTypeID();
     }
 
   /**
@@ -137,19 +137,19 @@ public class GrouperMemberAttribute implements Serializable{
     this.instance = instance;
   }
 
-  private String getMemberKey() {
-    return this.key;
+  private String getSubjectID() {
+    return this.id;
   }
 
-  private void setMemberKey(String key) {
-    this.key = key;
+  private void setSubjectID(String id) {
+    this.id = id;
   }
 
-  private String getMemberTypeID() {
+  private String getSubjectTypeID() {
     return this.typeID;
   }
 
-  private void setMemberTypeID(String typeID) {
+  private void setSubjectTypeID(String typeID) {
     this.typeID = typeID;
   }
 

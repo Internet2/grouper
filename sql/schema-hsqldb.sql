@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.15 2004-11-06 03:57:10 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.16 2004-11-11 18:28:59 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
@@ -42,30 +42,11 @@ CREATE TABLE grouper_lists (
 
 CREATE TABLE grouper_member (
   memberKey     VARCHAR(255) NOT NULL PRIMARY KEY,
-  memberID      VARCHAR(255) NOT NULL,
   -- TODO Foreign Key
-  memberTypeID  VARCHAR(255) NOT NULL,
-  CONSTRAINT    uniq_mk UNIQUE (memberKey)
-);
-
-CREATE TABLE grouper_memberAttribute (
+  subjectID     VARCHAR(255) NOT NULL,
   -- TODO Foreign Key
-  memberKey     VARCHAR(255) NOT NULL,
-  -- TODO Foreign Key
-  memberTypeID  VARCHAR(255) NOT NULL,
-  name          VARCHAR(255) NOT NULL,
-  instance      INTEGER,
-  value         VARCHAR(255) NOT NULL,
-  searchValue   VARCHAR(255),
-  -- TODO Include `instance' (if made !null)?
-  CONSTRAINT    uniq_mk_mtid UNIQUE (memberKey, memberTypeID)
-);
-
-CREATE TABLE grouper_memberType (
-  memberTypeID  VARCHAR(255) NOT NULL PRIMARY KEY,
-  name          VARCHAR(255) NOT NULL,
-  adapterClass  VARCHAR(255) NOT NULL,
-  CONSTRAINT    uniq_mtid UNIQUE (memberTypeID)
+  subjectTypeID VARCHAR(255) NOT NULL,
+  CONSTRAINT    uniq_mk_sid_stid UNIQUE (memberKey, subjectID, subjectTypeID)
 );
 
 CREATE TABLE grouper_schema (
@@ -81,6 +62,33 @@ CREATE TABLE grouper_session (
   subjectID  VARCHAR(255) NOT NULL,
   startTime  BIGINT,
   CONSTRAINT uniq_si  UNIQUE (sessionID)
+);
+
+CREATE TABLE grouper_subject (
+  subjectID     VARCHAR(255) NOT NULL PRIMARY KEY,
+  -- TODO Foreign Key
+  subjectTypeID VARCHAR(255) NOT NULL,
+  CONSTRAINT    uniq_sid_stid UNIQUE (subjectID, subjectTypeID)
+);
+
+CREATE TABLE grouper_subjectAttribute (
+  -- TODO Foreign Key
+  subjectID     VARCHAR(255) NOT NULL, 
+  -- TODO Foreign Key
+  subjectTypeID VARCHAR(255) NOT NULL,
+  name          VARCHAR(255) NOT NULL,
+  instance      INTEGER,
+  value         VARCHAR(255) NOT NULL,
+  searchValue   VARCHAR(255),
+  -- TODO Include `instance' (if made !null)?
+  CONSTRAINT    uniq_sid_stid UNIQUE (subjectID, subjectTypeID)
+);
+
+CREATE TABLE grouper_subjectType (
+  subjectTypeID VARCHAR(255) NOT NULL PRIMARY KEY,
+  name          VARCHAR(255) NOT NULL,
+  adapterClass  VARCHAR(255) NOT NULL,
+  CONSTRAINT    uniq_stid UNIQUE (subjectTypeID)
 );
 
 CREATE TABLE grouper_typeDefs (
