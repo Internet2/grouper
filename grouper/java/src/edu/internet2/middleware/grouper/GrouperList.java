@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.49 2005-03-22 01:49:18 blair Exp $
+ * @version $Id: GrouperList.java,v 1.50 2005-03-22 18:28:16 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -168,6 +168,51 @@ public class GrouperList implements Serializable {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  /*
+   * @return true if list value exists
+   */
+  protected static boolean exists(GrouperSession s, GrouperList gl) {
+    Query   q;
+    String  qry;
+    String  qryEff  = "GrouperList.by.group.and.member.and.list.and.is.eff"; 
+    String  qryImm  = "GrouperList.by.group.and.member.and.list.and.is.imm"; 
+    boolean rv      = false;
+    if (gl.via() == null) { 
+      try {
+        q = s.dbSess().session().getNamedQuery(qryImm);
+        qry = qryImm;
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Unable to get query " + qryImm + ": " + e
+                  );
+      }
+    } else {
+      try {
+        q = s.dbSess().session().getNamedQuery(qryEff);
+        qry = qryEff;
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Unable to get query " + qryEff + ": " + e
+                  );
+      }
+    } 
+    q.setString(0, gl.group().key());
+    q.setString(1, gl.member().key());
+    q.setString(2, gl.groupField());
+    try {
+      List vals = q.list();
+      if (vals.size() == 1) {
+        GrouperList lv = (GrouperList) vals.get(0);
+        rv = true;
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error retrieving results for " + qry + ": " + e
+                );
+    }
+    return rv;
+  }
 
   protected void load(GrouperSession s) {
     GrouperSession.validate(s);
