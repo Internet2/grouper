@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.31 2004-09-16 17:25:05 blair Exp $
+ * $Id: GrouperTest.java,v 1.32 2004-09-18 23:39:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -43,11 +44,11 @@ public class GrouperTest extends TestCase {
     // Nothing -- Yet
   }
 
-  /*
-   * Class: GrouperGroup
-   */
+  //
+  // Class: Grouper
+  //
 
-  /* Instantiate a Grouper instance */
+  // Instantiate a Grouper instance 
   public void testGrouperInstantiate() {
     // Establish a new Grouper instance
     G = new Grouper();
@@ -60,7 +61,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /* Initialize Grouper environment */
+  // Initialize Grouper environment
   public void testGrouperInitialize() {
     G = new Grouper();
 
@@ -72,7 +73,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /* Get a runtime configuration setting */
+  // Get a runtime configuration setting 
   public void testGetRuntimeConfigSetting() {
     G = new Grouper();
     G.init();
@@ -83,11 +84,12 @@ public class GrouperTest extends TestCase {
   }
 
 
-  /*
-   * Class: GrouperSession
-   */
+  //
+  // Class: GrouperSession
+  //
+   
 
-  /* Instantiate a Grouper session */
+  // Instantiate a Grouper session 
   public void testSessionInstantiate() {
     // Establish a new Grouper instance
     G = new Grouper();
@@ -102,7 +104,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /* Start a session as SubjectID "member.system", 1 argument method */
+  // Start a session as SubjectID "member.system", 1 argument method 
   public void testSessionStartAsMemberSystemOneArgMethod() {
     G = new Grouper();
     G.init();
@@ -115,7 +117,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
   
-  /* Start a session as SubjectID "member.system", 2 argument method */
+  // Start a session as SubjectID "member.system", 2 argument method 
   public void testSessionStartAsMemberSystemTwoArgMethod() {
     G = new Grouper();
     G.init();
@@ -128,7 +130,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
   
-  /* Start and end a session as SubjectID "member.system", 1 argument method */
+  // Start and end a session as SubjectID "member.system", 1 argument method 
   public void testSessionStartEndAsMemberSystemOneArgMethod() {
     G = new Grouper();
     G.init();
@@ -146,7 +148,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
   
-  /* Start and end a session as SubjectID "member.system", 2 argument method */
+  // Start and end a session as SubjectID "member.system", 2 argument method 
   public void testSessionStartEndAsMemberSystemTwoArgMethod() {
     G = new Grouper();
     G.init();
@@ -164,7 +166,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /* Attempt to end a session that hasn't been started */
+  // Attempt to end a session that hasn't been started 
   public void testSessionEndWithoutStart() {
     G = new Grouper();
     G.init();
@@ -178,7 +180,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /* Verify the subject of the current session */
+  // Verify the subject of the current session 
   public void testSessionSubject() {
     G = new Grouper();
     G.init();
@@ -196,11 +198,12 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /*
-   * Class: GrouperField
-   */
+  //
+  // Class: GrouperField
+  //
+   
 
-  /* Instantiate a GrouperField instance */
+  // Instantiate a GrouperField instance 
   public void testGrouperFieldInstantiate() {
     GrouperField field = new GrouperField();
 
@@ -212,11 +215,11 @@ public class GrouperTest extends TestCase {
   }
 
 
-  /*
-   * Class: GrouperFields
-   */
+  //
+  // Class: GrouperFields
+  //
 
-  /* Instantiate a GrouperFields instance */
+  // Instantiate a GrouperFields instance 
   public void testGrouperFieldsInstantiate() {
     GrouperFields fields = new GrouperFields();
 
@@ -227,7 +230,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /* Get cached GrouperFields */
+  // Get cached GrouperFields 
   public void testGetGrouperFields() {
     G = new Grouper();
     G.init();
@@ -262,11 +265,12 @@ public class GrouperTest extends TestCase {
   }
 
 
-  /*
-   * Class: GrouperType
-   */
+  //
+  // Class: GrouperType
+  //
+   
  
-  /* Instantiate a GrouperType instance */
+  // Instantiate a GrouperType instance 
   public void testGrouperTypeInstantiate() {
     GrouperType type = new GrouperType();
 
@@ -278,11 +282,12 @@ public class GrouperTest extends TestCase {
   }
 
 
-  /*
-   * Class: GrouperTypes
-   */
+  //
+  // Class: GrouperTypes
+  //
+   
 
-  /* Instantiate a GrouperTypes instance */
+  // Instantiate a GrouperTypes instance 
   public void testGrouperTypesInstantiate() {
     GrouperTypes types = new GrouperTypes();
 
@@ -293,7 +298,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /* Get cached GrouperTypes */
+  // Get cached GrouperTypes 
   public void testGetGrouperTypes() {
     G = new Grouper();
     G.init();
@@ -309,11 +314,11 @@ public class GrouperTest extends TestCase {
   }
 
 
-  /*
-   * Class: GrouperTypeDef
-   */
+  //
+  // Class: GrouperTypeDef
+   
  
-  /* Instantiate a GrouperTypeDef instance */
+  // Instantiate a GrouperTypeDef instance 
   public void testGrouperTypeDefInstantiate() {
     GrouperTypeDef typeDef = new GrouperTypeDef();
 
@@ -325,11 +330,12 @@ public class GrouperTest extends TestCase {
   }
 
 
-  /*
-   * Class: GrouperTypeDefs
-   */
+  //
+  // Class: GrouperTypeDefs
+  //
+   
 
-  /* Instantiate a GrouperTypeDefs instance */
+  // Instantiate a GrouperTypeDefs instance 
   public void testGrouperTypeDefsInstantiate() {
     GrouperTypeDefs typeDefs = new GrouperTypeDefs();
 
@@ -340,7 +346,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /* Get cached GrouperTypeDefs */
+  // Get cached GrouperTypeDefs 
   public void testGetGrouperTypeDefs() {
     G = new Grouper();
     G.init();
@@ -375,11 +381,39 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
  
-  /*
-   * Class: GrouperGroup
-   */
+  //
+  // Class: GrouperSubject
+  //
+   
+  public void testGrouperSubjectInstantiate() {
+    GrouperSubject subject = new GrouperSubject();
 
-  /* Instantiate a GrouperGroup instance */
+    Class  klass    = subject.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperSubject";
+
+    Assert.assertNotNull(subject);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  public void testGrouperSubjectClassLookup() {
+    String id   = "GrouperSystem";
+    String type = "person";
+    GrouperMember m = GrouperSubject.lookup(id, type);
+    Class  klass    = m.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertNotNull(m);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertTrue( id.equals( m.memberID() ) );
+    Assert.assertTrue( type.equals( m.memberType() ) );
+    Assert.assertNotNull( m.memberKey() );
+  }
+
+  //
+  // Class: GrouperGroup
+  //
+   
+
+  // Instantiate a GrouperGroup instance 
   public void testGrouperGroupInstantiate() {
     GrouperGroup g = new GrouperGroup();
 
@@ -390,11 +424,12 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /*
-   * Class: GrouperSchema
-   */
+  //
+  // Class: GrouperSchema
+  //
+   
 
-  /* Instantiate a GrouperSchema instance */
+  // Instantiate a GrouperSchema instance 
   public void testGrouperSchemaInstantiate() {
     GrouperSchema schema = new GrouperSchema();
 
@@ -405,11 +440,11 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /*
-   * Class: GrouperAttribute
-   */
+  //
+  // Class: GrouperAttribute
+   
 
-  /* Instantiate a GrouperAttribute instance */
+  // Instantiate a GrouperAttribute instance 
   public void testGrouperAttributeInstantiate() {
     GrouperAttribute attr = new GrouperAttribute();
 
@@ -420,11 +455,12 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /*
-   * Class: GrouperMembership
-   */
+  //
+  // Class: GrouperMembership
+  //
+   
 
-  /* Instantiate a GrouperMembership instance */
+  // Instantiate a GrouperMembership instance 
   public void testGrouperMembershipInstantiate() {
     GrouperMembership list = new GrouperMembership();
 
@@ -435,11 +471,12 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /*
-   * Class: GrouperMember
-   */
+  //
+  // Class: GrouperMember
+  //
+   
 
-  /* Instantiate a GrouperMembership instance */
+  // Instantiate a GrouperMembership instance 
   public void testGrouperMemberInstantiate() {
     GrouperMember member = new GrouperMember();
 
@@ -450,7 +487,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /* GrouperMember creation */
+  // GrouperMember creation 
   public void testGrouperMemberCreation() {
     G = new Grouper();
     G.init();
@@ -464,11 +501,12 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /*
-   * Class: GrouperMembers
-   */
+  //
+  // Class: GrouperMembers
+  //
+   
 
-  /* Instantiate a GrouperMembership instance */
+  // Instantiate a GrouperMembership instance 
   public void testGrouperMembersInstantiate() {
     GrouperMembers members = new GrouperMembers();
 
@@ -479,11 +517,11 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /*
-   * Class: GrouperMemberType
-   */
+  //
+  // Class: GrouperMemberType
+  // 
 
-  /* Instantiate a GrouperMembership instance */
+  // Instantiate a GrouperMembership instance 
   public void testGrouperMemberTypeInstantiate() {
     GrouperMemberType memberType = new GrouperMemberType();
 
@@ -494,9 +532,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /*
-   * Does Group exist?  No.
-   */
+  // Does Group exist?  No.
   public void testGroupExistFalse() {
     G = new Grouper();
     G.init();
@@ -518,9 +554,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /*
-   * Create a group
-   */
+  // Create a group
   public void testCreateGroup() {
     G = new Grouper();
     G.init();
@@ -547,9 +581,7 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-  /*
-   * Fetch a group
-   */
+  // Fetch a group
   public void testFetchGroup() {
     G = new Grouper();
     G.init();
@@ -582,5 +614,6 @@ public class GrouperTest extends TestCase {
     s.end();
     G.destroy();
   }
+
 }
 
