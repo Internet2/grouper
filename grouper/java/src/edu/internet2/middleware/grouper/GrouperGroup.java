@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.104 2004-12-02 19:48:52 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.105 2004-12-02 20:01:48 blair Exp $
  */
 public class GrouperGroup {
 
@@ -207,25 +207,33 @@ public class GrouperGroup {
     return (GrouperAttribute) attributes.get(attribute);
   }
 
-  /**
-   * FIXME THIS IS AN UGLY HACK
-   */
-  public String opattr(String attribute) {
-    String rv = null;
-    if        (attribute.equals("createSource"))  {
-      rv = this.getCreateSource();
-    } else if (attribute.equals("createSubject")) {
-      rv = this.getCreateSubject();
-    } else if (attribute.equals("createTime"))    {
-      rv = this.getCreateTime();
-    } else if (attribute.equals("modifySource"))  {
-      rv = this.getModifySource();
-    } else if (attribute.equals("modifySubject")) {
-      rv = this.getModifySubject();
-    } else if (attribute.equals("modifyTime"))    {
-      rv = this.getModifyTime();
-    }
-    return rv;
+  // TODO
+  public String createSource() {
+    return this.getCreateSource();
+  }
+  // TODO
+  public String createSubject() {
+    // TODO Return `Subject' object?
+    return this.getCreateSubject();
+  }
+  // TODO
+  public String createTime() {
+    // TODO Return date object?
+    return this.getCreateTime();
+  }
+  // TODO
+  public String modifySource() {
+    return this.getModifySource();
+  }
+  // TODO
+  public String modifySubject() {
+    // TODO Return `Subject' object?
+    return this.getModifySubject();
+  }
+  // TODO
+  public String modifyTime() {
+    // TODO Return date object?
+    return this.getModifyTime();
   }
 
   /**
