@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.57 2004-10-27 17:59:57 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.58 2004-10-27 18:13:37 blair Exp $
  */
 public class GrouperGroup {
 
@@ -70,7 +70,7 @@ public class GrouperGroup {
    * Class method to create a group.
    *
    * @param   s     Session to create the group within.
-   * @param   stem  Namespace to create the group within.
+   * @param   stem  Stem to create the group within.
    * @param   desc  Descriptor to assign to group.
    */ 
   public static GrouperGroup create(GrouperSession s, String stem, String desc)
@@ -94,7 +94,7 @@ public class GrouperGroup {
    * Class method to retrieve a group from the persistent store.
    *
    * @param   s     Session to load the group within.
-   * @param   stem  Namespace of the group to load.
+   * @param   stem  Stem of the group to load.
    * @param   desc  Descriptor of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
@@ -157,20 +157,20 @@ public class GrouperGroup {
     } else {
       // Otherwise attempt to find and load the group from the
       // persistent store.
-      if (this.attributes.containsKey("namespace")) {
-        // We need a namespace
-        // BDC String namespace = this.attribute("namespace").value();
+      if (this.attributes.containsKey("stem")) {
+        // We need a stem
+        // BDC String stem = this.attribute("stem").value();
         if (this.attributes.containsKey("name")) {
-          // And a name
-          // BDC String name = this.attribute("name").value();
+          // And a descriptor
+          // BDC String desc = this.attribute("descriptor").value();
           if (this.grprSession != null) {
             // And a session to load a group
             // FIXME Provide a method of confirming a group's existence
             //       that doesn't rely upon loading a group and checking for
             //       the presence of a `groupKey'.
             GrouperGroup g = GrouperBackend.group(this.grprSession,
-                                                  this.attribute("namespace").value(),
-                                                  this.attribute("name").value());
+                                                  this.attribute("stem").value(),
+                                                  this.attribute("descriptor").value());
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
             if (g.groupKey() != null) {
@@ -212,12 +212,12 @@ public class GrouperGroup {
    * @return  A string representation of the object.
    */
   public String toString() {
-    GrouperAttribute namespace = (GrouperAttribute) attributes.get("namespace");
-    GrouperAttribute name = (GrouperAttribute) attributes.get("name");
+    GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
+    GrouperAttribute desc = (GrouperAttribute) attributes.get("desc");
     return this.getClass()  + ":" +
            this.groupKey    + ":" + 
-           namespace.value()     + ":" +
-           name.value(); 
+           stem.value()     + ":" +
+           desc.value(); 
   }
 
   /*
@@ -227,19 +227,19 @@ public class GrouperGroup {
   /*
    * Initialize aspects of the group before creating it.
    *
-   * @param s           Session to create the group within.
-   * @param namespace        Namespace of the group to be created.
-   * @param name  Name of group to be created.
+   * @param s     Session to create the group within.
+   * @param stem  Stem of the group to be created.
+   * @param desc  Descriptor of group to be created.
    */
-  private void _create(GrouperSession s, String namespace, String name) {
+  private void _create(GrouperSession s, String stem, String desc) {
     // Attach session
     this.grprSession  = s;
 
     // Generate the UUID (groupKey)
     this.setGroupKey( GrouperBackend.uuid() );
 
-    this.attribute("namespace", namespace);
-    this.attribute("name", name);
+    this.attribute("stem", stem);
+    this.attribute("descriptor", desc);
 
     // Set some of the operational attributes
     // TODO Most, if not all, of the operational attributes should be
@@ -302,16 +302,16 @@ public class GrouperGroup {
     if (
         // Do we have a valid group type?
         (Grouper.groupType(this.groupType) == true) &&
-        // And a namespace?
-        (attributes.containsKey("namespace"))            &&
-        // And a name?
-        (attributes.containsKey("name"))      && 
-        // And do the namespace and name already exist?
+        // And a stem?
+        (attributes.containsKey("stem"))            &&
+        // And a descriptor?
+        (attributes.containsKey("descriptor"))      && 
+        // And do the stem and descriptor already exist?
         (this.exists() == false)                    && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
         // TODO Member Object for the admin of the group
-        // TODO CREATE priv for namespace
+        // TODO CREATE priv for stem
        )
     {
       return true;
