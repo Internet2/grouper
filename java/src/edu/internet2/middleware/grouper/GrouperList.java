@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.32 2005-03-11 01:17:58 blair Exp $
+ * @version $Id: GrouperList.java,v 1.33 2005-03-11 02:55:44 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -72,13 +72,13 @@ public class GrouperList implements Serializable {
    */
   private GrouperGroup    g;
   private GrouperMember   m;
-  private GrouperGroup    v;
+  private GrouperGroup    via;
   private String          groupKey;
   private String          groupField;
   private String          memberKey;
   private String          removeAfter;
   private GrouperSession  s;
-  private String          via;
+  private String          viaKey;
 
 
   /*
@@ -112,7 +112,7 @@ public class GrouperList implements Serializable {
     this.m          = m;
     this.memberKey  = m.key();
     this.groupField = list;
-    this.v          = null;
+    this.via        = null;
   }
   protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
     this._init();
@@ -130,10 +130,27 @@ public class GrouperList implements Serializable {
     this.m          = m;
     this.memberKey  = m.key();
     this.groupField = list;
-    this.v          = via;
+    this.via        = via;
     if (via != null) {
-      this.via      = v.key(); 
+      this.viaKey   = via.key(); 
     }
+  }
+  // FIXME Or would I rather just lazily load the objects?
+  protected GrouperList(
+              GrouperSession s, String groupKey, String memberKey, 
+              String list, String viaKey
+            ) 
+  {
+    this._init();
+    this.g          = GrouperGroup.loadByKey(s, groupKey);
+    this.m          = GrouperBackend.member(s, memberKey);
+    if (viaKey != null) {
+      this.via        = GrouperGroup.loadByKey(s, viaKey);
+    }
+    this.groupKey   = groupKey;
+    this.memberKey  = memberKey;
+    this.groupField = list;
+    this.viaKey     = viaKey;
   }
 
 
@@ -180,7 +197,17 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup via() {
-    return this.v;
+    return this.via;
+  }
+
+  protected String groupKey() {
+    return this.groupKey;
+  }
+  protected String memberKey() {
+    return this.memberKey;
+  }
+  protected String viaKey() {
+    return this.viaKey;
   }
 
   /**
@@ -223,12 +250,12 @@ public class GrouperList implements Serializable {
   private void _init() {
     this.g = null;
     this.m = null;
-    this.v = null;
+    this.via = null;
     this.groupKey     = null;
     this.groupField   = null;
     this.memberKey    = null;
     this.removeAfter  = null;
-    this.via          = null;
+    this.viaKey       = null;
   }
 
 
@@ -261,11 +288,11 @@ public class GrouperList implements Serializable {
   }
 
   private String getVia() {
-    return this.via;
+    return this.viaKey;
   }
 
-  private void setVia(String via) {
-    this.via = via;
+  private void setVia(String viaKey) {
+    this.viaKey = viaKey;
   }
 
   private String getRemoveAfter() {

@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.162 2005-03-11 01:17:58 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.163 2005-03-11 02:55:44 blair Exp $
  */
 public class GrouperBackend {
 
@@ -375,7 +375,7 @@ public class GrouperBackend {
     // Determine if `m' is a group and has any members
     if (m.typeID().equals("group")) {
       GrouperGroup mAsG = groupLoadByID(s, m.subjectID());
-      members.addAll( listValsOld(s, mAsG, field) );
+      members.addAll( listVals(s, mAsG, field) );
       // For each member of `m'
       Iterator iterM = members.iterator();
       while (iterM.hasNext()) {
@@ -767,12 +767,11 @@ public class GrouperBackend {
           // Its schema
           GrouperSchema schema = GrouperBackend._groupSchema(s, g);
           if (
-              (schema != null)                          &&
-              (GrouperBackend._groupAttachAttrs(s, g))  &&
-              (g.type( schema.type() ) )
+              (schema != null)                         &&
+              (GrouperBackend._groupAttachAttrs(s, g)) 
              )
           {
-            // TODO Nothing?
+            g.type( schema.type() );
           } else {
             g = null;
           }
@@ -820,13 +819,12 @@ public class GrouperBackend {
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
-    if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession"))
+    if (s.getClass().getName().equals(Grouper.KLASS_GS))
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      s, null, null, 
-                                      list, Grouper.MEM_ALL
-                                     );
+               s, null, null, list, Grouper.MEM_ALL
+             );
     }
     return vals;
   }
@@ -841,39 +839,24 @@ public class GrouperBackend {
    * @param   list  Query on this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  protected static List listValsOld(GrouperSession s, GrouperGroup g, String list) {
-    List vals = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
-        Grouper.groupField(g.type(), list)
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, g, null, 
-                                      list, Grouper.MEM_ALL
-                                     );
-    }
-    return vals;
-  }
   protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
     List vals = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
-        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        g.getClass().getName().equals(Grouper.KLASS_GG) &&
+        s.getClass().getName().equals(Grouper.KLASS_GS) &&
         Grouper.groupField(g.type(), list)
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      s, g, null, 
-                                      list, Grouper.MEM_ALL
-                                     );
+               s, g, null, list, Grouper.MEM_ALL
+             );
+      Iterator iter = vals.iterator();
+      while (iter.hasNext()) {
+        GrouperList gl = (GrouperList) iter.next();
+      }
     }
     return vals;
   }
@@ -1088,7 +1071,7 @@ public class GrouperBackend {
     while (iter.hasNext()) {
       GrouperSchema gs = (GrouperSchema) iter.next();
       // TODO What a hack
-      GrouperGroup g = GrouperGroup.loadByKey(s, gs.key(), type);
+      GrouperGroup g = GrouperGroup.loadByKey(s, gs.key());
       if (g != null) {
         vals.add(g);
       }
@@ -1665,9 +1648,21 @@ public class GrouperBackend {
         throw new RuntimeException("Invalid via requirement: " + via);
       }
     }
-    return BackendQuery.grouperList(
-             s.dbSess().session(), gkey_param, mkey_param, list, via_param
-           );
+    List rows = BackendQuery.grouperList(
+		              s.dbSess().session(), gkey_param, mkey_param,
+		              list, via_param
+                );
+    List vals = new ArrayList();
+    Iterator iter = rows.iterator();
+    while (iter.hasNext()) {
+      GrouperList gl = (GrouperList) iter.next();
+      gl =  new GrouperList(
+                  s, gl.groupKey(), gl.memberKey(),
+                  gl.groupField(), gl.viaKey()
+                );
+      vals.add(gl);
+    }
+    return vals;
   }
    
   /* (!javadoc)
