@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.149 2005-02-07 21:41:38 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.150 2005-02-13 17:41:13 blair Exp $
  */
 public class GrouperBackend {
 
@@ -97,6 +97,61 @@ public class GrouperBackend {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  /**
+   * Delete a {@link GrouperGroup} from the repository.
+   * <p />
+   * @param   s   {@link GrouperSession}
+   * @param   g   {@link GrouperGroup} to add
+   * @return  True if the group was added.
+   */
+  protected static boolean groupAdd(GrouperSession s, GrouperGroup g) {
+    boolean rv      = false;
+    if (_validateGroupAdd(s, g)) {
+      Session session = GrouperBackend._init();
+      try {
+        Transaction t = session.beginTransaction();
+        // The Group object
+        session.save(g);
+        // Add schema
+        if (_schemaAdd(session, g)) {
+          // Add attributes
+          if (_attributesAdd(s, session, g)) {
+            /*
+             * FIXME
+             *
+	           * I need to commit the group to the groups registry
+	           * before granting the ADMIN privs as the act of granting,
+	           * especially if using the default access privilege
+	           * implementation, may need to load the group from the
+	           * groups registry.  If it hasn't been committed, that
+	           * will obviously fail and Java will go BOOM!
+             *
+             * Of course, this may make rolling back even the granting 
+             * fails even more interesting.
+             *
+             * And, *yes*, this is a bug.
+             */
+            t.commit();
+            if (_privGrantUponCreate(s, session, g)) {
+              rv = true;
+            } else {
+              // FIXME We need to rollback *everything - but we can't
+            }
+          }
+        }
+      } catch (Exception e) {
+        // TODO We probably need a rollback in here in case of failure
+        //      above.
+        throw new RuntimeException(e);
+      } finally {
+        GrouperBackend._hibernateSessionClose(session);
+      }
+    } else { 
+      Grouper.log().event("Unable to add group " + g.name());
+    }
+    return rv;
+  }
 
   /**
    * Delete a {@link GrouperGroup} from the registry.
@@ -227,6 +282,30 @@ public class GrouperBackend {
   /*
    * PRIVATE CLASS METHODS
    */
+
+  /* !javadoc
+   * Attach attributes to a group
+   */
+  private static boolean _attributesAdd(
+                           GrouperSession s, Session session, GrouperGroup g
+                         ) 
+  {
+    boolean rv = false;
+    Iterator iter = g.attributes().keySet().iterator();
+    while (iter.hasNext()) {
+      // GrouperAttribute attr = (GrouperAttribute) g.attributes().get( iter.next() );
+      GrouperAttribute attr = (GrouperAttribute) g.attribute(
+                                                   s, (String) iter.next() 
+                                                 );
+      // TODO Error checking, anyone? 
+      GrouperBackend._attrAdd(
+                              session, g.key(), 
+                              attr.field(), attr.value()
+                             );
+      rv = true; // FIXME This *cannot* be correct
+    }
+    return rv;
+  }
 
   /* !javadoc
    * Delete all attributes attached to a group
@@ -437,6 +516,86 @@ public class GrouperBackend {
   }
 
   /* !javadoc
+   * Grant PRIV_ADMIN to group creator upon creation
+   */
+  private static boolean _privGrantAdminUponCreate(
+                           GrouperSession s, GrouperGroup g,
+                           GrouperMember m
+                         )
+  {
+    boolean rv = false;
+    if (Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
+      Grouper.log().backend("Granted " + Grouper.PRIV_ADMIN + " to " + m);
+      rv = true;
+    } else {
+      Grouper.log().backend(
+                            "Unable to grant " + Grouper.PRIV_ADMIN + 
+                            " to " + m
+                           );
+    }
+    return rv;
+  }
+
+  /* !javadoc
+   * Grant PRIV_STEM to stem creator upon creation
+   */
+  private static boolean _privGrantStemUponCreate(
+                           GrouperSession s, GrouperGroup g,
+                           GrouperMember m
+                         )
+  {
+    boolean rv = false;
+    if (Grouper.naming().grant(s, g, m, Grouper.PRIV_STEM)) {
+      Grouper.log().backend("Granted " + Grouper.PRIV_STEM + " to " + m);
+      rv      = true;
+    } else {
+      Grouper.log().backend(
+                            "Unable to grant " + Grouper.PRIV_STEM +
+                            " to " + m
+                           );
+    }
+    return rv;
+  }
+
+  /* !javadoc
+   * Grant appropriate privilege to gropu|stem creator upon creation
+   */
+  private static boolean _privGrantUponCreate(
+                           GrouperSession s, Session session,
+                           GrouperGroup g
+                         )
+  {
+    boolean rv = false;
+    // We need a root session for for bootstrap privilege granting
+    Subject root = GrouperSubject.load(
+                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+                   );
+    GrouperSession rs = GrouperSession.start(root);
+    if (rs != null) {
+      // Now grant privileges to the group creator
+      Grouper.log().backend("Converting subject " + s);
+      GrouperMember m = GrouperMember.load( s.subject() );
+      if (m != null) { // FIXME Bah
+        Grouper.log().backend("Converted to member " + m);
+        if (g.type().equals(Grouper.NS_TYPE)) {
+          if (_privGrantStemUponCreate(rs, g, m)) {
+            // NS_TYPE groups get PRIV_STEM
+            rv = true;
+          } 
+        } else if (_privGrantAdminUponCreate(rs, g, m)) {
+          // All other group types get PRIV_ADMIN
+          rv = true;
+        }
+      } else {
+        Grouper.log().backend("Unable to convert to member");
+      }
+      // Close root session
+      rs.stop();
+    }
+    return rv;
+  }
+
+  /* !javadoc
    * Revoke all naming privs attached to a group
    */
   private static boolean _privNamingRevokeAll(
@@ -452,6 +611,23 @@ public class GrouperBackend {
        )
     {       
       rv = true;
+    }
+    return rv;
+  }
+
+  /* !javadoc
+   * Attach schema to a group
+   */
+  private static boolean _schemaAdd(Session session, GrouperGroup g) {
+    boolean rv = false;
+    try {
+      GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
+      if (schema != null) {
+        session.save(schema);
+        rv = true;
+      }
+    } catch (HibernateException e) {
+      // FIXME LOG.  Hell, anything.
     }
     return rv;
   }
@@ -476,7 +652,24 @@ public class GrouperBackend {
     }
     return rv;
   }
-  
+ 
+  /* !javadoc
+   * Validate that a group is eligible to be created
+   */
+  private static boolean _validateGroupAdd(
+                           GrouperSession s, GrouperGroup g
+                         )
+  {
+    boolean rv = false;
+    Session session = _init();
+    GrouperAttribute stem = (GrouperAttribute) g.attribute("stem");
+    if (_stemLookup(s, session, (String) stem.value())) {
+      rv = true;
+    }
+    _hibernateSessionClose(session);
+    return rv;
+  }
+
   /* !javadoc
    * Validate that a group is eligible to be deleted
    */
@@ -610,113 +803,6 @@ public class GrouperBackend {
     List    extensions  = GrouperBackend._extensions(session, extn);
     GrouperBackend._hibernateSessionClose(session);
     return extensions;
-  }
-
-  /**
-   * Add {@link GrouperGroup} to backend store.
-   *
-   * @param s {@link GrouperSession}
-   * @param g {@link GrouperGroup} to add
-   */
-  protected static boolean groupAdd(GrouperSession s, GrouperGroup g) {
-    boolean rv      = false;
-    Session session = GrouperBackend._init();
-    GrouperAttribute stem = (GrouperAttribute) g.attribute("stem");
-    if (GrouperBackend._stemLookup(s, session, (String) stem.value())) {
-      try {
-        Transaction t = session.beginTransaction();
-
-        // The Group object
-        session.save(g);
-
-        // The Group schema
-        GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
-        session.save(schema);
-
-        // The Group attributes
-        Map       attributes  = g.attributes();
-        Iterator  iter        = attributes.keySet().iterator();
-        while (iter.hasNext()) {
-          // FIXME WTF?
-          GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-          // TODO Error checking, anyone? 
-          GrouperBackend._attrAdd(
-                                  session, g.key(), 
-                                  attr.field(), attr.value()
-                                 );
-        }
-        
-        /*
-         * I need to commit the group to the groups registry before
-         * granting the ADMIN privs as the act of granting, especially if
-         * using the default access privilege implementation, may need to
-         * load the group from the groups registry.  If it hasn't been
-         * committed, that will obviously fail and Java will go BOOM!
-         *
-         * Of course, this may make rolling back even the granting fails
-         * even more interesting.
-         */
-        t.commit();
-
-        // We need a root session for for bootstrap privilege granting
-        Subject         rootS = GrouperSubject.load(
-                                  Grouper.config("member.system"),
-                                  Grouper.DEF_SUBJ_TYPE
-                                );
-        GrouperSession  roots = GrouperSession.start(rootS);
-
-        // And grant ADMIN privilege to the list creator
-        Grouper.log().backend("Converting subject " + s);
-        GrouperMember m       = GrouperMember.load( s.subject() );
-        boolean       granted = false;
-        if (m != null) { // FIXME Bah
-          Grouper.log().backend("Converted to member " + m);
-          // NS_TYPE groups get `STEM', not `ADMIN'
-          if (g.type().equals(Grouper.NS_TYPE)) {
-            if (Grouper.naming().grant(roots, g, m, "STEM") == true) {
-              Grouper.log().backend("Granted STEM to " + m);
-              t.commit(); // XXX Is this commit necessary?
-              granted = true;
-              rv      = true;
-            } else {
-              Grouper.log().backend("Unable to grant STEM to " + m);
-            }
-          } else {
-            // For all other group types default to `ADMIN'
-            if (Grouper.access().grant(roots, g, m, Grouper.PRIV_ADMIN)) {
-              Grouper.log().backend("Granted ADMIN to " + m);
-              t.commit(); // XXX Is this commit necessary?
-              granted = true;
-              rv      = true;
-            } else {
-              Grouper.log().backend("Unable to grant ADMIN to " + m);
-            }
-          }
-        } else {
-          Grouper.log().backend("Unable to convert to member");
-        }
-        // Close root session
-        roots.stop();
-        if (granted == false) {
-          /*
-           * TODO Rollback?  Exception?  The rollback would also need to
-           *      rollback the granting of the ADMIN privilege.  Or at
-           *      least try to.
-           */
-          throw new RuntimeException("Unable to create group " + g);
-        }
-      } catch (Exception e) {
-        // TODO We probably need a rollback in here in case of failure
-        //      above.
-      	throw new RuntimeException(e);
-      }
-    } else { 
-      Grouper.log().event(
-        "Unable to add group as stem=`" + stem.value() + "' does not exist."
-      );
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return rv;
   }
 
   /**
