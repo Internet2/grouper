@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.173 2005-03-20 05:15:31 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.174 2005-03-21 02:26:46 blair Exp $
  */
 public class GrouperBackend {
 
@@ -211,7 +211,7 @@ public class GrouperBackend {
     boolean rv = false;
     if (_validateListVal(s, gl)) {
       try {
-        s.dbSess().txStart();
+        s.dbSess().txStart(); // FIXME Grr
 
         // TODO Confirm gl exists before calculating mof?
         // The GrouperList objects that we will need to delete
@@ -232,11 +232,11 @@ public class GrouperBackend {
         }
 
         // Update modify information
-        s.dbSess().session().update(gl.group());
-        s.dbSess().txCommit();
+        s.dbSess().session().update(gl.group()); // FIXME Grr...
+        s.dbSess().txCommit(); // FIXME Grr...
         rv = true;
       } catch (HibernateException e) {
-        s.dbSess().txRollback();
+        s.dbSess().txRollback(); // FIXME Grr...
         throw new RuntimeException("Error deleting list value: " + e);
       }
     }
