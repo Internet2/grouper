@@ -8,7 +8,7 @@ import  java.util.List;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.7 2004-05-02 04:45:16 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.8 2004-05-28 17:49:42 blair Exp $
  */
 public class InternalGrouperAccess implements GrouperAccess {
 
@@ -112,6 +112,34 @@ public class InternalGrouperAccess implements GrouperAccess {
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv) {
     return false;
+  }
+
+  /**
+   * List groups where the current subject has the specified privilege.
+   * <p>
+   * TODO 
+   *
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperGroup} groups.
+   */
+  public List has(String priv) {
+    List groups = new ArrayList();
+    return groups;
+  }
+
+  /**
+   * List groups where the specified member has the specified
+   * privilege.
+   * <p>
+   * TODO 
+   *
+   * @param   m     Query for this {@link GrouperMember}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperGroup} groups.
+   */
+  public List has(GrouperMember m, String priv) {
+    List groups = new ArrayList();
+    return groups;
   }
 
 }

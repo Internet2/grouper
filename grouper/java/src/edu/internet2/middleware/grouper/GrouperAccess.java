@@ -6,7 +6,7 @@ import  java.util.List;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.9 2004-05-02 04:45:16 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.10 2004-05-28 17:49:42 blair Exp $
  */
 public interface GrouperAccess {
   /**
@@ -47,7 +47,7 @@ public interface GrouperAccess {
    * See implementations for more information.
    *
    * @param   g     Return privileges for this {@link GrouperGroup}.
-   * @param   m     List privileges for this @link GrouperMember}.
+   * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
   public List has(GrouperGroup g, GrouperMember m);
@@ -76,5 +76,34 @@ public interface GrouperAccess {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv);
+
+  /**
+   * List groups where the current subject has the specified privilege.
+   * <p>
+   * See implementations for more information.
+   * <p>
+   * XXX Do we want to limit the privilege types that can be queried?
+   * I'm not sure why we would do that.
+   *
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperGroup} groups.
+   */
+  public List has(String priv);
+
+  /**
+   * List groups where the specified member has the specified
+   * privilege.
+   * <p>
+   * See implementations for more information.
+   * <p>
+   * XXX Do we want to limit the privilege types that can be queried?
+   * I'm not sure why we would do that.
+   *
+   * @param   m     Query for this {@link GrouperMember}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperGroup} groups.
+   */
+  public List has(GrouperMember m, String priv);
+
 }
 
