@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.12 2004-07-26 17:06:06 blair Exp $
+ * $Id: GrouperTest.java,v 1.13 2004-08-03 00:45:25 blair Exp $
  */
 
 package test.edu.internet2.middleware.directory.grouper;
@@ -26,8 +26,10 @@ public class GrouperTest extends TestCase {
   }
 
   protected void tearDown () {
-    // Destroy our Grouper instance
-    G.destroy();
+    // Destroy our Grouper instance (if we have one)
+    if (G != null) {
+      G.destroy();
+    }
   }
 
   /* Instantiate a Grouper instance */
@@ -145,6 +147,39 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending unstarted session");
     }
+  }
+
+  /* Instantiate a GrouperField instance */
+  public void testGrouperFieldInstantiate() {
+    GrouperField field = new GrouperField();
+
+    Class  klass    = field.getClass();
+    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperField";
+
+    Assert.assertNotNull(field);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  /* Instantiate a GrouperType instance */
+  public void testGrouperTypeInstantiate() {
+    GrouperType type = new GrouperType();
+
+    Class  klass    = type.getClass();
+    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperType";
+
+    Assert.assertNotNull(type);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  /* Instantiate a GrouperTypeDef instance */
+  public void testGrouperTypeDefInstantiate() {
+    GrouperTypeDef typeDef = new GrouperTypeDef();
+
+    Class  klass    = typeDef.getClass();
+    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDef";
+
+    Assert.assertNotNull(typeDef);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
 }
