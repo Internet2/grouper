@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.13 2004-12-09 04:42:58 blair Exp $
+$Id: FAQ,v 1.14 2004-12-09 05:37:39 blair Exp $
 
 ---
 
@@ -20,17 +20,13 @@ A: Use the `Grouper.config()` method.
 
 #### Q: How do I retrieve a a subject of type _person_?
 
-A: Use the `GrouperSubject.load(subjID, subjType)` method.
+A: Use the `GrouperSubject.load()` method.
 
-    Subject subj = GrouperSubject.load(subjID, Grouper.DEF_SUBJ_TYPE);
-
-Or:
-
-    Subject subj = GrouperSubject.load(subjID, "person");
+    Subject subj = GrouperSubject.load(subjID);
 
 #### Q: How do I retrieve a subject of type _group_?
 
-A: Use the `GrouperSubject.load(subjID, subjType)` method.
+A: Use the `GrouperSubject.load()` method.
 
     GrouperGroup g  = GrouperGroup.load(s, stem, extn);
     Subject subj    = GrouperSubject.load(g.id(), "group");

@@ -61,6 +61,7 @@ public class Util {
    * PUBLIC CLASS CONSTANTS
    */
   public static final String klassGG = "edu.internet2.middleware.grouper.GrouperGroup";
+  public static final String klassSI = "edu.internet2.middleware.grouper.SubjectImpl";
 
 
   /*
