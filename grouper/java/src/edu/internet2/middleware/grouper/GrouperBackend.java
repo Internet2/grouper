@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.187 2005-03-22 18:58:15 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.188 2005-03-22 19:02:16 blair Exp $
  */
 public class GrouperBackend {
 
@@ -173,23 +173,20 @@ public class GrouperBackend {
     gl.load(s);
 
     boolean rv = false; 
-    if (_validateListVal(s, gl)) {
-      // TODO Remove existence validation from _lAV?
-      if (GrouperList.exists(s, gl) == false) {
-        // The GrouperList objects that we will need to add
-        MemberOf mof = new MemberOf(s);
-        List listVals = mof.memberOf(gl);
+    if (GrouperList.exists(s, gl) == false) {
+      // The GrouperList objects that we will need to add
+      MemberOf mof = new MemberOf(s);
+      List listVals = mof.memberOf(gl);
           
-        // Now add the list values
-        // TODO Refactor out to _listAddVal(List vals)
-        Iterator iter = listVals.iterator();
-        while (iter.hasNext()) {
-          GrouperList lv = (GrouperList) iter.next();
-          lv.load(s); // TODO Is this necessary?
-          _listAddVal(s, lv);
-        }
-        rv = true; // TODO This seems naive
+      // Now add the list values
+      // TODO Refactor out to _listAddVal(List vals)
+      Iterator iter = listVals.iterator();
+      while (iter.hasNext()) {
+        GrouperList lv = (GrouperList) iter.next();
+        lv.load(s); // TODO Is this necessary?
+        _listAddVal(s, lv);
       }
+      rv = true; // TODO This seems naive
     }
     return rv;
   }
@@ -204,36 +201,35 @@ public class GrouperBackend {
     GrouperSession.validate(s);
     gl.load(s);
     boolean rv = false;
-    if (_validateListVal(s, gl)) {
-      try {
-        s.dbSess().txStart(); // FIXME Grr
+    try {
+      s.dbSess().txStart(); // FIXME Grr
 
-        // TODO Confirm gl exists before calculating mof?
-        // The GrouperList objects that we will need to delete
-        MemberOf mof = new MemberOf(s);
-        List listVals = mof.memberOf(gl);
+      // TODO Confirm gl exists before calculating mof?
+      // The GrouperList objects that we will need to delete
+      MemberOf mof = new MemberOf(s);
+      List listVals = mof.memberOf(gl);
 
-        // Now delete the list values
-        // TODO Refactor out to _listDelVal(List vals)
-        Iterator listValIter = listVals.iterator();
-        while (listValIter.hasNext()) {
-          GrouperList lv = (GrouperList) listValIter.next();
-          _listDelVal(s, lv);
-        }
-        try {
-          s.dbSess().session().flush();
-        } catch (HibernateException e) {
-          throw new RuntimeException("Error flushing session: " + e);
-        }
-
-        // Update modify information
-        s.dbSess().session().update(gl.group()); // FIXME Grr...
-        s.dbSess().txCommit(); // FIXME Grr...
-        rv = true;
-      } catch (HibernateException e) {
-        s.dbSess().txRollback(); // FIXME Grr...
-        throw new RuntimeException("Error deleting list value: " + e);
+      // Now delete the list values
+      // TODO Refactor out to _listDelVal(List vals)
+      Iterator listValIter = listVals.iterator();
+      while (listValIter.hasNext()) {
+        GrouperList lv = (GrouperList) listValIter.next();
+        _listDelVal(s, lv);
       }
+      // FIXME Needed?
+      try {
+        s.dbSess().session().flush();
+      } catch (HibernateException e) {
+        throw new RuntimeException("Error flushing session: " + e);
+      }
+
+      // Update modify information
+      s.dbSess().session().update(gl.group()); // FIXME Grr...
+      s.dbSess().txCommit(); // FIXME Grr...
+      rv = true;
+    } catch (HibernateException e) {
+      s.dbSess().txRollback(); // FIXME Grr...
+      throw new RuntimeException("Error deleting list value: " + e);
     }
     return rv;
   }
@@ -547,64 +543,6 @@ public class GrouperBackend {
     }
     return rv;
   }
-
-  /* !javadoc
-   * Return true if the list value appears remotely legitimate.
-   */
-  protected static boolean _validateListVal(
-                            GrouperSession s, GrouperList gl
-                          )
-  {
-    // TODO Better validation would be appreciated
-    if (s == null) {
-      throw new RuntimeException("List validation: null session");
-    }
-    if (gl == null) {
-      throw new RuntimeException("List validation: null list");
-    }
-    if (!s.getClass().getName().equals(Grouper.KLASS_GS)) {
-      throw new RuntimeException("List validation: invalid session");
-    }
-    if (gl.group() == null) {
-      throw new RuntimeException("List validation: null group");
-    }
-    if (!gl.group().getClass().getName().equals(Grouper.KLASS_GG)) {
-      throw new RuntimeException("List validation: invalid group");
-    }
-    if (gl.member() == null) {
-      throw new RuntimeException("List validation: null member");
-    }
-    if (gl.member() == null) {
-      throw new RuntimeException("List validation: null member");
-    }
-    if (!gl.member().getClass().getName().equals(Grouper.KLASS_GM)) {
-      throw new RuntimeException("List validation: invalid member");
-    }
-    if (!Grouper.groupField(gl.group().type(), gl.groupField())) {
-      throw new RuntimeException("List validation: invalid field");
-    }
-    if (!gl.member().getClass().getName().equals(Grouper.KLASS_GM)) {
-      throw new RuntimeException("List validation: invalid member");
-    }
-    if (gl.groupField() == null) {
-      throw new RuntimeException("List validation: null field");
-    }
-    if (!Grouper.groupField(gl.group().type(), gl.groupField())) {
-      throw new RuntimeException("List validation: invalid field");
-    }
-    return true;
-  }
-
-
-  /*
-   * METHODS ABOVE HAVE HAD AT LEAST ONE REFACTORING PASS APPLIED TO
-   * THEM; THOSE  BELOW HAVE NOT.
-   */
-
-
-  /*
-   * PROTECTED CLASS METHODS 
-   */
 
   /**
    * Query for all of a group's attributes.
