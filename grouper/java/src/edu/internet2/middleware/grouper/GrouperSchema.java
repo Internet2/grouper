@@ -6,7 +6,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.1 2004-08-06 18:37:20 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.2 2004-08-19 19:12:49 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -22,11 +22,16 @@ public class GrouperSchema implements Serializable {
     return this.getGroupKey() + ":" + this.getGroupType();
   }
 
+  public void set(String key, int type) {
+    this.groupKey   = key;
+    this.groupType  = type;
+  }
+
   /*
    * Below for Hibernate
    */
 
-  protected String getGroupKey() {
+  private String getGroupKey() {
     return this.groupKey;
   }
 
@@ -34,7 +39,7 @@ public class GrouperSchema implements Serializable {
     this.groupKey = groupKey;
   }
 
-  protected int getGroupType() {
+  private int getGroupType() {
     return this.groupType;
   }
 
