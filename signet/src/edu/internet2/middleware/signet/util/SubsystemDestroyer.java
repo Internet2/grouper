@@ -78,7 +78,7 @@ public class SubsystemDestroyer {
 	 * Deletes all Subsystem metadata and associated assignments.
 	 *
 	 */
-	private void execute()
+	public void execute()
 	    throws HibernateException, SQLException {
 	    
 	    Connection conn = this.session.connection();

@@ -17,6 +17,8 @@ import edu.internet2.middleware.signet.*;
 import edu.internet2.middleware.signet.choice.*;
 import edu.internet2.middleware.signet.tree.*;
 
+import net.sf.hibernate.HibernateException;
+
 import org.jdom.*;
 import org.jdom.input.SAXBuilder;
 
@@ -26,6 +28,7 @@ import java.io.*;
 import java.lang.Integer.*;
 import java.lang.Exception.*;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +52,34 @@ public class SubsystemXmlLoader {
         // this.logger = Logger.getLogger(this.toString());
     }
 
+    private void removeSubsystem(String subsystemId) {
+        if (! readYesOrNo(
+        		"\nYou are about to delete data for subsystem "
+        		+ subsystemId
+        		+ " and the associated assignments."
+				+ "\nDo you wish"
+				+ " to continue?")) {
+        	System.exit(0);
+        }
+
+    	SubsystemDestroyer destroyer = new SubsystemDestroyer(subsystemId);
+    	try {
+    		destroyer.execute();
+    	}
+    	catch (HibernateException he) {
+    		System.out.println("-Error: unable to remove subsystem " +
+    				subsystemId);
+			System.out.println(he.getMessage());
+			System.exit(1);
+    	}
+    	catch (SQLException sqle) {
+    		System.out.println("-Error: unable to remove subsystem " +
+    				subsystemId);
+			System.out.println(sqle.getMessage());
+			System.exit(1);
+    	}
+    }
+    
     private void processXML(String fName, boolean validate)
         throws IOException, JDOMException, ObjectNotFoundException,
             javax.naming.OperationNotSupportedException {
@@ -60,6 +91,8 @@ public class SubsystemXmlLoader {
         Element subsystemIdElem = rootElem.getChild("Id");
         String subsystemId = subsystemIdElem.getTextTrim();
 
+        removeSubsystem(subsystemId);
+        
         Element subsystemNameElem = rootElem.getChild("Name");
         String subsystemName = subsystemNameElem.getTextTrim();
 
@@ -377,7 +410,7 @@ public class SubsystemXmlLoader {
                 System.err.println("Usage: SubsystemXmlLoader <xml file>");
                 return;
             }
-
+            
             SubsystemXmlLoader processor = new SubsystemXmlLoader();
 
             String fName = args[0];
@@ -396,4 +429,36 @@ public class SubsystemXmlLoader {
             e.printStackTrace();
         }
     }
+    
+    private static boolean readYesOrNo(String prompt) {
+        while (true) {
+            String response = promptedReadLine(prompt);
+            if (response.length() > 0) {
+                switch (Character.toLowerCase(response.charAt(0))) {
+                case 'y':
+                    return true;
+                case 'n':
+                    return false;
+                default:
+                    System.out.println("Please enter Y or N. ");
+                }
+            }
+        }
+    }
+    
+    private static String promptedReadLine(String prompt) {
+        try {
+            System.out.print(prompt);
+            return reader.readLine();
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+    
+    private static BufferedReader reader;
+
+    static {
+        reader = new BufferedReader(new InputStreamReader(System.in));
+    }
+
 }

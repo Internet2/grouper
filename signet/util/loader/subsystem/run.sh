@@ -24,4 +24,4 @@ done
 
 echo "Using classpath: "$CLASSPATH
 
-$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.signet.XMLLoad $1
+$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.SubsystemXmlLoader $1
