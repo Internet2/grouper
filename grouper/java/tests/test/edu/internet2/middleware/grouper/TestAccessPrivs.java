@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.26 2005-02-07 21:07:02 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.27 2005-03-04 20:46:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -404,7 +404,7 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(g);
     GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     Assert.assertNotNull(m);
-    Assert.assertTrue( g.listAddVal(s, m) );
+    Assert.assertTrue( g.listAddVal(m) );
     s.stop();
   }
 
@@ -423,7 +423,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m = GrouperMember.load(g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
-    Assert.assertFalse( g.listAddVal(s, m) );
+    Assert.assertFalse( g.listAddVal(m) );
     // We're done
     s.stop();
   }
@@ -473,7 +473,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
-    Assert.assertFalse( g.listDelVal(s, m) );
+    Assert.assertFalse( g.listDelVal(m) );
     // We're done
     s.stop();
   }
@@ -523,7 +523,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m = GrouperMember.load(g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
-    Assert.assertTrue( g.listAddVal(s, m) );
+    Assert.assertTrue( g.listAddVal(m) );
     // We're done
     s.stop();
   }
@@ -601,7 +601,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m = GrouperMember.load(g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
-    Assert.assertTrue( g.listDelVal(s, m) );
+    Assert.assertTrue( g.listDelVal(m) );
     // We're done
     s.stop();
   }
@@ -651,7 +651,7 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
-    Assert.assertFalse( g.listDelVal(s, m) );
+    Assert.assertFalse( g.listDelVal(m) );
     // We're done
     s.stop();
   }
@@ -667,7 +667,7 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(g);
     GrouperMember m = GrouperMember.load(Util.m1i, Util.m1t);
     Assert.assertNotNull(m);
-    Assert.assertTrue( g.listDelVal(s, m) );
+    Assert.assertTrue( g.listDelVal(m) );
     Assert.assertTrue( GrouperGroup.delete(s, g) );
     s.stop();
   }

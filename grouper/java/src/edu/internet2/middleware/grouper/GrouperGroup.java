@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.161 2005-03-04 20:27:38 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.162 2005-03-04 20:46:35 blair Exp $
  */
 public class GrouperGroup {
 
@@ -464,19 +464,18 @@ public class GrouperGroup {
   /**
    * Add a list value of the default list type.
    * <p />
-   * @param   s     Add member using this session. 
    * @param   m     Add this member.
    * @return  True if the list value was added.
    */
-  public boolean listAddVal(GrouperSession s, GrouperMember m) {
+  public boolean listAddVal(GrouperMember m) {
     /* 
      * TODO Add a variant that takes a GrouperGroup instead of a
      * GrouperMember?
      */
     boolean rv = false;
-    if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
-      rv = this._listAddVal(s, m, Grouper.DEF_LIST_TYPE);
-      Grouper.log().groupListAdd(rv, s, this, m);
+    if (GrouperGroup._canModListVal(this, Grouper.DEF_LIST_TYPE)) {
+      rv = this._listAddVal(m, Grouper.DEF_LIST_TYPE);
+      Grouper.log().groupListAdd(rv, this.s, this, m);
     }
     return rv;
   }
@@ -484,23 +483,19 @@ public class GrouperGroup {
   /**
    * Add a list value of the specified list type.
    * <p />
-   * @param   s     Add member using this session. 
    * @param   m     Add this member.
    * @param   list  Add member to this list type.
    * @return  True if the list value was added.
    */
-  public boolean listAddVal(
-                   GrouperSession s, GrouperMember m, String list
-                 ) 
-  {
+  public boolean listAddVal(GrouperMember m, String list) {
     /* 
      * TODO Add a variant that takes a GrouperGroup instead of a
      * GrouperMember?
      */
     boolean rv = false;
-    if (GrouperGroup._canModListVal(s, this, list)) {
-      rv = this._listAddVal(s, m, list);
-      Grouper.log().groupListAdd(rv, s, this, m);
+    if (GrouperGroup._canModListVal(this, list)) {
+      rv = this._listAddVal(m, list);
+      Grouper.log().groupListAdd(rv, this.s, this, m);
     }
     return rv;
   }
@@ -508,46 +503,41 @@ public class GrouperGroup {
   /**
    * Delete a list value of the default list type.
    * <p />
-   * @param   s     Delete member using this session.
    * @param   m     Delete this member.
    * @return  True if the list value was deleted.
    */
-  public boolean listDelVal(GrouperSession s, GrouperMember m) {
+  public boolean listDelVal(GrouperMember m) {
     /* 
      * TODO Add a variant that takes a GrouperGroup instead of a
      * GrouperMember?
      */
     boolean rv = false;
     // TODO Refactor into _listDelVal
-    if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
-      rv = this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
+    if (GrouperGroup._canModListVal(this, Grouper.DEF_LIST_TYPE)) {
+      rv = this._listDelVal(m, Grouper.DEF_LIST_TYPE);
     }  
-    Grouper.log().groupListDel(rv, s, this, m);
+    Grouper.log().groupListDel(rv, this.s, this, m);
     return rv;
   }
 
   /**
    * Delete a list value of the specified list type.
    * <p />
-   * @param   s     Delete member using this session.
    * @param   m     Delete this member.
    * @param   list  Delete member from this list type.
    * @return  True if the list value was deleted.
    */
-  public boolean listDelVal(
-                   GrouperSession s, GrouperMember m, String list
-                 ) 
-  {
+  public boolean listDelVal(GrouperMember m, String list) {
     /* 
      * TODO Add a variant that takes a GrouperGroup instead of a
      * GrouperMember?
      */
     boolean rv = false;
     // TODO Refactor into _listDelVal
-    if (GrouperGroup._canModListVal(s, this, list)) {
-      rv = this._listDelVal(s, m, list);
+    if (GrouperGroup._canModListVal(this, list)) {
+      rv = this._listDelVal(m, list);
     }  
-    Grouper.log().groupListDel(rv, s, this, m);
+    Grouper.log().groupListDel(rv, this.s, this, m);
     return rv;
   }
 
@@ -748,17 +738,14 @@ public class GrouperGroup {
    * Does the current subject have permission to modify list vals of
    * the specified type on the specified group?
    */
-  private static boolean _canModListVal(
-                           GrouperSession s, GrouperGroup g, String list
-                         )
-  {
+  private static boolean _canModListVal(GrouperGroup g, String list) {
     boolean rv = false;
-    if (GrouperBackend.sessionValid(s)) {
+    if (GrouperBackend.sessionValid(g.s)) {
       // FIXME Support for multiple list types
       if ( (g != null) && (list != null) ) {
         if (
-            (Grouper.access().has(s, g, Grouper.PRIV_UPDATE)) ||
-            (Grouper.access().has(s, g, Grouper.PRIV_ADMIN))
+            (Grouper.access().has(g.s, g, Grouper.PRIV_UPDATE)) ||
+            (Grouper.access().has(g.s, g, Grouper.PRIV_ADMIN))
            )
         {
           rv = true;
@@ -1097,7 +1084,7 @@ public class GrouperGroup {
   /*
    * Add list value and update modify* attributes.
    */
-  private boolean _listAddVal(GrouperSession s, GrouperMember m, String list) {
+  private boolean _listAddVal(GrouperMember m, String list) {
     boolean rv = false;
     // Set some of the operational attributes
     /*
@@ -1107,11 +1094,11 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.load( s.subject());
+    GrouperMember mem = GrouperMember.load( this.s.subject());
     this.setModifySubject( mem.key() );
     if (
         GrouperBackend.listAddVal(
-          s, new GrouperList(this, m, list, null)
+          this.s, new GrouperList(this, m, list, null)
         ) == true
        )
     {
@@ -1127,7 +1114,7 @@ public class GrouperGroup {
   /*
    * Delete list value and update modify* attributes.
    */
-  private boolean _listDelVal(GrouperSession s, GrouperMember m, String list) {
+  private boolean _listDelVal(GrouperMember m, String list) {
     boolean rv = false;
     // Set some of the operational attributes
     /*
@@ -1137,12 +1124,12 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.load( s.subject());
+    GrouperMember mem = GrouperMember.load( this.s.subject());
     this.setModifySubject( mem.key() );
     //if (GrouperBackend.listDelVal(s, this, m, list) == true) {
     if (
         GrouperBackend.listDelVal(
-          s, new GrouperList(this, m, list, null) 
+          this.s, new GrouperList(this, m, list, null) 
         ) == true
        )
     {
