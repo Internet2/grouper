@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.66 2004-11-05 01:54:57 blair Exp $
+ * $Id: GrouperTest.java,v 1.67 2004-11-05 01:59:12 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -479,7 +479,7 @@ public class GrouperTest extends TestCase {
 
     // Confirm that the group exists
     Assert.assertTrue( grp.exists() );
-   
+  
     // We're done
     s.stop();
   }
@@ -504,6 +504,10 @@ public class GrouperTest extends TestCase {
     // Assert that the group is considered to exist
     Assert.assertTrue( grp.exists() );
    
+    // TODO Assert attributes 
+
+    // TODO Assert ADMIN membership
+ 
     // We're done
     s.stop();
   }
