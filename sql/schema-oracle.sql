@@ -1,117 +1,117 @@
 
 -- 
 -- Grouper Database Schema
--- $Id: schema-oracle.sql,v 1.1 2005-02-16 20:10:18 blair Exp $
+-- $Id: schema-oracle.sql,v 1.2 2005-02-16 20:23:08 blair Exp $
 -- 
 
 DROP TABLE grouper_attribute;
 CREATE TABLE grouper_attribute (
-  groupKey        VARCHAR(16) NOT NULL,
-  groupField      VARCHAR(32) NOT NULL,
-  groupFieldValue VARCHAR(64),
+  groupKey        VARCHAR2(16) NOT NULL,
+  groupField      VARCHAR2(32) NOT NULL,
+  groupFieldValue VARCHAR2(64),
   CONSTRAINT      uniq_ga_gk_gf UNIQUE (groupKey, groupField)
 );
 
 DROP TABLE grouper_field;
 CREATE TABLE grouper_field (
-  groupField  VARCHAR(32) NOT NULL PRIMARY KEY,
-  readPriv    VARCHAR(32),
-  writePriv   VARCHAR(32),
-  isList      VARCHAR(8)
+  groupField  VARCHAR2(32) NOT NULL PRIMARY KEY,
+  readPriv    VARCHAR2(32),
+  writePriv   VARCHAR2(32),
+  isList      VARCHAR2(8)
 );
 
 DROP TABLE grouper_group;
 CREATE TABLE grouper_group (
-  groupKey      VARCHAR(16) NOT NULL PRIMARY KEY,
-  groupID       VARCHAR(16) NOT NULL,
-  createTime    VARCHAR(16),
-  createSubject VARCHAR(16),
-  createSource  VARCHAR(32),
-  modifyTime    VARCHAR(16),
-  modifySubject VARCHAR(16),
-  modifySource  VARCHAR(32),
-  groupComment  VARCHAR(256),
+  groupKey      VARCHAR2(16) NOT NULL PRIMARY KEY,
+  groupID       VARCHAR2(16) NOT NULL,
+  createTime    VARCHAR2(16),
+  createSubject VARCHAR2(16),
+  createSource  VARCHAR2(32),
+  modifyTime    VARCHAR2(16),
+  modifySubject VARCHAR2(16),
+  modifySource  VARCHAR2(32),
+  groupComment  VARCHAR2(256),
   CONSTRAINT    uniq_gg_gid  UNIQUE (groupID)
 );
 
 DROP TABLE grouper_list;
 CREATE  TABLE grouper_list (
-  groupKey      VARCHAR(16) NOT NULL,
-  groupField    VARCHAR(32) NOT NULL,
-  memberKey     VARCHAR(16) NOT NULL,
-  pathKey       VARCHAR(16),
-  via           VARCHAR(16),
-  removeAfter   VARCHAR(16)
+  groupKey      VARCHAR2(16) NOT NULL,
+  groupField    VARCHAR2(32) NOT NULL,
+  memberKey     VARCHAR2(16) NOT NULL,
+  pathKey       VARCHAR2(16),
+  via           VARCHAR2(16),
+  removeAfter   VARCHAR2(16)
 );
 CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list 
   (groupKey, groupField, memberKey, pathKey);
 
 DROP TABLE grouper_member;
 CREATE TABLE grouper_member (
-  memberKey     VARCHAR(16) NOT NULL PRIMARY KEY,
-  memberID      VARCHAR(16) NOT NULL,
-  subjectID     VARCHAR(32) NOT NULL,
-  subjectTypeID VARCHAR(32) NOT NULL
+  memberKey     VARCHAR2(16) NOT NULL PRIMARY KEY,
+  memberID      VARCHAR2(16) NOT NULL,
+  subjectID     VARCHAR2(32) NOT NULL,
+  subjectTypeID VARCHAR2(32) NOT NULL
 );
 CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
   (subjectID, subjectTypeID);
 
 DROP TABLE grouper_schema;
 CREATE TABLE grouper_schema (
-  groupKey    VARCHAR(16) NOT NULL,
-  groupType   VARCHAR(32) NOT NULL,
+  groupKey    VARCHAR2(16) NOT NULL,
+  groupType   VARCHAR2(32) NOT NULL,
   CONSTRAINT  uniq_gsch_gk_gt  UNIQUE (groupKey, groupType)
 );
 
 DROP TABLE grouper_session;
 CREATE TABLE grouper_session (
-  sessionID  VARCHAR(16) NOT NULL PRIMARY KEY,
-  memberID   VARCHAR(16) NOT NULL,
-  startTime  VARCHAR(16)
+  sessionID  VARCHAR2(16) NOT NULL PRIMARY KEY,
+  memberID   VARCHAR2(16) NOT NULL,
+  startTime  VARCHAR2(16)
 );
 
 DROP TABLE grouper_subject;
 CREATE TABLE grouper_subject (
-  subjectID     VARCHAR(64) NOT NULL PRIMARY KEY,
-  subjectTypeID VARCHAR(32) NOT NULL,
+  subjectID     VARCHAR2(64) NOT NULL PRIMARY KEY,
+  subjectTypeID VARCHAR2(32) NOT NULL,
   CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
 DROP TABLE grouper_subjectAttribute;
 CREATE TABLE grouper_subjectAttribute (
-  subjectID     VARCHAR(64) NOT NULL, 
-  subjectTypeID VARCHAR(32) NOT NULL,
-  name          VARCHAR(32) NOT NULL,
+  subjectID     VARCHAR2(64) NOT NULL, 
+  subjectTypeID VARCHAR2(32) NOT NULL,
+  name          VARCHAR2(32) NOT NULL,
   instance      INTEGER,
-  value         VARCHAR(32) NOT NULL,
-  searchValue   VARCHAR(32),
+  value         VARCHAR2(32) NOT NULL,
+  searchValue   VARCHAR2(32),
   CONSTRAINT    uniq_gsubattr_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
 DROP TABLE grouper_subjectType;
 CREATE TABLE grouper_subjectType (
-  subjectTypeID VARCHAR(32) NOT NULL PRIMARY KEY,
-  name          VARCHAR(32) NOT NULL,
-  adapterClass  VARCHAR(128) NOT NULL
+  subjectTypeID VARCHAR2(32) NOT NULL PRIMARY KEY,
+  name          VARCHAR2(32) NOT NULL,
+  adapterClass  VARCHAR2(128) NOT NULL
 );
 
 DROP TABLE grouper_typeDef;
 CREATE TABLE grouper_typeDef (
-  groupType   VARCHAR(32) NOT NULL,
-  groupField  VARCHAR(32) NOT NULL,
+  groupType   VARCHAR2(32) NOT NULL,
+  groupField  VARCHAR2(32) NOT NULL,
   CONSTRAINT  uniq_gtypdef_gt_gf  UNIQUE (groupType, groupField)
 );
 
 DROP TABLE grouper_type;
 CREATE TABLE grouper_type (
-  groupType   VARCHAR(32) NOT NULL PRIMARY KEY
+  groupType   VARCHAR2(32) NOT NULL PRIMARY KEY
 );
 
 DROP TABLE grouper_viaElement;
 CREATE  TABLE grouper_viaElement (
-  pathKey       VARCHAR(16) NOT NULL,
+  pathKey       VARCHAR2(16) NOT NULL,
   pathIdx       INTEGER NOT NULL,
-  groupKey      VARCHAR(16) NOT NULL,
+  groupKey      VARCHAR2(16) NOT NULL,
   CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
 );
 -- TODO Are these the right indices for this table?
@@ -120,7 +120,7 @@ CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
 
 DROP TABLE grouper_viaPath;
 CREATE  TABLE grouper_viaPath (
-  pathKey       VARCHAR(16) NOT NULL PRIMARY KEY
+  pathKey       VARCHAR2(16) NOT NULL PRIMARY KEY
 );
 
 COMMIT;
