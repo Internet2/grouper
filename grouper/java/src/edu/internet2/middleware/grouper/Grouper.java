@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.63 2004-12-09 01:09:07 blair Exp $
+ * @version $Id: Grouper.java,v 1.64 2004-12-09 01:43:16 blair Exp $
  */
 public class Grouper {
 
@@ -197,8 +197,7 @@ public class Grouper {
    *
    * @param   type  {@link GrouperGroup} type
    * @param   field {@link GrouperGroup} field
-   * @return  Boolean true if the field is valid for the group type,
-   *   false otherwise.
+   * @return  True if the field is valid for the group type.
    */
   public static boolean groupField(String type, String field) {
     Grouper._init();
@@ -235,7 +234,7 @@ public class Grouper {
    * <p />
    *
    * @param   type  {@link GrouperGroup} type
-   * @return  Boolean true if the type is valid, false otherwise.
+   * @return  True if the type is valid.
    */
   public static boolean groupType(String type) {
     Grouper._init();
@@ -276,7 +275,7 @@ public class Grouper {
    * <p />
    *
    * @param   type  {@link Subject} type 
-   * @return  Boolean true if the type is valid, false otherwise.
+   * @return  True if the type is valid.
    */
   public static boolean hasSubjectType(String type) {
     Grouper._init();

@@ -59,23 +59,23 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.27 2004-12-01 04:23:09 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.28 2004-12-09 01:43:16 blair Exp $
  */
 public interface GrouperAccess {
 
   /**
    * Verify whether this implementation of the {@link GrouperAccess}
    * interface can handle this privilege.
-   *
+   * <p />
    * @param   priv  The privilege to verify.
-   * @return  Boolean true if this implementation handles the specified
-   * privilege, boolean false otherwise.
+   * @return  True if this implementation handles the specified
+   *   privilege.
    */
   public boolean can(String priv);
 
   /**
    * Grant an access privilege on a {@link GrouperGroup}.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -87,7 +87,7 @@ public interface GrouperAccess {
 
   /**
    * List access privileges for current subject on the specified group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s   Act within this {@link GrouperSession}.
@@ -98,7 +98,7 @@ public interface GrouperAccess {
 
   /**
    * List groups where the current subject has the specified privilege.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -109,7 +109,7 @@ public interface GrouperAccess {
 
   /**
    * List access privileges for specified member on the specified group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -122,7 +122,7 @@ public interface GrouperAccess {
   /**
    * Verify whether current subject has the specified privilege on the
    * specified group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -135,7 +135,7 @@ public interface GrouperAccess {
   /**
    * List groups where the specified member has the specified
    * privilege.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -148,7 +148,7 @@ public interface GrouperAccess {
   /**
    * Verify whether the specified member has the specified privilege
    * on the specified group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -173,7 +173,7 @@ public interface GrouperAccess {
 
   /**
    * Revoke an access privilege.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.

@@ -58,11 +58,11 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
- * Class representing a {@link Grouper} subject attribute.
+ * Class modeling a {@link Grouper} subject attribute.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.9 2004-12-09 01:28:38 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.10 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperSubjectAttribute implements Serializable {
 

@@ -68,7 +68,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.137 2004-12-09 01:34:13 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.138 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperBackend {
 
@@ -315,7 +315,7 @@ public class GrouperBackend {
    *
    * @param   s   Session to delete group within.
    * @param   g   Group to delete.
-   * @return  Boolean true if group was deleted, false otherwise.
+   * @return  True if the group was deleted.
    */
   protected static boolean groupDelete(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
@@ -512,12 +512,11 @@ public class GrouperBackend {
    * Verify whether the specified group, member, list, and via
    * combination exists within the groups registry.
    *
-   * @param s     Verify data within this session context.
-   * @param g     Verify data for this group.
-   * @param m     Verify data for this member
-   * @param list  Verify data for this list type.
-   * @return  Boolean true if value combination exists, boolean false
-   *   otherwise.
+   * @param   s     Verify data within this session context.
+   * @param   g     Verify data for this group.
+   * @param   m     Verify data for this member
+   * @param   list  Verify data for this list type.
+   * @return  True if the value combination exists.
    */
   protected static boolean listVal(
                                    GrouperSession s, GrouperGroup g,
@@ -1238,7 +1237,7 @@ public class GrouperBackend {
    * <p />
    *
    * @param   s   Session to delete.
-   * @return  Boolean true if session deleted, false otherwise.
+   * @return  True is fhe session was deleted.
    */
   protected static boolean sessionDel(GrouperSession s) {
     boolean rv = false;
@@ -1261,7 +1260,7 @@ public class GrouperBackend {
    * <p />
    *
    * @param   s   Session to validate. 
-   * @return  Boolean true if still valid, false otherwise.
+   * @return  True if the session is still valid.
    */
   protected static boolean sessionValid(GrouperSession s) {
     boolean rv = false;
@@ -1818,7 +1817,7 @@ public class GrouperBackend {
   }
    
   /* (!javadoc)
-   * Boolean true if stem exists, false otherwise.
+   * True if the stem exists.
    */
   private static boolean _stemLookup(
                            GrouperSession s, Session session, 

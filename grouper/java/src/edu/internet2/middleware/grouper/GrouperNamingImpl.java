@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.36 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.37 2004-12-09 01:43:17 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -93,10 +93,11 @@ public class GrouperNamingImpl implements GrouperNaming {
   /**
    * Verify whether this implementation of the {@link GrouperNaming}
    * interface can handle this privilege.
+   * <p />
    *
    * @param   priv  The privilege to verify.
-   * @return  Boolean true if this implementation handles the specified
-   * privilege, boolean false otherwise.
+   * @return  True if this implemention handles the specified
+   *   privilege.
    */
   public boolean can(String priv) {
     GrouperNamingImpl._init();
@@ -108,7 +109,7 @@ public class GrouperNamingImpl implements GrouperNaming {
 
   /**
    * Grant an naming privilege on a naming {@link GrouperGroup}.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Grant privileges on this {@link GrouperGroup}.
@@ -141,7 +142,7 @@ public class GrouperNamingImpl implements GrouperNaming {
 
   /**
    * List naming privileges for current subject on the specified naming group.
-   * <p>
+   * <p />
    *
    * @param   s   Act within this {@link GrouperSession}.
    * @param   g   List privileges on this group.
@@ -163,7 +164,7 @@ public class GrouperNamingImpl implements GrouperNaming {
 
   /**
    * List groups where the current subject has the specified privilege.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   priv  Query for this privilege type.
@@ -182,7 +183,7 @@ public class GrouperNamingImpl implements GrouperNaming {
 
   /**
    * List naming privileges for specified member on the specified naming group.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Return privileges for this {@link GrouperGroup}.
@@ -205,7 +206,7 @@ public class GrouperNamingImpl implements GrouperNaming {
   /**
    * Verify whether current subject has the specified privilege on the
    * specified group.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Verify privilege for this group.
@@ -232,7 +233,7 @@ public class GrouperNamingImpl implements GrouperNaming {
   /**
    * List groups where the specified member has the specified
    * privilege.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   m     Query for this {@link GrouperMember}.
@@ -251,7 +252,7 @@ public class GrouperNamingImpl implements GrouperNaming {
   /**
    * Verify whether the specified member has the specified privilege
    * on the specified naming group.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Verify privilege for this group.
@@ -310,7 +311,7 @@ public class GrouperNamingImpl implements GrouperNaming {
 
   /**
    * Revoke an access privilege.
-   * <p>
+   * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Revoke privilege on this {@link GrouperGroup}.

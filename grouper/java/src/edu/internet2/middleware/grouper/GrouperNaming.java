@@ -59,23 +59,24 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.26 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.27 2004-12-09 01:43:17 blair Exp $
  */
 public interface GrouperNaming {
 
   /**
    * Verify whether this implementation of the {@link GrouperNaming}
    * interface can handle this privilege.
+   * <p />
    *
    * @param   priv  The privilege to verify.
-   * @return  Boolean true if this implementation handles the specified
-   * privilege, boolean false otherwise.
+   * @return  True if this implementation handles the specified
+   *   privilege.
    */
   public boolean can(String priv);
 
   /**
    * Grant an naming privilege on a <i>naming</i> {@link GrouperGroup}.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -87,7 +88,7 @@ public interface GrouperNaming {
 
   /**
    * List naming privileges for current subject on the specified naming group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s   Act within this {@link GrouperSession}.
@@ -98,7 +99,7 @@ public interface GrouperNaming {
 
   /**
    * List groups where the current subject has the specified privilege.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -109,7 +110,7 @@ public interface GrouperNaming {
 
   /**
    * List naming privileges for specified member on the specified naming group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -122,7 +123,7 @@ public interface GrouperNaming {
   /**
    * Verify whether current subject has the specified privilege on the
    * specified group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -135,7 +136,7 @@ public interface GrouperNaming {
   /**
    * List groups where the specified member has the specified
    * privilege.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -148,7 +149,7 @@ public interface GrouperNaming {
   /**
    * Verify whether the specified member has the specified privilege
    * on the specified naming group.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -173,7 +174,7 @@ public interface GrouperNaming {
 
   /**
    * Revoke an naming privilege.
-   * <p>
+   * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
