@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.150 2005-02-13 17:41:13 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.151 2005-02-17 18:42:12 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1700,7 +1700,9 @@ public class GrouperBackend {
       g = GrouperBackend._groupLoadByName(s, session, name, type);
       // FIXME WTF IS THIS?!?!
       if (g != null) {
+        // TODO ???
       } else {
+        // TODO ???
       }
     }
     return g;
