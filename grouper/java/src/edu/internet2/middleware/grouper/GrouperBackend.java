@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.93 2004-12-03 03:25:08 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.94 2004-12-03 03:33:15 blair Exp $
  */
 public class GrouperBackend {
 
@@ -105,6 +105,15 @@ public class GrouperBackend {
    * PROTECTED CLASS METHODS 
    */
 
+  /**
+   * Add a {@link GrouperAttribute} to the registry.
+   * <p />
+   *
+   * @param   key     {@link GrouperGroup} key.
+   * @param   field   {@link GrouperField} field.
+   * @param   value   {@link GrouperField} value.
+   * @return  The added {@link GrouperAttribute} object.
+   */
   protected static GrouperAttribute attrAdd(
                                             String key, String field, 
                                             String value
@@ -119,10 +128,11 @@ public class GrouperBackend {
   }
 
   /**
-   * Query a group's attributes.
+   * Query for all of a group's attributes.
+   * <p />
    *
    * @param g Group object
-   * @return List of a group's attributes.
+   * @return List of a {@link GrouperAttribute} objects.
    */
   protected static List attributes(GrouperGroup g) {
     Session session = GrouperBackend._init();
@@ -135,9 +145,19 @@ public class GrouperBackend {
   }
 
   // TODO
-  protected static List extensions(GrouperSession s, String extension) {
+  /**
+   * Query for attributes with a field of <i>extension</i> and 
+   * the specified value.
+   * <p />
+   * 
+   * @param   s     Perform query within this {@link
+   *   GrouperSession}.
+   * @param   extn  Query for extensions of this type.
+   * @return  List of {@link GrouperAttribute} objects.
+   */
+  protected static List extensions(GrouperSession s, String extn) {
     Session session     = GrouperBackend._init();
-    List    extensions  = GrouperBackend._extensions(session, extension);
+    List    extensions  = GrouperBackend._extensions(session, extn);
     GrouperBackend._hibernateSessionClose(session);
     return extensions;
   }
