@@ -54,9 +54,14 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * Base {@link Grouper} exception class.
+ * <p />
+ * Grouper currently has no clear exception policy nor hierarchy.  If I
+ * didn't think I'd need to add it back in a few weeks later, I'd
+ * probably just remove this class until the exception policy and
+ * hierarchy was more settled.
  *
  * @author  blair christensen.
- * @version $Id: GrouperException.java,v 1.2 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperException.java,v 1.3 2005-03-29 15:16:07 blair Exp $
  */
 public class GrouperException extends Exception {
 
