@@ -16,7 +16,7 @@ import java.io.Serializable;
  *	This code was copied from example code in "Hibernate in Action", page
  *  334.
  */
-public class FunctionFullyQualifiedId implements Serializable
+class FunctionFullyQualifiedId implements Serializable
 {
   private String	subsystemId;
   private String	functionId;

@@ -28,7 +28,7 @@ import net.sf.hibernate.type.Type;
  *  206.
  */
 
-public class ChoiceFullyQualifiedIdCompositeUserType
+class ChoiceFullyQualifiedIdCompositeUserType
 implements CompositeUserType
 {
   // The ChoiceFullyQualifiedID gets mapped to two VARCHAR

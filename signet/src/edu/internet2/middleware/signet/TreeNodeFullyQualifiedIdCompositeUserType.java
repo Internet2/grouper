@@ -28,7 +28,7 @@ import net.sf.hibernate.type.Type;
  *  206.
  */
 
-public class TreeNodeFullyQualifiedIdCompositeUserType
+class TreeNodeFullyQualifiedIdCompositeUserType
 implements CompositeUserType
 {
   // The TreeNodeFullyQualifiedID gets mapped to two VARCHAR

@@ -17,7 +17,7 @@ import edu.internet2.middleware.signet.tree.TreeNotFoundException;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class ChoiceFullyQualifiedId
+class ChoiceFullyQualifiedId
 implements Serializable
 {
   private String	choiceSetId;

@@ -25,7 +25,7 @@ import net.sf.hibernate.type.Type;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class TreeNodeRelationshipCompositeUserType
+class TreeNodeRelationshipCompositeUserType
 implements CompositeUserType
 {
   // The TreeNodeRelationship gets mapped to three VARCHAR
