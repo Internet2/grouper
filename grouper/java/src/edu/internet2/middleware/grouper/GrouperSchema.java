@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.12 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.13 2004-11-30 01:36:26 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -74,11 +74,21 @@ public class GrouperSchema implements Serializable {
   /*
    * CONSTRUCTORS
    */
+
+  /**
+   * Null-argument constructor for Hibernate.
+   */
   public GrouperSchema() {
     this._init();
   }
 
-  public GrouperSchema(String key, String type) {
+  /**
+   * Construct a new {@link GrouperSchema} object.
+   * <p />
+   * TODO This should <b>only</b> be used within Grouper and I'd
+   *      prefer to not be relying upon <i>protected</i> for that...
+   */
+  protected GrouperSchema(String key, String type) {
     this._init();
     this.setGroupKey(key);
     this.setGroupType(type);

@@ -122,7 +122,6 @@ public class TestInstantiate extends TestCase {
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-    GrouperMember member = new GrouperMember();
   }
 
   // Instantiate a GrouperNamingImpl instance 
@@ -178,14 +177,6 @@ public class TestInstantiate extends TestCase {
     GrouperTypeDef obj = new GrouperTypeDef();
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
-
-  // Instantiate a GrouperVia instance 
-  public void testGrouperViaInstantiate() {
-    GrouperVia obj = new GrouperVia();
-    Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperVia";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 

@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.16 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: GrouperList.java,v 1.17 2004-11-30 01:36:26 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -77,20 +77,25 @@ public class GrouperList implements Serializable {
   /*
    * CONSTRUCTORS
    */
+
+  /**
+   * Null-argument constructor for Hibernate.
+   */
   public GrouperList() {
     this._init();
   }
 
-  public GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
-    // TODO The fact that this is public is troubling...
+  /**
+   * Construct a new {@link GrouperList} object.
+   * <p />
+   * TODO This should <b>only</b> be used within Grouper and I'd
+   *      prefer to not be relying upon <i>protected</i> for that...
+   */
+  protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
     this._init();
-    // FIXME Stop relying upon the groupKey!
-    this.groupKey   = g.key();
-    // FIXME This isn't going to work
-    this.memberKey  = m.key();
-    // FIXME Validation?
-    this.groupField = list;
-    // FIXME Stop relying upon the groupKey!
+    this.groupKey   = g.key();  // FIXME Validate?
+    this.memberKey  = m.key();  // FIXME Validate?
+    this.groupField = list;     // FIXME Validate?
     if (via != null) {
       this.via = via.key();
     } else {

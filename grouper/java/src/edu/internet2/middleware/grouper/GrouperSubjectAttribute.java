@@ -61,9 +61,9 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class representing a {@link Grouper} subject attribute.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.6 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.7 2004-11-30 01:36:26 blair Exp $
  */
-public class GrouperSubjectAttribute implements Serializable{
+public class GrouperSubjectAttribute implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -81,24 +81,10 @@ public class GrouperSubjectAttribute implements Serializable{
    */
 
   /**
-   * Create a new {@link GrouperSubjectAttribute} object.
+   * Null-argument constructor for Hibernate.
    */
   public GrouperSubjectAttribute() {
     this._init();
-  }
-
-  /**
-   * Create a new {@link GrouperSubjectAttribute} object.
-   *
-   * @param typeID  Subject Type ID
-   * @param name    Attribute name
-   * @param value   Attribute value
-   */
-  public GrouperSubjectAttribute(String typeID, String name, String value) {
-    this._init();
-    this.typeID = typeID;
-    this.name   = name;
-    this.value  = value;
   }
 
 

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Implementation of the I2MI {@link Subject} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.10 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.11 2004-11-30 01:36:26 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
@@ -78,13 +78,21 @@ public class SubjectImpl
   /* 
    * CONSTRUCTORS
    */
+
+  /*
+   * Null-argument constructor for Hibernate.
+   */
   public SubjectImpl() {
-    super();
     this._init();
   }
 
-  public SubjectImpl(String id, String typeID) {
-    super();
+  /**
+   * Construct a new {@link SubjectImpl} object.
+   * <p />
+   * TODO This should <b>only</b> be used within Grouper and I'd
+   *      prefer to not be relying upon <i>protected</i> for that...
+   */
+  protected SubjectImpl(String id, String typeID) {
     this._init();
     this.id     = id;
     this.typeID = typeID;
