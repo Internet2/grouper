@@ -51,15 +51,17 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  org.doomdark.uuid.UUIDGenerator;
 
 
 /** 
  * Class for generating UUIDs.
  * <p />
+ * This class uses the Doomdark UUID generator to create random UUIDs.
  *
  * @author  blair christensen.
- * @version $Id: GrouperUUID.java,v 1.1 2005-03-15 16:13:25 blair Exp $
+ * @version $Id: GrouperUUID.java,v 1.2 2005-03-29 15:51:22 blair Exp $
  */
 public class GrouperUUID {
 
