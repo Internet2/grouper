@@ -16,6 +16,7 @@ import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
+import  org.apache.log4j.*;
 import  org.doomdark.uuid.UUIDGenerator;
 
 
@@ -26,7 +27,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.69 2004-11-28 01:11:49 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.70 2004-11-28 02:03:58 blair Exp $
  */
 public class GrouperBackend {
 
@@ -35,6 +36,10 @@ public class GrouperBackend {
    */
   private static final String VAL_NOTNULL = "**NOTNULL**";  // FIXME
   private static final String VAL_NULL    = "**NULL**";     // FIXME
+  private static final Logger LOGGER_GB   = 
+    Logger.getLogger(GrouperBackend.class.getName());
+  private static final Logger LOGGER_GBQ  = 
+    Logger.getLogger(GrouperBackend.class.getName() + ".QUERY");
 
 
   /* 
@@ -1203,6 +1208,10 @@ public class GrouperBackend {
     List vals = new ArrayList();
     try { 
       Query q = session.createQuery("FROM " + klass);
+      GrouperBackend.LOGGER_GBQ.debug(
+                                      "_queryAll() " + 
+                                      q.getQueryString()
+                                     );
       vals    = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1229,7 +1238,6 @@ public class GrouperBackend {
       via_txt = " AND gl.via" + GrouperBackend._queryNullOrVal(via);
     }
     try {
-      boolean multiple  = false;
       Query q = session.createQuery(
         "FROM GrouperList AS gl"      +
         " WHERE "                     +
@@ -1240,6 +1248,10 @@ public class GrouperBackend {
         "gl.groupField" + gfield_txt  +
         via_txt
       );
+      GrouperBackend.LOGGER_GBQ.debug(
+                                      "_queryGrouperList() " + 
+                                      q.getQueryString()
+                                     );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1261,6 +1273,10 @@ public class GrouperBackend {
       Query q = session.createQuery(
         "FROM " + klass + " WHERE " + key + "='" + value + "'"
       );
+      GrouperBackend.LOGGER_GBQ.debug(
+                                      "_queryKV() " + 
+                                      q.getQueryString()
+                                     );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1285,6 +1301,10 @@ public class GrouperBackend {
         key0    + "='"  + value0  + "' AND "  +
         key1    + "='"  + value1  + "'"
       );
+      GrouperBackend.LOGGER_GBQ.debug(
+                                      "_queryKVKV() " + 
+                                      q.getQueryString()
+                                     );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
