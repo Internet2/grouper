@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.183 2005-03-22 18:14:09 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.184 2005-03-22 18:17:16 blair Exp $
  */
 public class GrouperBackend {
 
@@ -175,7 +175,7 @@ public class GrouperBackend {
     boolean rv = false; 
     if (_validateListVal(s, gl)) {
       // TODO Remove existence validation from _lAV?
-      if (_listValExist(s, gl) == false) {
+      if (listValExist(s, gl) == false) {
         // The GrouperList objects that we will need to add
         MemberOf mof = new MemberOf(s);
         List listVals = mof.memberOf(gl);
@@ -381,7 +381,7 @@ public class GrouperBackend {
   /* !javadoc
    * Check whether a list value exists.
    */
-  protected static boolean _listValExist(GrouperSession s, GrouperList gl) {
+  protected static boolean listValExist(GrouperSession s, GrouperList gl) {
     Query   q;
     String  qry;
     String  qryEff  = "GrouperList.by.group.and.member.and.list.and.is.eff"; 
@@ -720,14 +720,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  // TODO Why not just listValExist directly?
-  protected static boolean listVal(GrouperSession s, GrouperList gl) {
-    // TODO Basic input data validation
-    boolean rv      = false;
-    rv = GrouperBackend._listValExist(s, gl);
-    return rv;
   }
 
   /**
