@@ -5,7 +5,7 @@
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
 
-  <class name="GrouperAttribute" table="grouper_attributes" mutable="true">
+  <class name="GrouperAttribute" table="grouper_attribute" mutable="true">
     <composite-id access="field">
       <key-property name="groupKey"   type="string" column="groupKey"/>
       <key-property name="groupField" type="string" column="groupField"/>
@@ -15,7 +15,7 @@
     </property>
   </class>
 
-  <class name="GrouperField" table="grouper_fields" mutable="false">
+  <class name="GrouperField" table="grouper_field" mutable="false">
     <cache usage="read-only"/>
     <id name="groupField" type="string" unsaved-value="null" >
       <column name="groupField" sql-type="char(255)" not-null="true"/>
@@ -32,7 +32,7 @@
     </property>
   </class>
 
-  <class name="GrouperMembership" table="grouper_lists" mutable="true">
+  <class name="GrouperMembership" table="grouper_list" mutable="true">
     <composite-id access="field">
       <key-property name="groupKey"   type="string" column="groupKey"/>
       <key-property name="groupField" type="string" column="groupField"/>
@@ -124,7 +124,7 @@
     </property>
   </class>
 
-  <class name="GrouperType" table="grouper_types" mutable="false">
+  <class name="GrouperType" table="grouper_type" mutable="false">
     <cache usage="read-only"/>
     <id name="groupType" type="string" unsaved-value="null" >
       <column name="groupType" sql-type="char(255)" not-null="true"/>
@@ -132,7 +132,7 @@
     </id>
   </class>
 
-  <class name="GrouperTypeDef" table="grouper_typeDefs" mutable="false">
+  <class name="GrouperTypeDef" table="grouper_typeDef" mutable="false">
     <cache usage="read-only"/>
     <composite-id access="field">
       <key-property name="groupType"  type="string" column="groupType"/>

@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.59 2004-11-23 18:14:37 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.60 2004-11-23 18:51:50 blair Exp $
  */
 public class GrouperBackend {
 
@@ -89,7 +89,7 @@ public class GrouperBackend {
     List    attributes = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_attributes " +
+        "SELECT FROM grouper_attribute " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
         "WHERE groupKey='" + g.key() + "'"
       );
@@ -209,7 +209,7 @@ public class GrouperBackend {
     List    fields  = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_FIELDS " +
+        "SELECT ALL FROM GROUPER_FIELD " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperField"
       );
       fields = q.list();
@@ -791,7 +791,7 @@ public class GrouperBackend {
     List    descriptors = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_attributes " +
+        "SELECT FROM grouper_attribute " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
         "WHERE " +
         "groupField='descriptor' " + 
@@ -1387,7 +1387,7 @@ public class GrouperBackend {
     List    stems   = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_attributes " +
+        "SELECT FROM grouper_attribute " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
         "WHERE " +
         "groupField='stem' " + 

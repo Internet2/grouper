@@ -1,9 +1,9 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.19 2004-11-23 01:46:06 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.20 2004-11-23 18:51:50 blair Exp $
 -- 
 
-CREATE TABLE grouper_attributes (
+CREATE TABLE grouper_attribute (
   groupKey        VARCHAR(255) NOT NULL,
   groupField      VARCHAR(255) NOT NULL,
   groupFieldValue VARCHAR(255),
@@ -11,7 +11,7 @@ CREATE TABLE grouper_attributes (
 );
 
 -- XXX Right types?
-CREATE TABLE grouper_fields (
+CREATE TABLE grouper_field (
   groupField  VARCHAR(255) NOT NULL PRIMARY KEY,
   readPriv    VARCHAR(255),
   writePriv   VARCHAR(255),
@@ -31,7 +31,7 @@ CREATE TABLE grouper_group (
   CONSTRAINT    uniq_gk UNIQUE (groupKey)
 );
 
-CREATE TABLE grouper_lists (
+CREATE TABLE grouper_list (
   groupKey        VARCHAR(255) NOT NULL,
   groupField      VARCHAR(255) NOT NULL,
   memberKey       VARCHAR(255) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE grouper_lists (
   removeAfter     VARCHAR(255),
   CONSTRAINT      uniq_gk_gf_mk_via UNIQUE (groupKey, groupField, memberKey, via)
 );
-CREATE INDEX idx_gl_gk_gf_mk_via ON grouper_lists 
+CREATE INDEX idx_gl_gk_gf_mk_via ON grouper_list 
   (groupKey, groupField, memberKey, via);
 
 CREATE TABLE grouper_member (
@@ -95,7 +95,7 @@ CREATE TABLE grouper_subjectType (
   CONSTRAINT    uniq_stid UNIQUE (subjectTypeID)
 );
 
-CREATE TABLE grouper_typeDefs (
+CREATE TABLE grouper_typeDef (
   -- TOOD Foreign Key
   groupType   VARCHAR(255) NOT NULL,
   -- TOOD Foreign Key
@@ -103,7 +103,7 @@ CREATE TABLE grouper_typeDefs (
   CONSTRAINT  uniq_gt_gf  UNIQUE (groupType, groupField)
 );
 
-CREATE TABLE grouper_types (
+CREATE TABLE grouper_type (
   groupType   VARCHAR(255) NOT NULL PRIMARY KEY,
   CONSTRAINT  uniq_gt UNIQUE (groupType)
 );
