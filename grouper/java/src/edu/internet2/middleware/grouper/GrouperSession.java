@@ -15,62 +15,76 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  java.lang.reflect.*;
-import  java.sql.*;
+import  java.lang.reflect.*;  
 import  java.util.*;
-import  net.sf.hibernate.*;
-import  net.sf.hibernate.cfg.*;
 
 /** 
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.42 2004-09-19 03:10:42 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.43 2004-09-19 05:11:10 blair Exp $
  */
 public class GrouperSession {
 
   // Internal reference to the Grouper environment
   private Grouper         _G;
+  // Subject this session is running under
+  private GrouperMember   subject;
+  // The memberID of the session's subject
+  private String          subjectID;
+
   // Internal reference to the Access interface
   private GrouperAccess   intAccess;
   // Internal reference to the Naming interface
   private GrouperNaming   intNaming;
   // FIXME How many of these variables are actually used?
   // FIXME And what is the purpose of those that are used?
-  private Connection      con;
-  private String          cred;
-  private SessionFactory  factory;
-  private String          presentationID;
-  private Session         session;
-  private String          sessionID;
-  private String          startTime;
-  private GrouperMember   subject;
-  private String          subjectID;
-
-  private Configuration   cfg;
+  private String sessionID;
+  private String startTime;
 
   /**
    * Create a session object that will provide a context for future
    * operations.
    */
   public GrouperSession() {
-    this.cfg            = null;
-    this._G             = null;
-    this.con            = null;
-    this.cred           = null;
-    this.intAccess      = null;
-    this.intNaming      = null;
-    this.factory        = null;
-    this.presentationID = null;
-    this.session        = null;
-    this.sessionID      = null;
-    this.startTime      = null;
-    this.subject        = null;
-    this.subjectID      = null;
+    this._init();
   }
 
   /**
+   * Start a {@link Grouper} session.
+   * <p>
+   * TODO Plugin an external session handling mechanism?  Yes, please.
+   * TODO Cache privs|memberships?
+   *
+   * @param s @{link GrouperMember} member object to act as
+   * for the duration of this session.
+   */
+  public void start(GrouperMember s) {
+    // Keep track of who we are
+    this.subject    = s;
+    this.subjectID = s.memberID();
+
+    // Register a new session
+    this._registerSession();
+  }
+
+  /**
+   * Stop the {@link Grouper} session.
+   * <p>
+   * TODO Update <i>grouper_session</i> table.
+   */
+  public void stop() { 
+    this._init();
+  }
+
+  /*
+   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
+   */
+
+  /**
    * {@link Grouper} run-time configuration parameter getter.
+   * <p>
+   * FIXME Why is this here?
    * 
    * @param   parameter Requested configuration parameter.
    * @return  Value of configuration parameter.
@@ -83,7 +97,7 @@ public class GrouperSession {
    * Return subject of current session as a {@link GrouperMember}
    * object.
    *
-   * @return  Subject of current session as {@link GrouperMember}
+   * @return  Subject of current session as a {@link GrouperMember}
    * object.
    */
   public GrouperMember subject() {
@@ -132,82 +146,6 @@ public class GrouperSession {
       }
     }
     return false;
-  }
-
-  /*
-   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
-   */
-
-  /**
-   * Start a {@link Grouper} session.
-   * <p>
-   * <ul>
-   *  <li>Use executive session and subject interface to identify
-   *      subject</li>
-   *  <li>Update <i>grouper_session</i> table.</li>
-   * <p>
-   * TODO Plugin an external session handling mechanism?  Yes, please.
-   *
-   * @param   G         @{link Grouper} environment
-   * @param   subjectID The subject to act as for the duration of this
-   *   session.
-   */
-  public void start(Grouper G, String subjectID) {
-    // Internal reference to the Grouper object
-    this._G = G;
-
-    // XXX Ugh
-    this.subjectID  = subjectID;
-    this.cred       = subjectID;
-
-    // Register a new session
-    this._registerSession();
-  }
-
-  /**
-   * Start a session.
-   * <p>
-   * <ul>
-   *  <li>Using the executive session, lookup "subjectID" and return a
-   *      {@link GrouperMember} object.</li>
-   *  <li>Update <i>grouper_session</i> table.</li>
-   *
-   * @param   G         @{link Grouper} environment
-   * @param   subjectID The subject to act as for the duration of this
-   *   session.
-   * @param   isMember  If true, the subjectID is assumed to be a
-   *  memberID and not a presentationID.
-   */
-  public void start(Grouper G, String subjectID, boolean isMember) {
-    // Internal reference to the Grouper object
-    this._G = G;
-
-    // XXX Bad assumptions!
-    this.subjectID  = subjectID;
-    this.cred       = subjectID;
-
-    // Register a new session
-    this._registerSession();
-  }
-
-  /**
-   * End the session.
-   * <p>
-   * <ul>
-   *  <li>Update <i>grouper_session</i> table.</li>
-   *  <li>Close JDBC connection.</li>
-   * </ul>
-   */
-  public void end() { 
-    // It looks like we have a session.  Attempt to close it.
-    if (this.session != null) {
-      try {
-        this.session.close();
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1); 
-      }
-    }
   }
 
   /**
@@ -338,53 +276,25 @@ public class GrouperSession {
     return false;
   }
 
-  /**
-   * Provide access to the session's JDBC connection handle.
-   * <p>
-   * XXX This may not remain here, may not remain public, etc.
-   *
-   * @return JDBC connection handle for this session. 
+  /*
+   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW.
    */
-  public Connection connection() {
-    return this.con;
-  }
 
-  /**
-   * Provide access to the Hibernate session.
-   * <p>
-   * XXX This may not remain here, may not remain public, etc.
-   *
-   * @return Hibernate session
+  /*
+   * Initialize instance variables
    */
-  public Session session() {
-    if (this.session != null) {
-      // Session exists.  Assume it is valid and return it.
-      return this.session;
-    } else {
-      try {
-        if (this.factory == null) {
-          this._hibernateConf();
-          // TODO Should we attempt to create a factory and then return
-          //      a session?
-          try {
-            this.factory = this.cfg.buildSessionFactory();
-          } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-          }
-        }
-        this.session = this.factory.openSession();
-        return this.session;
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
-      }
-    } 
-    return null;
+  private void _init() {
+    this._G         = null;
+    this.intAccess  = null;
+    this.intNaming  = null;
+    this.sessionID  = null;
+    this.startTime  = null;
+    this.subject    = null;
+    this.subjectID  = null;
   }
 
   /*
-   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW.
+   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
    */
 
   /*
@@ -443,110 +353,25 @@ public class GrouperSession {
   /*
    * Register a new session with the groups registry.
    */
-  private void _hibernateConf() {
-    if (this.cfg == null) {
-      try {
-        this.cfg = new Configuration()
-          .addFile("conf/Grouper.hbm.xml");
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
-      }
-    }
-  }
-
   private void _registerSession() {
     // Create internal representations of the various Grouper
     // interfaces
     this._createInterfaces();
 
-    // XXX Bad assumption!
-    this.subject = this.lookup(subjectID);
-
-    // Open or fetch a Hibernate session
-    this.session = this.session();
-
     // TODO Make this configurable.  Or something.
-    this._cullSessions();
+    GrouperBackend.cullSessions();
 
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
     java.util.Date now = new java.util.Date();
 
-    this.setCred( this.cred );
     // XXX Switch to a generated sequence?
     this.setSessionID( Long.toString(now.getTime()) );
     // TODO Switch to GMT/UTC
     this.setStartTime( Long.toString(now.getTime()) );
 
-    try {
-      Transaction t = this.session.beginTransaction();
-      this.session.save(this);
-      t.commit();
-    } catch (Exception e) {
-      System.err.println(e);
-      e.printStackTrace();
-      System.exit(1);
-    }
-  }
-
-  /*
-   * Cull old sessions
-   */
-  private void _cullSessions() {
-    /* XXX Until I find the time to identify a better way of managing
-     *     sessions -- which I *know* exists -- be crude about it. */
-    java.util.Date now     = new java.util.Date();
-    long nowTime = now.getTime();
-    long tooOld  = nowTime - 360000;
-
-    try {
-      int cnt = ( (Integer) this.session.iterate(
-                  "SELECT count(*) FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
-                  "WHERE startTime > " + nowTime
-                  ).next() ).intValue();
-      if (cnt > 0) {
-        // XXX This is sort of redundant.
-        try {
-          this.session.delete(
-                  "FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
-                  "WHERE startTime > " + nowTime
-                  );
-        } catch (Exception e) {
-          System.err.println(e);
-          System.exit(1);
-        }
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    try {
-      int cnt = ( (Integer) this.session.iterate(
-                  "SELECT count(*) FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
-                  "WHERE " + tooOld + " > startTime"
-                  ).next() ).intValue();
-      if (cnt > 0) {
-        // XXX This is sort of redundant.
-        try {
-          this.session.delete(
-                  "FROM grouper_session " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperSession " +
-                  "WHERE " + tooOld + " > startTime"
-                  );
-        } catch (Exception e) {
-          System.err.println(e);
-          System.exit(1);
-        }
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-
+    // And now save the session
+    GrouperBackend.addSession(this);
   }
 
   /*
@@ -561,12 +386,12 @@ public class GrouperSession {
     this.sessionID = sessionID;
   }
 
-  private String getCred() {
-    return this.cred;
+  private String getSubjectID() {
+    return this.subjectID;
   }
 
-  private void setCred(String cred) {
-    this.cred = cred;
+  private void setSubjectID(String subjectID) {
+    this.subjectID = subjectID;
   }
 
   private String getStartTime() {

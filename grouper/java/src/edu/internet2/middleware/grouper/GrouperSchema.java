@@ -20,7 +20,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.5 2004-09-19 03:10:42 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.6 2004-09-19 05:11:10 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -28,17 +28,29 @@ public class GrouperSchema implements Serializable {
   private String groupType;
 
   public GrouperSchema() {
-    groupKey  = null;
-    groupType = null;
+    this._init();
+  }
+
+  public GrouperSchema(String key, String type) {
+    this._init();
+    this.setGroupKey(key);
+    this.setGroupType(type);
   }
 
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupType();
   }
 
-  public void set(String key, String type) {
-    this.groupKey   = key;
-    this.groupType  = type;
+  /*
+   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.setGroupKey(null);   
+    this.setGroupType(null);
   }
 
   /*
