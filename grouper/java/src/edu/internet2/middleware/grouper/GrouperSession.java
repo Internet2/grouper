@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.50 2004-10-11 18:07:03 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.51 2004-10-11 20:23:25 blair Exp $
  */
 public class GrouperSession {
 
@@ -75,18 +75,6 @@ public class GrouperSession {
   /*
    * BELOW LURKS FAR MORE MADNESS THAN ABOVE
    */
-
-  /**
-   * {@link Grouper} run-time configuration parameter getter.
-   * <p>
-   * FIXME Why is this here?
-   * 
-   * @param   parameter Requested configuration parameter.
-   * @return  Value of configuration parameter.
-   */
-  public String config(String parameter) {
-    return Grouper.config(parameter);
-  }
 
   /**
    * Return subject of current session as a {@link GrouperMember}
