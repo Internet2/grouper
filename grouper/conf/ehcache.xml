@@ -87,7 +87,7 @@
   />
 
   <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.GrouperMemberTypes"
+  <cache name="edu.internet2.middleware.grouper.GrouperMemberType"
     maxElementsInMemory="100"
     eternal="true"
     timeToIdleSeconds="300"
