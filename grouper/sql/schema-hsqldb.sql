@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.12 2004-09-19 01:34:02 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.13 2004-09-19 05:03:27 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
@@ -71,7 +71,7 @@ CREATE TABLE grouper_schema (
 
 CREATE TABLE grouper_session (
   sessionID  VARCHAR(255) NOT NULL PRIMARY KEY,
-  cred       VARCHAR(255),
+  subjectID  VARCHAR(255) NOT NULL,
   startTime  BIGINT,
   CONSTRAINT uniq_si  UNIQUE (sessionID)
 );
