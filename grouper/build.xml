@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.30 2004-12-09 00:46:02 blair Exp $ -->
+<!-- $Id: build.xml,v 1.31 2004-12-09 01:31:50 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -72,8 +72,7 @@
     <javadoc sourcepath="${javadoc.source}" 
       destdir="${javadoc.dest.public}" 
       packagenames="${javadoc.packages}" 
-      excludepackagenames="edu.internet2.middleware.grouper.GrouperBackend,
-                          edu.internet2.middleware.grouper.backend.*"
+      excludepackagenames="edu.internet2.middleware.grouper.backend.*"
       classpathref="project.class.path" 
       access="public"
       author="true"/>
