@@ -63,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.85 2005-03-19 20:20:28 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.86 2005-03-19 23:56:42 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -245,15 +245,14 @@ public class GrouperSession implements Serializable {
     this.subject    = null;
   }
 
-  // Deserialize an object
+  // Deserialize the session
   private void readObject(ObjectInputStream ois)
                  throws ClassNotFoundException, IOException 
   {
-    // this._init();
-
     // Perform default deserialization
      ois.defaultReadObject();
 
+    // Open a Hibernate session
     this.dbSess = new DbSess(); 
 
     // Restore GrouperMember object
@@ -261,6 +260,16 @@ public class GrouperSession implements Serializable {
 
     // Restore Subject object
     this.subject = GrouperSubject.load(m.subjectID(), m.typeID());
+  }
+
+  // Serialize the session
+  private void writeObject(ObjectOutputStream oos) throws IOException 
+  {
+    // Stop the Hibernate session
+    this.dbSess.stop();
+
+    // Perform default serialization
+    oos.defaultWriteObject();
   }
 
   /*
