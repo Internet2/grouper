@@ -6,7 +6,7 @@ import java.util.List;
  * Provides a GrouperMember.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.1 2004-04-02 21:04:11 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.2 2004-04-09 14:48:29 blair Exp $
  */
 public class GrouperMember {
 
@@ -44,7 +44,12 @@ public class GrouperMember {
     return false;
   }
 
-  public boolean hasPriv(String groupName, String priv) {
+  public boolean assignPrivilege(String groupName, String priv) {
+    /* - XXX s,String groupName,GrouperGroup g,? */
+    return false;
+  }
+
+  public boolean hasPrivilege(String groupName, String priv) {
     /* - XXX s,String groupName,GrouperGroup g,? */
     return false;
   }
