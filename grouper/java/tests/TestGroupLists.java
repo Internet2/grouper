@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.10 2004-11-19 04:18:45 blair Exp $
+ * $Id: TestGroupLists.java,v 1.11 2004-11-19 04:47:00 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -111,14 +111,23 @@ public class TestGroupLists extends TestCase {
     List            mem0    = grp0.listVals(s, "members");
     Assert.assertNotNull(mem0);
     Assert.assertTrue(mem0.size() == 1);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 1);
     // Fetch g1 "members"
     List            mem1    = grp1.listVals(s, "members");
     Assert.assertNotNull(mem1);
     Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
     // Fetch g2 "members"
     List            mem2    = grp2.listVals(s, "members");
     Assert.assertNotNull(mem2);
     Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
 
     // TODO Assert details about the individual members
 
@@ -160,7 +169,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(mem0);
     Assert.assertTrue(mem0.size() == 0);
     // Fetch g1 "invalid members"
-    List            mem1    = grp1.listVals(s, "members");
+    List            mem1    = grp1.listVals(s, "invalid members");
     Assert.assertNotNull(mem1);
     Assert.assertTrue(mem1.size() == 0);
     // Fetch g2 "invalid members"
@@ -254,14 +263,23 @@ public class TestGroupLists extends TestCase {
     List            mem0    = grp0.listVals(s, "members");
     Assert.assertNotNull(mem0);
     Assert.assertTrue(mem0.size() == 2);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 2);
     // Fetch g1 "members"
     List            mem1    = grp1.listVals(s, "members");
     Assert.assertNotNull(mem1);
     Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
     // Fetch g2 "members"
     List            mem2    = grp2.listVals(s, "members");
     Assert.assertNotNull(mem2);
     Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
 
     // TODO Assert details about the individual members
 
@@ -324,14 +342,23 @@ public class TestGroupLists extends TestCase {
     List            mem0    = grp0.listVals(s, "members");
     Assert.assertNotNull(mem0);
     Assert.assertTrue(mem0.size() == 2);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 2);
     // Fetch g1 "members"
     List            mem1    = grp1.listVals(s, "members");
     Assert.assertNotNull(mem1);
     Assert.assertTrue(mem1.size() == 1);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 1);
     // Fetch g2 "members"
     List            mem2    = grp2.listVals(s, "members");
     Assert.assertNotNull(mem2);
     Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
 
     // TODO Assert details about the individual members
 
@@ -394,14 +421,23 @@ public class TestGroupLists extends TestCase {
     List            mem0    = grp0.listVals(s, "members");
     Assert.assertNotNull(mem0);
     Assert.assertTrue(mem0.size() == 3);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 3);
     // Fetch g1 "members"
     List            mem1    = grp1.listVals(s, "members");
     Assert.assertNotNull(mem1);
     Assert.assertTrue(mem1.size() == 1);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 1);
     // Fetch g2 "members"
     List            mem2    = grp2.listVals(s, "members");
     Assert.assertNotNull(mem2);
     Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
 
     // TODO Assert details about the individual members
 
@@ -469,14 +505,23 @@ public class TestGroupLists extends TestCase {
     List            mem0    = grp0.listVals(s, "members");
     Assert.assertNotNull(mem0);
     Assert.assertTrue(mem0.size() == 1);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 1);
     // Fetch g1 "members"
     List            mem1    = grp1.listVals(s, "members");
     Assert.assertNotNull(mem1);
     Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
     // Fetch g2 "members"
     List            mem2    = grp2.listVals(s, "members");
     Assert.assertNotNull(mem2);
     Assert.assertTrue(mem2.size() == 0);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 0);
 
     // TODO Assert details about the individual members
 

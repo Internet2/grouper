@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.42 2004-11-19 04:29:32 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.43 2004-11-19 04:47:00 blair Exp $
  */
 public class GrouperBackend {
 
@@ -165,30 +165,12 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-
-      try {
-        // Query away!
-        Query q = session.createQuery(
-          "SELECT ALL FROM grouper_lists "  +
-          "IN CLASS edu.internet2.middleware.grouper.GrouperMembership " +
-          "WHERE "                          +
-          "groupKey='"    + g.key() + "' "  +
-          "AND "                            +
-          "groupField='"  + list + "' "     +
-          "AND "                            +
-          "via=null"
-        );   
-        // TODO Behave different depending upon the size?
-        members = q.list();
-      } catch (Exception e) {
-        System.err.println(e);
-        System.exit(1);
-      }
+      members = GrouperBackend._listVals(session, g, list);
     }
     GrouperBackend._hibernateSessionClose(session);
     return members;
   }
-   
+
   /**
    * Add new list data to the backend store.
    *
@@ -955,6 +937,29 @@ public class GrouperBackend {
     return rv;
   }
                                 
+  private static List _listVals(Session session, GrouperGroup g, String list) {
+    List members = new ArrayList();
+    try {
+      // Query away!
+      Query q = session.createQuery(
+        "SELECT ALL FROM grouper_lists "  +
+        "IN CLASS edu.internet2.middleware.grouper.GrouperMembership " +
+        "WHERE "                          +
+        "groupKey='"    + g.key() + "' "  +
+        "AND "                            +
+        "groupField='"  + list + "' "     +
+        "AND "                            +
+        "via=null"
+      );   
+      // TODO Behave different depending upon the size?
+      members = q.list();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return members;
+  }
+   
   /*
    * The memberOf algorithim: Grouper's one trick pony
    * <http://middleware.internet2.edu/dir/groups/docs/internet2-mace-dir-groups-best-practices-200210.htm>
