@@ -62,23 +62,30 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Implementation of the I2MI {@link Subject} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.9 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.10 2004-11-30 00:59:17 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
 {
 
-  // What we need to identify a subject
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String id;
   private String typeID;
 
 
+  /* 
+   * CONSTRUCTORS
+   */
   public SubjectImpl() {
     super();
+    this._init();
   }
 
   public SubjectImpl(String id, String typeID) {
     super();
+    this._init();
     this.id     = id;
     this.typeID = typeID;
   }
@@ -120,6 +127,15 @@ public class SubjectImpl
     return this.getClass().getName()  + ":" +
            this.getSubjectType()      + ":" +
            this.getId();
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+  private void _init() {
+    this.id     = id;
+    this.typeID = typeID;
   }
 
 

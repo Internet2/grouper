@@ -60,10 +60,13 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.15 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperList.java,v 1.16 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperList implements Serializable {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String  groupKey;
   private String  groupField;
   private String  memberKey;
@@ -71,6 +74,9 @@ public class GrouperList implements Serializable {
   private String  removeAfter;
 
 
+  /*
+   * CONSTRUCTORS
+   */
   public GrouperList() {
     this._init();
   }

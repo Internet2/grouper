@@ -60,12 +60,20 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.13 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.14 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String groupType;
   private String groupField;
+
+
+  /*
+   * CONSTRUCTORS
+   */
 
   /**
    * Create a {@link GrouperTypeDef} object.
@@ -75,8 +83,7 @@ public class GrouperTypeDef implements Serializable {
    *     needed for?
    */
   public GrouperTypeDef() {
-    groupType   = null;
-    groupField  = null;
+    this._init();
   }
 
 
@@ -112,6 +119,19 @@ public class GrouperTypeDef implements Serializable {
 
   public String toString() {
     return this.getGroupType()  + ":" + this.getGroupField();
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.groupType   = null;
+    this.groupField  = null;
   }
 
 
