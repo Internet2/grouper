@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.13 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperList.java,v 1.14 2004-11-29 18:50:34 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -56,7 +56,7 @@ public class GrouperList implements Serializable {
    */
 
   /**
-   * TODO MAY NOT REMAIN
+   * TODO Either remove or at least make protected
    */
   public String groupKey() {
     return this.getGroupKey();
@@ -70,7 +70,18 @@ public class GrouperList implements Serializable {
   }
 
   /**
-   * TODO MAY NOT REMAIN
+   * Returns the {@link GrouperMember} object referenced by this 
+   * {@link GrouperList} object.
+   * <p />
+   *
+   * @return  A {@link GrouperMember} object.
+   */
+  public GrouperMember member() {
+    return GrouperBackend.member(this.memberKey());
+  }
+
+  /**
+   * TODO Either remove or at least make protected
    */
   public String memberKey() {
     return this.getMemberKey();
