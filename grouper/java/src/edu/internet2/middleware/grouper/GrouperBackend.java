@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.118 2004-12-06 00:52:22 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.119 2004-12-06 02:10:28 blair Exp $
  */
 public class GrouperBackend {
 
@@ -263,7 +263,7 @@ public class GrouperBackend {
 
         // And grant ADMIN privilege to the list creator
         GrouperBackend.LOGGER.debug("Converting subject " + s);
-        GrouperMember m       = GrouperMember.lookup( s.subject() );
+        GrouperMember m       = GrouperMember.load( s.subject() );
         boolean       granted = false;
         if (m != null) { // FIXME Bah
           GrouperBackend.LOGGER.debug("Converted to member " + m);
@@ -334,8 +334,8 @@ public class GrouperBackend {
     // Does the group have members?
     List members = g.listVals(s);
     // Is the group a member?
-    Subject       asSubj  = GrouperSubject.lookup(g.id(), "group");
-    GrouperMember asMem   = GrouperMember.lookup(asSubj);
+    Subject       asSubj  = GrouperSubject.load(g.id(), "group");
+    GrouperMember asMem   = GrouperMember.load(asSubj);
     List memberOf = asMem.listVals(s);
     if ( (members.size() != 0) || (memberOf.size() != 0) ) {
       if (members.size() != 0) {
@@ -1723,7 +1723,7 @@ public class GrouperBackend {
     newGroups = GrouperBackend._memberOfQuery(session, g, list);
     // For each group in `newGroups', convert to a membership object
     // and assign to `memberships'
-    GrouperMember member  = GrouperMember.lookup( g.id(), "group");
+    GrouperMember member  = GrouperMember.load( g.id(), "group");
     Iterator      immIter = newGroups.iterator();
     while (immIter.hasNext()) {
       GrouperGroup  immediate = (GrouperGroup) immIter.next();
@@ -1780,7 +1780,7 @@ public class GrouperBackend {
         // Query away!
         // Make group a member
         // TODO Or should I just cheat and go straight to the GB method?
-        GrouperMember m     = GrouperMember.lookup( g.id(), "group" );
+        GrouperMember m     = GrouperMember.load( g.id(), "group" );
         if (m != null) { // FIXME Bah!
           Iterator      iter  = GrouperBackend._queryGrouperList(
                                   session, GrouperBackend.VAL_NOTNULL, 

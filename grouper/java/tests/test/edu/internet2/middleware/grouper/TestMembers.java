@@ -80,7 +80,7 @@ public class TestMembers extends TestCase {
   public void testCreateMemberFromValidSubject() {
     String        id    = "blair";
     String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.lookup(id, type);
+    GrouperMember m     = GrouperMember.load(id, type);
     Assert.assertNotNull(m);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
@@ -95,7 +95,7 @@ public class TestMembers extends TestCase {
   public void testFetchMemberFromValidSubject() {
     String        id    = "blair";
     String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.lookup(id, type);
+    GrouperMember m     = GrouperMember.load(id, type);
     Assert.assertNotNull(m);
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
@@ -110,7 +110,7 @@ public class TestMembers extends TestCase {
   public void testCreateMemberFromInvalidSubject() {
     String        id    = "invalid id";
     String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.lookup(id, type);
+    GrouperMember m     = GrouperMember.load(id, type);
     Assert.assertNull(m);
   }
 

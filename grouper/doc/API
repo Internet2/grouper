@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.31 2004-12-06 02:03:00 blair Exp $
+$Id: API,v 1.32 2004-12-06 02:10:28 blair Exp $
 
 ---
 
@@ -142,8 +142,8 @@ $Id: API,v 1.31 2004-12-06 02:03:00 blair Exp $
 
 #### Class Methods
 
-* FIXME GrouperMember       lookup(subjectID, subjectTypeID)
-* FIXME GrouperMember       lookup(subject)
+* GrouperMember       load(subjectID, subjectTypeID)
+* GrouperMember       load(subject)
 
 #### Instance Methods
 
@@ -202,7 +202,7 @@ $Id: API,v 1.31 2004-12-06 02:03:00 blair Exp $
 
 #### Class Methods
 
-* FIXME Subject             lookup(subjectID, subjectTypeID)
+* Subject             load(subjectID, subjectTypeID)
 
 ### GrouperSubjectAttribute
 
@@ -266,5 +266,6 @@ $Id: API,v 1.31 2004-12-06 02:03:00 blair Exp $
 * SubjectTypeAdapter  getAdapter()
 * String              getId()
 * String              getName()
+
 
 

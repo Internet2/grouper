@@ -62,7 +62,7 @@ import  java.util.*;
  * TODO Is this class really needed?
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.26 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.27 2004-12-06 02:10:28 blair Exp $
  */
 public class GrouperSubject {
 
@@ -77,11 +77,11 @@ public class GrouperSubject {
    * @param   typeID  Subject Type ID
    * @return  {@link GrouperSubject} object
    */
-  public static Subject lookup(String id, String typeID) {
+  public static Subject load(String id, String typeID) {
     Subject     subj  = null;
     // TODO Add static map of adapters and instantiated objects for
     //      each?
-    Grouper.LOGGER.debug("lookup() Looking for " + id + ", " + typeID);
+    Grouper.LOGGER.debug("load() Looking for " + id + ", " + typeID);
     SubjectType st    = Grouper.subjectType(typeID);
     if (st != null) {
       SubjectTypeAdapter sta = st.getAdapter();
@@ -89,9 +89,9 @@ public class GrouperSubject {
         try {
           subj = sta.getSubject(st, id);
           if (subj == null) {
-            Grouper.LOGGER.debug("lookup() Returned null subject");
+            Grouper.LOGGER.debug("load() Returned null subject");
           } else {
-            Grouper.LOGGER.debug("lookup() Returned subject" + subj);
+            Grouper.LOGGER.debug("load() Returned subject" + subj);
           }
         } catch (SubjectNotFoundException e) {
           // TODO WRONG!
