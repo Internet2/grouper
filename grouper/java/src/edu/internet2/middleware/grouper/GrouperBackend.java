@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.36 2004-11-16 02:13:21 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.37 2004-11-16 18:04:17 blair Exp $
  */
 public class GrouperBackend {
 
@@ -142,21 +142,7 @@ public class GrouperBackend {
   // TODO
   protected static List descriptors(GrouperSession s, String descriptor) {
     Session session     = GrouperBackend._init();
-    List    descriptors = new ArrayList();
-    try {
-      Query q = session.createQuery(
-        "SELECT FROM grouper_attributes " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-        "WHERE " +
-        "groupField='descriptor' " + 
-        "AND " +
-        "groupFieldValue='" + descriptor + "'"
-      );
-      descriptors = q.list();
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
+    List    descriptors = GrouperBackend._descriptors(session, descriptor);
     GrouperBackend._hibernateSessionClose(session);
     return descriptors;
   }
@@ -235,9 +221,13 @@ public class GrouperBackend {
         session.save(mship);
 
         // TODO Update effective memberships
-  
+        // XXX BROKEN! GrouperBackend._memberOf(g, list, session);
+
         // Commit it
         t.commit();
+
+        session.flush();                // XXX Grr...
+        session.connection().commit();  // XXX Grr...
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
@@ -326,25 +316,11 @@ public class GrouperBackend {
   // TODO
   protected static List stems(GrouperSession s, String stem) {
     Session session = GrouperBackend._init();
-    List    stems   = new ArrayList();
-    try {
-      Query q = session.createQuery(
-        "SELECT FROM grouper_attributes " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-        "WHERE " +
-        "groupField='stem' " + 
-        "AND " +
-        "groupFieldValue='" + stem + "'"
-      );
-      stems = q.list();
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
+    List    stems   = GrouperBackend._stems(session, stem);
     GrouperBackend._hibernateSessionClose(session);
     return stems;
   }
-  
+
   /**
    * Valid {@link GrouperTypeDef} items.
    *
@@ -487,6 +463,9 @@ public class GrouperBackend {
       
         // Commit it
         t.commit();
+
+        session.flush();                // XXX Grr...
+        session.connection().commit();  // XXX Grr...
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
@@ -557,64 +536,12 @@ public class GrouperBackend {
                                           String descriptor) 
   {
     Session       session = GrouperBackend._init();
-    GrouperGroup  g       = new GrouperGroup();
-    String        key     = null;
-
-    // TODO Please.  Make this better.  Please, please, please.
-    //      For whatever reason, SQL and quality code are evading
-    //      me this week.
-    List descriptors = GrouperBackend.descriptors(s, descriptor);
-    if (descriptors.size() > 0) {
-      // We found one or more potential descriptors.  Now look
-      // for matching stems.
-      List stems = GrouperBackend.stems(s, stem);
-      if (stems.size() > 0) {
-        // We have potential stems and potential descriptors.
-        // Now see if we have the *right* stem and the *right*
-        // descriptor.
-        for (Iterator iterDescs = descriptors.iterator(); iterDescs.hasNext();) {
-          GrouperAttribute possDesc = (GrouperAttribute) iterDescs.next();
-          for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
-            GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
-            if (
-                descriptor.equals( possDesc.value() )   &&
-                stem.equals(       possStem.value() )   &&
-                possDesc.key().equals( possStem.key() )
-               )
-            {
-              // We have found an appropriate stem and descriptor
-              // with matching keys.  We exist!
-              try {
-                Query q = session.createQuery(
-                  "SELECT ALL FROM GROUPER_GROUP " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
-                  "WHERE "                          +
-                  "groupKey='" + possDesc.key()     + "'"
-                );
-                if (q.list().size() == 1) {
-                  // We have a group to restore.  
-                  key = possDesc.key();
-                  break;
-                }
-              } catch (Exception e) {
-                System.err.println(e);
-                System.exit(1);
-              }
-            }
-          }
-        }
-      }
-    }
-    if (key != null) {
-      g = GrouperBackend._groupLoad(key);
-    }
-    // TODO Here I return a dummy object while elsewhere, and with
-    //      other classes, I return null.  Standardize.  I *probably*
-    //      should return null.
+    // TODO G+H Session validation 
+    // TODO Priv validation
+    GrouperGroup  g       = GrouperBackend._groupLoad(session, stem, descriptor);
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
-
 
   /**
    * Query for a single {@link Subject} of type "group".
@@ -688,6 +615,25 @@ public class GrouperBackend {
    * PRIVATE CLASS METHODS
    */
 
+  private static List _descriptors(Session session, String descriptor) {
+    List    descriptors = new ArrayList();
+    try {
+      Query q = session.createQuery(
+        "SELECT FROM grouper_attributes " +
+        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
+        "WHERE " +
+        "groupField='descriptor' " + 
+        "AND " +
+        "groupFieldValue='" + descriptor + "'"
+      );
+      descriptors = q.list();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return descriptors;
+  }
+
   private static GrouperGroup _groupLoad(String key) {
     Session       session = GrouperBackend._init();
     GrouperGroup  g       = new GrouperGroup();
@@ -715,6 +661,63 @@ public class GrouperBackend {
     return g;
   }
 
+  private static GrouperGroup _groupLoad(Session session, String stem, String descriptor) {
+    GrouperGroup  g   = new GrouperGroup();
+    String        key = null;
+
+    // TODO Please.  Make this better.  Please, please, please.
+    //      For whatever reason, SQL and quality code are evading
+    //      me this week.
+    List descriptors = GrouperBackend._descriptors(session, descriptor);
+    if (descriptors.size() > 0) {
+      // We found one or more potential descriptors.  Now look
+      // for matching stems.
+      List stems = GrouperBackend._stems(session, stem);
+      if (stems.size() > 0) {
+        // We have potential stems and potential descriptors.
+        // Now see if we have the *right* stem and the *right*
+        // descriptor.
+        for (Iterator iterDescs = descriptors.iterator(); iterDescs.hasNext();) {
+          GrouperAttribute possDesc = (GrouperAttribute) iterDescs.next();
+          for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
+            GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
+            if (
+                descriptor.equals( possDesc.value() )   &&
+                stem.equals(       possStem.value() )   &&
+                possDesc.key().equals( possStem.key() )
+               )
+            {
+              // We have found an appropriate stem and descriptor
+              // with matching keys.  We exist!
+              try {
+                Query q = session.createQuery(
+                  "SELECT ALL FROM GROUPER_GROUP " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
+                  "WHERE "                          +
+                  "groupKey='" + possDesc.key()     + "'"
+                );
+                if (q.list().size() == 1) {
+                  // We have a group to restore.  
+                  key = possDesc.key();
+                  break;
+                }
+              } catch (Exception e) {
+                System.err.println(e);
+                System.exit(1);
+              }
+            }
+          }
+        }
+      }
+    }
+    if (key != null) {
+      g = GrouperBackend._groupLoad(key);
+    }
+    // TODO Here I return a dummy object while elsewhere, and with
+    //      other classes, I return null.  Standardize.  I *probably*
+    //      should return null.
+    return g;
+  }
 
   private static void _groupLoadAttributes(GrouperGroup g, String key) {
     Session session = GrouperBackend._init();
@@ -791,5 +794,106 @@ public class GrouperBackend {
     return null;
   }
 
+  /*
+   * Return list data from the backend store.
+   *
+   * @param s     Return list data within this session context.
+   * @param list  Return this list type.
+   */
+  protected static List _listVals(Session session, GrouperMember m, String list) {
+    List members = new ArrayList();
+    // TODO Better validation efforts, please.
+    // TODO Refactor to a method
+    // TODO Better check of session
+    if (
+        ( session != null )                                                             &&
+        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember") //&&
+        // TODO Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      // TODO I should stop relying upon the .key() methods.  RSN.
+
+      try {
+        // Query away!
+        /*
+         * Potential Sources Of Problem?
+         * - ID(s) changing in tables (member, mostly)
+         * - Statically instantiate a s.2/d.2 object in this method at every
+         *   invocation and attempt to query it
+         */
+        String        key = m.key();
+        GrouperGroup  g   = GrouperBackend._groupLoad(session, "stem.2", "desc.2");
+        GrouperMember mm  = GrouperMember.lookup( g.key(), "group" );
+        Query q = session.createQuery(
+          "FROM GrouperMembership AS mem "        +
+          "WHERE "                                +
+          "mem.id.memberKey='" + key + "'"        +
+          "OR "                                   +
+          "mem.id.memberKey='" + mm.key() + "'"
+        );   
+        // TODO Behave different depending upon the size?
+        System.err.println("QUERY: " + q.getQueryString());
+        members = q.list();
+        System.err.println("RETURNED: " + q.list().size());
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    }
+    return members;
+  }
+   
+  /*
+   * The memberOf algorithim: Grouper's one trick pony
+   * <http://middleware.internet2.edu/dir/groups/docs/internet2-mace-dir-groups-best-practices-200210.htm>
+   * Section 7.1
+   */
+  private static void _memberOf(GrouperGroup g, String list, Session session) {
+    // TODO Use a set instead of a list?
+    List memberships  = new ArrayList();
+    List newGroups    = new ArrayList();
+
+    // TODO Or should I just cheat and go straight to the GB method?
+    GrouperMember m   = GrouperMember.lookup( g.key(), "group" );
+    while (true) {
+      System.err.println("_memberOf: Treating group " + g);
+      System.err.println("_memberOf: as member " + m.key());
+      List tmp = GrouperBackend._listVals(session, m, list);
+      System.err.println("GOT: " + tmp.size());
+      break;
+    }
+    /*
+     * - memberships = newGroups = memberof(g)
+     * - while newGroups
+     *   do
+     *     for group in newGroups
+     *     do
+     *       newGroups = memberof(g)
+     *       memberships += newGroups
+     *     done
+     *   done
+     */
+  }
+  
+  private static List _stems(Session session, String stem) {
+    List    stems   = new ArrayList();
+    try {
+      Query q = session.createQuery(
+        "SELECT FROM grouper_attributes " +
+        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
+        "WHERE " +
+        "groupField='stem' " + 
+        "AND " +
+        "groupFieldValue='" + stem + "'"
+      );
+      stems = q.list();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return stems;
+  }
+  
 }
  
