@@ -4,7 +4,7 @@
 This file provides information on the various means of obtaining
 Grouper.
 
-$Id: GETTING_GROUPER,v 1.1 2005-01-25 17:56:57 blair Exp $
+$Id: GETTING_GROUPER,v 1.2 2005-01-25 17:58:27 blair Exp $
 
 ---
 
@@ -27,5 +27,5 @@ When prompted for a password, hit enter.
 
 Snapshots of the Grouper CVS HEAD branch are generated nightly.  The
 tarballs are available for download here:
-  http://grouper.devclue.com/snapshots/
+  <http://grouper.devclue.com/snapshots/>
 
