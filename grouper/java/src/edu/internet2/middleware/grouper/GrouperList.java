@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.9 2004-11-08 20:39:19 blair Exp $
+ * @version $Id: GrouperList.java,v 1.10 2004-11-16 22:10:45 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
@@ -47,6 +47,34 @@ public class GrouperMembership implements Serializable {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * TODO MAY NOT REMAIN
+   */
+  public String groupKey() {
+    return this.getGroupKey();
+  }
+
+  /**
+   * TODO MAY NOT REMAIN
+   */
+  public String groupField() {
+    return this.getGroupField();
+  }
+
+  /**
+   * TODO MAY NOT REMAIN
+   */
+  public String memberKey() {
+    return this.getMemberKey();
+  }
+
+  /**
+   * TODO MAY NOT REMAIN
+   */
+  public String via() {
+    return this.getVia();
+  }
 
   public boolean equals(Object o) {
      return EqualsBuilder.reflectionEquals(this, o);
