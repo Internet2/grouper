@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.24 2004-12-07 05:11:24 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.25 2004-12-09 17:01:49 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -549,12 +549,26 @@ public class TestAccessPrivs extends TestCase {
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);
     GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
     Assert.assertNotNull(m);
     Assert.assertTrue( Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN) );
+    Assert.assertTrue( Grouper.access().has(s, g, m, Grouper.PRIV_ADMIN) );
+    s.stop();
+  }
+
+  // create a "description" for m0 to then delete
+  public void testPrep2_0() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Fetch g
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    // Act
+    Assert.assertTrue( g.attribute(s, "description", "new desc") );
+    // We're done
     s.stop();
   }
 
@@ -563,7 +577,6 @@ public class TestAccessPrivs extends TestCase {
     Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-
     // Fetch g
     GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
     Assert.assertNotNull(g);

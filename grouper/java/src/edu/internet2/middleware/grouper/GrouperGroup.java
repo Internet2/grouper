@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.148 2004-12-09 14:59:34 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.149 2004-12-09 17:01:49 blair Exp $
  */
 public class GrouperGroup {
 
@@ -319,94 +319,17 @@ public class GrouperGroup {
         Grouper.log().groupAttrNoMod(attribute);
       } else {
         // TODO Validate?
-        /*
-         * TODO There is *far* too much code duplication in this
-         *      method.  It will need to be refactored and cleaned up.
-         */
         GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
-        // In case we need to revert
-        String curModTime = this.getModifyTime();
-        String curModSubj = this.getModifySubject();
         // For logging
         if        (value == null) {
           // Delete an existing attribute
-          this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.load( s.subject());
-          this.setModifySubject( mem.key() );
-          if (
-              (this._canModAttr(s, this))                   &&
-              (GrouperBackend.attrDel(this.key, attribute)) &&
-              (GrouperBackend.groupUpdate(s, this))
-             )
-          {
-            this.attributes.remove(attribute);
-            rv = true;
-          }
-          Grouper.log().groupAttrDel(rv, s, this, attribute);
-          if (rv != true) {
-            // Revert attribute change
-            if (!this._attrAdd(attribute, cur)) {
-              Grouper.log().warn("Unable to revert failed attribute delete!");
-              System.exit(1);
-            }
-            // Revert modify* attr changes 
-            this.setModifyTime(curModTime);
-            this.setModifySubject(curModSubj);
-          }
+          rv = this._attributeDelete(s, attribute);
         } else if (cur == null) {
           // Add a new attribute value
-          GrouperAttribute attr = GrouperBackend.attrAdd(
-                                    this.key, attribute, value
-                                  );
-          this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.load( s.subject());
-          this.setModifySubject( mem.key() );
-          if (
-              (attr != null)                        && 
-              (this._canModAttr(s, this))           &&
-              (this._attrAdd(attribute, attr))      &&
-              (GrouperBackend.groupUpdate(s, this)) 
-             )
-          {
-            rv = true;
-          }
-          Grouper.log().groupAttrAdd(rv, s, this, attribute, value);
-          if (rv != true) {
-            // We only need to revert modify* attr changes as there is
-            // no attribute value to revert back to in this case.
-            this.setModifyTime(curModTime);
-            this.setModifySubject(curModSubj);
-            rv = false; // TODO Overkill?
-          }
+          rv = this._attributeAdd(s, attribute, value);
         } else {
           // Update attribute value
-          GrouperAttribute attr = GrouperBackend.attrAdd(
-                                    this.key, attribute, value
-                                  );
-          this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.load( s.subject());
-          this.setModifySubject( mem.key() );
-          if (
-              (attr != null)                        &&
-              (this._canModAttr(s, this))           &&
-              (this._attrAdd(attribute, attr))      &&
-              (GrouperBackend.groupUpdate(s, this))   
-             )
-          {
-            rv = true;
-          }
-          Grouper.log().groupAttrUpdate(rv, s, this, attribute, value);
-          if (rv != true) {
-            // Revert attribute change
-            if (!this._attrAdd(attribute, cur)) {
-              Grouper.log().warn("Unable to revert failed attribute update!");
-              System.exit(1);
-            }
-            // Revert modify* attr changes 
-            this.setModifyTime(curModTime);
-            this.setModifySubject(curModSubj);
-            rv = false;
-          }
+          rv = this._attributeUpdate(s, attribute, value);
         }
       }
     }
@@ -882,6 +805,108 @@ public class GrouperGroup {
     if (attr != null) {
       attributes.put(attribute, attr);
       rv = true;
+    }
+    return rv;
+  }
+
+  // Add and persist attribute 
+  private boolean _attributeAdd(GrouperSession s, String attribute, String value) {
+    boolean rv = false;
+
+    // In case we need to revert
+    String curModTime = this.getModifyTime();
+    String curModSubj = this.getModifySubject();
+
+    // Verify subject has sufficient privs
+    if (this._canModAttr(s, this)) {
+      // Hibernate the attribute
+      GrouperAttribute attr = GrouperBackend.attrAdd(
+                                this.key, attribute, value
+                              );
+      if (attr != null) {
+        // Now update this object and save it to persist the opattrs
+        this.setModifyTime( GrouperGroup._now() );
+        GrouperMember mem = GrouperMember.load( s.subject() );
+        this.setModifySubject( mem.key() );
+        this.attributes.put(attribute, attr);
+        if (GrouperBackend.groupUpdate(s, this)) {
+          rv = true;
+        }
+      }
+    }
+    Grouper.log().groupAttrAdd(rv, s, this, attribute, value);
+    if (rv != true) {
+      // Revert modify* attr changes 
+      this.setModifyTime(curModTime);
+      this.setModifySubject(curModSubj);
+    }
+    return rv;
+  }
+
+  // Delete and persist attribute 
+  private boolean _attributeDelete(GrouperSession s, String attribute) {
+    boolean rv = false;
+    // In case we need to revert
+    GrouperAttribute cur  = (GrouperAttribute) attributes.get(attribute);
+    String curModTime     = this.getModifyTime();
+    String curModSubj     = this.getModifySubject();
+
+    // Verify subject has sufficient privs
+    if (this._canModAttr(s, this)) {
+      if (GrouperBackend.attrDel(this.key, attribute)) {
+        // Now update this object and save it to persist the opattrs
+        this.setModifyTime( GrouperGroup._now() );
+        GrouperMember mem = GrouperMember.load( s.subject() );
+        this.setModifySubject( mem.key() );
+        this.attributes.remove(attribute);
+        if (GrouperBackend.groupUpdate(s, this)) {
+          rv = true;
+        }
+      }
+    }
+    Grouper.log().groupAttrDel(rv, s, this, attribute);
+    if (rv != true) {
+      // Revert attribute value change
+      this.attributes.put(attribute, cur);
+      // Revert modify* attr changes 
+      this.setModifyTime(curModTime);
+      this.setModifySubject(curModSubj);
+    }
+    return rv;
+  }
+
+  // Update and persist attribute 
+  private boolean _attributeUpdate(GrouperSession s, String attribute, String value) {
+    boolean rv = false;
+    // In case we need to revert
+    GrouperAttribute cur  = (GrouperAttribute) attributes.get(attribute);
+    String curModTime     = this.getModifyTime();
+    String curModSubj     = this.getModifySubject();
+
+    // Verify subject has sufficient privs
+    if (this._canModAttr(s, this)) {
+      // Hibernate the attribute
+      GrouperAttribute attr = GrouperBackend.attrAdd(
+                                this.key, attribute, value
+                              );
+      if (attr != null) {
+        // Now update this object and save it to persist the opattrs
+        this.setModifyTime( GrouperGroup._now() );
+        GrouperMember mem = GrouperMember.load( s.subject() );
+        this.setModifySubject( mem.key() );
+        this.attributes.put(attribute, attr);
+        if (GrouperBackend.groupUpdate(s, this)) {
+          rv = true;
+        }
+      }
+    }
+    Grouper.log().groupAttrUpdate(rv, s, this, attribute, value);
+    if (rv != true) {
+      // Revert attribute value change
+      this.attributes.put(attribute, cur);
+      // Revert modify* attr changes 
+      this.setModifyTime(curModTime);
+      this.setModifySubject(curModSubj);
     }
     return rv;
   }
