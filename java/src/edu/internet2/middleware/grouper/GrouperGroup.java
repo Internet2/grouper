@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.184 2005-03-22 21:26:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.185 2005-03-23 21:45:40 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -1297,14 +1297,9 @@ public class GrouperGroup extends Group {
   {
     boolean rv = false;
     if (s.access().grant(s, this, m, Grouper.PRIV_ADMIN)) {
-      Grouper.log().backend("Granted " + Grouper.PRIV_ADMIN + " to " + m);
       rv = true;
     } else {
-      // TODO Exception?
-      Grouper.log().backend(
-                            "Unable to grant " + Grouper.PRIV_ADMIN + 
-                            " to " + m
-                           );
+      // TODO Exception!
     }
     return rv;
   }
@@ -1318,12 +1313,9 @@ public class GrouperGroup extends Group {
   {
     boolean rv = false;
     if (s.naming().grant(s, this, m, Grouper.PRIV_STEM)) {
-      Grouper.log().backend("Granted " + Grouper.PRIV_STEM + " to " + m);
       rv = true;
     } else {
-      Grouper.log().backend(
-        "Unable to grant " + Grouper.PRIV_STEM + " to " + m
-      );
+      // TODO Exception!
     }
     return rv;
   }

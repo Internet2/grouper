@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.9 2005-03-22 14:38:00 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.10 2005-03-23 21:45:40 blair Exp $
  */
 public class GrouperLog {
 
@@ -74,8 +74,6 @@ public class GrouperLog {
     Logger.getLogger(Grouper.class.getName());
   private static final Logger LOG_EVT = 
     Logger.getLogger(Grouper.class.getName() + ".event");
-  private static final Logger LOG_GB  = 
-    Logger.getLogger(GrouperBackend.class.getName());
 
 
   /*
@@ -89,11 +87,6 @@ public class GrouperLog {
   /*
    * PROTECTED INSTANCE METHODS
    */
-
-  // Backend events
-  protected void backend(String msg) {
-    LOG_GB.info(msg);
-  }
 
   // General events
   protected void event(String msg) {
