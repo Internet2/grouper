@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.8 2004-12-09 02:30:36 blair Exp $
+$Id: FAQ,v 1.9 2004-12-09 02:52:32 blair Exp $
 
 ---
 
@@ -66,19 +66,19 @@ A: Use the `GrouperGroup.listDelVal()' method.
 
     g.listDelVal(s, m);
 
-### Q: How do I retrieve a group's members?
+#### Q: How do I retrieve a group's members?
 
 A: Use the `GrouperGroup.listVals()' method.
 
     List members = g.listVals(s);
 
-### Q: How do I retrieve a group's immediate members?
+#### Q: How do I retrieve a group's immediate members?
 
 A: Use the `GrouperGroup.listImmVals()' method.
 
     List immediateMembers = g.listImmVals(s);
 
-### Q: How do I retrieve a group's effective members?
+#### Q: How do I retrieve a group's effective members?
 
 A: Use the `GrouperGroup.listEffVals()' method.
 
@@ -125,6 +125,41 @@ A: Use the `GrouperGroup.modifyTime()' method.
 A: Use the `GrouperGroup.modifySubject()' method.
 
     Subject modifier = g.modifySubject();
+
+---
+
+### Members
+
+#### Q: How do I convert a _Subject_ object into a _GrouperMember_ object?
+
+A: Use the `GrouperMember.load()` method.
+
+    Subject       subj  = GrouperSubject.load(subjID, subjType);
+    GrouperMember m     = GrouperMember.load(subj);
+
+### Q: How do I convert a _Subject_ id and type into a _GrouperMember_ object?
+
+A: Use the `GrouperMember.load()` method.
+
+    GrouperMember m = GrouperMember.load(id, type);
+
+#### Q: How do I retrieve a member's memberships?
+
+A: Use the `GrouperMember.listVals()' method.
+
+    List mships = m.listVals(s);
+
+#### Q: How do I retrieve a member's immediate memberships?
+
+A: Use the `GrouperMember.listImmVals()' method.
+
+    List immediateMships = m.listImmVals(s);
+
+#### Q: How do I retrieve a member's effective memberships?
+
+A: Use the `GrouperMember.listEffVals()' method.
+
+    List effectiveMships = m.listEffVals(s);
 
 ---
 
@@ -206,11 +241,4 @@ A: Use the `GrouperSubject.load(subjID, subjType)` method.
 
 The `GrouperSubject.load()` method will call the appropriate subject
 type adapter for the type of subject specified.
-
-#### Q: How do I convert a _Subject_ object into a _GrouperMember_ object?
-
-A: Use the `GrouperMember.load(subject)` method.
-
-    Subject       subj  = GrouperSubject.load(subjID, subjType);
-    GrouperMember m     = GrouperMember.load(subj);
 
