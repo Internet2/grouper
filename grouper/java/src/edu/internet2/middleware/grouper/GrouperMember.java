@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.70 2005-03-24 20:54:48 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.71 2005-03-25 14:20:52 blair Exp $
  */
 public class GrouperMember {
 
@@ -193,6 +193,20 @@ public class GrouperMember {
     }
   }
 
+  /*
+   * Convert memberKey into Subject
+   */
+  protected static Subject toSubject(GrouperSession s, String key) {
+    Subject subj = null; // TODO All of this damn reliance upon null
+    if (key != null) {
+      GrouperMember m = GrouperMember.loadByKey(s, key);
+      if (m != null) {
+        subj = GrouperSubject.load(m.subjectID(), m.typeID());
+      }
+    }
+    return subj;
+  }
+    
   private static GrouperMember loadByIdAndType(DbSess dbSess, Subject subj) {
     GrouperMember m     = null;
     String        qry   = "GrouperMember.by.subjectid.and.typeid";
@@ -225,7 +239,7 @@ public class GrouperMember {
       m = (GrouperMember) s.dbSess().session().get(
                             GrouperMember.class, key
                           );
-      m.s = s; // TOO Argh!
+      m.s = s; // TODO Argh!
     } catch (HibernateException e) {
       throw new RuntimeException("Error loading member: " + e);
     }

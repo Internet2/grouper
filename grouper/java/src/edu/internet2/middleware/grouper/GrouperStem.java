@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.17 2005-03-25 03:00:39 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.18 2005-03-25 14:20:52 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -228,6 +228,34 @@ public class GrouperStem extends Group {
   }
 
   /**
+   * Retrieve the <i>createSource</i> value.
+   * <p  />
+   * This attribute is not currently used.
+   * @return <i>createSource</i> value.
+   */
+  public String createSource() {
+    return this.getCreateSource();
+  }
+
+  /**
+   * Retrieve the <i>createSubject</i> value.
+   * <p  />
+   * @return A {@link Subject} object.
+   */
+  public Subject createSubject() {
+    return GrouperMember.toSubject(this.s, this.getCreateSubject());
+  }
+
+  /**
+   * Retrieve the <i>createTime</i> value.
+   * <p  />
+   * @return <i>createTime</i> as a {@link Date} object.
+   */
+  public Date createTime() {
+    return this.string2date(this.getCreateTime());
+  }
+
+  /**
    * Add member to this stem's default list.
    * <p />
    * @param m   Add this member.
@@ -312,6 +340,34 @@ public class GrouperStem extends Group {
    */
   public List listVals(String list) {
     return new ArrayList();
+  }
+
+  /**
+   * Retrieve the <i>modifySource</i> value.
+   * <p  />
+   * This attribute is not currently used.
+   * @return <i>modifySource</i> value.
+   */
+  public String modifySource() {
+    return this.getModifySource();
+  }
+
+  /**
+   * Retrieve the <i>modifySubject</i> value.
+   * <p  />
+   * @return A {@link Subject} object.
+   */
+  public Subject modifySubject() {
+    return GrouperMember.toSubject(this.s, this.getModifySubject());
+  }
+
+  /**
+   * Retrieve the <i>modifyTime</i> value.
+   * <p  />
+   * @return <i>modifyTime</i> as a {@link Date} object.
+   */
+  public Date modifyTime() {
+    return this.string2date(this.getModifyTime());
   }
 
   /**

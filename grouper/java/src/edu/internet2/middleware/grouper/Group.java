@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 
+import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 
@@ -61,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.4 2005-03-25 03:00:39 blair Exp $
+ * @version $Id: Group.java,v 1.5 2005-03-25 14:20:52 blair Exp $
  */
 abstract class Group {
 
@@ -69,6 +70,9 @@ abstract class Group {
    * ABSTRACT METHODS 
    */
 
+  abstract protected String         createSource();
+  abstract protected Subject        createSubject();
+  abstract protected Date           createTime();
   abstract protected String         getCreateSource();
   abstract protected String         getCreateSubject();
   abstract protected String         getCreateTime();
@@ -86,6 +90,9 @@ abstract class Group {
   abstract protected List           listVals();
   abstract protected List           listVals(String list);
   abstract protected void           load(GrouperSession s);
+  abstract protected String         modifySource();
+  abstract protected Subject        modifySubject();
+  abstract protected Date           modifyTime();
   abstract protected String         name();
   abstract protected void           setCreateSource(String createSource);
   abstract protected void           setCreateSubject(String createSubject);
@@ -127,6 +134,24 @@ abstract class Group {
       }
     }
     return name;
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /*
+   * Convert a string to a date object.
+   * <p />
+   * @return Date object.
+   */
+  protected Date string2date(String seconds) {
+    Date d = null;
+    if (seconds != null) {
+      d = new Date(Long.parseLong(seconds));
+    } 
+    return d; 
   }
 
 
