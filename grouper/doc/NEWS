@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.8 2004-12-06 01:37:52 blair Exp $
+$Id: NEWS,v 1.9 2004-12-06 15:17:24 blair Exp $
 
 ---
 
@@ -20,8 +20,8 @@ $Id: NEWS,v 1.8 2004-12-06 01:37:52 blair Exp $
 * An implementation of the naming privilege interface that uses groups to manage privileges
 * ADMIN and UPDATE access privileges
 * CREATE and STEM naming privileges
-* An implementation of the I2MI Subject interface for locally-defined _people_ subjects
-* An implementation of the I2MI Subject interface  for groups as subjects
+* A partial implementation of the I2MI Subject interface for locally-defined people subjects
+* A partial implementation of the I2MI Subject interface  for groups as subjects
 * Contributed: I2MI Subject Loader
 * Contributed: Group Loader
 * Contributed: Query and modest export tool
