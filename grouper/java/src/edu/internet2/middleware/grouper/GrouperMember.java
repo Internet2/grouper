@@ -19,7 +19,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.44 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.45 2004-11-28 01:26:56 blair Exp $
  */
 public class GrouperMember {
 
@@ -155,17 +155,6 @@ public class GrouperMember {
   }
 
   /**
-   * Return Member Key.
-   * <p />
-   * FIXME REMOVE, REPLACE, REFACTOR
-   *
-   * @return Member key of the {@link GrouperMember}
-   */
-  public String key() {
-    return this.getMemberKey();
-  }
-
-  /**
    * Return all group memberships of default list type for this 
    * {@link GrouperMember}.
    *
@@ -250,6 +239,22 @@ public class GrouperMember {
    */
   public String typeID() {
     return this.getSubjectTypeID();
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /**
+   * Return member key.
+   * <p />
+   * FIXME Can I eventually make this private?
+   *
+   * @return Member key of the {@link GrouperMember}
+   */
+  protected String key() {
+    return this.getMemberKey();
   }
 
 
