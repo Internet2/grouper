@@ -1,6 +1,9 @@
 /*
- * $Id: GrouperTest.java,v 1.7 2004-06-02 22:17:06 blair Exp $
+ * $Id: GrouperTest.java,v 1.8 2004-06-17 16:44:12 blair Exp $
  */
+
+package test.edu.internet2.middleware.directory.grouper;
+
 
 import edu.internet2.middleware.directory.grouper.*;
 import java.lang.reflect.*;
