@@ -3,22 +3,22 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.1 2004-12-08 03:45:25 blair Exp $
+$Id: README,v 1.2 2004-12-08 03:53:59 blair Exp $
 
 ---
 
 ## Build
 
-    % cd $GROUPER_BASE/load/groupermgr
+    % cd $GROUPER_BASE/load/groupmgr
     % ant
 
 --
 
 ## Run
 
-    % cd $GROUPER_BASE/load/groupermgr
+    % cd $GROUPER_BASE/load/groupmgr
     % export CLASSPATH=.:/path/to/Grouper.jar:/path/to/Grouper-lib.jar:/path/to/grouper/conf/dir
-    % java groupermgr -h
+    % java groupmgr -h
     % TODO
 
 --

@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.1 2004-12-08 03:45:25 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.2 2004-12-08 03:53:59 blair Exp $ 
  */
 class groupmgr {
 
@@ -167,6 +167,12 @@ class groupmgr {
   private static void _optsParse(String[] args) {
     options = new Options();
     options.addOption("h", false, "Print usage information");
+    options.addOption(
+                      OptionBuilder.withArgName("subject")
+                        .withDescription("Specify subject to act as")
+                        .hasArg()
+                        .create("S")
+                     );
     options.addOption("v", false, "Be more verbose");
     CommandLineParser parser = new PosixParser();
     try {
@@ -197,13 +203,11 @@ class groupmgr {
       verbose = true;
       _verbose("Enabling verbose mode");
     }
-/*
     // And now everything else
-    if (cmd.hasOption("f")) {
-      path = cmd.getOptionValue("f");
-      _verbose("Using input file '" + path + "'");
+    if (cmd.hasOption("S")) {
+      subjectID = cmd.getOptionValue("S");
+      _verbose("Using subjectID '" + subjectID + "'");
     }
-*/
   }
 
   /* (!javadoc)
