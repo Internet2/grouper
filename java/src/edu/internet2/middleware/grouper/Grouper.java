@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.25 2004-09-08 16:40:21 blair Exp $
+ * @version $Id: Grouper.java,v 1.26 2004-09-08 22:17:41 blair Exp $
  */
 public class Grouper {
 
@@ -31,13 +31,16 @@ public class Grouper {
   private static String      confFile; 
 
   // Grouper executive session
-  private static GrouperSession  grprSession;
+  private static GrouperSession   grprSession;
   // Cached Grouper group fields
-  private static GrouperFields   groupFields;
+  // TODO Switch to GrouperFields collection object?
+  private static List             groupFields;
   // Cached Grouper group types
-  private static GrouperTypes    groupTypes;
+  // TODO Switch to GrouperTypes collection object?
+  private static List             groupTypes;  
   // Cached Grouper group typeDefs
-  private static GrouperTypeDefs groupTypeDefs;
+  // TODO Switch to GrouperTypeDefs collection object?
+  private static List             groupTypeDefs;
 
 
   /**
@@ -47,9 +50,9 @@ public class Grouper {
     this.conf           = new Properties();
     this.confFile       = "conf/grouper.properties";
     this.grprSession    = null;
-    this.groupFields    = new GrouperFields();
-    this.groupTypes     = new GrouperTypes();
-    this.groupTypeDefs  = new GrouperTypeDefs();
+    this.groupFields    = new ArrayList();
+    this.groupTypes     = new ArrayList();
+    this.groupTypeDefs  = new ArrayList();
   }
 
   /**
@@ -133,9 +136,7 @@ public class Grouper {
         "IN CLASS edu.internet2.middleware.grouper.GrouperField"
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
-        GrouperField field = (GrouperField) iter.next();
-        this.groupFields.add(field);
-        // TODO groupFields.add( (GrouperField) iter.next() );
+        groupFields.add( (GrouperField) iter.next() );
       }
     } catch (Exception e) {
       System.err.println(e);
@@ -153,9 +154,7 @@ public class Grouper {
         "IN CLASS edu.internet2.middleware.grouper.GrouperTypeDef"
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
-        GrouperTypeDef typeDef = (GrouperTypeDef) iter.next();
-        groupTypeDefs.add(typeDef);
-        // TODO groupTypeDefs.add( (GrouperTypeDefs) iter.next() );
+        groupTypeDefs.add( (GrouperTypeDef) iter.next() );
       }
     } catch (Exception e) {
       System.err.println(e);
@@ -173,9 +172,7 @@ public class Grouper {
         "IN CLASS edu.internet2.middleware.grouper.GrouperType"
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
-        GrouperType type = (GrouperType) iter.next();
-        groupTypes.add(type);
-        // TODO groupTypes.add( (GrouperType) iter.next() );
+        groupTypes.add( (GrouperType) iter.next() );
       }
     } catch (Exception e) {
       System.err.println(e);
@@ -191,7 +188,7 @@ public class Grouper {
    * 
    * @return  {@link GrouperFields} object.
    */
-  public GrouperFields getGroupFields() {
+  public List getGroupFields() {
     return this.groupFields;
   }
 
@@ -203,7 +200,7 @@ public class Grouper {
    *
    * @return  {@link GrouperTypeDefs} object.
    */
-  public GrouperTypeDefs getGroupTypeDefs() {
+  public List getGroupTypeDefs() {
     return groupTypeDefs;
   }
 
@@ -215,7 +212,7 @@ public class Grouper {
    * 
    * @return  {@link GrouperTypes} object.
    */
-  public GrouperTypes getGroupTypes() {
+  public List getGroupTypes() {
     return groupTypes;
   }
 
