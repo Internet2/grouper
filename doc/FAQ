@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.11 2004-12-09 03:38:36 blair Exp $
+$Id: FAQ,v 1.12 2004-12-09 04:07:24 blair Exp $
 
 ---
 
@@ -10,9 +10,30 @@ $Id: FAQ,v 1.11 2004-12-09 03:38:36 blair Exp $
 
 #### Q: How do I access _Grouper_ configuration parameters?
 
-A: Use the `Grouper.config()' method.
+A: Use the `Grouper.config()` method.
   
     String delim = Grouper.config("hierarchy.delimiter");
+
+---
+
+### Subjects
+
+#### Q: How do I retrieve a a subject of type _person_?
+
+A: Use the `GrouperSubject.load(subjID, subjType)` method.
+
+    Subject subj = GrouperSubject.load(subjID, Grouper.DEF_SUBJ_TYPE);
+
+Or:
+
+    Subject subj = GrouperSubject.load(subjID, "person");
+
+#### Q: How do I retrieve a subject of type _group_?
+
+A: Use the `GrouperSubject.load(subjID, subjType)` method.
+
+    GrouperGroup g  = GrouperGroup.load(s, stem, extn);
+    Subject subj    = GrouperSubject.load(g.id(), "group");
 
 ---
 
@@ -20,13 +41,13 @@ A: Use the `Grouper.config()' method.
 
 #### Q: How do I start a session?
 
-A: Use the `GrouperSession.start()' method.
+A: Use the `GrouperSession.start()` method.
 
-    GrouperSession s = GrouperSession.start(subject);
+    GrouperSession s = GrouperSession.start(subj);
 
 #### Q: How do I stop a session?
 
-A: Use the `GrouperSession.stop()' method.
+A: Use the `GrouperSession.stop()` method.
 
     s.stop();
 
@@ -36,109 +57,109 @@ A: Use the `GrouperSession.stop()' method.
 
 #### Q: How do I create a namespace?
 
-A: Use the `GrouperGroup.create()' method.
+A: Use the `GrouperGroup.create()` method.
 
     GrouperGroup ns = GrouperGroup.create(s, stem, extn, "naming");    
 
 #### Q: How do I create a group?
 
-A: Use the `GrouperGroup.create()' method.
+A: Use the `GrouperGroup.create()` method.
 
     GrouperGroup g = GrouperGroup.create(s, stem, extn);
 
 #### Q: How do I retrieve a group by stem and extension?
 
-A: Use the `GrouperGroup.load()' method.
+A: Use the `GrouperGroup.load()` method.
 
     GrouperGroup g = GrouperGroup.load(s, stem, extn);
 
 #### Q: How do I retrieve a group by name?
 
-A: Use the `GrouperGroup.loadByName()' method.
+A: Use the `GrouperGroup.loadByName()` method.
 
     GrouperGroup g = GrouperGroup.loadByName(s, name);
 
 #### Q: How do I retrieve a group by GUID?
 
-A: Use the `GrouperGroup.loadByID()' method.
+A: Use the `GrouperGroup.loadByID()` method.
 
     GrouperGroup g = GrouperGroup.loadByID(s, guid);
 
 #### Q: How do I delete a group?
 
-A: Use the `GrouperGroup.delete()' method.
+A: Use the `GrouperGroup.delete()` method.
 
     GrouperGroup.delete(s, g);
 
 #### Q: How do I add a list value?
 
-A: Use the `GrouperGroup.listAddVal()' method.
+A: Use the `GrouperGroup.listAddVal()` method.
 
     g.listAddVal(s, m);
 
 #### Q: How do I delete a list value?
 
-A: Use the `GrouperGroup.listDelVal()' method.
+A: Use the `GrouperGroup.listDelVal()` method.
 
     g.listDelVal(s, m);
 
 #### Q: How do I retrieve a group's members?
 
-A: Use the `GrouperGroup.listVals()' method.
+A: Use the `GrouperGroup.listVals()` method.
 
     List members = g.listVals(s);
 
 #### Q: How do I retrieve a group's immediate members?
 
-A: Use the `GrouperGroup.listImmVals()' method.
+A: Use the `GrouperGroup.listImmVals()` method.
 
     List immediateMembers = g.listImmVals(s);
 
 #### Q: How do I retrieve a group's effective members?
 
-A: Use the `GrouperGroup.listEffVals()' method.
+A: Use the `GrouperGroup.listEffVals()` method.
 
     List effectiveMembers = g.listEffVals(s);
 
 #### Q: How do I retrieve a group attribute?
 
-A: Use the `GrouperGroup.attribute()' method.
+A: Use the `GrouperGroup.attribute()` method.
 
     GrouperAttribute attr = g.attribute("description");
 
 #### Q: How do I set a group attribute?
 
-A: Use the `GrouperGroup.attribute()' method.
+A: Use the `GrouperGroup.attribute()` method.
 
-    g.attribute("description", "this is a sampe description");
+    g.attribute("description", "this is a sample description");
 
 #### Q: How do I delete a group attribute?
 
-A: Use the `GrouperGroup.attribute()' method.
+A: Use the `GrouperGroup.attribute()` method.
 
     g.attribute("description", null);
 
 #### Q: How do I see when a group was created?
 
-A: Use the `GrouperGroup.createTime()' method.
+A: Use the `GrouperGroup.createTime()` method.
 
     String secondsSinceEpoch = g.createTime();
 
 #### Q: How do I see who created a group?
 
-A: Use the `GrouperGroup.createSubject()' method.
+A: Use the `GrouperGroup.createSubject()` method.
 
     Subject creator = g.createSubject();
 
 #### Q: How do I see when a group was modifed?
 
-A: Use the `GrouperGroup.modifyTime()' method.
+A: Use the `GrouperGroup.modifyTime()` method.
 
     String secondsSinceEpoch = g.modifyTime();
 
 #### Q: How do I see who last modified a group?
 
-A: Use the `GrouperGroup.modifySubject()' method.
+A: Use the `GrouperGroup.modifySubject()` method.
 
     Subject modifier = g.modifySubject();
 
@@ -161,19 +182,19 @@ A: Use the `GrouperMember.load()` method.
 
 #### Q: How do I retrieve a member's memberships?
 
-A: Use the `GrouperMember.listVals()' method.
+A: Use the `GrouperMember.listVals()` method.
 
     List mships = m.listVals(s);
 
 #### Q: How do I retrieve a member's immediate memberships?
 
-A: Use the `GrouperMember.listImmVals()' method.
+A: Use the `GrouperMember.listImmVals()` method.
 
     List immediateMships = m.listImmVals(s);
 
 #### Q: How do I retrieve a member's effective memberships?
 
-A: Use the `GrouperMember.listEffVals()' method.
+A: Use the `GrouperMember.listEffVals()` method.
 
     List effectiveMships = m.listEffVals(s);
 
@@ -195,7 +216,7 @@ A: Use the `GrouperList.member()` method.
 
 #### Q: How do I retrieve the _via_ group from a _GrouperList_ result?
 
-A: Use the `GrouperList.via()' method.
+A: Use the `GrouperList.via()` method.
 
     GrouperGroup via = (GrouperGroup) gl.via();
 
@@ -205,13 +226,13 @@ A: Use the `GrouperList.via()' method.
 
 #### Q: How do I grant an access privilege?
 
-A: Use the `Grouper.access().grant()' method.
+A: Use the `Grouper.access().grant()` method.
 
     Grouper.access().grant(s, g, m, Grouper.PRIV_UPDATE);
 
 #### Q: How do I revoke an access privilege?
 
-A: Use the `Grouper.access().revoke()' method.
+A: Use the `Grouper.access().revoke()` method.
 
     Grouper.access().revoke(s, g, m, Grouper.PRIV_ADMIN);
 
@@ -221,13 +242,13 @@ A: Use the `Grouper.access().revoke()' method.
 
 #### Q: How do I grant a naming privilege?
 
-A: Use the `Grouper.naming().grant()' method.
+A: Use the `Grouper.naming().grant()` method.
 
     Grouper.naming().grant(s, ns, m, Grouper.PRIV_STEM);
 
 #### Q: How do I revoke a naming privilege?
 
-A: Use the `Grouper.access().revoke()' method.
+A: Use the `Grouper.access().revoke()` method.
 
     Grouper.naming().revoke(s, ns, m, Grouper.PRIV_CREATE);
 
@@ -255,29 +276,3 @@ more filters, and then query for results.
 
     List results = q.query();
     
-...
-
-### Subjects
-
-#### Q: How do I look up a subject of type _person_?
-
-A: Use the `GrouperSubject.load(subjID, subjType)` method.
-
-    Subject subj = GrouperSubject.load(subjID, Grouper.DEF_SUBJ_TYPE);
-
-Or:
-
-    Subject subj = GrouperSubject.load(subjID, "person");
-
-The `GrouperSubject.load()` method will call the appropriate subject
-type adapter for the type of subject specified.
-
-#### Q: How do I look up a subject of type _group_?
-
-A: Use the `GrouperSubject.load(subjID, subjType)` method.
-
-    Subject subj = GrouperSubject.load(subjID, "group");
-
-The `GrouperSubject.load()` method will call the appropriate subject
-type adapter for the type of subject specified.
-
