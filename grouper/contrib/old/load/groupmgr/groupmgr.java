@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.2 2004-12-08 03:53:59 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.3 2004-12-08 04:12:23 blair Exp $ 
  */
 class groupmgr {
 
@@ -33,13 +33,17 @@ class groupmgr {
   /*
    * PRIVATE CLAS VARIABLES
    */
+  private static boolean        actUponNS;
   private static CommandLine    cmd;
+  private static String         extn;
   private static GrouperMember  mem;
   private static Options        options;
   private static String         path;
   private static GrouperSession s;
+  private static String         stem;
   private static Subject        subj;
   private static String         subjectID;
+  private static boolean        toAdd;
   private static boolean        verbose = false;
 
 
@@ -47,16 +51,38 @@ class groupmgr {
    * PUBLIC CLASS METHODS
    */
   public static void main(String[] args) {
-    _opts(args);            // Parse and handle command line options
-    _grouperStart();        // Initialize Grouper and start session
-    _grouperStop();         // And we're done.  Tidy up.
-    System.exit(0);
+    _opts(args);      // Parse and handle command line options
+    _grouperStart();  // Initialize Grouper and start session
+    boolean rv = _dispatch();   // Take action
+    _grouperStop();   // And we're done.  Tidy up.
+    if (rv == true) {
+      System.exit(0);
+    } else {
+      System.exit(1);
+    }
   }
 
 
   /*
    * PRIVATE CLASS METHODS
    */
+
+  /* (!javadoc)
+   * Determine what it is that has been asked of us
+   */
+  private static boolean _dispatch() {
+    boolean rv = false;
+    if (toAdd == true) {
+      if (actUponNS == true) {
+        rv = _stemAdd();
+      } else {
+        System.err.println("No additions specified");
+      }
+    } else {
+      System.err.println("No actions specified");
+    }
+    return rv;
+  }
 
   /* (!javadoc)
    * Add a group to the registry.
@@ -166,12 +192,26 @@ class groupmgr {
    */
   private static void _optsParse(String[] args) {
     options = new Options();
+    options.addOption("a", false, "Add Mode");
+    options.addOption(
+                      OptionBuilder.withArgName("extension")
+                        .withDescription("Specify extension to act upon")
+                        .hasArg()
+                        .create("e")
+                     );
     options.addOption("h", false, "Print usage information");
+    options.addOption("n", false, "Act upon a namespace");
     options.addOption(
                       OptionBuilder.withArgName("subject")
                         .withDescription("Specify subject to act as")
                         .hasArg()
                         .create("S")
+                     );
+    options.addOption(
+                      OptionBuilder.withArgName("stem")
+                        .withDescription("Specify stem to act upon")
+                        .hasArg()
+                        .create("s")
                      );
     options.addOption("v", false, "Be more verbose");
     CommandLineParser parser = new PosixParser();
@@ -204,31 +244,47 @@ class groupmgr {
       _verbose("Enabling verbose mode");
     }
     // And now everything else
+    if (cmd.hasOption("a")) {
+      toAdd   = true;
+      _verbose("Enabling adding mode");
+    }
+    if (cmd.hasOption("e")) {
+      extn = cmd.getOptionValue("e");
+      _verbose("Using extension '" + extn + "'");
+    }
+    if (cmd.hasOption("n")) {
+      actUponNS = true;
+      _verbose("Will act upon a namespace");
+    }
     if (cmd.hasOption("S")) {
       subjectID = cmd.getOptionValue("S");
       _verbose("Using subjectID '" + subjectID + "'");
+    }
+    if (cmd.hasOption("s")) {
+      stem = cmd.getOptionValue("s");
+      _verbose("Using stem '" + stem + "'");
     }
   }
 
   /* (!javadoc)
    * Add a group to the registry.
    */
-  private static boolean _stemAdd(List tokens) {
+  private static boolean _stemAdd() {
     boolean rv = false;
-    String stem = (String) tokens.remove(0);
-    String extn = (String) tokens.remove(0);
-    // TODO Bah.  I have to do the interpolation for the config file.
-    if (stem.equals("Grouper.NS_ROOT")) {
-      stem = Grouper.NS_ROOT;
-    }
-    GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
-    if (g != null) {
-      _verbose("Added stem: " + g);
-      rv = true;
-    } else {
-      System.err.println(
-        "Failed to add stem=`" + stem + ", extn=`" + extn + "'"
-      );
+    if ( (stem != null) && (extn != null) ) {
+      // TODO Bah.  I have to interpolate.
+      if (stem.equals("Grouper.NS_ROOT")) {
+        stem = Grouper.NS_ROOT;
+      }
+      GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
+      if (g != null) {
+        _verbose("Added stem: " + g);
+        rv = true;
+      } else {
+        System.err.println(
+        "Failed to add stem=`" + stem + "', extn=`" + extn + "'"
+        );
+      }
     }
     return rv;
   }
