@@ -3,7 +3,7 @@
 #
 # Because Java runtime issues still baffle me...
 #
-# $Id: grouperq.sh,v 1.2 2004-12-05 04:20:25 blair Exp $
+# $Id: grouperq.sh,v 1.3 2004-12-05 16:31:18 tbarton Exp $
 #
 
 pathsep=":"
@@ -13,7 +13,8 @@ if [ "$OS" ]; then
   fi
 fi
 
-classpath=build:conf
+cd ../../..
+classpath=build${pathsep}conf
 for f in java/lib/*.jar; do
   classpath=${classpath}${pathsep}${f}
 done
