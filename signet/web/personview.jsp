@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.6 2005-02-09 22:00:35 acohen Exp $
-  $Date: 2005-02-09 22:00:35 $
+  $Id: personview.jsp,v 1.7 2005-02-24 01:09:39 jvine Exp $
+  $Date: 2005-02-24 01:09:39 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -184,6 +184,7 @@
            	Printable version
          	</a>
          	<h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
+					<fieldset>
          	<select
               name="subsystemId"
               id="subsystem">
@@ -234,6 +235,7 @@
               type="submit"
               name="showSubsystemPrivs"
               value="Show"/>
+						</fieldset>	
        	</form> <!-- pickSubsystem -->
      	</div>
      	<!-- tableheader -->
@@ -394,10 +396,9 @@
             Grant to <%=currentGranteePrivilegedSubject.getName()%>
           </h2>
           <form action="Functions.do">
-            <div class="actionbox"> 
-              <p>
-                <span class="tableheader">
-                  <select name="select" class="long">
+            <p>
+              <span class="tableheader">
+                <select name="select" class="long">
 <!--
                     <option selected="selected">
                       (privileges you can grant)
@@ -410,23 +411,23 @@
     {
       Subsystem subsystem = (Subsystem)(grantableSubsystemsIterator.next());
 %>
-                    <option value="<%=subsystem.getId()%>">
-                      <%=subsystem.getName()%>
-                    </option>
+                  <option value="<%=subsystem.getId()%>">
+                    <%=subsystem.getName()%>
+                  </option>
 <%
     }
 %>
-                  </select>
-                </span> <!-- tableheader --> 
-                <input
+                </select>
+              </span> <!-- tableheader --> 
+              <input
                   type="submit"
                   name="Button"
                   class="button1"
                   <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
                   value="Start &gt;&gt;" />
-									<br />
-							<span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
-            </div> <!-- actionbox -->
+								<br />
+						<span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
+              <!-- actionbox -->
           </form>
         </div> <!-- grant -->
           
@@ -437,10 +438,8 @@
             <h2>
               find a person
             </h2>
-            
-            <div class="actionbox">
-              <p>
-                <input
+           <p>
+             <input
                   name="words"
                   type="text"
                   class="short"
@@ -448,19 +447,20 @@
                   style="width:100px"
                   size="15"
                   maxlength="500" />
-                <input
+             <input
                   name="searchbutton"
                   type="button"
                   class="button1"
                   onClick="javascript:showResult();"
                   value="Search" /> 
-								<br />
-		            <span class="dropback">
-									Enter a person's name, and click "Search."
-    		        </span>
-              </p>
-              <div id="Results" style="display:none">
-                Your search found:<br />
+						 <br />
+             <span class="dropback">
+							 Enter a person's name, and click "Search."
+ 		         </span>
+           </p>
+           <div id="Results" style="display:none">
+             Your search found:
+          	<div class="scroll">						 
                        
 <%
   Set privilegedSubjects
@@ -473,54 +473,53 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-									<br />
-                  <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
-                    <%=listSubject.getName()%>
-                  </a>
-                  <br />
-                  <span class="dropback"><%=listSubject.getDescription()%></span>
+							 <br />
+               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
+                 <%=listSubject.getName()%>
+               </a>
+               <br />
+               <span class="dropback"><%=listSubject.getDescription()%></span>
 <%
   }
 %>
-       	     </div> <!-- results -->
-        	  </div> <!-- actionbox -->
-     	  </div> <!-- findperson -->         
+							</div> <!-- scroll -->
+     	      </div>           <!-- results -->
+         </div>				 <!-- findperson -->         
           <div class="views">
             <h2>
               View privileges...
             </h2>
-            <div class="actionbox">
-              <p>
-                <a href="Start.do">
-                  <img
+            <p>
+              <a href="Start.do">
+                <img
                     src="images/icon_arrow_right.gif"
                     width="16"
                     height="16"
                     class="icon" />
-                  you have granted
-                </a>
-              </p>
-              <p>
-                <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
-                  <img
+                you have granted
+              </a>
+            </p>
+            <p>
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
+                <img
                     src="images/icon_arrow_right.gif"
                     width="16"
                     height="16"
                     class="icon" />
-                  assigned to you
-                </a>
-              </p>
-              <p>
-                <a href="NotYetImplemented.do">
-                  <img
+                assigned to you
+              </a>
+            </p>
+            <p>
+              <a href="NotYetImplemented.do">
+                <img
                    src="images/icon_arrow_right.gif"
                    width="16"
                    height="16"
                    class="icon" />
-                  by scope
-                </a>
-              </p>
-            </div> <!-- actionbox -->
+                by scope
+              </a>
+            </p>
+              <!-- actionbox -->
         </div> <!-- views -->
             
           

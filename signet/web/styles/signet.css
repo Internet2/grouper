@@ -151,6 +151,7 @@ table {
 	caption-side: bottom;
 }
 table.invis {
+	width: none;
 	border: 0px 0px 0px 0px;
 	padding: 0px 0px 0px 0px;
 	margin: 0px 0px 0px 0px;
@@ -300,13 +301,15 @@ ol {
 	height: 250px;
 	border: 1px solid #CCC;
 	background-color: #FFF;		
-	overflow: auto;	
+/*	overflow: auto;	*/
 }	
 	
 #ViewHead {
 	border: 1px solid #BAD7DA;
-	margin: 0px 0px 5px 0px;
+	margin: 5px 0px 5px 0px;
 	padding: 3px;
+/*	position: absolute;
+	top: -92px; */
 }	
 
 
@@ -322,9 +325,9 @@ ol {
 	font-weight: bold;
 	background-color: #BAD7DA;
 	padding: 3px 3px 3px 3px;
-	margin: 0px 0px 0px 0px;
+	margin: -3px -3px 3px -3px;
 	}
-	
+/*	
 .actionbox {
 	text-decoration: none;
 	color: #000;
@@ -335,7 +338,7 @@ ol {
 	padding: 3px 3px 3px 3px;
 	margin: 0px 0px 10px 0px;
 	}
-
+*/
 .button1 {
 	margin: 0px 0px 0px 3px;
 	background-color: #EEE;
@@ -380,6 +383,36 @@ ol {
 }
 .dropback {
 	color: #666;
+}
+.findperson {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 15px;
+	background-color: #D8EDEF;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 10px 0px;
+}
+.grant {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 15px;
+	background-color: #D8EDEF;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 10px 0px;
+}
+.helpbox {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 15px;
+	background-color: #D8EDEF;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 10px 0px;
 }
 .ident {
 	color: #666;
@@ -440,3 +473,20 @@ ol {
 	margin-top: -3px;
 	vertical-align: middle;
 }	
+.tableheader fieldset {
+  display: inline;
+	width: none;
+	border: none;
+	margin: 0px;
+	padding: 0px;
+}
+.views {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 15px;
+	background-color: #D8EDEF;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 10px 0px;
+}

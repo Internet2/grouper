@@ -1,6 +1,6 @@
 <!--
-  $Id: limits.jsp,v 1.2 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: limits.jsp,v 1.3 2005-02-24 01:09:39 jvine Exp $
+  $Date: 2005-02-24 01:09:39 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -84,8 +84,8 @@
     <form name="form1" action="Confirm.do">
       <div id="Header">  
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
-        </div> <!-- Logo -->
+        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
+        <!-- Logo -->
         <div id="Signet">
 					<img src="images/signet.gif" alt="Signet" height="60" width="49">
         </div> <!-- Signet -->

@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.4 2005-02-23 22:05:55 acohen Exp $
-  $Date: 2005-02-23 22:05:55 $
+  $Id: confirm.jsp,v 1.5 2005-02-24 01:09:39 jvine Exp $
+  $Date: 2005-02-24 01:09:39 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -89,8 +89,8 @@
     
       <div id="Header">
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
-        </div> <!-- Logo -->
+        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
+        <!-- Logo -->
         <div id="Signet">
           <a href="Start.do">
             <img src="images/signet.gif" width="49" height="60" alt="Signet" />
@@ -251,19 +251,17 @@
             <h2>
               Find a person
             </h2>
-            
-            <div class="actionbox">
-              <p>
-                <input name="words" type="text" class="short" id="words" style="width:100px" size="15" maxlength="500" />
-                <input name="searchbutton" type="button" class="button1" onclick="javascript:showResult();" value="Search" />
+            <p>
+              <input name="words" type="text" class="short" id="words" style="width:100px" size="15" maxlength="500" />
+              <input name="searchbutton" type="button" class="button1" onclick="javascript:showResult();" value="Search" />
               <br />
-                <span class="dropback">
-                  Enter a person's name, and click "Search."
-                </span>
-              </p>
-              <div id="Results" style="display:none">
-                Your search found:
-              <ol>
+              <span class="dropback">
+                Enter a person's name, and click "Search."
+              </span>
+            </p>
+            <div id="Results" style="display:none">
+              Your search found:
+							<div class="scroll">								
           
 <%
   Set privilegedSubjects
@@ -276,39 +274,39 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-            <li>
+          	  <br />
               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
                 <%=listSubject.getName()%>
               </a>
               <br />
               <!--Stanford Linear Accelerator Center, --><%=listSubject.getDescription()%>
-            </li>
 <%
   }
 %>
-              </ol>
-            </div> <!-- results -->
-           </div> <!-- actionbox -->
-          </div> <!-- findperson -->
+
+							</div> <!-- scroll -->
+              </div>
+            <!-- results -->
+              <!-- actionbox -->
+          </div>
+          <!-- findperson -->
 
           <div class="views">
             <h2>
               View privileges...
             </h2>
-            <div class="actionbox">
-              <p>
-                <a href="Start.do">
-              <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />you have granted</a></p>
-              <p>
-                <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
-                  <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />assigned to you</a>
-              </p>
-              <p>
-                <a href="NotYetImplemented.do">
-                  <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />by scope
-                </a>
-              </p>
-            </div>
+            <p>
+              <a href="Start.do">
+            <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />you have granted</a></p>
+            <p>
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
+                <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />assigned to you</a>
+            </p>
+            <p>
+              <a href="NotYetImplemented.do">
+                <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />by scope
+              </a>
+            </p>
           </div> <!-- views -->
                   
           <div class="helpbox">

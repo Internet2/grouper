@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.5 2005-02-17 18:54:11 acohen Exp $
-  $Date: 2005-02-17 18:54:11 $
+  $Id: conditions.jsp,v 1.6 2005-02-24 01:09:39 jvine Exp $
+  $Date: 2005-02-24 01:09:39 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -90,8 +90,8 @@
     <form name="form1" action="Confirm.do">
       <div id="Header">  
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
-        </div> <!-- Logo -->
+        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
+        <!-- Logo -->
         <div id="Signet">
 					<img src="images/signet.gif" alt="Signet" height="60" width="49">
         </div> <!-- Signet -->
@@ -118,20 +118,17 @@
       
       <div id="Layout">
         <div id="Content">
-          <div class="table1">
+          <div id="ViewHead">
             Granting new privilege to
             <h1>
               <%=currentGranteePrivilegedSubject.getName()%>
        	    </h1>
        	    <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
-            <br />
-            <br />
-          
-            <div class="tableheader">
-              New <%=currentSubsystem.getName()%> privilege
             </div>
-            <div class="textcontent">
-              <ul class="none">
+          
+            <div class="section">
+             <h2>New <%=currentSubsystem.getName()%> privilege</h2>
+                <ul class="none">
                 <li>
                   <%=currentCategory.getName()%>
                   <ul class="arrow">
@@ -144,15 +141,13 @@
               <input
                 name="Button"
                 type="button"
-                class="button1"
+                class="button2"
                 onclick=(parent.location='<%=functionsHref%>')
                 value="&lt;&lt; Change privilege" />
-            </div> <!-- textcontent -->
+            </div> <!-- section -->
             
-            <div class="tableheader">
-              scope
-            </div> <!-- tableheader -->
-            <div class="textcontent">
+            <div class="section">
+              <h2>Scope</h2>
               <ul class="none">
               
                 <%=signet.displayAncestry
@@ -168,19 +163,18 @@
               <input
                 name="Button"
                 type="button"
-                class="button1"
+                class="button2"
                 onclick=(parent.location='<%=orgBrowseHref%>')
                 value="&lt;&lt; Change scope" />
-            </div> <!-- textcontent -->
+            </div> <!-- section -->
             
 <%
   if (currentLimits.length > 0)
   {
 %>
-            <div class="tableheader">
-              Set Limits
-            </div> <!-- tableheader -->
-            <div class="textcontent">	
+            <div class="section">
+              <h2> Limits</h2>
+           
 <%
     for (int i = 0; i < currentLimits.length; i++)
     {
@@ -205,16 +199,14 @@
 <%
     }
 %>
-            </div> <!-- textcontent -->
+            </div> <!-- section -->
 <%
   }
 %>
 		 
-            <div class="tableheader">
-              Set Conditions
-            </div> <!-- tableheader -->
-          
-            <div class="textcontent">
+            <div class="section">
+              <h2> Conditions</h2>
+
               <fieldset>
                 <legend>
                   Extensibility
@@ -246,22 +238,15 @@
                   <img src="images/icon_arrow_left.gif" width="16" height="16" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
                 </a>
               </p>
-            </div> <!-- textcontent -->
-          </div>
+            </div> <!-- section -->
 	      <jsp:include page="footer.jsp" flush="true" />
         </div>
       
         <div id="Sidebar">
-          <div class="box1">
-            <div class="actionheader">
-              Info
-            </div> <!-- actionheader -->
-            <div class="actionbox">
-              <p>
-                Contextual help goes here.
-              </p>
-            </div> <!-- actionbox -->
-          </div> <!-- box1 -->
+          <div class="helpbox">
+			 	  	<h2>Help</h2>
+			  		<jsp:include page="grant-help.jsp" flush="true" />          
+					</div> <!-- Helpbox -->
         </div> <!-- Sidebar -->
       </div>	
     </form>

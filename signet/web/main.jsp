@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.8 2005-02-24 00:19:50 acohen Exp $
-  $Date: 2005-02-24 00:19:50 $
+  $Id: main.jsp,v 1.9 2005-02-24 01:09:39 jvine Exp $
+  $Date: 2005-02-24 01:09:39 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -53,8 +53,8 @@
   <form name="form1" method="post" action="">
     <div id="Header">  
       <div id="Logo">
-        <img src="images/KITN.gif" alt="logo" height="60" width="216">
-      </div> <!-- Logo -->
+      <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />      </div> 
+      <!-- Logo -->
       <div id="Signet">
         <img src="images/signet.gif" alt="Signet" height="60" width="49">
       </div> <!-- Signet -->
@@ -224,9 +224,8 @@
         <h2>
           find a person
         </h2> 
-        <div class="actionbox">
-          <p>
-            <input
+        <p>
+          <input
               name="words"
               type="text"
               class="short"
@@ -234,18 +233,18 @@
               style="width:100px"
               size="15"
               maxlength="500" />
-            <input
+          <input
               name="searchbutton"
               type="button"
               class="button1"
               onclick="javascript:showResult();"
               value="Search" />
-            <br />
-            <span class="dropback">Enter a person's name, and click "Search."
-            </span> </p>
-          <div id="Results" style="display:none">
-            Your search found:<br />
-          
+          <br />
+          <span class="dropback">Enter a person's name, and click "Search."
+          </span> </p>
+        <div id="Results" style="display:none">
+          Your search found:
+         	<div class="scroll">
 <%
   Set privilegedSubjects
     = signet.getPrivilegedSubjects();
@@ -258,44 +257,46 @@
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
             <br />
-              <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
-                <%=listSubject.getName()%>
-              </a>
-              <br />
-              <!--Stanford Linear Accelerator Center, --><span class="dropback"><%=listSubject.getDescription()%></span>
+            <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
+              <%=listSubject.getName()%>
+            </a>
+            <br />
+            <!--Stanford Linear Accelerator Center, --><span class="dropback"><%=listSubject.getDescription()%></span>
 <%
   }
 %>
-        </div> <!-- results -->
-      </div> <!-- actionbox -->
-    </div> <!-- findperson -->		 
+						</div> <!-- scroll -->
+          </div>
+        <!-- results -->
+          <!-- actionbox -->
+      </div>
+			<!-- findperson -->		 
       <div class="views">
         <h2>
           View privileges...
         </h2> 
-        <div class="actionbox">
-          <p>
-            <a
+        <p>
+          <a
               href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
-              <img
+            <img
                 src="images/icon_arrow_right.gif"
                 width="16"
                 height="16"
                 class="icon" />
-              assigned to you
-            </a>
-          </p>
-          <p>
-            <a href="NotYetImplemented.do">
-              <img
+            assigned to you
+          </a>
+        </p>
+        <p>
+          <a href="NotYetImplemented.do">
+            <img
                 src="images/icon_arrow_right.gif"
                 width="16"
                 height="16"
                 class="icon" />
-              by scope
-            </a>
-          </p>
-        </div> <!-- actionbox -->
+            by scope
+          </a>
+        </p>
+          <!-- actionbox -->
       </div> <!-- views-->
 	    <div class="helpbox">
        <h2>
