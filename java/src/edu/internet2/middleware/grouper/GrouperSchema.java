@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.23 2005-03-24 20:47:34 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.24 2005-03-25 03:00:39 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -102,7 +102,7 @@ public class GrouperSchema implements Serializable {
   /*
    * Delete group schema.
    */
-  protected static void delete(GrouperSession s, GrouperGroup g) {
+  protected static void delete(GrouperSession s, Group g) {
     String qry = "GrouperSchema.by.key";
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);

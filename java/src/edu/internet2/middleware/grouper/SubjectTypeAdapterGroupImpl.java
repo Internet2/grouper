@@ -64,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.15 2005-03-24 20:41:07 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.16 2005-03-25 03:00:39 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
@@ -104,14 +104,11 @@ public class  SubjectTypeAdapterGroupImpl
       Query q = dbSess.session().getNamedQuery(qry);
       q.setString(0, id);
       try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          // FIXME Properly load the group
-          GrouperGroup g = (GrouperGroup) vals.get(0);
-          if (g != null) {
-            // ... And convert it to a subject object
-            subj = new SubjectImpl(id, type.getId());
-          }
+        // Find the group
+        Group g = (Group) q.uniqueResult();
+        if (g != null) {
+          // ... And convert it to a subject object
+          subj = new SubjectImpl(id, type.getId());
         }
       } catch (HibernateException e) {
         throw new RuntimeException(

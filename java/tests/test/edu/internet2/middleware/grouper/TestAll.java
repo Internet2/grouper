@@ -71,63 +71,59 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestSessions.class);
     suite.addTestSuite(TestMembers.class);
     suite.addTestSuite(TestStemsAdd.class);
-/*
     suite.addTestSuite(TestStemsDelete.class);
-    suite.addTestSuite(TestStemsAttrs.class);
+    //suite.addTestSuite(TestStemsAttrs.class);
     // TODO TestStemsAttrsAdd
     // TODO TestStemsAttrsMod
     // TODO TestStemsAttrsDel
-    suite.addTestSuite(TestStemsMoF.class);
+    //suite.addTestSuite(TestStemsMoF.class);
     // TODO TestStemsMoFAdd
     // TODO TestStemsMoFDel
-*/
     //suite.addTestSuite(TestGroupsAdd.class);
-/*
-    suite.addTestSuite(TestGroupsDelete.class);
-    suite.addTestSuite(TestGroupsAttrs.class);
+    //suite.addTestSuite(TestGroupsDelete.class);
+    //suite.addTestSuite(TestGroupsAttrs.class);
     // TODO TestGroupsAttrsAdd
     // TODO TestGroupsAttrsMod
     // TODO TestGroupsAttrsDel
-    suite.addTestSuite(TestGroupsMoF.class);
-    suite.addTestSuite(TestGroupsMoFAdd0.class);
-    suite.addTestSuite(TestGroupsMoFChain0.class);
-    suite.addTestSuite(TestGroupsMoFAdd1.class);
-    suite.addTestSuite(TestGroupsMoFChain1.class);
-    suite.addTestSuite(TestGroupsMoFAdd2.class);
-    suite.addTestSuite(TestGroupsMoFAdd3.class);
-    suite.addTestSuite(TestGroupsMoFAdd4.class);
-    suite.addTestSuite(TestGroupsMoFAdd5.class);
-    suite.addTestSuite(TestGroupsMoFAdd6.class);
-    suite.addTestSuite(TestGroupsMoFAdd7.class);
-    suite.addTestSuite(TestGroupsMoFAdd8.class);
-    suite.addTestSuite(TestGroupsMoFAdd9.class);
-    suite.addTestSuite(TestGroupsMoFAdd10.class);
-    suite.addTestSuite(TestGroupsMoFChain10.class);
-    suite.addTestSuite(TestGroupsMoFDel0.class);
-    suite.addTestSuite(TestGroupsMoFDel1.class);
-    //suite.addTestSuite(TestGroupsMoFDel2.class);
-    //suite.addTestSuite(TestGroupsMoFDel3.class);
-    //suite.addTestSuite(TestGroupsMoFDel4.class);
-    //suite.addTestSuite(TestGroupsMoFDel5.class);
-    //suite.addTestSuite(TestGroupsMoFDel6.class);
-    //suite.addTestSuite(TestGroupsMoFDel7.class);
-    //suite.addTestSuite(TestGroupsMoFDel8.class);
-    //suite.addTestSuite(TestGroupsMoFDel9.class);
-    //suite.addTestSuite(TestGroupsMoFDel10.class);
+    //suite.addTestSuite(TestGroupsMoF.class);
+    //suite.addTestSuite(TestGroupsMoFAdd0.class);
+    //suite.addTestSuite(TestGroupsMoFChain0.class);
+    //suite.addTestSuite(TestGroupsMoFAdd1.class);
+    //suite.addTestSuite(TestGroupsMoFChain1.class);
+    //suite.addTestSuite(TestGroupsMoFAdd2.class);
+    //suite.addTestSuite(TestGroupsMoFAdd3.class);
+    //suite.addTestSuite(TestGroupsMoFAdd4.class);
+    //suite.addTestSuite(TestGroupsMoFAdd5.class);
+    //suite.addTestSuite(TestGroupsMoFAdd6.class);
+    //suite.addTestSuite(TestGroupsMoFAdd7.class);
+    //suite.addTestSuite(TestGroupsMoFAdd8.class);
+    //suite.addTestSuite(TestGroupsMoFAdd9.class);
+    //suite.addTestSuite(TestGroupsMoFAdd10.class);
+    //suite.addTestSuite(TestGroupsMoFChain10.class);
+    //suite.addTestSuite(TestGroupsMoFDel0.class);
+    //suite.addTestSuite(TestGroupsMoFDel1.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel2.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel3.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel4.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel5.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel6.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel7.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel8.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel9.class);
+    // TODO suite.addTestSuite(TestGroupsMoFDel10.class);
     // TODO TestMixedMoF
     // TODO TestMixedMoFAdd
     // TODO TestMixedMoFDel
     // TODO Flesh out
-    suite.addTestSuite(TestNamingPrivs.class);
+    //suite.addTestSuite(TestNamingPrivs.class);
     // TODO TestNamingPrivsGrant
     // TODO TestNamingPrivsRevoke
     // TODO Flesh out
-    suite.addTestSuite(TestAccessPrivs.class);
+    //suite.addTestSuite(TestAccessPrivs.class);
     // TODO TestAccessPrivsGrant
     // TODO TestAccessPrivsRevoke
     // TODO Flesh out
-    suite.addTestSuite(TestQueries.class);
-*/
+    //suite.addTestSuite(TestQueries.class);
 
     return suite;
   }

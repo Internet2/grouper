@@ -84,11 +84,11 @@ public class TestStemsAttrs extends TestCase {
 
     // Create ns0
     GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Fetch ns0
     GrouperGroup ns = GrouperGroup.load(
-                        s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                        s, Constants.ns0s, Constants.ns0e
                       );
 
     GrouperAttribute stem = ns.attribute("stem");

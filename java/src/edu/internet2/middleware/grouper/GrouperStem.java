@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.16 2005-03-25 01:41:29 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.17 2005-03-25 03:00:39 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -146,16 +146,16 @@ public class GrouperStem extends Group {
                             )
   {
     GrouperStem ns;
-    s.dbSess().txStart();
-    Group.subjectCanCreateAtRoot(s, stem);
-    Group.subjectCanCreateStem(s, stem);
     if (!GrouperStem.exists(s, stem)) {
       throw new RuntimeException("Parent stem does not exist");
     }
     if (GrouperStem.exists(s, Group.groupName(stem, extn))) {
       throw new RuntimeException("Stem already exists");
     }
+    Group.subjectCanCreateAtRoot(s, stem);
+    Group.subjectCanCreateStem(s, stem);
     try {
+      s.dbSess().txStart();
       ns = new GrouperStem(s, stem, extn);
       s.dbSess().session().save(ns);
       ns.grantStemUponCreate(); 
@@ -167,6 +167,28 @@ public class GrouperStem extends Group {
       throw new RuntimeException("Error saving stem: " + e);
     } 
     return ns;
+  }
+
+  /**
+   * Delete a namespace.
+   * <p />
+   * @param s   Delete namespace within this session.
+   * @param ns  Delete this namespace.
+   */
+  public static void delete(GrouperSession s, GrouperStem ns) {
+    Group.subjectCanDelete(s, (Group) ns);
+    try {
+      s.dbSess().txStart();
+      ns.revokeAllAccessPrivs();
+      ns.revokeAllNamingPrivs();
+      GrouperAttribute.delete(s, ns);
+      GrouperSchema.delete(s, ns);
+      s.dbSess().session().delete(ns);
+      s.dbSess().txCommit();
+    } catch (HibernateException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error deleting group: " + e);
+    }
   }
 
   /**
@@ -185,8 +207,6 @@ public class GrouperStem extends Group {
     String key = Group.findKey(s, stem, extension, Grouper.NS_TYPE);
     if (key != null) {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
-      ns.s = s;
-      ns.initialized = true;
       return ns;
     }
     return null; 
@@ -364,21 +384,29 @@ public class GrouperStem extends Group {
    */
 
   /*
-   * Set create* attributes.
-   */
-  protected void setCreated() {
-    this.setCreateTime( this.now() );
-    GrouperMember m = GrouperMember.load(s, s.subject());
-    this.setCreateSubject(m.key());
-  }
-
-  /**
    * Return namespace key.
    * <p />
    * @return Group key of the {@link GrouperGroup}
    */
   protected String key() {
     return this.getGroupKey();
+  }
+
+  /*
+   * Flesh out the group a bit.
+   */
+  protected void load(GrouperSession s) {
+    this.s = s;
+    this.initialized = true;
+  }
+
+  /*
+   * Set create* attributes.
+   */
+  protected void setCreated() {
+    this.setCreateTime( this.now() );
+    GrouperMember m = GrouperMember.load(s, s.subject());
+    this.setCreateSubject(m.key());
   }
 
   /*
@@ -439,6 +467,41 @@ public class GrouperStem extends Group {
       GrouperList lv = (GrouperList) iter.next();
       lv.load(this.s);
       GrouperList.save(this.s, lv);
+    }
+  }
+
+  /* 
+   * Revoke all access privs attached to a group
+   */
+  private void revokeAllAccessPrivs() {
+    /* 
+     * TODO This could be prettier, especially if/when there are custom
+     *      privs
+     */
+    if (!(
+          this.s.access().revoke(this.s, this, Grouper.PRIV_OPTIN)   &&
+          this.s.access().revoke(this.s, this, Grouper.PRIV_OPTOUT)  &&
+          this.s.access().revoke(this.s, this, Grouper.PRIV_VIEW)    &&
+          this.s.access().revoke(this.s, this, Grouper.PRIV_READ)    &&
+          this.s.access().revoke(this.s, this, Grouper.PRIV_UPDATE)  &&
+          this.s.access().revoke(this.s, this, Grouper.PRIV_ADMIN)
+       ))
+    {
+      throw new RuntimeException("Error revoking access privileges");
+    }
+  }
+
+  /* 
+   * Revoke all naming privs attached to a group
+   */
+  private void revokeAllNamingPrivs() {
+    // FIXME This is ugly 
+    if (!(
+          this.s.naming().revoke(this.s, this, Grouper.PRIV_STEM)    &&
+          this.s.naming().revoke(this.s, this, Grouper.PRIV_CREATE) 
+       ))
+    {       
+      throw new RuntimeException("Error revoking naming privileges");
     }
   }
 
