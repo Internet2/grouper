@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2004-12-04 02:12:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.2 2004-12-07 03:08:50 blair Exp $ -->
 
 <project name="csv2group" default="build" basedir=".">
 
@@ -6,7 +6,7 @@
   <property name="app.name"         value="csv2group"/>
   <property name="src"              location="${basedir}"/>
   <property name="grouper.basedir"  location="../../.."/>
-  <property name="build"            location="${grouper.basedir}/build"/>
+  <property name="build"            location="${basedir}"/>
 
   <target name="init">
     <tstamp />
@@ -19,7 +19,7 @@
       <fileset dir="${grouper.basedir}/java/lib">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement location="${grouper.basedir}/build/"/>
+      <pathelement location="${grouper.basedir}/build/grouper/"/>
     </path>
   </target>
 
@@ -31,7 +31,7 @@
   </target>
 
   <target name="clean" description="clean up" >
-    <delete file="${grouper.basedir}/build/${app.name}.class" /> 
+    <delete file="${build}/${app.name}.class" /> 
   </target>
 
 </project>

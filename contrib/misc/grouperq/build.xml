@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2004-11-30 06:55:10 blair Exp $ -->
+<!-- $Id: build.xml,v 1.2 2004-12-07 03:08:50 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -6,7 +6,7 @@
   <property name="app.name"         value="grouperq"/>
   <property name="src"              location="${basedir}"/>
   <property name="grouper.basedir"  location="../../.."/>
-  <property name="build"            location="${grouper.basedir}/build"/>
+  <property name="build"            location="${basedir}"/>
 
   <target name="init">
     <tstamp />
@@ -19,7 +19,7 @@
       <fileset dir="${grouper.basedir}/java/lib">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement location="${grouper.basedir}/build/"/>
+      <pathelement location="${grouper.basedir}/build/grouper"/>
     </path>
   </target>
 
@@ -30,15 +30,8 @@
     </javac>
   </target>
 
-  <!-- FIXME This doesn't really work -->
-  <target name="grouperq">
-    <java fork="yes" classname="grouperq" failonerror="true">
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
-
   <target name="clean" description="clean up" >
-    <delete file="${grouper.basedir}/build/${app.name}.class" /> 
+    <delete file="${build}/{$app.name}.class"/>
   </target>
 
 </project>

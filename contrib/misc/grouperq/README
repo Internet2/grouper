@@ -1,0 +1,29 @@
+
+# Query the group registry using the _Grouper_ api
+
+This code was contributed by The University Of Chicago.
+
+$Id: README,v 1.1 2004-12-07 03:08:50 blair Exp $
+
+---
+
+## Build
+
+    % cd $GROUPER_BASE/misc/grouperq
+    % ant
+
+--
+
+## Run
+
+    % cd $GROUPER_BASE/misc/grouperq
+    % export CLASSPATH=.:/path/to/Grouper.jar:/path/to/Grouper-lib.jar:/path/to/grouper/conf/dir
+    % java grouperq -h
+    % TODO
+
+--
+
+## Bugs
+
+TODO
+

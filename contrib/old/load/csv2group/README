@@ -3,23 +3,23 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.1 2004-12-04 02:12:13 blair Exp $
+$Id: README,v 1.2 2004-12-07 03:08:50 blair Exp $
 
 ---
 
 ## Build
 
-    % cd $GROUPER_BASE
-    % ant -f contrib/load/csv2group/build.xml
+    % cd $GROUPER_BASE/load/csv2group
+    % ant
 
 --
 
 ## Run
 
-    % cd $GROUPER_BASE
-    % ./contrib/load/csv2group/csv2group.sh -h
-    % ./contrib/load/csv2group/csv2group.sh \
-      -f contrib/load/csv2group/sample.cvs
+    % cd $GROUPER_BASE/load/csv2group
+    % export CLASSPATH=.:/path/to/Grouper.jar:/path/to/Grouper-lib.jar:/path/to/grouper/conf/dir
+    % java csv2group -h
+    % java csv2group -v -f sample.csv
 
 --
 
