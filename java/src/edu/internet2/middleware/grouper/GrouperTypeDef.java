@@ -57,11 +57,11 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} type definition relationship.
+ * Class modeling a {@link GrouperGroup} type definition relationship.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.17 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.18 2004-12-09 03:26:13 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -105,18 +105,18 @@ public class GrouperTypeDef implements Serializable {
    }
 
   /**
-   * Returns {@link GrouperField}.
-   *
-   * @return  Returns name of {@link GrouperField}.
+   * Retrieves the group field.
+   * <p />
+   * @return  Name of group field.
    */
   public String groupField() {
     return this.getGroupField();
   }
 
   /**
-   * Returns {@link GrouperType}.
-   *
-   * @return  Returns integer representing {@link GrouperType}.
+   * Retrieves the group type.
+   * <p />
+   * @return  Type of group.
    */
   public String groupType() {
     return this.getGroupType();
