@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.10 2004-10-13 16:53:15 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.11 2004-10-13 18:16:50 blair Exp $
  */
 public class GrouperBackend {
 
@@ -225,7 +225,7 @@ public class GrouperBackend {
         "SELECT FROM grouper_attributes " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
         "WHERE " +
-        "groupField='stem' " + 
+        "groupField='namespace' " + 
         "AND " +
         "groupFieldValue='" + namespace + "'"
       );
