@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.198 2005-03-26 05:44:03 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.199 2005-03-26 17:35:03 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -539,32 +539,6 @@ public class GrouperGroup extends Group {
    */
 
 
-  /*
-   * @return List of a group's attributes
-   * TODO Why not just use the attrs HashMap?  
-   * TODO Why static?
-   */
-  private static List _attributes(GrouperSession s, GrouperGroup g) {
-    String  qry   = "GrouperAttribute.by.key";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, g.key());
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
   /**
    * Retrieve a group by public GUID.
    * <p />
@@ -679,6 +653,7 @@ public class GrouperGroup extends Group {
    */
   protected void load(GrouperSession s) {
     this.s = s;
+    this.attributes = GrouperAttribute.attributes(s, this);
     this.initialized = true;
   }
 

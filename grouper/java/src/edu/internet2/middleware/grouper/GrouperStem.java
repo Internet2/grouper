@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.26 2005-03-26 05:44:03 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.27 2005-03-26 17:35:03 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -76,7 +76,7 @@ public class GrouperStem extends Group {
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private HashMap         attributes = new HashMap();
+  private Map             attributes = new HashMap();
   private String          createSource;
   private String          createSubject;
   private String          createTime;
@@ -541,7 +541,8 @@ public class GrouperStem extends Group {
    * Flesh out the group a bit.
    */
   protected void load(GrouperSession s) {
-    this.s = s;
+    this.s = s; 
+    this.attributes = GrouperAttribute.attributes(s, this);
     this.initialized = true;
   }
 
