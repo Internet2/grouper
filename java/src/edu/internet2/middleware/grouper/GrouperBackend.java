@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.163 2005-03-11 02:55:44 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.164 2005-03-14 03:19:40 blair Exp $
  */
 public class GrouperBackend {
 
@@ -318,43 +318,45 @@ public class GrouperBackend {
   }
 
   /* !javadoc
-   * Retrieve list value from registry
-   */
-  private static GrouperList _listVal(GrouperSession s, GrouperList gl) {
-    // TODO Have GrouperList call this and its kin?
-    // TODO Run within parent session?
-    if (gl.group() != null) { // TODO 
-      List    vals      = new ArrayList();
-      String  via_param;
-      if (gl.via() == null)  {
-        via_param = GrouperBackend.VAL_NULL;
-      } else {
-        via_param = gl.via().key();
-      }
-      // TODO Take GL
-      vals = BackendQuery.grouperList(
-               s.dbSess().session(), gl.group().key(), gl.member().key(),
-               gl.groupField(), via_param
-             );
-      // We only want one
-      if (vals.size() == 1) {
-        gl = (GrouperList) vals.get(0);
-      } else {
-        gl = null; // TODO Null Object
-      }
-    }
-    return gl;
-  }
-
-  /* !javadoc
    * Check whether a list value exists.
    */
-  // TODO Run within parent session?
   private static boolean _listValExist(GrouperSession s, GrouperList gl) {
-    boolean rv = false;
-    GrouperList lv = GrouperBackend._listVal(s, gl);
-    if (lv != null) { // FIXME Can I do better than this?
-      rv = true;
+    Query   q;
+    String  qry;
+    String  qryEff  = "GrouperList.by.group.and.member.and.list.and.is.eff"; 
+    String  qryImm  = "GrouperList.by.group.and.member.and.list.and.is.imm"; 
+    boolean rv      = false;
+    if (gl.via() == null) { 
+      try {
+        q = s.dbSess().session().getNamedQuery(qryImm);
+        qry = qryImm;
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Unable to get query " + qryImm + ": " + e
+                  );
+      }
+    } else {
+      try {
+        q = s.dbSess().session().getNamedQuery(qryEff);
+        qry = qryEff;
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Unable to get query " + qryEff + ": " + e
+                  );
+      }
+    } 
+    q.setString(0, gl.group().key());
+    q.setString(1, gl.member().key());
+    q.setString(2, gl.groupField());
+    try {
+      List vals = q.list();
+      if (vals.size() == 1) {
+        rv = true;
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error retrieving results for " + qry + ": " + e
+                );
     }
     return rv;
   }
@@ -380,6 +382,11 @@ public class GrouperBackend {
       Iterator iterM = members.iterator();
       while (iterM.hasNext()) {
         GrouperList lvM = (GrouperList) iterM.next();
+        // TODO Argh!
+        lvM = new GrouperList(
+                    s, lvM.groupKey(), lvM.memberKey(), 
+                    lvM.groupField(), lvM.viaKey()
+                  );
         // Add to membership list for `g' via `m'
         mships.add( new GrouperList(g, lvM.member(), field, mAsG) );
       }
@@ -397,6 +404,11 @@ public class GrouperBackend {
     Iterator iterG = memOf.iterator();
     while (iterG.hasNext()) {
       GrouperList lvG = (GrouperList) iterG.next();
+      // TODO Argh!
+      lvG = new GrouperList(
+                  s, lvG.groupKey(), lvG.memberKey(), 
+                   lvG.groupField(), lvG.viaKey()
+                 );
       // FIXME This should be the first element in the via path
       GrouperGroup via = lvG.via();
       if (via == null) {
@@ -406,6 +418,11 @@ public class GrouperBackend {
       Iterator iterMG = members.iterator();
       while (iterMG.hasNext()) {
         GrouperList lvMG = (GrouperList) iterMG.next();
+        // TODO Argh!
+        lvMG = new GrouperList(
+                     s, lvMG.groupKey(), lvMG.memberKey(), 
+                     lvMG.groupField(), lvMG.viaKey()
+                   );
         mships.add( 
                    new GrouperList(lvG.group(), lvMG.member(), field, via) 
                   );
@@ -561,18 +578,33 @@ public class GrouperBackend {
    * Delete all schema attached to a group
    */
   private static boolean _schemaDel(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    Iterator iter = BackendQuery.kv(
-                      s.dbSess().session(), "GrouperSchema", "groupKey", g.key()
-                    ).iterator();
-    while (iter.hasNext()) {
-      GrouperSchema gs = (GrouperSchema) iter.next();
+    boolean rv  = false;
+    String  qry = "GrouperSchema.by.key";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
       try {
-        s.dbSess().session().delete(gs);
-        rv = true;
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperSchema gs = (GrouperSchema) iter.next();
+          try {
+            s.dbSess().session().delete(gs);
+            rv = true;
+          } catch (HibernateException e) {
+            throw new RuntimeException(
+                        "Error deleting schema: " + e
+                      );
+          }
+        }
       } catch (HibernateException e) {
-        // FIXME LOG.  Hell, anything.
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return rv;
   }
@@ -725,9 +757,23 @@ public class GrouperBackend {
    * @return List of a {@link GrouperAttribute} objects.
    */
   protected static List attributes(GrouperSession s, GrouperGroup g) {
-    List vals = BackendQuery.kv(
-                  s.dbSess().session(), "GrouperAttribute", "groupKey", g.key()
+    String  qry   = "GrouperAttribute.by.key";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
                 );
+    }
     return vals;
   }
 
@@ -753,7 +799,22 @@ public class GrouperBackend {
    * @return List of group fields.
    */
   protected static List groupFields(DbSess dbSess) {
-    List vals = BackendQuery.all(dbSess.session(), "GrouperField");
+    String  qry   = "GrouperField.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -816,15 +877,33 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (s.getClass().getName().equals(Grouper.KLASS_GS))
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-               s, null, null, list, Grouper.MEM_ALL
-             );
+    String  qry   = "GrouperList.by.list";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, list);
+      try {
+        // vals = q.list();
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          vals.add( 
+            new GrouperList(
+              s, gl.groupKey(), gl.memberKey(), 
+              gl.groupField(), gl.viaKey()
+            )
+          );
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -840,23 +919,23 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
-    List vals = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        g.getClass().getName().equals(Grouper.KLASS_GG) &&
-        s.getClass().getName().equals(Grouper.KLASS_GS) &&
-        Grouper.groupField(g.type(), list)
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-               s, g, null, list, Grouper.MEM_ALL
-             );
-      Iterator iter = vals.iterator();
-      while (iter.hasNext()) {
-        GrouperList gl = (GrouperList) iter.next();
+    String  qry   = "GrouperList.by.group.and.list";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -872,16 +951,23 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, GrouperMember m, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") 
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(s, null, m, list, Grouper.MEM_ALL);
+    String  qry   = "GrouperList.by.member.and.list";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, m.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -895,16 +981,22 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession"))
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, null, null, 
-                                      list, Grouper.MEM_EFF
-                                     );
+    String  qry   = "GrouperList.by.list.and.is.eff";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -920,21 +1012,24 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, GrouperGroup g, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
-        Grouper.groupField(g.type(), list)
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, g, null, 
-                                      list, Grouper.MEM_EFF
-                                     );
-    }
+    String  qry   = "GrouperList.by.group.and.list.and.is.eff";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    } 
     return vals;
   }
 
@@ -949,19 +1044,23 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, GrouperMember m, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") 
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, null, m, 
-                                      list, Grouper.MEM_EFF
-                                     );
+    String  qry   = "GrouperList.by.member.and.list.and.is.eff";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, m.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -975,16 +1074,22 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession")) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, null, null, 
-                                      list, Grouper.MEM_IMM
-                                     );
+    String  qry   = "GrouperList.by.list.and.is.imm";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);  
+      q.setString(0, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -999,20 +1104,23 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, GrouperGroup g, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
-        Grouper.groupField(g.type(), list)
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, g, null, 
-                                      list, Grouper.MEM_IMM
-                                     );
+    String  qry   = "GrouperList.by.group.and.list.and.is.imm";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -1028,19 +1136,23 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, GrouperMember m, String list) {
-    List    vals    = new ArrayList();
-    // FIXME Better validation efforts, please.
-    // TODO  Refactor to a method
-    if (
-        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
-        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") 
-       ) 
-    {
-      // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s, null, m, 
-                                      list, Grouper.MEM_IMM
-                                     );
+    String  qry   = "GrouperList.by.member.and.list.and.is.imm";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, m.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -1051,7 +1163,22 @@ public class GrouperBackend {
    * @return List of group type definitions.
    */
   protected static List groupTypeDefs(DbSess dbSess) {
-    List    vals    = BackendQuery.all(dbSess.session(), "GrouperTypeDef");
+    String  qry   = "GrouperTypeDef.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1064,17 +1191,30 @@ public class GrouperBackend {
    * @return  List of {@link GrouperGroup} objects.
    */
   protected static List groupType(GrouperSession s, String type) {
-    List      vals    = new ArrayList();
-    Iterator  iter    = BackendQuery.kv(
-                          s.dbSess().session(), "GrouperSchema", "groupType", type
-                        ).iterator();
-    while (iter.hasNext()) {
-      GrouperSchema gs = (GrouperSchema) iter.next();
-      // TODO What a hack
-      GrouperGroup g = GrouperGroup.loadByKey(s, gs.key());
-      if (g != null) {
-        vals.add(g);
+    String  qry   = "GrouperSchema.by.type";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, type);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperSchema gs = (GrouperSchema) iter.next();
+          // TODO What a hack
+          GrouperGroup g = GrouperGroup.loadByKey(s, gs.key());
+          if (g != null) {
+            vals.add(g);
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error getting results for " + qry + ": " + e
+                  );
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -1087,12 +1227,24 @@ public class GrouperBackend {
    * @return  List of {@link GrouperGroup} objects.
    */
   protected static List groupCreatedAfter(GrouperSession s, java.util.Date d) {
-    List      vals    = new ArrayList();
-    Iterator  iter    = BackendQuery.kvgt(
-                          s.dbSess().session(), "GrouperGroup",
-                          "createTime", Long.toString(d.getTime())
-                        ).iterator();
-    vals = GrouperBackend._iterGroup(s, iter);
+    String  qry   = "GrouperGroup.by.created.after";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        Iterator iter = q.list().iterator();
+        vals = GrouperBackend._iterGroup(s, iter);
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1104,12 +1256,24 @@ public class GrouperBackend {
    * @return  List of {@link GrouperGroup} objects.
    */
   protected static List groupCreatedBefore(GrouperSession s, java.util.Date d) {
-    List      vals    = new ArrayList();
-    Iterator  iter    = BackendQuery.kvlt(
-                          s.dbSess().session(), "GrouperGroup",
-                          "createTime", Long.toString(d.getTime())
-                        ).iterator();
-    vals = GrouperBackend._iterGroup(s, iter);
+    String  qry   = "GrouperGroup.by.created.before";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        Iterator iter = q.list().iterator();
+        vals = GrouperBackend._iterGroup(s, iter);
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1121,12 +1285,24 @@ public class GrouperBackend {
    * @return  List of {@link GrouperGroup} objects.
    */
   protected static List groupModifiedAfter(GrouperSession s, java.util.Date d) {
-    List      vals    = new ArrayList();
-    Iterator  iter    = BackendQuery.kvgt(
-                          s.dbSess().session(), "GrouperGroup",
-                          "modifyTime", Long.toString(d.getTime())
-                        ).iterator();
-    vals = GrouperBackend._iterGroup(s, iter);
+    String  qry   = "GrouperGroup.by.modified.after";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        Iterator iter = q.list().iterator();
+        vals = GrouperBackend._iterGroup(s, iter);
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1138,12 +1314,24 @@ public class GrouperBackend {
    * @return  List of {@link GrouperGroup} objects.
    */
   protected static List groupModifiedBefore(GrouperSession s, java.util.Date d) {
-    List      vals    = new ArrayList();
-    Iterator  iter    = BackendQuery.kvlt(
-                          s.dbSess().session(), "GrouperGroup",
-                          "modifyTime", Long.toString(d.getTime())
-                        ).iterator();
-    vals = GrouperBackend._iterGroup(s, iter);
+    String  qry   = "GrouperGroup.by.modified.before";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        Iterator iter = q.list().iterator();
+        vals = GrouperBackend._iterGroup(s, iter);
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1154,7 +1342,22 @@ public class GrouperBackend {
    * @return List of {@link GrouperType} objects.
    */
   protected static List groupTypes(DbSess dbSess) {
-    List    vals    = BackendQuery.all(dbSess.session(), "GrouperType");
+    String  qry   = "GrouperType.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1162,14 +1365,26 @@ public class GrouperBackend {
    * Retrieve GrouperMember by memberID
    */
   protected static GrouperMember memberByID(GrouperSession s, String id) {
-    GrouperMember m       = new GrouperMember();
-    List vals = BackendQuery.kv(
-                                s.dbSess().session(), Grouper.KLASS_GM,
-                                "memberID", id
-                               );
-    if (vals.size() == 1) {
-      m = (GrouperMember) vals.get(0);
-    }
+    String        qry = "GrouperMember.by.id";
+    GrouperMember m   = new GrouperMember();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, id);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          m = (GrouperMember) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                   "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    } 
     return m;
   }
 
@@ -1204,14 +1419,27 @@ public class GrouperBackend {
                                    String subjectTypeID
                                  ) 
   {
-    GrouperMember m       = null;
-    List          vals    = BackendQuery.kvkv(
-                              dbSess.session(), "GrouperMember", "subjectID", 
-                              subjectID, "subjectTypeID", subjectTypeID
-                            );
-    // We only want one
-    if (vals.size() == 1) {
-      m = (GrouperMember) vals.get(0);
+    GrouperMember m     = null;
+    String        qry   = "GrouperMember.by.subjectid.and.typeid";
+    List          vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      q.setString(0, subjectID);
+      q.setString(1, subjectTypeID);
+      try {
+        vals = q.list();
+        if (vals.size() == 1) {
+          m = (GrouperMember) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return m;
   }
@@ -1250,9 +1478,23 @@ public class GrouperBackend {
    * @return List of a group's schema
    */
   protected static List schemas(GrouperSession s, GrouperGroup g) {
-    List    vals    = BackendQuery.kv(
-                        s.dbSess().session(), "GrouperSchema", "groupKey", g.key()
-                      );
+    String  qry   = "GrouperSchema.by.key";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1293,16 +1535,27 @@ public class GrouperBackend {
    * @return  True if the session is still valid.
    */
   protected static boolean sessionValid(GrouperSession s) {
-    boolean rv = false;
-    if (s != null) {
-      List vals = BackendQuery.kv(
-                    s.dbSess().session(), "GrouperSession", "sessionID", s.id()
+    boolean rv  = false;
+    String  qry = "GrouperSession.by.id";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, s.id());
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          rv = true;
+        } else {
+          Grouper.log().event("Attempt to use an invalid session");
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
                   );
-      if (vals.size() == 1) {
-        rv = true;
-      } else {
-        Grouper.log().event("Attempt to use an invalid session");
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return rv;
   }
@@ -1345,31 +1598,40 @@ public class GrouperBackend {
                              String id, String typeID
                            ) 
   {
-    Subject subj    = null;
     DbSess  dbSess  = new DbSess(); // FIXME CACHE!
-    List    vals    = BackendQuery.kv(
-                        dbSess.session(), "GrouperGroup", "groupID", id
-                      );
-    // We only want one
-    if (vals.size() == 1) {
-      /*
-       * TODO Do I want/need to fully load the group to validate it
-       *      before continuing?  I don't think so, but...
-      */
-      GrouperGroup g = (GrouperGroup) vals.get(0);
-      if (g != null) {
-        // ... And convert it to a subject object
-        subj = new SubjectImpl(id, typeID);
-      } else {
-        Grouper.log().backend(
-          "subjectLookupTypeGroup() Returned group is null"
-        );
+    String  qry     = "GrouperGroup.by.id";
+    Subject subj    = null;
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      q.setString(0, id);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          // FIXME Properly load the group
+          GrouperGroup g = (GrouperGroup) vals.get(0);
+          if (g != null) {
+            // ... And convert it to a subject object
+            subj = new SubjectImpl(id, typeID);
+          } else {
+            Grouper.log().backend(
+              "subjectLookupTypeGroup() Returned group is null"
+            );
+          }
+        } else {
+          Grouper.log().backend(
+            "subjectLookupTypeGroup() Found " + vals.size() + 
+            " matching groups"
+          );
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
-    } else {
-      Grouper.log().backend(
-        "subjectLookupTypeGroup() Found " + vals.size() + 
-        " matching groups"
-      );
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     dbSess.stop();
     return subj;
@@ -1385,15 +1647,27 @@ public class GrouperBackend {
                              String id, String typeID
                            ) 
   {
-    Subject subj    = null;
     DbSess  dbSess  = new DbSess(); // FIXME CACHE!
-    List    vals    = BackendQuery.kvkv(
-                        dbSess.session(), "SubjectImpl", "subjectID", id,
-                        "subjectTypeID", typeID
-                      );
-    // We only want one
-    if (vals.size() == 1) {
-      subj = (Subject) vals.get(0);
+    String  qry     = "SubjectImpl.by.subjectid.and.typeid";
+    Subject subj    = null;
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      q.setString(0, id);
+      q.setString(1, typeID);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          subj = (Subject) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     dbSess.stop();
     return subj;
@@ -1405,7 +1679,22 @@ public class GrouperBackend {
    * @return List of subject types.
    */
   protected static List subjectTypes(DbSess dbSess) {
-    List    vals    = BackendQuery.all(dbSess.session(), "SubjectTypeImpl");
+    String  qry   = "SubjectTypeImpl.all";
+    List    vals  = new ArrayList();
+    try {
+      Query q = dbSess.session().getNamedQuery(qry);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return vals;
   }
 
@@ -1432,35 +1721,52 @@ public class GrouperBackend {
                                     String  field,   String value
                                   )
   {
-    GrouperAttribute attr = null;
-    List vals = BackendQuery.grouperAttr(s.dbSess().session(), key, field);
-    if (vals.size() == 0) {
-      // We've got a new one.  Store it.
+    GrouperAttribute  attr  = null;
+    String            qry   = "GrouperAttribute.by.key.and.value";
+    List              vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      q.setString(1, field);
       try {
-        attr = new GrouperAttribute(key, field, value);
-        s.dbSess().session().save(attr);   
+        vals = q.list();
+        if (vals.size() == 0) {
+          // We've got a new one.  Store it.
+          try {
+            attr = new GrouperAttribute(key, field, value);
+            s.dbSess().session().save(attr);   
+          } catch (HibernateException e) {
+            attr = null;
+            Grouper.log().backend(
+              "Unable to store attribute " + field + "=" + value
+            );
+          }
+        } else if (vals.size() == 1) {
+          // Attribute already exists.  Check to see if the value has
+          // changed.
+          attr = (GrouperAttribute) vals.get(0); 
+          if (!attr.value().equals(value)) {
+            try {
+              attr = new GrouperAttribute(key, field, value);
+              s.dbSess().session().update(attr);
+            } catch (HibernateException e) {
+              attr = null;
+              Grouper.log().backend(
+                "Unable to update attribute " + field + "=" + value
+              );
+            }
+          }
+        } 
       } catch (HibernateException e) {
-        attr = null;
-        Grouper.log().backend(
-          "Unable to store attribute " + field + "=" + value
-        );
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
-    } else if (vals.size() == 1) {
-      // Attribute already exists.  Check to see if the value has
-      // changed.
-      attr = (GrouperAttribute) vals.get(0); 
-      if (!attr.value().equals(value)) {
-        try {
-          attr = new GrouperAttribute(key, field, value);
-          s.dbSess().session().update(attr);
-        } catch (HibernateException e) {
-          attr = null;
-          Grouper.log().backend(
-            "Unable to update attribute " + field + "=" + value
-          );
-        }
-      }
-    } // TODO else...
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
     return attr;
   }
 
@@ -1468,25 +1774,56 @@ public class GrouperBackend {
                            GrouperSession s, String key, String field
                          ) 
   {
-    boolean rv = false;
-    List vals = BackendQuery.grouperAttr(s.dbSess().session(), key, field);
-    if (vals.size() == 1) {
+    String  qry   = "GrouperAttribute.by.key.and.value";
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      q.setString(1, field);
       try {
-        GrouperAttribute attr = (GrouperAttribute) vals.get(0);
-        s.dbSess().session().delete(attr);
-        rv = true;
+        vals = q.list();
+        if (vals.size() == 1) {
+          try {
+            GrouperAttribute attr = (GrouperAttribute) vals.get(0);
+            s.dbSess().session().delete(attr);
+            rv = true;
+          } catch (HibernateException e) {
+            Grouper.log().backend("Unable to delete attribute " + field);
+          }
+        }
       } catch (HibernateException e) {
-        Grouper.log().backend("Unable to delete attribute " + field);
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return rv;
   }
 
   private static List _extensions(GrouperSession s, String extension) {
-    return BackendQuery.kvkv(
-             s.dbSess().session(), "GrouperAttribute", "groupField", 
-             "extension", "groupFieldValue", extension
-           );
+    String  qry   = "GrouperAttribute.by.extension";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, extension);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
   /* (!javadoc)
@@ -1527,16 +1864,30 @@ public class GrouperBackend {
 
   // FIXME Refactor.  Mercilesssly.
   protected static GrouperGroup groupLoadByID(GrouperSession s, String id) {
-    String        key   = null;
     GrouperGroup  g     = null;
-    List          vals  = BackendQuery.kv(s.dbSess().session(), "GrouperGroup", "groupID", id);
-    // We only want one
-    if (vals.size() == 1) {
-      g = (GrouperGroup) vals.get(0);
-      if ( (g != null) && (g.key() != null) ) {
-        key = g.key();
-        g = GrouperBackend.groupLoadByKey(s, g, key);
+    String        key   = null;
+    String        qry   = "GrouperGroup.by.id";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, id);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          g = (GrouperGroup) vals.get(0);
+          if ( (g != null) && (g.key() != null) ) {
+            key = g.key();
+            g = GrouperBackend.groupLoadByKey(s, g, key);
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return g;
   }
@@ -1544,37 +1895,64 @@ public class GrouperBackend {
   /* (!javadoc)
    * Load a group by name.
    */
+  // FIXME Now *this* is ugly
   protected static GrouperGroup groupLoadByName(
                    GrouperSession s, String name, String type
                  ) 
   {
-    boolean initialized = false;
-    GrouperGroup g = null;
-    List names = BackendQuery.kvkv(
-                   s.dbSess().session(), "GrouperAttribute", "groupField", "name",
-                   "groupFieldValue", name
-                 );
-    if (names.size() > 0) {
-      Iterator iter = names.iterator();
-      while (iter.hasNext()) {
-        GrouperAttribute attr = (GrouperAttribute) iter.next();
-        List gs = BackendQuery.kvkv(
-                    s.dbSess().session(), "GrouperSchema", "groupKey", attr.key(),
-                    "groupType", type
-                  );
-        if (gs.size() == 1) {
-          GrouperSchema schema = (GrouperSchema) gs.get(0);
-          if (schema.type().equals(type)) {
-            g = groupLoadByKey(s, g, attr.key());
-            if (g != null) {
-              if (g.type().equals(type)) {
-                initialized = true;
+    GrouperGroup  g           = null;
+    String        qryGG       = "GrouperAttribute.by.name";
+    String        qryGS       = "GrouperSchema.by.key.and.type";
+    boolean       initialized = false;
+    try {
+      Query qGG = s.dbSess().session().getNamedQuery(qryGG);
+      qGG.setString(0, name);
+      try {
+        List names = qGG.list();
+        if (names.size() > 0) {
+          Iterator iter = names.iterator();
+          while (iter.hasNext()) {
+            GrouperAttribute attr = (GrouperAttribute) iter.next();
+            try {
+              Query qGS = s.dbSess().session().getNamedQuery(qryGS); 
+              qGS.setString(0, attr.key());
+              qGS.setString(1, type);
+              try {
+                List gs = qGS.list();
+                if (gs.size() == 1) {
+                  GrouperSchema schema = (GrouperSchema) gs.get(0);
+                  if (schema.type().equals(type)) {
+                    g = groupLoadByKey(s, g, attr.key());
+                    if (g != null) {
+                      if (g.type().equals(type)) {
+                        initialized = true;
+                      }
+                    }
+                  }
+                }
+              } catch (HibernateException e) {
+                throw new RuntimeException(
+                            "Error retrieving results for " + 
+                            qryGS + ": " + e
+                          );
               }
+            } catch (HibernateException e) {
+              throw new RuntimeException(
+                          "Unable to get query " + qryGS + ": " + e
+                        );
             }
           }
         }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qryGG + ": " + e
+                  );
       }
-    } 
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qryGG + ": " + e
+                );
+    }
     if (!initialized) {
       // We failed to load a group.  Null out the object.
       g = null;
@@ -1588,15 +1966,25 @@ public class GrouperBackend {
    * TODO This will need poking when we support multiple types.
    */
   private static GrouperSchema _groupSchema(GrouperSession s, GrouperGroup g) {
-    GrouperSchema schema = null;
-    if (g != null) {
-      List    vals  = BackendQuery.kv(
-                        s.dbSess().session(), "GrouperSchema", "groupKey", g.key()
-                      );
-      // TODO For now, we only want one.
-      if (vals.size() == 1) {
-        schema = (GrouperSchema) vals.get(0);
+    String        qry     = "GrouperSchema.by.key";
+    GrouperSchema schema  = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          schema = (GrouperSchema) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
       }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return schema;
   }
@@ -1619,52 +2007,6 @@ public class GrouperBackend {
     return vals;
   }
 
-  // TODO REFACTOR!          
-  private static List _listVals(
-                                GrouperSession s, GrouperGroup g, 
-                                GrouperMember m, String list, String via
-                               ) 
-  {
-    // Well isn't this an ugly hack...
-    String gkey_param = null;
-    if (g != null) {
-      gkey_param = g.key();
-    } else {
-      gkey_param = GrouperBackend.VAL_NOTNULL;
-    }
-    String mkey_param = null;
-    if (m != null) {
-      mkey_param = m.key();
-    } else {
-      mkey_param = GrouperBackend.VAL_NOTNULL;
-    }
-    String via_param  = null;
-    if (!via.equals(Grouper.MEM_ALL)) {
-      if        (via.equals(Grouper.MEM_EFF)) {
-        via_param = GrouperBackend.VAL_NOTNULL;
-      } else if (via.equals(Grouper.MEM_IMM)) {
-        via_param = GrouperBackend.VAL_NULL;
-      } else {
-        throw new RuntimeException("Invalid via requirement: " + via);
-      }
-    }
-    List rows = BackendQuery.grouperList(
-		              s.dbSess().session(), gkey_param, mkey_param,
-		              list, via_param
-                );
-    List vals = new ArrayList();
-    Iterator iter = rows.iterator();
-    while (iter.hasNext()) {
-      GrouperList gl = (GrouperList) iter.next();
-      gl =  new GrouperList(
-                  s, gl.groupKey(), gl.memberKey(),
-                  gl.groupField(), gl.viaKey()
-                );
-      vals.add(gl);
-    }
-    return vals;
-  }
-   
   /* (!javadoc)
    * True if the stem exists.
    */
@@ -1684,10 +2026,24 @@ public class GrouperBackend {
   }
 
   private static List _stems(GrouperSession s, String stem) {
-    return BackendQuery.kvkv(
-             s.dbSess().session(), "GrouperAttribute", "groupField", 
-             "stem", "groupFieldValue", stem
-           );
+    String  qry   = "GrouperAttribute.by.stem";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, stem);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
   
 }

@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.7 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.8 2005-03-14 03:19:40 blair Exp $
  */
 public class GrouperLog {
 
@@ -76,8 +76,6 @@ public class GrouperLog {
     Logger.getLogger(Grouper.class.getName() + ".event");
   private static final Logger LOG_GB  = 
     Logger.getLogger(GrouperBackend.class.getName());
-  private static final Logger LOG_QRY = 
-    Logger.getLogger(BackendQuery.class.getName());
 
 
   /*
@@ -289,11 +287,6 @@ public class GrouperLog {
     } else {
       LOG_EVT.info(pre + "failed to revoke" + post);
     }
-  }
-
-  // Hibernate queries
-  protected void query(String method, Query q) {
-    LOG_QRY.info(method + ": " + q.getQueryString());
   }
 
   // Session: Start
