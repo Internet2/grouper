@@ -8,7 +8,7 @@ import  java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.15 2004-04-30 17:58:28 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.16 2004-04-30 18:41:42 blair Exp $
  */
 public class GrouperMember {
 
@@ -150,6 +150,66 @@ public class GrouperMember {
       // Return memberID for an individual member
       return this.subjectID;
     }
+  }
+
+  /**
+   * Returns list of {@link GrouperGroup} objects that give the current
+   * sessions's subject "member" membership in a particular 
+   * {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>XXX Are we inspecting a column or a table for this
+   *      information?</li>
+   * </ul>
+   *
+   * @param   g Return via information for memberships in this group.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List via(GrouperGroup g) {
+    return null;
+  }
+
+  /**
+   * Returns list of {@link GrouperGroup} objects that give a
+   * particular {@link GrouperMember} "member" membership in
+   * a particular {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>Verify that the current subject has sufficient privs to
+   *      access this information.</li>
+   *  <li>XXX Are we inspecting a column or a table for this
+   *      information?</li>
+   * </ul>
+   *
+   * @param   g Return via information for memberships in this group.
+   * @param   m Return via information for this member.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List via(GrouperGroup g, GrouperMember m) {
+    return null;
+  }
+
+  /**
+   * Returns list of {@link GrouperGroup} objects that give a
+   * particular {@link GrouperMember} "groupField"  make a given 
+   * {@link GrouperMember} a <i>groupField</i> membership in a
+   * particular {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>Verify that the current subject has sufficient privs to
+   *      access this information.</li>
+   *  <li>XXX Are we inspecting a column or a table for this
+   *      information?</li>
+   * </ul>
+   *
+   * @param   g           Return via information for memberships in this group.
+   * @param   m           Return via information for this member.
+   * @param   groupField  Return via information for this type of
+   *   membership.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List via(GrouperGroup g, GrouperMember m, String groupField) {
+    return null;
   }
 
 }
