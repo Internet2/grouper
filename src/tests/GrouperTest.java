@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.61 2004-10-13 18:32:53 blair Exp $
+ * $Id: GrouperTest.java,v 1.62 2004-10-28 18:49:55 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -216,7 +216,7 @@ public class GrouperTest extends TestCase {
   // Class: GrouperMember
   //
    
-  // Instantiate a GrouperMembership instance 
+  // Instantiate a GrouperMember instance 
   public void testGrouperMemberInstantiate() {
     GrouperMember member = new GrouperMember();
 
