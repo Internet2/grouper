@@ -1,7 +1,7 @@
 package edu.internet2.middleware.directory.grouper;
 
 /** 
- * {@link Grouper} Privilege Interface.
+ * {@link Grouper} Access Interface.
  * <p>
  * <ul>
  *  <li>XXX We may want/need a method that returns all of a user's
@@ -9,9 +9,9 @@ package edu.internet2.middleware.directory.grouper;
  * </ul>
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.4 2004-04-29 17:11:22 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.5 2004-04-30 14:39:59 blair Exp $
  */
-public interface GrouperPrivilege {
+public interface GrouperAccess {
   /**
    * Grant privilege on a {@link Grouper} group.
    * <p>
