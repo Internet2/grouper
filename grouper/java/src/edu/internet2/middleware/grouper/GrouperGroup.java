@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.34 2004-09-09 00:29:56 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.35 2004-09-10 02:07:45 blair Exp $
  */
 public class GrouperGroup {
 
@@ -87,28 +87,16 @@ public class GrouperGroup {
    * @param value     Value of attribute.
    */
   public void attribute(String attribute, String value) {
-    // TODO Attribute validation
     GrouperAttribute attr = new GrouperAttribute();
-    attr.set(this.groupKey, attribute, value);
-    attributes.put(attribute, attr);
 
-    // An ugly hack to attempt to autoload an object from the
-    // persistent store.  If we know the `stem' and the 
-    // `descriptor' and the group is not currently known to exist,
-    // attempt to autoload it.
-    if ( 
-        (this.exists == false)         &&     // The group is not
-                                              // marked as existing,
-        attributes.containsKey("stem") &&     // But it has a stem...
-        attributes.containsKey("descriptor")  // And a descriptor
-       )
-    {
-      // Now run the exist() method.  If successful, load the 
-      // hibernating group.
-      if (this.exist() == true) {
-        this._load(this.groupKey);
-      }
-    }
+    // Attempt to validate whether the attribute is allowed
+    if (this._validateAttribute(attribute)) {
+      // Setup the attribute, add it to the stash, and then attempt to
+      // load the hibernated group if appropriate.
+      attr.set(this.groupKey, attribute, value);
+      attributes.put(attribute, attr);
+      this._autoload();
+    } 
   }
 
   /**
@@ -156,8 +144,18 @@ public class GrouperGroup {
         Iterator iter = attributes.keySet().iterator();
         while (iter.hasNext()) {
           GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-          attr.set(this.groupKey, attr.field(), attr.value());
-          session.save(attr);
+          // TODO I should (possibly) revalidate the attributes due to
+          //      lack of a group type -- or a changed group type.  Add
+          //      some sort of dirty flag to trigger|!trigger this from
+          //      occurring.
+          if (this._validateAttribute( attr.field()) ) {
+            attr.set(this.groupKey, attr.field(), attr.value());
+            session.save(attr);
+          } else {
+            // TODO Exception and rollback, *not* exit.
+            System.err.println("Attribute " + attr.field() + " is not valid!");
+            System.exit(1);
+          }
         }
 
         // And make the creator a member of the "admins" list
@@ -181,7 +179,7 @@ public class GrouperGroup {
   /**
    * Does this {@link Grouper} group exist?
    *
-   * @return Boolean true if the group exists, otherwise false.
+   * @return Boolean true if the group exists, false otherwise.
    */
   public boolean exist() {
     if (this.exists == true) {
@@ -271,6 +269,28 @@ public class GrouperGroup {
    */
 
   /*
+   * An ugly hack to attempt to autoload an object from the
+   * persistent store.  If we know the `stem' and the 
+   * `descriptor' and the group is not currently known to exist,
+   * attempt to autoload it.
+   */
+  private void _autoload() {
+    if ( 
+        (this.exists == false)         &&     // The group is not
+                                              // marked as existing,
+        attributes.containsKey("stem") &&     // But it has a stem...
+        attributes.containsKey("descriptor")  // And a descriptor
+       )
+    {
+      // Now run the exist() method.  If successful, load the 
+      // hibernating group.
+      if (this.exist() == true) {
+        this._load(this.groupKey);
+      }
+    }
+  }
+
+  /*
    * Load group from hibernated state.
    */
   private void _load(String key) {
@@ -314,6 +334,29 @@ public class GrouperGroup {
       System.err.println(e);
       System.exit(1);
     }
+  }
+
+  /*
+   * Validate whether an attribute is valid for the current group type.
+   *
+   * @return Boolean true if attribute is valid for type or we are
+   * unable to valid the attribute at this type, otherwise boolean
+   * false
+   */
+  private boolean _validateAttribute(String attribute) {
+    boolean rv = false;
+    if (this.groupType > 0) { // FIXME I can do better than this.
+      // We have a group type.  Now what?
+      if (grprSession.groupField(this.groupType, attribute) == true) {
+        // Our attribute passes muster.
+        rv = true;
+      }
+    } else {
+      // We don't know the group type so we can't validate.  Shrug our
+      // shoulders and say "good enough" for now.
+      rv = true;
+    }
+    return rv;
   }
 
   /*
