@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.56 2004-11-22 20:15:28 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.57 2004-11-23 01:46:06 blair Exp $
  */
 public class GrouperBackend {
 
@@ -648,10 +648,8 @@ public class GrouperBackend {
       // The Group object
       session.save(g);
 
-      // FIXME 
-      String gt = "base";
       // The Group schema
-      GrouperSchema schema = new GrouperSchema(g.key(), gt);
+      GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
       session.save(schema);
 
       // The Group attributes
@@ -829,14 +827,17 @@ public class GrouperBackend {
       session.load(g, key);
   
       // Its schema
-      GrouperBackend._groupLoadSchema(session, g, key);
-   
-      // And its attributes
-      GrouperBackend._groupLoadAttributes(session, g, key);
+      if ( GrouperBackend._groupLoadSchema(session, g) == true ) {
+        // And its attributes
+        GrouperBackend._groupLoadAttributes(session, g, key);
 
-      // FIXME Attach s to object?
+        // FIXME Attach s to object?
 
-      tx.commit();
+        tx.commit();
+      } else {
+        System.err.println("Unable to load group schema");
+        System.exit(1);
+      }
     } catch (Exception e) {
       // TODO Rollback if load fails?  Unset this.exists?
       System.err.println(e);
@@ -931,16 +932,28 @@ public class GrouperBackend {
     }
   }
 
-  private static void _groupLoadSchema(Session session, GrouperGroup g, String key) { 
-    List    schemas = GrouperBackend.schemas(g);
-    if (schemas.size() == 1) {
-      GrouperSchema schema = (GrouperSchema) schemas.get(0);
-      // TODO Attach this to the group object.
-    } else {
-      System.err.println("Found " + schemas.size() + 
-                         " schema definitions.");
+  // TODO This is becoming really misnamed
+  private static boolean _groupLoadSchema(Session session, GrouperGroup g) {
+    boolean rv = false;
+    try {
+      Query q = session.createQuery(
+        "FROM GrouperSchema AS schema"          +
+        " WHERE "                               +
+        "schema.groupKey='"   + g.key()   + "'"
+      );
+      if (q.list().size() == 1) {
+        GrouperSchema schema = (GrouperSchema) q.list().get(0);
+        // TODO Attach this to the group object.
+        rv = true;
+      } else {
+        System.err.println("Found " + q.list().size() + 
+                           " schema definitions.");
+      }
+    } catch (HibernateException e) {
+      System.err.println(e);
       System.exit(1);
     }
+    return rv;
   }
 
   private static void _hibernateSessionClose(Session session) {

@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.8 2004-11-05 19:21:36 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.9 2004-11-23 01:46:06 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -50,6 +50,10 @@ public class GrouperSchema implements Serializable {
 
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupType();
+  }
+
+  public String type() {
+    return this.getGroupType();
   }
 
 
