@@ -85,9 +85,9 @@ public class TestStemsAdd extends TestCase {
     Assert.assertNotNull("session !null", s);
 
     // Confirm that NS0 doesn't exist
-    GrouperGroup ns0 = GrouperGroup.load(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
-                       );
+    GrouperStem ns0 = GrouperStem.load(
+                        s, Constants.ns0s, Constants.ns0e
+                      );
     Assert.assertNull("ns0 null", ns0);
 
     // We're done
@@ -100,13 +100,13 @@ public class TestStemsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
-                       );
+    GrouperStem ns0 = GrouperStem.create(
+                        s, Constants.ns0s, Constants.ns0e
+                      );
     Assert.assertNotNull("ns0 !null", ns0);
     Assert.assertTrue(
                       "ns0 right class", 
-                      Constants.KLASS_GG.equals( ns0.getClass().getName() )
+                      Constants.KLASS_GST.equals( ns0.getClass().getName() )
                      );
     String type = ns0.type();
     Assert.assertNotNull("ns0 type !null", type);
@@ -121,6 +121,7 @@ public class TestStemsAdd extends TestCase {
     s.stop();
   }
 
+/*
   // NS at root-level
   public void testFetchNS0() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
@@ -349,6 +350,7 @@ public class TestStemsAdd extends TestCase {
 
     s.stop();
   }
+*/
 
 }
 

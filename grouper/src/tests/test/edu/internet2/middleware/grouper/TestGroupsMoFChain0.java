@@ -100,7 +100,11 @@ public class TestGroupsMoFChain0 extends TestCase {
                          s, Constants.mem0I, Constants.mem0T
                        );
     // Add m0 to g0's "members"
-    Assert.assertTrue(g0.listAddVal(m0));
+    try {
+      g0.listAddVal(m0);
+    } catch (RuntimeException e) {
+      Assert.fail("add m0 to g0");
+    }
     s.stop();
 
     // Now reconnect, reload and inspect chains
