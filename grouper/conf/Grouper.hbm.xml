@@ -5,7 +5,8 @@
 
 <hibernate-mapping package="edu.internet2.middleware.directory.grouper">
 
-  <class name="GrouperField" table="grouper_fields">
+  <class name="GrouperGroupField" table="grouper_groupFields" mutable="false">
+    <cache usage="read-only"/>
     <id name="groupField" type="string" unsaved-value="null" >
       <column name="groupField" sql-type="char(255)" not-null="true"/>
       <generator class="assigned"/>
@@ -21,11 +22,20 @@
     </property>
   </class>
 
-  <class name="GrouperGroupType" table="grouper_groupType">
+  <class name="GrouperGroupType" table="grouper_groupTypes" mutable="false">
+    <cache usage="read-only"/>
     <id name="groupType" type="integer" unsaved-value="null" >
       <column name="groupType" sql-type="integer" not-null="true"/>
       <generator class="assigned"/>
     </id>
+  </class>
+
+  <class name="GrouperGroupTypeDef" table="grouper_groupTypeDefs" mutable="false">
+    <cache usage="read-only"/>
+    <composite-id access="field">
+      <key-property name="groupType"  type="integer" column="groupType"/>
+      <key-property name="groupField" type="string"  column="groupField"/>
+    </composite-id>
   </class>
 
   <class name="GrouperSession" table="grouper_session">
