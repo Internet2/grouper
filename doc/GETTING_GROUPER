@@ -1,0 +1,31 @@
+
+# Getting Grouper
+
+This file provides information on the various means of obtaining
+Grouper.
+
+$Id: GETTING_GROUPER,v 1.1 2005-01-25 17:56:57 blair Exp $
+
+---
+
+## Releases
+
+Grouper releases (0.5, etc.) are available from Grouper's Internet2
+Middleware page:
+  <http://middleware.internet2.edu/dir/groups/grouper/>
+
+## Anonymous CVS
+
+Read-only anonymous access to the Grouper CVS repository is now
+available.  To perform a CVS checkout, run the following commands.
+When prompted for a password, hit enter.
+
+  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
+  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
+
+## Snapshots
+
+Snapshots of the Grouper CVS HEAD branch are generated nightly.  The
+tarballs are available for download here:
+  http://grouper.devclue.com/snapshots/
+
