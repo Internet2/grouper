@@ -52,14 +52,52 @@
 package edu.internet2.middleware.grouper;
 
 
+import  java.util.*;
+import  net.sf.hibernate.*;
+
+
 /** 
  * Abstract Group class.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1 2005-03-21 03:12:39 blair Exp $
+ * @version $Id: Group.java,v 1.2 2005-03-25 01:10:51 blair Exp $
  */
 abstract class Group {
+
+  /*
+   * ABSTRACT METHODS 
+   */
+
+  abstract protected String         getCreateSource();
+  abstract protected String         getCreateSubject();
+  abstract protected String         getCreateTime();
+  abstract protected String         getGroupComment();
+  abstract protected String         getGroupID();
+  abstract protected String         getGroupKey();
+  abstract protected String         getModifySource();
+  abstract protected String         getModifySubject();
+  abstract protected String         getModifyTime();
+  abstract protected String         key();
+  abstract protected void           listAddVal(GrouperMember m);
+  abstract protected void           listAddVal(GrouperMember m, String list);
+  abstract protected boolean        listDelVal(GrouperMember m);
+  abstract protected boolean        listDelVal(GrouperMember m, String list);
+  abstract protected List           listVals();
+  abstract protected List           listVals(String list);
+  abstract protected String         name();
+  abstract protected void           setCreateSource(String createSource);
+  abstract protected void           setCreateSubject(String createSubject);
+  abstract protected void           setCreateTime(String createTime);
+  abstract protected void           setGroupComment(String comment);
+  abstract protected void           setGroupID(String id);
+  abstract protected void           setGroupKey(String key);
+  abstract protected void           setModifySource(String modifySource);
+  abstract protected void           setModifySubject(String modifySubject);
+  abstract protected void           setModifyTime(String modifyTime);
+  abstract protected GrouperMember  toMember();
+  abstract protected String         type();
+
 
   /*
    * PUBLIC CLASS METHODS
@@ -88,6 +126,209 @@ abstract class Group {
       }
     }
     return name;
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Find and return the group key for (stem, extn, type).
+   * TODO Rename => findKeyStemExtn
+   */
+  protected static String findKey(
+                            GrouperSession s, String stem, 
+                            String extn, String type
+                          ) 
+  {
+    String qry = "Group.by.stem.and.extn.and.type";
+    String key = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, stem);
+      q.setString(1, extn);
+      q.setString(2, type);
+      try {
+        key = (String) q.uniqueResult();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving result for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return key;
+  }
+
+  /*
+   * Find and return the group key for (name, type).
+   */
+  protected static String findKeyByName(
+                            GrouperSession s, String name, String type
+                          )
+  {
+    String qry = "Group.by.name.and.type";
+    String key = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, name);
+      q.setString(1, type);
+      try {
+        key = (String) q.uniqueResult();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving result for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return key;
+  }
+
+  /*
+   * Number of seconds since the epoch.
+   */
+  protected String now() {
+    java.util.Date now = new java.util.Date();
+    return Long.toString(now.getTime());
+  }
+
+  /*
+   * Top-level namespace & group creation is restricted.
+   */
+  protected static void subjectCanCreateAtRoot(
+                          GrouperSession s, String stem
+                        ) 
+  {
+    // Is this a top-level namespace?
+    if (stem.equals(Grouper.NS_ROOT)) {
+      // Only member.system can do so in this release
+      if (!s.subject().getId().equals(Grouper.config("member.system"))) {
+        throw new RuntimeException(
+                    "This subject cannot create at root-level"
+                  );
+      }
+    }
+  }
+
+  /*
+   * Does the current subject have privs to create a group beneath this
+   * stem?
+   */
+  protected static void subjectCanCreateGroup(
+                          GrouperSession s, String stem
+                        )
+  {
+    // Load stem for priv checking
+    String key = Group.findKeyByName(s, stem, Grouper.NS_TYPE);
+    if (key != null) {
+      GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
+      if (ns != null) { // TODO Flail if null?
+        // If a naming group, does subject have STEM on stem?
+        if (!s.naming().has(s, ns, Grouper.PRIV_CREATE)) {
+          throw new RuntimeException(
+                      "Subject does not have CREATE on " + stem
+                    );
+        }
+      }
+    }
+  }
+
+  /*
+   * Does the current subject have privs to create a stem beneath this
+   * stem?
+   */
+  protected static void subjectCanCreateStem(
+                          GrouperSession s, String stem
+                        )
+  {
+    // Load stem for priv checking
+    String key = Group.findKeyByName(s, stem, Grouper.NS_TYPE);
+    if (key != null) {
+      GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
+      if (ns != null) { // TODO Flail if null?
+        // If a naming group, does subject have STEM on stem?
+        if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
+          throw new RuntimeException(
+                      "Subject does not have STEM on " + stem
+                    );
+        }
+      }
+    }
+  }
+
+  /*
+   * Does the current subject have privs to modify the specified list?
+   */
+  protected static boolean subjectCanModListVal(
+                             GrouperSession s, Group g, String list) {
+    boolean rv = false;
+    if (
+        (s.access().has(s, g, Grouper.PRIV_UPDATE)) ||
+        (s.access().has(s, g, Grouper.PRIV_ADMIN))
+       )
+    {
+      rv = true;
+    }
+    return rv;
+  }
+
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Find and return the group key for (id).
+   */
+  private static String findKeyByID(GrouperSession s, String id) {
+    String qry = "Group.key.by.id";
+    String key = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, id);
+      try {
+        key = (String) q.uniqueResult();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving result for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return key;
+  }
+
+  /*
+   * Load {@link Group} by id.
+   */
+  public static Group loadByID(GrouperSession s, String id) {
+    return Group.loadByKey( s, Group.findKeyByID(s, id) );
+  }
+
+  /*
+   * Load {@link Group} by key.
+   */
+  protected static Group loadByKey(GrouperSession s, String key) {
+    Group g = null;
+    if (key != null) {
+      try {
+        g = (GrouperStem) s.dbSess().session().get(GrouperStem.class, key);
+      } catch (HibernateException e) {
+        throw new RuntimeException("Error loading namespace: " + e);
+      }
+    }
+    return g;
   }
 
 }

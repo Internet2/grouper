@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
@@ -62,9 +63,32 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.14 2005-03-23 22:11:36 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.15 2005-03-25 01:10:51 blair Exp $
  */
 public class GrouperStem extends Group {
+
+  /*
+   * PROTECTED INSTANCE VARIABLES
+   */
+  protected GrouperSession  s;
+
+
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
+  private HashMap         attributes = new HashMap();
+  private String          createSource;
+  private String          createSubject;
+  private String          createTime;
+  private String          groupComment;
+  private String          id;
+  private boolean         initialized = false;
+  private String          key; 
+  private String          modifySource;
+  private String          modifySubject;
+  private String          modifyTime;
+  private String          type;
+
 
   /*
    * CONSTRUCTORS
@@ -75,6 +99,240 @@ public class GrouperStem extends Group {
    */
   public GrouperStem() {
     // Nothing
+  }
+
+  /* 
+   * Use when creating a new stem.
+   */
+  private GrouperStem(GrouperSession s, String stem, String extn) {
+    this.s    = s; 
+    this.type = Grouper.NS_TYPE;
+    this.setGroupKey( new GrouperUUID().toString() );
+    this.setGroupID(  new GrouperUUID().toString() );
+
+    GrouperSchema.save(s, this);
+
+    this.attributeAdd(
+      new GrouperAttribute(this.getGroupKey(), "stem", stem)
+    );
+    this.attributeAdd(
+      new GrouperAttribute(this.getGroupKey(), "extension", extn)
+    );
+    this.attributeAdd(
+      new GrouperAttribute(
+        this.getGroupKey(), "name", Group.groupName(stem, extn)
+      )
+    );
+
+    this.setCreated();
+  }
+
+
+
+  /*
+   * PUBLIC CLASS METHODS
+   */
+
+  /**
+   * Create a namespace..
+   * <p />
+   * @param   s     Session to create the namespace within.
+   * @param   stem  Stem to create the namespace within.
+   * @param   extn  Extension to assign to the namespace.
+   * @return  A {@link GrouperGroup} object.
+   */ 
+  public static GrouperStem create(
+                              GrouperSession s, String stem, String extn
+                            )
+  {
+    GrouperStem ns;
+    s.dbSess().txStart();
+    Group.subjectCanCreateAtRoot(s, stem);
+    Group.subjectCanCreateStem(s, stem);
+    if (GrouperGroup.exists(s, stem, extn, Grouper.NS_TYPE)) {
+      throw new RuntimeException("Stem already exists");
+    }
+    try {
+      ns = new GrouperStem(s, stem, extn);
+      s.dbSess().session().save(ns);
+      ns.grantStemUponCreate(); 
+      ns.initialized = true;
+      s.dbSess().txCommit();
+      Grouper.log().stemAdd(s, ns, Group.groupName(stem, extn), ns.type());
+    } catch (HibernateException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error saving stem: " + e);
+    } 
+    return ns;
+  }
+
+  /**
+   * Retrieve a group by stem and extension.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   stem        Stem of the group to load.
+   * @param   extension   Extension of the group to load.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperStem load(
+                              GrouperSession s, 
+                              String stem, String extension
+                            )
+  {
+    String key = Group.findKey(s, stem, extension, Grouper.NS_TYPE);
+    if (key != null) {
+      GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
+      ns.s = s;
+      ns.initialized = true;
+      return ns;
+    }
+    return null; 
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Retrieve a group attribute.
+   * <p />
+   * @param   attribute The attribute to retrieve.
+   * @return  A {@link GrouperAttribute} object.
+   */
+  public GrouperAttribute attribute(String attribute) {
+    return (GrouperAttribute) attributes.get(attribute);
+  }
+
+  /**
+   * Add member to this stem's default list.
+   * <p />
+   * @param m   Add this member.
+   */
+  public void listAddVal(GrouperMember m) {
+    this.listAddVal(m, Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Add member to this stem's specified list.
+   * <p />
+   * @param m     Add this member.
+   * @param list  To this list.
+   */
+  public void listAddVal(GrouperMember m, String list) {
+    if (Group.subjectCanModListVal(this.s, this, list)) {
+      GrouperList gl = new GrouperList(this, m, list);
+      gl.load(this.s);
+      GrouperList.validate(gl);
+      if (GrouperList.exists(this.s, gl)) {
+        throw new RuntimeException("List value already exists");
+      }
+      s.dbSess().txStart();
+      try {
+        this.listAddVal(gl); // Calculate mof and add vals
+        if (this.initialized == true) {
+          // Only update modify attrs if group is fully loaded
+          this.setModified();
+        }
+        s.dbSess().txCommit(); 
+        Grouper.log().groupListAdd(this.s, this, m);
+      } catch (RuntimeException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException("Error adding list value: " + e);
+      }
+    }
+  }
+
+  /**
+   * Delete member from this stem's default list.
+   * <p />
+   * FIXME NOT IMPLEMENTED
+   * <p />
+   * @param m   Delete this member
+   * @return  true is list value deleted
+   */
+  public boolean listDelVal(GrouperMember m) {
+    return this.listDelVal(m, Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Delete member from this stem's specified list.
+   * <p />
+   * FIXME NOT IMPLEMENTED
+   * <p />
+   * @param m     Delete this member
+   * @param list  From this list     
+   * @return  true if list value deleted.
+   */
+  public boolean listDelVal(GrouperMember m, String list) {
+    return false;
+  }
+
+  /**
+   * List members of this stem's default list.
+   * <p />
+   * FIXME NOT IMPLEMENTED 
+   * <p />
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listVals() {
+    return this.listVals(Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * List members of this stem's specified list.
+   * <p />
+   * FIXME NOT IMPLEMENTED
+   * <p />
+   * @param list  Return members of this list.
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listVals(String list) {
+    return new ArrayList();
+  }
+
+  /**
+   * Retrieve {@link GrouperMember} object for this 
+   * {@link GrouperGroup}.
+   * </p>
+   * @return {@link GrouperMember} object
+   */
+  public GrouperMember toMember() {
+    GrouperMember m = null;
+    GrouperSession.validate(this.s);
+    // FIXME Make sure I set this when loading as well...
+    if (this.initialized == true) {
+      m = GrouperMember.load(
+            this.s, this.getGroupID(), "group"
+          );
+      if (m == null) {
+        throw new RuntimeException("Error converting group to member");
+      }
+    } else {
+      m = GrouperMember.create(s, this.getGroupID(), "group");
+    }
+    return m;
+  }
+
+  /**
+   * Retrieve the value of the <i>name</i> attribute.
+   * <p>
+   * This is a convenience method.  The value can also be retrieved
+   * using the <i>attribute()</i> method.
+   *
+   * @return  Name of group.
+   */
+  public String name() {
+    return this.attribute("name").value();
+  }
+
+  /**
+   * Retrieve group's type.
+   * <p />
+   * @return Type of group.
+   */
+  public String type() {
+    return this.type;
   }
 
 
@@ -90,66 +348,173 @@ public class GrouperStem extends Group {
     if (stem.equals(Grouper.NS_ROOT)) {
       rv = true;
     } else {
-      // TODO This can be improved.
-      GrouperGroup ns = GrouperGroup._loadByName(
-                          s, stem, Grouper.NS_TYPE
-                        );
-      if (ns != null) {
+      if (Group.findKeyByName(s, stem, Grouper.NS_TYPE) != null) {
         rv = true;
       }
     }
     return rv;
   }
 
+
   /*
-   * TODO What exactly is this supposed to do?
-   * TODO And should it be public?
-   */ 
-  protected static List extensions(GrouperSession s, String extn) {
-    String  qry   = "GrouperAttribute.by.extension";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, extn);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /*
+   * Set create* attributes.
+   */
+  protected void setCreated() {
+    this.setCreateTime( this.now() );
+    GrouperMember m = GrouperMember.load(s, s.subject());
+    this.setCreateSubject(m.key());
+  }
+
+  /**
+   * Return namespace key.
+   * <p />
+   * @return Group key of the {@link GrouperGroup}
+   */
+  protected String key() {
+    return this.getGroupKey();
   }
 
   /*
-   * TODO What exactly is this supposed to do?
-   * TODO And should it be public?
+   * Set and save modify* attributes.
    */
-  protected static List stems(GrouperSession s, String stem) {
-    String  qry   = "GrouperAttribute.by.stem";
-    List    vals  = new ArrayList();
+  protected void setModified() {
+    this.setModifyTime( this.now() );
+    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
+    this.setModifySubject( mem.key() );
     try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, stem);
-      try {
-        vals = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
+      this.s.dbSess().session().update(this);
     } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+      throw new RuntimeException("Error updating group: " + e);
     }
-    return vals;
   }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Add new attribute.
+   */
+  private void attributeAdd(GrouperAttribute attr) {
+    this.attributes.put(attr.field(), attr);
+    GrouperAttribute.save(s, attr);
+  }
+
+  /*
+   * Grant STEM to the stem's creator upon creation.
+   */
+  private void grantStemUponCreate() {
+    // We need a root session
+    Subject root = GrouperSubject.load(
+                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+                   );
+    GrouperSession  rs  = GrouperSession.start(root);
+    // Subject that is creating group
+    GrouperMember   m   = GrouperMember.load(this.s.subject() );
+    boolean rv = rs.naming().grant(rs, this, m, Grouper.PRIV_STEM);
+    rs.stop();
+    if (!rv) {
+      throw new RuntimeException("Error granting STEM to " + m);  
+    } 
+  }
+
+
+  /*
+   * Add immediate and effective list values.
+   */
+  private void listAddVal(GrouperList gl) {
+    // Find the list values that we will need to add
+    MemberOf mof  = new MemberOf(this.s);
+    Iterator iter = mof.memberOf(gl).iterator();
+    // Now add the list values
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+      lv.load(this.s);
+      GrouperList.save(this.s, lv);
+    }
+  }
+
+
+  /*
+   * HIBERNATE
+   */
+
+  protected String getGroupID() {
+    return this.id;
+  }
+
+  protected void setGroupID(String id) {
+    this.id = id;
+  }
+
+  protected String getGroupKey() {
+    return this.key;
+  }
+
+  protected void setGroupKey(String key) {
+    this.key = key;
+  }
+
+  protected String getCreateTime() {
+    return this.createTime;
+  }
+ 
+  protected void setCreateTime(String createTime) {
+    this.createTime = createTime;
+  }
+ 
+  protected String getCreateSubject() {
+    return this.createSubject;
+  }
+ 
+  protected void setCreateSubject(String createSubject) {
+    this.createSubject = createSubject;
+  }
+ 
+  protected String getCreateSource() {
+    return this.createSource;
+  }
+ 
+  protected void setCreateSource(String createSource) {
+    this.createSource = createSource;
+  }
+ 
+  protected String getModifyTime() {
+    return this.modifyTime;
+  }
+ 
+  protected void setModifyTime(String modifyTime) {
+    this.modifyTime = modifyTime;
+  }
+ 
+  protected String getModifySubject() {
+    return this.modifySubject;
+  }
+ 
+  protected void setModifySubject(String modifySubject) {
+    this.modifySubject = modifySubject;
+  }
+ 
+  protected String getModifySource() {
+    return this.modifySource;
+  }
+ 
+  protected void setModifySource(String modifySource) {
+    this.modifySource = modifySource;
+  }
+
+  protected String getGroupComment() {
+    return this.groupComment;
+  }
+
+  protected void setGroupComment(String comment) {
+    this.groupComment = comment;
+  } 
 
 }
 
