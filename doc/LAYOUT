@@ -1,0 +1,120 @@
+
+# Grouper Project Layout
+
+This file is intended to give you a brief overview of how the Grouper
+directory tree is structured.
+
+$Id: LAYOUT,v 1.1 2004-12-05 16:13:38 blair Exp $
+
+---
+
+## build/
+
+Destination for all compiled Java classes.
+
+## build.xml
+
+Ant build configuration file.
+
+## conf/
+
+Configuration directory.
+
+### conf/ehcache.xml
+
+Hibernate cache configuration file.
+
+### conf/hibernate.properties
+
+Hibernate configuration file.
+
+### conf/Grouper.hbm.xml
+
+Grouper's Hibernating mapping configuration file.
+
+### conf/grouper.properties
+
+Grouper configuration file.
+
+### conf/log4j.properties
+
+Logging configuratin file.
+
+## contrib/
+
+Contributed loaders, provisioners, and other programs for use with
+Grouper.  See _contrib/README_ for more information.
+
+## dist/
+
+### api/
+
+Destination for javadoc-generated documentation.
+
+### lib/
+
+Destination for compiled .jar files.
+
+### run/
+
+HSQLDB data directory.
+
+## doc/
+
+### API
+
+API class and method summary.
+
+### FAQ
+
+Grouper FAQ.
+
+### NEWS
+
+Release Notes.
+
+### LAYOUT
+
+This file.
+
+### PLATFORMS
+
+Platforms where Grouper has been tested and is known to work.
+
+## java/
+
+### lib/
+
+Third-party jar files included with Grouper.  See _java/lib/README_ for
+more details on the jar files included.
+
+### src/
+
+Grouper's Java source code.  
+
+### tests/
+
+Java source used for testing Grouper.
+
+## LICENSE
+
+A copy of the Academic Free License v. 2.1
+
+## README
+
+Grouper README.
+
+## sql/
+
+### sql/hsqldb.sql
+
+HSQLDB database schema specification.
+
+### sql/init.sql
+
+Grouper schema data.
+
+### sql/test.sql
+
+Data necessary to run the test harness.
+
