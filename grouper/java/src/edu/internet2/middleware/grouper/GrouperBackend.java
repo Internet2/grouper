@@ -14,6 +14,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.grouper.*;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -28,7 +29,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.1 2004-09-19 01:01:05 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.2 2004-09-19 03:04:12 blair Exp $
  */
 public class GrouperBackend {
 
@@ -106,9 +107,39 @@ public class GrouperBackend {
     return types;
   }
 
+  /**
+   * Query for a single {@link GrouperMember}.
+   *
+   * @return  {@link GrouperMember} object or null.
+   */
+  public static GrouperMember member(String id, String type) {
+    GrouperBackend._init();
+    GrouperMember m = null;
+    try {
+      Query q = session.createQuery(
+        "SELECT ALL FROM GROUPER_MEMBER " +
+        "IN CLASS edu.internet2.middleware.grouper.GrouperMember " +
+        "WHERE "                          +
+        "memberID='"    + id    + "' "    + 
+        "AND "                            +
+        "memberType='"  + type  + "'"
+      );
+      if (q.list().size() == 1) {
+        // We only want *one* member.
+        m = (GrouperMember) q.list().get(0);
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return m;
+  }
+
+
   /*
    * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
    */
+
 
   /*
    * Initialize static Hibernate session.
