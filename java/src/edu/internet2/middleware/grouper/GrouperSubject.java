@@ -20,7 +20,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.14 2004-11-11 18:28:59 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.15 2004-11-11 19:07:04 blair Exp $
  */
 public class GrouperSubject implements Serializable {
 
@@ -39,14 +39,18 @@ public class GrouperSubject implements Serializable {
    */
 
   /**
-   * Query the <i>grouper_member</i> table for a specific member.
+   * TODO
    *
-   * @param   id      Member ID
-   * @param   typeID  Member Type ID
-   * @return  {@link GrouperMember} object or null.
+   * @param   id      Subject ID
+   * @param   typeID  Subject Type ID
+   * @return  {@link GrouperSubject} object
    */
-  public static GrouperMember lookup(String id, String typeID) {
-    return GrouperBackend.member(id, typeID);
+  public static GrouperSubject lookup(String id, String typeID) {
+    GrouperSubject subj = null;
+    GrouperSubjectType st = Grouper.subjectType(typeID);
+    System.err.println("USE: " + st);
+    // TODO Perform actual lookup using the appropriate interface
+    return subj;
   }
 
 

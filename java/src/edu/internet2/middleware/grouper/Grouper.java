@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.38 2004-11-11 18:50:02 blair Exp $
+ * @version $Id: Grouper.java,v 1.39 2004-11-11 19:07:04 blair Exp $
  */
 public class Grouper {
 
@@ -152,7 +152,7 @@ public class Grouper {
    *
    * @return  Boolean true if the type is valid, false otherwise.
    */
-  public static boolean subjectType(String type) {
+  public static boolean hasSubjectType(String type) {
     _init();
     // TODO Why the convert?
     List types = Grouper.subjectTypes();
@@ -163,6 +163,20 @@ public class Grouper {
       }
     }
     return false;
+  }
+
+  public static GrouperSubjectType subjectType(String type) {
+    _init();
+    GrouperSubjectType st = null;
+    // TODO Why the convert?
+    List types = Grouper.subjectTypes();
+    for (Iterator iter = types.iterator(); iter.hasNext();) {
+      GrouperSubjectType t = (GrouperSubjectType) iter.next();
+      if ( t.typeID().equals(type) ) {
+        return t;
+      }
+    }
+    return st;
   }
 
   /**
