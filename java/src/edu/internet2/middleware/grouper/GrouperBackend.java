@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.122 2004-12-06 19:43:51 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.123 2004-12-06 19:47:57 blair Exp $
  */
 public class GrouperBackend {
 
@@ -452,11 +452,10 @@ public class GrouperBackend {
       session.load(g, key);
   
       // Its schema
-      // FIXME Rename attach GB._groupHasSchema
-      GrouperSchema schema = GrouperBackend._groupHasSchema(session, g);
+      GrouperSchema schema = GrouperBackend._groupSchema(session, g);
       if (schema != null) {
         // And its attributes
-        // FIXME Is this method stlll needed?
+        // TODO Why do I need to pass in the key?
         GrouperBackend._groupAttachAttrs(session, g, key);
         g.type( schema.type() );
         // g = GrouperGroup.loadByKey(g.key(), schema.type());
@@ -1463,28 +1462,6 @@ public class GrouperBackend {
     }
   }
 
-  /*
-   * TODO Of what value is this method?  If it would either:
-   *      - Take a group type and validate whether this group is of
-   *        that type
-   *      - Or attached the type to the group object
-   *
-   *      *Then* this method might have some value.  Right now I'm
-   *      dubious.
-   */
-  private static GrouperSchema _groupHasSchema(Session session, GrouperGroup g) {
-    GrouperSchema schema = null;
-    List    vals  = GrouperBackend._queryKV(
-                      session, "GrouperSchema", "groupKey", g.key()
-                    );
-    // We only want one
-    // TODO Attach this to the group object.
-    if (vals.size() == 1) {
-      schema = (GrouperSchema) vals.get(0);
-    }
-    return schema;
-  }
-
   // FIXME Refactor.  Mercilesssly.
   private static GrouperGroup _groupLoad(
                                 GrouperSession s, Session session, String stem, 
@@ -1560,6 +1537,25 @@ public class GrouperBackend {
       }
     }
     return g;
+  }
+
+  /* (!javadoc)
+   * Given a {@link GrouperGroup} object, return its matching 
+   * {@link GrouperSchema} object.
+   * TODO This will need poking when we support multiple types.
+   */
+  private static GrouperSchema _groupSchema(Session session, GrouperGroup g) {
+    GrouperSchema schema = null;
+    if (g != null) {
+      List    vals  = GrouperBackend._queryKV(
+                        session, "GrouperSchema", "groupKey", g.key()
+                      );
+      // TODO For now, we only want one.
+      if (vals.size() == 1) {
+        schema = (GrouperSchema) vals.get(0);
+      }
+    }
+    return schema;
   }
 
   private static void _hibernateSessionClose(Session session) {
