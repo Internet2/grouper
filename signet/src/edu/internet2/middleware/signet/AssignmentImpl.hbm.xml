@@ -88,6 +88,10 @@
 			name="grantOnly"
 			type="boolean"
 			not-null="true"/>
+		<property
+			name="effectiveDate"
+			type="timestamp"
+			not-null="true"/>
 
 	</class>
 </hibernate-mapping>
