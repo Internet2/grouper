@@ -17,13 +17,22 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.78 2004-11-22 15:23:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.79 2004-11-22 20:15:28 blair Exp $
  */
 public class GrouperGroup {
 
-  // Operational attributes and information
+  /*
+   * PRIVATE CONSTANTS
+   */
+  private static final String defaultType = "base";
+
+
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String key;
   private String type;
+  // Operational attributes and information
   // TODO Stuff into a map?
   private String createTime;
   private String createSubject;
@@ -32,15 +41,17 @@ public class GrouperGroup {
   private String modifySubject;
   private String modifySource;
   private String comment;
-
   // Grouper attributes (fields)
   private Map  attributes;
-
   // Grouper Session
   private GrouperSession  grprSession;
-
   // Does the group exist?
   private boolean  exists;
+
+
+  /*
+   * CONSTRUCTORS
+   */
 
   /**
    * Create a new object representing a {@link Grouper} group.
@@ -53,7 +64,7 @@ public class GrouperGroup {
 
 
   /*
-   * CLASS METHODS
+   * PUBLIC CLASS METHODS
    */
 
   /**
@@ -62,44 +73,68 @@ public class GrouperGroup {
    * @param   s     Session to create the group within.
    * @param   stem  Stem to create the group within.
    * @param   desc  Descriptor to assign to group.
+   * @return  A {@link GrouperGroup} object.
    */ 
-  public static GrouperGroup create(GrouperSession s, 
-                                    String stem, 
-                                    String descriptor)
+  public static GrouperGroup create(
+                                    GrouperSession s, String stem, 
+                                    String descriptor
+                                   )
   {
-    GrouperGroup g = new GrouperGroup();
-
-    // TODO Can I move all|most of this to GrouperBackend?
-    // Initalize aspects of the group.
-    g._create(s, stem, descriptor);
-
-    // Verify that we have everything we need to create a group
-    // and that this subject is privileged to create this group.
-    if (g._validateCreate()) {
-      // And now attempt to add the group to the store
-      GrouperBackend.groupAdd(s, g);
-      g.exists = true;
-    }
-    return g;
+    return GrouperGroup._create(s, stem, descriptor, defaultType);
   }
 
   /**
-   * Class method to retrieve a group from the persistent store.
+   * Class method to create a group.
+   *
+   * @param   s     Session to create the group within.
+   * @param   stem  Stem to create the group within.
+   * @param   desc  Descriptor to assign to group.
+   * @param   type  Type of group to create.
+   * @return  A {@link GrouperGroup} object.
+   */ 
+  public static GrouperGroup create(
+                                    GrouperSession s, String stem, 
+                                    String descriptor, String type
+                                   )
+  {
+    return GrouperGroup._create(s, stem, descriptor, type);
+  }
+
+  /**
+   * Class method to retrieve a group from the groups registry.
+   * <p />
    *
    * @param   s     Session to load the group within.
    * @param   stem  Stem of the group to load.
    * @param   desc  Descriptor of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup load(GrouperSession s, 
-                                  String stem, 
-                                  String descriptor)
+  public static GrouperGroup load(
+                                  GrouperSession s, 
+                                  String stem, String descriptor
+                                 )
   {
-    GrouperGroup g = GrouperBackend.groupLoad(s, stem, descriptor);
-    // Attach session
-    g.grprSession = s;
-    return g;
+    return GrouperGroup._load(s, stem, descriptor, defaultType);
   }
+
+  /**
+   * Class method to retrieve a group from the groups registry.
+   * <p />
+   *
+   * @param   s     Session to load the group within.
+   * @param   stem  Stem of the group to load.
+   * @param   desc  Descriptor of the group to load.
+   * @param   type  Type of group to load.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup load(
+                                  GrouperSession s, String stem, 
+                                  String descriptor, String type
+                                 )
+  {
+    return GrouperGroup._load(s, stem, descriptor, type);
+  }
+
 
   /*
    * PUBLIC INSTANCE METHODS
@@ -284,6 +319,25 @@ public class GrouperGroup {
 
 
   /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Retrieve a group from the groups registry
+   */
+  private static GrouperGroup _load(
+                                    GrouperSession s, String stem, 
+                                    String descriptor, String type
+                                   )
+  {
+    GrouperGroup g = GrouperBackend.groupLoad(s, stem, descriptor, type);
+    // Attach session
+    g.grprSession = s;
+    return g;
+  }
+
+
+  /*
    * PRIVATE INSTANCE METHODS
    */
 
@@ -295,39 +349,61 @@ public class GrouperGroup {
    * @param desc  Descriptor of group to be created.
    */
   private void _create(GrouperSession s, String stem, String desc) {
+  }
+
+  private static GrouperGroup _create(
+                                    GrouperSession s, String stem, 
+                                    String descriptor, String type
+                                   )
+  {
+    // TODO Can I move all|most of this to GrouperBackend?
+    GrouperGroup g = new GrouperGroup();
+
     // Attach session
-    this.grprSession  = s;
+    g.grprSession  = s;
 
     // Generate the UUID (key)
-    this.setGroupKey( GrouperBackend.uuid() );
+    g.setGroupKey( GrouperBackend.uuid() );
 
-    this.attribute("stem", stem);
-    this.attribute("descriptor", desc);
+    g.attribute("stem", stem);
+    g.attribute("descriptor", descriptor);
 
     // Set some of the operational attributes
-    // TODO Most, if not all, of the operational attributes should be
-    //      handled by Hibernate interceptors.  A task for another day.
+    /*
+     * TODO Most, if not all, of the operational attributes should be
+     *      handled by Hibernate interceptors.  A task for another day.
+     */
+    // TODO Is this in UTC?
     java.util.Date now = new java.util.Date();
-    this.setCreateTime( Long.toString(now.getTime()) );
-    this.setCreateSubject( s.subject().getId() );
+    g.setCreateTime( Long.toString(now.getTime()) );
+    g.setCreateSubject( s.subject().getId() );
+
+    // Verify that we have everything we need to create a group
+    // and that this subject is privileged to create this group.
+    if (g._validateCreate()) {
+      // And now attempt to add the group to the store
+      GrouperBackend.groupAdd(s, g);
+      g.exists = true;
+    }
+    return g;
   }
 
   /*
    * Initialize instance variables
    */
   private void _init() { 
-    this.attributes    = new HashMap();
-    this.comment       = null;
-    this.createTime    = null;
-    this.createSubject = null;
-    this.createSource  = null;
-    this.exists        = false;
-    this.key           = null;
-    this.grprSession   = null;
-    this.modifyTime    = null;
-    this.modifySubject = null;
-    this.modifySource  = null;
-    this.type          = "base"; // TODO Don't hardcode this
+    this.attributes     = new HashMap();
+    this.comment        = null;
+    this.createTime     = null;
+    this.createSubject  = null;
+    this.createSource   = null;
+    this.exists         = false;
+    this.key            = null;
+    this.grprSession    = null;
+    this.modifyTime     = null;
+    this.modifySubject  = null;
+    this.modifySource   = null;
+    this.type           = defaultType; // FIXME Can't I do better than this? 
   }
 
   /*

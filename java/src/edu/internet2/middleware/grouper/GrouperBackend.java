@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.55 2004-11-22 15:23:25 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.56 2004-11-22 20:15:28 blair Exp $
  */
 public class GrouperBackend {
 
@@ -704,14 +704,15 @@ public class GrouperBackend {
   /**
    * Retrieve {@link GrouperGroup} from backend store.
    */
-  protected static GrouperGroup groupLoad(GrouperSession s, 
-                                          String stem,
-                                          String descriptor) 
+  protected static GrouperGroup groupLoad(
+                                          GrouperSession s, String stem,
+                                          String descriptor, String type
+                                         ) 
   {
-    Session       session = GrouperBackend._init();
+    Session session = GrouperBackend._init();
     // TODO G+H Session validation 
     // TODO Priv validation
-    GrouperGroup g = GrouperBackend._groupLoad(session, stem, descriptor);
+    GrouperGroup g = GrouperBackend._groupLoad(session, stem, descriptor, type);
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
@@ -811,6 +812,8 @@ public class GrouperBackend {
   //private static boolean _groupExists(Session session, String stem, String descriptor) {
   //}
 
+  // FIXME Refactor.  Mercilesssly.
+  // TODO  Take group type into account.
   private static GrouperGroup _groupLoad(String key) {
     /*
      * While most private class methods take a Session as an argument,
@@ -843,7 +846,12 @@ public class GrouperBackend {
     return g;
   }
 
-  private static GrouperGroup _groupLoad(Session session, String stem, String descriptor) {
+  // FIXME Refactor.  Mercilesssly.
+  private static GrouperGroup _groupLoad(
+                                         Session session, String stem, 
+                                         String descriptor, String type
+                                        ) 
+  {
     GrouperGroup  g   = new GrouperGroup();
     String        key = null;
 
@@ -881,9 +889,20 @@ public class GrouperBackend {
                   "groupKey='" + possDesc.key()     + "'"
                 );
                 if (q.list().size() == 1) {
-                  // We have a group to restore.  
-                  key = possDesc.key();
-                  break;
+                  // We may have a group to restore.  Now check to see
+                  // if a group of the proper type exists.
+                  Query schemaQuery = session.createQuery(
+                    "FROM GrouperSchema AS schema"              +
+                    " WHERE "                                   +
+                    "schema.groupKey='" + possDesc.key() + "'"  +
+                    " AND "                                     +
+                    "schema.groupType='"  + type + "'"
+                  );
+                  if (schemaQuery.list().size() == 1) {
+                    // We have a group to restore.  
+                    key = possDesc.key();
+                    break;
+                  }
                 }
               } catch (Exception e) {
                 System.err.println(e);
