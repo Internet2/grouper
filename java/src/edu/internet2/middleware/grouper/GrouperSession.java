@@ -17,12 +17,10 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.49 2004-10-11 17:44:37 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.50 2004-10-11 18:07:03 blair Exp $
  */
 public class GrouperSession {
 
-  // Internal reference to the Grouper environment
-  private Grouper         _G;
   // Subject this session is running under
   private GrouperMember   subject;
   // The memberID of the session's subject
@@ -55,9 +53,7 @@ public class GrouperSession {
    * @param s {@link GrouperMember} member object to act as
    * for the duration of this session.
    */
-  public void start(Grouper G, GrouperMember s) {
-    // Our environment
-    this._G         = G;
+  public void start(GrouperMember s) {
     // Keep track of who we are
     this.subject    = s;
     this.subjectID  = s.memberID();
@@ -74,10 +70,6 @@ public class GrouperSession {
   public void stop() { 
     // FIXME What do we do here?
     // this._init();
-  }
-
-  public Grouper env() {
-    return this._G;
   }
 
   /*
@@ -242,7 +234,6 @@ public class GrouperSession {
    * Initialize instance variables
    */
   private void _init() {
-    this._G         = null;
     this.intAccess  = null;
     this.intNaming  = null;
     this.sessionID  = null;

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.56 2004-10-11 17:52:23 blair Exp $
+ * $Id: GrouperTest.java,v 1.57 2004-10-11 18:07:03 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -292,7 +292,7 @@ public class GrouperTest extends TestCase {
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     try {
-      s.start(G, subject);
+      s.start(subject);
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
@@ -304,7 +304,7 @@ public class GrouperTest extends TestCase {
     GrouperSession s= new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     try {
-      s.start(G, subject);
+      s.start(subject);
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
@@ -332,7 +332,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(G, subject);
+    s.start(subject);
 
     GrouperMember m = s.subject();
 
@@ -441,7 +441,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(G, subject);
+    s.start(subject);
 
     GrouperGroup g = GrouperGroup.load(s, "stem.0", "desc.0");
 
@@ -457,7 +457,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(G, subject);
+    s.start(subject);
 
     // Create the group
     GrouperGroup grp = GrouperGroup.create(s, "stem.1", "descriptor.1");
@@ -474,7 +474,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(G, subject);
+    s.start(subject);
 
     // Fetch the group
     GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
@@ -498,7 +498,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(G, subject);
+    s.start(subject);
     GrouperGroup grp = new GrouperGroup();
     // Attach a session
     grp.session(s);
