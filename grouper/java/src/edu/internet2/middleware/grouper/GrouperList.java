@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.52 2005-03-23 21:45:40 blair Exp $
+ * @version $Id: GrouperList.java,v 1.53 2005-03-24 20:47:07 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -75,10 +75,10 @@ public class GrouperList implements Serializable {
 
   // Transient
   private transient List            elements = new ArrayList();
-  private transient GrouperGroup    g;
+  private transient Group           g;
   private transient GrouperMember   m;
   private transient GrouperSession  s;
-  private transient GrouperGroup    via;
+  private transient Group           via;
 
   // And persistent
   private String chainKey;
@@ -104,7 +104,7 @@ public class GrouperList implements Serializable {
    * Create a new {@link GrouperList} object.
    * TODO Refactor
    */
-  protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
+  protected GrouperList(Group g, GrouperMember m, String list) {
     // TODO See if it exists?
     if (this.getListKey() == null) {
       this.setListKey( new GrouperUUID().toString() );
@@ -132,7 +132,7 @@ public class GrouperList implements Serializable {
    * TODO Refactor
    */
   protected GrouperList(
-              GrouperSession s, GrouperGroup g, GrouperMember m, 
+              GrouperSession s, Group g, GrouperMember m, 
               String list, List chain
             ) 
   {
@@ -220,7 +220,7 @@ public class GrouperList implements Serializable {
       if (this.groupKey == null) {
         throw new RuntimeException("Unable to load group as key is null");
       }
-      this.g = GrouperGroup.loadByKey(s, this.groupKey);
+      this.g = Group.loadByKey(s, this.groupKey);
     }
     if (this.m == null) {
       if (this.memberKey == null) {
@@ -230,7 +230,7 @@ public class GrouperList implements Serializable {
     }
     if (this.via == null) {
       if (this.viaKey != null) {
-        this.via = GrouperGroup.loadByKey(s, this.viaKey);
+        this.via = Group.loadByKey(s, this.viaKey);
       }
     }
     if (this.chainKey != null) {
@@ -362,13 +362,13 @@ public class GrouperList implements Serializable {
   }
 
   /**
-   * Returns the {@link GrouperGroup} object referenced by this 
+   * Returns the {@link Group} object referenced by this 
    * {@link GrouperList} object.
    * <p />
    *
-   * @return  A {@link GrouperGroup} object.
+   * @return  A {@link Group} object.
    */
-  public GrouperGroup group() {
+  public Group group() {
     return this.g;
   }
 
@@ -395,11 +395,11 @@ public class GrouperList implements Serializable {
 
   /**
    * If this object represents an effective membership, returning the
-   * {@link GrouperGroup} object that caused the effective membership.
+   * {@link Group} object that caused the effective membership.
    * <p />
-   * @return  A {@link GrouperGroup} object.
+   * @return  A {@link Group} object.
    */
-  public GrouperGroup via() {
+  public Group via() {
     return this.via;
   }
 

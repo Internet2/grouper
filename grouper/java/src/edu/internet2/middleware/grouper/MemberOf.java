@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.7 2005-03-21 19:41:22 blair Exp $
+ * @version $Id: MemberOf.java,v 1.8 2005-03-24 20:42:49 blair Exp $
  */
 public class MemberOf {
 
@@ -138,7 +138,7 @@ public class MemberOf {
 
     List vals = new ArrayList();
 
-    GrouperGroup g = gl.member().toGroup();
+    Group g = gl.member().toGroup();
     Iterator hasIter = g.listVals( gl.groupField() ).iterator();
     while (hasIter.hasNext()) {
       GrouperList glM = (GrouperList) hasIter.next();

@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.21 2005-03-23 22:29:50 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.22 2005-03-24 20:46:23 blair Exp $
  */
 public class GrouperQuery {
 
@@ -143,7 +143,7 @@ public class GrouperQuery {
   /**
    * Set group <i>groupType</i> filter.
    * <p />
-   * @param   type  Type of {@link GrouperGroup} to query on.
+   * @param   type  Type of {@link Group} to query on.
    * @return  True if one or more matches found.
    */
   public boolean groupType(String type) throws GrouperException {
@@ -264,7 +264,7 @@ public class GrouperQuery {
    * @return List of groups created after a specified date.
    */
   private List _groupCreatedAfter(java.util.Date d) {
-    String  qry   = "GrouperGroup.by.created.after";
+    String  qry   = "Group.by.created.after";
     List    vals  = new ArrayList();
     try {
       Query q = this.s.dbSess().session().getNamedQuery(qry);
@@ -273,8 +273,8 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperGroup.loadByKey(this.s, g, g.key());
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -294,7 +294,7 @@ public class GrouperQuery {
    * @return List of groups created before a specified date.
    */
   private List _groupCreatedBefore(java.util.Date d) {
-    String  qry   = "GrouperGroup.by.created.before";
+    String  qry   = "Group.by.created.before";
     List    vals  = new ArrayList();
     try {
       Query q = this.s.dbSess().session().getNamedQuery(qry);
@@ -303,8 +303,8 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperGroup.loadByKey(this.s, g, g.key());
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -324,7 +324,7 @@ public class GrouperQuery {
    * @return List of groups modified after a specified date.
    */
   private List _groupModifiedAfter(java.util.Date d) {
-    String  qry   = "GrouperGroup.by.modified.after";
+    String  qry   = "Group.by.modified.after";
     List    vals  = new ArrayList();
     try {
       Query q = this.s.dbSess().session().getNamedQuery(qry);
@@ -333,8 +333,8 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperGroup.loadByKey(this.s, g, g.key());
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -354,7 +354,7 @@ public class GrouperQuery {
    * @return List of groups modified before a specified date.
    */
   private List _groupModifiedBefore(java.util.Date d) {
-    String  qry   = "GrouperGroup.by.modified.before";
+    String  qry   = "Group.by.modified.before";
     List    vals  = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
@@ -363,8 +363,8 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          GrouperGroup g = (GrouperGroup) iter.next();
-          g = GrouperGroup.loadByKey(this.s, g, g.key());
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
           vals.add(g);
         }
       } catch (HibernateException e) {
@@ -425,7 +425,7 @@ public class GrouperQuery {
     // Find all list values for matching groups
     Iterator  iter    = groups.iterator();
     while (iter.hasNext()) {
-      GrouperGroup g = (GrouperGroup) iter.next();
+      Group g = (Group) iter.next();
       // FIXME Wlll g.s be defined?
       Iterator lvIter = g.listVals(Grouper.DEF_LIST_TYPE).iterator();
       while (lvIter.hasNext()) {
@@ -454,7 +454,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           GrouperSchema gs = (GrouperSchema) iter.next();
           // TODO What a hack
-          GrouperGroup g = GrouperGroup.loadByKey(this.s, gs.key());
+          Group g = Group.loadByKey(this.s, gs.key());
           if (g != null) {
             vals.add(g);
           }
@@ -624,7 +624,7 @@ public class GrouperQuery {
     if (groups != null) {
       Iterator iter = groups.iterator();
       while (iter.hasNext()) {
-        GrouperGroup g = (GrouperGroup) iter.next();
+        Group g = (Group) iter.next();
         // FIXME Wlll g.s be defined?
         Iterator lvIter = g.listVals(Grouper.DEF_LIST_TYPE).iterator();
         while (lvIter.hasNext()) {

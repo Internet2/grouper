@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.22 2005-03-23 23:15:48 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.23 2005-03-24 20:47:34 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -161,7 +161,7 @@ public class GrouperSchema implements Serializable {
   /*
    * Save group schema.
    */
-  protected static void save(GrouperSession s, GrouperGroup g) {
+  protected static void save(GrouperSession s, Group g) {
     GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
     try {
       s.dbSess().session().save(schema);
