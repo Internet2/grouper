@@ -64,21 +64,32 @@ import  org.apache.log4j.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.58 2004-12-05 04:08:18 blair Exp $
+ * @version $Id: Grouper.java,v 1.59 2004-12-05 16:52:58 blair Exp $
  */
 public class Grouper {
 
   /*
    * PUBLIC CONSTANTS
    */
+  // Default Values
   public static final String DEF_GROUP_TYPE = "base";
   public static final String DEF_LIST_TYPE  = "members";
   public static final String DEF_SUBJ_TYPE  = "person";
+  // Membership Queries
   public static final String MEM_ALL        = "all";
   public static final String MEM_EFF        = "effective";
   public static final String MEM_IMM        = "immediate";
+  // Namespaces
   public static final String NS_ROOT        = "";
   public static final String NS_TYPE        = "naming";
+  // Access Privs
+  public static final String PRIV_ADMIN     = "ADMIN";
+  public static final String PRIV_OPTIN     = "OPTIN";
+  public static final String PRIV_OPTOUT    = "OPTOUT";
+  public static final String PRIV_READ      = "READ";
+  public static final String PRIV_UPDATE    = "UPDATE";
+  public static final String PRIV_VIEW      = "VIEW";
+  // Naming Privs
   public static final String PRIV_CREATE    = "CREATE";
   public static final String PRIV_STEM      = "STEM";
 
