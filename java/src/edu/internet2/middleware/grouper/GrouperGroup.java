@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.159 2005-03-04 19:16:08 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.160 2005-03-04 20:04:09 blair Exp $
  */
 public class GrouperGroup {
 
@@ -80,6 +80,7 @@ public class GrouperGroup {
   private String          modifyTime;
   private String          modifySubject;
   private String          modifySource;
+  private GrouperSession  s;
   private String          type;
 
 
@@ -810,6 +811,7 @@ public class GrouperGroup {
       // FIXME Grr....wait.  Is this even needed now that I have // type()?
       g.type = type; 
       g.initialized = true; // FIXME UGLY HACK!
+      g.s = s; // Attach GrouperSession
     }
     return g;
   }
@@ -825,6 +827,7 @@ public class GrouperGroup {
       // FIXME Grr....
       g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
+      g.s = s; // Attach GrouperSession
     }
     return g;
   }
@@ -840,6 +843,7 @@ public class GrouperGroup {
       // FIXME Grr....
       g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
+      g.s = s; // Attach GrouperSession
     }
     return g;
   }
@@ -855,6 +859,7 @@ public class GrouperGroup {
       // FIXME Grr....
       g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
+      g.s = s; // Attach GrouperSession
     }
     return g;
   }
@@ -1058,6 +1063,7 @@ public class GrouperGroup {
             // And now attempt to add the group to the store
             if (GrouperBackend.groupAdd(s, g)) {
               g.initialized = true; // FIXME UGLY HACK!
+              g.s = s;  // Attach the GrouperSession
             } else {
               g = null;  
             }
@@ -1090,6 +1096,7 @@ public class GrouperGroup {
     this.modifyTime     = null;
     this.modifySubject  = null;
     this.modifySource   = null;
+    this.s              = null;
     this.type           = null; // FIXME Is this right?
   }
 
