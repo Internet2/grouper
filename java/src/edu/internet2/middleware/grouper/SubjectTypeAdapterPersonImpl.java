@@ -9,24 +9,25 @@
 
 package edu.internet2.middleware.grouper;
 
-import edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.*;
 
 
 /** 
  * Implementation of the I2MI {{@link SubjectTypeAdapter}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.1 2004-11-02 19:40:22 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.2 2004-11-12 16:38:29 blair Exp $
  */
-public class GrouperSubjectTypeAdapterImpl
+public class  SubjectTypeAdapterImpl
 	extends     AbstractSubjectTypeAdapter
 	implements  SubjectTypeAdapter
 {
 
-  public GrouperSubjectTypeAdapterImpl() {
+  public SubjectTypeAdapterImpl() {
     super();
   }
-  
+ 
+ 
   /*
    * PUBLIC INSTANCE METHODS
    */

@@ -18,7 +18,7 @@ import  java.lang.reflect.*;
  * Implementation of the I2MI {{@link SubjectType}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.2 2004-11-12 04:55:41 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.3 2004-11-12 16:38:29 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -41,12 +41,12 @@ public class SubjectTypeImpl implements SubjectType {
    */
 
   /**
-   * Return an instanc eof the {@link SubjectTypeAdapter} class for
+   * Return an instance of the {@link SubjectTypeAdapter} class for
    * this {@link SubjectTYpe}.
    *
    * @return {@link SubjectTypeAdapter} object.
    */
-  public SubjectTypeAdapter adapterClass() {
+  public SubjectTypeAdapter getAdapter() {
     if (this.getAdapterClass() != null) {
       // Attempt to reflectively create an instance of the
       // appropriate subject type adapter
@@ -55,7 +55,10 @@ public class SubjectTypeImpl implements SubjectType {
         Class[] paramsClass = new Class[] { };
         Constructor con     = classType.getDeclaredConstructor(paramsClass);
         Object[] params     = new Object[] { };
-        return (SubjectTypeAdapter) con.newInstance(params);
+        //return (SubjectTypeAdapter) con.newInstance(params);
+        SubjectTypeAdapter sta = (SubjectTypeAdapter) con.newInstance(params);
+        System.err.println("sta: " + sta.getClass().getName());
+        return sta;
       } catch (Exception e) {
         // TODO Well, this is blatantly the wrong thing to do
         System.err.println(e);
@@ -66,17 +69,13 @@ public class SubjectTypeImpl implements SubjectType {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.SubjectTypeImpl#adapterClass()
+   * Return subject type ID.
+   *
+   * @return ID of type.
    */
-  public SubjectTypeAdapter getAdapter() {
-    return this.adapterClass();
-  }
 
-  /**
-   * @see edu.internet2.middleware.grouper.SubjectTypeImpl#typeID()
-   */
   public String getId() {
-    return this.typeID();
+    return this.getSubjectTypeID();
   }
 
   /**
@@ -84,24 +83,15 @@ public class SubjectTypeImpl implements SubjectType {
    *
    * @return  Name of type.
    */
-  public String name() {
-    return this.getName();
+  public String getName() {
+    return this.name;
   }
 
   public String toString() {
     return this.getClass().getName()  + ":" +
-           this.typeID()              + ":" +
-           this.name()                + ":" +
-           this.adapterClass();
-  }
-
-  /**
-   * Return subject type ID.
-   *
-   * @return ID of type.
-   */
-  public String typeID() {
-    return this.getSubjectTypeID();
+           this.getId()               + ":" +
+           this.getName()             + ":" +
+           this.getAdapter();
   }
 
 
@@ -128,10 +118,9 @@ public class SubjectTypeImpl implements SubjectType {
   /*
    * Public due to `getName' being specified in the `SubjectType'
    * interface.
+   *
+   * private String getName() { ... }
    */
-  public String getName() {
-    return this.name;
-  }
 
   private void setName(String name) {
     this.name = name;

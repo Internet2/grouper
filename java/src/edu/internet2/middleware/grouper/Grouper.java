@@ -10,6 +10,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.*;
 
@@ -17,7 +18,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.40 2004-11-12 04:25:41 blair Exp $
+ * @version $Id: Grouper.java,v 1.41 2004-11-12 16:38:29 blair Exp $
  */
 public class Grouper {
 
@@ -157,7 +158,7 @@ public class Grouper {
     // TODO Why the convert?
     List types = Grouper.subjectTypes();
     for (Iterator iter = types.iterator(); iter.hasNext();) {
-      SubjectTypeImpl t = (SubjectTypeImpl) iter.next();
+      SubjectType t = (SubjectType) iter.next();
       if ( t.toString().equals(type) ) {
         return true;
       }
@@ -165,14 +166,14 @@ public class Grouper {
     return false;
   }
 
-  public static SubjectTypeImpl subjectType(String type) {
+  public static SubjectType subjectType(String type) {
     _init();
-    SubjectTypeImpl st = null;
+    SubjectType st = null;
     // TODO Why the convert?
     List types = Grouper.subjectTypes();
     for (Iterator iter = types.iterator(); iter.hasNext();) {
-      SubjectTypeImpl t = (SubjectTypeImpl) iter.next();
-      if ( t.typeID().equals(type) ) {
+      SubjectType t = (SubjectType) iter.next();
+      if ( t.getId().equals(type) ) {
         return t;
       }
     }
@@ -182,7 +183,7 @@ public class Grouper {
   /**
    * Class method to fetch all valid subject types.
    *
-   * @return List of {@link SubjectTypeImpl} objects.
+   * @return List of {@link SubjectType} objects.
    */
   public static List subjectTypes() {
     _init();

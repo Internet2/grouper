@@ -21,7 +21,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.16 2004-11-12 04:25:41 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.17 2004-11-12 16:38:29 blair Exp $
  */
 public class GrouperSubject implements Serializable {
 
@@ -47,10 +47,11 @@ public class GrouperSubject implements Serializable {
    * @return  {@link GrouperSubject} object
    */
   public static Subject lookup(String id, String typeID) {
-    Subject         subj  = null;
-    SubjectTypeImpl st    = Grouper.subjectType(typeID);
+    Subject     subj  = null;
+    SubjectType st    = Grouper.subjectType(typeID);
     if (st != null) {
-      SubjectTypeAdapter sta = st.adapterClass();
+      SubjectTypeAdapter sta = st.getAdapter();
+      System.err.println("(GrouperSubject) sta: " + sta.getClass().getName());
       if (sta != null) {
         try {
           subj = sta.getSubject(st, id);
