@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.9 2005-03-25 17:17:43 blair Exp $
+ * @version $Id: Group.java,v 1.10 2005-03-25 18:45:25 blair Exp $
  */
 abstract class Group {
 
@@ -82,6 +82,7 @@ abstract class Group {
   abstract protected String         getModifySource();
   abstract protected String         getModifySubject();
   abstract protected String         getModifyTime();
+  abstract protected boolean        initialized();
   abstract protected String         key();
   abstract protected void           listAddVal(GrouperMember m);
   abstract protected void           listAddVal(GrouperMember m, String list);
@@ -104,6 +105,7 @@ abstract class Group {
   abstract protected void           setGroupComment(String comment);
   abstract protected void           setGroupID(String id);
   abstract protected void           setGroupKey(String key);
+  abstract protected void           setModified();
   abstract protected void           setModifySource(String modifySource);
   abstract protected void           setModifySubject(String modifySubject);
   abstract protected void           setModifyTime(String modifyTime);
@@ -366,6 +368,37 @@ abstract class Group {
    */
 
   /*
+   * Add a list value
+   */
+  protected void listAddVal(
+                   GrouperSession s, Group g, 
+                   GrouperMember m, String list
+                 )
+  {
+    if (Group.subjectCanModListVal(s, g, list)) {
+      GrouperList gl = new GrouperList(g, m, list);
+      gl.load(s);
+      GrouperList.validate(gl);
+      if (GrouperList.exists(s, gl)) {
+        throw new RuntimeException("List value already exists");
+      }
+      s.dbSess().txStart();
+      try {
+        this.listAddVal(s, gl); // Calculate mof and add vals
+        if (this.initialized() == true) {
+          // Only update modify attrs if group is fully loaded
+          this.setModified();
+        }
+        s.dbSess().txCommit(); 
+        Grouper.log().groupListAdd(s, g, m);
+      } catch (RuntimeException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException("Error adding list value: " + e);
+      }
+    }
+  }
+
+  /*
    * Add immediate and effective list values.
    */
   protected void listAddVal(GrouperSession s, GrouperList gl) {
@@ -469,7 +502,7 @@ abstract class Group {
         g = (Group) s.dbSess().session().get(Group.class, key);
         g.load(s);
       } catch (HibernateException e) {
-        throw new RuntimeException("Error loading namespace: " + e);
+        throw new RuntimeException("Error loading group: " + e);
       }
     }
     return g;

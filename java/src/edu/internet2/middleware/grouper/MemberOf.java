@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.8 2005-03-24 20:42:49 blair Exp $
+ * @version $Id: MemberOf.java,v 1.9 2005-03-25 18:45:25 blair Exp $
  */
 public class MemberOf {
 
@@ -98,7 +98,6 @@ public class MemberOf {
    */
   public List memberOf(GrouperList gl) {
     List vals = new ArrayList();
-
     // Ensure that the grouper list is properly loaded
     gl.load(this.s); // TODO Argh!
 

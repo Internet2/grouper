@@ -92,8 +92,8 @@ public class TestGroupsMoFAdd8 extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create gA
     GrouperGroup gA  = GrouperGroup.create(

@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.194 2005-03-25 17:17:43 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.195 2005-03-25 18:45:25 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -273,27 +273,64 @@ public class GrouperGroup extends Group {
    * @param list  To this list.
    */
   public void listAddVal(GrouperMember m, String list) {
-    if (Group.subjectCanModListVal(this.s, this, list)) {
-      GrouperList gl = new GrouperList(this, m, list);
-      gl.load(this.s);
-      GrouperList.validate(gl);
-      if (GrouperList.exists(this.s, gl)) {
-        throw new RuntimeException("List value already exists");
-      }
-      s.dbSess().txStart();
-      try {
-        this.listAddVal(this.s, gl); // Calculate mof and add vals
-        if (this.initialized == true) {
-          // Only update modify attrs if group is fully loaded
-          this.setModified();
-        }
-        s.dbSess().txCommit(); 
-        Grouper.log().groupListAdd(this.s, this, m);
-      } catch (RuntimeException e) {
-        s.dbSess().txRollback();
-        throw new RuntimeException("Error adding list value: " + e);
-      }
-    }
+    this.listAddVal(this.s, this, m, list);
+  }
+
+  /**
+   * List members of this stem's default list.
+   * <p />
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listVals() {
+    return this.listVals(Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * List members of this stem's specified list.
+   * <p />
+   * @param list  Return members of this list.
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listVals(String list) {
+    return this.listVals(this.s, this, list);
+  }
+
+  /**
+   * Effective members of this stem's default list.
+   * <p />
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listEffVals() {
+    return this.listEffVals(Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Effective list members of this stem's specified list.
+   * <p />
+   * @param list  Return effective members of this list.
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listEffVals(String list) {
+    return this.listEffVals(this.s, this, list);
+  }
+
+  /**
+   * Immediate list members of this stem's default list.
+   * <p />
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listImmVals() {
+    return this.listImmVals(Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Immediate list members of this stem's specified list.
+   * <p />
+   * @param list  Return immediate members of this list.
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List listImmVals(String list) {
+    return this.listImmVals(this.s, this, list);
   }
 
   /**
@@ -378,6 +415,13 @@ public class GrouperGroup extends Group {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Is this group initialized?
+   */
+  protected boolean initialized() {
+    return this.initialized;
+  }
 
   /*
    * Set create* attributes.
@@ -615,67 +659,6 @@ public class GrouperGroup extends Group {
   }
 
   /**
-   * Retrieve list values of the default list type for this group.
-   * <p />
-   * @return  List of {@link GrouperList} objects.
-   */
-  public List listVals() {
-    return this._listVals(Grouper.DEF_LIST_TYPE);
-  }
-
-  /**
-   * Retrieve list values of the specified type for this group.
-   * <p />
-   * @param   list  Return this list type.
-   * @return  List of {@link GrouperList} objects.
-   */
-  public List listVals(String list) {
-    return this._listVals(list);
-  }
-
-  /**
-   * Retrieve effective list values of the default list type for this
-   * group.
-   * <p />
-   * @return  List of {@link GrouperList} objects.
-   */
-  public List listEffVals() {
-    return this._listEffVals(Grouper.DEF_LIST_TYPE);
-  }
-
-  /**
-   * Retrieve effective list values of the specified type for this
-   * group.
-   * <p />
-   * @param   list  Return this list type.
-   * @return  List of {@link GrouperList} objects.
-   */
-  public List listEffVals(String list) {
-    return this._listEffVals(list);
-  }
-
-  /**
-   * Retrieve immediate list values of the default list type for this
-   * group.
-   * <p />
-   * @return  List of {@link GrouperList} objects.
-   */
-  public List listImmVals() {
-    return this._listImmVals(Grouper.DEF_LIST_TYPE);
-  }
-
-  /**
-   * Retrieve immediate list values of the specified type for this
-   * group.
-   * <p />
-   * @param   list  Return this list type.
-   * @return  List of {@link GrouperList} objects.
-   */
-  public List listImmVals(String list) {
-    return this._listImmVals(list);
-  }
-
-  /**
    * Delete a list value of the default list type.
    * <p />
    * @param   m     Delete this member.
@@ -817,101 +800,6 @@ public class GrouperGroup extends Group {
       }
     }
     return rv;
-  }
-
-  /*
-   * Retrieve list values.
-   */
-  private List _listVals(String list) {
-    String  qry   = "GrouperList.by.group.and.list";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key());
-      q.setString(1, list);
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /*
-   * Retrieve effective list values.
-   */
-  private List _listEffVals(String list) {
-    String  qry   = "GrouperList.by.group.and.list.and.is.eff";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    } 
-    return vals;
-  }
-
-  /*
-   * Retrieve immediate list values.
-   */
-  private List _listImmVals(String list) {
-    String  qry   = "GrouperList.by.group.and.list.and.is.imm";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
   }
 
   /*

@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.21 2005-03-25 17:17:43 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.22 2005-03-25 18:45:25 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -249,27 +249,7 @@ public class GrouperStem extends Group {
    * @param list  To this list.
    */
   public void listAddVal(GrouperMember m, String list) {
-    if (Group.subjectCanModListVal(this.s, this, list)) {
-      GrouperList gl = new GrouperList(this, m, list);
-      gl.load(this.s);
-      GrouperList.validate(gl);
-      if (GrouperList.exists(this.s, gl)) {
-        throw new RuntimeException("List value already exists");
-      }
-      s.dbSess().txStart();
-      try {
-        this.listAddVal(this.s, gl); // Calculate mof and add vals
-        if (this.initialized == true) {
-          // Only update modify attrs if group is fully loaded
-          this.setModified();
-        }
-        s.dbSess().txCommit(); 
-        Grouper.log().groupListAdd(this.s, this, m);
-      } catch (RuntimeException e) {
-        s.dbSess().txRollback();
-        throw new RuntimeException("Error adding list value: " + e);
-      }
-    }
+    this.listAddVal(this.s, this, m, list);
   }
 
   /**
@@ -450,6 +430,13 @@ public class GrouperStem extends Group {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Is this group initialized?
+   */
+  protected boolean initialized() {
+    return this.initialized;
+  }
 
   /*
    * Return namespace key.

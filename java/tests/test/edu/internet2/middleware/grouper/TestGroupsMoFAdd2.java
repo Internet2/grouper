@@ -89,12 +89,12 @@ public class TestGroupsMoFAdd2 extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create g0
     GrouperGroup g0  = GrouperGroup.create(
@@ -111,12 +111,14 @@ public class TestGroupsMoFAdd2 extends TestCase {
     // Add m0 to g0's "members"
     try {
       g0.listAddVal(m0);
+      Assert.assertTrue("add m0 to g0", true);
     } catch (RuntimeException e) {
       Assert.fail("add m0 to g0");
     }
     // Add g0 to g1's "members"
     try {
       g1.listAddVal(g0.toMember());
+      Assert.assertTrue("add g0 to g1", true);
     } catch (RuntimeException e) {
       Assert.fail("add g0 to g1");
     }
