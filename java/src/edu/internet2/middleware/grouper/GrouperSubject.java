@@ -21,7 +21,7 @@ import  java.util.*;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.10 2004-09-19 03:03:24 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.11 2004-09-19 17:09:05 blair Exp $
  */
 public class GrouperSubject {
 
@@ -32,10 +32,8 @@ public class GrouperSubject {
    * @param   type  Member Type
    * @return  {@link GrouperMember} object or null.
    */
-  public static final GrouperMember lookup(String id, String type) {
-    //GrouperMember m = GrouperBackend.member(id, type);
+  public static GrouperMember lookup(String id, String type) {
     return GrouperBackend.member(id, type);
-    //return m;
   }
 
 }
