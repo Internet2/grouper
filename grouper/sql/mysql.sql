@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.9 2004-04-29 03:54:04 blair Exp $
+-- $Id: mysql.sql,v 1.10 2004-04-30 15:41:19 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -33,7 +33,8 @@ CREATE TABLE grouper_fields (
   -- XXX I am thinking that an ENUM is the most portable option.
   isList            ENUM('TRUE', 'FALSE')
 ) TYPE=InnoDB;
-CREATE INDEX groupfield_idx ON grouper_fields (groupField);
+CREATE INDEX grouper_fields_gf_idx 
+  ON grouper_fields (groupField);
 
 CREATE TABLE grouper_group (
   groupID           INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
@@ -46,6 +47,8 @@ CREATE TABLE grouper_members (
   memberID          VARCHAR(255) UNIQUE NOT NULL,
   presentationID    VARCHAR(255)
 ) TYPE=InnoDB;
+CREATE UNIQUE INDEX grouper_members_mid_pid_idx
+  ON grouper_members (memberID, presentationID);
 
 CREATE TABLE grouper_membership (
   groupID           INTEGER UNSIGNED NOT NULL,
@@ -64,7 +67,9 @@ CREATE TABLE grouper_membership (
   CONSTRAINT FOREIGN KEY (groupID)    REFERENCES grouper_group (groupID),
   CONSTRAINT FOREIGN KEY (groupField) REFERENCES grouper_fields (groupField)
 ) TYPE=InnoDB;
-CREATE INDEX member_groupmember_idx 
+CREATE INDEX grouper_membership_gid_gf_idx
+  ON grouper_membership (groupID, groupField);
+CREATE INDEX grouper_membership_mid_gmid_idx
   ON grouper_membership (memberID, groupMemberID);
 
 CREATE TABLE grouper_metadata (
@@ -77,11 +82,14 @@ CREATE TABLE grouper_metadata (
   FOREIGN KEY (groupID)     REFERENCES grouper_group(groupID),
   FOREIGN KEY (groupField)  REFERENCES grouper_fields(groupField)
 ) TYPE=InnoDB;
+CREATE UNIQUE INDEX grouper_metadata_gid_gf_idx
+  ON grouper_metadata (groupID, groupField);
 
 CREATE TABLE grouper_types (
   groupType         VARCHAR(255) NOT NULL PRIMARY KEY UNIQUE
 ) TYPE=InnoDB;
-CREATE INDEX grouptype_idx ON grouper_types (groupType);
+CREATE INDEX grouper_types_gt_idx
+  ON grouper_types (groupType);
 
 CREATE TABLE grouper_schema (
   groupID           INTEGER UNSIGNED NOT NULL,
@@ -117,7 +125,7 @@ CREATE TABLE grouper_via (
   groupField        INTEGER,
   viaGroupID        INTEGER UNSIGNED NOT NULL
 ) TYPE=InnoDB;
-CREATE INDEX via_idx 
+CREATE INDEX grouper_via_gid_mid_gmid_gf_vgid_idx 
   ON grouper_via (groupID, memberID, groupMemberID, groupField, viaGroupID);
 
 -- 
