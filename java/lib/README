@@ -62,6 +62,14 @@ Contents:
     - Source:   <http://java.sun.com/products/jta/>
     - License:  Sun Microsystems, Inc. Binary License Code Agreement
 
+  jug.jar
+    "JUG is a pure java UUID generator, that can be used either as
+    a component in a bigger application, or as a standalone command
+    line tool (a la 'uuidgen')."
+    - Version:  1.1.1
+    - Source:   <http://www.doomdark.org/doomdark/proj/jug/>
+    - License:  LGPL
+
   junit.jar
     "JUnit is a regression testing framework"
     - Version:  3.8.1
@@ -76,5 +84,5 @@ Contents:
     - Source:   <http://logging.apache.org/>
     - License:  Apache License, Version 2.0
 
-$Id: README,v 1.1 2004-07-14 20:54:38 blair Exp $
+$Id: README,v 1.2 2004-08-24 17:44:27 blair Exp $
 
