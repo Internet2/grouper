@@ -3,19 +3,23 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.io.*;
 import  java.sql.*;
+import  java.util.List;
 import  java.util.Properties;
 
 /** 
  * Provides a Grouper environment.
  *
  * @author blair christensen.
- * @version $Id: Grouper.java,v 1.11 2004-04-29 03:45:06 blair Exp $
+ * @version $Id: Grouper.java,v 1.12 2004-04-30 19:04:39 blair Exp $
  */
 public class Grouper {
 
   private Properties      conf      = new Properties();
   private String          confFile  = "grouper.cf";
   private GrouperSession  s         = null;
+  private List            fields    = null;
+  private List            types     = null;
+  private List            typedefs  = null;
 
   /**
    * Create {@link Grouper} environment.
@@ -31,12 +35,11 @@ public class Grouper {
    *  <li>Reads configuration</li>
    *  <li>Starts executive {@link GrouperSession} session used for
    *      bootstrapping and verifying other sessions.</li>
-   *  <li>Reads and caches:</li>
+   *  <li>Reads and cache:</li>
    *  <ul>
    *   <li><i>grouper_fields</i></li>
    *   <li><i>grouper_typeDefs</i></li>
    *   <li><i>grouper_types</i></li>
-   *   <li>XXX Am I sure about this?  No.  Clarify later.</li>
    * </ul>
    */
   public void initialize() {
@@ -81,5 +84,30 @@ public class Grouper {
   public String config(String parameter) {
     return conf.getProperty(parameter);
   }
+
+  /**
+   * @return  List of {@link GrouperFIeld} objects representing the
+   *   <i>grouper_fields</i> table.
+   */
+  public List getField() {
+    return null;
+  }
+
+  /**
+   * @return  List of {@link GrouperType} objects representing the
+   *   <i>grouper_types</i> table.
+   */
+  public List getType() {
+    return null;
+  }
+
+  /**
+   * @return  List of {@link GrouperTypeDef} objects representing the
+   *   <i>grouper_typeDefs</i> table.
+   */
+  public List getTypeDef() {
+    return null;
+  }
+
 }
 
