@@ -23,10 +23,11 @@
     <property name="isList"     type="string" not-null="true"/>
   </class>
 
-  <class name="GrouperGroup" table="grouper_group" mutable="true">
+  <class name="Group" table="grouper_group" mutable="true">
     <id name="groupKey" type="string" unsaved-value="null">
       <generator class="assigned"/>
     </id>
+    <discriminator column="classType" type="string"/>
     <property name="groupID"        type="string" not-null="true"/>
     <property name="createTime"     type="string"/>
     <property name="createSubject"  type="string"/>
@@ -35,6 +36,8 @@
     <property name="modifySubject"  type="string"/>
     <property name="modifySource"   type="string"/>
     <property name="groupComment"   type="string"/>
+    <subclass name="GrouperGroup"/>
+    <subclass name="GrouperStem"/>
   </class>
 
   <class name="GrouperList" table="grouper_list" mutable="true">
@@ -124,10 +127,25 @@
     <property name="adapterClass" type="string" not-null="true"/>
   </class>
 
-  <query name="GrouperAttribute.by.extension"><![CDATA[
-    from GrouperAttribute           where 
-      groupField      = 'extension' and
-      groupFieldValue = ?
+  <query name="Group.by.name.and.type"><![CDATA[
+    select n.groupKey from 
+      GrouperAttribute n, GrouperSchema schema where
+        n.groupField      = 'name'      and
+        n.groupFieldValue = ?           and
+        schema.groupType  = ?           and
+        n.groupKey        = schema.groupKey
+  ]]></query>
+
+  <query name="Group.by.stem.and.extn.and.type"><![CDATA[
+    select s.groupKey from 
+      GrouperAttribute s, GrouperAttribute e, GrouperSchema schema where
+        s.groupField      = 'stem'      and
+        s.groupFieldValue = ?           and
+        e.groupField      = 'extension' and
+        e.groupFieldValue = ?           and
+        s.groupKey        = e.groupKey  and
+        schema.groupKey   = ?           and
+        s.groupKey        = schema.groupKey
   ]]></query>
 
   <query name="GrouperAttribute.by.key"><![CDATA[
@@ -146,34 +164,32 @@
       groupFieldValue = ?
   ]]></query>
 
-  <query name="GrouperAttribute.by.stem"><![CDATA[
-    from GrouperAttribute      where 
-      groupField      = 'stem' and
-      groupFieldValue = ?
-  ]]></query>
-
   <query name="GrouperField.all"><![CDATA[
     from GrouperField
   ]]></query>
 
-  <query name="GrouperGroup.by.created.after"><![CDATA[
-    from GrouperGroup where createTime > ?
+  <query name="Group.by.created.after"><![CDATA[
+    from Group where createTime > ?
   ]]></query>
 
-  <query name="GrouperGroup.by.created.before"><![CDATA[
-    from GrouperGroup where createTime < ?
+  <query name="Group.by.created.before"><![CDATA[
+    from Group where createTime < ?
   ]]></query>
 
-  <query name="GrouperGroup.by.id"><![CDATA[
-    from GrouperGroup where groupID = ?
+  <query name="Group.by.id"><![CDATA[
+    from Group where groupID = ?
   ]]></query>
 
-  <query name="GrouperGroup.by.modified.after"><![CDATA[
-    from GrouperGroup where modifyTime > ?
+  <query name="Group.key.by.id"><![CDATA[
+    select g.groupId from Group g where g.groupID = ?
   ]]></query>
 
-  <query name="GrouperGroup.by.modified.before"><![CDATA[
-    from GrouperGroup where modifyTime < ?
+  <query name="Group.by.modified.after"><![CDATA[
+    from Group where modifyTime > ?
+  ]]></query>
+
+  <query name="Group.by.modified.before"><![CDATA[
+    from Group where modifyTime < ?
   ]]></query>
 
   <query name="GrouperList.by.group.and.list"><![CDATA[
