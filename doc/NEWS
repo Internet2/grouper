@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.31 2005-02-17 18:59:09 blair Exp $
+$Id: NEWS,v 1.32 2005-03-09 05:41:42 blair Exp $
 
 ---
 
@@ -32,6 +32,9 @@ $Id: NEWS,v 1.31 2005-02-17 18:59:09 blair Exp $
   the newer unless upgraded.
 * The schema of the `grouper_list' and `grouper_session' database
   tables have changed.
+* TODO API Changes
+  * GrouperSession as arg
+  * access() and naming()
 
 ---
 
