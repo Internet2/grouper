@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.58 2005-03-22 18:46:28 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.59 2005-03-22 18:58:15 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -182,8 +182,8 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      GrouperMember m     = GrouperMember.load(s, s.subject()); 
-      privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
+      GrouperMember m = GrouperMember.load(s, s.subject()); 
+      privs = m.listVals( (String) privMap.get(priv) );
     } 
     // TODO Throw exception if invalid priv?
     return privs;
@@ -254,7 +254,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
+      privs = m.listVals( (String) privMap.get(priv) );
     } // TODO Exception if invalid priv?
     return privs;
   }

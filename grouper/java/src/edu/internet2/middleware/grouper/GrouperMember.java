@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.68 2005-03-22 17:15:36 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.69 2005-03-22 18:58:15 blair Exp $
  */
 public class GrouperMember {
 
@@ -294,7 +294,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals() {
-    return GrouperBackend.listVals(this.s, this, Grouper.DEF_LIST_TYPE);
+    return this._listVals(Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -304,7 +304,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(String list) {
-    return GrouperBackend.listVals(this.s, this, list);
+    return this._listVals(list);
   }
 
   /**
@@ -314,7 +314,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals() {
-    return GrouperBackend.listEffVals(this.s, this, Grouper.DEF_LIST_TYPE);
+    return this._listEffVals(Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -325,7 +325,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(String list) {
-    return GrouperBackend.listEffVals(this.s, this, list);
+    return this._listEffVals(list);
   }
 
   /**
@@ -335,7 +335,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals() {
-    return GrouperBackend.listImmVals(this.s, this, Grouper.DEF_LIST_TYPE);
+    return this._listImmVals(Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -346,7 +346,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals(String list) {
-    return GrouperBackend.listImmVals(this.s, this, list);
+    return this._listImmVals(list);
   }
 
   /**
@@ -438,6 +438,101 @@ public class GrouperMember {
     this.subjectTypeID  = null;
   }
 
+  /*
+   * @return List of {@link GrouperList} objects for this member.
+   */
+  private List _listVals(String list) {
+    String  qry   = "GrouperList.by.member.and.list";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key());
+      q.setString(1, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * @return List of effective {@link GrouperList} objects for this member.
+   */
+  private List _listEffVals(String list) {
+    String  qry   = "GrouperList.by.member.and.list.and.is.eff";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key());
+      q.setString(1, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * @return List of immediate {@link GrouperList} objects for this member.
+   */
+  private List _listImmVals(String list) {
+    String  qry   = "GrouperList.by.member.and.list.and.is.imm";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key());
+      q.setString(1, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
 
   /*
    * HIBERNATE

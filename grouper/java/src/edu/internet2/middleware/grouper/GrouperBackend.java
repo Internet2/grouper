@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.186 2005-03-22 18:46:28 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.187 2005-03-22 18:58:15 blair Exp $
  */
 public class GrouperBackend {
 
@@ -529,10 +529,8 @@ public class GrouperBackend {
     boolean rv = false;
     // Convert the group to member to see if it has any mships
     GrouperMember m = g.toMember();
-    // TODO Go through GG
     List valsG = g.listVals(Grouper.DEF_LIST_TYPE);
-    // TODO Go through GM
-    List valsM = listVals(s, m, Grouper.DEF_LIST_TYPE);
+    List valsM = m.listVals(Grouper.DEF_LIST_TYPE);
     if ( (valsG.size() != 0) || (valsM.size() != 0) ) {
       if (valsG.size() != 0) {
         Grouper.log().event(
@@ -712,44 +710,6 @@ public class GrouperBackend {
     return vals;
   }
 
-  protected static List listVals(GrouperSession s, GrouperMember m, String list) {
-    String  qry   = "GrouperList.by.member.and.list";
-    List    vals  = new ArrayList();
-    try {
-      if (s == null) {
-        throw new RuntimeException("s == null");
-      }
-      if (s.dbSess() == null) {
-        throw new RuntimeException("s.dbSess() == null");
-      }
-      if (s.dbSess().session() == null) {
-        throw new RuntimeException("s.dbSess().session() == null");
-      }
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, m.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
   /**
    * Query for effective memberships in the specified list.
    * <p />
@@ -764,35 +724,6 @@ public class GrouperBackend {
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  protected static List listEffVals(GrouperSession s, GrouperMember m, String list) {
-    String  qry   = "GrouperList.by.member.and.list.and.is.eff";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, m.key());
-      q.setString(1, list);
       try {
         // TODO Argh!
         Iterator iter = q.list().iterator();
@@ -843,35 +774,6 @@ public class GrouperBackend {
     return vals;
   }
   
-  protected static List listImmVals(GrouperSession s, GrouperMember m, String list) {
-    String  qry   = "GrouperList.by.member.and.list.and.is.imm";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, m.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
   /**
    * Valid {@link GrouperTypeDef} items.
    *
