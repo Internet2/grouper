@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.92 2004-11-30 17:57:29 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.93 2004-11-30 18:20:35 blair Exp $
  */
 public class GrouperGroup {
 
@@ -208,13 +208,13 @@ public class GrouperGroup {
    * @param value     Value of attribute.
    */
   public void attribute(String attribute, String value) {
-    GrouperAttribute attr = new GrouperAttribute();
-
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
       // Setup the attribute, add it to the stash.
       // TODO Require a valid (?) key?
-      attr.set(this.key, attribute, value);
+      GrouperAttribute attr = new GrouperAttribute(
+                                this.key, attribute, value
+                              );
       attributes.put(attribute, attr);
     }
   }

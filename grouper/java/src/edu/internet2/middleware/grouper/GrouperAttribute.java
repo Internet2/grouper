@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.12 2004-11-30 02:26:53 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.13 2004-11-30 18:20:35 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -76,10 +76,26 @@ public class GrouperAttribute implements Serializable {
   /*
    * CONSTRUCTORS
    */
+
+  /*
+   * Null-argument constructor for Hibernate.
+   */
   public GrouperAttribute() {
     this._init();
   }
 
+  /**
+   * Construct a new {@link GrouperAttribute} object.
+   * <p />
+   * TODO This should <b>only</b> be used within Grouper and I'd
+   *      prefer to not be relying upon <i>protected</i> for that...
+   */
+  protected GrouperAttribute(String key, String field, String value) {
+    this._init();
+    this.groupKey         = key;
+    this.groupField       = field;
+    this.groupFieldValue  = value;
+  }
 
   /*
    * PUBLIC INSTANCE METHODS
@@ -96,13 +112,6 @@ public class GrouperAttribute implements Serializable {
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
-
-  // FIXME I hate you.
-  public void set(String key, String field, String value) {
-    this.groupKey         = key;
-    this.groupField       = field;
-    this.groupFieldValue  = value;
-  }
 
   /**
    * Return a string representation of the {@link GrouperSchema}

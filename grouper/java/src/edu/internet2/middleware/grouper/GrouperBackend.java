@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.75 2004-11-30 17:02:24 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.76 2004-11-30 18:20:35 blair Exp $
  */
 public class GrouperBackend {
 
@@ -206,9 +206,12 @@ public class GrouperBackend {
       Map       attributes  = g.attributes();
       Iterator  iter        = attributes.keySet().iterator();
       while (iter.hasNext()) {
+        // FIXME WTF?
         GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        attr.set(g.key(), attr.field(), attr.value());
-        session.save(attr);
+        GrouperAttribute newA = new GrouperAttribute(
+                                  g.key(), attr.field(), attr.value()
+                                );
+        session.save(newA);
       }
 
       /*
