@@ -9,17 +9,17 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.15 2004-04-29 17:10:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.16 2004-04-30 14:40:26 blair Exp $
  */
 public class GrouperSession {
 
-  private Grouper           intG      = null;
-  private GrouperNaming     intName   = null;
-  private GrouperPrivilege  intPriv   = null;
-  private GrouperSubject    intSubj   = null;
-  private Connection        con       = null;
-  private GrouperMember     subject   = null;
-  private String            subjectID = null;
+  private Grouper         intG        = null;
+  private GrouperNaming   intNaming   = null;
+  private GrouperAccess   intAccess   = null;
+  private GrouperSubject  intSubject  = null;
+  private Connection      con         = null;
+  private GrouperMember   subject     = null;
+  private String          subjectID   = null;
 
   /**
    * Create a {@link GrouperSession} object through which all further
@@ -152,17 +152,17 @@ public class GrouperSession {
 
   public void grantPriv(GrouperGroup g, GrouperMember m, String priv) {
     // XXX Do something
-    this.intPriv.grant(g, m, priv);
+    this.intAccess.grant(g, m, priv);
   }
 
   public void revokePriv(GrouperGroup g, GrouperMember m, String priv) {
     // XXX Do something
-    this.intPriv.revoke(g, m, priv);
+    this.intAccess.revoke(g, m, priv);
   }
 
   public boolean hasPriv(GrouperGroup g, GrouperMember m, String priv) {
     // XXX Do something
-    return this.intPriv.has(g, m, priv);
+    return this.intAccess.has(g, m, priv);
   }
 
   private GrouperMember _lookupSubject(String subjectID) {
@@ -172,7 +172,7 @@ public class GrouperSession {
     if (subjectID == "GrouperSystem") {
       m = new GrouperMember(this, subjectID, false);
     } else {
-      m = this.intSubj.lookup(subjectID);
+      m = this.intSubject.lookup(subjectID);
       if (m != null) {
         this.subjectID = subjectID;
       }
@@ -190,9 +190,9 @@ public class GrouperSession {
 
   private void createInterfaces() {
     // Create internal references to the various interfaces
-    this.intName            = (GrouperNaming)    createObject( intG.config("interface.naming") );
-    this.intPriv            = (GrouperPrivilege) createObject( intG.config("interface.privilege") );
-    this.intSubj            = (GrouperSubject)   createObject( intG.config("interface.subject") );
+    this.intNaming  = (GrouperNaming)  createObject( intG.config("interface.naming") );
+    this.intAccess  = (GrouperAccess)  createObject( intG.config("interface.access") );
+    this.intSubject = (GrouperSubject) createObject( intG.config("interface.subject") );
   }
 
   private Object createObject(String name) {

@@ -3,17 +3,17 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 
 /** 
- * Default implementation of the {@link GrouperPrivilege} interface.
+ * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.3 2004-04-29 03:43:58 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.4 2004-04-30 14:39:59 blair Exp $
  */
-public class InternalGrouperPrivilege implements GrouperPrivilege {
+public class InternalGrouperAccess implements GrouperAccess {
   /**
-   * Create a {@link GrouperPrivilege} that handles all privileges
+   * Create a {@link GrouperAccess} that handles all privileges
    * internal to grouper.
    */
-  public InternalGrouperPrivilege(GrouperSession s) {
+  public InternalGrouperAccess(GrouperSession s) {
     // Nothing -- Yet
   }
 
