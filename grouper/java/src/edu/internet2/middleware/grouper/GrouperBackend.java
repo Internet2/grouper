@@ -66,7 +66,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.168 2005-03-16 22:54:08 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.169 2005-03-17 03:33:16 blair Exp $
  */
 public class GrouperBackend {
 
@@ -298,27 +298,26 @@ public class GrouperBackend {
      * its key is
      */
     if (gl.chain().size() > 0) {
-      int     idx   = 0;
-      String  uuid = new GrouperUUID().toString();
-      gl.listKey(uuid);
-      Iterator iter = gl.chain().iterator();
-      while (iter.hasNext()) {
-        MemberVia mv = (MemberVia) iter.next();
-        mv.key(uuid);
-        mv.idx(idx);
-        mv.save(s);
-        idx++;
+      /*
+       * Check to see if this chain is already defined.  If not,
+       * create-and-save it.
+       */
+      String uuid = MemberVia.load(s, gl.key(), gl.chain());
+      if (uuid == null) {
+        int idx = 0;
+        uuid = new GrouperUUID().toString();
+        Iterator iter = gl.chain().iterator();
+        while (iter.hasNext()) {
+          MemberVia mv = (MemberVia) iter.next();
+          mv.key(uuid);
+          mv.idx(idx);
+          mv.save(s);
+          idx++;
+        }
       }
+      gl.chainKey(uuid);
     }
-    try {
-      if (!s.dbSess().session().contains(gl)) {
-        s.dbSess().session().save(gl);
-        Grouper.log().backend("_listAddVal() added");
-      } else {
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException("Error adding list value: " + e);
-    }
+    GrouperList.save(s, gl);
   }
 
   /* !javadoc

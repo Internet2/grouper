@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -61,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.3 2005-03-16 22:54:08 blair Exp $
+ * @version $Id: MemberVia.java,v 1.4 2005-03-17 03:33:16 blair Exp $
  */
 public class MemberVia  {
 
@@ -80,10 +81,9 @@ public class MemberVia  {
   public MemberVia() {
     this._init();
   }
-  protected MemberVia(GrouperList lv) {
+  protected MemberVia(GrouperList gl) {
     this._init();
-    // this.setPathKey( new GrouperUUID().toString() );
-    this.setListKey( lv.group().key() );
+    this.setListKey( gl.key() );
   }
   protected void key(String key) {
     this.chainKey = key;
@@ -100,6 +100,109 @@ public class MemberVia  {
                   "Error saving chain element " + this + ": " + e
                 );
     }   
+  }
+  protected static String load(
+                            GrouperSession s, String listKey, List chain
+                          ) 
+  {
+    String key = _compare(
+             chain,
+             _filterByLength(
+               chain.size(), _findChains(s, listKey)
+             )
+           );
+    return key;
+  }
+  protected static String _compare(List chain, List chains) {
+    String key = null;
+    Iterator chainsIter = chains.iterator();
+    while (chainsIter.hasNext()) {
+      List another = (List) chainsIter.next();
+      if (_equals(chain, another)) {
+        MemberVia mv = (MemberVia) another.get(0);
+        key = mv.key();
+        break;
+      }
+    }
+    return key;
+  }
+  protected static boolean _equals(List a, List b) {
+    boolean rv  = false;
+    int     idx = 0; 
+    Iterator iter = a.iterator();
+    while (iter.hasNext()) {
+      MemberVia mvA = (MemberVia) iter.next();
+      MemberVia mvB = (MemberVia) b.get(idx);
+      if (mvA.getListKey().equals(mvB.getListKey())) {
+        rv = true;
+      } else {
+        rv = false;
+        break;
+      }
+      idx++;
+    }
+    return rv;
+  }
+  protected static List _filterByLength(int length, List chains) {
+    List filtered = new ArrayList();
+    Iterator iter = chains.iterator();
+    while (iter.hasNext()) {
+      List chain = (List) iter.next();
+      if (chain.size() == length) {
+        filtered.add(chain);
+      }
+    }
+    return filtered;
+  }
+  protected static List _findChains(GrouperSession s, String listKey) {
+    List    chains  = new ArrayList();
+    String  qry     = "MemberVia.by.list.and.first";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, listKey); 
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          MemberVia mv = (MemberVia) iter.next();
+          chains.add( _loadChain(s, mv.getChainKey()) );
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return chains;
+  }
+  protected static List _loadChain(GrouperSession s, String key) {
+    List    chain = new ArrayList();
+    String  qry   = "MemberVia.by.key";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      try {
+        // BDC chain.addAll( q.list() );
+        List vals = q.list();
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          MemberVia mv = (MemberVia) iter.next();
+          chain.add(mv);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return chain;
   }
 
 
