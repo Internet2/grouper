@@ -7,7 +7,7 @@ import java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.7 2004-04-20 21:38:43 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.8 2004-04-28 15:51:15 blair Exp $
  */
 public class GrouperMember {
 
@@ -44,7 +44,7 @@ public class GrouperMember {
    * <p>
    * <ul>
    *  <li>Query the <i>grouper_membership</i> table for rows matching
-   *      the appropriate "memberID", "groupFieldID", and
+   *      the appropriate "memberID", "groupField", and
    *      "isImmediate".</li>
    *  <li>XXX What authZ considerations are here?</li>
    * </ul>
@@ -62,7 +62,7 @@ public class GrouperMember {
    * <p>
    * <ul>
    *  <li>Query the <i>grouper_membership</i> table for rows matching
-   *      the appropriate "memberID", "groupFieldID", and
+   *      the appropriate "memberID", "groupField", and
    *      "isImmediate".</li>
    *  <li>XXX What authZ considerations are here?</li>
    * </ul>
