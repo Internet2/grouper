@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.io.Serializable;
 
 
 /** 
@@ -60,9 +61,9 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.72 2004-12-13 14:47:55 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.73 2005-01-31 00:33:25 blair Exp $
  */
-public class GrouperSession {
+public class GrouperSession implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
