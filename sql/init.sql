@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.2 2004-12-02 16:09:02 blair Exp $
+-- $Id: init.sql,v 1.3 2004-12-03 04:15:09 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -32,6 +32,8 @@ INSERT INTO grouper_typeDef (groupType, groupField)
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'stem');
 INSERT INTO grouper_typeDef (groupType, groupField) 
+  VALUES ('base', 'name');
+INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'description');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'members');
@@ -47,10 +49,13 @@ INSERT INTO grouper_typeDef (groupType, groupField)
   VALUES ('base', 'optins');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'optouts');
+
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('naming', 'extension');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('naming', 'stem');
+INSERT INTO grouper_typeDef (groupType, groupField) 
+  VALUES ('naming', 'name');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('naming', 'description');
 INSERT INTO grouper_typeDef (groupType, groupField) 
