@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.5 2004-11-15 20:23:39 blair Exp $
+ * $Id: TestGroupLists.java,v 1.6 2004-11-16 02:16:06 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -28,8 +28,10 @@ public class TestGroupLists extends TestCase {
 
   private String stem   = "stem.0";
   private String stem1  = "stem.1";
+  private String stem2  = "stem.2";
   private String desc   = "desc.0";
   private String desc1  = "desc.1";
+  private String desc2  = "desc.2";
 
 
   public TestGroupLists(String name) {
@@ -248,11 +250,11 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(grp2);
     Assert.assertTrue( grp2.exists() );
     // Fetch member
-    String          id    = grp1.key();  // TODO ARGH!!!
+    String          id    = grp2.key();  // TODO ARGH!!!
     String          type  = "group";
     GrouperMember   m     = GrouperMember.lookup(id, type);
     Assert.assertNotNull(m);
-    String klassMember     = "edu.internet2.middleware.grouper.GrouperMember";
+    String klassMember    = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertTrue( klassMember.equals( m.getClass().getName() ) );
     Assert.assertNotNull( m.id() );
     Assert.assertTrue( m.id().equals( id) );
@@ -264,8 +266,54 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
+  // Add group as immediate member
+  public void testAddEffectiveMember() {
+    Grouper         G     = new Grouper();
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch the first group
+    GrouperGroup    grp1  = GrouperGroup.load(s, stem, desc);
+    Assert.assertNotNull(grp1);
+    Assert.assertTrue( grp1.exists() );
+    // Create the second group
+    GrouperGroup    grp2  = GrouperGroup.create(s, stem2, desc2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue( grp2.exists() );
+    // Fetch person-as-member
+    String          id1   = "notblair";       
+    String          type1 = "person";
+    GrouperMember   m1    = GrouperMember.lookup(id1, type1);
+    Assert.assertNotNull(m1);
+    String klassMember1    = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klassMember1.equals( m1.getClass().getName() ) );
+    Assert.assertNotNull( m1.id() );
+    Assert.assertTrue( m1.id().equals( id1 ) );
+    Assert.assertNotNull( m1.typeID() );
+    Assert.assertTrue( m1.typeID().equals( type1 ) );
+    // Add person-as-member to second group
+    Assert.assertTrue( grp2.listAddVal(s, m1, "members") );
+    // Fetch group-as-member
+    String          id2   = grp2.key();  // TODO ARGH!!!
+    String          type2 = "group";
+    GrouperMember   m2    = GrouperMember.lookup(id2, type2);
+    Assert.assertNotNull(m2);
+    String klassMember2    = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertTrue( klassMember2.equals( m2.getClass().getName() ) );
+    Assert.assertNotNull( m2.id() );
+    Assert.assertTrue( m2.id().equals( id2) );
+    Assert.assertNotNull( m2.typeID() );
+    Assert.assertTrue( m2.typeID().equals( type2 ) );
+    // Add group-as-member to the first group
+    Assert.assertTrue( grp1.listAddVal(s, m2, "members") );
+    // We're done
+    s.stop();
+  }
+
+  // TODO Test setting|fetching of effective memberships
   // TODO Delete group with immediate members
   // TODO Delete groups that provide/have effective members
+  // TODO Test for recursive adds?
 
 }
 
