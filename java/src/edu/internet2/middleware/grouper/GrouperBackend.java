@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.76 2004-11-30 18:20:35 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.77 2004-11-30 19:25:10 blair Exp $
  */
 public class GrouperBackend {
 
@@ -208,12 +208,13 @@ public class GrouperBackend {
       while (iter.hasNext()) {
         // FIXME WTF?
         GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        GrouperAttribute newA = new GrouperAttribute(
-                                  g.key(), attr.field(), attr.value()
-                                );
-        session.save(newA);
+        // TODO Error checking, anyone? 
+        GrouperBackend._attributeStore(
+                                       session, g.key(), 
+                                       attr.field(), attr.value()
+                                      );
       }
-
+        
       /*
        * I need to commit the group to the groups registry before
        * granting the ADMIN privs as the act of granting, especially if
@@ -910,6 +911,21 @@ public class GrouperBackend {
   /*
    * PRIVATE CLASS METHODS
    */
+
+  private static GrouperAttribute _attributeStore(
+                                    Session session, String key,
+                                    String  field,   String value
+                                  )
+  {
+    GrouperAttribute attr = new GrouperAttribute(key, field, value);
+    try {
+      session.save(attr);   
+    } catch (HibernateException e) {
+      // TODO Fuck.
+      attr = null;
+    }
+    return attr;
+  }
 
   private static List _extensions(Session session, String extension) {
     return GrouperBackend._queryKVKV(
