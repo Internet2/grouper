@@ -1,0 +1,57 @@
+
+# Populate _grouper_subject_ table with I2MI Subjects
+
+This code was contributed by The University Of Chicago.
+
+$Id: README,v 1.1 2004-12-03 17:07:06 blair Exp $
+
+---
+
+## Build
+
+    % cd $GROUPER_BASE/contrib/load/csv2subject
+    % ant
+
+--
+
+## Configure
+
+    % cd $GROUPER_BASE/contrib/load/csv2subject
+    % vi csv2subject.properties
+
+-- 
+
+## Run
+
+    % cd $GROUPER_BASE/contrib/load/csv2subject
+    % ./cvs2subject.sh -h
+    % ./cvs2subject.sh -f ./sample.csv
+
+--
+
+## Input File Format
+
+Each line should have two tokens separated by a comma:
+
+* _subjectID_
+* _subjectTypeID_
+
+See the _sample.csv_ file for examples.
+
+--
+
+## Bugs
+
+* I2MI Subject Interface not being used
+
+_csv2subject_ bypasses the I2MI Subject interface and inserts records
+directly into the group registry's _grouper_subject_ table.  One
+obvious problem that arises with this is that one may add subjects with
+this program that cannot be found by the I2MI Subjectd interface
+because an inappropriate _subjectTypeID_ was specified.
+
+* No support for removing subjects
+
+As currently written, _csv2subject_ will simply try to add every
+subject that it finds in its input file.
+
