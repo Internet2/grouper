@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -13,7 +13,7 @@ package edu.internet2.middleware.grouper;
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.9 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperType.java,v 1.10 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperType {
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -18,7 +18,7 @@ import  java.util.*;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.20 2004-11-15 19:41:50 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.21 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperSubject {
 

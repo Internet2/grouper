@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.26 2004-11-23 18:14:37 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.27 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 

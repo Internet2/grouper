@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.7 2004-11-05 19:21:36 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.8 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.11 2004-11-23 17:08:37 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.12 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 

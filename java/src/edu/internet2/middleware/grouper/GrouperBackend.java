@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.61 2004-11-23 19:28:47 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.62 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperBackend {
 

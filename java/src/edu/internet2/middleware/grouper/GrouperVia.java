@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -16,7 +16,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class representing a via (or lack of via) relationship.
  *
  * @author  blair christensen.
- * @version $Id: GrouperVia.java,v 1.1 2004-11-19 04:15:31 blair Exp $
+ * @version $Id: GrouperVia.java,v 1.2 2004-11-23 19:43:26 blair Exp $
  */
 public class GrouperVia {
 

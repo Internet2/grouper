@@ -1,4 +1,4 @@
-Copyright (C) 2004 Internet2
+Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
 Copyright (C) 2004 The University Of Chicago
 All Rights Reserved. 
 
@@ -13,17 +13,20 @@ met:
     the documentation and/or other materials provided with the
     distribution.
   * Neither the name of the University of Chicago nor the names
-    of its contributors nor Internet2 may be used to endorse or
-    promote products derived from this software without explicit
-    prior written permission.
+    of its contributors nor the University Corporation for Advanced
+    Internet Development, Inc. may be used to endorse or promote
+    products derived from this software without explicit prior
+    written permission.
 
-You are under no obligation whatsoever to provide any enhancements to
-the University of Chicago, its contributors, or Internet2.  If you choose to
-provide your enhancements, or if you choose to otherwise publish or
-distribute your enhancements, in source code form without
-contemporaneously requiring end users to enter into a separate written
-license agreement for such enhancements, then you thereby grant
-the University of Chicago, its contributors, and Internet2 a non-exclusive,
+You are under no obligation whatsoever to provide any enhancements
+to the University of Chicago, its contributors, or the University
+Corporation for Advanced Internet Development, Inc.  If you choose
+to provide your enhancements, or if you choose to otherwise publish
+or distribute your enhancements, in source code form without
+contemporaneously requiring end users to enter into a separate
+written license agreement for such enhancements, then you thereby
+grant the University of Chicago, its contributors, and the University
+Corporation for Advanced Internet Development, Inc. a non-exclusive,
 royalty-free, perpetual license to install, use, modify, prepare
 derivative works, incorporate into the software or other computer
 software, distribute, and sublicense your enhancements or derivative

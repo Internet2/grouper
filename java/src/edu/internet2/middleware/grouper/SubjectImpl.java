@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
  * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
@@ -20,7 +20,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Implementation of the I2MI {@link Subject} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.7 2004-11-22 04:20:32 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.8 2004-11-23 19:43:26 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
