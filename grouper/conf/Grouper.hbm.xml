@@ -99,11 +99,11 @@
   </class>
 
   <class name="MemberVia" table="grouper_MemberVia">
-    <id name="chainKey" type="string" unsaved-value="null">
-      <generator class="assigned"/>
-    </id>
-    <property name="chainIdx" type="integer"  column="chainIdx"/>
-    <property name="listKey"  type="string"   column="listKey"/>
+    <composite-id access="field">
+      <key-property name="chainKey" type="string"   column="chainKey"/>
+      <key-property name="chainIdx" type="integer"  column="chainIdx"/>
+      <key-property name="listKey"  type="string"   column="listKey"/>
+    </composite-id>
   </class>
 
   <class name="SubjectImpl" table="grouper_subject">

@@ -65,18 +65,18 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.45 2005-03-20 00:47:40 blair Exp $
+ * @version $Id: GrouperList.java,v 1.46 2005-03-20 05:15:31 blair Exp $
  */
 public class GrouperList implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private List            elements = new ArrayList();
-  private GrouperGroup    g;
-  private GrouperMember   m;
-  private GrouperSession  s;
-  private GrouperGroup    via;
+  private transient List            elements = new ArrayList();
+  private transient GrouperGroup    g;
+  private transient GrouperMember   m;
+  private transient GrouperSession  s;
+  private transient GrouperGroup    via;
   private String          chainKey;
   private String          groupField;
   private String          groupKey;
@@ -101,11 +101,11 @@ public class GrouperList implements Serializable {
       gl.setListKey( new GrouperUUID().toString() );
     }
     try {
-      s.dbSess().txStart();
+      // BDC s.dbSess().txStart();
       s.dbSess().session().save(gl);
-      s.dbSess().txCommit();
+      // BDC s.dbSess().txCommit();
     } catch (HibernateException e) {
-      s.dbSess().txRollback();
+      // BDC s.dbSess().txRollback();
       throw new RuntimeException("Error saving list value: " + e);
     }
   }
@@ -114,6 +114,11 @@ public class GrouperList implements Serializable {
    *      prefer to not be relying upon <i>protected</i> for that...
    */
   protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
+    // TODO See if it exists?
+    // BDC
+    if (this.getListKey() == null) {
+      this.setListKey( new GrouperUUID().toString() );
+    }
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -135,6 +140,10 @@ public class GrouperList implements Serializable {
               String list, List chain
             ) 
   {
+    // BDC
+    if (this.getListKey() == null) {
+      this.setListKey( new GrouperUUID().toString() );
+    }
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -158,18 +167,25 @@ public class GrouperList implements Serializable {
     }
   }
   protected void load(GrouperSession s) {
+    // TODO Load chain?
     GrouperSession.validate(s);
-    // FIXME Validator!
-    if (this.groupKey == null) {
-      throw new RuntimeException("Unable to load group as key is null");
+    if (this.g == null) {
+      // FIXME Validator!
+      if (this.groupKey == null) {
+        throw new RuntimeException("Unable to load group as key is null");
+      }
+      this.g = GrouperGroup.loadByKey(s, this.groupKey);
     }
-    if (this.memberKey == null) {
-      throw new RuntimeException("Unable to load member as key is null");
+    if (this.m == null) {
+      if (this.memberKey == null) {
+        throw new RuntimeException("Unable to load member as key is null");
+      }
+      this.m = GrouperMember.loadByKey(s, this.memberKey);
     }
-    this.g = GrouperGroup.loadByKey(s, this.groupKey);
-    this.m = GrouperMember.loadByKey(s, this.memberKey);
-    if (this.viaKey != null) {
-      this.via        = GrouperGroup.loadByKey(s, this.viaKey);
+    if (this.via == null) {
+      if (this.viaKey != null) {
+        this.via = GrouperGroup.loadByKey(s, this.viaKey);
+      }
     }
     if (this.g == null) {
       throw new RuntimeException("Unable to load group");
