@@ -61,7 +61,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.4 2005-03-11 01:17:58 blair Exp $
+ * @version $Id: DbSess.java,v 1.5 2005-03-14 00:00:42 blair Exp $
  */
 public class DbSess {
 
@@ -159,7 +159,7 @@ public class DbSess {
       this.txCnt = 0;
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Error rolling back transactin: " + e
+                  "Error rolling back transaction: " + e
                 );
     }
   }
