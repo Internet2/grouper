@@ -17,13 +17,13 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.62 2004-11-08 20:11:57 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.63 2004-11-08 20:39:19 blair Exp $
  */
 public class GrouperGroup {
 
   // Operational attributes and information
-  private String groupKey;
-  private String groupType;
+  private String key;
+  private String type;
   // TODO Stuff into a map?
   private String createTime;
   private String createSubject;
@@ -48,19 +48,9 @@ public class GrouperGroup {
    * TODO Document further
    */
   public GrouperGroup() {
-    attributes    = new HashMap();
-    comment       = null;
-    createTime    = null;
-    createSubject = null;
-    createSource  = null;
-    exists        = false;
-    groupKey      = null;
-    groupType     = "base"; // TODO Don't hardcode this
-    grprSession   = null;
-    modifyTime    = null;
-    modifySubject = null;
-    modifySource  = null;
+    this._init();
   }
+
 
   /*
    * CLASS METHODS
@@ -108,7 +98,7 @@ public class GrouperGroup {
   }
 
   /*
-   * PUBLIC METHODS
+   * PUBLIC INSTANCE METHODS
    */
 
   /**
@@ -133,8 +123,8 @@ public class GrouperGroup {
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
       // Setup the attribute, add it to the stash.
-      // TODO Require a valid (?) groupKey?
-      attr.set(this.groupKey, attribute, value);
+      // TODO Require a valid (?) key?
+      attr.set(this.key, attribute, value);
       attributes.put(attribute, attr);
     }
   }
@@ -171,13 +161,13 @@ public class GrouperGroup {
             // And a session to load a group
             // FIXME Provide a method of confirming a group's existence
             //       that doesn't rely upon loading a group and checking for
-            //       the presence of a `groupKey'.
+            //       the presence of a `key'.
             GrouperGroup g = GrouperBackend.group(this.grprSession,
                                                   this.attribute("stem").value(),
                                                   this.attribute("descriptor").value());
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
-            if (g.groupKey() != null) {
+            if (g.key() != null) {
               this.exists = true;
               return true;
             }
@@ -196,7 +186,7 @@ public class GrouperGroup {
    *
    * @return Group key
    */
-  public String groupKey() {
+  public String key() {
     return this.getGroupKey();
   }
 
@@ -205,8 +195,8 @@ public class GrouperGroup {
    *
    * @return Group type
    */
-  public String groupType() {
-    return this.groupType();
+  public String type() {
+    return this.type;
   }
 
   /**
@@ -230,13 +220,13 @@ public class GrouperGroup {
     GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
     GrouperAttribute desc = (GrouperAttribute) attributes.get("desc");
     return this.getClass()  + ":" +
-           this.groupKey    + ":" + 
+           this.key         + ":" + 
            stem.value()     + ":" +
            desc.value(); 
   }
 
   /*
-   * PRIVATE METHODS
+   * PRIVATE INSTANCE METHODS
    */
 
   /*
@@ -250,7 +240,7 @@ public class GrouperGroup {
     // Attach session
     this.grprSession  = s;
 
-    // Generate the UUID (groupKey)
+    // Generate the UUID (key)
     this.setGroupKey( GrouperBackend.uuid() );
 
     this.attribute("stem", stem);
@@ -265,6 +255,24 @@ public class GrouperGroup {
   }
 
   /*
+   * Initialize instance variables
+   */
+  private void _init() { 
+    this.attributes    = new HashMap();
+    this.comment       = null;
+    this.createTime    = null;
+    this.createSubject = null;
+    this.createSource  = null;
+    this.exists        = false;
+    this.key           = null;
+    this.grprSession   = null;
+    this.modifyTime    = null;
+    this.modifySubject = null;
+    this.modifySource  = null;
+    this.type          = "base"; // TODO Don't hardcode this
+  }
+
+  /*
    * Validate whether an attribute is valid for the current group type.
    *
    * @return Boolean true if attribute is valid for type or we are
@@ -272,9 +280,9 @@ public class GrouperGroup {
    */
   private boolean _validateAttribute(String attribute) {
     boolean rv = false;
-    if (this.groupType != null) { // FIXME I can do better than this.
+    if (this.type != null) { // FIXME I can do better than this.
       // We have a group type.  Now what?
-      if (Grouper.groupField(this.groupType, attribute) == true) {
+      if (Grouper.groupField(this.type, attribute) == true) {
         // Our attribute passes muster.
         rv = true;
       }
@@ -316,7 +324,7 @@ public class GrouperGroup {
   private boolean _validateCreate() {
     if (
         // Do we have a valid group type?
-        (Grouper.groupType(this.groupType) == true) &&
+        (Grouper.groupType(this.type) == true) &&
         // And a stem?
         (attributes.containsKey("stem"))            &&
         // And a descriptor?
@@ -334,16 +342,17 @@ public class GrouperGroup {
     return false;
   }
 
+
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
 
   private String getGroupKey() {
-    return this.groupKey;
+    return this.key;
   }
 
-  private void setGroupKey(String groupKey) {
-    this.groupKey = groupKey;
+  private void setGroupKey(String key) {
+    this.key = key;
   }
 
   private String getCreateTime() {

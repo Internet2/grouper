@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.69 2004-11-08 18:30:35 blair Exp $
+ * $Id: GrouperTest.java,v 1.70 2004-11-08 20:39:19 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -526,8 +526,8 @@ public class GrouperTest extends TestCase {
     s.stop();
   }
 
-  // Add a member
-  public void testAddMemberToGroup() {
+  // Add valid list data to a group
+  public void testAddValidListDataToGroup() {
     G = new Grouper();
     GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
@@ -549,11 +549,34 @@ public class GrouperTest extends TestCase {
     s.stop();
   }
 
-  // TODO Add members
-  // TODO Add to invalid list
-  // TODO Fetch member
-  // TODO Fetch members
-  // TODO Fetch from invalid list
+  // Add invalid list data to a group
+  public void testAddInvalidListDataToGroup() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Fetch a member
+    GrouperMember member = GrouperSubject.lookup( "blair", "person" );
+
+    // Assert that the returned member is not null
+    Assert.assertNotNull(member);
+
+    // Add a member to the group's "members" list
+    Assert.assertFalse( grp.listAdd(s, member, "notmembers") );
+
+    // We're done
+    s.stop();
+  }
+
+  // TODO Add list data (plural)
+  // TODO Fetch list data (single)
+  // TODO Fetch list data (plural)
+  // TODO Fetch invalid list data 
+
 
   //
   // Class: GrouperSubjectImpl

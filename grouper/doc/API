@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.15 2004-11-08 20:11:57 blair Exp $
+# $Id: API,v 1.16 2004-11-08 20:39:19 blair Exp $
 #
 # TODO Interfaces
 #
@@ -90,10 +90,10 @@ GrouperGroup
     void attribute(String attribute, String value)
     Map attributes()
     boolean exists()
-    String groupKey()
+    String key()
       XXX Should NOT be public
-    String groupType()
     boolean listAdd(GrouperSession s, GrouperMember member, String list)
+    String type()
 
 
 GrouperMember

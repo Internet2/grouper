@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.8 2004-11-08 20:11:57 blair Exp $
+ * @version $Id: GrouperList.java,v 1.9 2004-11-08 20:39:19 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
@@ -36,7 +36,7 @@ public class GrouperMembership implements Serializable {
   public GrouperMembership(GrouperGroup g, GrouperMember m, String list) {
     this._init();
     // FIXME Stop relying upon the groupKey!
-    this.groupKey   = g.groupKey();
+    this.groupKey   = g.key();
     // FIXME This isn't going to work
     this.memberKey  = m.key();
     // FIXME Validation?
