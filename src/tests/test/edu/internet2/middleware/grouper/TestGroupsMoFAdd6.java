@@ -115,13 +115,29 @@ public class TestGroupsMoFAdd6 extends TestCase {
                          s, Constants.mem0I, Constants.mem0T
                        );
     // Add gA to gB's "members"
-    Assert.assertTrue("add gA to gB", gB.listAddVal(gA.toMember()));
+    try {
+      gB.listAddVal(gA.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gA to gB");
+    }
     // Add m0 to gA's "members"
-    Assert.assertTrue("add m0 to gA", gA.listAddVal(m0));
+    try {
+      gA.listAddVal(m0);
+    } catch (RuntimeException e) {
+      Assert.fail("add m0 to gA");
+    }
     // Add gC to gD's "members"
-    Assert.assertTrue("add gC to gD", gD.listAddVal(gC.toMember()));
+    try {
+      gD.listAddVal(gC.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gC to gD");
+    }
     // Add gB to gC's "members"
-    Assert.assertTrue("add gB to gC", gC.listAddVal(gB.toMember()));
+    try {
+      gC.listAddVal(gB.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gB to gC");
+    }
 
     // Now inspect gA's, resulting list values
     Assert.assertTrue(

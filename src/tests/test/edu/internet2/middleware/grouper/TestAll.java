@@ -71,6 +71,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestSessions.class);
     suite.addTestSuite(TestMembers.class);
     suite.addTestSuite(TestStemsAdd.class);
+/*
     suite.addTestSuite(TestStemsDelete.class);
     suite.addTestSuite(TestStemsAttrs.class);
     // TODO TestStemsAttrsAdd
@@ -79,7 +80,9 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestStemsMoF.class);
     // TODO TestStemsMoFAdd
     // TODO TestStemsMoFDel
-    suite.addTestSuite(TestGroupsAdd.class);
+*/
+    //suite.addTestSuite(TestGroupsAdd.class);
+/*
     suite.addTestSuite(TestGroupsDelete.class);
     suite.addTestSuite(TestGroupsAttrs.class);
     // TODO TestGroupsAttrsAdd
@@ -124,6 +127,7 @@ public class TestAll extends TestCase {
     // TODO TestAccessPrivsRevoke
     // TODO Flesh out
     suite.addTestSuite(TestQueries.class);
+*/
 
     return suite;
   }

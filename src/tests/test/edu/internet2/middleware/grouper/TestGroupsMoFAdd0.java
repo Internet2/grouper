@@ -101,7 +101,11 @@ public class TestGroupsMoFAdd0 extends TestCase {
                        );
 
     // Add m0 to g0's "members"
-    Assert.assertTrue(g0.listAddVal(m0));
+    try {
+      g0.listAddVal(m0);
+    } catch (RuntimeException e) {
+      Assert.fail("add m0 to g0");
+    }
 
     // Now inspect g0's, resulting list values
     Assert.assertTrue(

@@ -123,7 +123,11 @@ public class TestQueries extends TestCase {
                          s, Constants.gCs, Constants.gCe
                        );
     // Add gC to gA
-    Assert.assertTrue("add gC to gA", gA.listAddVal( gC.toMember() ));
+    try {
+      gA.listAddVal(gC.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gC to gA");
+    }
 
     // Create query object
     GrouperQuery q = new GrouperQuery(s);

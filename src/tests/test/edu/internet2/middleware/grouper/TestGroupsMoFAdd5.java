@@ -118,16 +118,35 @@ public class TestGroupsMoFAdd5 extends TestCase {
                          s, Constants.mem0I, Constants.mem0T
                        );
     // Add m0 to gA's "members"
-    Assert.assertTrue("add m0 to gA", gA.listAddVal(m0));
+    try {
+      gA.listAddVal(m0);
+    } catch (RuntimeException e) {
+      Assert.fail("add m0 to gA");
+    }
     // Add gA to gB's "members"
-    Assert.assertTrue("add gA to gB", gB.listAddVal(gA.toMember()));
+    try {
+      gB.listAddVal(gA.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gA to gB");
+    }
     // Add gA to gC's "members"
-    Assert.assertTrue("add gA to gC", gC.listAddVal(gA.toMember()));
+    try {
+      gC.listAddVal(gA.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gA to gC");
+    }
     // Add gB to gD's "members"
-    Assert.assertTrue("add gB to gD", gD.listAddVal(gB.toMember()));
+    try {
+      gD.listAddVal(gB.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gB to gD");
+    }
     // Add gC to gD's "members"
-    Assert.assertTrue("add gC to gD", gD.listAddVal(gC.toMember()));
-    // Add m0 to gB's "members"
+    try {
+      gD.listAddVal(gC.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gC to gD");
+    }
 
     // Now inspect gA's, resulting list values
     Assert.assertTrue(

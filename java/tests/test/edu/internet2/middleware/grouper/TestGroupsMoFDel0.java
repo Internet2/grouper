@@ -102,7 +102,11 @@ public class TestGroupsMoFDel0 extends TestCase {
                          s, Constants.mem0I, Constants.mem0T
                        );
     // Add m0 to g0's "members"
-    Assert.assertTrue("add m0 to g0", g0.listAddVal(m0));
+    try {
+      g0.listAddVal(m0);
+    } catch (RuntimeException e) {
+      Assert.fail("add m0 to g0");
+    }
     // Delete m0 from g0's "members"
     Assert.assertTrue("delete m0 from g0", g0.listDelVal(m0));
 

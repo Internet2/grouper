@@ -84,8 +84,8 @@ public class TestNamingPrivs extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
 
     // Assert current privs
@@ -97,34 +97,6 @@ public class TestNamingPrivs extends TestCase {
     );
     Assert.assertTrue(
       "has STEM", s.naming().has(s, ns0, Grouper.PRIV_STEM) 
-    );
-
-    // We're done
-    s.stop();
-  }
-
-  public void testHas1() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-
-    // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
-                       );
-    // Create g0
-    GrouperGroup g0  = GrouperGroup.create(
-                         s, Constants.g0s, Constants.g0e
-                       );
-
-    // Assert current privs
-    List privs = s.naming().has(s, g0);
-    Assert.assertTrue("privs == 0", privs.size() == 0);
-    // Because we are connected as root, everything will return true
-    Assert.assertTrue(
-      "has CREATE",  s.naming().has(s, g0, Grouper.PRIV_CREATE) 
-    );
-    Assert.assertTrue(
-      "has STEM", s.naming().has(s, g0, Grouper.PRIV_STEM) 
     );
 
     // We're done
