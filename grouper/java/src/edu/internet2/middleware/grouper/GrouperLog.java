@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.grouper.backend.*;
 import  edu.internet2.middleware.subject.*;
 import  net.sf.hibernate.*;
 import  org.apache.log4j.*;
@@ -64,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.5 2004-12-09 02:31:22 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.6 2005-01-31 00:57:18 blair Exp $
  */
 public class GrouperLog {
 
@@ -78,7 +77,7 @@ public class GrouperLog {
   private static final Logger LOG_GB  = 
     Logger.getLogger(GrouperBackend.class.getName());
   private static final Logger LOG_QRY = 
-    Logger.getLogger(GBQuery.class.getName());
+    Logger.getLogger(BackendQuery.class.getName());
 
 
   /*
