@@ -33,6 +33,7 @@ _DROP_TABLE(`grouper_group')
 CREATE TABLE grouper_group (
   groupKey      _TYPE_UUID() NOT NULL PRIMARY KEY,
   groupID       _TYPE_UUID() NOT NULL,
+  classType     _TYPE_STRING(),
   createTime    _TYPE_TIME(),
   createSubject _TYPE_UUID(),
   createSource  _TYPE_STRING(),

@@ -23,6 +23,7 @@ DROP TABLE grouper_group;
 CREATE TABLE grouper_group (
   groupKey      VARCHAR2(64) NOT NULL PRIMARY KEY,
   groupID       VARCHAR2(64) NOT NULL,
+  classType     VARCHAR2(64),
   createTime    VARCHAR2(16),
   createSubject VARCHAR2(64),
   createSource  VARCHAR2(64),
