@@ -2230,5 +2230,279 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
+  /*
+   * grouperzilla#286
+   */
+  public void testLoop0Setup() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g11 = GrouperGroup.create(s, Util.stem11, Util.extn11);
+    GrouperGroup g12 = GrouperGroup.create(s, Util.stem12, Util.extn12);
+    Assert.assertNotNull(g11);
+    Assert.assertNotNull(g12);
+    GrouperMember m0 = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m1 = GrouperMember.load(Util.m1i, Util.m1t);
+    Assert.assertNotNull(m0);
+    Assert.assertNotNull(m1);
+    Assert.assertTrue( g11.listAddVal(s, m0) );
+    Assert.assertTrue( g12.listAddVal(s, m1) );
+    Assert.assertTrue( g11.listVals(s).size()     == 1 );
+    Assert.assertTrue( g11.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g12.listVals(s).size()     == 1 );
+    Assert.assertTrue( g12.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 0 );
+    s.stop();
+  }
+
+  // Make g11 a member of g12
+  public void testLoop0t0() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
+    Assert.assertNotNull(m11);
+    Assert.assertTrue( g12.listAddVal(s, m11) );
+  }
+
+  // Test addition of g11 to g12
+  public void testLoop0t1() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    Assert.assertTrue( g11.listVals(s).size()     == 1 );
+    Assert.assertTrue( g11.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g12.listVals(s).size()     == 3 );
+    Assert.assertTrue( g12.listImmVals(s).size()  == 2 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 1 );
+  }
+
+  // Make g12 a member of g11
+  public void testLoop0t2() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
+    Assert.assertNotNull(m12);
+    Assert.assertTrue( g11.listAddVal(s, m12) );
+  }
+
+  // Test addition of g12 to g11
+  public void testLoop0t3() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    Assert.assertTrue( g11.listVals(s).size()     == 5 ); // 4
+    Assert.assertTrue( g11.listImmVals(s).size()  == 2 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 3 ); // 2
+    Assert.assertTrue( g12.listVals(s).size()     == 6 ); // 4
+    Assert.assertTrue( g12.listImmVals(s).size()  == 2 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 4 ); // 2
+  }
+
+  // Make m2 a member of g11
+  public void testLoop0t4() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperMember m2  = GrouperMember.load(Util.rooti, Util.roott);
+    Assert.assertNotNull(m2);
+    Assert.assertTrue( g11.listAddVal(s, m2) );
+  }
+
+  // Test addition of m2 to g11
+  public void testLoop0t5() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    Assert.assertTrue( g11.listVals(s).size()     == 7 ); // 5
+    Assert.assertTrue( g11.listImmVals(s).size()  == 3 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 4 ); // 2
+    Assert.assertTrue( g12.listVals(s).size()     == 7 ); // 5
+    Assert.assertTrue( g12.listImmVals(s).size()  == 2 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 5 ); // 3
+  }
+
+  // Make m2 a member of g12
+  public void testLoop0t6() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperMember m2  = GrouperMember.load(Util.rooti, Util.roott);
+    Assert.assertNotNull(m2);
+    Assert.assertTrue( g12.listAddVal(s, m2) );
+  }
+
+  // Test addition of m2 to g12
+  public void testLoop0t7() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    Assert.assertTrue( g11.listVals(s).size()     == 8 ); // 6
+    Assert.assertTrue( g11.listImmVals(s).size()  == 3 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 5 ); // 3
+    Assert.assertTrue( g12.listVals(s).size()     == 9 ); // 6
+    Assert.assertTrue( g12.listImmVals(s).size()  == 3 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 6 ); // 3
+  }
+
+  public void testLoop0TearDown() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperMember m0  = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m1  = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember m2  = GrouperMember.load(Util.rooti, Util.roott);
+    GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
+    GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
+    Assert.assertTrue( g11.listDelVal(s, m0) );
+    Assert.assertTrue( g11.listDelVal(s, m2) );
+    Assert.assertTrue( g11.listDelVal(s, m12) );
+    Assert.assertTrue( g12.listDelVal(s, m1) );
+    Assert.assertTrue( g12.listDelVal(s, m2) );
+    Assert.assertTrue( g12.listDelVal(s, m11) );
+    Assert.assertTrue( GrouperGroup.delete(s, g11) );
+    Assert.assertTrue( GrouperGroup.delete(s, g12) );
+  }
+
+  /*
+   * grouperzilla#286
+   */
+  public void testLoop1Setup() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g11 = GrouperGroup.create(s, Util.stem11, Util.extn11);
+    GrouperGroup g12 = GrouperGroup.create(s, Util.stem12, Util.extn12);
+    GrouperGroup g13 = GrouperGroup.create(s, Util.stem13, Util.extn13);
+    Assert.assertNotNull(g11);
+    Assert.assertNotNull(g12);
+    Assert.assertNotNull(g13);
+    Assert.assertTrue( g11.listVals(s).size()     == 0 );
+    Assert.assertTrue( g11.listImmVals(s).size()  == 0 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g12.listVals(s).size()     == 0 );
+    Assert.assertTrue( g12.listImmVals(s).size()  == 0 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g13.listVals(s).size()     == 0 );
+    Assert.assertTrue( g13.listImmVals(s).size()  == 0 );
+    Assert.assertTrue( g13.listEffVals(s).size()  == 0 );
+    s.stop();
+  }
+
+  // Add g11 to g12
+  public void testLoop1t0() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
+    Assert.assertNotNull(m11);
+    Assert.assertTrue( g12.listAddVal(s, m11) );
+    Assert.assertTrue( g11.listVals(s).size()     == 0 );
+    Assert.assertTrue( g11.listImmVals(s).size()  == 0 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g12.listVals(s).size()     == 1 );
+    Assert.assertTrue( g12.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g13.listVals(s).size()     == 0 );
+    Assert.assertTrue( g13.listImmVals(s).size()  == 0 );
+    Assert.assertTrue( g13.listEffVals(s).size()  == 0 );
+    s.stop();
+  }
+
+  // Add g11 to g13
+  public void testLoop1t1() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
+    Assert.assertTrue( g13.listAddVal(s, m11) );
+    Assert.assertTrue( g11.listVals(s).size()     == 0 );
+    Assert.assertTrue( g11.listImmVals(s).size()  == 0 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g12.listVals(s).size()     == 1 );
+    Assert.assertTrue( g12.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 0 );
+    Assert.assertTrue( g13.listVals(s).size()     == 1 );
+    Assert.assertTrue( g13.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g13.listEffVals(s).size()  == 0 );
+    s.stop();
+  }
+
+  // Add g12 to g11
+  public void testLoop1t2() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
+    Assert.assertTrue( g11.listAddVal(s, m12) );
+    Assert.assertTrue( g11.listVals(s).size()     == 2 );
+    Assert.assertTrue( g11.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 1 );
+    Assert.assertTrue( g12.listVals(s).size()     == 3 ); // 2
+    Assert.assertTrue( g12.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 2 ); // 1
+    Assert.assertTrue( g13.listVals(s).size()     == 3 );
+    Assert.assertTrue( g13.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g13.listEffVals(s).size()  == 2 );
+    s.stop();
+  }
+
+  // Add g13 to g11
+  public void testLoop1t3() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperMember m13 = GrouperMember.load( g13.id(), "group" );
+    Assert.assertTrue( g11.listAddVal(s, m13) );
+    Assert.assertTrue( g11.listVals(s).size()     == 6 ); // 4
+    Assert.assertTrue( g11.listImmVals(s).size()  == 2 );
+    Assert.assertTrue( g11.listEffVals(s).size()  == 4 ); // 2
+    Assert.assertTrue( g12.listVals(s).size()     == 5 ); // 4
+    Assert.assertTrue( g12.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g12.listEffVals(s).size()  == 4 ); // 3
+    Assert.assertTrue( g13.listVals(s).size()     == 5 ); // 4
+    Assert.assertTrue( g13.listImmVals(s).size()  == 1 );
+    Assert.assertTrue( g13.listEffVals(s).size()  == 4 ); // 3
+    s.stop();
+  }
+
+  public void testLoop1TearDown() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup  g13 = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
+    GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
+    GrouperMember m13 = GrouperMember.load( g13.id(), "group" );
+    Assert.assertTrue( g11.listDelVal(s, m12) );
+    Assert.assertTrue( g11.listDelVal(s, m13) );
+    Assert.assertTrue( g12.listDelVal(s, m11) );
+    Assert.assertTrue( g13.listDelVal(s, m11) );
+    Assert.assertTrue( GrouperGroup.delete(s, g11) );
+    Assert.assertTrue( GrouperGroup.delete(s, g12) );
+    Assert.assertTrue( GrouperGroup.delete(s, g13) );
+  }
+
 }
 
