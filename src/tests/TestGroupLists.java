@@ -102,11 +102,11 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listAddVal(s, m0, Grouper.DEF_LIST_TYPE) );
+    Assert.assertTrue( g0.listAddVal(m0, Grouper.DEF_LIST_TYPE) );
     // Do not silently fail when adding a list value that already exists
-    Assert.assertFalse( g0.listAddVal(s, m0, Grouper.DEF_LIST_TYPE) );
+    Assert.assertFalse( g0.listAddVal(m0, Grouper.DEF_LIST_TYPE) );
     // Add m1 to g2 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g2.listAddVal(s, m1, Grouper.DEF_LIST_TYPE) );
+    Assert.assertTrue( g2.listAddVal(m1, Grouper.DEF_LIST_TYPE) );
     // We're done
     s.stop();
   }
@@ -122,7 +122,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember m0 = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Do not silently fail when adding a list value that already exists
-    Assert.assertFalse( g0.listAddVal(s, m0) );
+    Assert.assertFalse( g0.listAddVal(m0) );
     // We're done
     s.stop();
   }
@@ -311,9 +311,9 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-   // FIXME  (#269) Assert.assertFalse( g0.listAddVal(s, m0, "invalid members") );
+   // FIXME  (#269) Assert.assertFalse( g0.listAddVal(m0, "invalid members") );
     // Add m1 to g2 Grouper.DEF_LIST_TYPE
-    // FIXME (#269) Assert.assertFalse( g2.listAddVal(s, m1, "invalid members") );
+    // FIXME (#269) Assert.assertFalse( g2.listAddVal(m1, "invalid members") );
     // We're done
     s.stop();
   }
@@ -333,7 +333,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m0      = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m0);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listAddVal(s, m0) );
+    Assert.assertTrue( g0.listAddVal(m0) );
     // We're done
     s.stop();
   } 
@@ -419,7 +419,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m0      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m0);
     // Add m0 to g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listAddVal(s, m0) );
+    Assert.assertTrue( g0.listAddVal(m0) );
     // We're done
     s.stop();
   }
@@ -526,7 +526,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m1      = GrouperMember.load("notblair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m1);
     // Remove m0 from g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listDelVal(s, m0) );
+    Assert.assertTrue( g0.listDelVal(m0) );
     // We're done
     s.stop();
   }
@@ -641,7 +641,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m1      = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m1);
     // Remove m1 (g1) from g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listDelVal(s, m1) );
+    Assert.assertTrue( g0.listDelVal(m1) );
     // We're done
     s.stop();
   }
@@ -756,7 +756,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m2      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m2);
     // Remove m2 (g2) from g0 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g0.listDelVal(s, m2) );
+    Assert.assertTrue( g0.listDelVal(m2) );
     // We're done
     s.stop();
   }
@@ -871,7 +871,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m2      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m2);
     // Add m2/g2 to g0
-    Assert.assertTrue( g0.listAddVal(s, m2) );
+    Assert.assertTrue( g0.listAddVal(m2) );
     // We're done
     s.stop();
   }
@@ -986,7 +986,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m2      = GrouperMember.load( g2.id(), "group");
     Assert.assertNotNull(m2);
     // Remove m1 from g2 Grouper.DEF_LIST_TYPE
-    Assert.assertTrue( g2.listDelVal(s, m1) );
+    Assert.assertTrue( g2.listDelVal(m1) );
     // We're done
     s.stop();
   }
@@ -1088,9 +1088,9 @@ public class TestGroupLists extends TestCase {
     GrouperMember m1 = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m1);
     // Add m0 to g1
-    Assert.assertTrue( g1.listAddVal(s, m0) );
+    Assert.assertTrue( g1.listAddVal(m0) );
     // Add g1 to g0
-    Assert.assertTrue( g0.listAddVal(s, m1) );
+    Assert.assertTrue( g0.listAddVal(m1) );
     // We're done
     s.stop();
   }
@@ -1187,7 +1187,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember m1 = GrouperMember.load( g1.id(), "group");
     Assert.assertNotNull(m1);
     // Remove g1 from g0
-    Assert.assertTrue( g0.listDelVal(s, m1) );
+    Assert.assertTrue( g0.listDelVal(m1) );
     // We're done
     s.stop();
   }
@@ -1220,7 +1220,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember m0 = GrouperMember.load("blair", Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(m0);
     // Remove m0 from g1
-    Assert.assertTrue( g1.listDelVal(s, m0) );
+    Assert.assertTrue( g1.listDelVal(m0) );
     // We're done
     s.stop();
   }
@@ -1378,9 +1378,9 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
     Assert.assertNotNull(m2);
-    Assert.assertTrue( g7.listAddVal(s, m0) );
-    Assert.assertTrue( g8.listAddVal(s, m1) );
-    Assert.assertTrue( g9.listAddVal(s, m2) );
+    Assert.assertTrue( g7.listAddVal(m0) );
+    Assert.assertTrue( g8.listAddVal(m1) );
+    Assert.assertTrue( g9.listAddVal(m2) );
     s.stop();
   }
 
@@ -1434,7 +1434,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
-    Assert.assertTrue( g8.listAddVal(s, g7m) );
+    Assert.assertTrue( g8.listAddVal(g7m) );
     s.stop();
   }
 
@@ -1488,7 +1488,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
-    Assert.assertTrue( g9.listAddVal(s, g8m) );
+    Assert.assertTrue( g9.listAddVal(g8m) );
     s.stop();
   }
 
@@ -1542,7 +1542,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
-    Assert.assertTrue( g8.listDelVal(s, g7m) );
+    Assert.assertTrue( g8.listDelVal(g7m) );
     s.stop();
   }
 
@@ -1598,7 +1598,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g9m);
     GrouperMember m1 = GrouperMember.load(Util.m1i, Util.m1t);
     Assert.assertNotNull(m1);
-    Assert.assertTrue( g8.listDelVal(s, m1) );
+    Assert.assertTrue( g8.listDelVal(m1) );
     s.stop();
   }
 
@@ -1656,9 +1656,9 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(m0);
     GrouperMember m2 = GrouperMember.load(Util.rooti, Util.roott);
     Assert.assertNotNull(m2);
-    Assert.assertTrue( g7.listDelVal(s, m0) );
-    Assert.assertTrue( g9.listDelVal(s, m2) );
-    Assert.assertTrue( g9.listDelVal(s, g8m) );
+    Assert.assertTrue( g7.listDelVal(m0) );
+    Assert.assertTrue( g9.listDelVal(m2) );
+    Assert.assertTrue( g9.listDelVal(g8m) );
     Assert.assertTrue( GrouperGroup.delete(s, g7) );
     Assert.assertTrue( GrouperGroup.delete(s, g8) );
     Assert.assertTrue( GrouperGroup.delete(s, g9) );
@@ -1702,10 +1702,10 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
     Assert.assertNotNull(m2);
-    Assert.assertTrue( g7.listAddVal(s, m0) );
-    Assert.assertTrue( g8.listAddVal(s, m1) );
-    Assert.assertTrue( g9.listAddVal(s, m2) );
-    Assert.assertTrue( g10.listAddVal(s, m0) );
+    Assert.assertTrue( g7.listAddVal(m0) );
+    Assert.assertTrue( g8.listAddVal(m1) );
+    Assert.assertTrue( g9.listAddVal(m2) );
+    Assert.assertTrue( g10.listAddVal(m0) );
     s.stop();
   }
 
@@ -1771,7 +1771,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
     Assert.assertNotNull(g10m);
-    Assert.assertTrue( g8.listAddVal(s, g7m) );
+    Assert.assertTrue( g8.listAddVal(g7m) );
     s.stop();
   }
 
@@ -1837,7 +1837,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
     Assert.assertNotNull(g10m);
-    Assert.assertTrue( g9.listAddVal(s, g8m) );
+    Assert.assertTrue( g9.listAddVal(g8m) );
     s.stop();
   }
 
@@ -1903,7 +1903,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
     Assert.assertNotNull(g10m);
-    Assert.assertTrue( g7.listAddVal(s, g10m) );
+    Assert.assertTrue( g7.listAddVal(g10m) );
     s.stop();
   }
 
@@ -1952,7 +1952,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
     Assert.assertNotNull(g10m);
-    Assert.assertTrue( g9.listDelVal(s, g8m) );
+    Assert.assertTrue( g9.listDelVal(g8m) );
     s.stop();
   }
 
@@ -2001,7 +2001,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
     Assert.assertNotNull(g10m);
-    Assert.assertTrue( g7.listDelVal(s, g10m) );
+    Assert.assertTrue( g7.listDelVal(g10m) );
     s.stop();
   }
 
@@ -2052,7 +2052,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(g9m);
     Assert.assertNotNull(g10m);
     Assert.assertNotNull(m0);
-    Assert.assertTrue( g7.listDelVal(s, m0) );
+    Assert.assertTrue( g7.listDelVal(m0) );
     s.stop();
   }
 
@@ -2107,10 +2107,10 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
     Assert.assertNotNull(m2);
-    Assert.assertTrue( g8.listDelVal(s, m1) );
-    Assert.assertTrue( g8.listDelVal(s, g7m) );
-    Assert.assertTrue( g9.listDelVal(s, m2) );
-    Assert.assertTrue( g10.listDelVal(s, m0) );
+    Assert.assertTrue( g8.listDelVal(m1) );
+    Assert.assertTrue( g8.listDelVal(g7m) );
+    Assert.assertTrue( g9.listDelVal(m2) );
+    Assert.assertTrue( g10.listDelVal(m0) );
     Assert.assertTrue( GrouperGroup.delete(s, g7) );
     Assert.assertTrue( GrouperGroup.delete(s, g8) );
     Assert.assertTrue( GrouperGroup.delete(s, g9) );
@@ -2156,8 +2156,8 @@ public class TestGroupLists extends TestCase {
     GrouperMember m1 = GrouperMember.load(Util.m1i, Util.m1t);
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
-    Assert.assertTrue( g11.listAddVal(s, m0) );
-    Assert.assertTrue( g12.listAddVal(s, m1) );
+    Assert.assertTrue( g11.listAddVal(m0) );
+    Assert.assertTrue( g12.listAddVal(m1) );
     Assert.assertTrue( g11.listVals().size()     == 1 );
     Assert.assertTrue( g11.listImmVals().size()  == 1 );
     Assert.assertTrue( g11.listEffVals().size()  == 0 );
@@ -2179,7 +2179,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
     Assert.assertNotNull(m11);
-    Assert.assertTrue( "Add g11 to g12" , g12.listAddVal(s, m11) );
+    Assert.assertTrue( "Add g11 to g12" , g12.listAddVal(m11) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 1 );
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 1 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 0 );
@@ -2201,7 +2201,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
     Assert.assertNotNull(m12);
-    Assert.assertTrue( "Add g12 to g11" , g11.listAddVal(s, m12) );
+    Assert.assertTrue( "Add g12 to g11" , g11.listAddVal(m12) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 5 ); // 4
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 2 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 3 ); // 2
@@ -2223,7 +2223,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperMember m2  = GrouperMember.load(Util.rooti, Util.roott);
     Assert.assertNotNull(m2);
-    Assert.assertTrue( "Add m2 to g11"  , g11.listAddVal(s, m2) );
+    Assert.assertTrue( "Add m2 to g11"  , g11.listAddVal(m2) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 7 ); // 5
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 3 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 4 ); // 2
@@ -2245,7 +2245,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperMember m2  = GrouperMember.load(Util.rooti, Util.roott);
     Assert.assertNotNull(m2);
-    Assert.assertTrue( "Add m2 to g12"  , g12.listAddVal(s, m2) );
+    Assert.assertTrue( "Add m2 to g12"  , g12.listAddVal(m2) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 7 ); // 6
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 3 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 4 ); // 3
@@ -2265,12 +2265,12 @@ public class TestGroupLists extends TestCase {
     GrouperMember m2  = GrouperMember.load(Util.rooti, Util.roott);
     GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
     GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
-    Assert.assertTrue( g11.listDelVal(s, m0) );
-    Assert.assertTrue( g11.listDelVal(s, m2) );
-    Assert.assertTrue( g11.listDelVal(s, m12) );
-    Assert.assertTrue( g12.listDelVal(s, m1) );
-    Assert.assertTrue( g12.listDelVal(s, m2) );
-    Assert.assertTrue( g12.listDelVal(s, m11) );
+    Assert.assertTrue( g11.listDelVal(m0) );
+    Assert.assertTrue( g11.listDelVal(m2) );
+    Assert.assertTrue( g11.listDelVal(m12) );
+    Assert.assertTrue( g12.listDelVal(m1) );
+    Assert.assertTrue( g12.listDelVal(m2) );
+    Assert.assertTrue( g12.listDelVal(m11) );
     Assert.assertTrue( GrouperGroup.delete(s, g11) );
     Assert.assertTrue( GrouperGroup.delete(s, g12) );
     s.stop();
@@ -2318,7 +2318,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
     GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
     Assert.assertNotNull(m11);
-    Assert.assertTrue( "Add g11 to g12" , g12.listAddVal(s, m11) );
+    Assert.assertTrue( "Add g11 to g12" , g12.listAddVal(m11) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 0 );
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 0 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 0 );
@@ -2344,7 +2344,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
     GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
-    Assert.assertTrue( "Add g11 to g13" , g13.listAddVal(s, m11) );
+    Assert.assertTrue( "Add g11 to g13" , g13.listAddVal(m11) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 0 );
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 0 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 0 );
@@ -2370,7 +2370,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
     GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
-    Assert.assertTrue( "Add g12 to g11" , g11.listAddVal(s, m12) );
+    Assert.assertTrue( "Add g12 to g11" , g11.listAddVal(m12) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 2 );
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 1 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 1 );
@@ -2391,7 +2391,7 @@ public class TestGroupLists extends TestCase {
     GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
     GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
     GrouperMember m13 = GrouperMember.load( g13.id(), "group" );
-    Assert.assertTrue( "Add g13 to g11" , g11.listAddVal(s, m13) );
+    Assert.assertTrue( "Add g13 to g11" , g11.listAddVal(m13) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 7 ); 
     Assert.assertTrue( "g11 imm mships" , g11.listImmVals().size()  == 2 );
     Assert.assertTrue( "g11 eff mships" , g11.listEffVals().size()  == 5 ); 
@@ -2413,10 +2413,10 @@ public class TestGroupLists extends TestCase {
     GrouperMember m11 = GrouperMember.load( g11.id(), "group" );
     GrouperMember m12 = GrouperMember.load( g12.id(), "group" );
     GrouperMember m13 = GrouperMember.load( g13.id(), "group" );
-    Assert.assertTrue( g11.listDelVal(s, m12) );
-    Assert.assertTrue( g11.listDelVal(s, m13) );
-    Assert.assertTrue( g12.listDelVal(s, m11) );
-    Assert.assertTrue( g13.listDelVal(s, m11) );
+    Assert.assertTrue( g11.listDelVal(m12) );
+    Assert.assertTrue( g11.listDelVal(m13) );
+    Assert.assertTrue( g12.listDelVal(m11) );
+    Assert.assertTrue( g13.listDelVal(m11) );
     Assert.assertTrue( GrouperGroup.delete(s, g11) );
     Assert.assertTrue( GrouperGroup.delete(s, g12) );
     Assert.assertTrue( GrouperGroup.delete(s, g13) );
