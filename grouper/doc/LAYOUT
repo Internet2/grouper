@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.4 2005-01-25 17:56:57 blair Exp $
+$Id: LAYOUT,v 1.5 2005-01-27 02:02:40 blair Exp $
 
 ---
 
@@ -89,6 +89,10 @@ This file.
 ### PLATFORMS
 
 Platforms where Grouper has been tested and is known to work.
+
+### ROADMAP
+
+Grouper development roadmap for future releases.
 
 ## java/
 
