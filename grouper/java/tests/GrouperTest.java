@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.40 2004-09-19 17:10:31 blair Exp $
+ * $Id: GrouperTest.java,v 1.41 2004-09-19 18:08:03 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -490,14 +490,20 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-/*
-
   // Create a group
   public void testCreateGroup() {
     G = new Grouper();
     G.init();
     GrouperSession s = new GrouperSession();
-    s.start( G, G.config("member.system"), true );
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
+    s.start(G, subject);
+
+    // Create the group
+    // GrouperGroup grp = GrouperGroup.create(s, "stem.1", "desc.1");
+
+    // Confirm that the group exists
+    // Assert.assertTrue( grp.exist() );
+    
     GrouperGroup grp = new GrouperGroup();
     // Attach a session
     grp.session(s);
@@ -509,16 +515,17 @@ public class GrouperTest extends TestCase {
     grp.attribute("description", "group.1");
 
     // Create it
-    grp.create();
+    grp.create(s);
 
     // Confirm that the group exists
     Assert.assertTrue( grp.exist() );
-    
+
     // We're done
     s.stop();
     G.destroy();
   }
 
+/*
   // Fetch a group
   public void testFetchGroup() {
     G = new Grouper();
