@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.86 2004-12-02 07:41:27 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.87 2004-12-02 15:23:44 blair Exp $
  */
 public class GrouperBackend {
 
@@ -98,20 +98,6 @@ public class GrouperBackend {
   protected GrouperBackend() {
     // Provided only for the benefit of finding the Grouper.hbm.xml
     // files.  And yes, there *has* to be a better way.
-  }
-
-
-  /*
-   * PUBLIC CLASS METHODS 
-   */
-
-  /**
-   * Generate UUID.
-   *
-   * @return A UUID
-   */
-  public static String uuid() {
-    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
   }
 
 
@@ -1119,6 +1105,16 @@ public class GrouperBackend {
     List    vals    = GrouperBackend._queryAll(session, "SubjectTypeImpl");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
+  }
+
+  /**
+   * Generate UUID using the Doomdark UUID generator.
+   * <p />
+   *
+   * @return A string UUID.
+   */
+  protected static String uuid() {
+    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
   }
 
 
