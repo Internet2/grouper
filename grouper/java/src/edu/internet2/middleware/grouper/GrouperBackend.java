@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.148 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.149 2005-02-07 21:41:38 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1725,9 +1725,7 @@ public class GrouperBackend {
    */
   private static Session _init() {
     if (cfg == null) {
-      // TODO Hateful
-      GrouperSession tmp = new GrouperSession();
-      InputStream    in  = tmp.getClass()
+      InputStream in = Grouper.class
                               .getResourceAsStream("/Grouper.hbm.xml");
       try {
         // conf.load(in);
