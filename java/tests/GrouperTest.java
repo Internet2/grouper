@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.36 2004-09-19 03:12:00 blair Exp $
+ * $Id: GrouperTest.java,v 1.37 2004-09-19 15:52:54 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -250,22 +250,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  // GrouperMember creation 
-  public void testGrouperMemberCreation() {
-    G = new Grouper();
-    G.init();
-/*
-    GrouperSession s = new GrouperSession();
-    s.start( G, G.config("member.system"), true );
-
-    GrouperMember member = s.lookup( G.config("member.system") );
-    Assert.assertTrue( member.memberID().equals( G.config("member.system") )); 
-    
-    s.end();
-*/
-    G.destroy();
-  }
-
   //
   // Class: GrouperSubject
   //
@@ -314,97 +298,63 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-/*
   //
   // Class: GrouperSession
   //
-   
 
   // Instantiate a Grouper session 
   public void testSessionInstantiate() {
     // Establish a new Grouper instance
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession();
-
-    Class klass     = s.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperSession";
-
+    GrouperSession s = new GrouperSession(G);
+    String klass = "edu.internet2.middleware.grouper.GrouperSession";
     Assert.assertNotNull(s);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertTrue( klass.equals( s.getClass().getName() ) );
     G.destroy();
   }
 
-  // Start a session as SubjectID "member.system", 1 argument method 
-  public void testSessionStartAsMemberSystemOneArgMethod() {
+  // Start a session as SubjectID "member.system"
+  public void testSessionStartAsMemberSystem() {
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession();
+    GrouperSession s = new GrouperSession(G);
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
     try {
-      s.start( G, G.config("member.system") );
+      s.start(subject);
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
     G.destroy();
   }
   
-  // Start a session as SubjectID "member.system", 2 argument method 
-  public void testSessionStartAsMemberSystemTwoArgMethod() {
+  // Start and end a session as SubjectID "member.system"
+  public void testSessionStartEndAsMemberSystem() {
     G = new Grouper();
     G.init();
-    GrouperSession s= new GrouperSession();
+    GrouperSession s= new GrouperSession(G);
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
     try {
-      s.start( G, G.config("member.system"), true );
-    } catch(Exception e) {
-      Assert.fail("Exception thrown when starting session");
-    }
-    G.destroy();
-  }
-  
-  // Start and end a session as SubjectID "member.system", 1 argument method 
-  public void testSessionStartEndAsMemberSystemOneArgMethod() {
-    G = new Grouper();
-    G.init();
-    GrouperSession s= new GrouperSession();
-    try {
-      s.start( G, G.config("member.system") );
+      s.start(subject);
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
     try {
-      s.end();
+      s.stop();
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending session");
     }
     G.destroy();
   }
   
-  // Start and end a session as SubjectID "member.system", 2 argument method 
-  public void testSessionStartEndAsMemberSystemTwoArgMethod() {
-    G = new Grouper();
-    G.init();
-    GrouperSession s= new GrouperSession();
-    try {
-      s.start( G, G.config("member.system"), true );
-    } catch(Exception e) {
-      Assert.fail("Exception thrown when starting session");
-    }
-    try {
-      s.end();
-    } catch(Exception e) {
-      Assert.fail("Exception thrown when ending session");
-    }
-    G.destroy();
-  }
-
   // Attempt to end a session that hasn't been started 
   public void testSessionEndWithoutStart() {
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession();
+    GrouperSession s = new GrouperSession(G);
     try {
       // XXX This may fail if we start throwing exceptions. 
-      s.end();
+      s.stop();
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending unstarted session");
     }
@@ -415,8 +365,9 @@ public class GrouperTest extends TestCase {
   public void testSessionSubject() {
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession();
-    s.start( G, G.config("member.system"), true );
+    GrouperSession s = new GrouperSession(G);
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
+    s.start(subject);
 
     GrouperMember m = s.subject();
 
@@ -428,6 +379,8 @@ public class GrouperTest extends TestCase {
 
     G.destroy();
   }
+
+/*
 
   //
   // Class: GrouperGroup
@@ -463,6 +416,7 @@ public class GrouperTest extends TestCase {
 
   //
   // Class: GrouperAttribute
+  //
    
 
   // Instantiate a GrouperAttribute instance 
@@ -541,7 +495,7 @@ public class GrouperTest extends TestCase {
     Assert.assertFalse( grp.exist() );
 
     // We're done
-    s.end();
+    s.stop();
     G.destroy();
   }
 
@@ -568,7 +522,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( grp.exist() );
     
     // We're done
-    s.end();
+    s.stop();
     G.destroy();
   }
 
@@ -602,7 +556,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expDescription.equals(description.value()) );
 
     // We're done
-    s.end();
+    s.stop();
     G.destroy();
   }
 
