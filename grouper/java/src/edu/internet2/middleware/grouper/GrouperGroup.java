@@ -8,13 +8,18 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.10 2004-04-28 17:37:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.11 2004-04-29 15:53:53 blair Exp $
  */
 public class GrouperGroup {
 
   /**
    * Create a new object that represents a single {@link Grouper}
    * group. 
+   * <p>
+   * <ul>
+   *  <li>Cache the <i>subject</i>'s privileges for this group.</li>
+   *  <li>XXX Leave the rest for lazy evaluation later?</li>
+   * </ul>
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
     // Nothing -- Yet
