@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.1 2005-02-14 01:07:01 blair Exp $
+ * @version $Id: MemberVia.java,v 1.2 2005-03-15 17:13:27 blair Exp $
  */
 public class ViaElement implements Serializable {
 
@@ -71,7 +71,7 @@ public class ViaElement implements Serializable {
    * PRIVATE INSTANCE VARIABLES
    */
   private String  groupKey;
-  private int     pathIdx;
+  private Long    pathIdx;
   private String  pathKey;
 
 
@@ -128,7 +128,7 @@ public class ViaElement implements Serializable {
    */
   private void _init() {
     this.groupKey = null;
-    this.pathIdx  = -1;
+    //this.pathIdx;
     this.pathKey  = null;
   }
 
@@ -145,11 +145,11 @@ public class ViaElement implements Serializable {
     this.groupKey = key;
   } 
 
-  private int getPathIdx() {
+  private Long getPathIdx() {
     return this.pathIdx;
   }
 
-  private void setPathIdx(int idx) {
+  private void setPathIdx(Long idx) {
     this.pathIdx = idx;
   } 
 

@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
+import  java.util.*;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -63,13 +64,14 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.39 2005-03-15 16:13:25 blair Exp $
+ * @version $Id: GrouperList.java,v 1.40 2005-03-15 17:13:27 blair Exp $
  */
 public class GrouperList implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
+  private List            elements;
   private GrouperGroup    g;
   private GrouperMember   m;
   private GrouperGroup    via;
@@ -275,9 +277,10 @@ public class GrouperList implements Serializable {
    * Initialize instance variables
    */
   private void _init() {
-    this.g = null;
-    this.m = null;
-    this.via = null;
+    this.elements     = new ArrayList();
+    this.g            = null;
+    this.m            = null;
+    this.via          = null;
     this.groupKey     = null;
     this.groupField   = null;
     this.memberKey    = null;
@@ -288,6 +291,14 @@ public class GrouperList implements Serializable {
   /*
    * HIBERNATE
    */
+
+  private List getElements() {
+    return this.elements;
+  }
+
+  private void setElements(List elements) {
+    this.elements = elements;
+  }
 
   private String getGroupKey() {
     return this.groupKey;

@@ -222,15 +222,5 @@ public class TestInstantiate extends TestCase {
                      );
   }
 
-  // Instantiate a ViaPath instance 
-  public void testViaPathInstantiate() {
-    ViaPath obj = new ViaPath();
-    Assert.assertNotNull("obj !null", obj);
-    Assert.assertTrue(
-                      "correct class",
-                      Util.KLASS_VP.equals( obj.getClass().getName() ) 
-                     );
-  }
-
 }
 
