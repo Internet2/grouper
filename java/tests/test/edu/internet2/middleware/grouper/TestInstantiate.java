@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestInstantiate.java,v 1.8 2004-11-20 16:10:24 blair Exp $
+ * $Id: TestInstantiate.java,v 1.9 2004-11-20 17:47:08 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -42,6 +42,14 @@ public class TestInstantiate extends TestCase {
    * TESTS
    */
   
+
+  // Instantiate a GrouperAccessImpl instance 
+  public void testGrouperAccessImplInstantiate() {
+    GrouperAccess obj = new GrouperAccessImpl();
+    Assert.assertNotNull(obj);
+    String klass = "edu.internet2.middleware.grouper.GrouperAccessImpl";
+    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+  }
 
   // Instantiate a GrouperAttribute instance 
   public void testGrouperAttributeInstantiate() {
@@ -81,6 +89,14 @@ public class TestInstantiate extends TestCase {
     GrouperMembership obj = new GrouperMembership();
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.GrouperMembership";
+    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+  }
+
+  // Instantiate a GrouperNamingImpl instance 
+  public void testGrouperNamingImplInstantiate() {
+    GrouperNaming obj = new GrouperNamingImpl();
+    Assert.assertNotNull(obj);
+    String klass = "edu.internet2.middleware.grouper.GrouperNamingImpl";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 

@@ -16,9 +16,21 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.15 2004-11-20 16:41:49 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.16 2004-11-20 17:47:08 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
+
+  /*
+   * CONSTRUCTORS
+   */
+  public GrouperAccessImpl() {
+    // Nothing -- Yet
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
 
   /**
    * Grant an access privilege.
