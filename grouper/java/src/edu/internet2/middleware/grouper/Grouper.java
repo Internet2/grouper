@@ -11,7 +11,7 @@ import  java.util.Properties;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.14 2004-05-02 01:09:23 blair Exp $
+ * @version $Id: Grouper.java,v 1.15 2004-06-02 22:02:49 blair Exp $
  */
 public class Grouper {
 
@@ -66,7 +66,9 @@ public class Grouper {
    * </ul>
    */ 
   public void destroy() {
-    this.intSess.end();
+    if (this.intSess != null) {
+      this.intSess.end();
+    }
   }
 
   /**

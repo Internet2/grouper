@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.5 2004-06-02 17:40:08 blair Exp $
+ * $Id: GrouperTest.java,v 1.6 2004-06-02 22:02:49 blair Exp $
  */
 
 import edu.internet2.middleware.directory.grouper.*;
@@ -19,16 +19,10 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
   }
 
-/*
-  XXX Running G.destroy() is causing null pointer exceptions.  At
-      the moment I'm not sure if that is due to a bug in my code
-      (probably), me misundering how JUnit works (also quite
-      probable), or me misunderstanding Java (also quite possible).
   protected void tearDown () {
     // Destroy our Grouper instance
     G.destroy();
   }
-*/
 
   /* Instantiate a Grouper instance */
   public void testGrouperInstantiate() {
