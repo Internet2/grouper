@@ -59,14 +59,7 @@ import  junit.framework.*;
 
 public class TestNamingPrivs extends TestCase {
 
-  private String  stem0   = Grouper.NS_ROOT;
-  private String  extn0   = "stem.0";
-  private String  stem00  = "stem.0";
-  private String  extn00  = "stem.0.0";
-  private String  stem1   = Grouper.NS_ROOT;
-  private String  extn1   = "stem.1";
- 
-public TestNamingPrivs(String name) {
+  public TestNamingPrivs(String name) {
     super(name);
   }
 
@@ -86,84 +79,59 @@ public TestNamingPrivs(String name) {
    */
   
 
-/*
-  // Test requirements for other *real* tests
-  public void testRequirements() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    Assert.assertNotNull(subj);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Fetch the namespaces
-    // ns0
-    GrouperGroup ns0 = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
-    Assert.assertNotNull(ns0);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns0.getClass().getName() ) );
-    Assert.assertNotNull( ns0.type() );
-    Assert.assertTrue( ns0.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns0.attribute("stem") );
-    Assert.assertTrue( ns0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( ns0.attribute("extension") );
-    Assert.assertTrue( ns0.attribute("extension").value().equals(extn0) );
-    // ns00
-    GrouperGroup ns00 = GrouperGroup.load(s, stem00, extn00, Grouper.NS_TYPE);
-    Assert.assertNotNull(ns00);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns00.getClass().getName() ) );
-    Assert.assertNotNull( ns00.type() );
-    Assert.assertTrue( ns00.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns00.attribute("stem") );
-    Assert.assertTrue( ns00.attribute("stem").value().equals(stem00) );
-    Assert.assertNotNull( ns00.attribute("extension") );
-    Assert.assertTrue( ns00.attribute("extension").value().equals(extn00) );
-    // ns1
-    GrouperGroup ns1 = GrouperGroup.load(s, stem1, extn1, Grouper.NS_TYPE);
-    Assert.assertNotNull(ns1);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns1.getClass().getName() ) );
-    Assert.assertNotNull( ns1.type() );
-    Assert.assertTrue( ns1.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns1.attribute("stem") );
-    Assert.assertTrue( ns1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( ns1.attribute("extension") );
-    Assert.assertTrue( ns1.attribute("extension").value().equals(extn1) );
-    // ns2
-    GrouperGroup ns2 = GrouperGroup.load(s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE);
-    Assert.assertNotNull(ns2);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns2.getClass().getName() ) );
-    Assert.assertNotNull( ns2.type() );
-    Assert.assertTrue( ns2.type().equals(Grouper.NS_TYPE) );
-    Assert.assertNotNull( ns2.attribute("stem") );
-    Assert.assertTrue( ns2.attribute("stem").value().equals(Constants.ns2s) );
-    Assert.assertNotNull( ns2.attribute("extension") );
-    Assert.assertTrue( ns2.attribute("extension").value().equals(Constants.ns2e) );
-    // Fetch the members
-    // Fetch m0
-    GrouperMember m0 = GrouperMember.load(s, Constants.mem0I, Constants.mem0T);
-    Assert.assertNotNull(m0);
-    // Fetch m1
-    GrouperMember m1 = GrouperMember.load(s, Constants.mem1I, Constants.mem1T);
-    Assert.assertNotNull(m1);
-
-    // We're done
-    s.stop();
-  }
-
   public void testHas0() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
 
-    // Fetch ns
-    GrouperGroup ns = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
-    // Assert what privs the current subject has on the ns
-    List privs = s.naming().has(s, ns);
-    Assert.assertNotNull(privs);
-    Assert.assertTrue( privs.size() == 1 );
-    Assert.assertTrue( s.naming().has(s, ns, Grouper.PRIV_CREATE) );
-    Assert.assertTrue( s.naming().has(s, ns, Grouper.PRIV_STEM) );
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+
+    // Assert current privs
+    List privs = s.naming().has(s, ns0);
+    Assert.assertTrue("privs == 1", privs.size() == 1);
+    // Because we are connected as root, everything will return true
+    Assert.assertTrue(
+      "has CREATE",  s.naming().has(s, ns0, Grouper.PRIV_CREATE) 
+    );
+    Assert.assertTrue(
+      "has STEM", s.naming().has(s, ns0, Grouper.PRIV_STEM) 
+    );
+
     // We're done
     s.stop();
   }
 
+  public void testHas1() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create g0
+    GrouperGroup g0  = GrouperGroup.create(
+                         s, Constants.g0s, Constants.g0e
+                       );
+
+    // Assert current privs
+    List privs = s.naming().has(s, g0);
+    Assert.assertTrue("privs == 0", privs.size() == 0);
+    // Because we are connected as root, everything will return true
+    Assert.assertTrue(
+      "has CREATE",  s.naming().has(s, g0, Grouper.PRIV_CREATE) 
+    );
+    Assert.assertTrue(
+      "has STEM", s.naming().has(s, g0, Grouper.PRIV_STEM) 
+    );
+
+    // We're done
+    s.stop();
+  }
+
+/*
   public void testHas1() {
     Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
