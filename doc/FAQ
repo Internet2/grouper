@@ -1,0 +1,61 @@
+#
+# Grouper FAQ
+# $Id: FAQ,v 1.1 2004-12-03 02:56:49 blair Exp $
+#
+
+# Using The API
+
+## List Values
+
+### How do I retrieve a `GrouperGroup' object from a `GrouperList'
+    result?
+
+A: Use the `GrouperList.group()' method.
+
+<code>
+  GrouperGroup g = (GrouperGroup) gl.group();
+</code>
+
+### How do I retrieve a `GrouperMember' object from a `GrouperList'
+    result?
+
+A: Use the `GrouperList.member()' method.
+
+<code>
+  GrouperMember m = (GrouperGroup) gl.member();
+</code>
+
+
+## Subjects
+
+### How do I look up a subject of type `person'?
+
+A: Use the `GrouperSubject.lookup(subjID, subjType)' method.
+
+<code>
+  Subject subj = GrouperSubject.lookup(subjID, "person");
+</code>
+
+The `GrouperSubject.lookup()' method will call the appropriate subject
+type adapter for the type of subject specified.
+
+### How do I look up a subject of type `group'?
+
+A: Use the `GrouperSubject.lookup(subjID, subjType)' method.
+
+<code>
+  Subject subj = GrouperSubject.lookup(subjID, "group");
+</code>
+
+The `GrouperSubject.lookup()' method will call the appropriate subject
+type adapter for the type of subject specified.
+
+### How do I `Subject' object into a `GrouperMember' object?
+
+A: Use the `GrouperMember.lookup(subject)' method.
+
+<code>
+  Subject       subj  = GrouperSubject.lookup(subjID, subjType);
+  GrouperMember m     = GrouperMember.lookup(subj);
+</code>
+

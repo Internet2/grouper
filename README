@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.17 2004-10-11 18:23:53 blair Exp $
+# $Id: README,v 1.18 2004-12-03 02:56:49 blair Exp $
 #
 
  ------------------
@@ -19,11 +19,15 @@
   - api/
     Destination for javadoc-generated documentation.
   - lib/
-    Project .jar files.
+    Compiled .jar files.
+  - run/
+    HSQLDB data directory.
 
 - doc/
   - API
     API class and method summary.
+  - FAQ
+    Grouper FAQ.
 
 - java/
   - lib/
@@ -49,9 +53,9 @@
 -------------------------
 
   % ant build
-  % hsqldb-init.sh
+  % ant db-init db-init-test
   % ant test
 
 To build the javadoc(1) documentation:
-  % ant javadoc
+  % ant html
 
