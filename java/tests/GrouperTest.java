@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.15 2004-08-03 02:19:04 blair Exp $
+ * $Id: GrouperTest.java,v 1.16 2004-08-03 04:47:46 blair Exp $
  */
 
 package test.edu.internet2.middleware.directory.grouper;
@@ -26,10 +26,7 @@ public class GrouperTest extends TestCase {
   }
 
   protected void tearDown () {
-    // Destroy our Grouper instance (if we have one)
-    if (G != null) {
-      G.destroy();
-    }
+    // Nothing -- Yet
   }
 
   /*
@@ -46,6 +43,7 @@ public class GrouperTest extends TestCase {
 
     Assert.assertNotNull(G);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    G.destroy();
   }
 
   /* Initialize Grouper environment */
@@ -57,6 +55,7 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when initializing Grouper");
     }
+    G.destroy();
   }
 
   /* Get a runtime configuration setting */
@@ -66,6 +65,7 @@ public class GrouperTest extends TestCase {
     
     String expVal = "GrouperSystem";
     Assert.assertTrue( expVal.equals( G.config("member.system") ) );
+    G.destroy();
   }
 
 
@@ -85,6 +85,7 @@ public class GrouperTest extends TestCase {
 
     Assert.assertNotNull(s);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    G.destroy();
   }
 
   /* Start a session as SubjectID "member.system", 1 argument method */
@@ -97,6 +98,7 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
+    G.destroy();
   }
   
   /* Start a session as SubjectID "member.system", 2 argument method */
@@ -109,6 +111,7 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
+    G.destroy();
   }
   
   /* Start and end a session as SubjectID "member.system", 1 argument method */
@@ -126,6 +129,7 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending session");
     }
+    G.destroy();
   }
   
   /* Start and end a session as SubjectID "member.system", 2 argument method */
@@ -143,6 +147,7 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending session");
     }
+    G.destroy();
   }
 
   /* Attempt to end a session that hasn't been started */
@@ -156,6 +161,7 @@ public class GrouperTest extends TestCase {
     } catch(Exception e) {
       Assert.fail("Exception thrown when ending unstarted session");
     }
+    G.destroy();
   }
 
 
@@ -200,6 +206,8 @@ public class GrouperTest extends TestCase {
     Class  klass    = fields.getClass();
     String expKlass = "edu.internet2.middleware.directory.grouper.GrouperFields";
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertEquals(9, fields.size());
+    G.destroy();
   }
 
 
@@ -244,6 +252,8 @@ public class GrouperTest extends TestCase {
     Class  klass    = types.getClass();
     String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypes";
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertEquals(1, types.size());
+    G.destroy();
   }
 
 
@@ -288,6 +298,8 @@ public class GrouperTest extends TestCase {
     Class  klass    = typeDefs.getClass();
     String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDefs";
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertEquals(9, typeDefs.size());
+    G.destroy();
   }
  
 }
