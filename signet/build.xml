@@ -24,9 +24,6 @@
 		<!-- Teach Ant how to use Hibernate's schema generation tool -->
 		<taskdef name="schemaexport" classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask" classpathref="project.class.path"/>
 		<schemaexport config="${config.dir}/hibernate.cfg.xml" quiet="no" text="no" drop="no">
-			<!-- <fileset dir="${class.root}">
-        <include name="**/*.hbm.xml"/>
-      </fileset> -->
 		</schemaexport>
 	</target>
 	

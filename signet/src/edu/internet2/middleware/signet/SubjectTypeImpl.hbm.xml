@@ -10,10 +10,10 @@
 			<generator class="assigned"/>
 		</id>
 		
-		<timestamp name="modifyDateTime"/>
+		<timestamp name="modifyDatetime"/>
 		<property name="adapterClassName" type="string" column="adapterClass"/>
 		<property name="name" type="string" not-null="true"/>
-		<property name="createDateTime" type="timestamp" not-null="true"/>
+		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>
 		<property name="createContext" type="string" not-null="false"/>

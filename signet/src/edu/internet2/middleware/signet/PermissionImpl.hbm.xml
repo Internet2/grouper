@@ -13,15 +13,32 @@
 		<id name="id" type="string" column="permissionID">
 			<generator class="assigned"/>
 		</id>
-		<timestamp name="modifyDateTime"/>
+		<timestamp name="modifyDatetime"/>
 		
-		<set name="functions" table="Function_Permission" inverse="true">
+		<set
+			name="functions"
+			table="Function_Permission"
+			inverse="true">
+			
 			<key column="permissionID"/>
-			<many-to-many class="edu.internet2.middleware.signet.FunctionImpl" column="functionID"/>
+			
+			<many-to-many
+				class="edu.internet2.middleware.signet.FunctionImpl">
+			
+				<column name="subsystemID"/>
+				<column name="functionID"/>
+			</many-to-many>
 		</set>
 		
 		<many-to-one name="subsystem" column="subsystemID" class="edu.internet2.middleware.signet.SubsystemImpl" not-null="true"/>
-		<property name="createDateTime" type="timestamp" not-null="true"/>
+		
+		<property
+			name="status"
+			type="edu.internet2.middleware.signet.StatusType"
+			not-null="true">
+		</property>
+		
+		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>
 		<property name="createContext" type="string" not-null="false"/>

@@ -9,29 +9,47 @@
 		<meta attribute="class-description">
 			@author Andy Cohen
 		</meta>
-		<id name="id" type="string" column="functionID">
-			<generator class="assigned"/>
-		</id>
-		<timestamp name="modifyDateTime"/>
-		<many-to-one name="subsystem" column="subsystemID" class="edu.internet2.middleware.signet.SubsystemImpl" not-null="true"/>
+
+		<composite-id
+			name="fullyQualifiedId"
+			class="edu.internet2.middleware.signet.FunctionFullyQualifiedId">
+			<key-property name="functionId" column="functionID" />
+			<key-property name="subsystemId" column="subsystemID" />
+		</composite-id>
+		
+		<timestamp name="modifyDatetime"/>
 		<many-to-one name="category" column="categoryID" class="edu.internet2.middleware.signet.CategoryImpl" not-null="true" cascade="save-update"/>
 		<set name="permissions" table="Function_Permission" cascade="save-update">
-			<key column="functionID"/>
+			<key>
+				 <column name="subsystemID"/>
+				 <column name="functionID"/>
+			</key>
 			<many-to-many class="edu.internet2.middleware.signet.PermissionImpl" column="permissionID"/>
 		</set>
 		
 		<property name="status" type="edu.internet2.middleware.signet.StatusType" not-null="true">
 			<meta attribute="use-in-tostring">true</meta>
 		</property>
-		<property name="name" type="string" not-null="true"/>
-		<property name="helpText" type="string" not-null="true"/>
-		<property name="createDateTime" type="timestamp" not-null="true"/>
-		<property name="createDbAccount" type="string" not-null="true"/>
-		<property name="createUserID" type="string" not-null="false"/>
-		<property name="createContext" type="string" not-null="false"/>
-		<property name="modifyDbAccount" type="string" not-null="true"/>
-		<property name="modifyUserID" type="string" not-null="false"/>
-		<property name="modifyContext" type="string" not-null="false"/>
-		<property name="comment" type="string" not-null="false"/>
+		<property
+			name="name" type="string" not-null="true"/>
+		<property
+			name="helpText" type="text" not-null="true"/>
+		<property
+			name="createDatetime" type="timestamp" not-null="true"/>
+		<property
+			name="createDbAccount" type="string" not-null="true"/>
+		<property
+			name="createUserID" type="string" not-null="false"/>
+		<property
+			name="createContext" type="string" not-null="false"/>
+		<property
+			name="modifyDbAccount" type="string" not-null="true"/>
+		<property
+			name="modifyUserID" type="string" not-null="false"/>
+		<property
+			name="modifyContext" type="string" not-null="false"/>
+		<property
+			name="comment" type="string" not-null="false"/>
+		
 	</class>
 </hibernate-mapping>

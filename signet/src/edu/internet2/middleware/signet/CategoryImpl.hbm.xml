@@ -12,7 +12,7 @@
 		<id name="id" type="string" column="categoryID">
 			<generator class="assigned"/>
 		</id>
-		<timestamp name="modifyDateTime"/>
+		<timestamp name="modifyDatetime"/>
 		
 		<many-to-one 
 			name="subsystem"
@@ -31,7 +31,7 @@
 			<one-to-many class="edu.internet2.middleware.signet.FunctionImpl"/>
 		</set>
 
-		<property name="createDateTime" type="timestamp" not-null="true"/>
+		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>
 		<property name="createContext" type="string" not-null="false"/>

@@ -14,7 +14,7 @@
 			<key-property name="subjectId" type="string" column="subjectID"/>
 			<key-property name="subjectTypeId" type="string" column="subjectTypeID"/>
 		</composite-id>
-		<timestamp name="modifyDateTime"/>
+		<timestamp name="modifyDatetime"/>
 		<!--
 		<set name="assignmentsReceived" inverse="true" cascade="save-update">
 		 	<composite-key class="edu.internet2.middleware.signet.SubjectKey">
@@ -53,7 +53,7 @@
 		</set>
 -->
 		
-		<property name="createDateTime" type="timestamp" not-null="true"/>
+		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>
 		<property name="createContext" type="string" not-null="false"/>

@@ -1,6 +1,6 @@
 <!--
-  $Id: error.jsp,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: error.jsp,v 1.2 2004-12-24 04:15:46 acohen Exp $
+  $Date: 2004-12-24 04:15:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,

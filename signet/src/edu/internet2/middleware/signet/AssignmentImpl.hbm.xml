@@ -12,34 +12,73 @@
 		</meta>
 		
 <!--
-		NOTE: The following ID declaration, while correct,
-		fails on Sybase. See the entire issue at this URL:
-		http://opensource.atlassian.com/projects/hibernate/secure/ViewIssue.jspa?key=HB-684
+		NOTE: The following ID declaration must be used on HSQL.
 -->
-		<id name="id" type="int" column="AssignmentID">
+		<id name="id" type="int" column="assignmentID">
 			<generator class="native"/>
 		</id>
 
 <!-- 
-		NOTE: The following ID declaration must be used with Sybase.
-		<id name="id" type="int" unsaved-value="null"> 
-       		<column name="AssignmentID" sql-type="numeric(10,0)"/> 
+		NOTE: The following ID declaration, while correct,
+		fails on HSQL, which has no "numeric" datatype.
+		
+		FURTHER NOTE: TEST THIS SOMEHOW ON SYBASE, AND SEE IF THERE'S
+		SOME WAY TO SPECIFY A DECIMAL PRECISION OF (12,0) WITHOUT
+		FORCING THE DATATYPE TO NUMERIC, WHICH NOT EVERY DB SUPPORTS.
+		<id name="id" type="big_decimal" unsaved-value="null"> 
+       		<column name="assignmentID" sql-type="numeric(12,0)"/> 
        		<generator class="native"/> 
     	</id>
 -->
     	
-		<timestamp name="modifyDateTime"/>
+		<timestamp name="modifyDatetime"/>
+		
+		<property
+			name="grantorId" column="grantorID"/>
+		<property
+			name="grantorTypeId" column="grantorTypeID"/>
+		<property
+			name="granteeId" column="granteeID" />
+		<property
+			name="granteeTypeId" column="granteeTypeID" />
+			
+<!--
 		<many-to-one name="grantor" class="edu.internet2.middleware.signet.PrivilegedSubjectImpl" cascade="save-update" not-null="true">
 			<column name="grantorID"/>
 			<column name="grantorTypeID"/>
 		</many-to-one>
-		<many-to-one name="grantee" class="edu.internet2.middleware.signet.PrivilegedSubjectImpl" cascade="save-update" not-null="true">
+		
+		<many-to-one
+			name="grantee"
+			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			cascade="save-update"
+			not-null="true">
+			
 			<column name="granteeID"/>
 			<column name="granteeTypeID"/>
 		</many-to-one>
-		<many-to-one name="subsystem" column="subsystemID" class="edu.internet2.middleware.signet.SubsystemImpl" cascade="save-update" not-null="true"/>
-		<many-to-one name="function" column="functionID" class="edu.internet2.middleware.signet.FunctionImpl" cascade="save-update" not-null="true"/>
-		<many-to-one name="scope" column="scopeID" class="edu.internet2.middleware.signet.TreeNodeImpl" cascade="save-update" not-null="true"/>
+-->
+		
+		<many-to-one
+			name="function"
+			class="edu.internet2.middleware.signet.FunctionImpl"
+			cascade="save-update"
+			not-null="true">
+			
+			<column name="subsystemID"/>
+			<column name="functionID"/>
+		</many-to-one>
+
+		<many-to-one
+			name="scope"
+			class="edu.internet2.middleware.signet.TreeNodeImpl"
+			cascade="save-update"
+			not-null="true">
+			
+			<column name="scopeTreeID"/>
+			<column name="scopeNodeID"/>
+		</many-to-one>
+		
 		<property name="status" type="edu.internet2.middleware.signet.StatusType" not-null="true">
 			<meta attribute="use-in-tostring">true</meta>
 		</property>
@@ -52,7 +91,9 @@
 			name="grantOnly"
 			type="boolean"
 			not-null="true"/>
-		<property name="createDateTime" type="timestamp" not-null="true"/>
+			
+		<property name="effectiveDate" type="timestamp" not-null="true"/>
+		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>
 		<property name="createContext" type="string" not-null="false"/>

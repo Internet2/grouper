@@ -1,11 +1,11 @@
 /*--
-  $Id: AssignmentImpl.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
-  
-  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
-  Licensed under the Signet License, Version 1,
-  see doc/license.txt in this distribution.
-*/
+ $Id: AssignmentImpl.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
+ $Date: 2004-12-24 04:15:46 $
+ 
+ Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
+ Licensed under the Signet License, Version 1,
+ see doc/license.txt in this distribution.
+ */
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
@@ -13,7 +13,7 @@ import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.Subject;
 
 /* These are the columns in the Assignment database table:
  * 
@@ -49,15 +49,22 @@ implements Assignment, Comparable
   private Signet				  	signet;
   private Integer						id;
   private Status						status;
+  
   private PrivilegedSubject	grantor;
+  private String						grantorId;
+  private String						grantorTypeId;
+  
   private PrivilegedSubject	grantee;
+  private String						granteeId;
+  private String						granteeTypeId;
+  
   private PrivilegedSubject revoker;
   private TreeNode					scope;
-  private Subsystem					subsystem;
-  private Function					function;
+  private FunctionImpl			function;
   private Housekeeping			housekeeping;
   private boolean						grantable;
   private boolean						grantOnly;
+  private Date							effectiveDate;
   
   /**
    * Hibernate requires the presence of a default constructor.
@@ -70,71 +77,146 @@ implements Assignment, Comparable
   }
   
   public AssignmentImpl
-  	(Signet							signet,
-  	 PrivilegedSubject	grantor, 
-  	 PrivilegedSubject 	grantee,
-  	 TreeNode						scope,
-  	 Function						function,
-  	 boolean						canGrant,
-  	 boolean						grantOnly)
+  (Signet							signet,
+      PrivilegedSubject	grantor, 
+      PrivilegedSubject 	grantee,
+      TreeNode						scope,
+      Function						function,
+      boolean						canGrant,
+      boolean						grantOnly)
   throws
-  	SignetAuthorityException
+  SignetAuthorityException
   {
     super();
+    
+    if (function == null)
+    {
+      throw new IllegalArgumentException
+      ("It's illegal to grant an Assignment for a NULL Function.");
+    }
     
     if ((canGrant == false) && (grantOnly == true))
     {
       throw new IllegalArgumentException
-      	("It is illegal to create a new Assignment with both its canGrant"
-      	 + " and grantOnly attributes set true.");
+      ("It is illegal to create a new Assignment with both its canGrant"
+          + " and grantOnly attributes set true.");
     }
-
+    
     this.signet = signet;
-    this.grantor = grantor;
-    this.grantee = grantee;
-    this.subsystem = function.getSubsystem();
+    this.setGrantor(grantor);
+    this.setGrantee(grantee);
+    
     this.scope = scope;
-    this.function = function;
+    this.function = (FunctionImpl)function;
     this.grantable = canGrant;
     this.grantOnly = grantOnly;
-    this.status = Status.ACTIVE;
     this.housekeeping = new Housekeeping();
-
+    
+    // By default, this assignment is active, starting now.
+    this.status = Status.ACTIVE;
+    this.effectiveDate = new Date();
+    
     if (! this.grantor.canEdit(this))
     {
       throw new SignetAuthorityException
-      	("The grantor '"
-      	 + grantor.getId()
-      	 + "' does not have the authority to assign the function '"
-      	 + function.getId()
-      	 + "' in the scope '"
-      	 + scope.getId()
-      	 + "'. "
-      	 + this.grantor.editRefusalExplanation(this, "grantor"));
+      ("The grantor '"
+          + grantor.getId()
+          + "' does not have the authority to assign the function '"
+          + function.getId()
+          + "' in the scope '"
+          + scope.getId()
+          + "'. "
+          + this.grantor.editRefusalExplanation(this, "grantor"));
     }
   }
-
+  
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getGrantee()
    */
   public PrivilegedSubject getGrantee()
   {
-    if (this.signet != null)
+    if (this.grantee == null)
     {
-      ((PrivilegedSubjectImpl)(this.grantee)).setSignet(this.signet);
+      Subject subject;
+      
+      try
+      {
+        subject = this.signet.getSubject
+        (this.granteeTypeId, this.granteeId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
+      
+      this.grantee
+      = new PrivilegedSubjectImpl(this.signet, subject);
     }
     
     return this.grantee;
   }
-
+  
+  private void setGranteeId(String id)
+  {
+    this.granteeId = id;
+  }
+  
+  private String getGranteeId()
+  {
+    return this.granteeId;
+  }
+  
+  private String getGranteeTypeId()
+  {
+    return this.granteeTypeId;
+  }
+  
+  private void setGranteeTypeId(String typeId)
+  {
+    this.granteeTypeId = typeId;
+  }
+  
+  private void setGrantorId(String id)
+  {
+    this.grantorId = id;
+  }
+  
+  private String getGrantorId()
+  {
+    return this.grantorId;
+  }
+  
+  private String getGrantorTypeId()
+  {
+    return this.grantorTypeId;
+  }
+  
+  private void setGrantorTypeId(String typeId)
+  {
+    this.grantorTypeId = typeId;
+  }
+  
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getGrantor()
    */
   public PrivilegedSubject getGrantor()
   {
-    if (this.signet != null)
+    if (this.grantor == null)
     {
-      ((PrivilegedSubjectImpl)(this.grantee)).setSignet(this.signet);
+      Subject subject;
+      
+      try
+      {
+        subject = this.signet.getSubject
+        (this.grantorTypeId, this.grantorId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
+      
+      this.grantor
+      = new PrivilegedSubjectImpl(this.signet, subject);
     }
     
     return this.grantor;
@@ -149,7 +231,7 @@ implements Assignment, Comparable
     
     return this.revoker;
   }
-
+  
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getProxy()
    */
@@ -159,17 +241,12 @@ implements Assignment, Comparable
     return null;
   }
   
-  void setSubsystem(Subsystem subsystem)
-  {
-    this.subsystem = subsystem;
-  }
-
   /**
    * @param function The function to set.
    */
   void setFunction(Function function)
   {
-    this.function = function;
+    this.function = (FunctionImpl)function;
   }
   
   /**
@@ -179,13 +256,15 @@ implements Assignment, Comparable
   {
     this.scope = scope;
   }
-
+  
   /**
    * @param grantee The grantee to set.
    */
   void setGrantee(PrivilegedSubject grantee)
   {
     this.grantee = grantee;
+    this.granteeId = grantee.getId();
+    this.granteeTypeId = grantee.getSubjectTypeId();
   }
   
   /**
@@ -194,6 +273,8 @@ implements Assignment, Comparable
   void setGrantor(PrivilegedSubject grantor)
   {
     this.grantor = grantor;
+    this.grantorId = grantor.getId();
+    this.grantorTypeId = grantor.getSubjectTypeId();
   }
   
   void setRevoker(PrivilegedSubject revoker)
@@ -206,9 +287,10 @@ implements Assignment, Comparable
    */
   public TreeNode getScope()
   {
+    ((TreeNodeImpl)this.scope).setSignet(this.signet);
     return this.scope;
   }
-
+  
   /**
    * @return
    */
@@ -226,9 +308,9 @@ implements Assignment, Comparable
   /**
    * @return
    */
-  public Date getCreateDateTime()
+  public Date getCreateDatetime()
   {
-    return this.housekeeping.getCreateDateTime();
+    return this.housekeeping.getCreateDatetime();
   }
   /**
    * @return
@@ -254,9 +336,9 @@ implements Assignment, Comparable
   /**
    * @return
    */
-  Date getModifyDateTime()
+  Date getModifyDatetime()
   {
-    return this.housekeeping.getModifyDateTime();
+    return this.housekeeping.getModifyDatetime();
   }
   /**
    * @return
@@ -287,11 +369,11 @@ implements Assignment, Comparable
     this.housekeeping.setCreateContext(createContext);
   }
   /**
-   * @param createDateTime
+   * @param createDatetime
    */
-  void setCreateDateTime(Date createDateTime)
+  void setCreateDatetime(Date createDatetime)
   {
-    this.housekeeping.setCreateDateTime(createDateTime);
+    this.housekeeping.setCreateDatetime(createDatetime);
   }
   /**
    * @param createDbAccount
@@ -315,11 +397,11 @@ implements Assignment, Comparable
     this.housekeeping.setModifyContext(modifyContext);
   }
   /**
-   * @param modifyDateTime
+   * @param modifyDatetime
    */
-  void setModifyDateTime(Date modifyDateTime)
+  void setModifyDatetime(Date modifyDatetime)
   {
-    this.housekeeping.setModifyDateTime(modifyDateTime);
+    this.housekeeping.setModifyDatetime(modifyDatetime);
   }
   /**
    * @param modifyDbAccount
@@ -371,12 +453,18 @@ implements Assignment, Comparable
    */
   public Function getFunction()
   {
+    if (this.signet != null)
+    {
+      this.function.setSignet(this.signet);
+    }
+    
     return this.function;
   }
   
   public Subsystem getSubsystem()
+  throws ObjectNotFoundException
   {
-    return this.subsystem;
+    return this.function.getSubsystem();
   }
   
   /**
@@ -386,13 +474,13 @@ implements Assignment, Comparable
   public String toString()
   {
     return 
-    	new 
-    		ToStringBuilder(this)
-    			.append("id", getId())
-    			.append("status", getStatus())
-    			.append("createDateTime", getCreateDateTime())
-    			.append("modifyDateTime", getModifyDateTime())
-    			.toString();
+    new 
+    ToStringBuilder(this)
+    .append("id", getId())
+    .append("status", getStatus())
+    .append("createDatetime", getCreateDatetime())
+    .append("modifyDatetime", getModifyDatetime())
+    .toString();
   }
   /**
    * @return Returns the grantable.
@@ -422,7 +510,7 @@ implements Assignment, Comparable
   {
     this.grantOnly = grantOnly;
   }
-
+  
   /* (non-Javadoc)
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
@@ -440,9 +528,38 @@ implements Assignment, Comparable
       return comparisonResult;
     }
     
-    Subsystem thisSubsystem = this.getSubsystem();
-    Subsystem otherSubsystem = other.getSubsystem();
-    comparisonResult = thisSubsystem.compareTo(otherSubsystem);
+    Subsystem thisSubsystem = null;
+    Subsystem otherSubsystem = null;
+    try
+    {
+      thisSubsystem = this.getSubsystem();
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      // thisSubsystem retains its initial NULL value.
+    }
+    
+    try
+    {
+      otherSubsystem = other.getSubsystem();
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      // otherSubsystem retains its initial NULL value.
+    }
+    
+    if (thisSubsystem == otherSubsystem)
+    {
+      comparisonResult = 0;
+    }
+    else if (thisSubsystem != null)
+    {
+      comparisonResult = thisSubsystem.compareTo(otherSubsystem);
+    }
+    else
+    {
+      comparisonResult = -1;
+    }
     
     if (comparisonResult != 0)
     {
@@ -482,7 +599,7 @@ implements Assignment, Comparable
     Integer thisId = this.getId();
     Integer otherId = other.getId();
     comparisonResult = thisId.compareTo(otherId);
-
+    
     return comparisonResult;
   }
   
@@ -490,7 +607,7 @@ implements Assignment, Comparable
   {
     this.signet = signet;
   }
-
+  
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#revoke()
    */
@@ -500,17 +617,30 @@ implements Assignment, Comparable
     if (!revoker.canEdit(this))
     {
       throw new SignetAuthorityException
-      	("The revoker '"
-      	 + revoker.getId()
-      	 + "' does not have the authority to revoke the function '"
-      	 + function.getId()
-      	 + "' in the scope '"
-      	 + scope.getId()
-      	 + "'. "
-      	 + revoker.editRefusalExplanation(this, "revoker"));
+      ("The revoker '"
+          + revoker.getId()
+          + "' does not have the authority to revoke the function '"
+          + function.getId()
+          + "' in the scope '"
+          + scope.getId()
+          + "'. "
+          + revoker.editRefusalExplanation(this, "revoker"));
     }
-      
+    
     this.setRevoker(revoker);
     this.setStatus(Status.INACTIVE);
+  }
+  
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getEffectiveDate()
+   */
+  public Date getEffectiveDate()
+  {
+    return this.effectiveDate;
+  }
+  
+  void setEffectiveDate(Date date)
+  {
+    this.effectiveDate = date;
   }
 }
