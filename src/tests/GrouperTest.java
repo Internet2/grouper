@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.53 2004-09-21 16:43:28 blair Exp $
+ * $Id: GrouperTest.java,v 1.54 2004-09-21 20:34:28 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -499,7 +499,7 @@ public class GrouperTest extends TestCase {
     s.start(G, subject);
 
     // Create the group
-    GrouperGroup grp = GrouperGroup.create(s, "stem.1", "desc.1");
+    GrouperGroup grp = GrouperGroup.create(s, "stem.1", "descriptor.1");
 
     // Confirm that the group exists
     Assert.assertTrue( grp.exist() );
@@ -509,8 +509,33 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-/*
   // Fetch a group
+  public void testFetchGroup() {
+    G = new Grouper();
+    G.init();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
+    s.start(G, subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Assert that the returned group is not null
+    Assert.assertNotNull(grp);
+
+    // Assert that the returned group is of the proper class
+    String klass = "edu.internet2.middleware.grouper.GrouperGroup";
+    Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
+
+    // Assert that the group is considered to exist
+    Assert.assertTrue( grp.exist() );
+   
+    // We're done
+    s.stop();
+    G.destroy();
+  }
+
+/*
   public void testFetchGroup() {
     G = new Grouper();
     G.init();
@@ -536,8 +561,8 @@ public class GrouperTest extends TestCase {
     GrouperAttribute description  = grp.attribute("description");
     String expDescription         = "group.1";
 
-    //Assert.assertNotNull(description);
-    Assert.assertTrue( expDescription.equals(description.value()) );
+    // Assert.assertNotNull(description);
+    //Assert.assertTrue( expDescription.equals(description.value()) );
 
     // We're done
     s.stop();
