@@ -11,7 +11,7 @@ import  java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.20 2004-05-02 01:31:21 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.21 2004-05-28 14:55:02 blair Exp $
  */
 public class GrouperGroup {
 
@@ -306,7 +306,7 @@ public class GrouperGroup {
    * Remove group metadata.
    * <p>
    * <ul>
-   *  <li>Verify that the current subject has sufficient privilges to
+   *  <li>Verify that the current subject has sufficient privileges to
    *      remove the specified metadata.</li>
    *  <li>Update <i>grouper_metadata</i> table.</li>
    * </ul>
@@ -314,6 +314,22 @@ public class GrouperGroup {
    * @param   groupField  The metadata field.
    */
   public void  removeValue(String groupField) {
+    // Nothing -- Yet
+  }
+
+  /**
+   * Remove specific group metadata.
+   * <p>
+   * <ul>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      remove the specified metadata.</li>
+   *  <li>Update <i>grouper_metadata</i> table.</li>
+   * </ul>
+   * 
+   * @param   groupField  The metadata field.
+   * @param   groupValue  The value to remove.
+   */
+  public void  removeValue(String groupField, String groupValue) {
     // Nothing -- Yet
   }
 
