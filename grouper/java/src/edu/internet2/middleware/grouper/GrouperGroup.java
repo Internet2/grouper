@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.103 2004-12-02 18:26:56 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.104 2004-12-02 19:48:52 blair Exp $
  */
 public class GrouperGroup {
 
@@ -477,11 +477,13 @@ public class GrouperGroup {
    */
   private static GrouperGroup _loadByKey(GrouperSession s, String key, String type) {
     GrouperGroup g = GrouperBackend.groupLoadByKey(key);
-    // Attach session
-    g.grprSession = s;
-    // Attach type  
-    // FIXME Grr....
-    g.type = type;
+    if (g != null) {
+      // Attach session
+      g.grprSession = s;
+      // Attach type  
+      // FIXME Grr....
+      g.type = type;
+    }
     return g;
   }
 
@@ -596,7 +598,10 @@ public class GrouperGroup {
     if (g._validateCreate()) {
       // And now attempt to add the group to the store
       GrouperBackend.groupAdd(s, g);
-    } // TODO Return null otherwise?
+    } else {
+      // TODO Log
+      g = null;
+    }
     return g;
   }
 
