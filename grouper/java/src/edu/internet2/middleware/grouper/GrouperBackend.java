@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.66 2004-11-25 03:04:47 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.67 2004-11-25 05:37:07 blair Exp $
  */
 public class GrouperBackend {
 
@@ -929,17 +929,26 @@ public class GrouperBackend {
 
   private static void _hibernateSessionClose(Session session) {
     try {
-      // TODO This is excessive.  Either perform dirty check, have a
-      //      close method that doesn't flush(), or something.
-      session.flush();
+      if (session.isDirty() == true) {
+        Grouper.LOGGER.debug("Flushing dirty Hibernate session");
+        session.flush();
+      }
+      /*
+       * FIXME I need to be able to either tell if I am using a session
+       *       that has seen updates performed or else have different
+       *       versions of this method that can be called.
+       *
+       *       And of course this *could* just all be premature
+       *       optimization.
+       */
       try {
-        // TODO This is excessive.  Either perform dirty check, have a
-        //      close method that doesn't commit(), or something.
+        Grouper.LOGGER.debug("Calling commit() on Hibernate connection");
         session.connection().commit();
       } catch (SQLException e) {
-        System.err.println("SQL Commit Exception");
+        System.err.println("SQL Commit Exception:" + e);
         System.exit(1);
       }
+      Grouper.LOGGER.debug("Closing Hibernate session");
       session.close();
     } catch (HibernateException e) {
       System.err.println(e);
