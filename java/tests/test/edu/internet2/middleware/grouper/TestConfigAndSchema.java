@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.16 2004-12-04 03:14:35 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.17 2004-12-04 19:33:38 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -91,7 +91,7 @@ public class TestConfigAndSchema extends TestCase {
   public void testGetGrouperFields() {
     List fields = Grouper.groupFields();
     Assert.assertNotNull(fields);
-    Assert.assertEquals(10, fields.size());
+    Assert.assertEquals(11, fields.size());
     String klass = "edu.internet2.middleware.grouper.GrouperField";
     String field;
     field = "admins:ADMIN:ADMIN:TRUE";
@@ -106,24 +106,27 @@ public class TestConfigAndSchema extends TestCase {
     field = "members:READ:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(3).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(3).getClass().getName() ) );
-    field = "optins:READ:UPDATE:TRUE";
+    field = "name:READ::TRUE";
     Assert.assertTrue( field.equals( fields.get(4).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(4).getClass().getName() ) );
+    field = "optins:READ:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(5).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(5).getClass().getName() ) );
     field = "optouts:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(5).toString() ) );
+    Assert.assertTrue( field.equals( fields.get(6).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(6).getClass().getName() ) );
     field = "readers:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(6).toString() ) );
+    Assert.assertTrue( field.equals( fields.get(7).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(7).getClass().getName() ) );
     field = "stem:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(7).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(4).getClass().getName() ) );
-    field = "updaters:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(8).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(8).getClass().getName() ) );
-    field = "viewers:UPDATE:UPDATE:TRUE";
+    field = "updaters:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(9).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(9).getClass().getName() ) );
+    field = "viewers:UPDATE:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(10).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(10).getClass().getName() ) );
   }
 
   // Get cached GrouperTypes 
