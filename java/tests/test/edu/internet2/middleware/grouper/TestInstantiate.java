@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestInstantiate.java,v 1.5 2004-11-12 20:21:59 blair Exp $
+ * $Id: TestInstantiate.java,v 1.6 2004-11-15 19:41:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -148,11 +148,19 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
-  // Instantiate a GrouperSubjectTypeAdapterImpl instance 
-  public void testSubjectTypeAdapterImplInstantiate() {
-    SubjectTypeAdapterImpl obj = new SubjectTypeAdapterImpl();
+  // Instantiate a SubjectTypeAdapterGroupImpl instance 
+  public void testSubjectTypeAdapterGroupImplInstantiate() {
+    SubjectTypeAdapterGroupImpl obj = new SubjectTypeAdapterGroupImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.SubjectTypeAdapterImpl";
+    String klass = "edu.internet2.middleware.grouper.SubjectTypeAdapterGroupImpl";
+    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+  }
+
+  // Instantiate a SubjectTypeAdapterPersonImpl instance 
+  public void testSubjectTypeAdapterPersonImplInstantiate() {
+    SubjectTypeAdapterPersonImpl obj = new SubjectTypeAdapterPersonImpl();
+    Assert.assertNotNull(obj);
+    String klass = "edu.internet2.middleware.grouper.SubjectTypeAdapterPersonImpl";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
