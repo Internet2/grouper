@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.50 2005-03-22 18:28:16 blair Exp $
+ * @version $Id: GrouperList.java,v 1.51 2005-03-22 21:26:58 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -239,6 +239,83 @@ public class GrouperList implements Serializable {
       }
     }
     GrouperList.validate(this);
+  }
+
+  /*
+   * Delete a {@link GrouperList} object from the groups registry.
+   */
+  protected static void delete(GrouperSession s, GrouperList gl) {
+    // TODO Refactor into smaller components
+    /* FIXME
+     * try {
+     *   s.dbSess().session().delete(gl);
+     * } catch (HibernateException e) {
+     *    throw new RuntimeException("Error deleting list value: " + e);
+     * }
+     */
+    Query   q;
+    if (gl.via() != null) {
+      try {
+        // TODO Why can't I use delete() with a parameterized query?
+        q = s.dbSess().session().createQuery(
+              "FROM GrouperList AS gl WHERE " +
+              "gl.groupKey    = ? AND "       +
+              "gl.memberKey   = ? AND "       +
+              "gl.groupField  = ? AND "       +
+              "gl.viaKey      = ?"
+            );
+        q.setString(0, gl.group().key());
+        q.setString(1, gl.member().key());
+        q.setString(2, gl.groupField());
+        q.setString(3, gl.via().key());
+      } catch (HibernateException e) {
+        throw new RuntimeException("Unable to create query: " + e);
+      }
+      Grouper.log().backend("_listDelVal() (v) " + gl.via().name());
+    } else {
+      try {
+        // TODO Why can't I use delete() with a parameterized query?
+        q = s.dbSess().session().createQuery(
+              "FROM GrouperList AS gl WHERE " +
+              "gl.groupKey    = ? AND "       +
+              "gl.memberKey   = ? AND "       +
+              "gl.groupField  = ? AND "       +
+              "gl.viaKey      IS NULL"
+            );
+        q.setString(0, gl.group().key());
+        q.setString(1, gl.member().key());
+        q.setString(2, gl.groupField());
+      } catch (HibernateException e) {
+        throw new RuntimeException("Unable to create query: " + e);
+      }
+      Grouper.log().backend("_listDelVal() (v) null");
+    }
+
+    try {
+      List vals = q.list();
+      if (vals.size() == 1) {
+        GrouperList del = (GrouperList) vals.get(0);
+        try {
+          s.dbSess().session().delete(del);
+          Grouper.log().backend("_listDelVal() deleted");
+        } catch (HibernateException e) {
+          throw new RuntimeException(
+                      "Error deleting list value: " + e
+                    );
+        }
+      } else {
+/* TODO Later, later...
+        throw new RuntimeException(
+                    "Wrong number of values to delete: " + vals.size()
+                  );
+*/
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error finding values: " + e
+                );
+    }
+
   }
 
   /*
