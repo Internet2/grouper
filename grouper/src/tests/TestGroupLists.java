@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.4 2004-11-15 20:22:42 blair Exp $
+ * $Id: TestGroupLists.java,v 1.5 2004-11-15 20:23:39 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -260,18 +260,6 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( m.typeID().equals( type ) );
     // Add member to "members" list
     Assert.assertTrue( grp1.listAddVal(s, m, "members") );
-
-    //Assert.assertTrue( grp.listAddVal(s, m, "members") );
-
-    // TODO Make `grp2' a member of `grp1'
-    // Fetch a member
-    // TOOD The call to .key() will obviously need to change
-    //GrouperMember   m     = GrouperMember.lookup( grp2.key(), "group" ); 
-    //Assert.assertNotNull(m);
-    //String          klassM  = "edu.internet2.middleware.grouper.GrouperMember";
-    //Assert.assertTrue( klassM.equals( m.getClass().getName() ) );
-    // Add member to "members" list
-    //Assert.assertTrue( grp.listAddVal(s, m, "members") );
     // We're done
     s.stop();
   }
