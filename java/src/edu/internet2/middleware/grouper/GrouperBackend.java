@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.19 2004-11-09 19:58:56 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.20 2004-11-10 17:07:27 blair Exp $
  */
 public class GrouperBackend {
 
@@ -32,11 +32,26 @@ public class GrouperBackend {
   // Hibernate session factory
   private static SessionFactory  factory;
   // Hibernate session
+  // TODO Should this really be static?
   private static Session session;
 
-  public GrouperBackend() {
-    // Nothing
+  /*
+   * PUBLIC CLASS METHODS 
+   */
+
+  /**
+   * Generate UUID.
+   *
+   * @return A UUID
+   */
+  public static String uuid() {
+    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
   }
+
+
+  /*
+   * PROTECTED CLASS METHODS 
+   */
 
   /**
    * Add {@link GrouperGroup} to backend store.
@@ -44,7 +59,7 @@ public class GrouperBackend {
    * @param s {@link GrouperSession}
    * @param g {@link GrouperGroup} to add
    */
-  public static void addGroup(GrouperSession s, GrouperGroup g) {
+  protected static void addGroup(GrouperSession s, GrouperGroup g) {
     try {
       Transaction t = session.beginTransaction();
 
@@ -88,7 +103,7 @@ public class GrouperBackend {
    *
    * @param s Session to add.
    */
-  public static void addSession(GrouperSession s) {
+  protected static void addSession(GrouperSession s) {
     try {
       Transaction t = session.beginTransaction();
       session.save(s);
@@ -105,7 +120,7 @@ public class GrouperBackend {
    * @param g Group object
    * @return List of a group's attributes.
    */
-  public static List attributes(GrouperGroup g) {
+  protected static List attributes(GrouperGroup g) {
     GrouperBackend._init();
     List attributes = new ArrayList();
     try {
@@ -125,7 +140,7 @@ public class GrouperBackend {
   /**
    * Cull old sessions.
    */
-  public static void cullSessions() {
+  protected static void cullSessions() {
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
     java.util.Date now     = new java.util.Date();
@@ -149,7 +164,7 @@ public class GrouperBackend {
    *
    * @return List of group fields.
    */
-  public static List groupFields() {
+  protected static List groupFields() {
     GrouperBackend._init();
     List fields = new ArrayList();
     try {
@@ -166,7 +181,7 @@ public class GrouperBackend {
   }
 
   // TODO
-  public static List descriptors(GrouperSession s, String descriptor) {
+  protected static List descriptors(GrouperSession s, String descriptor) {
     List descriptors = new ArrayList();
     try {
       Query q = session.createQuery(
@@ -191,7 +206,7 @@ public class GrouperBackend {
    * @param s     Return list data within this session context.
    * @param list  Return this list type.
    */
-  public static List list(GrouperGroup g, GrouperSession s, String list) {
+  protected static List list(GrouperGroup g, GrouperSession s, String list) {
     List members = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -233,7 +248,7 @@ public class GrouperBackend {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
-  public static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+  protected static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -278,7 +293,7 @@ public class GrouperBackend {
    * @param m     Remove this member.
    * @param list  Remove member from this list.
    */
-  public static boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+  protected static boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -340,7 +355,7 @@ public class GrouperBackend {
   }
 
   // TODO
-  public static void loadGroup(GrouperSession s, GrouperGroup g, String key) {
+  protected static void loadGroup(GrouperSession s, GrouperGroup g, String key) {
     try {
       // Attempt to load a stored group into the current object
       Transaction tx = session.beginTransaction();
@@ -375,7 +390,7 @@ public class GrouperBackend {
   }
 
   // TODO
-  public static List stems(GrouperSession s, String stem) {
+  protected static List stems(GrouperSession s, String stem) {
     List stems = new ArrayList();
     try {
       Query q = session.createQuery(
@@ -399,7 +414,7 @@ public class GrouperBackend {
    *
    * @return List of group type definitions.
    */
-  public static List groupTypeDefs() {
+  protected static List groupTypeDefs() {
     GrouperBackend._init();
     List typeDefs = new ArrayList();
     try {
@@ -420,7 +435,7 @@ public class GrouperBackend {
    *
    * @return List of group types.
    */
-  public static List groupTypes() {
+  protected static List groupTypes() {
     GrouperBackend._init();
     List types = new ArrayList();
     try {
@@ -442,7 +457,7 @@ public class GrouperBackend {
    * @param g Group object
    * @return List of a group's schema
    */
-  public static List schemas(GrouperGroup g) {
+  protected static List schemas(GrouperGroup g) {
     List schemas = new ArrayList();
     try {
       Query q = session.createQuery(
@@ -459,21 +474,11 @@ public class GrouperBackend {
   }
 
   /**
-   * Generate UUID.
-   *
-   * @return A UUID
-   */
-  public static String uuid() {
-    //org.doomdark.uuid.UUID uuid = UUIDGenerator.getInstance().generateRandomBasedUUID();
-    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
-  }
-
-  /**
    * Query for a single {@link GrouperMember}.
    *
    * @return  {@link GrouperMember} object or null.
    */
-  public static GrouperMember member(String id, String typeID) {
+  protected static GrouperMember member(String id, String typeID) {
     GrouperBackend._init();
     GrouperMember m = null;
     try {
@@ -497,7 +502,7 @@ public class GrouperBackend {
     return m;
   }
 
-  public static GrouperGroup group(GrouperSession s, 
+  protected static GrouperGroup group(GrouperSession s, 
                                    String stem,
                                    String descriptor) 
   {
@@ -553,7 +558,7 @@ public class GrouperBackend {
   }
 
   /*
-   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
+   * PRIVATE INSTANCE METHODS
    */
 
 
