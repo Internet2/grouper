@@ -61,7 +61,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.1 2005-03-04 19:13:49 blair Exp $
+ * @version $Id: DbSess.java,v 1.2 2005-03-09 05:02:18 blair Exp $
  */
 public class Session {
 
@@ -81,6 +81,7 @@ public class Session {
    * PRIVATE INSTANCE VARIABLES
    */
   private net.sf.hibernate.Session  dbSess;
+  private Transaction               tx;
 
 
   /*
@@ -127,6 +128,20 @@ public class Session {
     }
   }
 
+  public void txStart() {
+    try {
+      this.tx = this.dbSess.beginTransaction();
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error starting transaction: " + e);
+    }
+  }
+  public void txCommit() {
+    try {
+      this.tx.commit();
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error committing transaction: " + e);
+    }
+  }
   
   /*
    * PROTECTED INSTANCE METHODS

@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: BackendQuery.java,v 1.6 2005-03-04 19:15:29 blair Exp $
+ * @version $Id: BackendQuery.java,v 1.7 2005-03-09 05:02:18 blair Exp $
  */
 public class BackendQuery {
 
@@ -74,10 +74,10 @@ public class BackendQuery {
   /*
    * Return all items in a Hibernate-mapped table.
    */
-  protected static List all(Session session, String klass) {
+  protected static List all(Session sess, String klass) {
     List vals = new ArrayList();
     try { 
-      Query q = session.createQuery("FROM " + klass);
+      Query q = sess.createQuery("FROM " + klass);
       Grouper.log().query("all", q);
       vals    = q.list();
     } catch (HibernateException e) {
@@ -87,12 +87,12 @@ public class BackendQuery {
   }
 
   protected static List grouperAttr(
-                          Session session, String key, String field
+                          Session sess, String key, String field
                         )
   {
     List vals = new ArrayList();
     try {
-      Query q = session.createQuery(
+      Query q = sess.createQuery(
         "FROM GrouperAttribute AS ga"   +
         " WHERE "                       +
         "ga.groupKey='"   + key   + "'" +
@@ -111,7 +111,7 @@ public class BackendQuery {
    * Return matching items from {@link GrouperList}-mapped table.
    */
   protected static List grouperList(
-                          Session session, String gkey,
+                          Session sess, String gkey,
                           String  mkey,    String gfield,
                           String  via
                         )
@@ -135,7 +135,7 @@ public class BackendQuery {
       }
     }
     try {
-      Query q = session.createQuery(
+      Query q = sess.createQuery(
         "FROM GrouperList AS gl"      +
         " WHERE "                     +
         "gl.groupKey"   + gkey_txt    +
@@ -152,61 +152,18 @@ public class BackendQuery {
     }
     return vals;
   }
-  protected static List grouperList(
-                          GrouperSession s, String gkey,
-                          String  mkey,    String gfield,
-                          String  via
-                        )
-  {
-    List    vals        = new ArrayList();
-    String  gfield_txt  = nullOrVal(gfield);
-    String  gkey_txt    = nullOrVal(gkey);
-    String  mkey_txt    = nullOrVal(mkey);
-    String  via_txt     = "";
-    if (via != null) {
-      if        (via.equals(Grouper.MEM_ALL)) {        
-        // Already set via_txt is fine
-      } else if (via.equals(Grouper.MEM_EFF)) {
-        // We want a value
-        via_txt = " AND gl.via IS NOT NULL";
-      } else if (via.equals(Grouper.MEM_IMM)) {
-        // We don't want a value
-        via_txt = " AND gl.via IS NULL";
-      } else {
-        via_txt = " AND gl.via" + nullOrVal(via);
-      }
-    }
-    try {
-      Query q = s.dbSess().session().createQuery(
-        "FROM GrouperList AS gl"      +
-        " WHERE "                     +
-        "gl.groupKey"   + gkey_txt    +
-        " AND "                       +
-        "gl.memberKey"  + mkey_txt    +
-        " AND "                       +
-        "gl.groupField" + gfield_txt  +
-        via_txt
-      );
-      Grouper.log().query("grouperList", q);
-      vals = q.list();
-    } catch (HibernateException e) {
-      throw new RuntimeException(e);
-    }
-    return vals;
-  }
-
 
   /*
    * Return all items matching key=value specification.
    */
   protected static List kv(
-                           Session session, String klass, 
+                           Session sess, String klass, 
                            String key, String value
                          ) 
   {
     List vals = new ArrayList();
     try {
-      Query q = session.createQuery(
+      Query q = sess.createQuery(
         "FROM " + klass + " WHERE " + key + "='" + value + "'"
       );
       Grouper.log().query("kv", q);
@@ -221,13 +178,13 @@ public class BackendQuery {
    * Query for values greater than the specified value.
    */
   protected static List kvgt(
-                          Session session, String klass, 
+                          Session sess, String klass, 
                           String  key,     String time
                         )
   {
     List vals = new ArrayList();
     try {
-      Query q = session.createQuery(
+      Query q = sess.createQuery(
         "FROM " + klass + " WHERE "           +
         key     + " > " + time
       );
@@ -243,14 +200,14 @@ public class BackendQuery {
    * Return all items matching two key=value specifications.
    */
   protected static List kvkv(
-                          Session session, String klass, 
+                          Session sess, String klass, 
                           String key0, String value0,
                           String key1, String value1
                         ) 
   {
     List vals = new ArrayList();
     try {
-      Query q = session.createQuery(
+      Query q = sess.createQuery(
         "FROM " + klass + " WHERE "           +
         key0    + "='"  + value0  + "' AND "  +
         key1    + "='"  + value1  + "'"
@@ -267,13 +224,13 @@ public class BackendQuery {
    * Query for values less than the specified value.
    */
   protected static List kvlt(
-                          Session session, String klass, 
+                          Session sess, String klass, 
                           String  key,     String time
                         )
   {
     List vals = new ArrayList();
     try {
-      Query q = session.createQuery(
+      Query q = sess.createQuery(
         "FROM " + klass + " WHERE "           +
         key     + " < " + time
       );

@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
@@ -62,18 +63,22 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.30 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperList.java,v 1.31 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperList implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private String  groupKey;
-  private String  groupField;
-  private String  memberKey;
-  private String  via;
-  private String  removeAfter;
+  private GrouperGroup    g;
+  private GrouperMember   m;
+  private GrouperGroup    v;
+  private String          groupKey;
+  private String          groupField;
+  private String          memberKey;
+  private String          removeAfter;
+  private GrouperSession  s;
+  private String          via;
 
 
   /*
@@ -91,6 +96,7 @@ public class GrouperList implements Serializable {
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
+/*
   protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
     this._init();
     this.groupKey   = g.key();  // FIXME Validate?
@@ -101,6 +107,42 @@ public class GrouperList implements Serializable {
     } else {
       this.via = null;
     }
+  }
+*/
+  protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
+    //new GrouperList(g, m, list, null);
+    this._init();
+    // BDC this.s          = s; // KILL?
+    if (g == null) {
+      throw new RuntimeException("GrouperList: null group");
+    }
+    if (m == null) {
+      throw new RuntimeException("GrouperList: null member");
+    }
+    if (list == null) {
+      throw new RuntimeException("GrouperList: null list");
+    }
+    this.g          = g;
+    this.m          = m;
+    this.groupField = list;
+    this.v          = null;
+  }
+  protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
+    this._init();
+    // BDC this.s          = s; // KILL?
+    if (g == null) {
+      throw new RuntimeException("GrouperList: null group");
+    }
+    if (m == null) {
+      throw new RuntimeException("GrouperList: null member");
+    }
+    if (list == null) {
+      throw new RuntimeException("GrouperList: null list");
+    }
+    this.g          = g;
+    this.m          = m;
+    this.groupField = list;
+    this.v          = via;
   }
 
 
@@ -126,7 +168,8 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperMember} object.
    */
   public GrouperMember member() {
-    return GrouperBackend.member(this.getMemberKey());
+    return this.m;
+    // BDC return GrouperBackend.member(this.s, this.getMemberKey());
   }
 
   /**
@@ -137,7 +180,8 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup group() {
-    return GrouperBackend.groupLoadByKey(this.getGroupKey());
+    // BDC return GrouperBackend.groupLoadByKey(this.s, this.getGroupKey());
+    return this.g;
   }
 
   /**
@@ -147,11 +191,14 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup via() {
+/* BDC
     GrouperGroup via = null;
     if (this.getVia() != null) {
-      via = GrouperBackend.groupLoadByKey(this.getVia());
+      via = GrouperBackend.groupLoadByKey(this.s, this.getVia());
     }
     return via;
+*/
+    return this.v;
   }
 
   /**
@@ -185,6 +232,16 @@ public class GrouperList implements Serializable {
 
 
   /*
+   * PROTECTED INSTANCE METHODS
+   */
+/* BDC
+  protected void session(GrouperSession s) {
+    this.s = s;
+  }
+*/
+
+
+  /*
    * PRIVATE INSTANCE METHODS
    */
 
@@ -192,11 +249,15 @@ public class GrouperList implements Serializable {
    * Initialize instance variables
    */
   private void _init() {
+    this.g = null;
+    this.m = null;
+    this.v = null;
     this.groupKey     = null;
     this.groupField   = null;
     this.memberKey    = null;
-    this.via          = null;
     this.removeAfter  = null;
+    // BDC this.s            = null;
+    this.via          = null;
   }
 
 

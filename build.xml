@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.35 2005-02-16 20:39:54 blair Exp $ -->
+<!-- $Id: build.xml,v 1.36 2005-03-09 05:02:18 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -133,6 +133,7 @@
       <arg value="test.edu.internet2.middleware.grouper.TestNamespaces" />
       <classpath refid="project.class.path" />
     </java>
+<!--
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestGroups" />
@@ -163,6 +164,7 @@
       <arg value="test.edu.internet2.middleware.grouper.TestQueries" />
       <classpath refid="project.class.path" />
     </java>
+-->
   </target>
 
   <target name="db" depends="init" description="Launch HSQLDB UI">

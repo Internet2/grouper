@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.165 2005-03-07 20:47:35 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.166 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperGroup {
 
@@ -755,6 +755,11 @@ public class GrouperGroup {
    */
   private List _listVals(GrouperGroup g, String list) {
     List vals = GrouperBackend.listVals(this.s, g, list);
+    // TODO Less than optimal
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+    }
     return vals;
   }
 
@@ -763,6 +768,11 @@ public class GrouperGroup {
    */
   private List _listEffVals(GrouperGroup g, String list) {
     List vals = GrouperBackend.listEffVals(this.s, g, list);
+    // TODO Less than optimal
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+    }
     return vals;
   }
 
@@ -771,6 +781,11 @@ public class GrouperGroup {
    */
   private List _listImmVals(GrouperGroup g, String list) {
     List vals = GrouperBackend.listImmVals(this.s, g, list);
+    // TODO Less than optimal
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+    }
     return vals;
   }
 
@@ -781,7 +796,7 @@ public class GrouperGroup {
                                 GrouperSession s, String id, String type
                               ) 
   {
-    GrouperGroup g = GrouperBackend.groupLoadByID(s, id, type);
+    GrouperGroup g = GrouperBackend.groupLoadByID(s, id);
     if (g != null) {
       // Attach type  
       // FIXME Grr....wait.  Is this even needed now that I have // type()?
@@ -797,7 +812,8 @@ public class GrouperGroup {
                                 String type
                               ) 
   {
-    GrouperGroup g = GrouperBackend.groupLoadByKey(key);
+    GrouperGroup g = new GrouperGroup();
+    g = GrouperBackend.groupLoadByKey(s, g, key);
     if (g != null) {
       // Attach type  
       // FIXME Grr....
@@ -877,7 +893,7 @@ public class GrouperGroup {
     if (this._canModAttr(this)) {
       // Hibernate the attribute
       GrouperAttribute attr = GrouperBackend.attrAdd(
-                                this.key, attribute, value
+                                this.s, this.key, attribute, value
                               );
       if (attr != null) {
         // Now update this object and save it to persist the opattrs
@@ -909,7 +925,7 @@ public class GrouperGroup {
 
     // Verify subject has sufficient privs
     if (this._canModAttr(this)) {
-      if (GrouperBackend.attrDel(this.key, attribute)) {
+      if (GrouperBackend.attrDel(this.s, this.key, attribute)) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
@@ -943,7 +959,7 @@ public class GrouperGroup {
     if (this._canModAttr(this)) {
       // Hibernate the attribute
       GrouperAttribute attr = GrouperBackend.attrAdd(
-                                this.key, attribute, value
+                                this.s, this.key, attribute, value
                               );
       if (attr != null) {
         // Now update this object and save it to persist the opattrs
@@ -982,6 +998,7 @@ public class GrouperGroup {
                                      )
   {
     GrouperGroup g = null;
+    s.dbSess().txStart();
     String name = GrouperGroup.groupName(stem, extn);
     if (GrouperGroup._canCreate(s, stem, type)) {
       // Check to see if the group already exists.
@@ -1055,6 +1072,7 @@ public class GrouperGroup {
         " privileges on this stem"
       );
     }
+    s.dbSess().txCommit();
     Grouper.log().groupAdd(s, g, name, type);
     return g;
   }
@@ -1093,7 +1111,7 @@ public class GrouperGroup {
     this.setModifySubject( mem.key() );
     if (
         GrouperBackend.listAddVal(
-          this.s, new GrouperList(this, m, list, null)
+          this.s, new GrouperList(this, m, list)
         ) == true
        )
     {
@@ -1124,7 +1142,7 @@ public class GrouperGroup {
     //if (GrouperBackend.listDelVal(s, this, m, list) == true) {
     if (
         GrouperBackend.listDelVal(
-          this.s, new GrouperList(this, m, list, null) 
+          this.s, new GrouperList(this, m, list) 
         ) == true
        )
     {
@@ -1145,7 +1163,7 @@ public class GrouperGroup {
   private Subject _returnSubjectObject(String memberKey) {
     Subject subj = null;
     if (memberKey != null) {
-      GrouperMember mem = GrouperBackend.member(memberKey);
+      GrouperMember mem = GrouperBackend.member(this.s, memberKey);
       if (mem != null) {
         subj = GrouperSubject.load(mem.subjectID(), mem.typeID());
       }

@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.util.*;
@@ -62,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.71 2005-03-07 20:47:35 blair Exp $
+ * @version $Id: Grouper.java,v 1.72 2005-03-09 05:02:18 blair Exp $
  */
 public class Grouper {
 
@@ -350,10 +351,15 @@ public class Grouper {
       }
 
       // TODO Perform data validation of some sort for these tables?
-      groupFields   = GrouperBackend.groupFields();
-      groupTypeDefs = GrouperBackend.groupTypeDefs();
-      groupTypes    = GrouperBackend.groupTypes();
-      subjectTypes  = GrouperBackend.subjectTypes();
+      Session dbSess = new Session();
+
+      groupFields   = GrouperBackend.groupFields(dbSess);
+      groupTypeDefs = GrouperBackend.groupTypeDefs(dbSess);
+      groupTypes    = GrouperBackend.groupTypes(dbSess);
+      subjectTypes  = GrouperBackend.subjectTypes(dbSess);
+
+      dbSess.stop();
+
       initialized = true;
     }
   }

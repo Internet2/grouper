@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.50 2005-03-07 19:30:41 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.51 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -131,7 +131,7 @@ public class GrouperAccessImpl implements GrouperAccess {
         if (this.has(s, g, Grouper.PRIV_ADMIN)) {
           if (
               GrouperBackend.listAddVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv), null)
+                s, new GrouperList(g, m, (String) privMap.get(priv))
               ) == true
              )
           {
@@ -227,7 +227,7 @@ public class GrouperAccessImpl implements GrouperAccess {
       } else {
         GrouperMember m = GrouperMember.load(s, s.subject());
         rv = GrouperBackend.listVal(
-               s, new GrouperList(g, m, (String) privMap.get(priv), null)
+               s, new GrouperList(g, m, (String) privMap.get(priv))
              );
       }
     } else {
@@ -276,7 +276,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     boolean rv = false;
     if (this.can(priv) == true) {
       rv = GrouperBackend.listVal(
-             s, new GrouperList(g, m, (String) privMap.get(priv), null)
+             s, new GrouperList(g, m, (String) privMap.get(priv))
            );
     } else {
       // TODO I should probably throw an exception
@@ -332,7 +332,7 @@ public class GrouperAccessImpl implements GrouperAccess {
         if (this.has(s, g, Grouper.PRIV_ADMIN)) {
           if (
               GrouperBackend.listDelVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv), null)
+                s, new GrouperList(g, m, (String) privMap.get(priv))
               ) == true
              )
           {

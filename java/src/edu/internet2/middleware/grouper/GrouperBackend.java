@@ -52,12 +52,12 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  net.sf.hibernate.cfg.*;
 import  org.doomdark.uuid.UUIDGenerator;
 
 
@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.158 2005-03-07 20:47:35 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.159 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperBackend {
 
@@ -87,13 +87,6 @@ public class GrouperBackend {
   protected static final String VAL_NULL    = "**NULL**";     // FIXME
 
 
-  /* 
-   * PRIVATE CLASS VARIABLES
-   */
-  private static Configuration   cfg;     // Hibernate configuration
-  private static SessionFactory  factory; // Hibernate session factory
-  private static String          confFile = "Grouper.hbm.xml";
-
 
   /*
    * PROTECTED CLASS METHODS
@@ -110,42 +103,21 @@ public class GrouperBackend {
     boolean rv      = false;
     if (_validateGroupAdd(s, g)) {
       try {
-        Transaction t = s.dbSess().session().beginTransaction();
         // The Group object
         s.dbSess().session().save(g);
         // Add schema
         if (_schemaAdd(s, g)) {
           // Add attributes
           if (_attributesAdd(s, g)) {
-            /*
-             * FIXME
-             *
-	           * I need to commit the group to the groups registry
-	           * before granting the ADMIN privs as the act of granting,
-	           * especially if using the default access privilege
-	           * implementation, may need to load the group from the
-	           * groups registry.  If it hasn't been committed, that
-	           * will obviously fail and Java will go BOOM!
-             *
-             * Of course, this may make rolling back even the granting 
-             * fails even more interesting.
-             *
-             * And, *yes*, this is a bug.
-             *
-             * Why don't I do this outside of GB and within GG itself?
-             */
-            t.commit();
             if (_privGrantUponCreate(s, g)) {
               rv = true;
-            } else {
-              // FIXME We need to rollback *everything - but we can't
             }
           }
         }
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
-        throw new RuntimeException(e);
+        throw new RuntimeException("Error saving group: " + e);
       }
     } else { 
       Grouper.log().event("Unable to add group " + g.name());
@@ -168,19 +140,18 @@ public class GrouperBackend {
      *      with other custom fields...
      */
     if (_validateGroupDel(s, g)) {
-      Session session = s.dbSess().session();
       try {
-        Transaction t = session.beginTransaction();
+        Transaction t = s.dbSess().session().beginTransaction();
         // Delete attributes
-        if (_attributesDel(session, g))  {
+        if (_attributesDel(s, g))  {
           // Delete schema
-          if (_schemaDel(session, g)) {
+          if (_schemaDel(s, g)) {
             // Revoke access privileges
-            if (_privAccessRevokeAll(s, session, g)) {
+            if (_privAccessRevokeAll(s, g)) {
               // Revoke naming privileges
-              if (_privNamingRevokeAll(s, session, g)) {
+              if (_privNamingRevokeAll(s, g)) {
                 // Delete group
-                session.delete(g);
+                s.dbSess().session().delete(g);
                 // Commit
                 t.commit();
                 rv = true;
@@ -204,39 +175,30 @@ public class GrouperBackend {
    * @param gl    Add this {@link GrouperList} object.
    */
   protected static boolean listAddVal(GrouperSession s, GrouperList gl) {
-    Session session = _init(); 
-    boolean rv      = false; 
+    boolean rv = false; 
     if (_validateListVal(s, gl)) {
       // TODO Remove existence validation from _lAV?
-      if (_listValExist(gl) == false) {
+      if (_listValExist(s, gl) == false) {
         try {
-          Transaction t = session.beginTransaction();
-          
           // The GrouperList objects that we will need to add
-          Set listVals = _memberOf(session, s, gl);
+          Set listVals = _memberOf(s, gl);
           
           // Now add the list values
           // TODO Refactor out to _listAddVal(List vals)
           Iterator iter = listVals.iterator();
           while (iter.hasNext()) {
             GrouperList lv = (GrouperList) iter.next();
-            _listAddVal(session, lv);
+            _listAddVal(s, lv);
           }
 
           // Update modify information
-          session.update(gl.group()); 
-          // Commit it
-          t.commit();
+          s.dbSess().session().update(gl.group()); 
           rv = true;
-        } catch (Exception e) {
-          // TODO We probably need a rollback in here in case of
-          // failure
-          //      above.
-          throw new RuntimeException(e);
+        } catch (HibernateException e) {
+          throw new RuntimeException("Error updating group: " + e);
         }
       }
     }
-    _hibernateSessionClose(session);
     return rv;
   }
 
@@ -247,25 +209,24 @@ public class GrouperBackend {
    * @param gl    Delete this {@link GrouperList} object.
    */
   protected static boolean listDelVal(GrouperSession s, GrouperList gl) {
-    Session session = _init();
     boolean rv = false;
     if (_validateListVal(s, gl)) {
       try {
-        Transaction t = session.beginTransaction();
+        Transaction t = s.dbSess().session().beginTransaction();
 
         // The GrouperList objects that we will need to delete
-        Set listVals = _memberOf(session, s, gl);
+        Set listVals = _memberOf(s, gl);
 
         // Now delete the list values
         // TODO Refactor out to _listDelVal(List vals)
         Iterator listValIter = listVals.iterator();
         while (listValIter.hasNext()) {
           GrouperList lv = (GrouperList) listValIter.next();
-          _listDelVal(session, lv);
+          _listDelVal(s, lv);
         }
 
         // Update modify information
-        session.update(gl.group());
+        s.dbSess().session().update(gl.group());
         // Commit it
         t.commit();
         rv = true;
@@ -273,7 +234,6 @@ public class GrouperBackend {
         throw new RuntimeException(e);
       }
     }
-    _hibernateSessionClose(session);
     return rv;
   }
 
@@ -294,8 +254,7 @@ public class GrouperBackend {
                                                  );
       // TODO Error checking, anyone? 
       GrouperBackend._attrAdd(
-                              s.dbSess().session(), g.key(),
-                              attr.field(), attr.value()
+                              s, g.key(), attr.field(), attr.value()
                              );
       rv = true; // FIXME This *cannot* be correct
     }
@@ -305,13 +264,13 @@ public class GrouperBackend {
   /* !javadoc
    * Delete all attributes attached to a group
    */
-  private static boolean _attributesDel(Session session, GrouperGroup g) {
+  private static boolean _attributesDel(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
-    Iterator iter = attributes(g).iterator();
+    Iterator iter = attributes(s, g).iterator();
     while (iter.hasNext()) {
       GrouperAttribute ga = (GrouperAttribute) iter.next();
       try {
-        session.delete(ga);
+        s.dbSess().session().delete(ga);
         rv = true;
       } catch (HibernateException e) {
         // FIXME LOG
@@ -323,7 +282,7 @@ public class GrouperBackend {
   /* !javadoc
    * Add a GrouperList object
    */
-  private static void _listAddVal(Session session, GrouperList gl) {
+  private static void _listAddVal(GrouperSession s, GrouperList gl) {
     // TODO Refactor out
     Grouper.log().backend("_listAddVal() (g) " + gl.group().name());
     Grouper.log().backend("_listAddVal() (m) " + gl.member().subjectID());
@@ -335,12 +294,12 @@ public class GrouperBackend {
     }
 
     // Confirm that list value doesn't already exist
-    if (GrouperBackend._listValExist(gl) == false) {
+    if (GrouperBackend._listValExist(s, gl) == false) {
       Grouper.log().backend("_listAddVal() Value does not exist");
       Grouper.log().backend("_listAddVal() Adding " + gl);
       // Save it
       try {
-        session.save(gl);
+        s.dbSess().session().save(gl);
         Grouper.log().backend("_listAddVal() added");
       } catch (HibernateException e) {
         throw new RuntimeException(e);
@@ -353,7 +312,7 @@ public class GrouperBackend {
   /* !javadoc
    * Delete a GrouperList object
    */
-  private static void _listDelVal(Session session, GrouperList gl) {
+  private static void _listDelVal(GrouperSession s, GrouperList gl) {
     // TODO Refactor out
     Grouper.log().backend("_listDelVal() (g) " + gl.group().name());
     Grouper.log().backend("_listDelVal() (m) " + gl.member().subjectID());
@@ -365,12 +324,12 @@ public class GrouperBackend {
     }
 
     // Confirm that the data exists
-    if (GrouperBackend._listValExist(gl) == true) {
+    if (GrouperBackend._listValExist(s, gl) == true) {
       Grouper.log().backend("_listDelVal() Value exists");
       Grouper.log().backend("_listDelVal() Deleting " + gl);
       try {
         // Delete it
-        session.delete(gl); 
+        s.dbSess().session().delete(gl); 
         Grouper.log().backend("_listDelVal() deleted");
       } catch (HibernateException e) {
         throw new RuntimeException(e);
@@ -383,10 +342,9 @@ public class GrouperBackend {
   /* !javadoc
    * Retrieve list value from registry
    */
-  private static GrouperList _listVal(GrouperList gl) {
+  private static GrouperList _listVal(GrouperSession s, GrouperList gl) {
     // TODO Have GrouperList call this and its kin?
     // TODO Run within parent session?
-    Session     session   = GrouperBackend._init();
     if (gl.group() != null) { // TODO 
       List    vals      = new ArrayList();
       String  via_param;
@@ -397,7 +355,7 @@ public class GrouperBackend {
       }
       // TODO Take GL
       vals = BackendQuery.grouperList(
-               session, gl.group().key(), gl.member().key(),
+               s.dbSess().session(), gl.group().key(), gl.member().key(),
                gl.groupField(), via_param
              );
       // We only want one
@@ -406,7 +364,6 @@ public class GrouperBackend {
       } else {
         gl = null; // TODO Null Object
       }
-      GrouperBackend._hibernateSessionClose(session);
     }
     return gl;
   }
@@ -415,9 +372,9 @@ public class GrouperBackend {
    * Check whether a list value exists.
    */
   // TODO Run within parent session?
-  private static boolean _listValExist(GrouperList gl) {
+  private static boolean _listValExist(GrouperSession s, GrouperList gl) {
     boolean rv = false;
-    GrouperList lv = GrouperBackend._listVal(gl);
+    GrouperList lv = GrouperBackend._listVal(s, gl);
     if (lv != null) { // FIXME Can I do better than this?
       rv = true;
     }
@@ -428,10 +385,7 @@ public class GrouperBackend {
    * Return set of GrouperList objects generated by this list value.
    * TODO I can break this method down even further.
    */
-  private static Set _memberOf(
-                       Session session, GrouperSession s, GrouperList gl
-                     ) 
-  {
+  private static Set _memberOf(GrouperSession s, GrouperList gl) {
     Set members = new HashSet();
     Set memOf   = new HashSet();
     Set mships  = new HashSet();
@@ -442,7 +396,7 @@ public class GrouperBackend {
 
     // Determine if `m' is a group and has any members
     if (m.typeID().equals("group")) {
-      GrouperGroup mAsG = _groupLoadByID(m.subjectID());
+      GrouperGroup mAsG = groupLoadByID(s, m.subjectID());
       members.addAll( listValsOld(s, mAsG, field) );
       // For each member of `m'
       Iterator iterM = members.iterator();
@@ -488,7 +442,7 @@ public class GrouperBackend {
    * Revoke all access privs attached to a group
    */
   private static boolean _privAccessRevokeAll(
-                           GrouperSession s, Session session, GrouperGroup g
+                           GrouperSession s, GrouperGroup g
                          ) 
   {
     boolean rv = false;
@@ -545,9 +499,8 @@ public class GrouperBackend {
       rv      = true;
     } else {
       Grouper.log().backend(
-                            "Unable to grant " + Grouper.PRIV_STEM +
-                            " to " + m
-                           );
+        "Unable to grant " + Grouper.PRIV_STEM + " to " + m
+      );
     }
     return rv;
   }
@@ -568,7 +521,7 @@ public class GrouperBackend {
     if (rs != null) {
       // Now grant privileges to the group creator
       Grouper.log().backend("Converting subject " + s);
-      GrouperMember m = GrouperMember.load(s, s.subject() );
+      GrouperMember m = GrouperMember.load(s.subject() );
       if (m != null) { // FIXME Bah
         Grouper.log().backend("Converted to member " + m);
         if (g.type().equals(Grouper.NS_TYPE)) {
@@ -593,7 +546,7 @@ public class GrouperBackend {
    * Revoke all naming privs attached to a group
    */
   private static boolean _privNamingRevokeAll(
-                           GrouperSession s, Session session, GrouperGroup g
+                           GrouperSession s, GrouperGroup g
                          ) 
   {
     boolean rv = false;
@@ -629,16 +582,15 @@ public class GrouperBackend {
   /* !javadoc
    * Delete all schema attached to a group
    */
-  private static boolean _schemaDel(Session session, GrouperGroup g) {
+  private static boolean _schemaDel(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     Iterator iter = BackendQuery.kv(
-                      session, "GrouperSchema",
-                      "groupKey", g.key()
+                      s.dbSess().session(), "GrouperSchema", "groupKey", g.key()
                     ).iterator();
     while (iter.hasNext()) {
       GrouperSchema gs = (GrouperSchema) iter.next();
       try {
-        session.delete(gs);
+        s.dbSess().session().delete(gs);
         rv = true;
       } catch (HibernateException e) {
         // FIXME LOG.  Hell, anything.
@@ -655,12 +607,10 @@ public class GrouperBackend {
                          )
   {
     boolean rv = false;
-    Session session = _init();
     GrouperAttribute stem = (GrouperAttribute) g.attribute("stem");
-    if (_stemLookup(s, session, (String) stem.value())) {
+    if (_stemLookup(s, (String) stem.value())) {
       rv = true;
     }
-    _hibernateSessionClose(session);
     return rv;
   }
 
@@ -701,18 +651,43 @@ public class GrouperBackend {
                           )
   {
     // TODO Better validation would be appreciated
-    if (
-        s   != null                                               &&
-        gl  != null                                               &&
-        s.getClass().getName().equals(Grouper.KLASS_GS)           && 
-        gl.group().getClass().getName().equals(Grouper.KLASS_GG)  &&
-        gl.member().getClass().getName().equals(Grouper.KLASS_GM) &&
-        Grouper.groupField(gl.group().type(), gl.groupField())
-       ) 
-    {
-      return true;
+    if (s == null) {
+      throw new RuntimeException("List validation: null session");
     }
-    return false;
+    if (gl == null) {
+      throw new RuntimeException("List validation: null list");
+    }
+    if (!s.getClass().getName().equals(Grouper.KLASS_GS)) {
+      throw new RuntimeException("List validation: invalid session");
+    }
+    if (gl.group() == null) {
+      throw new RuntimeException("List validation: null group");
+    }
+    if (!gl.group().getClass().getName().equals(Grouper.KLASS_GG)) {
+      throw new RuntimeException("List validation: invalid group");
+    }
+    if (gl.member() == null) {
+      throw new RuntimeException("List validation: null member");
+    }
+    if (gl.member() == null) {
+      throw new RuntimeException("List validation: null member");
+    }
+    if (!gl.member().getClass().getName().equals(Grouper.KLASS_GM)) {
+      throw new RuntimeException("List validation: invalid member");
+    }
+    if (!Grouper.groupField(gl.group().type(), gl.groupField())) {
+      throw new RuntimeException("List validation: invalid field");
+    }
+    if (!gl.member().getClass().getName().equals(Grouper.KLASS_GM)) {
+      throw new RuntimeException("List validation: invalid member");
+    }
+    if (gl.groupField() == null) {
+      throw new RuntimeException("List validation: null field");
+    }
+    if (!Grouper.groupField(gl.group().type(), gl.groupField())) {
+      throw new RuntimeException("List validation: invalid field");
+    }
+    return true;
   }
 
 
@@ -736,15 +711,14 @@ public class GrouperBackend {
    * @return  The added {@link GrouperAttribute} object.
    */
   protected static GrouperAttribute attrAdd(
+                                            GrouperSession s,
                                             String key, String field, 
                                             String value
                                            ) 
   {
-    Session session = GrouperBackend._init();
     GrouperAttribute attr = GrouperBackend._attrAdd(
-                              session, key, field, value
+                              s, key, field, value
                             ); 
-    GrouperBackend._hibernateSessionClose(session);
     return attr;
   }
 
@@ -757,13 +731,11 @@ public class GrouperBackend {
    * @return  The added {@link GrouperAttribute} object.
    */
   protected static boolean attrDel(
-                                   String key, String field
-                                  ) 
+                             GrouperSession s, String key, String field
+                           ) 
   {
     boolean rv = false;
-    Session session = GrouperBackend._init();
-    rv = GrouperBackend._attrDel(session, key, field);
-    GrouperBackend._hibernateSessionClose(session);
+    rv = GrouperBackend._attrDel(s, key, field);
     return rv;
   }
 
@@ -774,12 +746,10 @@ public class GrouperBackend {
    * @param g Group object
    * @return List of a {@link GrouperAttribute} objects.
    */
-  protected static List attributes(GrouperGroup g) {
-    Session session = GrouperBackend._init();
+  protected static List attributes(GrouperSession s, GrouperGroup g) {
     List vals = BackendQuery.kv(
-                  session, "GrouperAttribute", "groupKey", g.key()
+                  s.dbSess().session(), "GrouperAttribute", "groupKey", g.key()
                 );
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -795,9 +765,7 @@ public class GrouperBackend {
    * @return  List of {@link GrouperAttribute} objects.
    */
   protected static List extensions(GrouperSession s, String extn) {
-    Session session     = GrouperBackend._init();
-    List    extensions  = GrouperBackend._extensions(session, extn);
-    GrouperBackend._hibernateSessionClose(session);
+    List    extensions  = GrouperBackend._extensions(s, extn);
     return extensions;
   }
 
@@ -806,89 +774,47 @@ public class GrouperBackend {
    *
    * @return List of group fields.
    */
-  protected static List groupFields() {
-    Session session = GrouperBackend._init();
-    List    vals    = BackendQuery.all(session, "GrouperField");
-    GrouperBackend._hibernateSessionClose(session);
+  protected static List groupFields(edu.internet2.middleware.grouper.database.Session dbSess) {
+    List vals = BackendQuery.all(dbSess.session(), "GrouperField");
     return vals;
   }
 
-  /**
-   * Retrieve {@link GrouperGroup} from backend store.
-   */
-  protected static GrouperGroup groupLoad(
-                                  GrouperSession s, String stem,
-                                  String extn, String type
-                                ) 
-  {
-    Session session = GrouperBackend._init();
-    // TODO G+H Session validation 
-    // TODO Priv validation
-    GrouperGroup g = GrouperBackend._groupLoad(
-                       s, session, stem, extn, type
-                     );
-    GrouperBackend._hibernateSessionClose(session);
-    return g;
-  }
-
   // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLoadByID(
-                                  GrouperSession s, String id, 
-                                  String type
-                                ) 
-  {
-    GrouperGroup g = GrouperBackend._groupLoadByID(id);
-    return g;
-  }
-
-  // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLoadByKey(String key) {
+  protected static GrouperGroup groupLoadByKey(GrouperSession s, GrouperGroup g, String key) {
     /*
      * While most private class methods take a Session as an argument,
      * this method does not because to do so would possibly cause
      * non-uniqueness issues.
      */
-    Session       session = GrouperBackend._init();
-    GrouperGroup  g       = new GrouperGroup();
+     try {
+       s.dbSess().session().evict(g);
+     } catch (HibernateException e) {
+       throw new RuntimeException("Error evicting group from session: " + e);
+     }
+    g = new GrouperGroup();
 
     if (key != null) {
       try {
         // Attempt to load a stored group into the current object
-        session.load(g, key);
+        s.dbSess().session().load(g, key);
   
         // Its schema
-        GrouperSchema schema = GrouperBackend._groupSchema(session, g);
+        GrouperSchema schema = GrouperBackend._groupSchema(s, g);
         if (
-            (schema != null)                                &&
-            (GrouperBackend._groupAttachAttrs(session, g))  &&
+            (schema != null)                          &&
+            (GrouperBackend._groupAttachAttrs(s, g))  &&
             (g.type( schema.type() ) )
            )
         {
           // TODO Nothing?
         } else {
-          throw new RuntimeException("Unable to properly load group");
+          g = null;
         }
-      } catch (Exception e) {
+      } catch (HibernateException e) {
         // TODO Rollback if load fails?  Unset this.exists?
-        throw new RuntimeException(e);
+        throw new RuntimeException("Error loading group: " + e);
       }
     }
-    GrouperBackend._hibernateSessionClose(session);
-    return g;
-  }
-
-  /* (!javadoc)
-   * Load a group by name.
-   */
-  protected static GrouperGroup groupLoadByName(
-                     GrouperSession s, String name, String type
-                   ) 
-  {
-    Session       session = GrouperBackend._init();
-    GrouperGroup g = GrouperBackend._groupLoadByName(
-                      s, session, name, type
-                     );
-    GrouperBackend._hibernateSessionClose(session);
     return g;
   }
 
@@ -897,25 +823,21 @@ public class GrouperBackend {
    */
   protected static boolean groupUpdate(GrouperSession s, GrouperGroup g) {
     boolean rv      = false;
-    Session session = GrouperBackend._init();
     try {
-      session.update(g);
+      s.dbSess().session().update(g);
       rv = true;
     } catch (HibernateException e) {
       rv = false; 
       Grouper.log().backend("Unable to update group " + g);
     }
-    GrouperBackend._hibernateSessionClose(session);
     return rv;
   }
 
   // TODO Why not just listValExist directly?
   protected static boolean listVal(GrouperSession s, GrouperList gl) {
     // TODO Basic input data validation
-    Session session = GrouperBackend._init();
     boolean rv      = false;
-    rv = GrouperBackend._listValExist(gl);
-    GrouperBackend._hibernateSessionClose(session);
+    rv = GrouperBackend._listValExist(s, gl);
     return rv;
   }
 
@@ -928,7 +850,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, String list) {
-    Session session = s.dbSess().session();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -936,7 +857,7 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, null, null, 
+                                      s, null, null, 
                                       list, Grouper.MEM_ALL
                                      );
     }
@@ -954,7 +875,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listValsOld(GrouperSession s, GrouperGroup g, String list) {
-    Session session = GrouperBackend._init();
     List vals = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -966,11 +886,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, g, null, 
+                                      s, g, null, 
                                       list, Grouper.MEM_ALL
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
   protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
@@ -1012,10 +931,7 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(
-                                      s.dbSess().session(), null, m, 
-                                      list, Grouper.MEM_ALL
-                                     );
+      vals = GrouperBackend._listVals(s, null, m, list, Grouper.MEM_ALL);
     }
     return vals;
   }
@@ -1029,7 +945,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1037,11 +952,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, null, null, 
+                                      s, null, null, 
                                       list, Grouper.MEM_EFF
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1056,7 +970,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, GrouperGroup g, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1068,11 +981,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, g, null, 
+                                      s, g, null, 
                                       list, Grouper.MEM_EFF
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1087,7 +999,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, GrouperMember m, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1098,11 +1009,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, null, m, 
+                                      s, null, m, 
                                       list, Grouper.MEM_EFF
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1115,7 +1025,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1123,11 +1032,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, null, null, 
+                                      s, null, null, 
                                       list, Grouper.MEM_IMM
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
   
@@ -1141,7 +1049,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, GrouperGroup g, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1153,11 +1060,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, g, null, 
+                                      s, g, null, 
                                       list, Grouper.MEM_IMM
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1172,7 +1078,6 @@ public class GrouperBackend {
    * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, GrouperMember m, String list) {
-    Session session = GrouperBackend._init();
     List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -1183,11 +1088,10 @@ public class GrouperBackend {
     {
       // TODO Verify that the subject has privilege to retrieve this list data
       vals = GrouperBackend._listVals(
-                                      session, null, m, 
+                                      s, null, m, 
                                       list, Grouper.MEM_IMM
                                      );
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1196,10 +1100,8 @@ public class GrouperBackend {
    *
    * @return List of group type definitions.
    */
-  protected static List groupTypeDefs() {
-    Session session = GrouperBackend._init();
-    List    vals    = BackendQuery.all(session, "GrouperTypeDef");
-    GrouperBackend._hibernateSessionClose(session);
+  protected static List groupTypeDefs(edu.internet2.middleware.grouper.database.Session dbSess) {
+    List    vals    = BackendQuery.all(dbSess.session(), "GrouperTypeDef");
     return vals;
   }
 
@@ -1212,10 +1114,9 @@ public class GrouperBackend {
    * @return  List of {@link GrouperGroup} objects.
    */
   protected static List groupType(GrouperSession s, String type) {
-    Session   session = GrouperBackend._init();
     List      vals    = new ArrayList();
     Iterator  iter    = BackendQuery.kv(
-                          session, "GrouperSchema", "groupType", type
+                          s.dbSess().session(), "GrouperSchema", "groupType", type
                         ).iterator();
     while (iter.hasNext()) {
       GrouperSchema gs = (GrouperSchema) iter.next();
@@ -1225,7 +1126,6 @@ public class GrouperBackend {
         vals.add(g);
       }
     }
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1236,15 +1136,13 @@ public class GrouperBackend {
    * @param   d   A {@link java.util.Date} object.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List groupCreatedAfter(java.util.Date d) {
-    Session   session = GrouperBackend._init();
+  protected static List groupCreatedAfter(GrouperSession s, java.util.Date d) {
     List      vals    = new ArrayList();
     Iterator  iter    = BackendQuery.kvgt(
-                          session, "GrouperGroup",
+                          s.dbSess().session(), "GrouperGroup",
                           "createTime", Long.toString(d.getTime())
                         ).iterator();
-    vals = GrouperBackend._iterGroup(iter);
-    GrouperBackend._hibernateSessionClose(session);
+    vals = GrouperBackend._iterGroup(s, iter);
     return vals;
   }
 
@@ -1255,15 +1153,13 @@ public class GrouperBackend {
    * @param   d   A {@link java.util.Date} object.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List groupCreatedBefore(java.util.Date d) {
-    Session   session = GrouperBackend._init();
+  protected static List groupCreatedBefore(GrouperSession s, java.util.Date d) {
     List      vals    = new ArrayList();
     Iterator  iter    = BackendQuery.kvlt(
-                          session, "GrouperGroup",
+                          s.dbSess().session(), "GrouperGroup",
                           "createTime", Long.toString(d.getTime())
                         ).iterator();
-    vals = GrouperBackend._iterGroup(iter);
-    GrouperBackend._hibernateSessionClose(session);
+    vals = GrouperBackend._iterGroup(s, iter);
     return vals;
   }
 
@@ -1274,15 +1170,13 @@ public class GrouperBackend {
    * @param   d   A {@link java.util.Date} object.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List groupModifiedAfter(java.util.Date d) {
-    Session   session = GrouperBackend._init();
+  protected static List groupModifiedAfter(GrouperSession s, java.util.Date d) {
     List      vals    = new ArrayList();
     Iterator  iter    = BackendQuery.kvgt(
-                          session, "GrouperGroup",
+                          s.dbSess().session(), "GrouperGroup",
                           "modifyTime", Long.toString(d.getTime())
                         ).iterator();
-    vals = GrouperBackend._iterGroup(iter);
-    GrouperBackend._hibernateSessionClose(session);
+    vals = GrouperBackend._iterGroup(s, iter);
     return vals;
   }
 
@@ -1293,15 +1187,13 @@ public class GrouperBackend {
    * @param   d   A {@link java.util.Date} object.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List groupModifiedBefore(java.util.Date d) {
-    Session   session = GrouperBackend._init();
+  protected static List groupModifiedBefore(GrouperSession s, java.util.Date d) {
     List      vals    = new ArrayList();
     Iterator  iter    = BackendQuery.kvlt(
-                          session, "GrouperGroup",
+                          s.dbSess().session(), "GrouperGroup",
                           "modifyTime", Long.toString(d.getTime())
                         ).iterator();
-    vals = GrouperBackend._iterGroup(iter);
-    GrouperBackend._hibernateSessionClose(session);
+    vals = GrouperBackend._iterGroup(s, iter);
     return vals;
   }
 
@@ -1311,27 +1203,23 @@ public class GrouperBackend {
    *
    * @return List of {@link GrouperType} objects.
    */
-  protected static List groupTypes() {
-    Session session = GrouperBackend._init();
-    List    vals    = BackendQuery.all(session, "GrouperType");
-    GrouperBackend._hibernateSessionClose(session);
+  protected static List groupTypes(edu.internet2.middleware.grouper.database.Session dbSess) {
+    List    vals    = BackendQuery.all(dbSess.session(), "GrouperType");
     return vals;
   }
 
   /*
    * Retrieve GrouperMember by memberID
    */
-  protected static GrouperMember memberByID(String id) {
-    Session       session = GrouperBackend._init();
+  protected static GrouperMember memberByID(GrouperSession s, String id) {
     GrouperMember m       = new GrouperMember();
     List vals = BackendQuery.kv(
-                                session, Grouper.KLASS_GM,
+                                s.dbSess().session(), Grouper.KLASS_GM,
                                 "memberID", id
                                );
     if (vals.size() == 1) {
       m = (GrouperMember) vals.get(0);
     }
-    GrouperBackend._hibernateSessionClose(session);
     return m;
   }
 
@@ -1340,12 +1228,11 @@ public class GrouperBackend {
    *
    * @return  {@link GrouperMember} object or null.
    */
-  protected static GrouperMember member(String key) {
-    Session       session = GrouperBackend._init();
+  protected static GrouperMember member(GrouperSession s, String key) {
     GrouperMember m       = new GrouperMember();
     if (key != null) {
       try {
-        session.load(m, key);
+        s.dbSess().session().load(m, key);
       } catch (ObjectNotFoundException e) {
         // No proper member to return
         m = null;
@@ -1355,7 +1242,6 @@ public class GrouperBackend {
     } else {
       m = null;
     }
-    GrouperBackend._hibernateSessionClose(session);
     return m;
   }
 
@@ -1365,21 +1251,20 @@ public class GrouperBackend {
    * @return  {@link GrouperMember} object or null.
    */
   protected static GrouperMember member(
+                                        edu.internet2.middleware.grouper.database.Session dbSess,
                                         String subjectID, 
                                         String subjectTypeID
                                        ) 
   {
-    Session       session = GrouperBackend._init();
     GrouperMember m       = null;
     List          vals    = BackendQuery.kvkv(
-                              session, "GrouperMember", "subjectID", 
+                              dbSess.session(), "GrouperMember", "subjectID", 
                               subjectID, "subjectTypeID", subjectTypeID
                             );
     // We only want one
     if (vals.size() == 1) {
       m = (GrouperMember) vals.get(0);
     }
-    GrouperBackend._hibernateSessionClose(session);
     return m;
   }
 
@@ -1389,9 +1274,8 @@ public class GrouperBackend {
    * @param   member  {@link GrouperMember} object to store.
    * @return  {@link GrouperMember} object.
    */
-  protected static GrouperMember memberAdd(GrouperMember member) {
+  protected static GrouperMember memberAdd(edu.internet2.middleware.grouper.database.Session dbSess, GrouperMember member) {
     // TODO Should I have session/security restrictions in place?
-    Session session = GrouperBackend._init();
     if ( 
         ( member.memberID()   != null) &&
         ( member.subjectID()  != null) &&
@@ -1399,10 +1283,10 @@ public class GrouperBackend {
        ) 
     {
       try {
-        Transaction t = session.beginTransaction();
+        Transaction t = dbSess.session().beginTransaction();
 
         // Save it
-        session.save(member);
+        dbSess.session().save(member);
       
         // Commit it
         t.commit();
@@ -1411,10 +1295,8 @@ public class GrouperBackend {
         //      above.
         throw new RuntimeException(e);
       }
-      GrouperBackend._hibernateSessionClose(session);
-      return GrouperBackend.member(member.subjectID(), member.typeID());
+      return GrouperBackend.member(dbSess, member.subjectID(), member.typeID());
     }
-    GrouperBackend._hibernateSessionClose(session);
     return null;
   }
 
@@ -1424,12 +1306,10 @@ public class GrouperBackend {
    * @param g Group object
    * @return List of a group's schema
    */
-  protected static List schemas(GrouperGroup g) {
-    Session session = GrouperBackend._init();
+  protected static List schemas(GrouperSession s, GrouperGroup g) {
     List    vals    = BackendQuery.kv(
-                        session, "GrouperSchema", "groupKey", g.key()
+                        s.dbSess().session(), "GrouperSchema", "groupKey", g.key()
                       );
-    GrouperBackend._hibernateSessionClose(session);
     return vals;
   }
 
@@ -1439,15 +1319,11 @@ public class GrouperBackend {
    * @param s Session to add.
    */
   protected static void sessionAdd(GrouperSession s) {
-    Session session = GrouperBackend._init();
     try {
-      Transaction t = session.beginTransaction();
-      session.save(s);
-      t.commit();
+      s.dbSess().session().save(s);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error adding session: " + e);
     }
-    GrouperBackend._hibernateSessionClose(session);
   }
 
   /**
@@ -1458,18 +1334,12 @@ public class GrouperBackend {
    * @return  True is fhe session was deleted.
    */
   protected static boolean sessionDel(GrouperSession s) {
-    boolean rv = false;
-    Session session = GrouperBackend._init();
     try {
-      Transaction t = session.beginTransaction();
-      session.delete(s);
-      t.commit();
-      rv = true;
+      s.dbSess().session().delete(s);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error deleting session: " + e);
     }
-    GrouperBackend._hibernateSessionClose(session);
-    return rv;
+    return true;
   }
 
   /**
@@ -1481,10 +1351,9 @@ public class GrouperBackend {
    */
   protected static boolean sessionValid(GrouperSession s) {
     boolean rv = false;
-    Session session = GrouperBackend._init();
     if (s != null) {
       List vals = BackendQuery.kv(
-                    session, "GrouperSession", "sessionID", s.id()
+                    s.dbSess().session(), "GrouperSession", "sessionID", s.id()
                   );
       if (vals.size() == 1) {
         rv = true;
@@ -1492,7 +1361,6 @@ public class GrouperBackend {
         Grouper.log().event("Attempt to use an invalid session");
       }
     }
-    GrouperBackend._hibernateSessionClose(session);
     return rv;
   }
 
@@ -1501,8 +1369,7 @@ public class GrouperBackend {
    * <p />
    * TODO Go away. 
    */
-  protected static void sessionsCull() {
-    Session         session = GrouperBackend._init();
+  protected static void sessionsCull(GrouperSession s) {
     /* XXX Until I find the time to identify a better way of managing
      *     sessions -- which I *know* exists -- be crude about it. */
     java.util.Date  now     = new java.util.Date();
@@ -1510,7 +1377,7 @@ public class GrouperBackend {
     long tooOld  = nowTime - 360000;
 
     try {
-      session.delete(
+      s.dbSess().session().delete(
         "FROM GrouperSession AS gs" +
         " WHERE "                   +
         "gs.startTime > " + nowTime
@@ -1518,14 +1385,11 @@ public class GrouperBackend {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    GrouperBackend._hibernateSessionClose(session);
   }
 
   // TODO
   protected static List stems(GrouperSession s, String stem) {
-    Session session = GrouperBackend._init();
-    List    stems   = GrouperBackend._stems(session, stem);
-    GrouperBackend._hibernateSessionClose(session);
+    List    stems   = GrouperBackend._stems(s, stem);
     return stems;
   }
 
@@ -1534,11 +1398,15 @@ public class GrouperBackend {
    *
    * @return  {@link Subject} object or null.
    */
-  protected static Subject subjectLookupTypeGroup(String id, String typeID) {
-    Session session = GrouperBackend._init();
+  protected static Subject subjectLookupTypeGroup(
+                             String id, String typeID
+                           ) 
+  {
     Subject subj    = null;
+    edu.internet2.middleware.grouper.database.Session dbSess = 
+      new edu.internet2.middleware.grouper.database.Session();
     List    vals    = BackendQuery.kv(
-                        session, "GrouperGroup", "groupID", id
+                        dbSess.session(), "GrouperGroup", "groupID", id
                       );
     // We only want one
     if (vals.size() == 1) {
@@ -1561,7 +1429,7 @@ public class GrouperBackend {
         " matching groups"
       );
     }
-    GrouperBackend._hibernateSessionClose(session);
+    dbSess.stop();
     return subj;
   }
 
@@ -1571,18 +1439,22 @@ public class GrouperBackend {
    *
    * @return  {@link Subject} object or null.
    */
-  protected static Subject subjectLookupTypePerson(String id, String typeID) {
-    Session session = GrouperBackend._init();
+  protected static Subject subjectLookupTypePerson(
+                             String id, String typeID
+                           ) 
+  {
     Subject subj    = null;
+    edu.internet2.middleware.grouper.database.Session dbSess = 
+      new edu.internet2.middleware.grouper.database.Session();
     List    vals    = BackendQuery.kvkv(
-                        session, "SubjectImpl", "subjectID", id,
+                        dbSess.session(), "SubjectImpl", "subjectID", id,
                         "subjectTypeID", typeID
                       );
     // We only want one
     if (vals.size() == 1) {
       subj = (Subject) vals.get(0);
     }
-    GrouperBackend._hibernateSessionClose(session);
+    dbSess.stop();
     return subj;
   }
 
@@ -1591,10 +1463,8 @@ public class GrouperBackend {
    *
    * @return List of subject types.
    */
-  protected static List subjectTypes() {
-    Session session = GrouperBackend._init();
-    List    vals    = BackendQuery.all(session, "SubjectTypeImpl");
-    GrouperBackend._hibernateSessionClose(session);
+  protected static List subjectTypes(edu.internet2.middleware.grouper.database.Session dbSess) {
+    List    vals    = BackendQuery.all(dbSess.session(), "SubjectTypeImpl");
     return vals;
   }
 
@@ -1617,17 +1487,17 @@ public class GrouperBackend {
    * Hibernate an attribute
    */
   private static GrouperAttribute _attrAdd(
-                                    Session session, String key,
+                                    GrouperSession s, String key,
                                     String  field,   String value
                                   )
   {
     GrouperAttribute attr = null;
-    List vals = BackendQuery.grouperAttr(session, key, field);
+    List vals = BackendQuery.grouperAttr(s.dbSess().session(), key, field);
     if (vals.size() == 0) {
       // We've got a new one.  Store it.
       try {
         attr = new GrouperAttribute(key, field, value);
-        session.save(attr);   
+        s.dbSess().session().save(attr);   
       } catch (HibernateException e) {
         attr = null;
         Grouper.log().backend(
@@ -1641,7 +1511,7 @@ public class GrouperBackend {
       if (!attr.value().equals(value)) {
         try {
           attr = new GrouperAttribute(key, field, value);
-          session.update(attr);
+          s.dbSess().session().update(attr);
         } catch (HibernateException e) {
           attr = null;
           Grouper.log().backend(
@@ -1654,15 +1524,15 @@ public class GrouperBackend {
   }
 
   private static boolean _attrDel(
-                           Session session, String key, String field
+                           GrouperSession s, String key, String field
                          ) 
   {
     boolean rv = false;
-    List vals = BackendQuery.grouperAttr(session, key, field);
+    List vals = BackendQuery.grouperAttr(s.dbSess().session(), key, field);
     if (vals.size() == 1) {
       try {
         GrouperAttribute attr = (GrouperAttribute) vals.get(0);
-        session.delete(attr);
+        s.dbSess().session().delete(attr);
         rv = true;
       } catch (HibernateException e) {
         Grouper.log().backend("Unable to delete attribute " + field);
@@ -1671,9 +1541,9 @@ public class GrouperBackend {
     return rv;
   }
 
-  private static List _extensions(Session session, String extension) {
+  private static List _extensions(GrouperSession s, String extension) {
     return BackendQuery.kvkv(
-             session, "GrouperAttribute", "groupField", 
+             s.dbSess().session(), "GrouperAttribute", "groupField", 
              "extension", "groupFieldValue", extension
            );
   }
@@ -1686,10 +1556,10 @@ public class GrouperBackend {
    *       But perhaps the `initialized' hack that I added for another
    *       reason will work?
    */
-  private static boolean _groupAttachAttrs(Session session, GrouperGroup g) {
+  private static boolean _groupAttachAttrs(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     if (g != null) {
-      Iterator iter = GrouperBackend.attributes(g).iterator();
+      Iterator iter = GrouperBackend.attributes(s, g).iterator();
       while (iter.hasNext()) {
         GrouperAttribute attr = (GrouperAttribute) iter.next();
         g.attribute( attr.field(), attr );
@@ -1700,75 +1570,85 @@ public class GrouperBackend {
   }
 
   // FIXME Refactor.  Mercilesssly.
-  private static GrouperGroup _groupLoad(
-                                GrouperSession s, Session session, String stem, 
+  protected static GrouperGroup groupLoad(
+                                GrouperSession s, String stem, 
                                 String extn, String type
                               )
   {
     GrouperGroup g = null;
-    if (GrouperBackend._stemLookup(s, session, stem)) {
+    if (GrouperBackend._stemLookup(s, stem)) {
       String name = GrouperGroup.groupName(stem, extn);
-      g = GrouperBackend._groupLoadByName(s, session, name, type);
-      // FIXME WTF IS THIS?!?!
-      if (g != null) {
-        // TODO ???
-      } else {
-        // TODO ???
-      }
+      g = GrouperBackend.groupLoadByName(s, name, type);
+      // FIXME WTF? Should I do *something* here?
     }
     return g;
   }
 
   // FIXME Refactor.  Mercilesssly.
-  // TODO  Take group type into account.
-  private static GrouperGroup _groupLoadByID(String id) {
-    Session session = GrouperBackend._init();
-    String  key     = null;
-    List    vals    = BackendQuery.kv(session, "GrouperGroup", "groupID", id);
+  protected static GrouperGroup groupLoadByID(GrouperSession s, String id) {
+    String        key   = null;
+    GrouperGroup  g     = null;
+    List          vals  = BackendQuery.kv(s.dbSess().session(), "GrouperGroup", "groupID", id);
     // We only want one
     if (vals.size() == 1) {
-      GrouperGroup g = (GrouperGroup) vals.get(0);
-      key = g.key();
+      g = (GrouperGroup) vals.get(0);
+      if ( (g != null) && (g.key() != null) ) {
+        key = g.key();
+        try {
+          s.dbSess().session().evict(g);
+        } catch (HibernateException e) {
+          throw new RuntimeException("Error evicting group from session: " + e);
+        }
+        g = new GrouperGroup();
+        g = GrouperBackend.groupLoadByKey(s, g, key);
+      }
     }
-    GrouperBackend._hibernateSessionClose(session);
-    // TODO Verify that key != null or let ByKey() handle that?
-    return GrouperBackend.groupLoadByKey(key);
+    return g;
   }
 
   /* (!javadoc)
    * Load a group by name.
    */
-  private static GrouperGroup _groupLoadByName(
-                   GrouperSession s, Session session, 
-                   String name, String type
+  protected static GrouperGroup groupLoadByName(
+                   GrouperSession s, String name, String type
                  ) 
   {
-    GrouperGroup g = null;
+    boolean initialized = false;
+    GrouperGroup g = new GrouperGroup();
     List names = BackendQuery.kvkv(
-                   session, "GrouperAttribute", "groupField", "name",
+                   s.dbSess().session(), "GrouperAttribute", "groupField", "name",
                    "groupFieldValue", name
                  );
-    Iterator iter = names.iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      List gs = BackendQuery.kvkv(
-                  session, "GrouperSchema", "groupKey", attr.key(),
-                  "groupType", type
-                );
-      if (gs.size() == 1) {
-        GrouperSchema schema = (GrouperSchema) gs.get(0);
-        if (schema.type().equals(type)) {
-          // FIXME Isn't this circular?
-          GrouperGroup grp = GrouperGroup.loadByKey(
-                               s, attr.key(), type
-                             );
-          if (grp != null) {
-            if (grp.type().equals(type)) {
-              g = grp; 
+    if (names.size() > 0) {
+      Iterator iter = names.iterator();
+      while (iter.hasNext()) {
+        GrouperAttribute attr = (GrouperAttribute) iter.next();
+        List gs = BackendQuery.kvkv(
+                    s.dbSess().session(), "GrouperSchema", "groupKey", attr.key(),
+                    "groupType", type
+                  );
+        if (gs.size() == 1) {
+          GrouperSchema schema = (GrouperSchema) gs.get(0);
+          if (schema.type().equals(type)) {
+            g = groupLoadByKey(s, g, attr.key());
+            // FIXME Really not sure about this
+            try {
+              s.dbSess().session().evict(g);
+            } catch (HibernateException e) {
+              throw new RuntimeException("Error evicting group from session: " + e);
+            }
+            if (g != null) {
+              if (g.type().equals(type)) {
+                initialized = true;
+              }
             }
           }
         }
       }
+    } 
+    if (!initialized) {
+      // We failed to load a group.  Null out the object.
+      g = null;
     }
     return g;
   }
@@ -1778,11 +1658,11 @@ public class GrouperBackend {
    * {@link GrouperSchema} object.
    * TODO This will need poking when we support multiple types.
    */
-  private static GrouperSchema _groupSchema(Session session, GrouperGroup g) {
+  private static GrouperSchema _groupSchema(GrouperSession s, GrouperGroup g) {
     GrouperSchema schema = null;
     if (g != null) {
       List    vals  = BackendQuery.kv(
-                        session, "GrouperSchema", "groupKey", g.key()
+                        s.dbSess().session(), "GrouperSchema", "groupKey", g.key()
                       );
       // TODO For now, we only want one.
       if (vals.size() == 1) {
@@ -1792,77 +1672,16 @@ public class GrouperBackend {
     return schema;
   }
 
-  private static void _hibernateSessionClose(Session session) {
-    try {
-      if (session.isDirty() == true) {
-        Grouper.log().backend("Flushing dirty Hibernate session");
-        session.flush();
-      }
-      /*
-       * FIXME I need to be able to either tell if I am using a session
-       *       that has seen updates performed or else have different
-       *       versions of this method that can be called.
-       *
-       *       And of course this *could* just all be premature
-       *       optimization.
-       */
-      try {
-        Grouper.log().backend("Calling commit() on Hibernate connection");
-        session.connection().commit();
-      } catch (SQLException e) {
-        throw new RuntimeException("SQL Commit Exception:" + e);
-      }
-      Grouper.log().backend("Closing Hibernate session");
-      session.close();
-    } catch (HibernateException e) {
-      throw new RuntimeException(e);
-    }      
-  }
-
-  /*
-   * Initialize Hibernate session
-   */
-  private static Session _init() {
-    if (cfg == null) {
-      InputStream in = Grouper.class
-                              .getResourceAsStream("/" + confFile);
-      try {
-        cfg = new Configuration()
-          .addInputStream(in);
-      } catch (MappingException e) {
-        throw new RuntimeException(
-                    "Bad mapping in " + confFile + ": " + e
-                  );
-      }
-    }
-    if (factory == null) {
-      try {
-        factory = cfg.buildSessionFactory();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Unable to create Hibernate session factory: " + e
-                  );
-      }
-    }
-    try {
-      return factory.openSession();
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to create Hibernate session: " + e
-                );
-    }
-  }
-
   /* (!javadoc)
    * Iterate through a list and fully load {@link GrouperGroup}
    * objects.
    */
-  private static List _iterGroup(Iterator iter) {
+  private static List _iterGroup(GrouperSession s, Iterator iter) {
     List vals = new ArrayList();
     while (iter.hasNext()) {
       GrouperGroup g = (GrouperGroup) iter.next();
       if (g != null) {
-        g = GrouperBackend.groupLoadByKey(g.key());
+        g = GrouperBackend.groupLoadByKey(s, g, g.key());
         if (g != null) {
           vals.add(g);
         }
@@ -1872,38 +1691,6 @@ public class GrouperBackend {
   }
 
   // TODO REFACTOR!          
-  private static List _listVals(
-                                Session session, GrouperGroup g, 
-                                GrouperMember m, String list, String via
-                               ) 
-  {
-    // Well isn't this an ugly hack...
-    String gkey_param = null;
-    if (g != null) {
-      gkey_param = g.key();
-    } else {
-      gkey_param = GrouperBackend.VAL_NOTNULL;
-    }
-    String mkey_param = null;
-    if (m != null) {
-      mkey_param = m.key();
-    } else {
-      mkey_param = GrouperBackend.VAL_NOTNULL;
-    }
-    String via_param  = null;
-    if (!via.equals(Grouper.MEM_ALL)) {
-      if        (via.equals(Grouper.MEM_EFF)) {
-        via_param = GrouperBackend.VAL_NOTNULL;
-      } else if (via.equals(Grouper.MEM_IMM)) {
-        via_param = GrouperBackend.VAL_NULL;
-      } else {
-        throw new RuntimeException("Invalid via requirement: " + via);
-      }
-    }
-    return BackendQuery.grouperList(
-             session, gkey_param, mkey_param, list, via_param
-           );
-  }
   private static List _listVals(
                                 GrouperSession s, GrouperGroup g, 
                                 GrouperMember m, String list, String via
@@ -1933,25 +1720,20 @@ public class GrouperBackend {
       }
     }
     return BackendQuery.grouperList(
-             s, gkey_param, mkey_param, list, via_param
+             s.dbSess().session(), gkey_param, mkey_param, list, via_param
            );
   }
-   
    
   /* (!javadoc)
    * True if the stem exists.
    */
-  private static boolean _stemLookup(
-                           GrouperSession s, Session session, 
-                           String stem
-                         ) 
-  {
+  private static boolean _stemLookup(GrouperSession s, String stem) {
     boolean rv = false;
     if (stem.equals(Grouper.NS_ROOT)) {
       rv = true;
     } else {
-      GrouperGroup g = GrouperBackend._groupLoadByName(
-                         s, session, stem, Grouper.NS_TYPE
+      GrouperGroup g = GrouperBackend.groupLoadByName(
+                         s, stem, Grouper.NS_TYPE
                        );
       if (g != null) {
         rv = true;
@@ -1960,9 +1742,9 @@ public class GrouperBackend {
     return rv;
   }
 
-  private static List _stems(Session session, String stem) {
+  private static List _stems(GrouperSession s, String stem) {
     return BackendQuery.kvkv(
-             session, "GrouperAttribute", "groupField", 
+             s.dbSess().session(), "GrouperAttribute", "groupField", 
              "stem", "groupFieldValue", stem
            );
   }

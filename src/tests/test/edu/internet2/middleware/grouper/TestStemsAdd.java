@@ -267,7 +267,6 @@ public class TestNamespaces extends TestCase {
     s.stop();
   }
 
-
   public void testFetchNS3() {
     Subject subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
