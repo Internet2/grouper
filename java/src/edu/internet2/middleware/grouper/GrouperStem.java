@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.24 2005-03-25 20:33:45 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.25 2005-03-25 20:46:33 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -234,6 +234,40 @@ public class GrouperStem extends Group {
   }
 
   /**
+   * Retrieve list of groups that are <b>immediate</b> children
+   * of this stem.
+   * <p />
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List groups() {
+    // TODO Shares a lot of common code with stems()
+    String  qry   = "Group.key.child.group.of.stem";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.name());
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          GrouperGroup s = (GrouperGroup) Group.loadByKey(this.s, key);
+          vals.add(s);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + 
+                    qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /**
    * Add member to this stem's default list.
    * <p />
    * @param m   Add this member.
@@ -363,6 +397,7 @@ public class GrouperStem extends Group {
    * @return  List of {@link GrouperStem} objects.
    */
   public List stems() {
+    // TODO Shares a lot of common code with groups()
     String  qry   = "Group.key.child.stem.of.stem";
     List    vals  = new ArrayList();
     try {

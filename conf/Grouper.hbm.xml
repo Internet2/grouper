@@ -184,6 +184,15 @@
     select g.groupKey from Group g where g.groupID = ?
   ]]></query>
 
+  <query name="Group.key.child.group.of.stem"><![CDATA[
+    select s.groupKey from 
+      GrouperAttribute s, GrouperSchema schema where
+        s.groupField      = 'stem'    and
+        s.groupFieldValue = ?         and
+        schema.groupType  != 'naming' and
+        s.groupKey = schema.groupKey
+  ]]></query>
+
   <query name="Group.key.child.stem.of.stem"><![CDATA[
     select s.groupKey from 
       GrouperAttribute s, GrouperSchema schema where

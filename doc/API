@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.60 2005-03-25 20:33:45 blair Exp $
+$Id: API,v 1.61 2005-03-25 20:46:33 blair Exp $
 
 ---
 
@@ -225,6 +225,7 @@ $Id: API,v 1.60 2005-03-25 20:33:45 blair Exp $
 
 #### Instance Methods
 
+* List                groups()
 * List                stems()
 
 
