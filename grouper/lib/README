@@ -64,7 +64,7 @@ Contents:
 
   hsqldb.jar
     "Lightweight 100% Java SQL Database Engine"
-    - Version:  1.7.1
+    - Version:  1.7.2.11
     - Source:   <http://hsqldb.sourceforge.net/>
     - License:  Hypersonic License
 
@@ -105,5 +105,5 @@ Contents:
     - Source:   TODO
     - License:  TODO
 
-$Id: README,v 1.9 2005-02-07 20:54:47 blair Exp $
+$Id: README,v 1.10 2005-02-08 19:30:44 blair Exp $
 
