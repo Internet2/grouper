@@ -8,7 +8,7 @@ import java.util.Properties;
  * Provides a Grouper environment.
  *
  * @author blair christensen.
- * @version $Id: Grouper.java,v 1.6 2004-04-02 21:04:11 blair Exp $
+ * @version $Id: Grouper.java,v 1.7 2004-04-12 04:14:36 blair Exp $
  */
 public class Grouper {
 
@@ -36,6 +36,14 @@ public class Grouper {
   private String jdbcUrl;
   private String jdbcUsername;
 
+  /**
+   * Create Grouper environment.
+   * <p>
+   * Instantiating a Grouper object will read in the Grouper
+   * configuration file (grouper.cf), which determines where the groups
+   * registry is located, how to contact the groups registry, and what
+   * implementations of the Grouper interfaces to use.
+   */
   public Grouper() {
     con       = null;
     sessionID = -1;

@@ -4,29 +4,84 @@ package edu.internet2.middleware.directory.grouper;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.2 2004-04-11 03:13:44 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.3 2004-04-12 04:14:36 blair Exp $
  */
 public class GrouperSession {
 
+  /**
+   * Create a {@link GrouperSession} object through which all further
+   * {@link Grouper} actions will be performed.
+   * <p>
+   * <ul>
+   *  <li>Opens JDBC connection to groups registry</li>
+   * </ul>
+   */
   public GrouperSession(Grouper G) { 
-    /* Initialize jdbc handle now? */
+    /* XXX How do I get G's properties? */
+    /* XXX Initialize jdbc handle now? Or in start()? */
   }
 
   /**
    * Starts a {@link Grouper} session.
+   * <p>
+   * XXX This is no longer remotely accurate with what I am
+   * contemplating.
+   * <p>
+   * <ul>
+   *  <li>Inserts record into <i>grouper_session</i> table</li>
+   *  <li>Looks up subjectID with {@link GrouperSubject} interface</li>
+   *  <li>Creates {@link GrouperMember} object for subjectID</li>
+   *  <li>Inserts memberID into <i>grouper_session</i> table</li>
+   * </ul>
    *
-   * @param  subject  The subject to act as for the duration of this
+   * @param subjectID The subject to act as for the duration of this
    * session.
-   * @return true if the session was successfully started, false
+   * @param isMember  If true, the subjectID is assumed to be a
+   * memberID and not a presentationID.
+   * @return True if the session was successfully started, false
    * otherwise.
    */
-  public boolean start(String subject) {
+  public boolean start(String subjectID, boolean isMember) {
     /*
-      + (boolean|void) void start(String subjectID, boolean isMember)
-      - subjectID == memberID || presentationID
-      - XXX Why can I not recall what 'isMember' is supposed to
-            represent?
-    */
+     *
+     * if (subjectID == "grouperSystem") {
+     *   // A GrouperMember object is not needed as grouperSystem
+     *   // can do whatever the fuck it wants.  
+     *
+     *   // Would it be safer to use something like grouperAuth
+     *   // (or whatever)?
+     *
+     *   <insert record into grouper_session table>
+     *   return true;
+     * } else {
+     *   <insert stub record into grouper_session table>
+     *
+     *   // As every operation save for GrouperSession.start()
+     *   // requires a valid session, we need to cheat a little
+     *   // bit by creating a new session as the grouperSystem
+     *   // member in order to allow us to then confirm the 
+     *   // validity of subjectID and then create a new session.
+     *
+     *   // I can't decide if this is a hack or the way things ought to
+     *   // work.
+     *
+     *   GrouperSession authSess = new GrouperSession(G);
+     *   authSess.start("grouperSystem", true);
+     *   memberID = GrouperSubject.lookup(authSess, subjectID);
+     *   GrouperMember member = new GrouperMember(authSess, memberID, false);
+     *   authSess.end();
+     *
+     *   <insert record into grouper_session table>
+     *   return true;
+     * }
+     *
+     */
+
+    /*
+     * XXX Should we perform garbage collection on old/stale jdbc conns
+     *     at this time as well?  Or in end()?  But what if no one ever
+     *     calls end()?
+     */
 
     /*
     // XXX Assert parameters
@@ -63,8 +118,13 @@ public class GrouperSession {
 
   /**
    * Ends the {@link Grouper} session.
+   * <p>
+   * <ul>
+   *  <li>Removes session from <i>grouper_session</i> table</li>
+   *  <li>Closes JDBC connection to groups registry</li>
+   * </ul>
    *
-   * @return true if the sesesion was successfully ended, false
+   * @return True if the session was successfully ended, false
    * otherwise.
    */
   public boolean end() { 
