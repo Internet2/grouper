@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.3 2005-02-15 00:31:20 acohen Exp $
-  $Date: 2005-02-15 00:31:20 $
+  $Id: conditions.jsp,v 1.4 2005-02-16 17:19:29 acohen Exp $
+  $Date: 2005-02-16 17:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -21,6 +21,8 @@
   </head>
 
   <body>
+  
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -182,7 +184,9 @@
 <%
     for (int i = 0; i < currentLimits.length; i++)
     {
+      request.setAttribute("limit", currentLimits[i]);
 %>
+              
               <fieldset>
                 <legend>
                   <%=currentLimits[i].getName()%>
@@ -191,7 +195,11 @@
                   <%=currentLimits[i].getHelpText()%>
                 </p>
                 <blockquote>
-                  <%=LimitRenderer.render(currentLimits[i])%>
+                  <tiles:insert
+                     page='<%="/tiles/" + currentLimits[i].getRenderer()%>'
+                     flush="true">
+                    <tiles:put name="limit" beanName="limit" />
+                  </tiles:insert>
                 </blockquote>
               </fieldset>
 <%

@@ -26,7 +26,7 @@ public class LimitRenderer
   public static String render(Limit limit)
   {
     StringBuffer outStr = new StringBuffer();
-    String limitName = "LIMIT_" + limit.getId();
+    String limitName = makeLimitName(limit);
     
     ChoiceSet choiceSet;
     try
@@ -90,5 +90,10 @@ public class LimitRenderer
     }
     
     return outStr.toString();
+  }
+  
+  public static String makeLimitName(Limit limit)
+  {
+    return "LIMIT_" + limit.getId();
   }
 }
