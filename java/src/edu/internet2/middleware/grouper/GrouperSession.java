@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
@@ -63,13 +64,14 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.88 2005-03-22 14:38:00 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.89 2005-03-29 16:14:26 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
+
   // Member & Subject that this session is running under
   private transient GrouperMember   m; 
   private transient Subject         subject;
@@ -99,20 +101,14 @@ public class GrouperSession implements Serializable {
    * Null-argument constructor for Hibernate.
    */
   public GrouperSession() {
-    this._init();
-  }
-
-  protected static void validate(GrouperSession s) {
-    if (s == null) {
-      throw new RuntimeException("session is null");
-    }
+    this.createInterfaces();
   }
 
   /* (!javadoc)
    * Construct a new GrouperSession object and assign it a Subject.
    */
   private GrouperSession(Subject subj) {
-    this._init();
+    this.createInterfaces();
     this.dbSess   = new DbSess(); 
     this.subject  = subj;
     this.m        = GrouperMember.load(subj);
@@ -132,7 +128,7 @@ public class GrouperSession implements Serializable {
    * <p />
    * @param   s   I2MI {@link Subject} to act as for the duration
    *   of this session.
-   * @return  True if session started.
+   * @return  {@link GrouperSession} object if session started.
    */
   public static GrouperSession start(Subject subj) {
     // TODO Plugin an external session handling mechanism?  Yes, please!
@@ -150,7 +146,7 @@ public class GrouperSession implements Serializable {
       s.setSessionID( new GrouperUUID().toString() );
       java.util.Date now = new java.util.Date();
       s.setStartTime( Long.toString(now.getTime()) );
-      s._save();
+      s.save();
       s.dbSess.txCommit();
       Grouper.log().sessionStart(s);
     }
@@ -163,33 +159,34 @@ public class GrouperSession implements Serializable {
    */
 
   /**
-   * Retrieve a {@link GrouperAccess} access privilege resolver.
+   * Retrieve this session's {@link GrouperAccess} access privilege resolver.
    * <p />
    * @return  {@link GrouperAccess} object.
    */
   public GrouperAccess access() {
-    return access;
+    return this.access;
   }
 
   /**
-   * Retrieve a {@link GrouperNaming} naming privilege resolver.
+   * Retrieve this session's {@link GrouperNaming} naming privilege resolver.
    * <p />
    * @return  {@link GrouperNaming} object.
    */
   public GrouperNaming naming() {
-    return naming;
+    return this.naming;
   }
 
   /**
-   * Stop the {@link Grouper} session.
+   * Stop this session.
    * <p />
    * @return  True if session stopped.
    */
   public boolean stop() { 
     boolean rv = false;
     if (this.sessionID != null) {
+      // Remove from the grouper_session table
       this.dbSess.txStart();
-      this._delete();
+      this.delete();
       this.dbSess.txCommit();
     }
     this.dbSess.stop();
@@ -198,12 +195,26 @@ public class GrouperSession implements Serializable {
   }
 
   /**
-   * Retrieve session's {@link Subject}.
+   * Retrieve this session's {@link Subject} object.
    * <p />
    * @return  A {@link Subject} object.
    */
   public Subject subject() {
     return (Subject) this.subject;
+  }
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * Simple object validation.
+   */
+  protected static void validate(GrouperSession s) {
+    if (s == null) {
+      throw new RuntimeException("session is null");
+    }
   }
 
 
@@ -227,35 +238,58 @@ public class GrouperSession implements Serializable {
 
 
   /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Instantiate an interface reflectively
+   */
+  private static Object createInterface(String name) {
+    try {
+      Class classType     = Class.forName(name);
+      Class[] paramsClass = new Class[] { };
+      try {
+        Constructor con = classType.getDeclaredConstructor(paramsClass);
+        Object[] params = new Object[] { };
+        try {
+          return con.newInstance(params);
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to instantiate class: " + name);
+        }
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException("Unable to find constructor for class: " + name);
+      }
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException("Unable to find class: " + name);
+    }
+  }
+
+
+  /*
    * PRIVATE INSTANCE METHODS
    */
 
   /*
+   * Create and attach privilege interfaces to session.
+   */
+  private void createInterfaces() {
+    this.access = (GrouperAccess) createInterface(
+                    Grouper.config("interface.access")
+                  );
+    this.naming = (GrouperNaming) createInterface(
+                    Grouper.config("interface.naming")
+                  );
+  }
+
+  /*
    * Delete a session from the groups registry.
    */
-  private void _delete() {
+  private void delete() {
     try {
       this.dbSess.session().delete(this);
     } catch (HibernateException e) {
       throw new RuntimeException("Error deleting sessin: " + e);
     }
-  }
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.access     = (GrouperAccess) _interfaceCreate(
-                        Grouper.config("interface.access")
-                      );
-    //this.dbSess     = null;
-    //this.memberID   = null;
-    this.naming     = (GrouperNaming) _interfaceCreate(
-                        Grouper.config("interface.naming")
-                      );
-    //this.sessionID  = null;
-    //this.startTime  = null;
-    //this.subject    = null;
   }
 
   // Deserialize the session
@@ -276,8 +310,7 @@ public class GrouperSession implements Serializable {
   }
 
   // Serialize the session
-  private void writeObject(ObjectOutputStream oos) throws IOException 
-  {
+  private void writeObject(ObjectOutputStream oos) throws IOException {
     // Stop the Hibernate session
     this.dbSess.stop();
 
@@ -286,41 +319,13 @@ public class GrouperSession implements Serializable {
   }
 
   /*
-   * Save a session to the groups registry.
+   * Save the session to the groups registry.
    */
-  private void _save() {
+  private void save() {
     try {
       this.dbSess.session().save(this);
     } catch (HibernateException e) {
       throw new RuntimeException("Error saving session: " + e);
-    }
-  }
-
-
-  /*
-   * PRIVATE CLASS METHODS
-   */
-
-  /*
-   * Instantiate an interface reflectively
-   */
-  private static Object _interfaceCreate(String name) {
-    try {
-      Class classType     = Class.forName(name);
-      Class[] paramsClass = new Class[] { };
-      try {
-        Constructor con = classType.getDeclaredConstructor(paramsClass);
-        Object[] params = new Object[] { };
-        try {
-          return con.newInstance(params);
-        } catch (Exception e) {
-          throw new RuntimeException("Unable to instantiate class: " + name);
-        }
-      } catch (NoSuchMethodException e) {
-        throw new RuntimeException("Unable to find constructor for class: " + name);
-      }
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException("Unable to find class: " + name);
     }
   }
 
