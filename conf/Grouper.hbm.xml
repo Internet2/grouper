@@ -34,7 +34,7 @@
     <property name="modifyTime"     type="string"/>
     <property name="modifySubject"  type="string"/>
     <property name="modifySource"   type="string"/>
-    <property name="comment"        type="string"/>
+    <property name="groupComment"   type="string"/>
   </class>
 
   <class name="GrouperList" table="grouper_list" mutable="true">
