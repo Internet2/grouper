@@ -20,6 +20,7 @@
 -->
     
     <!-- local connection properties for HypersonicSQL -->
+<!--
     <property name="hibernate.dialect">
 	  net.sf.hibernate.dialect.HSQLDialect
 	</property>
@@ -33,6 +34,7 @@
 	  sa
 	</property>
     <property name="hibernate.connection.password"/>
+-->
 
     <!-- connection properties for Sybase -->
 <!--
