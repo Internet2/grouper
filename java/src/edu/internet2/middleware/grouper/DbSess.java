@@ -62,7 +62,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.8 2005-03-29 20:30:56 blair Exp $
+ * @version $Id: DbSess.java,v 1.9 2005-03-29 20:36:43 blair Exp $
  */
 public class DbSess {
 
@@ -90,10 +90,10 @@ public class DbSess {
    * CONSTRUCTORS
    */
 
-  /**
+  /*
    * Create a Hibernate database session.
    */
-  public DbSess() {
+  protected DbSess() {
     getConfiguration();
     getSessionFactory();
     try {
@@ -108,13 +108,20 @@ public class DbSess {
 
 
   /*
-   * PUBLIC INSTANCE METHODS 
+   * PROTECTED INSTANCE METHODS 
    */
+
+  /*
+   * Return the Hibernate session object.
+   */
+  protected net.sf.hibernate.Session session() {
+    return this.session;
+  }
 
   /*
    * Stop a Hibernate database session.
    */
-  public void stop() {
+  protected void stop() {
     try {
       this.session.close();
     } catch (HibernateException e) {
@@ -127,7 +134,7 @@ public class DbSess {
   /*
    * Start a Hibernate database session.
    */
-  public void txStart() {
+  protected void txStart() {
     if (this.txCnt == 0) {
       try {
         this.tx = this.session.beginTransaction();
@@ -141,7 +148,7 @@ public class DbSess {
   /*
    * Perform a Hibernate commit.
    */
-  public void txCommit() {
+  protected void txCommit() {
     this.txCnt--;
     if (this.txCnt == 0) {
       try {
@@ -158,7 +165,7 @@ public class DbSess {
   /*
    * Perform a Hibernate rollback.
    */
-  public void txRollback() {
+  protected void txRollback() {
     try {
       this.tx.rollback();
       this.txCnt = 0;
@@ -170,18 +177,6 @@ public class DbSess {
   }
  
  
-  /*
-   * PROTECTED INSTANCE METHODS
-   */
-
-  /*
-   * Return the Hibernate session object.
-   */
-  public net.sf.hibernate.Session session() {
-    return this.session;
-  }
-
-
   /*
    * PRIVATE CLASS METHODS
    */
