@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.90 2004-12-03 02:00:59 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.91 2004-12-03 02:28:50 blair Exp $
  */
 public class GrouperBackend {
 
@@ -302,7 +302,7 @@ public class GrouperBackend {
       Iterator membersIter = g.listVals(s).iterator();
       while (membersIter.hasNext()) {
         GrouperList   gl  = (GrouperList) membersIter.next();
-        GrouperMember m   = GrouperBackend.member( gl.memberKey());
+        GrouperMember m   = (GrouperMember) gl.member();
         if (m != null) {
           if (g.listDelVal(s, m) != true) {
             Grouper.LOGGER.warn("Unable to delete " + m + " from " + g);
@@ -530,7 +530,7 @@ public class GrouperBackend {
           Iterator immsIter = imms.iterator();
           while(immsIter.hasNext()) {
             GrouperList   gl  = (GrouperList) immsIter.next();
-            GrouperMember mem = GrouperBackend.member( gl.memberKey() );
+            GrouperMember mem = (GrouperMember) gl.member();
             if (mem != null) {
               GrouperBackend._listAddVal(
                                          session, via.group(),
@@ -602,8 +602,8 @@ public class GrouperBackend {
                             ).iterator();
         while (iterViaG.hasNext()) {
           GrouperList   gl  = (GrouperList) iterViaG.next();
-          GrouperGroup  grp = GrouperBackend.groupLoadByKey( gl.groupKey() );
-          GrouperMember mem = GrouperBackend.member( gl.memberKey() );
+          GrouperGroup  grp = gl.group();
+          GrouperMember mem = gl.member();
           if ( (grp != null) && (mem != null) ) {
             GrouperBackend._listDelVal(session, grp, mem, list, g);
           }
@@ -620,8 +620,8 @@ public class GrouperBackend {
                                       ).iterator();
           while (iterViaMAsG.hasNext()) {
             GrouperList   gl  = (GrouperList) iterViaMAsG.next();
-            GrouperGroup  grp = GrouperBackend.groupLoadByKey( gl.groupKey() );
-            GrouperMember mem = GrouperBackend.member( gl.memberKey() );
+            GrouperGroup  grp = gl.group();
+            GrouperMember mem = gl.member();
             if ( (grp != null) && (mem != null) ) {
               GrouperBackend._listDelVal(session, grp, mem, list, mAsG);
             }
@@ -1600,7 +1600,7 @@ public class GrouperBackend {
                                 ).iterator();
           while (iter.hasNext()) {
             GrouperList   gl  = (GrouperList) iter.next();
-            GrouperGroup  grp = GrouperBackend.groupLoadByKey( gl.groupKey() );
+            GrouperGroup  grp = gl.group();
             groups.add(grp);
           }
         }
