@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: CategoryImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
+$Date: 2005-01-11 20:38:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -59,12 +59,12 @@ implements Category
    * 			The {@link Status} of this CategoryImpl.
    */
   CategoryImpl
-  	(Subsystem 	subsystem,
-  	 String 		id,
-  	 String 		name,
-  	 Status 		status)
+  	(SubsystemImpl 	subsystem,
+  	 String 				id,
+  	 String 				name,
+  	 Status 				status)
   {
-      super(id, name, status);
+      super(subsystem.getSignet(), id, name, status);
       this.subsystem = subsystem;
       this.functions = new HashSet();
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: HelpText.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: HelpText.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
+$Date: 2005-01-11 20:38:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -12,6 +12,7 @@ interface HelpText
 {
 /**
  * Sets the help-text associated with this entity.
+ * This method should probably be non-public.
  * 
  * @param helpText
  */
@@ -19,7 +20,6 @@ interface HelpText
   
   /**
    * Gets the help-text associated with this entity.
-   * This method should really be non-public.
    * 
    * @return the help-text associated with this entity.
    */

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.3 2005-01-04 19:06:43 acohen Exp $
- $Date: 2005-01-04 19:06:43 $
+ $Id: AssignmentImpl.java,v 1.4 2005-01-11 20:38:44 acohen Exp $
+ $Date: 2005-01-11 20:38:44 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -44,11 +44,12 @@ import edu.internet2.middleware.subject.Subject;
  * comment
  */
 class AssignmentImpl
+extends EntityImpl
 implements Assignment, Comparable
 {
-  private Signet				  	signet;
+  // AssignmentImpl is unusual among Signet entities in that it
+  // has a numeric, not alphanumeric ID.
   private Integer						id;
-  private Status						status;
   
   private PrivilegedSubject	grantor;
   private String						grantorId;
@@ -61,7 +62,6 @@ implements Assignment, Comparable
   private PrivilegedSubject revoker;
   private TreeNode					scope;
   private FunctionImpl			function;
-  private Housekeeping			housekeeping;
   private boolean						grantable;
   private boolean						grantOnly;
   private Date							effectiveDate;
@@ -72,8 +72,6 @@ implements Assignment, Comparable
   public AssignmentImpl()
   {
     super();
-    this.status = Status.PENDING;
-    this.housekeeping = new Housekeeping();
   }
   
   public AssignmentImpl
@@ -87,7 +85,7 @@ implements Assignment, Comparable
   throws
   SignetAuthorityException
   {
-    super();
+    super(signet, null, null, Status.ACTIVE);
     
     if (function == null)
     {
@@ -101,8 +99,7 @@ implements Assignment, Comparable
       ("It is illegal to create a new Assignment with both its canGrant"
           + " and grantOnly attributes set true.");
     }
-    
-    this.signet = signet;
+
     this.setGrantor(grantor);
     this.setGrantee(grantee);
     
@@ -110,10 +107,8 @@ implements Assignment, Comparable
     this.function = (FunctionImpl)function;
     this.grantable = canGrant;
     this.grantOnly = grantOnly;
-    this.housekeeping = new Housekeeping();
     
     // By default, this assignment is active, starting now.
-    this.status = Status.ACTIVE;
     this.effectiveDate = new Date();
     
     if (! this.grantor.canEdit(this))
@@ -141,7 +136,7 @@ implements Assignment, Comparable
       
       try
       {
-        subject = this.signet.getSubject
+        subject = this.getSignet().getSubject
         (this.granteeTypeId, this.granteeId);
       }
       catch (ObjectNotFoundException onfe)
@@ -150,7 +145,7 @@ implements Assignment, Comparable
       }
       
       this.grantee
-      = new PrivilegedSubjectImpl(this.signet, subject);
+      = new PrivilegedSubjectImpl(this.getSignet(), subject);
     }
     
     return this.grantee;
@@ -207,7 +202,7 @@ implements Assignment, Comparable
       
       try
       {
-        subject = this.signet.getSubject
+        subject = this.getSignet().getSubject
         (this.grantorTypeId, this.grantorId);
       }
       catch (ObjectNotFoundException onfe)
@@ -216,7 +211,7 @@ implements Assignment, Comparable
       }
       
       this.grantor
-      = new PrivilegedSubjectImpl(this.signet, subject);
+      = new PrivilegedSubjectImpl(this.getSignet(), subject);
     }
     
     return this.grantor;
@@ -224,9 +219,10 @@ implements Assignment, Comparable
   
   public PrivilegedSubject getRevoker()
   {
-    if (this.signet != null)
+    if (this.getSignet() != null)
     {
-      ((PrivilegedSubjectImpl)(this.revoker)).setSignet(this.signet);
+      ((PrivilegedSubjectImpl)(this.revoker))
+      	.setSignet(this.getSignet());
     }
     
     return this.revoker;
@@ -287,163 +283,23 @@ implements Assignment, Comparable
    */
   public TreeNode getScope()
   {
-    ((TreeNodeImpl)this.scope).setSignet(this.signet);
+    ((TreeNodeImpl)this.scope).setSignet(this.getSignet());
     return this.scope;
   }
-  
-  /**
-   * @return
-   */
-  String getComment()
-  {
-    return this.housekeeping.getComment();
-  }
-  /**
-   * @return
-   */
-  String getCreateContext()
-  {
-    return this.housekeeping.getCreateContext();
-  }
-  /**
-   * @return
-   */
-  public Date getCreateDatetime()
-  {
-    return this.housekeeping.getCreateDatetime();
-  }
-  /**
-   * @return
-   */
-  String getCreateDbAccount()
-  {
-    return this.housekeeping.getCreateDbAccount();
-  }
-  /**
-   * @return
-   */
-  String getCreateUserID()
-  {
-    return this.housekeeping.getCreateUserID();
-  }
-  /**
-   * @return
-   */
-  String getModifyContext()
-  {
-    return this.housekeeping.getModifyContext();
-  }
-  /**
-   * @return
-   */
-  Date getModifyDatetime()
-  {
-    return this.housekeeping.getModifyDatetime();
-  }
-  /**
-   * @return
-   */
-  String getModifyDbAccount()
-  {
-    return this.housekeeping.getModifyDbAccount();
-  }
-  /**
-   * @return
-   */
-  String getModifyUserID()
-  {
-    return this.housekeeping.getModifyUserID();
-  }
-  /**
-   * @param comment
-   */
-  void setComment(String comment)
-  {
-    this.housekeeping.setComment(comment);
-  }
-  /**
-   * @param createContext
-   */
-  void setCreateContext(String createContext)
-  {
-    this.housekeeping.setCreateContext(createContext);
-  }
-  /**
-   * @param createDatetime
-   */
-  void setCreateDatetime(Date createDatetime)
-  {
-    this.housekeeping.setCreateDatetime(createDatetime);
-  }
-  /**
-   * @param createDbAccount
-   */
-  void setCreateDbAccount(String createDbAccount)
-  {
-    this.housekeeping.setCreateDbAccount(createDbAccount);
-  }
-  /**
-   * @param userID
-   */
-  void setCreateUserID(String userID)
-  {
-    this.housekeeping.setCreateUserID(userID);
-  }
-  /**
-   * @param modifyContext
-   */
-  void setModifyContext(String modifyContext)
-  {
-    this.housekeeping.setModifyContext(modifyContext);
-  }
-  /**
-   * @param modifyDatetime
-   */
-  void setModifyDatetime(Date modifyDatetime)
-  {
-    this.housekeeping.setModifyDatetime(modifyDatetime);
-  }
-  /**
-   * @param modifyDbAccount
-   */
-  void setModifyDbAccount(String modifyDbAccount)
-  {
-    this.housekeeping.setModifyDbAccount(modifyDbAccount);
-  }
-  /**
-   * @param userID
-   */
-  void setModifyUserID(String userID)
-  {
-    this.housekeeping.setModifyUserID(userID);
-  }
-  /**
-   * @return Returns the status.
-   */
-  public Status getStatus()
-  {
-    return this.status;
-  }
+
   /**
    * @param id The id to set.
    */
-  void setId(Integer id)
+  void setNumericId(Integer id)
   {
     this.id = id;
-  }
-  /**
-   * @param status The status to set.
-   */
-  void setStatus(Status status)
-  {
-    this.status = status;
   }
   
   /**
    * 
    * @return the unique identifier of this Assignment.
    */
-  public Integer getId()
+  public Integer getNumericId()
   {
     return this.id;
   }
@@ -453,9 +309,9 @@ implements Assignment, Comparable
    */
   public Function getFunction()
   {
-    if (this.signet != null)
+    if (this.getSignet() != null)
     {
-      this.function.setSignet(this.signet);
+      this.function.setSignet(this.getSignet());
     }
     
     return this.function;
@@ -590,16 +446,11 @@ implements Assignment, Comparable
     // This last clause is here to distinguish two Assignments which are 
     // otherwise identical twins:
     
-    Integer thisId = this.getId();
-    Integer otherId = other.getId();
+    Integer thisId = this.getNumericId();
+    Integer otherId = other.getNumericId();
     comparisonResult = thisId.compareTo(otherId);
     
     return comparisonResult;
-  }
-  
-  void setSignet(Signet signet)
-  {
-    this.signet = signet;
   }
   
   /* (non-Javadoc)

@@ -1,6 +1,6 @@
 /*--
-$Id: ObjectNotFoundException.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: ObjectNotFoundException.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
+$Date: 2005-01-11 20:38:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -22,7 +22,6 @@ public class ObjectNotFoundException extends Exception
 public ObjectNotFoundException()
 {
   super();
-  // TODO Auto-generated constructor stub
 }
 
 /**
@@ -31,7 +30,6 @@ public ObjectNotFoundException()
 public ObjectNotFoundException(String message)
 {
   super(message);
-  // TODO Auto-generated constructor stub
 }
 
 /**
@@ -41,7 +39,6 @@ public ObjectNotFoundException(String message)
 public ObjectNotFoundException(String message, Throwable cause)
 {
   super(message, cause);
-  // TODO Auto-generated constructor stub
 }
 
 /**
@@ -50,7 +47,6 @@ public ObjectNotFoundException(String message, Throwable cause)
 public ObjectNotFoundException(Throwable cause)
 {
   super(cause);
-  // TODO Auto-generated constructor stub
 }
 
 }

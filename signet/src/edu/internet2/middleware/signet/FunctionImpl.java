@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: FunctionImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
+$Date: 2005-01-11 20:38:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -30,7 +30,6 @@ class FunctionImpl
 extends EntityImpl
 implements Function
 {
-	private Signet		signet;
   private Subsystem	subsystem;
   private String		subsystemId;
   private Category  category;
@@ -73,8 +72,7 @@ implements Function
   	 String 		helpText,
   	 Status			status)
   {
-      super(id, name, status);
-      this.signet = signet;
+      super(signet, id, name, status);
       this.subsystem = category.getSubsystem();
       this.subsystemId = this.subsystem.getId();
       this.category = category;
@@ -170,9 +168,10 @@ implements Function
     this.subsystemId = ffqId.getSubsystemId();
     this.setId(ffqId.getFunctionId());
     
-    if (signet != null)
+    if (this.getSignet() != null)
     {
-      this.subsystem = this.signet.getSubsystem(ffqId.getSubsystemId());
+      this.subsystem
+      	= this.getSignet().getSubsystem(ffqId.getSubsystemId());
     }
   }
   
@@ -203,9 +202,9 @@ implements Function
   {
     if ((this.subsystem == null)
         && (this.subsystemId != null)
-        && (this.signet != null))
+        && (this.getSignet() != null))
     {
-      this.subsystem = this.signet.getSubsystem(this.subsystemId);
+      this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
     }
     
     return this.subsystem;
@@ -230,9 +229,9 @@ implements Function
   {
     this.subsystemId = subsystemId;
     
-    if (this.signet != null)
+    if (this.getSignet() != null)
     {
-      this.subsystem = this.signet.getSubsystem(subsystemId);
+      this.subsystem = this.getSignet().getSubsystem(subsystemId);
     }
   }
 
@@ -308,10 +307,5 @@ implements Function
     otherName = ((Function)o).getName();
     
     return thisName.compareToIgnoreCase(otherName);
-  }
-  
-  void setSignet(Signet signet)
-  {
-    this.signet = signet;
   }
 }
