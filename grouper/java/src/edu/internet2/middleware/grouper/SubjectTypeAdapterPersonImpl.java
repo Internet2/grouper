@@ -13,17 +13,18 @@ import  edu.internet2.middleware.subject.*;
 
 
 /** 
- * Implementation of the I2MI {{@link SubjectTypeAdapter}} interface.
+ * Implementation of the I2MI {{@link SubjectTypeAdapter}} interface
+ * for type "person".
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.3 2004-11-12 17:37:26 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.4 2004-11-15 19:39:52 blair Exp $
  */
-public class  SubjectTypeAdapterImpl
+public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter
 	implements  SubjectTypeAdapter
 {
 
-  public SubjectTypeAdapterImpl() {
+  public SubjectTypeAdapterPersonImpl() {
     super();
   }
  
