@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.101 2004-12-03 21:27:52 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.102 2004-12-04 01:19:07 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1338,6 +1338,7 @@ public class GrouperBackend {
     if (GrouperBackend._stemLookup(s, session, stem)) {
       String name = GrouperBackend.groupName(stem, extn);
       g = GrouperBackend._groupLookupByName(s, session, name, type);
+      // FIXME WTF IS THIS?!?!
       if (g != null) {
       } else {
       }
