@@ -1,0 +1,47 @@
+
+# Load groups into the registry using the _Grouper_ API
+
+This code was contributed by The University Of Chicago.
+
+$Id: README,v 1.1 2004-12-04 02:12:13 blair Exp $
+
+---
+
+## Build
+
+    % cd $GROUPER_BASE
+    % ant -f contrib/load/csv2group/build.xml
+
+--
+
+## Run
+
+    % cd $GROUPER_BASE
+    % ./contrib/load/csv2group/csv2group.sh -h
+    % ./contrib/load/csv2group/csv2group.sh \
+      -f contrib/load/csv2group/sample.cvs
+
+--
+
+## Input File Format
+
+Each line should have one of the following formats:
+
+* Add a stem:
+
+    stem,add,<stem>,<extension>
+
+* Add a group
+
+    group,add,<stem>,<extension>
+
+See the _sample.csv_ file for examples.
+
+--
+
+## Bugs
+
+* No support for removing groups
+
+* No support for adding or removing members
+

@@ -1,13 +1,21 @@
 
 # Grouper Contributed Code
 
-$Id: README,v 1.5 2004-12-03 17:06:44 blair Exp $
+$Id: README,v 1.6 2004-12-04 02:12:13 blair Exp $
 
 ---
 
 ## Loaders
 
 These programs can be used to load data into the group registry.
+
+### load/csv2group
+
+Program to load groups into the registry using the _Grouper_ API.
+
+* Contributed by _The University Of Chicago_ on 20041203.
+* Last updated on 20041203.
+* See load/csv2group/README for more information.
 
 ### load/cvs2subject
 
