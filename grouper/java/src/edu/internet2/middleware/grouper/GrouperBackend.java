@@ -27,7 +27,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.72 2004-11-28 05:00:02 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.73 2004-11-29 18:54:00 blair Exp $
  */
 public class GrouperBackend {
 
@@ -216,6 +216,80 @@ public class GrouperBackend {
   }
 
   /**
+   * Delete a {@link GrouperGroup} from the registry.
+   * <p />
+   *
+   * @param   s   Session to delete group within.
+   * @param   g   Group to delete.
+   * @return  Boolean true if group was deleted, false otherwise.
+   */
+  protected static boolean groupDelete(GrouperSession s, GrouperGroup g) {
+    Session session = GrouperBackend._init();
+    boolean rv = false;
+    try {
+      Transaction t = session.beginTransaction();
+
+      // Revoke all privileges
+      Grouper.access().revoke(s, g, "ADMIN");
+      Grouper.access().revoke(s, g, "OPTIN");
+      Grouper.access().revoke(s, g, "OPTOUT");
+      Grouper.access().revoke(s, g, "READ");
+      Grouper.access().revoke(s, g, "UPDATE");
+      Grouper.access().revoke(s, g, "VIEW");
+
+      Grouper.naming().revoke(s, g, "CREATE");
+      Grouper.naming().revoke(s, g, "STEM");
+
+      // Remove all members
+      Iterator membersIter = g.listVals(s).iterator();
+      while (membersIter.hasNext()) {
+        GrouperList   gl  = (GrouperList) membersIter.next();
+        GrouperMember m   = GrouperBackend.member( gl.memberKey());
+        if (m != null) {
+          if (g.listDelVal(s, m) != true) {
+            Grouper.LOGGER.warn("Unable to delete " + m + " from " + g);
+          }
+        } // TODO else...
+      }
+
+      // Remove attributes
+      Iterator attrIter = GrouperBackend._queryKV(
+                            session, "GrouperAttribute",
+                            "groupKey", g.key()
+                          ).iterator();
+      while (attrIter.hasNext()) {
+        GrouperAttribute ga = (GrouperAttribute) attrIter.next();
+        session.delete(ga);
+      }
+                
+      // Remove schema
+      Iterator schemaIter = GrouperBackend._queryKV(
+                              session, "GrouperSchema",
+                              "groupKey", g.key()
+                            ).iterator();
+      while (schemaIter.hasNext()) {
+        GrouperSchema gs = (GrouperSchema) schemaIter.next();
+        session.delete(gs);
+      }
+
+      // Remove group
+      session.delete(g);
+
+      // Commit
+      t.commit();
+
+      rv = true;
+    } catch (HibernateException e) {
+      // TODO We probably need a rollback in here in case of failure
+      //      above.
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
+  }
+
+  /**
    * Valid {@link GrouperField} items.
    *
    * @return List of group fields.
@@ -322,11 +396,13 @@ public class GrouperBackend {
           Iterator immsIter = imms.iterator();
           while(immsIter.hasNext()) {
             GrouperList   gl  = (GrouperList) immsIter.next();
-            GrouperMember mem = GrouperBackend._member( gl.memberKey() );
-            GrouperBackend._listAddVal(
-                                       session, via.group(),
-                                       mem, list, memberOfBase
-                                      );
+            GrouperMember mem = GrouperBackend.member( gl.memberKey() );
+            if (mem != null) {
+              GrouperBackend._listAddVal(
+                                         session, via.group(),
+                                         mem, list, memberOfBase
+                                        );
+            } // TOD else...
           }
         }
 
@@ -396,8 +472,10 @@ public class GrouperBackend {
                     ).iterator();
           while (viaIter.hasNext()) {
             GrouperList   lv  = (GrouperList) viaIter.next();
-            GrouperMember mem = GrouperBackend._member( lv.memberKey());
-            GrouperBackend._listDelVal(session, g, mem, list, memberOfBase);
+            GrouperMember mem = GrouperBackend.member( lv.memberKey());
+            if (mem != null) {
+              GrouperBackend._listDelVal(session, g, mem, list, memberOfBase);
+            } // TODO else...
           }
           // Update effective list data
           Iterator effIter = GrouperBackend._memberOf(
@@ -419,8 +497,10 @@ public class GrouperBackend {
           while (viaIter.hasNext()) {
             GrouperList   lv  = (GrouperList) viaIter.next();
             GrouperGroup  grp = GrouperBackend._groupLoadByKey( lv.groupKey() );
-            GrouperMember mem = GrouperBackend._member( lv.memberKey());
-            GrouperBackend._listDelVal(session, grp, mem, list, memberOfBase);
+            GrouperMember mem = GrouperBackend.member( lv.memberKey());
+            if (mem != null) {
+              GrouperBackend._listDelVal(session, grp, mem, list, memberOfBase);
+            } // TODO else...
           }
         }
 
@@ -594,6 +674,27 @@ public class GrouperBackend {
     List    vals    = GrouperBackend._queryAll(session, "GrouperType");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
+  }
+
+  /**
+   * Query for a single {@link GrouperMember} by key.
+   *
+   * @return  {@link GrouperMember} object or null.
+   */
+  protected static GrouperMember member(String key) {
+    Session       session = GrouperBackend._init();
+    GrouperMember m       = new GrouperMember();
+    try {
+      session.load(m, key);
+    } catch (ObjectNotFoundException e) {
+      // No proper member to return
+      m = null;
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return m;
   }
 
   /**
@@ -1135,26 +1236,6 @@ public class GrouperBackend {
                                            );
   }
    
-  /*
-   * Query for a single {@link GrouperMember} by memberKey.
-   *
-   * @return  {@link GrouperMember} object or null.
-   */
-  private static GrouperMember _member(String key) {
-    Session session = GrouperBackend._init();
-    try {
-      GrouperMember m = new GrouperMember();
-      session.load(m, key);
-      GrouperBackend._hibernateSessionClose(session);
-      return m;
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return null;
-  }
-
   /*
    * The memberOf algorithim: Grouper's one trick pony
    * <http://middleware.internet2.edu/dir/groups/docs/internet2-mace-dir-groups-best-practices-200210.htm>
