@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.49 2004-10-11 18:07:02 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.50 2004-10-11 18:14:02 blair Exp $
  */
 public class GrouperGroup {
 
@@ -151,7 +151,7 @@ public class GrouperGroup {
    *
    * @return Boolean true if the group exists, false otherwise.
    */
-  public boolean exist() {
+  public boolean exists() {
     if (this.exists == true) {
       // We are already marked as existing.  Assume that our status
       // hasn't changed.
@@ -331,7 +331,7 @@ public class GrouperGroup {
         // And a descriptor?
         (attributes.containsKey("descriptor"))      && 
         // And do the stem and descriptor already exist?
-        (this.exist() == false)                     && 
+        (this.exists() == false)                    && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
         // TODO Member Object for the admin of the group
