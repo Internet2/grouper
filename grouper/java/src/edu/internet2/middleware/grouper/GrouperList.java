@@ -54,13 +54,14 @@ package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.17 2004-11-30 01:36:26 blair Exp $
+ * @version $Id: GrouperList.java,v 1.18 2004-11-30 02:26:53 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -155,11 +156,26 @@ public class GrouperList implements Serializable {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
+  /**
+   * Return a string representation of the {@link GrouperSchema}
+   * object.
+   * <p />
+   * TODO Do I want to add in `groupkey'?  Or perhaps, given the key,
+   *      return the `groupID'?
+   * TODO Do I want to add in `memberkey'?  Or perhaps, given the key,
+   *      return the `memberID'?
+   * TODO Do I want to add in `via'?  Or perhaps, given the via key,
+   *      return the `groupID'?
+   *
+   * @return String representation of the object.
+   */
   public String toString() {
-    return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
-           this.getMemberKey();
+    return new ToStringBuilder(this)        .
+      append("field", this.getGroupField()) .
+      toString();
   }
 
+  // FIXME I hate you
   public void set(String key, String field, String subject, boolean immediate) {
     // FIXME This is all pretty dubious
     this.groupKey     = key;

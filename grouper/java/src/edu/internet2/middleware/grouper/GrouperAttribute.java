@@ -54,13 +54,14 @@ package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.EqualsBuilder;
 import  org.apache.commons.lang.builder.HashCodeBuilder;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.11 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.12 2004-11-30 02:26:53 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -103,10 +104,20 @@ public class GrouperAttribute implements Serializable {
     this.groupFieldValue  = value;
   }
 
-  // FIXME I hate you.
+  /**
+   * Return a string representation of the {@link GrouperSchema}
+   * object.
+   * <p />
+   * TODO Do I want to add in `key'?  Or perhaps, given the key,
+   *      return the group `id'?
+   * 
+   * @return String representation of the object.
+   */
   public String toString() {
-    return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
-           this.getGroupFieldValue();
+    return new ToStringBuilder(this).
+      append("field", this.getGroupField()).
+      append("value", this.getGroupFieldValue()).
+      toString();
   }
 
   public String value() {

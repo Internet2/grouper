@@ -54,6 +54,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
@@ -61,7 +62,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.48 2004-11-30 01:36:26 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.49 2004-11-30 02:26:53 blair Exp $
  */
 public class GrouperMember {
 
@@ -262,11 +263,18 @@ public class GrouperMember {
     return this.getSubjectID();
   }
 
+  /**
+   * Return a string representation of the {@link GrouperSchema}
+   * object.
+   * <p />
+   * @return String representation of the object.
+   */
   public String toString() {
-    return this.getClass().getName()  + ":" +
-           this.memberID()            + ":" +
-           this.typeID()              + ":" +
-           this.subjectID();
+    return new ToStringBuilder(this)                    .
+      append("memberID"     , this.getMemberID()      ) .
+      append("subjectTypeID", this.getSubjectTypeID() ) .
+      append("subjectType"  , this.getSubjectID()     ) .
+      toString();
   }
 
   /**
