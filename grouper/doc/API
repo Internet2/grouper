@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.16 2004-11-08 20:39:19 blair Exp $
+# $Id: API,v 1.17 2004-11-09 18:51:36 blair Exp $
 #
 # TODO Interfaces
 #
@@ -93,6 +93,7 @@ GrouperGroup
     String key()
       XXX Should NOT be public
     boolean listAdd(GrouperSession s, GrouperMember member, String list)
+    boolean listRemove(GrouperSession s, GrouperMember member, String list)
     String type()
 
 

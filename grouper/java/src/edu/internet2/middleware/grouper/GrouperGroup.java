@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.63 2004-11-08 20:39:19 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.64 2004-11-09 18:51:36 blair Exp $
  */
 public class GrouperGroup {
 
@@ -208,6 +208,17 @@ public class GrouperGroup {
    */
   public boolean listAdd(GrouperSession s, GrouperMember m, String list) {
     return GrouperBackend.listAdd(this, s, m, list);
+  }
+
+  /**
+   * Remove a member from a list.
+   *
+   * @param s     Add member within this session context.
+   * @param m     Add this member.
+   * @param list  Add member to this list.
+   */
+  public boolean listRemove(GrouperSession s, GrouperMember m, String list) {
+    return GrouperBackend.listRemove(this, s, m, list);
   }
 
   /**

@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.17 2004-11-08 20:39:19 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.18 2004-11-09 18:51:36 blair Exp $
  */
 public class GrouperBackend {
 
@@ -228,6 +228,72 @@ public class GrouperBackend {
     return false;
   }
 
+  /**
+   * Remove list data from the backend store.
+   *
+   * @param s     Remove member within this session context.
+   * @param m     Remove this member.
+   * @param list  Remove member from this list.
+   */
+  public static boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+    // FIXME Better validation efforts, please.
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to remove this list data
+      // TODO Verify that this data to be removed exists
+
+      try {
+        // Load the GrouperMembership object
+        Query q = session.createQuery(
+          "SELECT ALL FROM grouper_lists "  +
+          "IN CLASS edu.internet2.middleware.grouper.GrouperMembership " +
+          "WHERE "                          +
+          "groupKey='"    + g.key() + "' "  +
+          "AND "                            +
+          "memberKey='"   + m.key() + "' "  +
+          "AND "                            +
+          "groupField='"  + list + "' "     +
+          "AND "                            +
+          "via=null"
+        );   
+        if (q.list().size() == 1) {
+          // There should be only *one* member to remove
+          try {
+            GrouperMembership mship = (GrouperMembership) q.list().get(0);
+            try {
+              Transaction t = session.beginTransaction();
+              // Delete it
+              session.delete(mship); 
+              // TODO Update effective memberships
+              // Commit it
+              t.commit();
+            } catch (Exception e) {
+              // TODO We probably need a rollback in here in case of failure
+              //      above.
+              System.err.println(e);
+              System.exit(1);
+            }
+          } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+          }
+          return true;
+        } else {
+          // TODO Raise an exception of some sort?
+          return false;
+        }
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1);
+      }
+    }
+    return false;
+  }
 
   // TODO
   public static void loadGroup(GrouperSession s, GrouperGroup g, String key) {
