@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.24 2004-11-22 04:19:19 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.25 2004-11-22 15:23:25 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -91,8 +91,8 @@ public class GrouperAccessImpl implements GrouperAccess {
   public List has(GrouperSession s, GrouperGroup g) {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
-    Iterator      iter  = privMap.keySet().iterator();
     GrouperMember m     = GrouperMember.lookup( s.subject() );
+    Iterator      iter  = privMap.keySet().iterator();
     while (iter.hasNext()) {
       String  priv  = (String) iter.next();
       if (GrouperPrivilege.has(s, g, m, priv) == true) {

@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.77 2004-11-19 05:27:35 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.78 2004-11-22 15:23:25 blair Exp $
  */
 public class GrouperGroup {
 
@@ -360,7 +360,8 @@ public class GrouperGroup {
    * type, false otherwise.
    */
   private boolean _validateAttributes() {
-    for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
+    Iterator iter = attributes.keySet().iterator();
+    while (iter.hasNext()) {
       GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
       // TODO I should (possibly) revalidate the attributes due to
       //      lack of a group type -- or a changed group type.  Add
