@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.31 2004-08-27 18:35:39 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.32 2004-08-27 18:38:09 blair Exp $
  */
 public class GrouperGroup {
 
@@ -101,15 +101,8 @@ public class GrouperGroup {
     return this.intSess;
   }
 
-  //public void attribute(String attribute, String value) {
   public void attribute(String attribute, String value) {
     // TODO Attribute validation
-    /* 
-     * We save the transformation into a GrouperAttribute object until
-     * later as we need to have a valid groupKey.  And yes, this 
-     * can be improved upon.
-     */
-    //attributes.put(attribute, value);
     GrouperAttribute attr = new GrouperAttribute();
     attr.set(this.groupKey, attribute, value);
     attributes.put(attribute, attr);
@@ -119,7 +112,7 @@ public class GrouperGroup {
     // `descriptor' and the group is not currently known to exist,
     // attempt to autoload it.
     if ( 
-        (this.exists == false) &&
+        (this.exists == false)         &&
         attributes.containsKey("stem") &&
         attributes.containsKey("descriptor")
        )
@@ -130,9 +123,7 @@ public class GrouperGroup {
     }
   }
 
-  //public String attribute(String attribute) {
   public GrouperAttribute attribute(String attribute) {
-    //return (String) attributes.get(attribute);
     return (GrouperAttribute) attributes.get(attribute);
   }
  
@@ -143,8 +134,6 @@ public class GrouperGroup {
       if (attributes.containsKey("stem") && 
           attributes.containsKey("descriptor")) 
       {
-        //String stem = (String) attributes.get("stem");
-        //String desc = (String) attributes.get("descriptor");
         GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
         GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
         // TODO Please.  Make this better.  Please, please, please.
