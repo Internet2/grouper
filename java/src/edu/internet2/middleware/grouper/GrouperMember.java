@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.62 2005-03-10 16:27:57 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.63 2005-03-14 19:17:16 blair Exp $
  */
 public class GrouperMember {
 
@@ -176,7 +176,8 @@ public class GrouperMember {
                                 String subjectTypeID
                               ) 
   {
-    Subject subj = GrouperSubject.load(subjectID, subjectTypeID);
+    GrouperMember m     = null;
+    Subject       subj  = GrouperSubject.load(subjectID, subjectTypeID);
 
     /*
      * If no subject is returned via the subject interface, assume that
@@ -188,7 +189,11 @@ public class GrouperMember {
     //      and then fall back to subject?
     if (subj == null)  { return null; }
 
-    return GrouperMember.load(subj);
+    m = GrouperMember.load(subj);
+    if (m != null) { // TOOD Argh!
+      m.s = s;
+    }
+    return m;
   }
 
   /**
