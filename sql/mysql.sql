@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.1 2004-03-21 02:25:54 blair Exp $
+-- $Id: mysql.sql,v 1.2 2004-03-24 21:22:52 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -18,12 +18,12 @@ USE    grouper;
 -- TODO  -- XXX Or an ENUM?  Or something else altogether?
 -- TODO  agingState        VARCHAR(255)
 -- TODO  FOREIGN KEY  groupID REFERENCES grouper_group (groupID),
--- TODO ) type=innodb;
+-- TODO ) TYPE=InnoDB;
 
 -- TODO CREATE TABLE grouper_factor (
 -- TODO  parentID          INTEGER UNSIGNED NOT NULL, -- TODO FOREIGN KEY,
 -- TODO  factorID          INTEGER UNSIGNED NOT NULL
--- TODO ) type=innodb;
+-- TODO ) TYPE=InnoDB;
 
 CREATE TABLE grouper_fields (
   groupFieldID      INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
@@ -32,7 +32,8 @@ CREATE TABLE grouper_fields (
   -- XXX Boolean types are not supported everywhere.  Alas.  Right now
   -- XXX I am thinking that an ENUM is the most portable option.
   isList            ENUM('TRUE', 'FALSE')
-) type=innodb;
+) TYPE=InnoDB;
+CREATE INDEX groupfieldid_idx ON grouper_fields (groupFieldID);
 
 CREATE TABLE grouper_group (
   groupID           INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
@@ -40,14 +41,14 @@ CREATE TABLE grouper_group (
   groupName         VARCHAR(255) NOT NULL UNIQUE,
   compoundExpr      TEXT,
   flattenedExpr     TEXT
-) type=innodb;
+) TYPE=InnoDB;
 CREATE INDEX groupname_idx ON grouper_group (groupName);
 
 CREATE TABLE grouper_members (
   -- XXX Can we rely upon this being numeric?  
   memberID          INTEGER UNSIGNED NOT NULL,
   presentationID    VARCHAR(255)
-) type=innodb;
+) TYPE=InnoDB;
 
 CREATE TABLE grouper_membership (
   groupID           INTEGER UNSIGNED NOT NULL,
@@ -58,9 +59,10 @@ CREATE TABLE grouper_membership (
   -- XXX Maybe just store this as a string and rely on Java to Do The
   -- XXX Right Thing?  Good thing we don't care about aging -- yet.
   removeAfter       VARCHAR(255),
-  -- TODO FOREIGN KEY (groupID)       REFERENCES grouper_group  (groupID) 
-  -- TODO FUCK FOREIGN KEY (groupFieldID)  REFERENCES grouper_fields (groupFieldID),
-) type=innodb;
+  PRIMARY KEY(groupID, groupFieldID),
+  CONSTRAINT FOREIGN KEY (groupID)      REFERENCES grouper_group(groupID),
+  -- TODO CONSTRAINT FOREIGN KEY (groupFieldID) REFERENCES grouper_fields (groupFieldID)
+) TYPE=InnoDB;
 CREATE INDEX member_groupmember_idx 
   ON grouper_membership (memberID, groupMemberID);
 
@@ -69,16 +71,18 @@ CREATE TABLE grouper_metadata (
   groupFieldID      INTEGER UNSIGNED NOT NULL,
   -- XXX No idea
   groupFieldValue   VARCHAR(255),
-  -- TODO FOREIGN KEY (groupID)       REFERENCES grouper_group (groupID),
-  -- TODO FOREIGN KEY (groupFieldID)  REFERENCES grouper_fields (groupFieldiD),
-) type=innodb;
+  PRIMARY KEY (groupID, groupFieldID),
+  FOREIGN KEY (groupID)       REFERENCES grouper_group(groupID),
+  -- TODO FOREIGN KEY (groupFieldID)  REFERENCES grouper_fields(groupFieldiD),
+) TYPE=InnoDB;
 
 CREATE TABLE grouper_schema (
   groupID           INTEGER UNSIGNED NOT NULL,
   groupTypeID       INTEGER UNSIGNED NOT NULL,
-  -- TODO FOREIGN KEY (groupID)       REFERENCES grouper_group (groupID),
-  -- TODO FOREIGN KEY (groupTypeID)   REFERENCES grouper_types (groupTypeID),
-) type=innodb;
+  PRIMARY KEY (groupID, groupTypeID),
+  FOREIGN KEY (groupID)       REFERENCES grouper_group(groupID),
+  -- TODO FOREIGN KEY (groupTypeID)   REFERENCES grouper_types(groupTypeID),
+) TYPE=InnoDB;
 
 CREATE TABLE grouper_session (
   -- XXX Or do we let Grouper hand out (pseudo)random session ids?
@@ -87,19 +91,19 @@ CREATE TABLE grouper_session (
   cred              VARCHAR(255) NOT NULL, 
   -- XXX This has the same issues as 'membership:removeAfter'
   startTime         VARCHAR(255) NOT NULL
-) type=innodb;
+) TYPE=InnoDB;
 
 CREATE TABLE grouper_types (
   groupTypeID       INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
   groupTypename     VARCHAR(255) NOT NULL
-) type=innodb;
+) TYPE=InnoDB;
 
 CREATE TABLE grouper_typedefs (
   groupTypeID       INTEGER UNSIGNED NOT NULL,
   groupFieldID      INTEGER UNSIGNED NOT NULL,
   -- TODO FOREIGN KEY (groupTypeID)   REFERENCES grouper_types (groupTypeID),
   -- TODO FOREIGN KEY (groupFieldID)  REFERENCES grouper_fields (groupFieldiD),
-) type=innodb;
+) TYPE=InnoDB;
 
 CREATE TABLE grouper_via (
   groupID           INTEGER UNSIGNED NOT NULL,
@@ -107,7 +111,7 @@ CREATE TABLE grouper_via (
   groupMemberID     INTEGER,
   groupFieldID      INTEGER,
   viaGroupID        INTEGER UNSIGNED NOT NULL
-) type=innodb;
+) TYPE=InnoDB;
 CREATE INDEX via_idx 
   ON grouper_via (groupID, memberID, groupMemberID, groupFieldID, viaGroupID);
 
