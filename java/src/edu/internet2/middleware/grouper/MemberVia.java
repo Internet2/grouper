@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.7 2005-03-20 05:15:31 blair Exp $
+ * @version $Id: MemberVia.java,v 1.8 2005-03-21 19:41:22 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -81,14 +81,126 @@ public class MemberVia implements Serializable {
    * CONSTRUCTORS
    */
 
-  public MemberVia() {
-    this._init();
+  public MemberVia() { 
+    // Nothing 
   }
+
   protected MemberVia(GrouperList gl) {
     // TODO Try to load?  If not, save chainKey setting for later.
-    this._init();
     this.listKey = gl.key();
   }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Compares the specified object with this type definition for equality.
+   * <p />
+   * @param o Object to be compared for equality with this type
+   *   definition.
+   * @return  True if the specified object is equal to this type
+   *   definition.
+   */
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  /**
+   * Returns the hash code value for this type definition.
+   * <p />
+   * @return  The hash code value for this type definition.
+   */
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return new ToStringBuilder(this)      .
+      append("chain", this.getChainKey()) .
+      append("index", this.getChainIdx()) .
+      append("list",  this.getListKey())  .
+      toString();
+  }
+
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /*
+   * If a chain exists, find and return its chainKey.
+   */
+  protected static String findKey(
+                            GrouperSession s, String listKey, List chain
+                          ) 
+  {
+    String key = _compare(
+             chain,
+             _filterByLength(
+               chain.size(), _findChains(s, listKey)
+             )
+           );
+    return key;
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /*
+   * Set this object's index position.
+   */
+  protected void idx(int idx) {
+    this.chainIdx = idx;
+  }
+
+  /*
+   * @return This object's chainKey.
+   */
+  protected String key() {
+    return this.getChainKey();
+  }
+
+  /* 
+   * Set this object's chainKey.
+   */
+  protected void key(String key) {
+    this.chainKey = key;
+  }
+
+  /* 
+   * @return This object's listKey.
+   */
+  protected String listKey() {
+    return this.listKey;
+  }
+
+  /*
+   * Save this object to the groups registry.
+   */
+  protected void save(DbSess dbSess) {
+    // TODO I should validate our state first
+    try {
+      dbSess.session().save(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error saving chain element " + this + ": " + e
+                );
+    }   
+  }
+
+  /*
+   * @return This object's {@link GrouperList} object.
+   */
   protected GrouperList toList(GrouperSession s) {
     GrouperList gl = null;
     try {
@@ -103,61 +215,17 @@ public class MemberVia implements Serializable {
     }
     return gl;
   }
-  protected void key(String key) {
-    this.chainKey = key;
-  }
-  protected void idx(int idx) {
-    this.chainIdx = idx;
-  }
-  protected String listKey() {
-    return this.listKey;
-  }
-  protected void save(DbSess dbSess) {
-    // TODO I should validate our state first
-    try {
-      //s.dbSess().txStart();
-      dbSess.session().save(this);
-      //s.dbSess().txCommit();
-    } catch (HibernateException e) {
-      //s.dbSess().txRollback();
-      throw new RuntimeException(
-                  "Error saving chain element " + this + ": " + e
-                );
-    }   
-  }
-  /**
-   * Compares the specified object with this type definition for equality.
-   * <p />
-   * @param o Object to be compared for equality with this type
-   *   definition.
-   * @return  True if the specified object is equal to this type
-   *   definition.
+
+
+  /*
+   * PRIVATE CLASS METHODS
    */
-  public boolean equals(Object o) {
-     return EqualsBuilder.reflectionEquals(this, o);
-   }
-  /**
-   * Returns the hash code value for this type definition.
-   * <p />
-   * @return  The hash code value for this type definition.
+
+  /*
+   * Compare two chains.
+   * @return chainKey is chains are equal.
    */
-  public int hashCode() {
-     return HashCodeBuilder.reflectionHashCode(this);
-   }
-  // FIXME RENAME!
-  protected static String load(
-                            GrouperSession s, String listKey, List chain
-                          ) 
-  {
-    String key = _compare(
-             chain,
-             _filterByLength(
-               chain.size(), _findChains(s, listKey)
-             )
-           );
-    return key;
-  }
-  protected static String _compare(List chain, List chains) {
+  private static String _compare(List chain, List chains) {
     String key = null;
     Iterator chainsIter = chains.iterator();
     while (chainsIter.hasNext()) {
@@ -170,7 +238,13 @@ public class MemberVia implements Serializable {
     }
     return key;
   }
-  protected static boolean _equals(List a, List b) {
+
+  /*
+   *
+   * Compare lists based upon index position and listKey.
+   * @return true if lists are equivalenet.
+   */
+  private static boolean _equals(List a, List b) {
     boolean rv  = false;
     int     idx = 0; 
     Iterator iter = a.iterator();
@@ -187,7 +261,12 @@ public class MemberVia implements Serializable {
     }
     return rv;
   }
-  protected static List _filterByLength(int length, List chains) {
+
+  /*
+   * Filter candidate chains based upon chain size.
+   * @return List of chains that are of the appropriate length.
+   */
+  private static List _filterByLength(int length, List chains) {
     List filtered = new ArrayList();
     Iterator iter = chains.iterator();
     while (iter.hasNext()) {
@@ -198,7 +277,12 @@ public class MemberVia implements Serializable {
     }
     return filtered;
   }
-  protected static List _findChains(GrouperSession s, String listKey) {
+
+  /*
+   * Find all chains that begin with listKey.
+   * @return List of chains.
+   */
+  private static List _findChains(GrouperSession s, String listKey) {
     List    chains  = new ArrayList();
     String  qry     = "MemberVia.by.list.and.first";
     try {
@@ -222,7 +306,12 @@ public class MemberVia implements Serializable {
     }
     return chains;
   }
-  protected static List _loadChain(GrouperSession s, String key) {
+
+  /*
+   * Load a chain by chainKey.
+   * @return List of chain elements
+   */
+  private static List _loadChain(GrouperSession s, String key) {
     List    chain = new ArrayList();
     String  qry   = "MemberVia.by.key";
     try {
@@ -241,45 +330,6 @@ public class MemberVia implements Serializable {
                 );
     }
     return chain;
-  }
-
-
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
-
-  /**
-   * Return a string representation of this object.
-   * <p />
-   * @return String representation of this object.
-   */
-  public String toString() {
-    return new ToStringBuilder(this)      .
-      append("chain", this.getChainKey()) .
-      append("index", this.getChainIdx()) .
-      append("list",  this.getListKey())  .
-      toString();
-  }
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.chainKey = null;
-    this.chainIdx = -1;
-    this.listKey  = null;
-  }
-
-
-  /*
-   * PROTECTED INSTANCE METHODS
-   */
-  protected String key() {
-    return this.getChainKey();
   }
 
 
