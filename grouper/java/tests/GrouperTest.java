@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.62 2004-10-28 18:49:55 blair Exp $
+ * $Id: GrouperTest.java,v 1.63 2004-10-28 19:17:34 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -101,24 +101,24 @@ public class GrouperTest extends TestCase {
     field = "description:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(1).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(1).getClass().getName() ) );
-    field = "members:READ:UPDATE:TRUE";
+    field = "descriptor:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(2).toString() ) );
-    Assert.assertTrue( expKlass.equals( fields.get(3).getClass().getName() ) );
-    field = "name:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(3).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(2).getClass().getName() ) );
-    field = "namespace:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(4).toString() ) );
-    Assert.assertTrue( expKlass.equals( fields.get(4).getClass().getName() ) );
+    field = "members:READ:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(3).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(3).getClass().getName() ) );
     field = "optins:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(5).toString() ) );
+    Assert.assertTrue( field.equals( fields.get(4).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(5).getClass().getName() ) );
     field = "optouts:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(6).toString() ) );
+    Assert.assertTrue( field.equals( fields.get(5).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(6).getClass().getName() ) );
     field = "readers:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(7).toString() ) );
+    Assert.assertTrue( field.equals( fields.get(6).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(7).getClass().getName() ) );
+    field = "stem:READ:ADMIN:FALSE";
+    Assert.assertTrue( field.equals( fields.get(7).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(4).getClass().getName() ) );
     field = "updaters:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(8).toString() ) );
     Assert.assertTrue( expKlass.equals( fields.get(8).getClass().getName() ) );
@@ -180,10 +180,10 @@ public class GrouperTest extends TestCase {
 
     String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
-    typeDef = "base:namespace";
+    typeDef = "base:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(0).getClass().getName() ) );
-    typeDef = "base:name";
+    typeDef = "base:descriptor";
     Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(1).getClass().getName() ) );
     typeDef = "base:description";

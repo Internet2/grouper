@@ -13,14 +13,14 @@ package edu.internet2.middleware.grouper;
  * Class representing the namespace of a {@link GrouperGroup}
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.7 2004-10-12 20:32:00 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.8 2004-10-28 19:19:14 blair Exp $
  */
-public class GrouperNamespace {
+public class GrouperStem {
 
   /**
-   * Create a {@link GrouperNamespace} object.
+   * Create a {@link GrouperStem} object.
    */
-  public GrouperNamespace() {
+  public GrouperStem() {
     // Nothing -- Yet
   }
 
