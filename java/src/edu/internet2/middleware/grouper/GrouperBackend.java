@@ -63,14 +63,12 @@ import  org.doomdark.uuid.UUIDGenerator;
 
 
 /** 
- * Internal class providing more direct access to the {@link Grouper} registry
+ * Internal class providing more direct access to the groups registry
  * for queries and updates.
  * <p />
- * All methods are class methods and most are restricted to use within
- * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.136 2004-12-08 18:42:29 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.137 2004-12-09 01:34:13 blair Exp $
  */
 public class GrouperBackend {
 
