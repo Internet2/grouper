@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.13 2004-12-07 06:48:38 blair Exp $
+$Id: NEWS,v 1.14 2004-12-08 03:27:30 blair Exp $
 
 ---
 
@@ -27,14 +27,14 @@ $Id: NEWS,v 1.13 2004-12-07 06:48:38 blair Exp $
 * Basic Event Logging 
 * Contributed: I2MI Subject Loader
 * Contributed: Group Loader
-* Contributed: Query and modest export tool
+* Contributed: Member Loader
+* Contributed: Query Program
 
 
 ### Will Be Added
 
 * Javadoc API documentation (#132)
 * More thorough FAQ (#276)
-* Contributed: Member Loader (#246)
 * Contributed: Grouper adder/deleter (#273)
 
 
@@ -62,6 +62,7 @@ $Id: NEWS,v 1.13 2004-12-07 06:48:38 blair Exp $
 * Grouper does not fail gracefully or even necessarily informatively
 * Insufficient data validation within code
 * Not all database updates are atomic transactions (#233) (#248)
+* Loading groups by _groupID_ does not always fail cleanly.
 * _GrouperQuery_ objects do not properly reset their state (#255)
 * _Modify_ attributes _may_ be be incorrect (#247)
 * Session Handling is dubious at best (#173)
