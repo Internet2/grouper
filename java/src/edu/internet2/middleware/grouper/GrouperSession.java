@@ -10,7 +10,7 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.20 2004-05-02 01:51:54 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.21 2004-05-02 03:56:31 blair Exp $
  */
 public class GrouperSession {
 
@@ -69,10 +69,10 @@ public class GrouperSession {
     if (this.subject != null) {
       // Create internal representations of the various Grouper
       // interfaces
-      this.createInterfaces();
+      this._createInterfaces();
 
       // Register a new session
-      this.registerSession();
+      this._registerSession();
     } // XXX else...
 
   }
@@ -93,14 +93,14 @@ public class GrouperSession {
   public void start(String subjectID, boolean isMember) {
     // Create internal representations of the various Grouper
     // interfaces
-    this.createInterfaces();
+    this._createInterfaces();
 
     // XXX Bad assumptions!
     this.subject    = this.lookupSubject(subjectID);
     this.subjectID  = this.subjectID;
 
     // Register a new session
-    this.registerSession();
+    this._registerSession();
 
   }
 
@@ -120,7 +120,7 @@ public class GrouperSession {
    * Identify the subject of this session.
    * <p>
    * <ul>
-   *  <li>Calls <i>whoAmI()</i> on the {@linK GrouperMember} object
+   *  <li>Calls <i>whoAmI()</i> on the {@link GrouperMember} object
    *      that represents the current subject.</li>
    * </ul>
    *
@@ -188,6 +188,12 @@ public class GrouperSession {
     // this.intNaming.revoke(g, m, priv);
   }
 
+  /**
+   * List privileges by current subject on the specified group.
+   *
+   * @param   g   List privileges on this group.
+   * @return  List of privileges.
+   */
   public List hasPriv(GrouperGroup g) {
     // XXX DTRT depending upon whether it is an "access" or a "naming"
     //     privilege
@@ -197,6 +203,13 @@ public class GrouperSession {
     return privs;
   }
 
+  /**
+   * List privileges for specified member on the specified group.
+   *
+   * @param   g   List privileges on this group.
+   * @param   m   List privileges for this member.
+   * @return  List of privileges.
+   */
   public List hasPriv(GrouperGroup g, GrouperMember m) {
     // XXX DTRT depending upon whether it is an "access" or a "naming"
     //     privilege
@@ -206,6 +219,14 @@ public class GrouperSession {
     return privs;
   }
 
+  /**
+   * Verify whether current subject has the specified privilege on the
+   * specified group.
+   *
+   * @param   g     Verify privilege for this group.
+   * @param   priv  Verify this privilege.
+   * @return  True if subject has this privilege on the group.
+   */
   public boolean hasPriv(GrouperGroup g, String priv) {
     // XXX DTRT depending upon whether it is an "access" or a "naming"
     //     privilege
@@ -214,6 +235,15 @@ public class GrouperSession {
     return false;
   }
 
+  /**
+   * Verify whether the specified subject has the specified privilege
+   * on the specified group.
+   *
+   * @param   g     Verify privilege for this group.
+   * @param   m     Verify privilege for this member.
+   * @param   priv  Verify this privilege.
+   * @return  True if subject has this privilege on the group.
+   */
   public boolean hasPriv(GrouperGroup g, GrouperMember m, String priv) {
     // XXX DTRT depending upon whether it is an "access" or a "naming"
     //     privilege
@@ -222,6 +252,55 @@ public class GrouperSession {
     return false;
   }
 
+  /**
+   * Provide access to the session's JDBC connection handle.
+   * <p>
+   * XXX This may not return here, may not remain public, etc.
+   *
+   * @return JDBC connection handle for this session. 
+   */
+  public Connection connection() {
+    return this.con;
+  }
+
+  /*
+   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW.
+   */
+
+  /*
+   * Instantiate internal references to the  access, naming, and
+   * subject interfaces.
+   */ 
+  private void _createInterfaces() {
+    // Create internal references to the various interfaces
+    this.intAccess  = (GrouperAccess)  this._createObject( intG.config("interface.access") );
+    this.intNaming  = (GrouperNaming)  this._createObject( intG.config("interface.naming") );
+    this.intSubject = (GrouperSubject) this._createObject( intG.config("interface.subject") );
+  }
+
+  /*
+   * Instantiate an object -- reflectively
+   */
+  private Object _createObject(String name) {
+    Object    object      = null;
+    Class[]   paramsClass = new Class[]  { GrouperSession.class };
+    Object[]  params      = new Object[] { this };
+
+    try {
+      Class classType         = Class.forName(name);
+      Constructor constructor = classType.getDeclaredConstructor(paramsClass);
+      object                  = constructor.newInstance(params);
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+  
+    return object;
+  }
+     
+  /*
+   * Look up a subject via subject interface.
+   */
   private GrouperMember _lookupSubject(String subjectID) {
     GrouperMember m = null;
 
@@ -244,35 +323,10 @@ public class GrouperSession {
     return m;
   }
 
-  private void createInterfaces() {
-    // Create internal references to the various interfaces
-    this.intNaming  = (GrouperNaming)  createObject( intG.config("interface.naming") );
-    this.intAccess  = (GrouperAccess)  createObject( intG.config("interface.access") );
-    this.intSubject = (GrouperSubject) createObject( intG.config("interface.subject") );
-  }
-
-  private Object createObject(String name) {
-    Object object         = null;
-    Class[]  paramsClass  = new Class[]  { GrouperSession.class };
-    Object[] params       = new Object[] { this };
-
-    try {
-      Class classType         = Class.forName(name);
-      Constructor constructor = classType.getDeclaredConstructor(paramsClass);
-      object                  = constructor.newInstance(params);
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  
-    return object;
-  }
-     
-  public Connection connection() {
-    return this.con;
-  }
- 
-  private void registerSession() {
+  /*
+   * Register a new session with the groups registry.
+   */
+  private void _registerSession() {
     Statement stmt = null;
 
     try { 
