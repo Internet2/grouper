@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.146 2004-12-09 04:42:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.147 2004-12-09 14:09:56 blair Exp $
  */
 public class GrouperGroup {
 
@@ -145,6 +145,34 @@ public class GrouperGroup {
       Grouper.log().groupDel(rv, s, g);
     }
     return rv;
+  }
+
+  /**
+   * Format a {@link GrouperGroup} name.
+   * <p />
+   * @param   stem  Stem of the {@link GrouperGroup}.
+   * @param   extn  Extension of the {@link GrouperGroup}.
+   * @return  String representation of the group <i>stem</i>,
+   *   delimiter, and <i>extension</i>.
+   */
+  public static String groupName(String stem, String extn) {
+    String name;
+    if (stem.equals(Grouper.NS_ROOT)) {
+      name = extn;
+    } else {
+      String delim = Grouper.config("hierarchy.delimiter");
+      if (extn.indexOf(delim) != -1) {
+        // FIXME Throw an exception?  And then test for failure?
+        //       Or settle for ye olde null
+        Grouper.log().event(
+          "Extension `" + extn + "' contains delimiter `" + delim + "'"
+        );
+        name = null;
+      } else {
+        name = stem + delim + extn;
+      }
+    }
+    return name;
   }
 
   /**
@@ -885,7 +913,7 @@ public class GrouperGroup {
                                      )
   {
     GrouperGroup g = null;
-    String name = GrouperBackend.groupName(stem, extn);
+    String name = GrouperGroup.groupName(stem, extn);
     if (GrouperGroup._canCreate(s, stem, type)) {
       // Check to see if the group already exists.
       g = GrouperGroup._loadByStemExtn(s, stem, extn, type);

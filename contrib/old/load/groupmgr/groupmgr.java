@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.7 2004-12-08 05:42:36 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.8 2004-12-09 14:09:56 blair Exp $ 
  */
 class groupmgr {
 
@@ -123,7 +123,7 @@ class groupmgr {
       } else {
         System.err.println(
           "Failed to add group `" + 
-          GrouperBackend.groupName(stem, extn) + "'"
+          GrouperGroup.groupName(stem, extn) + "'"
         );
       }
     }
@@ -150,7 +150,7 @@ class groupmgr {
     if (rv != true) {
       System.err.println(
         "Failed to delete group `" + 
-        GrouperBackend.groupName(stem, extn) + "'"
+        GrouperGroup.groupName(stem, extn) + "'"
       );
     }
     return rv;
@@ -215,7 +215,7 @@ class groupmgr {
     if (rv != true) {
       System.err.println(
         "Failed to add `" + member + "' to `" + 
-        GrouperBackend.groupName(stem, extn) + "'"
+        GrouperGroup.groupName(stem, extn) + "'"
       );
     }
     return rv;
@@ -257,7 +257,7 @@ class groupmgr {
     if (rv != true) {
       System.err.println(
         "Failed to delete `" + member + "' from `" + 
-        GrouperBackend.groupName(stem, extn) + "'"
+        GrouperGroup.groupName(stem, extn) + "'"
       );
     }
     return rv;
@@ -392,7 +392,7 @@ class groupmgr {
       } else {
         System.err.println(
           "Failed to add stem `" + 
-          GrouperBackend.groupName(stem, extn) + "'"
+          GrouperGroup.groupName(stem, extn) + "'"
         );
       }
     }
