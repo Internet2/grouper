@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.139 2004-12-08 01:52:10 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.140 2004-12-08 02:29:00 blair Exp $
  */
 public class GrouperGroup {
 
@@ -169,6 +169,22 @@ public class GrouperGroup {
     return GrouperGroup._loadByStemExtn(
              s, stem, extension, Grouper.DEF_GROUP_TYPE
            );
+  }
+
+  public static GrouperGroup loadByID(
+                               GrouperSession s, String id
+                             )
+  {
+    return GrouperGroup._loadByID(
+             s, id, Grouper.DEF_SUBJ_TYPE
+           );
+  }
+
+  public static GrouperGroup loadByID(
+                               GrouperSession s, String id, String type
+                             )
+  {
+    return GrouperGroup._loadByID(s, id, type);
   }
 
   public static GrouperGroup loadByName(
@@ -708,6 +724,20 @@ public class GrouperGroup {
   /*
    * Retrieve a group from the groups registry
    */ 
+  private static GrouperGroup _loadByID(
+                                GrouperSession s, String id, String type
+                              ) 
+  {
+    GrouperGroup g = GrouperBackend.groupLoadByID(id, type);
+    if (g != null) {
+      // Attach type  
+      // FIXME Grr....wait.  Is this even needed now that I have // type()?
+      g.type = type; 
+      g.initialized = true; // FIXME UGLY HACK!
+    }
+    return g;
+  }
+
   private static GrouperGroup _loadByKey(
                                 GrouperSession s, String key, 
                                 String type

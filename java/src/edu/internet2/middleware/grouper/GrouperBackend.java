@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.131 2004-12-08 00:58:24 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.132 2004-12-08 02:29:00 blair Exp $
  */
 public class GrouperBackend {
 
@@ -427,6 +427,33 @@ public class GrouperBackend {
                        s, session, stem, extn, type
                      );
     GrouperBackend._hibernateSessionClose(session);
+    return g;
+  }
+
+  // FIXME Refactor.  Mercilesssly.
+  protected static GrouperGroup groupLoadByID(String id, String type) {
+    /*
+     * While most private class methods take a Session as an argument,
+     * this method does not because to do so would possibly cause
+     * non-uniqueness issues.
+     */
+    Session       session = GrouperBackend._init();
+    GrouperGroup  g       = new GrouperGroup();
+    // First find the key
+    List vals = GrouperBackend._queryKV(
+                  session, "GrouperGroup",
+                  "groupID", id
+                );
+    if (vals.size() == 1) {
+      g = (GrouperGroup) vals.get(0);
+      g = GrouperBackend.groupLoadByKey(g.key());
+      if (!type.equals(g.type())) {
+        Grouper.log().backend(
+          "Type mismatching when loading by id=" + id
+        );
+        g = null;
+      }
+    }
     return g;
   }
 
