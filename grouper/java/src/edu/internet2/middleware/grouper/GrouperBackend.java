@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.78 2004-12-01 01:18:53 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.79 2004-12-01 02:02:39 blair Exp $
  */
 public class GrouperBackend {
 
@@ -374,6 +374,23 @@ public class GrouperBackend {
     GrouperGroup g = GrouperBackend._groupLoad(session, stem, extension, type);
     GrouperBackend._hibernateSessionClose(session);
     return g;
+  }
+
+  /**
+   * TODO Does this actually work?
+   */
+  protected static boolean groupUpdate(GrouperSession s, GrouperGroup g) {
+    boolean rv      = false;
+    Session session = GrouperBackend._init();
+    try {
+      session.update(g);
+      rv = true;
+    } catch (HibernateException e) {
+      rv = false; 
+      GrouperBackend.LOGGER_GB.warn("Unable to update group " + g);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
   }
 
   /**
