@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.31 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: GrouperList.java,v 1.32 2005-03-11 01:17:58 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -96,23 +96,8 @@ public class GrouperList implements Serializable {
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
-/*
-  protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
-    this._init();
-    this.groupKey   = g.key();  // FIXME Validate?
-    this.memberKey  = m.key();  // FIXME Validate?
-    this.groupField = list;     // FIXME Validate?
-    if (via != null) {
-      this.via = via.key();
-    } else {
-      this.via = null;
-    }
-  }
-*/
   protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
-    //new GrouperList(g, m, list, null);
     this._init();
-    // BDC this.s          = s; // KILL?
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -123,13 +108,14 @@ public class GrouperList implements Serializable {
       throw new RuntimeException("GrouperList: null list");
     }
     this.g          = g;
+    this.groupKey   = g.key();
     this.m          = m;
+    this.memberKey  = m.key();
     this.groupField = list;
     this.v          = null;
   }
   protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
     this._init();
-    // BDC this.s          = s; // KILL?
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -140,9 +126,14 @@ public class GrouperList implements Serializable {
       throw new RuntimeException("GrouperList: null list");
     }
     this.g          = g;
+    this.groupKey   = g.key();
     this.m          = m;
+    this.memberKey  = m.key();
     this.groupField = list;
     this.v          = via;
+    if (via != null) {
+      this.via      = v.key(); 
+    }
   }
 
 
@@ -169,7 +160,6 @@ public class GrouperList implements Serializable {
    */
   public GrouperMember member() {
     return this.m;
-    // BDC return GrouperBackend.member(this.s, this.getMemberKey());
   }
 
   /**
@@ -180,7 +170,6 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup group() {
-    // BDC return GrouperBackend.groupLoadByKey(this.s, this.getGroupKey());
     return this.g;
   }
 
@@ -191,13 +180,6 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup via() {
-/* BDC
-    GrouperGroup via = null;
-    if (this.getVia() != null) {
-      via = GrouperBackend.groupLoadByKey(this.s, this.getVia());
-    }
-    return via;
-*/
     return this.v;
   }
 
@@ -232,16 +214,6 @@ public class GrouperList implements Serializable {
 
 
   /*
-   * PROTECTED INSTANCE METHODS
-   */
-/* BDC
-  protected void session(GrouperSession s) {
-    this.s = s;
-  }
-*/
-
-
-  /*
    * PRIVATE INSTANCE METHODS
    */
 
@@ -256,7 +228,6 @@ public class GrouperList implements Serializable {
     this.groupField   = null;
     this.memberKey    = null;
     this.removeAfter  = null;
-    // BDC this.s            = null;
     this.via          = null;
   }
 

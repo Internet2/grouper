@@ -157,7 +157,6 @@ public class TestSessions extends TestCase {
                                 Grouper.config("member.system") 
                               ) 
                             );
-          // FIXME Assert.assertTrue(retSess.stop());
         } catch (ClassNotFoundException cnfe) {
           Assert.fail("Failure to find class when deserializing session");
         }

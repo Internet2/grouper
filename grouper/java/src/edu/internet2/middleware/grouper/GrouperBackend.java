@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.161 2005-03-10 16:27:57 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.162 2005-03-11 01:17:58 blair Exp $
  */
 public class GrouperBackend {
 
@@ -103,21 +103,19 @@ public class GrouperBackend {
     boolean rv      = false;
     if (_validateGroupAdd(s, g)) {
       try {
-        // The Group object
+        // The group object
         s.dbSess().session().save(g);
-        // Add schema
-        if (_schemaAdd(s, g)) {
-          // Add attributes
-          if (_attributesAdd(s, g)) {
-            if (_privGrantUponCreate(s, g)) {
-              rv = true;
-            }
+      } catch (HibernateException e) {
+        throw new RuntimeException("Error saving group: " + g);
+      }
+      // Add schema
+      if (_schemaAdd(s, g)) {
+        // Add attributes
+        if (_attributesAdd(s, g)) {
+          if (_privGrantUponCreate(s, g)) {
+            rv = true;
           }
         }
-      } catch (Exception e) {
-        // TODO We probably need a rollback in here in case of failure
-        //      above.
-        throw new RuntimeException("Error saving group: " + e);
       }
     } else { 
       Grouper.log().event("Unable to add group " + g.name());
@@ -177,24 +175,17 @@ public class GrouperBackend {
     if (_validateListVal(s, gl)) {
       // TODO Remove existence validation from _lAV?
       if (_listValExist(s, gl) == false) {
-        try {
-          // The GrouperList objects that we will need to add
-          Set listVals = _memberOf(s, gl);
+        // The GrouperList objects that we will need to add
+        Set listVals = _memberOf(s, gl);
           
-          // Now add the list values
-          // TODO Refactor out to _listAddVal(List vals)
-          Iterator iter = listVals.iterator();
-          while (iter.hasNext()) {
-            GrouperList lv = (GrouperList) iter.next();
-            _listAddVal(s, lv);
-          }
-
-          // Update modify information
-          s.dbSess().session().update(gl.group()); 
-          rv = true;
-        } catch (HibernateException e) {
-          throw new RuntimeException("Error updating group: " + e);
+        // Now add the list values
+        // TODO Refactor out to _listAddVal(List vals)
+        Iterator iter = listVals.iterator();
+        while (iter.hasNext()) {
+          GrouperList lv = (GrouperList) iter.next();
+          _listAddVal(s, lv);
         }
+        rv = true; // TODO This seems naive
       }
     }
     return rv;
@@ -288,18 +279,11 @@ public class GrouperBackend {
     }
 
     // Confirm that list value doesn't already exist
-    if (GrouperBackend._listValExist(s, gl) == false) {
-      Grouper.log().backend("_listAddVal() Value does not exist");
-      Grouper.log().backend("_listAddVal() Adding " + gl);
-      // Save it
-      try {
-        s.dbSess().session().save(gl);
-        Grouper.log().backend("_listAddVal() added");
-      } catch (HibernateException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      Grouper.log().backend("_listAddVal() Value already exists");
+    try {
+      s.dbSess().session().save(gl);
+      Grouper.log().backend("_listAddVal() added");
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error adding list value: " + e);
     }
   }
 
@@ -500,7 +484,7 @@ public class GrouperBackend {
   }
 
   /* !javadoc
-   * Grant appropriate privilege to gropu|stem creator upon creation
+   * Grant appropriate privilege to group|stem creator upon creation
    */
   private static boolean _privGrantUponCreate(
                            GrouperSession s, GrouperGroup g
@@ -775,34 +759,23 @@ public class GrouperBackend {
 
   // FIXME Refactor.  Mercilesssly.
   protected static GrouperGroup groupLoadByKey(GrouperSession s, GrouperGroup g, String key) {
-    /*
-     * While most private class methods take a Session as an argument,
-     * this method does not because to do so would possibly cause
-     * non-uniqueness issues.
-     */
-     try {
-       s.dbSess().session().evict(g);
-     } catch (HibernateException e) {
-       throw new RuntimeException("Error evicting group from session: " + e);
-     }
-    g = new GrouperGroup();
-
     if (key != null) {
       try {
         // Attempt to load a stored group into the current object
-        s.dbSess().session().load(g, key);
-  
-        // Its schema
-        GrouperSchema schema = GrouperBackend._groupSchema(s, g);
-        if (
-            (schema != null)                          &&
-            (GrouperBackend._groupAttachAttrs(s, g))  &&
-            (g.type( schema.type() ) )
-           )
-        {
-          // TODO Nothing?
-        } else {
-          g = null;
+        g = (GrouperGroup) s.dbSess().session().get(GrouperGroup.class, key);
+        if (g != null) {
+          // Its schema
+          GrouperSchema schema = GrouperBackend._groupSchema(s, g);
+          if (
+              (schema != null)                          &&
+              (GrouperBackend._groupAttachAttrs(s, g))  &&
+              (g.type( schema.type() ) )
+             )
+          {
+            // TODO Nothing?
+          } else {
+            g = null;
+          }
         }
       } catch (HibernateException e) {
         // TODO Rollback if load fails?  Unset this.exists?
@@ -1223,15 +1196,14 @@ public class GrouperBackend {
    * @return  {@link GrouperMember} object or null.
    */
   protected static GrouperMember member(GrouperSession s, String key) {
-    GrouperMember m       = new GrouperMember();
+    GrouperMember m = new GrouperMember();
     if (key != null) {
       try {
-        s.dbSess().session().load(m, key);
-      } catch (ObjectNotFoundException e) {
-        // No proper member to return
-        m = null;
+        m = (GrouperMember) s.dbSess().session().get(
+                              GrouperMember.class, key
+                            );
       } catch (HibernateException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeException("Error loading member: " + e);
       }
     } else {
       m = null;
@@ -1245,10 +1217,9 @@ public class GrouperBackend {
    * @return  {@link GrouperMember} object or null.
    */
   protected static GrouperMember member(
-                                        DbSess dbSess,
-                                        String subjectID, 
-                                        String subjectTypeID
-                                       ) 
+                                   DbSess dbSess, String subjectID, 
+                                   String subjectTypeID
+                                 ) 
   {
     GrouperMember m       = null;
     List          vals    = BackendQuery.kvkv(
@@ -1392,8 +1363,7 @@ public class GrouperBackend {
                            ) 
   {
     Subject subj    = null;
-    DbSess dbSess = 
-      new DbSess();
+    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
     List    vals    = BackendQuery.kv(
                         dbSess.session(), "GrouperGroup", "groupID", id
                       );
@@ -1433,8 +1403,7 @@ public class GrouperBackend {
                            ) 
   {
     Subject subj    = null;
-    DbSess dbSess = 
-      new DbSess();
+    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
     List    vals    = BackendQuery.kvkv(
                         dbSess.session(), "SubjectImpl", "subjectID", id,
                         "subjectTypeID", typeID
@@ -1583,12 +1552,6 @@ public class GrouperBackend {
       g = (GrouperGroup) vals.get(0);
       if ( (g != null) && (g.key() != null) ) {
         key = g.key();
-        try {
-          s.dbSess().session().evict(g);
-        } catch (HibernateException e) {
-          throw new RuntimeException("Error evicting group from session: " + e);
-        }
-        g = new GrouperGroup();
         g = GrouperBackend.groupLoadByKey(s, g, key);
       }
     }
@@ -1603,7 +1566,7 @@ public class GrouperBackend {
                  ) 
   {
     boolean initialized = false;
-    GrouperGroup g = new GrouperGroup();
+    GrouperGroup g = null;
     List names = BackendQuery.kvkv(
                    s.dbSess().session(), "GrouperAttribute", "groupField", "name",
                    "groupFieldValue", name
@@ -1620,12 +1583,6 @@ public class GrouperBackend {
           GrouperSchema schema = (GrouperSchema) gs.get(0);
           if (schema.type().equals(type)) {
             g = groupLoadByKey(s, g, attr.key());
-            // FIXME Really not sure about this
-            try {
-              s.dbSess().session().evict(g);
-            } catch (HibernateException e) {
-              throw new RuntimeException("Error evicting group from session: " + e);
-            }
             if (g != null) {
               if (g.type().equals(type)) {
                 initialized = true;

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.167 2005-03-10 16:35:09 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.168 2005-03-11 01:17:58 blair Exp $
  */
 public class GrouperGroup {
 
@@ -144,7 +144,11 @@ public class GrouperGroup {
     if (GrouperGroup._canDelete(s, g)) {
       s.dbSess().txStart();
       rv = GrouperBackend.groupDelete(s, g);
-      s.dbSess().txCommit();
+      if (rv) {
+        s.dbSess().txCommit();
+      } else {
+        s.dbSess().txRollback();
+      }
       Grouper.log().groupDel(rv, s, g);
     }
     return rv;
@@ -336,7 +340,11 @@ public class GrouperGroup {
           // Update attribute value
           rv = this._attributeUpdate(attribute, value);
         }
-        s.dbSess().txCommit();
+        if (rv) {
+          s.dbSess().txCommit();
+        } else {
+          s.dbSess().txRollback();
+        }
       }
     }
     return rv;
@@ -800,7 +808,6 @@ public class GrouperGroup {
                                 GrouperSession s, String id, String type
                               ) 
   {
-    s.dbSess().txStart();
     GrouperGroup g = GrouperBackend.groupLoadByID(s, id);
     if (g != null) {
       // Attach type  
@@ -809,7 +816,6 @@ public class GrouperGroup {
       g.initialized = true; // FIXME UGLY HACK!
       g.s = s; // Attach GrouperSession
     }
-    s.dbSess().txCommit();
     return g;
   }
 
@@ -819,7 +825,6 @@ public class GrouperGroup {
                               ) 
   {
     GrouperGroup g = new GrouperGroup();
-    s.dbSess().txStart();
     g = GrouperBackend.groupLoadByKey(s, g, key);
     if (g != null) {
       // Attach type  
@@ -828,7 +833,6 @@ public class GrouperGroup {
       g.initialized = true; // FIXME UGLY HACK!
       g.s = s; // Attach GrouperSession
     }
-    s.dbSess().txCommit();
     return g;
   }
 
@@ -837,7 +841,6 @@ public class GrouperGroup {
                                 String type
                               )
   {
-    s.dbSess().txStart();
     GrouperGroup g = GrouperBackend.groupLoadByName(s, name, type);
     if (g != null) {
       // Attach type  
@@ -846,7 +849,6 @@ public class GrouperGroup {
       g.initialized = true; // FIXME UGLY HACK!
       g.s = s; // Attach GrouperSession
     }
-    s.dbSess().txCommit();
     return g;
   }
 
@@ -855,7 +857,6 @@ public class GrouperGroup {
                                 String extn, String type
                               )
   {
-    s.dbSess().txStart();
     GrouperGroup g = GrouperBackend.groupLoad(s, stem, extn, type);
     if (g != null) {
       // Attach type  
@@ -864,7 +865,6 @@ public class GrouperGroup {
       g.initialized = true; // FIXME UGLY HACK!
       g.s = s; // Attach GrouperSession
     }
-    s.dbSess().txCommit();
     return g;
   }
 
@@ -1084,7 +1084,11 @@ public class GrouperGroup {
         " privileges on this stem"
       );
     }
-    s.dbSess().txCommit();
+    if (g != null) {
+      s.dbSess().txCommit();
+    } else {
+      s.dbSess().txRollback();
+    }
     Grouper.log().groupAdd(s, g, name, type);
     return g;
   }
@@ -1128,13 +1132,14 @@ public class GrouperGroup {
         ) == true
        )
     {
+      s.dbSess().txCommit();
       rv = true;
     } else {
       // Revert changes
+      s.dbSess().txRollback();
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
     }
-    s.dbSess().txCommit();
     return rv;
   }
 
@@ -1161,13 +1166,14 @@ public class GrouperGroup {
         ) == true
        )
     {
+      s.dbSess().txCommit();
       rv = true;
     } else {
       // Revert changes
+      s.dbSess().txRollback();
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
     }
-    s.dbSess().txCommit();
     return rv;
   }
 
