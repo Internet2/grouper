@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.47 2005-03-19 23:57:52 blair Exp $ -->
+<!-- $Id: build.xml,v 1.48 2005-03-21 18:46:01 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -22,6 +22,8 @@
   <property name="sql.create"             value="sql/schema-${sql.type}.sql"/>
   <property name="sql.test-data"          value="sql/test-data-${sql.type}.sql"/>
 
+  <taskdef resource="clovertasks"/>
+
   <target name="init">
     <tstamp />
     <mkdir dir="${build.grouper}" />
@@ -36,6 +38,7 @@
       </fileset>
       <pathelement location="${build.grouper}"/>
       <pathelement location="${build.test}"/>
+      <pathelement location="${user.home}/.ant/lib/clover.jar"/>
     </path>
   </target>
 
@@ -157,6 +160,25 @@
       src="${sql.test-data}"
     />
   </target>
+
+  <target name="with.clover" depends="init">
+    <clover-setup initString="clover.db">
+      <fileset dir="${src.grouper}"/>
+    </clover-setup>
+  </target> 
+  <target name="clover.html" depends="with.clover">
+    <clover-report>
+      <current outfile="${dist}/clover_html">
+        <format type="html"/>
+      </current>
+    </clover-report>
+  </target>
+  <target name="clover.log" depends="with.clover">
+    <clover-log/>
+  </target>
+ <target name="clover.swing" depends="with.clover">
+   <clover-view/>
+ </target>
 
 </project>
 
