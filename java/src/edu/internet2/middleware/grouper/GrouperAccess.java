@@ -1,5 +1,7 @@
 package edu.internet2.middleware.directory.grouper;
 
+import  java.util.List;
+
 /** 
  * {@link Grouper} Access Interface.
  * <p>
@@ -9,7 +11,7 @@ package edu.internet2.middleware.directory.grouper;
  * </ul>
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.5 2004-04-30 14:39:59 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.6 2004-04-30 15:15:55 blair Exp $
  */
 public interface GrouperAccess {
   /**
@@ -17,9 +19,9 @@ public interface GrouperAccess {
    * <p>
    * See implementations for more information.
    *
-   * @param   g     {@link GrouperGroup} to grant privilege on.
-   * @param   m     {@link GrouperMember} to grant privilege to.
-   * @param   priv  Privilege type to grant.
+   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   m     Grant privileges for this {@link GrouperMember}.
+   * @param   priv  Privilege to grant.
    */
   public void grant(GrouperGroup g, GrouperMember m, String priv);
 
@@ -28,11 +30,46 @@ public interface GrouperAccess {
    * <p>
    * See implementations for more information.
    *
-   * @param   g     {@link GrouperGroup} to revoke privilege on.
-   * @param   m     {@link GrouperMember} to revoke privilege from.
-   * @param   priv  Privilege type to revoke.
+   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   m     Revoke privilege for this{@link GrouperMember}.
+   * @param   priv  Privilege to revoke.
    */
   public void revoke(GrouperGroup g, GrouperMember m, String priv);
+
+  /**
+   * Return all privileges that the current session's subject has on 
+   * a {@link GrouperGroup}.
+   * <p>
+   * See implementations for more information.
+   *
+   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @return  List of privileges.
+   */
+  public List has(GrouperGroup g);
+
+  /**
+   * Return all privileges for a {@link GrouperMember} on a 
+   * {@link GrouperGroup}.
+   * <p>
+   * See implementations for more information.
+   *
+   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   m     Return privileges for this {@link GrouperMember}.
+   * @return  List of privileges.
+   */
+  public List has(GrouperGroup g, GrouperMember m);
+
+  /**
+   * Verify whether the current session's subject has a specified 
+   * privilege on a {@link GrouperGroup}.
+   * <p>
+   * See implementations for more information.
+   *
+   * @param   g     Check privilege on this {@link GrouperGroup}.
+   * @param   priv  Check for this privilege.
+   * @return  True if the {@link GrouperMember} has the privilege.
+   */
+  public boolean has(GrouperGroup g, String priv);
 
   /**
    * Verify whether a {@link GrouperMember} has a specified privilege
@@ -40,11 +77,10 @@ public interface GrouperAccess {
    * <p>
    * See implementations for more information.
    *
-   * @param   g     {@link GrouperGroup} to check privileges on.
-   * @param   m     {@link GrouperMember} to check privileges for.
-   * @param   priv  Privilege type to check for.
-   * @return  Returns true if the {@link GrouperMember} has privilege
-   *   <i>priv</i> on the {@link GrouperGroup}.
+   * @param   g     Check privilege on this {@link GrouperGroup}.
+   * @param   m     Check privilege for this {@link GrouperMember}.
+   * @param   priv  Check for this privilege.
+   * @return  True if the {@link GrouperMember} has the privilege.
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv);
 }

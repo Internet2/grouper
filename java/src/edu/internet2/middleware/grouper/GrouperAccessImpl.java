@@ -1,12 +1,13 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  edu.internet2.middleware.directory.grouper.*;
+import  java.util.List;
 
 /** 
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.4 2004-04-30 14:39:59 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.5 2004-04-30 15:15:55 blair Exp $
  */
 public class InternalGrouperAccess implements GrouperAccess {
   /**
@@ -43,6 +44,48 @@ public class InternalGrouperAccess implements GrouperAccess {
    */
   public void revoke(GrouperGroup g, GrouperMember m, String priv) {
     // Nothing -- Yet
+  }
+
+  /**
+   * Return all privileges that the current session's subject has on 
+   * a {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>XXX Query and return all memberships in the
+   *      <i>grouper_membership</i> table.</li>
+   * </ul>
+   */
+  public List has(GrouperGroup g) {
+    return null;
+  }
+
+  /**
+   * Return all privileges for a {@link GrouperMember} on a 
+   * {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>XXX Query and return all memberships in the
+   *      <i>grouper_membership</i> table that the subject
+   *      has privileges to view.</li>
+   * </ul>
+   */
+  public List has(GrouperGroup g, GrouperMember m) {
+    return null;
+  }
+
+  /**
+   * Verify whether the current session's subject has a specified 
+   * privilege on a {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>XXX Confirm that subjectID has appropriate privilege to 
+   *      verify "m"'s privileges.</li>
+   *  <li>XXX Do I need to differentiate between "user" level checks
+   *      and "system" level checks?</li>
+   * </ul>
+   */
+  public boolean has(GrouperGroup g, String priv) {
+    return false;
   }
 
   /**
