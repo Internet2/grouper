@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.7 2004-04-28 15:59:22 blair Exp $
+-- $Id: mysql.sql,v 1.8 2004-04-28 16:03:36 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -38,11 +38,9 @@ CREATE INDEX groupfield_idx ON grouper_fields (groupField);
 CREATE TABLE grouper_group (
   groupID           INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
   -- XXX What sort of limit do we want to impose upon group names?
-  groupName         VARCHAR(255) NOT NULL UNIQUE,
   compoundExpr      TEXT,
   flattenedExpr     TEXT
 ) TYPE=InnoDB;
-CREATE INDEX groupname_idx ON grouper_group (groupName);
 
 CREATE TABLE grouper_members (
   -- XXX Can we rely upon this being numeric?  
