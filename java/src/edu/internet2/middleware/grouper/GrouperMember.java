@@ -7,7 +7,7 @@ import java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.4 2004-04-12 04:14:36 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.5 2004-04-14 03:05:42 blair Exp $
  */
 public class GrouperMember {
 
@@ -35,13 +35,8 @@ public class GrouperMember {
    *  <li>XXX Cache memberships</li>
    * </ul>
    */
-  public GrouperMember(String member, boolean isGroup) {
-    /*
-      - XXX Calls GrouperSession.lookupSubject(member, isMember)
-        internally?
-      - member == (memberID|presentationID)
-      - XXX We need to determine whether it is a member or a group
-    */
+  public GrouperMember(GrouperSession s, String member, boolean isGroup) {
+    // Nothing -- Yet
   }
 
   public List immediateMemberships(int groupFieldID) {

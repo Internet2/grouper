@@ -4,7 +4,7 @@ package edu.internet2.middleware.directory.grouper;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.3 2004-04-12 04:14:36 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.4 2004-04-14 03:05:42 blair Exp $
  */
 public class GrouperSession {
 
@@ -17,75 +17,43 @@ public class GrouperSession {
    * </ul>
    */
   public GrouperSession(Grouper G) { 
-    /* XXX How do I get G's properties? */
-    /* XXX Initialize jdbc handle now? Or in start()? */
+    // Nothing -- Yet
   }
 
   /**
    * Starts a {@link Grouper} session.
    * <p>
-   * XXX This is no longer remotely accurate with what I am
-   * contemplating.
+   * <ul>
+   *  <li>Using the exective {@link GrouperSession}, "subjectID" is
+   *      looked up via the {@link GrouperSubject} interface and a
+   *      {@link GrouperMember} object is returned.</li>
+   *  <li>Inserts record into <i>grouper_session</i> table.</li>
+   *
+   * @param subjectID The subject to act as for the duration of this
+   * session.
+   */
+  public void start(String subjectID) {
+    // Nothing -- Yet
+  }
+
+  /**
+   * Starts a {@link Grouper} session.
    * <p>
    * <ul>
-   *  <li>Inserts record into <i>grouper_session</i> table</li>
-   *  <li>Looks up subjectID with {@link GrouperSubject} interface</li>
-   *  <li>Creates {@link GrouperMember} object for subjectID</li>
-   *  <li>Inserts memberID into <i>grouper_session</i> table</li>
-   * </ul>
+   *  <li>Using the exective {@link GrouperSession}, "subjectID" is
+   *      looked up via the {@link GrouperSubject} interface and a
+   *      {@link GrouperMember} object is returned.</li>
+   *  <li>Inserts record into <i>grouper_session</i> table.</li>
    *
    * @param subjectID The subject to act as for the duration of this
    * session.
    * @param isMember  If true, the subjectID is assumed to be a
    * memberID and not a presentationID.
-   * @return True if the session was successfully started, false
-   * otherwise.
    */
-  public boolean start(String subjectID, boolean isMember) {
-    /*
-     *
-     * if (subjectID == "grouperSystem") {
-     *   // A GrouperMember object is not needed as grouperSystem
-     *   // can do whatever the fuck it wants.  
-     *
-     *   // Would it be safer to use something like grouperAuth
-     *   // (or whatever)?
-     *
-     *   <insert record into grouper_session table>
-     *   return true;
-     * } else {
-     *   <insert stub record into grouper_session table>
-     *
-     *   // As every operation save for GrouperSession.start()
-     *   // requires a valid session, we need to cheat a little
-     *   // bit by creating a new session as the grouperSystem
-     *   // member in order to allow us to then confirm the 
-     *   // validity of subjectID and then create a new session.
-     *
-     *   // I can't decide if this is a hack or the way things ought to
-     *   // work.
-     *
-     *   GrouperSession authSess = new GrouperSession(G);
-     *   authSess.start("grouperSystem", true);
-     *   memberID = GrouperSubject.lookup(authSess, subjectID);
-     *   GrouperMember member = new GrouperMember(authSess, memberID, false);
-     *   authSess.end();
-     *
-     *   <insert record into grouper_session table>
-     *   return true;
-     * }
-     *
-     */
-
-    /*
-     * XXX Should we perform garbage collection on old/stale jdbc conns
-     *     at this time as well?  Or in end()?  But what if no one ever
-     *     calls end()?
-     */
-
-    /*
+  public void start(String subjectID, boolean isMember) {
     // XXX Assert parameters
 
+    /*
     // We blindly trust the credentials we are passed.
     this.cred           = cred;
 
@@ -113,7 +81,6 @@ public class GrouperSession {
 
     return this.sessionID;
     */
-    return false;
   }
 
   /**
@@ -123,11 +90,8 @@ public class GrouperSession {
    *  <li>Removes session from <i>grouper_session</i> table</li>
    *  <li>Closes JDBC connection to groups registry</li>
    * </ul>
-   *
-   * @return True if the session was successfully ended, false
-   * otherwise.
    */
-  public boolean end() { 
+  public void end() { 
     /*
     // XXX  Assert parameters
     // ???  Why do I pass in sessionID?  Does that imply that there
@@ -164,7 +128,6 @@ public class GrouperSession {
 
     return true;
     */
-    return false;
   }
 
 }

@@ -8,7 +8,7 @@ package edu.internet2.middleware.directory.grouper;
  * of this interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.2 2004-04-12 04:14:36 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.3 2004-04-14 03:05:42 blair Exp $
  */
 public interface GrouperSubject {
   /**
@@ -18,9 +18,9 @@ public interface GrouperSubject {
    * If successful, "subjectID" will be mapped to a {@link GrouperMember} object.
    *
    * @param subjectID The subject that we are attempting to lookup.
-   * @return A string representing the memberID of the subject or null.
+   * @return A {@link GrouperMember} object.
    */
-  public String lookup(String subjectID);
+  public GrouperMember lookup(String subjectID);
 
   /**
    * Looks up "subjectID" via the class specified in the
@@ -31,8 +31,8 @@ public interface GrouperSubject {
    * @param subjectID The subject that we are attempting to lookup.
    * @param isMember  If true, the subjectID is assumed to be a
    * memberID and not a presentationID.
-   * @return A string representing the memberID of the subject or null.
+   * @return A {@link GrouperMember} object.
    */
-  public String lookup(String subjectID, boolean isMember);
+  public GrouperMember lookup(String subjectID, boolean isMember);
 }
 
