@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.8 2004-04-28 15:59:22 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.9 2004-04-28 17:31:53 blair Exp $
  */
 public class GrouperGroup {
 
@@ -18,6 +18,90 @@ public class GrouperGroup {
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
     // Nothing -- Yet
+  }
+
+  /*
+   * Returns a list of all {@link GrouperGroup} memberships of type
+   * "members".
+   * <p>
+   * <ul>
+   *  <li>Verify that the session's subject has sufficient privileges
+   *      to read type "members" for this group.</li>
+   *  <li>Fetch and return rows from the <i>grouper_membership</i>
+   *      table that represent "members" and have the appropriate
+   *      <i>groupId</i> value.</li>
+   *  <li>XXX Add to docs/examples/.</li>
+   * </ul>
+   *
+   * @return  List of group memberships.
+  public List getValue() {
+    return null;
+  }
+
+   * Returns a list of all {@link GrouperGroup} memberships of type
+   * <i>groupField</li>.
+   * <p>
+   * <ul>
+   *  <li>Verify that the session's subject has sufficient privileges
+   *      to read type <i>groupField</i> for this group.</li>
+   *  <li>Fetch and return rows from the <i>grouper_membership</i>
+   *      table with the appropriate <i>groupID</i> and <i>groupField</i>
+   *      values.</li>
+   * </ul>
+   *
+   * @param   groupField  Type of group to return.
+   * @return  List of group memberships.
+  public List getValue(String groupField) {
+    return null;
+  }
+
+   * Returns a list of all {@link GrouperGroup} memberships of type
+   * <i>groupField</li>.
+   * <p>
+   * <ul>
+   *  <li>Verify that the session's subject has sufficient privileges
+   *      to read type <i>groupField</i> for this group.</li>
+   *  <li>Fetch and return rows from the <i>grouper_membership</i>
+   *      table with the appropriate <i>groupID</i>, <i>groupField</i>,
+   *      and <i>isImmediate</i> values.</li>
+   * </ul>
+   *
+   * @param   groupField  Type of group to return.
+   * @param   isImmediate Return only immediate or non-immediate
+   *          memberships.
+   * @return  List of group memberships..
+  public List getValue(String groupField, boolean isImmediate) {
+    return null;
+  }
+
+   * Returns a map of all the metadata for a {@link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>Fetch and return rows from the <i>grouper_metadata</i>
+   *      table that this session's subject has sufficient privileges
+   *      to read.</li>
+   * </ul>
+   *
+   * @return  Map of all accessible group metadata.
+  public Map getValue() {
+    return null;
+  }
+  */
+
+  /*
+   * Returns a single item of metadata for a {link GrouperGroup}.
+   * <p>
+   * <ul>
+   *  <li>Verify that this session's subject has sufficient privileges
+   *      to read the desired item of metadata.</li>
+   *  <li>Fetch and return the desired metadata from the
+   *      <i>grouper_metadata</i> table.</li>
+   * </ul>
+   *
+   * @param   groupField Desired metadata for this {@link GrouperGroup}.
+   * @return  Metadata value.
+  public String getValue(String groupField) {
+    return null;
   }
 
   /**
@@ -32,8 +116,8 @@ public class GrouperGroup {
    *      table.</li>
    * </ul>
    *
-   * @param  groupField  Type of group field to return.
-   * @return List of group members
+   * @param   groupField  Type of group field to return.
+   * @return  List of group members
    */
   public List immediateMembers(String groupField) {
     return null;
@@ -51,8 +135,8 @@ public class GrouperGroup {
    *      table.</li>
    * </ul>
    * 
-   * @param  groupField  Type of group field to return.
-   * @return List of group members
+   * @param   groupField  Type of group field to return.
+   * @return  List of group members
    */
   public List effectiveMembers(String groupField) {
     return null;
@@ -69,7 +153,7 @@ public class GrouperGroup {
    *  <li>XXX This name sucks.</li>
    * </ul>
    *
-   * @return Map of group metadata.
+   * @return  Map of group metadata.
    */
   public Map nonListData() {
     return null;
@@ -86,8 +170,8 @@ public class GrouperGroup {
    *  <li>XXX This name sucks.</li>
    * </ul>
    *
-   * @param  groupField Type of group field to return.
-   * @return Metadata value.
+   * @param   groupField Type of group field to return.
+   * @return  Metadata value.
    */
   public String nonListData(String groupField) {
     return null;
@@ -173,8 +257,8 @@ public class GrouperGroup {
    *      information.</li>
    * </ul>
    *
-   * @param groupField  The field type for this member.
-   * @param value       The new metadata value.
+   * @param   groupField  The field type for this member.
+   * @param   value       The new metadata value.
    */
   public void addValue(String groupField, String value) {
     // Nothing -- Yet
@@ -193,8 +277,8 @@ public class GrouperGroup {
    *      created.</li>
    * </ul>
    *
-   * @param groupField  The field type for this member.
-   * @param member      The member to add.
+   * @param   groupField  The field type for this member.
+   * @param   member      The member to add.
    */
   public void addValue(String groupField, GrouperMember member) {
     // Nothing -- Yet
@@ -213,9 +297,9 @@ public class GrouperGroup {
    *      created.</li>
    * </ul>
    *
-   * @param groupField  The field type for this member.
-   * @param member      The member to add.
-   * @param ttl         When the membership expires.
+   * @param   groupField  The field type for this member.
+   * @param   member      The member to add.
+   * @param   ttl         When the membership expires.
    */
   public void addValue(String groupField, GrouperMember member, Date ttl) {
     // Nothing -- Yet
@@ -234,8 +318,8 @@ public class GrouperGroup {
    *      that we don't need to jump through.</li>
    * </ul>
    * 
-   * @param groupField  The metadata field.
-   * @param value       The value to remove.
+   * @param   groupField  The metadata field.
+   * @param   value       The value to remove.
    */
   public void  removeValue(String groupField, String value) {
     // Nothing -- Yet
@@ -261,8 +345,8 @@ public class GrouperGroup {
    *      may have resulted from this change.</li>
    * </ul>
    * 
-   * @param groupField  The field type for this member.
-   * @param member      The member to add.
+   * @param   groupField  The field type for this member.
+   * @param   member      The member to add.
    */
   public void  removeValue(String groupField, GrouperMember member) {
     // Nothing -- Yet
