@@ -61,11 +61,15 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.30 2004-12-09 03:38:36 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.31 2004-12-09 05:13:21 blair Exp $
  */
 public class GrouperSubject {
 
-  // TODO Is this class really needed?
+  /*
+   * PRIVATE CLASS VARIABLES
+   */
+  private static Map adapters = new HashMap();
+
 
   /*
    * PUBLIC CLASS METHODS 
@@ -79,14 +83,29 @@ public class GrouperSubject {
    * @return  A {@link GrouperSubject} object
    */
   public static Subject load(String id, String typeID) {
-    Subject     subj  = null;
-    /*
-     * FIXME Add a static map of adapters and instantiated objects
-     *       instead of performing a fresh instantion with every load.
-     */
-    SubjectType st = Grouper.subjectType(typeID);
+    return _load(id, typeID);
+  }
+
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
+
+  private static Subject _load(String id, String typeID) {
+    Subject             subj  = null;
+    SubjectType         st    = Grouper.subjectType(typeID);
+    SubjectTypeAdapter  sta   = null;
     if (st != null) {
-      SubjectTypeAdapter sta = st.getAdapter();
+      // Attempt to use a cached adapter
+      if (adapters.containsKey(st)) {
+        sta = (SubjectTypeAdapter) adapters.get(st);
+      } 
+      // Otherwise try to grab a new instance
+      if (sta == null) {
+        sta = st.getAdapter();
+        adapters.put(st, sta);
+      }
+      // And then if we have an adapter, use it
       if (sta != null) {
         try {
           subj = sta.getSubject(st, id);
