@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.14 2004-07-03 03:01:44 blair Exp $
+# $Id: README,v 1.15 2004-08-03 02:18:13 blair Exp $
 #
 
  ------------------
@@ -46,8 +46,10 @@
 
   % ant build
   % mysql -u root -p < sql/mysql.sql
-  % vi grouper.cf
+  % <edit conf/hibernate.properties>
+  % <initialize and populate database>
   % ant test
+  % <edit conf/grouper.properties>
 
 To build the javadoc(1) documentation:
   % ant javadoc
