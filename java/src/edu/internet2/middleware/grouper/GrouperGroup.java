@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.137 2004-12-07 18:57:30 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.138 2004-12-08 00:43:47 blair Exp $
  */
 public class GrouperGroup {
 
@@ -523,6 +523,10 @@ public class GrouperGroup {
   public String modifyTime() {
     // TODO Return date object?
     return this.getModifyTime();
+  }
+
+  public String name() {
+    return this.attribute("name").value();
   }
 
   /**
