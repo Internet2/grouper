@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.154 2005-02-16 20:07:50 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.155 2005-02-17 18:51:47 blair Exp $
  */
 public class GrouperGroup {
 
@@ -697,7 +697,7 @@ public class GrouperGroup {
       if (stem.equals(Grouper.NS_ROOT)) {
         // And only member.system can do so in this release
         if (s.subject().getId().equals(Grouper.config("member.system"))) {
-          return true;
+          rv = true;
         }
       } else {
         GrouperGroup ns = GrouperBackend.groupLoadByName(
