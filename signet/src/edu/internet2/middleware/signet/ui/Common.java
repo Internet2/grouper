@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.5 2005-02-25 20:16:20 acohen Exp $
-  $Date: 2005-02-25 20:16:20 $
+  $Id: Common.java,v 1.6 2005-02-28 16:21:14 acohen Exp $
+  $Date: 2005-02-28 16:21:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,6 +79,16 @@ public class Common
     return out.toString();
   }
 
+  /**
+   * Formats limit-values like this:
+   *     <span class="label">Approval limit:<span> $100
+   * 
+   * Note that the colon is inside the span. The space between colon and
+   * value can be inside or outside, whichever is easier.
+   * 
+   * @param assignment
+   * @return
+   */
   public static String displayLimitValues(Assignment assignment)
   {
     StringBuffer strBuf = new StringBuffer();
@@ -89,7 +99,7 @@ public class Common
     {
       Limit limit = limits[limitIndex];
       strBuf.append((limitIndex > 0) ? "\n<br />\n" : "");
-      strBuf.append(limit.getName() + ": ");
+      strBuf.append("<span class=\"label\">" + limit.getName() + ":</span> ");
 
       int limitValuesPrinted = 0;
       for (int limitValueIndex = 0;
