@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.48 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.49 2004-10-11 17:44:37 blair Exp $
  */
 public class GrouperSession {
 
@@ -93,7 +93,7 @@ public class GrouperSession {
    * @return  Value of configuration parameter.
    */
   public String config(String parameter) {
-    return this._G.config(parameter);
+    return Grouper.config(parameter);
   }
 
   /**
@@ -261,8 +261,8 @@ public class GrouperSession {
    */ 
   private void _createInterfaces() {
     // Create internal references to the various interfaces
-    this.intAccess  = (GrouperAccess)  this._createObject( _G.config("interface.access") );
-    this.intNaming  = (GrouperNaming)  this._createObject( _G.config("interface.naming") );
+    this.intAccess  = (GrouperAccess)  this._createObject( Grouper.config("interface.access") );
+    this.intNaming  = (GrouperNaming)  this._createObject( Grouper.config("interface.naming") );
   }
 
   /*
