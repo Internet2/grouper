@@ -24,15 +24,13 @@ import  net.sf.hibernate.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.29 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: Grouper.java,v 1.30 2004-09-19 01:01:05 blair Exp $
  */
 public class Grouper {
 
   private static Properties  conf;
   private static String      confFile; 
 
-  // Grouper executive session
-  private static GrouperSession   grprSession;
   // Cached Grouper group fields
   // TODO Switch to GrouperFields collection object?
   private static List             groupFields;
@@ -50,7 +48,6 @@ public class Grouper {
   public Grouper() {
     this.conf           = new Properties();
     this.confFile       = "conf/grouper.properties";
-    this.grprSession    = null;
     this.groupFields    = new ArrayList();
     this.groupTypes     = new ArrayList();
     this.groupTypeDefs  = new ArrayList();
@@ -61,8 +58,6 @@ public class Grouper {
    * <p>
    * <ul>
    *  <li>Reads run-time configuration</li>
-   *  <li>Starts executive {@link GrouperSession} used for 
-   *      boostrapping all other sessions.</li>
    *  <li>Reads and caches the following tables:</li>
    *  <ul>
    *   <li><i>grouper_fields</i></li>
@@ -86,26 +81,17 @@ public class Grouper {
       System.exit(1); 
     }
 
-    this.grprSession = new GrouperSession();
-    this.grprSession.start(this, this.config("member.system"), true);
     // TODO Perform data validation of some sort for these tables?
-    this._readFields();
-    this._readTypes();
-    this._readTypeDefs();
+    this.groupFields    = GrouperBackend.groupFields();
+    this.groupTypeDefs  = GrouperBackend.groupTypeDefs();
+    this.groupTypes     = GrouperBackend.groupTypes();
   }
 
   /**
    * Destroy {@link Grouper} environment.
-   * <p>
-   * <ul>
-   *  <li>Stops executive {@link GrouperSession}.</li>
-   * </ul>
    */ 
   public void destroy() {
-    // TODO Throw an exception if null??
-    if (this.grprSession != null) {
-      this.grprSession.end();
-    }
+    // Nothing 
   }
 
   /**
@@ -121,60 +107,6 @@ public class Grouper {
   /*
    * XXX All of the below is utter madness.  Make sense of it.
    */
-
-  private void _readFields() {
-    // XXX Hack.  And I shouldn't need the temporary variable
-    //     'session', should I?
-    try {
-      Session session = this.grprSession.session();
-      Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_FIELDS " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperField"
-        );
-      for (Iterator iter = q.list().iterator(); iter.hasNext();) {
-        groupFields.add( (GrouperField) iter.next() );
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
-
-  private void _readTypeDefs() {
-    // XXX Hack.  And I shouldn't need the temporary variable
-    //     'session', should I?
-    try {
-      Session session = this.grprSession.session();
-      Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_GROUPTYPEDEFS " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperTypeDef"
-        );
-      for (Iterator iter = q.list().iterator(); iter.hasNext();) {
-        groupTypeDefs.add( (GrouperTypeDef) iter.next() );
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
-
-  private void _readTypes() {
-    // XXX Hack.  And I shouldn't need the temporary variable
-    //     'session', should I?
-    try {
-      Session session = this.grprSession.session();
-      Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_GROUPTYPES " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperType"
-        );
-      for (Iterator iter = q.list().iterator(); iter.hasNext();) {
-        groupTypes.add( (GrouperType) iter.next() );
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
 
   /**
    * Valid group fields.
