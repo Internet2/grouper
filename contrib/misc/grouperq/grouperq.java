@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.10 2004-12-08 05:18:01 blair Exp $
+ * @version $Id: grouperq.java,v 1.11 2004-12-08 05:28:14 blair Exp $
  */
 class grouperq {
 
@@ -83,9 +83,9 @@ class grouperq {
     _verbose("Looking up field '" + field + "'");
     _queryOnGroup();
     _queryOnMember();
-    if        (grpQueryOn != null) {
+    if      ( (queryGroupName != null) && (grpQueryOn != null) ) {
       _reportMembers( grpQueryOn.listVals(s, field) );
-    } else if (memQueryOn != null) {
+    } else if ( ( querySubjectID != null) && (memQueryOn != null) ) {
       _reportGroups( memQueryOn.listVals(s, field) );
     } else {
       System.err.println("ERROR: Unable to determine what to query on");
