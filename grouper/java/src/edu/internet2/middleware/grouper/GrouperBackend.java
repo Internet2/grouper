@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.11 2004-10-13 18:16:50 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.12 2004-10-13 18:32:53 blair Exp $
  */
 public class GrouperBackend {
 
@@ -163,23 +163,23 @@ public class GrouperBackend {
   }
 
   // TODO
-  public static List descriptors(GrouperSession s, String descriptor) {
-    List descriptors = new ArrayList();
+  public static List names(GrouperSession s, String name) {
+    List names = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT FROM grouper_attributes " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
         "WHERE " +
-        "groupField='descriptor' " + 
+        "groupField='name' " + 
         "AND " +
-        "groupFieldValue='" + descriptor + "'"
+        "groupFieldValue='" + name + "'"
       );
-      descriptors = q.list();
+      names = q.list();
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
     }
-    return descriptors;
+    return names;
   }
 
   // TODO
@@ -339,32 +339,32 @@ public class GrouperBackend {
     return m;
   }
 
-  public static GrouperGroup group(GrouperSession s, String namespace, String descriptor) {
+  public static GrouperGroup group(GrouperSession s, String namespace, String name) {
     GrouperBackend._init();
 
     // TODO Please.  Make this better.  Please, please, please.
     //      For whatever reason, SQL and quality code are evading
     //      me this week.
-    List descs = GrouperBackend.descriptors(s, descriptor);
-    if (descs.size() > 0) {
-      // We found one or more potential descriptors.  Now look
+    List names = GrouperBackend.names(s, name);
+    if (names.size() > 0) {
+      // We found one or more potential names.  Now look
       // for matching namespaces.
       List namespaces = GrouperBackend.namespaces(s, namespace);
       if (namespaces.size() > 0) {
-        // We have potential namespaces and potential descriptors.
+        // We have potential namespaces and potential names.
         // Now see if we have the *right* namespace and the *right*
-        // descriptor.
-        for (Iterator iterDesc = descs.iterator(); iterDesc.hasNext();) {
-          GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
+        // name.
+        for (Iterator iterName = names.iterator(); iterName.hasNext();) {
+          GrouperAttribute possName = (GrouperAttribute) iterName.next();
           for (Iterator iterNamespace = namespaces.iterator(); iterNamespace.hasNext();) {
             GrouperAttribute possNamespace = (GrouperAttribute) iterNamespace.next();
             if (
-                descriptor.equals( possDesc.value() )   &&
+                name.equals( possName.value() )   &&
                 namespace.equals( possNamespace.value() )         &&
-                possDesc.key().equals( possNamespace.key() )
+                possName.key().equals( possNamespace.key() )
                )
             {
-              // We have found an appropriate namespace and descriptor
+              // We have found an appropriate namespace and name
               // with matching keys.  We exist!
 
               // Now query for the group with the appropriate key and
@@ -374,7 +374,7 @@ public class GrouperBackend {
                   "SELECT ALL FROM GROUPER_GROUP " +
                   "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
                   "WHERE "                          +
-                  "groupKey='" + possDesc.key()     + "'"
+                  "groupKey='" + possName.key()     + "'"
                 );
                 if (q.list().size() == 1) {
                   return (GrouperGroup) q.list().get(0);

@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.8 2004-10-13 16:53:15 blair Exp $
+# $Id: API,v 1.9 2004-10-13 18:32:53 blair Exp $
 #
 # TODO Interfaces
 #
@@ -50,8 +50,8 @@ GrouperBackend
       XXX I don't know...but this just seems inappropriate.  Especially
           as a public method.  And why is it here?  I know, I know,
           "all backend methods go here"...
-    List descriptors(GrouperSession s, String descriptor)
-    GrouperGroup group(GrouperSession s, String namespace, String descriptor)
+    List names(GrouperSession s, String name)
+    GrouperGroup group(GrouperSession s, String namespace, String name)
     List groupFields()
       XXX Hrm...isn't this also in Grouper?
     List groupTypeDefs()
