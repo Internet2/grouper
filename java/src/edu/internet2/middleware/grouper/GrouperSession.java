@@ -4,7 +4,7 @@ package edu.internet2.middleware.directory.grouper;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.6 2004-04-28 16:24:42 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.7 2004-04-28 17:24:10 blair Exp $
  */
 public class GrouperSession {
 
@@ -108,7 +108,7 @@ public class GrouperSession {
    * subject.
    */
   public String whoami() {
-    // Nothing -- Yet
+    return null;
   }
 
 }

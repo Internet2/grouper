@@ -7,7 +7,7 @@ import java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.9 2004-04-28 16:24:42 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.10 2004-04-28 17:24:10 blair Exp $
  */
 public class GrouperMember {
 
@@ -100,7 +100,7 @@ public class GrouperMember {
    *         {@link GrouperMember} object.
    */
   public String whoami() {
-    // Nothing -- Yet
+    return null;
   }
 
 }
