@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.12 2004-12-09 04:57:05 blair Exp $
+ * @version $Id: grouperq.java,v 1.13 2004-12-30 03:03:50 blair Exp $
  */
 class grouperq {
 
@@ -230,10 +230,26 @@ class grouperq {
    * Determine what member to query on
    */
   private static void _queryOnMember() {
+    // FIXME I should really have a command-line type option
+    // First try looking up the member as DEF_SUBJ_TYPE
     if (querySubjectID != null) {
       memQueryOn = GrouperMember.load(
                      querySubjectID, Grouper.DEF_SUBJ_TYPE
                    );
+      // If that doesn't resolve, attempt to look up the member as a
+      // group
+      if (memQueryOn == null) {
+        GrouperGroup g = GrouperGroup.loadByName(s, querySubjectID);
+        if (g != null) {
+          memQueryOn = GrouperMember.load(g.id(), "group");
+          if (memQueryOn != null) {
+            _verbose("Retrieved member '" + querySubjectID + "' as type 'group'");
+          }
+        }
+      } else {
+        _verbose("Retrieved member '" + querySubjectID + "' as type '" + 
+                 Grouper.DEF_SUBJ_TYPE + "'");
+      }
     } else {
       memQueryOn = GrouperMember.load(
                      subjectID, Grouper.DEF_SUBJ_TYPE
@@ -248,7 +264,15 @@ class grouperq {
     _verbose("Results returned by query: " + vals.size());
     if (memQueryOn != null) {
       GrouperMember m = memQueryOn; // Too damn much typing otherwise
-      System.out.println("subjectID: " + m.subjectID());
+      String sid = m.subjectID();
+      // If member is a group, attempt to fetch name
+      if (m.typeID().equals("group")) {
+        GrouperGroup mAsG = GrouperGroup.loadByID(s, m.subjectID());
+        if (mAsG != null) {
+          sid = mAsG.name();
+        }
+      }
+      System.out.println("subjectID: " + sid);
       System.out.println("subjectTypeID: " + m.typeID());
       System.out.println("memberID: " + m.memberID());
       Iterator iter = vals.iterator();

@@ -1,7 +1,7 @@
 
 # Grouper Contributed Code
 
-$Id: README,v 1.10 2004-12-09 04:57:05 blair Exp $
+$Id: README,v 1.11 2004-12-30 03:03:50 blair Exp $
 
 ---
 
@@ -52,6 +52,6 @@ Demonstration program for querying the group registry using the
 _Grouper_ API.
 
 * Contributed by _The University Of Chicago_ on 20041130.
-* Last updated on 20041208.
+* Last updated on 20041229.
 * See misc/grouperq/README for more information.
 
