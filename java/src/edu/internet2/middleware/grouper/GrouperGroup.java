@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.193 2005-03-25 16:59:30 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.194 2005-03-25 17:17:43 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -228,6 +228,101 @@ public class GrouperGroup extends Group {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Retrieve the <i>createSource</i> value.
+   * <p  />
+   * This attribute is not currently used.
+   * @return <i>createSource</i> value.
+   */
+  public String createSource() {
+    return this.getCreateSource();
+  }
+
+  /**
+   * Retrieve the <i>createSubject</i> value.
+   * <p  />
+   * @return A {@link Subject} object.
+   */
+  public Subject createSubject() {
+    return GrouperMember.toSubject(this.s, this.getCreateSubject());
+  }
+
+  /**
+   * Retrieve the <i>createTime</i> value.
+   * <p  />
+   * @return <i>createTime</i> as a {@link Date} object.
+   */
+  public Date createTime() {
+    return this.string2date(this.getCreateTime());
+  }
+
+  /**
+   * Add member to this group's default list.
+   * <p />
+   * @param m   Add this member.
+   */
+  public void listAddVal(GrouperMember m) {
+    this.listAddVal(m, Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Add member to this group's specified list.
+   * <p />
+   * @param m     Add this member.
+   * @param list  To this list.
+   */
+  public void listAddVal(GrouperMember m, String list) {
+    if (Group.subjectCanModListVal(this.s, this, list)) {
+      GrouperList gl = new GrouperList(this, m, list);
+      gl.load(this.s);
+      GrouperList.validate(gl);
+      if (GrouperList.exists(this.s, gl)) {
+        throw new RuntimeException("List value already exists");
+      }
+      s.dbSess().txStart();
+      try {
+        this.listAddVal(this.s, gl); // Calculate mof and add vals
+        if (this.initialized == true) {
+          // Only update modify attrs if group is fully loaded
+          this.setModified();
+        }
+        s.dbSess().txCommit(); 
+        Grouper.log().groupListAdd(this.s, this, m);
+      } catch (RuntimeException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException("Error adding list value: " + e);
+      }
+    }
+  }
+
+  /**
+   * Retrieve the <i>modifySource</i> value.
+   * <p  />
+   * This attribute is not currently used.
+   * @return <i>modifySource</i> value.
+   */
+  public String modifySource() {
+    return this.getModifySource();
+  }
+
+  /**
+   * Retrieve the <i>modifySubject</i> value.
+   * <p  />
+   * @return A {@link Subject} object.
+   */
+  public Subject modifySubject() {
+    return GrouperMember.toSubject(this.s, this.getModifySubject());
+  }
+
+  /**
+   * Retrieve the <i>modifyTime</i> value.
+   * <p  />
+   * @return <i>modifyTime</i> as a {@link Date} object.
+   */
+  public Date modifyTime() {
+    return this.string2date(this.getModifyTime());
+  }
 
   /**
    * Retrieve {@link GrouperMember} object for this 
@@ -425,10 +520,6 @@ public class GrouperGroup extends Group {
   }
 
 
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
-
   /**
    * Retrieve a group attribute.
    * <p />
@@ -500,41 +591,6 @@ public class GrouperGroup extends Group {
    */
   public Map attributes() {
     return this.attributes;
-  }
-
-  /**
-   * Retrieve the <i>createSource</i> operational attribute value.
-   * <p  />
-   * This attribute is not currently used.
-   *
-   * @return <i>createSource</i> value.
-   */
-  public String createSource() {
-    return this.getCreateSource();
-  }
-
-  /**
-   * Retrieve the <i>createSubject</i> operational attribute value.
-   * <p  />
-   * @return A {@link Subject} object.
-   */
-  public Subject createSubject() {
-    return this._returnSubjectObject(this.getCreateSubject()); 
-  }
-
-  /**
-   * Retrieve the <i>createTime</i> operational attribute value.
-   * <p  />
-   * @return <i>createTime</i> as a {@link Date} object.
-   */
-  public Date createTime() {
-    // TODO Refactor out commonality with `modifyTime'
-    Date d = null;
-    String since = this.getCreateTime();
-    if (since != null) {
-      d = new Date(Long.parseLong(since));
-    }
-    return d;
   }
 
   /**
@@ -620,41 +676,6 @@ public class GrouperGroup extends Group {
   }
 
   /**
-   * Add a list value of the default list type.
-   * <p />
-   * @param   m     Add this member.
-   * @return  True if the list value was added.
-   */
-  public void listAddVal(GrouperMember m) {
-    /* 
-     * TODO Add a variant that takes a GrouperGroup instead of a
-     * GrouperMember?
-     */
-    if (GrouperGroup._canModListVal(this, Grouper.DEF_LIST_TYPE)) {
-      this._listAddVal(m, Grouper.DEF_LIST_TYPE);
-      Grouper.log().groupListAdd(this.s, this, m);
-    }
-  }
-
-  /**
-   * Add a list value of the specified list type.
-   * <p />
-   * @param   m     Add this member.
-   * @param   list  Add member to this list type.
-   * @return  True if the list value was added.
-   */
-  public void listAddVal(GrouperMember m, String list) {
-    /* 
-     * TODO Add a variant that takes a GrouperGroup instead of a
-     * GrouperMember?
-     */
-    if (GrouperGroup._canModListVal(this, list)) {
-      this._listAddVal(m, list);
-      Grouper.log().groupListAdd(this.s, this, m);
-    }
-  }
-
-  /**
    * Delete a list value of the default list type.
    * <p />
    * @param   m     Delete this member.
@@ -693,45 +714,6 @@ public class GrouperGroup extends Group {
     }  
     Grouper.log().groupListDel(rv, this.s, this, m);
     return rv;
-  }
-
-  /**
-   * Retrieve the <i>modifySource</i> operational attribute value.
-   * <p  />
-   * This attribute is not currently used.
-   *
-   * @return <i>modifySource</i> value.
-   */
-  public String modifySource() {
-    return this.getModifySource();
-  }
-
-  /**
-   * Retrieve the <i>modifySubject</i> operational attribute value.
-   * <p  />
-   * @return A {@link Subject} object.
-   */
-  public Subject modifySubject() {
-    /* 
-     * FIXME What a mess.  Did this break again when I started having
-     *       GNI go through GG rather than GB for list val changes?
-     */
-    return this._returnSubjectObject(this.getModifySubject()); 
-  }
-
-  /**
-   * Retrieve the <i>modifyTime</i> operational attribute.
-   * <p  />
-   * @return <i>modifyTime</i> as a {@link Date} object.
-   */
-  public Date modifyTime() {
-    // TODO Refactor out commonality with `createTime'
-    Date d = null;
-    String since = this.getModifyTime();
-    if (since != null) {
-      d = new Date(Long.parseLong(since));
-    }
-    return d;
   }
 
   /**
@@ -1232,53 +1214,6 @@ public class GrouperGroup extends Group {
   }
 
   /*
-   * Add list value and update modify* attributes.
-   */
-  private boolean _listAddVal(GrouperMember m, String list) {
-    boolean rv = false;
-    s.dbSess().txStart();
-    // Set some of the operational attributes
-    /*
-     * TODO Most, if not all, of the operational attributes should be
-     *      handled by Hibernate interceptors.  A task for another day.
-     */
-    String curModTime = this.getModifyTime();
-    String curModSubj = this.getModifySubject();
-    this.setModifyTime( this.now() );
-    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
-    this.setModifySubject( mem.key() );
-    GrouperList gl = new GrouperList(this, m, list);
-    gl.load(this.s); // TODO Necessary?
-    GrouperList.validate(gl);
-    gl.load(this.s);
-
-    if (GrouperList.exists(s, gl) == false) {
-      // The GrouperList objects that we will need to add
-      MemberOf mof = new MemberOf(this.s);
-      List listVals = mof.memberOf(gl);
-          
-      // Now add the list values
-      // TODO Refactor out to _listAddVal(List vals)
-      Iterator iter = listVals.iterator();
-      while (iter.hasNext()) {
-        GrouperList lv = (GrouperList) iter.next();
-        lv.load(this.s); // TODO Is this necessary?
-        GrouperList.save(this.s, lv);
-      }
-      rv = true; // TODO This seems naive
-    }
-    if (rv) { 
-      this.s.dbSess().txCommit();
-    } else {
-      // Revert changes
-      this.s.dbSess().txRollback();
-      this.setModifyTime(curModTime);
-      this.setModifySubject(curModSubj);
-    }
-    return rv;
-  }
-
-  /*
    * Delete list value and update modify* attributes.
    */
   private boolean _listDelVal(GrouperMember m, String list) {
@@ -1324,27 +1259,6 @@ public class GrouperGroup extends Group {
       this.setModifySubject(curModSubj);
     }
     return rv;
-  }
-
-  /* (!javadoc)
-   * Try to return an initialized Subject object.  If not, default to
-   * an unitialized object.  Used by the (create|modify)Subject opattr
-   * methods.
-   */
-  private Subject _returnSubjectObject(String memberKey) {
-    Subject subj = null;
-    if (memberKey != null) {
-      GrouperMember mem = GrouperMember.loadByKey(this.s, memberKey);
-      if (mem != null) {
-        subj = GrouperSubject.load(mem.subjectID(), mem.typeID());
-      }
-    }
-/* TODO Arguably this is correct but right now it is not
-    if (subj == null) {
-      return new SubjectImpl();
-    }
-*/
-    return subj;
   }
 
   /* (!javadoc)

@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.20 2005-03-25 16:59:30 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.21 2005-03-25 17:17:43 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -258,7 +258,7 @@ public class GrouperStem extends Group {
       }
       s.dbSess().txStart();
       try {
-        this.listAddVal(gl); // Calculate mof and add vals
+        this.listAddVal(this.s, gl); // Calculate mof and add vals
         if (this.initialized == true) {
           // Only update modify attrs if group is fully loaded
           this.setModified();
@@ -522,21 +522,6 @@ public class GrouperStem extends Group {
     } 
   }
 
-
-  /*
-   * Add immediate and effective list values.
-   */
-  private void listAddVal(GrouperList gl) {
-    // Find the list values that we will need to add
-    MemberOf mof  = new MemberOf(this.s);
-    Iterator iter = mof.memberOf(gl).iterator();
-    // Now add the list values
-    while (iter.hasNext()) {
-      GrouperList lv = (GrouperList) iter.next();
-      lv.load(this.s);
-      GrouperList.save(this.s, lv);
-    }
-  }
 
 
   /*
