@@ -19,7 +19,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.3 2004-08-24 17:37:57 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.4 2004-08-26 18:20:31 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -42,6 +42,19 @@ public class GrouperAttribute implements Serializable {
     this.groupKey         = key;
     this.groupField       = field;
     this.groupFieldValue  = value;
+  }
+
+  public String key() {
+    // TODO This does expose the group key.  Do we want that?
+    return this.getGroupKey();
+  }
+
+  public String field() {
+    return this.getGroupField();
+  }
+
+  public String value() {
+    return this.getGroupFieldValue();
   }
 
   /*
