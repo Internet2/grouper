@@ -513,5 +513,54 @@ public class TestGroups extends TestCase {
     s.stop();
   }
 
+  public void testFetchG10() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // g0
+    GrouperGroup g  = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    Assert.assertNotNull(g);
+    Assert.assertNotNull(g.name());
+    Assert.assertNotNull(g.id());
+    Assert.assertNotNull(g.type());
+    // Refetch by id
+    GrouperGroup g1 = GrouperGroup.loadByID(s, g.id());
+    Assert.assertNotNull(g1);
+    Assert.assertNotNull(g1.name());
+    Assert.assertNotNull(g1.id());
+    Assert.assertNotNull(g1.type());
+    Assert.assertTrue(g.name().equals(g1.name()));
+    Assert.assertTrue(g.id().equals(g1.id()));
+    Assert.assertTrue(g.type().equals(g1.type()));
+    // Refetch by id with type
+    GrouperGroup g2 = GrouperGroup.loadByID(s, g.id(), Grouper.DEF_GROUP_TYPE);
+    Assert.assertNotNull(g2);
+    Assert.assertNotNull(g2.name());
+    Assert.assertNotNull(g2.id());
+    Assert.assertNotNull(g2.type());
+    Assert.assertTrue(g.name().equals(g2.name()));
+    Assert.assertTrue(g.id().equals(g2.id()));
+    Assert.assertTrue(g.type().equals(g2.type()));
+    // Refetch by name
+    GrouperGroup g3 = GrouperGroup.loadByName(s, g.name());
+    Assert.assertNotNull(g3);
+    Assert.assertNotNull(g3.name());
+    Assert.assertNotNull(g3.id());
+    Assert.assertNotNull(g3.type());
+    Assert.assertTrue(g.name().equals(g3.name()));
+    Assert.assertTrue(g.id().equals(g3.id()));
+    Assert.assertTrue(g.type().equals(g3.type()));
+    // Refetch by name with type
+    GrouperGroup g4 = GrouperGroup.loadByName(s, g.name(), Grouper.DEF_GROUP_TYPE);
+    Assert.assertNotNull(g4);
+    Assert.assertNotNull(g4.name());
+    Assert.assertNotNull(g4.id());
+    Assert.assertNotNull(g4.type());
+    Assert.assertTrue(g.name().equals(g4.name()));
+    Assert.assertTrue(g.id().equals(g4.id()));
+    Assert.assertTrue(g.type().equals(g4.type()));
+    s.stop();
+  }
+
 }
 

@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.132 2004-12-08 02:29:00 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.133 2004-12-08 03:03:36 blair Exp $
  */
 public class GrouperBackend {
 
@@ -431,12 +431,12 @@ public class GrouperBackend {
   }
 
   // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLoadByID(String id, String type) {
-    /*
-     * While most private class methods take a Session as an argument,
-     * this method does not because to do so would possibly cause
-     * non-uniqueness issues.
-     */
+  protected static GrouperGroup groupLoadByID(
+                                  GrouperSession s, String id, 
+                                  String type
+                                ) 
+  {
+    // FIXME Why don't we call GB._groupLoadByID?
     Session       session = GrouperBackend._init();
     GrouperGroup  g       = new GrouperGroup();
     // First find the key
@@ -454,6 +454,7 @@ public class GrouperBackend {
         g = null;
       }
     }
+    GrouperBackend._hibernateSessionClose(session);
     return g;
   }
 
