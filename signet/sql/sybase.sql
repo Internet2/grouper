@@ -1,4 +1,4 @@
---  Subsystem tables
+-- Subsystem tables
 drop table ProxyType_Function;
 drop table Permission_Limit;
 drop table Function_Permission;
@@ -18,6 +18,7 @@ scopeTreeID         varchar(64)         NULL,
 modifyDatetime      smalldatetime       default getdate(),
 primary key clustered (subsystemID)
 )
+;
 create table Category
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -28,6 +29,7 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, categoryID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
+;
 create table Function
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -40,6 +42,7 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, functionID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
+;
 create table Permission
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -49,6 +52,7 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, permissionID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
+;
 create table ProxyType
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -60,6 +64,7 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, proxyTypeID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
+;
 create table Limit
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -77,6 +82,7 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (subsystemID, limitID),
 foreign key (subsystemID) references Subsystem (subsystemID)
 )
+;
 create table Function_Permission
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -86,16 +92,18 @@ primary key (subsystemID, functionID, permissionID),
 foreign key (subsystemID, functionID) references Function (subsystemID, functionID),
 foreign key (subsystemID, permissionID) references Permission (subsystemID, permissionID)
 )
+;
 create table Permission_Limit
 (
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
-defaultLimitValueValue  varchar(64)    NULL,
+defaultLimitValueValue  varchar(64)     NULL,
 primary key (subsystemID, permissionID, limitID),
 foreign key (subsystemID, permissionID) references Permission (subsystemID, permissionID),
 foreign key (subsystemID, limitID) references Limit (subsystemID, limitID)
 )
+;
 create table ProxyType_Function
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -105,36 +113,43 @@ primary key (subsystemID, proxyTypeID, functionID),
 foreign key (subsystemID, proxyTypeID) references ProxyType (subsystemID, proxyTypeID),
 foreign key (subsystemID, functionID) references Function (subsystemID, functionID)
 )
+;
 -- Subject tables
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
-create table SubjectType (
-  subjectTypeID     varchar(32)     NOT NULL,
-  name              varchar(120)    NOT NULL,
-  adapterClass      varchar(255)    NOT NULL,
-  modifyDateTime    smalldatetime   default getdate(),
-  primary key (subjectTypeID)
-  )
-create table Subject (
-  subjectTypeID     varchar(32)     NOT NULL,
-  subjectID         varchar(64)     NOT NULL,
-  name              varchar(120)    NOT NULL,
-  description       varchar(255)    NOT NULL,
-  displayId         varchar(64)     NOT NULL,
-  modifyDateTime    smalldatetime   default getdate(),
-  primary key (subjectTypeID, subjectID)
-  )
-create table SubjectAttribute (
-  subjectTypeID     varchar(32)     NOT NULL,
-  subjectID         varchar(64)     NOT NULL,
-  name              varchar(120)    NOT NULL,
-  instance          smallint        NOT NULL,
-  value             varchar(255)    NOT NULL,
-  searchValue       varchar(255)    NOT NULL,
-  modifyDateTime    smalldatetime   default getdate(),
-  primary key (subjectTypeID, subjectID, name)
-  )
+create table SubjectType
+(
+subjectTypeID     varchar(32)     NOT NULL,
+name              varchar(120)    NOT NULL,
+adapterClass      varchar(255)    NOT NULL,
+modifyDatetime    smalldatetime   default getdate(),
+primary key (subjectTypeID)
+)
+;
+create table Subject
+(
+subjectTypeID     varchar(32)     NOT NULL,
+subjectID         varchar(64)     NOT NULL,
+name              varchar(120)    NOT NULL,
+description       varchar(255)    NOT NULL,
+displayID         varchar(64)     NOT NULL,
+modifyDatetime    smalldatetime   default getdate(),
+primary key (subjectTypeID, subjectID)
+)
+;
+create table SubjectAttribute
+(
+subjectTypeID     varchar(32)     NOT NULL,
+subjectID         varchar(64)     NOT NULL,
+name              varchar(120)    NOT NULL,
+instance          smallint        NOT NULL,
+value             varchar(255)    NOT NULL,
+searchValue       varchar(255)    NOT NULL,
+modifyDatetime    smalldatetime   default getdate(),
+primary key (subjectTypeID, subjectID, name)
+)
+;
 -- Tree tables
 drop table TreeNodeRelationship;
 drop table TreeNode;
@@ -147,6 +162,7 @@ adapterClass        varchar(255)        NOT NULL,
 modifyDatetime      smalldatetime       default getdate(),
 primary key (treeID)
 )
+;
 create table TreeNode
 (
 treeID              varchar(64)         NOT NULL,
@@ -158,6 +174,7 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (treeID, nodeID),
 foreign key (treeID, nodeID) references TreeNode (treeID, nodeID)
 )
+;
 create table TreeNodeRelationship
 (
 treeID              varchar(64)         NOT NULL,
@@ -166,6 +183,7 @@ parentNodeID        varchar(64)         NOT NULL,
 primary key (treeID, nodeID, parentNodeID),
 foreign key (treeID) references Tree (treeID)
 )
+;
 -- ChoiceSet tables
 drop table Choice;
 drop table ChoiceSet;
@@ -177,6 +195,7 @@ subsystemID         varchar(64)         NULL,
 modifyDatetime      smalldatetime       default getdate(),
 primary key (choiceSetID)
 )
+;
 create table Choice
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -188,7 +207,8 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (choiceSetID, value),
 foreign key (choiceSetID) references ChoiceSet (choiceSetID)
 )
---  Assignment tables
+;
+-- Assignment tables
 drop table Assignment;
 drop table AssignmentLimitValue;
 create table Assignment
@@ -213,6 +233,7 @@ revokerID           varchar(64)         NULL,
 modifyDatetime      smalldatetime       default getdate(),
 unique clustered (assignmentID)
 )
+;
 create table AssignmentLimitValue
 (
 assignmentID        numeric(12,0)       NOT NULL,
@@ -222,3 +243,4 @@ limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
 unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
 )
+;
