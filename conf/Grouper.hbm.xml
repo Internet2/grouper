@@ -46,13 +46,11 @@
     <property name="memberKey"  type="string" column="memberKey"/>
     <property name="pathKey"    type="string" column="pathKey"/>
     <property name="viaKey"     type="string" column="viaKey"/>
-<!--
     <list name="elements" table="grouper_viaElement">
       <key    column="pathKey"/>
       <index  column="pathIdx"/>
-      <composite-element class="ViaElement"/>
+      <one-to-many class="ViaElement"/>
     </list>
--->
   </class>
 
   <class name="GrouperMember" table="grouper_member">
@@ -123,25 +121,11 @@
     <property name="adapterClass" type="string" not-null="true"/>
   </class>
 
-  <class name="ViaElement"  table="grouper_viaElement">
-    <!-- TODO I suspect this is all wrong -->
-    <composite-id access="field">
-      <key-property name="pathKey"  type="string"   column="pathKey"/>
-      <key-property name="pathIdx"  type="integer"  column="pathIdx"/>
-      <key-property name="groupKey" type="string"   column="groupKey"/>
-    </composite-id>
-  </class>
-
-  <class name="ViaPath" table="grouper_viaPath" mutable="true">
-    <!-- TODO I suspect this is all wrong -->
-    <id name="pathKey" type="string" unsaved-value="null">
-      <generator class="assigned"/>
+  <class name="ViaElement" table="grouper_viaElement">
+    <id name="pathIdx" type="long">
+      <generator class="hilo"/>
     </id>
-    <list name="elements" table="grouper_viaElement">
-      <key    column="pathKey"/>
-      <index  column="pathIdx"/>
-      <composite-element class="ViaElement"/>
-    </list>
+    <property name="groupKey" type="string"/>
   </class>
 
   <query name="GrouperAttribute.by.extension"><![CDATA[

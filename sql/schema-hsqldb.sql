@@ -109,18 +109,14 @@ CREATE TABLE grouper_type (
 DROP TABLE grouper_viaElement IF EXISTS;
 CREATE  TABLE grouper_viaElement (
   pathKey       VARCHAR(64) NOT NULL,
-  pathIdx       INTEGER NOT NULL,
+  pathIdx       BIGINT NOT NULL,
   groupKey      VARCHAR(64) NOT NULL,
   CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
 );
+
 -- TODO Are these the right indices for this table?
 CREATE  INDEX gve_pk ON grouper_viaElement (pathKey);
 CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
-
-DROP TABLE grouper_viaPath IF EXISTS;
-CREATE  TABLE grouper_viaPath (
-  pathKey       VARCHAR(64) NOT NULL PRIMARY KEY
-);
 
 COMMIT;
 

@@ -2,6 +2,7 @@ define(`_DROP_TABLE',dnl
 ifdef(`ORACLE', `DROP TABLE $1;', `DROP TABLE $1 IF EXISTS;')dnl
 )dnl
 define(`_TYPE_INT',         `INTEGER')dnl
+define(`_TYPE_LONG',        `BIGINT')dnl
 define(`_TYPE_STRING',      `_TYPE_STRING_VAR(64)')dnl
 define(`_TYPE_STRING_VAR',dnl
 ifdef(`ORACLE', `VARCHAR2($1)', `VARCHAR($1)')dnl
@@ -119,18 +120,14 @@ CREATE TABLE grouper_type (
 _DROP_TABLE(`grouper_viaElement')
 CREATE  TABLE grouper_viaElement (
   pathKey       _TYPE_UUID() NOT NULL,
-  pathIdx       _TYPE_INT() NOT NULL,
+  pathIdx       _TYPE_LONG() NOT NULL,
   groupKey      _TYPE_UUID() NOT NULL,
   CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
 );
+
 -- TODO Are these the right indices for this table?
 CREATE  INDEX gve_pk ON grouper_viaElement (pathKey);
 CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
-
-_DROP_TABLE(`grouper_viaPath')
-CREATE  TABLE grouper_viaPath (
-  pathKey       _TYPE_UUID() NOT NULL PRIMARY KEY
-);
 
 COMMIT;
 
