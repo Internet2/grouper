@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
@@ -61,7 +62,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.7 2005-03-20 00:03:39 blair Exp $
+ * @version $Id: DbSess.java,v 1.8 2005-03-29 20:30:56 blair Exp $
  */
 public class DbSess {
 
@@ -93,8 +94,8 @@ public class DbSess {
    * Create a Hibernate database session.
    */
   public DbSess() {
-    _configuration();
-    _sessionFactory();
+    getConfiguration();
+    getSessionFactory();
     try {
       this.session = factory.openSession();
       this.txCnt = 0;
@@ -110,7 +111,7 @@ public class DbSess {
    * PUBLIC INSTANCE METHODS 
    */
 
-  /**
+  /*
    * Stop a Hibernate database session.
    */
   public void stop() {
@@ -123,6 +124,9 @@ public class DbSess {
     }
   }
 
+  /*
+   * Start a Hibernate database session.
+   */
   public void txStart() {
     if (this.txCnt == 0) {
       try {
@@ -133,6 +137,10 @@ public class DbSess {
     }
     this.txCnt++;
   }
+
+  /*
+   * Perform a Hibernate commit.
+   */
   public void txCommit() {
     this.txCnt--;
     if (this.txCnt == 0) {
@@ -146,6 +154,10 @@ public class DbSess {
       }
     }
   }
+
+  /*
+   * Perform a Hibernate rollback.
+   */
   public void txRollback() {
     try {
       this.tx.rollback();
@@ -156,12 +168,13 @@ public class DbSess {
                 );
     }
   }
-  
+ 
+ 
   /*
    * PROTECTED INSTANCE METHODS
    */
 
-  /**
+  /*
    * Return the Hibernate session object.
    */
   public net.sf.hibernate.Session session() {
@@ -176,7 +189,7 @@ public class DbSess {
   /*
    * Load Hibernate mapping configuration
    */
-  private static void _configuration() {
+  private static void getConfiguration() {
     if (cfg == null) {
       InputStream in = Session.class
                          .getResourceAsStream("/" + CF_HIBERNATE);
@@ -195,7 +208,7 @@ public class DbSess {
   /*
    * Create the Hibernate session factory
    */
-  private static void _sessionFactory() {
+  private static void getSessionFactory() {
     if (factory == null) {
       try {
         factory = cfg.buildSessionFactory();

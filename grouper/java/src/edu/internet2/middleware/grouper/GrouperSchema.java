@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -64,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.24 2005-03-25 03:00:39 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.25 2005-03-29 20:30:56 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
