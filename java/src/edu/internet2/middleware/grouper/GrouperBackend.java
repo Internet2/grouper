@@ -28,7 +28,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.3 2004-09-19 05:11:10 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.4 2004-09-19 17:10:31 blair Exp $
  */
 public class GrouperBackend {
 
@@ -340,6 +340,57 @@ public class GrouperBackend {
     return m;
   }
 
+  public static GrouperGroup group(GrouperSession s, String stem, String descriptor) {
+    GrouperBackend._init();
+
+    // TODO Please.  Make this better.  Please, please, please.
+    //      For whatever reason, SQL and quality code are evading
+    //      me this week.
+    List descs = GrouperBackend.descriptors(s, descriptor);
+    if (descs.size() > 0) {
+      // We found one or more potential descriptors.  Now look
+      // for matching stems.
+      List stems = GrouperBackend.stems(s, stem);
+      if (stems.size() > 0) {
+        // We have potential stems and potential descriptors.
+        // Now see if we have the *right* stem and the *right*
+        // descriptor.
+        for (Iterator iterDesc = descs.iterator(); iterDesc.hasNext();) {
+          GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
+          for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
+            GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
+            if (
+                descriptor.equals( possDesc.value() )   &&
+                stem.equals( possStem.value() )         &&
+                possDesc.key().equals( possStem.key() )
+               )
+            {
+              // We have found an appropriate stem and descriptor
+              // with matching keys.  We exist!
+
+              // Now query for the group with the appropriate key and
+              // return it.
+              try {
+                Query q = session.createQuery(
+                  "SELECT ALL FROM GROUPER_MEMBER " +
+                  "IN CLASS edu.internet2.middleware.grouper.GrouperMember " +
+                  "WHERE "                          +
+                  "groupKey='" + possDesc.key()     + "'"
+                );
+                if (q.list().size() == 1) {
+                  return (GrouperGroup) q.list().get(0);
+                }
+              } catch (Exception e) {
+                System.err.println(e);
+                System.exit(1);
+              }
+            }
+          }
+        }
+      }
+    }
+    return new GrouperGroup();
+  }
 
   /*
    * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
