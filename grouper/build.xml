@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.4 2004-08-06 15:19:51 blair Exp $ -->
+<!-- $Id: build.xml,v 1.5 2004-11-02 16:49:22 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -74,7 +74,7 @@
       <classpath refid="project.class.path" />
       <include name="**/*.java" />
     </javac>
-    </target>
+  </target>
 
   <target name="test-jar" depends="test-build">
     <jar jarfile="${dist}/lib/${app.name}-Test.jar" basedir="${build-test}" />
@@ -85,6 +85,36 @@
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.GrouperTest" />
       <classpath refid="project.class.path" />
+    </java>
+  </target>
+
+  <target name="db-init" 
+    description="Initialize HSQDBL database">
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="org.hsqldb.jdbcDriver"/>
+      <arg value="-url"/>
+      <arg value="jdbc:hsqldb:${build}/grouper"/>
+      <arg value="-user"/>
+      <arg value="sa"/>
+      <arg value="-script"/>
+      <arg value="sql/hsqldb.sql"/>
+    </java>
+  </target>
+
+  <target name="db-init-test" 
+    description="Populate HSQLDB database with some test data">
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="org.hsqldb.jdbcDriver"/>
+      <arg value="-url"/>
+      <arg value="jdbc:hsqldb:${build}/grouper"/>
+      <arg value="-user"/>
+      <arg value="sa"/>
+      <arg value="-script"/>
+      <arg value="sql/base.sql"/>
     </java>
   </target>
 
