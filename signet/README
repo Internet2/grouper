@@ -1,14 +1,28 @@
+Signet version 0.2 - March, 2005
+
+What's New
+----------
+
+Support for Limits.
+SubsystemXmlLoader utility to input a Subsystem definition via an XML document.
+SubsystemDestroyer utility for cleanup.
+
+
 Quick Start
 ------------------------
 
-(1) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server.
-(2) Execute the sample data SQL script (sql/subject.sql, sql/subsystem.sql, sql/tree.sql).
-(3) Create a "signet" web application context in your servlet container.
-(4) Point the web application context to the webapp/signet directory in this distribution.
-(5) Copy your JDBC driver to the webapp/signet/WEB-INF/lib directory
-(6) Set your database connection parameter (i.e. URL, username, password) in webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
-(7) Set your preferred hibernate logging level in webapp/signet/WEB-INF/classes/log4.properties.
-(8) Change the feedback href in webapp/signet/footer.jsp to point to your preferred email address.
+(1) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server to create the Signet database.
+(2) Create a "signet" web application context in your servlet container.
+(3) Point the web application context to the webapp/signet directory in this distribution.
+(4) Copy your JDBC driver to the webapp/signet/WEB-INF/lib directory
+(5) Set your database connection parameter (i.e. URL, username, password) in webapp/signet/WEB-INF/classes/hibernate.cfg.xml.
+(6) Set your preferred hibernate logging level in webapp/signet/WEB-INF/classes/log4.properties.
+(7) Change the feedback href in webapp/signet/footer.jsp to point to your preferred email address.
+
+To populate the Signet demo application with sample data:
+(1) Use the SubsystemXmlLoader to create the demo sample Subsystem by executing the util/loader/subsystem/run.sh script with sample demo/Subsystem.xml file.
+(2) Execute the sql/subject.sql script to load the sample person data.
+(3) Execute the sql/tree.sql script to load the sample organization tree data.
 
 
 License
