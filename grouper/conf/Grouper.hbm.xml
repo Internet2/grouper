@@ -32,18 +32,6 @@
     </property>
   </class>
 
-  <class name="GrouperMembership" table="grouper_list" mutable="true">
-    <composite-id access="field">
-      <key-property name="groupKey"   type="string" column="groupKey"/>
-      <key-property name="groupField" type="string" column="groupField"/>
-      <key-property name="memberKey"  type="string" column="memberKey"/>
-      <key-property name="via"        type="string" column="via"/>
-    </composite-id>
-    <property name="removeAfter">
-      <column name="removeAfter" length="255"/>
-    </property>
-  </class>
-
   <class name="GrouperGroup" table="grouper_group" mutable="true">
     <id name="groupKey" type="string">
       <column name="groupKey" sql-type="char(255)" not-null="true"/>
@@ -69,6 +57,18 @@
     </property>
     <property name="comment">
       <column name="comment" length="255"/>
+    </property>
+  </class>
+
+  <class name="GrouperList" table="grouper_list" mutable="true">
+    <composite-id access="field">
+      <key-property name="groupKey"   type="string" column="groupKey"/>
+      <key-property name="groupField" type="string" column="groupField"/>
+      <key-property name="memberKey"  type="string" column="memberKey"/>
+      <key-property name="via"        type="string" column="via"/>
+    </composite-id>
+    <property name="removeAfter">
+      <column name="removeAfter" length="255"/>
     </property>
   </class>
 

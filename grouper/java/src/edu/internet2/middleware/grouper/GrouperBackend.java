@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.60 2004-11-23 18:51:50 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.61 2004-11-23 19:28:47 blair Exp $
  */
 public class GrouperBackend {
 
@@ -317,8 +317,8 @@ public class GrouperBackend {
                                     );
           Iterator immsIter = imms.iterator();
           while(immsIter.hasNext()) {
-            GrouperMembership mship = (GrouperMembership) immsIter.next();
-            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
+            GrouperList   gl  = (GrouperList) immsIter.next();
+            GrouperMember mem = GrouperBackend._member( gl.memberKey() );
             GrouperBackend._listAddVal(
                                        session, via.group(),
                                        mem, list, memberOfBase
@@ -394,8 +394,8 @@ public class GrouperBackend {
                                     );
           Iterator immsIter = imms.iterator();
           while(immsIter.hasNext()) {
-            GrouperMembership mship = (GrouperMembership) immsIter.next();
-            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
+            GrouperList   gl  = (GrouperList) immsIter.next();
+            GrouperMember mem = GrouperBackend._member( gl.memberKey() );
             GrouperBackend._listDelVal(
                                        session, via.group(),
                                        mem, list, memberOfBase
@@ -1008,12 +1008,10 @@ public class GrouperBackend {
     return null;
   }
 
-  private static GrouperMembership _listVal(
-                                            GrouperGroup g,
-                                            GrouperMember m,
-                                            String list,
-                                            GrouperGroup via
-                                           )
+  private static GrouperList _listVal(
+                                      GrouperGroup g, GrouperMember m,
+                                      String list, GrouperGroup via
+                                     )
   {
     /*
      * While most private class methods take a Session as an argument,
@@ -1021,34 +1019,34 @@ public class GrouperBackend {
      * non-uniqueness issues.
      */
     // TODO Refactor overlap with ._listValExist()
-    // TODO Have GrouperMembership call this and its kin?
-    Session           session = GrouperBackend._init();
-    GrouperMembership mship   = null;
-    String            via_txt = null;
+    // TODO Have GrouperList call this and its kin?
+    Session     session = GrouperBackend._init();
+    GrouperList gl      = null;
+    String      via_txt = null;
     if (via != null) {
       via_txt = "'" + via.key() + "'";
     }
     try {
       Query q = session.createQuery(
-        "FROM GrouperMembership AS mem"         +
-        " WHERE "                               +
-        "mem.id.groupKey='"   + g.key() + "'"   +
-        " AND "                                 +
-        "mem.id.memberKey='"  + m.key() + "'"   +
-        " AND "                                 +
-        "mem.groupField='"    + list    + "'"   +
-        " AND "                                 +
-        "mem.via=" + via_txt
+        "FROM GrouperList AS gl"              +
+        " WHERE "                             +
+        "gl.id.groupKey='"   + g.key() + "'"  +
+        " AND "                               +
+        "gl.id.memberKey='"  + m.key() + "'"  +
+        " AND "                               +
+        "gl.groupField='"    + list    + "'"  +
+        " AND "                               +
+        "gl.via=" + via_txt
       );   
       if (q.list().size() == 1) {
-        mship = (GrouperMembership) q.list().get(0);
+        gl = (GrouperList) q.list().get(0);
       } 
     } catch (HibernateException e) {
       System.err.println(e);
       System.exit(1);
     }
     GrouperBackend._hibernateSessionClose(session);
-    return mship;
+    return gl;
   }
 
   private static void _listAddVal(
@@ -1071,11 +1069,11 @@ public class GrouperBackend {
     // Confirm that list data doesn't already exist
     if (GrouperBackend._listValExist(g, m, list, via) == false) {
       // XXX System.err.println("_lISTADDVAL VALUES DO NOT EXIST");
-      // Instantiate the GrouperMembership object
-      GrouperMembership mship = new GrouperMembership(g, m, list, via);
+      // Instantiate the GrouperList object
+      GrouperList gl = new GrouperList(g, m, list, via);
       // Save it
       try {
-        session.save(mship);
+        session.save(gl);
       } catch (HibernateException e) {
         System.err.println(e);
         System.exit(1);
@@ -1109,10 +1107,10 @@ public class GrouperBackend {
 
     // Confirm that the data exists
     if (GrouperBackend._listValExist(g, m, list, via) == true) {
-      GrouperMembership mship = GrouperBackend._listVal(g, m, list, via);
+      GrouperList gl = GrouperBackend._listVal(g, m, list, via);
       try {
         // Delete it
-        session.delete(mship); 
+        session.delete(gl); 
         session.flush(); // XXX
       } catch (HibernateException e) {
         System.err.println(e);
@@ -1144,15 +1142,15 @@ public class GrouperBackend {
     }
     try {
       Query q = session.createQuery(
-        "FROM GrouperMembership AS mem"         +
-        " WHERE "                               +
-        "mem.id.groupKey='"   + g.key() + "'"   +
-        " AND "                                 +
-        "mem.id.memberKey='"  + m.key() + "'"   +
-        " AND "                                 +
-        "mem.groupField='"    + list    + "'"   +
-        " AND "                                 +
-        "mem.via=" + via_txt
+        "FROM GrouperList AS gl"              +
+        " WHERE "                             +
+        "gl.id.groupKey='"   + g.key() + "'"  +
+        " AND "                               +
+        "gl.id.memberKey='"  + m.key() + "'"  +
+        " AND "                               +
+        "gl.groupField='"    + list    + "'"  +
+        " AND "                               +
+        "gl.via=" + via_txt
       );   
       if (q.list().size() == 1) {
         rv = true;
@@ -1174,18 +1172,18 @@ public class GrouperBackend {
       String via_txt = "";
       if (via != null) {
         if        ( via.equals("effective") ) {
-          via_txt = " AND mem.via IS NOT NULL";
+          via_txt = " AND gl.via IS NOT NULL";
         } else if ( via.equals("immediate") ) {
-          via_txt = " AND mem.via IS NULL";
+          via_txt = " AND gl.via IS NULL";
         } // TODO else ...
       }
       // Query away!
       Query q = session.createQuery(
-        "FROM GrouperMembership AS mem"         +
-        " WHERE "                               +
-        "mem.memberKey='"     + m.key() + "'"   +
-        " AND "                                 +
-        "mem.groupField='"    + list    + "'"   +
+        "FROM GrouperList AS gl"              +
+        " WHERE "                             +
+        "gl.memberKey='"     + m.key() + "'"  +
+        " AND "                               +
+        "gl.groupField='"    + list    + "'"  +
         via_txt
       );   
       // XXX System.err.println("QUERY " + q.getQueryString());
@@ -1199,41 +1197,41 @@ public class GrouperBackend {
   }
   // TODO REFACTOR!          
   private static List _listVals(Session session, GrouperGroup g, String list, String via) {
-    List members = new ArrayList();
+    List vals = new ArrayList();
     try {
       // Well isn't this an ugly hack...
       String via_txt = "";
       if (via != null) {
         if        ( via.equals("effective") ) {
-          via_txt = " AND mem.via IS NOT NULL";
+          via_txt = " AND gl.via IS NOT NULL";
         } else if ( via.equals("immediate") ) {
-          via_txt = " AND mem.via IS NULL";
+          via_txt = " AND gl.via IS NULL";
         } // TODO else ...
       }
       // Query away!
       Query q = session.createQuery(
-        "FROM GrouperMembership AS mem"         +
-        " WHERE "                               +
-        "mem.groupKey='"      + g.key() + "'"   +
-        " AND "                                 +
-        "mem.groupField='"    + list    + "'"   +
+        "FROM GrouperList AS gl"              +
+        " WHERE "                             +
+        "gl.groupKey='"      + g.key() + "'"  +
+        " AND "                               +
+        "gl.groupField='"    + list    + "'"  +
         via_txt
       );   
       // XXX System.err.println("QUERY " + q.getQueryString());
       // TODO Behave different depending upon the size?
-      members = q.list();
+      vals = q.list();
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
     }
-    return members;
+    return vals;
   }
   // TODO REFACTOR!          
   private static List _listVals(Session session, GrouperGroup g, GrouperMember m, String list, String via) {
     List vals = new ArrayList();
     try {
       // Well isn't this an ugly hack...
-      String list_txt = " AND mem.groupField";
+      String list_txt = " AND gl.groupField";
       if (list == null) {
         list_txt = list_txt + " IS NOT NULL";
       } else {
@@ -1242,19 +1240,19 @@ public class GrouperBackend {
       String via_txt  = "";
       if (via != null) {
         if        ( via.equals("effective") ) {
-          via_txt = " AND mem.via IS NOT NULL";
+          via_txt = " AND gl.via IS NOT NULL";
         } else if ( via.equals("immediate") ) {
-          via_txt = " AND mem.via IS NULL";
+          via_txt = " AND gl.via IS NULL";
         } // TODO else ...
       }
       // Query away!
       Query q = session.createQuery(
-        "FROM GrouperMembership AS mem"         +
-        " WHERE "                               +
-        "mem.groupKey='"      + g.key() + "'"   +
-        " AND "                                 +
-        "mem.memberKey='"     + m.key() + "'"   +
-        list_txt                                +
+        "FROM GrouperList AS gl"              +
+        " WHERE "                             +
+        "gl.groupKey='"      + g.key() + "'"  +
+        " AND "                               +
+        "gl.memberKey='"     + m.key() + "'"  +
+        list_txt                              +
         via_txt
       );   
       System.err.println("QUERY " + q.getQueryString());
@@ -1344,7 +1342,7 @@ public class GrouperBackend {
    * TODO
    */
   private static Set _memberOfQuery(Session session, GrouperGroup g, String list) {
-    List  members = new ArrayList();
+    List  vals    = new ArrayList();
     Set   groups  = new HashSet();
     // TODO Better validation efforts, please.
     // TODO Refactor validation to a method?
@@ -1360,19 +1358,19 @@ public class GrouperBackend {
         // TODO Or should I just cheat and go straight to the GB method?
         GrouperMember m = GrouperMember.lookup( g.key(), "group" );
         Query q = session.createQuery(
-          "FROM GrouperMembership AS mem"         +
-          " WHERE "                               +
-          "mem.id.memberKey='"  + m.key() + "'"   +
-          " AND "                                 +
-          "mem.groupField='"    + list    + "'"   +
-          " AND "                                 +
-          "mem.via=null"      
+          "FROM GrouperList AS gl"              +
+          " WHERE "                             +
+          "gl.id.memberKey='"  + m.key() + "'"  +
+          " AND "                               +
+          "gl.groupField='"    + list    + "'"  +
+          " AND "                               +
+          "gl.via=null"      
         );   
-        members = q.list();
-        Iterator iter = members.iterator();
+        vals = q.list();
+        Iterator iter = vals.iterator();
         while (iter.hasNext()) {
-          GrouperMembership mship = (GrouperMembership) iter.next();
-          GrouperGroup      grp   = GrouperBackend._groupLoad( mship.groupKey() );
+          GrouperList   gl  = (GrouperList) iter.next();
+          GrouperGroup  grp = GrouperBackend._groupLoad( gl.groupKey() );
           groups.add(grp);
         }
       } catch (Exception e) {

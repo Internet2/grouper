@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.83 2004-11-23 18:38:22 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.84 2004-11-23 19:28:47 blair Exp $
  */
 public class GrouperGroup {
 
@@ -243,7 +243,7 @@ public class GrouperGroup {
    * <p />
    *
    * @param   s     Return list data within this session context.
-   * @return  List of effective {@link GrouperMembership} objects.
+   * @return  List of effective {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s) {
     return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
@@ -256,7 +256,7 @@ public class GrouperGroup {
    *
    * @param   s     Return list data within this session context.
    * @param   list  Return this list type.
-   * @return  List of effective {@link GrouperMembership} objects.
+   * @return  List of effective {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s, String list) {
     return GrouperBackend.listVals(s, this, list);
@@ -268,7 +268,7 @@ public class GrouperGroup {
    * <p />
    *
    * @param   s     Return list data within this session context.
-   * @return  List of effective {@link GrouperMembership} objects.
+   * @return  List of effective {@link GrouperList} objects.
    */
   public List listEffVals(GrouperSession s) {
     return GrouperBackend.listEffVals(s, this, Grouper.DEF_LIST_TYPE);
@@ -281,7 +281,7 @@ public class GrouperGroup {
    *
    * @param   s     Return list data within this session context.
    * @param   list  Return this list type.
-   * @return  List of effective {@link GrouperMembership} objects.
+   * @return  List of effective {@link GrouperList} objects.
    */
   public List listEffVals(GrouperSession s, String list) {
     return GrouperBackend.listEffVals(s, this, list);
@@ -293,7 +293,7 @@ public class GrouperGroup {
    * <p />
    *
    * @param   s     Return list data within this session context.
-   * @return  List of effective {@link GrouperMembership} objects.
+   * @return  List of effective {@link GrouperList} objects.
    */
   public List listImmVals(GrouperSession s) {
     return GrouperBackend.listImmVals(s, this, Grouper.DEF_LIST_TYPE);
@@ -306,7 +306,7 @@ public class GrouperGroup {
    *
    * @param   s     Return list data within this session context.
    * @param   list  Return this list type.
-   * @return  List of effective {@link GrouperMembership} objects.
+   * @return  List of effective {@link GrouperList} objects.
    */
   public List listImmVals(GrouperSession s, String list) {
     return GrouperBackend.listImmVals(s, this, list);
