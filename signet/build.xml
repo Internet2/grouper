@@ -17,6 +17,8 @@
 	<property name="data.dir" value="data"/>
 	<property name="config.dir" value="config"/>
 	
+	<property name="dist.dir" value="dist"/>
+	
 	<!-- Set up the class path for compilation and execution -->
 	<path id="project.class.path">
 		<!-- Include our own classes, of course -->
@@ -135,106 +137,38 @@ against the database file--use when application is not running">
 			sourcepath="src"
 			classpath="classes" /> 
 	</target>
-	
 
-	<!-- =================== WEBAPP BUILD TASKS  =========================== -->
-	<property name="webapp.name"     value="signet" />
-	<property name="webapp.build"    value="build" />
-	<property name="webapp.dist"    value="dist" />
-
-	<!-- =================== BUILD: Create Directories ===================== --> 
-	<target name="build-prepare">
-		<mkdir dir="${webapp.build}" /> 
-		<mkdir dir="${webapp.build}/${webapp.name}" /> 
-		<mkdir dir="${webapp.build}/${webapp.name}/WEB-INF" /> 
-		<mkdir dir="${webapp.build}/${webapp.name}/WEB-INF/classes" /> 
-		<mkdir dir="${webapp.build}/${webapp.name}/WEB-INF/lib" /> 
-	</target>
-
-	<!-- ================ BUILD: Copy JSPs and Static Files ================ --> 
-	<target name="build-web" depends="build-prepare">
-		<copy todir="${webapp.build}/${webapp.name}">
-			<fileset dir="web">
-			<include name="**/*" /> 
-			</fileset>
-		</copy>
-	</target>
-
-	<!-- ================ BUILD: Copy config files ========================= --> 
-	<target name="build-config" depends="build-prepare">
-		<!-- Webapp deployment descriptor file -->
-		<copy file="config/web.xml"
-			todir="${webapp.build}/${webapp.name}/WEB-INF" />
-		<!-- Struts config and tag library descriptors -->
-		<copy todir="${webapp.build}/${webapp.name}/WEB-INF">
-			<fileset dir="config">
-			<include name="**/struts-*.xml" />
-			<include name="**/struts-*.tld" />
+	<target name="create-dist" depends="compile">
+		<delete dir="${dist.dir}" />
+		<copy todir="${dist.dir}">
+			<fileset dir=".">
+			<include name="README" />
+			<include name="LICENSE" />
 			</fileset>
 		</copy>
 		
-		<!-- Hibernate config and descriptors already handled by the compile task
-		<copy file="config/hibernate.cfg.xml"
-			todir="${webapp.build}/${webapp.name}/WEB-INF/classes" />
-		<copy file="config/log4j.properties"
-			todir="${webapp.build}/${webapp.name}/WEB-INF/classes" />
-		-->
-	</target>
-
-	<!-- ================= BUILD: Rebuild Webapp ========================== -->
-	<target name="build-webapp" depends="compile, build-clean, build-web, build-config"
-		description="Clean and build Signet web app">
-		<copy todir="${webapp.build}/${webapp.name}/WEB-INF/classes">
-			<fileset dir="classes">
-			<include name="**/*" /> 
-			</fileset>
-		</copy>
-		<copy todir="${webapp.build}/${webapp.name}/WEB-INF/lib">
-			<fileset dir="lib">
-			<include name="**/*" /> 
-			<exclude name="**/servlet-api.jar" />
-			</fileset>
-		</copy>
-	</target>
-	
-	<!-- ================== BUILD: Clean Directory ========================= --> 
-	<target name="build-clean">
-		<delete dir="${webapp.build}/${webapp.name}" />
-	</target>
-
-
-	<!-- ================= BUILD: Rebuild Distribution======================= -->
-	<target name="build-dist" depends="build-webapp"
-		description="Creates Signet web app distribution">
-		<delete dir="${webapp.dist}" />
-		<mkdir dir="${webapp.dist}/webapp" />
-		<copy todir="${webapp.dist}/webapp">
-			<fileset dir="build">
-			<include name="**/*" />
-			</fileset>
-		</copy>
-		<copy todir="${webapp.dist}">
-			<fileset dir="doc">
-			<include name="**/readme.txt" />
-			<include name="**/license.txt" />
-			</fileset>
-		</copy>
-		<copy todir="${webapp.dist}/sql">
+		<copy todir="${dist.dir}/sql">
 			<fileset dir="sql">
 			<include name="**/*" />
 			</fileset>
 		</copy>
 
-	</target>
-
-	<target name="create-dist" depends="build-dist">
+		<copy todir="${dist.dir}/demo">
+			<fileset dir="demo">
+			<include name="**/*" />
+			</fileset>
+		</copy>
+		
+		<ant dir="web" target="build" inheritAll="false" />
+		<ant dir="util" target="build" inheritAll="false" />
+		
 		<zip destfile="${zipfile}">
-			<fileset dir="${webapp.dist}">
+			<fileset dir="${dist.dir}">
 			<include name="**/*" />
 			</fileset>
 		</zip>
 		<tar destfile="${tarfile}">
-			<tarfileset dir="${webapp.dist}">
+			<tarfileset dir="${dist.dir}">
 			<include name="**/*" />
 			</tarfileset>
 		</tar>
@@ -243,7 +177,7 @@ against the database file--use when application is not running">
 	</target>
 
 
-	<target name="config-webapp" depends="build-webapp"
+	<target name="config-webapp"
 		description="Sets database parameter and mailto href">
 		<copy file="config/hibernate.cfg.xml"
 			todir="${webapp.build}/${webapp.name}/WEB-INF/classes">
