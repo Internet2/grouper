@@ -84,8 +84,8 @@ public class TestGroupsMoF extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0  = GrouperGroup.create(
@@ -130,8 +130,8 @@ public class TestGroupsMoF extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0  = GrouperGroup.create(
@@ -176,8 +176,8 @@ public class TestGroupsMoF extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0  = GrouperGroup.create(

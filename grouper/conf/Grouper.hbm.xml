@@ -181,7 +181,7 @@
   ]]></query>
 
   <query name="Group.key.by.id"><![CDATA[
-    select g.groupId from Group g where g.groupID = ?
+    select g.groupKey from Group g where g.groupID = ?
   ]]></query>
 
   <query name="Group.by.modified.after"><![CDATA[
