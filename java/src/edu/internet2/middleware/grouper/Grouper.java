@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.31 2004-09-19 01:04:05 blair Exp $
+ * @version $Id: Grouper.java,v 1.32 2004-09-20 00:13:47 blair Exp $
  */
 public class Grouper {
 
@@ -105,6 +105,48 @@ public class Grouper {
   /*
    * XXX All of the below is utter madness.  Make sense of it.
    */
+
+  /**
+   * Confirm whether a given group field is valid for a given group
+   * type.
+   * <p>
+   *
+   * @return  Boolean true if {@link GroupField} is valid for the given
+   * {@link GroupType}, false otherwise.
+   */
+  public boolean groupField(String type, String field) {
+    List typeDefs = this.groupTypeDefs();
+    for (Iterator iter = typeDefs.iterator(); iter.hasNext();) {
+      GrouperTypeDef td = (GrouperTypeDef) iter.next();
+      if ( 
+          (td.groupType().equals(type)) && // If the group type matches
+          (td.groupField().equals(field))  // .. and the group field matches
+         )
+      {
+        // Then we are considered validated.
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Confirm validity of a group type.
+   * <p>
+   *
+   * @return  Boolean true if {@link GroupType} is valid, false
+   * otherwise.
+   */
+  public boolean groupType(String type) {
+    List types = this.groupTypes();
+    for (Iterator iter = types.iterator(); iter.hasNext();) {
+      GrouperType t = (GrouperType) iter.next();
+      if ( t.toString().equals(type) ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /**
    * Valid group fields.

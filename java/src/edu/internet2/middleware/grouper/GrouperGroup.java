@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.43 2004-09-19 23:48:54 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.44 2004-09-20 00:13:47 blair Exp $
  */
 public class GrouperGroup {
 
@@ -41,8 +41,9 @@ public class GrouperGroup {
   // Grouper attributes (fields)
   private Map  attributes;
 
+  private Grouper         _G;
   // Grouper Session
-  private GrouperSession grprSession;
+  private GrouperSession  grprSession;
 
   // Does the group exist?
   private boolean  exists;
@@ -62,6 +63,7 @@ public class GrouperGroup {
     groupKey      = null;
     groupType     = "base"; // TODO Don't hardcode this
     grprSession   = null;
+    _G            = null;
     modifyTime    = null;
     modifySubject = null;
     modifySource  = null;
@@ -86,7 +88,8 @@ public class GrouperGroup {
    * Create a {@link Grouper} group.
    */ 
   public boolean create(GrouperSession s) {
-    this.grprSession = s;
+    this.grprSession  = s;
+    this._G           = s.env();
   //public static GrouperGroup create(GrouperSession, String stem,
   //                                  String descriptor)
   //{
@@ -104,16 +107,16 @@ public class GrouperGroup {
 
     // Verify that we have everything we need to create a group
     // and that this subject is privileged to create this group.
-    if (this._validateCreate()) {
+    // BDC if (this._validateCreate()) {
       // And now attempt to add the group to the store
       // FIXME 
       this.groupType = "base";
       GrouperBackend.addGroup(this.grprSession, this);
       this.exists = true;
       return true;
-    }
-    System.err.println("Invalid group type: " + this.groupType);
-    return false;
+    // BDC }
+    // BDC System.err.println("Invalid group type: " + this.groupType);
+    // BDC return false;
   }
 
   /**
@@ -212,9 +215,11 @@ public class GrouperGroup {
     boolean rv = false;
     if (this.groupType != null) { // FIXME I can do better than this.
       // We have a group type.  Now what?
-      if (grprSession.groupField(this.groupType, attribute) == true) {
-        // Our attribute passes muster.
-        rv = true;
+      if (this._G != null) {
+        if (this._G.groupField(this.groupType, attribute) == true) {
+          // Our attribute passes muster.
+          rv = true;
+        }
       }
     } else {
       // We don't know the group type so we can't validate.  Shrug our
@@ -254,7 +259,7 @@ public class GrouperGroup {
   private boolean _validateCreate() {
     if (
         // Do we have a valid group type?
-        (grprSession.groupType(this.groupType) == true) &&
+        (this._G.groupType(this.groupType) == true) &&
         // And a stem?
         (attributes.containsKey("stem")) &&
         // And a descriptor?
