@@ -14,83 +14,13 @@
 		</composite-id>
 		
 		<timestamp name="modifyDatetime"/>
-		
-		<!-- many TreeNodes to one Tree -->
-<!--
-		<many-to-one
-			name="tree"
-			class="edu.internet2.middleware.signet.TreeImpl"
-			not-null="true"
-			insert="false"
-			update="false">
-			
-			<column name="treeID" />
-		</many-to-one>
--->
 
 		<property
 			name="status"
 			type="edu.internet2.middleware.signet.StatusType"
 			not-null="true" />
 		<property name="name" type="string" not-null="true"/>
-<!--
-		<property name="type" type="string" not-null="false"/>
--->
-			
-		<!-- Each tree-node has a set of parent-nodes. -->
-<!--
-		<set
-			name="parents"
-			table="TreeNodeRelationship"
-			cascade="save-update" >
-			<key>
-				<column name=""></column>
-			</key>
-			<many-to-many class="edu.internet2.middleware.signet.TreeNodeImpl" column="parentNodeID"/>
--->
 		
-<!--
-		<set
-			name="parents">
--->
-			<!-- Each tree-node in this set is unique when three
-				 elements are examined: tree-ID, node-ID. and
-				 parent-ID.
-			-->	
-<!--
-			<key>
-				<column name="treeID" />
-				<column name="nodeID" />
-				<column name="parentNodeID" />
-			</key>
--->
-			<!-- Each of a tree-node's parents is also a tree-node.
-			-->
-<!--
-			<one-to-many
-				class="edu.internet2.middleware.signet.TreeNodeRelationship" />
-		</set>
--->			
-<!--
-		<set
-			name="children">
--->
-			
-			<!-- Each child-node is identified in the
-				 TreeNodeRelationship table by its tree-ID and
-				 parent-node-ID.
-			-->
-<!--
-			<key>
-				<column name="treeID" />
-				<column name="parentNodeID" />
-			</key>
-
-			<many-to-many
-				class="edu.internet2.middleware.signet.TreeNodeRelationship" />
-		</set>
--->
-	
 		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>

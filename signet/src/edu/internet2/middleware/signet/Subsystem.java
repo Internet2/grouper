@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Subsystem.java,v 1.3 2005-01-21 20:30:47 acohen Exp $
+$Date: 2005-01-21 20:30:47 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,8 +8,10 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.tree.Tree;
 
 
@@ -94,4 +96,22 @@ extends HelpText, Entity, Name, Comparable
    * @param category
    */
   public void add(Category category);
+  
+  /**
+   * Get the ChoiceSets currently associated with this Subsystem.
+   * @param choiceSetId
+   * 
+   * @return a Map of the ChoiceSets, indexed by choiceSetId.
+   */
+  public Map getChoiceSets();
+  
+  /**
+   * Gets a single ChoiceSet associated with this Subsystem by its ID.
+   * @param choiceSetId
+   * @return the specified ChoiceSet
+   * 
+   * @throws ObjectNotFoundException
+   */
+  public ChoiceSet getChoiceSet(String id)
+  throws ObjectNotFoundException;
 }

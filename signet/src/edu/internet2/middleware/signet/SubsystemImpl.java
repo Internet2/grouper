@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.4 2005-01-12 17:28:05 acohen Exp $
- $Date: 2005-01-12 17:28:05 $
+ $Id: SubsystemImpl.java,v 1.5 2005-01-21 20:30:47 acohen Exp $
+ $Date: 2005-01-21 20:30:47 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -15,10 +15,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.hibernate.HibernateException;
+
+import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.tree.Tree;
 
 /* Hibernate requires this class to be non-final. */
@@ -28,17 +32,17 @@ class SubsystemImpl
 	implements Subsystem
 {
   private String  helpText;
-
+  
   private Set     categories;
-
   private Set     functions;
-
   private Set     permissions;
 
+  private Map			choiceSets;
+  private Map     functionsMap;
+  
   private Tree    tree;
 
-  private Map     functionsMap;
-
+  private boolean choiceSetsNotYetFetched = true;
   private boolean functionsNotYetFetched = true;
 
   /**
@@ -52,6 +56,7 @@ class SubsystemImpl
     this.functions = new HashSet();
     this.permissions = new HashSet();
 
+    this.choiceSets = new HashMap();
     this.functionsMap = new HashMap();
   }
 
@@ -77,6 +82,7 @@ class SubsystemImpl
     this.functions = new HashSet();
     this.permissions = new HashSet();
 
+    this.choiceSets = new HashMap();
     this.functionsMap = buildMap(this.functions);
   }
 
@@ -217,6 +223,57 @@ class SubsystemImpl
 
     return resultSet;
   }
+  
+  public ChoiceSet getChoiceSet(String id)
+  throws ObjectNotFoundException
+  {
+    // First, make sure that the ChoiceSets have been fetched from
+    // the database.
+    Map choiceSets = this.getChoiceSets();
+    
+    ChoiceSet choiceSet = (ChoiceSet)(choiceSets.get(id));
+    
+    if (choiceSet == null)
+    {
+      throw new ObjectNotFoundException
+      	("The Subsystem with ID '"
+      	 + this.getId()
+      	 + "' does not contain a ChoiceSet with ID '"
+      	 + id
+      	 + "'.");
+    }
+    
+    return choiceSet;
+  }
+
+  /**
+   * @return Returns the ChoiceSets associated with this Subsystem.
+   * @throws ObjectNotFoundException
+   */
+  public Map getChoiceSets()
+  {
+    // I really want to handle this purely through Hibernate mappings, but
+    // I haven't figured out how yet.
+
+    if (this.choiceSetsNotYetFetched == true)
+    {
+      // We have not yet fetched the ChoiceSets associated with this
+      // Subsystem from the database. Let's make a copy of
+      // whatever in-memory ChoiceSets we DO have, because they
+      // represent defined-but-not-necessarily-yet-persisted
+      // ChoiceSets.
+      Map unsavedChoiceSets = this.choiceSets;
+
+      this.choiceSets
+      	= this.getSignet().getChoiceSetsBySubsystem(this);
+
+      this.choiceSets.putAll(unsavedChoiceSets);
+
+      this.choiceSetsNotYetFetched = false;
+    }
+    
+    return UnmodifiableMap.decorate(this.choiceSets);
+  }
 
   private Map buildMap(Set set)
   {
@@ -275,6 +332,11 @@ class SubsystemImpl
   {
     this.functions.add(function);
     this.functionsMap.put(function.getId(), function);
+  }
+  
+  void add(ChoiceSet choiceSet)
+  {
+    this.choiceSets.put(choiceSet.getId(), choiceSet);
   }
 
   /* (non-Javadoc)

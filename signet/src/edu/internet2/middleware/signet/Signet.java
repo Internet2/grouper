@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.7 2005-01-12 17:28:05 acohen Exp $
- $Date: 2005-01-12 17:28:05 $
+ $Id: Signet.java,v 1.8 2005-01-21 20:30:47 acohen Exp $
+ $Date: 2005-01-21 20:30:47 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -10,9 +10,11 @@ package edu.internet2.middleware.signet;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -22,6 +24,10 @@ import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.collections.list.UnmodifiableList;
 import org.apache.commons.collections.set.UnmodifiableSet;
+
+import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -45,17 +51,23 @@ import net.sf.hibernate.cfg.Configuration;
 public final class Signet
 {
   /**
-   * This constant denotes the default subject-type ID, as it is defined and
-   * used by Signet.
+   * This constant denotes the default subject-type ID, as it is
+   * defined and used by Signet.
    */
-  private static final String   DEFAULT_SUBJECT_TYPE_ID        = "signet";
+  private static final String   DEFAULT_SUBJECT_TYPE_ID
+  	= "signet";
 
-  // This constant should probably end up in some sort of Tree-specific
-  // presentation class adapter, and should probably be private when it
-  // moves there.
-  static final String           SCOPE_PART_DELIMITER           = ":";
+  // This constant should probably end up in some sort of
+  // Tree-specific presentation class adapter, and should probably
+  // be private when it moves there.
+  static final String           SCOPE_PART_DELIMITER
+  	= ":";
 
-  private static final String   DEFAULT_TREE_TYPE_ADAPTER_NAME = "edu.internet2.middleware.signet.TreeAdapterImpl";
+  private static final String   DEFAULT_TREE_ADAPTER_NAME
+  	= "edu.internet2.middleware.signet.TreeAdapterImpl";
+
+  private static final String		DEFAULT_CHOICE_SET_ADAPTER_NAME
+  	= "edu.internet2.middleware.signet.ChoiceSetAdapterImpl";
 
   /**
    * This constant denotes the "first name" attribute of a Subject, as it is
@@ -369,8 +381,10 @@ public final class Signet
    */
   public final Tree newTree(String treeId, String treeName)
   {
-    TreeAdapter defaultTreeAdapter = getTreeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
-    Tree newTree = new TreeImpl(this, defaultTreeAdapter, treeId, treeName);
+    TreeAdapter defaultTreeAdapter
+    	= getTreeAdapter(DEFAULT_TREE_ADAPTER_NAME);
+    Tree newTree
+    	= new TreeImpl(this, defaultTreeAdapter, treeId, treeName);
     return newTree;
   }
 
@@ -411,7 +425,8 @@ public final class Signet
    * @return
    * @throws ObjectNotFoundException
    */
-  public final Tree getTree(String id) throws ObjectNotFoundException
+  public final Tree getTree(String id)
+  throws ObjectNotFoundException
   {
     try
     {
@@ -419,7 +434,33 @@ public final class Signet
     }
     catch (net.sf.hibernate.ObjectNotFoundException onfe)
     {
-      throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+      throw new
+      	edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+  }
+
+  /**
+   * Gets a single ChoiceSet by ID.
+   * 
+   * @param id
+   * @return
+   * @throws ObjectNotFoundException
+   */
+  public final ChoiceSet getChoiceSet(String id)
+  throws ObjectNotFoundException
+  {
+    try
+    {
+      return (ChoiceSet) (session.load(ChoiceSetImpl.class, id));
+    }
+    catch (net.sf.hibernate.ObjectNotFoundException onfe)
+    {
+      throw new
+      	edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
     }
     catch (HibernateException e)
     {
@@ -743,6 +784,43 @@ public final class Signet
     return resultSet;
   }
 
+  // I really want to do away with this method, having the Subsystem
+  // pick up its associated ChoiceSets via Hibernate object-mapping.
+  // I just haven't figured out how to do that yet.
+  Map getChoiceSetsBySubsystem(Subsystem subsystem)
+  {
+    Query query;
+    List resultList;
+
+    try
+    {
+      query = session
+          .createQuery
+          	("from edu.internet2.middleware.signet.ChoiceSetImpl"
+             + " as choiceSet where subsystemID = :id");
+
+      query.setString("id", subsystem.getId());
+
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+
+    Map choiceSets = new HashMap(resultList.size());
+
+    Iterator resultListIterator = resultList.iterator();
+    while (resultListIterator.hasNext())
+    {
+      ChoiceSet choiceSet = (ChoiceSet)(resultListIterator.next());
+      ((ChoiceSetImpl)choiceSet).setSignet(this);
+      choiceSets.put(choiceSet.getId(), choiceSet);
+    }
+
+    return choiceSets;
+  }
+
   /**
    * Gets all Assignments in the Signet database. Should probably be changed to
    * return a type-safe Collection.
@@ -823,7 +901,7 @@ public final class Signet
   }
 
   /**
-   * commitd a Signet database transaction.
+   * commit a Signet database transaction.
    */
   public void commit()
   {
@@ -866,8 +944,9 @@ public final class Signet
     {
       session.close();
       session = null;
-      sessionFactory.close();
-      sessionFactory = null;
+
+      // We leave the SessionFactory open, in case the application
+      // wants to create a subsequent Signet object.
     }
     catch (HibernateException e)
     {
@@ -1300,7 +1379,7 @@ public final class Signet
       throws ObjectNotFoundException
   {
     TreeAdapter adapter = this
-        .getTreeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
+        .getTreeAdapter(DEFAULT_TREE_ADAPTER_NAME);
     return getTreeNode(adapter, treeId, treeNodeId);
   }
 
@@ -1359,6 +1438,134 @@ public final class Signet
   }
 
   /**
+   * This method loads the named ChoiceSetAdapter class, instantiates
+   * it using its parameterless constructor, and passes back the new
+   * instance.
+   * 
+   * @param adapterName The fully-qualified class-name of the
+   * 		ChoiceSetAdapter.
+   * @return the new ChoiceSetAdapter.
+   */
+  public ChoiceSetAdapter getChoiceSetAdapter(String adapterName)
+  {
+    ChoiceSetAdapter adapter
+    	= (ChoiceSetAdapter)
+    			(loadAndCheckAdapter
+    			    (adapterName, ChoiceSetAdapter.class, "ChoiceSet"));
+   
+    if (adapter instanceof ChoiceSetAdapterImpl)
+    {
+      ((ChoiceSetAdapterImpl) (adapter)).setSignet(this);
+    }
+    
+    return adapter;
+  }
+  
+  /**
+   * @param className
+   * @param requiredInterface
+   * @param adapterTargetName e,g. "Tree" or "Limit"
+   * @return
+   */
+  private Object loadAndCheckAdapter
+  	(String className,
+  	 Class 	requiredInterface,
+  	 String adapterTargetName)
+  {
+    Object adapter;
+    Class  actualClass = null;
+
+    try
+    {
+      actualClass = Class.forName(className);
+    }
+    catch (ClassNotFoundException cnfe)
+    {
+      throw new SignetRuntimeException
+         ("A "
+          + adapterTargetName
+          + " reference by Signet relies upon an adapter which"
+          + " is implemented by the class named '"
+          + className
+          + "'. This class cannot be found in Signet's classpath.",
+          cnfe);
+    }
+    
+    if (!classImplementsInterface(actualClass, requiredInterface))
+    {
+      throw new SignetRuntimeException
+      	("A "
+         + adapterTargetName
+         + " referenced by Signet relies upon an adapter which"
+         + " is implemented by the class named '"
+         + className
+         + "'. This class is in Signet's classpath, but it does not"
+         + " implement the required interface '"
+         + requiredInterface.getName()
+         + "'.");
+    }
+
+    Class[] noParams = new Class[0];
+    Constructor constructor;
+
+    try
+    {
+      constructor = actualClass.getConstructor(noParams);
+    }
+    catch (NoSuchMethodException nsme)
+    {
+      throw new SignetRuntimeException
+      ("A "
+       + adapterTargetName
+       + " referenced by Signet relies upon an adapter which"
+       + " is implemented by the class named '"
+       + className
+       + "'. This class is in Signet's classpath, but it does not"
+       + " provide a public, parameterless constructor.", nsme);
+    }
+
+    try
+    {
+      adapter = constructor.newInstance(noParams);
+    }
+    catch (Exception e)
+    {
+      throw new SignetRuntimeException(
+          "A Tree in the Signet database uses a TreeAdapter which"
+           + " is implemented by the class named '"
+           + className
+           + "'. This class is in Signet's classpath, and it does provide"
+           + " a public, parameterless constructor, but Signet did not succeed"
+           + " in invoking that constructor.", e);
+    }
+    
+    return adapter;
+  }
+
+  /**
+   * @param actualClass
+   * @param requiredInterface
+   * @return
+   */
+  private boolean classImplementsInterface
+  	(Class actualClass,
+  	 Class requiredInterface)
+  {
+    Class[] implementedInterfaces = actualClass.getInterfaces();
+    for (int i = 0; i < implementedInterfaces.length; i++)
+    {
+      if (implementedInterfaces[i].equals(requiredInterface))
+      {
+        return true;
+      }
+    }
+
+    // If we've gotten this far, the actualClass does not
+    // implement the requiredInterface.
+    return false;
+  }
+
+  /**
    * This method loads the named TreeAdapter class, instantiates it
    * using its parameterless constructor, and passes back the new
    * instance.
@@ -1369,52 +1576,10 @@ public final class Signet
    */
   public TreeAdapter getTreeAdapter(String adapterName)
   {
-    TreeAdapter adapter;
-    Class clazz = null;
-
-    try
-    {
-      clazz = Class.forName(adapterName);
-    }
-    catch (ClassNotFoundException cnfe)
-    {
-      throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeAdapter which"
-              + " is implemented by the class named '" + adapterName
-              + "'. This class cannot be found in Signet's classpath.", cnfe);
-    }
-
-    Class[] noParams = new Class[0];
-    Constructor constructor;
-
-    try
-    {
-      constructor = clazz.getConstructor(noParams);
-    }
-    catch (NoSuchMethodException nsme)
-    {
-      throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeAdapter which"
-              + " is implemented by the class named '"
-              + adapterName
-              + "'. This class is in Signet's classpath, but it does not provide"
-              + " a default, parameterless constructor.", nsme);
-    }
-
-    try
-    {
-      adapter = (TreeAdapter) (constructor.newInstance(noParams));
-    }
-    catch (Exception e)
-    {
-      throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeAdapter which"
-              + " is implemented by the class named '"
-              + adapterName
-              + "'. This class is in Signet's classpath, and it does provide"
-              + " a default, parameterless constructor, but Signet did not succeed"
-              + " in invoking that constructor.", e);
-    }
+    TreeAdapter adapter
+  		= (TreeAdapter)
+  				(loadAndCheckAdapter
+  			    (adapterName, TreeAdapter.class, "Tree"));
 
     if (adapter instanceof TreeAdapterImpl)
     {
@@ -1529,7 +1694,8 @@ public final class Signet
    * @param string
    * @return
    */
-  public Subsystem getSubsystem(String id) throws ObjectNotFoundException
+  public Subsystem getSubsystem(String id)
+  throws ObjectNotFoundException
   {
     SubsystemImpl subsystemImpl;
 
@@ -1943,10 +2109,11 @@ public final class Signet
    * Gets a single Assignment by ID.
    * 
    * @param assignmentId
-   * @return
+   * @return the fetched Assignment object
    * @throws ObjectNotFoundException
    */
-  public Assignment getAssignment(int id) throws ObjectNotFoundException
+  public Assignment getAssignment(int id)
+  throws ObjectNotFoundException
   {
     Assignment assignment;
 
@@ -1965,5 +2132,66 @@ public final class Signet
     }
 
     return assignment;
+  }
+
+ 
+
+  /**
+   * @param helptext
+   * @return
+   */
+  public Limit newLimit
+  	(String	   name,
+  	 ValueType valueType,
+  	 String limitId,
+  	 String limitType,
+  	 String limitTypeId,
+  	 String helpText)
+  {
+    Limit limit
+    	= new LimitImpl
+    			(name,
+    			 limitType,
+    			 limitId,
+    			 valueType,
+    			 limitTypeId,
+    			 helpText);
+    
+    return limit;
+  }
+
+  /**
+   * Creates a new ChoiceSet, using the default Signet
+   * ChoiceSetAdapter.
+   * 
+   * @param subsystem
+   * @param id
+   * @return the new ChoiceSet
+   */
+  public final ChoiceSet newChoiceSet
+  	(Subsystem	subsystem,
+  	 String			id)
+  {
+    ChoiceSetAdapter defaultChoiceSetAdapter
+    	= getChoiceSetAdapter(DEFAULT_CHOICE_SET_ADAPTER_NAME);
+    ChoiceSet newChoiceSet
+    	= new ChoiceSetImpl
+    			(this, subsystem, defaultChoiceSetAdapter, id);
+    
+    return newChoiceSet;
+  }
+
+  /**
+   * @return
+   */
+  public ChoiceSet newChoiceSet
+  	(Subsystem				subsystem,
+  	 ChoiceSetAdapter choiceSetAdapter,
+  	 String						id)
+  {
+    ChoiceSet choiceSet
+    	= new ChoiceSetImpl(this, subsystem, choiceSetAdapter, id);
+    
+    return choiceSet;
   }
 }

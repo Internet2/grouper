@@ -1,6 +1,6 @@
 /*--
- $Id: SubjectImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: SubjectImpl.java,v 1.4 2005-01-21 20:30:47 acohen Exp $
+ $Date: 2005-01-21 20:30:47 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -146,7 +146,7 @@ class SubjectImpl extends EntityImpl implements Subject
   /**
    * @return an array of values for a specific attribute name.
    */
-  public String[] getAttributeArray(String name)
+  public String[] getAttributeValues(String name)
   {
     List list = (List) (this.attributeLists.get(name));
     String[] valuesArray;

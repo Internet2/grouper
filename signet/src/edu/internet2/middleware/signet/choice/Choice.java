@@ -1,6 +1,6 @@
 /*--
-$Id: Choice.java,v 1.1 2005-01-12 23:49:24 mnguyen Exp $
-$Date: 2005-01-12 23:49:24 $
+$Id: Choice.java,v 1.2 2005-01-21 20:30:47 acohen Exp $
+$Date: 2005-01-21 20:30:47 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,22 +9,23 @@ see doc/license.txt in this distribution.
 
 package edu.internet2.middleware.signet.choice;
 
-public interface Choice {
-
+public interface Choice
+{
 	/*
-	 * Returns the ID of this Choice.
+	 * Returns the enclosing ChoiceSet of this Choice.
 	 */
-	public String getId();
+	public ChoiceSet getChoiceSet() throws ChoiceSetNotFoundException;
 	
 	/*
-	 * Returns a system value associated with this Choice.
+	 * Returns the value associated with this Choice.
 	 */
 	public String getValue();
 	
 	/*
-	 * Returns a user-friendly value associated with this Choice.
+	 * Returns a user-friendly representation of the value associated
+	 * with this Choice.
 	 */
-	public String getLabel();
+	public String getDisplayValue();
 	
 	/*
 	 * Returns an int that is the relative display order of this

@@ -87,5 +87,11 @@
     <mapping
       resource
         ="edu/internet2/middleware/signet/TreeNodeRelationship.hbm.xml"/>
+    <mapping
+      resource
+        ="edu/internet2/middleware/signet/ChoiceSetImpl.hbm.xml"/>
+    <mapping
+      resource
+        ="edu/internet2/middleware/signet/ChoiceImpl.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>

@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.1 2005-01-12 23:49:24 mnguyen Exp $
-$Date: 2005-01-12 23:49:24 $
+$Id: Limit.java,v 1.2 2005-01-21 20:30:47 acohen Exp $
+$Date: 2005-01-21 20:30:47 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,8 +9,8 @@ see doc/license.txt in this distribution.
 
 package edu.internet2.middleware.signet;
 
-public interface Limit {
-
+public interface Limit
+{
 	/*
 	 * Returns the limit ID.
 	 */
@@ -45,6 +45,6 @@ public interface Limit {
 	 * Returns the value type of this limit. This is used
 	 * for generating a Privileges XML document.
 	 */
-	public String getValueType();
+	public ValueType getValueType();
 
 }

@@ -1,6 +1,6 @@
 /*--
-  $Id: Subject.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: Subject.java,v 1.2 2005-01-21 20:30:47 acohen Exp $
+  $Date: 2005-01-21 20:30:47 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -74,5 +74,5 @@ public interface Subject
 	
 	public void addAttribute(String name, String value);
 
-	public String[] getAttributeArray(String name);
+	public String[] getAttributeValues(String name);
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: TreeNodeImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: TreeNodeImpl.java,v 1.4 2005-01-21 20:30:47 acohen Exp $
+ $Date: 2005-01-21 20:30:47 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -19,18 +19,18 @@ import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 
-class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
+class TreeNodeImpl
+extends
+	EntityImpl
+implements
+	TreeNode,
+	Comparable
 {
   private TreeImpl tree;
-
   private String   treeId;
-
   private Set      parents;
-
   private Set      children;
-
   private boolean  parentsAlreadyFetched  = false;
-
   private boolean  childrenAlreadyFetched = false;
 
   /**
@@ -127,7 +127,8 @@ class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
     {
       try
       {
-        this.tree = (TreeImpl) (this.getSignet().getTree(this.treeId));
+        this.tree
+        	= (TreeImpl)(this.getSignet().getTree(this.treeId));
       }
       catch (ObjectNotFoundException onfe)
       {
