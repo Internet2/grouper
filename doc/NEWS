@@ -1,13 +1,15 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.23 2005-02-06 04:18:52 blair Exp $
+$Id: NEWS,v 1.24 2005-02-07 03:03:25 blair Exp $
 
 ---
 
 ## Version 0.5.1-cvs
 
 ### Changes
+* New: Use Ant's SQL task to to create, initialize and reset
+  HSQLDB database (#287)
 * New: GrouperSession objects serializable (#296)
 * Fixed: calls to system.exit() (#179) 
 * Fixed: sessionID generation bug (#278)

@@ -1,8 +1,9 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.25 2005-02-06 04:18:52 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.26 2005-02-07 03:03:25 blair Exp $
 -- 
 
+DROP   TABLE grouper_attribute IF EXISTS;
 CREATE TABLE grouper_attribute (
   groupKey        VARCHAR NOT NULL,
   groupField      VARCHAR NOT NULL,
@@ -11,6 +12,7 @@ CREATE TABLE grouper_attribute (
 );
 
 -- XXX Right types?
+DROP   TABLE grouper_field IF EXISTS;
 CREATE TABLE grouper_field (
   groupField  VARCHAR NOT NULL PRIMARY KEY,
   readPriv    VARCHAR,
@@ -19,6 +21,7 @@ CREATE TABLE grouper_field (
   CONSTRAINT  uniq_gf_gf UNIQUE (groupField)
 );
 
+DROP   TABLE grouper_group IF EXISTS;
 CREATE TABLE grouper_group (
   groupKey      VARCHAR NOT NULL PRIMARY KEY,
   groupID       VARCHAR NOT NULL,
@@ -33,6 +36,7 @@ CREATE TABLE grouper_group (
   CONSTRAINT    uniq_gg_gid  UNIQUE (groupID)
 );
 
+DROP   TABLE grouper_list IF EXISTS;
 CREATE TABLE grouper_list (
   groupKey        VARCHAR NOT NULL,
   groupField      VARCHAR NOT NULL,
@@ -44,6 +48,7 @@ CREATE TABLE grouper_list (
 CREATE INDEX idx_gl_gk_gf_mk_via ON grouper_list 
   (groupKey, groupField, memberKey, via);
 
+DROP   TABLE grouper_member IF EXISTS;
 CREATE TABLE grouper_member (
   memberKey     VARCHAR NOT NULL PRIMARY KEY,
   memberID      VARCHAR NOT NULL,
@@ -56,6 +61,7 @@ CREATE TABLE grouper_member (
 CREATE INDEX idx_gm_sid_stid ON grouper_member
   (subjectID, subjectTypeID);
 
+DROP   TABLE grouper_schema IF EXISTS;
 CREATE TABLE grouper_schema (
   -- TODO Foreign Key
   groupKey    VARCHAR NOT NULL,
@@ -64,6 +70,7 @@ CREATE TABLE grouper_schema (
   CONSTRAINT  uniq_gsch_gk_gt  UNIQUE (groupKey, groupType)
 );
 
+DROP   TABLE grouper_session IF EXISTS;
 CREATE TABLE grouper_session (
   sessionID  VARCHAR NOT NULL PRIMARY KEY,
   memberID   VARCHAR NOT NULL,
@@ -71,6 +78,7 @@ CREATE TABLE grouper_session (
   CONSTRAINT uniq_gsess_si  UNIQUE (sessionID)
 );
 
+DROP   TABLE grouper_subject IF EXISTS;
 CREATE TABLE grouper_subject (
   subjectID     VARCHAR NOT NULL PRIMARY KEY,
   -- TODO Foreign Key
@@ -78,6 +86,7 @@ CREATE TABLE grouper_subject (
   CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
+DROP   TABLE grouper_subjectAttribute IF EXISTS;
 CREATE TABLE grouper_subjectAttribute (
   -- TODO Foreign Key
   subjectID     VARCHAR NOT NULL, 
@@ -91,6 +100,7 @@ CREATE TABLE grouper_subjectAttribute (
   CONSTRAINT    uniq_gsubattr_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
+DROP   TABLE grouper_subjectType IF EXISTS;
 CREATE TABLE grouper_subjectType (
   subjectTypeID VARCHAR NOT NULL PRIMARY KEY,
   name          VARCHAR NOT NULL,
@@ -98,6 +108,7 @@ CREATE TABLE grouper_subjectType (
   CONSTRAINT    uniq_gsubjtyp_stid UNIQUE (subjectTypeID)
 );
 
+DROP   TABLE grouper_typeDef IF EXISTS;
 CREATE TABLE grouper_typeDef (
   -- TOOD Foreign Key
   groupType   VARCHAR NOT NULL,
@@ -106,6 +117,7 @@ CREATE TABLE grouper_typeDef (
   CONSTRAINT  uniq_gtypdef_gt_gf  UNIQUE (groupType, groupField)
 );
 
+DROP   TABLE grouper_type IF EXISTS;
 CREATE TABLE grouper_type (
   groupType   VARCHAR NOT NULL PRIMARY KEY,
   CONSTRAINT  uniq_gtype_gt UNIQUE (groupType)

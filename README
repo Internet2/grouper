@@ -7,7 +7,7 @@ This file is intended to give you a brief overview of how this
 directory tree is structured and how to get started with compiling,
 testing, and running Grouper.
 
-$Id: README,v 1.24 2004-12-08 03:27:30 blair Exp $
+$Id: README,v 1.25 2005-02-07 03:03:25 blair Exp $
 
 ---
 
@@ -25,21 +25,11 @@ See _doc/LAYOUT_ for more information.
 
 ## Testing
 
-First, create the HSQLDB database and load it with some default data:
-
-    % ant db-init db-init-test
-
-Now, run the Grouper test suite.
-
     % ant test
 
-Do not be surprised if you receive (some) warnings during the running
-of the test suite.  Some tests call code that will fail and send
-warning messages to log4j, some of which may end up on the console.
-
-If the test suite fails, it may leave the HSQLDB database in an
-state different from what the test harness is expecting.  To remedy
-this, rerun the database initialization commands specified above.
+Running this command will create a HSQLDB database, initialize the
+Grouper schema, add some test subjects and then run the Grouper test
+suite.
 
 ---
 

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.32 2004-12-13 20:08:43 blair Exp $ -->
+<!-- $Id: build.xml,v 1.33 2005-02-07 03:03:25 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -18,6 +18,7 @@
   <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
   <property name="jdbc.driver"            value="org.hsqldb.jdbcDriver"/>
   <property name="jdbc.url"               value="jdbc:hsqldb:${dist}/run/grouper"/>
+  <property name="sql.create"             value="sql/hsqldb.sql"/>
 
   <target name="init">
     <tstamp />
@@ -99,7 +100,7 @@
     </javac>
   </target>
 
-  <target name="test-run" depends="test-build">
+  <target name="test-run" depends="test-build,db-init-test">
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestInstantiate" />
@@ -160,9 +161,6 @@
       <arg value="test.edu.internet2.middleware.grouper.TestQueries" />
       <classpath refid="project.class.path" />
     </java>
-    <!-- Yes, yes.  Ugly, ugly hacks.  I know.  -->
-    <move file="${dist}/run/grouper.script"      tofile="${dist}/run/grouper.script.last"/>
-    <copy file="${dist}/run/grouper.script.orig" tofile="${dist}/run/grouper.script"/>
   </target>
 
   <target name="db" depends="init" description="Launch HSQLDB UI">
@@ -178,49 +176,37 @@
     </java>
   </target>
 
-  <target name="db-init" depends="init"
-    description="Initialize HSQDBL database">
-    <mkdir dir="${dist}/run"/>
-    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
-      <classpath refid="project.class.path"/>
-      <arg value="-driver"/>
-      <arg value="${jdbc.driver}"/>
-      <arg value="-url"/>
-      <arg value="${jdbc.url}"/>
-      <arg value="-user"/>
-      <arg value="sa"/>
-      <arg value="-script"/>
-      <arg value="sql/hsqldb.sql"/>
-    </java>
-    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
-      <classpath refid="project.class.path"/>
-      <arg value="-driver"/>
-      <arg value="${jdbc.driver}"/>
-      <arg value="-url"/>
-      <arg value="${jdbc.url}"/>
-      <arg value="-user"/>
-      <arg value="sa"/>
-      <arg value="-script"/>
-      <arg value="sql/init.sql"/>
-    </java>
+  <target name="db-init" depends="init" description="Initialize database">
+    <property file="conf/hibernate.properties"/>
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="${sql.create}"
+    />
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="sql/init.sql"
+    />
   </target>
 
-  <target name="db-init-test" depends="init"
-    description="Populate HSQLDB database with some test data">
-    <mkdir dir="${dist}/run"/>
-    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
-      <classpath refid="project.class.path"/>
-      <arg value="-driver"/>
-      <arg value="${jdbc.driver}"/>
-      <arg value="-url"/>
-      <arg value="${jdbc.url}"/>
-      <arg value="-user"/>
-      <arg value="sa"/>
-      <arg value="-script"/>
-      <arg value="sql/test.sql"/>
-    </java>
-    <!-- I want a pristine copy to utilize later.  Yes, this is a kludge. -->
-    <copy file="${dist}/run/grouper.script" tofile="${dist}/run/grouper.script.orig"/>
+  <target name="db-init-test" depends="db-init" 
+    description="Inserts test data into database">
+    <property file="conf/hibernate.properties"/>
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="sql/test.sql"
+    />
   </target>
 
 </project>
