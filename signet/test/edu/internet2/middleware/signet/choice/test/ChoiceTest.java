@@ -37,6 +37,7 @@ public class ChoiceTest extends TestCase
   {
     super.setUp();
     signet = new Signet();
+    signet.beginTransaction();
     fixtures = new Fixtures(signet);
   }
 
@@ -46,6 +47,9 @@ public class ChoiceTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
+    
+    signet.commit();
+    signet.close();
   }
 
   /**

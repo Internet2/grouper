@@ -20,7 +20,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 public class ChoiceSetTest extends TestCase
 {
   private Signet		signet;
-  private ChoiceSet	choiceSet;
+  private Fixtures	fixtures;
   
   public static void main(String[] args)
   {
@@ -36,7 +36,7 @@ public class ChoiceSetTest extends TestCase
     
     signet = new Signet();
     signet.beginTransaction();
-    Fixtures fixtures = new Fixtures(signet);
+    fixtures = new Fixtures(signet);
   }
 
   /*
