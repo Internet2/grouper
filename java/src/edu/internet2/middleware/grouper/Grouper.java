@@ -16,30 +16,28 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  java.io.*;
-import  java.sql.*;
 import  java.util.*;
-import  net.sf.hibernate.*;
 
 /** 
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.30 2004-09-19 01:01:05 blair Exp $
+ * @version $Id: Grouper.java,v 1.31 2004-09-19 01:04:05 blair Exp $
  */
 public class Grouper {
 
-  private static Properties  conf;
-  private static String      confFile; 
+  private Properties  conf;
+  private String      confFile; 
 
   // Cached Grouper group fields
   // TODO Switch to GrouperFields collection object?
-  private static List             groupFields;
+  private List groupFields;
   // Cached Grouper group types
   // TODO Switch to GrouperTypes collection object?
-  private static List             groupTypes;  
+  private List groupTypes;  
   // Cached Grouper group typeDefs
   // TODO Switch to GrouperTypeDefs collection object?
-  private static List             groupTypeDefs;
+  private List groupTypeDefs;
 
 
   /**
