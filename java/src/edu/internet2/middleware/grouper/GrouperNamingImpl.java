@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.35 2004-12-06 23:43:48 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.36 2004-12-07 02:04:58 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -134,19 +134,7 @@ public class GrouperNamingImpl implements GrouperNaming {
         }
       }
     } 
-    // TODO Make this cleaner|easier?
-    GrouperAttribute name = g.attribute("name");
-    if (rv == true) {
-      Grouper.LOG.info(
-        s.subject().getId() + " granted " + priv + " to " +
-        m.memberID() + " on " + name.value()
-      );
-    } else {
-      Grouper.LOG.info(
-        s.subject().getId() + " failed to grant " + priv + " to " +
-        m.memberID() + " on " + name.value()
-      );
-    }
+    Grouper.log().grant(rv, s, g, m, priv);
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
@@ -348,19 +336,7 @@ public class GrouperNamingImpl implements GrouperNaming {
         }
       }
     } 
-    // TODO Make this cleaner|easier?
-    GrouperAttribute name = g.attribute("name");
-    if (rv == true) {
-      Grouper.LOG.info(
-        s.subject().getId() + " revoked " + priv + " from " +
-        m.memberID() + " on " + name.value()
-      );
-    } else {
-      Grouper.LOG.info(
-        s.subject().getId() + " failed to revoke " + priv + " from " +
-        m.memberID() + " on " + name.value()
-      );
-    }
+    Grouper.log().revoke(rv, s, g, m, priv);
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
