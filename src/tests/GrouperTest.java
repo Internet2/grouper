@@ -1,3 +1,4 @@
+// test
 /* 
  * Copyright (C) 2004 Internet2
  * Copyright (C) 2004 The University Of Chicago
@@ -13,7 +14,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.43 2004-09-19 23:48:54 blair Exp $
+ * $Id: GrouperTest.java,v 1.44 2004-09-20 00:14:52 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
