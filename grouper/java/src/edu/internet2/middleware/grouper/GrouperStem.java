@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -17,7 +18,7 @@ package edu.internet2.middleware.grouper;
  * Class representing the stem portion of a {@link GrouperGroup} name.
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.4 2004-08-24 17:37:58 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.5 2004-09-10 18:23:09 blair Exp $
  */
 public class GrouperStem {
 

@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.36 2004-09-10 16:03:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.37 2004-09-10 18:23:08 blair Exp $
  */
 public class GrouperGroup {
 

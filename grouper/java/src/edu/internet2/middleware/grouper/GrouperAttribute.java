@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -19,7 +20,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.4 2004-08-26 18:20:31 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.5 2004-09-10 18:23:08 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 

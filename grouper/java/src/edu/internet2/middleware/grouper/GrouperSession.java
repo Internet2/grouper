@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +25,7 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.38 2004-09-10 17:53:47 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.39 2004-09-10 18:23:08 blair Exp $
  */
 public class GrouperSession {
 
