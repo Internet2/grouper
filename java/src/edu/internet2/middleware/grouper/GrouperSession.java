@@ -17,7 +17,7 @@ import  edu.internet2.middleware.subject.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.58 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.59 2004-11-25 04:36:22 blair Exp $
  */
 public class GrouperSession {
 
@@ -70,8 +70,10 @@ public class GrouperSession {
 
     // Register a new session
     if (this._registerSession()) {
+      Grouper.LOGGER.info("Started session for " + s);
       return true;
     } 
+    Grouper.LOGGER.info("Failed to start session for " + s);
     return false;
   }
 
@@ -85,8 +87,10 @@ public class GrouperSession {
     // Maybe? this._init();
     // Wipe out entry from session table?
     if (this.subject == null || this.subjectID == null) {
+      Grouper.LOGGER.info("Failed to stop session");
       return false;
     }
+    Grouper.LOGGER.info("Stopped session for " + this.subject);
     return true;
   }
 
