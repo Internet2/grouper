@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.11 2004-07-15 01:48:20 blair Exp $
+ * $Id: GrouperTest.java,v 1.12 2004-07-26 17:06:06 blair Exp $
  */
 
 package test.edu.internet2.middleware.directory.grouper;
@@ -22,50 +22,7 @@ public class GrouperTest extends TestCase {
   }
 
   protected void setUp () {
-    Connection conn   = null;
-    ResultSet  rs     = null;
-    Statement  st     = null;
-    String sqlFile    = "sql/hsqldb.sql";
-    String sqlStr     = null;
-    try {
-      BufferedReader  br  = new BufferedReader(new FileReader(sqlFile));
-      String          l   = null;
-      while ((l=br.readLine()) != null){
-        if (sqlStr != null) {
-          sqlStr = sqlStr + l + "\n";
-        } else {
-          sqlStr = l + "\n";
-        }
-      }
-      br.close();
-      if (sqlStr != null) {
-        try {
-          Class.forName("org.hsqldb.jdbcDriver");
-          conn = DriverManager.getConnection("jdbc:hsqldb:build/grouper", "sa", "");
-          try {
-            st = conn.createStatement();
-            // XXX Ugh
-            rs = st.executeQuery("DROP TABLE grouper_members IF EXISTS");
-            rs = st.executeQuery("DROP TABLE grouper_session IF EXISTS");
-            rs = st.executeQuery(sqlStr);
-            st.close();
-            conn.close();
-          } catch (Exception e) {
-            System.err.println(e);
-            System.exit(1);
-          }
-        } catch (Exception e) {
-          System.err.println(e);
-          System.exit(1);
-        }
-      } else {
-        System.err.println("Unable to load SQL from '" + sqlFile + "'");
-        System.exit(1);
-      }
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
+    // Nothing -- Yet
   }
 
   protected void tearDown () {
