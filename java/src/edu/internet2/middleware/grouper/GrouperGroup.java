@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.191 2005-03-25 03:00:39 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.192 2005-03-25 16:04:55 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -97,54 +97,225 @@ public class GrouperGroup extends Group {
    * Null-argument constructor for Hibernate.
    */
   public GrouperGroup() {
-    this._init();
+    // Nothing
   }
 
   /*
-   * Instantiate a stem object
+   * Instantiate a group object
    */
-  private GrouperGroup(GrouperSession s, String key) {
-    this.key  = key;
-    this.s    = s;
+  private GrouperGroup(
+            GrouperSession s, String stem, String extn, String type
+          )
+  {
+    this.s    = s; 
+    this.type = type;
+    this.setGroupKey( new GrouperUUID().toString() );
+    this.setGroupID(  new GrouperUUID().toString() );
+
+    GrouperSchema.save(s, this);
+
+    this.attributeAdd(
+      new GrouperAttribute(this.getGroupKey(), "stem", stem)
+    );
+    this.attributeAdd(
+      new GrouperAttribute(this.getGroupKey(), "extension", extn)
+    );
+    this.attributeAdd(
+      new GrouperAttribute(
+        this.getGroupKey(), "name", Group.groupName(stem, extn)
+      )
+    );
+
+    this.setCreated();
   }
 
 
-  /*
+  /* 
    * PUBLIC CLASS METHODS
    */
 
   /**
    * Create a group.
    * <p />
-   * @param   s           Session to create the group within.
-   * @param   stem        Stem to create the group within.
-   * @param   extension   Extension to assign to the group.
+   * @param   s     Session to create the group within.
+   * @param   stem  Stem to create the group within.
+   * @param   extn  Extension to assign to the group.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
-                                    GrouperSession s, String stem, 
-                                    String extension
-                                   )
+                               GrouperSession s, String stem, String extn
+                             )
   {
-    return GrouperGroup._create(s, stem, extension, Grouper.DEF_GROUP_TYPE);
+    return GrouperGroup.create(s, stem, extn, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
    * Create a group.
    * <p />
-   * @param   s           Session  to create the group within.
-   * @param   stem        Stem to create the group within.
-   * @param   extension   Extension to assign to the group.
-   * @param   type        Type of group to create.
+   * @param   s     Session to create the group within.
+   * @param   stem  Stem to create the group within.
+   * @param   extn  Extension to assign to the group.
+   * @param   type  Type of group to create.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
-                                    GrouperSession s, String stem, 
-                                    String extension, String type
-                                   )
+                               GrouperSession s, String stem, 
+                               String extn, String type
+                             )
   {
-    return GrouperGroup._create(s, stem, extension, type);
+    GrouperGroup g;
+    if (!GrouperStem.exists(s, stem)) {
+      throw new RuntimeException("Parent stem does not exist");
+    }
+    if (GrouperGroup.exists(s, stem, extn, type)) {
+      throw new RuntimeException("Group already exists");
+    }
+    Group.subjectCanCreateAtRoot(s, stem);
+    Group.subjectCanCreateGroup(s, stem);
+    try {
+      s.dbSess().txStart();
+      g = new GrouperGroup(s, stem, extn, type);
+      s.dbSess().session().save(g);
+      g.grantAdminUponCreate();
+      g.initialized = true;
+      s.dbSess().txCommit();
+      Grouper.log().groupAdd(s, g, Group.groupName(stem, extn), g.type());
+    } catch (HibernateException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error saving stem: " + e);
+    } 
+    return g;
   }
+
+  /**
+   * Retrieve a group by stem and extension.
+   * <p />
+   * @param   s     Session to load the group within.
+   * @param   stem  Stem of the group to load.
+   * @param   extn  Extension of the group to load.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup load(
+                               GrouperSession s, String stem, String extn
+                             )
+  {
+    return GrouperGroup.load(s, stem, extn, Grouper.DEF_GROUP_TYPE);
+  }
+
+  /**
+   * Retrieve a group by stem, extension and type.
+   * <p />
+   * @param   s     Session to load the group within.
+   * @param   stem  Stem of the group to load.
+   * @param   extn  Extension of the group to load.
+   * @param   type  The type of group to load.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup load(
+                               GrouperSession s, String stem, 
+                               String extn, String type
+                             )
+  {
+    String key = Group.findKey(s, stem, extn, type);
+    if (key != null) {
+      GrouperGroup g = (GrouperGroup) Group.loadByKey(s, key);
+      return g;
+    }
+    return null; 
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Retrieve {@link GrouperMember} object for this 
+   * {@link GrouperGroup}.
+   * </p>
+   * @return {@link GrouperMember} object
+   */
+  public GrouperMember toMember() {
+    GrouperMember m = null;
+    GrouperSession.validate(this.s);
+    // FIXME Make sure I set this when loading as well...
+    if (this.initialized == true) {
+      m = GrouperMember.load(
+            this.s, this.getGroupID(), "group"
+          );
+      if (m == null) {
+        throw new RuntimeException("Error converting group to member");
+      }
+    } else {
+      m = GrouperMember.create(s, this.getGroupID(), "group");
+    }
+    return m;
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /*
+   * Set create* attributes.
+   */
+  protected void setCreated() {
+    this.setCreateTime( this.now() );
+    GrouperMember m = GrouperMember.load(s, s.subject());
+    this.setCreateSubject(m.key());
+  }
+
+  /*
+   * Set and save modify* attributes.
+   */
+  protected void setModified() {
+    this.setModifyTime( this.now() );
+    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
+    this.setModifySubject( mem.key() );
+    try {
+      this.s.dbSess().session().update(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException("Error updating group: " + e);
+    }
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Add new attribute.
+   */
+  private void attributeAdd(GrouperAttribute attr) {
+    this.attributes.put(attr.field(), attr);
+    GrouperAttribute.save(s, attr);
+  }
+
+  /*
+  /*
+   * Grant ADMIN to the group's creator upon creation.
+   */
+  private void grantAdminUponCreate() {
+    // We need a root session
+    Subject root = GrouperSubject.load(
+                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+                   );
+    GrouperSession  rs  = GrouperSession.start(root);
+    // Subject that is creating group
+    GrouperMember   m   = GrouperMember.load(this.s.subject() );
+    boolean rv = rs.access().grant(rs, this, m, Grouper.PRIV_ADMIN);
+    rs.stop();
+    if (!rv) {
+      throw new RuntimeException("Error granting ADMIN to " + m);  
+    } 
+  }
+
+
+  /*
+   * ALLES IST GEFUCKT
+   */
 
   /** 
    * Delete a group.
@@ -206,6 +377,7 @@ public class GrouperGroup extends Group {
     }
     return rv;
   }
+
 
   /* 
    * Delete all attributes attached to a group
@@ -305,41 +477,6 @@ public class GrouperGroup extends Group {
     }
 */
     return rv;
-  }
-
-  /**
-   * Retrieve a group by stem and extension.
-   * <p />
-   * @param   s           Session to load the group within.
-   * @param   stem        Stem of the group to load.
-   * @param   extension   Extension of the group to load.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static GrouperGroup load(
-                               GrouperSession s, 
-                               String stem, String extension
-                             )
-  {
-    String key = Group.findKey(s, stem, extension, Grouper.DEF_GROUP_TYPE);
-    return new GrouperGroup(s, key);
-  }
-
-  /**
-   * Retrieve a group by stem and extension.
-   * <p />
-   * @param   s           Session to load the group within.
-   * @param   stem        Stem of the group to load.
-   * @param   extension   Extension of the group to load.
-   * @param   type        The type of group to load.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static GrouperGroup load(
-                               GrouperSession s, String stem, 
-                               String extension, String type
-                             )
-  {
-    String key = Group.findKey(s, stem, extension, Grouper.DEF_GROUP_TYPE);
-    return new GrouperGroup(s, key);
   }
 
   /**
@@ -713,23 +850,6 @@ public class GrouperGroup extends Group {
   }
 
   /**
-   * Retrieve {@link GrouperMember} object for this 
-   * {@link GrouperGroup}.
-   * </p>
-   * @return {@link GrouperMember} object
-   */
-  public GrouperMember toMember() {
-    GrouperSession.validate(this.s);
-    GrouperMember m = GrouperMember.load(
-                        this.s, this.getGroupID(), "group"
-                      );
-    if (m == null) {
-      throw new RuntimeException("Error converting group to member");
-    }
-    return m;
-  }
-
-  /**
    * Return a string representation of this object.
    * <p />
    * @return String representation of this object.
@@ -780,44 +900,6 @@ public class GrouperGroup extends Group {
     return this.getGroupKey();
   }
 
-
-  /*
-   * PRIVATE CLASS METHODS
-   */
-
-  /* (!javadoc)
-   * Does the current subject have permission to create 
-   * groups within the specified stem.
-   */
-  private static boolean _canCreate(
-                           GrouperSession s, String stem, String type
-                         ) 
-  {
-    boolean rv = false;
-    // We are adding a top-level namespace.
-    if (stem.equals(Grouper.NS_ROOT)) {
-      // And only member.system can do so in this release
-      if (s.subject().getId().equals(Grouper.config("member.system"))) {
-        rv = true;
-      }
-    } else {
-      GrouperGroup ns = GrouperGroup._loadByName(
-                          s, stem, Grouper.NS_TYPE
-                        );
-/* BDC
-      if (ns != null) {
-        if (type.equals("naming")) {
-          // If a naming group, does the subject have STEM on `stem'?
-          rv = s.naming().has(s, ns, Grouper.PRIV_STEM);
-        } else {
-          // Otherwise, does the subject have `CREATE' on `stem'?
-          rv = s.naming().has(s, ns, Grouper.PRIV_CREATE);
-        }
-      }
-*/
-    }
-    return rv;
-  }
 
   /* 
    * Does the current subject have permission to delete the group?
@@ -1123,22 +1205,6 @@ public class GrouperGroup extends Group {
     return g;
   }
 
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Add an attribute
-   */
-  private boolean _attrAdd(String attribute, GrouperAttribute attr) {
-    boolean rv = false;
-    if (attr != null) {
-      attributes.put(attribute, attr);
-      rv = true;
-    }
-    return rv;
-  }
-
   // Add and persist attribute 
   private boolean _attributeAdd(String attribute, String value) {
     boolean rv = false;
@@ -1296,224 +1362,6 @@ public class GrouperGroup extends Group {
   }
 
   /*
-   * Initialize aspects of the group before creating it.
-   *
-   * @param   s           Session to create the group within.
-   * @param   stem        Stem of the group to be created.
-   * @param   extension   Extension of group to be created.
-   * @param   type        Type of group to be created.
-   * @return  A {@link GrouperGroup} object.
-   */
-  private static GrouperGroup _create(
-                                      GrouperSession s, String stem, 
-                                      String extn, String type
-                                     )
-  {
-    GrouperGroup g = null;
-    s.dbSess().txStart();
-    String name = GrouperGroup.groupName(stem, extn);
-    if (GrouperGroup._canCreate(s, stem, type)) {
-      // Check to see if the group already exists.
-      // TODO This should just be ane exists method, perhaps?
-      // BDC g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
-      String key = Group.findKey(s, stem, extn, type);
-      g = new GrouperGroup(s, key);
-      if (g != null) {
-        /*
-         * TODO Group already exists.  Ideally we'd throw an exception or
-         *      something, but, for now...
-         */
-        Grouper.log().groupAddCannot(s, name, type);
-        g = null;
-      } else {
-        if (name != null) {
-          // Merge these two?
-          g = new GrouperGroup();
-          g.s = s;
-
-          // Generate the UUIDs
-          g.setGroupKey( new GrouperUUID().toString() );
-          g.setGroupID(  new GrouperUUID().toString() ); 
-
-          // Set attributes
-          GrouperAttribute stem_attr = new GrouperAttribute(
-                                        g.getGroupKey(),
-                                        "stem", stem
-                                       );
-          GrouperAttribute extn_attr = new GrouperAttribute(
-                                        g.getGroupKey(),
-                                        "extension", extn
-                                       );
-          GrouperAttribute name_attr = new GrouperAttribute(
-                                        g.getGroupKey(),
-                                        "name", name
-                                       );
-          g._attrAdd("stem",      stem_attr);
-          g._attrAdd("extension", extn_attr);
-          g._attrAdd("name",      name_attr);
-          /*
-           * TODO Add `displayName' support
-           *      Will I run into priv (for fetching of stem's
-           *      `displayName' when I add in support for this?
-           */
-
-          g.type = type;
-          // Set some of the operational attributes
-          /*
-           * TODO Most, if not all, of the operational attributes should be
-           *      handled by Hibernate interceptors.  A task for another day.
-           */
-          g.setCreateTime( g.now() );
-          GrouperMember mem = GrouperMember.load(s, s.subject());
-          g.setCreateSubject( mem.key() );
-
-          // Verify that we have everything we need to create a group
-          // and that this subject is privileged to create this group.
-          if (g._validateCreate()) {
-            try {
-              s.dbSess().session().save(g);
-              // Add schema
-              GrouperSchema.save(s, g);
-              // Add attributes
-              if (g._saveAttributes()) {
-                if (g._privGrantUponCreate()) {
-                  g.initialized = true; // FIXME UGLY HACK!
-                }
-              }
-            } catch (HibernateException e) {
-              throw new RuntimeException("Error saving group: " + g);
-            } 
-          }
-        } 
-      }
-    } else {
-      Grouper.log().event(
-        "Subject does not have " + Grouper.PRIV_CREATE + 
-        " privileges on this stem"
-      );
-    }
-    if (g != null) {
-      if (g.initialized != true) {
-        g = null;
-      } else {
-        s.dbSess().txCommit();
-      }
-    } else {
-      s.dbSess().txRollback();
-    }
-    Grouper.log().groupAdd(s, g, name, type);
-    return g;
-  }
-
-  /*
-   * Save group's attributes.
-   * TODO Make part of save()?
-   */
-  private boolean _saveAttributes() {
-    boolean rv = false;
-    Iterator iter = this.attributes().keySet().iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) this.attribute(
-                                                   (String) iter.next() 
-                                                 );
-      try {
-        GrouperAttribute.save(
-          this.s, new GrouperAttribute(this.key(), attr.field(), attr.value())
-        );
-      } catch (RuntimeException e) {
-        // TODO Less than ideal
-        rv = false;
-        break;
-      }
-      rv = true; 
-    }
-    return rv;
-  }
-
-  /* 
-   * Grant PRIV_ADMIN to group creator upon creation
-   */
-  private boolean _privGrantAdminUponCreate(
-                    GrouperSession s, GrouperMember m
-                  )
-  {
-    boolean rv = false;
-    if (s.access().grant(s, this, m, Grouper.PRIV_ADMIN)) {
-      rv = true;
-    } else {
-      // TODO Exception!
-    }
-    return rv;
-  }
-
-  /* 
-   * Grant PRIV_STEM to stem creator upon creation
-   */
-  protected boolean _privGrantStemUponCreate(
-                      GrouperSession s, GrouperMember m
-                    )
-  {
-    boolean rv = false;
-/* BDC
-    if (s.naming().grant(s, this, m, Grouper.PRIV_STEM)) {
-      rv = true;
-    } else {
-      // TODO Exception!
-    }
-*/
-    return rv;
-  }
-
-  /* 
-   * Grant appropriate privilege to group|stem creator upon creation
-   */
-  protected boolean _privGrantUponCreate() {
-    GrouperSession.validate(this.s);
-    boolean rv = false;
-    // We need a root session for for bootstrap privilege granting
-    // TODO Replace with Grouper root session?
-    Subject root = GrouperSubject.load(
-                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                   );
-    GrouperSession rs = GrouperSession.start(root);
-    if (rs != null) {
-      // Now grant privileges to the group creator
-      GrouperMember m = GrouperMember.load(this.s.subject() );
-      if (m != null) { // FIXME Bah
-        if (this.type().equals(Grouper.NS_TYPE)) {
-          if (this._privGrantStemUponCreate(rs, m)) {
-            // NS_TYPE groups get PRIV_STEM
-            rv = true;
-          } 
-        } else if (this._privGrantAdminUponCreate(rs, m)) {
-          // All other group types get PRIV_ADMIN
-          rv = true;
-        }
-      }
-      // Close root session
-      rs.stop();
-    }
-    return rv;
-  }
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() { 
-    this.attributes     = new HashMap();
-    this.createTime     = null;
-    this.createSubject  = null;
-    this.createSource   = null;
-    this.groupComment   = null;
-    this.key            = null;
-    this.modifyTime     = null;
-    this.modifySubject  = null;
-    this.modifySource   = null;
-    this.s              = null;
-    this.type           = null; // FIXME Is this right?
-  }
-
-  /*
    * Add list value and update modify* attributes.
    */
   private boolean _listAddVal(GrouperMember m, String list) {
@@ -1667,31 +1515,6 @@ public class GrouperGroup extends Group {
     return true;
   }
  
-  /* (!javadoc)
-   * Validate whether a group can be created.
-   */
-  private boolean _validateCreate() {
-    // TODO Break these down into individual error reporting conditions
-    if (
-        // Do we have a valid group type?
-        (Grouper.groupType(this.type) == true) &&
-        // And a stem?
-        (attributes.containsKey("stem"))       &&
-        // And stem exists
-        (GrouperStem.exists(this.s, this.attribute("stem").value())) &&
-        // And an extension?
-        (attributes.containsKey("extension"))  && 
-        // And are the group attributes valid?
-        (this._validateAttributes()) 
-        // TODO Member Object for the admin of the group
-        // TODO CREATE priv for stem
-       )
-    {
-      return true;
-    }
-    return false;
-  }
-
 
   /*
    * HIBERNATE

@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.6 2005-03-25 14:37:24 blair Exp $
+ * @version $Id: Group.java,v 1.7 2005-03-25 16:04:55 blair Exp $
  */
 abstract class Group {
 
@@ -165,7 +165,7 @@ abstract class Group {
 
   /*
    * Find and return the group key for (stem, extn, type).
-   * TODO Rename => findKeyStemExtn
+   * TODO Rename => findKeyStemExtnType
    */
   protected static String findKey(
                             GrouperSession s, String stem, 

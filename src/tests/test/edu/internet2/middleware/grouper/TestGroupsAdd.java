@@ -100,8 +100,8 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0  = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
 
     //Create g0
@@ -133,8 +133,8 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0 = GrouperGroup.create(
@@ -186,12 +186,12 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
 
     //Create g1
@@ -223,12 +223,12 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create g1
     GrouperGroup g1 = GrouperGroup.create(
@@ -280,19 +280,23 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
 
     // Create ns2 as child of ns1
-    GrouperGroup g2 = GrouperGroup.create(
-                         s, Constants.g2s, Constants.g2e
-                       );
-    Assert.assertNull("g2 null", g2);
+    try {
+      GrouperGroup g2 = GrouperGroup.create(
+                           s, Constants.g2s, Constants.g2e
+                         );
+      Assert.fail("create g2");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("create g2", true);
+    }
 
     s.stop();
   }
@@ -303,19 +307,19 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create ns2
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.create(
+                         s, Constants.ns2s, Constants.ns2e
                        );
 
-    // Create gw
+    // Create g2
     GrouperGroup g2 = GrouperGroup.create(
                         s, Constants.g2s, Constants.g2e
                       );
@@ -344,16 +348,16 @@ public class TestGroupsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create ns2
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.create(
+                         s, Constants.ns2s, Constants.ns2e
                        );
 
     // Create g2
