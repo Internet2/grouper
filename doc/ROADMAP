@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.1 2005-01-27 02:02:40 blair Exp $
+$Id: ROADMAP,v 1.2 2005-01-27 02:41:03 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.1 2005-01-27 02:02:40 blair Exp $
 * Fixes for known bugs
 * Improved Java Beans compliance
 * Removal of type argument in GrouperGroup loadByID() and loadByKey()
-* Removal of calls to system.exit()
 * Addition of a GrouperStem class for managing and representing
   namespaces
 * Initial cleanup of internal, backend methods

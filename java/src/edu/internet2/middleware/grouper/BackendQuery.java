@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: BackendQuery.java,v 1.1 2004-12-08 17:53:30 blair Exp $
+ * @version $Id: BackendQuery.java,v 1.2 2005-01-27 02:41:03 blair Exp $
  */
 public class GBQuery {
 
@@ -81,8 +81,7 @@ public class GBQuery {
       Grouper.log().query("all", q);
       vals    = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }
@@ -103,8 +102,7 @@ public class GBQuery {
       Grouper.log().query("grouperAttr ", q);
       vals = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }
@@ -150,8 +148,7 @@ public class GBQuery {
       Grouper.log().query("grouperList", q);
       vals = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }
@@ -172,8 +169,7 @@ public class GBQuery {
       Grouper.log().query("kv", q);
       vals = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }
@@ -195,8 +191,7 @@ public class GBQuery {
       Grouper.log().query("kvgt", q);
       vals = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }
@@ -220,8 +215,7 @@ public class GBQuery {
       Grouper.log().query("kvkv", q);
       vals = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }
@@ -243,8 +237,7 @@ public class GBQuery {
       Grouper.log().query("kvlt", q);
       vals = q.list();
     } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
+      throw new RuntimeException(e);
     }
     return vals;
   }

@@ -61,7 +61,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.13 2004-12-09 03:49:59 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.14 2005-01-27 02:41:03 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -109,8 +109,7 @@ public class SubjectTypeImpl implements SubjectType {
         return (SubjectTypeAdapter) con.newInstance(params);
       } catch (Exception e) {
         // TODO Well, this is blatantly the wrong thing to do
-        System.err.println(e);
-        System.exit(1);
+        throw new RuntimeException(e);
       }
     }
     return null;
