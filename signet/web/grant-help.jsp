@@ -1,12 +1,28 @@
 <!--
-   $Id: grant-help.jsp,v 1.2 2005-02-24 01:09:39 jvine Exp $
-   $Date: 2005-02-24 01:09:39 $
+   $Id: grant-help.jsp,v 1.3 2005-02-25 00:14:06 acohen Exp $
+   $Date: 2005-02-25 00:14:06 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights 
 Reserved.
    Licensed under the Signet License, Version 1,
    see doc/license.txt in this distribution.
 --> 
+
+
+<%@ page import="edu.internet2.middleware.signet.Signet" %>
+<%@ page import="edu.internet2.middleware.signet.Subsystem" %>
+
+<% 
+  Signet signet
+     = (Signet)
+         (request.getSession().getAttribute("signet"));
+         
+   Subsystem currentSubsystem
+     = (Subsystem)
+         (request.getSession().getAttribute("currentSubsystem"));
+%>
+
+
 <P>You will make a series of selections, each affecting the selection(s) that follow it:</P>
 <OL>
 	<LI>the <%=currentSubsystem.getName()%> privilege to be granted</LI>
