@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.25 2005-03-25 20:46:33 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.26 2005-03-26 05:44:03 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -196,13 +196,25 @@ public class GrouperStem extends Group {
    */
 
   /**
-   * Retrieve a group attribute.
+   * Retrieve the specified attribute.
    * <p />
    * @param   attribute The attribute to retrieve.
    * @return  A {@link GrouperAttribute} object.
    */
   public GrouperAttribute attribute(String attribute) {
-    return (GrouperAttribute) attributes.get(attribute);
+    return (GrouperAttribute) this.attributes.get(attribute.toLowerCase());
+  }
+
+  /**
+   * Set an attribute value.
+   * <p />
+   * If <i>value</i> is <i>null</i>, the attribute will be deleted.
+   * <p /> 
+   * @param   attribute   Set this attribute.
+   * @param   value       To this value.
+   */
+  public void attribute(String attribute, String value) {
+    this.attribute(this.s, this, attribute, value);
   }
 
   /**
@@ -494,6 +506,22 @@ public class GrouperStem extends Group {
    */
 
   /*
+   * Add new attribute.
+   */
+  protected void attributeAdd(GrouperAttribute attr) {
+    GrouperAttribute.save(this.s, attr);
+    this.attributes.put(attr.field(), attr);
+  }
+
+  /*
+   * Delete an attribute
+   */
+  protected void attributeDel(GrouperAttribute attr) {
+    GrouperAttribute.delete(this.s, attr);
+    this.attributes.remove(attr.field());
+  }
+
+  /*
    * Is this group initialized?
    */
   protected boolean initialized() {
@@ -544,14 +572,6 @@ public class GrouperStem extends Group {
   /*
    * PRIVATE INSTANCE METHODS
    */
-
-  /*
-   * Add new attribute.
-   */
-  private void attributeAdd(GrouperAttribute attr) {
-    this.attributes.put(attr.field(), attr);
-    GrouperAttribute.save(s, attr);
-  }
 
   /*
    * Grant STEM to the stem's creator upon creation.

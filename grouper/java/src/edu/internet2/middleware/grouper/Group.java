@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.13 2005-03-25 20:57:42 blair Exp $
+ * @version $Id: Group.java,v 1.14 2005-03-26 05:44:03 blair Exp $
  */
 abstract class Group {
 
@@ -70,47 +70,51 @@ abstract class Group {
    * ABSTRACT METHODS 
    */
 
-  abstract protected String         createSource();
-  abstract protected Subject        createSubject();
-  abstract protected Date           createTime();
-  abstract protected String         getCreateSource();
-  abstract protected String         getCreateSubject();
-  abstract protected String         getCreateTime();
-  abstract protected String         getGroupComment();
-  abstract protected String         getGroupID();
-  abstract protected String         getGroupKey();
-  abstract protected String         getModifySource();
-  abstract protected String         getModifySubject();
-  abstract protected String         getModifyTime();
-  abstract protected boolean        initialized();
-  abstract protected String         key();
-  abstract protected void           listAddVal(GrouperMember m);
-  abstract protected void           listAddVal(GrouperMember m, String list);
-  abstract protected void           listDelVal(GrouperMember m);
-  abstract protected void           listDelVal(GrouperMember m, String list);
-  abstract protected List           listVals();
-  abstract protected List           listVals(String list);
-  abstract protected List           listEffVals();
-  abstract protected List           listEffVals(String list);
-  abstract protected List           listImmVals();
-  abstract protected List           listImmVals(String list);
-  abstract protected void           load(GrouperSession s);
-  abstract protected String         modifySource();
-  abstract protected Subject        modifySubject();
-  abstract protected Date           modifyTime();
-  abstract protected String         name();
-  abstract protected void           setCreateSource(String createSource);
-  abstract protected void           setCreateSubject(String createSubject);
-  abstract protected void           setCreateTime(String createTime);
-  abstract protected void           setGroupComment(String comment);
-  abstract protected void           setGroupID(String id);
-  abstract protected void           setGroupKey(String key);
-  abstract protected void           setModified();
-  abstract protected void           setModifySource(String modifySource);
-  abstract protected void           setModifySubject(String modifySubject);
-  abstract protected void           setModifyTime(String modifyTime);
-  abstract protected GrouperMember  toMember();
-  abstract protected String         type();
+  abstract protected GrouperAttribute attribute(String attribute);
+  abstract protected void             attribute(String attribute, String value);
+  abstract protected void             attributeAdd(GrouperAttribute attr);
+  abstract protected void             attributeDel(GrouperAttribute attr);
+  abstract protected String           createSource();
+  abstract protected Subject          createSubject();
+  abstract protected Date             createTime();
+  abstract protected String           getCreateSource();
+  abstract protected String           getCreateSubject();
+  abstract protected String           getCreateTime();
+  abstract protected String           getGroupComment();
+  abstract protected String           getGroupID();
+  abstract protected String           getGroupKey();
+  abstract protected String           getModifySource();
+  abstract protected String           getModifySubject();
+  abstract protected String           getModifyTime();
+  abstract protected boolean          initialized();
+  abstract protected String           key();
+  abstract protected void             listAddVal(GrouperMember m);
+  abstract protected void             listAddVal(GrouperMember m, String list);
+  abstract protected void             listDelVal(GrouperMember m);
+  abstract protected void             listDelVal(GrouperMember m, String list);
+  abstract protected List             listVals();
+  abstract protected List             listVals(String list);
+  abstract protected List             listEffVals();
+  abstract protected List             listEffVals(String list);
+  abstract protected List             listImmVals();
+  abstract protected List             listImmVals(String list);
+  abstract protected void             load(GrouperSession s);
+  abstract protected String           modifySource();
+  abstract protected Subject          modifySubject();
+  abstract protected Date             modifyTime();
+  abstract protected String           name();
+  abstract protected void             setCreateSource(String createSource);
+  abstract protected void             setCreateSubject(String createSubject);
+  abstract protected void             setCreateTime(String createTime);
+  abstract protected void             setGroupComment(String comment);
+  abstract protected void             setGroupID(String id);
+  abstract protected void             setGroupKey(String key);
+  abstract protected void             setModified();
+  abstract protected void             setModifySource(String modifySource);
+  abstract protected void             setModifySubject(String modifySubject);
+  abstract protected void             setModifyTime(String modifyTime);
+  abstract protected GrouperMember    toMember();
+  abstract protected String           type();
 
 
   /*
@@ -164,6 +168,42 @@ abstract class Group {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  /*
+   * Set an attribute value
+   */ 
+  protected void attribute(
+                   GrouperSession s, Group g, 
+                   String attribute, String value
+                 )
+  {
+    // Normalize the case
+    attribute = attribute.toLowerCase();
+    if (!Grouper.groupField(g.type(), attribute)) {
+      throw new RuntimeException(
+                  "Attribute is not valid for this group type"
+                );
+    }
+    this.subjectCanModAttr(s, g, attribute);
+    try {
+      s.dbSess().txStart();
+      if (value == null) {
+        // Delete
+        g.attributeDel( g.attribute(attribute) );
+      } else {
+        // Add-Or-Update
+        GrouperAttribute attr = new GrouperAttribute(
+                                      g.key(), attribute, value
+                                    );
+        g.attributeAdd(attr);
+      }
+      g.setModified();
+      s.dbSess().txCommit();
+    } catch (RuntimeException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error modifying attribute: " + e);
+    }
+  }
 
   /**
    * Delete a group.
@@ -359,6 +399,32 @@ abstract class Group {
       throw new RuntimeException(
                   "Cannot delete group that is member: " + 
                   m.listVals().size() 
+                );
+    }
+  }
+
+  /*
+   * Can the current subject modify attributes?
+   */
+  private void subjectCanModAttr(
+                 GrouperSession s, Group g, String attribute
+               )
+  {
+    if ((
+          (attribute.equals("displayname")) ||
+          (attribute.equals("name"))        ||
+          (attribute.equals("stem"))        ||
+          (attribute.equals("extension"))
+       ))
+    {
+      throw new RuntimeException(
+                  "Modification of " + attribute + 
+                  " is not currently allowed"
+                );
+    }
+    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+      throw new RuntimeException(
+                  "Modification requires ADMIN"
                 );
     }
   }
