@@ -6,7 +6,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.1 2004-08-11 15:21:07 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.2 2004-08-19 19:16:32 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -23,6 +23,12 @@ public class GrouperAttribute implements Serializable {
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
            this.getGroupFieldValue();
+  }
+
+  public void set(String key, String field, String value) {
+    this.groupKey         = key;
+    this.groupField       = field;
+    this.groupFieldValue  = value;
   }
 
   /*

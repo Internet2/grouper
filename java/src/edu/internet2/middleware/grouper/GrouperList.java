@@ -6,7 +6,7 @@ import  java.io.Serializable;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.1 2004-08-11 19:17:43 blair Exp $
+ * @version $Id: GrouperList.java,v 1.2 2004-08-19 19:18:48 blair Exp $
  */
 public class GrouperMembership implements Serializable {
 
@@ -29,6 +29,14 @@ public class GrouperMembership implements Serializable {
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
            this.getMemberKey();
+  }
+
+  public void set(String key, String field, String subject, boolean immediate) {
+    // FIXME This is all pretty dubious
+    this.groupKey     = key;
+    this.groupField   = field;
+    this.memberKey    = subject;
+    this.isImmediate  = immediate;
   }
 
   /*
