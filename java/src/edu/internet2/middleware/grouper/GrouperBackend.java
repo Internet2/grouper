@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.121 2004-12-06 19:31:40 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.122 2004-12-06 19:43:51 blair Exp $
  */
 public class GrouperBackend {
 
@@ -449,7 +449,6 @@ public class GrouperBackend {
     // TODO Verify that key != null
     try {
       // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction(); // FIXME Needed?
       session.load(g, key);
   
       // Its schema
@@ -461,10 +460,7 @@ public class GrouperBackend {
         GrouperBackend._groupAttachAttrs(session, g, key);
         g.type( schema.type() );
         // g = GrouperGroup.loadByKey(g.key(), schema.type());
-        
         // FIXME Attach s to object?
-
-        tx.commit(); // FIXME Needed?
       } else {
         System.err.println("Unable to load group schema");
         System.exit(1);
