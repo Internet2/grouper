@@ -18,9 +18,9 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.11 2004-11-19 04:16:58 blair Exp $
+ * @version $Id: GrouperList.java,v 1.12 2004-11-23 19:28:47 blair Exp $
  */
-public class GrouperMembership implements Serializable {
+public class GrouperList implements Serializable {
 
   private String  groupKey;
   private String  groupField;
@@ -29,11 +29,11 @@ public class GrouperMembership implements Serializable {
   private String  removeAfter;
 
 
-  public GrouperMembership() {
+  public GrouperList() {
     this._init();
   }
 
-  public GrouperMembership(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
+  public GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
     // TODO The fact that this is public is troubling...
     this._init();
     // FIXME Stop relying upon the groupKey!

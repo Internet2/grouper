@@ -69,6 +69,15 @@
   />
 
   <!-- XXX I have no idea what is appropriate for this cache -->
+  <cache name="edu.internet2.middleware.group.GrouperList"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- XXX I have no idea what is appropriate for this cache -->
   <cache name="edu.internet2.middleware.group.GrouperMember"
     maxElementsInMemory="10000"
     eternal="false"
@@ -79,15 +88,6 @@
 
   <!-- XXX I have no idea what is appropriate for this cache -->
   <cache name="edu.internet2.middleware.group.GrouperSubjectAttribute"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- XXX I have no idea what is appropriate for this cache -->
-  <cache name="edu.internet2.middleware.group.GrouperMembership"
     maxElementsInMemory="10000"
     eternal="false"
     timeToIdleSeconds="300"
