@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetAdapterImpl.java,v 1.2 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: ChoiceSetAdapterImpl.java,v 1.3 2005-03-07 18:55:43 acohen Exp $
+$Date: 2005-03-07 18:55:43 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,7 +10,7 @@ package edu.internet2.middleware.signet;
 
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
-import edu.internet2.middleware.signet.choice.ChoiceSetNotFoundException;
+import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 
 /**
  * @author acohen
@@ -37,7 +37,7 @@ class ChoiceSetAdapterImpl implements ChoiceSetAdapter
    * @see edu.internet2.middleware.signet.choice.ChoiceSetAdapter#getChoiceSet(java.lang.String)
    */
   public ChoiceSet getChoiceSet(String id)
-    throws ChoiceSetNotFoundException
+    throws ChoiceSetNotFound
   {
     // TODO Auto-generated method stub
     return null;

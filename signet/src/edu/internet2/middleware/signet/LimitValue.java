@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.4 2005-02-25 20:16:20 acohen Exp $
-$Date: 2005-02-25 20:16:20 $
+$Id: LimitValue.java,v 1.5 2005-03-07 18:55:43 acohen Exp $
+$Date: 2005-03-07 18:55:43 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,7 +14,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
-import edu.internet2.middleware.signet.choice.ChoiceSetNotFoundException;
+import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 
 /**
  * Encapsulates the many-to-many relationship between Limits and their selected

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.7 2005-03-01 20:42:49 acohen Exp $
- $Date: 2005-03-01 20:42:49 $
+ $Id: AssignmentImpl.java,v 1.8 2005-03-07 18:55:43 acohen Exp $
+ $Date: 2005-03-07 18:55:43 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -609,7 +609,7 @@ implements Assignment, Comparable
   public LimitValue[] getLimitValuesInDisplayOrder()
   {
     LimitValue[] limitValues = this.getLimitValuesArray();
-    Arrays.sort(limitValues, new LimitValueDisplayOrderComparator());
+    Arrays.sort(limitValues, new LimitValueDisplayOrder());
     return limitValues;
   }
 }

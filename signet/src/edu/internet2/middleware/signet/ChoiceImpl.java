@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.3 2005-03-01 20:42:49 acohen Exp $
-$Date: 2005-03-01 20:42:49 $
+$Id: ChoiceImpl.java,v 1.4 2005-03-07 18:55:43 acohen Exp $
+$Date: 2005-03-07 18:55:43 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
-import edu.internet2.middleware.signet.choice.ChoiceSetNotFoundException;
+import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 
@@ -99,7 +99,7 @@ class ChoiceImpl implements Choice
    * @see edu.internet2.middleware.signet.choice.Choice#getChoiceSet()
    */
   public ChoiceSet getChoiceSet()
-  throws ChoiceSetNotFoundException
+  throws ChoiceSetNotFound
   {
     if ((this.choiceSet == null) && (this.choiceSetId != null)
         && (this.getSignet() != null))
@@ -112,7 +112,7 @@ class ChoiceImpl implements Choice
       }
       catch (ObjectNotFoundException onfe)
       {
-        throw new ChoiceSetNotFoundException(onfe);
+        throw new ChoiceSetNotFound(onfe);
       }
     }
 

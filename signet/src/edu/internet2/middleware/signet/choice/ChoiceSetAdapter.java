@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetAdapter.java,v 1.2 2005-01-24 18:54:27 acohen Exp $
-$Date: 2005-01-24 18:54:27 $
+$Id: ChoiceSetAdapter.java,v 1.3 2005-03-07 18:55:44 acohen Exp $
+$Date: 2005-03-07 18:55:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -23,10 +23,10 @@ public interface ChoiceSetAdapter
    * 
    * @param id
    * @return the specified ChoiceSet
-   * @throws ChoiceSetNotFoundException
+   * @throws ChoiceSetNotFound
    */
 	public ChoiceSet getChoiceSet(String id)
-		throws ChoiceSetNotFoundException;
+		throws ChoiceSetNotFound;
 	
 	/**
 	 * Must be called to initialize a newly instantiated

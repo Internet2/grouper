@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceTest.java,v 1.5 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: ChoiceTest.java,v 1.6 2005-03-07 18:55:44 acohen Exp $
+$Date: 2005-03-07 18:55:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
-import edu.internet2.middleware.signet.choice.ChoiceSetNotFoundException;
+import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 import edu.internet2.middleware.signet.test.Constants;
 import edu.internet2.middleware.signet.test.Fixtures;
 import junit.framework.TestCase;
@@ -175,7 +175,7 @@ public class ChoiceTest extends TestCase
   throws
   	ObjectNotFoundException,
   	ChoiceNotFoundException,
-  	ChoiceSetNotFoundException
+  	ChoiceSetNotFound
   {
     for (int choiceSetIndex = 0;
 		 choiceSetIndex < Constants.MAX_CHOICE_SETS;

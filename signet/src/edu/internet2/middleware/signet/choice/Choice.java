@@ -1,6 +1,6 @@
 /*--
-$Id: Choice.java,v 1.4 2005-01-24 18:54:27 acohen Exp $
-$Date: 2005-01-24 18:54:27 $
+$Id: Choice.java,v 1.5 2005-03-07 18:55:44 acohen Exp $
+$Date: 2005-03-07 18:55:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -17,7 +17,7 @@ public interface Choice
 	/**
 	 * Returns the enclosing ChoiceSet of this Choice.
 	 */
-	public ChoiceSet getChoiceSet() throws ChoiceSetNotFoundException;
+	public ChoiceSet getChoiceSet() throws ChoiceSetNotFound;
 	
 	/**
 	 * Returns the value associated with this Choice.

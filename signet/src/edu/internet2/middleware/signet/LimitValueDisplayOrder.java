@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValueDisplayOrderComparator.java,v 1.1 2005-03-01 20:42:49 acohen Exp $
-$Date: 2005-03-01 20:42:49 $
+$Id: LimitValueDisplayOrder.java,v 1.1 2005-03-07 18:55:43 acohen Exp $
+$Date: 2005-03-07 18:55:43 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@ import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-class LimitValueDisplayOrderComparator implements Comparator
+class LimitValueDisplayOrder implements Comparator
 {
 
   /* (non-Javadoc)
