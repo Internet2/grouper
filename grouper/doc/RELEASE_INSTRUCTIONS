@@ -1,0 +1,29 @@
+
+# Grouper Release Instructions
+
+Inspired by _Parrot's_ RELEASE_INSTRUCTIONS file.
+
+$Id: RELEASE_INSTRUCTIONS,v 1.1 2004-12-04 04:05:21 blair Exp $
+
+---
+
+## To Prepare For A Release:
+
+More details to follow.
+
+* Perform a fresh checkout and test harness succeeds.
+
+* Tag CVS with a tag of the form _RELEASE_MAJOR_MINOR_
+
+* Generate _CHANGES_ file
+
+* Generate HTML versions of _Markdown_-formatted files
+
+* Generate versioned tarball.
+
+* Extract tarball and confirm test harness succeeds.
+
+* TODO Sign?
+
+* TODO Notify grouper-dev?
+
