@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.13 2005-03-02 22:39:12 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.14 2005-03-02 23:12:13 blair Exp $
  */
 public class GrouperQuery {
 
@@ -310,6 +310,9 @@ public class GrouperQuery {
   private boolean _queryGroupType(String type) throws GrouperException {
     boolean rv    = false;
     List    vals  = new ArrayList();
+
+    this.gs.dbSessStart(); // TODO Is this the right place?
+
     this.candidates.remove(KEY_GT);
     // Find all groups of matching type
     List      groups  = GrouperBackend.groupType(this.gs, type);
@@ -317,7 +320,7 @@ public class GrouperQuery {
     Iterator  iter    = groups.iterator();
     while (iter.hasNext()) {
       GrouperGroup g = (GrouperGroup) iter.next();
-      Iterator lvIter =  GrouperBackend.listValsOld(
+      Iterator lvIter =  GrouperBackend.listVals(
                            this.gs, g, Grouper.DEF_LIST_TYPE
                          ).iterator();
       while (lvIter.hasNext()) {
@@ -329,6 +332,9 @@ public class GrouperQuery {
       rv = true;
     }
     this.candidates.put(KEY_GT, vals);
+
+    this.gs.dbSessStop(); // TODO Is this the right place?
+
     return rv; 
   }
 
@@ -400,11 +406,14 @@ public class GrouperQuery {
    */
   private static List _iterGroup(GrouperSession gs, List groups) {
     List vals = new ArrayList();
+
+    gs.dbSessStart(); // TODO Is this the right place?
+
     if (groups != null) {
       Iterator iter = groups.iterator();
       while (iter.hasNext()) {
         GrouperGroup g = (GrouperGroup) iter.next();
-        Iterator lvIter =  GrouperBackend.listValsOld(
+        Iterator lvIter =  GrouperBackend.listVals(
                              gs, g, Grouper.DEF_LIST_TYPE
                            ).iterator();
         while (lvIter.hasNext()) {
@@ -415,6 +424,9 @@ public class GrouperQuery {
         }
       }
     }
+
+    gs.dbSessStart(); // TODO Is this the right place?
+
     return vals;
   }
 
