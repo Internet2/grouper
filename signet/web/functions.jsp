@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.4 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: functions.jsp,v 1.5 2005-02-25 18:51:10 jvine Exp $
+  $Date: 2005-02-25 18:51:10 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -73,7 +73,8 @@
         <div id="Signet">
 					<img src="images/signet.gif" alt="Signet" height="60" width="49">
         </div> <!-- Signet -->
-    
+      </div> <!-- Header -->
+			    
         <div id="Navbar">
           <span class="logout">
             <a href="NotYetImplemented.do">
@@ -91,7 +92,6 @@
             &gt; Grant new privilege
           </span> <!-- select -->
         </div> <!-- Navbar -->
-      </div> <!-- Header -->
     
       <div id="Layout"> 
         <div id="Content">
