@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.18 2004-11-30 02:26:53 blair Exp $
+ * @version $Id: GrouperList.java,v 1.19 2004-12-01 04:05:58 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -173,14 +173,6 @@ public class GrouperList implements Serializable {
     return new ToStringBuilder(this)        .
       append("field", this.getGroupField()) .
       toString();
-  }
-
-  // FIXME I hate you
-  public void set(String key, String field, String subject, boolean immediate) {
-    // FIXME This is all pretty dubious
-    this.groupKey     = key;
-    this.groupField   = field;
-    this.memberKey    = subject;
   }
 
 
