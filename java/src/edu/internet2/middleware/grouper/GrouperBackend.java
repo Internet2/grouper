@@ -65,52 +65,9 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.191 2005-03-22 19:26:12 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.192 2005-03-22 20:23:49 blair Exp $
  */
 public class GrouperBackend {
-
-  /*
-   * FIXME This entire class needs to be gutted and refactored.  I
-   *       won't complain if all of this code were to disappear.
-   *       In fact, I'd probably celebrate.  
-   *       
-   *       Unfortunately, I don't have time to refactor this before the
-   *       release of 0.5.  Alas.
-   */
-
-  /*
-   * PROTECTED CLASS METHODS
-   */
-
-  /**
-   * Delete a {@link GrouperGroup} from the repository.
-   * <p />
-   * @param   s   {@link GrouperSession}
-   * @param   g   {@link GrouperGroup} to add
-   * @return  True if the group was added.
-   */
-  protected static boolean groupAdd(GrouperSession s, GrouperGroup g) {
-    boolean rv      = false;
-    if (_validateGroupAdd(s, g)) {
-      try {
-        // The group object
-        s.dbSess().session().save(g);
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error saving group: " + g);
-      }
-      // Add schema
-      GrouperSchema.save(s, g);
-      // Add attributes
-      if (_attributesAdd(s, g)) {
-        if (_privGrantUponCreate(s, g)) {
-          rv = true;
-        }
-      }
-    } else { 
-      Grouper.log().event("Unable to add group " + g.name());
-    }
-    return rv;
-  }
 
   /**
    * Delete a {@link GrouperGroup} from the registry.
@@ -222,34 +179,6 @@ public class GrouperBackend {
     } catch (HibernateException e) {
       s.dbSess().txRollback(); // FIXME Grr...
       throw new RuntimeException("Error deleting list value: " + e);
-    }
-    return rv;
-  }
-
-
-  /*
-   * PRIVATE CLASS METHODS
-   */
-
-  /* !javadoc
-   * Attach attributes to a group
-   */
-  protected static boolean _attributesAdd(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    Iterator iter = g.attributes().keySet().iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) g.attribute(
-                                                   (String) iter.next() 
-                                                 );
-      try {
-        GrouperAttribute.save(
-          s, new GrouperAttribute(g.key(), attr.field(), attr.value())
-        );
-      } catch (RuntimeException e) {
-        rv = false;
-        break;
-      }
-      rv = true; 
     }
     return rv;
   }
@@ -393,86 +322,6 @@ public class GrouperBackend {
   }
 
   /* !javadoc
-   * Grant PRIV_ADMIN to group creator upon creation
-   */
-  protected static boolean _privGrantAdminUponCreate(
-                           GrouperSession s, GrouperGroup g,
-                           GrouperMember m
-                         )
-  {
-    boolean rv = false;
-    if (s.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
-      Grouper.log().backend("Granted " + Grouper.PRIV_ADMIN + " to " + m);
-      rv = true;
-    } else {
-      Grouper.log().backend(
-                            "Unable to grant " + Grouper.PRIV_ADMIN + 
-                            " to " + m
-                           );
-    }
-    return rv;
-  }
-
-  /* !javadoc
-   * Grant PRIV_STEM to stem creator upon creation
-   */
-  protected static boolean _privGrantStemUponCreate(
-                           GrouperSession s, GrouperGroup g,
-                           GrouperMember m
-                         )
-  {
-    GrouperSession.validate(s);
-    boolean rv = false;
-    if (s.naming().grant(s, g, m, Grouper.PRIV_STEM)) {
-      Grouper.log().backend("Granted " + Grouper.PRIV_STEM + " to " + m);
-      rv      = true;
-    } else {
-      Grouper.log().backend(
-        "Unable to grant " + Grouper.PRIV_STEM + " to " + m
-      );
-    }
-    return rv;
-  }
-
-  /* !javadoc
-   * Grant appropriate privilege to group|stem creator upon creation
-   */
-  protected static boolean _privGrantUponCreate(
-                           GrouperSession s, GrouperGroup g
-                         )
-  {
-    GrouperSession.validate(s);
-    boolean rv = false;
-    // We need a root session for for bootstrap privilege granting
-    Subject root = GrouperSubject.load(
-                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                   );
-    GrouperSession rs = GrouperSession.start(root);
-    if (rs != null) {
-      // Now grant privileges to the group creator
-      Grouper.log().backend("Converting subject " + s);
-      GrouperMember m = GrouperMember.load(s.subject() );
-      if (m != null) { // FIXME Bah
-        Grouper.log().backend("Converted to member " + m);
-        if (g.type().equals(Grouper.NS_TYPE)) {
-          if (_privGrantStemUponCreate(rs, g, m)) {
-            // NS_TYPE groups get PRIV_STEM
-            rv = true;
-          } 
-        } else if (_privGrantAdminUponCreate(rs, g, m)) {
-          // All other group types get PRIV_ADMIN
-          rv = true;
-        }
-      } else {
-        Grouper.log().backend("Unable to convert to member");
-      }
-      // Close root session
-      rs.stop();
-    }
-    return rv;
-  }
-
-  /* !javadoc
    * Revoke all naming privs attached to a group
    */
   protected static boolean _privNamingRevokeAll(
@@ -487,21 +336,6 @@ public class GrouperBackend {
         s.naming().revoke(s, g, Grouper.PRIV_CREATE) 
        )
     {       
-      rv = true;
-    }
-    return rv;
-  }
-
-  /* !javadoc
-   * Validate that a group is eligible to be created
-   */
-  protected static boolean _validateGroupAdd(
-                           GrouperSession s, GrouperGroup g
-                         )
-  {
-    boolean rv = false;
-    GrouperAttribute stem = (GrouperAttribute) g.attribute("stem");
-    if (GrouperStem.exists(s, (String) stem.value())) {
       rv = true;
     }
     return rv;
@@ -1013,24 +847,6 @@ public class GrouperBackend {
                 );
     }
     return schema;
-  }
-
-  /* (!javadoc)
-   * Iterate through a list and fully load {@link GrouperGroup}
-   * objects.
-   */
-  protected static List _iterGroup(GrouperSession s, Iterator iter) {
-    List vals = new ArrayList();
-    while (iter.hasNext()) {
-      GrouperGroup g = (GrouperGroup) iter.next();
-      if (g != null) {
-        g = GrouperGroup.loadByKey(s, g, g.key());
-        if (g != null) {
-          vals.add(g);
-        }
-      }  
-    }
-    return vals;
   }
 
 }
