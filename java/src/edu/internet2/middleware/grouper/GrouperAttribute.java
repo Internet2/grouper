@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.8 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.9 2004-11-28 04:36:17 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -49,17 +49,14 @@ public class GrouperAttribute implements Serializable {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
-  public String key() {
-    // TODO This does expose the group key.  Do we want that?
-    return this.getGroupKey();
-  }
-
+  // FIXME I hate you.
   public void set(String key, String field, String value) {
     this.groupKey         = key;
     this.groupField       = field;
     this.groupFieldValue  = value;
   }
 
+  // FIXME I hate you.
   public String toString() {
     return this.getGroupKey() + ":" + this.getGroupField() + ":" + 
            this.getGroupFieldValue();
@@ -67,6 +64,15 @@ public class GrouperAttribute implements Serializable {
 
   public String value() {
     return this.getGroupFieldValue();
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+  protected String key() {
+    // TODO This does expose the group key.  Do we want that?
+    return this.getGroupKey();
   }
 
 
