@@ -191,6 +191,8 @@ public class TestGroups extends TestCase {
     Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
     Assert.assertNotNull( g0.attribute("extension") );
     Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
+    Assert.assertNotNull( g0.opattr("createSubject") );
+    Assert.assertNotNull( g0.opattr("createTime") );
     // g1
     GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
