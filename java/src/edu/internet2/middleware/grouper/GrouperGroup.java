@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.7 2004-04-28 15:51:15 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.8 2004-04-28 15:59:22 blair Exp $
  */
 public class GrouperGroup {
 
@@ -101,7 +101,7 @@ public class GrouperGroup {
    *      create the group.</li>
    *  <li>Update the <i>grouper_group</i> table.</li>
    *  <li>Update the <i>grouper_schema</i> table using the default
-   *      <i>groupTypeID</i>.</li>
+   *      <i>groupType</i>.</li>
    *  <li>Update the <i>grouper_membership</i> table by making
    *      "subjectID" an "admin".</li>
    *  <li>Update the <i>grouper_metadata</i> table</li>
@@ -119,7 +119,7 @@ public class GrouperGroup {
    *      create the group.</li>
    *  <li>Update the <i>grouper_group</i> table.</li>
    *  <li>Update the <i>grouper_schema</i> table using "groupType"
-   *      as the <i>groupTypeID</i>.</li>
+   *      as the <i>groupType</i>.</li>
    *  <li>Update the <i>grouper_membership</i> table by making
    *      "subjectID" an "admin".</li>
    *  <li>Update the <i>grouper_metadata</i> table</li>
