@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -64,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.28 2005-03-26 17:35:03 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.29 2005-03-29 20:40:58 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -87,9 +88,8 @@ public class GrouperAttribute implements Serializable {
     // Nothing
   }
 
-  /* (!javadoc)
-   * TODO This should <b>only</b> be used within Grouper and I'd
-   *      prefer to not be relying upon <i>protected</i> for that...
+  /* 
+   * Create a new and populated attribute object.
    */
   protected GrouperAttribute(String key, String field, String value) {
     this.groupKey         = key;
@@ -223,7 +223,7 @@ public class GrouperAttribute implements Serializable {
    */
 
   /**
-   * Compares the specified object with this attribute for equality.
+   * Compare the specified object with this attribute for equality.
    * <p />
    * @param o Object to be compared for equality with this attribute.
    * @return  True if the specified object is equal to this attribute.
@@ -242,7 +242,7 @@ public class GrouperAttribute implements Serializable {
   }
 
   /**
-   * Returns the hash code value for this attribute.
+   * Return the hash code value for this attribute.
    * <p />
    * @return  The hash code value for this attribute.
    */
@@ -275,8 +275,11 @@ public class GrouperAttribute implements Serializable {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Return the group key for this attribute.
+   */
   protected String key() {
-    // TODO This does expose the group key.  Do we want that?
     return this.getGroupKey();
   }
 
