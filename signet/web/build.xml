@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project
+	name="Signet Web Application"
+	default="build" basedir=".">
+
+	<property name="dist.dir"       value="../dist" />
+	<property name="webapp.dir"     value="${dist.dir}/webapp" />
+	<property name="webapp.name"    value="signet" />
+	
+	<!-- =================== BUILD: Create Directories ===================== --> 
+	<target name="prepare">
+		<mkdir dir="${webapp.dir}" /> 
+		<mkdir dir="${webapp.dir}/${webapp.name}" /> 
+		<mkdir dir="${webapp.dir}/${webapp.name}/WEB-INF" /> 
+		<mkdir dir="${webapp.dir}/${webapp.name}/WEB-INF/classes" /> 
+		<mkdir dir="${webapp.dir}/${webapp.name}/WEB-INF/lib" /> 
+	</target>
+
+	<!-- ================ BUILD: Copy JSPs and Static Files ================ --> 
+	<target name="copy-static" depends="prepare">
+		<copy todir="${webapp.dir}/${webapp.name}">
+			<fileset dir=".">
+			<include name="**/*" />
+			<exclude name="config" />
+			<exclude name="config/*" />
+			<exclude name="build.xml" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ================ BUILD: Copy config files ========================= --> 
+	<target name="copy-config" depends="prepare">
+		<!-- Webapp deployment descriptor file -->
+		<copy file="config/web.xml"
+			todir="${webapp.dir}/${webapp.name}/WEB-INF" />
+		<!-- Struts config and tag library descriptors -->
+		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF">
+			<fileset dir="config">
+			<include name="web.xml" />
+			<include name="struts-*.xml" />
+			<include name="struts-*.tld" />
+			<include name="tiles-defs.xml" />
+			</fileset>
+		</copy>
+		
+	</target>
+
+	<!-- ================== BUILD: Clean Directory ========================= --> 
+	<target name="clean">
+		<delete dir="${webapp.dir}" />
+	</target>
+
+	<!-- ================= BUILD: Build Webapp ========================== -->
+	<target name="build" depends="clean, prepare, copy-static, copy-config"
+		description="Build Signet web app">
+		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF/classes">
+			<fileset dir="../classes">
+			<include name="**/*" /> 
+			</fileset>
+		</copy>
+		<copy todir="${webapp.dir}/${webapp.name}/WEB-INF/lib">
+			<fileset dir="../lib">
+			<include name="**/*" /> 
+			<exclude name="**/servlet-api.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+</project>
