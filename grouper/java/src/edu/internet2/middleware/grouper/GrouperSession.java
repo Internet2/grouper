@@ -8,7 +8,7 @@ import  java.sql.*;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.9 2004-04-29 05:22:40 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.10 2004-04-29 15:23:18 blair Exp $
  */
 public class GrouperSession {
 
@@ -130,15 +130,15 @@ public class GrouperSession {
     return this.subjectID;
   }
 
-  public GrouperMember lookup(String subjectID) {
+  public GrouperMember lookupSubject(String subjectID) {
     return _lookup(subjectID);
   }
 
-  public GrouperMember lookup(String subjectID, boolean isMember) {
+  public GrouperMember lookupSubject(String subjectID, boolean isMember) {
     return _lookup(subjectID);
   }
 
-  private GrouperMember _lookup(String subjectID) {
+  private GrouperMember _lookupSubject(String subjectID) {
     GrouperMember m = this.intSubj.lookup(subjectID);
     if (m != null) {
       this.subjectID = subjectID;
