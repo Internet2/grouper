@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.176 2005-03-22 02:56:19 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.177 2005-03-22 14:38:00 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1403,35 +1403,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  /**
-   * Add a new {@link GrouperSession}.
-   *
-   * @param s Session to add.
-   */
-  protected static void sessionAdd(GrouperSession s) {
-    try {
-      s.dbSess().session().save(s);
-    } catch (Exception e) {
-      throw new RuntimeException("Error adding session: " + e);
-    }
-  }
-
-  /**
-   * Delete a {@link GrouperSession}.
-   * <p />
-   *
-   * @param   s   Session to delete.
-   * @return  True is fhe session was deleted.
-   */
-  protected static boolean sessionDel(GrouperSession s) {
-    try {
-      s.dbSess().session().delete(s);
-    } catch (Exception e) {
-      throw new RuntimeException("Error deleting session: " + e);
-    }
-    return true;
   }
 
   // TODO

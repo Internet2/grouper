@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.8 2005-03-14 03:19:40 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.9 2005-03-22 14:38:00 blair Exp $
  */
 public class GrouperLog {
 
@@ -290,22 +290,15 @@ public class GrouperLog {
   }
 
   // Session: Start
-  protected void sessionStart(boolean rv, GrouperSession s) {
-    String post = " session for '" + s.subject().getId() + "'";
-    if (rv == true) {
-      LOG_EVT.info("Started" + post);
-    } else {
-      LOG_EVT.info("Failed to start" + post);
-    }
+  protected void sessionStart(GrouperSession s) {
+    // TODO Should include type.  Just toString() it?
+    LOG_EVT.info("Started session for '" + s.subject().getId() + "'");
   }
 
   // Session: Stop
-  protected void sessionStop(boolean rv, GrouperSession s) {
-    if (rv == true) {
-      LOG_EVT.info("Stopped session for '" + s.subject().getId() + "'");
-    } else {
-      LOG_EVT.info("Failed to stop session");
-    }
+  protected void sessionStop(GrouperSession s) {
+    // TODO Should include type.  Just toString() it?
+    LOG_EVT.info("Stopped session for '" + s.subject().getId() + "'");
   }
 
   // General warnings
