@@ -273,12 +273,10 @@ public class TestQueries extends TestCase {
     // Create query object
     GrouperQuery    q     = new GrouperQuery(s);
 
-    String naming = "naming";
-
-    // We want `naming' + MEM_ALL
+    // We want NS_TYPE + MEM_ALL
     try {
-      // First `naming'
-      Assert.assertFalse( q.groupType(naming) );
+      // First NS_TYPE
+      Assert.assertFalse( q.groupType(Grouper.NS_TYPE) );
       // Now MEM_ALL
       Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
       List vals = q.query();
@@ -291,8 +289,8 @@ public class TestQueries extends TestCase {
     // We want DEF_GROUP_TYPE + MEM_EFF
     try {
       q = new GrouperQuery(s); // FIXME
-      // First `naming'
-      Assert.assertFalse( q.groupType(naming) );
+      // First NS_TYPE
+      Assert.assertFalse( q.groupType(Grouper.NS_TYPE) );
       // Now MEM_EFF
       Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
     } catch (GrouperException e) {
@@ -302,8 +300,8 @@ public class TestQueries extends TestCase {
     // We want DEF_GROUP_TYPE + MEM_IMM
     try {
       q = new GrouperQuery(s); // FIXME
-      // First `naming'
-      Assert.assertFalse( q.groupType(naming) );
+      // First NS_TYPE
+      Assert.assertFalse( q.groupType(Grouper.NS_TYPE) );
       // Now MEM_IMM
       Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
       List vals = q.query();
