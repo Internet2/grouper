@@ -150,6 +150,15 @@
   />
 
   <!-- XXX I have no idea what is appropriate for this cache -->
+  <cache name="net.sf.hibernate.cache.StandardQueryCache"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- XXX I have no idea what is appropriate for this cache -->
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="10000"
     eternal="false"
