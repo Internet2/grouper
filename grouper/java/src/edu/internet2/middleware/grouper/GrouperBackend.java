@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.35 2004-11-15 19:58:15 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.36 2004-11-16 02:13:21 blair Exp $
  */
 public class GrouperBackend {
 
@@ -484,7 +484,7 @@ public class GrouperBackend {
 
         // Save it
         session.save(member);
-
+      
         // Commit it
         t.commit();
       } catch (Exception e) {
@@ -606,37 +606,11 @@ public class GrouperBackend {
       }
     }
     if (key != null) {
-      g = GrouperBackend.groupLoad(s, key);
+      g = GrouperBackend._groupLoad(key);
     }
     // TODO Here I return a dummy object while elsewhere, and with
     //      other classes, I return null.  Standardize.  I *probably*
     //      should return null.
-    GrouperBackend._hibernateSessionClose(session);
-    return g;
-  }
-
-  protected static GrouperGroup groupLoad(GrouperSession s, String key) {
-    Session       session = GrouperBackend._init();
-    GrouperGroup  g       = new GrouperGroup();
-    try {
-      // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction();
-      session.load(g, key);
-  
-      // Its schema
-      GrouperBackend._groupLoadSchema(g, key);
-   
-      // And its attributes
-      GrouperBackend._groupLoadAttributes(g, key);
-
-      // FIXME Attach s to object?
-
-      tx.commit();
-    } catch (Exception e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      System.err.println(e);
-      System.exit(1);
-    }
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
@@ -657,12 +631,17 @@ public class GrouperBackend {
         "WHERE "                              +
         "groupKey='"      + id      + "' "
       );
+      // We only want *one* subject.
       if (q.list().size() == 1) {
-        // We only want *one* subject.
         // Now fetch the group object 
         GrouperGroup g = (GrouperGroup) q.list().get(0);
+        // ... And fully populate it (explicitly) since I'm not (yet)
+        // making full use of everything Hibernate has to offer.
+        g = GrouperBackend._groupLoad(g.key());
         // ... And convert it to a subject object
         subj = new SubjectImpl(id, typeID);
+        GrouperBackend._hibernateSessionClose(session);
+        return subj;
       }
       // TODO Throw an exception?
     } catch (Exception e) {
@@ -706,9 +685,81 @@ public class GrouperBackend {
 
 
   /*
-   * PRIVATE INSTANCE METHODS
+   * PRIVATE CLASS METHODS
    */
 
+  private static GrouperGroup _groupLoad(String key) {
+    Session       session = GrouperBackend._init();
+    GrouperGroup  g       = new GrouperGroup();
+
+    try {
+      // Attempt to load a stored group into the current object
+      Transaction tx = session.beginTransaction();
+      session.load(g, key);
+  
+      // Its schema
+      GrouperBackend._groupLoadSchema(g, key);
+   
+      // And its attributes
+      GrouperBackend._groupLoadAttributes(g, key);
+
+      // FIXME Attach s to object?
+
+      tx.commit();
+    } catch (Exception e) {
+      // TODO Rollback if load fails?  Unset this.exists?
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return g;
+  }
+
+
+  private static void _groupLoadAttributes(GrouperGroup g, String key) {
+    Session session = GrouperBackend._init();
+    // TODO Do I even need `key' passed in?
+    List    attrs   = GrouperBackend.attributes(g);
+    for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
+      GrouperAttribute attr = (GrouperAttribute) attrIter.next();
+      g.attribute( attr.field(), attr.value() );
+    }
+    GrouperBackend._hibernateSessionClose(session);
+  }
+
+  private static void _groupLoadSchema(GrouperGroup g, String key) { 
+    Session session = GrouperBackend._init();
+    List    schemas = GrouperBackend.schemas(g);
+    if (schemas.size() == 1) {
+      GrouperSchema schema = (GrouperSchema) schemas.get(0);
+      // TODO Attach this to the group object.
+    } else {
+      System.err.println("Found " + schemas.size() + 
+                         " schema definitions.");
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+  }
+
+  private static void _hibernateSessionClose(Session session) {
+    try {
+      // TODO This is excessive.  Either perform dirty check, have a
+      //      close method that doesn't flush(), or something.
+      session.flush();
+      try {
+        // TODO This is excessive.  Either perform dirty check, have a
+        //      close method that doesn't commit(), or something.
+        session.connection().commit();
+      } catch (SQLException e) {
+        System.err.println("SQL Commit Exception");
+        System.exit(1);
+      }
+      session.close();
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }      
+  }
 
   /*
    * Initialize Hibernate session
@@ -740,38 +791,5 @@ public class GrouperBackend {
     return null;
   }
 
-  private static void _groupLoadAttributes(GrouperGroup g, String key) {
-    Session session = GrouperBackend._init();
-    // TODO Do I even need `key' passed in?
-    List    attrs   = GrouperBackend.attributes(g);
-    for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
-      GrouperAttribute attr = (GrouperAttribute) attrIter.next();
-      g.attribute( attr.field(), attr.value() );
-    }
-    GrouperBackend._hibernateSessionClose(session);
-  }
-
-  private static void _groupLoadSchema(GrouperGroup g, String key) { 
-    Session session = GrouperBackend._init();
-    List    schemas = GrouperBackend.schemas(g);
-    if (schemas.size() == 1) {
-      GrouperSchema schema = (GrouperSchema) schemas.get(0);
-      // TODO Attach this to the group object.
-    } else {
-      System.err.println("Found " + schemas.size() + 
-                         " schema definitions.");
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-  }
-
-  private static void _hibernateSessionClose(Session session) {
-    try {
-      session.close();
-    } catch (HibernateException e) {
-      System.err.println(e);
-      System.exit(1);
-    }      
-  }
 }
  
