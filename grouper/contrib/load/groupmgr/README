@@ -1,0 +1,34 @@
+
+# Program to add and delete groups, memberships, and attributes. 
+
+This code was contributed by The University Of Chicago.
+
+$Id: README,v 1.1 2004-12-08 03:45:25 blair Exp $
+
+---
+
+## Build
+
+    % cd $GROUPER_BASE/load/groupermgr
+    % ant
+
+--
+
+## Run
+
+    % cd $GROUPER_BASE/load/groupermgr
+    % export CLASSPATH=.:/path/to/Grouper.jar:/path/to/Grouper-lib.jar:/path/to/grouper/conf/dir
+    % java groupermgr -h
+    % TODO
+
+--
+
+## Bugs
+
+* No support for adding namespaces
+* No support for adding groups
+* No support for removing groups
+* No support for adding members
+* No support for removing members
+* No support for modifying attributes
+
