@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.134 2004-12-06 23:43:48 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.135 2004-12-07 02:04:58 blair Exp $
  */
 public class GrouperGroup {
 
@@ -148,17 +148,7 @@ public class GrouperGroup {
     boolean rv = false;
     if (GrouperGroup._canDelete(s, g)) {
       rv = GrouperBackend.groupDelete(s, g);
-      // TODO Make this cleaner|easier?
-      GrouperAttribute name = g.attribute("name");
-      if (rv == true) {
-        Grouper.LOG.info(
-          s.subject().getId() + " deleted " + name + " (" + g.type() + ")"
-        );
-      } else {
-        Grouper.LOG.info(
-          s.subject().getId() + " failed to delete " + name + " (" + g.type() + ")"
-        );
-      }
+      Grouper.log().groupDel(rv, s, g);
     }
     return rv;
   }
@@ -254,9 +244,7 @@ public class GrouperGroup {
            )
          ) 
       {
-        Grouper.LOG.info(
-          "ERROR: `" + attribute + "' modification is not currently supported!"
-        );
+        Grouper.log().groupAttrNoMod(attribute);
       } else {
         // TODO Validate?
         /*
@@ -268,8 +256,6 @@ public class GrouperGroup {
         String curModTime = this.getModifyTime();
         String curModSubj = this.getModifySubject();
         // For logging
-        // TODO Make this cleaner|easier?
-        GrouperAttribute name = this.attribute("name");
         if        (value == null) {
           // Delete an existing attribute
           this.setModifyTime(    GrouperGroup._now()       );
@@ -284,24 +270,16 @@ public class GrouperGroup {
             this.attributes.remove(attribute);
             rv = true;
           }
-          if (rv == true) {
-            Grouper.LOG.info(
-              this.gs.subject().getId() + " deleted attribute " + attribute +
-              " from " + name.value()
-            );
-          } else {
+          Grouper.log().groupAttrDel(rv, this.gs, this, attribute);
+          if (rv != true) {
             // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
-              Grouper.LOG.warn("Unable to revert failed attribute delete!");
+              Grouper.log().warn("Unable to revert failed attribute delete!");
               System.exit(1);
             }
             // Revert modify* attr changes 
             this.setModifyTime(curModTime);
             this.setModifySubject(curModSubj);
-            Grouper.LOG.info(
-              this.gs.subject().getId() + " failed to delete attribute " + 
-              attribute + " from " + name.value()
-            );
           }
         } else if (cur == null) {
           // Add a new attribute value
@@ -320,20 +298,14 @@ public class GrouperGroup {
                )
             {
               rv = true;
-              Grouper.LOG.info(
-                this.gs.subject().getId() + " added " + attribute + "=" +
-                value + " to " + name.value()
-              );
-            }  else {
+            }
+            Grouper.log().groupAttrAdd(rv, this.gs, this, attribute, value);
+            if (rv != true) {
               // We only need to revert modify* attr changes as there is
               // no attribute value to revert back to in this case.
               this.setModifyTime(curModTime);
               this.setModifySubject(curModSubj);
-              rv = false;
-              Grouper.LOG.info(
-                this.gs.subject().getId() + " failed to add " + attribute + "=" +
-                value + " to " + name.value()
-              );
+              rv = false; // TODO Overkill?
             }
           } else {
             if (
@@ -360,24 +332,18 @@ public class GrouperGroup {
              )
           {
             rv = true;
-            Grouper.LOG.info(
-              this.gs.subject().getId() + " updated " + attribute + "=" +
-              value + " for " + name.value()
-            );
-          } else {
+          }
+          Grouper.log().groupAttrUpdate(rv, this.gs, this, attribute, value);
+          if (rv != true) {
             // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
-              Grouper.LOG.warn("Unable to revert failed attribute update!");
+              Grouper.log().warn("Unable to revert failed attribute update!");
               System.exit(1);
             }
             // Revert modify* attr changes 
             this.setModifyTime(curModTime);
             this.setModifySubject(curModSubj);
             rv = false;
-            Grouper.LOG.info(
-              this.gs.subject().getId() + " failed to update " + attribute + "=" +
-              value + " for " + name.value()
-            );
           }
         }
       }
@@ -519,21 +485,7 @@ public class GrouperGroup {
     boolean rv = false;
     if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
       rv = this._listAddVal(s, m, Grouper.DEF_LIST_TYPE);
-      // TODO Make this cleaner|easier?
-      GrouperAttribute name = this.attribute("name");
-      if (rv == true) {
-        Grouper.LOG.info(
-          s.subject().getId() + " added " + m.memberID() + "/" + 
-          m.subjectID() + " to " + name.value() + " (" +
-          Grouper.DEF_LIST_TYPE + ")"
-        );
-      } else {
-        Grouper.LOG.info(
-          s.subject().getId() + " failed to add " + m.memberID() + "/" + 
-          m.subjectID() + " to " + name.value() + " (" +
-          Grouper.DEF_LIST_TYPE + ")"
-        );
-      }
+      Grouper.log().groupListAdd(rv, s, this, m);
     }
     return rv;
   }
@@ -553,22 +505,8 @@ public class GrouperGroup {
     boolean rv = false;
     if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
       rv = this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
-      // TODO Make this cleaner|easier?
-      GrouperAttribute name = this.attribute("name");
-      if (rv == true) {
-        Grouper.LOG.info(
-          s.subject().getId() + " deleted " + m.memberID() + "/" + 
-          m.subjectID() + " from " + name.value() + " (" +
-          Grouper.DEF_LIST_TYPE + ")"
-        );
-      } else {
-        Grouper.LOG.info(
-          s.subject().getId() + " failed to delete " + m.memberID() + "/" + 
-          m.subjectID() + " from " + name.value() + " (" +
-          Grouper.DEF_LIST_TYPE + ")"
-        );
-      }
-    }
+    }  
+    Grouper.log().groupListDel(rv, s, this, m);
     return rv;
   }
 
@@ -782,8 +720,6 @@ public class GrouperGroup {
     if (attr != null) {
       attributes.put(attribute, attr);
       rv = true;
-    } else {
-      Grouper.LOG.warn("Unable to add attribute " + attribute);
     }
     return rv;
   }
@@ -797,9 +733,6 @@ public class GrouperGroup {
                             );
     if (attr != null) {
       attributes.put(attribute, attr);
-    } else {
-      Grouper.LOG.warn("Unable to add attribute " +
-                          attribute + "=" + value);
     }
   }
 
@@ -818,6 +751,7 @@ public class GrouperGroup {
                                      )
   {
     GrouperGroup g = null;
+    String name = GrouperBackend.groupName(stem, extn);
     if (GrouperGroup._canCreate(s, stem)) {
       // Check to see if the group already exists.
       g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
@@ -826,13 +760,9 @@ public class GrouperGroup {
          * TODO Group already exists.  Ideally we'd throw an exception or
          *      something, but, for now...
          */
-        Grouper.LOG.info(
-          "Cannot create `" + GrouperBackend.groupName(stem, extn) +
-          "' (" + type + ") as it already exists."
-        );
+        Grouper.log().groupAddCannot(s, name, type);
         g = null;
       } else {
-        String name = GrouperBackend.groupName(stem, extn);
         if (name != null) {
           // TODO Can I move all|most of this to GrouperBackend?
           g = new GrouperGroup();
@@ -867,9 +797,6 @@ public class GrouperGroup {
             // And now attempt to add the group to the store
             if (GrouperBackend.groupAdd(s, g)) {
               g.initialized = true; // FIXME UGLY HACK!
-              Grouper.LOG.info(
-                s.subject().getId() + " created " + name + " (" + type + ")"
-              );
             } else {
               g = null;  
             }
@@ -880,11 +807,12 @@ public class GrouperGroup {
         }
       }
     } else {
-      Grouper.LOG.info(
+      Grouper.log().event(
         "Subject does not have " + Grouper.PRIV_CREATE + 
         " privileges on this stem"
       );
     }
+    Grouper.log().groupAdd(s, g, name, type);
     return g;
   }
 

@@ -56,7 +56,6 @@ import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.lang.reflect.*;
 import  java.util.*;
-import  org.apache.log4j.*;
 
 
 /** 
@@ -64,7 +63,7 @@ import  org.apache.log4j.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.60 2004-12-06 20:15:13 blair Exp $
+ * @version $Id: Grouper.java,v 1.61 2004-12-07 02:04:58 blair Exp $
  */
 public class Grouper {
 
@@ -95,13 +94,6 @@ public class Grouper {
 
 
   /*
-   * PROTECTED CONSTANTS
-   */
-  protected static final Logger LOG = 
-    Logger.getLogger(Grouper.class.getName());
-
-
-  /*
    * PRIVATE CLASS VARIABLES 
    */
 
@@ -125,6 +117,8 @@ public class Grouper {
   private static List           groupTypeDefs = new ArrayList();
   // Cached Grouper subject types
   private static List           subjectTypes  = new ArrayList();
+  // For logging
+  private static GrouperLog     log           = new GrouperLog();
 
 
   /*
@@ -286,6 +280,21 @@ public class Grouper {
 
 
   /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /**
+   * Retrieves the {@link GrouperLog} logging object.
+   * <p />
+   * TODO I could envision making this public...
+   *
+   * @return  {@link GrouperLog} object.
+   */
+  protected static GrouperLog log() {
+    return log;
+  }
+
+  /*
    * PRIVATE CLASS METHODS
    */
 
@@ -294,7 +303,7 @@ public class Grouper {
    */
   private static void _init() {
     if (initialized == false) {
-      Grouper.LOG.info("Initializing Grouper");
+      log.event("Initializing Grouper");
       Grouper     tmp = new Grouper();
       InputStream in  = tmp.getClass().getResourceAsStream(confFile);
       try {

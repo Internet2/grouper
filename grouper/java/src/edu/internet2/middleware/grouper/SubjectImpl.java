@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.14 2004-12-06 20:15:13 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.15 2004-12-07 02:04:58 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
@@ -106,21 +106,21 @@ public class SubjectImpl
 
   public void addAttribute(String name, String value) {
     // XXX Nothing -- Yet
-    Grouper.LOG.warn("`SubjectImpl.addAttribute' is not implemented");
+    Grouper.log().notimpl("SubjectImpl.addAttribute");
   }
 
   public String[] getAttributeArray(String name) {
-    Grouper.LOG.warn("`SubjectImpl.getAttributeArray' is not implemented");
+    Grouper.log().notimpl("SubjectImpl.getAttributeArray");
     return null; 
   }
 
   public String getDescription() {
-    Grouper.LOG.warn("`SubjectImpl.getDescription' is not implemented");
+    Grouper.log().notimpl("SubjectImpl.getDescription");
     return null;
   }
 
   public String getDisplayId() {
-    Grouper.LOG.warn("`SubjectImpl.getDisplayId' is not implemented");
+    Grouper.log().notimpl("SubjectImpl.getDisplayId");
     return null; 
   }
 
@@ -129,7 +129,7 @@ public class SubjectImpl
   }
 
   public String getName() {
-    Grouper.LOG.warn("`SubjectImpl.getName' is not implemented");
+    Grouper.log().notimpl("SubjectImpl.getName");
     return null; 
   }
 

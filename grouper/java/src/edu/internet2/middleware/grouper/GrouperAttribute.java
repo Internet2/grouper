@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.16 2004-12-06 20:15:13 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.17 2004-12-07 02:04:58 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -96,9 +96,6 @@ public class GrouperAttribute implements Serializable {
     this.groupKey         = key;
     this.groupField       = field;
     this.groupFieldValue  = value;
-    Grouper.LOG.debug(
-      "Initializing attribute " + key + ", " + field + ", " + value
-    );
   }
 
 
