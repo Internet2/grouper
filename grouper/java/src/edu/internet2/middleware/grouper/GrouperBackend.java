@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.62 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.63 2004-11-23 22:16:43 blair Exp $
  */
 public class GrouperBackend {
 
@@ -177,7 +177,7 @@ public class GrouperBackend {
       GrouperMember m = GrouperMember.lookup( s.subject() );
       if (
           (m != null) && // FIXME Bah
-          (GrouperPrivilege.grant(s, g, m, "ADMIN") == true)
+          (Grouper.access().grant(s, g, m, "ADMIN") == true)
          )
       {
         t.commit(); // XXX Is this commit necessary?

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.21 2004-11-23 17:08:37 blair Exp $ -->
+<!-- $Id: build.xml,v 1.22 2004-11-23 22:16:43 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -118,6 +118,11 @@
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestGroupLists" />
+      <classpath refid="project.class.path" />
+    </java>
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestNamingPrivs" />
       <classpath refid="project.class.path" />
     </java>
     <java fork="yes" classname="junit.textui.TestRunner" 
