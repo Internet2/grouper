@@ -53,76 +53,99 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
+public class TestGroupsMoFDel1 extends TestCase {
 
-public class TestAll extends TestCase {
-
-  public TestAll(String name) {
+  public TestGroupsMoFDel1(String name) {
     super(name);
   }
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
+  protected void setUp () {
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
+  }
 
-    suite.addTestSuite(TestInstantiate.class);
-    suite.addTestSuite(TestConfigAndSchema.class);
-    suite.addTestSuite(TestSubjects.class);
-    suite.addTestSuite(TestSessions.class);
-    suite.addTestSuite(TestMembers.class);
-    suite.addTestSuite(TestStemsAdd.class);
-    suite.addTestSuite(TestStemsDelete.class);
-    suite.addTestSuite(TestStemsAttrs.class);
-    // TODO TestStemsAttrsAdd
-    // TODO TestStemsAttrsMod
-    // TODO TestStemsAttrsDel
-    suite.addTestSuite(TestStemsMoF.class);
-    // TODO TestStemsMoFAdd
-    // TODO TestStemsMoFDel
-    suite.addTestSuite(TestGroupsAdd.class);
-    suite.addTestSuite(TestGroupsDelete.class);
-    suite.addTestSuite(TestGroupsAttrs.class);
-    // TODO TestGroupsAttrsAdd
-    // TODO TestGroupsAttrsMod
-    // TODO TestGroupsAttrsDel
-    suite.addTestSuite(TestGroupsMoF.class);
-    suite.addTestSuite(TestGroupsMoFAdd0.class);
-    suite.addTestSuite(TestGroupsMoFAdd1.class);
-    suite.addTestSuite(TestGroupsMoFAdd2.class);
-    suite.addTestSuite(TestGroupsMoFAdd3.class);
-    suite.addTestSuite(TestGroupsMoFAdd4.class);
-    suite.addTestSuite(TestGroupsMoFAdd5.class);
-    suite.addTestSuite(TestGroupsMoFAdd6.class);
-    suite.addTestSuite(TestGroupsMoFAdd7.class);
-    suite.addTestSuite(TestGroupsMoFAdd8.class);
-    suite.addTestSuite(TestGroupsMoFAdd9.class);
-    suite.addTestSuite(TestGroupsMoFAdd10.class);
-    suite.addTestSuite(TestGroupsMoFDel0.class);
-    suite.addTestSuite(TestGroupsMoFDel1.class);
-    //suite.addTestSuite(TestGroupsMoFDel2.class);
-    //suite.addTestSuite(TestGroupsMoFDel3.class);
-    //suite.addTestSuite(TestGroupsMoFDel4.class);
-    //suite.addTestSuite(TestGroupsMoFDel5.class);
-    //suite.addTestSuite(TestGroupsMoFDel6.class);
-    //suite.addTestSuite(TestGroupsMoFDel7.class);
-    //suite.addTestSuite(TestGroupsMoFDel8.class);
-    //suite.addTestSuite(TestGroupsMoFDel9.class);
-    //suite.addTestSuite(TestGroupsMoFDel10.class);
-    // TODO TestMixedMoF
-    // TODO TestMixedMoFAdd
-    // TODO TestMixedMoFDel
-    // TODO Flesh out
-    suite.addTestSuite(TestNamingPrivs.class);
-    // TODO TestNamingPrivsGrant
-    // TODO TestNamingPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestAccessPrivs.class);
-    // TODO TestAccessPrivsGrant
-    // TODO TestAccessPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestQueries.class);
+  protected void tearDown () {
+    // Nothing -- Yet
+  }
 
-    return suite;
+
+  /*
+   * TESTS
+   */
+  
+
+  //
+  // Add m0 to g0
+  // Add m0 to g1
+  //
+  // m0 -> g0
+  //  \--> g1
+  //
+  // Delete m0 from g1
+  //
+  public void testMoF() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    Assert.assertNotNull("ns0 !null", ns0);
+    // Create ns1
+    GrouperGroup ns1 = GrouperGroup.create(
+                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+                       );
+    Assert.assertNotNull("ns0 !null", ns0);
+    // Create g0
+    GrouperGroup g0  = GrouperGroup.create(
+                         s, Constants.g0s, Constants.g0e
+                       );
+    Assert.assertNotNull("g0 !null", g0);
+    // Create g1
+    GrouperGroup g1  = GrouperGroup.create(
+                         s, Constants.g1s, Constants.g1e
+                       );
+    Assert.assertNotNull("g1 !null", g1);
+    // Load m0
+    GrouperMember m0 = GrouperMember.load(
+                         s, Constants.mem0I, Constants.mem0T
+                       );
+    Assert.assertNotNull("m0 !null", m0);
+    // Add m0 to g0's "members"
+    Assert.assertTrue("add m0 to g0", g0.listAddVal(m0));
+    // Add m0 to g1's "members"
+    Assert.assertTrue("add m0 to g1", g1.listAddVal(m0));
+    // Delete m0 from g1's "members"
+    Assert.assertTrue("delete m0 from g1", g1.listDelVal(m0));
+
+    // Now inspect g0's, resulting list values
+    Assert.assertTrue(
+      "members == 1", g0.listVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "imm members == 1", g0.listImmVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "eff members == 0", g0.listEffVals("members").size() == 0
+    );
+
+    // Now inspect g1's, resulting list values
+    Assert.assertTrue(
+      "members == 0", g1.listVals("members").size() == 0
+    );
+    Assert.assertTrue(
+      "imm members == 0", g1.listImmVals("members").size() == 0
+    );
+    Assert.assertTrue(
+      "eff members == 0", g1.listEffVals("members").size() == 0
+    );
+
+    s.stop();
   }
 
 }
