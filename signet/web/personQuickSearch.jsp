@@ -36,7 +36,7 @@
     // until it's implemented in the upcoming new version of the Subject interface:
     if ((searchString == null)
         || (searchString.equals(""))
-        || (listSubject.getName().toUpperCase().contains(searchString.toUpperCase())))
+        || (listSubject.getName().toUpperCase().indexOf(searchString.toUpperCase()) != -1))
     {
 %>
             <a href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId())%>'))">
