@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.9 2004-03-26 21:09:45 blair Exp $
+# $Id: README,v 1.10 2004-04-02 21:02:03 blair Exp $
 #
 
  ------------------
@@ -9,8 +9,8 @@
 - Makefile
     Yes, Grouper is (currently) built using make(1).
 - docs/
-  - API
-      Grouper API Reference.
+  - javadoc/
+      javadoc-generated documentation.
   - API-EXAMPLES
       Examples of using the Grouper API.
   - TODO
