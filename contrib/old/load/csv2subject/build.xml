@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.4 2004-12-07 03:08:50 blair Exp $ -->
+<!-- $Id: build.xml,v 1.5 2004-12-09 19:15:22 blair Exp $ -->
 
 <project name="csv2subject" default="build" basedir=".">
 
@@ -28,7 +28,7 @@
   </target>
 
   <target name="clean" description="clean up" >
-    <delete file="${build}/{$app.name}.class"/>
+    <delete file="${build}/${app.name}.class"/>
   </target>
 
 </project>
