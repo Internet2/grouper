@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.12 2004-12-07 05:11:24 blair Exp $
+$Id: NEWS,v 1.13 2004-12-07 06:48:38 blair Exp $
 
 ---
 
@@ -32,7 +32,6 @@ $Id: NEWS,v 1.12 2004-12-07 05:11:24 blair Exp $
 
 ### Will Be Added
 
-* _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
 * Javadoc API documentation (#132)
 * More thorough FAQ (#276)
 * Contributed: Member Loader (#246)
@@ -53,6 +52,7 @@ $Id: NEWS,v 1.12 2004-12-07 05:11:24 blair Exp $
 * Testing with non-HSQLDB databases
 * READ, VIEW, OPTIN, and OPTOUT access privilege checking
 * More advanced multiple criteria searching
+* _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
 * Grouper is lacking a good and coherent logging policy (#226)
 * Contributed: provisioning code
 
