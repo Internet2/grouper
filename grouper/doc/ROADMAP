@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.9 2005-03-09 05:42:20 blair Exp $
+$Id: ROADMAP,v 1.10 2005-03-10 15:42:09 blair Exp $
 
 ---
 
@@ -38,11 +38,12 @@ Maintenance Release
   * Search by the name, extension, or displayName attributes of
     namespaces scoped to namespaces subordinate to a given stem [S&B#8]
 * More verbose and precise error reporting via exceptions
-* Ability to delete groups containing members
+* Ability to delete groups that either contain members or are members
+  of other groups.
+* Support for displayName and displayExtension (#270)
 
 # Grouper 0.6.x
 
-* Support for displayName and displayExtension (#270)
 * Improved group type support (multiple types, type addition|removal,
   custom types) (#269, #271, #272)
 * Improved search and browse capabilities
@@ -93,6 +94,7 @@ Maintenance Release
 
 # Unassigned
 
+* Configurable stem delimiter
 * Paged search results
 * Make search filters an interface that supports arbitrary local
   filter implementations
