@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.14 2005-03-02 23:12:13 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.15 2005-03-04 19:14:38 blair Exp $
  */
 public class GrouperQuery {
 
@@ -311,8 +311,6 @@ public class GrouperQuery {
     boolean rv    = false;
     List    vals  = new ArrayList();
 
-    this.gs.dbSessStart(); // TODO Is this the right place?
-
     this.candidates.remove(KEY_GT);
     // Find all groups of matching type
     List      groups  = GrouperBackend.groupType(this.gs, type);
@@ -332,8 +330,6 @@ public class GrouperQuery {
       rv = true;
     }
     this.candidates.put(KEY_GT, vals);
-
-    this.gs.dbSessStop(); // TODO Is this the right place?
 
     return rv; 
   }
@@ -407,8 +403,6 @@ public class GrouperQuery {
   private static List _iterGroup(GrouperSession gs, List groups) {
     List vals = new ArrayList();
 
-    gs.dbSessStart(); // TODO Is this the right place?
-
     if (groups != null) {
       Iterator iter = groups.iterator();
       while (iter.hasNext()) {
@@ -424,8 +418,6 @@ public class GrouperQuery {
         }
       }
     }
-
-    gs.dbSessStart(); // TODO Is this the right place?
 
     return vals;
   }
