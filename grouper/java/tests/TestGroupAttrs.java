@@ -82,7 +82,9 @@ public class TestGroupAttrs extends TestCase {
   }
 
   protected void setUp () {
-    // Nothing -- Yet
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
   }
 
   protected void tearDown () {

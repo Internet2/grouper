@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.23 2005-02-17 19:17:54 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.24 2005-03-17 16:36:36 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -68,7 +68,9 @@ public class TestConfigAndSchema extends TestCase {
   }
 
   protected void setUp () {
-    // Nothing -- Yet
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
   }
 
   protected void tearDown () {

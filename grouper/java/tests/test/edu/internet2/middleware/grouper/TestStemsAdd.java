@@ -72,7 +72,9 @@ public class TestNamespaces extends TestCase {
   }
 
   protected void setUp () {
-    // Nothing -- Yet
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
   }
 
   protected void tearDown () {
@@ -130,6 +132,7 @@ public class TestNamespaces extends TestCase {
     s.stop();
   }
 
+/*
   public void testCreateNS1() {
     Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
@@ -286,6 +289,7 @@ public class TestNamespaces extends TestCase {
     // We're done
     s.stop();
   }
+*/
 
 }
 
