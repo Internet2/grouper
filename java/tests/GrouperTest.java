@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.35 2004-09-19 01:34:02 blair Exp $
+ * $Id: GrouperTest.java,v 1.36 2004-09-19 03:12:00 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -272,27 +272,46 @@ public class GrouperTest extends TestCase {
    
   public void testGrouperSubjectInstantiate() {
     GrouperSubject subject = new GrouperSubject();
-
-    Class  klass    = subject.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperSubject";
-
+    String klass = "edu.internet2.middleware.grouper.GrouperSubject";
     Assert.assertNotNull(subject);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertTrue( klass.equals( subject.getClass().getName() ) );
+  }
+
+  public void testGrouperSubjectClassLookupFailure() {
+    Grouper G = new Grouper();
+    G.init();
+    String id   = "invalid id";
+    String type = "person";
+    GrouperMember m = GrouperSubject.lookup(id, type);
+    Assert.assertNull(m);
+  }
+
+  public void testGrouperSubjectClassLookupMemberSystem() {
+    Grouper G = new Grouper();
+    G.init();
+    String id   = G.config("member.system");
+    String type = "person";
+    GrouperMember m = GrouperSubject.lookup(id, type);
+    String klass = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertNotNull(m);
+    Assert.assertTrue( klass.equals( m.getClass().getName() ) );
+    Assert.assertTrue( id.equals( m.memberID() ) );
+    Assert.assertTrue( type.equals( m.memberType() ) );
+    G.destroy();
   }
 
   public void testGrouperSubjectClassLookup() {
-/*
-    String id   = "GrouperSystem";
+    Grouper G = new Grouper();
+    G.init();
+    String id   = "blair";
     String type = "person";
     GrouperMember m = GrouperSubject.lookup(id, type);
-    Class  klass    = m.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+    String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertNotNull(m);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertTrue( klass.equals( m.getClass().getName() ) );
     Assert.assertTrue( id.equals( m.memberID() ) );
     Assert.assertTrue( type.equals( m.memberType() ) );
-    Assert.assertNotNull( m.memberKey() );
-*/
+    G.destroy();
   }
 
 /*
