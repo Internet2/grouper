@@ -56,11 +56,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} registry query.
+ * Class for querying the groups registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.7 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.8 2004-12-09 03:22:41 blair Exp $
  */
 public class GrouperQuery {
 
@@ -92,7 +92,7 @@ public class GrouperQuery {
    * Set {@link GrouperGroup} <i>createTime</i> filter.
    * <p />
    *
-   * @param   date  Query for items created after this {@link Date}.
+   * @param   date  Query for groups created after this {@link Date}.
    * @return  True if one or more matches found.
    */
   public boolean createdAfter(Date date) throws GrouperException {
@@ -103,7 +103,7 @@ public class GrouperQuery {
    * Set {@link GrouperGroup} <i>createTime</i> filter.
    * <p />
    *
-   * @param   date  Query for items created before this {@link Date}.
+   * @param   date  Query for groups created before this {@link Date}.
    * @return  True if one or more matches found.
    */
   public boolean createdBefore(Date date) throws GrouperException {
@@ -113,12 +113,11 @@ public class GrouperQuery {
   /**
    * Set {@link GrouperGroup} type filter.
    * <p />
-   * TODO How do I unset?
-   *
    * @param   type  Type of {@link GrouperGroup} to query on.
    * @return  True if one or more matches found.
    */
   public boolean groupType(String type) throws GrouperException {
+    // TODO How do I unset?  `null'?
     return this._queryGroupType(type);
   }
 
@@ -139,7 +138,7 @@ public class GrouperQuery {
    * Set {@link GrouperGroup} <i>modifyTime</i> filter.
    * <p />
    *
-   * @param   date  Query for items modified after this {@link Date}.
+   * @param   date  Query for groups modified after this {@link Date}.
    * @return  True if one or more matches found.
    */
   public boolean modifiedAfter(Date date) throws GrouperException {
@@ -150,7 +149,7 @@ public class GrouperQuery {
    * Set {@link GrouperGroup} <i>modifyTime</i> filter.
    * <p />
    *
-   * @param   date  Query for items modifed before this {@link Date}.
+   * @param   date  Query for groups modifed before this {@link Date}.
    * @return  True if one or more matches found.
    */
   public boolean modifiedBefore(Date date) throws GrouperException {
@@ -158,14 +157,12 @@ public class GrouperQuery {
   }
 
   /**
-   * Query the group registry used the already specified filters.
+   * Query the groups registry using the already specified filters.
    * <p />
-   * TODO There will be <b>nothing</b> optimal about the first
-   * implementation of this method -- or class, for that matter.
-   *
    * @return  List of {@link GrouperList} objects.
    */
   public List query() {
+    // TODO I suspect this approach may need optimizing
     List    vals  = new ArrayList();
     /*
      * TODO Ideally I would sort the candidate lists by size in an
