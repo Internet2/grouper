@@ -55,6 +55,20 @@ Contents:
     - Source:   <http://ehcache.sourceforge.net/>
     - License:  Apache Software License, Version 1.1
 
+  emma.jar
+    "EMMA is an open-source toolkit for measuring and reporting
+    Java code coverage."
+    - Version:  2.0.4217
+    - Source:   <http://emma.sourceforge.net/>
+    - License:  Common Public License v1.0
+
+  emma_ant.jar
+    "EMMA is an open-source toolkit for measuring and reporting
+    Java code coverage."
+    - Version:  2.0.4217
+    - Source:   <http://emma.sourceforge.net/>
+    - License:  Common Public License v1.0
+
   hibernate2.jar
     "Hibernate is a powerful, ultra-high performance object/relational
     persistence and query service for Java."
@@ -105,5 +119,5 @@ Contents:
     - Source:   TODO
     - License:  TODO
 
-$Id: README,v 1.5 2004-11-22 14:59:15 blair Exp $
+$Id: README,v 1.6 2004-11-29 20:02:46 blair Exp $
 
