@@ -6,11 +6,11 @@ import  java.util.List;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.7 2004-04-30 15:18:50 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.8 2004-04-30 15:22:20 blair Exp $
  */
 public interface GrouperAccess {
   /**
-   * Grant privilege on a {@link Grouper} group.
+   * Grant an access privilege on a {@link Grouper} group.
    * <p>
    * See implementations for more information.
    *
@@ -21,7 +21,7 @@ public interface GrouperAccess {
   public void grant(GrouperGroup g, GrouperMember m, String priv);
 
   /**
-   * Revoke privilege on a {@link Grouper} group.
+   * Revoke an access privilege on a {@link Grouper} group.
    * <p>
    * See implementations for more information.
    *
@@ -32,7 +32,7 @@ public interface GrouperAccess {
   public void revoke(GrouperGroup g, GrouperMember m, String priv);
 
   /**
-   * Return all privileges that the current session's subject has on 
+   * Return all access privileges that the current session's subject has on 
    * a {@link GrouperGroup}.
    * <p>
    * See implementations for more information.
@@ -43,7 +43,7 @@ public interface GrouperAccess {
   public List has(GrouperGroup g);
 
   /**
-   * Return all privileges for a {@link GrouperMember} on a 
+   * Return all access privileges for a {@link GrouperMember} on a 
    * {@link GrouperGroup}.
    * <p>
    * See implementations for more information.
@@ -56,7 +56,7 @@ public interface GrouperAccess {
 
   /**
    * Verify whether the current session's subject has a specified 
-   * privilege on a {@link GrouperGroup}.
+   * access privilege on a {@link GrouperGroup}.
    * <p>
    * See implementations for more information.
    *
@@ -67,7 +67,7 @@ public interface GrouperAccess {
   public boolean has(GrouperGroup g, String priv);
 
   /**
-   * Verify whether a {@link GrouperMember} has a specified privilege
+   * Verify whether a {@link GrouperMember} has a specified access privilege
    * on a {@link GrouperGroup}.
    * <p>
    * See implementations for more information.
