@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.73 2004-11-09 19:58:56 blair Exp $
+ * $Id: GrouperTest.java,v 1.74 2004-11-10 17:21:54 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -543,7 +543,7 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(member);
 
     // Add a member to the group's "members" list
-    Assert.assertTrue( grp.listAdd(s, member, "members") );
+    Assert.assertTrue( grp.listAddVal(s, member, "members") );
 
     // We're done
     s.stop();
@@ -566,7 +566,7 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(member);
 
     // Add a member to the group's "members" list
-    Assert.assertFalse( grp.listAdd(s, member, "notmembers") );
+    Assert.assertFalse( grp.listAddVal(s, member, "notmembers") );
 
     // We're done
     s.stop();
@@ -585,14 +585,14 @@ public class GrouperTest extends TestCase {
     GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
 
     // Fetch list data of type "admins"
-    List admins = grp.list(s, "admins");
+    List admins = grp.listVals(s, "admins");
 
     // "admins" list assertions
     Assert.assertNotNull(admins);
     Assert.assertTrue(admins.size() == 1);
 
     // Fetch list data of type "members"
-    List members = grp.list(s, "members");
+    List members = grp.listVals(s, "members");
 
     // "members" list assertions
     Assert.assertNotNull(members);
@@ -614,14 +614,14 @@ public class GrouperTest extends TestCase {
     GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
 
     // Fetch list data of type "admins"
-    List admins = grp.list(s, "nonadmins");
+    List admins = grp.listVals(s, "nonadmins");
 
     // "admins" list assertions
     Assert.assertNotNull(admins);
     Assert.assertTrue(admins.size() == 0);
 
     // Fetch list data of type "members"
-    List members = grp.list(s, "nonmembers");
+    List members = grp.listVals(s, "nonmembers");
 
     // "members" list assertions
     Assert.assertNotNull(members);
@@ -649,7 +649,7 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(member);
 
     // Remove a member from the group's "members" list
-    Assert.assertTrue( grp.listRemove(s, member, "members") );
+    Assert.assertTrue( grp.listDelVal(s, member, "members") );
 
     // We're done
     s.stop();
@@ -672,7 +672,7 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(member);
 
     // Remove a member from the group's "members" list
-    Assert.assertFalse( grp.listRemove(s, member, "notmembers") );
+    Assert.assertFalse( grp.listDelVal(s, member, "notmembers") );
 
     // We're done
     s.stop();

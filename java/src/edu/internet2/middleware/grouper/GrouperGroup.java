@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.65 2004-11-09 19:58:56 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.66 2004-11-10 17:21:54 blair Exp $
  */
 public class GrouperGroup {
 
@@ -205,8 +205,8 @@ public class GrouperGroup {
    * @param s     Return list data within this session context.
    * @param list  Return this list type.
    */
-  public List list(GrouperSession s, String list) {
-    return GrouperBackend.list(this, s, list);
+  public List listVals(GrouperSession s, String list) {
+    return GrouperBackend.listVals(this, s, list);
   }
    
   /**
@@ -216,8 +216,8 @@ public class GrouperGroup {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
-  public boolean listAdd(GrouperSession s, GrouperMember m, String list) {
-    return GrouperBackend.listAdd(this, s, m, list);
+  public boolean listAddVal(GrouperSession s, GrouperMember m, String list) {
+    return GrouperBackend.listAddVal(this, s, m, list);
   }
 
   /**
@@ -227,8 +227,8 @@ public class GrouperGroup {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
-  public boolean listRemove(GrouperSession s, GrouperMember m, String list) {
-    return GrouperBackend.listRemove(this, s, m, list);
+  public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
+    return GrouperBackend.listDelVal(this, s, m, list);
   }
 
   /**
