@@ -3,7 +3,7 @@
 
 Inspired by _Parrot's_ RELEASE_INSTRUCTIONS file.
 
-$Id: RELEASE_INSTRUCTIONS,v 1.1 2004-12-04 04:05:21 blair Exp $
+$Id: RELEASE_INSTRUCTIONS,v 1.2 2004-12-04 06:09:46 blair Exp $
 
 ---
 
@@ -12,6 +12,8 @@ $Id: RELEASE_INSTRUCTIONS,v 1.1 2004-12-04 04:05:21 blair Exp $
 More details to follow.
 
 * Perform a fresh checkout and test harness succeeds.
+
+* Update doc/NEWS
 
 * Tag CVS with a tag of the form _RELEASE_MAJOR_MINOR_
 

@@ -1,0 +1,60 @@
+
+# Grouper News
+
+$Id: NEWS,v 1.1 2004-12-04 06:09:46 blair Exp $
+
+---
+
+(This file will need some good bashing)
+
+## Version 0.5-cvs
+
+### Added
+
+* Immediate Memberships.
+* Effective Memberships.
+* Simple membership queries for both groups and members.
+* Access privilege interface.
+* Naming privilege interface.
+* An implementation of the access privilege interface that uses groups to manage privileges.
+* An implementation of the naming privilege interface that uses groups to manage privileges.
+* People in a local table as subjects via an implementation of the I2MI Subject Interface.
+* Groups as subjects via an implementation of the I2MI Subject Interface.
+
+### Will Be Added
+
+* Updated javadoc for all public methods
+* Multiple criteria searching.
+* Improved modeling of the naming group type.
+* Use of naming groups as namespaces.
+* Using memberKey for the createSubject and modifySubject operational attributes.
+* ADMIN and UPDATE access privilege checking.
+* CREATE and STEM naming privilege checking.
+* Contributed code to load I2MI Subjects.
+* Contributed code to load groups.
+* Contributed code to query group registry (and possibly export query results into a somewhat portable format, whether it be csv, LDIF-like, XML, etc.).
+* Automatically persistent group attributes.
+* Updating of modify* operational attributes.
+
+### Postponed From This Release
+
+* Testing with non-HSQLDB databases.
+* Remove GrouperMember objects.
+* GrouperSession validation before performing operations.
+* READ, VIEW, OPTIN, and OPTOUT access privilege checking. (One or more of these may make it in)
+* More advanced multiple criteria searching.
+* Coherent logging policy.
+* Contributed provisioning code.
+
+### Known Bugs
+
+(Add grouperzilla #'s)
+
+* Insufficient documentation.
+* Slow.
+* Code does not fail gracefully.
+* Not all of our database updates are atomic transactions. This could leave the group registry in an inconsistent state.
+* Insufficient data validation. This could leave the group registry in an inconsistent state.
+* Insufficient test coverage.
+* Session Handling.
+
