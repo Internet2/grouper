@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.120 2004-12-05 04:08:18 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.121 2004-12-05 16:31:12 blair Exp $
  */
 public class GrouperGroup {
 
@@ -464,22 +464,6 @@ public class GrouperGroup {
   }
 
   /**
-   * Add a {@link GrouperMember} to the specified list.
-   * <p />
-   * TODO Test
-   * TODO Make a variant that takes a GrouperGroup instead of a
-   *      GrouperMember?
-   *
-   * @param   s     Add member within this session context.
-   * @param   m     Add this member.
-   * @param   list  Add member to this list.
-   * @return  Boolean true if successful, false otherwise.
-   */
-  public boolean listAddVal(GrouperSession s, GrouperMember m, String list) {
-    return this._listAddVal(s, m, list);
-  }
-
-  /**
    * Delete a {@link GrouperMember} from default list type.
    * <p />
    * TODO Test
@@ -492,22 +476,6 @@ public class GrouperGroup {
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
     return this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
-  }
-
-  /**
-   * Delete a {@link GrouperMember} from the specified list.
-   * <p />
-   * TODO Test
-   * TODO Make a variant that takes a GrouperGroup instead of a
-   *      GrouperMember?
-   *
-   * @param   s     Delete member within this session context.
-   * @param   m     Delete this member.
-   * @param   list  Delete member from this list.
-   * @return  Boolean true if successful, false otherwise.
-   */
-  public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
-    return this._listDelVal(s, m, list);
   }
 
   // TODO
