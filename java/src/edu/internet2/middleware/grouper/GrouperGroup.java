@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.123 2004-12-05 19:31:32 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.124 2004-12-05 19:35:48 blair Exp $
  */
 public class GrouperGroup {
 
@@ -597,15 +597,10 @@ public class GrouperGroup {
   {
     boolean rv = false;
     // FIXME Support for multiple list types
-    if (
-        (s    != null) &&
-        (g    != null) &&
-        (list != null)
-       )
-    {
+    if ( (s != null) && (g != null) && (list != null) ) {
       if (
           (Grouper.access().has(s, g, Grouper.PRIV_UPDATE)) ||
-          (Grouper.access().has(s, g, Grouper.PRIV_UPDATE))
+          (Grouper.access().has(s, g, Grouper.PRIV_ADMIN))
          )
       {
         rv = true;
