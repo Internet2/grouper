@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.188 2005-03-23 23:26:05 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.189 2005-03-23 23:30:14 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -1204,7 +1204,7 @@ public class GrouperGroup extends Group {
 
     // Verify subject has sufficient privs
     if (this._canModAttr(this)) {
-      if (GrouperBackend.attrDel(this.s, this.key, attribute)) {
+      if (this._attrDel(attribute)) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
@@ -1225,6 +1225,40 @@ public class GrouperGroup extends Group {
       // Revert modify* attr changes 
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
+    }
+    return rv;
+  }
+
+  private boolean _attrDel(String field) {
+    String  qry   = "GrouperAttribute.by.key.and.value";
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key);
+      q.setString(1, field);
+      try {
+        vals = q.list();
+        if (vals.size() == 1) {
+          try {
+            GrouperAttribute attr = (GrouperAttribute) vals.get(0);
+            this.s.dbSess().session().delete(attr);
+            rv = true;
+          } catch (HibernateException e) {
+            throw new RuntimeException(
+                        "Error deleting attribute: " + e
+                      );
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return rv;
   }
