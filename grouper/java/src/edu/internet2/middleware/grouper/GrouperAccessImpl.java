@@ -55,10 +55,11 @@ import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 
 /** 
- * Default implementation of the {@link GrouperAccess} interface.
+ * Default implementation of the {@link GrouperAccess} privilege interface.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.34 2004-11-29 19:14:57 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.35 2004-12-01 04:23:09 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 

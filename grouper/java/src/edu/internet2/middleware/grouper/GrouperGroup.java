@@ -57,10 +57,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * {@link Grouper} group class.
+ * Class representing a {@link Grouper} group.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.98 2004-12-01 02:14:01 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.99 2004-12-01 04:23:10 blair Exp $
  */
 public class GrouperGroup {
 

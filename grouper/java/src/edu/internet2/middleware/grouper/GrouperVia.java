@@ -55,10 +55,15 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class representing a via (or lack of via) relationship.
+ * Class representing a via relationship.
+ * <p />
+ * This class is only used internally.
+ * <ul>
+ * <li>TODO Is this class really needed?</li>
+ * </ul>
  *
  * @author  blair christensen.
- * @version $Id: GrouperVia.java,v 1.6 2004-11-30 02:26:53 blair Exp $
+ * @version $Id: GrouperVia.java,v 1.7 2004-12-01 04:23:10 blair Exp $
  */
 public class GrouperVia {
 

@@ -58,10 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * TODO 
+ * Class representing a {@link Grouper} group schema definition.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.14 2004-11-30 02:26:53 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.15 2004-12-01 04:23:10 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 

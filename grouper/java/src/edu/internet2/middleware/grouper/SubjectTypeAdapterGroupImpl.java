@@ -55,11 +55,12 @@ import  edu.internet2.middleware.subject.*;
 
 
 /** 
- * Implementation of the I2MI {@link SubjectTypeAdapter} interface
- * for type "group".
+ * Default implementation of the I2MI {@link SubjectTypeAdapter} interface
+ * for subjects of type "group".
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.7 2004-11-30 02:40:55 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.8 2004-12-01 04:23:10 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter

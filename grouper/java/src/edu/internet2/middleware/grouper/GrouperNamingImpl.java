@@ -54,11 +54,13 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 
+
 /** 
- * Default implementation of the {@link GrouperNaming} interface.
+ * Default implementation of the {@link GrouperNaming} privilege interface.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.28 2004-11-29 19:14:57 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.29 2004-12-01 04:23:10 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
