@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.5 2004-10-12 18:37:50 blair Exp $
+# $Id: API,v 1.6 2004-10-12 20:32:00 blair Exp $
 #
 # TODO Interfaces
 #
@@ -130,6 +130,12 @@ GrouperMembership
       XXX I don't like this approach.
 
 
+GrouperNamespace
+  XXX Revisit class
+  Class Methods
+    GrouperNamespace()
+
+
 GrouperSchema
   Class Methods
     GrouperSchema()
@@ -157,12 +163,6 @@ GrouperSession
     void start(Grouper G, GrouperMember s)
     void stop()
     GrouperMember subject()
-
-
-GrouperStem
-  XXX Revisit class
-  Class Methods
-    GrouperStem()
 
 
 GrouperSubject

@@ -10,17 +10,17 @@
 package edu.internet2.middleware.grouper;
 
 /** 
- * Class representing the stem portion of a {@link GrouperGroup} name.
+ * Class representing the namespace of a {@link GrouperGroup}
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.6 2004-10-05 18:35:54 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.7 2004-10-12 20:32:00 blair Exp $
  */
-public class GrouperStem {
+public class GrouperNamespace {
 
   /**
-   * Create a {@link GrouperStem} object.
+   * Create a {@link GrouperNamespace} object.
    */
-  public GrouperStem() {
+  public GrouperNamespace() {
     // Nothing -- Yet
   }
 
