@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.46 2004-09-19 18:08:03 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.47 2004-09-20 00:13:47 blair Exp $
  */
 public class GrouperSession {
 
@@ -81,6 +81,10 @@ public class GrouperSession {
     // this._init();
   }
 
+  public Grouper env() {
+    return this._G;
+  }
+
   /*
    * BELOW LURKS FAR MORE MADNESS THAN ABOVE
    */
@@ -106,50 +110,6 @@ public class GrouperSession {
    */
   public GrouperMember subject() {
     return (GrouperMember) this.subject;
-  }
-
-  /**
-   * Confirm whether a given group field is valid for a given group
-   * type.
-   * <p>
-   * FIXME This belongs elsewhere.
-   *
-   * @return  Boolean true if {@link GroupField} is valid for the given
-   * {@link GroupType}, false otherwise.
-   */
-  public boolean groupField(String type, String field) {
-    List typeDefs = this._G.groupTypeDefs();
-    for (Iterator iter = typeDefs.iterator(); iter.hasNext();) {
-      GrouperTypeDef td = (GrouperTypeDef) iter.next();
-      if ( 
-          (td.groupType().equals(type)) && // If the group type matches
-          (td.groupField().equals(field))  // .. and the group field matches
-         )
-      {
-        // Then we are considered validated.
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Confirm validity of a group type.
-   * <p>
-   * FIXME This belongs elsewhere.
-   *
-   * @return  Boolean true if {@link GroupType} is valid, false
-   * otherwise.
-   */
-  public boolean groupType(String type) {
-    List types = this._G.groupTypes();
-    for (Iterator iter = types.iterator(); iter.hasNext();) {
-      GrouperType t = (GrouperType) iter.next();
-      if ( t.toString().equals(type) ) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
