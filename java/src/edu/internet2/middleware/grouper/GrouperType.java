@@ -18,17 +18,17 @@ package edu.internet2.middleware.grouper;
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.7 2004-09-10 18:27:47 blair Exp $
+ * @version $Id: GrouperType.java,v 1.8 2004-09-19 01:34:02 blair Exp $
  */
 public class GrouperType {
 
-  private int groupType;
+  private String groupType;
 
   /**
    * Create a {@link GrouperType} object.
    */
   public GrouperType() {
-    groupType = 0;
+    groupType = null;
   }
 
   public String toString() {
@@ -39,12 +39,11 @@ public class GrouperType {
    * Below for Hibernate
    */
 
-  private int getGroupType() {
+  private String getGroupType() {
     return this.groupType;
   }
 
-  // XXX Do we really want to allow write access? 
-  private void setGroupType(int groupType) {
+  private void setGroupType(String groupType) {
     this.groupType = groupType;
   }
 

@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.11 2004-08-11 20:35:46 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.12 2004-09-19 01:34:02 blair Exp $
 -- 
 
 CREATE TABLE grouper_attributes (
@@ -65,7 +65,7 @@ CREATE TABLE grouper_schema (
   -- TODO Foreign Key
   groupKey    VARCHAR(255) NOT NULL,
   -- TOOD Foreign Key
-  groupType   INTEGER NOT NULL,
+  groupType   VARCHAR(255) NOT NULL,
   CONSTRAINT  uniq_gk_gt  UNIQUE (groupKey, groupType)
 );
 
@@ -78,14 +78,14 @@ CREATE TABLE grouper_session (
 
 CREATE TABLE grouper_typeDefs (
   -- TOOD Foreign Key
-  groupType   INTEGER NOT NULL,
+  groupType   VARCHAR(255) NOT NULL,
   -- TOOD Foreign Key
   groupField  VARCHAR(255) NOT NULL,
   CONSTRAINT  uniq_gt_gf  UNIQUE (groupType, groupField)
 );
 
 CREATE TABLE grouper_types (
-  groupType   INTEGER NOT NULL PRIMARY KEY,
+  groupType   VARCHAR(255) NOT NULL PRIMARY KEY,
   CONSTRAINT  uniq_gt UNIQUE (groupType)
 );
 

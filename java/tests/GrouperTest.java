@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.34 2004-09-19 01:11:35 blair Exp $
+ * $Id: GrouperTest.java,v 1.35 2004-09-19 01:34:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -148,7 +148,6 @@ public class GrouperTest extends TestCase {
   //
   // Class: GrouperType
   //
-   
  
   // Instantiate a GrouperType instance 
   public void testGrouperTypeInstantiate() {
@@ -170,17 +169,16 @@ public class GrouperTest extends TestCase {
     Assert.assertEquals(1, types.size());
 
     String expKlass = "edu.internet2.middleware.grouper.GrouperType";
-    String type = "1";
+    String type = "base";
     Assert.assertTrue( type.equals( types.get(0).toString() ) );
     Assert.assertTrue( expKlass.equals( types.get(0).getClass().getName() ) );
 
     G.destroy();
   }
 
-
   //
   // Class: GrouperTypeDef
-   
+  // 
  
   // Instantiate a GrouperTypeDef instance 
   public void testGrouperTypeDefInstantiate() {
@@ -193,7 +191,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-
   // Get cached GrouperTypeDefs 
   public void testGetGrouperTypeDefs() {
     G = new Grouper();
@@ -204,34 +201,34 @@ public class GrouperTest extends TestCase {
 
     String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
-    typeDef = "1:stem";
+    typeDef = "base:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(0).getClass().getName() ) );
-    typeDef = "1:descriptor";
+    typeDef = "base:descriptor";
     Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(1).getClass().getName() ) );
-    typeDef = "1:description";
+    typeDef = "base:description";
     Assert.assertTrue( typeDef.equals( typeDefs.get(2).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(2).getClass().getName() ) );
-    typeDef = "1:members";
+    typeDef = "base:members";
     Assert.assertTrue( typeDef.equals( typeDefs.get(3).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(3).getClass().getName() ) );
-    typeDef = "1:viewers";
+    typeDef = "base:viewers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(4).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(4).getClass().getName() ) );
-    typeDef = "1:readers";
+    typeDef = "base:readers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(5).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(5).getClass().getName() ) );
-    typeDef = "1:updaters";
+    typeDef = "base:updaters";
     Assert.assertTrue( typeDef.equals( typeDefs.get(6).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(6).getClass().getName() ) );
-    typeDef = "1:admins";
+    typeDef = "base:admins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(7).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(7).getClass().getName() ) );
-    typeDef = "1:optins";
+    typeDef = "base:optins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(8).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(8).getClass().getName() ) );
-    typeDef = "1:optouts";
+    typeDef = "base:optouts";
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( expKlass.equals( typeDefs.get(9).getClass().getName() ) );
 
@@ -267,6 +264,35 @@ public class GrouperTest extends TestCase {
     s.end();
 */
     G.destroy();
+  }
+
+  //
+  // Class: GrouperSubject
+  //
+   
+  public void testGrouperSubjectInstantiate() {
+    GrouperSubject subject = new GrouperSubject();
+
+    Class  klass    = subject.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperSubject";
+
+    Assert.assertNotNull(subject);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  public void testGrouperSubjectClassLookup() {
+/*
+    String id   = "GrouperSystem";
+    String type = "person";
+    GrouperMember m = GrouperSubject.lookup(id, type);
+    Class  klass    = m.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+    Assert.assertNotNull(m);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+    Assert.assertTrue( id.equals( m.memberID() ) );
+    Assert.assertTrue( type.equals( m.memberType() ) );
+    Assert.assertNotNull( m.memberKey() );
+*/
   }
 
 /*
@@ -382,33 +408,6 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
 
     G.destroy();
-  }
-
-  //
-  // Class: GrouperSubject
-  //
-   
-  public void testGrouperSubjectInstantiate() {
-    GrouperSubject subject = new GrouperSubject();
-
-    Class  klass    = subject.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperSubject";
-
-    Assert.assertNotNull(subject);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-  }
-
-  public void testGrouperSubjectClassLookup() {
-    String id   = "GrouperSystem";
-    String type = "person";
-    GrouperMember m = GrouperSubject.lookup(id, type);
-    Class  klass    = m.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
-    Assert.assertNotNull(m);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-    Assert.assertTrue( id.equals( m.memberID() ) );
-    Assert.assertTrue( type.equals( m.memberType() ) );
-    Assert.assertNotNull( m.memberKey() );
   }
 
   //
