@@ -58,11 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} member.
+ * Class modeling a {@link Grouper} list value member.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.56 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.57 2004-12-09 02:52:32 blair Exp $
  */
 public class GrouperMember {
 
@@ -86,9 +86,7 @@ public class GrouperMember {
     this._init();
   }
 
-  /**
-   * Construct a new {@link GrouperMember} object.
-   * <p />
+  /* (!javadoc)
    * This should <b>only</b> be used within this class.
    */
   private GrouperMember(String subjectID, String subjectTypeID) {
@@ -103,9 +101,10 @@ public class GrouperMember {
    */
 
   /**
-   * Convert a {@link Subject} object to a {@link GrouperMember}
-   * object.
-   * <p>
+   * Retrieve a {@link GrouperMember} object.
+   * <p />
+   * This method will create a new entry in the <i>grouper_member</i>
+   * table if this subject does not already have an entry.
    * 
    * @param   subj  A {@link Subject} object.
    * @return  A {@link GrouperMember} object.
@@ -146,11 +145,10 @@ public class GrouperMember {
   }
 
   /**
-   * Convert a {@link Subject} id and type to a {@link GrouperMember}
-   * object.
-   * <p>
-   * TODO Is this method needed?  Or can I just default to the version
-   *      that takes a {@link Subject} object?
+   * Retrieve a {@link GrouperMember} object.
+   * <p />
+   * This method will create a new entry in the <i>grouper_member</i>
+   * table if this subject does not already have an entry.
    *
    * @param   subjectID     Subject ID
    * @param   subjectTypeID Subject Type ID
@@ -178,87 +176,85 @@ public class GrouperMember {
    */
 
   /**
-   * Return all group memberships of default list type for this 
-   * {@link GrouperMember}.
-   *
-   * @param   s       Session to query within.
-   * @return  List of {@link GrouperGroup} objects.
+   * Retrieve group memberships of the default list type for this member.
+   * <p />
+   * @param   s       Retrieve values using this session.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s) {
     return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
-   * Return all group memberships of the specified type for 
-   * this {@link GrouperMember}.
-   *
-   * @param   s       Session to query within.
-   * @param   list    Type of list membership to query on.
-   * @return  List of {@link GrouperGroup} objects.
+   * Retrieve group memberships of the specified type for this member.
+   * <p />
+   * @param   s       Retrieve values using this session.
+   * @param   list    Return this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s, String list) {
     return GrouperBackend.listVals(s, this, list);
   }
 
   /**
-   * Return all effective group memberships of default list type for
-   * this {@link GrouperMember}.
-   *
-   * @param   s       Session to query within.
-   * @return  List of {@link GrouperGroup} objects.
+   * Retrieve effective group memberships of the default list type for
+   * this member.
+   * <p />
+   * @param   s       Retrieve values using this session.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(GrouperSession s) {
     return GrouperBackend.listEffVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
-   * Return all effective group memberships of the specified type 
-   * for this {@link GrouperMember}.
-   *
-   * @param   s       Session to query within.
-   * @param   list    Type of list membership to query on.
-   * @return  List of {@link GrouperGroup} objects.
+   * Retrieve effective group memberships of the specified type for
+   * this member.
+   * <p />
+   * @param   s       Retrieve values using this session.
+   * @param   list    Return this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(GrouperSession s, String list) {
     return GrouperBackend.listEffVals(s, this, list);
   }
 
   /**
-   * Return all immediate group memberships of default list type for 
-   * this {@link GrouperMember}.
-   *
-   * @param   s       Session to query within.
-   * @return  List of {@link GrouperGroup} objects.
+   * Retrieve immediate group memberships of the default list type for
+   * this member.
+   * <p />
+   * @param   s       Retrieve values using this session.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals(GrouperSession s) {
     return GrouperBackend.listImmVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
-   * Return all immediate group memberships of the specified type 
-   * for this {@link GrouperMember}.
-   *
-   * @param   s       Session to query within.
-   * @param   list    Type of list membership to query on.
-   * @return  List of {@link GrouperGroup} objects.
+   * Retrieve immediate group memberships of the specified type for
+   * this member.
+   * <p />
+   * @param   s       Retrieve values using this session.
+   * @param   list    Return this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals(GrouperSession s, String list) {
     return GrouperBackend.listImmVals(s, this, list);
   }
 
   /**
-   * Return member ID.
-   *
-   * @return Member ID of the {@link GrouperMember}
+   * Retrieve member's public GUID.
+   * <p />
+   * @return  Public GUID.
    */
   public String memberID() {
     return this.getMemberID();
   }
 
   /**
-   * Return subject ID.
-   *
-   * @return Subject ID of the {@link GrouperMember}
+   * Retrieve member's I2MI {@link Subject} id.
+   * <p />
+   * @return  Subject ID of member.
    */
   public String subjectID() {
     return this.getSubjectID();
@@ -278,9 +274,9 @@ public class GrouperMember {
   }
 
   /**
-   * Return Subject Type ID
-   *
-   * @return Subject Type ID of {@link GrouperMember}.
+   * Retrieve member's I2MI {@link Subject} type.
+   * <p />
+   * @return  Subject TypeID of this member.
    */
   public String typeID() {
     return this.getSubjectTypeID();
