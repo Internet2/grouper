@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.21 2005-03-22 02:15:54 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.22 2005-03-23 23:15:48 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -131,6 +131,33 @@ public class GrouperSchema implements Serializable {
     }
   }
  
+  /*
+   * @return {@link GrouperSchema} object for a group.
+   */
+  protected static GrouperSchema load(GrouperSession s, String key) {
+    String        qry     = "GrouperSchema.by.key";
+    GrouperSchema schema  = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      try {
+        List vals = q.list();
+        if (vals.size() == 1) {
+          schema = (GrouperSchema) vals.get(0);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return schema;
+  }
+
   /*
    * Save group schema.
    */
