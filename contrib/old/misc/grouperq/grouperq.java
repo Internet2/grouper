@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.9 2004-12-08 03:17:59 blair Exp $
+ * @version $Id: grouperq.java,v 1.10 2004-12-08 05:18:01 blair Exp $
  */
 class grouperq {
 
@@ -246,7 +246,7 @@ class grouperq {
    */
   private static void _reportGroups(List vals) {
     _verbose("Results returned by query: " + vals.size());
-    if ( (memQueryOn != null) && (vals.size() > 0) ) {
+    if (memQueryOn != null) {
       GrouperMember m = memQueryOn; // Too damn much typing otherwise
       System.out.println("subjectID: " + m.subjectID());
       System.out.println("subjectTypeID: " + m.typeID());
@@ -276,7 +276,7 @@ class grouperq {
    */
   private static void _reportMembers(List vals) {
     _verbose("Results returned by query: " + vals.size());
-    if ( (grpQueryOn != null) && (vals.size() > 0) ) {
+    if (grpQueryOn != null) {
       GrouperGroup g = grpQueryOn; // Too damn much typing otherwise
       System.out.println("name: " + g.name());
       System.out.println("type: " + g.type());
