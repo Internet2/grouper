@@ -11,12 +11,13 @@ import  java.util.Properties;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.16 2004-06-02 22:12:05 blair Exp $
+ * @version $Id: Grouper.java,v 1.17 2004-07-14 02:49:34 blair Exp $
  */
 public class Grouper {
 
   private Properties      conf      = new Properties();
-  private String          confFile  = "grouper.cf";
+  // XXX That's just wrong.  But it'll do for now.
+  private String          confFile  = "conf/grouper.cf";
   private GrouperSession  intSess   = null;
   private List            fields    = null;
   private List            types     = null;
@@ -54,8 +55,8 @@ public class Grouper {
     } catch (FileNotFoundException e) {
       System.err.println("Failed to find '" + confFile + "'");
     }
-    this.intSess = new GrouperSession(this);
-    this.intSess.start( this.config("member.system"), true);
+    this.intSess = new GrouperSession();
+    this.intSess.start(this, this.config("member.system"), true);
   }
 
   /**
