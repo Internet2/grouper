@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.39 2004-11-16 22:17:45 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.40 2004-11-18 20:48:06 blair Exp $
  */
 public class GrouperBackend {
 
@@ -225,15 +225,13 @@ public class GrouperBackend {
 
         // Commit it
         t.commit();
-
-        session.flush();                // XXX Grr...
-        session.connection().commit();  // XXX Grr...
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
         System.err.println(e);
         System.exit(1);
       }
+      GrouperBackend._listVals(session, g, m, list);
       // TODO Is this right?
       GrouperBackend._hibernateSessionClose(session);
       return true;
@@ -299,6 +297,7 @@ public class GrouperBackend {
             System.err.println(e);
             System.exit(1);
           }
+          GrouperBackend._listVals(session, g, m, list);
           GrouperBackend._hibernateSessionClose(session);
           return true;
         } else {
@@ -485,9 +484,6 @@ public class GrouperBackend {
       
         // Commit it
         t.commit();
-
-        session.flush();                // XXX Grr...
-        session.connection().commit();  // XXX Grr...
       } catch (Exception e) {
         // TODO We probably need a rollback in here in case of failure
         //      above.
@@ -586,6 +582,7 @@ public class GrouperBackend {
         GrouperGroup g = (GrouperGroup) q.list().get(0);
         // ... And fully populate it (explicitly) since I'm not (yet)
         // making full use of everything Hibernate has to offer.
+        // TODO Is this necessary?
         g = GrouperBackend._groupLoad(g.key());
         // ... And convert it to a subject object
         subj = new SubjectImpl(id, typeID);
@@ -828,7 +825,7 @@ public class GrouperBackend {
    * @param s     Return list data within this session context.
    * @param list  Return this list type.
    */
-  protected static List _listVals(Session session, GrouperMember m, String list) {
+  protected static List _listVals(Session session, GrouperGroup g, String list) {
     List members = new ArrayList();
     // TODO Better validation efforts, please.
     // TODO Refactor to a method
@@ -844,48 +841,27 @@ public class GrouperBackend {
 
       try {
         // Query away!
-        /*
-         * Potential Sources Of Problem?
-         * - ID(s) changing in tables (member, mostly)
-         * - Statically instantiate a s.2/d.2 object in this method at every
-         *   invocation and attempt to query it
-         */
-        String gkey = null;
-        GrouperGroup g = GrouperBackend._groupLoad(session, "stem.2", "desc.2");
-        if ( g.key() != null ) {
-          gkey = g.key();
-          System.err.println("GROUP EXISTS! (2|2)");
-        } else {
-          g = GrouperBackend._groupLoad(session, "stem.1", "desc.1");
-          if ( g.key() != null ) {
-            gkey = g.key();
-            System.err.println("GROUP EXISTS! (1|1)");
-          } else {
-            g = GrouperBackend._groupLoad(session, "stem.1", "desc.1");
-            if ( g.key() != null ) {
-              gkey = g.key();
-              System.err.println("GROUP EXISTS! (0|0)");
-            } else {
-              System.err.println("NO GROUPS SEEM TO EXIST?!?!");
-            }
-          }
-        }
-        //GrouperMember mm  = GrouperMember.lookup( g.key(), "group" );
+        // Make group a member
+        // TODO Or should I just cheat and go straight to the GB method?
+        GrouperMember m = GrouperMember.lookup( g.key(), "group" );
         Query q = session.createQuery(
           "FROM GrouperMembership AS mem"         +
           " WHERE "                               +
-          //"mem.id.groupKey='"   + gkey   + "'"    +
-          //"mem.id.memberKey='"   + gkey   + "'"    +
-          //" OR "                                  +
-          "mem.id.memberKey='" + m.key() + "'"
-          //"mem.id.memberKey='" + key + "'"        +
-          //"OR "                                   +
-          //"mem.id.memberKey='" + mm.key() + "'"
+          "mem.id.memberKey='"  + mm.key()  + "'" +
+          " AND "                                 +
+          "mem.groupField='"    + list      + "'" +
+          " AND "                                 +
+          "mem.via=null"      
         );   
         // TODO Behave different depending upon the size?
         System.err.println("QUERY: " + q.getQueryString());
         members = q.list();
         System.err.println("RETURNED: " + q.list().size());
+        for (Iterator iter = q.list().iterator(); iter.hasNext();) {
+          GrouperMembership mship = (GrouperMembership) iter.next();
+          GrouperMember member = GrouperMember.lookup( mship.memberKey() );
+          System.err.println("MEMBER: " + member);
+        }
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
@@ -905,14 +881,8 @@ public class GrouperBackend {
     // TODO Use a set instead of a list?
     List newGroups    = new ArrayList();
 
-    // TODO Or should I just cheat and go straight to the GB method?
-    GrouperMember m   = GrouperMember.lookup( g.key(), "group" );
     while (true) {
-      //System.err.println("_memberOf: GROUP  " + g);
-      //System.err.println("_memberOf: MEMBER " + m);
-      //List tmp = GrouperBackend._listVals(session, m, list);
-      List tmp = GrouperBackend.fuck(session, m);
-      //System.err.println("GOT: " + tmp.size());
+      List tmp = GrouperBackend._listVals(session, g, list);
       break;
     }
     /*
@@ -947,35 +917,5 @@ public class GrouperBackend {
     return stems;
   }
   
-  protected static List fuck(Session session, GrouperMember m) {
-    String key = m.key();
-    String id  = m.id();
-    List  els = new ArrayList();
-    System.err.println("[FUCK] QUERY FOR MEMBER KEY '" + key + "'");
-    System.err.println("[FUCK] QUERY FOR MEMBER ID  '" + id  + "'");
-    try {
-      Query q = session.createQuery(
-        "SELECT ALL FROM grouper_lists "  +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperMembership" +
-        " WHERE "                         +
-        "memberKey='" + key + "'"         +
-        " OR "                            +
-        "memberKey='" + id  + "'"
-/*
-        "AND "                            +
-        "groupField='members'"            +
-        " AND "                           +
-        "via=null"
-*/
-      );
-      System.err.println("[FUCK] GOT: " + q.list().size() + " elements");
-      return q.list();
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    return new ArrayList();
-  }
-
 }
  
