@@ -27,7 +27,7 @@
 	  org.hsqldb.jdbcDriver
 	</property>
     <property name="hibernate.connection.url">
-	  jdbc:hsqldb:C:/acohen/eclipse/workspace/signet/data/signet
+	  jdbc:hsqldb:data/signet
 	</property>
     <property name="hibernate.connection.username">
 	  sa
