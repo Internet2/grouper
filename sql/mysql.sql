@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.8 2004-04-28 16:03:36 blair Exp $
+-- $Id: mysql.sql,v 1.9 2004-04-29 03:54:04 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -43,8 +43,7 @@ CREATE TABLE grouper_group (
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_members (
-  -- XXX Can we rely upon this being numeric?  
-  memberID          INTEGER UNSIGNED NOT NULL,
+  memberID          VARCHAR(255) UNIQUE NOT NULL,
   presentationID    VARCHAR(255)
 ) TYPE=InnoDB;
 
@@ -166,4 +165,8 @@ INSERT INTO grouper_typedefs (groupType, groupField)
   VALUES ("base", "optins");
 INSERT INTO grouper_typedefs (groupType, groupField)
   VALUES ("base", "optouts");
+
+-- Insert some test members
+INSERT INTO grouper_members (memberID, presentationID)
+  VALUES ("blair", "blair christensen.");
 
