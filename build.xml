@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.44 2005-03-19 17:31:08 blair Exp $ -->
+<!-- $Id: build.xml,v 1.45 2005-03-19 20:24:01 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -182,7 +182,21 @@
       <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoF" />
       <classpath refid="project.class.path" />
     </java>
-<!-- TODO TestGroupsMoFAdd -->
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoFAdd0" />
+      <classpath refid="project.class.path" />
+    </java>
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoFAdd1" />
+      <classpath refid="project.class.path" />
+    </java>
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoFAdd2" />
+      <classpath refid="project.class.path" />
+    </java>
 <!-- TODO TestGroupsMoFDel -->
 <!-- TODO TestMixedMoF -->
 <!-- TODO TestMixedMoFAdd -->
