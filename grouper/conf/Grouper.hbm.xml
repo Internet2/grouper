@@ -11,7 +11,7 @@
       <key-property name="groupField" type="string" column="groupField"/>
     </composite-id>
     <property name="groupFieldValue">
-      <column name="groupFieldValue" length="255" not-null="true"/>
+      <column name="groupFieldValue" length="255"/>
     </property>
   </class>
 
