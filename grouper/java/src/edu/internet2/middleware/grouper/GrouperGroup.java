@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.111 2004-12-03 21:28:38 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.112 2004-12-04 01:32:35 blair Exp $
  */
 public class GrouperGroup {
 
@@ -603,7 +603,19 @@ public class GrouperGroup {
   {
     // Check to see if the group already exists.
     GrouperGroup g = GrouperGroup._lookupByStemExtn(s, stem, extn, type);
-    if (g == null) {
+    if (g != null) {
+      /*
+       * TODO Group already exists.  Ideally we'd throw an exception or
+       *      something, but, for now...
+       */
+      Grouper.LOGGER.warn(
+                          "Cannot create `" +
+                          GrouperBackend.groupName(stem, extn) +
+                          "' (" + type + ") as it already exists."
+                         );
+    
+      g = null;
+    } else {
       // TODO Can I move all|most of this to GrouperBackend?
       g = new GrouperGroup();
 
