@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  net.sf.hibernate.*;
@@ -60,10 +61,12 @@ import  org.apache.log4j.*;
 /** 
  * Class used within {@link Grouper} for logging.
  * <p />
- * This class is only used internally.
+ * This class is only used internally and isn't very useful at the
+ * moment.  A more coherent, useful and comprehensive logging policy
+ * will be implemented in a later release.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.12 2005-03-25 19:50:58 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.13 2005-03-29 20:30:56 blair Exp $
  */
 public class GrouperLog {
 
