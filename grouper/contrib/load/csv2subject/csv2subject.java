@@ -64,7 +64,7 @@
  * % javac subject2csv.java
  * % java subject2csv /path/to/csv/file
  *
- * $Id: csv2subject.java,v 1.4 2004-12-03 15:31:35 blair Exp $ 
+ * $Id: csv2subject.java,v 1.5 2004-12-03 15:50:46 blair Exp $ 
  */
 
 import  java.io.*;
@@ -90,6 +90,8 @@ class csv2subject {
 
   public static void main(String[] args) {
     _cfRead();
+    _jdbcConnect();
+    _jdbcDisconnect();
 
 /*
     if (args.length == 1) {
@@ -98,8 +100,6 @@ class csv2subject {
         System.err.println("File '" + args[0] + "' does not exist.");
         System.exit(65);
       }
-
-      _createConnection();
 
       try { 
         BufferedReader  br    = new BufferedReader(new FileReader(args[0])); 
@@ -129,21 +129,6 @@ class csv2subject {
   }
 
 /*
-  // Initialize the JDBC connection
-  private static void _createConnection() {
-    try {
-      Class.forName( jdbcDriver ).newInstance();
-      con = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
-    } catch(Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
-*/
-
-  // Inserts the memberID, presentationID pair into the
-  // 'grouper_members' table 
-/*
   private static void _insertMember(String memberID, String presentationID) {
     Statement stmt = null;
     try { 
@@ -168,7 +153,8 @@ class csv2subject {
 */
 
   /* (!javadoc)
-   *
+   * Read configuration file.
+   * <p />
    * @return Boolean true if succesful.
    */
   private static void _cfRead() {
@@ -190,6 +176,65 @@ class csv2subject {
     _verbose("password  " + conf.get("jdbc.password"));
   }
 
+  /* (!javadoc)
+   * Initialize JDBC connection.
+   */
+  private static void _jdbcConnect() {
+    try {
+      Class.forName( (String) conf.get("jdbc.driver") ).newInstance();
+      try {
+        conn = DriverManager.getConnection(
+                 (String) conf.get("jdbc.url"),
+                 (String) conf.get("jdbc.username"),
+                 (String) conf.get("jdbc.password")
+               );
+        _verbose("Connected to " + conf.get("jdbc.url"));
+      } catch (SQLException se) {
+        System.err.println("Unable to connect: " + se);
+        System.exit(1);
+      }
+    } catch(ClassNotFoundException ce) {
+      System.err.println(
+        "Unable to find class '" + conf.get("jdbc.driver") + "'"
+      );
+      System.exit(1);
+    } catch(InstantiationException ie) {
+      System.err.println(
+        "Unable to instantiate class '" + conf.get("jdbc.driver") + "'"
+      );
+      System.exit(1);
+    } catch(IllegalAccessException iae) {
+      System.err.println(
+        "Unable to access class '" + conf.get("jdbc.driver") + "'"
+      );
+      System.exit(1);
+    }
+  }
+
+  /* (!javadoc)
+   * Close JDBC connection.
+   */
+  private static void _jdbcDisconnect() {
+    if (conn != null) { 
+      try {
+        conn.commit();
+        _verbose("JDBC commit performed");
+        try {
+          conn.close();
+          _verbose("JDBC connection closed");
+        } catch (SQLException ce) {
+          System.err.println("Unable to close JDBC connection: " + ce);
+          System.exit(1);
+        }
+      } catch (SQLException come) {
+        System.err.println("Unable to perform JDBC commit: " + come);
+        System.exit(1);
+      }
+    }
+  }
+
+  // Inserts the memberID, presentationID pair into the
+  // 'grouper_members' table 
   /* (!javadoc)
    *
    * Conditionally print messages depending upon verbosity level.
