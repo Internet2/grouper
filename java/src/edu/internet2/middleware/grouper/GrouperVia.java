@@ -58,7 +58,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class representing a via (or lack of via) relationship.
  *
  * @author  blair christensen.
- * @version $Id: GrouperVia.java,v 1.4 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: GrouperVia.java,v 1.5 2004-11-30 01:36:26 blair Exp $
  */
 public class GrouperVia {
 
@@ -75,22 +75,13 @@ public class GrouperVia {
    */
 
   /**
-   * Create a {@link GrouperVia} object.
+   * Construct a new {@link GrouperVia} object.
    * <p />
-   * TODO Should this be public?
-   * TODO Is this class even needed?
+   * TODO Is this class <b>really</b> needed?
+   * TODO This should <b>only</b> be used within Grouper and I'd
+   *      prefer to not be relying upon <i>protected</i> for that...
    */
-  public GrouperVia() {
-    this._init();
-  }
-
-  /**
-   * Create a {@link GrouperVia} object.
-   * <p />
-   * TODO Should this be public?
-   * TODO Is this class even needed?
-   */
-  public GrouperVia(GrouperMember member, GrouperGroup group, GrouperGroup via) {
+  protected GrouperVia(GrouperMember member, GrouperGroup group, GrouperGroup via) {
     this._init();
     this.member = member;
     this.group  = group;

@@ -61,7 +61,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.47 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.48 2004-11-30 01:36:26 blair Exp $
  */
 public class GrouperMember {
 
@@ -79,19 +79,18 @@ public class GrouperMember {
    */
 
   /**
-   * Create a new {@link GrouperMember} object.
+   * Null-argument constructor for Hibernate.
    */
   public GrouperMember() {
     this._init();
   }
 
   /**
-   * Create a new {@link GrouperMember} object.
-   *
-   * @param subjectID       Subject ID
-   * @param subjectTypeID   Subject Type ID
+   * Construct a new {@link GrouperMember} object.
+   * <p />
+   * This should <b>only</b> be used within this class.
    */
-  public GrouperMember(String subjectID, String subjectTypeID) {
+  private GrouperMember(String subjectID, String subjectTypeID) {
     this._init();
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
