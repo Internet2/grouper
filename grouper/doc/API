@@ -1,0 +1,199 @@
+#
+# Condensed Grouper API
+# $Id: API,v 1.1 2004-10-11 18:23:53 blair Exp $
+#
+# TODO Interfaces
+#
+
+Grouper
+  Class Methods
+    Grouper()
+      XXX What needs this?
+    String config(String parameter)
+    boolean groupField(String type, String field)
+      XXX Rename?
+      XXX Move to different class?
+    List groupFields()
+      XXX Rename?
+      XXX Move to different class?
+    List groupTypeDefs()
+      XXX Rename?
+      XXX Move to different class?
+    List groupTypes()
+      XXX Rename?
+      XXX Move to different class?
+    boolean groupType(String type)
+      XXX Rename?
+      XXX Move to different class?
+
+
+GrouperAttribute
+  Class Methods
+    GrouperAttribute()
+
+  Instance Methods
+    String field()
+    String key()
+    String value()
+    void set(String key, String field, String value)
+      XXX I don't like this approach.
+
+
+GrouperBackend
+  Class Methods
+    GrouperBackend()
+      XXX What needs this?
+    void addGroup(GrouperSession s, GrouperGroup g)
+    void addSession(GrouperSession s)
+    List attributes(GrouperGroup g)
+    void cullSessions()
+      XXX I don't know...but this just seems inappropriate.  Especially
+          as a public method.  And why is it here?  I know, I know,
+          "all backend methods go here"...
+    List descriptors(GrouperSession s, String descriptor)
+      XXX Will need a rename at the least
+    GrouperGroup group(GrouperSession s, String stem, String descriptor)
+      XXX Will need a rename at the least
+    List groupFields()
+      XXX Hrm...isn't this also in Grouper?
+    List groupTypeDefs()
+      XXX Hrm...isn't this also in Grouper?
+    List groupTypes()
+      XXX Hrm...isn't this also in Grouper?
+    void loadGroup(GrouperSession s, GrouperGroup g, String key)
+      XXX Rename?
+    GrouperMember member(String id, String type)
+    List schemas(GrouperGroup g)
+    List stems(GrouperSession s, String stem)
+      XXX Will need a rename at the least
+    String uuid()
+
+
+GrouperDescriptor
+  XXX Revisit class
+  Class Methods
+    GrouperDescriptor()
+
+
+GrouperField
+  XXX Revisit class
+  Class Methods
+    GrouperField()
+
+
+GrouperGroup
+  Class Methods
+    GrouperGroup()
+    GrouperGroup create(GrouperSession s, String stem, String descriptor)
+      XXX Will need a rename at the least
+    GrouperGroup load(GrouperSession s, String stem, String descriptor)
+      XXX Will need a rename at the least
+
+  Instance Methods
+    GrouperAttribute attribute(String attribute)
+    void attribute(String attribute, String value)
+    Map attributes()
+    boolean exists()
+    String groupKey()
+      XXX Probably shouldn't be public
+    String groupType()
+    GrouperSession session()
+      XXX Hrm...
+    void session(GrouperSession s)
+      XXX Hrm...
+
+
+GrouperMember
+  Class Methods
+    GrouperMember()
+    GrouperMember(String id, String type)
+      XXX Needed?
+
+  Instance Methods
+    String memberID()
+    String memberType()
+
+
+GrouperMemberType
+  XXX Revisit class
+  Class Methods
+    GrouperMemberType()
+
+
+GrouperMembers
+  XXX Revisit class
+  Class Methods
+    GrouperMembers()
+
+
+GrouperMembership
+  XXX Revisit class
+  Class Methods
+    GrouperMembership()
+
+  Instance Methods
+    void set(String key, String field, String subject, boolean immediate)
+      XXX I don't like this approach.
+
+
+GrouperSchema
+  Class Methods
+    GrouperSchema()
+    GrouperSchema(String key, String type)
+      XXX Hrm...
+
+
+GrouperSession
+  Class Methods
+    GrouperSession()
+
+  Instance Methods
+    String config(String parameter)
+      XXX Ugh
+    void grantPriv(GrouperGroup g, GrouperMember m, String priv)
+      XXX Why here?
+    boolean hasPriv(GrouperGroup g, GrouperMember m, String priv)
+      XXX Why here?
+    boolean hasPriv(GrouperGroup g, String priv)
+      XXX Why here?
+    List hasPriv(GrouperGroup g)
+      XXX Why here?
+    List hasPriv(GrouperGroup g, GrouperMember m)
+      XXX Why here?
+    GrouperMember lookup(String id)
+    void revokePriv(GrouperGroup g, GrouperMember m, String priv)
+    void start(Grouper G, GrouperMember s)
+    void stop()
+    GrouperMember subject()
+      XXX Is this right?
+    String whoAmI()
+      XXX And what of this?
+
+
+GrouperStem
+  XXX Revisit class
+  Class Methods
+    GrouperStem()
+
+
+GrouperSubject
+  XXX How will this work|interact with the subject interface?
+  Class Methods
+    GrouperMember lookup(String id, String type)
+
+
+GrouperType
+  XXX Revisit class
+  Class Methods
+    GrouperType()
+
+
+GrouperTypeDef
+  XXX Revisit class
+  Class Methods
+    GrouperTypeDef()
+
+  Instance Methods
+    String groupField()
+    String groupType()
+
