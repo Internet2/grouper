@@ -121,25 +121,24 @@ public class TestStemsAdd extends TestCase {
     s.stop();
   }
 
-/*
   // NS at root-level
   public void testFetchNS0() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
 
     // Fetch ns0
-    GrouperGroup ns = GrouperGroup.load(
-                        s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns = GrouperStem.load(
+                        s, Constants.ns0s, Constants.ns0e
                       );
     Assert.assertNotNull("ns0 !null", ns);
     Assert.assertTrue(
                       "ns0 right class", 
-                      Constants.KLASS_GG.equals( ns.getClass().getName() )
+                      Constants.KLASS_GST.equals( ns.getClass().getName() )
                      );
     String type = ns.type();
     Assert.assertNotNull("ns type !null", type);
@@ -162,8 +161,8 @@ public class TestStemsAdd extends TestCase {
     Assert.assertNotNull("session !null", s);
 
     // Confirm that NS1 doesn't exist
-    GrouperGroup ns1 = GrouperGroup.load(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.load(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     Assert.assertNull("ns1 null", ns1);
 
@@ -177,18 +176,18 @@ public class TestStemsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
 
     // Create ns1 as child of ns0
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     Assert.assertNotNull("ns1 !null", ns1);
     Assert.assertTrue(
                       "ns1 right class", 
-                      Constants.KLASS_GG.equals( ns1.getClass().getName() )
+                      Constants.KLASS_GST.equals( ns1.getClass().getName() )
                      );
     String type = ns1.type();
     Assert.assertNotNull("ns1 type !null", type);
@@ -209,22 +208,22 @@ public class TestStemsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
 
     // Fetch ns1
-    GrouperGroup ns = GrouperGroup.load(
-                        s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns = GrouperStem.load(
+                        s, Constants.ns1s, Constants.ns1e
                       );
     Assert.assertNotNull("ns1 !null", ns);
     Assert.assertTrue(
                       "ns1 right class", 
-                      Constants.KLASS_GG.equals( ns.getClass().getName() )
+                      Constants.KLASS_GST.equals( ns.getClass().getName() )
                      );
     String type = ns.type();
     Assert.assertNotNull("ns1 type !null", type);
@@ -247,8 +246,8 @@ public class TestStemsAdd extends TestCase {
     Assert.assertNotNull("session !null", s);
 
     // Confirm that NS2 doesn't exist
-    GrouperGroup ns2 = GrouperGroup.load(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.load(
+                         s, Constants.ns2s, Constants.ns2e
                        );
     Assert.assertNull("ns2 null", ns2);
 
@@ -262,15 +261,19 @@ public class TestStemsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
 
     // Create ns2 as child of ns1
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
-                       );
-    Assert.assertNull("ns2 null", ns2);
+    try {
+      GrouperStem ns2 = GrouperStem.create(
+                           s, Constants.ns2s, Constants.ns2e
+                         );
+      Assert.fail("ns2 null");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("ns2 null", true);
+    }
 
     s.stop();
   }
@@ -281,22 +284,22 @@ public class TestStemsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
 
     // Create ns2 as child of ns1
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.create(
+                         s, Constants.ns2s, Constants.ns2e
                        );
     Assert.assertNotNull("ns2 !null", ns2);
     Assert.assertTrue(
                       "ns2 right class", 
-                      Constants.KLASS_GG.equals( ns2.getClass().getName() )
+                      Constants.KLASS_GST.equals( ns2.getClass().getName() )
                      );
     String type = ns2.type();
     Assert.assertNotNull("ns2 type !null", type);
@@ -317,26 +320,26 @@ public class TestStemsAdd extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create ns2 as child of ns1
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.create(
+                         s, Constants.ns2s, Constants.ns2e
                        );
 
     // Fetch ns2
-    GrouperGroup ns = GrouperGroup.load(
-                        s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns = GrouperStem.load(
+                        s, Constants.ns2s, Constants.ns2e
                       );
     Assert.assertNotNull("ns2 !null", ns);
     Assert.assertTrue(
                       "ns2 right class", 
-                      Constants.KLASS_GG.equals( ns.getClass().getName() )
+                      Constants.KLASS_GST.equals( ns.getClass().getName() )
                      );
     String type = ns.type();
     Assert.assertNotNull("ns2 type !null", type);
@@ -350,7 +353,6 @@ public class TestStemsAdd extends TestCase {
 
     s.stop();
   }
-*/
 
 }
 

@@ -136,7 +136,7 @@
         n.groupKey        = schema.groupKey
   ]]></query>
 
-  <query name="Group.by.stem.and.extn.and.type"><![CDATA[
+  <query name="Group.key.by.stem.and.extn.and.type"><![CDATA[
     select s.groupKey from 
       GrouperAttribute s, GrouperAttribute e, GrouperSchema schema where
         s.groupField      = 'stem'      and
@@ -144,7 +144,7 @@
         e.groupField      = 'extension' and
         e.groupFieldValue = ?           and
         s.groupKey        = e.groupKey  and
-        schema.groupKey   = ?           and
+        schema.groupType  = ?           and
         s.groupKey        = schema.groupKey
   ]]></query>
 
