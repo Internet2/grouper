@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.1 2004-12-07 03:08:50 blair Exp $
+$Id: README,v 1.2 2004-12-08 01:11:19 blair Exp $
 
 ---
 
@@ -25,5 +25,19 @@ $Id: README,v 1.1 2004-12-07 03:08:50 blair Exp $
 
 ## Bugs
 
-TODO
+These are less bugs and more incomplete features:
+
+* Start using _GrouperQuery_ for querying
+* Add csv output?
+* Add XML output?
+* Add ability to query for _all_ types of list values
+* Query on member
+* Query on group
+* Query on group type
+* Query on namespace
+* Query on priv
+* Query on effective memberships
+* Query on immediate memberships
+* Query on create time
+* Query on modify time
 
