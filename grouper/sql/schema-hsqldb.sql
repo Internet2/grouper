@@ -1,56 +1,56 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.22 2004-11-28 05:00:02 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.23 2004-12-03 17:34:11 blair Exp $
 -- 
 
 CREATE TABLE grouper_attribute (
-  groupKey        VARCHAR(255) NOT NULL,
-  groupField      VARCHAR(255) NOT NULL,
-  groupFieldValue VARCHAR(255),
+  groupKey        VARCHAR NOT NULL,
+  groupField      VARCHAR NOT NULL,
+  groupFieldValue VARCHAR,
   CONSTRAINT      uniq_gk_gf UNIQUE (groupKey, groupField)
 );
 
 -- XXX Right types?
 CREATE TABLE grouper_field (
-  groupField  VARCHAR(255) NOT NULL PRIMARY KEY,
-  readPriv    VARCHAR(255),
-  writePriv   VARCHAR(255),
-  isList      VARCHAR(255),
+  groupField  VARCHAR NOT NULL PRIMARY KEY,
+  readPriv    VARCHAR,
+  writePriv   VARCHAR,
+  isList      VARCHAR,
   CONSTRAINT  uniq_gf UNIQUE (groupField)
 );
 
 CREATE TABLE grouper_group (
-  groupKey      VARCHAR(255) NOT NULL PRIMARY KEY,
-  groupID       VARCHAR(255) NOT NULL,
-  createTime    VARCHAR(255),
-  createSubject VARCHAR(255),
-  createSource  VARCHAR(255),
-  modifyTime    VARCHAR(255),
-  modifySubject VARCHAR(255),
-  modifySource  VARCHAR(255),
-  comment       VARCHAR(255),
+  groupKey      VARCHAR NOT NULL PRIMARY KEY,
+  groupID       VARCHAR NOT NULL,
+  createTime    VARCHAR,
+  createSubject VARCHAR,
+  createSource  VARCHAR,
+  modifyTime    VARCHAR,
+  modifySubject VARCHAR,
+  modifySource  VARCHAR,
+  comment       VARCHAR,
   CONSTRAINT    uniq_gk   UNIQUE (groupKey),
   CONSTRAINT    uniq_gid  UNIQUE (groupID)
 );
 
 CREATE TABLE grouper_list (
-  groupKey        VARCHAR(255) NOT NULL,
-  groupField      VARCHAR(255) NOT NULL,
-  memberKey       VARCHAR(255) NOT NULL,
-  via             VARCHAR(255),
-  removeAfter     VARCHAR(255),
+  groupKey        VARCHAR NOT NULL,
+  groupField      VARCHAR NOT NULL,
+  memberKey       VARCHAR NOT NULL,
+  via             VARCHAR,
+  removeAfter     VARCHAR,
   CONSTRAINT      uniq_gk_gf_mk_via UNIQUE (groupKey, groupField, memberKey, via)
 );
 CREATE INDEX idx_gl_gk_gf_mk_via ON grouper_list 
   (groupKey, groupField, memberKey, via);
 
 CREATE TABLE grouper_member (
-  memberKey     VARCHAR(255) NOT NULL PRIMARY KEY,
-  memberID      VARCHAR(255) NOT NULL,
+  memberKey     VARCHAR NOT NULL PRIMARY KEY,
+  memberID      VARCHAR NOT NULL,
   -- TODO Foreign Key
-  subjectID     VARCHAR(255) NOT NULL,
+  subjectID     VARCHAR NOT NULL,
   -- TODO Foreign Key
-  subjectTypeID VARCHAR(255) NOT NULL,
+  subjectTypeID VARCHAR NOT NULL,
   CONSTRAINT    uniq_mk_mid_sid_stid UNIQUE (memberKey, memberID, subjectID, subjectTypeID)
 );
 CREATE INDEX idx_gm_sid_stid ON grouper_member
@@ -58,56 +58,56 @@ CREATE INDEX idx_gm_sid_stid ON grouper_member
 
 CREATE TABLE grouper_schema (
   -- TODO Foreign Key
-  groupKey    VARCHAR(255) NOT NULL,
+  groupKey    VARCHAR NOT NULL,
   -- TOOD Foreign Key
-  groupType   VARCHAR(255) NOT NULL,
+  groupType   VARCHAR NOT NULL,
   CONSTRAINT  uniq_gk_gt  UNIQUE (groupKey, groupType)
 );
 
 CREATE TABLE grouper_session (
-  sessionID  VARCHAR(255) NOT NULL PRIMARY KEY,
-  subjectID  VARCHAR(255) NOT NULL,
+  sessionID  VARCHAR NOT NULL PRIMARY KEY,
+  subjectID  VARCHAR NOT NULL,
   startTime  BIGINT,
   CONSTRAINT uniq_si  UNIQUE (sessionID)
 );
 
 CREATE TABLE grouper_subject (
-  subjectID     VARCHAR(255) NOT NULL PRIMARY KEY,
+  subjectID     VARCHAR NOT NULL PRIMARY KEY,
   -- TODO Foreign Key
-  subjectTypeID VARCHAR(255) NOT NULL,
+  subjectTypeID VARCHAR NOT NULL,
   CONSTRAINT    uniq_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
 CREATE TABLE grouper_subjectAttribute (
   -- TODO Foreign Key
-  subjectID     VARCHAR(255) NOT NULL, 
+  subjectID     VARCHAR NOT NULL, 
   -- TODO Foreign Key
-  subjectTypeID VARCHAR(255) NOT NULL,
-  name          VARCHAR(255) NOT NULL,
+  subjectTypeID VARCHAR NOT NULL,
+  name          VARCHAR NOT NULL,
   instance      INTEGER,
-  value         VARCHAR(255) NOT NULL,
-  searchValue   VARCHAR(255),
+  value         VARCHAR NOT NULL,
+  searchValue   VARCHAR,
   -- TODO Include `instance' (if made !null)?
   CONSTRAINT    uniq_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
 CREATE TABLE grouper_subjectType (
-  subjectTypeID VARCHAR(255) NOT NULL PRIMARY KEY,
-  name          VARCHAR(255) NOT NULL,
-  adapterClass  VARCHAR(255) NOT NULL,
+  subjectTypeID VARCHAR NOT NULL PRIMARY KEY,
+  name          VARCHAR NOT NULL,
+  adapterClass  VARCHAR NOT NULL,
   CONSTRAINT    uniq_stid UNIQUE (subjectTypeID)
 );
 
 CREATE TABLE grouper_typeDef (
   -- TOOD Foreign Key
-  groupType   VARCHAR(255) NOT NULL,
+  groupType   VARCHAR NOT NULL,
   -- TOOD Foreign Key
-  groupField  VARCHAR(255) NOT NULL,
+  groupField  VARCHAR NOT NULL,
   CONSTRAINT  uniq_gt_gf  UNIQUE (groupType, groupField)
 );
 
 CREATE TABLE grouper_type (
-  groupType   VARCHAR(255) NOT NULL PRIMARY KEY,
+  groupType   VARCHAR NOT NULL PRIMARY KEY,
   CONSTRAINT  uniq_gt UNIQUE (groupType)
 );
 
