@@ -1,6 +1,6 @@
 /*--
-$Id: ShowData.java,v 1.3 2005-01-04 19:06:43 acohen Exp $
-$Date: 2005-01-04 19:06:43 $
+$Id: ShowData.java,v 1.4 2005-01-05 21:02:22 acohen Exp $
+$Date: 2005-01-05 21:02:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -206,16 +206,11 @@ private static String SUPERSUBJECT_DISPLAY_ID = "SignetSuperSubject";
   throws
     ObjectNotFoundException,
     TreeNotFoundException
-  { 
-    TreeTypeAdapter treeTypeAdapter
-    	= signet.getTreeTypeAdapter
-    			(Signet.DEFAULT_TREE_TYPE_ADAPTER_NAME);
-    
+  {
     TreeNode descendant
     	= signet.getTreeNode
-    			(treeTypeAdapter,
-    			 "my_id00", // treeId
-    			 "my_id0002"); // treeNodeId
+    			("my_id00",			// treeId
+    			 "my_id0002");	// treeNodeId
     
     Set descendants = new HashSet();
     descendants.add(descendant);
@@ -253,8 +248,7 @@ private static String SUPERSUBJECT_DISPLAY_ID = "SignetSuperSubject";
   throws ObjectNotFoundException
   {
     PrivilegedSubject subject0
-  		= signet.getPrivilegedSubjectByDisplayId
-  				(Signet.DEFAULT_SUBJECT_TYPE_ID, "subject0");
+  		= signet.getPrivilegedSubjectByDisplayId("subject0");
     System.out.println("<<SUBJECTBYDISPLAYID>>");
     System.out.println(subject0);
     System.out.println("<<END OF SUBJECTBYDISPLAYID>>");

@@ -1,6 +1,6 @@
 /*--
-$Id: AddData.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: AddData.java,v 1.3 2005-01-05 21:02:22 acohen Exp $
+$Date: 2005-01-05 21:02:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -75,12 +75,9 @@ throws
 private static Tree createSampleTree(Signet signet)
 throws ObjectNotFoundException
 {
-  TreeTypeAdapter treeTypeAdapter
-  	= signet.getTreeTypeAdapter
-  			(Signet.DEFAULT_TREE_TYPE_ADAPTER_NAME);
   Tree adminOrgsTree
     = signet.newTree
-    		(treeTypeAdapter, "adminorgs", "Administrative Organizations");
+    		("adminorgs", "Administrative Organizations");
   
 
     TreeNode presNode
@@ -547,14 +544,10 @@ private static void createSampleSubsystems
 private static SubjectType createPersonSubjectType(Signet signet)
 throws ObjectNotFoundException
 {
-  SubjectType defaultSubjectType
-  	= signet.getSubjectType(Signet.DEFAULT_SUBJECT_TYPE_ID);
-  
   SubjectType personSubjectType
     = signet.newSubjectType
   	    (PERSON_SUBJECT_TYPE_ID,
-  	     PERSON_SUBJECT_TYPE_NAME,
-  	     defaultSubjectType.getAdapter());
+  	     PERSON_SUBJECT_TYPE_NAME);
   
   signet.save(personSubjectType);
   
@@ -759,14 +752,10 @@ throws ObjectNotFoundException
   	(signet.newPermission("my_id0001", subsystem0, Status.ACTIVE));
   function000.addPermission
   	(signet.newPermission("my_id0002", subsystem0, Status.ACTIVE));
-  
 
-  TreeTypeAdapter defaultTreeTypeAdapter
-  	= signet.getTreeTypeAdapter
-  			(Signet.DEFAULT_TREE_TYPE_ADAPTER_NAME);
   Tree tree00
   	= signet.newTree
-  			(defaultTreeTypeAdapter, "my_id00", "my_name00");
+  			("my_id00", "my_name00");
   subsystem0.setTree(tree00);
   TreeNode treeNode00
   	= signet.newTreeNode(tree00, "my_id00", "my_name00");

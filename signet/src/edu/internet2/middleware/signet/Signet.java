@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.3 2005-01-04 19:06:43 acohen Exp $
-$Date: 2005-01-04 19:06:43 $
+$Id: Signet.java,v 1.4 2005-01-05 21:02:22 acohen Exp $
+$Date: 2005-01-05 21:02:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -46,21 +46,18 @@ import net.sf.hibernate.cfg.Configuration;
 */
 public final class Signet
 {
-/**
- * This constant denotes the default subject-type ID, as it is defined
- * and used by Signet.
- * <p />
- * Perhaps this constant should be moved to the PrivilegedSubject interface,
- * or even hidden within the implementation of that interface.
- */
-public static final String DEFAULT_SUBJECT_TYPE_ID
-	= "signet";
-
-static final String SCOPE_PART_DELIMITER 
-	= ":";
-
-public static final String DEFAULT_TREE_TYPE_ADAPTER_NAME
-	= "edu.internet2.middleware.signet.TreeTypeAdapterImpl";
+  /**
+   * This constant denotes the default subject-type ID, as it is defined
+   * and used by Signet.
+   */
+  static final String DEFAULT_SUBJECT_TYPE_ID
+  	= "signet";
+  
+  static final String SCOPE_PART_DELIMITER 
+  	= ":";
+  
+  static final String DEFAULT_TREE_TYPE_ADAPTER_NAME
+  	= "edu.internet2.middleware.signet.TreeTypeAdapterImpl";
 
 /**
  * This constant denotes the "first name" attribute of a Subject, as it is
@@ -347,9 +344,29 @@ public final void save(Object o)
 }
 
 /**
+ * Creates a new Tree, using the default Signet TreeTypeAdapter.
+ * 
  * @param treeId
  * @param treeName
- * @return
+ * @return the new Tree
+ */
+public final Tree newTree
+  (String treeId,
+   String treeName)
+{
+  TreeTypeAdapter defaultTreeAdapter
+  	= getTreeTypeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
+  Tree newTree = new TreeImpl(this, defaultTreeAdapter, treeId, treeName);
+  return newTree;
+}
+
+/**
+ * Creates a new Tree.
+ * 
+ * @param adapter
+ * @param treeId
+ * @param treeName
+ * @return the new Tree
  */
 public final Tree newTree
   (TreeTypeAdapter	adapter,
@@ -992,12 +1009,29 @@ throws ObjectNotFoundException
 }
 
 /**
+ * Gets a single PrivilegedSubject of Signet's default subject-type by
+ * its displayID.
+ * 
+ * @param displayId
+ * @return the PrivilegedSubject.
+ * @throws ObjectNotFoundException if the PrivilegedSubject is not found.
+ */
+public PrivilegedSubject getPrivilegedSubjectByDisplayId
+	(String displayId)
+throws ObjectNotFoundException
+{
+  return
+  	this.getPrivilegedSubjectByDisplayId
+  		(DEFAULT_SUBJECT_TYPE_ID, displayId);
+}
+
+/**
  * Gets a single PrivilegedSubject by its type and displayID.
  * 
  * @param subjectTypeId
  * @param displayId
  * @return
- * @throws ObjectNotFoundException
+ * @throws ObjectNotFoundException if the PrivilegedSubject is not found.
  */
 public PrivilegedSubject getPrivilegedSubjectByDisplayId
 	(String	subjectTypeId,
@@ -1319,31 +1353,34 @@ throws ObjectNotFoundException
   return subjectTypeImpl;
 }
 
-///**
-// * Gets a single TreeNode by treeID and nodeID.
-// * 
-// * @param treeId
-// * @param treeNodeId
-// * @return
-// * @throws ObjectNotFoundException
-// */
-//public TreeNode getTreeNode
-//  (String treeId,
-//   String treeNodeId)
-//throws
-//	ObjectNotFoundException
-//{
-//  return getTreeNode(treeId, treeNodeId);
-//}
-
 /**
- * @deprecated the whole notion of tree-type will soon be removed from
- * Signet.
+ * Gets a single TreeNode by treeID and nodeID, using the default
+ * Signet TreeTypeAdapter.
  * 
- * @param treeTypeId
  * @param treeId
  * @param treeNodeId
- * @return
+ * @return the specified TreeNode
+ * @throws ObjectNotFoundException
+ */
+
+public TreeNode getTreeNode
+	(String	treeId,
+	 String	treeNodeId)
+throws
+	ObjectNotFoundException
+{
+  TreeTypeAdapter adapter
+  	= this.getTreeTypeAdapter(DEFAULT_TREE_TYPE_ADAPTER_NAME);
+  return getTreeNode(adapter, treeId, treeNodeId);
+}
+
+/**
+ * Gets a single TreeNode by adapter, treeID and nodeID.
+ * 
+ * @param adapter
+ * @param treeId
+ * @param treeNodeId
+ * @return the specified TreeNode
  * @throws ObjectNotFoundException
  */
 public TreeNode getTreeNode
@@ -1751,13 +1788,40 @@ private void reportMultipleRecordError
   	 + "'.");
 }
 
+/**
+ * Creates a new SubjectType, using the default SubjectTypeAdapter.
+ * 
+ * @param subjectTypeId
+ * @param subjectTypeName
+ * 
+ * @return the new SubjectType
+ */
+public SubjectType newSubjectType
+	(String	subjectTypeId,
+	 String	subjectTypeName)
+{
+  try
+  {
+    return newSubjectType
+    	(subjectTypeId,
+    	 subjectTypeName,
+    	 this.getSubjectType(DEFAULT_SUBJECT_TYPE_ID).getAdapter());
+  }
+  catch (ObjectNotFoundException onfe)
+  {
+    throw new SignetRuntimeException(onfe);
+  }
+}
+
 
 /**
- * Creates a new Subject.
+ * Creates a new SubjectType.
  * 
- * @param person_subject_type_id
- * @param person_subject_type_name
+ * @param subjectTypeId
+ * @param subjectTypeName
  * @param adapter
+ * 
+ * @return the new SubjectType
  */
 public SubjectType newSubjectType
 	(String 						subjectTypeId,

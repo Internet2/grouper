@@ -1,6 +1,6 @@
 /*--
-$Id: MakeAssignment.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: MakeAssignment.java,v 1.3 2005-01-05 21:02:22 acohen Exp $
+$Date: 2005-01-05 21:02:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -88,15 +88,11 @@ throws ObjectNotFoundException, SignetAuthorityException
   Assignment assignment0 = null;
   Assignment assignment1 = null;
   
-  TreeTypeAdapter treeTypeAdapter
-  	= signet.getTreeTypeAdapter
-  			(Signet.DEFAULT_TREE_TYPE_ADAPTER_NAME);
-  
   try
   {
     TreeNode treeNode
     	= signet.getTreeNode
-    			(treeTypeAdapter, "my_id00", "my_id0001");
+    			("my_id00", "my_id0001");
     assignment0
     	= originalGrantor.grant
     			(intermediateGrantor,
