@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.197 2005-03-23 21:45:40 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.198 2005-03-23 21:52:49 blair Exp $
  */
 public class GrouperBackend {
 
@@ -159,81 +159,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  /**
-   * Query for a single {@link Subject} of type "group".
-   *
-   * @return  {@link Subject} object or null.
-   */
-  protected static Subject subjectLookupTypeGroup(
-                             String id, String typeID
-                           ) 
-  {
-    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
-    String  qry     = "GrouperGroup.by.id";
-    Subject subj    = null;
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      q.setString(0, id);
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          // FIXME Properly load the group
-          GrouperGroup g = (GrouperGroup) vals.get(0);
-          if (g != null) {
-            // ... And convert it to a subject object
-            subj = new SubjectImpl(id, typeID);
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    dbSess.stop();
-    return subj;
-  }
-
-  /**
-   * Query for a single {@link Subject} of the type DEF_SUBJ_TYPE using 
-   * the internal subject store.
-   *
-   * @return  {@link Subject} object or null.
-   */
-  protected static Subject subjectLookupTypePerson(
-                             String id, String typeID
-                           ) 
-  {
-    DbSess  dbSess  = new DbSess(); // FIXME CACHE!
-    String  qry     = "SubjectImpl.by.subjectid.and.typeid";
-    Subject subj    = null;
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      q.setString(0, id);
-      q.setString(1, typeID);
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          subj = (Subject) vals.get(0);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    dbSess.stop();
-    return subj;
   }
 
   protected static boolean attrDel(
