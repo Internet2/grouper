@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.9 2004-10-12 17:18:47 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.10 2004-10-13 16:53:15 blair Exp $
  */
 public class GrouperBackend {
 
@@ -218,8 +218,8 @@ public class GrouperBackend {
   }
 
   // TODO
-  public static List stems(GrouperSession s, String stem) {
-    List stems = new ArrayList();
+  public static List namespaces(GrouperSession s, String namespace) {
+    List namespaces = new ArrayList();
     try {
       Query q = session.createQuery(
         "SELECT FROM grouper_attributes " +
@@ -227,14 +227,14 @@ public class GrouperBackend {
         "WHERE " +
         "groupField='stem' " + 
         "AND " +
-        "groupFieldValue='" + stem + "'"
+        "groupFieldValue='" + namespace + "'"
       );
-      stems = q.list();
+      namespaces = q.list();
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
     }
-    return stems;
+    return namespaces;
   }
   
   /**
@@ -339,7 +339,7 @@ public class GrouperBackend {
     return m;
   }
 
-  public static GrouperGroup group(GrouperSession s, String stem, String descriptor) {
+  public static GrouperGroup group(GrouperSession s, String namespace, String descriptor) {
     GrouperBackend._init();
 
     // TODO Please.  Make this better.  Please, please, please.
@@ -348,23 +348,23 @@ public class GrouperBackend {
     List descs = GrouperBackend.descriptors(s, descriptor);
     if (descs.size() > 0) {
       // We found one or more potential descriptors.  Now look
-      // for matching stems.
-      List stems = GrouperBackend.stems(s, stem);
-      if (stems.size() > 0) {
-        // We have potential stems and potential descriptors.
-        // Now see if we have the *right* stem and the *right*
+      // for matching namespaces.
+      List namespaces = GrouperBackend.namespaces(s, namespace);
+      if (namespaces.size() > 0) {
+        // We have potential namespaces and potential descriptors.
+        // Now see if we have the *right* namespace and the *right*
         // descriptor.
         for (Iterator iterDesc = descs.iterator(); iterDesc.hasNext();) {
           GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
-          for (Iterator iterStem = stems.iterator(); iterStem.hasNext();) {
-            GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
+          for (Iterator iterNamespace = namespaces.iterator(); iterNamespace.hasNext();) {
+            GrouperAttribute possNamespace = (GrouperAttribute) iterNamespace.next();
             if (
                 descriptor.equals( possDesc.value() )   &&
-                stem.equals( possStem.value() )         &&
-                possDesc.key().equals( possStem.key() )
+                namespace.equals( possNamespace.value() )         &&
+                possDesc.key().equals( possNamespace.key() )
                )
             {
-              // We have found an appropriate stem and descriptor
+              // We have found an appropriate namespace and descriptor
               // with matching keys.  We exist!
 
               // Now query for the group with the appropriate key and
