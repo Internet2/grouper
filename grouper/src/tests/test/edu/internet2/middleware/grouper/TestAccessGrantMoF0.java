@@ -102,11 +102,17 @@ public class TestAccessGrantMoF0 extends TestCase {
 
     // Grant m0 ADMIN on g0
     Assert.assertTrue(
-      "grant m0 ADMIn on g0", 
+      "grant m0 ADMIN on g0", 
       s.access().grant(s, g0, m0, Grouper.PRIV_ADMIN)
     );
 
     // TODO Use access interface to check results?
+    // Assert privileges
+    Assert.assertTrue(
+      "m0 ADMIN on g0", 
+      s.access().has(s, g0, m0, Grouper.PRIV_ADMIN)
+    );
+      
 
     // Now inspect g0's, resulting list values
     Assert.assertTrue(
