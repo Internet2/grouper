@@ -18,7 +18,7 @@ import  java.util.*;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.19 2004-11-12 17:55:30 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.20 2004-11-15 19:41:50 blair Exp $
  */
 public class GrouperSubject {
 
@@ -50,7 +50,7 @@ public class GrouperSubject {
           subj = sta.getSubject(st, id);
         } catch (SubjectNotFoundException e) {
           // TODO WRONG!
-          System.err.println(e);
+          System.err.println("No adapter for type " + typeID);
           System.exit(1);
         }
       }
