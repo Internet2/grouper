@@ -16,12 +16,14 @@ package edu.internet2.middleware.grouper;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.doomdark.uuid.UUIDGenerator;
+
 
 /** 
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.28 2004-08-26 18:22:24 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.29 2004-08-27 02:24:20 blair Exp $
  */
 public class GrouperGroup {
 
@@ -76,6 +78,13 @@ public class GrouperGroup {
     attributes    = new HashMap();
     intSess       = null;
     name          = null;
+  }
+
+  public String toString() {
+    return this.getClass()        + ":" +
+           this.groupKey          + ":" + 
+           attributes.get("stem") + ":" +
+           attributes.get("descriptor");
   }
 
   public void session(GrouperSession s) {
@@ -149,6 +158,11 @@ public class GrouperGroup {
                     // We have found an appropriate stem and descriptor
                     // with matching keys.  We exist!
                     this.exists = true;
+
+                    // Set groupKey
+                    this.groupKey = possDesc.key();
+
+                    // And not acknowledge our existence
                     return this.exists;
                   }
                 }
@@ -175,6 +189,9 @@ public class GrouperGroup {
     // And now attempt to add the group to the store
     try {
       Transaction t = session.beginTransaction();
+      org.doomdark.uuid.UUID uuid = UUIDGenerator.getInstance().generateRandomBasedUUID();
+      this.groupKey = uuid.toString();
+
       // The Group object
       session.save(this);
 
