@@ -60,6 +60,11 @@ public class TestGroups extends TestCase {
 
   private String  klass   = "edu.internet2.middleware.grouper.GrouperGroup";
 
+  private String  ns_stem0   = Grouper.NS_ROOT;
+  private String  ns_extn0   = "stem.0";
+  private String  ns_stem00  = "stem.0";
+  private String  ns_extn00  = "stem.0.0";
+
   private String  stem0   = "stem.0";
   private String  extn0   = "extn.0";
   private String  stem1   = "stem.1";
@@ -400,6 +405,61 @@ public class TestGroups extends TestCase {
     String stem = stem0;
     String extn = extn0;
     GrouperGroup g = GrouperGroup.create(s, stem, extn);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  public void testFetchG5() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Attempt to fetch a DEF_GROUP_TYPE group as a NS_TYPE group
+    // g0
+    GrouperGroup g  = GrouperGroup.lookup(s, stem0, extn0, Grouper.NS_TYPE);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  public void testFetchG6() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Attempt to fetch a NS_TYPE type group (explicitly) as a DEF_GROUP_TYPE group
+    // ns0
+    GrouperGroup g  = GrouperGroup.lookup(s, ns_stem0, ns_extn0, Grouper.DEF_GROUP_TYPE);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  public void testFetchG7() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
+    // ns0
+    GrouperGroup g  = GrouperGroup.lookup(s, ns_stem0, ns_extn0);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  public void testFetchG8() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Attempt to fetch a NS_TYPE type group (explicitly) as a DEF_GROUP_TYPE group
+    // ns00
+    GrouperGroup g  = GrouperGroup.lookup(s, ns_stem00, ns_extn00, Grouper.DEF_GROUP_TYPE);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  public void testFetchG9() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    s.start(subj);
+    // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
+    // ns00
+    GrouperGroup g  = GrouperGroup.lookup(s, ns_stem00, ns_extn00);
     Assert.assertNull(g);
     s.stop();
   }
