@@ -140,14 +140,6 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
-  // Instantiate a GrouperQuery instance 
-  public void testGrouperQueryInstantiate() {
-    GrouperQuery obj = new GrouperQuery();
-    Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperQuery";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
-
   // Instantiate a GrouperSchema instance 
   public void testGrouperSchemaInstantiate() {
     GrouperSchema obj = new GrouperSchema();
