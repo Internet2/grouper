@@ -62,7 +62,7 @@ import  java.io.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.77 2005-03-04 19:17:58 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.78 2005-03-07 19:30:41 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -103,7 +103,7 @@ public class GrouperSession implements Serializable {
   private GrouperSession(Subject subj) {
     this._init();
     this.subject  = subj;
-    this.m        = GrouperMember.load(subj);
+    this.m        = GrouperMember.load(this, subj);
     if (m == null) {
       throw new RuntimeException("Unable to load member object");
     }
@@ -213,7 +213,7 @@ public class GrouperSession implements Serializable {
      ois.defaultReadObject();
 
     // Restore GrouperMember object
-    this.m = GrouperMember.load(this.memberID);
+    this.m = GrouperMember.load(this, this.memberID);
 
     // Restore Subject object
     this.subject = GrouperSubject.load(m.subjectID(), m.typeID());

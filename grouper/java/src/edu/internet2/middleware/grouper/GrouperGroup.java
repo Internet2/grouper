@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.163 2005-03-07 17:18:22 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.164 2005-03-07 19:30:41 blair Exp $
  */
 public class GrouperGroup {
 
@@ -882,7 +882,7 @@ public class GrouperGroup {
       if (attr != null) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
-        GrouperMember mem = GrouperMember.load( this.s.subject() );
+        GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
         if (GrouperBackend.groupUpdate(s, this)) {
@@ -912,7 +912,7 @@ public class GrouperGroup {
       if (GrouperBackend.attrDel(this.key, attribute)) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
-        GrouperMember mem = GrouperMember.load( this.s.subject() );
+        GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.remove(attribute);
         if (GrouperBackend.groupUpdate(this.s, this)) {
@@ -948,7 +948,7 @@ public class GrouperGroup {
       if (attr != null) {
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
-        GrouperMember mem = GrouperMember.load( this.s.subject() );
+        GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
         this.attributes.put(attribute, attr);
         if (GrouperBackend.groupUpdate(this.s, this)) {
@@ -1030,7 +1030,7 @@ public class GrouperGroup {
            *      handled by Hibernate interceptors.  A task for another day.
            */
           g.setCreateTime(    GrouperGroup._now() );
-          GrouperMember mem = GrouperMember.load( s.subject() );
+          GrouperMember mem = GrouperMember.load(s, s.subject());
           g.setCreateSubject( mem.key() );
 
           // Verify that we have everything we need to create a group
@@ -1089,7 +1089,7 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.load( this.s.subject());
+    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
     this.setModifySubject( mem.key() );
     if (
         GrouperBackend.listAddVal(
@@ -1119,7 +1119,7 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.load( this.s.subject());
+    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
     this.setModifySubject( mem.key() );
     //if (GrouperBackend.listDelVal(s, this, m, list) == true) {
     if (

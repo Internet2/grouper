@@ -109,10 +109,10 @@ public class TestQueries extends TestCase {
     Assert.assertNotNull(g2);
     // Fetch the members
     // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.load(m0id, m0type);
+    GrouperMember   m0      = GrouperMember.load(s, m0id, m0type);
     Assert.assertNotNull(m0);
     // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.load(m1id, m1type);
+    GrouperMember   m1      = GrouperMember.load(s, m1id, m1type);
     Assert.assertNotNull(m1);
     // We're done
     s.stop();
