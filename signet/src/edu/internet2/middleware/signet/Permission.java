@@ -1,6 +1,6 @@
 /*--
- $Id: Permission.java,v 1.4 2005-02-08 19:20:50 acohen Exp $
- $Date: 2005-02-08 19:20:50 $
+ $Id: Permission.java,v 1.5 2005-03-03 18:29:00 acohen Exp $
+ $Date: 2005-03-03 18:29:00 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -50,7 +50,8 @@ extends SubsystemPart
   /**
    * Gets the Limits associated with this Permission.
    * 
-   * @param limits the Limits associated with this Permission.
+   * @param limits the Limits associated with this Permission, in display
+   * order.
    */
   public Limit[] getLimitsArray();
 }

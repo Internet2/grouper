@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.5 2005-02-15 00:31:20 acohen Exp $
-$Date: 2005-02-15 00:31:20 $
+$Id: FunctionImpl.java,v 1.6 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,7 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -340,8 +342,18 @@ implements Function
               	((Limit)o1).getDisplayOrder() - ((Limit)o2).getDisplayOrder();
             }
     	    };
+
+    Set limits = this.getLimits();
+    Limit[] limitArray = new Limit[0];
+    limitArray = (Limit[])(limits.toArray(limitArray));
     	    
-    SortedSet functionLimits = new TreeSet(displayOrderComparator);
+    Arrays.sort(limitArray, displayOrderComparator);
+    return limitArray;
+  }
+  
+  private Set getLimits()
+  {
+    Set functionLimits = new HashSet();
     Set permissions = this.getPermissions();
     Iterator permissionsIterator = permissions.iterator();
     
@@ -363,7 +375,6 @@ implements Function
       functionLimits.addAll(permissionLimits);
     }
 
-    Limit[] limitsArray = new Limit[0];
-    return (Limit[])(functionLimits.toArray(limitsArray));
+    return functionLimits;
   }
 }

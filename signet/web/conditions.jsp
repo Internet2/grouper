@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.10 2005-02-25 23:28:58 acohen Exp $
-  $Date: 2005-02-25 23:28:58 $
+  $Id: conditions.jsp,v 1.11 2005-03-03 18:29:00 acohen Exp $
+  $Date: 2005-03-03 18:29:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -20,7 +20,68 @@
     </script>
   </head>
 
-  <body>
+  <body onLoad="javascript:selectLimitCheckbox();">
+    <script type="text/javascript">
+      function selectLimitCheckbox()
+      {
+        if (hasUnselectedLimits())
+        {
+          document.form1.completeAssignmentButton.disabled = true;
+        }
+        else
+        {
+          document.form1.completeAssignmentButton.disabled = false;
+        }
+      }
+      
+      function hasUnselectedLimits()
+      {
+        var theForm = document.form1;
+        var currentLimitName = null;
+        var currentLimitSelected = true;
+        
+        for (var i = 0; i < theForm.elements.length; i++)
+        {
+          var currentElement = theForm.elements[i];
+             
+          if (currentElement.name == null)
+          {
+            continue;
+          }
+             
+          var nameParts = currentElement.name.split(':');
+          
+          if (nameParts[0] == 'LIMITVALUE_MULTI')
+          {
+            if ((currentLimitName != null)
+                && (currentLimitName != currentElement.name)
+                && (currentLimitSelected == false))
+            {
+              // We've finished examining a Limit, and it had no
+              // selected values.
+              return true; // We've found an un-selected Limit.
+            }
+            else if (currentLimitName == currentElement.name)
+            {
+              // We're looking at a series of values for a single Limit.
+              if (currentElement.checked == true)
+              {
+                currentLimitSelected = true;
+              }
+            }
+            else
+            {
+              // We're moving on to a previously unexamined Limit. The previous
+              // Limits, if any, all had at least one selected value.
+              currentLimitName = currentElement.name;
+              currentLimitSelected = currentElement.checked;
+            }
+          }
+        }
+        
+        return !currentLimitSelected;
+      }
+  </script>
   
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
@@ -222,7 +283,7 @@
               </fieldset>
               <p>
                 <input
-                   name="Button"
+                   name="completeAssignmentButton"
                    type="submit"
                    class="button-def"
                    value="Complete assignment" />

@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionTest.java,v 1.2 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: FunctionTest.java,v 1.3 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -86,16 +86,21 @@ public class FunctionTest extends TestCase
       				.getFunction
       					(fixtures.makeFunctionId(functionIndex));
 
-      // Function 0 contains limit 0, Function 1 contains Limit 1,
+      // Function 0 contains limit 0, Function 1 contains Limits 0 and 1,
       // and so forth.
       Limit[] limits = function.getLimitsArray();
-      assertEquals(1, limits.length);
-      assertEquals
-      	(signet
-      	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getFunction(fixtures.makeFunctionId(functionIndex))
-      	 		  .getLimitsArray()[0],
-      	 limits[0]);
+      int limitCount = functionIndex + 1;
+      assertEquals(limitCount, limits.length);
+      
+      for (int limitIndex = 0; limitIndex < limitCount; limitIndex++)
+      {
+        assertEquals
+        	(signet
+        	   .getSubsystem(Constants.SUBSYSTEM_ID)
+        	    .getFunction(fixtures.makeFunctionId(functionIndex))
+      	 		  	.getLimitsArray()[limitIndex],
+      	   limits[limitIndex]);
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.4 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: Constants.java,v 1.5 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -35,6 +35,8 @@ public class Constants
   public static final int MAX_SUBJECTS    = 3;
   public static final int MAX_TREE_DEPTH 	= 3;
   public static final int MAX_TREE_WIDTH 	= 3;
+  
+  public static final String DELIMITER = "_";
 
 //  static final String EMPTY_CHOICE_SET_ID
 //  	= "This is the ID of an empty ChoiceSet";

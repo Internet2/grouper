@@ -10,7 +10,7 @@
 <tiles:useAttribute name="limit" classname="edu.internet2.middleware.signet.Limit" />
 
 <%
-String limitValueParamName = LimitRenderer.makeLimitValueParamName(limit);
+String limitValueParamName = LimitRenderer.makeLimitValueParamName(limit, true);
 Iterator choicesIterator = limit.getChoiceSet().getChoices().iterator();
 
 Choice[] choices = limit.getChoiceSet().getChoicesInDisplayOrder();
@@ -25,7 +25,8 @@ for (int i = 0; i < choices.length; i ++)
   <input
      name="<%=limitValueParamName%>"
      type="checkbox"
-     value="<%=choice.getValue()%>" />
+     value="<%=choice.getValue()%>"
+     onClick="selectLimitCheckbox();" />
 
   <label for="<%=limitValueParamName%>">
     <%=choice.getDisplayValue()%>

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitRenderer.java,v 1.5 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: LimitRenderer.java,v 1.6 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -33,13 +33,18 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 public class LimitRenderer
 {
-  private static final String LIMIT_VALUE_PARAMETER_PREFIX = "LIMITVALUE";
+  private static final String MULTISELECT_LIMIT_VALUE_PARAMETER_PREFIX
+  	= "LIMITVALUE_MULTI";
+  private static final String SINGLESELECT_LIMIT_VALUE_PARAMETER_PREFIX
+  	= "LIMITVALUE_SINGLE";
   private static final String DELIMITER = ":";
   
   public static String render(Limit limit)
   {
     StringBuffer outStr = new StringBuffer();
-    String limitName = makeLimitValueParamName(limit);
+    boolean isMultiSelect
+    	= (limit.getRenderer().equals("multipleChoiceCheckboxes.jsp"));
+    String limitName = makeLimitValueParamName(limit, isMultiSelect);
     
     ChoiceSet choiceSet;
     try
@@ -107,16 +112,24 @@ public class LimitRenderer
   
   public static boolean isLimitValueParamName(String paramName)
   {
-    return paramName.startsWith(LIMIT_VALUE_PARAMETER_PREFIX + DELIMITER);
+    return
+    	(paramName.startsWith
+    	    (MULTISELECT_LIMIT_VALUE_PARAMETER_PREFIX + DELIMITER)
+    	 || paramName.startsWith
+    	 		(SINGLESELECT_LIMIT_VALUE_PARAMETER_PREFIX + DELIMITER));
   }
   
-  public static String makeLimitValueParamName(Limit limit)
+  public static String makeLimitValueParamName
+  	(Limit		limit,
+  	 boolean 	isMultiSelect)
   throws SignetRuntimeException
   {
     try
     {
       return
-      	LIMIT_VALUE_PARAMETER_PREFIX
+      	(isMultiSelect
+      	    ? MULTISELECT_LIMIT_VALUE_PARAMETER_PREFIX
+      	    : SINGLESELECT_LIMIT_VALUE_PARAMETER_PREFIX)
       	+ DELIMITER
       	+ limit.getSubsystem().getId()
       	+ DELIMITER

@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionTest.java,v 1.3 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: PermissionTest.java,v 1.4 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -86,15 +86,19 @@ public class PermissionTest extends TestCase
       				.getPermission
       					(fixtures.makePermissionId(permissionIndex));
 
-      // Permission 0 contains limit 0, Permission 1 contains Limit 1,
+      // Permission 0 contains limit 0, Permission 1 contains Limits 0 and 1,
       // and so forth.
       Limit[] limits = permission.getLimitsArray();
-      assertEquals(1, limits.length);
-      assertEquals
-      	(limits[0],
-      	 signet
-      	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getLimit(fixtures.makeLimitId(permissionIndex)));
+      assertEquals(permissionIndex + 1, limits.length);
+      
+      for (int limitNumber = 0; limitNumber < limits.length; limitNumber++)
+      {
+        assertEquals
+        	(limits[limitNumber],
+        	 signet
+      	 	   .getSubsystem(Constants.SUBSYSTEM_ID)
+      	 		   .getLimit(fixtures.makeLimitId(limitNumber)));
+      }
     }
   }
 

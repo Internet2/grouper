@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.15 2005-02-21 23:27:34 acohen Exp $
- $Date: 2005-02-21 23:27:34 $
+ $Id: Signet.java,v 1.16 2005-03-03 18:29:00 acohen Exp $
+ $Date: 2005-03-03 18:29:00 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -2392,6 +2392,7 @@ public final class Signet
   	 DataType		dataType,
   	 ChoiceSet 	choiceSet,
   	 String	   	name,
+  	 int				displayOrder,
   	 String 		helpText,
   	 Status			status,
   	 String			renderer)
@@ -2404,6 +2405,7 @@ public final class Signet
     			 dataType,
     			 choiceSet,
     			 name,
+    			 displayOrder,
     			 helpText,
     			 status,
     			 renderer);

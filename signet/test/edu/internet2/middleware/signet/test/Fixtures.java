@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.8 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: Fixtures.java,v 1.9 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -66,6 +66,9 @@ public class Fixtures
    *   Category 1
    *     Function 1
    *       Permission 1
+   *         Limit 0
+   *           ChoiceSet 0
+   *             Choice 0
    *         Limit 1
    *           ChoiceSet 1
    *             Choice 0
@@ -73,6 +76,13 @@ public class Fixtures
    *   Category 2
    *     Function 2
    *       Permission 2
+   *         Limit 0
+   *           ChoiceSet 0
+   *             Choice 0
+   *         Limit 1
+   *           ChoiceSet 1
+   *             Choice 0
+   *             Choice 1
    *         Limit 2
    *           ChoiceSet 2
    *             Choice 0
@@ -133,14 +143,21 @@ public class Fixtures
       Function function = getOrCreateFunction(i);
     }
     
-    for (int i = 0; i < Constants.MAX_PERMISSIONS; i++)
+    for (int permissionNum = 0;
+         permissionNum < Constants.MAX_PERMISSIONS;
+         permissionNum++)
     {
-      Permission permission = getOrCreatePermission(i);
+      Permission permission = getOrCreatePermission(permissionNum);
       
       // Permission 0 is associated with Limit 0 and Function 0,
-      // Permission 1 is associated with Limit 1 and Function 1, and so on.
-      getOrCreateFunction(i).addPermission(permission);
-      permission.addLimit(getOrCreateLimit(i));
+      // Permission 1 is associated with Limits 0 and 1 and Function 1,
+      // and so on.
+      getOrCreateFunction(permissionNum).addPermission(permission);
+      
+      for (int limitNum = 0; limitNum <= permissionNum; limitNum++)
+      {
+        permission.addLimit(getOrCreateLimit(limitNum));
+      }
     }
     
     signet.save(this.subsystem);
@@ -164,9 +181,15 @@ public class Fixtures
 
     Subject subject = getOrCreateSubject(assignmentNumber);
     Function function = getOrCreateFunction(assignmentNumber);
-    LimitValue limitValue = getLimitValue(function, assignmentNumber);
-    Set limitValues = new HashSet(1);
-    limitValues.add(limitValue);
+    Limit[] limitsInDisplayOrder = function.getLimitsArray();
+    Set limitValues = new HashSet();
+    
+    for (int i = 0; i < limitsInDisplayOrder.length; i++)
+    {
+      LimitValue limitValue
+      	= new LimitValue(limitsInDisplayOrder[i], makeChoiceValue(i));
+      limitValues.add(limitValue);
+    }
     
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
     Assignment assignment
@@ -182,33 +205,22 @@ public class Fixtures
   }
 
   /**
-   * Gets the Nth choice-value of the first limit for the specified function.
+   * Gets the Nth choice-value of the Nth limit for the specified function.
+   * The ordering is determined by the display-order.
    * 
    * @param function
-   * @param limitValueNumber
+   * @param limitAndValueNumber
    * @return
    * @throws ObjectNotFoundException
    */
   private LimitValue getLimitValue
   	(Function function,
-  	 int			limitValueNumber)
+  	 int			limitAndValueNumber)
   throws ObjectNotFoundException
   {
-    Limit limit = function.getLimitsArray()[0];
-    Set choices = limit.getChoiceSet().getChoices();
-    String desiredChoiceValue = makeChoiceValue(limitValueNumber);
-    Choice choice = null;
-    
-    Iterator choicesIterator = choices.iterator();
-    while (choicesIterator.hasNext())
-    {
-      Choice candidateChoice = (Choice)(choicesIterator.next());
-      if (desiredChoiceValue.equals(candidateChoice.getValue()))
-      {
-        choice = candidateChoice;
-        break;
-      }
-    }
+    Limit limit = function.getLimitsArray()[limitAndValueNumber];
+    Choice[] choices = limit.getChoiceSet().getChoicesInDisplayOrder();
+    Choice choice = choices[limitAndValueNumber];
     
     LimitValue limitValue = new LimitValue(limit, choice.getValue());
     return limitValue;
@@ -244,12 +256,12 @@ public class Fixtures
    */
   String makeSubjectId(int subjectNumber)
   {
-    return "SUBJECT_" + subjectNumber + "_ID";
+    return "SUBJECT" + Constants.DELIMITER + subjectNumber + Constants.DELIMITER + "ID";
   }
 
   private String makeSubjectName(int subjectNumber)
   {
-    return "SUBJECT_" + subjectNumber + "_NAME";
+    return "SUBJECT" + Constants.DELIMITER + subjectNumber + Constants.DELIMITER + "NAME";
   }
 
   private Subsystem getOrCreateSubsystem()
@@ -319,13 +331,13 @@ public class Fixtures
   private String makeTreeNodeId(int level, int siblingNumber)
   {
     return
-    	"TREENODE_LEVEL_" + level + "_SIBLINGNUMBER_" + siblingNumber + "_ID";
+    	"TREENODE_LEVEL" + Constants.DELIMITER + level + Constants.DELIMITER + "SIBLINGNUMBER" + Constants.DELIMITER + siblingNumber + Constants.DELIMITER + "ID";
   }
 
   private String makeTreeNodeName(int level, int siblingNumber)
   {
     return
-    	"TREENODE_LEVEL_" + level + "_SIBLINGNUMBER_" + siblingNumber + "_NAME";
+    	"TREENODE_LEVEL" + Constants.DELIMITER + level + Constants.DELIMITER + "SIBLINGNUMBER" + Constants.DELIMITER + siblingNumber + Constants.DELIMITER + "NAME";
   }
 
   private ChoiceSet getOrCreateChoiceSet(int choiceSetNumber)
@@ -386,6 +398,9 @@ public class Fixtures
     {      
       // Limit 0 contains ChoiceSet 0, Limit 1 contains ChoiceSet 1,
       // and so forth.
+      //
+      // Even-numbered Limits are multiple-selects, odd-numbered Limits are
+      // single-selects.
       limit
       	= this.signet.newLimit
       			(subsystem,
@@ -393,9 +408,12 @@ public class Fixtures
       			 makeLimitDataType(limitNumber),
       			 subsystem.getChoiceSet(makeChoiceSetId(limitNumber)),
       			 makeLimitName(limitNumber),
+      			 limitNumber,
       		   makeLimitHelpText(limitNumber),
       		   Status.ACTIVE,
-      		   "singleChoicePullDown.jsp");
+      		   isEven(limitNumber)
+      		   	? "multipleChoiceCheckboxes.jsp"
+      		   	  : "singleChoicePullDown.jsp");
     
       // Fetch that newly-stored Limit object from the subsystem.
       // This step is not really necessary, but exercises a little
@@ -406,6 +424,18 @@ public class Fixtures
     }
     
     return limit;
+  }
+  
+  private boolean isEven(int number)
+  {
+    if ((number % 2) == 0)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
   
   private Category getOrCreateCategory(int categoryNumber)
@@ -446,7 +476,7 @@ public class Fixtures
    */
   private String makeCategoryName(int categoryNumber)
   {
-    return "CATEGORY_" + categoryNumber + "_NAME";
+    return "CATEGORY" + Constants.DELIMITER + categoryNumber + Constants.DELIMITER + "NAME";
   }
 
   /**
@@ -455,7 +485,7 @@ public class Fixtures
    */
   private String makeCategoryId(int categoryNumber)
   {
-    return "CATEGORY_" + categoryNumber + "_ID";
+    return "CATEGORY" + Constants.DELIMITER + categoryNumber + Constants.DELIMITER + "ID";
   }
 
   private Function getOrCreateFunction(int functionNumber)
@@ -499,7 +529,7 @@ public class Fixtures
    */
   private String makeFunctionName(int functionNumber)
   {
-    return "FUNCTION_" + functionNumber + "_NAME";
+    return "FUNCTION" + Constants.DELIMITER + functionNumber + Constants.DELIMITER + "NAME";
   }
 
   /**
@@ -508,7 +538,7 @@ public class Fixtures
    */
   private String makeFunctionHelpText(int functionNumber)
   {
-    return "FUNCTION_" + functionNumber + "_HELPTEXT";
+    return "FUNCTION" + Constants.DELIMITER + functionNumber + Constants.DELIMITER + "HELPTEXT";
   }
 
   private Permission getOrCreatePermission(int permissionNumber)
@@ -546,12 +576,12 @@ public class Fixtures
   
   public String makeChoiceValue(int choiceNumber)
   {
-    return "CHOICE_" + choiceNumber + "_VALUE";
+    return "CHOICE" + Constants.DELIMITER + choiceNumber + Constants.DELIMITER + "VALUE";
   }
   
   public String makeChoiceDisplayValue(int choiceNumber)
   {
-    return "CHOICE_" + choiceNumber + "_DISPLAY_VALUE";
+    return "CHOICE" + Constants.DELIMITER + choiceNumber + Constants.DELIMITER + "DISPLAY_VALUE";
   }
   
   public int makeChoiceDisplayOrder(int choiceNumber)
@@ -566,27 +596,27 @@ public class Fixtures
   
   public String makeChoiceSetId(int choiceNumber)
   {
-    return "CHOICE_SET_" + choiceNumber + "_ID";
+    return "CHOICE_SET" + Constants.DELIMITER + choiceNumber + Constants.DELIMITER + "ID";
   }
   
   public String makeLimitId(int limitNumber)
   {
-    return "LIMIT_" + limitNumber + "_ID";
+    return "LIMIT" + Constants.DELIMITER + limitNumber + Constants.DELIMITER + "ID";
   }
   
   public String makePermissionId(int permissionNumber)
   {
-    return "PERMISSION_" + permissionNumber + "_ID";
+    return "PERMISSION" + Constants.DELIMITER + permissionNumber + Constants.DELIMITER + "ID";
   }
   
   public String makeLimitName(int limitNumber)
   {
-    return "LIMIT_" + limitNumber + "_NAME";
+    return "LIMIT" + Constants.DELIMITER + limitNumber + Constants.DELIMITER + "NAME";
   }
   
   public String makeLimitHelpText(int limitNumber)
   {
-    return "LIMIT_" + limitNumber + "_HELPTEXT";
+    return "LIMIT" + Constants.DELIMITER + limitNumber + Constants.DELIMITER + "HELPTEXT";
   }
   
   public DataType makeLimitDataType(int limitNumber)
@@ -607,7 +637,7 @@ public class Fixtures
   
   public String makeFunctionId(int functionNumber)
   {
-    return "FUNCTION_" + functionNumber + "_ID";
+    return "FUNCTION" + Constants.DELIMITER + functionNumber + Constants.DELIMITER + "ID";
   }
 
   /**
@@ -616,7 +646,7 @@ public class Fixtures
    */
   public String makeLimitValue(int limitNumber)
   {
-    return "LIMIT_" + limitNumber + "_VALUE";
+    return "LIMIT" + Constants.DELIMITER + limitNumber + Constants.DELIMITER + "VALUE";
   }
   
   private TreeNode getRoot(Tree tree)

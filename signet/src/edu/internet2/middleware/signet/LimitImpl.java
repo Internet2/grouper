@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.8 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: LimitImpl.java,v 1.9 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -60,6 +60,7 @@ final class LimitImpl implements Limit
      DataType		dataType,
      ChoiceSet	choiceSet,
      String 		name,
+     int				displayOrder,
      String 		helpText,
      Status			status,
      String			renderer)
@@ -73,6 +74,7 @@ final class LimitImpl implements Limit
     this.choiceSet = choiceSet;
     this.choiceSetId = this.choiceSet.getId();
     this.name = name;
+    this.displayOrder = displayOrder;
     this.helpText = helpText;
     this.status = status;
     this.renderer = renderer;

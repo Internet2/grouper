@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.3 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: AssignmentTest.java,v 1.4 2005-03-03 18:29:00 acohen Exp $
+$Date: 2005-03-03 18:29:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,6 +10,7 @@ package edu.internet2.middleware.signet.test;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
@@ -93,26 +94,65 @@ public class AssignmentTest extends TestCase
       	= pSubject.getAssignmentsReceived
       			(null, signet.getSubsystem(Constants.SUBSYSTEM_ID));
       
-      // Subject 0 is assigned Function 0, which contains Permission 0,
-      // which is associated with Limit 0, which has been assigned the
-      // value 0. Subject 1 is assigned Function 1, and so forth.
+      // Here's a picture of the Assignments which this test expects to find:
+      //
+      // Subject 0
+      //   Function 0
+      //     Permission 0
+      //       Limit 0
+      //         limit-value: 0
+      //  Subject 1
+      //    Function 1
+      //      Permission 1
+      //        Limit 0
+      //          limit-value: 0
+      //        Limit 1
+      //          limit-value: 1
+      //  Subject 2
+      //    Function 2
+      //      Permission 2
+      //        Limit 0
+      //          limit-value: 0
+      //        Limit 1
+      //          limit-value: 1
+      //        Limit 2
+      //          limit-value: 2
       
       assertEquals(1, assignmentsReceived.size());
       Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
 
       LimitValue limitValues[] = assignment.getLimitValuesArray();
-      assertEquals(1, limitValues.length);
-      LimitValue limitValue = limitValues[0];
-
-      assertEquals
-      	(signet
-      	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getLimit(fixtures.makeLimitId(subjectIndex)),
-      	 limitValue.getLimit());
+      assertEquals(expectedLimitValuesCount(subjectIndex), limitValues.length);
       
-      assertEquals
-      	(fixtures.makeChoiceValue(subjectIndex),
-      	 limitValue.getValue());
+      for (int i = 0; i < limitValues.length; i++)
+      {
+        LimitValue limitValue = limitValues[i];
+
+        assertEquals
+        	(signet
+        	 	.getSubsystem(Constants.SUBSYSTEM_ID)
+        	 		.getLimit(limitValue.getLimit().getId()),
+      	   limitValue.getLimit());
+      
+        assertEquals
+      	  (fixtures.makeChoiceValue
+      	      (limitNumber(limitValue.getLimit().getName())),
+      	   limitValue.getValue());
+      }
     }
+  }
+  
+  private int limitNumber(String limitName)
+  {
+    StringTokenizer tokenizer
+    	= new StringTokenizer(limitName, Constants.DELIMITER);
+    String prefix = tokenizer.nextToken();
+    int number = (new Integer(tokenizer.nextToken())).intValue();
+    return number;
+  }
+  
+  private int expectedLimitValuesCount(int subjectNumber)
+  {
+    return subjectNumber + 1;
   }
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.5 2005-02-14 02:33:28 acohen Exp $
- $Date: 2005-02-14 02:33:28 $
+ $Id: PermissionImpl.java,v 1.6 2005-03-03 18:29:00 acohen Exp $
+ $Date: 2005-03-03 18:29:00 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -8,6 +8,8 @@
  */
 package edu.internet2.middleware.signet;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -68,9 +70,22 @@ implements Permission
   
   public Limit[] getLimitsArray()
   {
-      Limit[] limitsArray = new Limit[0];
-      
-      return (Limit[])(this.limits.toArray(limitsArray));
+      Comparator displayOrderComparator
+      	= new Comparator()
+      	    {
+              public int compare(Object o1, Object o2)
+              {
+                return
+                	((Limit)o1).getDisplayOrder() - ((Limit)o2).getDisplayOrder();
+              }
+      	    };
+
+      Set limits = this.getLimits();
+      Limit[] limitArray = new Limit[0];
+      limitArray = (Limit[])(limits.toArray(limitArray));
+      	    
+      Arrays.sort(limitArray, displayOrderComparator);
+      return limitArray;
   }
   
   /**
