@@ -49,28 +49,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * Sample loader for populating the 'grouper_members' table from a CSV
- * file of the format: 
- *  subjectID,subjectTypeID
- *
- * You will need to modify the jdbc* variables to reflect your local
- * configuration.
- *
- * Ideally this would all go through the I2MI Subject interface but
- * until that stabilizes, lets cheat.
- *
- * Usage:
- * % javac subject2csv.java
- * % java subject2csv /path/to/csv/file
- *
- * $Id: csv2subject.java,v 1.7 2004-12-03 16:23:18 blair Exp $ 
+/**
+ * Sample laoder for populating the <i>grouper_subject</i> table from a
+ * CVS input file.
+ * <p />
+ * See <i>README</i> for more information.
+ * 
+ * @author  blair christensen.
+ * @version $Id: csv2subject.java,v 1.8 2004-12-03 16:48:51 blair Exp $ 
  */
 
 import  java.io.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
 import  java.util.*;
+import  org.apache.commons.cli.*;
+
 
 class csv2subject {
 
@@ -78,29 +72,34 @@ class csv2subject {
    * PRIVATE CONSTANTS
    */
   private static final String CF    = "csv2subject.properties";
+  private static final String NAME  = "csv2subject";
   private static final String TABLE = "grouper_subject";
 
 
   /*
    * PRIVATE CLAS VARIABLES
    */
-  private static Properties conf    = new Properties();
-  private static Connection conn    = null;
-  private static Map        newSubs = new HashMap();
-  private static boolean    verbose = true;
+  private static CommandLine  cmd;
+  private static Properties   conf    = new Properties();
+  private static Connection   conn;
+  private static boolean      debug   = false;
+  private static Map          newSubs = new HashMap();
+  private static Options      options;
+  private static String       path;
+  private static boolean      verbose = false;
 
 
+
+  /*
+   * PUBLIC CLASS METHODS
+   */
   public static void main(String[] args) {
-    _cfRead();            // Read configuration
-    _jdbcConnect();       // Open JDBC connection
-    if (args.length == 1) {
-      _csvRead(args[0]);  // Read and parse input file
-    } else {
-      System.err.println("USAGE: subject2csv /path/to/csv/file");
-      System.exit(64);
-    }
-    _csvAdd();            // Add subjects
-    _jdbcDisconnect();    // Close JDBC connection
+    _opts(args);        // Parse and handle command line options
+    _cfRead();          // Read configuration
+    _jdbcConnect();     // Open JDBC connection
+    _csvRead();         // Read and parse input file
+    _csvAdd();          // Add subjects
+    _jdbcDisconnect();  // Close JDBC connection
   }
 
 
@@ -165,31 +164,47 @@ class csv2subject {
    * <p />
    * @param path Path to input CSV file
    */
-  private static void _csvRead(String path) {
-    try { 
-      BufferedReader  br    = new BufferedReader(new FileReader(path));
-      String          line  = null; 
-      while ((line=br.readLine()) != null){ 
-        StringTokenizer st = new StringTokenizer(line, ",");
-        // FIXME Blindly assume that if we have two tokens, they are two
-        //       *good* tokens
-        if (st.countTokens() == 2) {
-          String subjID     = st.nextToken();
-          String subjTypeID = st.nextToken();
-          _verbose(
-            "Found sid=`" + subjID + "', subjTypeID=`" + subjTypeID + "'"
-          );
-          newSubs.put(subjID, subjTypeID);
-        } else {
-          System.err.println("Skipping.  Invalid format: '" + line + "'");
-        }
-      } 
-      br.close(); 
-    } catch (IOException e) { 
-      System.err.println("Error processing '" + path + "': " + e);
-      // Kill whatever might have been added to the hashmap and then
-      // carry on so that our connection is closed
-      newSubs = new HashMap();
+  private static void _csvRead() {
+    if (path != null) {
+      try { 
+        BufferedReader  br    = new BufferedReader(new FileReader(path));
+        String          line  = null; 
+        while ((line=br.readLine()) != null){ 
+          StringTokenizer st = new StringTokenizer(line, ",");
+          // FIXME Blindly assume that if we have two tokens, they are two
+          //       *good* tokens
+          if (st.countTokens() == 2) {
+            String subjID     = st.nextToken();
+            String subjTypeID = st.nextToken();
+            _verbose(
+              "Found sid=`" + subjID + "', subjTypeID=`" + subjTypeID + "'"
+            );
+            newSubs.put(subjID, subjTypeID);
+          } else {
+            System.err.println("Skipping.  Invalid format: '" + line + "'");
+          }
+        } 
+        br.close(); 
+      } catch (IOException e) { 
+        System.err.println("Error processing '" + path + "': " + e);
+        // Kill whatever might have been added to the hashmap and then
+        // carry on so that our connection is closed
+        newSubs = new HashMap();
+      }
+    } else {
+      _usage();
+    }
+  }
+
+  /* (!javadoc)
+   *
+   * Conditionally print SQL messages depending upon verbosity level.
+   * <p />
+   * @param   msg Message to print if running verbosely.
+   */
+  private static void _debug(String msg) {
+    if (debug == true) {
+      System.err.println(msg);
     }
   }
 
@@ -251,6 +266,74 @@ class csv2subject {
   }
 
   /* (!javadoc)
+   * Handle command line options.
+   * <p />
+   * @param   String Array.
+   */
+  private static void _opts(String[] args) {
+    _optsParse(args); // Parse CLI options
+    _optsProcess();   // Handle CLI options
+  }
+
+  /* (!javadoc)
+   * Parse command line options.
+   * <p />
+   * @param   String array.
+   */
+  private static void _optsParse(String[] args) {
+    options = new Options();
+    options.addOption("d", false, "Be more verbose about SQL");
+    options.addOption(
+                      OptionBuilder.withArgName("file")
+                                   .withDescription(
+                                     "Specify input file [REQUIRED]"
+                                    )
+                                   .hasArg()
+                                   .create("f")
+                     );
+    options.addOption("h", false, "Print usage information");
+    options.addOption("v", false, "Be more verbose");
+    CommandLineParser parser = new PosixParser();
+    try {
+      cmd = parser.parse(options, args);
+    } catch (ParseException e) {
+      System.err.println("Unable to parse command line options: " + e.getMessage());
+      System.exit(1);
+    }
+  }
+
+  /* (!javadoc)
+   *
+   * Process command line options.
+   */
+  private static void _optsProcess() {
+    if (cmd == null) {
+      System.err.println("Error parsing command line options!");
+      System.exit(1);
+    }
+    // Handle help first
+    if (cmd.hasOption("h")) {
+      _usage();
+      System.exit(0);
+    }
+    // And then verbose because it may affect output later in this
+    // method
+    if (cmd.hasOption("v")) {
+      verbose = true;
+      _verbose("Enabling verbose mode");
+    }
+    // And now everything else
+    if (cmd.hasOption("d")) {
+      debug = true;
+      _verbose("Enabling SQL debug mode");
+    }
+    if (cmd.hasOption("f")) {
+      path = cmd.getOptionValue("f");
+      _verbose("Using input file '" + path + "'");
+    }
+  }
+
+  /* (!javadoc)
    * Add subject 
    */
   private static boolean _sqlAdd(String subjID, String subjTypeID) {
@@ -269,11 +352,9 @@ class csv2subject {
         if (cnt == 1) {
           _verbose("Added 1 row to '" + TABLE + "'");
           rv = true;
-        } else {
-          _verbose("??? " + cnt);
         }
       } catch (SQLException eue) {
-        System.err.println("Error executing statement: " + eue);
+        _debug("Error executing statement: " + eue);
       }
     } catch (SQLException cse) {
       System.err.println("Error creating insert statement: " + cse);
@@ -281,8 +362,15 @@ class csv2subject {
     return rv;
   }
 
-  // Inserts the memberID, presentationID pair into the
-  // 'grouper_members' table 
+  /* (!javadoc)
+   *
+   * Print usage information.
+   */
+  private static void _usage() {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp(NAME, options);
+  }
+
   /* (!javadoc)
    *
    * Conditionally print messages depending upon verbosity level.
@@ -296,3 +384,4 @@ class csv2subject {
   }
 
 }
+
