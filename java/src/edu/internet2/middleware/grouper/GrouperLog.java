@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.10 2005-03-23 21:45:40 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.11 2005-03-24 20:40:44 blair Exp $
  */
 public class GrouperLog {
 
@@ -95,7 +95,27 @@ public class GrouperLog {
 
   // Privilege: Grant
   protected void grant(
-                   boolean rv, GrouperSession s, GrouperGroup g, 
+                   boolean rv, GrouperSession s, GrouperStem ns,
+                   GrouperMember m, String priv
+                 ) 
+  {
+    Subject tgt  = GrouperSubject.load(
+                              m.subjectID(), m.typeID()
+                            );
+    String pre  = "'" + s.subject().getId() + "' ";
+    String post = " '" + priv + "' to memberID='" + m.memberID() + 
+                  "' subjectID='" + tgt.getId() + "' on '" +
+                  ns.name() + "'";
+    if (rv == true) {
+      LOG_EVT.info(pre + "granted" + post);
+    } else {
+      LOG_EVT.info(pre + "failed to grant" + post);
+    }
+  }
+
+  // Privilege: Grant
+  protected void grant(
+                   boolean rv, GrouperSession s, Group g, 
                    GrouperMember m, String priv
                  ) 
   {
@@ -113,9 +133,24 @@ public class GrouperLog {
     }
   }
 
+  // Stem: Add
+  protected void stemAdd(
+                   GrouperSession s, GrouperStem ns, String name, 
+                   String type
+                 ) 
+  {
+    String pre  = "'" + s.subject().getId() + "' ";
+    String post = " '" + name + "' (" + type + ")";
+    if (ns != null) {
+      LOG_EVT.info(pre + "created" + post);
+    } else {
+      LOG_EVT.info(pre + "failed to create" + post);
+    }
+  }
+
   // Group: Add
   protected void groupAdd(
-                   GrouperSession s, GrouperGroup g, String name, 
+                   GrouperSession s, Group g, String name, 
                    String type
                  ) 
   {
@@ -141,7 +176,7 @@ public class GrouperLog {
 
   // Group: Attribute Add
   protected void groupAttrAdd(
-                   boolean rv, GrouperSession s, GrouperGroup g,
+                   boolean rv, GrouperSession s, Group g,
                    String attr, String value
                  )
   {
@@ -157,7 +192,7 @@ public class GrouperLog {
 
   // Group: Attribute Delete
   protected void groupAttrDel(
-                   boolean rv, GrouperSession s, GrouperGroup g, 
+                   boolean rv, GrouperSession s, Group g, 
                    String attr
                  ) 
   {
@@ -179,7 +214,7 @@ public class GrouperLog {
 
   // Group: Attribute Update
   protected void groupAttrUpdate(
-                   boolean rv, GrouperSession s, GrouperGroup g,
+                   boolean rv, GrouperSession s, Group g,
                    String attr, String value
                  )
   {
@@ -195,7 +230,7 @@ public class GrouperLog {
 
   // Group: Delete
   protected void groupDel(
-                   boolean rv, GrouperSession s, GrouperGroup g
+                   boolean rv, GrouperSession s, Group g
                  ) 
   {
     String pre  = "'" + s.subject().getId() + "' ";
@@ -209,24 +244,19 @@ public class GrouperLog {
 
   // Group: List Value Add
   protected void groupListAdd(
-                   boolean rv, GrouperSession s, GrouperGroup g,
-                   GrouperMember m
+                   GrouperSession s, Group g, GrouperMember m
                  )
   {
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " memberID='" + m.memberID() + "' subjectID='" +
                   m.subjectID() + "' to '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
-    if (rv == true) {
-      LOG_EVT.info(pre + "added" + post);
-    } else {
-      LOG_EVT.info(pre + "failed to add" + post);
-    }
+    LOG_EVT.info(pre + "added" + post);
   }
 
   // Group: List Value Delete
   protected void groupListDel(
-                   boolean rv, GrouperSession s, GrouperGroup g,
+                   boolean rv, GrouperSession s, Group g,
                    GrouperMember m
                  )
   {
@@ -264,7 +294,25 @@ public class GrouperLog {
 
   // Privilege: Revoke
   protected void revoke(
-                   boolean rv, GrouperSession s, GrouperGroup g, 
+                   boolean rv, GrouperSession s, GrouperStem ns,
+                   GrouperMember m, String priv
+                 ) 
+  {
+    Subject tgt  = GrouperSubject.load(
+                              m.subjectID(), m.typeID()
+                            );
+    String pre  = "'" + s.subject().getId() + "' ";
+    String post = " '" + priv + "' from memberID='" + m.memberID() + 
+                  "' subjectID='" + tgt.getId() + "' on '" +
+                  ns.name() + "'";
+    if (rv == true) {
+      LOG_EVT.info(pre + "revoked" + post);
+    } else {
+      LOG_EVT.info(pre + "failed to revoke" + post);
+    }
+  }
+  protected void revoke(
+                   boolean rv, GrouperSession s, Group g, 
                    GrouperMember m, String priv
                  ) 
   {
