@@ -7,10 +7,8 @@
 package edu.internet2.middleware.signet.choice;
 
 /**
- * @author acohen
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Used to indicate that a requested Choice is not found in a
+ * particular ChoiceSet.
  */
 public class ChoiceNotFoundException extends Exception
 {
