@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.92 2004-12-03 03:04:33 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.93 2004-12-03 03:25:08 blair Exp $
  */
 public class GrouperBackend {
 
@@ -105,24 +105,6 @@ public class GrouperBackend {
    * PROTECTED CLASS METHODS 
    */
 
-  /**
-   * Add a new {@link GrouperSession}.
-   *
-   * @param s Session to add.
-   */
-  protected static void addSession(GrouperSession s) {
-    Session session = GrouperBackend._init();
-    try {
-      Transaction t = session.beginTransaction();
-      session.save(s);
-      t.commit();
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-  }
-
   protected static GrouperAttribute attrAdd(
                                             String key, String field, 
                                             String value
@@ -150,30 +132,6 @@ public class GrouperBackend {
                                        );
     GrouperBackend._hibernateSessionClose(session);
     return vals;
-  }
-
-  /**
-   * Cull old sessions.
-   */
-  protected static void cullSessions() {
-    Session         session = GrouperBackend._init();
-    /* XXX Until I find the time to identify a better way of managing
-     *     sessions -- which I *know* exists -- be crude about it. */
-    java.util.Date  now     = new java.util.Date();
-    long nowTime = now.getTime();
-    long tooOld  = nowTime - 360000;
-
-    try {
-      session.delete(
-        "FROM GrouperSession AS gs" +
-        " WHERE "                   +
-        "gs.startTime > " + nowTime
-      );
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
   }
 
   // TODO
@@ -1049,6 +1007,50 @@ public class GrouperBackend {
                                             );
     GrouperBackend._hibernateSessionClose(session);
     return vals;
+  }
+
+  /**
+   * Add a new {@link GrouperSession}.
+   *
+   * @param s Session to add.
+   */
+  protected static void sessionAdd(GrouperSession s) {
+    Session session = GrouperBackend._init();
+    try {
+      Transaction t = session.beginTransaction();
+      session.save(s);
+      t.commit();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+  }
+
+  /**
+   * Cull old sessions.
+   * <p />
+   * TODO Go away. 
+   */
+  protected static void sessionsCull() {
+    Session         session = GrouperBackend._init();
+    /* XXX Until I find the time to identify a better way of managing
+     *     sessions -- which I *know* exists -- be crude about it. */
+    java.util.Date  now     = new java.util.Date();
+    long nowTime = now.getTime();
+    long tooOld  = nowTime - 360000;
+
+    try {
+      session.delete(
+        "FROM GrouperSession AS gs" +
+        " WHERE "                   +
+        "gs.startTime > " + nowTime
+      );
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
   }
 
   // TODO
