@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.45 2004-09-20 01:27:34 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.46 2004-09-21 18:18:12 blair Exp $
  */
 public class GrouperGroup {
 
@@ -69,44 +69,24 @@ public class GrouperGroup {
     modifySource  = null;
   }
 
-  public String toString() {
-    GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
-    GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
-    return this.getClass()  + ":" +
-           this.groupKey    + ":" + 
-           stem.value()     + ":" +
-           desc.value(); 
-  }
-
-  public static GrouperGroup load(GrouperSession s, String stem, 
-                                  String descriptor) 
-  {
-    return GrouperBackend.group(s, stem, descriptor);
-  }
+  /*
+   * CLASS METHODS
+   */
 
   /**
-   * Create a {@link Grouper} group.
+   * Class method to create a group.
+   *
+   * @param   s           Session to create the group within.
+   * @param   stem        Stem of the group to be created.
+   * @param   descriptor  Descriptor of group to be created.
    */ 
-  private void _create(GrouperSession s) {
-    // Generate the UUID (groupKey)
-    this.setGroupKey( GrouperBackend.uuid() );
-
-    // Set some of the operational attributes
-    // TODO Most, if not all, of the operational attributes should be
-    //      handled by Hibernate interceptors.  A task for another day.
-    java.util.Date now = new java.util.Date();
-    this.setCreateTime( Long.toString(now.getTime()) );
-    this.setCreateSubject( s.whoAmI() );
-  }
-
   public static GrouperGroup create(GrouperSession s, String stem,
                                     String descriptor)
   {
     GrouperGroup g = new GrouperGroup();
-    g.attribute("stem", stem);
-    g.attribute("descriptor", descriptor);
 
-    g._create(s);
+    // Initalize aspects of the group.
+    g._create(s, stem, descriptor);
 
     // Verify that we have everything we need to create a group
     // and that this subject is privileged to create this group.
@@ -122,6 +102,34 @@ public class GrouperGroup {
   }
 
   /**
+   * Class method to retrieve a group from the persistent store.
+   *
+   * @param   s           Session to create the group within.
+   * @param   stem        Stem of the group to be created.
+   * @param   descriptor  Descriptor of group to be created.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup load(GrouperSession s, String stem, 
+                                  String descriptor) 
+  {
+    return GrouperBackend.group(s, stem, descriptor);
+  }
+
+  /*
+   * PUBLIC METHODS
+   */
+
+  /**
+   * Get a group attribute.
+   *
+   * @param   attribute The attribute to get.
+   * @return  A {@link GrouperAttribute} object.
+   */
+  public GrouperAttribute attribute(String attribute) {
+    return (GrouperAttribute) attributes.get(attribute);
+  }
+
+  /**
    * Set a group attribute.
    * 
    * @param attribute Attribute to set.
@@ -133,19 +141,10 @@ public class GrouperGroup {
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
       // Setup the attribute, add it to the stash.
+      // TODO Require a valid (?) groupKey?
       attr.set(this.groupKey, attribute, value);
       attributes.put(attribute, attr);
-    } 
-  }
-
-  /**
-   * Get a group attribute.
-   *
-   * @param   attribute The attribute to get.
-   * @return  A {@link GrouperAttribute} object.
-   */
-  public GrouperAttribute attribute(String attribute) {
-    return (GrouperAttribute) attributes.get(attribute);
+    }
   }
 
   /** 
@@ -163,20 +162,45 @@ public class GrouperGroup {
    * @return Boolean true if the group exists, false otherwise.
    */
   public boolean exist() {
-    return this.exists;
-  }
-
-  /** 
-   * Attach a Grouper session to this object.
-   */
-  public void session(GrouperSession s) {
-    this.grprSession = s;
+    if (this.exists == true) {
+      // We are already marked as existing.  Assume that our status
+      // hasn't changed.
+      return this.exists;
+    } else {
+      // Otherwise attempt to find and load the group from the
+      // persistent store.
+      if (this.attributes.containsKey("stem")) {
+        // We need a stem
+        // BDC String stem = this.attribute("stem").value();
+        if (this.attributes.containsKey("descriptor")) {
+          // And a descriptor
+          // BDC String desc = this.attribute("descriptor").value();
+          if (this.grprSession != null) {
+            // And a session to load a group
+            // FIXME Provide a method of confirming a group's existence
+            //       that doesn't rely upon loading a group and checking for
+            //       the presence of a `groupKey'.
+            GrouperGroup g = GrouperBackend.group(this.grprSession,
+                                                  this.attribute("stem").value(),
+                                                  this.attribute("descriptor").value());
+            // Does the returned GrouperGroup object contain a group
+            // key?  If so, the group is considered to exist.
+            if (g.groupKey() != null) {
+              this.exists = true;
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
   }
 
   /**
-   * Return group key.
+   * Return group's unique key (UUID).
    * <p>
-   * FIXME Do I really want to do this?
+   * FIXME Do I really want to this to be public information?  Scale
+   *       back if at all possible.
    *
    * @return Group key
    */
@@ -185,7 +209,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Return group type.
+   * Return group's type.
    *
    * @return Group type
    */
@@ -200,12 +224,65 @@ public class GrouperGroup {
    */
   public GrouperSession session() {
     // TODO Return an exception if !defined?
+    // FIXME What needs this?
     return this.grprSession;
   }
 
-  /*
-   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW
+  /** 
+   * Attach a Grouper session to this object.
+   * <p>
+   * FIXME Is this method still needed?
+   *
+   * @param s Session to attach to this group.
    */
+  public void session(GrouperSession s) {
+    this.grprSession = s;
+  }
+
+  /**
+   * Returns a string representation of the {@link GrouperGroup}
+   * object.
+   *
+   * @return  A string representation of the object.
+   */
+  public String toString() {
+    GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
+    GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
+    return this.getClass()  + ":" +
+           this.groupKey    + ":" + 
+           stem.value()     + ":" +
+           desc.value(); 
+  }
+
+  /*
+   * PRIVATE METHODS
+   */
+
+  /*
+   * Initialize aspects of the group before creating it.
+   *
+   * @param s           Session to create the group within.
+   * @param stem        Stem of the group to be created.
+   * @param descriptor  Descriptor of group to be created.
+   */
+  private void _create(GrouperSession s, String stem, String descriptor) {
+    // Attach session
+    this.grprSession  = s;
+    this._G           = s.env(); 
+
+    // Generate the UUID (groupKey)
+    this.setGroupKey( GrouperBackend.uuid() );
+
+    this.attribute("stem", stem);
+    this.attribute("descriptor", descriptor);
+
+    // Set some of the operational attributes
+    // TODO Most, if not all, of the operational attributes should be
+    //      handled by Hibernate interceptors.  A task for another day.
+    java.util.Date now = new java.util.Date();
+    this.setCreateTime( Long.toString(now.getTime()) );
+    this.setCreateSubject( s.whoAmI() );
+  }
 
   /*
    * Validate whether an attribute is valid for the current group type.
@@ -217,6 +294,10 @@ public class GrouperGroup {
     boolean rv = false;
     if (this.groupType != null) { // FIXME I can do better than this.
       // We have a group type.  Now what?
+      // FIXME Why isn't this being properly set elsewhere?
+      if ( (this._G == null) && (this.grprSession != null) ) {
+        this._G = this.grprSession.env();
+      }
       if (this._G != null) {
         if (this._G.groupField(this.groupType, attribute) == true) {
           // Our attribute passes muster.
