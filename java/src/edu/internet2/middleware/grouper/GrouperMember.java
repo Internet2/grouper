@@ -1,15 +1,14 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  edu.internet2.middleware.directory.grouper.*;
-import  java.util.ArrayList;
-import  java.util.List;
+import  java.util.*;
 
 /** 
  * Class representing a {@link Grouper} member, whether an individual
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.18 2004-05-02 01:31:21 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.19 2004-08-03 01:31:21 blair Exp $
  */
 public class GrouperMember {
 

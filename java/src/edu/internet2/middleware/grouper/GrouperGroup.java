@@ -1,17 +1,13 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  java.sql.*;
-import  java.util.ArrayList;
-import  java.util.Date;
-import  java.util.HashMap;
-import  java.util.List;
-import  java.util.Map;
+import  java.util.*;
 
 /** 
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.21 2004-05-28 14:55:02 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.22 2004-08-03 01:31:21 blair Exp $
  */
 public class GrouperGroup {
 
@@ -298,7 +294,7 @@ public class GrouperGroup {
    * @param   member      The member to add.
    * @param   ttl         When the membership expires.
    */
-  public void addValue(String groupField, GrouperMember member, Date ttl) {
+  public void addValue(String groupField, GrouperMember member, java.util.Date ttl) {
     // Nothing -- Yet
   }
 

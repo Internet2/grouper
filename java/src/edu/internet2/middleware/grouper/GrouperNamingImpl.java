@@ -1,14 +1,13 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  edu.internet2.middleware.directory.grouper.*;
-import  java.util.ArrayList;
-import  java.util.List;
+import  java.util.*;
 
 /** 
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.7 2004-05-28 18:39:03 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.8 2004-08-03 01:31:21 blair Exp $
  */
 public class InternalGrouperNaming implements GrouperNaming {
 

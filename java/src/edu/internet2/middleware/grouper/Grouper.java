@@ -3,18 +3,14 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.io.*;
 import  java.sql.*;
-import  java.util.ArrayList;
-import  java.util.Iterator;
-import  java.util.List;
-import  java.util.Map;
-import  java.util.Properties;
+import  java.util.*;
 import  net.sf.hibernate.*;
 
 /** 
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.19 2004-08-03 01:21:29 blair Exp $
+ * @version $Id: Grouper.java,v 1.20 2004-08-03 01:31:21 blair Exp $
  */
 public class Grouper {
 
