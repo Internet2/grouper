@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.10 2004-12-09 18:29:18 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.11 2004-12-09 19:38:43 blair Exp $
  */
 public class GrouperQuery {
 
@@ -119,7 +119,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set {@link GrouperGroup} <i>createTime</i> filter.
+   * Set group <i>createTime</i> filter.
    * <p />
    *
    * @param   date  Query for groups created after this {@link Date}.
@@ -130,7 +130,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set {@link GrouperGroup} <i>createTime</i> filter.
+   * Set group <i>createTime</i> filter.
    * <p />
    *
    * @param   date  Query for groups created before this {@link Date}.
@@ -141,7 +141,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set {@link GrouperGroup} type filter.
+   * Set group <i>groupType</i> filter.
    * <p />
    * @param   type  Type of {@link GrouperGroup} to query on.
    * @return  True if one or more matches found.
@@ -152,7 +152,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set membership type query filter.
+   * Set <i>membershipType</i> query filter.
    * <p />
    *
    * @param   type  Type of membership to query on.  Valid options are
@@ -165,7 +165,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set {@link GrouperGroup} <i>modifyTime</i> filter.
+   * Set group <i>modifyTime</i> filter.
    * <p />
    *
    * @param   date  Query for groups modified after this {@link Date}.
@@ -176,7 +176,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set {@link GrouperGroup} <i>modifyTime</i> filter.
+   * Set group <i>modifyTime</i> filter.
    * <p />
    *
    * @param   date  Query for groups modifed before this {@link Date}.
@@ -187,7 +187,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Query the groups registry using the already specified filters.
+   * Retrieve query filter results.
    * <p />
    * @return  List of {@link GrouperList} objects.
    */
