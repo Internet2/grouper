@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.7 2004-10-12 20:37:01 blair Exp $
+# $Id: API,v 1.8 2004-10-13 16:53:15 blair Exp $
 #
 # TODO Interfaces
 #
@@ -51,9 +51,7 @@ GrouperBackend
           as a public method.  And why is it here?  I know, I know,
           "all backend methods go here"...
     List descriptors(GrouperSession s, String descriptor)
-      XXX Will need a rename at the least
-    GrouperGroup group(GrouperSession s, String stem, String descriptor)
-      XXX Will need a rename at the least
+    GrouperGroup group(GrouperSession s, String namespace, String descriptor)
     List groupFields()
       XXX Hrm...isn't this also in Grouper?
     List groupTypeDefs()
@@ -64,8 +62,7 @@ GrouperBackend
       XXX Rename?
     GrouperMember member(String id, String type)
     List schemas(GrouperGroup g)
-    List stems(GrouperSession s, String stem)
-      XXX Will need a rename at the least
+    List namespaces(GrouperSession s, String namespace)
     String uuid()
 
 
