@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.17 2004-11-09 18:51:36 blair Exp $
+# $Id: API,v 1.18 2004-11-09 18:53:19 blair Exp $
 #
 # TODO Interfaces
 #
@@ -59,6 +59,7 @@ GrouperBackend
     List groupTypes()
       XXX Hrm...isn't this also in Grouper?
     boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list)
+    boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember member, String list)
     void loadGroup(GrouperSession s, GrouperGroup g, String key)
       XXX Rename?
     GrouperMember member(String id, String type)
