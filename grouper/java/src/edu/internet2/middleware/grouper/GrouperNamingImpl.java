@@ -20,11 +20,11 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.10 2004-08-24 17:37:58 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.11 2004-09-08 19:31:08 blair Exp $
  */
 public class InternalGrouperNaming implements GrouperNaming {
 
-  private GrouperSession intSess = null;
+  private GrouperSession grprSession = null;
 
   /**
    * Create a naming interface object.
@@ -33,7 +33,7 @@ public class InternalGrouperNaming implements GrouperNaming {
    */
   public InternalGrouperNaming(GrouperSession s) {
     // Internal reference to the session we are using.
-    intSess = s;
+    grprSession = s;
   }
 
   /**
