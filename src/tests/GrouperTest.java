@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.52 2004-09-20 01:27:34 blair Exp $
+ * $Id: GrouperTest.java,v 1.53 2004-09-21 16:43:28 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -502,13 +502,14 @@ public class GrouperTest extends TestCase {
     GrouperGroup grp = GrouperGroup.create(s, "stem.1", "desc.1");
 
     // Confirm that the group exists
-    // FIXME Assert.assertTrue( grp.exist() );
+    Assert.assertTrue( grp.exist() );
    
     // We're done
     s.stop();
     G.destroy();
   }
 
+/*
   // Fetch a group
   public void testFetchGroup() {
     G = new Grouper();
@@ -536,12 +537,13 @@ public class GrouperTest extends TestCase {
     String expDescription         = "group.1";
 
     //Assert.assertNotNull(description);
-    //Assert.assertTrue( expDescription.equals(description.value()) );
+    Assert.assertTrue( expDescription.equals(description.value()) );
 
     // We're done
     s.stop();
     G.destroy();
   }
+*/
 
 }
 
