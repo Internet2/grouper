@@ -17,7 +17,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.21 2004-11-22 01:40:23 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.22 2004-11-22 15:22:49 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -32,6 +32,19 @@ public class GrouperNamingImpl implements GrouperNaming {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Verify whether this implementation of the {@link GrouperNaming}
+   * interface can handle this privilege.
+   *
+   * @param   priv  The privilege to verify.
+   * @return  Boolean true if this implementation handles the specified
+   * privilege, boolean false otherwise.
+   */
+  public boolean can(String priv) {
+    boolean rv = false;
+    return rv;
+  }
 
   /**
    * Grant a naming privilege on a {@link GrouperStem}.
