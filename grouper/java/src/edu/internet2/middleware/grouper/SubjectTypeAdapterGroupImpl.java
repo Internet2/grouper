@@ -64,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.14 2005-03-23 21:52:49 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.15 2005-03-24 20:41:07 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
@@ -98,7 +98,7 @@ public class  SubjectTypeAdapterGroupImpl
    */
   public Subject getSubject(SubjectType type, String id) {
     DbSess  dbSess  = new DbSess(); // FIXME CACHE!
-    String  qry     = "GrouperGroup.by.id";
+    String  qry     = "Group.by.id";
     Subject subj    = null;
     try {
       Query q = dbSess.session().getNamedQuery(qry);
