@@ -10,7 +10,7 @@ import  net.sf.hibernate.*;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.21 2004-08-03 02:17:13 blair Exp $
+ * @version $Id: Grouper.java,v 1.22 2004-08-03 04:26:25 blair Exp $
  */
 public class Grouper {
 
@@ -19,15 +19,18 @@ public class Grouper {
   private String          confFile    = "conf/grouper.properties";
 
   private GrouperSession  intSess;
-  private GrouperFields   groupFields;
-  private GrouperTypes    groupTypes;
-  private GrouperTypeDefs groupTypeDefs;
+  private static GrouperFields   groupFields;
+  private static GrouperTypes    groupTypes;
+  private static GrouperTypeDefs groupTypeDefs;
+
 
   /**
    * Create {@link Grouper} environment.
    */
   public Grouper() {
-    // Nothing -- Yet
+    this.groupFields   = new GrouperFields();
+    this.groupTypes    = new GrouperTypes();
+    this.groupTypeDefs = new GrouperTypeDefs();
   }
 
   /**
@@ -55,14 +58,12 @@ public class Grouper {
     } catch (FileNotFoundException e) {
       System.err.println("Failed to find '" + confFile + "'");
     }
+
     this.intSess = new GrouperSession();
     this.intSess.start(this, this.config("member.system"), true);
     // TODO Perform data validation of some sort for these tables?
-    groupFields   = new GrouperFields();
     this._readFields();
-    groupTypes    = new GrouperTypes();
     this._readTypes();
-    groupTypeDefs = new GrouperTypeDefs();
     this._readTypeDefs();
   }
 
@@ -110,7 +111,7 @@ public class Grouper {
         );
       for (Iterator iter = q.list().iterator(); iter.hasNext();) {
         GrouperField field = (GrouperField) iter.next();
-        groupFields.add(field);
+        this.groupFields.add(field);
         // TODO groupFields.add( (GrouperField) iter.next() );
       }
     } catch (Exception e) {
@@ -169,7 +170,7 @@ public class Grouper {
    * @return  TODO
    */
   public GrouperFields getGroupFields() {
-    return groupFields;
+    return this.groupFields;
   }
 
   /**
