@@ -1,3 +1,16 @@
+/* 
+ * Copyright (C) 2004 TODO
+ * All Rights Reserved. 
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted only as authorized by the Academic
+ * Free License version 2.1.
+ *
+ * A copy of this license is available in the file LICENSE in the
+ * top-level directory of the distribution or, alternatively, at
+ * <http://www.opensource.org/licenses/afl-2.1.php>
+ */
+
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
@@ -10,7 +23,7 @@ import  net.sf.hibernate.*;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.23 2004-08-06 15:19:51 blair Exp $
+ * @version $Id: Grouper.java,v 1.24 2004-08-24 17:37:57 blair Exp $
  */
 public class Grouper {
 
