@@ -19,7 +19,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.38 2004-11-20 16:00:07 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.39 2004-11-22 03:23:11 blair Exp $
  */
 public class GrouperMember {
 
@@ -53,28 +53,15 @@ public class GrouperMember {
    */
 
   /**
-   * TODO
-   *
-   * @param   subjectID       Subject ID
-   * @param   subjectTypeID  Subject Type ID
-   * @return  {@link GrouperMember} object
+   * Convert a {@link Subject} object to a {@link GrouperMember}
+   * object.
+   * <p>
+   * 
+   * @param subj  A {@Subject} object.
+   * @return  A {@link GrouperMember} object.
    */
-  public static GrouperMember lookup(String subjectID, String subjectTypeID) {
-    Subject subj = GrouperSubject.lookup(subjectID, subjectTypeID);
-
-    /*
-     * If no subject is returned via the subject interface, assume that
-     * the member either doesn't exist or should no longer exist.  Bail
-     * out.
-     */
-    // TODO What if member can be found but matching subject cannot be
-    //      found?  Or: should I check if the member is defined first
-    //      and then fall back to subject?
-    if (subj == null)  { return null; }
-
-    // TODO Is there a reason why I am not just passing in the
-    //      `subjectID' and `subjectTypeID' passed as params to
-    //      this method?
+  public static GrouperMember lookup(Subject subj) {
+    // Attempt to load an already existing member
     GrouperMember member = GrouperBackend.member(
                                                  subj.getId(),
                                                  subj.getSubjectType().getId()
@@ -106,11 +93,50 @@ public class GrouperMember {
   }
 
   /**
-   * TODO This method may not last.  Or be replaced by a uuid version?
+   * Convert a {@link Subject} id and type to a {@link GrouperMember}
+   * object.
+   * <p>
+   * TODO Is this method needed?  Or can I just default to the version
+   *      that takes a {@link Subject} object?
+   *
+   * @param   subjectID     Subject ID
+   * @param   subjectTypeID Subject Type ID
+   * @return  A {@link GrouperMember} object
    */
+  public static GrouperMember lookup(String subjectID, String subjectTypeID) {
+    Subject subj = GrouperSubject.lookup(subjectID, subjectTypeID);
+
+    /*
+     * If no subject is returned via the subject interface, assume that
+     * the member either doesn't exist or should no longer exist.  Bail
+     * out.
+     */
+    // TODO What if member can be found but matching subject cannot be
+    //      found?  Or: should I check if the member is defined first
+    //      and then fall back to subject?
+    if (subj == null)  { return null; }
+
+    return GrouperMember.lookup(subj);
+  }
+
+  /**
+   * Retrieve a {@link GrouperMember} object based upon its
+   * <i>memberKey</i>.
+   * <p>
+   * TODO This method should not remain, at least it in its current
+   *      form.  At the least it should be made <i>protected</i>.
+   *
+   * @param   subjectID     Subject ID
+   * @param   subjectTypeID Subject Type ID
+   * @param   key   <i>memberKey</i> of {@link GrouperMember} object to
+   * retrieve.
+   * @return  A {@link GrouperMember} object
+   */
+/*
   public static GrouperMember lookup(String key) {
     return GrouperBackend.member(key);
   }
+*/
 
 
   /*

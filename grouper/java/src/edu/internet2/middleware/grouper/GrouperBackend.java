@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.52 2004-11-22 03:02:33 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.53 2004-11-22 03:23:11 blair Exp $
  */
 public class GrouperBackend {
 
@@ -373,7 +373,7 @@ public class GrouperBackend {
           Iterator immsIter = imms.iterator();
           while(immsIter.hasNext()) {
             GrouperMembership mship = (GrouperMembership) immsIter.next();
-            GrouperMember     mem   = GrouperMember.lookup( mship.memberKey() );
+            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
             GrouperBackend._listAddVal(
                                        session, via.group(),
                                        mem, list, memberOfBase
@@ -448,7 +448,7 @@ public class GrouperBackend {
           Iterator immsIter = imms.iterator();
           while(immsIter.hasNext()) {
             GrouperMembership mship = (GrouperMembership) immsIter.next();
-            GrouperMember     mem   = GrouperMember.lookup( mship.memberKey() );
+            GrouperMember     mem   = GrouperBackend._member( mship.memberKey() );
             GrouperBackend._listDelVal(
                                        session, via.group(),
                                        mem, list, memberOfBase
@@ -568,26 +568,6 @@ public class GrouperBackend {
   }
 
   /**
-   * Query for a single {@link GrouperMember} by memberKey.
-   *
-   * @return  {@link GrouperMember} object or null.
-   */
-  protected static GrouperMember member(String key) {
-    Session session = GrouperBackend._init();
-    try {
-      GrouperMember m = new GrouperMember();
-      session.load(m, key);
-      GrouperBackend._hibernateSessionClose(session);
-      return m;
-    } catch (Exception e) {
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return null;
-  }
-
-  /**
    * Query for a single {@link GrouperMember} by member id and type.
    *
    * @return  {@link GrouperMember} object or null.
@@ -693,10 +673,7 @@ public class GrouperBackend {
       t.commit();
 
       // And grant ADMIN privilege to the list creator
-      GrouperMember m = GrouperMember.lookup( 
-                                             s.subject().getId(),
-                                             s.subject().getSubjectType().getId()
-                                            );
+      GrouperMember m = GrouperMember.lookup( s.subject() );
       if (
           (m != null) && // FIXME Bah
           (GrouperPrivilege.grant(s, g, m, "ADMIN") == true)
@@ -1253,6 +1230,26 @@ public class GrouperBackend {
     return vals;
   }
    
+  /*
+   * Query for a single {@link GrouperMember} by memberKey.
+   *
+   * @return  {@link GrouperMember} object or null.
+   */
+  private static GrouperMember _member(String key) {
+    Session session = GrouperBackend._init();
+    try {
+      GrouperMember m = new GrouperMember();
+      session.load(m, key);
+      GrouperBackend._hibernateSessionClose(session);
+      return m;
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return null;
+  }
+
   /*
    * The memberOf algorithim: Grouper's one trick pony
    * <http://middleware.internet2.edu/dir/groups/docs/internet2-mace-dir-groups-best-practices-200210.htm>
