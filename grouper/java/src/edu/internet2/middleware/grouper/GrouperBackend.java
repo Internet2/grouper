@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.152 2005-03-02 22:39:12 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.153 2005-03-04 14:23:41 blair Exp $
  */
 public class GrouperBackend {
 
@@ -92,6 +92,7 @@ public class GrouperBackend {
    */
   private static Configuration   cfg;     // Hibernate configuration
   private static SessionFactory  factory; // Hibernate session factory
+  private static String          confFile = "Grouper.hbm.xml";
 
 
   /*
@@ -1832,28 +1833,32 @@ public class GrouperBackend {
   private static Session _init() {
     if (cfg == null) {
       InputStream in = Grouper.class
-                              .getResourceAsStream("/Grouper.hbm.xml");
+                              .getResourceAsStream("/" + confFile);
       try {
-        // conf.load(in);
         cfg = new Configuration()
           .addInputStream(in);
       } catch (MappingException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeException(
+                    "Bad mapping in " + confFile + ": " + e
+                  );
       }
     }
     if (factory == null) {
       try {
         factory = cfg.buildSessionFactory();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Unable to create Hibernate session factory: " + e
+                  );
       }
     }
     try {
       return factory.openSession();
     } catch (HibernateException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(
+                  "Unable to create Hibernate session: " + e
+                );
     }
-    //return null;
   }
 
   /* (!javadoc)
