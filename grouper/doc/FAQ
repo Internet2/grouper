@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.14 2004-12-09 05:37:39 blair Exp $
+$Id: FAQ,v 1.15 2004-12-09 17:12:25 blair Exp $
 
 ---
 
@@ -11,8 +11,8 @@ $Id: FAQ,v 1.14 2004-12-09 05:37:39 blair Exp $
 #### Q: How do I access _Grouper_ configuration parameters?
 
 A: Use the `Grouper.config()` method.
-  
-    String delim = Grouper.config("hierarchy.delimiter");
+
+    String namingInterfaceKlass = Grouper.config("interface.naming");
 
 ---
 
