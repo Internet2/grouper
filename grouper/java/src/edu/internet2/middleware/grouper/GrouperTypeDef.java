@@ -18,7 +18,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.10 2004-11-05 19:21:36 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.11 2004-11-23 17:08:37 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -47,18 +47,18 @@ public class GrouperTypeDef implements Serializable {
    }
 
   /**
-   * Returns {@link GroupField}.
+   * Returns {@link GrouperField}.
    *
-   * @return  Returns name of {@link GroupField}.
+   * @return  Returns name of {@link GrouperField}.
    */
   public String groupField() {
     return this.getGroupField();
   }
 
   /**
-   * Returns {@link GroupType}.
+   * Returns {@link GrouperType}.
    *
-   * @return  Returns integer representing {@link GroupType}.
+   * @return  Returns integer representing {@link GrouperType}.
    */
   public String groupType() {
     return this.getGroupType();

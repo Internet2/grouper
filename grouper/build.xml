@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.20 2004-11-23 01:46:05 blair Exp $ -->
+<!-- $Id: build.xml,v 1.21 2004-11-23 17:08:37 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -55,19 +55,18 @@
     <delete dir="${dist}"/>
   </target>
 
-  <target name="all" depends="dist,test,javadoc" />
+  <target name="all" depends="dist,test,html" />
 
-  <target name="javadoc">
-    <mkdir dir="${javadoc.source}"/>
+  <target name="html">
+    <!-- Let's be sure we clear out old cruft first... -->
+    <delete dir="${javadoc.dest}" />
     <javadoc sourcepath="${javadoc.source}" 
       destdir="${javadoc.dest}" 
       packagenames="${javadoc.packages}" 
       classpathref="project.class.path" 
-      private="true"   
+      private="false"   
       author="true"/>
   </target>
-
-  <target name="doc" depends="javadoc" />
 
   <target name="test" depends="test-run">
   </target>
