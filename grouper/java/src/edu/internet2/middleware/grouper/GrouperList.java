@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
 import  java.util.*;
@@ -65,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.53 2005-03-24 20:47:07 blair Exp $
+ * @version $Id: GrouperList.java,v 1.54 2005-03-29 20:53:36 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -129,39 +130,20 @@ public class GrouperList implements Serializable {
 
   /*
    * Create a new {@link GrouperList} object.
-   * TODO Refactor
    */
   protected GrouperList(
               GrouperSession s, Group g, GrouperMember m, 
               String list, List chain
             ) 
   {
-    // TODO See if it exists?
-    if (this.getListKey() == null) {
-      this.setListKey( new GrouperUUID().toString() );
-    }
-    if (g == null) {
-      throw new RuntimeException("GrouperList: null group");
-    }
-    if (m == null) {
-      throw new RuntimeException("GrouperList: null member");
-    }
-    if (list == null) {
-      throw new RuntimeException("GrouperList: null list");
-    }
-    this.g          = g;
-    this.groupKey   = g.key();
-    this.m          = m;
-    this.memberKey  = m.key();
-    this.groupField = list;
-    this.elements   = chain;
+    this(g, m, list);
+    this.elements = chain;
     if (chain.size() > 0) {
       MemberVia   mv = (MemberVia) chain.get(0);
       GrouperList gl = (GrouperList) mv.toList(s);
       this.via    = gl.group();
       this.viaKey = gl.group().key();
     }
-    GrouperList.validate(this);
   }
 
 
@@ -246,14 +228,8 @@ public class GrouperList implements Serializable {
    */
   protected static void delete(GrouperSession s, GrouperList gl) {
     // TODO Refactor into smaller components
-    /* FIXME
-     * try {
-     *   s.dbSess().session().delete(gl);
-     * } catch (HibernateException e) {
-     *    throw new RuntimeException("Error deleting list value: " + e);
-     * }
-     */
-    Query   q;
+    // TODO Why can't I just s.dbSess().session().delete(gl)?
+    Query q;
     if (gl.via() != null) {
       try {
         // TODO Why can't I use delete() with a parameterized query?
@@ -362,10 +338,19 @@ public class GrouperList implements Serializable {
   }
 
   /**
+   * Compares the specified object with this list value for equality.
+   * <p />
+   * @param o Object to be compared for equality with this list value.
+   * @return  True if the specified object is equal to this list value.
+   */
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  /**
    * Returns the {@link Group} object referenced by this 
    * {@link GrouperList} object.
    * <p />
-   *
    * @return  A {@link Group} object.
    */
   public Group group() {
@@ -375,12 +360,20 @@ public class GrouperList implements Serializable {
   /**
    * Return the group field for this list value.
    * <p />
-   *
    * @return  Field name.
    */
   public String groupField() {
     return this.getGroupField();
   }
+
+  /**
+   * Returns the hash code value for this list value.
+   * <p />
+   * @return  The hash code value for this list value.
+   */
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
 
   /**
    * Returns the {@link GrouperMember} object referenced by this 
@@ -394,36 +387,6 @@ public class GrouperList implements Serializable {
   }
 
   /**
-   * If this object represents an effective membership, returning the
-   * {@link Group} object that caused the effective membership.
-   * <p />
-   * @return  A {@link Group} object.
-   */
-  public Group via() {
-    return this.via;
-  }
-
-
-  /**
-   * Compares the specified object with this list value for equality.
-   * <p />
-   * @param o Object to be compared for equality with this list value.
-   * @return  True if the specified object is equal to this list value.
-   */
-  public boolean equals(Object o) {
-     return EqualsBuilder.reflectionEquals(this, o);
-   }
-
-  /**
-   * Returns the hash code value for this list value.
-   * <p />
-   * @return  The hash code value for this list value.
-   */
-  public int hashCode() {
-     return HashCodeBuilder.reflectionHashCode(this);
-   }
-
-  /**
    * Return a string representation of this object.
    * <p />
    * @return String representation of this object.
@@ -431,6 +394,16 @@ public class GrouperList implements Serializable {
   public String toString() {
     // TODO Add more information.
     return new ToStringBuilder(this).toString();
+  }
+
+  /**
+   * If this object represents an effective membership, returning the
+   * {@link Group} object that caused the effective membership.
+   * <p />
+   * @return  A {@link Group} object.
+   */
+  public Group via() {
+    return this.via;
   }
 
 
