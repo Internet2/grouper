@@ -61,7 +61,7 @@ import  edu.internet2.middleware.subject.*;
  * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.62 2004-12-03 03:25:08 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.63 2004-12-05 23:44:36 blair Exp $
  */
 public class GrouperSession {
 
@@ -123,19 +123,20 @@ public class GrouperSession {
 
   /**
    * Stop the {@link Grouper} session.
-   * <p>
-   * TODO Update <i>grouper_session</i> table.
+   * <p />
+   *
+   * @return  Boolean true if session stopped successfully, otherwise
+   *   false.
    */
   public boolean stop() { 
-    // FIXME What do we do here?
-    // Maybe? this._init();
-    // Wipe out entry from session table?
-    if (this.subject == null || this.subjectID == null) {
-      Grouper.LOGGER.info("Failed to stop session");
-      return false;
+    boolean rv = false;
+    if (this.sessionID != null) {
+      if (GrouperBackend.sessionDel(this)) {
+        rv = true;
+      }
     }
     Grouper.LOGGER.info("Stopped session for " + this.subject);
-    return true;
+    return rv;
   }
 
   /**

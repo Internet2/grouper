@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.116 2004-12-05 23:31:41 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.117 2004-12-05 23:44:36 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1127,6 +1127,29 @@ public class GrouperBackend {
       System.exit(1);
     }
     GrouperBackend._hibernateSessionClose(session);
+  }
+
+  /**
+   * Delete a {@link GrouperSession}.
+   * <p />
+   *
+   * @param   s   Session to delete.
+   * @return  Boolean true if session deleted, false otherwise.
+   */
+  protected static boolean sessionDel(GrouperSession s) {
+    boolean rv = false;
+    Session session = GrouperBackend._init();
+    try {
+      Transaction t = session.beginTransaction();
+      session.delete(s);
+      t.commit();
+      rv = true;
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
   }
 
   /**
