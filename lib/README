@@ -12,6 +12,13 @@ Contents:
     - Source:   <http://cglib.sourceforge.net/>
     - License:  Apache Software License, Version 1.1
 
+  commons-cli.jar
+  "The CLI library provides a simple and easy to use API for working
+  with the command line arguments and options"
+    - Version:  1.0
+    - Source:   <http://jakarta.apache.org/commons/>
+    - License:  Apache License, Version 2.0
+  
   commons-collections.jar
     "Commons-Collections provides a suite of classes that extend
     or augment the Java Collections Framework."
@@ -98,5 +105,5 @@ Contents:
     - Source:   TODO
     - License:  TODO
 
-$Id: README,v 1.4 2004-11-02 18:02:35 blair Exp $
+$Id: README,v 1.5 2004-11-22 14:59:15 blair Exp $
 
