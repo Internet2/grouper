@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.124 2004-12-06 19:54:53 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.125 2004-12-06 20:15:13 blair Exp $
  */
 public class GrouperBackend {
 
@@ -79,10 +79,10 @@ public class GrouperBackend {
    */
   private static final String VAL_NOTNULL = "**NOTNULL**";  // FIXME
   private static final String VAL_NULL    = "**NULL**";     // FIXME
-  private static final Logger LOGGER      = 
+  private static final Logger LOG         = 
     Logger.getLogger(GrouperBackend.class.getName());
-  private static final Logger LOGGER_Q    = 
-    Logger.getLogger(GrouperBackend.class.getName() + ".QUERY");
+  private static final Logger LOG_QRY     = 
+    Logger.getLogger(GrouperBackend.class.getName() + "_Query");
 
 
   /* 
@@ -123,7 +123,7 @@ public class GrouperBackend {
       if (extn.indexOf(delim) != -1) {
         // FIXME Throw an exception?  And then test for failure?
         //       Or settle for ye olde null
-        Grouper.LOGGER.info(
+        Grouper.LOG.info(
           "Extension `" + extn + "' contains delimiter `" + delim + "'"
         );
         name = null;
@@ -262,34 +262,34 @@ public class GrouperBackend {
         t.commit();
 
         // And grant ADMIN privilege to the list creator
-        GrouperBackend.LOGGER.debug("Converting subject " + s);
+        GrouperBackend.LOG.debug("Converting subject " + s);
         GrouperMember m       = GrouperMember.load( s.subject() );
         boolean       granted = false;
         if (m != null) { // FIXME Bah
-          GrouperBackend.LOGGER.debug("Converted to member " + m);
+          GrouperBackend.LOG.debug("Converted to member " + m);
           // NS_TYPE groups get `STEM', not `ADMIN'
           if (g.type().equals(Grouper.NS_TYPE)) {
             if (Grouper.naming().grant(s, g, m, "STEM") == true) {
-              GrouperBackend.LOGGER.debug("Granted STEM to " + m);
+              GrouperBackend.LOG.debug("Granted STEM to " + m);
               t.commit(); // XXX Is this commit necessary?
               granted = true;
               rv      = true;
             } else {
-              GrouperBackend.LOGGER.debug("Unable to grant STEM to " + m);
+              GrouperBackend.LOG.debug("Unable to grant STEM to " + m);
             }
           } else {
             // For all other group types default to `ADMIN'
             if (Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
-              GrouperBackend.LOGGER.debug("Granted ADMIN to " + m);
+              GrouperBackend.LOG.debug("Granted ADMIN to " + m);
               t.commit(); // XXX Is this commit necessary?
               granted = true;
               rv      = true;
             } else {
-              GrouperBackend.LOGGER.debug("Unable to grant ADMIN to " + m);
+              GrouperBackend.LOG.debug("Unable to grant ADMIN to " + m);
             }
           }
         } else {
-          GrouperBackend.LOGGER.debug("Unable to convert to member");
+          GrouperBackend.LOG.debug("Unable to convert to member");
         }
         if (granted == false) {
           /*
@@ -308,10 +308,9 @@ public class GrouperBackend {
       }
     } else { 
       System.err.println("STEM " + stem.value() + " DOES NOT EXIST!");
-      Grouper.LOGGER.info(
-                          "Unable to add group as stem=`" +
-                          stem.value() + "' does not exist."
-                         );
+      Grouper.LOG.info(
+        "Unable to add group as stem=`" + stem.value() + "' does not exist."
+      );
     }
     GrouperBackend._hibernateSessionClose(session);
     return rv;
@@ -339,12 +338,12 @@ public class GrouperBackend {
     List memberOf = asMem.listVals(s);
     if ( (members.size() != 0) || (memberOf.size() != 0) ) {
       if (members.size() != 0) {
-        Grouper.LOGGER.info(
+        Grouper.LOG.info(
           "ERROR: Unable to delete group as it still has members"
         );
       }
       if (memberOf.size() != 0) {
-        Grouper.LOGGER.info(
+        Grouper.LOG.info(
           "ERROR: Unable to delete group as it is a member of other groups"
         );
       }
@@ -499,7 +498,7 @@ public class GrouperBackend {
       rv = true;
     } catch (HibernateException e) {
       rv = false; 
-      GrouperBackend.LOGGER.warn("Unable to update group " + g);
+      GrouperBackend.LOG.warn("Unable to update group " + g);
     }
     GrouperBackend._hibernateSessionClose(session);
     return rv;
@@ -1246,7 +1245,7 @@ public class GrouperBackend {
       if (vals.size() == 1) {
         rv = true;
       } else {
-        Grouper.LOGGER.warn("Attempt to use an invalid session");
+        Grouper.LOG.warn("Attempt to use an invalid session");
       }
     }
     GrouperBackend._hibernateSessionClose(session);
@@ -1310,17 +1309,15 @@ public class GrouperBackend {
         // ... And convert it to a subject object
         subj = new SubjectImpl(id, typeID);
       } else {
-        GrouperBackend.LOGGER.debug(
-                                    "subjectLookupTypeGroup() " +
-                                    "Returned group is null"
-                                   );
+        GrouperBackend.LOG.debug(
+          "subjectLookupTypeGroup() Returned group is null"
+        );
       }
     } else {
-      GrouperBackend.LOGGER.debug(
-                                  "subjectLookupTypeGroup() "  +
-                                  "Found " + vals.size()       +
-                                  " matching groups"
-                                 );
+      GrouperBackend.LOG.debug(
+        "subjectLookupTypeGroup() Found " + vals.size() + 
+        " matching groups"
+      );
     }
     GrouperBackend._hibernateSessionClose(session);
     return subj;
@@ -1392,10 +1389,9 @@ public class GrouperBackend {
         session.save(attr);   
       } catch (HibernateException e) {
         attr = null;
-        GrouperBackend.LOGGER.warn(
-                                   "Unable to store attribute " +
-                                   field + "=" + value
-                                  );
+        GrouperBackend.LOG.warn(
+          "Unable to store attribute " + field + "=" + value
+        );
       }
     } else if (vals.size() == 1) {
       // Attribute already exists.  Check to see if the value has
@@ -1407,10 +1403,9 @@ public class GrouperBackend {
           session.update(attr);
         } catch (HibernateException e) {
           attr = null;
-          GrouperBackend.LOGGER.warn(
-                                     "Unable to update attribute " +
-                                     field + "=" + value
-                                    );
+          GrouperBackend.LOG.warn(
+            "Unable to update attribute " + field + "=" + value
+          );
         }
       }
     } // TODO else...
@@ -1429,9 +1424,9 @@ public class GrouperBackend {
         session.delete(attr);
         rv = true;
       } catch (HibernateException e) {
-        GrouperBackend.LOGGER.warn(
-                                   "Unable to delete attribute " + field
-                                  );
+        GrouperBackend.LOG.warn(
+          "Unable to delete attribute " + field
+        );
       }
     }
     return rv;
@@ -1565,7 +1560,7 @@ public class GrouperBackend {
   private static void _hibernateSessionClose(Session session) {
     try {
       if (session.isDirty() == true) {
-        Grouper.LOGGER.debug("Flushing dirty Hibernate session");
+        Grouper.LOG.debug("Flushing dirty Hibernate session");
         session.flush();
       }
       /*
@@ -1577,13 +1572,13 @@ public class GrouperBackend {
        *       optimization.
        */
       try {
-        Grouper.LOGGER.debug("Calling commit() on Hibernate connection");
+        Grouper.LOG.debug("Calling commit() on Hibernate connection");
         session.connection().commit();
       } catch (SQLException e) {
         System.err.println("SQL Commit Exception:" + e);
         System.exit(1);
       }
-      Grouper.LOGGER.debug("Closing Hibernate session");
+      Grouper.LOG.debug("Closing Hibernate session");
       session.close();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1723,31 +1718,31 @@ public class GrouperBackend {
     //      this problem or have I just not triggered it yet?  Or if I
     //      can't, add the disclaimer.
     Session session = GrouperBackend._init(); // XXX
-    Grouper.LOGGER.debug("_listDelVal() (g) " + g);
-    Grouper.LOGGER.debug("_listDelVal() (m) " + m);
-    Grouper.LOGGER.debug("_listDelVal() (t) " + list);
+    Grouper.LOG.debug("_listDelVal() (g) " + g);
+    Grouper.LOG.debug("_listDelVal() (m) " + m);
+    Grouper.LOG.debug("_listDelVal() (t) " + list);
     if (via != null) {
-      Grouper.LOGGER.debug("_listDelVal() (v) " + via);
+      Grouper.LOG.debug("_listDelVal() (v) " + via);
     } else {
-      Grouper.LOGGER.debug("_listDelVal() (v) null");
+      Grouper.LOG.debug("_listDelVal() (v) null");
     }
 
     // Confirm that the data exists
     if (GrouperBackend._listValExist(g, m, list, via) == true) {
-      Grouper.LOGGER.debug("_listDelVal() Value exists");
+      Grouper.LOG.debug("_listDelVal() Value exists");
       GrouperList gl = GrouperBackend._listVal(g, m, list, via);
-      Grouper.LOGGER.debug("_listDelVal() Deleting " + gl);
+      Grouper.LOG.debug("_listDelVal() Deleting " + gl);
       try {
         // Delete it
         session.delete(gl); 
         session.flush(); // XXX
-        Grouper.LOGGER.debug("_listDelVal() deleted");
+        Grouper.LOG.debug("_listDelVal() deleted");
       } catch (HibernateException e) {
         System.err.println(e);
         System.exit(1);
       }
     } else {
-      Grouper.LOGGER.debug("_listDelVal() Value doesn't exist");
+      Grouper.LOG.debug("_listDelVal() Value doesn't exist");
     }
     GrouperBackend._hibernateSessionClose(session); // XXX
   }
@@ -1902,10 +1897,9 @@ public class GrouperBackend {
     List vals = new ArrayList();
     try { 
       Query q = session.createQuery("FROM " + klass);
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryAll() " + 
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryAll() " + q.getQueryString()
+      );
       vals    = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1928,10 +1922,9 @@ public class GrouperBackend {
         " AND "                         +
         "ga.groupField='" + field + "'"
       );          
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryGrouperAttr() " +
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryGrouperAttr() " + q.getQueryString()
+      );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1968,10 +1961,9 @@ public class GrouperBackend {
         "gl.groupField" + gfield_txt  +
         via_txt
       );
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryGrouperList() " + 
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryGrouperList() " + q.getQueryString()
+      );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1993,10 +1985,9 @@ public class GrouperBackend {
       Query q = session.createQuery(
         "FROM " + klass + " WHERE " + key + "='" + value + "'"
       );
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryKV() " + 
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryKV() " + q.getQueryString()
+      );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -2019,10 +2010,9 @@ public class GrouperBackend {
         "FROM " + klass + " WHERE "           +
         key     + " > " + time
       );
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryKVGT() " + 
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryKVGT() " + q.getQueryString()
+      );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -2047,10 +2037,9 @@ public class GrouperBackend {
         key0    + "='"  + value0  + "' AND "  +
         key1    + "='"  + value1  + "'"
       );
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryKVKV() " + 
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryKVKV() " + q.getQueryString()
+      );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);
@@ -2073,10 +2062,9 @@ public class GrouperBackend {
         "FROM " + klass + " WHERE "           +
         key     + " < " + time
       );
-      GrouperBackend.LOGGER_Q.debug(
-                                    "_queryKVLT() " + 
-                                    q.getQueryString()
-                                   );
+      GrouperBackend.LOG_QRY.info(
+        "_queryKVLT() " + q.getQueryString()
+      );
       vals = q.list();
     } catch (HibernateException e) {
       System.err.println(e);

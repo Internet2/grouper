@@ -60,7 +60,7 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.12 2004-12-03 03:21:22 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.13 2004-12-06 20:15:13 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter
@@ -80,7 +80,7 @@ public class  SubjectTypeAdapterPersonImpl
    */
 
   public void destroy() { 
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImpldestroy' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImpldestroy' is not implemented");
     // XXX Nothing -- Yet
   }
 
@@ -89,22 +89,22 @@ public class  SubjectTypeAdapterPersonImpl
   }
 
   public Subject getSubjectByDisplayId(SubjectType type, String displayId) {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplgetSubjectByDisplayId' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplgetSubjectByDisplayId' is not implemented");
     return null;
   }
  
   public Subject[] getSubjects(SubjectType type) {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplgetSubjects' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplgetSubjects' is not implemented");
     return null;
   }
 
   public void init() {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplinit' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplinit' is not implemented");
     // XXX Nothing -- Yet
   }
 
   public boolean isModifiable() {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplisModifiable' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplisModifiable' is not implemented");
     return false;
   }
 
@@ -114,17 +114,17 @@ public class  SubjectTypeAdapterPersonImpl
                             String      description, 
                             String      displayId) 
   {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplnewSubject' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplnewSubject' is not implemented");
     return null;
   }
 
   public Subject quickSearch(String searchValue) {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplquickSearch' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplquickSearch' is not implemented");
     return null;
   }
 
   public Subject[] searchByIdentifier(SubjectType type, String id) {
-    Grouper.LOGGER.warn("`SubjectTypeAdapterPersonImplsearchByIdentifier' is not implemented");
+    Grouper.LOG.warn("`SubjectTypeAdapterPersonImplsearchByIdentifier' is not implemented");
     return null;
   }
 

@@ -64,7 +64,7 @@ import  org.apache.log4j.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.59 2004-12-05 16:52:58 blair Exp $
+ * @version $Id: Grouper.java,v 1.60 2004-12-06 20:15:13 blair Exp $
  */
 public class Grouper {
 
@@ -97,7 +97,7 @@ public class Grouper {
   /*
    * PROTECTED CONSTANTS
    */
-  protected static final Logger LOGGER = 
+  protected static final Logger LOG = 
     Logger.getLogger(Grouper.class.getName());
 
 
@@ -294,7 +294,7 @@ public class Grouper {
    */
   private static void _init() {
     if (initialized == false) {
-      Grouper.LOGGER.info("Initializing Grouper");
+      Grouper.LOG.info("Initializing Grouper");
       Grouper     tmp = new Grouper();
       InputStream in  = tmp.getClass().getResourceAsStream(confFile);
       try {
