@@ -1,6 +1,6 @@
 <!--
-  $Id: org.jsp,v 1.3 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: org.jsp,v 1.4 2005-02-25 23:13:06 acohen Exp $
+  $Date: 2005-02-25 23:13:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -65,7 +65,9 @@
      = "PersonView.do?granteeSubjectTypeId="
        + currentGranteePrivilegedSubject.getSubjectTypeId()
        + "&granteeSubjectId="
-       + currentGranteePrivilegedSubject.getSubjectId();
+       + currentGranteePrivilegedSubject.getSubjectId()
+       + "&subsystemId="
+       + currentSubsystem.getId();
 
    String functionsHref
      = "Functions.do?select="

@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.8 2005-02-25 22:07:57 jvine Exp $
-  $Date: 2005-02-25 22:07:57 $
+  $Id: confirm.jsp,v 1.9 2005-02-25 23:13:06 acohen Exp $
+  $Date: 2005-02-25 23:13:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -78,7 +78,9 @@
      = "PersonView.do?granteeSubjectTypeId="
        + currentGranteePrivilegedSubject.getSubjectTypeId()
        + "&granteeSubjectId="
-       + currentGranteePrivilegedSubject.getSubjectId();
+       + currentGranteePrivilegedSubject.getSubjectId()
+       + "&subsystemId="
+       + currentSubsystem.getId();
        
    String functionsHref
      = "Functions.do?select="
@@ -263,7 +265,7 @@
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
 
-              <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
+              <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
                 <%=listSubject.getName()%>
               </a><br /><!-- it's important for the br to be on the same line as the a -->
               <%=listSubject.getDescription()%>
@@ -284,7 +286,7 @@
               <a href="Start.do">
             <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />you have granted</a></p>
             <p>
-              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />assigned to you</a>
             </p>
             <p>

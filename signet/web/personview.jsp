@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.12 2005-02-25 22:07:57 jvine Exp $
-  $Date: 2005-02-25 22:07:57 $
+  $Id: personview.jsp,v 1.13 2005-02-25 23:13:06 acohen Exp $
+  $Date: 2005-02-25 23:13:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -446,7 +446,7 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
+               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
                  <%=listSubject.getName()%>
                </a><br /><!-- it's important for the br to be on the same line as the a -->
                <span class="dropback"><%=listSubject.getDescription()%></span>
@@ -472,7 +472,7 @@
               </a>
             </p>
             <p>
-              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
                 <img
                     src="images/icon_arrow_right.gif"
                     width="16"

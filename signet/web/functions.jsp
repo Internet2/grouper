@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.6 2005-02-25 22:07:57 jvine Exp $
-  $Date: 2005-02-25 22:07:57 $
+  $Id: functions.jsp,v 1.7 2005-02-25 23:13:06 acohen Exp $
+  $Date: 2005-02-25 23:13:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -60,7 +60,9 @@
      = "PersonView.do?granteeSubjectTypeId="
        + currentGranteePrivilegedSubject.getSubjectTypeId()
        + "&granteeSubjectId="
-       + currentGranteePrivilegedSubject.getSubjectId();
+       + currentGranteePrivilegedSubject.getSubjectId()
+       + "&subsystemId="
+       + currentSubsystem.getId();
 %>
 
     <form name="form1" method="post" action="OrgBrowse.do">
