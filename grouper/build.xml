@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.38 2005-03-17 16:36:36 blair Exp $ -->
+<!-- $Id: build.xml,v 1.39 2005-03-17 19:42:06 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -130,16 +130,14 @@
     </java>
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestNamespaces" />
+      <arg value="test.edu.internet2.middleware.grouper.TestStemsAdd" />
       <classpath refid="project.class.path" />
     </java>
-<!--
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroups" />
+      <arg value="test.edu.internet2.middleware.grouper.TestGroupsAdd" />
       <classpath refid="project.class.path" />
     </java>
--->
 <!--
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">

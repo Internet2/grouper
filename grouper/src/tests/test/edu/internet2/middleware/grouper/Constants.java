@@ -103,5 +103,15 @@ public class Constants {
   public static final String  ns2s  = GrouperGroup.groupName(ns1s, ns1e);
   public static final String  ns2e  = "another stem";
 
+  /*
+   * PUBLIC GROUP CONSTANTS
+   */
+  public static final String  g0s = GrouperGroup.groupName(ns0s, ns0e);
+  public static final String  g0e = "root group";
+  public static final String  g1s = GrouperGroup.groupName(ns1s, ns1e);
+  public static final String  g1e = "a group";
+  public static final String  g2s = GrouperGroup.groupName(ns2s, ns2e);
+  public static final String  g2e = "another group";
+
 }
 

@@ -56,28 +56,9 @@ import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
 
-public class TestGroups extends TestCase {
+public class TestGroupsAdd extends TestCase {
 
-  private String  ns_stem0   = Grouper.NS_ROOT;
-  private String  ns_extn0   = "stem.0";
-  private String  ns_stem00  = "stem.0";
-  private String  ns_extn00  = "stem.0.0";
-
-  private String  stem0   = "stem.0";
-  private String  extn0   = "extn.0";
-  private String  stem1   = "stem.1";
-  private String  extn1   = "extn.1";
-  private String  stem2   = "stem.2";
-  private String  extn2   = "extn.2";
-  private String  stem3   = "stem.0";
-  private String  extn3   = "extn.3";
-  private String  stem4   = "stem.0";
-  private String  extn4   = "extn.4";
-  private String  stem5   = "stem.0";
-  private String  extn5   = "ext:n.5";
-  
-
-  public TestGroups(String name) {
+  public TestGroupsAdd(String name) {
     super(name);
   }
 
@@ -96,475 +77,311 @@ public class TestGroups extends TestCase {
    * TESTS
    */
   
-
-/*
-  // Fetch non-existent groups
-  public void testGroupsExistFalse() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-
-    // Confirm that groups don't exist
-    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNull(g0);
-    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNull(g1);
-    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNull(g2);
-    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
-    Assert.assertNull(g3);
-    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
-    Assert.assertNull(g4);
-
-    // We're done
-    s.stop();
-  }
-
-  public void testCreateG0() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Create g0
-    String stem = stem0;
-    String extn = extn0;
-    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
-    Assert.assertNotNull(ns);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
-    Assert.assertNotNull( ns.type() );
-    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
-    s.stop();
-  }
-
-  public void testCreateG1() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Create g1
-    String stem = stem1;
-    String extn = extn1;
-    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
-    Assert.assertNotNull(ns);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
-    Assert.assertNotNull( ns.type() );
-    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
-    s.stop();
-  }
-
-  public void testCreateG2() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Create g2
-    String stem = stem2;
-    String extn = extn2;
-    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
-    Assert.assertNotNull(ns);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
-    Assert.assertNotNull( ns.type() );
-    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
-    s.stop();
-  }
-
-  public void testCreateG3() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Create g3
-    String stem = stem3;
-    String extn = extn3;
-    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
-    Assert.assertNotNull(ns);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
-    Assert.assertNotNull( ns.type() );
-    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
-    s.stop();
-  }
-
-  public void testCreateG4() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Create g4
-    String stem = stem4;
-    String extn = extn4;
-    GrouperGroup ns = GrouperGroup.create(s, stem, extn);
-    Assert.assertNotNull(ns);
-    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
-    Assert.assertNotNull( ns.type() );
-    Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
-    s.stop();
-  }
-
-  public void testFetchG0() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Fetch g0
-    GrouperGroup g = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
-    Assert.assertNotNull( g.id() );
-    Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute("stem") );
-    Assert.assertTrue( g.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( g.attribute("extension") );
-    Assert.assertTrue( g.attribute("extension").value().equals(extn0) );
-    Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject().getId() );
-    Assert.assertNotNull( g.createTime() );
-    Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject().getId() );
-    Assert.assertNull( g.modifyTime() );
-    s.stop();
-  }
-
-  public void testFetchG1() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Fetch g1
-    GrouperGroup g = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
-    Assert.assertNotNull( g.id() );
-    Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute("stem") );
-    Assert.assertTrue( g.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( g.attribute("extension") );
-    Assert.assertTrue( g.attribute("extension").value().equals(extn1) );
-    Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject().getId() );
-    Assert.assertNotNull( g.createTime() );
-    Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject().getId() );
-    Assert.assertNull( g.modifyTime() );
-    s.stop();
-  }
-
-  public void testFetchG2() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Fetch g2
-    GrouperGroup g = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(g);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
-    Assert.assertNotNull( g.id() );
-    Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute("stem") );
-    Assert.assertTrue( g.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( g.attribute("extension") );
-    Assert.assertTrue( g.attribute("extension").value().equals(extn2) );
-    Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject().getId() );
-    Assert.assertNotNull( g.createTime() );
-    Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject().getId() );
-    Assert.assertNull( g.modifyTime() );
-    s.stop();
-  }
-
-  public void testFetchG3() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Fetch g3
-    GrouperGroup g = GrouperGroup.load(s, stem3, extn3);
-    Assert.assertNotNull(g);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
-    Assert.assertNotNull( g.id() );
-    Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute("stem") );
-    Assert.assertTrue( g.attribute("stem").value().equals(stem3) );
-    Assert.assertNotNull( g.attribute("extension") );
-    Assert.assertTrue( g.attribute("extension").value().equals(extn3) );
-    Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject().getId() );
-    Assert.assertNotNull( g.createTime() );
-    Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject().getId() );
-    Assert.assertNull( g.modifyTime() );
-    s.stop();
-  }
-
-  public void testFetchG4() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Fetch g4
-    GrouperGroup g = GrouperGroup.load(s, stem4, extn4);
-    Assert.assertNotNull(g);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
-    Assert.assertNotNull( g.id() );
-    Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute("stem") );
-    Assert.assertTrue( g.attribute("stem").value().equals(stem4) );
-    Assert.assertNotNull( g.attribute("extension") );
-    Assert.assertTrue( g.attribute("extension").value().equals(extn4) );
-    Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject().getId() );
-    Assert.assertNotNull( g.createTime() );
-    Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject().getId() );
-    Assert.assertNull( g.modifyTime() );
-    s.stop();
-  }
-
-  // Delete a group
-  public void testDeleteGroups0() {
-    Subject subj  = GrouperSubject.load(
-                      Grouper.config("member.system"), 
-                      Grouper.DEF_SUBJ_TYPE
-                    );
+  // Confirm non-existence of group
+  public void testG0DoesNotExist() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
-    // Delete g4
-    GrouperGroup g4 = GrouperGroup.load(s, stem4, extn4);
-    Assert.assertNotNull("g4 loaded, !null", g4);
-    Assert.assertTrue("g4 deleted",  GrouperGroup.delete(s, g4) );
-    // We're done
-    s.stop();
-  }
 
-  // Fetch valid groups
-  public void testFetchGroups1() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-
-    // Fetch the groups
-    // g0
-    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g0.getClass().getName() ) );
-    Assert.assertNotNull( g0.id() );
-    Assert.assertNotNull( g0.type() );
-    Assert.assertNotNull( g0.attribute("stem") );
-    Assert.assertTrue( g0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( g0.attribute("extension") );
-    Assert.assertTrue( g0.attribute("extension").value().equals(extn0) );
-    // g1
-    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g1);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g1.getClass().getName() ) );
-    Assert.assertNotNull( g1.id() );
-    Assert.assertNotNull( g1.type() );
-    Assert.assertNotNull( g1.attribute("stem") );
-    Assert.assertTrue( g1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( g1.attribute("extension") );
-    Assert.assertTrue( g1.attribute("extension").value().equals(extn1) );
-    // g2
-    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(g2);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g2.getClass().getName() ) );
-    Assert.assertNotNull( g2.id() );
-    Assert.assertNotNull( g2.type() );
-    Assert.assertNotNull( g2.attribute("stem") );
-    Assert.assertTrue( g2.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( g2.attribute("extension") );
-    Assert.assertTrue( g2.attribute("extension").value().equals(extn2) );
-    // g3
-    GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
-    Assert.assertNotNull(g3);
-    Assert.assertTrue( Constants.KLASS_GG.equals( g3.getClass().getName() ) );
-    Assert.assertNotNull( g3.id() );
-    Assert.assertNotNull( g3.type() );
-    Assert.assertNotNull( g3.attribute("stem") );
-    Assert.assertTrue( g3.attribute("stem").value().equals(stem3) );
-    Assert.assertNotNull( g3.attribute("extension") );
-    Assert.assertTrue( g3.attribute("extension").value().equals(extn3) );
-    // g4
-    GrouperGroup    g4  = GrouperGroup.load(s, stem4, extn4);
-    Assert.assertNull(g4);
+    // Confirm that g0 doesn't exist
+    GrouperGroup g0 = GrouperGroup.load(
+                        s, Constants.g0s, Constants.g0e
+                      );
+    Assert.assertNull("g0 null", g0);
 
     // We're done
     s.stop();
   }
 
-  public void testCreateG5() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
+  // Group at root-level
+  public void testCreateG0() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
 
-    // Attempt to recreate g0
-    String stem = stem0;
-    String extn = extn0;
-    GrouperGroup g = GrouperGroup.create(s, stem, extn);
-    Assert.assertNull(g);
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+
+    //Create g0
+    GrouperGroup g0 = GrouperGroup.create(
+                        s, Constants.g0s, Constants.g0e
+                      );
+  
+    Assert.assertNotNull("g0 !null", g0);
+    Assert.assertTrue(
+                      "g0 right class", 
+                      Constants.KLASS_GG.equals( g0.getClass().getName() )
+                     );
+    String type = g0.type();
+    Assert.assertNotNull("g0 type !null", type);
+    Assert.assertTrue("g0 type val", type.equals(Grouper.DEF_GROUP_TYPE));
+    String stem = g0.attribute("stem").value();
+    Assert.assertNotNull("g0 stem !null", stem);
+    Assert.assertTrue("g0 stem val", stem.equals(Constants.g0s));
+    String extn = g0.attribute("extension").value();
+    Assert.assertNotNull("g0 extn !null", extn);
+    Assert.assertTrue("g0 extn val", extn.equals(Constants.g0e));
+
     s.stop();
   }
 
-  public void testFetchG5() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
+  // Group at root-level
+  public void testFetchG0() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
 
-    // Attempt to fetch a DEF_GROUP_TYPE group as a NS_TYPE group
-    // g0
-    GrouperGroup g  = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
-    Assert.assertNull("g !null", g);
-    s.stop();
-  }
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create g0
+    GrouperGroup g0 = GrouperGroup.create(
+                        s, Constants.g0s, Constants.g0e
+                      );
 
-  public void testFetchG6() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Attempt to fetch a NS_TYPE type group (explicitly) as a DEF_GROUP_TYPE group
-    // ns0
-    GrouperGroup g  = GrouperGroup.load(s, ns_stem0, ns_extn0, Grouper.DEF_GROUP_TYPE);
-    Assert.assertNull(g);
-    s.stop();
-  }
-
-  public void testFetchG7() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
-    // ns0
-    GrouperGroup g  = GrouperGroup.load(s, ns_stem0, ns_extn0);
-    Assert.assertNull(g);
-    s.stop();
-  }
-
-  public void testFetchG8() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Attempt to fetch a NS_TYPE type group (explicitly) as a DEF_GROUP_TYPE group
-    // ns00
-    GrouperGroup g  = GrouperGroup.load(s, ns_stem00, ns_extn00, Grouper.DEF_GROUP_TYPE);
-    Assert.assertNull(g);
-    s.stop();
-  }
-
-  public void testFetchG9() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Attempt to fetch a NS_TYPE type group (implicitly) as a DEF_GROUP_TYPE group
-    // ns00
-    GrouperGroup g  = GrouperGroup.load(s, ns_stem00, ns_extn00);
-    Assert.assertNull(g);
-    s.stop();
-  }
-
-  public void testCreateG6() {
-    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Attempt to create a group with bad chars in extn
-    String stem = stem5;
-    String extn = extn5;
-    GrouperGroup g = GrouperGroup.create(s, stem, extn);
-    Assert.assertNull(g);
-    s.stop();
-  }
-
-  public void testCreateG7() {
-    //Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    Subject subj = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // Attempt to create a group in a ns where the subject does not
-    // have the STEM priv
-    String stem = Constants.stem6;
-    String extn = Constants.extn6;
-    GrouperGroup g = GrouperGroup.create(s, stem, extn);
-    Assert.assertNull(g);
-    s.stop();
-  }
-
-  public void testFetchG10() {
-    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-    // g0
-    GrouperGroup g  = GrouperGroup.load(s, Constants.stem0, Constants.extn0);
+    // Fetch g0
+    GrouperGroup g = GrouperGroup.load(
+                        s, Constants.g0s, Constants.g0e
+                      );
     Assert.assertNotNull("g0 !null", g);
-    Assert.assertNotNull("g0 name !null", g.name());
-    Assert.assertNotNull("g0 id !null", g.id());
-    Assert.assertNotNull("g0 type !null", g.type());
-    // Refetch by id
-    GrouperGroup g1 = GrouperGroup.loadByID(s, g.id());
-    Assert.assertNotNull(g1);
-    Assert.assertNotNull(g1.name());
-    Assert.assertNotNull(g1.id());
-    Assert.assertNotNull(g1.type());
-    Assert.assertTrue(g.name().equals(g1.name()));
-    Assert.assertTrue(g.id().equals(g1.id()));
-    Assert.assertTrue(g.type().equals(g1.type()));
-    // Refetch by id with type
-    GrouperGroup g2 = GrouperGroup.loadByID(s, g.id(), Grouper.DEF_GROUP_TYPE);
-    Assert.assertNotNull(g2);
-    Assert.assertNotNull(g2.name());
-    Assert.assertNotNull(g2.id());
-    Assert.assertNotNull(g2.type());
-    Assert.assertTrue(g.name().equals(g2.name()));
-    Assert.assertTrue(g.id().equals(g2.id()));
-    Assert.assertTrue(g.type().equals(g2.type()));
-    // Refetch by name
-    GrouperGroup g3 = GrouperGroup.loadByName(s, g.name());
-    Assert.assertNotNull(g3);
-    Assert.assertNotNull(g3.name());
-    Assert.assertNotNull(g3.id());
-    Assert.assertNotNull(g3.type());
-    Assert.assertTrue(g.name().equals(g3.name()));
-    Assert.assertTrue(g.id().equals(g3.id()));
-    Assert.assertTrue(g.type().equals(g3.type()));
-    // Refetch by name with type
-    GrouperGroup g4 = GrouperGroup.loadByName(s, g.name(), Grouper.DEF_GROUP_TYPE);
-    Assert.assertNotNull(g4);
-    Assert.assertNotNull(g4.name());
-    Assert.assertNotNull(g4.id());
-    Assert.assertNotNull(g4.type());
-    Assert.assertTrue(g.name().equals(g4.name()));
-    Assert.assertTrue(g.id().equals(g4.id()));
-    Assert.assertTrue(g.type().equals(g4.type()));
+    Assert.assertTrue(
+                      "g0 right class", 
+                      Constants.KLASS_GG.equals( g.getClass().getName() )
+                     );
+    String type = g.type();
+    Assert.assertNotNull("g0 type !null", type);
+    Assert.assertTrue("g0 type val", type.equals(Grouper.DEF_GROUP_TYPE));
+    String stem = g.attribute("stem").value();
+    Assert.assertNotNull("g0 stem !null", stem);
+    Assert.assertTrue("g0 stem val", stem.equals(Constants.g0s));
+    String extn = g.attribute("extension").value();
+    Assert.assertNotNull("g0 extn !null", extn);
+    Assert.assertTrue("g0 extn val", extn.equals(Constants.g0e));
 
     s.stop();
   }
-*/
+
+  // Confirm non-existence of group
+  public void testG1DoesNotExist() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subj !null", subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
+
+    // Confirm that g1 doesn't exist
+    GrouperGroup g1 = GrouperGroup.load(
+                        s, Constants.g1s, Constants.g1e
+                      );
+    Assert.assertNull("g1 null", g1);
+
+    // We're done
+    s.stop();
+  }
+
+  // Group one level deep
+  public void testCreateG1() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create ns1
+    GrouperGroup ns1 = GrouperGroup.create(
+                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+                       );
+
+    //Create g1
+    GrouperGroup g1 = GrouperGroup.create(
+                        s, Constants.g1s, Constants.g1e
+                      );
+  
+    Assert.assertNotNull("g1 !null", g1);
+    Assert.assertTrue(
+                      "g1 right class", 
+                      Constants.KLASS_GG.equals( g1.getClass().getName() )
+                     );
+    String type = g1.type();
+    Assert.assertNotNull("g1 type !null", type);
+    Assert.assertTrue("g1 type val", type.equals(Grouper.DEF_GROUP_TYPE));
+    String stem = g1.attribute("stem").value();
+    Assert.assertNotNull("g1 stem !null", stem);
+    Assert.assertTrue("g1 stem val", stem.equals(Constants.g1s));
+    String extn = g1.attribute("extension").value();
+    Assert.assertNotNull("g1 extn !null", extn);
+    Assert.assertTrue("g1 extn val", extn.equals(Constants.g1e));
+
+    s.stop();
+  }
+
+  // Group one level deep
+  public void testFetchG1() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create ns1
+    GrouperGroup ns1 = GrouperGroup.create(
+                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+                       );
+    // Create g1
+    GrouperGroup g1 = GrouperGroup.create(
+                        s, Constants.g1s, Constants.g1e
+                      );
+
+    // Fetch g1
+    GrouperGroup g = GrouperGroup.load(
+                        s, Constants.g1s, Constants.g1e
+                      );
+    Assert.assertNotNull("g1 !null", g);
+    Assert.assertTrue(
+                      "g1 right class", 
+                      Constants.KLASS_GG.equals( g.getClass().getName() )
+                     );
+    String type = g.type();
+    Assert.assertNotNull("g1 type !null", type);
+    Assert.assertTrue("g1 type val", type.equals(Grouper.DEF_GROUP_TYPE));
+    String stem = g.attribute("stem").value();
+    Assert.assertNotNull("g1 stem !null", stem);
+    Assert.assertTrue("g1 stem val", stem.equals(Constants.g1s));
+    String extn = g.attribute("extension").value();
+    Assert.assertNotNull("g1 extn !null", extn);
+    Assert.assertTrue("g1 extn val", extn.equals(Constants.g1e));
+
+    s.stop();
+  }
+
+  // Confirm non-existence of group
+  public void testG2DoesNotExist() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Assert.assertNotNull("subj !null", subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
+
+    // Confirm that g2 doesn't exist
+    GrouperGroup g2 = GrouperGroup.load(
+                        s, Constants.g2s, Constants.g2e
+                      );
+    Assert.assertNull("g2 null", g2);
+
+    // We're done
+    s.stop();
+  }
+
+  // Grouper two levels deep with missing parent stem
+  public void testCreateG2WithMissingParentStem() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create ns1
+    GrouperGroup ns1 = GrouperGroup.create(
+                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+                       );
+
+    // Create ns2 as child of ns1
+    GrouperGroup g2 = GrouperGroup.create(
+                         s, Constants.g2s, Constants.g2e
+                       );
+    Assert.assertNull("g2 null", g2);
+
+    s.stop();
+  }
+
+  // Group two levels deep
+  public void testCreateG2() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create ns1
+    GrouperGroup ns1 = GrouperGroup.create(
+                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+                       );
+    // Create ns2
+    GrouperGroup ns2 = GrouperGroup.create(
+                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+                       );
+
+    // Create gw
+    GrouperGroup g2 = GrouperGroup.create(
+                        s, Constants.g2s, Constants.g2e
+                      );
+  
+    Assert.assertNotNull("g2 !null", g2);
+    Assert.assertTrue(
+                      "g2 right class", 
+                      Constants.KLASS_GG.equals( g2.getClass().getName() )
+                     );
+    String type = g2.type();
+    Assert.assertNotNull("g2 type !null", type);
+    Assert.assertTrue("g2 type val", type.equals(Grouper.DEF_GROUP_TYPE));
+    String stem = g2.attribute("stem").value();
+    Assert.assertNotNull("g2 stem !null", stem);
+    Assert.assertTrue("g2 stem val", stem.equals(Constants.g2s));
+    String extn = g2.attribute("extension").value();
+    Assert.assertNotNull("g2 extn !null", extn);
+    Assert.assertTrue("g2 extn val", extn.equals(Constants.g2e));
+
+    s.stop();
+  }
+
+  // Group two levels deep
+  public void testFetchG2() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create ns1
+    GrouperGroup ns1 = GrouperGroup.create(
+                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+                       );
+    // Create ns2
+    GrouperGroup ns2 = GrouperGroup.create(
+                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+                       );
+
+    // Create g2
+    GrouperGroup g2 = GrouperGroup.create(
+                        s, Constants.g2s, Constants.g2e
+                      );
+
+    // Fetch g2
+    GrouperGroup g = GrouperGroup.load(
+                        s, Constants.g2s, Constants.g2e
+                      );
+    Assert.assertNotNull("g2 !null", g);
+    Assert.assertTrue(
+                      "g2 right class", 
+                      Constants.KLASS_GG.equals( g.getClass().getName() )
+                     );
+    String type = g.type();
+    Assert.assertNotNull("g2 type !null", type);
+    Assert.assertTrue("g2 type val", type.equals(Grouper.DEF_GROUP_TYPE));
+    String stem = g.attribute("stem").value();
+    Assert.assertNotNull("g2 stem !null", stem);
+    Assert.assertTrue("g2 stem val", stem.equals(Constants.g2s));
+    String extn = g.attribute("extension").value();
+    Assert.assertNotNull("g2 extn !null", extn);
+    Assert.assertTrue("g2 extn val", extn.equals(Constants.g2e));
+
+    s.stop();
+  }
 
 }
 
