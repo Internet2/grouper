@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.47 2005-03-21 20:41:59 blair Exp $
+ * @version $Id: GrouperList.java,v 1.48 2005-03-21 21:08:33 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -237,10 +237,7 @@ public class GrouperList implements Serializable {
    * @return  List of {@link MemberVia} objects.
    */
   public List chain() {
-    Iterator iter = this.elements.iterator();
-    while (iter.hasNext()) {
-      MemberVia el = (MemberVia) iter.next();
-    }
+    // TODO Lazy load at runtime?
     return this.elements;
   }
 

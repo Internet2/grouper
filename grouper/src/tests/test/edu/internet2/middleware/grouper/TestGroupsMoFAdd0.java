@@ -113,6 +113,11 @@ public class TestGroupsMoFAdd0 extends TestCase {
     Assert.assertTrue(
       "eff members == 0", g0.listEffVals("members").size() == 0
     );
+    Iterator iter0I = g0.listImmVals("members").iterator();
+    while (iter0I.hasNext()) {
+      GrouperList lv = (GrouperList) iter0I.next();
+      Assert.assertTrue("empty chain", lv.chain().size() == 0);
+    }
 
     s.stop();
   }

@@ -132,6 +132,16 @@ public class TestGroupsMoFAdd10 extends TestCase {
     Assert.assertTrue(
       "gA eff members == 3", gA.listEffVals("members").size() == 3
     );
+    Iterator iterAI = gA.listImmVals("members").iterator();
+    while (iterAI.hasNext()) {
+      GrouperList lv = (GrouperList) iterAI.next();
+      Assert.assertTrue("gA empty chain", lv.chain().size() == 0);
+    }
+    Iterator iterAE = gA.listEffVals("members").iterator();
+    while (iterAE.hasNext()) {
+      GrouperList lv = (GrouperList) iterAE.next();
+      Assert.assertTrue("gA !empty chain", lv.chain().size() > 0);
+    }
 
     // Now inspect gB's, resulting list values
     Assert.assertTrue(
@@ -143,6 +153,16 @@ public class TestGroupsMoFAdd10 extends TestCase {
     Assert.assertTrue(
       "gB eff members == 5", gB.listEffVals("members").size() == 5
     );
+    Iterator iterBI = gB.listImmVals("members").iterator();
+    while (iterBI.hasNext()) {
+      GrouperList lv = (GrouperList) iterBI.next();
+      Assert.assertTrue("gB empty chain", lv.chain().size() == 0);
+    }
+    Iterator iterBE = gB.listEffVals("members").iterator();
+    while (iterBE.hasNext()) {
+      GrouperList lv = (GrouperList) iterBE.next();
+      Assert.assertTrue("gB !empty chain", lv.chain().size() > 0);
+    }
 
     // Now inspect gC's, resulting list values
     Assert.assertTrue(
@@ -154,6 +174,16 @@ public class TestGroupsMoFAdd10 extends TestCase {
     Assert.assertTrue(
       "gC eff members == 6", gC.listEffVals("members").size() == 6
     );
+    Iterator iterCI = gC.listImmVals("members").iterator();
+    while (iterCI.hasNext()) {
+      GrouperList lv = (GrouperList) iterCI.next();
+      Assert.assertTrue("gC empty chain", lv.chain().size() == 0);
+    }
+    Iterator iterCE = gC.listEffVals("members").iterator();
+    while (iterCE.hasNext()) {
+      GrouperList lv = (GrouperList) iterCE.next();
+      Assert.assertTrue("gC !empty chain", lv.chain().size() > 0);
+    }
 
     s.stop();
   }
