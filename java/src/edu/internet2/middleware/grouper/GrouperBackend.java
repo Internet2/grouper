@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.119 2004-12-06 02:10:28 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.120 2004-12-06 02:25:26 blair Exp $
  */
 public class GrouperBackend {
 
@@ -123,7 +123,7 @@ public class GrouperBackend {
       if (extn.indexOf(delim) != -1) {
         // FIXME Throw an exception?  And then test for failure?
         //       Or settle for ye olde null
-        Grouper.LOGGER.warn(
+        Grouper.LOGGER.info(
           "Extension `" + extn + "' contains delimiter `" + delim + "'"
         );
         name = null;
@@ -339,12 +339,12 @@ public class GrouperBackend {
     List memberOf = asMem.listVals(s);
     if ( (members.size() != 0) || (memberOf.size() != 0) ) {
       if (members.size() != 0) {
-        Grouper.LOGGER.warn(
+        Grouper.LOGGER.info(
           "ERROR: Unable to delete group as it still has members"
         );
       }
       if (memberOf.size() != 0) {
-        Grouper.LOGGER.warn(
+        Grouper.LOGGER.info(
           "ERROR: Unable to delete group as it is a member of other groups"
         );
       }

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.129 2004-12-06 02:10:28 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.130 2004-12-06 02:25:26 blair Exp $
  */
 public class GrouperGroup {
 
@@ -243,7 +243,7 @@ public class GrouperGroup {
            )
          ) 
       {
-        Grouper.LOGGER.warn(
+        Grouper.LOGGER.info(
           "ERROR: `" + attribute + "' modification is not currently supported!"
         );
       } else {
@@ -741,7 +741,7 @@ public class GrouperGroup {
          * TODO Group already exists.  Ideally we'd throw an exception or
          *      something, but, for now...
          */
-        Grouper.LOGGER.warn(
+        Grouper.LOGGER.info(
                             "Cannot create `" +
                             GrouperBackend.groupName(stem, extn) +
                             "' (" + type + ") as it already exists."
