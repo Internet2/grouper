@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.109 2004-12-03 20:55:18 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.110 2004-12-03 20:58:22 blair Exp $
  */
 public class GrouperGroup {
 
@@ -214,35 +214,6 @@ public class GrouperGroup {
     return (GrouperAttribute) attributes.get(attribute);
   }
 
-  // TODO
-  public String createSource() {
-    return this.getCreateSource();
-  }
-  // TODO
-  public String createSubject() {
-    // TODO Return `Subject' object?
-    return this.getCreateSubject();
-  }
-  // TODO
-  public String createTime() {
-    // TODO Return date object?
-    return this.getCreateTime();
-  }
-  // TODO
-  public String modifySource() {
-    return this.getModifySource();
-  }
-  // TODO
-  public String modifySubject() {
-    // TODO Return `Subject' object?
-    return this.getModifySubject();
-  }
-  // TODO
-  public String modifyTime() {
-    // TODO Return date object?
-    return this.getModifyTime();
-  }
-
   /**
    * Set a group attribute.
    * 
@@ -307,6 +278,21 @@ public class GrouperGroup {
    */
   public Map attributes() {
     return this.attributes;
+  }
+
+  // TODO
+  public String createSource() {
+    return this.getCreateSource();
+  }
+  // TODO
+  public String createSubject() {
+    // TODO Return `Subject' object?
+    return this.getCreateSubject();
+  }
+  // TODO
+  public String createTime() {
+    // TODO Return date object?
+    return this.getCreateTime();
   }
 
   /**
@@ -463,6 +449,21 @@ public class GrouperGroup {
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
     return this._listDelVal(s, m, list);
+  }
+
+  // TODO
+  public String modifySource() {
+    return this.getModifySource();
+  }
+  // TODO
+  public String modifySubject() {
+    // TODO Return `Subject' object?
+    return this.getModifySubject();
+  }
+  // TODO
+  public String modifyTime() {
+    // TODO Return date object?
+    return this.getModifyTime();
   }
 
   /**
