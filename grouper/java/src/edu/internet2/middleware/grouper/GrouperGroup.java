@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.105 2004-12-02 20:01:48 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.106 2004-12-03 03:46:40 blair Exp $
  */
 public class GrouperGroup {
 
@@ -159,19 +159,23 @@ public class GrouperGroup {
    * @param   extension   Extension of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup load(
-                                  GrouperSession s, 
-                                  String stem, String extension
-                                 )
+  public static GrouperGroup lookup(
+                                    GrouperSession s, 
+                                    String stem, String extension
+                                   )
   {
-    return GrouperGroup._load(s, stem, extension, Grouper.DEF_GROUP_TYPE);
+    return GrouperGroup._lookup(s, stem, extension, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
    * TODO
    */
-  protected static GrouperGroup loadByKey(GrouperSession s, String key, String type) {
-    return GrouperGroup._loadByKey(s, key, type);
+  protected static GrouperGroup lookupByKey(
+                                            GrouperSession s, String key, 
+                                            String type
+                                           ) 
+  {
+    return GrouperGroup._lookupByKey(s, key, type);
   }
 
   /**
@@ -184,12 +188,12 @@ public class GrouperGroup {
    * @param   type        Type of group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup load(
-                                  GrouperSession s, String stem, 
-                                  String extension, String type
-                                 )
+  public static GrouperGroup lookup(
+                                    GrouperSession s, String stem, 
+                                    String extension, String type
+                                   )
   {
-    return GrouperGroup._load(s, stem, extension, type);
+    return GrouperGroup._lookup(s, stem, extension, type);
   }
 
 
@@ -483,8 +487,12 @@ public class GrouperGroup {
   /*
    * Retrieve a group from the groups registry
    */
-  private static GrouperGroup _loadByKey(GrouperSession s, String key, String type) {
-    GrouperGroup g = GrouperBackend.groupLoadByKey(key);
+  private static GrouperGroup _lookupByKey(
+                                           GrouperSession s, String key, 
+                                           String type
+                                          ) 
+  {
+    GrouperGroup g = GrouperBackend.groupLookupByKey(key);
     if (g != null) {
       // Attach session
       g.grprSession = s;
@@ -495,12 +503,12 @@ public class GrouperGroup {
     return g;
   }
 
-  private static GrouperGroup _load(
-                                    GrouperSession s, String stem, 
-                                    String extension, String type
-                                   )
+  private static GrouperGroup _lookup(
+                                      GrouperSession s, String stem, 
+                                      String extension, String type
+                                     )
   {
-    GrouperGroup g = GrouperBackend.groupLoad(s, stem, extension, type);
+    GrouperGroup g = GrouperBackend.groupLookup(s, stem, extension, type);
     if (g != null) {
       // Attach session
       g.grprSession = s;
