@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.192 2005-03-25 16:04:55 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.193 2005-03-25 16:59:30 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -254,6 +254,33 @@ public class GrouperGroup extends Group {
 
 
   /*
+   * PROTECTED CLASS METHODS
+   */
+
+  /**
+   * Check for group existence.
+   * <p />
+   * @param s     Act within this session.
+   * @param stem  Group stem.
+   * @param extn  Group extension.
+   * @param type  Group type.
+   * @return true if group exists.
+   */
+  protected static boolean exists(
+                             GrouperSession s, String stem, 
+                             String extn, String type
+                           )
+  {
+    boolean rv = false;
+    String key = Group.findKey(s, stem, extn, type);
+    if (key != null) {
+      rv = true;
+    }
+    return rv;
+  }
+
+
+  /*
    * PROTECTED INSTANCE METHODS
    */
 
@@ -317,88 +344,6 @@ public class GrouperGroup extends Group {
    * ALLES IST GEFUCKT
    */
 
-  /** 
-   * Delete a group.
-   * <p />
-   * @param   s   Session to delete the group within.
-   * @param   g   Group to delete.
-   * @return  True if the group was deleted.
-   */
-  public static boolean delete(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    if (g._canDelete()) {
-      s.dbSess().txStart();
-      try {
-        // Revoke access privileges
-        if (g._privAccessRevokeAll()) {
-          // Revoke naming privileges
-          if (g._privNamingRevokeAll()) {
-            // Delete attributes
-            if (g._deleteAttributes()) {
-              // Delete schema
-              GrouperSchema.delete(s, g);
-              // Delete group
-              s.dbSess().session().delete(g);
-              rv = true;
-            }
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException("Error deleting group: " + e);
-      }
-    }
-    if (rv) {
-      s.dbSess().txCommit();
-    } else {
-      s.dbSess().txRollback();
-    }
-    Grouper.log().groupDel(rv, s, g);
-    return rv;
-  }
-
-  /**
-   * Check for group existence.
-   * <p />
-   * @param s     Act within this session.
-   * @param stem  Group stem.
-   * @param extn  Group extension.
-   * @param type  Group type.
-   * @return true if group exists.
-   */
-  public static boolean exists(
-                          GrouperSession s, String stem, 
-                          String extn, String type
-                        )
-  {
-    boolean rv = false;
-    String key = Group.findKey(s, stem, extn, type);
-    if (key != null) {
-      rv = true;
-    }
-    return rv;
-  }
-
-
-  /* 
-   * Delete all attributes attached to a group
-   */
-  private boolean _deleteAttributes() {
-    boolean rv = false;
-    // TODO 
-    Iterator iter = GrouperGroup._attributes(this.s, this).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      try {
-        GrouperAttribute.delete(this.s, attr);
-        rv = true;
-      } catch (RuntimeException e) {
-        // TODO Less than ideal
-        rv = false;
-        break;
-      }
-    }
-    return rv;
-  }
 
   /*
    * @return List of a group's attributes
@@ -435,48 +380,6 @@ public class GrouperGroup extends Group {
       GrouperAttribute attr = (GrouperAttribute) iter.next();
       g.attribute( attr.field(), attr );
     }
-  }
-
-  /* 
-   * Revoke all access privs attached to a group
-   */
-  private boolean _privAccessRevokeAll() {
-    boolean rv = false;
-    /* 
-     * TODO This could be prettier, especially if/when there are custom
-     *      privs
-     */
-    if (
-        this.s.access().revoke(this.s, this, Grouper.PRIV_OPTIN)   &&
-        this.s.access().revoke(this.s, this, Grouper.PRIV_OPTOUT)  &&
-        this.s.access().revoke(this.s, this, Grouper.PRIV_VIEW)    &&
-        this.s.access().revoke(this.s, this, Grouper.PRIV_READ)    &&
-        this.s.access().revoke(this.s, this, Grouper.PRIV_UPDATE)  &&
-        this.s.access().revoke(this.s, this, Grouper.PRIV_ADMIN)
-       )
-    {
-      rv = true;
-    }
-    return rv;
-  }
-
-  /* 
-   * Revoke all naming privs attached to a group
-   */
-  protected boolean _privNamingRevokeAll() {
-    boolean rv = false;
-    // Revoke all privileges
-/* BDC
-    // FIXME This is ugly 
-    if (
-        this.s.naming().revoke(this.s, this, Grouper.PRIV_STEM)    &&
-        this.s.naming().revoke(this.s, this, Grouper.PRIV_CREATE) 
-       )
-    {       
-      rv = true;
-    }
-*/
-    return rv;
   }
 
   /**
@@ -900,39 +803,6 @@ public class GrouperGroup extends Group {
     return this.getGroupKey();
   }
 
-
-  /* 
-   * Does the current subject have permission to delete the group?
-   */
-  private boolean _canDelete() {
-    boolean rv = false;
-    // FIXME Support for multiple list types
-    if ( (this != null) && (this.s != null) ) {
-      if (this.s.access().has(this.s, this, Grouper.PRIV_ADMIN)) {
-        rv = true;
-        // Convert the group to member to see if it has any mships
-        GrouperMember m = this.toMember();
-        List valsG = this.listVals(Grouper.DEF_LIST_TYPE);
-        List valsM = m.listVals(Grouper.DEF_LIST_TYPE);
-        if ( (valsG.size() != 0) || (valsM.size() != 0) ) {
-          // TODO Throw exception!
-          if (valsG.size() != 0) {
-            Grouper.log().event(
-              "ERROR: Unable to delete group as it still has members"
-            );
-          }
-          if (valsM.size() != 0) {
-            Grouper.log().event(
-              "ERROR: Unable to delete group as it is a member of other groups"
-            );
-          }
-        } else {
-          rv = true;
-        }
-      }
-    }
-    return rv;
-  }
 
   /* (!javadoc)
    * Does the current subject have permission to modify attrs on the

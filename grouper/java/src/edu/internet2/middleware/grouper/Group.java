@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.7 2005-03-25 16:04:55 blair Exp $
+ * @version $Id: Group.java,v 1.8 2005-03-25 16:59:30 blair Exp $
  */
 abstract class Group {
 
@@ -162,6 +162,26 @@ abstract class Group {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  /**
+   * Delete a group.
+   * <p />
+   * @param s   Delete group within this session.
+   * @param ns  Delete this group.
+   */
+  public static void delete(GrouperSession s, GrouperGroup g) {
+    Group.delete(s, (Group) g);
+  }
+
+  /**
+   * Delete a stem.
+   * <p />
+   * @param s   Delete namespace within this session.
+   * @param ns  Delete this namespace.
+   */
+  public static void delete(GrouperSession s, GrouperStem ns) {
+    Group.delete(s, (Group) ns);
+  }
 
   /*
    * Find and return the group key for (stem, extn, type).
@@ -375,6 +395,25 @@ abstract class Group {
    */
 
   /*
+   * Delete a group.
+   */
+  private static void delete(GrouperSession s, Group g) {
+    Group.subjectCanDelete(s, (Group) g);
+    try {
+      s.dbSess().txStart();
+      g.revokeAllAccessPrivs(s);
+      g.revokeAllNamingPrivs(s);
+      GrouperAttribute.delete(s, g);
+      GrouperSchema.delete(s, g);
+      s.dbSess().session().delete(g);
+      s.dbSess().txCommit();
+    } catch (HibernateException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error deleting group: " + e);
+    }
+  }
+
+  /*
    * Find and return the group key for (id).
    */
   private static String findKeyByID(GrouperSession s, String id) {
@@ -457,6 +496,43 @@ abstract class Group {
                 );
     }
     return vals;
+  }
+
+  /* 
+   * Revoke all access privs attached to a group
+   */
+  private void revokeAllAccessPrivs(GrouperSession s) {
+    /* 
+     * TODO This could be prettier, especially if/when there are custom
+     *      privs
+     */
+    if (!(
+          s.access().revoke(s, this, Grouper.PRIV_OPTIN)   &&
+          s.access().revoke(s, this, Grouper.PRIV_OPTOUT)  &&
+          s.access().revoke(s, this, Grouper.PRIV_VIEW)    &&
+          s.access().revoke(s, this, Grouper.PRIV_READ)    &&
+          s.access().revoke(s, this, Grouper.PRIV_UPDATE)  &&
+          s.access().revoke(s, this, Grouper.PRIV_ADMIN)
+       ))
+    {
+      throw new RuntimeException("Error revoking access privileges");
+    }
+  }
+
+  /* 
+   * Revoke all naming privs attached to a group
+   */
+  private void revokeAllNamingPrivs(GrouperSession s) {
+    // FIXME This is ugly 
+    if (this.type().equals(Grouper.NS_TYPE)) {
+      if (!(
+            s.naming().revoke(s, (GrouperStem) this, Grouper.PRIV_STEM)    &&
+            s.naming().revoke(s, (GrouperStem) this, Grouper.PRIV_CREATE) 
+         ))
+      {       
+        throw new RuntimeException("Error revoking naming privileges");
+      }
+    }
   }
 
 }
