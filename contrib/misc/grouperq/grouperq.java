@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.11 2004-12-08 05:28:14 blair Exp $
+ * @version $Id: grouperq.java,v 1.12 2004-12-09 04:57:05 blair Exp $
  */
 class grouperq {
 
@@ -283,6 +283,32 @@ class grouperq {
       System.out.println("stem: " + g.attribute(s, "stem").value());
       System.out.println("extn: " + g.attribute(s, "extension").value());
       System.out.println("groupID: " + g.id());
+      Subject createSubj  = g.createSubject();
+      Date   createDate   = g.createTime();
+      if ( (createSubj != null) && (createDate != null) ) {
+        System.out.println("createSubjectID: " + createSubj.getId());
+        System.out.println(
+          "createSubjectTypeID: " + 
+          createSubj.getSubjectType().getId()
+        );
+        System.out.println(
+          "createTime: " + Long.toString(createDate.getTime())
+        );
+        System.out.println("createTimePretty: " + createDate);
+      };
+      Subject modifySubj  = g.modifySubject();
+      Date   modifyDate   = g.modifyTime();
+      if ( (modifySubj != null) && (modifyDate != null) ) {
+        System.out.println("modifySubjectID: " + modifySubj.getId());
+        System.out.println(
+          "modifySubjectTypeID: " + 
+          modifySubj.getSubjectType().getId()
+        );
+        System.out.println(
+          "modifyTime: " + Long.toString(modifyDate.getTime())
+        );
+        System.out.println("modifyTimePretty: " + modifyDate);
+      };
       Iterator iter = vals.iterator();
       while (iter.hasNext()) {
         GrouperList gl  = (GrouperList) iter.next();
