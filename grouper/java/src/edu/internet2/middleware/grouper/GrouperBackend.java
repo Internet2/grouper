@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.179 2005-03-22 16:50:03 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.180 2005-03-22 17:08:58 blair Exp $
  */
 public class GrouperBackend {
 
@@ -253,11 +253,15 @@ public class GrouperBackend {
       GrouperAttribute attr = (GrouperAttribute) g.attribute(
                                                    (String) iter.next() 
                                                  );
-      // TODO Error checking, anyone? 
-      GrouperBackend.attrAdd(
-                              s, g.key(), attr.field(), attr.value()
-                             );
-      rv = true; // FIXME This *cannot* be correct
+      try {
+        GrouperAttribute.save(
+          s, new GrouperAttribute(g.key(), attr.field(), attr.value())
+        );
+      } catch (RuntimeException e) {
+        rv = false;
+        break;
+      }
+      rv = true; 
     }
     return rv;
   }
@@ -1369,63 +1373,6 @@ public class GrouperBackend {
   /*
    * PRIVATE CLASS METHODS
    */
-
-  /*
-   * Hibernate an attribute
-   */
-  protected static GrouperAttribute attrAdd(
-                                    GrouperSession s, String key,
-                                    String  field,   String value
-                                  )
-  {
-    GrouperAttribute  attr  = null;
-    String            qry   = "GrouperAttribute.by.key.and.value";
-    List              vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, key);
-      q.setString(1, field);
-      try {
-        vals = q.list();
-        if (vals.size() == 0) {
-          // We've got a new one.  Store it.
-          try {
-            attr = new GrouperAttribute(key, field, value);
-            s.dbSess().session().save(attr);   
-          } catch (HibernateException e) {
-            throw new RuntimeException(
-                        "Error saving attribute '" + field +
-                        "'='" + value + "': " + e
-                      );
-          }
-        } else if (vals.size() == 1) {
-          // Attribute already exists.  Check to see if the value has
-          // changed.
-          attr = (GrouperAttribute) vals.get(0); 
-          if (!attr.value().equals(value)) {
-            try {
-              attr = new GrouperAttribute(key, field, value);
-              s.dbSess().session().update(attr);
-            } catch (HibernateException e) {
-              throw new RuntimeException(
-                          "Error updating attribute '" + field +
-                          "'='" + value + "': " + e
-                        );
-            }
-          }
-        } 
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return attr;
-  }
 
   protected static boolean attrDel(
                            GrouperSession s, String key, String field
