@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.8 2005-03-25 16:59:30 blair Exp $
+ * @version $Id: Group.java,v 1.9 2005-03-25 17:17:43 blair Exp $
  */
 abstract class Group {
 
@@ -364,6 +364,21 @@ abstract class Group {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Add immediate and effective list values.
+   */
+  protected void listAddVal(GrouperSession s, GrouperList gl) {
+    // Find the list values that we will need to add
+    MemberOf mof  = new MemberOf(s);
+    Iterator iter = mof.memberOf(gl).iterator();
+    // Now add the list values
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+      lv.load(s);
+      GrouperList.save(s, lv);
+    }
+  }
 
   /*
    * Retrieve list values from specified list.

@@ -83,8 +83,8 @@ public class TestGroupsAttrs extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0  = GrouperGroup.create(
@@ -130,8 +130,8 @@ public class TestGroupsAttrs extends TestCase {
     Assert.assertNotNull("createSubject null", g.createSubject());
     Assert.assertNotNull("createTime null", g.createTime());
     Assert.assertNull("modifySource null", g.modifySource());
-    // FIXME Assert.assertNull("modifySubject null", g.modifySubject());
-    // FIXME Assert.assertNull("modifyTime null", g.modifyTime());
+    Assert.assertNull("modifySubject null", g.modifySubject());
+    Assert.assertNull("modifyTime null", g.modifyTime());
 
     s.stop();
   }
