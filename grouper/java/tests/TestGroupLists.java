@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.6 2004-11-16 02:16:06 blair Exp $
+ * $Id: TestGroupLists.java,v 1.7 2004-11-16 17:59:58 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -97,7 +97,6 @@ public class TestGroupLists extends TestCase {
 
   // TODO Add list data (plural)
   // TODO Add duplicate list data (plural)
-
   public void testFetchValidListDataForGroup() {
     Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
@@ -138,7 +137,6 @@ public class TestGroupLists extends TestCase {
     // We're done
     s.stop(); 
   }
-
 
   // Remove valid list data from a group
   public void testRemoveValidListDataFromGroup() {
@@ -234,7 +232,6 @@ public class TestGroupLists extends TestCase {
   }
 
   // TODO Invalid group 
-
   // Add group as immediate member
   public void testAddGroupAsImmediateMember() {
     Grouper         G     = new Grouper();
@@ -308,6 +305,22 @@ public class TestGroupLists extends TestCase {
     Assert.assertTrue( grp1.listAddVal(s, m2, "members") );
     // We're done
     s.stop();
+  }
+
+  public void testFetchValidEffectiveAndImmediateMembers() {
+    Grouper         G       = new Grouper();
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch a group
+    GrouperGroup    grp     = GrouperGroup.load(s, stem, desc);
+    Assert.assertTrue( grp.exists() );
+    // Fetch list data of type "members"
+    List members = grp.listVals(s, "members");
+    Assert.assertNotNull(members);
+    // TODO Assert.assertTrue(members.size() == 2);
+    // We're done
+    s.stop(); 
   }
 
   // TODO Test setting|fetching of effective memberships
