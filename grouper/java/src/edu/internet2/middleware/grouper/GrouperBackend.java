@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.120 2004-12-06 02:25:26 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.121 2004-12-06 19:31:40 blair Exp $
  */
 public class GrouperBackend {
 
@@ -449,17 +449,22 @@ public class GrouperBackend {
     // TODO Verify that key != null
     try {
       // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction();
+      Transaction tx = session.beginTransaction(); // FIXME Needed?
       session.load(g, key);
   
       // Its schema
-      if ( GrouperBackend._groupHasSchema(session, g) == true ) {
+      // FIXME Rename attach GB._groupHasSchema
+      GrouperSchema schema = GrouperBackend._groupHasSchema(session, g);
+      if (schema != null) {
         // And its attributes
+        // FIXME Is this method stlll needed?
         GrouperBackend._groupAttachAttrs(session, g, key);
-
+        g.type( schema.type() );
+        // g = GrouperGroup.loadByKey(g.key(), schema.type());
+        
         // FIXME Attach s to object?
 
-        tx.commit();
+        tx.commit(); // FIXME Needed?
       } else {
         System.err.println("Unable to load group schema");
         System.exit(1);
@@ -997,6 +1002,82 @@ public class GrouperBackend {
   }
 
   /**
+   * Query for groups created after the specified time.
+   * <p />
+   *
+   * @param   d   A {@link java.util.Date} object.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  protected static List groupCreatedAfter(java.util.Date d) {
+    Session   session = GrouperBackend._init();
+    List      vals    = new ArrayList();
+    Iterator  iter    = GrouperBackend._queryKVGT(
+                          session, "GrouperGroup",
+                          "createTime", Long.toString(d.getTime())
+                        ).iterator();
+    vals = GrouperBackend._iterGroup(iter);
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
+   * Query for groups created before the specified time.
+   * <p />
+   *
+   * @param   d   A {@link java.util.Date} object.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  protected static List groupCreatedBefore(java.util.Date d) {
+    Session   session = GrouperBackend._init();
+    List      vals    = new ArrayList();
+    Iterator  iter    = GrouperBackend._queryKVLT(
+                          session, "GrouperGroup",
+                          "createTime", Long.toString(d.getTime())
+                        ).iterator();
+    vals = GrouperBackend._iterGroup(iter);
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
+   * Query for groups modified after the specified time.
+   * <p />
+   *
+   * @param   d   A {@link java.util.Date} object.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  protected static List groupModifiedAfter(java.util.Date d) {
+    Session   session = GrouperBackend._init();
+    List      vals    = new ArrayList();
+    Iterator  iter    = GrouperBackend._queryKVGT(
+                          session, "GrouperGroup",
+                          "modifyTime", Long.toString(d.getTime())
+                        ).iterator();
+    vals = GrouperBackend._iterGroup(iter);
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
+   * Query for groups modified before the specified time.
+   * <p />
+   *
+   * @param   d   A {@link java.util.Date} object.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  protected static List groupModifiedBefore(java.util.Date d) {
+    Session   session = GrouperBackend._init();
+    List      vals    = new ArrayList();
+    Iterator  iter    = GrouperBackend._queryKVLT(
+                          session, "GrouperGroup",
+                          "modifyTime", Long.toString(d.getTime())
+                        ).iterator();
+    vals = GrouperBackend._iterGroup(iter);
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
    * Retrieve all valid {@link GrouperGroup} types.
    * <p />
    *
@@ -1395,17 +1476,17 @@ public class GrouperBackend {
    *      *Then* this method might have some value.  Right now I'm
    *      dubious.
    */
-  private static boolean _groupHasSchema(Session session, GrouperGroup g) {
-    boolean rv    = false;
+  private static GrouperSchema _groupHasSchema(Session session, GrouperGroup g) {
+    GrouperSchema schema = null;
     List    vals  = GrouperBackend._queryKV(
                       session, "GrouperSchema", "groupKey", g.key()
                     );
     // We only want one
     // TODO Attach this to the group object.
     if (vals.size() == 1) {
-      rv = true;
+      schema = (GrouperSchema) vals.get(0);
     }
-    return rv;
+    return schema;
   }
 
   // FIXME Refactor.  Mercilesssly.
@@ -1545,6 +1626,24 @@ public class GrouperBackend {
       System.exit(1);
     }
     return null;
+  }
+
+  /* (!javadoc)
+   * Iterate through a list and fully load {@link GrouperGroup}
+   * objects.
+   */
+  private static List _iterGroup(Iterator iter) {
+    List vals = new ArrayList();
+    while (iter.hasNext()) {
+      GrouperGroup g = (GrouperGroup) iter.next();
+      if (g != null) {
+        g = GrouperBackend.groupLoadByKey(g.key());
+        if (g != null) {
+          vals.add(g);
+        }
+      }  
+    }
+    return vals;
   }
 
   private static GrouperList _listVal(
@@ -1910,6 +2009,32 @@ public class GrouperBackend {
     return vals;
   }
 
+  /* (!javadoc)
+   * Query for values greater than the specified value.
+   */
+  private static List _queryKVGT(
+                        Session session, String klass, 
+                        String  key,     String time
+                      )
+  {
+    List vals = new ArrayList();
+    try {
+      Query q = session.createQuery(
+        "FROM " + klass + " WHERE "           +
+        key     + " > " + time
+      );
+      GrouperBackend.LOGGER_Q.debug(
+                                    "_queryKVGT() " + 
+                                    q.getQueryString()
+                                   );
+      vals = q.list();
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return vals;
+  }
+
   /*
    * Return all items matching two key=value specifications.
    */
@@ -1928,6 +2053,32 @@ public class GrouperBackend {
       );
       GrouperBackend.LOGGER_Q.debug(
                                     "_queryKVKV() " + 
+                                    q.getQueryString()
+                                   );
+      vals = q.list();
+    } catch (HibernateException e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return vals;
+  }
+
+  /* (!javadoc)
+   * Query for values less than the specified value.
+   */
+  private static List _queryKVLT(
+                        Session session, String klass, 
+                        String  key,     String time
+                      )
+  {
+    List vals = new ArrayList();
+    try {
+      Query q = session.createQuery(
+        "FROM " + klass + " WHERE "           +
+        key     + " < " + time
+      );
+      GrouperBackend.LOGGER_Q.debug(
+                                    "_queryKVLT() " + 
                                     q.getQueryString()
                                    );
       vals = q.list();
