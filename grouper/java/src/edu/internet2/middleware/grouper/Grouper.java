@@ -10,7 +10,7 @@ import  net.sf.hibernate.*;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.20 2004-08-03 01:31:21 blair Exp $
+ * @version $Id: Grouper.java,v 1.21 2004-08-03 02:17:13 blair Exp $
  */
 public class Grouper {
 
@@ -192,7 +192,7 @@ public class Grouper {
    *
    * @return  TODO
    */
-  public GrouperTypeDefs getTypeDef() {
+  public GrouperTypeDefs getGroupTypeDefs() {
     return groupTypeDefs;
   }
 
