@@ -60,20 +60,9 @@ import  java.util.*;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.24 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.25 2004-11-30 02:40:55 blair Exp $
  */
 public class GrouperSubject {
-
-  /* 
-   * CONSTRUCTORS
-   */
-  /**
-   * TODO Am I even needed?
-   */
-  public GrouperSubject() {
-    super();
-  }
-    
 
   /*
    * PUBLIC CLASS METHODS 

@@ -59,7 +59,7 @@ import  edu.internet2.middleware.subject.*;
  * for type "person".
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.9 2004-11-30 00:59:17 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.10 2004-11-30 02:40:55 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter
@@ -70,7 +70,7 @@ public class  SubjectTypeAdapterPersonImpl
    * CONSTRUCTORS
    */
   public SubjectTypeAdapterPersonImpl() {
-    super();
+    // Nothing -- Yet
   }
  
  
