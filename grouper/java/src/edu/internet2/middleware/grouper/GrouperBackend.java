@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.153 2005-03-04 14:23:41 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.154 2005-03-04 19:40:15 blair Exp $
  */
 public class GrouperBackend {
 
@@ -109,15 +109,14 @@ public class GrouperBackend {
   protected static boolean groupAdd(GrouperSession s, GrouperGroup g) {
     boolean rv      = false;
     if (_validateGroupAdd(s, g)) {
-      Session session = GrouperBackend._init();
       try {
-        Transaction t = session.beginTransaction();
+        Transaction t = s.dbSess().session().beginTransaction();
         // The Group object
-        session.save(g);
+        s.dbSess().session().save(g);
         // Add schema
-        if (_schemaAdd(session, g)) {
+        if (_schemaAdd(s, g)) {
           // Add attributes
-          if (_attributesAdd(s, session, g)) {
+          if (_attributesAdd(s, g)) {
             /*
              * FIXME
              *
@@ -132,9 +131,11 @@ public class GrouperBackend {
              * fails even more interesting.
              *
              * And, *yes*, this is a bug.
+             *
+             * Why don't I do this outside of GB and within GG itself?
              */
             t.commit();
-            if (_privGrantUponCreate(s, session, g)) {
+            if (_privGrantUponCreate(s, g)) {
               rv = true;
             } else {
               // FIXME We need to rollback *everything - but we can't
@@ -145,8 +146,6 @@ public class GrouperBackend {
         // TODO We probably need a rollback in here in case of failure
         //      above.
         throw new RuntimeException(e);
-      } finally {
-        GrouperBackend._hibernateSessionClose(session);
       }
     } else { 
       Grouper.log().event("Unable to add group " + g.name());
@@ -287,20 +286,16 @@ public class GrouperBackend {
   /* !javadoc
    * Attach attributes to a group
    */
-  private static boolean _attributesAdd(
-                           GrouperSession s, Session session, GrouperGroup g
-                         ) 
-  {
+  private static boolean _attributesAdd(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     Iterator iter = g.attributes().keySet().iterator();
     while (iter.hasNext()) {
-      // GrouperAttribute attr = (GrouperAttribute) g.attributes().get( iter.next() );
       GrouperAttribute attr = (GrouperAttribute) g.attribute(
                                                    s, (String) iter.next() 
                                                  );
       // TODO Error checking, anyone? 
       GrouperBackend._attrAdd(
-                              session, g.key(), 
+                              s.dbSess().session(), g.key(),
                               attr.field(), attr.value()
                              );
       rv = true; // FIXME This *cannot* be correct
@@ -562,8 +557,7 @@ public class GrouperBackend {
    * Grant appropriate privilege to gropu|stem creator upon creation
    */
   private static boolean _privGrantUponCreate(
-                           GrouperSession s, Session session,
-                           GrouperGroup g
+                           GrouperSession s, GrouperGroup g
                          )
   {
     boolean rv = false;
@@ -619,12 +613,12 @@ public class GrouperBackend {
   /* !javadoc
    * Attach schema to a group
    */
-  private static boolean _schemaAdd(Session session, GrouperGroup g) {
+  private static boolean _schemaAdd(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     try {
       GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
       if (schema != null) {
-        session.save(schema);
+        s.dbSess().session().save(schema);
         rv = true;
       }
     } catch (HibernateException e) {
