@@ -1,10 +1,10 @@
 /*
- * $Id: GrouperTest.java,v 1.16 2004-08-03 04:47:46 blair Exp $
+ * $Id: GrouperTest.java,v 1.17 2004-08-06 15:19:51 blair Exp $
  */
 
-package test.edu.internet2.middleware.directory.grouper;
+package test.edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.directory.grouper.*;
+import  edu.internet2.middleware.grouper.*;
 import  java.io.BufferedReader;
 import  java.io.File;
 import  java.io.FileReader;
@@ -39,7 +39,7 @@ public class GrouperTest extends TestCase {
     G = new Grouper();
 
     Class  klass    = G.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.Grouper";
+    String expKlass = "edu.internet2.middleware.grouper.Grouper";
 
     Assert.assertNotNull(G);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -81,7 +81,7 @@ public class GrouperTest extends TestCase {
     GrouperSession s = new GrouperSession();
 
     Class klass     = s.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperSession";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperSession";
 
     Assert.assertNotNull(s);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -174,7 +174,7 @@ public class GrouperTest extends TestCase {
     GrouperField field = new GrouperField();
 
     Class  klass    = field.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperField";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperField";
 
     Assert.assertNotNull(field);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -190,7 +190,7 @@ public class GrouperTest extends TestCase {
     GrouperFields fields = new GrouperFields();
 
     Class  klass    = fields.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperFields";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperFields";
 
     Assert.assertNotNull(fields);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -204,7 +204,7 @@ public class GrouperTest extends TestCase {
     GrouperFields fields = G.getGroupFields();
     Assert.assertNotNull(fields);
     Class  klass    = fields.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperFields";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperFields";
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
     Assert.assertEquals(9, fields.size());
     G.destroy();
@@ -220,7 +220,7 @@ public class GrouperTest extends TestCase {
     GrouperType type = new GrouperType();
 
     Class  klass    = type.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperType";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperType";
 
     Assert.assertNotNull(type);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -236,7 +236,7 @@ public class GrouperTest extends TestCase {
     GrouperTypes types = new GrouperTypes();
 
     Class  klass    = types.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypes";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperTypes";
 
     Assert.assertNotNull(types);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -250,7 +250,7 @@ public class GrouperTest extends TestCase {
     GrouperTypes types = G.getGroupTypes();
     Assert.assertNotNull(types);
     Class  klass    = types.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypes";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperTypes";
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
     Assert.assertEquals(1, types.size());
     G.destroy();
@@ -266,7 +266,7 @@ public class GrouperTest extends TestCase {
     GrouperTypeDef typeDef = new GrouperTypeDef();
 
     Class  klass    = typeDef.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDef";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDef";
 
     Assert.assertNotNull(typeDef);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -282,7 +282,7 @@ public class GrouperTest extends TestCase {
     GrouperTypeDefs typeDefs = new GrouperTypeDefs();
 
     Class  klass    = typeDefs.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDefs";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDefs";
 
     Assert.assertNotNull(typeDefs);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
@@ -296,7 +296,7 @@ public class GrouperTest extends TestCase {
     GrouperTypeDefs typeDefs = G.getGroupTypeDefs();
     Assert.assertNotNull(typeDefs);
     Class  klass    = typeDefs.getClass();
-    String expKlass = "edu.internet2.middleware.directory.grouper.GrouperTypeDefs";
+    String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDefs";
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
     Assert.assertEquals(9, typeDefs.size());
     G.destroy();
