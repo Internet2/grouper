@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.90 2004-11-30 02:26:53 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.91 2004-11-30 17:20:46 blair Exp $
  */
 public class GrouperGroup {
 
@@ -482,6 +482,14 @@ public class GrouperGroup {
     return g;
   }
 
+  /*
+   * Return the number of seconds since the epoch.
+   */
+  private static String _now() {
+    // TODO Do I want to store in non-epoch format?
+    java.util.Date  now = new java.util.Date();
+    return Long.toString(now.getTime());
+  }
 
   /*
    * PRIVATE INSTANCE METHODS
@@ -520,9 +528,7 @@ public class GrouperGroup {
      * TODO Most, if not all, of the operational attributes should be
      *      handled by Hibernate interceptors.  A task for another day.
      */
-    // TODO Is this in UTC?
-    java.util.Date now = new java.util.Date();
-    g.setCreateTime( Long.toString(now.getTime()) );
+    g.setCreateTime(    GrouperGroup._now() );
     g.setCreateSubject( s.subject().getId() );
 
     // Verify that we have everything we need to create a group
