@@ -11,7 +11,7 @@ import  java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.19 2004-05-02 01:05:38 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.20 2004-05-02 01:31:21 blair Exp $
  */
 public class GrouperGroup {
 
@@ -30,6 +30,9 @@ public class GrouperGroup {
    *  <li>If group exists, the privileges of the current subject   
    *      on this group will be cached.</li>
    * </ul>
+   * 
+   * @param   s         Session context.
+   * @param   groupName Name of group.
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
     // Internal reference to the session we are using.
@@ -354,7 +357,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Identify a group object.
+   * Identify this group object.
    *
    * @return  Group name.
    */

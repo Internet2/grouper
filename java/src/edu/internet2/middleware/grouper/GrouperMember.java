@@ -1,14 +1,15 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  edu.internet2.middleware.directory.grouper.*;
+import  java.util.ArrayList;
 import  java.util.List;
 
 /** 
  * Class representing a {@link Grouper} member, whether an individual
- * or a group.
+ * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.17 2004-05-01 17:54:18 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.18 2004-05-02 01:31:21 blair Exp $
  */
 public class GrouperMember {
 
@@ -20,27 +21,23 @@ public class GrouperMember {
   private boolean         isGroup     = false; 
 
   /**
-   * Create a {@link GrouperMember} object that represents a single
-   * {@link Grouper} member.
+   * Create an object that represents a group member.
    * <p>
-   * <i>member</i> could be either a memberId or a groupID.
+   * The member may be either an individual or a {@link GrouperGroup}.
+   * If an individual, <i>isGroup</i> should be "false" and
+   * <i>member</i> should be the <i>memberID</i>.  If a group,
+   * <i>isGroup</i> should be true and <i>member</i> should be the
+   * group name. 
    * <p>
-   * <ul>
-   *  <li>If isGroup==true:</li>
-   *  <ul>
-   *   <li>If member==groupID in the <i>grouper_group</i> table,
-   *       create a {@link GrouperMember} object representing
-   *       the group groupID.</li>
-   *  </ul>
-   *  <li>If isGroup==false:</li>
-   *  <ul>
-   *   <li>If GrouperSubject(member, false) succeeds,
-   *       create a {@link GrouperMember} object representing
-   *       the member memberID.</li>
-   *  </ul>
-   *  <li>Sets isGroup as appropriate</li>
-   *  <li>XXX Cache memberships -- or not?</li>
-   * </ul>
+   * XXX  This <b>may</b> trigger performance and ease-of-use
+   * concerns.  A solution be to add an additional parameter that
+   * specified whether <i>member</i> was the static (<i>groupID</i>
+   * and <i>memberID</i>) or variable (<i>name</i> and
+   * <i>presentationID</i>) representation of the member.
+   * 
+   * @param   s         Session context.
+   * @param   member    Member identity.
+   * @param   isGroup   True if the member is a group.
    */
   public GrouperMember(GrouperSession s, String member, boolean isGroup) {
     // Internal reference to the session we are using.
@@ -67,82 +64,70 @@ public class GrouperMember {
   }
 
   /**
-   * Returns a list of all {@link GrouperGroup} memberships of type
-   * "members".
+   * Retrieves all memberships of type "members".
    * <p>
    * <ul>
-   *  <li>Fetch and return rows from the <i>grouper_membership</i>
-   *      table that represent "members" and have the appropriate
-   *      <i>memberID</i> value.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table
+   *      that represent "members" and have the appropriate
+   *      <i>groupID</i> and <i>memberID</i> values.</li>
    * </ul>
    *
    * @return  List of group memberships.
    */
   public List getMembership() {
-    List membership = null;
+    List membership = new ArrayList();
     return membership;
   }
 
   /**
-   * Returns a list of all {@link GrouperGroup} memberships of type
-   * <i>groupField</li>.
+   * Retrieves all memberships of type <i>groupField</i>.
    * <p>
    * <ul>
-   *  <li>Fetch and return rows from the <i>grouper_membership</i>
-   *      table with the appropriate <i>memberID</i> and <i>groupField</i>
-   *      values.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table with
+   *      the appropriate <i>groupID</i>, <i>groupField</i>, and 
+   *      <i>memberID</i> or <i>groupMemberID</i> values.</li>
    * </ul>
    *
    * @param   groupField  Type of group to return.
    * @return  List of group memberships.
    */
   public List getMembership(String groupField) {
-    List membership = null;
+    List membership = new ArrayList();
     return membership;
   }
 
   /**
-   * Returns a list of all {@link GrouperGroup} memberships of type
-   * <i>groupField</li>.
+   * Retrieves all memberships the specified type and immediacy.
    * <p>
    * <ul>
-   *  <li>Fetch and return rows from the <i>grouper_membership</i>
-   *      table with the appropriate <i>groupID</i>, <i>groupField</i>,
-   *      and <i>isImmediate</i> values.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table with
+   *      the appropriate <i>groupID</i>, <i>groupField</i>, 
+   *      <i>isImmediate</i>, and <i>memberID</i> or
+   *      <i>groupMemberID</i> values.</li>
    * </ul>
    *
    * @param   groupField  Type of group to return.
-   * @param   isImmediate Return only immediate or non-immediate
-   *          memberships.
+   * @param   isImmediate Immediacy of membership.
    * @return  List of group memberships..
    */
   public List getMembership(String groupField, boolean isImmediate) {
-    List membership = null;
+    List membership = new ArrayList();
     return membership;
   }
 
   /**
-   * Returns true if member object is a group.
+   * Declares whether this member object is a group.
    *
-   * @return  True if @{link Grouper} member is a {@link Grouper}
-   *  group, false otherwise.
+   * @return  True if a group.
    */
   public boolean isGroup() {
     return this.isGroup;
   }
 
   /**
-   * Identifies a {@link GrouperMember} object.
-   * <p>
-   * <ul>
-   *  <li>XXX Add to docs/examples/.</li>
-   * </ul>
+   * Identify this member object.
    *
-   * @return  String representing the <i>memberID</i> for this 
-   *   {@link GrouperMember} object.
+   * @return  <i>memberID</i> or group name.
    */
   public String whoAmI() {
     if (this.isGroup() == true) {
@@ -156,30 +141,31 @@ public class GrouperMember {
   }
 
   /**
-   * Returns list of {@link GrouperGroup} objects that give the current
-   * sessions's subject "member" membership in a particular 
-   * {@link GrouperGroup}.
+   * List of groups providing the current subject membership in the
+   * specified group.
    * <p>
    * <ul>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to access this information.</li>
    *  <li>XXX Are we inspecting a column or a table for this
    *      information?</li>
    * </ul>
    *
    * @param   g Return via information for memberships in this group.
-   * @return  List of {@link GrouperGroup} objects.
+   * @return  List of groups.
    */
   public List via(GrouperGroup g) {
-    return null;
+    List via = new ArrayList();
+    return via;
   }
 
   /**
-   * Returns list of {@link GrouperGroup} objects that give a
-   * particular {@link GrouperMember} "member" membership in
-   * a particular {@link GrouperGroup}.
+   * List of groups providing the specified member membership in the
+   * specified group.
    * <p>
    * <ul>
-   *  <li>Verify that the current subject has sufficient privs to
-   *      access this information.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to access this information.</li>
    *  <li>XXX Are we inspecting a column or a table for this
    *      information?</li>
    * </ul>
@@ -189,18 +175,17 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List via(GrouperGroup g, GrouperMember m) {
-    return null;
+    List via = new ArrayList();
+    return via;
   }
 
   /**
-   * Returns list of {@link GrouperGroup} objects that give a
-   * particular {@link GrouperMember} "groupField"  make a given 
-   * {@link GrouperMember} a <i>groupField</i> membership in a
-   * particular {@link GrouperGroup}.
+   * List of groups providing the specified member the specified type
+   * of membership in the specified group.
    * <p>
    * <ul>
-   *  <li>Verify that the current subject has sufficient privs to
-   *      access this information.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to access this information.</li>
    *  <li>XXX Are we inspecting a column or a table for this
    *      information?</li>
    * </ul>
@@ -212,7 +197,8 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List via(GrouperGroup g, GrouperMember m, String groupField) {
-    return null;
+    List via = new ArrayList();
+    return via;
   }
 
 }
