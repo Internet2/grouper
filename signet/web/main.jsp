@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.12 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: main.jsp,v 1.13 2005-02-24 23:52:13 jvine Exp $
+  $Date: 2005-02-24 23:52:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -115,7 +115,7 @@
         <div class="tablecontent"> 
           <table>            
             <tr class="columnhead"> 
-              <td>
+              <th>
                 <img
                   src="images/icon_down_unsel.gif"
                   alt="[sort by]"
@@ -123,22 +123,22 @@
                   height="17"
                   border="0" />
                 Person
-              </td>
-              <td width="30%">
+              </th>
+              <th width="30%">
                 Privilege
-              </td>
-              <td width="20%">
+              </th>
+              <th width="20%">
 								Scope
-							</td>
-              <td>
+							</th>
+              <th>
                 Limits
-              </td>
-              <td>
+              </th>
+              <th>
                 Status
-              </td>
-              <td>
+              </th>
+              <th>
                 Granted
-              </td>
+              </th>
             </tr>
 	  
 <%

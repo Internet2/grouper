@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.10 2005-02-24 23:34:45 acohen Exp $
-  $Date: 2005-02-24 23:34:45 $
+  $Id: personview.jsp,v 1.11 2005-02-24 23:52:13 jvine Exp $
+  $Date: 2005-02-24 23:52:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -256,21 +256,21 @@
          <div class="tablecontent">
            <table>
              <tr class="columnhead">
-               <td width="30%">
+               <th width="30%">
                  <img
                     src="images/icon_down_unsel.gif"
                     width="17"
                     height="17" />
                  Privilege
-               </td>
-               <td width="20%">
+               </th>
+               <th width="20%">
                  Scope
-               </td>
-               <td>
+               </th>
+               <th>
                  Limits
-               </td>
-               <td>Status</td>
-               <td width="10%">
+               </th>
+               <th>Status</th>
+               <th width="10%">
                  All:
                  <input
                     name="checkAll"
@@ -278,7 +278,7 @@
                     id="checkAll"
                     onClick="selectAll(this.checked);"
                     value="Check All" />
-               </td>
+               </th>
              </tr>
                   
 <%
