@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.67 2004-11-25 05:37:07 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.68 2004-11-27 00:44:29 blair Exp $
  */
 public class GrouperBackend {
 
@@ -363,40 +363,66 @@ public class GrouperBackend {
         Transaction t = session.beginTransaction();
 
         // TODO Verify that the subject has privilege to remove this list data
-
         // Update immediate list data
         GrouperBackend._listDelVal(session, g, m, list, null);
 
+        /*
+         * FIXME I am not at all confident in this code.  Add more
+         *       stress-testing code to the test harness to verify how 
+         *       well this works -- or fails.
+         */
+        /* 
+         *FIXME Whatever happened to strictly using the memberOf algorithim?  I
+         *      am taking this refactoring to mean that my initial 
+         *      implementation of the algorithm is flawed, flawed, flawed.
+         */
         GrouperGroup memberOfBase = g;
-        // Is this member a group?
         if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLoad( m.id() );
-        }
-
-        // Grab immediate list data to update
-        List imms = GrouperBackend._listVals(
-                                             session, memberOfBase,
-                                             list, "immediate"
-                                            );
-
-        // Update effective list data
-        Iterator effIter = GrouperBackend._memberOf(
-                             session, memberOfBase, list
-                           ).iterator();
-        while (effIter.hasNext()) {
-          GrouperVia via = (GrouperVia) effIter.next();
-          GrouperBackend._listDelVal(
-                                     session, via.group(),
-                                     via.member(), list, via.via()
-                                    );
-          Iterator immsIter = imms.iterator();
-          while(immsIter.hasNext()) {
-            GrouperList   gl  = (GrouperList) immsIter.next();
-            GrouperMember mem = GrouperBackend._member( gl.memberKey() );
+          // Behave one way if the member is a group
+          memberOfBase  = GrouperBackend._groupLoad( m.id() );
+          // Find effective memberships created in group `g' due to `m'
+          // being a group.
+          Query q = session.createQuery(
+            "FROM GrouperList AS gl"                      +
+            " WHERE "                                     +
+            "gl.groupKey='"   + g.key()             + "'" +
+            " AND "                                       +
+            "gl.groupField='" + list                + "'" +
+            " AND "                                       +
+            "gl.via='"        + memberOfBase.key()  + "'"
+          );
+          Iterator viaIter = q.list().iterator();
+          while (viaIter.hasNext()) {
+            GrouperList   lv  = (GrouperList) viaIter.next();
+            GrouperMember mem = GrouperBackend._member( lv.memberKey());
+            GrouperBackend._listDelVal(session, g, mem, list, memberOfBase);
+          }
+          // Update effective list data
+          Iterator effIter = GrouperBackend._memberOf(
+                              session, memberOfBase, list
+                             ).iterator();
+          while (effIter.hasNext()) {
+            GrouperVia via = (GrouperVia) effIter.next();
             GrouperBackend._listDelVal(
                                        session, via.group(),
-                                       mem, list, memberOfBase
+                                       via.member(), list, via.via()
                                       );
+          }
+        } else {
+          // ... And another if it is not.
+          Query q = session.createQuery(
+            "FROM GrouperList AS gl"                      +
+            " WHERE "                                     +
+            "gl.groupField='" + list                + "'" +
+            " AND "                                       +
+            "gl.via='"        + memberOfBase.key()  + "'"
+          );
+          Iterator viaIter = q.list().iterator();
+          while (viaIter.hasNext()) {
+            GrouperList   lv  = (GrouperList) viaIter.next();
+            GrouperGroup  grp = GrouperBackend._groupLoad( lv.groupKey() );
+            GrouperMember mem = GrouperBackend._member( lv.memberKey());
+            GrouperBackend._listDelVal(session, grp, mem, list, memberOfBase);
           }
         }
 
@@ -1076,26 +1102,31 @@ public class GrouperBackend {
     //      this problem or have I just not triggered it yet?  Or if I
     //      can't, add the disclaimer.
     Session session = GrouperBackend._init(); // XXX
-    // XXX System.err.println("_LISTDELVAL G " + g);
-    // XXX System.err.println("_LISTDELVAL M " + m);
-    // XXX System.err.println("_LISTDELVAL T " + list);
+    Grouper.LOGGER.debug("_listDelVal() (g) " + g);
+    Grouper.LOGGER.debug("_listDelVal() (m) " + m);
+    Grouper.LOGGER.debug("_listDelVal() (t) " + list);
     if (via != null) {
-      // XXX System.err.println("_LISTDELVAL V " + via);
+      Grouper.LOGGER.debug("_listDelVal() (v) " + via);
     } else {
-      // XXX System.err.println("_LISTDELVAL V null");
+      Grouper.LOGGER.debug("_listDelVal() (v) null");
     }
 
     // Confirm that the data exists
     if (GrouperBackend._listValExist(g, m, list, via) == true) {
+      Grouper.LOGGER.debug("_listDelVal() Value exists");
       GrouperList gl = GrouperBackend._listVal(g, m, list, via);
+      Grouper.LOGGER.debug("_listDelVal() Deleting " + gl);
       try {
         // Delete it
         session.delete(gl); 
         session.flush(); // XXX
+        Grouper.LOGGER.debug("_listDelVal() deleted");
       } catch (HibernateException e) {
         System.err.println(e);
         System.exit(1);
       }
+    } else {
+      Grouper.LOGGER.debug("_listDelVal() Value doesn't exist");
     }
     GrouperBackend._hibernateSessionClose(session); // XXX
   }
