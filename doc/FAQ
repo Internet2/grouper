@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.15 2004-12-09 17:12:25 blair Exp $
+$Id: FAQ,v 1.16 2004-12-09 18:18:39 blair Exp $
 
 ---
 
@@ -271,4 +271,18 @@ more filters, and then query for results.
     q.membership(Grouper.MEM_ALL);
 
     List results = q.query();
+
+#### Q: How do I reset a query filter?
+
+A: Use the `GrouperQuery.clear()' method.
+
+    // Clear the _createdAfter_ filter.
+    q.clear("createdAfter");
     
+#### Q: How do I reset all query filters?
+
+A: Use the `GrouperQuery.clear()' method.
+
+    // Clear all query filters for this query object.
+    q.clear();
+

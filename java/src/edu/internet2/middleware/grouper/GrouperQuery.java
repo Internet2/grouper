@@ -60,9 +60,20 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.8 2004-12-09 03:22:41 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.9 2004-12-09 18:18:39 blair Exp $
  */
 public class GrouperQuery {
+
+  /*
+   * PRIVATE CONSTANTS
+   */
+  private static final String KEY_CA = "createdAfter";
+  private static final String KEY_CB = "createdBefore";
+  private static final String KEY_GT = "groupType";
+  private static final String KEY_M  = "membership";
+  private static final String KEY_MA = "modifiedAfter";
+  private static final String KEY_MB = "modifiedBefore";
+
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -87,6 +98,25 @@ public class GrouperQuery {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Clear all query filters.
+   */
+  public void clear() {
+    this.candidates.clear();
+  }
+
+  /**
+   * Clear the specified query filter.
+   */
+  public boolean clear(String filter) {
+    boolean rv = false;
+    if (this.candidates.containsKey(filter)) {
+      this.candidates.remove(filter);
+      rv = true;
+    }
+    return rv;
+  }
 
   /**
    * Set {@link GrouperGroup} <i>createTime</i> filter.
@@ -244,6 +274,7 @@ public class GrouperQuery {
   private boolean _queryCreatedAfter(Date date) {
     boolean rv    = false;
     List    vals  = new ArrayList();
+    this.candidates.remove(KEY_CA);
     // Find all groups created after this date
     vals = GrouperQuery._iterGroup(
              this.gs, GrouperBackend.groupCreatedAfter(date)
@@ -251,7 +282,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put("createdafter", vals);
+    this.candidates.put(KEY_CA, vals);
     return rv; 
   }
 
@@ -261,6 +292,7 @@ public class GrouperQuery {
   private boolean _queryCreatedBefore(Date date) {
     boolean rv    = false;
     List    vals  = new ArrayList();
+    this.candidates.remove(KEY_CB);
     // Find all groups created before this date
     vals = GrouperQuery._iterGroup(
              this.gs, GrouperBackend.groupCreatedBefore(date)
@@ -268,7 +300,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put("createdbefore", vals);
+    this.candidates.put(KEY_CB, vals);
     return rv; 
   }
 
@@ -278,6 +310,7 @@ public class GrouperQuery {
   private boolean _queryGroupType(String type) throws GrouperException {
     boolean rv    = false;
     List    vals  = new ArrayList();
+    this.candidates.remove(KEY_GT);
     // Find all groups of matching type
     List      groups  = GrouperBackend.groupType(this.gs, type);
     // Find all list values for matching groups
@@ -295,7 +328,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put("grouptype", vals);
+    this.candidates.put(KEY_GT, vals);
     return rv; 
   }
 
@@ -305,6 +338,7 @@ public class GrouperQuery {
   private boolean _queryMembership(String type) throws GrouperException {
     boolean rv    = false;
     List    vals  = new ArrayList();
+    this.candidates.remove(KEY_M);
     if        (type.equals(Grouper.MEM_ALL)) {
       // Query for both effective + immediate memberships
       vals = GrouperBackend.listVals(this.gs, Grouper.DEF_LIST_TYPE);
@@ -320,7 +354,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put("membership", vals);
+    this.candidates.put(KEY_M, vals);
     return rv; 
   }
 
@@ -330,6 +364,7 @@ public class GrouperQuery {
   private boolean _queryModifiedAfter(Date date) {
     boolean rv    = false;
     List    vals  = new ArrayList();
+    this.candidates.remove(KEY_MA);
     // Find all groups modified after this date
     vals = GrouperQuery._iterGroup(
              this.gs, GrouperBackend.groupModifiedAfter(date)
@@ -337,7 +372,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put("modifiedafter", vals);
+    this.candidates.put(KEY_MA, vals);
     return rv; 
   }
 
@@ -347,6 +382,7 @@ public class GrouperQuery {
   private boolean _queryModifiedBefore(Date date) {
     boolean rv    = false;
     List    vals  = new ArrayList();
+    this.candidates.remove(KEY_MB);
     // Find all groups modified before this date
     vals = GrouperQuery._iterGroup(
              this.gs, GrouperBackend.groupModifiedBefore(date)
@@ -354,7 +390,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put("modifiedbefore", vals);
+    this.candidates.put(KEY_MB, vals);
     return rv; 
   }
 
