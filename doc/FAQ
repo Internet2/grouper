@@ -1,61 +1,61 @@
-#
 # Grouper FAQ
-# $Id: FAQ,v 1.1 2004-12-03 02:56:49 blair Exp $
-#
 
-# Using The API
+$Id: FAQ,v 1.2 2004-12-03 14:46:59 blair Exp $
 
-## List Values
+---
 
-### How do I retrieve a `GrouperGroup' object from a `GrouperList'
-    result?
+## General Questions
 
-A: Use the `GrouperList.group()' method.
+## Q: What's with the formatting?
 
-<code>
-  GrouperGroup g = (GrouperGroup) gl.group();
-</code>
+A: The text version of this file is written using [Markdown
+syntax](http://daringfireball.net/projects/markdown/).  I will be
+adding a generated-HTML version of this document shortly.
 
-### How do I retrieve a `GrouperMember' object from a `GrouperList'
-    result?
+---
 
-A: Use the `GrouperList.member()' method.
+## Using The API
 
-<code>
-  GrouperMember m = (GrouperGroup) gl.member();
-</code>
+### List Values
 
+#### Q: How do I retrieve a _GrouperGroup_ object from a _GrouperList_ result?
 
-## Subjects
+A: Use the `GrouperList.group()` method.
 
-### How do I look up a subject of type `person'?
+    GrouperGroup g = (GrouperGroup) gl.group();
 
-A: Use the `GrouperSubject.lookup(subjID, subjType)' method.
+#### Q: How do I retrieve a _GrouperMember_ object from a _GrouperList_ result?
 
-<code>
-  Subject subj = GrouperSubject.lookup(subjID, "person");
-</code>
+A: Use the `GrouperList.member()` method.
 
-The `GrouperSubject.lookup()' method will call the appropriate subject
+    GrouperMember m = (GrouperGroup) gl.member();
+
+---
+
+### Subjects
+
+#### Q: How do I look up a subject of type _person_?
+
+A: Use the `GrouperSubject.lookup(subjID, subjType)` method.
+
+    Subject subj = GrouperSubject.lookup(subjID, "person");
+
+The `GrouperSubject.lookup()` method will call the appropriate subject
 type adapter for the type of subject specified.
 
-### How do I look up a subject of type `group'?
+#### Q: How do I look up a subject of type _group_?
 
-A: Use the `GrouperSubject.lookup(subjID, subjType)' method.
+A: Use the `GrouperSubject.lookup(subjID, subjType)` method.
 
-<code>
-  Subject subj = GrouperSubject.lookup(subjID, "group");
-</code>
+    Subject subj = GrouperSubject.lookup(subjID, "group");
 
-The `GrouperSubject.lookup()' method will call the appropriate subject
+The `GrouperSubject.lookup()` method will call the appropriate subject
 type adapter for the type of subject specified.
 
-### How do I `Subject' object into a `GrouperMember' object?
+#### Q: How do I _Subject_ object into a _GrouperMember_ object?
 
-A: Use the `GrouperMember.lookup(subject)' method.
+A: Use the `GrouperMember.lookup(subject)` method.
 
-<code>
-  Subject       subj  = GrouperSubject.lookup(subjID, subjType);
-  GrouperMember m     = GrouperMember.lookup(subj);
-</code>
+    Subject       subj  = GrouperSubject.lookup(subjID, subjType);
+    GrouperMember m     = GrouperMember.lookup(subj);
 
