@@ -121,57 +121,6 @@ public class TestQueries extends TestCase {
     s.stop();
   }
 
-/*
-  public void testAddListData0() {
-    GrouperSession  s       = new GrouperSession();
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(subj);
-    // Fetch g0
-    GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
-    Assert.assertTrue(g0.exists());
-    // Fetch g2
-    GrouperGroup    g2    = GrouperGroup.load(s, stem2, extn2);
-    Assert.assertNotNull(g2);
-    Assert.assertTrue(g2.exists());
-    // Fetch Member 0
-    GrouperMember   m0      = GrouperMember.lookup("blair", "person");
-    Assert.assertNotNull(m0);
-    // Fetch Member 1
-    GrouperMember   m1      = GrouperMember.lookup("notblair", "person");
-    Assert.assertNotNull(m1);
-    // Add m0 to g0 "members"
-    Assert.assertTrue( g0.listAddVal(s, m0, "members") );
-    // Add m1 to g2 "members"
-    Assert.assertTrue( g2.listAddVal(s, m1, "members") );
-    // We're done
-    s.stop();
-  }
-*/
-
-/*
-  public void testAddListData1() {
-    GrouperSession  s       = new GrouperSession();
-    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
-    s.start(subj);
-    // Fetch g0
-    GrouperGroup    g0    = GrouperGroup.load(s, stem0, extn0);
-    Assert.assertNotNull(g0);
-    Assert.assertTrue(g0.exists());
-    // Fetch g1
-    GrouperGroup    g1    = GrouperGroup.load(s, stem1, extn1);
-    Assert.assertNotNull(g1);
-    Assert.assertTrue(g1.exists());
-    // Fetch g1 as m0
-    GrouperMember   m0      = GrouperMember.lookup( g1.id(), "group");
-    Assert.assertNotNull(m0);
-    // Add m0 to g0 "members"
-    Assert.assertTrue( g0.listAddVal(s, m0, "members") );
-    // We're done
-    s.stop();
-  } 
-*/
-
   public void testQueryInstantiate() {
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
@@ -179,8 +128,6 @@ public class TestQueries extends TestCase {
     GrouperQuery    q0    = new GrouperQuery(s);
     Assert.assertNotNull(q0);
     Assert.assertTrue(klass.equals( q0.getClass().getName() ) );
-    GrouperQuery    q1    = new GrouperQuery(s);
-    Assert.assertTrue(klass.equals( q1.getClass().getName() ) );
     s.stop();
   }
 
@@ -197,7 +144,7 @@ public class TestQueries extends TestCase {
     // Create query object
     GrouperQuery    q     = new GrouperQuery(s);
 
-    // We want all members
+    // We want MEM_ALL
     try {
       Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
       List vals = q.query();
@@ -207,17 +154,17 @@ public class TestQueries extends TestCase {
       Assert.assertNotNull(obj);
       Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
     } catch (GrouperException e) {
-      Assert.fail("Exception: 'q.membership(null)'");
+      Assert.fail("Exception: MEM_ALL");
     }
 
-    // We want effective members
+    // We want MEM_EFF
     try {
       Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
     } catch (GrouperException e) {
-      Assert.fail("Exception: 'q.membership(null)'");
+      Assert.fail("Exception: MEM_EFF");
     }
 
-    // We want immediate members
+    // We want MEM_IMM
     try {
       Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
       List vals = q.query();
@@ -227,82 +174,147 @@ public class TestQueries extends TestCase {
       Assert.assertNotNull(obj);
       Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
     } catch (GrouperException e) {
-      Assert.fail("Exception: 'q.membership(null)'");
+      Assert.fail("Exception: MEM_IMM");
     }
 
-/*
-    // Fetch g0 "admins"
-    List            admin0  = g0.listVals(s, "admins");
-    Assert.assertNotNull(admin0);
-    Assert.assertTrue(admin0.size() == 1);
-    List            admin0e = g0.listEffVals(s, "admins");
-    Assert.assertNotNull(admin0e);
-    Assert.assertTrue(admin0e.size() == 0);
-    List            admin0i = g0.listImmVals(s, "admins");
-    Assert.assertNotNull(admin0i);
-    Assert.assertTrue(admin0i.size() == 1);
-    // Fetch g1 "admins"
-    List            admin1  = g1.listVals(s, "admins");
-    Assert.assertNotNull(admin1);
-    Assert.assertTrue(admin1.size() == 1);
-    List            admin1e = g1.listEffVals(s, "admins");
-    Assert.assertNotNull(admin1e);
-    Assert.assertTrue(admin1e.size() == 0);
-    List            admin1i = g1.listImmVals(s, "admins");
-    Assert.assertNotNull(admin1i);
-    Assert.assertTrue(admin1i.size() == 1);
-    // Fetch g2 "admins"
-    List            admin2  = g2.listVals(s, "admins");
-    Assert.assertNotNull(admin2);
-    Assert.assertTrue(admin2.size() == 1);
-    List            admin2e = g2.listEffVals(s, "admins");
-    Assert.assertNotNull(admin2e);
-    Assert.assertTrue(admin2e.size() == 0);
-    List            admin2i = g2.listImmVals(s, "admins");
-    Assert.assertNotNull(admin2i);
-    Assert.assertTrue(admin2i.size() == 1);
-    // Fetch g0 "members"
-    List            mem0    = g0.listVals(s, "members");
-    Assert.assertNotNull(mem0);
-    Assert.assertTrue(mem0.size() == 1);
-    List            mem0c   = g0.listVals(s);
-    Assert.assertNotNull(mem0c);
-    Assert.assertTrue(mem0c.size() == 1);
-    List            mem0e   = g0.listEffVals(s, "members"); 
-    Assert.assertNotNull(mem0e);
-    Assert.assertTrue(mem0e.size() == 0); 
-    List            mem0i   = g0.listImmVals(s); 
-    Assert.assertNotNull(mem0i);
-    Assert.assertTrue(mem0i.size() == 1); 
-    // Fetch g1 "members"
-    List            mem1    = g1.listVals(s, "members");
-    Assert.assertNotNull(mem1);
-    Assert.assertTrue(mem1.size() == 0);
-    List            mem1c   = g1.listVals(s);
-    Assert.assertNotNull(mem1c);
-    Assert.assertTrue(mem1c.size() == 0);
-    List            mem1e   = g1.listEffVals(s, "members"); 
-    Assert.assertNotNull(mem1e);
-    Assert.assertTrue(mem1e.size() == 0);
-    List            mem1i   = g1.listImmVals(s); 
-    Assert.assertNotNull(mem1i);
-    Assert.assertTrue(mem1i.size() == 0);
-    // Fetch g2 "members"
-    List            mem2    = g2.listVals(s, "members");
-    Assert.assertNotNull(mem2);
-    Assert.assertTrue(mem2.size() == 0);
-    List            mem2c   = g2.listVals(s);
-    Assert.assertNotNull(mem2c);
-    Assert.assertTrue(mem2c.size() == 0);
-    List            mem2e   = g2.listEffVals(s, "members"); 
-    Assert.assertNotNull(mem2e);
-    Assert.assertTrue(mem2e.size() == 0);
-    List            mem2i   = g2.listImmVals(s); 
-    Assert.assertNotNull(mem2i);
-    Assert.assertTrue(mem2i.size() == 0);
-*/
+    // We're done
+    s.stop(); 
+  }
 
-    // TODO Assert details about the individual members
+  public void testQuery1() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+
+    // Create query object
+    GrouperQuery    q     = new GrouperQuery(s);
+
+    // We want DEF_GROUP_TYPE + MEM_ALL
+    try {
+      // First DEF_GROUP_TYPE
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+      Object obj = vals.get(0);
+      Assert.assertNotNull(obj);
+      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      // Now with MEM_ALL
+      Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
+      vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+      obj = vals.get(0);
+      Assert.assertNotNull(obj);
+      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: DEF_GROUP_TYPE,MEM_ALL");
+    }
+
+    // We want DEF_GROUP_TYPE + MEM_EFF
+    try {
+      q = new GrouperQuery(s); // FIXME
+      // First DEF_GROUP_TYPE
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+      Object obj = vals.get(0);
+      Assert.assertNotNull(obj);
+      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      // Now with MEM_ALL
+      Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
+      vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: DEF_GROUP_TYPE,MEM_EFF");
+    }
+
+    // We want DEF_GROUP_TYPE + MEM_IMM
+    try {
+      q = new GrouperQuery(s); // FIXME
+      // First DEF_GROUP_TYPE
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+      Object obj = vals.get(0);
+      Assert.assertNotNull(obj);
+      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+      // Now with MEM_IMM
+      Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
+      vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+      obj = vals.get(0);
+      Assert.assertNotNull(obj);
+      Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: DEF_GROUP_TYPE,MEM_IMM");
+    }
+
+    // We're done
+    s.stop(); 
+  }
+
+  public void testQuery2() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+
+    // Create query object
+    GrouperQuery    q     = new GrouperQuery(s);
+
+    String naming = "naming";
+
+    // We want `naming' + MEM_ALL
+    try {
+      // First `naming'
+      Assert.assertFalse( q.groupType(naming) );
+      // Now MEM_ALL
+      Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: DEF_GROUP_TYPE,MEM_ALL");
+    }
+
+    // We want DEF_GROUP_TYPE + MEM_EFF
+    try {
+      q = new GrouperQuery(s); // FIXME
+      // First `naming'
+      Assert.assertFalse( q.groupType(naming) );
+      // Now MEM_EFF
+      Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: DEF_GROUP_TYPE,MEM_EFF");
+    }
+
+    // We want DEF_GROUP_TYPE + MEM_IMM
+    try {
+      q = new GrouperQuery(s); // FIXME
+      // First `naming'
+      Assert.assertFalse( q.groupType(naming) );
+      // Now MEM_IMM
+      Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: DEF_GROUP_TYPE,MEM_IMM");
+    }
 
     // We're done
     s.stop(); 
