@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.3 2005-03-16 22:51:57 blair Exp $
+ * @version $Id: MemberOf.java,v 1.4 2005-03-17 05:32:37 blair Exp $
  */
 public class MemberOf {
 
@@ -141,14 +141,13 @@ public class MemberOf {
     while (hasIter.hasNext()) {
       GrouperList glM = (GrouperList) hasIter.next();
       glM.load(this.s);
-      GrouperGroup viaM = glM.via();
       List chain = new ArrayList();
       chain.addAll( glM.chain() );     // m's via chain...
       chain.add( new MemberVia(glM) ); // plus m
       // Add m's members to g
       vals.add(
         new GrouperList(
-              gl.group(), glM.member(), gl.groupField(), viaM, chain
+              this.s, gl.group(), glM.member(), gl.groupField(), chain
             )
         );
       // And now add to where g is a member
@@ -168,14 +167,13 @@ public class MemberOf {
     while (iter.hasNext()) {
       GrouperList glM = (GrouperList) iter.next();
       glM.load(this.s);
-      GrouperGroup via = glM.via();
       List chain = new ArrayList();
       chain.add( new MemberVia(glM) );  // m's via chain...
       chain.addAll( glM.chain() );      // plus g's chain
         // Add m to where g is a member
       vals.add(
         new GrouperList(
-              glM.group(), gl.member(), gl.groupField(), via, chain
+              this.s, glM.group(), gl.member(), gl.groupField(), chain
             )
         );
     }
