@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.58 2004-10-27 18:13:37 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.59 2004-10-28 14:34:39 blair Exp $
  */
 public class GrouperGroup {
 
@@ -73,7 +73,9 @@ public class GrouperGroup {
    * @param   stem  Stem to create the group within.
    * @param   desc  Descriptor to assign to group.
    */ 
-  public static GrouperGroup create(GrouperSession s, String stem, String desc)
+  public static GrouperGroup create(GrouperSession s, 
+                                    String stem, 
+                                    String descriptor)
   {
     GrouperGroup g = new GrouperGroup();
 
@@ -98,9 +100,11 @@ public class GrouperGroup {
    * @param   desc  Descriptor of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup load(GrouperSession s, String stem, String desc)
+  public static GrouperGroup load(GrouperSession s, 
+                                  String stem, 
+                                  String descriptor)
   {
-    return GrouperBackend.group(s, stem, desc);
+    return GrouperBackend.group(s, stem, descriptor);
   }
 
   /*
