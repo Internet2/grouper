@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.5 2005-02-25 18:51:10 jvine Exp $
-  $Date: 2005-02-25 18:51:10 $
+  $Id: functions.jsp,v 1.6 2005-02-25 22:07:57 jvine Exp $
+  $Date: 2005-02-25 22:07:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -64,17 +64,7 @@
 %>
 
     <form name="form1" method="post" action="OrgBrowse.do">
-      <div id="Header">
-        <div id="Logo">
-        <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
-				</div> 
-        <!-- Logo -->
-        
-        <div id="Signet">
-					<img src="images/signet.gif" alt="Signet" height="60" width="49">
-        </div> <!-- Signet -->
-      </div> <!-- Header -->
-			    
+      <jsp:include page="header.jsp" flush="true" />    
         <div id="Navbar">
           <span class="logout">
             <a href="NotYetImplemented.do">
@@ -110,7 +100,7 @@
              	 Select the privilege you want to grant. Only privileges you are authorized to grant are listed.
 							</p>
 							
-               	<select name="step3" size="10" class="long" id="step3" style="float: left;">
+               	<select name="step3" size="10" id="step3">
  	<%
   Iterator grantableCategoriesIterator = grantableCategories.iterator();
   while (grantableCategoriesIterator.hasNext())
@@ -137,7 +127,7 @@
 %>
                	</select>
      
-							<div class="description">Category name : <span class="keyname">Function name</span><br />
+							<div class="description" style="display: none;">Category name : <span class="keyname">Function name</span><br />
 		 						Description goes here.
 							</div>  <!-- description -->
 					 </div> 	<!-- section -->

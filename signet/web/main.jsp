@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.14 2005-02-25 18:32:53 acohen Exp $
-  $Date: 2005-02-25 18:32:53 $
+  $Id: main.jsp,v 1.15 2005-02-25 22:07:57 jvine Exp $
+  $Date: 2005-02-25 22:07:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -51,15 +51,7 @@
 %>
 
   <form name="form1" method="post" action="">
-    <div id="Header">  
-      <div id="Logo">
-      <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" /> 
-      </div> <!-- Logo -->
-      <div id="Signet">
-        <img src="images/signet.gif" alt="Signet" height="60" width="49">
-      </div> <!-- Signet -->
-    </div> <!-- Header -->
-  
+    <jsp:include page="header.jsp" flush="true" />
   <div id="Navbar">
     <span class="logout">
       <a href="NotYetImplemented.do">
@@ -255,8 +247,7 @@
 %>
             <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
               <%=listSubject.getName()%>
-            </a>
-            <br />
+						</a><br /><!-- it's important for the br to be on the same line as the a -->
             <span class="dropback"><%=listSubject.getDescription()%></span>
             <br />
 <%

@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.5 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: org-browse.jsp,v 1.6 2005-02-25 22:07:57 jvine Exp $
+  $Date: 2005-02-25 22:07:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -73,15 +73,8 @@
 %>
 
     <form name="form1" action="Conditions.do">  
-      <div id="Header">  
-        <div id="Logo">
-          <img src="images/organisation-logo.jpg" alt="logo" height="60" width="80">
-        </div> <!-- Logo -->
-        <div id="Signet">
-					<img src="images/signet.gif" alt="Signet" height="60" width="49">
-        </div> <!-- Signet -->
-      </div>
-      <div id="Navbar">
+      <jsp:include page="header.jsp" flush="true" />
+			 <div id="Navbar">
         <span class="logout">
           <a href="NotYetImplemented.do">
             <%=loggedInPrivilegedSubject.getName()%>: Logout

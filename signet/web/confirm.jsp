@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.7 2005-02-25 20:16:20 acohen Exp $
-  $Date: 2005-02-25 20:16:20 $
+  $Id: confirm.jsp,v 1.8 2005-02-25 22:07:57 jvine Exp $
+  $Date: 2005-02-25 22:07:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -87,17 +87,7 @@
 
     <form name="form1" action="">
     
-      <div id="Header">
-        <div id="Logo">
-        <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
-				</div> <!-- Logo -->
-        <div id="Signet">
-          <a href="Start.do">
-            <img src="images/signet.gif" width="49" height="60" alt="Signet" />
-          </a>
-        </div> <!-- Signet -->
-      </div> <!-- Header -->
-      
+      <jsp:include page="header.jsp" flush="true" />
       <div id="Navbar">
         <span class="logout">
           <a href="NotYetImplemented.do">
@@ -275,8 +265,7 @@
 
               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
                 <%=listSubject.getName()%>
-              </a>
-              <br />
+              </a><br /><!-- it's important for the br to be on the same line as the a -->
               <%=listSubject.getDescription()%>
           	  <br />
 <%

@@ -1,6 +1,6 @@
 <!--
-  $Id: personview-print.jsp,v 1.5 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: personview-print.jsp,v 1.6 2005-02-25 22:07:57 jvine Exp $
+  $Date: 2005-02-25 22:07:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -62,12 +62,7 @@
 
     <form action="" method="post" name="form1" id="form1">
   
-      <div id="Header">  
-        <div id="Logo">
-          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
-        </div>
-      </div>
-       
+     <jsp:include page="header.jsp" flush="true" />  
       <div id="Layout"> 
       <a href="PersonView.do"><img src="images/icon_arrow_left.gif" class="icon" />return</a>
         <h1>
