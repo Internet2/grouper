@@ -1,0 +1,12 @@
+Grouper Contributed Software README
+
+TODO Add possible disclaimer and contribution guidelines.
+
+Contributions:
+
+  load/LoadGrouperMembersTableFromCSV
+    - Populates 'members_table' from CSV file.
+    - Contributed by TODO on 20040702
+
+$Id: README,v 1.1 2004-07-03 03:10:56 blair Exp $
+
