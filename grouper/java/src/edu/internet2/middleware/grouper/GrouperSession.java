@@ -3,6 +3,8 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
+import  java.text.SimpleDateFormat;
+import  java.util.Date;
 import  java.util.ArrayList;
 import  java.util.List;
 
@@ -10,7 +12,7 @@ import  java.util.List;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.23 2004-05-02 14:26:36 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.24 2004-07-02 17:26:23 blair Exp $
  */
 public class GrouperSession {
 
@@ -63,8 +65,9 @@ public class GrouperSession {
    *   session.
    */
   public void start(String subjectID) {
-    // XXX Bad assumption!
-    this.subject = this.lookupSubject(subjectID);
+    // XXX Bad assumptions!
+    this.subject    = this.lookupSubject(subjectID);
+    this.subjectID  = subjectID;
 
     if (this.subject != null) {
       // Create internal representations of the various Grouper
@@ -97,7 +100,7 @@ public class GrouperSession {
 
     // XXX Bad assumptions!
     this.subject    = this.lookupSubject(subjectID);
-    this.subjectID  = this.subjectID;
+    this.subjectID  = subjectID;
 
     // Register a new session
     this._registerSession();
@@ -329,13 +332,18 @@ public class GrouperSession {
   private void _registerSession() {
     Statement stmt = null;
 
+    /* XXX Until I find the time to identify a better way of managing
+     *     sessions -- which I *know* exists -- be crude about it. */
+    Date now = new Date();
+    SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+
     try { 
       stmt = this.connection().createStatement();
       String insertSession = "INSERT INTO grouper_session " +
                              "(cred, startTime) " +
                              "VALUES (" +
                              "'" + this.subjectID + "', " +
-                             "'RIGHT NOW'" +
+                             "'" + format.format(now) + "'" +
                              ")";
       try { 
         stmt.executeUpdate(insertSession);
