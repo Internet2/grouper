@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.35 2004-12-01 04:23:09 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.36 2004-12-05 01:00:26 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -71,10 +71,17 @@ public class GrouperAccessImpl implements GrouperAccess {
  
 
   /*
+   * PRIVATE INSTANCE VARIABLES
+   */
+  private String root;
+
+
+  /*
    * CONSTRUCTORS
    */
   public GrouperAccessImpl() {
     GrouperAccessImpl._init();
+    this.root = Grouper.config("member.system");
   }
 
 
@@ -201,8 +208,12 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      GrouperMember m = GrouperMember.lookup( s.subject() );
-      rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
+      if (this._isRoot(s)) {
+        rv = true;
+      } else {
+        GrouperMember m = GrouperMember.lookup( s.subject() );
+        rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
+      }
     } else {
       // TODO I should probably throw an exception
       rv = false;
@@ -337,7 +348,7 @@ public class GrouperAccessImpl implements GrouperAccess {
 
 
   /*
-   * PRIVATE STATIC METHODS
+   * PRIVATE CLASS METHODS
    */
 
   /*
@@ -358,6 +369,23 @@ public class GrouperAccessImpl implements GrouperAccess {
       privMap.put("VIEW", "viewers");
       initialized = true;
     }
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /* (!javadoc)
+   * Grouper's root-like account effectively has all privs
+   */
+  private boolean _isRoot(GrouperSession s) {
+    boolean rv = false;
+    if (s.subject().getId().equals(this.root)) {
+      // This subject can do *everything*
+      rv = true;
+    }
+    return rv;
   }
 
 }
