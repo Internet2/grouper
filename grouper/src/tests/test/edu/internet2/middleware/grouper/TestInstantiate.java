@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestInstantiate.java,v 1.1 2004-11-11 18:17:56 blair Exp $
+ * $Id: TestInstantiate.java,v 1.2 2004-11-12 04:25:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -133,27 +133,11 @@ public class TestInstantiate extends TestCase {
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
-  // Instantiate a GrouperSubjectType instance 
-  public void testGrouperSubjectTypeInstantiate() {
-    GrouperSubjectType obj = new GrouperSubjectType();
-    Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperSubjectType";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
-
   // Instantiate a GrouperSubjectTypeAdapterImpl instance 
   public void testGrouperSubjectTypeAdapterImplInstantiate() {
     GrouperSubjectTypeAdapterImpl obj = new GrouperSubjectTypeAdapterImpl();
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.GrouperSubjectTypeAdapterImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
-
-  // Instantiate a GrouperSubjectTypeImpl instance 
-  public void testGrouperSubjectTypeImplInstantiate() {
-    GrouperSubjectTypeImpl obj = new GrouperSubjectTypeImpl();
-    Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperSubjectTypeImpl";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 
@@ -171,6 +155,14 @@ public class TestInstantiate extends TestCase {
     GrouperTypeDef obj = new GrouperTypeDef();
     Assert.assertNotNull(obj);
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
+    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+  }
+
+  // Instantiate a SubjectTypeImpl instance 
+  public void testSubjectTypeImplInstantiate() {
+    SubjectTypeImpl obj = new SubjectTypeImpl();
+    Assert.assertNotNull(obj);
+    String klass = "edu.internet2.middleware.grouper.SubjectTypeImpl";
     Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
   }
 

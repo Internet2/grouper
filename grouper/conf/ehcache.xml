@@ -95,15 +95,6 @@
     overflowToDisk="true"
   />
 
-  <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.GrouperSubjectType"
-    maxElementsInMemory="100"
-    eternal="true"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
   <!-- XXX I have no idea what is appropriate for this cache -->
   <cache name="edu.internet2.middleware.group.GrouperMembership"
     maxElementsInMemory="10000"
@@ -153,6 +144,15 @@
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="10000"
     eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- Non-mutable table with few items -->
+  <cache name="edu.internet2.middleware.grouper.SubjectTypeImpl"
+    maxElementsInMemory="100"
+    eternal="true"
     timeToIdleSeconds="300"
     timeToLiveSeconds="600"
     overflowToDisk="true"

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.3 2004-11-11 20:26:25 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.4 2004-11-12 04:25:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -144,19 +144,19 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertTrue( klass.equals( typeDefs.get(9).getClass().getName() ) );
   }
 
-  // Get cached GrouperSubjectTypes 
-  public void testGetGrouperSubjectTypes() {
+  // Get cached SubjectTypes 
+  public void testGetSubjectTypes() {
     Grouper G = new Grouper();
     List types = G.subjectTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
-    GrouperSubjectType st = (GrouperSubjectType) types.get(0);
-    String adapterClass = "edu.internet2.middleware.grouper.GrouperSubjectTypeAdapterImpl";
-    Assert.assertTrue( adapterClass.equals( st.adapterClass() ) );
+    SubjectType st = (SubjectType) types.get(0);
+    // XXX String adapterClass = "edu.internet2.middleware.grouper.GrouperSubjectTypeAdapterImpl";
+    // XXX Assert.assertTrue( adapterClass.equals( st.adapterClass().getClass().getName() ) );
     String name         = "Person";
-    Assert.assertTrue( name.equals( st.name() ) );
+    Assert.assertTrue( name.equals( st.getName() ) );
     String typeID       = "person";
-    Assert.assertTrue( typeID.equals( st.typeID() ) );
+    Assert.assertTrue( typeID.equals( st.getId() ) );
   }
 
   // TODO Test boolean assertion|validity methods

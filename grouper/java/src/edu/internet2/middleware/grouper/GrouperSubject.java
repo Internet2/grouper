@@ -10,6 +10,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.builder.EqualsBuilder;
@@ -20,7 +21,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.15 2004-11-11 19:07:04 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.16 2004-11-12 04:25:41 blair Exp $
  */
 public class GrouperSubject implements Serializable {
 
@@ -45,11 +46,22 @@ public class GrouperSubject implements Serializable {
    * @param   typeID  Subject Type ID
    * @return  {@link GrouperSubject} object
    */
-  public static GrouperSubject lookup(String id, String typeID) {
-    GrouperSubject subj = null;
-    GrouperSubjectType st = Grouper.subjectType(typeID);
-    System.err.println("USE: " + st);
-    // TODO Perform actual lookup using the appropriate interface
+  public static Subject lookup(String id, String typeID) {
+    Subject         subj  = null;
+    SubjectTypeImpl st    = Grouper.subjectType(typeID);
+    if (st != null) {
+      SubjectTypeAdapter sta = st.adapterClass();
+      if (sta != null) {
+        try {
+          subj = sta.getSubject(st, id);
+          // TODO Now what?
+        } catch (SubjectNotFoundException e) {
+          // TODO WRONG!
+          System.err.println(e);
+          System.exit(1);
+        }
+      }
+    }
     return subj;
   }
 
