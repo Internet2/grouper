@@ -61,7 +61,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.2 2005-03-25 01:10:51 blair Exp $
+ * @version $Id: Group.java,v 1.3 2005-03-25 01:41:29 blair Exp $
  */
 abstract class Group {
 
@@ -142,7 +142,7 @@ abstract class Group {
                             String extn, String type
                           ) 
   {
-    String qry = "Group.by.stem.and.extn.and.type";
+    String qry = "Group.key.by.stem.and.extn.and.type";
     String key = null;
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
