@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.129 2004-12-07 18:57:30 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.130 2004-12-07 21:25:59 blair Exp $
  */
 public class GrouperBackend {
 
@@ -544,62 +544,63 @@ public class GrouperBackend {
         Grouper.groupField(g.type(), list)
        ) 
     {
-      // TODO Verify that the subject has privilege to add this list data
-      // TODO Verify that this data does not already exist
+      // Verify that the value doesn't already exist
+      List vals = GrouperBackend._queryGrouperList(
+                    session, g.key(), m.key(), Grouper.DEF_LIST_TYPE, Grouper.MEM_IMM
+                  );
+      // Doesn't exist
+      if (vals.size() == 0) {
+        try {
+          Transaction t = session.beginTransaction();
 
-      try {
-        Transaction t = session.beginTransaction();
+          // Update immediate list data
+          GrouperBackend._listAddVal(session, g, m, list, null);
 
-        // Update immediate list data
-        GrouperBackend._listAddVal(session, g, m, list, null);
-
-        GrouperGroup memberOfBase = g;
-        // Is this member a group?
-        if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLoadByID( m.subjectID() );
-        }
-
-        // Grab immediate list data to update
-        List imms = GrouperBackend._listVals(
-                                             session, memberOfBase, null,
-                                             list, Grouper.MEM_IMM
-                                            );
-
-        // Update effective list data
-        Iterator effIter = GrouperBackend._memberOf(
-                            session, memberOfBase, list
-                           ).iterator();
-        while (effIter.hasNext()) {
-          GrouperVia via = (GrouperVia) effIter.next();
-          GrouperBackend._listAddVal(
-                                     session, via.group(),
-                                     via.member(), list, via.via()
-                                    );
-          Iterator immsIter = imms.iterator();
-          while(immsIter.hasNext()) {
-            GrouperList   gl  = (GrouperList) immsIter.next();
-            GrouperMember mem = (GrouperMember) gl.member();
-            if (mem != null) {
-              GrouperBackend._listAddVal(
-                                         session, via.group(),
-                                         mem, list, memberOfBase
-                                        );
-            } // TODO else...
+          GrouperGroup memberOfBase = g;
+          // Is this member a group?
+          if (m.typeID().equals("group")) {
+            memberOfBase = GrouperBackend._groupLoadByID( m.subjectID() );
           }
+
+          // Grab immediate list data to update
+          List imms = GrouperBackend._listVals(
+                                               session, memberOfBase, null,
+                                               list, Grouper.MEM_IMM
+                                              );
+
+          // Update effective list data
+          Iterator effIter = GrouperBackend._memberOf(
+                              session, memberOfBase, list
+                             ).iterator();
+          while (effIter.hasNext()) {
+            GrouperVia via = (GrouperVia) effIter.next();
+            GrouperBackend._listAddVal(
+                                       session, via.group(),
+                                       via.member(), list, via.via()
+                                      );
+            Iterator immsIter = imms.iterator();
+            while(immsIter.hasNext()) {
+              GrouperList   gl  = (GrouperList) immsIter.next();
+              GrouperMember mem = (GrouperMember) gl.member();
+              if (mem != null) {
+                GrouperBackend._listAddVal(
+                                           session, via.group(),
+                                           mem, list, memberOfBase
+                                          );
+              } // TODO else...
+            }
+          }
+          // Update modify information
+          session.update(g);
+          // Commit it
+          t.commit();
+          rv = true;
+        } catch (Exception e) {
+          // TODO We probably need a rollback in here in case of failure
+          //      above.
+          System.err.println(e);
+          System.exit(1);
         }
-
-        // Update modify information
-        session.update(g);
-
-        // Commit it
-        t.commit();
-        
-        rv = true;
-      } catch (Exception e) {
-        // TODO We probably need a rollback in here in case of failure
-        //      above.
-        System.err.println(e);
-        System.exit(1);
       }
     } 
     GrouperBackend._hibernateSessionClose(session);
@@ -1939,7 +1940,17 @@ public class GrouperBackend {
     String  mkey_txt    = GrouperBackend._queryNullOrVal(mkey);
     String  via_txt     = "";
     if (via != null) {
-      via_txt = " AND gl.via" + GrouperBackend._queryNullOrVal(via);
+      if        (via.equals(Grouper.MEM_ALL)) {        
+        // Already set via_txt is fine
+      } else if (via.equals(Grouper.MEM_EFF)) {
+        // We want a value
+        via_txt = " AND gl.via IS NOT NULL";
+      } else if (via.equals(Grouper.MEM_IMM)) {
+        // We don't want a value
+        via_txt = " AND gl.via IS NULL";
+      } else {
+        via_txt = " AND gl.via" + GrouperBackend._queryNullOrVal(via);
+      }
     }
     try {
       Query q = session.createQuery(
