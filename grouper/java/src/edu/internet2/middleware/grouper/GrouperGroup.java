@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.135 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.136 2004-12-07 05:11:24 blair Exp $
  */
 public class GrouperGroup {
 
@@ -74,7 +74,6 @@ public class GrouperGroup {
   private String          createTime;
   private String          createSubject;
   private String          createSource;
-  private GrouperSession  gs;
   private String          id;
   private boolean         initialized   = false; // FIXME UGLY HACK!
   private String          key;
@@ -212,7 +211,7 @@ public class GrouperGroup {
    * @param   attribute The attribute to get.
    * @return  A {@link GrouperAttribute} object.
    */
-  public GrouperAttribute attribute(String attribute) {
+  public GrouperAttribute attribute(GrouperSession s, String attribute) {
     return (GrouperAttribute) attributes.get(attribute);
   }
 
@@ -226,7 +225,7 @@ public class GrouperGroup {
    * @return  Boolean true if attribute added successfully, false
    *   otherwise.
    */
-  public boolean attribute(String attribute, String value) {
+  public boolean attribute(GrouperSession s, String attribute, String value) {
     boolean rv = false;
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
@@ -259,18 +258,18 @@ public class GrouperGroup {
         if        (value == null) {
           // Delete an existing attribute
           this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.load( this.gs.subject());
+          GrouperMember mem = GrouperMember.load( s.subject());
           this.setModifySubject( mem.key() );
           if (
-              (this._canModAttr(this.gs, this))             &&
+              (this._canModAttr(s, this))                   &&
               (GrouperBackend.attrDel(this.key, attribute)) &&
-              (GrouperBackend.groupUpdate(this.gs, this))
+              (GrouperBackend.groupUpdate(s, this))
              )
           {
             this.attributes.remove(attribute);
             rv = true;
           }
-          Grouper.log().groupAttrDel(rv, this.gs, this, attribute);
+          Grouper.log().groupAttrDel(rv, s, this, attribute);
           if (rv != true) {
             // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
@@ -288,18 +287,18 @@ public class GrouperGroup {
                                   );
           if (initialized == true) {
             this.setModifyTime(    GrouperGroup._now()       );
-            GrouperMember mem = GrouperMember.load( this.gs.subject());
+            GrouperMember mem = GrouperMember.load( s.subject());
             this.setModifySubject( mem.key() );
             if (
-                (attr != null)                              && 
-                (this._canModAttr(this.gs, this))           &&
-                (this._attrAdd(attribute, attr))            &&
-                (GrouperBackend.groupUpdate(this.gs, this))   
+                (attr != null)                        && 
+                (this._canModAttr(s, this))           &&
+                (this._attrAdd(attribute, attr))      &&
+                (GrouperBackend.groupUpdate(s, this)) 
                )
             {
               rv = true;
             }
-            Grouper.log().groupAttrAdd(rv, this.gs, this, attribute, value);
+            Grouper.log().groupAttrAdd(rv, s, this, attribute, value);
             if (rv != true) {
               // We only need to revert modify* attr changes as there is
               // no attribute value to revert back to in this case.
@@ -322,18 +321,18 @@ public class GrouperGroup {
                                     this.key, attribute, value
                                   );
           this.setModifyTime(    GrouperGroup._now()       );
-          GrouperMember mem = GrouperMember.load( this.gs.subject());
+          GrouperMember mem = GrouperMember.load( s.subject());
           this.setModifySubject( mem.key() );
           if (
-              (attr != null)                              &&
-              (this._canModAttr(this.gs, this))           &&
-              (this._attrAdd(attribute, attr))            &&
-              (GrouperBackend.groupUpdate(this.gs, this))   
+              (attr != null)                        &&
+              (this._canModAttr(s, this))           &&
+              (this._attrAdd(attribute, attr))      &&
+              (GrouperBackend.groupUpdate(s, this))   
              )
           {
             rv = true;
           }
-          Grouper.log().groupAttrUpdate(rv, this.gs, this, attribute, value);
+          Grouper.log().groupAttrUpdate(rv, s, this, attribute, value);
           if (rv != true) {
             // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
@@ -533,11 +532,13 @@ public class GrouperGroup {
    * @return String representation of the object.
    */
   public String toString() {
-    return new ToStringBuilder(this)                            .
-      append("type"     , this.type()                         ) .
-      append("id"       , this.getGroupID()                   ) .
-      append("stem"     , this.attribute("stem").value()      ) .
-      append("extension", this.attribute("extension").value() ) .
+    // TODO GrouperAttribute stem = (GrouperAttribute) this.attributes.get("stem");
+    // TODO GrouperAttribute extn = (GrouperAttribute) this.attributes.get("extn");
+    return new ToStringBuilder(this)          .
+      append("type"     , this.type()       ) .
+      append("id"       , this.getGroupID() ) .
+      // TODO append("stem"     , stemVal           ) .
+      // TODO append("extension", extnVal           ) .
       toString();
   }
 
@@ -545,6 +546,22 @@ public class GrouperGroup {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  // FIXME Does this method I can *really* clean up the public version?
+  protected GrouperAttribute attribute(String attr) {
+    return (GrouperAttribute) attributes.get(attr);
+  }
+
+  // FIXME Does this method I can *really* clean up the public version?
+  protected void attribute(String attr, GrouperAttribute value) {
+    if (attr != null) {
+      if (value != null) {
+        attributes.put(attr, value);
+      } else {
+        attributes.remove(attr);
+      }
+    }
+  }
 
   /**
    * Return group key.
@@ -672,8 +689,6 @@ public class GrouperGroup {
   {
     GrouperGroup g = GrouperBackend.groupLoadByKey(key);
     if (g != null) {
-      // Attach session
-      g.gs = s;
       // Attach type  
       // FIXME Grr....
       g.type = type;
@@ -689,8 +704,6 @@ public class GrouperGroup {
   {
     GrouperGroup g = GrouperBackend.groupLoad(s, stem, extn, type);
     if (g != null) {
-      // Attach session
-      g.gs = s;
       // Attach type  
       // FIXME Grr....
       g.type = type;
@@ -766,8 +779,6 @@ public class GrouperGroup {
         if (name != null) {
           // TODO Can I move all|most of this to GrouperBackend?
           g = new GrouperGroup();
-          // Attach session
-          g.gs  = s;
           // Generate the UUIDs
           g.setGroupKey( GrouperBackend.uuid() );
           g.setGroupID(  GrouperBackend.uuid() );
@@ -826,7 +837,6 @@ public class GrouperGroup {
     this.createSubject  = null;
     this.createSource   = null;
     this.key            = null;
-    this.gs             = null;
     this.modifyTime     = null;
     this.modifySubject  = null;
     this.modifySource   = null;
@@ -846,7 +856,7 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.load( this.gs.subject());
+    GrouperMember mem = GrouperMember.load( s.subject());
     this.setModifySubject( mem.key() );
     if (GrouperBackend.listAddVal(s, this, m, list) == true) {
       rv = true;
@@ -871,7 +881,7 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    GrouperMember mem = GrouperMember.load( this.gs.subject());
+    GrouperMember mem = GrouperMember.load( s.subject());
     this.setModifySubject( mem.key() );
     if (GrouperBackend.listDelVal(s, this, m, list) == true) {
       rv = true;

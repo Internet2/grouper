@@ -120,10 +120,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     s.stop();
   }
 
@@ -140,10 +140,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     s.stop();
   }
 
@@ -160,10 +160,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     s.stop();
   }
 
@@ -180,10 +180,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     s.stop();
   }
 
@@ -200,10 +200,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    //Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    //Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    //Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    //Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     // We're done
     s.stop();
   }
@@ -221,10 +221,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     // We're done
     s.stop();
   }
@@ -242,10 +242,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     // We're done
     s.stop();
   }
@@ -263,10 +263,10 @@ public class TestNamespaces extends TestCase {
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
-    Assert.assertNotNull( ns.attribute("stem") );
-    Assert.assertTrue( ns.attribute("stem").value().equals(stem) );
-    Assert.assertNotNull( ns.attribute("extension") );
-    Assert.assertTrue( ns.attribute("extension").value().equals(extn) );
+    Assert.assertNotNull( ns.attribute(s, "stem") );
+    Assert.assertTrue( ns.attribute(s, "stem").value().equals(stem) );
+    Assert.assertNotNull( ns.attribute(s, "extension") );
+    Assert.assertTrue( ns.attribute(s, "extension").value().equals(extn) );
     // We're done
     s.stop();
   }
