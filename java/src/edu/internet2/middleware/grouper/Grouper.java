@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.66 2005-01-27 02:41:03 blair Exp $
+ * @version $Id: Grouper.java,v 1.67 2005-01-30 20:48:36 blair Exp $
  */
 public class Grouper {
 
@@ -141,6 +141,12 @@ public class Grouper {
    */
   // TODO Replace with configurable 'hierarchy.delimiter'
   protected static final String HIER_DELIM  = ":";
+  protected static final String KLASS_GG    =
+    "edu.internet2.middleware.grouper.GrouperGroup";
+  protected static final String KLASS_GM    =
+    "edu.internet2.middleware.grouper.GrouperMember";
+  protected static final String KLASS_GS    =
+    "edu.internet2.middleware.grouper.GrouperSession";
 
 
   /*
