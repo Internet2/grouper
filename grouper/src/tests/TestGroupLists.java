@@ -1706,5 +1706,529 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
+  public void testPrep5() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.create(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.create(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.create(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.create(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    GrouperMember m0 = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m1 = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember m2 = GrouperMember.load(Util.rooti, Util.roott);
+    Assert.assertNotNull(m0);
+    Assert.assertNotNull(m1);
+    Assert.assertNotNull(m2);
+    Assert.assertTrue( g7.listAddVal(s, m0) );
+    Assert.assertTrue( g8.listAddVal(s, m1) );
+    Assert.assertTrue( g9.listAddVal(s, m2) );
+    Assert.assertTrue( g10.listAddVal(s, m0) );
+    s.stop();
+  }
+
+  public void testFetchLV5_0() {
+    //
+    // g7   (m0)  ()
+    // g8   (m1)  ()
+    // g9   (m2)  ()
+    // g10  (m0)  ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 1);
+    Assert.assertTrue(mem7e.size()  == 0);
+    Assert.assertTrue(mem7i.size()  == 1);
+    Assert.assertTrue(mem8.size()   == 1);
+    Assert.assertTrue(mem8e.size()  == 0);
+    Assert.assertTrue(mem8i.size()  == 1);
+    Assert.assertTrue(mem9.size()   == 1);
+    Assert.assertTrue(mem9e.size()  == 0);
+    Assert.assertTrue(mem9i.size()  == 1);
+    Assert.assertTrue(mem10.size()   == 1);
+    Assert.assertTrue(mem10e.size()  == 0);
+    Assert.assertTrue(mem10i.size()  == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testAdd5_0() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertTrue( g8.listAddVal(s, g7m) );
+    s.stop();
+  }
+
+  public void testFetchLV5_1() {
+    //
+    // g7   (m0)      ()
+    // g8   (m1, g7)  (m0)
+    // g9   (m2)      ()
+    // g10  (m0)      ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 1);
+    Assert.assertTrue(mem7e.size()  == 0);
+    Assert.assertTrue(mem7i.size()  == 1);
+    Assert.assertTrue(mem8.size()   == 3); 
+    Assert.assertTrue(mem8e.size()  == 1); 
+    Assert.assertTrue(mem8i.size()  == 2);
+    Assert.assertTrue(mem9.size()   == 1);
+    Assert.assertTrue(mem9e.size()  == 0);
+    Assert.assertTrue(mem9i.size()  == 1);
+    Assert.assertTrue(mem10.size()   == 1);
+    Assert.assertTrue(mem10e.size()  == 0);
+    Assert.assertTrue(mem10i.size()  == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testAdd5_1() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertTrue( g9.listAddVal(s, g8m) );
+    s.stop();
+  }
+
+  public void testFetchLV5_2() {
+    //
+    // g7   (m0)      ()
+    // g8   (m1, g7)  (m0)
+    // g9   (m2, g8)  (m1, g7, m0)
+    // g10  (m0)      ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 1);
+    Assert.assertTrue(mem7e.size()  == 0);
+    Assert.assertTrue(mem7i.size()  == 1);
+    Assert.assertTrue(mem8.size()   == 3);
+    Assert.assertTrue(mem8e.size()  == 1);
+    Assert.assertTrue(mem8i.size()  == 2);
+    Assert.assertTrue(mem9.size()   == 5); 
+    Assert.assertTrue(mem9e.size()  == 3);
+    Assert.assertTrue(mem9i.size()  == 2);
+    Assert.assertTrue(mem10.size()  == 1); 
+    Assert.assertTrue(mem10e.size() == 0); 
+    Assert.assertTrue(mem10i.size() == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testAdd5_2() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertTrue( g7.listAddVal(s, g10m) );
+    s.stop();
+  }
+
+  public void testFetchLV5_3() {
+    //
+    // g7   (m0, g10) (m0)
+    // g8   (m1, g7)  (m0, g10, m0)
+    // g9   (m2, g8)  (m1, g7, m0, g10, m0)
+    // g10  (m0)      ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 3);
+    Assert.assertTrue(mem7e.size()  == 1);
+    Assert.assertTrue(mem7i.size()  == 2);
+    Assert.assertTrue(mem8.size()   == 5);
+    Assert.assertTrue(mem8e.size()  == 3);
+    Assert.assertTrue(mem8i.size()  == 2);
+    Assert.assertTrue(mem9.size()   == 7); 
+    Assert.assertTrue(mem9e.size()  == 5);
+    Assert.assertTrue(mem9i.size()  == 2);
+    Assert.assertTrue(mem10.size()  == 1); 
+    Assert.assertTrue(mem10e.size() == 0); 
+    Assert.assertTrue(mem10i.size() == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testDel5_0() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertTrue( g9.listDelVal(s, g8m) );
+    s.stop();
+  }
+
+  public void testFetchLV5_4() {
+    //
+    // g7   (m0, g10) (m0)
+    // g8   (m1, g7)  (m0, g10, m0)
+    // g9   (m2)      ()
+    // g10  (m0)      ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 3);
+    Assert.assertTrue(mem7e.size()  == 1);
+    Assert.assertTrue(mem7i.size()  == 2);
+    Assert.assertTrue(mem8.size()   == 5);
+    Assert.assertTrue(mem8e.size()  == 3);
+    Assert.assertTrue(mem8i.size()  == 2);
+    Assert.assertTrue(mem9.size()   == 1); 
+    Assert.assertTrue(mem9e.size()  == 0);
+    Assert.assertTrue(mem9i.size()  == 1);
+    Assert.assertTrue(mem10.size()  == 1); 
+    Assert.assertTrue(mem10e.size() == 0); 
+    Assert.assertTrue(mem10i.size() == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testDel5_1() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertTrue( g7.listDelVal(s, g10m) );
+    s.stop();
+  }
+
+  public void testFetchLV5_5() {
+    //
+    // g7   (m0)      ()
+    // g8   (m1, g7)  (m0)
+    // g9   (m2)      ()
+    // g10  (m0)      ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 1);
+    Assert.assertTrue(mem7e.size()  == 0);
+    Assert.assertTrue(mem7i.size()  == 1);
+    Assert.assertTrue(mem8.size()   == 3);
+    Assert.assertTrue(mem8e.size()  == 1);
+    Assert.assertTrue(mem8i.size()  == 2);
+    Assert.assertTrue(mem9.size()   == 1); 
+    Assert.assertTrue(mem9e.size()  == 0);
+    Assert.assertTrue(mem9i.size()  == 1);
+    Assert.assertTrue(mem10.size()  == 1); 
+    Assert.assertTrue(mem10e.size() == 0); 
+    Assert.assertTrue(mem10i.size() == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testDel5_2() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    GrouperMember m0 = GrouperMember.load(Util.m0i, Util.m0t);
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertNotNull(m0);
+    Assert.assertTrue( g7.listDelVal(s, m0) );
+    s.stop();
+  }
+
+  public void testFetchLV5_6() {
+    //
+    // g7   ()        ()
+    // g8   (m1, g7)  (g7)
+    // g9   (m2)      ()
+    // g10  (m0)      ()
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNotNull(g7);
+    Assert.assertNotNull(g8);
+    Assert.assertNotNull(g9);
+    Assert.assertNotNull(g10);
+    List mem7   = g7.listVals(s);
+    List mem7e  = g7.listEffVals(s);
+    List mem7i  = g7.listImmVals(s);
+    List mem8   = g8.listVals(s);
+    List mem8e  = g8.listEffVals(s);
+    List mem8i  = g8.listImmVals(s);
+    List mem9   = g9.listVals(s);
+    List mem9e  = g9.listEffVals(s);
+    List mem9i  = g9.listImmVals(s);
+    List mem10   = g10.listVals(s);
+    List mem10e  = g10.listEffVals(s);
+    List mem10i  = g10.listImmVals(s);
+    Assert.assertTrue(mem7.size()   == 0);
+    Assert.assertTrue(mem7e.size()  == 0);
+    Assert.assertTrue(mem7i.size()  == 0);
+    Assert.assertTrue(mem8.size()   == 2);
+    Assert.assertTrue(mem8e.size()  == 0);
+    Assert.assertTrue(mem8i.size()  == 2);
+    Assert.assertTrue(mem9.size()   == 1); 
+    Assert.assertTrue(mem9e.size()  == 0);
+    Assert.assertTrue(mem9i.size()  == 1);
+    Assert.assertTrue(mem10.size()  == 1); 
+    Assert.assertTrue(mem10e.size() == 0); 
+    Assert.assertTrue(mem10i.size() == 1);
+    // We're done
+    s.stop(); 
+  }
+
+  public void testDel5_3() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperMember g7m = GrouperMember.load(g7.id(), "group");
+    GrouperMember g8m = GrouperMember.load(g8.id(), "group");
+    GrouperMember g9m = GrouperMember.load(g9.id(), "group");
+    GrouperMember g10m = GrouperMember.load(g10.id(), "group");
+    GrouperMember m0 = GrouperMember.load(Util.m0i, Util.m0t);
+    GrouperMember m1 = GrouperMember.load(Util.m1i, Util.m1t);
+    GrouperMember m2 = GrouperMember.load(Util.rooti, Util.roott);
+    Assert.assertNotNull(g7m);
+    Assert.assertNotNull(g8m);
+    Assert.assertNotNull(g9m);
+    Assert.assertNotNull(g10m);
+    Assert.assertNotNull(m0);
+    Assert.assertNotNull(m1);
+    Assert.assertNotNull(m2);
+    Assert.assertTrue( g8.listDelVal(s, m1) );
+    Assert.assertTrue( g8.listDelVal(s, g7m) );
+    Assert.assertTrue( g9.listDelVal(s, m2) );
+    Assert.assertTrue( g10.listDelVal(s, m0) );
+    Assert.assertTrue( GrouperGroup.delete(s, g7) );
+    Assert.assertTrue( GrouperGroup.delete(s, g8) );
+    Assert.assertTrue( GrouperGroup.delete(s, g9) );
+    Assert.assertTrue( GrouperGroup.delete(s, g10) );
+    s.stop();
+  }
+
+  public void testFetchLV5_7() {
+    //
+    // g7   X
+    // g8   X
+    // g9   X
+    // g10  X
+    //
+    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    Assert.assertNull(g7);
+    Assert.assertNull(g8);
+    Assert.assertNull(g9);
+    Assert.assertNull(g10);
+    // We're done
+    s.stop(); 
+  }
+
 }
 
