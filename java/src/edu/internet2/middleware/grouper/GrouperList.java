@@ -58,10 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * TODO 
+ * Class representing a {@link Grouper} list value.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.19 2004-12-01 04:05:58 blair Exp $
+ * @version $Id: GrouperList.java,v 1.20 2004-12-01 04:23:10 blair Exp $
  */
 public class GrouperList implements Serializable {
 

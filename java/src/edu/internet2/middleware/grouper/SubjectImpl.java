@@ -59,10 +59,11 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
- * Implementation of the I2MI {@link Subject} interface.
+ * Default implementation of the I2MI {@link Subject} interface.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.11 2004-11-30 01:36:26 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.12 2004-12-01 04:23:10 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject

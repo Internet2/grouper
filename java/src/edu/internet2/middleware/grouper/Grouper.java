@@ -60,10 +60,11 @@ import  org.apache.log4j.*;
 
 
 /** 
- * {@link Grouper} environment class.
+ * Base {@link Grouper} class.
+ * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.52 2004-11-30 02:26:53 blair Exp $
+ * @version $Id: Grouper.java,v 1.53 2004-12-01 04:23:09 blair Exp $
  */
 public class Grouper {
 

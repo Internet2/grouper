@@ -63,13 +63,14 @@ import  org.doomdark.uuid.UUIDGenerator;
 
 
 /** 
- * {@link Grouper} class providing access to backend (queries, adds,
- * deletes, modifies, etc.).
- * <p>
- * All methods are static class methods.
+ * Class providing more direct access to the group registry for queries
+ * and updates.
+ * <p />
+ * All methods are class methods and most are restricted to use within
+ * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.80 2004-12-01 03:51:26 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.81 2004-12-01 04:23:10 blair Exp $
  */
 public class GrouperBackend {
 
