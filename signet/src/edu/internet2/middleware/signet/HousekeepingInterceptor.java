@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.7 2005-02-22 18:31:51 acohen Exp $
- $Date: 2005-02-22 18:31:51 $
+ $Id: HousekeepingInterceptor.java,v 1.8 2005-03-08 18:49:55 acohen Exp $
+ $Date: 2005-03-08 18:49:55 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -88,29 +88,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
     Type[] 				types)
   throws CallbackException
   {
-    if ((entity instanceof TreeImpl)
-        || (entity instanceof TreeNodeImpl)
-        || (entity instanceof SubjectImpl))
-    {
-      Date createDatetime = ((EntityImpl)entity).getCreateDatetime();
-      
-      if (createDatetime == null)
-      {
-        setPropertyState
-        	(state, propertyNames, "createDatetime", new Date());
-        setPropertyState
-        	(state, propertyNames, "createDbAccount", this.dbAccount);
-      }
-      
-      setPropertyState
-      	(state, propertyNames, "modifyDbAccount", this.dbAccount);
-      
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    return false;
   }
   
   private void setPropertyState
@@ -167,7 +145,6 @@ class HousekeepingInterceptor implements Interceptor, Serializable
   {
     Transaction tx;
     
-    System.out.println("DEBUG: HousekeepingInterceptor.postFlush():");
     while (entities.hasNext())
     {
       Object entity = entities.next();
@@ -178,12 +155,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
         
         if (assignment.hasUnsavedLimitValues)
         {
-          System.out.println
-          	("DEBUG: assignment.getNumericId()=" + assignment.getNumericId());
-        
           Set limitValues = assignment.getLimitValues();
-          System.out.println
-          	("DEBUG: limitValues.size()=" + limitValues.size());
           Iterator limitValuesIterator = limitValues.iterator();
           Session tempSession
           	= this.sessionFactory.openSession(this.connection);
@@ -203,10 +175,6 @@ class HousekeepingInterceptor implements Interceptor, Serializable
 
             try
             {
-              System.out.println
-              	("DEBUG: assignment.getNumericId().intValue()="
-            	   + assignment.getNumericId().intValue());
-              
               /**
                * Note that the AssignmentLimitValue constructor takes a
                * Subsystem ID. That Subsystem ID is actually the ID of the
@@ -224,8 +192,6 @@ class HousekeepingInterceptor implements Interceptor, Serializable
            			     limitValue.getLimit().getId(),
            			     limitValue.getValue());
 
-              System.out.println
-              	("DEBUG: alv.getAssignmentId()=" + alv.getAssignmentId());
               tempSession.save(alv);
             }
             catch (Exception e)
