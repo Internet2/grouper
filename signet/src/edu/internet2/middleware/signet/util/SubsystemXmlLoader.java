@@ -56,9 +56,9 @@ public class SubsystemXmlLoader {
         if (! readYesOrNo(
         		"\nYou are about to delete data for subsystem "
         		+ subsystemId
-        		+ " and the associated assignments. "
+        		+ " and the associated assignments."
 				+ "\nDo you wish"
-				+ " to continue (y or n)? ")) {
+				+ " to continue (Y/N)? ")) {
         	System.exit(0);
         }
 
