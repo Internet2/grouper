@@ -1,31 +1,37 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  edu.internet2.middleware.directory.grouper.*;
+import  java.util.ArrayList;
 import  java.util.List;
 
 /** 
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.6 2004-04-30 15:22:20 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.7 2004-05-02 04:45:16 blair Exp $
  */
 public class InternalGrouperAccess implements GrouperAccess {
+
   /**
-   * Create a {@link GrouperAccess} that handles all privileges
-   * internal to grouper.
+   * Create a access interface object.
+   *
+   * @param   s   Session context.
    */
   public InternalGrouperAccess(GrouperSession s) {
     // Nothing -- Yet
   }
 
   /**
-   * Grant an access privilege on a {@link Grouper} group.
+   * Grant an access privilege.
    * <p>
    * <ul>
-   *  <li>XXX Confirm that subjectID has appropriate privilege to
-   *      grant "priv" to "m".</li>
-   *  <li>XXX Update <i>grouper_membership</i> table as apropriate.</li>
-   *  <li>XXX Update <i>grouper_via</i> table as apropriate.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to grant the privilege.</li>
+   *  <li>Update <i>grouper_membership</i> table with new access
+   *      privilege.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any new effective
+   *      memberships.</li>
    * </ul>
    */
   public void grant(GrouperGroup g, GrouperMember m, String priv) {
@@ -33,13 +39,16 @@ public class InternalGrouperAccess implements GrouperAccess {
   }
 
   /**
-   * Revoke an access privilege on a {@link Grouper} group.
+   * Revoke an access privilege.
    * <p>
    * <ul>
-   *  <li>XXX Confirm that subjectID has appropriate privilege to
-   *      revoke "priv" from "m".</li>
-   *  <li>XXX Update <i>grouper_membership</i> table as apropriate.</li>
-   *  <li>XXX Update <i>grouper_via</i> table as apropriate.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to grant the privilege.</li>
+   *  <li>Update <i>grouper_membership</i> table to reflect revoked
+   *      access privilege.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any new effective
+   *      memberships.</li>
    * </ul>
    */
   public void revoke(GrouperGroup g, GrouperMember m, String priv) {
@@ -47,30 +56,34 @@ public class InternalGrouperAccess implements GrouperAccess {
   }
 
   /**
-   * Return all access privileges that the current session's subject has on 
-   * a {@link GrouperGroup}.
+   * List access privileges for current subject on the specified group.
    * <p>
    * <ul>
-   *  <li>XXX Query and return all memberships in the
-   *      <i>grouper_membership</i> table.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view the privileges.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table with the
+   *      appropriate <i>groupID</i> and <i>memberID</i> values.</li>
    * </ul>
    */
   public List has(GrouperGroup g) {
-    return null;
+    List privs = new ArrayList();
+    return privs;
   }
 
   /**
-   * Return all access privileges for a {@link GrouperMember} on a 
-   * {@link GrouperGroup}.
+   * List access privileges for specified member on the specified group.
    * <p>
    * <ul>
-   *  <li>XXX Query and return all memberships in the
-   *      <i>grouper_membership</i> table that the subject
-   *      has privileges to view.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view the privileges.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table with the
+   *      appropriate <i>groupID</i> and <i>memberID</i> or
+   *      <i>groupMemberID</i> values.</li>
    * </ul>
    */
   public List has(GrouperGroup g, GrouperMember m) {
-    return null;
+    List privs = new ArrayList();
+    return privs;
   }
 
   /**
@@ -78,10 +91,9 @@ public class InternalGrouperAccess implements GrouperAccess {
    * access privilege on a {@link GrouperGroup}.
    * <p>
    * <ul>
-   *  <li>XXX Confirm that subjectID has appropriate privilege to 
-   *      verify "m"'s privileges.</li>
-   *  <li>XXX Do I need to differentiate between "user" level checks
-   *      and "system" level checks?</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view the specified privilege.</li>
+   *  <li>Verify the privilege.</li>
    * </ul>
    */
   public boolean has(GrouperGroup g, String priv) {
@@ -93,14 +105,14 @@ public class InternalGrouperAccess implements GrouperAccess {
    * access on a {@link GrouperGroup}.
    * <p>
    * <ul>
-   *  <li>XXX Confirm that subjectID has appropriate privilege to 
-   *      verify "m"'s privileges.</li>
-   *  <li>XXX Do I need to differentiate between "user" level checks
-   *      and "system" level checks?</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view the specified privilege.</li>
+   *  <li>Verify the privilege.</li>
    * </ul>
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv) {
     return false;
   }
+
 }
 

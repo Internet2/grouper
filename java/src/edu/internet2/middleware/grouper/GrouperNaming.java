@@ -6,7 +6,7 @@ import java.util.List;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.3 2004-04-30 15:29:15 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.4 2004-05-02 04:45:16 blair Exp $
  */
 public interface GrouperNaming {
 
@@ -33,51 +33,50 @@ public interface GrouperNaming {
   public void revoke(GrouperGroup g, GrouperMember m, String priv);
 
   /**
-   * Return all naming privileges that the current session's subject has on 
-   * a {@link GrouperGroup}.
+   * List naming privileges for current subject on the specified group.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   g   List privileges on this group.
    * @return  List of privileges.
    */
   public List has(GrouperGroup g);
 
   /**
-   * Return all naming privileges for a {@link GrouperMember} on a 
-   * {@link GrouperGroup}.
+   * List access privileges for specified member on the specified group.
    * <p>
    * See implementations for more information.
    *
    * @param   g     Return privileges for this {@link GrouperGroup}.
-   * @param   m     Return privileges for this {@link GrouperMember}.
+   * @param   m     List privileges for this @link GrouperMember}.
    * @return  List of privileges.
    */
   public List has(GrouperGroup g, GrouperMember m);
 
   /**
-   * Verify whether the current session's subject has a specified 
-   * naming privilege on a {@link GrouperGroup}.
+   * Verify whether current subject has the specified privilege on the
+   * specified group.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Check privilege on this {@link GrouperGroup}.
-   * @param   priv  Check for this privilege.
-   * @return  True if the {@link GrouperMember} has the privilege.
+   * @param   g     Verify privilege for this group.
+   * @param   priv  Verify this privilege.
+   * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperGroup g, String priv);
 
   /**
-   * Verify whether a {@link GrouperMember} has a specified naming privilege
-   * on a {@link GrouperGroup}.
+   * Verify whether the specified member has the specified privilege
+   * on the specified group.
    * <p>
    * See implementations for more information.
    *
-   * @param   g     Check privilege on this {@link GrouperGroup}.
-   * @param   m     Check privilege for this {@link GrouperMember}.
-   * @param   priv  Check for this privilege.
-   * @return  True if the {@link GrouperMember} has the privilege.
+   * @param   g     Verify privilege for this group.
+   * @param   m     Verify privilege for this member.
+   * @param   priv  Verify this privilege.
+   * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperGroup g, GrouperMember m, String priv);
+
 }
 

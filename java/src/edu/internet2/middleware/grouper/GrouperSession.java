@@ -10,7 +10,7 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.21 2004-05-02 03:56:31 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.22 2004-05-02 04:45:16 blair Exp $
  */
 public class GrouperSession {
 
@@ -189,7 +189,7 @@ public class GrouperSession {
   }
 
   /**
-   * List privileges by current subject on the specified group.
+   * List privileges for current subject on the specified group.
    *
    * @param   g   List privileges on this group.
    * @return  List of privileges.
