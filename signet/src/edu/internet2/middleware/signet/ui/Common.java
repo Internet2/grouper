@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.3 2005-02-24 00:19:50 acohen Exp $
-  $Date: 2005-02-24 00:19:50 $
+  $Id: Common.java,v 1.4 2005-02-24 01:54:53 acohen Exp $
+  $Date: 2005-02-24 01:54:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -88,13 +88,8 @@ public class Common
     for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
     {
       Limit limit = limits[limitIndex];
-//      strBuf.append("<tr>\n");
-      
-      strBuf.append("  <td align=\"right\">\n");
-      strBuf.append("    " + limit.getName() + ":\n");
-      strBuf.append("  </td>\n");
-      
-      strBuf.append("  <td>\n");
+      strBuf.append((limitIndex > 0) ? "\n<br />\n" : "");
+      strBuf.append(limit.getName() + ": ");
 
       int limitValuesPrinted = 0;
       for (int limitValueIndex = 0;
@@ -104,13 +99,10 @@ public class Common
         LimitValue limitValue = limitValues[limitValueIndex];
         if (limitValue.getLimit().equals(limit))
         {
-          strBuf.append((limitValuesPrinted++ > 0) ? "    <br />\n" : "");
-          strBuf.append("    " + limitValue.getValue() + "\n");
+        strBuf.append((limitValuesPrinted++ > 0) ? ", " : "");
+        strBuf.append(limitValue.getValue());
         }
       }
-                 
-      strBuf.append("  </td>\n");
-//      strBuf.append("</tr>\n");
     }
     
     return strBuf.toString();

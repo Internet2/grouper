@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.9 2005-02-24 01:09:39 jvine Exp $
-  $Date: 2005-02-24 01:09:39 $
+  $Id: main.jsp,v 1.10 2005-02-24 01:54:53 acohen Exp $
+  $Date: 2005-02-24 01:54:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -192,6 +192,7 @@
               <td> <!-- limits -->
                 <%=Common.displayLimitValues(assignment)%>
               </td> <!-- limits -->
+              
               <td> <!-- status -->
 <%=
   assignment.getStatus().getName()
