@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: org-browse.jsp,v 1.4 2005-02-09 22:00:35 acohen Exp $
+  $Date: 2005-02-09 22:00:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -72,7 +72,7 @@
        + currentSubsystem.getId();
 %>
 
-    <form name="form1" action="Limits.do">  
+    <form name="form1" action="Conditions.do">  
       <div id="Header">  
         <div id="Logo">
           <img src="images/KITN.gif" alt="logo" height="60" width="216">

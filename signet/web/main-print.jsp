@@ -1,6 +1,6 @@
 <!--
-  $Id: main-print.jsp,v 1.6 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: main-print.jsp,v 1.7 2005-02-09 22:00:35 acohen Exp $
+  $Date: 2005-02-09 22:00:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -61,34 +61,34 @@
           Privileges you have granted</h1>
   	    
         <table class="full">            
-	        <tr>
+          <tr>
             <td nowrap="nowrap">
               <b>
                 Person
               </b>
             </td>
-	          <td nowrap="nowrap">
-	            <b>
-	              Privilege
-	            </b>
-	          </td>
-	          <td nowrap="nowrap"><b>Scope</b></td>
-	          <td nowrap="nowrap">
-	            <b>
-	              Limits
-	            </b>
-	          </td>
-	          <td nowrap="nowrap">
-	            <b>
-	              Status
-	            </b>
-	          </td>
-	          <td nowrap="nowrap">
-	            <b>
-	              Granted
-	            </b>
-	          </td>
-	        </tr>
+            <td nowrap="nowrap">
+              <b>
+                Privilege
+              </b>
+            </td>
+            <td nowrap="nowrap"><b>Scope</b></td>
+            <td nowrap="nowrap">
+              <b>
+                Limits
+              </b>
+            </td>
+            <td nowrap="nowrap">
+              <b>
+                Status
+              </b>
+            </td>
+            <td nowrap="nowrap">
+              <b>
+                Granted
+              </b>
+            </td>
+          </tr>
 	        
 	  
 <%
@@ -100,7 +100,7 @@
   {
     Assignment assignment = (Assignment)(assignmentIterator.next());
     PrivilegedSubject grantee = assignment.getGrantee();
-    Subsystem subsystem = assignment.getSubsystem();
+    Subsystem subsystem = assignment.getFunction().getSubsystem();
     Function function = assignment.getFunction();
     Category category = function.getCategory();
 %>
@@ -109,12 +109,12 @@
             <td>
               <%=grantee.getName()%>
             </td>
-	          <td>
+            <td>
               <%=subsystem.getName()%> : <%=category.getName()%> :
               <span>
                 <%=assignment.getFunction().getName()%>
               </span>
-	          </td>
+            </td>
             <td>&nbsp;</td>
             <td>
               <span>
@@ -136,7 +136,8 @@
             </td>
             <td nowrap="nowrap">
 <%=
-  dateFormat.format(assignment.getCreateDateTime())
+  // dateFormat.format(assignment.getCreateDateTime())
+  ""
 %>
             </td>
           </tr>
@@ -145,8 +146,8 @@
   }
 %>
             
-	      </table>
-			<jsp:include page="footer.jsp" flush="true" />	
+        </table>
+        <jsp:include page="footer.jsp" flush="true" />	
       </div>
     </form>
   </body>

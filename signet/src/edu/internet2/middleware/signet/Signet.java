@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.11 2005-02-08 19:20:50 acohen Exp $
- $Date: 2005-02-08 19:20:50 $
+ $Id: Signet.java,v 1.12 2005-02-09 22:00:35 acohen Exp $
+ $Date: 2005-02-09 22:00:35 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -2064,6 +2064,7 @@ public final class Signet
     {
       TreeNode treeNode = (TreeNode) (treeNodesIterator.next());
       Tree tree = treeNode.getTree();
+      ((TreeImpl)tree).setSignet(this);
       roots.addAll(tree.getRoots());
     }
 

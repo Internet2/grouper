@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.5 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: personview.jsp,v 1.6 2005-02-09 22:00:35 acohen Exp $
+  $Date: 2005-02-09 22:00:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -207,7 +207,7 @@
     Assignment receivedAssignment
       = (Assignment)(assignmentsReceivedIterator.next());
     subsystemsOfReceivedAssignments.add
-    	(receivedAssignment.getSubsystem());
+    	(receivedAssignment.getFunction().getSubsystem());
   }
 
   Iterator subsystemsIterator
@@ -299,7 +299,7 @@
                  	<a
                       style="float: right;"
                       href="javascript:openWindow
-                              ('Assignment.do?assignmentId=<%=assignment.getId()%>',
+                              ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
                       	       'popup',
                       	       'scrollbars=yes,
                       	        resizable=yes,
@@ -343,8 +343,8 @@
                  	<input
                       name="revoke"
                       type="checkbox"
-                      id="<%=assignment.getId()%>"
-                      value="<%=assignment.getId()%>"
+                      id="<%=assignment.getNumericId()%>"
+                      value="<%=assignment.getNumericId()%>"
                       <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "disabled=\"true\"")%>
                       onClick="selectThis(this.checked);">
                	</td>

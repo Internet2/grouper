@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.4 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: assignment.jsp,v 1.5 2005-02-09 22:00:35 acohen Exp $
+  $Date: 2005-02-09 22:00:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -52,7 +52,7 @@
 %>
     <div class="section">
 			<h2>
-      <%=currentAssignment.getSubsystem().getName()%>
+      <%=currentAssignment.getFunction().getSubsystem().getName()%>
       :
       <%=currentAssignment.getFunction().getCategory().getName()%>
       :

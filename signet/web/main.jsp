@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.6 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: main.jsp,v 1.7 2005-02-09 22:00:35 acohen Exp $
+  $Date: 2005-02-09 22:00:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -151,7 +151,7 @@
   {
     Assignment assignment = (Assignment)(assignmentIterator.next());
     PrivilegedSubject grantee = assignment.getGrantee();
-    Subsystem subsystem = assignment.getSubsystem();
+    Subsystem subsystem = assignment.getFunction().getSubsystem();
     Function function = assignment.getFunction();
     Category category = function.getCategory();
 %>
@@ -168,7 +168,7 @@
                   style="float: right;"
                   href
                     ="javascript:openWindow
-                        ('Assignment.do?assignmentId=<%=assignment.getId()%>',
+                        ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
                          'popup',
                          'scrollbars=yes,
                          resizable=yes,
@@ -198,7 +198,10 @@
               </td>
               <td nowrap="nowrap">
 <%=
-  dateFormat.format(assignment.getCreateDateTime())
+  // assignment.getCreateDateTime() is no longer supported. Eventually,
+  // I'll need to remove this reference a little more completely.
+  // dateFormat.format(assignment.getCreateDateTime())
+  ""
 %>
               </td>
             </tr>
