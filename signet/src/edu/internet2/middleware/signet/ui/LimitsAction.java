@@ -1,6 +1,6 @@
 /*--
-  $Id: LimitsAction.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: LimitsAction.java,v 1.2 2005-01-10 21:52:16 acohen Exp $
+  $Date: 2005-01-10 21:52:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -75,8 +75,6 @@ public final class LimitsAction extends BaseAction
     // stash it in the Session.
     HttpSession session = request.getSession(); 
     String currentScopeString = request.getParameter("scope");
-
-    log.warn("XXX - currentScopeString='" + currentScopeString + "'");
     Signet signet = (Signet)(session.getAttribute("signet"));
     
     if (signet == null)

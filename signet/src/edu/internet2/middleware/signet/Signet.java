@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.4 2005-01-05 21:02:22 acohen Exp $
-$Date: 2005-01-05 21:02:22 $
+$Id: Signet.java,v 1.5 2005-01-10 21:52:16 acohen Exp $
+$Date: 2005-01-10 21:52:16 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,13 +16,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.collections.list.UnmodifiableList;
 import org.apache.commons.collections.set.UnmodifiableSet;
-import org.apache.commons.logging.Log;
-
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 import edu.internet2.middleware.signet.tree.TreeType;
@@ -50,145 +49,181 @@ public final class Signet
    * This constant denotes the default subject-type ID, as it is defined
    * and used by Signet.
    */
-  static final String DEFAULT_SUBJECT_TYPE_ID
+  private static final String DEFAULT_SUBJECT_TYPE_ID
   	= "signet";
   
+  // This constant should probably end up in some sort of Tree-specific
+  // presentation class adapter, and should probably be private when it
+  // moves there.
   static final String SCOPE_PART_DELIMITER 
   	= ":";
   
-  static final String DEFAULT_TREE_TYPE_ADAPTER_NAME
+  private static final String DEFAULT_TREE_TYPE_ADAPTER_NAME
   	= "edu.internet2.middleware.signet.TreeTypeAdapterImpl";
-
-/**
- * This constant denotes the "first name" attribute of a Subject, as it is
- * defined and used by Signet.
- * <p />
- * Perhaps this constant should be moved to the PrivilegedSubject interface,
- * or even hidden within the implementation of that interface.
- */
-public static final String ATTR_FIRSTNAME
-	= "~firstname";
-
-/**
- * This constant denotes the "middle name" attribute of a Subject, as it is
- * defined and used by Signet.
- * <p />
- * Perhaps this constant should be moved to the PrivilegedSubject interface,
- * or even hidden within the implementation of that interface.
- */
-public static final String ATTR_MIDDLENAME
-	= "~middlename";
-
-/**
- * This constant denotes the "last name" attribute of a Subject, as it is
- * defined and used by Signet.
- * <p />
- * Perhaps this constant should be moved to the PrivilegedSubject interface,
- * or even hidden within the implementation of that interface.
- */
-public static final String ATTR_LASTNAME
-	= "~lastname";
-
-/**
- * This constant denotes the "display ID" attribute of a Subject, as it is
- * defined and used by Signet.
- * <p />
- * Perhaps this constant should be moved to the PrivilegedSubject interface,
- * or even hidden within the implementation of that interface.
- */
-public static final String ATTR_DISPLAYID
+  
+  /**
+   * This constant denotes the "first name" attribute of a Subject, as it is
+   * defined and used by Signet.
+   * <p />
+   * Perhaps this constant should be moved to the PrivilegedSubject interface,
+   * or even hidden within the implementation of that interface.
+   */
+  public static final String ATTR_FIRSTNAME
+  = "~firstname";
+  
+  /**
+   * This constant denotes the "middle name" attribute of a Subject, as it is
+   * defined and used by Signet.
+   * <p />
+   * Perhaps this constant should be moved to the PrivilegedSubject interface,
+   * or even hidden within the implementation of that interface.
+   */
+  public static final String ATTR_MIDDLENAME
+  = "~middlename";
+  
+  /**
+   * This constant denotes the "last name" attribute of a Subject, as it is
+   * defined and used by Signet.
+   * <p />
+   * Perhaps this constant should be moved to the PrivilegedSubject interface,
+   * or even hidden within the implementation of that interface.
+   */
+  public static final String ATTR_LASTNAME
+  = "~lastname";
+  
+  /**
+   * This constant denotes the "display ID" attribute of a Subject, as it is
+   * defined and used by Signet.
+   * <p />
+   * Perhaps this constant should be moved to the PrivilegedSubject interface,
+   * or even hidden within the implementation of that interface.
+   */
+  public static final String ATTR_DISPLAYID
   = "~displayid";
-
-
-private static final String DEFAULT_SUBJECT_TYPE_NAME
-	= "Signet native Subject type";
-private static final String SUPERSUBJECT_ID
-  = "SignetSuperSubject";   
-private static final String SUPERSUBJECT_NAME
-	= "The Signet Super-Subject";
-private static final String SUPERSUBJECT_DESCRIPTION 
-	= "Can grant any permission to any Signet subject.";
-private static final String SUPERSUBJECT_DISPLAYID 
-	= "SignetSuperSubject";  
-
-private static Configuration 		cfg;
-private static SessionFactory		sessionFactory;
-
-private Session						session;
-private Transaction 			tx;
-private SubjectType				nativeSubjectType;
-private PrivilegedSubject	superPSubject;
-private int								xactNestingLevel = 0;
-private Log								log;
-
-/**
- * This constructor builds the fundamental Signet factory object. It opens
- * a database connection, and stores some Signet-specific metadata in that
- * database if it is not already present.
- *
- */
-public Signet()
-{
-  super();
   
-  try
-  {
-    session = sessionFactory.openSession();
-  }
-  catch (HibernateException he)
-  {
-    throw new SignetRuntimeException(he);
-  }
-
-  // The native Signet subject-type must be stored in the database.
-  // Let's just make sure that it is.
-  initNativeSubjectType();
-}
-
-/**
- * Creates a new Category.
- * 
- * @param subsystem
- * 			The {@link Subsystem} which contains this {@link Category}.
- * @param id
- *          A short mnemonic code which will appear in XML documents and
- *          other documents used by analysts.
- * @param name
- *          A descriptive name which will appear in UIs and documents
- *          exposed to users.
- * @param status
- * 			The {@link Status} that should be initially assigned to
- * 			this {@link Category}.
- */
-public final Category newCategory
-(Subsystem 	subsystem,
-    String 	id,
-    String		name,
-    Status		status)
-{
-  Category category = new CategoryImpl(subsystem, id, name, status);
-  subsystem.add(category);
   
-  return category;
-}
+  // This is the metadata that describes the pre-defined Signet
+  // super-subject.
+  private static final String DEFAULT_SUBJECT_TYPE_NAME
+  	= "Signet native Subject type";
+  private static final String SUPERSUBJECT_ID
+  	= "SignetSuperSubject";   
+  private static final String SUPERSUBJECT_NAME
+  = "The Signet Super-Subject";
+  private static final String SUPERSUBJECT_DESCRIPTION 
+  	= "Can grant any permission to any Signet subject.";
+  private static final String SUPERSUBJECT_DISPLAYID 
+  = "SignetSuperSubject";  
+  
+  private static SessionFactory		sessionFactory;
+  
+  private Session						session;
+  private Transaction 			tx;
+  private SubjectType				nativeSubjectType;
+  private PrivilegedSubject	superPSubject;
+  private int								xactNestingLevel = 0;
+  
+  // If I could, I would, by default, set Signet's log to be the same as
+  // whatever log was configured for Signet's underlying Hibernate instance.
+  // Unfortunately, I can't find a way to get Hibernate to cough up its
+  // Log instance. I could conceivably read Hibernate's config file to
+  // determine its logging configuration, but I don't want to add that
+  // dependency.
+  //
+  // Likewise, if I could, I would re-set Hibernate's log to be the same as
+  // Signet's log whenever Signet.setLog() was called. Unfortunately, I
+  // can't find a way to change Hibernate's Log instance at runtime.
+  //
+  // So, what to do, what to do?
+  //
+  // By default, Signet will log to stdout. If Signet.setLog() is called,
+  // Signet will use that supplied Log instance. This arrangement has 3
+  // benefits:
+  //
+  //   1) This allows simple, naive, command-line-oriented Signet test
+  //      programs and other applications to see logging output without
+  //      doing anything special, beyond the configuration setup that
+  //      Hibernate requires.
+  //
+  //   2) This allows more sophisticated Signet applications to set up
+  //      whatever logging they want.
+  //
+  //   3) This avoids (so far, at least) the necessity for a Signet-specific
+  //      configuration file, by fobbing that responsibility off onto the
+  //      enclosing application.
+  
+  private Logger	logger;
 
-/**
- * Sets the Log associated with this Signet session.
- * @param log
- */
-public final void setLog(Log log)
-{
-  this.log = log;
-}
+  /**
+   * This constructor builds the fundamental Signet factory object. It opens
+   * a Hibernate session, and stores some Signet-specific metadata in that
+   * database if it is not already present.
+   *
+   */
+  public Signet()
+  {
+    super();
+    
+    try
+    {
+      session = sessionFactory.openSession();
+    }
+    catch (HibernateException he)
+    {
+      throw new SignetRuntimeException(he);
+    }
+    
+    this.logger =  Logger.getLogger(this.toString());
+    
+    // The native Signet subject-type must be stored in the database.
+    // Let's just make sure that it is.
+    initNativeSubjectType();
+  }
 
-/**
- * Gets the Log associated with this Signet session.
- * @return
- */
-public final Log getLog()
-{
-  return this.log;
-}
+  /**
+   * Creates a new Category.
+   * 
+   * @param subsystem
+   *    The {@link Subsystem} which contains this {@link Category}.
+   * @param id
+   *    A short mnemonic code which will appear in XML documents and
+   *    other documents used by analysts.
+   * @param name
+   *    A descriptive name which will appear in UIs and documents
+   *    exposed to users.
+   * @param status
+   *    The {@link Status} that should be initially assigned to
+   *    this {@link Category}.
+   */
+  public final Category newCategory
+  (Subsystem	subsystem,
+   String 		id,
+   String			name,
+   Status			status)
+  {
+    Category category = new CategoryImpl(subsystem, id, name, status);
+    subsystem.add(category);
+    
+    return category;
+  }
+  
+  /**
+   * Sets the Log associated with this Signet session.
+   * @param log
+   */
+  public final void setLogger(Logger logger)
+  {
+    this.logger = logger;
+  }
+  
+  /**
+   * Gets the Log associated with this Signet session.
+   * @return the Log.
+   */
+  public final Logger getLogger()
+  {
+    return this.logger;
+  }
 
 
 /**
@@ -260,7 +295,7 @@ public final Subsystem newSubsystem
  */
 static /* runs at class load time */
 {
-  cfg = new Configuration();
+  Configuration cfg = new Configuration();
     
   try
   {

@@ -1,6 +1,6 @@
 /*--
-  $Id: Constants.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: Constants.java,v 1.2 2005-01-10 21:52:16 acohen Exp $
+  $Date: 2005-01-10 21:52:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,7 +13,8 @@ public final class Constants {
     /**
      * The package name for this application.
      */
-    public static final String PACKAGE = "org.apache.struts.webapp.example";
+    public static final String PACKAGE
+    	= "edu.internet2.middleware.signet.ui";
 
 
     /**

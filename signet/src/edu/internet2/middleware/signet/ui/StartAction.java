@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: StartAction.java,v 1.2 2005-01-10 21:52:16 acohen Exp $
+  $Date: 2005-01-10 21:52:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -49,7 +49,6 @@ public final class StartAction extends BaseAction
      HttpServletResponse response)
   throws Exception
   {
-    log.warn("ENTERING StartAction.execute()");
     // Setup message array in case there are errors
     ArrayList messages = new ArrayList();
 
@@ -73,7 +72,7 @@ public final class StartAction extends BaseAction
     if (signet == null)
     {
       signet = new Signet();
-      signet.setLog(log);
+      signet.setLogger(logger);
       session.setAttribute("signet", signet);
     }
     
@@ -118,7 +117,6 @@ public final class StartAction extends BaseAction
     }
 
     // Forward to our success page
-    log.warn("LEAVING StartAction.execute()");
     return findSuccess(mapping);
   }
 }
