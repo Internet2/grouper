@@ -392,5 +392,17 @@ public class TestGroups extends TestCase {
     s.stop();
   }
 
+  public void testCreateG5() {
+    GrouperSession  s     = new GrouperSession();
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Attempt to recreate g0
+    String stem = stem0;
+    String extn = extn0;
+    GrouperGroup g = GrouperGroup.create(s, stem, extn);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
 }
 
