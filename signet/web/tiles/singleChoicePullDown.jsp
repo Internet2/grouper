@@ -8,6 +8,7 @@
 <%@ page import="edu.internet2.middleware.signet.ui.LimitRenderer" %>
 
 <tiles:useAttribute name="limit" classname="edu.internet2.middleware.signet.Limit" />
+<tiles:useAttribute name="grantableChoiceSubset" classname="java.util.Set" />
 
 <%
 String limitParamName = LimitRenderer.makeLimitValueParamName(limit, false);
@@ -17,14 +18,22 @@ String limitParamName = LimitRenderer.makeLimitValueParamName(limit, false);
 
 <% 
 Choice[] choices = limit.getChoiceSet().getChoicesInDisplayOrder();
-    
+Choice defaultChoice = null;    
 for (int i = 0; i < choices.length; i ++)
 {
   Choice choice = choices[i];
+  boolean choiceIsGrantable = grantableChoiceSubset.contains(choice);
+  if ((defaultChoice == null) && choiceIsGrantable)
+  {
+    defaultChoice = choice;
+  }
 %>
 
- <option <%=((i == 0) ? " selected" : "")%> value=<%=choice.getValue()%> name=foo>
-    <%=choice.getDisplayValue()%>
+ <option <%=((choice.equals(defaultChoice)) ? " selected" : "")%>
+   value=<%=choice.getValue()%>
+   name=foo
+   <%=(grantableChoiceSubset.contains(choice) == false) ? "disabled>" : ">"%>
+     <%=choice.getDisplayValue()%>
   </option>
 
 <%

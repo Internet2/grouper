@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.17 2005-03-25 02:46:27 acohen Exp $
-  $Date: 2005-03-25 02:46:27 $
+  $Id: personview.jsp,v 1.18 2005-04-05 23:11:38 acohen Exp $
+  $Date: 2005-04-05 23:11:38 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -187,7 +187,7 @@
   Set assignmentsReceived
     = new TreeSet
         (currentGranteePrivilegedSubject
-          .getAssignmentsReceived(Status.ACTIVE, null));
+          .getAssignmentsReceived(Status.ACTIVE, null, null));
   Set subsystemsOfReceivedAssignments = new HashSet();
   Iterator assignmentsReceivedIterator
     = assignmentsReceived.iterator();
@@ -275,7 +275,7 @@
     Set assignmentsReceivedForCurrentSubsystem
       = new TreeSet
           (currentGranteePrivilegedSubject
-            .getAssignmentsReceived(Status.ACTIVE, currentSubsystem));
+            .getAssignmentsReceived(Status.ACTIVE, currentSubsystem, null));
     Iterator assignmentsIterator
       = assignmentsReceivedForCurrentSubsystem.iterator();
     while (assignmentsIterator.hasNext())

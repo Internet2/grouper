@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.7 2005-02-23 17:21:30 acohen Exp $
-$Date: 2005-02-23 17:21:30 $
+$Id: Limit.java,v 1.8 2005-04-05 23:11:38 acohen Exp $
+$Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -78,4 +78,11 @@ public interface Limit
 	 * @return the DataType of this Limit.
 	 */
 	public DataType getDataType();
+	
+	/**
+	 * selectionType indicates whether this Limit is single-valued or
+	 * multi-valued.
+	 * @return the SelectionType of this Limit.
+	 */
+	public SelectionType getSelectionType();
 }

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.9 2005-03-03 18:29:00 acohen Exp $
-$Date: 2005-03-03 18:29:00 $
+$Id: LimitImpl.java,v 1.10 2005-04-05 23:11:38 acohen Exp $
+$Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -396,5 +396,28 @@ final class LimitImpl implements Limit
     // you pick a hard-coded, randomly chosen, non-zero, odd number
     // ideally different for each class
     return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
+  }
+
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Limit#getSelectionType()
+   */
+  public SelectionType getSelectionType()
+  {
+    // This implementation is just a little hack until we can get a proper
+    // "selectionType" column into the database schema.
+    
+    if (this.renderer.startsWith("singleChoice"))
+      return SelectionType.SINGLE;
+    else if (this.renderer.startsWith("multipleChoice"))
+      return SelectionType.MULTIPLE;
+    else
+      throw new SignetRuntimeException
+        ("Limit.getSelectionType() encountered an unrecognized renderer '"
+         + this.renderer
+         + "', and so is unable to determine whether this Limit is"
+         + " a single-select or a multiple-select. Renderer-names must begin"
+         + " with either 'singleChoice' or 'multipleChoice' to be recognized.");
+      
   }
 }

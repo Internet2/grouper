@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.4 2005-03-07 18:55:43 acohen Exp $
-$Date: 2005-03-07 18:55:43 $
+$Id: ChoiceImpl.java,v 1.5 2005-04-05 23:11:38 acohen Exp $
+$Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -256,7 +256,7 @@ class ChoiceImpl implements Choice
     ChoiceImpl rhs = (ChoiceImpl) obj;
     return new EqualsBuilder()
     	.append(this.displayOrder, rhs.displayOrder)
-    	.append(this.rank, rank)
+    	.append(this.rank, rhs.rank)
       .append(this.displayValue, rhs.displayValue)
       .append(this.value, rhs.value)
       .isEquals();
@@ -275,5 +275,22 @@ class ChoiceImpl implements Choice
   		.append(this.displayValue)
   		.append(this.value)
       .toHashCode();
+  }
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  public String toString()
+  {
+    return
+      "[value='"
+      + this.value
+      + "', displayValue='"
+      + this.displayValue
+      + "', rank="
+      + this.rank
+      + ", displayOrder='"
+      + this.displayOrder
+      + "']";
   }
 }

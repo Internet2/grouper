@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.2 2005-01-04 19:06:43 acohen Exp $
-  $Date: 2005-01-04 19:06:43 $
+  $Id: PersonViewAction.java,v 1.3 2005-04-05 23:11:38 acohen Exp $
+  $Date: 2005-04-05 23:11:38 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -124,7 +124,7 @@ public final class PersonViewAction extends BaseAction
     (PrivilegedSubject grantee) throws ObjectNotFoundException
   {
     Subsystem firstSubsystem = null;
-    Set assignmentsReceived = grantee.getAssignmentsReceived(null, null);
+    Set assignmentsReceived = grantee.getAssignmentsReceived(null, null, null);
     Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
     if (assignmentsReceivedIterator.hasNext())
     {

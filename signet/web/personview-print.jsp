@@ -1,6 +1,6 @@
 <!--
-  $Id: personview-print.jsp,v 1.6 2005-02-25 22:07:57 jvine Exp $
-  $Date: 2005-02-25 22:07:57 $
+  $Id: personview-print.jsp,v 1.7 2005-04-05 23:11:38 acohen Exp $
+  $Date: 2005-04-05 23:11:38 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -82,7 +82,7 @@
   {
     Set assignmentsReceivedForCurrentSubsystem
       = currentGranteePrivilegedSubject
-          .getAssignmentsReceived(Status.ACTIVE, currentSubsystem);
+          .getAssignmentsReceived(Status.ACTIVE, currentSubsystem, null);
     Iterator assignmentsIterator = assignmentsReceivedForCurrentSubsystem.iterator();
     while (assignmentsIterator.hasNext())
     {

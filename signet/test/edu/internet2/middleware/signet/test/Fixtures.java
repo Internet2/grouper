@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.9 2005-03-03 18:29:00 acohen Exp $
-$Date: 2005-03-03 18:29:00 $
+$Id: Fixtures.java,v 1.10 2005-04-05 23:11:38 acohen Exp $
+$Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -164,13 +164,13 @@ public class Fixtures
     
     for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
     {
-      Assignment assignment = createAssignment(i);
+      Assignment assignment = getOrCreateAssignment(i);
       this.signet.save(assignment);
     }
     
   }
   
-  private Assignment createAssignment(int assignmentNumber)
+  private Assignment getOrCreateAssignment(int assignmentNumber)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException
@@ -192,6 +192,30 @@ public class Fixtures
     }
     
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    
+    // Before granting this new Assignment, let's see if it already exists
+    // in the database.
+    
+    Set assignmentsReceived
+      = pSubject.getAssignmentsReceived
+          (Status.ACTIVE, this.subsystem, function);
+    
+    Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+    while (assignmentsReceivedIterator.hasNext())
+    {
+      Assignment assignmentReceived
+      	= (Assignment)(assignmentsReceivedIterator.next());
+      
+      if (assignmentReceived.getScope().equals(rootNode)
+          && (assignmentReceived.getLimitValuesArray().length
+              == limitValues.size()))
+      {
+        return assignmentReceived;
+      }
+    }
+    
+    // If we've gotten this far, we must not have this Assignment yet.
+    
     Assignment assignment
     	= superPrivilegedSubject.grant
     			(pSubject,
@@ -244,7 +268,10 @@ public class Fixtures
     {
       subject
     	  = this.signet.newSubject
-    		  	(makeSubjectId(subjectNumber), makeSubjectName(subjectNumber));
+    		  	(makeSubjectId(subjectNumber),
+    		  	 makeSubjectName(subjectNumber),
+    		  	 makeSubjectDescription(subjectNumber),
+    		  	 makeSubjectDisplayId(subjectNumber));
     }
     
     return subject;
@@ -256,12 +283,42 @@ public class Fixtures
    */
   String makeSubjectId(int subjectNumber)
   {
-    return "SUBJECT" + Constants.DELIMITER + subjectNumber + Constants.DELIMITER + "ID";
+    return
+      "SUBJECT"
+      + Constants.DELIMITER
+      + subjectNumber
+      + Constants.DELIMITER
+      + "ID";
   }
 
   private String makeSubjectName(int subjectNumber)
   {
-    return "SUBJECT" + Constants.DELIMITER + subjectNumber + Constants.DELIMITER + "NAME";
+    return
+      "SUBJECT"
+      + Constants.DELIMITER
+      + subjectNumber
+      + Constants.DELIMITER
+      + "NAME";
+  }
+
+  private String makeSubjectDescription(int subjectNumber)
+  {
+    return
+      "SUBJECT"
+      + Constants.DELIMITER
+      + subjectNumber
+      + Constants.DELIMITER
+      + "DESCRIPTION";
+  }
+
+  private String makeSubjectDisplayId(int subjectNumber)
+  {
+    return
+      "SUBJECT"
+      + Constants.DELIMITER
+      + subjectNumber
+      + Constants.DELIMITER
+      + "DISPLAYID";
   }
 
   private Subsystem getOrCreateSubsystem()
@@ -297,14 +354,14 @@ public class Fixtures
       tree = signet.newTree(Constants.TREE_ID, Constants.TREE_NAME);
       TreeNode root
       	= signet.newTreeNode
-      			(tree, makeTreeNodeId(0, 0), makeTreeNodeName(0, 0));
+      			(tree, makeTreeNodeId(0, null, 0), makeTreeNodeName(0, null, 0));
       tree.addRoot(root);
       createDescendantTreeNodes(root, 1);
     }
     
     return tree;
   }
-  
+
   private void createDescendantTreeNodes(TreeNode parent, int treeLevel)
   throws TreeNotFoundException
   {
@@ -321,23 +378,53 @@ public class Fixtures
       TreeNode node
       	= signet.newTreeNode
       			(parent.getTree(),
-      			 makeTreeNodeId(treeLevel, siblingNumber),
-      			 makeTreeNodeName(treeLevel, siblingNumber));
+      			 makeTreeNodeId(treeLevel, parent, siblingNumber),
+      			 makeTreeNodeName(treeLevel, parent, siblingNumber));
+      
+      parent.addChild(node);
       
       createDescendantTreeNodes(node, treeLevel + 1);
     }
   }
 
-  private String makeTreeNodeId(int level, int siblingNumber)
+  public String makeTreeNodeId(int level, TreeNode parent, int siblingNumber)
   {
     return
-    	"TREENODE_LEVEL" + Constants.DELIMITER + level + Constants.DELIMITER + "SIBLINGNUMBER" + Constants.DELIMITER + siblingNumber + Constants.DELIMITER + "ID";
+    	"TREENODE_LEVEL" 
+      + Constants.DELIMITER
+      + level
+      + Constants.DELIMITER
+      + "PARENTNODEID"
+      + Constants.DELIMITER
+      + "["
+      + (parent == null ? "NOPARENTID" : parent.getId())
+      + "]"
+      + Constants.DELIMITER
+      + "SIBLINGNUMBER"
+      + Constants.DELIMITER
+      + siblingNumber
+      + Constants.DELIMITER
+      + "ID";
   }
 
-  private String makeTreeNodeName(int level, int siblingNumber)
+  private String makeTreeNodeName(int level, TreeNode parent, int siblingNumber)
   {
     return
-    	"TREENODE_LEVEL" + Constants.DELIMITER + level + Constants.DELIMITER + "SIBLINGNUMBER" + Constants.DELIMITER + siblingNumber + Constants.DELIMITER + "NAME";
+    	"TREENODE_LEVEL"
+      + Constants.DELIMITER
+      + level
+      + Constants.DELIMITER
+      + "PARENTNODENAME"
+      + Constants.DELIMITER
+      + "["
+      + (parent == null ? "NOPARENTNAME" : parent.getName())
+      + "]"
+      + Constants.DELIMITER
+      + "SIBLINGNUMBER"
+      + Constants.DELIMITER
+      + siblingNumber
+      + Constants.DELIMITER
+      + "NAME";
   }
 
   private ChoiceSet getOrCreateChoiceSet(int choiceSetNumber)
@@ -649,7 +736,7 @@ public class Fixtures
     return "LIMIT" + Constants.DELIMITER + limitNumber + Constants.DELIMITER + "VALUE";
   }
   
-  private TreeNode getRoot(Tree tree)
+  public TreeNode getRoot(Tree tree)
   {
     TreeNode root = null;
     
@@ -661,5 +748,10 @@ public class Fixtures
     }
     
     return root;
+  }
+  
+  public int expectedLimitValuesCount(int subjectNumber)
+  {
+    return subjectNumber + 1;
   }
 }

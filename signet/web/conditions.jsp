@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.12 2005-03-07 19:14:33 acohen Exp $
-  $Date: 2005-03-07 19:14:33 $
+  $Id: conditions.jsp,v 1.13 2005-04-05 23:11:38 acohen Exp $
+  $Date: 2005-04-05 23:11:38 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -234,6 +234,10 @@
     for (int i = 0; i < currentLimits.length; i++)
     {
       request.setAttribute("limitAttr", currentLimits[i]);
+      request.setAttribute
+        ("grantableChoiceSubsetAttr",
+         loggedInPrivilegedSubject.getGrantableChoices
+           (currentFunction, currentScope, currentLimits[i]));
 %>
               
               <fieldset>
@@ -248,6 +252,7 @@
                      page='<%="/tiles/" + currentLimits[i].getRenderer()%>'
                      flush="true">
                     <tiles:put name="limit" beanName="limitAttr" />
+                    <tiles:put name="grantableChoiceSubset" beanName="grantableChoiceSubsetAttr" />
                   </tiles:insert>
                 </blockquote>
               </fieldset>

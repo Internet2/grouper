@@ -1,6 +1,6 @@
 /*--
-$Id: ShowData.java,v 1.6 2005-02-08 19:20:50 acohen Exp $
-$Date: 2005-02-08 19:20:50 $
+$Id: ShowData.java,v 1.7 2005-04-05 23:11:38 acohen Exp $
+$Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -24,6 +24,7 @@ import net.sf.hibernate.tool.hbm2java.ClassMapping;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Function;
+import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
@@ -53,10 +54,10 @@ private static String SUPERSUBJECT_DISPLAY_ID = "SignetSuperSubject";
     showSubsystems(signet);
     showPrivilegedSubjects(signet);
     showAssignments(signet);
-    showSubjectByDisplayId(signet);
-    showTreeNodeAncestry(signet);
+//    showSubjectByDisplayId(signet);
+//    showTreeNodeAncestry(signet);
     showAllTrees(signet);
-    showITnodeInContext(signet);
+//    showITnodeInContext(signet);
   }
   
   private static PrivilegedSubject getSinglePSubject(Set set)
@@ -385,8 +386,8 @@ private static String SUPERSUBJECT_DISPLAY_ID = "SignetSuperSubject";
     
     System.out.println("<<ASSIGNMENTS:>>");
     for (int assignmentsIndex = 0;
-    assignmentsIndex < assignments.length; 
-    assignmentsIndex++)
+         assignmentsIndex < assignments.length; 
+         assignmentsIndex++)
     {
       Assignment assignment = assignments[assignmentsIndex];
       System.out.println(assignment);
@@ -398,6 +399,17 @@ private static String SUPERSUBJECT_DISPLAY_ID = "SignetSuperSubject";
       	("--FUNCTION: " + assignment.getFunction());
       System.out.println
       	("--SCOPE: " + assignment.getScope());
+      
+      System.out.println("--<<LIMITVALUES>>");
+      LimitValue[] limitValues = assignment.getLimitValuesInDisplayOrder();
+      for (int limitValuesIndex = 0;
+           limitValuesIndex < limitValues.length;
+           limitValuesIndex++)
+      {
+        LimitValue limitValue = limitValues[limitValuesIndex];
+        System.out.println("----" + limitValue);
+      }
+      System.out.println("--<<END OF LIMITVALUES>>");
     }
     System.out.println("<<END OF ASSIGNMENTS>>");
   }

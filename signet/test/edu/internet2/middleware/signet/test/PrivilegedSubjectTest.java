@@ -1,5 +1,5 @@
 /*--
-$Id: AssignmentTest.java,v 1.5 2005-04-05 23:11:38 acohen Exp $
+$Id: PrivilegedSubjectTest.java,v 1.1 2005-04-05 23:11:38 acohen Exp $
 $Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
@@ -8,7 +8,6 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -17,27 +16,29 @@ import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.tree.Tree;
+import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
-
 import junit.framework.TestCase;
 
 /**
- * @author acohen
+ * @author Andy Cohen
  *
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class AssignmentTest extends TestCase
+public class PrivilegedSubjectTest extends TestCase
 {
+
   private Signet		signet;
   private Fixtures	fixtures;
   
   public static void main(String[] args)
   {
-    junit.textui.TestRunner.run(AssignmentTest.class);
+    junit.textui.TestRunner.run(PrivilegedSubjectTest.class);
   }
 
   /*
@@ -69,15 +70,15 @@ public class AssignmentTest extends TestCase
   }
 
   /**
-   * Constructor for LimitTest.
+   * Constructor for PrivilegedSubjectTest.
    * @param name
    */
-  public AssignmentTest(String name)
+  public PrivilegedSubjectTest(String name)
   {
     super(name);
   }
 
-  public final void testGetLimitValuesArray()
+  public final void testGetGrantableChoices()
   throws
   	ObjectNotFoundException
   {
@@ -90,18 +91,18 @@ public class AssignmentTest extends TestCase
       			.getSubject(fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-      	= pSubject.getAssignmentsReceived
-      			(null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
       
-      // Here's a picture of the Assignments which this test expects to find:
+      // Here's a picture of the Assignments and Limit-values which this test
+      // expects to find:
       //
       // Subject 0
+      //   TreeNode TREENODE_LEVEL_0_SIBLINGNUMBER_0_ID
       //   Function 0
       //     Permission 0
       //       Limit 0
       //         limit-value: 0
       //  Subject 1
+      //    TreeNode TREENODE_LEVEL_0_SIBLINGNUMBER_0_ID
       //    Function 1
       //      Permission 1
       //        Limit 0
@@ -109,6 +110,7 @@ public class AssignmentTest extends TestCase
       //        Limit 1
       //          limit-value: 1
       //  Subject 2
+      //    TreeNode TREENODE_LEVEL_0_SIBLINGNUMBER_0_ID
       //    Function 2
       //      Permission 2
       //        Limit 0
@@ -118,29 +120,16 @@ public class AssignmentTest extends TestCase
       //        Limit 2
       //          limit-value: 2
       
-      assertEquals(1, assignmentsReceived.size());
-      Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
-
-      LimitValue limitValues[] = assignment.getLimitValuesArray();
-      assertEquals
-        (this.fixtures.expectedLimitValuesCount(subjectIndex),
-         limitValues.length);
+      Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+      Function function
+        = subsystem.getFunction(fixtures.makeFunctionId(subjectIndex));
+      Tree tree = signet.getTree(Constants.TREE_ID);
+      TreeNode treeNode = fixtures.getRoot(tree);
+      Limit limit = subsystem.getLimit(fixtures.makeLimitId(subjectIndex));
+      Set grantableChoices
+      	= pSubject.getGrantableChoices(function, treeNode, limit);
       
-      for (int i = 0; i < limitValues.length; i++)
-      {
-        LimitValue limitValue = limitValues[i];
-
-        assertEquals
-        	(signet
-        	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-        	 		.getLimit(limitValue.getLimit().getId()),
-      	   limitValue.getLimit());
-      
-        assertEquals
-      	  (fixtures.makeChoiceValue
-      	      (limitNumber(limitValue.getLimit().getName())),
-      	   limitValue.getValue());
-      }
+      assertEquals(1, grantableChoices.size());
     }
   }
   
@@ -151,5 +140,10 @@ public class AssignmentTest extends TestCase
     String prefix = tokenizer.nextToken();
     int number = (new Integer(tokenizer.nextToken())).intValue();
     return number;
+  }
+  
+  int expectedLimitValuesCount(int subjectNumber)
+  {
+    return subjectNumber + 1;
   }
 }

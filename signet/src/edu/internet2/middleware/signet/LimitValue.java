@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.5 2005-03-07 18:55:43 acohen Exp $
-$Date: 2005-03-07 18:55:43 $
+$Id: LimitValue.java,v 1.6 2005-04-05 23:11:38 acohen Exp $
+$Date: 2005-04-05 23:11:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -107,7 +107,7 @@ public class LimitValue
 
   public boolean equals(Object obj)
   {
-    if (!(obj instanceof SubjectTypeImpl))
+    if (!(obj instanceof LimitValue))
     {
       return false;
     }
@@ -130,5 +130,14 @@ public class LimitValue
     	.append(this.getLimit())
     	.append(this.getValue())
     	.toHashCode();
+  }
+  
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  public String toString()
+  {
+    return "[" + this.limit + " : " + this.value + "]";
   }
 }

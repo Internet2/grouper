@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.7 2005-02-23 17:21:30 acohen Exp $
- $Date: 2005-02-23 17:21:30 $
+ $Id: PrivilegedSubjectImpl.java,v 1.8 2005-04-05 23:11:38 acohen Exp $
+ $Date: 2005-04-05 23:11:38 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,15 +9,20 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
@@ -105,6 +110,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * most situations it does not make sense to attempt to extend or modify
    * your own authority.
    * @throws SubjectNotFoundException
+   * 
+   * @TODO: This method must also check to see if all Limit-values in the
+   * current Assignment are grantable by by this PrivilegedSubject. If ANY
+   * of those Limit-values are beyond the capability of this PrivilegedSubject's
+   * granting abilities, then this Assignment is not editable by this
+   * PrivilegedSubject.
    */
   public boolean canEdit(Assignment anAssignment)
   {
@@ -215,7 +226,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     Collection assignments = new HashSet();
 
-    Iterator iterator = this.getAssignmentsReceived(null, null).iterator();
+    Iterator iterator = this.getAssignmentsReceived(null, null, null).iterator();
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -235,7 +246,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     Set assignments = new HashSet();
 
-    Iterator iterator = this.getAssignmentsReceived(null, null).iterator();
+    Iterator iterator = this.getAssignmentsReceived(null, null, null).iterator();
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -268,7 +279,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     Set functions = new HashSet();
 
-    Iterator iterator = this.getAssignmentsReceived(null, null).iterator();
+    Iterator iterator = this.getAssignmentsReceived(null, null, null).iterator();
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -334,8 +345,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       throw new SignetRuntimeException(onfe);
     }
 
-    Iterator iterator = this.getAssignmentsReceived(Status.ACTIVE, null)
-        .iterator();
+    Iterator iterator
+      = this.getAssignmentsReceived(Status.ACTIVE, null, null)
+          .iterator();
+    
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -471,8 +484,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @return Returns the assignmentsReceived.
    * @throws ObjectNotFoundException
    */
-  public Set getAssignmentsReceived(Status status, Subsystem subsystem)
-      throws ObjectNotFoundException
+  public Set getAssignmentsReceived
+    (Status status, Subsystem subsystem, Function function)
+  throws ObjectNotFoundException
   {
     // I really want to handle this purely through Hibernate
     // mappings, but I haven't figured out how yet.
@@ -505,6 +519,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Set resultSet = UnmodifiableSet.decorate(this.assignmentsReceived);
     resultSet = filterAssignments(resultSet, status);
     resultSet = filterAssignments(resultSet, subsystem);
+    resultSet = filterAssignments(resultSet, function);
 
     return resultSet;
   }
@@ -544,6 +559,28 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       Assignment candidate = (Assignment) (iterator.next());
       if (candidate.getFunction().getSubsystem().equals(subsystem))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  private Set filterAssignments(Set all, Function function)
+      throws ObjectNotFoundException
+  {
+    if (function == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment) (iterator.next());
+      if (candidate.getFunction().equals(function))
       {
         subset.add(candidate);
       }
@@ -874,5 +911,155 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   void setSignet(Signet signet)
   {
     this.signet = signet;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getGrantableChoices(edu.internet2.middleware.signet.Function, edu.internet2.middleware.signet.tree.TreeNode, edu.internet2.middleware.signet.Limit)
+   */
+  public Set getGrantableChoices
+    (Function function,
+     TreeNode scope,
+     Limit    limit)
+  {
+    try
+    {
+      // First, check to see if the we are the Signet superSubject.
+      // That Subject can grant any Choice in any Limit in any Function in any
+      // scope to anyone.
+      if (this.equals(this.signet.getSuperPrivilegedSubject()))
+      {
+          return
+            UnmodifiableSet.decorate
+              (limit.getChoiceSet().getChoices());
+      }
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      throw new SignetRuntimeException(onfe);
+    }
+    
+    // We're not the SignetSuperSubject, so let's find out what Limit-values
+    // we've been assigned in relation to this Function, scope, and Limit.
+    
+    Set receivedLimitChoices = new HashSet();
+
+    Iterator assignmentsReceivedIterator;
+    try
+    {
+      assignmentsReceivedIterator = this.getAssignmentsReceived
+        (Status.ACTIVE, function.getSubsystem(), function)
+         .iterator();
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      throw new SignetRuntimeException(onfe);
+    }
+    
+    while (assignmentsReceivedIterator.hasNext())
+    {
+      Assignment assignmentReceived
+      	= (Assignment) (assignmentsReceivedIterator.next());
+      
+      if (assignmentReceived.getScope().equals(scope)
+          || assignmentReceived.getScope().isAncestorOf(scope))
+      {
+        LimitValue[] limitValuesReceived
+          = assignmentReceived.getLimitValuesArray();
+
+        for (int i = 0; i < limitValuesReceived.length; i++)
+        {
+          if (limitValuesReceived[i].getLimit().equals(limit))
+          {
+            try
+            {
+              receivedLimitChoices.add
+                (limit.getChoiceSet()
+                  .getChoiceByValue
+                    (limitValuesReceived[i].getValue()));
+            }
+            catch (ChoiceNotFoundException cnfe)
+            {
+              throw new SignetRuntimeException(cnfe);
+            }
+            catch (ObjectNotFoundException onfe)
+            {
+              throw new SignetRuntimeException(onfe);
+            }
+          }
+        }
+      }
+    }
+    
+    // Now that we've discovered which Limit-values we've been assigned, let's
+    // use that information to discover the whole set of Limit-values that we
+    // could possibly assign to others. In the case of a multiple-select, we
+    // could grant any of the values that were granted to us. In the case of
+    // a single-select, we could grant any of the values that were of equal
+    // or lesser rank than the greatest value that was granted to us.
+    
+    Set grantableChoices = new HashSet();
+    Set allChoices;
+    try
+    {
+      allChoices = limit.getChoiceSet().getChoices();
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      throw new SignetRuntimeException(onfe);
+    }
+    
+    Iterator allChoicesIterator = allChoices.iterator();
+    while (allChoicesIterator.hasNext())
+    {
+      Choice candidate = (Choice)(allChoicesIterator.next());
+      
+      if (limit.getSelectionType().equals(SelectionType.SINGLE))
+      {
+        if (doesNotExceed(candidate, receivedLimitChoices))
+        {
+          grantableChoices.add(candidate);
+        }
+      }
+      else if (limit.getSelectionType().equals(SelectionType.MULTIPLE))
+      {
+        if (receivedLimitChoices.contains(candidate))
+        {
+          grantableChoices.add(candidate);
+        }
+      }
+      else
+      {
+        throw new SignetRuntimeException
+          ("Unexpected selection-type '"
+           + limit.getSelectionType()
+           + "' encountered in PrivilegedSubject.getGrantableChoices().");
+      }
+    }
+
+    return UnmodifiableSet.decorate(grantableChoices);
+  }
+
+  /**
+   * @param choice The Choice to be evaluated.
+   * @param choices The Set of Choices to compare the Choice against.
+   * @return true if the rank of the specified Choice does not exceed the
+   *         rank of the highest-ranking Choice in the Set, and false
+   *         otherwise.
+   */
+  private boolean doesNotExceed(Choice choice, Set choices)
+  {
+    Iterator choicesIterator = choices.iterator();
+    while (choicesIterator.hasNext())
+    {
+      Choice choiceInSet = (Choice)(choicesIterator.next());
+      if (choice.getRank() > choiceInSet.getRank())
+      {
+        return false; // We've exceeded one of the Choices in the Set.
+      }
+    }
+    
+    // If we've gotten this far, then we must not have exceeded any of the
+    // Choices in the Set.
+    return true;
   }
 }

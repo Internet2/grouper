@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.6 2005-02-23 17:21:30 acohen Exp $
- $Date: 2005-02-23 17:21:30 $
+ $Id: PrivilegedSubject.java,v 1.7 2005-04-05 23:11:38 acohen Exp $
+ $Date: 2005-04-05 23:11:38 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -102,12 +102,16 @@ public interface PrivilegedSubject extends Subject, Comparable
    * 
    * @param status The Status value to filter the result by. A null value
    * returns all Assignments regardless of Status.
-   * @param subsystem
+   * @param subsystem The Subsystem value to filter the result by. A null value
+   * returns all Assignments regardless of Subsystem.
+   * @param function The Function value to filter the result by. A null value
+   * returns all Assignments regardless of Function.
    * @return all the Assignments which have been received by this
    * PrivilegedSubject.
    * @throws ObjectNotFoundException
    */
-  public Set getAssignmentsReceived(Status status, Subsystem subsystem)
+  public Set getAssignmentsReceived
+    (Status status, Subsystem subsystem, Function function)
   throws ObjectNotFoundException;
   
   /**
@@ -182,6 +186,22 @@ public interface PrivilegedSubject extends Subject, Comparable
    * @return the ID of the Subject which underlies this PrivilegedSubject.
    */
   public String getSubjectId();
+  
+  /**
+   * This method produces a Set of those Choice values which are grantable
+   * by this PrivilegedSubject in the context of the specified Function and
+   * scope.
+   * 
+   * @param function The Function for which grantable Choices should be found.
+   * @param scope The TreeNode for which grantable Choices should be found.
+   * @param limit The Limit for which grantable Choices should be found.
+   * @return a Set of the grantable Choices for this combination of Function,
+   * Tree, and Limit.
+   */
+  public Set getGrantableChoices
+    (Function function,
+     TreeNode scope,
+     Limit    limit);
   
   // All method declarations below this point were originally commented out
   // by Minh.
