@@ -100,8 +100,8 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsMoFAdd9.class);
     suite.addTestSuite(TestGroupsMoFAdd10.class);
     suite.addTestSuite(TestGroupsMoFChain10.class);
-    //suite.addTestSuite(TestGroupsMoFDel0.class);
-    //suite.addTestSuite(TestGroupsMoFDel1.class);
+    suite.addTestSuite(TestGroupsMoFDel0.class);
+    suite.addTestSuite(TestGroupsMoFDel1.class);
     // TODO suite.addTestSuite(TestGroupsMoFDel2.class);
     // TODO suite.addTestSuite(TestGroupsMoFDel3.class);
     // TODO suite.addTestSuite(TestGroupsMoFDel4.class);

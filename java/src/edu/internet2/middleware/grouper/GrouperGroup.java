@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.195 2005-03-25 18:45:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.196 2005-03-25 19:50:58 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -274,6 +274,25 @@ public class GrouperGroup extends Group {
    */
   public void listAddVal(GrouperMember m, String list) {
     this.listAddVal(this.s, this, m, list);
+  }
+
+  /**
+   * Delete member from this group's default list.
+   * <p />
+   * @param m   Delete this member.
+   */
+  public void listDelVal(GrouperMember m) {
+    this.listDelVal(m, Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Delete member from this group's specified list.
+   * <p />
+   * @param m     Delete this member.
+   * @param list  From this list.
+   */
+  public void listDelVal(GrouperMember m, String list) {
+    this.listDelVal(this.s, this, m, list);
   }
 
   /**
@@ -659,47 +678,6 @@ public class GrouperGroup extends Group {
   }
 
   /**
-   * Delete a list value of the default list type.
-   * <p />
-   * @param   m     Delete this member.
-   * @return  True if the list value was deleted.
-   */
-  public boolean listDelVal(GrouperMember m) {
-    /* 
-     * TODO Add a variant that takes a GrouperGroup instead of a
-     * GrouperMember?
-     */
-    boolean rv = false;
-    // TODO Refactor into _listDelVal
-    if (GrouperGroup._canModListVal(this, Grouper.DEF_LIST_TYPE)) {
-      rv = this._listDelVal(m, Grouper.DEF_LIST_TYPE);
-    }  
-    Grouper.log().groupListDel(rv, this.s, this, m);
-    return rv;
-  }
-
-  /**
-   * Delete a list value of the specified list type.
-   * <p />
-   * @param   m     Delete this member.
-   * @param   list  Delete member from this list type.
-   * @return  True if the list value was deleted.
-   */
-  public boolean listDelVal(GrouperMember m, String list) {
-    /* 
-     * TODO Add a variant that takes a GrouperGroup instead of a
-     * GrouperMember?
-     */
-    boolean rv = false;
-    // TODO Refactor into _listDelVal
-    if (GrouperGroup._canModListVal(this, list)) {
-      rv = this._listDelVal(m, list);
-    }  
-    Grouper.log().groupListDel(rv, this.s, this, m);
-    return rv;
-  }
-
-  /**
    * Retrieve the <i>name</i> attribute.
    * <p>
    * This is a convenience method.  The value can also be retrieved
@@ -733,10 +711,6 @@ public class GrouperGroup extends Group {
       toString();
   }
 
-
-  /*
-   * PROTECTED INSTANCE METHODS
-   */
 
   // FIXME Does this method I can *really* clean up the public version?
   protected void attribute(String attr, GrouperAttribute value) {
@@ -777,25 +751,6 @@ public class GrouperGroup extends Group {
     boolean rv = false;
     if (g != null) {
       if (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
-        rv = true;
-      }
-    }
-    return rv;
-  }
-
-  /* (!javadoc)
-   * Does the current subject have permission to modify list vals of
-   * the specified type on the specified group?
-   */
-  private static boolean _canModListVal(GrouperGroup g, String list) {
-    boolean rv = false;
-    // FIXME Support for multiple list types
-    if ( (g != null) && (list != null) ) {
-      if (
-          (g.s.access().has(g.s, g, Grouper.PRIV_UPDATE)) ||
-          (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN))
-         )
-      {
         rv = true;
       }
     }
@@ -1095,54 +1050,6 @@ public class GrouperGroup extends Group {
       // Revert attribute value change
       this.attributes.put(attribute, cur);
       // Revert modify* attr changes 
-      this.setModifyTime(curModTime);
-      this.setModifySubject(curModSubj);
-    }
-    return rv;
-  }
-
-  /*
-   * Delete list value and update modify* attributes.
-   */
-  private boolean _listDelVal(GrouperMember m, String list) {
-    boolean rv = false;
-    s.dbSess().txStart();
-    // Set some of the operational attributes
-    /*
-     * TODO Most, if not all, of the operational attributes should be
-     *      handled by Hibernate interceptors.  A task for another day.
-     */
-    String curModTime = this.getModifyTime();
-    String curModSubj = this.getModifySubject();
-    this.setModifyTime( this.now() );
-    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
-    this.setModifySubject( mem.key() );
-
-    GrouperList gl = new GrouperList(this, m, list);
-    gl.load(this.s); // TODO Necessary?
-    GrouperList.validate(gl);
-    gl.load(this.s);
-
-    if (GrouperList.exists(this.s, gl)) {
-      // The GrouperList objects that we will need to add
-      MemberOf mof = new MemberOf(this.s);
-      List listVals = mof.memberOf(gl);
-          
-      // Now add the list values
-      // TODO Refactor out to _listAddVal(List vals)
-      Iterator iter = listVals.iterator();
-      while (iter.hasNext()) {
-        GrouperList lv = (GrouperList) iter.next();
-        lv.load(this.s); // TODO Is this necessary?
-        GrouperList.delete(this.s, lv);
-      }
-      rv = true; // TODO This seems naive
-    }
-    if (rv) {
-      s.dbSess().txCommit();
-    } else {
-      // Revert changes
-      s.dbSess().txRollback();
       this.setModifyTime(curModTime);
       this.setModifySubject(curModSubj);
     }

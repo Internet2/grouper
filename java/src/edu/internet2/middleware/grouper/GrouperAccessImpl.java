@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.62 2005-03-24 20:45:49 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.63 2005-03-25 19:50:58 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -331,11 +331,15 @@ public class GrouperAccessImpl implements GrouperAccess {
        */
       if (this.has(s, g, Grouper.PRIV_ADMIN)) {
         s.dbSess().txStart();
-        if (g.listDelVal(m, (String) privMap.get(priv))) {
-          rv = true;
+        try {
+          g.listDelVal(m, (String) privMap.get(priv));
           s.dbSess().txCommit();
-        } else {
+          rv = true;
+        } catch (RuntimeException e) {
           s.dbSess().txRollback();
+          throw new RuntimeException(
+                      "Error revoking privilege: " + e
+                    );
         }
       }
     } 

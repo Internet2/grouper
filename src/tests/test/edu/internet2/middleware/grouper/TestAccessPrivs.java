@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.34 2005-03-19 23:57:52 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.35 2005-03-25 19:50:58 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -224,7 +224,12 @@ public class TestAccessPrivs extends TestCase {
     GrouperMember m = GrouperMember.load(s, g1.id(), "group");
     Assert.assertNotNull(m);
     // Act
-    Assert.assertFalse( g.listDelVal(m) );
+    try {
+      g.listDelVal(m);
+      Assert.fail("del m1 from g4");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("del m1 from g4", true);
+    }
     // We're done
     s.stop();
   }

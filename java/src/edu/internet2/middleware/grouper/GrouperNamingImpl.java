@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.57 2005-03-24 20:45:49 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.58 2005-03-25 19:50:58 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -333,11 +333,15 @@ public class GrouperNamingImpl implements GrouperNaming {
        */
       if (this.has(s, g, Grouper.PRIV_STEM)) {
         s.dbSess().txStart();
-        if (g.listDelVal(m, (String) privMap.get(priv))) {
-          rv = true;
+        try {
+          g.listDelVal(m, (String) privMap.get(priv));
           s.dbSess().txCommit();
-        } else {
+          rv = true;
+        } catch (RuntimeException e) {
           s.dbSess().txRollback();
+          throw new RuntimeException(
+                      "Error revoking privilege: " + e
+                    );
         }
       }
     } 

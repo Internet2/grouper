@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.10 2005-03-25 18:45:25 blair Exp $
+ * @version $Id: Group.java,v 1.11 2005-03-25 19:50:58 blair Exp $
  */
 abstract class Group {
 
@@ -86,8 +86,8 @@ abstract class Group {
   abstract protected String         key();
   abstract protected void           listAddVal(GrouperMember m);
   abstract protected void           listAddVal(GrouperMember m, String list);
-  abstract protected boolean        listDelVal(GrouperMember m);
-  abstract protected boolean        listDelVal(GrouperMember m, String list);
+  abstract protected void           listDelVal(GrouperMember m);
+  abstract protected void           listDelVal(GrouperMember m, String list);
   abstract protected List           listVals();
   abstract protected List           listVals(String list);
   abstract protected List           listEffVals();
@@ -399,17 +399,30 @@ abstract class Group {
   }
 
   /*
-   * Add immediate and effective list values.
+   * Delete a list value.
    */
-  protected void listAddVal(GrouperSession s, GrouperList gl) {
-    // Find the list values that we will need to add
-    MemberOf mof  = new MemberOf(s);
-    Iterator iter = mof.memberOf(gl).iterator();
-    // Now add the list values
-    while (iter.hasNext()) {
-      GrouperList lv = (GrouperList) iter.next();
-      lv.load(s);
-      GrouperList.save(s, lv);
+  protected void listDelVal(
+                   GrouperSession s, Group g,
+                   GrouperMember m, String list
+                 )
+  {
+    if (Group.subjectCanModListVal(s, g, list)) {
+      GrouperList gl = new GrouperList(g, m, list);
+      gl.load(s);
+      GrouperList.validate(gl);
+      if (!GrouperList.exists(s, gl)) {
+        throw new RuntimeException("List value does not exist");
+      }
+      s.dbSess().txStart();
+      try {
+        this.listDelVal(s, gl); // Calculate mof and delete vals
+        this.setModified();
+        s.dbSess().txCommit();
+        Grouper.log().groupListDel(s, g, m);
+      } catch (RuntimeException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException("Error deleting list value: " + e);
+      }
     }
   }
 
@@ -512,6 +525,36 @@ abstract class Group {
   /*
    * PRIVATE INSTANCE METHODS
    */
+
+  /*
+   * Add immediate and effective list values.
+   */
+  private void listAddVal(GrouperSession s, GrouperList gl) {
+    // Find the list values that we will need to add
+    MemberOf mof  = new MemberOf(s);
+    Iterator iter = mof.memberOf(gl).iterator();
+    // Now add the list values
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+      lv.load(s);
+      GrouperList.save(s, lv);
+    }
+  }
+
+  /*
+   * Delete immediate and effective list values.
+   */
+  private void listDelVal(GrouperSession s, GrouperList gl) {
+    // Find the list values that we will need to add
+    MemberOf mof  = new MemberOf(s);
+    Iterator iter = mof.memberOf(gl).iterator();
+    // Now add the list values
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+      lv.load(s);
+      GrouperList.delete(s, lv);
+    }
+  }
 
   /*
    * Return list values for specified query.

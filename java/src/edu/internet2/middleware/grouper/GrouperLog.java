@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.11 2005-03-24 20:40:44 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.12 2005-03-25 19:50:58 blair Exp $
  */
 public class GrouperLog {
 
@@ -256,19 +256,14 @@ public class GrouperLog {
 
   // Group: List Value Delete
   protected void groupListDel(
-                   boolean rv, GrouperSession s, Group g,
-                   GrouperMember m
+                   GrouperSession s, Group g, GrouperMember m
                  )
   {
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " memberID='" + m.memberID() + "' subjectID='" +
                   m.subjectID() + "' from '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
-    if (rv == true) {
-      LOG_EVT.info(pre + "removed" + post);
-    } else {
-      LOG_EVT.info(pre + "failed to remove" + post);
-    }
+    LOG_EVT.info(pre + "removed" + post);
   }
 
   // Member: Add

@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.22 2005-03-25 18:45:25 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.23 2005-03-25 19:50:58 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -255,26 +255,20 @@ public class GrouperStem extends Group {
   /**
    * Delete member from this stem's default list.
    * <p />
-   * FIXME NOT IMPLEMENTED
-   * <p />
-   * @param m   Delete this member
-   * @return  true is list value deleted
+   * @param m   Delete this member.
    */
-  public boolean listDelVal(GrouperMember m) {
-    return this.listDelVal(m, Grouper.DEF_LIST_TYPE);
+  public void listDelVal(GrouperMember m) {
+    this.listDelVal(m, Grouper.DEF_LIST_TYPE);
   }
 
   /**
    * Delete member from this stem's specified list.
    * <p />
-   * FIXME NOT IMPLEMENTED
-   * <p />
-   * @param m     Delete this member
-   * @param list  From this list     
-   * @return  true if list value deleted.
+   * @param m     Delete this member.
+   * @param list  From this list.
    */
-  public boolean listDelVal(GrouperMember m, String list) {
-    return false;
+  public void listDelVal(GrouperMember m, String list) {
+    this.listDelVal(this.s, this, m, list);
   }
 
   /**
