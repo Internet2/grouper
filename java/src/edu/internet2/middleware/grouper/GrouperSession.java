@@ -1,12 +1,23 @@
 package edu.internet2.middleware.directory.grouper;
 
+import  edu.internet2.middleware.directory.grouper.*;
+import  java.lang.reflect.*;
+import  java.sql.*;
+
 /** 
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.7 2004-04-28 17:24:10 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.8 2004-04-29 03:52:43 blair Exp $
  */
 public class GrouperSession {
+
+  private Grouper           intG    = null;
+  private GrouperNaming     intName = null;
+  private GrouperPrivilege  intPriv = null;
+  private GrouperSubject    intSubj = null;
+  private Connection        con     = null;
+  private String            subject = null;
 
   /**
    * Create a {@link GrouperSession} object through which all further
@@ -16,8 +27,23 @@ public class GrouperSession {
    *  <li>Opens JDBC connection to groups registry</li>
    * </ul>
    */
-  public GrouperSession(Grouper G) { 
-    // Nothing -- Yet
+  // XXX public GrouperSession(Grouper G) { 
+  public GrouperSession(Grouper G) {
+    // Internal reference to the Grouper object
+    this.intG = G;
+
+    try {
+      Class.forName( intG.config("jdbc.driver") ).newInstance();
+      con = DriverManager.getConnection(intG.config("jdbc.url"),
+                                        intG.config("jdbc.username"),
+                                        intG.config("jdbc.password"));
+    }
+    catch(Exception e) {
+      System.err.println("Failed to load JDBC driver '" + 
+                          intG.config("jdbc.driver") + "'");
+      System.exit(1);
+    }
+
   }
 
   /**
@@ -33,7 +59,16 @@ public class GrouperSession {
    * session.
    */
   public void start(String subjectID) {
-    // Nothing -- Yet
+    // XXX Bad assumption!
+    this.subject = subjectID;
+
+    // Create internal representations of the various Grouper
+    // interfaces
+    this.createInterfaces();
+
+    // Register a new session
+    this.registerSession();
+
   }
 
   /**
@@ -51,36 +86,16 @@ public class GrouperSession {
    * memberID and not a presentationID.
    */
   public void start(String subjectID, boolean isMember) {
-    // XXX Assert parameters
+    // XXX Bad assumption!
+    this.subject = subjectID;
 
-    /*
-    // We blindly trust the credentials we are passed.
-    this.cred           = cred;
+    // Create internal representations of the various Grouper
+    // interfaces
+    this.createInterfaces();
 
-    // And now we need a session id.
-    // ???  Whether this is the best way to approach the problem is
-    //      another matter.
-    java.util.Random r  = new java.util.Random();
-    // XXX Well that is certainly arbitrary.
-    this.sessionID      = Math.abs( r.nextInt( 65535 ) );
+    // Register a new session
+    this.registerSession();
 
-    // XXX Ugh.  Where to put this? 
-    try {
-      Class.forName(jdbcDriver).newInstance( );
-      con = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
-    }
-    catch( Exception e ) {
-      // XXX Specify *what* JDBC driver.
-      System.out.println("Failed to load JDBC driver '" + jdbcDriver + "'");
-      // XXX  And I should probably do something else in this
-      //      case other than just return an invalid session id.
-      // XXX  And I should document somewhere what valid session
-      //      ids are -- once I know myself.
-      return -1;
-    }
-
-    return this.sessionID;
-    */
   }
 
   /**
@@ -108,7 +123,54 @@ public class GrouperSession {
    * subject.
    */
   public String whoami() {
-    return null;
+    return this.subject;
+  }
+
+  private void createInterfaces() {
+    // Create internal references to the various interfaces
+    this.intName            = (GrouperNaming)    createObject( intG.config("interface.naming") );
+    this.intPriv            = (GrouperPrivilege) createObject( intG.config("interface.privilege") );
+    this.intSubj            = (GrouperSubject)   createObject( intG.config("interface.subject") );
+  }
+
+  private Object createObject(String name) {
+    Object object         = null;
+    Class[]  paramsClass  = new Class[]  { GrouperSession.class };
+    Object[] params       = new Object[] { this };
+
+    try {
+      Class classType         = Class.forName(name);
+      Constructor constructor = classType.getDeclaredConstructor(paramsClass);
+      object                  = constructor.newInstance(params);
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+  
+    return object;
+  }
+      
+  private void registerSession() {
+    Statement stmt = null;
+
+    try { 
+      stmt = con.createStatement();
+      String insertSession = "INSERT INTO grouper_session " +
+                             "(cred, startTime) " +
+                             "VALUES (" +
+                             "'" + this.subject + "', " +
+                             "'RIGHT NOW'" +
+                             ")";
+      try { 
+        stmt.executeUpdate(insertSession);
+      } catch (Exception e) {
+        System.err.println("Unable to insert session: " + insertSession);
+        System.exit(1);
+      }
+    } catch (Exception e) {
+      System.err.println("Unable to create statement");
+      System.exit(1);
+    }
   }
 
 }
