@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestSubjects.java,v 1.5 2004-11-12 20:21:59 blair Exp $
+ * $Id: TestSubjects.java,v 1.6 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -44,7 +44,6 @@ public class TestSubjects extends TestCase {
   
 
   public void testSubjectInterfaceLookupFailureInvalidID() {
-    Grouper G     = new Grouper();
     String id     = "invalid id";
     String type   = "person";
     Subject subj  = GrouperSubject.lookup(id, type);
@@ -52,7 +51,6 @@ public class TestSubjects extends TestCase {
   }
 
   public void testSubjectInterfaceLookupFailureInvalidType() {
-    Grouper G     = new Grouper();
     String id     = Grouper.config("member.system");
     String type   = "notaperson";
     Subject subj  = GrouperSubject.lookup(id, type);
@@ -60,7 +58,6 @@ public class TestSubjects extends TestCase {
   }
 
   public void testSubjectInterfaceLookupMemberSystem() {
-    Grouper G     = new Grouper();
     String id     = Grouper.config("member.system");
     String type   = "person";
     Subject subj  = GrouperSubject.lookup(id, type);
@@ -75,7 +72,6 @@ public class TestSubjects extends TestCase {
   }
 
   public void testSubjectInterfaceLookup() {
-    Grouper G     = new Grouper();
     String id     = "blair";
     String type   = "person";
     Subject subj  = GrouperSubject.lookup(id, type);

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupsAdd.java,v 1.4 2004-11-18 19:20:37 blair Exp $
+ * $Id: TestGroupsAdd.java,v 1.5 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -54,7 +54,6 @@ public class TestGroups extends TestCase {
 
   // Fetch a non-existent group.
   public void testGroupsExistFalse() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -71,7 +70,6 @@ public class TestGroups extends TestCase {
 
   // Create a group
   public void testCreateGroups() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -112,7 +110,6 @@ public class TestGroups extends TestCase {
 
   // Fetch a valid group
   public void testFetchValidGroups() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);

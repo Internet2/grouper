@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestMembers.java,v 1.2 2004-11-13 04:28:20 blair Exp $
+ * $Id: TestMembers.java,v 1.3 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -45,7 +45,6 @@ public class TestMembers extends TestCase {
 
   // Initialize a valid subject as a member object
   public void testCreateMemberFromValidSubject() {
-    Grouper       G     = new Grouper();
     String        id    = "blair";
     String        type  = "person";
     GrouperMember m     = GrouperMember.lookup(id, type);
@@ -60,7 +59,6 @@ public class TestMembers extends TestCase {
 
   // Fetch an already existing member object
   public void testFetchMemberFromValidSubject() {
-    Grouper       G     = new Grouper();
     String        id    = "blair";
     String        type  = "person";
     GrouperMember m     = GrouperMember.lookup(id, type);
@@ -75,7 +73,6 @@ public class TestMembers extends TestCase {
 
   // Initialize an invalid subject as a member object
   public void testCreateMemberFromInvalidSubject() {
-    Grouper       G     = new Grouper();
     String        id    = "invalid id";
     String        type  = "person";
     GrouperMember m     = GrouperMember.lookup(id, type);

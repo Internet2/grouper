@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.13 2004-11-19 19:44:05 blair Exp $
+ * $Id: TestGroupLists.java,v 1.14 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -53,7 +53,6 @@ public class TestGroupLists extends TestCase {
 
 
   public void testAddPeopleAsMembers() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -83,7 +82,6 @@ public class TestGroupLists extends TestCase {
     // g0 (m0)  ()
     // g1 ()    ()
     // g2 (m1)  ()
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -176,7 +174,6 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testInvalidFetchListData0() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -222,7 +219,6 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddPeopleAsInvalidMembers() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -249,7 +245,6 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddGroupWithoutMembersAsMember() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -274,7 +269,6 @@ public class TestGroupLists extends TestCase {
     // g0 (m0, g1)  ()
     // g1 ()        ()
     // g2 (m1)      ()
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -367,7 +361,6 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAddGroupWithMembersAsMember() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -394,7 +387,6 @@ public class TestGroupLists extends TestCase {
     // g1 ()            ()
     // g2 (m1)          ()
     //
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -487,7 +479,6 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testRemoveMember0() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -520,7 +511,6 @@ public class TestGroupLists extends TestCase {
     // g1 ()        ()
     // g2 (m1)      ()
     //
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -628,7 +618,6 @@ public class TestGroupLists extends TestCase {
 
 /*
   public void testCensored() {
-    Grouper         G       = new Grouper();
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
