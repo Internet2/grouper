@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.72 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: Grouper.java,v 1.73 2005-03-10 16:27:57 blair Exp $
  */
 public class Grouper {
 
@@ -351,7 +351,7 @@ public class Grouper {
       }
 
       // TODO Perform data validation of some sort for these tables?
-      Session dbSess = new Session();
+      DbSess dbSess = new DbSess();
 
       groupFields   = GrouperBackend.groupFields(dbSess);
       groupTypeDefs = GrouperBackend.groupTypeDefs(dbSess);
