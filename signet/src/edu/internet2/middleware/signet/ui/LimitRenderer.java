@@ -6,12 +6,20 @@
  */
 package edu.internet2.middleware.signet.ui;
 
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
+import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
@@ -23,10 +31,13 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 public class LimitRenderer
 {
+  private static final String LIMIT_VALUE_PARAMETER_PREFIX = "LIMITVALUE";
+  private static final String DELIMITER = ":";
+  
   public static String render(Limit limit)
   {
     StringBuffer outStr = new StringBuffer();
-    String limitName = makeLimitName(limit);
+    String limitName = makeLimitValueParamName(limit);
     
     ChoiceSet choiceSet;
     try
@@ -92,13 +103,74 @@ public class LimitRenderer
     return outStr.toString();
   }
   
-  public static String makeLimitName(Limit limit)
+  public static boolean isLimitValueParamName(String paramName)
   {
-    return "LIMIT_" + limit.getId();
+    return paramName.startsWith(LIMIT_VALUE_PARAMETER_PREFIX + DELIMITER);
   }
   
-  public static String makeChoiceName(Limit limit, int choiceNumber)
+  public static String makeLimitValueParamName(Limit limit)
+  throws SignetRuntimeException
   {
-    return makeLimitName(limit) + "_LIMIT_" + choiceNumber;
+    try
+    {
+      return
+      	LIMIT_VALUE_PARAMETER_PREFIX
+      	+ DELIMITER
+      	+ limit.getSubsystem().getId()
+      	+ DELIMITER
+      	+ limit.getId();
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      throw new SignetRuntimeException(onfe);
+    }
+  }
+  
+  public static Limit getLimitByParamName
+  	(Signet signet,
+  	 String limitParamName)
+  {
+    StringTokenizer tokenizer = new StringTokenizer(limitParamName, DELIMITER);
+    String prefix = tokenizer.nextToken();
+    String subsystemId = tokenizer.nextToken();
+    String limitId = tokenizer.nextToken();
+    Limit limit = null;
+    
+    try
+    {
+      Subsystem subsystem = signet.getSubsystem(subsystemId);
+      limit = subsystem.getLimit(limitId);
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      throw new SignetRuntimeException(onfe);
+    }
+
+    return limit;
+  }
+  
+  static Set getAllLimitValues
+	  (Signet signet, HttpServletRequest request)
+  {
+    Set limitValues = new HashSet();
+    Enumeration paramNames = request.getParameterNames();
+    while (paramNames.hasMoreElements())
+    {
+      String paramName = (String)(paramNames.nextElement());
+      
+      if (LimitRenderer.isLimitValueParamName(paramName))
+      {
+        Limit limit = LimitRenderer.getLimitByParamName(signet, paramName);
+        String[] paramValues = request.getParameterValues(paramName);
+        for (int i = 0; i < paramValues.length; i++)
+        {
+          String value = paramValues[i];
+          LimitValue limitValue = new LimitValue(limit, value);
+          limitValues.add(limitValue);
+        }
+      }
+    }
+    
+    return limitValues;
   }
 }

@@ -10,10 +10,10 @@
 <tiles:useAttribute name="limit" classname="edu.internet2.middleware.signet.Limit" />
 
 <%
-String limitName = LimitRenderer.makeLimitName(limit);
+String limitParamName = LimitRenderer.makeLimitValueParamName(limit);
 %>
 
-<select class="<%=limit.getDataType()%>" name "<%=limitName%>">
+<select class="<%=limit.getDataType()%>" name="<%=limitParamName%>">
 
 <% 
 Iterator choicesIterator = limit.getChoiceSet().getChoices().iterator();
@@ -24,8 +24,8 @@ while (choicesIterator.hasNext())
   Choice choice = (Choice)(choicesIterator.next());
 %>
 
- <option <%=(isFirstChoice ? " selected" : "")%>>
-    <%=choice.getDisplayValue()%>
+ <option <%=(isFirstChoice ? " selected" : "")%> label=<%=choice.getDisplayValue()%>>
+    <%=choice.getValue()%>
   </option>
 
 <%

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.5 2005-02-21 23:27:34 acohen Exp $
- $Date: 2005-02-21 23:27:34 $
+ $Id: PrivilegedSubject.java,v 1.6 2005-02-23 17:21:30 acohen Exp $
+ $Date: 2005-02-23 17:21:30 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -45,31 +45,31 @@ public interface PrivilegedSubject extends Subject, Comparable
   public String editRefusalExplanation
     (Assignment anAssignment, String actor);
   
-  /**
-   * @deprecated This function is superseded by the newer version, which
-   * includes a "limitValues" parameter.
-   * 
-   * Creates an Assignment by granting a Function to a PrivilegedSubject.
-   * 
-   * @param grantee
-   * @param scope
-   * @param function
-   * @param canGrant
-   * @param grantOnly
-   * 
-   * @return the resulting Assignment
-   * 
-   * @throws SignetAuthorityException, ObjectNotFoundException
-   */
-  public Assignment grant
-  (PrivilegedSubject 	grantee,
-   TreeNode 					scope,
-   Function 					function,
-   boolean 						canGrant,
-   boolean 						grantOnly)
-  throws
-  	SignetAuthorityException,
-  	ObjectNotFoundException;
+//  /**
+//   * @deprecated This function is superseded by the newer version, which
+//   * includes a "limitValues" parameter.
+//   * 
+//   * Creates an Assignment by granting a Function to a PrivilegedSubject.
+//   * 
+//   * @param grantee
+//   * @param scope
+//   * @param function
+//   * @param canGrant
+//   * @param grantOnly
+//   * 
+//   * @return the resulting Assignment
+//   * 
+//   * @throws SignetAuthorityException, ObjectNotFoundException
+//   */
+//  public Assignment grant
+//  (PrivilegedSubject 	grantee,
+//   TreeNode 					scope,
+//   Function 					function,
+//   boolean 						canGrant,
+//   boolean 						grantOnly)
+//  throws
+//  	SignetAuthorityException,
+//  	ObjectNotFoundException;
   
   /**
    * Creates an Assignment by granting a Function to a PrivilegedSubject.

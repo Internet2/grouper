@@ -1,6 +1,6 @@
 /*--
-  $Id: ConfirmAction.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: ConfirmAction.java,v 1.2 2005-02-23 17:21:30 acohen Exp $
+  $Date: 2005-02-23 17:21:30 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
@@ -74,10 +75,29 @@ public final class ConfirmAction extends BaseAction
     }
 
     HttpSession session = request.getSession(); 
-    String canUseString = request.getParameter("can_use");
-    String canGrantString = request.getParameter("can_grant");
     boolean grantOnly;
     boolean canGrant;
+
+    PrivilegedSubject grantor
+      = (PrivilegedSubject)
+          (session.getAttribute("loggedInPrivilegedSubject"));
+    PrivilegedSubject grantee
+    	= (PrivilegedSubject)
+    	    (session.getAttribute("currentGranteePrivilegedSubject"));
+    TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
+    Function function = (Function)(session.getAttribute("currentFunction"));
+    Signet signet = (Signet)(session.getAttribute("signet"));
+    
+    if (signet == null)
+    {
+      return (mapping.findForward("notInitialized"));
+    }
+    
+    Common.showHttpParams
+    	("ConfirmAction.execute()", signet.getLogger(), request);
+    
+    String canUseString = request.getParameter("can_use");
+    String canGrantString = request.getParameter("can_grant");
 
     if (paramIsPresent(canUseString))
     {
@@ -96,25 +116,11 @@ public final class ConfirmAction extends BaseAction
     {
       canGrant = false;
     }
-
-    PrivilegedSubject grantor
-      = (PrivilegedSubject)
-          (session.getAttribute("loggedInPrivilegedSubject"));
-    PrivilegedSubject grantee
-    	= (PrivilegedSubject)
-    	    (session.getAttribute("currentGranteePrivilegedSubject"));
-    TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
-    Function function = (Function)(session.getAttribute("currentFunction"));
-    Signet signet = (Signet)(session.getAttribute("signet"));
-    
-    if (signet == null)
-    {
-      return (mapping.findForward("notInitialized"));
-    }
+    Set limitValues = LimitRenderer.getAllLimitValues(signet, request);
     
     Assignment assignment
       = grantor.grant
-          (grantee, scope, function, canGrant, grantOnly);
+          (grantee, scope, function, limitValues, canGrant, grantOnly);
     
     signet.beginTransaction();
     signet.save(assignment);

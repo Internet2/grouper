@@ -1,6 +1,6 @@
 /*--
-$Id: MakeAssignment.java,v 1.4 2005-01-12 17:28:05 acohen Exp $
-$Date: 2005-01-12 17:28:05 $
+$Id: MakeAssignment.java,v 1.5 2005-02-23 17:21:30 acohen Exp $
+$Date: 2005-02-23 17:21:30 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.demo;
 
+import java.util.HashSet;
 import java.util.Iterator;
 
 import edu.internet2.middleware.signet.Assignment;
@@ -98,6 +99,7 @@ throws ObjectNotFoundException, SignetAuthorityException
     			(intermediateGrantor,
     			 treeNode,
     			 function000,
+    			 null,    // No limits associated with this Function.
     			 true,		//canGrant
     			 false);	// grantOnly
     	
@@ -107,6 +109,7 @@ throws ObjectNotFoundException, SignetAuthorityException
   				(finalGrantee,
   				 treeNode,
   			   function000,
+    			 null,    // No limits associated with this Function.
   			   true,		// canGrant
   			   false);	// grantOnly
     

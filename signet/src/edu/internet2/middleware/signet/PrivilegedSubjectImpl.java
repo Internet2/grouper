@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.6 2005-02-21 23:27:34 acohen Exp $
- $Date: 2005-02-21 23:27:34 $
+ $Id: PrivilegedSubjectImpl.java,v 1.7 2005-02-23 17:21:30 acohen Exp $
+ $Date: 2005-02-23 17:21:30 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -681,24 +681,24 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return this.subject;
   }
 
-  public Assignment grant
-  	(PrivilegedSubject 	grantee,
-  	 TreeNode 					scope,
-     Function 					function,
-     boolean 						canGrant,
-     boolean 						grantOnly)
-  throws
-  	SignetAuthorityException,
-  	ObjectNotFoundException
-  {
-    return this.grant
-    	(grantee,
-    	 scope,
-    	 function,
-    	 new HashSet(0),
-    	 canGrant,
-    	 grantOnly);
-  }
+//  public Assignment grant
+//  	(PrivilegedSubject 	grantee,
+//  	 TreeNode 					scope,
+//     Function 					function,
+//     boolean 						canGrant,
+//     boolean 						grantOnly)
+//  throws
+//  	SignetAuthorityException,
+//  	ObjectNotFoundException
+//  {
+//    return this.grant
+//    	(grantee,
+//    	 scope,
+//    	 function,
+//    	 new HashSet(0),
+//    	 canGrant,
+//    	 grantOnly);
+//  }
 
   public Assignment grant
   	(PrivilegedSubject 	grantee,

@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.6 2005-02-15 00:31:20 acohen Exp $
-$Date: 2005-02-15 00:31:20 $
+$Id: Limit.java,v 1.7 2005-02-23 17:21:30 acohen Exp $
+$Date: 2005-02-23 17:21:30 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -25,6 +25,14 @@ public interface Limit
 	 * @return the limit ID.
 	 */
 	public String getId();
+	
+	/**
+	 * Get the Subsystem associated with this Limit.
+	 * 
+	 * @return the associated Subsystem.
+	 * @throws ObjectNotFoundException
+	 */
+  public Subsystem getSubsystem() throws ObjectNotFoundException;
 	
 	/**
 	 * Get the ChoiceSet associated with this Limit.

@@ -228,7 +228,7 @@
 
   <!-- ========== Plug Ins Configuration ================================== -->
 
-  <plug-in className="org.apache.struts.plugins.ModuleConfigVerifier"/>    *
+  <plug-in className="org.apache.struts.plugins.ModuleConfigVerifier"/>
 
   <plug-in className="org.apache.struts.tiles.TilesPlugin" >
     <set-property
