@@ -1,10 +1,12 @@
 /*
- * $Id: Grouper.java,v 1.2 2004-02-27 19:29:13 blair Exp $
+ * $Id: Grouper.java,v 1.3 2004-03-21 00:14:32 blair Exp $
  */
 
 // XXX package edu.internet2.middleware.mace.grouper;
 
+import java.io.*;
 import java.sql.*;
+import java.util.Properties;
 
 public class Grouper {
 
@@ -12,13 +14,34 @@ public class Grouper {
   private int         sessionID;
   private String      cred;
 
-  // XXX Ugh.  Make this configurable.
-  private String      url = "jdbc:postgresql://fifty6th:5432/wm_logs";
+  private Properties  conf     = new Properties();
+  private String      confFile = "grouper.cf";
+
+  private String jdbcDriver;
+  private String jdbcPassword;
+  private String jdbcUrl;
+  private String jdbcUsername;
 
   public Grouper() {
     con       = null;
     sessionID = -1;
     cred      = null;
+
+    try {
+      FileInputStream in = new FileInputStream(confFile);
+      try {
+        conf.load(in);
+        // XXX Try, try, try...
+        jdbcDriver   = conf.getProperty("jdbc.driver");
+        jdbcPassword = conf.getProperty("jdbc.password");
+        jdbcUrl      = conf.getProperty("jdbc.url");
+        jdbcUsername = conf.getProperty("jdbc.username");
+      } catch (IOException e) {
+        System.err.println("Unable to read '" + confFile + "'");
+      }
+    } catch (FileNotFoundException e) {
+      System.err.println("Failed to find '" + confFile + "'");
+    }
   }
 
   public int Session_start (String cred) {
@@ -34,17 +57,19 @@ public class Grouper {
     // XXX Well that is certainly arbitrary.
     this.sessionID      = Math.abs( r.nextInt( 65535 ) );
 
+    //String jdbcDriver   = "com.mysql.jdbc.Driver";
+    //String jdbcUrl      = "jdbc:mysql://localhost:3306/grouper";
+    //String jdbcUsername = "grouper";
+    //String jdbcPassword = "gr0up3r";
+
     // XXX Ugh.  Where to put this? 
     try {
-      // XXX Ugh.  Make this configurable.
-      String driver = "org.postgresql.Driver";
-      Class.forName(driver).newInstance( );
-      // XXX Ugh.  Make this configurable.
-      con = DriverManager.getConnection(url, "wm_logs", "");
+      Class.forName(jdbcDriver).newInstance( );
+      con = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
     }
     catch( Exception e ) {
       // XXX Specify *what* JDBC driver.
-      System.out.println("Failed to load JDBC driver.");
+      System.out.println("Failed to load JDBC driver '" + jdbcDriver + "'");
       // XXX  And I should probably do something else in this
       //      case other than just return an invalid session id.
       // XXX  And I should document somewhere what valid session
