@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.7 2004-03-26 17:39:02 blair Exp $
+# $Id: README,v 1.8 2004-03-26 20:42:23 blair Exp $
 #
 
  ---------
@@ -14,86 +14,6 @@
  -----------
 / ROADMAP /
 ----------
-
-
- ---------
-/ USAGE /
---------
-
-  Creating
-  ~~~~~~~~
-    # Start a session.  'cred' shall remain a nebulous and
-    # inconsequential
-    # black box for the time being.
-    sessionID = Session_start(cred)
-
-    # Get a groupID to use for when creating a new group?  Presumably
-    # this returns some unused primary key value from the 'group'
-    # table, either via autoincrementing or a more pseudorandom
-    # selection.
-    groupID = New_groupID(groupName)
-
-    # And now create the group, defaulting the base group type
-    Create_group(groupID)
-
-    # Remove the session from the session table and peform other
-    # required cleanup activities.
-    Session_end(sessionID)
-
-  Deleting
-  ~~~~~~~~
-    # Start a session.  'cred' shall remain a nebulous and
-    # inconsequential black box for the time being.
-    sessionID = Session_start(cred)
-
-    # And now delete the group reference by groupID.  Whatever that
-    # entails.  How we know *what* groupID to use is another matter
-    # altogether.
-    Delete_group(groupID)
-
-    # Remove the session from the session table and peform other
-    # required cleanup activities.
-    Session_end(sessionID)
-
-
-That was the idea, conceived at a moment in which I imagined groupName
-to be a distinguished element (sometimes I still do). Also related to
-your Q below, as api users' will often know the group by way of its
-name. Alternatives are something like Get_groupID(groupName) which
-either returns an existing or creates a new groupID (or maybe just
-returns existing ones); have Create_group create a new groupID and
-assign a groupName. This is not in stone. See related answer below.
- 
->- Are the following examples rough representations of how one would
->  create and delete a group?
- 
-yes
- 
->- There does not appear to be anything in the API (as of -02) to
->  provide a way of listing groups/groupIDs.  As most of the API
->  requires knowing a groupID, how is one supposed to determine what
->  groupID to use for the various operations?
- 
-True. Missing for sure is a way to map groupName -> groupID. Maybe
-Get_groupID(groupName). Further discussion is needed on what types
-of group selection criteria we should support. There is a desire
-to not build much query capability into this api - just enough to
-manage, export, and age. Fetching a particular group using groupName
-seems like it should in. Maybe selecting all groups tagged as being
-of interest to a given provisioning connector or of a specified
-groupType. And there remains the question you and I spoke about
-regarding whether to expose a "find all Gs containing M" (Groups
-containing Member) function that is surely to be needed under the
-covers. Apart from these, I can't think of any other fields lying
-around that one might select from, at least with regard to base
-types.
- 
->- And now, looking at the API again, I don't see anything that could be
->  used to add/delete individual group memberships.
- 
-Add_group_data & Remove_group_data can reference groupFieldIDs of
-membership fields. Or do you think it more natural to have separate
-data and membership modifying functions?
 
 
  -----------------------
@@ -132,28 +52,4 @@ data and membership modifying functions?
       we go through the API?
 
 - XXX Make note of all site configurable options
-
-
-g = new Grouper()
-s = new Grouper.Session()
-
-// Create group
-group0 = new Grouper.Group()
-group0.create_group("group0")
-
-// Add member(s)
-- How do we know if '0' is a group or a member?
-  - Polymporhpic?  Pass in groups?  We have a 'member' type and a
-    'group' type?
-group0.add_value(MEMBERS, 0)
-
-// Delete group
-group1 = new Grouper.Group()
-group0.delete_group("group1")
-
-// Create group ?
-group0 = new Grouper.Group("group0")
-
-s.start("foo")
-s.end()
 
