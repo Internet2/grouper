@@ -64,7 +64,7 @@ public class TestAll extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-  
+
     suite.addTestSuite(TestInstantiate.class);
     suite.addTestSuite(TestConfigAndSchema.class);
     suite.addTestSuite(TestSubjects.class);
@@ -91,6 +91,12 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsMoFAdd2.class);
     suite.addTestSuite(TestGroupsMoFAdd3.class);
     suite.addTestSuite(TestGroupsMoFAdd4.class);
+    suite.addTestSuite(TestGroupsMoFAdd5.class);
+    suite.addTestSuite(TestGroupsMoFAdd6.class);
+    suite.addTestSuite(TestGroupsMoFAdd7.class);
+    suite.addTestSuite(TestGroupsMoFAdd8.class);
+    suite.addTestSuite(TestGroupsMoFAdd9.class);
+    suite.addTestSuite(TestGroupsMoFAdd10.class);
     // TODO TestGroupsMoFDel
     // TODO TestMixedMoF
     // TODO TestMixedMoFAdd

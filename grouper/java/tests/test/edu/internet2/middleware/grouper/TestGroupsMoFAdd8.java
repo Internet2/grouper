@@ -53,66 +53,90 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
+public class TestGroupsMoFAdd8 extends TestCase {
 
-public class TestAll extends TestCase {
-
-  public TestAll(String name) {
+  public TestGroupsMoFAdd8(String name) {
     super(name);
   }
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
+  protected void setUp () {
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
+  }
 
-    suite.addTestSuite(TestInstantiate.class);
-    suite.addTestSuite(TestConfigAndSchema.class);
-    suite.addTestSuite(TestSubjects.class);
-    suite.addTestSuite(TestSessions.class);
-    suite.addTestSuite(TestMembers.class);
-    suite.addTestSuite(TestStemsAdd.class);
-    suite.addTestSuite(TestStemsDelete.class);
-    suite.addTestSuite(TestStemsAttrs.class);
-    // TODO TestStemsAttrsAdd
-    // TODO TestStemsAttrsMod
-    // TODO TestStemsAttrsDel
-    suite.addTestSuite(TestStemsMoF.class);
-    // TODO TestStemsMoFAdd
-    // TODO TestStemsMoFDel
-    suite.addTestSuite(TestGroupsAdd.class);
-    suite.addTestSuite(TestGroupsDelete.class);
-    suite.addTestSuite(TestGroupsAttrs.class);
-    // TODO TestGroupsAttrsAdd
-    // TODO TestGroupsAttrsMod
-    // TODO TestGroupsAttrsDel
-    suite.addTestSuite(TestGroupsMoF.class);
-    suite.addTestSuite(TestGroupsMoFAdd0.class);
-    suite.addTestSuite(TestGroupsMoFAdd1.class);
-    suite.addTestSuite(TestGroupsMoFAdd2.class);
-    suite.addTestSuite(TestGroupsMoFAdd3.class);
-    suite.addTestSuite(TestGroupsMoFAdd4.class);
-    suite.addTestSuite(TestGroupsMoFAdd5.class);
-    suite.addTestSuite(TestGroupsMoFAdd6.class);
-    suite.addTestSuite(TestGroupsMoFAdd7.class);
-    suite.addTestSuite(TestGroupsMoFAdd8.class);
-    suite.addTestSuite(TestGroupsMoFAdd9.class);
-    suite.addTestSuite(TestGroupsMoFAdd10.class);
-    // TODO TestGroupsMoFDel
-    // TODO TestMixedMoF
-    // TODO TestMixedMoFAdd
-    // TODO TestMixedMoFDel
-    // TODO Flesh out
-    suite.addTestSuite(TestNamingPrivs.class);
-    // TODO TestNamingPrivsGrant
-    // TODO TestNamingPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestAccessPrivs.class);
-    // TODO TestAccessPrivsGrant
-    // TODO TestAccessPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestQueries.class);
+  protected void tearDown () {
+    // Nothing -- Yet
+  }
 
-    return suite;
+
+  /*
+   * TESTS
+   */
+  
+
+  //
+  // Add m0 to gA
+  // Add gA to gB
+  // Add gB to gA
+  //
+  // m0 -> gA -> gB
+  //        ^    |
+  //        \----/
+  //
+  public void testMoF() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create gA
+    GrouperGroup gA  = GrouperGroup.create(
+                         s, Constants.gAs, Constants.gAe
+                       );
+    // Create gB
+    GrouperGroup gB  = GrouperGroup.create(
+                         s, Constants.gBs, Constants.gBe
+                       );
+    // Load m0
+    GrouperMember m0 = GrouperMember.load(
+                         s, Constants.mem0I, Constants.mem0T
+                       );
+    // Add m0 to gA's "members"
+    Assert.assertTrue("add m0 to gA", gA.listAddVal(m0));
+    // Add gA to gB's "members"
+    Assert.assertTrue("add gA to gB", gB.listAddVal(gA.toMember()));
+    // Add gB to gA's "members"
+    Assert.assertTrue("add gB to gA", gA.listAddVal(gB.toMember()));
+
+    // Now inspect gA's, resulting list values
+    Assert.assertTrue(
+      "gA members == 4", gA.listVals("members").size() == 4
+    );
+    Assert.assertTrue(
+      "gA imm members == 2", gA.listImmVals("members").size() == 2
+    );
+    Assert.assertTrue(
+      "gA eff members == 2", gA.listEffVals("members").size() == 2
+    );
+
+    // Now inspect gB's, resulting list values
+    Assert.assertTrue(
+      "gB members == 5", gB.listVals("members").size() == 5
+    );
+    Assert.assertTrue(
+      "gB imm members == 1", gB.listImmVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "gB eff members == 4", gB.listEffVals("members").size() == 4
+    );
+
+    s.stop();
   }
 
 }

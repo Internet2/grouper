@@ -118,6 +118,8 @@ public class Constants {
   public static final String  gBe = "group b";
   public static final String  gCs = GrouperGroup.groupName(ns0s, ns0e);
   public static final String  gCe = "group c";
+  public static final String  gDs = GrouperGroup.groupName(ns0s, ns0e);
+  public static final String  gDe = "group d";
 
 }
 
