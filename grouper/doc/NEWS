@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.6 2004-12-06 00:53:19 blair Exp $
+$Id: NEWS,v 1.7 2004-12-06 01:29:20 blair Exp $
 
 ---
 
@@ -40,6 +40,7 @@ $Id: NEWS,v 1.6 2004-12-06 00:53:19 blair Exp $
 ### Postponed From This Release
 
 * Group renaming (#262)
+* `displayName' and `displayExtension' attribute support (#270)
 * Proper schema validation (#267)
 * Custom group types are not very well supported (#269)
 * Group Hierarchy Depth Restrictions

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.127 2004-12-06 00:52:22 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.128 2004-12-06 01:29:20 blair Exp $
  */
 public class GrouperGroup {
 
@@ -230,10 +230,15 @@ public class GrouperGroup {
     // Attempt to validate whether the attribute is allowed
     if (this._validateAttribute(attribute)) {
       // FIXME We don't handle renames yet -- if ever?
+      // FIXME If I actually paid any attention to the contents
+      //       of `grouper_field', I wouldn't need to do some of
+      //       this...
       if ( 
           (this.initialized == true) && 
            (
-            (attribute.equals("stem"))      ||
+            (attribute.equals("displayName")) ||
+            (attribute.equals("name"))        ||
+            (attribute.equals("stem"))        ||
             (attribute.equals("extension"))
            )
          ) 
@@ -756,6 +761,12 @@ public class GrouperGroup {
           g._attrAdd("stem",      stem);
           g._attrAdd("extension", extn);
           g._attrAdd("name",      name);
+          /*
+           * TODO Add `displayName' support
+           *      Will I run into priv (for fetching of stem's
+           *      `displayName' when I add in support for this?
+           */
+
           g.type = type;
           // Set some of the operational attributes
           /*

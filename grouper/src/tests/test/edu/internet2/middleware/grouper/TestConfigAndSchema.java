@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.18 2004-12-05 01:27:31 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.19 2004-12-06 01:29:20 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -91,7 +91,7 @@ public class TestConfigAndSchema extends TestCase {
   public void testGetGrouperFields() {
     List fields = Grouper.groupFields();
     Assert.assertNotNull(fields);
-    Assert.assertEquals(13, fields.size());
+    Assert.assertEquals(15, fields.size());
     String klass = "edu.internet2.middleware.grouper.GrouperField";
     String field;
     int idx = 0;
@@ -107,7 +107,15 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "extension:READ:ADMIN:FALSE";
+    field = "displayExtension:VIEW:ADMIN:FALSE";
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
+    field = "displayName:VIEW::FALSE";
+    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    idx += 1;
+    field = "extension:VIEW:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
@@ -115,23 +123,23 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "name:READ::FALSE";
+    field = "name:VIEW::FALSE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "optins:READ:UPDATE:TRUE";
+    field = "optins:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "optouts:READ:UPDATE:TRUE";
+    field = "optouts:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "readers:UPDATE:UPDATE:TRUE";
+    field = "readers:ADMIN:ADMIN:TRUE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "stem:READ:ADMIN:FALSE";
+    field = "stem:VIEW:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     idx += 1;
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
@@ -139,11 +147,11 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "updaters:UPDATE:UPDATE:TRUE";
+    field = "updaters:ADMIN:ADMIN:TRUE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
     idx += 1;
-    field = "viewers:UPDATE:UPDATE:TRUE";
+    field = "viewers:ADMIN:ADMIN:TRUE";
     Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
   }

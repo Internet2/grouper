@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.6 2004-12-05 01:27:31 blair Exp $
+-- $Id: init.sql,v 1.7 2004-12-06 01:29:20 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -7,31 +7,35 @@ INSERT INTO grouper_type (groupType) VALUES ('base');
 INSERT INTO grouper_type (groupType) VALUES ('naming');
 
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('extension', 'READ', 'ADMIN', 'FALSE');
+  VALUES ('extension', 'VIEW', 'ADMIN', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('stem', 'READ', 'ADMIN', 'FALSE');
+  VALUES ('stem', 'VIEW', 'ADMIN', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('description', 'READ', 'ADMIN', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('members', 'READ', 'UPDATE', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('viewers', 'UPDATE', 'UPDATE', 'TRUE');
+  VALUES ('viewers', 'ADMIN', 'ADMIN', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('readers', 'UPDATE', 'UPDATE', 'TRUE');
+  VALUES ('readers', 'ADMIN', 'ADMIN', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('updaters', 'UPDATE', 'UPDATE', 'TRUE');
+  VALUES ('updaters', 'ADMIN', 'ADMIN', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('admins', 'ADMIN', 'ADMIN', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('optins', 'READ', 'UPDATE', 'TRUE');
+  VALUES ('optins', 'UPDATE', 'UPDATE', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('optouts', 'READ', 'UPDATE', 'TRUE');
+  VALUES ('optouts', 'UPDATE', 'UPDATE', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('name', 'READ', '', 'FALSE');
+  VALUES ('name', 'VIEW', '', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('stemmers', 'STEM', 'STEM', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('creators', 'STEM', 'STEM', 'TRUE');
+INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
+  VALUES ('displayName', 'VIEW', '', 'FALSE');
+INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
+  VALUES ('displayExtension', 'VIEW', 'ADMIN', 'FALSE');
 
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'extension');
