@@ -3,13 +3,14 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
+import  java.util.ArrayList;
 import  java.util.List;
 
 /** 
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.19 2004-05-02 00:18:28 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.20 2004-05-02 01:51:54 blair Exp $
  */
 public class GrouperSession {
 
@@ -23,14 +24,15 @@ public class GrouperSession {
   private String          presentationID  = null;
 
   /**
-   * Create a {@link GrouperSession} object through which all further
-   * {@link Grouper} actions will be performed.
+   * Create a session object that will provide a context for future
+   * operations.
    * <p>
    * <ul>
    *  <li>Opens JDBC connection to groups registry</li>
    * </ul>
+   *
+   * @param   G Grouper environment.
    */
-  // XXX public GrouperSession(Grouper G) { 
   public GrouperSession(Grouper G) {
     // Internal reference to the Grouper object
     this.intG = G;
@@ -50,16 +52,15 @@ public class GrouperSession {
   }
 
   /**
-   * Starts a {@link Grouper} session.
+   * Start a session.
    * <p>
    * <ul>
-   *  <li>Using the exective {@link GrouperSession}, "subjectID" is
-   *      looked up via the {@link GrouperSubject} interface and a
-   *      {@link GrouperMember} object is returned.</li>
-   *  <li>Inserts record into <i>grouper_session</i> table.</li>
+   *  <li>Using the executive session, lookup "subjectID" and return a
+   *      {@link GrouperMember} object.</li>
+   *  <li>Update <i>grouper_session</i> table.</li>
    *
-   * @param subjectID The subject to act as for the duration of this
-   * session.
+   * @param   subjectID The subject to act as for the duration of this
+   *   session.
    */
   public void start(String subjectID) {
     // XXX Bad assumption!
@@ -77,18 +78,17 @@ public class GrouperSession {
   }
 
   /**
-   * Starts a {@link Grouper} session.
+   * Start a session.
    * <p>
    * <ul>
-   *  <li>Using the exective {@link GrouperSession}, "subjectID" is
-   *      looked up via the {@link GrouperSubject} interface and a
-   *      {@link GrouperMember} object is returned.</li>
-   *  <li>Inserts record into <i>grouper_session</i> table.</li>
+   *  <li>Using the executive session, lookup "subjectID" and return a
+   *      {@link GrouperMember} object.</li>
+   *  <li>Update <i>grouper_session</i> table.</li>
    *
-   * @param subjectID The subject to act as for the duration of this
-   * session.
-   * @param isMember  If true, the subjectID is assumed to be a
-   * memberID and not a presentationID.
+   * @param   subjectID The subject to act as for the duration of this
+   *   session.
+   * @param   isMember  If true, the subjectID is assumed to be a
+   *  memberID and not a presentationID.
    */
   public void start(String subjectID, boolean isMember) {
     // Create internal representations of the various Grouper
@@ -105,11 +105,11 @@ public class GrouperSession {
   }
 
   /**
-   * Ends the {@link Grouper} session.
+   * End the session.
    * <p>
    * <ul>
-   *  <li>Removes session from <i>grouper_session</i> table</li>
-   *  <li>Closes JDBC connection to groups registry</li>
+   *  <li>Update <i>grouper_session</i> table.</li>
+   *  <li>Close JDBC connection.</li>
    * </ul>
    */
   public void end() { 
@@ -117,12 +117,11 @@ public class GrouperSession {
   }
 
   /**
-   * Identifies subject that a given session is running as.
+   * Identify the subject of this session.
    * <p>
    * <ul>
-   *  <li>Calls the internal {@link GrouperMember} object's
-   *     <i>whoAmI</i> method.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Calls <i>whoAmI()</i> on the {@linK GrouperMember} object
+   *      that represents the current subject.</li>
    * </ul>
    *
    * @return  Identity of the current session's subject.
@@ -131,35 +130,60 @@ public class GrouperSession {
     return this.subject.whoAmI();
   }
 
+  /**
+   * Looks up subject via {@link GrouperSubject} interface.
+   *
+   * @param   subjectID The subject to look up.
+   * @return  GrouperMember object.
+   */
   public GrouperMember lookupSubject(String subjectID) {
     return _lookupSubject(subjectID);
   }
 
+  /**
+   * Looks up subject via {@link GrouperSubject} interface.
+   *
+   * @param   subjectID The subject to look up.
+   * @param   isMember  ...
+   * @return  GrouperMember object.
+   */
   public GrouperMember lookupSubject(String subjectID, boolean isMember) {
     return _lookupSubject(subjectID);
   }
 
-  public List allowedStems() {
-    // XXX Fetch all stems and return them
-    List stems = null;
-    return stems;
-  }
-
-  public boolean allowedStems(String stem) {
-    // XXX Do we have access to a *particular* stem?
-    return false;
-  }
-
+  /**
+   * Grant specified privilege on specified group to specified member.
+   * <p>
+   * Dispatches to the configured implementation of either the 
+   * {@link GrouperAccess} or {@link GrouperNaming} interfaces.
+   *
+   * @param   g     Grant privilege on this group.
+   * @param   m     Grant privilege to this member.
+   * @param   priv  Privilege to grant.
+   */
   public void grantPriv(GrouperGroup g, GrouperMember m, String priv) {
     // XXX DTRT depending upon whether it is an "access" or a "naming"
     //     privilege
+    // XXX Should the naming priv require a group object?
     // this.intAccess.grant(g, m, priv);
     // this.intNaming.grant(g, m, priv);
   }
 
+  /**
+   * Revoke specified privilege from specified member on specified
+   * group.
+   * <p>
+   * Dispatches to the configured implementation of either the
+   * {@link GrouperAccess} or {@link GrouperNaming} interfaces.
+   *
+   * @param   g     Revoke privilege on this group.
+   * @param   m     Revoke privilege for this member.
+   * @param   priv  Privilege to revoke.
+   */
   public void revokePriv(GrouperGroup g, GrouperMember m, String priv) {
     // XXX DTRT depending upon whether it is an "access" or a "naming"
     //     privilege
+    // XXX Should the naming priv require a group object?
     // this.intAccess.revoke(g, m, priv);
     // this.intNaming.revoke(g, m, priv);
   }
@@ -169,7 +193,8 @@ public class GrouperSession {
     //     privilege
     // return this.intAccess.has(g);
     // return this.intNaming.has(g);
-    return null;
+    List privs = new ArrayList();
+    return privs;
   }
 
   public List hasPriv(GrouperGroup g, GrouperMember m) {
@@ -177,7 +202,8 @@ public class GrouperSession {
     //     privilege
     // return this.intAccess.has(g, m);
     // return this.intNaming.has(g, m);
-    return null;
+    List privs = new ArrayList();
+    return privs;
   }
 
   public boolean hasPriv(GrouperGroup g, String priv) {
