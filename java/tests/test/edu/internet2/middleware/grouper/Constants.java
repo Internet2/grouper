@@ -60,8 +60,19 @@ public class Util {
   /*
    * PUBLIC MEMBER CONSTANTS
    */
-  public static final String m0id  = "blair";
-  public static final String m0t   = Grouper.DEF_SUBJ_TYPE;
+  public static final String rooti  = Grouper.config("member.system");
+  public static final String roott  = Grouper.DEF_SUBJ_TYPE;
+  public static final String m0i    = "blair";
+  public static final String m0t    = Grouper.DEF_SUBJ_TYPE;
+  public static final String m1i    = "notblair";
+  public static final String m1t    = Grouper.DEF_SUBJ_TYPE;
+
+
+  /*
+   * PUBLIC NS CONSTANTS
+   */
+  public static final String ns2s = Grouper.NS_ROOT;
+  public static final String ns2e = "stem.2";
 
 
   /*
