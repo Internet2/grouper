@@ -1,0 +1,49 @@
+
+# Getting Grouper
+
+This file provides information on future Grouper development.
+
+$Id: ROADMAP,v 1.1 2005-01-27 02:02:40 blair Exp $
+
+---
+
+# Grouper 0.5.1
+
+* Fixes for known bugs
+* Improved Java Beans compliance
+* Removal of type argument in GrouperGroup loadByID() and loadByKey()
+* Removal of calls to system.exit()
+* Addition of a GrouperStem class for managing and representing
+  namespaces
+* Initial cleanup of internal, backend methods
+* Refactoring of test suite
+* Add new tests to the test suite
+* Use cli HSQLDB SqlTool rather than gui when initializing database
+* Make sessions serializable
+* Additional documentation and documentation fixes
+* GrouperAccess.has()
+* Log addition/deletion of effective memberships
+* Improved compatibility with Oracle, MySQL and other versions of
+  HSQLDB
+* A few bits of new and updated contrib code
+
+
+# Grouper 0.6
+
+* Improved group type support (multiple types, type addition|removal)
+* Improved Subject interface
+* Full implementations of the privilege interfaces along with internal
+  hooks for calling privilege checks
+* Enhanced search capabilities (Details?)
+* Enhanced browse capabilities (Details?)
+* Ability to rename groups
+* Support for displayName and displayExtension
+* Ability to remove members from grouper_member table
+* Ability to rename subjectIDs
+* Internal cleanup and refactoring (Significant, I hope)
+* Improved database support and usage
+* Improved, expanded and more consistent logging policy
+* Improved session handling
+* Improved testing
+* New and updated contributed code
+
