@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.19 2005-01-23 19:20:06 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.20 2005-01-23 19:36:40 blair Exp $ 
  */
 class csv2group {
 
@@ -34,6 +34,7 @@ class csv2group {
    * PRIVATE CLASS VARIABLES
    */
   private static CommandLine    cmd;
+  private static boolean        continueOnError = false;
   private static GrouperMember  mem;
   private static Options        options;
   private static String         path;
@@ -42,6 +43,7 @@ class csv2group {
   private static Subject        subj;
   private static String         subjectID;
   private static boolean        verbose = false;
+  private static int            exitCode = 0;
 
 
   /*
@@ -52,7 +54,7 @@ class csv2group {
     _grouperStart();        // Initialize Grouper and start session
     _csvReadAndExecute();   // Read and parse input file
     _grouperStop();         // And we're done.  Tidy up.
-    System.exit(0);
+    System.exit(exitCode);
   }
 
 
@@ -87,6 +89,10 @@ class csv2group {
             _verbose("Received tokens " + tokens);
             if (!_dispatch(tokens)) {
               _verbose("Error dispatching '" + line + "'");
+              if (continueOnError != true) {
+                exitCode = 1;
+                break;
+              }
             }
           } else {
             System.err.println("Skipping, invalid format: '" + line + "'");
@@ -265,6 +271,7 @@ class csv2group {
    */
   private static void _optsParse(String[] args) {
     options = new Options();
+    options.addOption("c", false, "Continue on operation error");
     options.addOption(
                       OptionBuilder.withArgName("file")
                                    .withDescription(
@@ -306,6 +313,10 @@ class csv2group {
       _verbose("Enabling verbose mode");
     }
     // And now everything else
+    if (cmd.hasOption("c")) {
+      continueOnError = true;
+      _verbose("Enabling continue on operation error mode");
+    }
     if (cmd.hasOption("f")) {
       path = cmd.getOptionValue("f");
       _verbose("Using input file '" + path + "'");
