@@ -4,13 +4,17 @@ import java.util.List;
 import java.util.Map;
 
 /** 
- * Provides a GrouperGroup.
+ * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.1 2004-04-02 21:04:11 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.2 2004-04-12 04:14:36 blair Exp $
  */
 public class GrouperGroup {
 
+  /*
+   * Create a {@link GrouperGroup} object that represents a single
+   * {@link Grouper} group.
+   */
   public GrouperGroup(GrouperSession s, String groupName) { 
   }
 
