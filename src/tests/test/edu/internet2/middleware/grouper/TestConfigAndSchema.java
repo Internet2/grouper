@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.1 2004-11-11 18:17:56 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.2 2004-11-11 18:50:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -143,6 +143,23 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(9).getClass().getName() ) );
   }
+
+  // Get cached GrouperSubjectTypes 
+  public void testGetGrouperSubjectTypes() {
+    Grouper G = new Grouper();
+    List types = G.subjectTypes();
+    Assert.assertNotNull(types);
+    Assert.assertEquals(1, types.size());
+    GrouperSubjectType st = (GrouperSubjectType) types.get(0);
+    String adapterClass = "edu.internet2.middleware.grouper.GrouperSubjectImpl";
+    Assert.assertTrue( adapterClass.equals( st.adapterClass() ) );
+    String name         = "Person";
+    Assert.assertTrue( name.equals( st.name() ) );
+    String typeID       = "person";
+    Assert.assertTrue( typeID.equals( st.typeID() ) );
+  }
+
+  // TODO Test boolean assertion|validity methods
 
 }
 
