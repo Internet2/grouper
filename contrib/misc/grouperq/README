@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.4 2004-12-08 03:17:59 blair Exp $
+$Id: README,v 1.5 2004-12-08 03:35:04 blair Exp $
 
 ---
 
@@ -19,7 +19,18 @@ $Id: README,v 1.4 2004-12-08 03:17:59 blair Exp $
     % cd $GROUPER_BASE/misc/grouperq
     % export CLASSPATH=.:/path/to/Grouper.jar:/path/to/Grouper-lib.jar:/path/to/grouper/conf/dir
     % java grouperq -h
-    % TODO
+    
+Query for the current subject's group memberships:
+
+    % java grouperq 
+
+Query for a specific subject's group memberships:
+
+    % java grouperq -m <member>
+
+Query for the members of a specific group:
+
+    % java grouperq -g <group name>
 
 --
 
