@@ -77,7 +77,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestStemsAttrsAdd.class);
     suite.addTestSuite(TestStemsAttrsRep.class);
     suite.addTestSuite(TestStemsAttrsDel.class);
-    // TODO suite.addTestSuite(TestStemsAttrsNoMod.class);
+    suite.addTestSuite(TestStemsAttrsNoMod.class);
     suite.addTestSuite(TestStemsAsGroups.class);
     suite.addTestSuite(TestStemsMoF.class);
     // TODO TestStemsMoFAdd
@@ -88,7 +88,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsAttrsAdd.class);
     suite.addTestSuite(TestGroupsAttrsRep.class);
     suite.addTestSuite(TestGroupsAttrsDel.class);
-    // TODO suite.addTestSuite(TestGroupsAttrsNoMod.class);
+    suite.addTestSuite(TestGroupsAttrsNoMod.class);
     suite.addTestSuite(TestGroupsMoF.class);
     suite.addTestSuite(TestGroupsMoFAdd0.class);
     suite.addTestSuite(TestGroupsMoFChain0.class);
