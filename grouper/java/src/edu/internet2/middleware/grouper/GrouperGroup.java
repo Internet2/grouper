@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.33 2004-09-08 19:26:55 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.34 2004-09-09 00:29:56 blair Exp $
  */
 public class GrouperGroup {
 
@@ -124,7 +124,7 @@ public class GrouperGroup {
   /**
    * Create a {@link Grouper} group.
    */ 
-  public void create() {
+  public boolean create() {
     // FIXME Damn this is ugly.
 
     // Set some of the operational attributes
@@ -134,42 +134,48 @@ public class GrouperGroup {
     this.setCreateTime( Long.toString(now.getTime()) );
     this.setCreateSubject( this.grprSession.whoAmI() );
 
-    // And now attempt to add the group to the store
-    try {
-      Transaction t = session.beginTransaction();
+    // Confirm that we are attempting to add a valid group type
+    if (grprSession.groupType(this.groupType) == true) {
+      // And now attempt to add the group to the store
+      try {
+        Transaction t = session.beginTransaction();
 
-      // Generate the UUID (groupKey)
-      org.doomdark.uuid.UUID uuid = UUIDGenerator.getInstance().generateRandomBasedUUID();
-      this.groupKey = uuid.toString();
+        // Generate the UUID (groupKey)
+        org.doomdark.uuid.UUID uuid = UUIDGenerator.getInstance().generateRandomBasedUUID();
+        this.groupKey = uuid.toString();
 
-      // The Group object
-      session.save(this);
+        // The Group object
+        session.save(this);
 
-      // The Group schema
-      GrouperSchema schema = new GrouperSchema();
-      schema.set(this.groupKey, this.groupType);
-      session.save(schema);
+        // The Group schema
+        GrouperSchema schema = new GrouperSchema();
+        schema.set(this.groupKey, this.groupType);
+        session.save(schema);
 
-      // The Group attributes
-      Iterator iter = attributes.keySet().iterator();
-      while (iter.hasNext()) {
-        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        attr.set(this.groupKey, attr.field(), attr.value());
-        session.save(attr);
+        // The Group attributes
+        Iterator iter = attributes.keySet().iterator();
+        while (iter.hasNext()) {
+          GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+          attr.set(this.groupKey, attr.field(), attr.value());
+          session.save(attr);
+        }
+
+        // And make the creator a member of the "admins" list
+        GrouperMembership mship = new GrouperMembership(); 
+        mship.set(this.groupKey, "admins", this.grprSession.whoAmI(), true);
+        session.save(mship);
+
+        t.commit();
+        return true;
+      } catch (Exception e) {
+        // TODO We probably need a rollback in here in case of failure
+        //      above.
+        System.err.println(e);
+        System.exit(1);
       }
-
-      // And make the creator a member of the "admins" list
-      GrouperMembership mship = new GrouperMembership(); 
-      mship.set(this.groupKey, "admins", this.grprSession.whoAmI(), true);
-      session.save(mship);
-
-      t.commit();
-    } catch (Exception e) {
-      // TODO We probably need a rollback in here in case of failure
-      //      above.
-      System.err.println(e);
-      System.exit(1);
-    }
+    } 
+    System.err.println("Invalid group type: " + this.groupType);
+    return false;
   }
 
   /**
