@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.96 2004-12-01 01:18:53 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.97 2004-12-01 02:02:39 blair Exp $
  */
 public class GrouperGroup {
 
@@ -221,13 +221,23 @@ public class GrouperGroup {
         // FIXME Implement...  this._attrDel(attribute); ???
       } else             {
         // Add a new attribute value
-        // TODO Change params.  `this, s, attribute, value' so I can
-        //      update modify?
+        // FIXME Update modify* opattrs
         GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
-        if (attr != null) {
-          if (this._attrAdd(attribute, attr) == true) {
-            rv = true;
+        if (
+            (attr != null)                                      &&
+            (this._attrAdd(attribute, attr))                    //&&
+            //(GrouperBackend.groupUpdate(this.grprSession, this))   
+           )
+        {
+          rv = true;
+        } else {
+          // Revert changes
+          // FIXME Revert opattr changes
+          if (!this._attrAdd(attribute, cur)) {
+            Grouper.LOGGER.warn("Unable to revert failed attribute change!");
+            System.exit(1);
           }
+          rv = false;
         }
       } 
     }
@@ -466,8 +476,8 @@ public class GrouperGroup {
 
   /**
    * Return group key.
-   * <p>
-   * FIXME Can I eventuall make this private?
+   * <p >
+   * FIXME Can I eventually make this private?
    *
    * @return Group key of the {@link GrouperGroup}
    */
