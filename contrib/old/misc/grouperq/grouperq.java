@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.7 2004-12-08 01:11:19 blair Exp $
+ * @version $Id: grouperq.java,v 1.8 2004-12-08 01:27:47 blair Exp $
  */
 class grouperq {
 
@@ -36,8 +36,10 @@ class grouperq {
   private static CommandLine    cmd;
   private static String         field;
   private static GrouperMember  mem;
+  private static GrouperMember  memQueryOn;
   private static GrouperSession s;
   private static Options        options;
+  private static String         querySubjectID;
   private static Subject        subj;  
   private static String         subjectID;
   private static boolean        verbose     = false;
@@ -73,7 +75,12 @@ class grouperq {
       field = Grouper.DEF_LIST_TYPE;
     }
     _verbose("Looking up field '" + field + "'");
-    vals = mem.listVals(s, field);
+    _queryOnMember();
+    if (memQueryOn != null) {
+      vals = memQueryOn.listVals(s, field);
+    } else {
+      System.err.println("ERROR: Unable to determine member to query on");
+    }
     return vals;
   } 
 
@@ -122,17 +129,24 @@ class grouperq {
   private static void _optsParse(String[] args) {
     options = new Options();
     options.addOption(
-                      OptionBuilder.withArgName("field")
-                                   .withDescription("Specify group field to query on")
-                                   .hasArg()
-                                   .create("f")
+                      OptionBuilder
+                        .withArgName("field")
+                        .withDescription("Specify group field to query on")
+                        .hasArg()
+                        .create("f")
                      );
     options.addOption("h", false, "Print usage information");
     options.addOption(
+                      OptionBuilder.withArgName("member")
+                        .withDescription("Specify member to query on")
+                        .hasArg()
+                        .create("m")
+                     );
+    options.addOption(
                       OptionBuilder.withArgName("subject")
-                                   .withDescription("Specify subject to query as")
-                                   .hasArg()
-                                   .create("S")
+                        .withDescription("Specify subject to query as")
+                        .hasArg()
+                        .create("S")
                      );
     options.addOption("v", false, "Be more verbose");
     CommandLineParser parser = new PosixParser();
@@ -169,9 +183,28 @@ class grouperq {
       field = cmd.getOptionValue("f");
       _verbose("Using field '" + field + "'");
     }
+    if (cmd.hasOption("m")) {
+      querySubjectID = cmd.getOptionValue("m");
+      _verbose("Got member '" + querySubjectID + "'");
+    }
     if (cmd.hasOption("S")) {
       subjectID = cmd.getOptionValue("S");
       _verbose("Got subject '" + subjectID + "'");
+    }
+  }
+
+  /* (!javadoc)
+   * Determine what member to query on
+   */
+  private static void _queryOnMember() {
+    if (querySubjectID != null) {
+      memQueryOn = GrouperMember.load(
+                     querySubjectID, Grouper.DEF_SUBJ_TYPE
+                   );
+    } else {
+      memQueryOn = GrouperMember.load(
+                     subjectID, Grouper.DEF_SUBJ_TYPE
+                   );
     }
   }
 
@@ -190,10 +223,11 @@ class grouperq {
    * Report on groups within search results
    */
   private static void _reportGroups(List vals) {
+    GrouperMember m = memQueryOn; // Too damn much typing otherwise
     if (vals.size() > 0) {
-      System.out.println("subjectID: " + mem.subjectID());
-      System.out.println("subjectTypeID: " + mem.typeID());
-      System.out.println("memberID: " + mem.memberID());
+      System.out.println("subjectID: " + m.subjectID());
+      System.out.println("subjectTypeID: " + m.typeID());
+      System.out.println("memberID: " + m.memberID());
       Iterator iter = vals.iterator();
       while (iter.hasNext()) {
         GrouperList gl  = (GrouperList) iter.next();
