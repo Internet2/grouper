@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.44 2004-09-20 00:13:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.45 2004-09-20 01:27:34 blair Exp $
  */
 public class GrouperGroup {
 
@@ -87,36 +87,38 @@ public class GrouperGroup {
   /**
    * Create a {@link Grouper} group.
    */ 
-  public boolean create(GrouperSession s) {
-    this.grprSession  = s;
-    this._G           = s.env();
-  //public static GrouperGroup create(GrouperSession, String stem,
-  //                                  String descriptor)
-  //{
-    // FIXME Damn this is ugly.
+  private void _create(GrouperSession s) {
+    // Generate the UUID (groupKey)
+    this.setGroupKey( GrouperBackend.uuid() );
 
     // Set some of the operational attributes
     // TODO Most, if not all, of the operational attributes should be
     //      handled by Hibernate interceptors.  A task for another day.
     java.util.Date now = new java.util.Date();
     this.setCreateTime( Long.toString(now.getTime()) );
-    this.setCreateSubject( this.grprSession.whoAmI() );
+    this.setCreateSubject( s.whoAmI() );
+  }
 
-    // Generate the UUID (groupKey)
-    this.groupKey = GrouperBackend.uuid();
+  public static GrouperGroup create(GrouperSession s, String stem,
+                                    String descriptor)
+  {
+    GrouperGroup g = new GrouperGroup();
+    g.attribute("stem", stem);
+    g.attribute("descriptor", descriptor);
+
+    g._create(s);
 
     // Verify that we have everything we need to create a group
     // and that this subject is privileged to create this group.
-    // BDC if (this._validateCreate()) {
+    // FIXME if (g._validateCreate()) {
       // And now attempt to add the group to the store
-      // FIXME 
-      this.groupType = "base";
-      GrouperBackend.addGroup(this.grprSession, this);
-      this.exists = true;
-      return true;
-    // BDC }
-    // BDC System.err.println("Invalid group type: " + this.groupType);
-    // BDC return false;
+      // FIXME Should this return a Group?
+      // FIXME How do update that this group exists?
+      GrouperBackend.addGroup(s, g);
+      //g.exists = true;
+      //return true;
+    // FIXME }
+    return g;
   }
 
   /**
