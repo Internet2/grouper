@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.28 2004-09-08 22:25:53 blair Exp $
+ * $Id: GrouperTest.java,v 1.29 2004-09-08 23:21:32 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -217,7 +217,30 @@ public class GrouperTest extends TestCase {
     GrouperSession  s       = new GrouperSession();
     List            fields  = G.groupFields();
     Assert.assertNotNull(fields);
-    Assert.assertEquals(9, fields.size());
+    Assert.assertEquals(10, fields.size());
+
+    String field;
+    field = "admins:ADMIN:ADMIN:TRUE";
+    Assert.assertTrue( field.equals( fields.get(0).toString() ) );
+    field = "description:READ:ADMIN:FALSE";
+    Assert.assertTrue( field.equals( fields.get(1).toString() ) );
+    field = "descriptor:READ:ADMIN:FALSE";
+    Assert.assertTrue( field.equals( fields.get(2).toString() ) );
+    field = "members:READ:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(3).toString() ) );
+    field = "optins:READ:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(4).toString() ) );
+    field = "optouts:READ:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(5).toString() ) );
+    field = "readers:UPDATE:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(6).toString() ) );
+    field = "stem:READ:ADMIN:FALSE";
+    Assert.assertTrue( field.equals( fields.get(7).toString() ) );
+    field = "updaters:UPDATE:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(8).toString() ) );
+    field = "viewers:UPDATE:UPDATE:TRUE";
+    Assert.assertTrue( field.equals( fields.get(9).toString() ) );
+
     G.destroy();
   }
 
@@ -261,6 +284,10 @@ public class GrouperTest extends TestCase {
     List types        = G.groupTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
+
+    String type = "1";
+    Assert.assertTrue( type.equals( types.get(0).toString() ) );
+
     G.destroy();
   }
 
@@ -303,7 +330,31 @@ public class GrouperTest extends TestCase {
     GrouperSession  s         = new GrouperSession();
     List            typeDefs  = G.groupTypeDefs();
     Assert.assertNotNull(typeDefs);
-    Assert.assertEquals(9, typeDefs.size());
+    Assert.assertEquals(10, typeDefs.size());
+
+    String typeDef;
+    typeDef = "1:stem";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
+    typeDef = "1:descriptor";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
+    typeDef = "1:description";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(2).toString() ) );
+    typeDef = "1:members";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(3).toString() ) );
+    typeDef = "1:viewers";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(4).toString() ) );
+    typeDef = "1:readers";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(5).toString() ) );
+    typeDef = "1:updaters";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(6).toString() ) );
+    typeDef = "1:admins";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(7).toString() ) );
+    typeDef = "1:optins";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(8).toString() ) );
+    typeDef = "1:optouts";
+    Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
+
+
     G.destroy();
   }
  
