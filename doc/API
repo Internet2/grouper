@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.35 2004-12-08 00:43:47 blair Exp $
+$Id: API,v 1.36 2004-12-08 01:52:10 blair Exp $
 
 ---
 
@@ -106,6 +106,8 @@ $Id: API,v 1.35 2004-12-08 00:43:47 blair Exp $
 * boolean             delete(session, group)
 * GrouperGroup        load(session, stem, extension)
 * GrouperGroup        load(session, stem, extension, groupType)
+* GrouperGroup        loadByName(session, name)
+* GrouperGroup        loadByName(session, name, groupType)
 
 #### Instance Methods
 

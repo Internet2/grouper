@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.138 2004-12-08 00:43:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.139 2004-12-08 01:52:10 blair Exp $
  */
 public class GrouperGroup {
 
@@ -169,6 +169,22 @@ public class GrouperGroup {
     return GrouperGroup._loadByStemExtn(
              s, stem, extension, Grouper.DEF_GROUP_TYPE
            );
+  }
+
+  public static GrouperGroup loadByName(
+                               GrouperSession s, String name
+                             )
+  {
+    return GrouperGroup._loadByName(
+             s, name, Grouper.DEF_GROUP_TYPE
+           );
+  }
+
+  public static GrouperGroup loadByName(
+                               GrouperSession s, String name, String type
+                             )
+  {
+    return GrouperGroup._loadByName(s, name, type);
   }
 
   /**
@@ -698,6 +714,21 @@ public class GrouperGroup {
                               ) 
   {
     GrouperGroup g = GrouperBackend.groupLoadByKey(key);
+    if (g != null) {
+      // Attach type  
+      // FIXME Grr....
+      g.type = type;
+      g.initialized = true; // FIXME UGLY HACK!
+    }
+    return g;
+  }
+
+  private static GrouperGroup _loadByName(
+                                GrouperSession s, String name,
+                                String type
+                              )
+  {
+    GrouperGroup g = GrouperBackend.groupLoadByName(s, name, type);
     if (g != null) {
       // Attach type  
       // FIXME Grr....
