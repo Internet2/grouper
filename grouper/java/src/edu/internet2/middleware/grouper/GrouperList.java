@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.23 2004-12-03 03:46:40 blair Exp $
+ * @version $Id: GrouperList.java,v 1.24 2004-12-04 19:19:18 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -137,7 +137,7 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup group() {
-    return GrouperBackend.groupLookupByKey(this.getGroupKey());
+    return GrouperBackend.groupLoadByKey(this.getGroupKey());
   }
 
   /**

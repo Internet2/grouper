@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.117 2004-12-04 18:06:37 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.118 2004-12-04 19:19:18 blair Exp $
  */
 public class GrouperGroup {
 
@@ -156,26 +156,25 @@ public class GrouperGroup {
    * @param   extension   Extension of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup lookup(
-                                    GrouperSession s, 
-                                    String stem, String extension
-                                   )
+  public static GrouperGroup load(
+                               GrouperSession s, 
+                               String stem, String extension
+                             )
   {
-    return GrouperGroup._lookupByStemExtn(
-                                          s, stem, extension, 
-                                          Grouper.DEF_GROUP_TYPE
-                                         );
+    return GrouperGroup._loadByStemExtn(
+             s, stem, extension, Grouper.DEF_GROUP_TYPE
+           );
   }
 
   /**
    * TODO
    */
-  protected static GrouperGroup lookupByKey(
-                                            GrouperSession s, String key, 
-                                            String type
-                                           ) 
+  protected static GrouperGroup loadByKey(
+                                  GrouperSession s, String key, 
+                                  String type
+                                ) 
   {
-    return GrouperGroup._lookupByKey(s, key, type);
+    return GrouperGroup._loadByKey(s, key, type);
   }
 
   /**
@@ -188,12 +187,12 @@ public class GrouperGroup {
    * @param   type        Type of group to load.
    * @return  A {@link GrouperGroup} object.
    */
-  public static GrouperGroup lookup(
-                                    GrouperSession s, String stem, 
-                                    String extension, String type
-                                   )
+  public static GrouperGroup load(
+                               GrouperSession s, String stem, 
+                               String extension, String type
+                             )
   {
-    return GrouperGroup._lookupByStemExtn(s, stem, extension, type);
+    return GrouperGroup._loadByStemExtn(s, stem, extension, type);
   }
 
 
@@ -565,12 +564,12 @@ public class GrouperGroup {
   /*
    * Retrieve a group from the groups registry
    */
-  private static GrouperGroup _lookupByKey(
-                                           GrouperSession s, String key, 
-                                           String type
-                                          ) 
+  private static GrouperGroup _loadByKey(
+                                GrouperSession s, String key, 
+                                String type
+                              ) 
   {
-    GrouperGroup g = GrouperBackend.groupLookupByKey(key);
+    GrouperGroup g = GrouperBackend.groupLoadByKey(key);
     if (g != null) {
       // Attach session
       g.gs = s;
@@ -582,12 +581,12 @@ public class GrouperGroup {
     return g;
   }
 
-  private static GrouperGroup _lookupByStemExtn(
-                                                GrouperSession s, String stem, 
-                                                String extn, String type
-                                               )
+  private static GrouperGroup _loadByStemExtn(
+                                GrouperSession s, String stem, 
+                                String extn, String type
+                              )
   {
-    GrouperGroup g = GrouperBackend.groupLookup(s, stem, extn, type);
+    GrouperGroup g = GrouperBackend.groupLoad(s, stem, extn, type);
     if (g != null) {
       // Attach session
       g.gs = s;
@@ -656,7 +655,7 @@ public class GrouperGroup {
                                      )
   {
     // Check to see if the group already exists.
-    GrouperGroup g = GrouperGroup._lookupByStemExtn(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
     if (g != null) {
       /*
        * TODO Group already exists.  Ideally we'd throw an exception or

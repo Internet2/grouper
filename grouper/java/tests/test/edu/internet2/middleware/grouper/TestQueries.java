@@ -99,13 +99,13 @@ public class TestQueries extends TestCase {
     s.start(subj);
     // Fetch the groups
     // g0
-    GrouperGroup    g0  = GrouperGroup.lookup(s, stem0, extn0);
+    GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(g0);
     // g1
-    GrouperGroup    g1  = GrouperGroup.lookup(s, stem1, extn1);
+    GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
     // g2
-    GrouperGroup    g2  = GrouperGroup.lookup(s, stem2, extn2);
+    GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
     // Fetch the members
     // Fetch Member 0

@@ -94,13 +94,13 @@ public class TestNamespaces extends TestCase {
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Confirm that namespaces don't exist
-    GrouperGroup    ns0   = GrouperGroup.lookup(s, stem0, extn0, Grouper.NS_TYPE);
+    GrouperGroup    ns0   = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
     Assert.assertNull(ns0);
-    GrouperGroup    ns00  = GrouperGroup.lookup(s, stem00, extn00, Grouper.NS_TYPE);
+    GrouperGroup    ns00  = GrouperGroup.load(s, stem00, extn00, Grouper.NS_TYPE);
     Assert.assertNull(ns00);
-    GrouperGroup    ns1   = GrouperGroup.lookup(s, stem1, extn1, Grouper.NS_TYPE);
+    GrouperGroup    ns1   = GrouperGroup.load(s, stem1, extn1, Grouper.NS_TYPE);
     Assert.assertNull(ns1);
-    GrouperGroup    ns2   = GrouperGroup.lookup(s, stem2, extn2, Grouper.NS_TYPE);
+    GrouperGroup    ns2   = GrouperGroup.load(s, stem2, extn2, Grouper.NS_TYPE);
     Assert.assertNull(ns2);
     // We're done
     s.stop();
@@ -189,7 +189,7 @@ public class TestNamespaces extends TestCase {
     // Fetch ns0
     String stem = stem0;
     String extn = extn0;
-    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, Grouper.NS_TYPE);
+    GrouperGroup ns = GrouperGroup.load(s, stem, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
@@ -209,7 +209,7 @@ public class TestNamespaces extends TestCase {
     // Fetch ns00
     String stem = stem00;
     String extn = extn00;
-    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, Grouper.NS_TYPE);
+    GrouperGroup ns = GrouperGroup.load(s, stem, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
@@ -229,7 +229,7 @@ public class TestNamespaces extends TestCase {
     // Fetch ns1
     String stem = stem1;
     String extn = extn1;
-    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, Grouper.NS_TYPE);
+    GrouperGroup ns = GrouperGroup.load(s, stem, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
@@ -249,7 +249,7 @@ public class TestNamespaces extends TestCase {
     // Fetch ns2
     String stem = stem2;
     String extn = extn2;
-    GrouperGroup ns = GrouperGroup.lookup(s, stem, extn, Grouper.NS_TYPE);
+    GrouperGroup ns = GrouperGroup.load(s, stem, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
     Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );

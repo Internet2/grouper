@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.110 2004-12-04 19:01:03 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.111 2004-12-04 19:19:18 blair Exp $
  */
 public class GrouperBackend {
 
@@ -421,24 +421,23 @@ public class GrouperBackend {
   /**
    * Retrieve {@link GrouperGroup} from backend store.
    */
-  protected static GrouperGroup groupLookup(
-                                            GrouperSession s, String stem,
-                                            String extn, String type
-                                           ) 
+  protected static GrouperGroup groupLoad(
+                                  GrouperSession s, String stem,
+                                  String extn, String type
+                                ) 
   {
     Session session = GrouperBackend._init();
     // TODO G+H Session validation 
     // TODO Priv validation
-    GrouperGroup g = GrouperBackend._groupLookup(
-                                                 s, session, stem, 
-                                                 extn, type
-                                                );
+    GrouperGroup g = GrouperBackend._groupLoad(
+                       s, session, stem, extn, type
+                     );
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
 
   // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLookupByKey(String key) {
+  protected static GrouperGroup groupLoadByKey(String key) {
     /*
      * While most private class methods take a Session as an argument,
      * this method does not because to do so would possibly cause
@@ -548,7 +547,7 @@ public class GrouperBackend {
         GrouperGroup memberOfBase = g;
         // Is this member a group?
         if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLookupByID( m.subjectID() );
+          memberOfBase = GrouperBackend._groupLoadByID( m.subjectID() );
         }
 
         // Grab immediate list data to update
@@ -651,7 +650,7 @@ public class GrouperBackend {
 
         // If `m' is a group, delete effective list data via `m'
         if (m.typeID().equals("group")) {
-          GrouperGroup  mAsG        = GrouperBackend._groupLookupByID( 
+          GrouperGroup  mAsG        = GrouperBackend._groupLoadByID( 
                                         m.subjectID() 
                                       );
           Iterator      iterViaMAsG = GrouperBackend._queryGrouperList(
@@ -973,7 +972,7 @@ public class GrouperBackend {
     while (iter.hasNext()) {
       GrouperSchema gs = (GrouperSchema) iter.next();
       // TODO What a hack
-      GrouperGroup g = GrouperGroup.lookupByKey(s, gs.key(), type);
+      GrouperGroup g = GrouperGroup.loadByKey(s, gs.key(), type);
       if (g != null) {
         vals.add(g);
       }
@@ -1343,7 +1342,7 @@ public class GrouperBackend {
   }
 
   // FIXME Refactor.  Mercilesssly.
-  private static GrouperGroup _groupLookup(
+  private static GrouperGroup _groupLoad(
                                 GrouperSession s, Session session, String stem, 
                                 String extn, String type
                               )
@@ -1351,7 +1350,7 @@ public class GrouperBackend {
     GrouperGroup g = null;
     if (GrouperBackend._stemLookup(s, session, stem)) {
       String name = GrouperBackend.groupName(stem, extn);
-      g = GrouperBackend._groupLookupByName(s, session, name, type);
+      g = GrouperBackend._groupLoadByName(s, session, name, type);
       // FIXME WTF IS THIS?!?!
       if (g != null) {
       } else {
@@ -1362,7 +1361,7 @@ public class GrouperBackend {
 
   // FIXME Refactor.  Mercilesssly.
   // TODO  Take group type into account.
-  private static GrouperGroup _groupLookupByID(String id) {
+  private static GrouperGroup _groupLoadByID(String id) {
     Session session = GrouperBackend._init();
     String  key     = null;
     List    vals    = GrouperBackend._queryKV(
@@ -1376,13 +1375,13 @@ public class GrouperBackend {
     }
     GrouperBackend._hibernateSessionClose(session);
     // TODO Verify that key != null or let ByKey() handle that?
-    return GrouperBackend.groupLookupByKey(key);
+    return GrouperBackend.groupLoadByKey(key);
   }
 
   /* (!javadoc)
    * Load a group by name.
    */
-  private static GrouperGroup _groupLookupByName(
+  private static GrouperGroup _groupLoadByName(
                    GrouperSession s, Session session, 
                    String name, String type
                  ) 
@@ -1405,7 +1404,7 @@ public class GrouperBackend {
         GrouperSchema schema = (GrouperSchema) gs.get(0);
         if (schema.type().equals(type)) {
           // FIXME Isn't this circular?
-          GrouperGroup grp = GrouperGroup.lookupByKey(
+          GrouperGroup grp = GrouperGroup.loadByKey(
                                s, attr.key(), type
                              );
           if (grp != null) {
@@ -1899,7 +1898,7 @@ public class GrouperBackend {
     if (stem.equals(Grouper.NS_ROOT)) {
       rv = true;
     } else {
-      GrouperGroup g = GrouperBackend._groupLookupByName(
+      GrouperGroup g = GrouperBackend._groupLoadByName(
                          s, session, stem, Grouper.NS_TYPE
                        );
       if (g != null) {
