@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.44 2004-09-19 15:52:54 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.45 2004-09-19 16:21:35 blair Exp $
  */
 public class GrouperSession {
 
@@ -51,27 +51,21 @@ public class GrouperSession {
   }
 
   /**
-   * Create a session object that will provide a context for future
-   * operations.
-   */
-  public GrouperSession(Grouper G) {
-    this._init();
-    this._G = G;
-  }
-
-  /**
    * Start a {@link Grouper} session.
    * <p>
    * TODO Plugin an external session handling mechanism?  Yes, please.
    * TODO Cache privs|memberships?
    *
-   * @param s @{link GrouperMember} member object to act as
+   * @param G {@link Grouper} object.
+   * @param s {@link GrouperMember} member object to act as
    * for the duration of this session.
    */
-  public void start(GrouperMember s) {
+  public void start(Grouper G, GrouperMember s) {
+    // Our environment
+    this._G         = G;
     // Keep track of who we are
     this.subject    = s;
-    this.subjectID = s.memberID();
+    this.subjectID  = s.memberID();
 
     // Register a new session
     this._registerSession();

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.38 2004-09-19 15:56:44 blair Exp $
+ * $Id: GrouperTest.java,v 1.39 2004-09-19 16:21:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -307,7 +307,7 @@ public class GrouperTest extends TestCase {
     // Establish a new Grouper instance
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession(G);
+    GrouperSession s = new GrouperSession();
     String klass = "edu.internet2.middleware.grouper.GrouperSession";
     Assert.assertNotNull(s);
     Assert.assertTrue( klass.equals( s.getClass().getName() ) );
@@ -318,10 +318,10 @@ public class GrouperTest extends TestCase {
   public void testSessionStartAsMemberSystem() {
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession(G);
+    GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
     try {
-      s.start(subject);
+      s.start(G, subject);
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
@@ -332,10 +332,10 @@ public class GrouperTest extends TestCase {
   public void testSessionStartEndAsMemberSystem() {
     G = new Grouper();
     G.init();
-    GrouperSession s= new GrouperSession(G);
+    GrouperSession s= new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
     try {
-      s.start(subject);
+      s.start(G, subject);
     } catch(Exception e) {
       Assert.fail("Exception thrown when starting session");
     }
@@ -351,7 +351,7 @@ public class GrouperTest extends TestCase {
   public void testSessionEndWithoutStart() {
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession(G);
+    GrouperSession s = new GrouperSession();
     try {
       // XXX This may fail if we start throwing exceptions. 
       s.stop();
@@ -365,9 +365,9 @@ public class GrouperTest extends TestCase {
   public void testSessionSubject() {
     G = new Grouper();
     G.init();
-    GrouperSession s = new GrouperSession(G);
+    GrouperSession s = new GrouperSession();
     GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
-    s.start(subject);
+    s.start(G, subject);
 
     GrouperMember m = s.subject();
 
@@ -381,26 +381,9 @@ public class GrouperTest extends TestCase {
   }
 
   //
-  // Class: GrouperGroup
-  //
-   
-
-  // Instantiate a GrouperGroup instance 
-  public void testGrouperGroupInstantiate() {
-    GrouperGroup g = new GrouperGroup();
-
-    Class  klass    = g.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperGroup";
-
-    Assert.assertNotNull(g);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-  }
-
-  //
   // Class: GrouperSchema
   //
    
-
   // Instantiate a GrouperSchema instance 
   public void testGrouperSchemaInstantiate() {
     GrouperSchema schema = new GrouperSchema();
@@ -415,7 +398,6 @@ public class GrouperTest extends TestCase {
   //
   // Class: GrouperAttribute
   //
-   
 
   // Instantiate a GrouperAttribute instance 
   public void testGrouperAttributeInstantiate() {
@@ -475,28 +457,46 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-/*
+  //
+  // Class: GrouperGroup
+  //
+   
+  // Instantiate a GrouperGroup instance 
+  public void testGrouperGroupInstantiate() {
+    GrouperGroup g = new GrouperGroup();
+
+    Class  klass    = g.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperGroup";
+
+    Assert.assertNotNull(g);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
   // Does Group exist?  No.
+/*
   public void testGroupExistFalse() {
     G = new Grouper();
     G.init();
     GrouperSession s = new GrouperSession();
-    s.start( G, G.config("member.system"), true );
+    GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
+    s.start(G, subject);
     GrouperGroup grp = new GrouperGroup();
     // Attach a session
-    grp.session(s);
+    //grp.session(s);
 
     // Identify the group
-    grp.attribute("stem", "stem.0");
-    grp.attribute("descriptor", "descriptor.0");
+    //grp.attribute("stem", "stem.0");
+    //grp.attribute("descriptor", "descriptor.0");
 
     // Confirm that group doesn't exist
-    Assert.assertFalse( grp.exist() );
+    //Assert.assertFalse( grp.exist() );
 
     // We're done
     s.stop();
     G.destroy();
   }
+*/
+/*
 
   // Create a group
   public void testCreateGroup() {
