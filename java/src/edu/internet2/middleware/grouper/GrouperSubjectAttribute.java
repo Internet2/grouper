@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.10 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.11 2004-12-09 03:38:36 blair Exp $
  */
 public class GrouperSubjectAttribute implements Serializable {
 
@@ -113,18 +113,18 @@ public class GrouperSubjectAttribute implements Serializable {
    }
 
   /**
-   * Return attribute name.
-   *
-   * @return Name of {@link GrouperAttribute}.
+   * Retrieve attribute name.
+   * <p />
+   * @return Name of attribute.
    */
   public String name() {
     return this.getName();
   }
 
   /**
-   * Return attribute search value.
-   *
-   * @return Search value of {@link GrouperAttribute}.
+   * Retrieve attribute search value.
+   * <p />
+   * @return Search value of attribute.
    */
   public String searchValue() {
     return this.getSearchValue();
@@ -143,18 +143,18 @@ public class GrouperSubjectAttribute implements Serializable {
   }
 
   /**
-   * Return Subject Type ID
-   *
-   * @return Subject Type ID of {@link GrouperSubjectAttribute}.
+   * Retrieve subject's typeID.
+   * <p />
+   * @return Subject typeID of this attribute.
    */
     public String typeID() {
       return this.getSubjectTypeID();
     }
 
   /**
-   * Return attribute value.
-   *
-   * @return Value of {@link GrouperAttribute}.
+   * Retrieve attribute value.
+   * <p />
+   * @return Value of attribute.
    */
   public String value() {
     return this.getValue();
