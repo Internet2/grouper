@@ -1365,18 +1365,18 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testPrep4() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.create(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.create(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.create(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.create(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.create(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.create(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
-    GrouperMember m0 = GrouperMember.load(s, Util.m0i, Util.m0t);
-    GrouperMember m1 = GrouperMember.load(s, Util.m1i, Util.m1t);
-    GrouperMember m2 = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperMember m0 = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m1 = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember m2 = GrouperMember.load(s, Constants.rooti, Constants.roott);
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
     Assert.assertNotNull(m2);
@@ -1392,12 +1392,12 @@ public class TestGroupLists extends TestCase {
     // g8 (m1)    ()
     // g9 (m2)    ()
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1424,12 +1424,12 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAdd4_0() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
@@ -1446,12 +1446,12 @@ public class TestGroupLists extends TestCase {
     // g8 (m1, g7)  (m0)
     // g9 (m2)      ()
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1478,12 +1478,12 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAdd4_1() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
@@ -1500,12 +1500,12 @@ public class TestGroupLists extends TestCase {
     // g8 (m1, g7)  (m0)
     // g9 (m2, g8)  (m1, g7, m0)
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1532,12 +1532,12 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel4_0() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
@@ -1554,12 +1554,12 @@ public class TestGroupLists extends TestCase {
     // g8 (m1)      ()
     // g9 (m2, g8)  (m1)
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1586,19 +1586,19 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel4_1() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
-    GrouperMember m1 = GrouperMember.load(s, Util.m1i, Util.m1t);
+    GrouperMember m1 = GrouperMember.load(s, Constants.m1i, Constants.m1t);
     Assert.assertNotNull(m1);
     Assert.assertTrue( g8.listDelVal(m1) );
     s.stop();
@@ -1610,12 +1610,12 @@ public class TestGroupLists extends TestCase {
     // g8 ()        ()
     // g9 (m2, g8)  ()
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1642,21 +1642,21 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel4_2() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
-    GrouperMember m0 = GrouperMember.load(s, Util.m0i, Util.m0t);
+    GrouperMember m0 = GrouperMember.load(s, Constants.m0i, Constants.m0t);
     Assert.assertNotNull(m0);
-    GrouperMember m2 = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperMember m2 = GrouperMember.load(s, Constants.rooti, Constants.roott);
     Assert.assertNotNull(m2);
     Assert.assertTrue( g7.listDelVal(m0) );
     Assert.assertTrue( g9.listDelVal(m2) );
@@ -1673,12 +1673,12 @@ public class TestGroupLists extends TestCase {
     // g8 X
     // g9 X
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNull(g7);
     Assert.assertNull(g8);
     Assert.assertNull(g9);
@@ -1687,20 +1687,20 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testPrep5() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.create(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.create(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.create(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.create(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.create(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.create(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.create(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.create(s, Constants.stem10, Constants.extn10);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
     Assert.assertNotNull(g10);
-    GrouperMember m0 = GrouperMember.load(s, Util.m0i, Util.m0t);
-    GrouperMember m1 = GrouperMember.load(s, Util.m1i, Util.m1t);
-    GrouperMember m2 = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperMember m0 = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m1 = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember m2 = GrouperMember.load(s, Constants.rooti, Constants.roott);
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
     Assert.assertNotNull(m2);
@@ -1718,13 +1718,13 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2  /
     //  g10:  m0  /
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1758,13 +1758,13 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAdd5_0() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
@@ -1784,13 +1784,13 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2      /
     //  g10:  m0      /
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1824,13 +1824,13 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAdd5_1() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
@@ -1850,13 +1850,13 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2, g8  / m1^g8, g7^g8, m0^g8
     //  g10:  m0      /
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertNotNull(g7);
     Assert.assertNotNull(g8);
     Assert.assertNotNull(g9);
@@ -1890,12 +1890,12 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testAdd5_2() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
     Assert.assertNotNull(g7);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertNotNull(g10);
     GrouperMember g10m = GrouperMember.load(s, g10.id(), "group");
     Assert.assertNotNull(g10m);
@@ -1910,12 +1910,12 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2, g8  / m1^g8, g7^g8, m0^g8, g10^g7, m0^g10
     //  g10:  m0      /
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertTrue("g7  mship",      g7.listVals().size()     == 3); 
     Assert.assertTrue("g7  eff mship",  g7.listEffVals().size()  == 1);
     Assert.assertTrue("g7  imm mship",  g7.listImmVals().size()  == 2);
@@ -1933,12 +1933,12 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel5_0() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("s !null", s);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
     Assert.assertNotNull("g8 !null", g8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
     Assert.assertNotNull("g9 !null", g9);
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     Assert.assertNotNull("g8m !null", g8m);
@@ -1953,12 +1953,12 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2      / [ g10^g7, m0^g10 ]
     //  g10:  m0      /
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g7   = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8   = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9   = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10  = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7   = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8   = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9   = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10  = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertTrue("g7  mship",      g7.listVals().size()     == 3); 
     Assert.assertTrue("g7  eff mship",  g7.listEffVals().size()  == 1);
     Assert.assertTrue("g7  imm mship",  g7.listImmVals().size()  == 2);
@@ -1976,13 +1976,13 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel5_1() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
@@ -2004,12 +2004,12 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2      / 
     //  g10:  m0      /
     //
-    Subject subj    =  GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    =  GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g7   = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8   = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9   = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10  = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7   = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8   = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9   = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10  = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertTrue("g7  mship",      g7.listVals().size()     == 1); 
     Assert.assertTrue("g7  eff mship",  g7.listEffVals().size()  == 0); 
     Assert.assertTrue("g7  imm mship",  g7.listImmVals().size()  == 1); 
@@ -2027,18 +2027,18 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel5_2() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
     GrouperMember g10m = GrouperMember.load(s, g10.id(), "group");
-    GrouperMember m0 = GrouperMember.load(s, Util.m0i, Util.m0t);
+    GrouperMember m0 = GrouperMember.load(s, Constants.m0i, Constants.m0t);
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
@@ -2055,12 +2055,12 @@ public class TestGroupLists extends TestCase {
     //  g9:   m2      / 
     //  g10:  m0      /
     //
-    Subject subj    = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj    = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertTrue("g7  mship",      g7.listVals().size()     == 0); 
     Assert.assertTrue("g7  eff mship",  g7.listEffVals().size()  == 0); 
     Assert.assertTrue("g7  imm mship",  g7.listImmVals().size()  == 0); 
@@ -2078,20 +2078,20 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testDel5_3() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g7 = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10 = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7 = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8 = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9 = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10 = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     GrouperMember g7m = GrouperMember.load(s, g7.id(), "group");
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
     GrouperMember g9m = GrouperMember.load(s, g9.id(), "group");
     GrouperMember g10m = GrouperMember.load(s, g10.id(), "group");
-    GrouperMember m0 = GrouperMember.load(s, Util.m0i, Util.m0t);
-    GrouperMember m1 = GrouperMember.load(s, Util.m1i, Util.m1t);
-    GrouperMember m2 = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperMember m0 = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m1 = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember m2 = GrouperMember.load(s, Constants.rooti, Constants.roott);
     Assert.assertNotNull(g7m);
     Assert.assertNotNull(g8m);
     Assert.assertNotNull(g9m);
@@ -2117,12 +2117,12 @@ public class TestGroupLists extends TestCase {
     //  g9:   X
     //  g10:  X
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g7   = GrouperGroup.load(s, Util.stem7, Util.extn7);
-    GrouperGroup g8   = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    GrouperGroup g9   = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    GrouperGroup g10  = GrouperGroup.load(s, Util.stem10, Util.extn10);
+    GrouperGroup g7   = GrouperGroup.load(s, Constants.stem7, Constants.extn7);
+    GrouperGroup g8   = GrouperGroup.load(s, Constants.stem8, Constants.extn8);
+    GrouperGroup g9   = GrouperGroup.load(s, Constants.stem9, Constants.extn9);
+    GrouperGroup g10  = GrouperGroup.load(s, Constants.stem10, Constants.extn10);
     Assert.assertNull(g7);
     Assert.assertNull(g8);
     Assert.assertNull(g9);
@@ -2137,15 +2137,15 @@ public class TestGroupLists extends TestCase {
     //  g11: m0
     //  g12: m1
     //
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g11 = GrouperGroup.create(s, Util.stem11, Util.extn11);
-    GrouperGroup g12 = GrouperGroup.create(s, Util.stem12, Util.extn12);
+    GrouperGroup g11 = GrouperGroup.create(s, Constants.stem11, Constants.extn11);
+    GrouperGroup g12 = GrouperGroup.create(s, Constants.stem12, Constants.extn12);
     Assert.assertNotNull(g11);
     Assert.assertNotNull(g12);
-    GrouperMember m0 = GrouperMember.load(s, Util.m0i, Util.m0t);
-    GrouperMember m1 = GrouperMember.load(s, Util.m1i, Util.m1t);
+    GrouperMember m0 = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m1 = GrouperMember.load(s, Constants.m1i, Constants.m1t);
     Assert.assertNotNull(m0);
     Assert.assertNotNull(m1);
     Assert.assertTrue( g11.listAddVal(m0) );
@@ -2165,10 +2165,10 @@ public class TestGroupLists extends TestCase {
     //  g11: m0
     //  g12: m1, g11, m0^g11
     //
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
-    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup  g11 = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
     GrouperMember m11 = GrouperMember.load(s, g11.id(), "group");
     Assert.assertNotNull(m11);
     Assert.assertTrue( "Add g11 to g12" , g12.listAddVal(m11) );
@@ -2187,10 +2187,10 @@ public class TestGroupLists extends TestCase {
     //  g11: m0, g12, m1^g12, g11^g12, m0^g12
     //  g12: m1, g11, m0^g11, g12^g11, m1^g11, g11^g11 
     //
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
-    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
+    GrouperGroup  g11 = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
     GrouperMember m12 = GrouperMember.load(s, g12.id(), "group");
     Assert.assertNotNull(m12);
     Assert.assertTrue( "Add g12 to g11" , g11.listAddVal(m12) );
@@ -2209,11 +2209,11 @@ public class TestGroupLists extends TestCase {
     //  g11: m0, g12, m1^g12, g11^g12, m0^g12, m2, m2^g12
     //  g12: m1, g11, m0^g11, g12^g11, m1^g11, g11^g11, m2^g11
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperMember m2  = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperGroup  g11 = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperMember m2  = GrouperMember.load(s, Constants.rooti, Constants.roott);
     Assert.assertNotNull(m2);
     Assert.assertTrue( "Add m2 to g11"  , g11.listAddVal(m2) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 7 ); // 5
@@ -2231,11 +2231,11 @@ public class TestGroupLists extends TestCase {
     //  g11: m0, g12, m1^g12, g11^g12, m0^g12, m2, m2^g12
     //  g12: m1, g11, m0^g11, g12^g11, m1^g11, g11^g11, m2^g11, m2
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperMember m2  = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperGroup  g11 = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperMember m2  = GrouperMember.load(s, Constants.rooti, Constants.roott);
     Assert.assertNotNull(m2);
     Assert.assertTrue( "Add m2 to g12"  , g12.listAddVal(m2) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 7 ); // 6
@@ -2248,13 +2248,13 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testLoop0TearDown() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
-    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperMember m0  = GrouperMember.load(s, Util.m0i, Util.m0t);
-    GrouperMember m1  = GrouperMember.load(s, Util.m1i, Util.m1t);
-    GrouperMember m2  = GrouperMember.load(s, Util.rooti, Util.roott);
+    GrouperGroup  g11 = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperMember m0  = GrouperMember.load(s, Constants.m0i, Constants.m0t);
+    GrouperMember m1  = GrouperMember.load(s, Constants.m1i, Constants.m1t);
+    GrouperMember m2  = GrouperMember.load(s, Constants.rooti, Constants.roott);
     GrouperMember m11 = GrouperMember.load(s, g11.id(), "group");
     GrouperMember m12 = GrouperMember.load(s, g12.id(), "group");
     Assert.assertTrue( g11.listDelVal(m0) );
@@ -2275,12 +2275,12 @@ public class TestGroupLists extends TestCase {
     //  g12: 
     //  g13: 
     //
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
-    GrouperGroup g11 = GrouperGroup.create(s, Util.stem11, Util.extn11);
-    GrouperGroup g12 = GrouperGroup.create(s, Util.stem12, Util.extn12);
-    GrouperGroup g13 = GrouperGroup.create(s, Util.stem13, Util.extn13);
+    GrouperGroup g11 = GrouperGroup.create(s, Constants.stem11, Constants.extn11);
+    GrouperGroup g12 = GrouperGroup.create(s, Constants.stem12, Constants.extn12);
+    GrouperGroup g13 = GrouperGroup.create(s, Constants.stem13, Constants.extn13);
     Assert.assertNotNull(g11);
     Assert.assertNotNull(g12);
     Assert.assertNotNull(g13);
@@ -2303,11 +2303,11 @@ public class TestGroupLists extends TestCase {
     //  g12: g11
     //  g13: 
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperGroup g11  = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Constants.stem13, Constants.extn13);
     GrouperMember m11 = GrouperMember.load(s, g11.id(), "group");
     Assert.assertNotNull(m11);
     Assert.assertTrue( "Add g11 to g12" , g12.listAddVal(m11) );
@@ -2330,11 +2330,11 @@ public class TestGroupLists extends TestCase {
     //  g12: g11
     //  g13: g11
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperGroup g11  = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Constants.stem13, Constants.extn13);
     GrouperMember m11 = GrouperMember.load(s, g11.id(), "group");
     Assert.assertTrue( "Add g11 to g13" , g13.listAddVal(m11) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 0 );
@@ -2356,11 +2356,11 @@ public class TestGroupLists extends TestCase {
     //  g12: g11, g12^g11, g11^g11
     //  g13: g11, g12^g11, g11^g11
     //
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperGroup g11  = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Constants.stem13, Constants.extn13);
     GrouperMember m12 = GrouperMember.load(s, g12.id(), "group");
     Assert.assertTrue( "Add g12 to g11" , g11.listAddVal(m12) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 2 );
@@ -2377,11 +2377,11 @@ public class TestGroupLists extends TestCase {
 
   // Add g13 to g11
   public void testLoop1t3() {
-    Subject subj      = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj      = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s  = GrouperSession.start(subj);
-    GrouperGroup g11  = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup g12  = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperGroup g13  = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperGroup g11  = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup g12  = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperGroup g13  = GrouperGroup.load(s, Constants.stem13, Constants.extn13);
     GrouperMember m13 = GrouperMember.load(s, g13.id(), "group");
     Assert.assertTrue( "Add g13 to g11" , g11.listAddVal(m13) );
     Assert.assertTrue( "g11 mships"     , g11.listVals().size()     == 7 ); 
@@ -2397,11 +2397,11 @@ public class TestGroupLists extends TestCase {
   }
 
   public void testLoop1TearDown() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
-    GrouperGroup  g11 = GrouperGroup.load(s, Util.stem11, Util.extn11);
-    GrouperGroup  g12 = GrouperGroup.load(s, Util.stem12, Util.extn12);
-    GrouperGroup  g13 = GrouperGroup.load(s, Util.stem13, Util.extn13);
+    GrouperGroup  g11 = GrouperGroup.load(s, Constants.stem11, Constants.extn11);
+    GrouperGroup  g12 = GrouperGroup.load(s, Constants.stem12, Constants.extn12);
+    GrouperGroup  g13 = GrouperGroup.load(s, Constants.stem13, Constants.extn13);
     GrouperMember m11 = GrouperMember.load(s, g11.id(), "group");
     GrouperMember m12 = GrouperMember.load(s, g12.id(), "group");
     GrouperMember m13 = GrouperMember.load(s, g13.id(), "group");
