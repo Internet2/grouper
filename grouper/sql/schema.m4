@@ -2,7 +2,7 @@ define(`_DROP_TABLE',dnl
 ifdef(`ORACLE', `DROP TABLE $1;', `DROP TABLE $1 IF EXISTS;')dnl
 )dnl
 define(`_TYPE_INT',         `INTEGER')dnl
-define(`_TYPE_STRING',      `_TYPE_STRING_VAR(32)')dnl
+define(`_TYPE_STRING',      `_TYPE_STRING_VAR(64)')dnl
 define(`_TYPE_STRING_VAR',dnl
 ifdef(`ORACLE', `VARCHAR2($1)', `VARCHAR($1)')dnl
 )dnl
@@ -11,14 +11,13 @@ define(`_TYPE_UUID',        `_TYPE_STRING_VAR(64)')dnl
 
 -- 
 -- Grouper Database Schema
--- $Id: schema.m4,v 1.3 2005-02-16 23:24:24 blair Exp $
 -- 
 
 _DROP_TABLE(`grouper_attribute')
 CREATE TABLE grouper_attribute (
   groupKey        _TYPE_UUID() NOT NULL,
   groupField      _TYPE_STRING() NOT NULL,
-  groupFieldValue _TYPE_STRING_VAR(64),
+  groupFieldValue _TYPE_STRING(),
   CONSTRAINT      uniq_ga_gk_gf UNIQUE (groupKey, groupField)
 );
 
@@ -82,14 +81,14 @@ CREATE TABLE grouper_session (
 
 _DROP_TABLE(`grouper_subject')
 CREATE TABLE grouper_subject (
-  subjectID     _TYPE_STRING_VAR(`64') NOT NULL PRIMARY KEY,
+  subjectID     _TYPE_STRING() NOT NULL PRIMARY KEY,
   subjectTypeID _TYPE_STRING() NOT NULL,
   CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
 _DROP_TABLE(`grouper_subjectAttribute')
 CREATE TABLE grouper_subjectAttribute (
-  subjectID     _TYPE_STRING_VAR(`64') NOT NULL, 
+  subjectID     _TYPE_STRING() NOT NULL, 
   subjectTypeID _TYPE_STRING() NOT NULL,
   name          _TYPE_STRING() NOT NULL,
   instance      _TYPE_INT(),
