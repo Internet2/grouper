@@ -25,7 +25,7 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.40 2004-09-16 17:23:31 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.41 2004-09-17 17:17:33 blair Exp $
  */
 public class GrouperSession {
 
@@ -358,11 +358,18 @@ public class GrouperSession {
    */
   public Session session() {
     if (this.session != null) {
+      // Session exists.  Assume it is valid and return it.
       return this.session;
     } else {
       try {
-        this.session = this.factory.openSession();
-        return this.session;
+        if (this.factory == null) {
+          // TODO Should we attempt to create a factory and then return
+          //      a session?
+          return null;
+        } else {
+          this.session = this.factory.openSession();
+          return this.session;
+        }
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
@@ -430,7 +437,6 @@ public class GrouperSession {
     if (m == null) {
       // XXX This should instead throw some sort of an exception.
       //     Or something.
-      System.err.println("XXX " + subjectID + " IS NOT A VALID CREDENTIAL!");
       System.exit(1);
     }
 
