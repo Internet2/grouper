@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.15 2004-08-03 02:18:13 blair Exp $
+# $Id: README,v 1.16 2004-09-20 15:41:09 blair Exp $
 #
 
  ------------------
@@ -8,33 +8,33 @@
 
 - build/
   Destination for all compiled Java classes.
+
 - build.xml
   Used by Ant. 
+
+- conf/
+  Configuration directory.
+
 - dist/
   - api/
     Destination for javadoc-generated documentation.
   - lib/
     Project .jar files.
-- docs/
-  - LINKS
-      Links to relevent information, some about Grouper, some not.
-  - TODO
-      Incomplete or unstarted tasks.
-- grouper.cf
-  Grouper configuration file.
+
 - java/
-  - examples/
-      Java examples of Grouper API usage.
   - lib/
       Third-party JAR files included with Grouper.
   - src/
       Grouper's Java source code.  
   - tests/
       Java source used for testing Grouper.
+
 - LICENSE
-    XXX Ha!
+  A copy of the Academic Free License v. 2.1
+
 - README
     This file.
+
 - sql/
     SQL commands for creating and populating the Groups registry
     database.
@@ -45,22 +45,9 @@
 -------------------------
 
   % ant build
-  % mysql -u root -p < sql/mysql.sql
-  % <edit conf/hibernate.properties>
-  % <initialize and populate database>
+  % hsqldb-init.sh
   % ant test
-  % <edit conf/grouper.properties>
 
 To build the javadoc(1) documentation:
   % ant javadoc
-
-To build the Grouper example programs:
-  XXX
-
- -----------
-/ ROADMAP /
-----------
-
-...
-
 
