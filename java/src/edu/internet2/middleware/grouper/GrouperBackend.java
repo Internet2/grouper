@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.109 2004-12-04 05:28:30 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.110 2004-12-04 19:01:03 blair Exp $
  */
 public class GrouperBackend {
 
@@ -326,8 +326,31 @@ public class GrouperBackend {
    * @return  Boolean true if group was deleted, false otherwise.
    */
   protected static boolean groupDelete(GrouperSession s, GrouperGroup g) {
-    Session session = GrouperBackend._init();
     boolean rv = false;
+    /*
+     * TODO I envision problems when people start creating group types
+     *      with other custom fields...
+     */
+    // Does the group have members?
+    List members = g.listVals(s);
+    // Is the group a member?
+    Subject       asSubj  = GrouperSubject.lookup(g.id(), "group");
+    GrouperMember asMem   = GrouperMember.lookup(asSubj);
+    List memberOf = asMem.listVals(s);
+    if ( (members.size() != 0) || (memberOf.size() != 0) ) {
+      if (members.size() != 0) {
+        Grouper.LOGGER.warn(
+          "ERROR: Unable to delete group as it still has members"
+        );
+      }
+      if (memberOf.size() != 0) {
+        Grouper.LOGGER.warn(
+          "ERROR: Unable to delete group as it is a member of other groups"
+        );
+      }
+      return rv;
+    }
+    Session session = GrouperBackend._init();
     try {
       Transaction t = session.beginTransaction();
 
@@ -341,26 +364,6 @@ public class GrouperBackend {
 
       Grouper.naming().revoke(s, g, "CREATE");
       Grouper.naming().revoke(s, g, "STEM");
-
-      // Remove all members of this group
-      Iterator membersIter = g.listVals(s).iterator();
-      while (membersIter.hasNext()) {
-        GrouperList   gl  = (GrouperList) membersIter.next();
-        GrouperMember m   = (GrouperMember) gl.member();
-        if (m != null) {
-          if (g.listDelVal(s, m) != true) {
-            Grouper.LOGGER.warn("Unable to delete " + m + " from " + g);
-          } else {
-            GrouperBackend.LOGGER.debug(
-              "Deleted " + m + " from " + g
-            );
-          }
-        } // TODO else...
-      }
-
-      // FIXME Remove memberships of this group-as-member
-      // Subject       asSubj  = GrouperSubject.lookup(g.id(), "group");
-      // GrouperMember asMem   = GrouperMember.lookup(asSubj);
 
       /*
        * FIXME Remove effected memberships created by this group.
@@ -392,7 +395,6 @@ public class GrouperBackend {
 
       // Commit
       t.commit();
-
       rv = true;
     } catch (HibernateException e) {
       // TODO We probably need a rollback in here in case of failure
