@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.38 2005-03-15 15:33:31 blair Exp $
+ * @version $Id: GrouperList.java,v 1.39 2005-03-15 16:13:25 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -100,7 +100,7 @@ public class GrouperList implements Serializable {
   protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
     this._init();
     // Generate UUID
-    this.setListKey( GrouperBackend.uuid() );
+    this.setListKey( new GrouperUUID().toString() );
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }
@@ -120,7 +120,7 @@ public class GrouperList implements Serializable {
   protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
     this._init();
     // Generate UUID
-    this.setListKey( GrouperBackend.uuid() );
+    this.setListKey( new GrouperUUID().toString() );
     if (g == null) {
       throw new RuntimeException("GrouperList: null group");
     }

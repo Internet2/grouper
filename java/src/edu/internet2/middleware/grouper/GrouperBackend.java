@@ -58,7 +58,6 @@ import  java.io.*;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.doomdark.uuid.UUIDGenerator;
 
 
 /** 
@@ -67,7 +66,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.166 2005-03-15 15:06:39 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.167 2005-03-15 16:13:25 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1737,17 +1736,6 @@ public class GrouperBackend {
     }
     return vals;
   }
-
-  /**
-   * Generate UUID using the Doomdark UUID generator.
-   * <p />
-   *
-   * @return A string UUID.
-   */
-  protected static String uuid() {
-    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
-  }
-
 
   /*
    * PRIVATE CLASS METHODS

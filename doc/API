@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.55 2005-03-14 19:27:48 blair Exp $
+$Id: API,v 1.56 2005-03-15 16:13:25 blair Exp $
 
 ---
 
@@ -240,6 +240,12 @@ $Id: API,v 1.55 2005-03-14 19:27:48 blair Exp $
 
 * FIXME String              groupField()
 * FIXME String              groupType()
+
+### GrouperUUID
+
+#### Class Methods
+
+* GrouperUUID         GrouperUUID()
 
 ### MemberOf
 
