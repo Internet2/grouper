@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.16 2004-12-02 07:25:42 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.17 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
@@ -101,22 +101,32 @@ public class GrouperSchema implements Serializable {
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Compares the specified object with this schema specification for
+   * equality.
+   * <p />
+   * @param o Object to be compared for equality with this schema
+   *   specification.
+   * @return  True if the specified object is equal to this schema
+   *   specification.
+   */
   public boolean equals(Object o) {
      return EqualsBuilder.reflectionEquals(this, o);
    }
 
+  /**
+   * Returns the hash code value for this schema specification.
+   * <p />
+   * @return  The hash code value for this schema specification.
+   */
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
   /**
-   * Return a string representation of the {@link GrouperSchema}
-   * object.
+   * Return a string representation of this object.
    * <p />
-   * TODO Do I want to add in `key'?  Or perhaps, given the key,
-   *      return the group `id'?
-   * 
-   * @return String representation of the object.
+   * @return String representation of this object.
    */
   public String toString() {
     return new ToStringBuilder(this)      .

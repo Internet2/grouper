@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.15 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.16 2004-12-09 01:28:38 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
@@ -137,6 +137,11 @@ public class SubjectImpl
     return Grouper.subjectType(this.typeID);
   }
 
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
   public String toString() {
     return this.getClass().getName()  + ":" +
            this.getSubjectType()      + ":" +

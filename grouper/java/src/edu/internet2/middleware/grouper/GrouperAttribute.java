@@ -58,11 +58,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class representing a {@link Grouper} group attribute.
+ * Class representing a {@link GrouperGroup} attribute.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.17 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.18 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -78,7 +78,7 @@ public class GrouperAttribute implements Serializable {
    * CONSTRUCTORS
    */
 
-  /*
+  /**
    * Null-argument constructor for Hibernate.
    */
   public GrouperAttribute() {
@@ -103,6 +103,12 @@ public class GrouperAttribute implements Serializable {
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Compares the specified object with this attribute for equality.
+   * <p />
+   * @param o Object to be compared for equality with this attribute.
+   * @return  True if the specified object is equal to this attribute.
+   */
   public boolean equals(Object o) {
      return EqualsBuilder.reflectionEquals(this, o);
    }
@@ -111,18 +117,19 @@ public class GrouperAttribute implements Serializable {
     return this.getGroupField();
   }
 
+  /**
+   * Returns the hash code value for this attribute.
+   * <p />
+   * @return  The hash code value for this attribute.
+   */
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
   /**
-   * Return a string representation of the {@link GrouperSchema}
-   * object.
+   * Return a string representation of this object.
    * <p />
-   * TODO Do I want to add in `key'?  Or perhaps, given the key,
-   *      return the group `id'?
-   * 
-   * @return String representation of the object.
+   * @return String representation of this object.
    */
   public String toString() {
     return new ToStringBuilder(this).

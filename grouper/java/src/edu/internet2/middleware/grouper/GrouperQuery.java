@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.5 2004-12-06 19:33:10 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.6 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperQuery {
 
@@ -193,10 +193,9 @@ public class GrouperQuery {
   }
 
   /**
-   * Return a string representation of the {@link GrouperQuery} object.
+   * Return a string representation of this object.
    * <p />
-   *
-   * @return  String representation of the object.
+   * @return String representation of this object.
    */
   public String toString() {
     return new ToStringBuilder(this).toString();

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.8 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.9 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperSubjectAttribute implements Serializable {
 
@@ -93,11 +93,21 @@ public class GrouperSubjectAttribute implements Serializable {
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Compares the specified object with this attribute for equality.
+   * <p />
+   * @param o Object to be compared for equality with this attribute.
+   * @return  True if the specified object is equal to this attribute.
+   */
   public boolean equals(Object o) {
      return EqualsBuilder.reflectionEquals(this, o);
    }
 
-
+  /**
+   * Returns the hash code value for this attribute.
+   * <p />
+   * @return  The hash code value for this attribute.
+   */
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
@@ -120,6 +130,11 @@ public class GrouperSubjectAttribute implements Serializable {
     return this.getSearchValue();
   }
 
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
   public String toString() {
     return this.getClass().getName()  + ":" +
            this.typeID()              + ":" +

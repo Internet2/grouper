@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.54 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.55 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperMember {
 
@@ -265,10 +265,9 @@ public class GrouperMember {
   }
 
   /**
-   * Return a string representation of the {@link GrouperSchema}
-   * object.
+   * Return a string representation of this object.
    * <p />
-   * @return String representation of the object.
+   * @return String representation of this object.
    */
   public String toString() {
     return new ToStringBuilder(this)                    .

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.26 2004-12-08 00:58:24 blair Exp $
+ * @version $Id: GrouperList.java,v 1.27 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -157,31 +157,33 @@ public class GrouperList implements Serializable {
     return via;
   }
 
+  /**
+   * Compares the specified object with this list value for equality.
+   * <p />
+   * @param o Object to be compared for equality with this list value.
+   * @return  True if the specified object is equal to this list value.
+   */
   public boolean equals(Object o) {
      return EqualsBuilder.reflectionEquals(this, o);
    }
 
+  /**
+   * Returns the hash code value for this list value.
+   * <p />
+   * @return  The hash code value for this list value.
+   */
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
   /**
-   * Return a string representation of the {@link GrouperSchema}
-   * object.
+   * Return a string representation of this object.
    * <p />
-   * TODO Do I want to add in `groupkey'?  Or perhaps, given the key,
-   *      return the `groupID'?
-   * TODO Do I want to add in `memberkey'?  Or perhaps, given the key,
-   *      return the `memberID'?
-   * TODO Do I want to add in `via'?  Or perhaps, given the via key,
-   *      return the `groupID'?
-   *
-   * @return String representation of the object.
+   * @return String representation of this object.
    */
   public String toString() {
-    return new ToStringBuilder(this)        .
-      append("field", this.getGroupField()) .
-      toString();
+    // TODO Add more information.
+    return new ToStringBuilder(this).toString();
   }
 
 
