@@ -91,8 +91,6 @@ public class SubsystemXmlLoader {
         Element subsystemIdElem = rootElem.getChild("Id");
         String subsystemId = subsystemIdElem.getTextTrim();
 
-        removeSubsystem(subsystemId);
-        
         Element subsystemNameElem = rootElem.getChild("Name");
         String subsystemName = subsystemNameElem.getTextTrim();
 
@@ -105,8 +103,7 @@ public class SubsystemXmlLoader {
         try {
             Subsystem tempSubsystem = signet.getSubsystem(subsystemId);
             if (tempSubsystem != null) {
-                System.out.println("-Error: Subsystem " + subsystemId + " already exists!");
-                return;
+            	removeSubsystem(subsystemId);
             }
         } catch (ObjectNotFoundException e) {
             // Skip all processing
