@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.31 2004-12-09 05:13:21 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.32 2004-12-09 05:37:39 blair Exp $
  */
 public class GrouperSubject {
 
@@ -74,6 +74,16 @@ public class GrouperSubject {
   /*
    * PUBLIC CLASS METHODS 
    */
+
+  /**
+   * Retrieve an I2MI {@link Subject} using the default subject type.
+   * <p />
+   * @param   id      Subject ID
+   * @return  A {@link GrouperSubject} object
+   */
+  public static Subject load(String id) {
+    return _load(id, Grouper.DEF_SUBJ_TYPE);
+  }
 
   /**
    * Retrieve an I2MI {@link Subject}.

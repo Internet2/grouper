@@ -118,5 +118,29 @@ public class TestSubjects extends TestCase {
     Assert.assertTrue( type.equals( subj.getSubjectType().getId() ) );
   }
 
+  // begin: testLoadOneParam
+
+  public void testLoadOneParam_0() {
+    Subject subj = GrouperSubject.load(Util.rooti);
+    Assert.assertNotNull(subj);
+    Assert.assertTrue( Util.klassSI.equals( subj.getClass().getName() ) );
+    Assert.assertTrue( subj.getId().equals(Util.rooti) );
+    Assert.assertNotNull( subj.getSubjectType() );
+    Assert.assertTrue( subj.getSubjectType().getId().equals(Util.roott));
+    Assert.assertTrue( subj.getSubjectType().getName().equals("Person") );
+  }
+
+  public void testLoadOneParam_1() {
+    Subject subj = GrouperSubject.load(Util.m0i);
+    Assert.assertNotNull(subj);
+    Assert.assertTrue( Util.klassSI.equals( subj.getClass().getName() ) );
+    Assert.assertTrue( subj.getId().equals(Util.m0i) );
+    Assert.assertNotNull( subj.getSubjectType() );
+    Assert.assertTrue( subj.getSubjectType().getId().equals(Util.m0t));
+    Assert.assertTrue( subj.getSubjectType().getName().equals("Person") );
+  }
+
+  // end: testLoadOneParam
+
 }
 
