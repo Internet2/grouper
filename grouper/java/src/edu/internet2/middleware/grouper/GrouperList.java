@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.34 2005-03-14 19:17:57 blair Exp $
+ * @version $Id: GrouperList.java,v 1.35 2005-03-15 04:24:51 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -142,6 +142,7 @@ public class GrouperList implements Serializable {
             ) 
   {
     this._init();
+    // FIXME Use this.load(s)?
     this.g          = GrouperGroup.loadByKey(s, groupKey);
     this.m          = GrouperBackend.member(s, memberKey);
     if (viaKey != null) {
@@ -154,10 +155,23 @@ public class GrouperList implements Serializable {
   }
 
   protected void load(GrouperSession s) {
-    this.g          = GrouperGroup.loadByKey(s, groupKey);
-    this.m          = GrouperBackend.member(s, memberKey);
-    if (viaKey != null) {
-      this.via        = GrouperGroup.loadByKey(s, viaKey);
+    // FIXME Validator!
+    if (this.groupKey == null) {
+      throw new RuntimeException("Unable to load group as key is null");
+    }
+    if (this.memberKey == null) {
+      throw new RuntimeException("Unable to load member as key is null");
+    }
+    this.g          = GrouperGroup.loadByKey(s, this.groupKey);
+    this.m          = GrouperBackend.member(s, this.memberKey);
+    if (this.viaKey != null) {
+      this.via        = GrouperGroup.loadByKey(s, this.viaKey);
+    }
+    if (this.g == null) {
+      throw new RuntimeException("Unable to load group");
+    }
+    if (this.m == null) {
+      throw new RuntimeException("Unable to load member");
     }
   }
 
