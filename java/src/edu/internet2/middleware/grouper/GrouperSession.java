@@ -4,7 +4,7 @@ package edu.internet2.middleware.directory.grouper;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.4 2004-04-14 03:05:42 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.5 2004-04-28 16:12:38 blair Exp $
  */
 public class GrouperSession {
 
@@ -92,42 +92,7 @@ public class GrouperSession {
    * </ul>
    */
   public void end() { 
-    /*
-    // XXX  Assert parameters
-    // ???  Why do I pass in sessionID?  Does that imply that there
-    //      are multiple sessions per instantiation?
-    //      Of course, if we move to more of a web services model,
-    //      the ability to specify the session id could be crucial.
-    //      And yes, I'm ignoring entirely the security issues that
-    //      loom in such circumstances.
-    //      But then: we *are* assuming a great deal of trust.  
-    if (this.cred == null) {
-      // XXX Ugh
-      System.err.println("No known credentials!");
-      return false;
-    }
-    if (this.sessionID <= 0) {
-      // XXX Ugh
-      System.err.println("No known session id!");
-      return false;
-    }
-    if (this.sessionID != sessionID) {
-      // XXX Ugh
-      System.err.println("Attempting to end an invalid session!");
-      return false;
-    }
-    this.cred       = null;
-    this.sessionID  = -1;
-
-    // ???  Should this be within a 'finally'?  And/Or should it go
-    //      elsewhere?
-    if (con != null) {
-      try { con.close( ); }
-      catch( Exception e ) { e.printStackTrace( ); }
-    }
-
-    return true;
-    */
+    // Nothing -- Yet
   }
 
 }
