@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.3 2004-10-11 20:23:25 blair Exp $
+# $Id: API,v 1.4 2004-10-12 17:18:47 blair Exp $
 #
 # TODO Interfaces
 #
@@ -157,9 +157,6 @@ GrouperSession
     void start(Grouper G, GrouperMember s)
     void stop()
     GrouperMember subject()
-      XXX Is this right?
-    String whoAmI()
-      XXX And what of this?
 
 
 GrouperStem
