@@ -19,7 +19,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.39 2004-11-22 03:23:11 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.40 2004-11-22 03:24:04 blair Exp $
  */
 public class GrouperMember {
 
@@ -132,11 +132,6 @@ public class GrouperMember {
    * retrieve.
    * @return  A {@link GrouperMember} object
    */
-/*
-  public static GrouperMember lookup(String key) {
-    return GrouperBackend.member(key);
-  }
-*/
 
 
   /*
