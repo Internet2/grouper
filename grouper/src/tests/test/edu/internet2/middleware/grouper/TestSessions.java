@@ -78,39 +78,27 @@ public class TestSessions extends TestCase {
 
   // Start a session as "member.system"
   public void testSessionStartAsMemberSystem() {
-    GrouperSession  s     = new GrouperSession();
-    Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
-    Assert.assertTrue( s.start(subj) );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
   }
 
   // Start and end a session as SubjectID "member.system"
   public void testSessionStartEndAsMemberSystem() {
-    GrouperSession  s     = new GrouperSession();
-    Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
-    Assert.assertTrue( s.start(subj) );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
     Assert.assertTrue( s.stop() );
   }
   
-  // Attempt to end a session that hasn't been started 
-  public void testSessionEndWithoutStart() {
-    GrouperSession  s     = new GrouperSession();
-    Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Assert.assertNotNull(subj);
-    Assert.assertFalse( s.stop() );
-  }
-
   // Verify the subject of the current session 
   public void testSessionSubject() {
-    GrouperSession  s     = new GrouperSession();
-    Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
-    Assert.assertTrue( s.start(subj) );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
     Subject         ret   =  s.subject();
     Assert.assertNotNull( ret );
     Assert.assertTrue( ret.getId().equals( Grouper.config("member.system") ) );

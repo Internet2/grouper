@@ -37,7 +37,7 @@ import  org.apache.commons.cli.*;
  * </ol>
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.4 2004-12-05 16:43:43 blair Exp $
+ * @version $Id: grouperq.java,v 1.5 2004-12-06 00:16:29 blair Exp $
  */
 class grouperq {
 
@@ -103,8 +103,7 @@ class grouperq {
    */
   private static void _grouperStart() {
     _subject();
-    s = new GrouperSession();
-    s.start(subj);
+    s = GrouperSession.start(subj);
     _verbose(
              "Started session as "           + 
              subj.getId() + ":"              +

@@ -61,7 +61,7 @@ import  edu.internet2.middleware.subject.*;
  * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.63 2004-12-05 23:44:36 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.64 2004-12-06 00:16:29 blair Exp $
  */
 public class GrouperSession {
 
@@ -70,14 +70,12 @@ public class GrouperSession {
    */
   // Subject this session is running under
   private Subject subject;
-  // The subjectID of the session's subject
   // The id of the session's subject.  Despite the fact that I can get
   // this via the subject object, I stash it into a variable to play
   // nicer with Hibernate.
   private String  subjectID;
-  // FIXME
-  private String sessionID;
-  private String startTime;
+  private String  sessionID;
+  private String  startTime;
 
 
   /*
@@ -85,21 +83,29 @@ public class GrouperSession {
    */
 
   /**
-   * Create a session object that will provide a context for future
-   * operations.
+   * Null-argument constructor for Hibernate.
    */
   public GrouperSession() {
     this._init();
   }
 
+  /* (!javadoc)
+   * Construct a new GrouperSession object and assign it a Subject.
+   */
+  private GrouperSession(Subject subj) {
+    this._init();
+    this.subject    = subj;
+    this.subjectID  = subj.getId();
+  }
+
 
   /*
-   * PUBLIC INSTANCE METHODS
+   * PUBLIC CLASS METHODS 
    */
 
   /**
    * Start a {@link Grouper} session.
-   * <p>
+   * <p />
    * TODO Plugin an external session handling mechanism?  Yes, please.
    * TODO Cache privs|memberships?
    *
@@ -107,19 +113,24 @@ public class GrouperSession {
    *  for the duration of this session.
    * @return  Boolean true if successful, false otherwise.
    */
-  public boolean start(Subject s) {
-    // Keep track of who we are
-    this.subject    = s;
-    this.subjectID  = s.getId();
-
-    // Register a new session
-    if (this._registerSession()) {
-      Grouper.LOGGER.info("Started session for " + s);
-      return true;
-    } 
-    Grouper.LOGGER.info("Failed to start session for " + s);
-    return false;
+  public static GrouperSession start(Subject s) {
+    GrouperSession gs = null;
+    if (s != null) {
+      gs = new GrouperSession(s);
+      // Register a new session
+      if (gs._registerSession()) {
+        Grouper.LOGGER.info("Started session for " + s);
+      }  else {
+        Grouper.LOGGER.info("Failed to start session for " + s);
+      }
+    }
+    return gs;
   }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
 
   /**
    * Stop the {@link Grouper} session.
