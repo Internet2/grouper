@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
- $Date: 2004-12-24 04:15:46 $
+ $Id: AssignmentImpl.java,v 1.3 2005-01-04 19:06:43 acohen Exp $
+ $Date: 2005-01-04 19:06:43 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -461,12 +461,6 @@ implements Assignment, Comparable
     return this.function;
   }
   
-  public Subsystem getSubsystem()
-  throws ObjectNotFoundException
-  {
-    return this.function.getSubsystem();
-  }
-  
   /**
    * @return A brief description of this AssignmentImpl. The exact details
    * 		of the representation are unspecified and subject to change.
@@ -532,7 +526,7 @@ implements Assignment, Comparable
     Subsystem otherSubsystem = null;
     try
     {
-      thisSubsystem = this.getSubsystem();
+      thisSubsystem = this.getFunction().getSubsystem();
     }
     catch (ObjectNotFoundException onfe)
     {
@@ -541,7 +535,7 @@ implements Assignment, Comparable
     
     try
     {
-      otherSubsystem = other.getSubsystem();
+      otherSubsystem = other.getFunction().getSubsystem();
     }
     catch (ObjectNotFoundException onfe)
     {

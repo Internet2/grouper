@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Signet.java,v 1.3 2005-01-04 19:06:43 acohen Exp $
+$Date: 2005-01-04 19:06:43 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -514,8 +514,7 @@ public Set getPrivilegedSubjects()
     for (int i = 0; i < subjectsArray.length; i++)
     {
       PrivilegedSubjectImpl privilegedSubjectImpl
-      	= (PrivilegedSubjectImpl)
-      			(this.getPrivilegedSubject(subjectsArray[i]));
+        = new PrivilegedSubjectImpl(this, subjectsArray[i]);
       privilegedSubjectImpl.setSignet(this);
       privilegedSubjectImpl.setSubjectType(subjectTypeImpl);
       privilegedSubjects.add(privilegedSubjectImpl);
@@ -960,7 +959,7 @@ public Set getPrivilegedSubjectsByDisplayId
     try
     {
       Subject subject = adapter.getSubjectByDisplayId(type, displayId);
-      PrivilegedSubject pSubject = this.getPrivilegedSubject(subject);
+      PrivilegedSubject pSubject = new PrivilegedSubjectImpl(this, subject);
       pSubjects.add(pSubject);
     }
     catch (SubjectNotFoundException snfe)
@@ -986,7 +985,8 @@ public PrivilegedSubject getPrivilegedSubject
 throws ObjectNotFoundException
 {
   Subject subject = getSubject(subjectTypeId, subjectId);
-  PrivilegedSubject pSubject = getPrivilegedSubject(subject);
+  PrivilegedSubject pSubject
+  	= new PrivilegedSubjectImpl(this, subject);
   
   return pSubject;
 }
@@ -1005,90 +1005,12 @@ public PrivilegedSubject getPrivilegedSubjectByDisplayId
 throws ObjectNotFoundException
 {
   Subject subject = getSubjectByDisplayId(subjectTypeId, displayId);
-  PrivilegedSubject pSubject = getPrivilegedSubject(subject);
+  PrivilegedSubject pSubject
+  	= new PrivilegedSubjectImpl(this, subject);
   
   return pSubject;
 }
 
-/**
- * Gets a single PrivilegedSubject by its underlying Subject.
- * 
- * @param subject
- * @return
- */
-public PrivilegedSubject getPrivilegedSubject(Subject subject)
-{
-  PrivilegedSubjectImpl privilegedSubjectImpl;
-  
-  // First, let's see if we already have a PrivilegedSubject for this
-  // Subject in the database.
-  
-  privilegedSubjectImpl = fetchExistingPrivilegedSubject(subject);
-  
-  if (privilegedSubjectImpl == null)
-  {
-    // There's no existing PrivilegedSubject in the database, so we'll
-    // create one now.
-    privilegedSubjectImpl = new PrivilegedSubjectImpl(this, subject);
-  }
-  else
-  {
-    privilegedSubjectImpl.setSignet(this);
-  }
-  
-  return privilegedSubjectImpl;
-}
-
-/**
- * 
- * @param subject
- * @return NULL if no PrivilegedSubject is found.
- */
-private PrivilegedSubjectImpl fetchExistingPrivilegedSubject
-	(Subject subject)
-{
-  Query query;
-  List 	resultList;
-    
-  try
-  {
-    query
-    	= session.createQuery
-    		("from edu.internet2.middleware.signet.PrivilegedSubjectImpl"
-  		   + " as privilegedSubject"
-  		   + " where subjectID = :id"
-  		   + " and subjectTypeID = :type");
-  
-    query.setString("id", subject.getId());
-    query.setString("type", subject.getSubjectType().getId());
-  
-    resultList = query.list();
-  }
-  catch (HibernateException e)
-  {
-    throw new SignetRuntimeException(e);
-  }
-
-	if (resultList.size() < 1)
-	{
-	  return null;
-	}
-
-	if (resultList.size() > 1)
-	{
-	  throw new SignetRuntimeException
-	  	("Each record in the PrivilegedSubjectImpl table is supposed to have a"
-       + " unique combination of id and subjectTypeId. Signet found " 
-       + resultList.size() 
-       + " records with the id '" 
-       + subject.getId() 
-       + "' and the subjectTypeId '"
-       + subject.getSubjectType().getId()
-       + "'.");
-	}
-
-	return (PrivilegedSubjectImpl)(resultList.get(0));
-}
 
 /**
  * Creates a new PrivilegedSubject.
@@ -1727,7 +1649,7 @@ throws ObjectNotFoundException
     }
   }
   
-  superPSubject = this.getPrivilegedSubject(superSubject);
+  superPSubject = new PrivilegedSubjectImpl(this, superSubject);
   
   return superPSubject;
 }

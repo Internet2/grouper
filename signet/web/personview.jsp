@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.2 2004-12-24 04:15:46 acohen Exp $
-  $Date: 2004-12-24 04:15:46 $
+  $Id: personview.jsp,v 1.3 2005-01-04 19:06:43 acohen Exp $
+  $Date: 2005-01-04 19:06:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -211,7 +211,7 @@
     Assignment receivedAssignment
       = (Assignment)(assignmentsReceivedIterator.next());
     subsystemsOfReceivedAssignments.add
-    	(receivedAssignment.getSubsystem());
+    	(receivedAssignment.getFunction().getSubsystem());
   }
 
   Iterator subsystemsIterator

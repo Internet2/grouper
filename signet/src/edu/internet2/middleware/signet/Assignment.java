@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Assignment.java,v 1.3 2005-01-04 19:06:43 acohen Exp $
+$Date: 2005-01-04 19:06:43 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -102,15 +102,6 @@ public PrivilegedSubject getRevoker();
  * @return the scope (usually an organization) of this Assignment.
  */
 public edu.internet2.middleware.signet.tree.TreeNode getScope();
-
-
-/**
- * Gets the Subsystem associated with this Assignment.
- * 
- * @return the Subsystem associated with this Assignment.
- * @throws ObjectNotFoundException
- */
-public Subsystem getSubsystem() throws ObjectNotFoundException;
 
 /**
  * Gets the Function which is the subject of this Assignment.

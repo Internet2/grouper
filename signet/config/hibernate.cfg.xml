@@ -13,13 +13,11 @@
 -->
 		
 		<!-- local connection properties for HypersonicSQL -->
-<!--
 		<property name="hibernate.dialect">net.sf.hibernate.dialect.HSQLDialect</property>
 		<property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-		<property name="hibernate.connection.url">jdbc:hsqldb:data/signet</property>
+		<property name="hibernate.connection.url">jdbc:hsqldb:C:/acohen/eclipse/workspace/signet/data/signet</property>
 		<property name="hibernate.connection.username">sa</property>
 		<property name="hibernate.connection.password"/>
--->
 
 		<!-- connection properties for Sybase -->
 <!--

@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: PersonViewAction.java,v 1.2 2005-01-04 19:06:43 acohen Exp $
+  $Date: 2005-01-04 19:06:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -129,7 +129,8 @@ public final class PersonViewAction extends BaseAction
     if (assignmentsReceivedIterator.hasNext())
     {
       firstSubsystem
-      	= ((Assignment)(assignmentsReceivedIterator.next())).getSubsystem();
+      	= ((Assignment)(assignmentsReceivedIterator.next()))
+      			.getFunction().getSubsystem();
     }
     
     return firstSubsystem;
