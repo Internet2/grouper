@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.52 2004-10-12 17:18:47 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.53 2004-10-12 18:37:51 blair Exp $
  */
 public class GrouperSession {
 
@@ -56,7 +56,7 @@ public class GrouperSession {
   public void start(GrouperMember s) {
     // Keep track of who we are
     this.subject    = s;
-    this.subjectID  = s.memberID();
+    this.subjectID  = s.id();
 
     // Register a new session
     this._registerSession();

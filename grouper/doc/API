@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.4 2004-10-12 17:18:47 blair Exp $
+# $Id: API,v 1.5 2004-10-12 18:37:50 blair Exp $
 #
 # TODO Interfaces
 #
@@ -104,8 +104,8 @@ GrouperMember
       XXX Needed?
 
   Instance Methods
-    String memberID()
-    String memberType()
+    String id()
+    String type()
 
 
 GrouperMemberType
