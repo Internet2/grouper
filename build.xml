@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.24 2004-12-02 15:18:46 blair Exp $ -->
+<!-- $Id: build.xml,v 1.25 2004-12-02 15:40:16 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -179,6 +179,17 @@
       <arg value="-script"/>
       <arg value="sql/hsqldb.sql"/>
     </java>
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="${jdbc.driver}"/>
+      <arg value="-url"/>
+      <arg value="${jdbc.url}"/>
+      <arg value="-user"/>
+      <arg value="sa"/>
+      <arg value="-script"/>
+      <arg value="sql/init.sql"/>
+    </java>
   </target>
 
   <target name="db-init-test" 
@@ -193,7 +204,7 @@
       <arg value="-user"/>
       <arg value="sa"/>
       <arg value="-script"/>
-      <arg value="sql/base.sql"/>
+      <arg value="sql/test.sql"/>
     </java>
     <!-- I want a pristine copy to utilize later.  Yes, this is a kludge. -->
     <copy file="${dist}/run/grouper.script" tofile="${dist}/run/grouper.script.orig"/>
