@@ -134,20 +134,6 @@
     </property>
   </class>
 
-  <class name="GrouperSubjectType" table="grouper_subjectType" mutable="false">
-    <cache usage="read-only"/>
-    <id name="subjectTypeID" type="string" unsaved-value="null">
-      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
-      <generator class="assigned"/>
-    </id>
-    <property name="name">
-      <column name="name" sql-type="char(255)" not-null="true"/>
-    </property>
-    <property name="adapterClass">
-      <column name="adapterClass" sql-type="char(255)" not-null="true"/>
-    </property>
-  </class>
-
   <class name="GrouperType" table="grouper_types" mutable="false">
     <cache usage="read-only"/>
     <id name="groupType" type="string" unsaved-value="null" >
@@ -162,6 +148,20 @@
       <key-property name="groupType"  type="string" column="groupType"/>
       <key-property name="groupField" type="string"  column="groupField"/>
     </composite-id>
+  </class>
+
+  <class name="SubjectTypeImpl" table="grouper_subjectType" mutable="false">
+    <cache usage="read-only"/>
+    <id name="subjectTypeID" type="string" unsaved-value="null">
+      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="name">
+      <column name="name" sql-type="char(255)" not-null="true"/>
+    </property>
+    <property name="adapterClass">
+      <column name="adapterClass" sql-type="char(255)" not-null="true"/>
+    </property>
   </class>
 
 </hibernate-mapping>

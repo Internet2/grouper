@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestSubjects.java,v 1.1 2004-11-11 19:07:04 blair Exp $
+ * $Id: TestSubjects.java,v 1.2 2004-11-12 04:25:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -49,7 +49,7 @@ public class TestSubjects extends TestCase {
     Grouper G = new Grouper();
     String id   = "invalid id";
     String type = "person";
-    GrouperSubject subj = GrouperSubject.lookup(id, type);
+    Subject subj = GrouperSubject.lookup(id, type);
     Assert.assertNull(subj);
   }
 

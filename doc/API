@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.23 2004-11-11 19:07:04 blair Exp $
+# $Id: API,v 1.24 2004-11-12 04:25:41 blair Exp $
 #
 # TODO Interfaces
 #
@@ -16,7 +16,7 @@ Grouper
     List groupTypeDefs()
     List groupTypes()
     boolean hasSubjectType(String)
-    GrouperSubjectType subjectType(String)
+    SubjectType subjectType(String)
     List subjectTypes()
 
 
@@ -178,15 +178,6 @@ GrouperSubjectTypeAdapterImpl
     Subject[] searchByIdentifier(SubjectType type, String id)
 
 
-GrouperSubjectTypeImpl
-  Class Methods
-    GrouperSubjectTypeImpl()
-
-  Instance Methods
-    SubjectTypeAdapter getAdapter()
-    String getId()
-    String getName()
-
 
 GrouperType
   XXX Revisit class
@@ -202,4 +193,8 @@ GrouperTypeDef
   Instance Methods
     String groupField()
     String groupType()
+
+
+SubjectTypeImpl
+  TODO
 

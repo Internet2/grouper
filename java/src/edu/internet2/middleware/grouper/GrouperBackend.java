@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.24 2004-11-11 18:50:02 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.25 2004-11-12 04:25:41 blair Exp $
  */
 public class GrouperBackend {
 
@@ -484,7 +484,7 @@ public class GrouperBackend {
   }
 
   /**
-   * Valid {@link GrouperSubjectType} items.
+   * Valid {@link SubjectTypeImpl} items.
    *
    * @return List of subject types.
    */
@@ -494,7 +494,7 @@ public class GrouperBackend {
     try {
       Query q = session.createQuery(
         "SELECT ALL FROM grouper_subjectType " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperSubjectType"
+        "IN CLASS edu.internet2.middleware.grouper.SubjectTypeImpl"
         );
       types = q.list();
     } catch (Exception e) {
