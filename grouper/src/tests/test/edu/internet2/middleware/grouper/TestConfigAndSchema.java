@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.14 2004-12-03 04:15:09 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.15 2004-12-04 02:43:46 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -132,10 +132,10 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull(types);
     Assert.assertEquals(2, types.size());
     String klass  = "edu.internet2.middleware.grouper.GrouperType";
-    String type0 = "base";
+    String type0 = Grouper.DEF_GROUP_TYPE;
     Assert.assertTrue( type0.equals( types.get(0).toString() ) );
     Assert.assertTrue( klass.equals( types.get(0).getClass().getName() ) );
-    String type1 = "naming";
+    String type1 = Grouper.NS_TYPE;
     Assert.assertTrue( type1.equals( types.get(1).toString() ) );
     Assert.assertTrue( klass.equals( types.get(1).getClass().getName() ) );
   }

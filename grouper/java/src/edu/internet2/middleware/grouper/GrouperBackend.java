@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.104 2004-12-04 02:32:43 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.105 2004-12-04 02:43:46 blair Exp $
  */
 public class GrouperBackend {
 
@@ -258,8 +258,8 @@ public class GrouperBackend {
         boolean       granted = false;
         if (m != null) { // FIXME Bah
           GrouperBackend.LOGGER.debug("Converted to member " + m);
-          // `naming' groups get `STEM', not `ADMIN'
-          if (g.type().equals("naming")) {
+          // NS_TYPE groups get `STEM', not `ADMIN'
+          if (g.type().equals(Grouper.NS_TYPE)) {
             if (Grouper.naming().grant(s, g, m, "STEM") == true) {
               GrouperBackend.LOGGER.debug("Granted STEM to " + m);
               t.commit(); // XXX Is this commit necessary?
@@ -1886,7 +1886,7 @@ public class GrouperBackend {
       rv = true;
     } else {
       GrouperGroup g = GrouperBackend._groupLookupByName(
-                         s, session, stem, "naming"
+                         s, session, stem, Grouper.NS_TYPE
                        );
       if (g != null) {
         rv = true;

@@ -60,7 +60,6 @@ import  junit.framework.*;
 public class TestGroupAttrs extends TestCase {
 
   /// Naming Groups
-  private String  naming    = "naming";
   private String  ns_stem0  = Grouper.NS_ROOT;
   private String  ns_extn0  = "stem.0";
   private String  ns_stem00 = "stem.0";
@@ -107,16 +106,16 @@ public class TestGroupAttrs extends TestCase {
     s.start(subj);
     // Fetch namespaces
     // ns0
-    GrouperGroup ns0 = GrouperGroup.lookup(s, ns_stem0, ns_extn0, naming);
+    GrouperGroup ns0 = GrouperGroup.lookup(s, ns_stem0, ns_extn0, Grouper.NS_TYPE);
     Assert.assertNotNull(ns0);
     // ns00
-    GrouperGroup ns00 = GrouperGroup.lookup(s, ns_stem00, ns_extn00, naming);
+    GrouperGroup ns00 = GrouperGroup.lookup(s, ns_stem00, ns_extn00, Grouper.NS_TYPE);
     Assert.assertNotNull(ns00);
     // ns1
-    GrouperGroup ns1 = GrouperGroup.lookup(s, ns_stem1, ns_extn1, naming);
+    GrouperGroup ns1 = GrouperGroup.lookup(s, ns_stem1, ns_extn1, Grouper.NS_TYPE);
     Assert.assertNotNull(ns1);
     // ns2
-    GrouperGroup ns2 = GrouperGroup.lookup(s, ns_stem2, ns_extn2, naming);
+    GrouperGroup ns2 = GrouperGroup.lookup(s, ns_stem2, ns_extn2, Grouper.NS_TYPE);
     Assert.assertNotNull(ns2);
     // Fetch groups
     // g0
@@ -148,7 +147,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -178,7 +177,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -208,7 +207,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -238,7 +237,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -393,7 +392,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -411,7 +410,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -429,7 +428,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -447,7 +446,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -543,7 +542,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -575,7 +574,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -607,7 +606,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -639,7 +638,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -803,7 +802,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -821,7 +820,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -839,7 +838,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -857,7 +856,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -953,7 +952,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -985,7 +984,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1017,7 +1016,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1049,7 +1048,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1213,7 +1212,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1230,7 +1229,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1247,7 +1246,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1264,7 +1263,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1354,7 +1353,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem0;
     String extn = ns_extn0; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1384,7 +1383,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem00;
     String extn = ns_extn00; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1414,7 +1413,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem1;
     String extn = ns_extn1; 
     String name = GrouperBackend.groupName(stem, extn);
@@ -1444,7 +1443,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
-    String type = naming;
+    String type = Grouper.NS_TYPE;
     String stem = ns_stem2;
     String extn = ns_extn2; 
     String name = GrouperBackend.groupName(stem, extn);
