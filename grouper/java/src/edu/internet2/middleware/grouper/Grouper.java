@@ -18,7 +18,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.43 2004-11-20 03:07:31 blair Exp $
+ * @version $Id: Grouper.java,v 1.44 2004-11-20 16:10:24 blair Exp $
  */
 public class Grouper {
 
@@ -40,15 +40,6 @@ public class Grouper {
   private static List       groupTypeDefs = new ArrayList();
   // Cached Grouper subject types
   private static List       subjectTypes  = new ArrayList();
-
-
-  /**
-   * Create {@link Grouper} object.
-   */
-  public Grouper() {
-    // Nothing -- Yet
-    // TODO Throw an exception if called?
-  }
 
 
   /*

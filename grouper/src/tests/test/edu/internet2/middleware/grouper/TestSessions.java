@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestSessions.java,v 1.2 2004-11-12 20:21:59 blair Exp $
+ * $Id: TestSessions.java,v 1.3 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -45,7 +45,6 @@ public class TestSessions extends TestCase {
 
   // Start a session as "member.system"
   public void testSessionStartAsMemberSystem() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
@@ -55,7 +54,6 @@ public class TestSessions extends TestCase {
 
   // Start and end a session as SubjectID "member.system"
   public void testSessionStartEndAsMemberSystem() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
@@ -66,7 +64,6 @@ public class TestSessions extends TestCase {
   
   // Attempt to end a session that hasn't been started 
   public void testSessionEndWithoutStart() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
@@ -76,7 +73,6 @@ public class TestSessions extends TestCase {
 
   // Verify the subject of the current session 
   public void testSessionSubject() {
-    Grouper         G     = new Grouper();
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
     Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );

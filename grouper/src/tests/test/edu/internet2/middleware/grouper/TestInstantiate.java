@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestInstantiate.java,v 1.7 2004-11-19 04:15:31 blair Exp $
+ * $Id: TestInstantiate.java,v 1.8 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -42,14 +42,6 @@ public class TestInstantiate extends TestCase {
    * TESTS
    */
   
-
-  // Instantiate a Grouper instance 
-  public void testGrouperInstantiate() {
-    Grouper obj = new Grouper();
-    Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.Grouper";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
-  }
 
   // Instantiate a GrouperAttribute instance 
   public void testGrouperAttributeInstantiate() {

@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.7 2004-11-15 19:41:02 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.8 2004-11-20 16:10:24 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -46,15 +46,13 @@ public class TestConfigAndSchema extends TestCase {
 
   // Get a runtime configuration setting 
   public void testGetRuntimeConfigSetting() {
-    Grouper G = new Grouper();
     String exp = "GrouperSystem";
     Assert.assertTrue( exp.equals( Grouper.config("member.system") ) );
   }
 
   // Get cached GrouperFields 
   public void testGetGrouperFields() {
-    Grouper G = new Grouper();
-    List fields = G.groupFields();
+    List fields = Grouper.groupFields();
     Assert.assertNotNull(fields);
     Assert.assertEquals(10, fields.size());
     String klass = "edu.internet2.middleware.grouper.GrouperField";
@@ -93,8 +91,7 @@ public class TestConfigAndSchema extends TestCase {
 
   // Get cached GrouperTypes 
   public void testGetGrouperTypes() {
-    Grouper G = new Grouper();
-    List types = G.groupTypes();
+    List types = Grouper.groupTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
     String type = "base";
@@ -105,8 +102,7 @@ public class TestConfigAndSchema extends TestCase {
 
   // Get cached GrouperTypeDefs 
   public void testGetGrouperTypeDefs() {
-    Grouper G = new Grouper();
-    List typeDefs  = G.groupTypeDefs();
+    List typeDefs  = Grouper.groupTypeDefs();
     Assert.assertNotNull(typeDefs);
     Assert.assertEquals(10, typeDefs.size());
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
@@ -145,8 +141,7 @@ public class TestConfigAndSchema extends TestCase {
 
   // Get cached SubjectTypes 
   public void testGetSubjectTypes() {
-    Grouper G               = new Grouper();
-    List    types           = G.subjectTypes();
+    List    types           = Grouper.subjectTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(2, types.size());
 
