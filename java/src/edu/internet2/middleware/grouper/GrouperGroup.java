@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.42 2004-09-19 18:37:07 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.43 2004-09-19 23:48:54 blair Exp $
  */
 public class GrouperGroup {
 
@@ -76,8 +76,8 @@ public class GrouperGroup {
            desc.value(); 
   }
 
-  public static GrouperGroup lookup(GrouperSession s, String stem, 
-                                    String descriptor) 
+  public static GrouperGroup load(GrouperSession s, String stem, 
+                                  String descriptor) 
   {
     return GrouperBackend.group(s, stem, descriptor);
   }

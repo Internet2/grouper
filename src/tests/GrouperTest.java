@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.42 2004-09-19 18:37:08 blair Exp $
+ * $Id: GrouperTest.java,v 1.43 2004-09-19 23:48:54 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -480,7 +480,7 @@ public class GrouperTest extends TestCase {
     GrouperMember subject = GrouperSubject.lookup( G.config("member.system"), "person" );
     s.start(G, subject);
 
-    GrouperGroup g = GrouperGroup.lookup(s, "stem.0", "desc.0");
+    GrouperGroup g = GrouperGroup.load(s, "stem.0", "desc.0");
 
     // Confirm that group doesn't exist
     Assert.assertFalse( g.exist() );
