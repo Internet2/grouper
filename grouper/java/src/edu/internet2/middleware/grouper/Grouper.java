@@ -18,7 +18,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.42 2004-11-20 01:53:19 blair Exp $
+ * @version $Id: Grouper.java,v 1.43 2004-11-20 03:07:31 blair Exp $
  */
 public class Grouper {
 
@@ -200,7 +200,7 @@ public class Grouper {
   private static void _init() {
     if (initialized == false) {
       Grouper     tmp = new Grouper();
-      InputStream in  = tmp.getClass().getResourceAsStream("grouper.properties");
+      InputStream in  = tmp.getClass().getResourceAsStream(confFile);
       try {
         conf.load(in);
       } catch (IOException e) {

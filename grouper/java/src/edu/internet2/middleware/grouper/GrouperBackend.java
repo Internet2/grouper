@@ -11,6 +11,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.io.*;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -24,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.47 2004-11-20 01:53:19 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.48 2004-11-20 03:07:31 blair Exp $
  */
 public class GrouperBackend {
 
@@ -32,6 +33,14 @@ public class GrouperBackend {
   private static Configuration   cfg;
   // Hibernate session factory
   private static SessionFactory  factory;
+
+  /*
+   * CONSTRUCTORS
+   */
+  protected GrouperBackend() {
+    // Provided only for the benefit of finding the Grouper.hbm.xml
+    // files.  And yes, there *has* to be a better way.
+  }
 
   /*
    * PUBLIC CLASS METHODS 
@@ -834,12 +843,15 @@ public class GrouperBackend {
    */
   private static Session _init() {
     if (cfg == null) {
+      GrouperBackend  tmp = new GrouperBackend();
+      InputStream     in  = tmp.getClass().getResourceAsStream("Grouper.hbm.xml");
       try {
-      cfg = new Configuration()
-        .addFile("Grouper.hbm.xml");
-      } catch (Exception e) {
+        // conf.load(in);
+        cfg = new Configuration()
+          .addInputStream(in);
+      } catch (MappingException e) {
         System.err.println(e);
-        System.exit(1);
+        System.exit(1); 
       }
     }
     if (factory == null) {
