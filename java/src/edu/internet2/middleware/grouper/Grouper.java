@@ -1,8 +1,8 @@
 /*
- * $Id: Grouper.java,v 1.3 2004-03-21 00:14:32 blair Exp $
+ * $Id: Grouper.java,v 1.4 2004-03-25 01:41:57 blair Exp $
  */
 
-// XXX package edu.internet2.middleware.mace.grouper;
+package edu.internet2.middleware.directory.grouper;
 
 import java.io.*;
 import java.sql.*;
@@ -15,7 +15,7 @@ public class Grouper {
   private String      cred;
 
   private Properties  conf     = new Properties();
-  private String      confFile = "grouper.cf";
+  private String      confFile = "../../grouper.cf";
 
   private String jdbcDriver;
   private String jdbcPassword;
@@ -56,11 +56,6 @@ public class Grouper {
     java.util.Random r  = new java.util.Random();
     // XXX Well that is certainly arbitrary.
     this.sessionID      = Math.abs( r.nextInt( 65535 ) );
-
-    //String jdbcDriver   = "com.mysql.jdbc.Driver";
-    //String jdbcUrl      = "jdbc:mysql://localhost:3306/grouper";
-    //String jdbcUsername = "grouper";
-    //String jdbcPassword = "gr0up3r";
 
     // XXX Ugh.  Where to put this? 
     try {
