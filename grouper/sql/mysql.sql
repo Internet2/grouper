@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.13 2004-07-03 03:02:07 blair Exp $
+-- $Id: mysql.sql,v 1.14 2004-07-14 02:52:17 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -8,22 +8,6 @@ CREATE DATABASE grouper;
 USE    grouper;
 
 --
-
--- TODO CREATE TABLE grouper_aging (
--- TODO  groupID           INTEGER UNSIGNED NOT NULL,
--- TODO  -- XXX The usual date and time issues
--- TODO  changeTime        VARCHAR(255),
--- TODO  -- XXX Hrm...
--- TODO  changeSource      VARCHAR(255),
--- TODO  -- XXX Or an ENUM?  Or something else altogether?
--- TODO  agingState        VARCHAR(255)
--- TODO  FOREIGN KEY  groupID REFERENCES grouper_group (groupID),
--- TODO ) TYPE=InnoDB;
-
--- TODO CREATE TABLE grouper_factor (
--- TODO  parentID          INTEGER UNSIGNED NOT NULL, -- TODO FOREIGN KEY,
--- TODO  factorID          INTEGER UNSIGNED NOT NULL
--- TODO ) TYPE=InnoDB;
 
 CREATE TABLE grouper_fields (
   groupField        VARCHAR(255) NOT NULL PRIMARY KEY UNIQUE,
@@ -103,10 +87,14 @@ CREATE TABLE grouper_schema (
 CREATE TABLE grouper_session (
   -- XXX Or do we let Grouper hand out (pseudo)random session ids?
   -- XXX The paranoia says yes.  
-  sessionID         INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-  cred              VARCHAR(255) NOT NULL, 
+  -- XXX sessionID         INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
+  sessionID         BIGINT UNSIGNED NOT NULL PRIMARY KEY UNIQUE,
+  -- XXX NOT NULL
+  cred              VARCHAR(255),
   -- XXX This has the same issues as 'membership:removeAfter'
-  startTime         VARCHAR(255) NOT NULL
+  -- XXX startTime         VARCHAR(255) NOT NULL
+  -- XXX NOT NULL
+  startTime         BIGINT UNSIGNED
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_typedefs (
