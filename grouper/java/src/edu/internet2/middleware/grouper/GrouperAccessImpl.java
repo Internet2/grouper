@@ -16,15 +16,22 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.18 2004-11-20 18:38:54 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.19 2004-11-22 01:20:23 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
+
+  /*
+   * PRIVATE CLASS VARIABLES
+   */
+  private static Map      privMap;
+  private static boolean  initialized = false;
+ 
 
   /*
    * CONSTRUCTORS
    */
   public GrouperAccessImpl() {
-    // Nothing -- Yet
+    GrouperAccessImpl._init();
   }
 
 
@@ -46,7 +53,11 @@ public class GrouperAccessImpl implements GrouperAccess {
                     GrouperMember m, String priv
                    ) 
   {
-    // Nothing -- Yet
+    GrouperAccessImpl._init();
+    if (privMap.containsKey(priv)) {
+      GrouperBackend.listAddVal(g, s, m, (String) privMap.get(priv));
+    } 
+    // TODO I should probably throw an exception if invalid priv
   }
 
   /**
@@ -58,6 +69,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  List of privileges.
    */
   public List has(GrouperSession s, GrouperGroup g) {
+    GrouperAccessImpl._init();
     List privs = new ArrayList();
     return privs;
   }
@@ -71,6 +83,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  List of {@link GrouperGroup} groups.
    */
   public List has(GrouperSession s, String priv) {
+    GrouperAccessImpl._init();
     List privs = new ArrayList();
     return privs;
   }
@@ -85,6 +98,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  List of privileges.
    */
   public List has(GrouperSession s, GrouperGroup g, GrouperMember m) {
+    GrouperAccessImpl._init();
     List privs = new ArrayList();
     return privs;
   }
@@ -100,6 +114,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperSession s, GrouperGroup g, String priv) {
+    GrouperAccessImpl._init();
     return false;
   }
 
@@ -114,6 +129,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  List of {@link GrouperGroup} groups.
    */
   public List has(GrouperSession s, GrouperMember m, String priv) {
+    GrouperAccessImpl._init();
     List privs = new ArrayList();
     return privs;
   }
@@ -134,7 +150,15 @@ public class GrouperAccessImpl implements GrouperAccess {
                      GrouperMember m, String priv
                     )
   {
-    return false;
+    GrouperAccessImpl._init();
+    boolean rv = false;
+    if (privMap.containsKey(priv)) {
+      rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
+    } else {
+      // TODO I should probably throw an exception
+      rv = false;
+    }
+    return rv;
   }
 
   /**
@@ -151,7 +175,36 @@ public class GrouperAccessImpl implements GrouperAccess {
                      GrouperMember m, String priv
                     ) 
   {
-    // Nothing -- Yet
+    GrouperAccessImpl._init();
+    if (privMap.containsKey(priv)) {
+      GrouperBackend.listDelVal(g, s, m, (String) privMap.get(priv));
+    } 
+    // TODO I should probably throw an exception if invalid priv
+  }
+
+
+  /*
+   * PRIVATE STATIC METHODS
+   */
+
+  /*
+   * Initialize static variables
+   */
+  private static void _init() {
+    if (initialized == false) {
+      /*
+       * TODO I can do better this.  Can't I just leverage the cached
+       *      group fields information?
+       */
+      privMap = new HashMap();
+      privMap.put("ADMIN", "admins");
+      privMap.put("OPTIN", "optins");
+      privMap.put("OPTOUT", "optouts");
+      privMap.put("READ", "readers");
+      privMap.put("UPDATE", "updaters");
+      privMap.put("VIEW", "viewers");
+      initialized = true;
+    }
   }
 
 }
