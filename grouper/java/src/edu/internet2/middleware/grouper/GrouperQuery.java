@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.4 2004-12-02 07:43:22 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.5 2004-12-06 19:33:10 blair Exp $
  */
 public class GrouperQuery {
 
@@ -89,6 +89,30 @@ public class GrouperQuery {
    */
 
   /**
+   * Set {@link GrouperGroup} <i>createTime</i> filter.
+   * <p />
+   *
+   * @param   date  Query for items created after this {@link Date}.
+   * @return  Boolean true if matching items were found, otherwise
+   *   false.
+   */
+  public boolean createdAfter(Date date) throws GrouperException {
+    return this._queryCreatedAfter(date);
+  }
+
+  /**
+   * Set {@link GrouperGroup} <i>createTime</i> filter.
+   * <p />
+   *
+   * @param   date  Query for items created before this {@link Date}.
+   * @return  Boolean true if matching items were found, otherwise
+   *   false.
+   */
+  public boolean createdBefore(Date date) throws GrouperException {
+    return this._queryCreatedBefore(date);
+  }
+
+  /**
    * Set {@link GrouperGroup} type filter.
    * <p />
    * TODO How do I unset?
@@ -113,6 +137,30 @@ public class GrouperQuery {
    */
   public boolean membership(String type) throws GrouperException {
     return this._queryMembership(type);
+  }
+
+  /**
+   * Set {@link GrouperGroup} <i>modifyTime</i> filter.
+   * <p />
+   *
+   * @param   date  Query for items modified after this {@link Date}.
+   * @return  Boolean true if matching items were found, otherwise
+   *   false.
+   */
+  public boolean modifiedAfter(Date date) throws GrouperException {
+    return this._queryModifiedAfter(date);
+  }
+
+  /**
+   * Set {@link GrouperGroup} <i>modifyTime</i> filter.
+   * <p />
+   *
+   * @param   date  Query for items modifed before this {@link Date}.
+   * @return  Boolean true if matching items were found, otherwise
+   *   false.
+   */
+  public boolean modifiedBefore(Date date) throws GrouperException {
+    return this._queryModifiedBefore(date);
   }
 
   /**
@@ -201,6 +249,40 @@ public class GrouperQuery {
   }
 
   /* (!javadoc)
+   * Perform createdAfter query.
+   */
+  private boolean _queryCreatedAfter(Date date) {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    // Find all groups created after this date
+    vals = GrouperQuery._iterGroup(
+             this.gs, GrouperBackend.groupCreatedAfter(date)
+           );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put("createdafter", vals);
+    return rv; 
+  }
+
+  /* (!javadoc)
+   * Perform createdBefore query.
+   */
+  private boolean _queryCreatedBefore(Date date) {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    // Find all groups created before this date
+    vals = GrouperQuery._iterGroup(
+             this.gs, GrouperBackend.groupCreatedBefore(date)
+           );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put("createdbefore", vals);
+    return rv; 
+  }
+
+  /* (!javadoc)
    * Perform groupType query.
    */
   private boolean _queryGroupType(String type) throws GrouperException {
@@ -250,6 +332,64 @@ public class GrouperQuery {
     }
     this.candidates.put("membership", vals);
     return rv; 
+  }
+
+  /* (!javadoc)
+   * Perform modifiedAfter query.
+   */
+  private boolean _queryModifiedAfter(Date date) {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    // Find all groups modified after this date
+    vals = GrouperQuery._iterGroup(
+             this.gs, GrouperBackend.groupModifiedAfter(date)
+           );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put("modifiedafter", vals);
+    return rv; 
+  }
+
+  /* (!javadoc)
+   * Perform modifiedBefore query.
+   */
+  private boolean _queryModifiedBefore(Date date) {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    // Find all groups modified before this date
+    vals = GrouperQuery._iterGroup(
+             this.gs, GrouperBackend.groupModifiedBefore(date)
+           );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put("modifiedbefore", vals);
+    return rv; 
+  }
+
+  /* (!javadoc)
+   * Iterate through a list of groups, find list values for group, and
+   * add list values to a List that will be returned.
+   */
+  private static List _iterGroup(GrouperSession gs, List groups) {
+    List vals = new ArrayList();
+    if (groups != null) {
+      Iterator iter = groups.iterator();
+      while (iter.hasNext()) {
+        GrouperGroup g = (GrouperGroup) iter.next();
+        Iterator lvIter =  GrouperBackend.listVals(
+                             gs, g, Grouper.DEF_LIST_TYPE
+                           ).iterator();
+        while (lvIter.hasNext()) {
+          GrouperList gl = (GrouperList) lvIter.next();
+          if (gl != null) {
+            vals.add(gl);
+          }
+        }
+      }
+    }
+    return vals;
   }
 
 }
