@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.17 2004-11-20 04:01:06 blair Exp $ -->
+<!-- $Id: build.xml,v 1.18 2004-11-21 23:55:55 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -114,6 +114,11 @@
     <java fork="yes" classname="junit.textui.TestRunner" 
       taskname="junit" failonerror="true">
       <arg value="test.edu.internet2.middleware.grouper.TestGroupLists" />
+      <classpath refid="project.class.path" />
+    </java>
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestAccessPrivs" />
       <classpath refid="project.class.path" />
     </java>
     <!-- Yes, yes.  Ugly, ugly hacks.  I know.  -->
