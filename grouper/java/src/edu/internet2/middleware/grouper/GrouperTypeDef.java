@@ -19,7 +19,7 @@ import  java.io.Serializable;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.5 2004-08-24 17:37:58 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.6 2004-09-10 01:48:08 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -42,11 +42,29 @@ public class GrouperTypeDef implements Serializable {
     return this.getGroupType()  + ":" + this.getGroupField();
   }
 
+  /**
+   * Returns {@link GroupType}.
+   *
+   * @return  Returns integer representing {@link GroupType}.
+   */
+  public int groupType() {
+    return this.getGroupType();
+  }
+
+  /**
+   * Returns {@link GroupField}.
+   *
+   * @return  Returns name of {@link GroupField}.
+   */
+  public String groupField() {
+    return this.getGroupField();
+  }
+
   /*
    * Below for Hibernate
    */
 
-  protected int getGroupType() {
+  private int getGroupType() {
     return this.groupType;
   }
 
@@ -54,7 +72,7 @@ public class GrouperTypeDef implements Serializable {
     this.groupType = groupType;
   }
 
-  protected String getGroupField() {
+  private String getGroupField() {
     return this.groupField;
   }
 
