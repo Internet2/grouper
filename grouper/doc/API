@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.22 2004-11-11 18:50:02 blair Exp $
+# $Id: API,v 1.23 2004-11-11 19:07:04 blair Exp $
 #
 # TODO Interfaces
 #
@@ -15,7 +15,8 @@ Grouper
     boolean groupType(String type)
     List groupTypeDefs()
     List groupTypes()
-    boolean subjectType(String)
+    boolean hasSubjectType(String)
+    GrouperSubjectType subjectType(String)
     List subjectTypes()
 
 
