@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.28 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.29 2005-03-24 20:45:49 blair Exp $
  */
 public interface GrouperNaming {
 
@@ -75,66 +75,66 @@ public interface GrouperNaming {
   public boolean can(String priv);
 
   /**
-   * Grant an naming privilege on a <i>naming</i> {@link GrouperGroup}.
+   * Grant an naming privilege on a <i>naming</i> {@link GrouperStem}.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   ns    Grant privileges on this {@link GrouperStem}.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public boolean grant(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean grant(GrouperSession s, GrouperStem ns, GrouperMember m, String priv);
 
   /**
-   * List naming privileges for current subject on the specified naming group.
+   * List naming privileges for current subject on the specified naming namespace.
    * <p />
    * See implementations for more information.
    *
    * @param   s   Act within this {@link GrouperSession}.
-   * @param   g   List privileges on this group.
+   * @param   ns  List privileges on this namespace.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g);
+  public List has(GrouperSession s, GrouperStem ns);
 
   /**
-   * List groups where the current subject has the specified privilege.
+   * List namespaces where the current subject has the specified privilege.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link GrouperStem} namespaces.
    */
   public List has(GrouperSession s, String priv);
 
   /**
-   * List naming privileges for specified member on the specified naming group.
+   * List naming privileges for specified member on the specified naming namespace.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   ns    Return privileges for this {@link GrouperStem}.
    * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g, GrouperMember m);
+  public List has(GrouperSession s, GrouperStem ns, GrouperMember m);
 
   /**
    * Verify whether current subject has the specified privilege on the
-   * specified group.
+   * specified namespace.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Verify privilege for this group.
+   * @param   ns    Verify privilege for this namespace.
    * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the group.
+   * @return  True if subject has this privilege on the namespace.
    */
-  public boolean has(GrouperSession s, GrouperGroup g, String priv);
+  public boolean has(GrouperSession s, GrouperStem ns, String priv);
 
   /**
-   * List groups where the specified member has the specified
+   * List namespaces where the specified member has the specified
    * privilege.
    * <p />
    * See implementations for more information.
@@ -142,35 +142,35 @@ public interface GrouperNaming {
    * @param   s     Act within this {@link GrouperSession}.
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link GrouperStem} namespaces.
    */
   public List has(GrouperSession s, GrouperMember m, String priv);
 
   /**
    * Verify whether the specified member has the specified privilege
-   * on the specified naming group.
+   * on the specified naming namespace.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Verify privilege for this group.
+   * @param   ns    Verify privilege for this namespace.
    * @param   m     Verify privilege for this member.
    * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the group.
+   * @return  True if subject has this privilege on the namespace.
    */
-  public boolean has(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean has(GrouperSession s, GrouperStem ns, GrouperMember m, String priv);
 
   /**
    * Revoke all privileges of the specified type on the specified
-   * group.
+   * namespace.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   ns    Revoke privilege on this {@link GrouperStem}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperGroup g, String priv);
+  public boolean revoke(GrouperSession s, GrouperStem ns, String priv);
 
   /**
    * Revoke an naming privilege.
@@ -178,24 +178,24 @@ public interface GrouperNaming {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   ns    Revoke privilege on this {@link GrouperStem}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean revoke(GrouperSession s, GrouperStem ns, GrouperMember m, String priv);
 
   /**
    * List members who have the specified privilege on the 
-   * specified group.
+   * specified namespace.
    * <p />
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   ns    Query for this {@link GrouperStem}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperMember} members.
    */
-  public List whoHas(GrouperSession s, GrouperGroup g, String priv);
+  public List whoHas(GrouperSession s, GrouperStem ns, String priv);
 
 }
 

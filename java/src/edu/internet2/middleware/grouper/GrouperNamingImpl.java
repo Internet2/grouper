@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.56 2005-03-22 21:26:58 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.57 2005-03-24 20:45:49 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -108,16 +108,16 @@ public class GrouperNamingImpl implements GrouperNaming {
   }
 
   /**
-   * Grant an naming privilege on a naming {@link GrouperGroup}.
+   * Grant an naming privilege on a naming {@link GrouperStem}.
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Grant privileges on this {@link GrouperGroup}.
+   * @param   g     Grant privileges on this {@link GrouperStem}.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
   public boolean grant(
-                       GrouperSession s, GrouperGroup g, 
+                       GrouperSession s, GrouperStem g, 
                        GrouperMember m, String priv
                       ) 
   {
@@ -130,11 +130,15 @@ public class GrouperNamingImpl implements GrouperNaming {
        */
       if (this.has(s, g, Grouper.PRIV_STEM)) {
         s.dbSess().txStart();
-        if (g.listAddVal(m, (String) privMap.get(priv))) {
-          rv = true;
+        try {
+          g.listAddVal(m, (String) privMap.get(priv));
           s.dbSess().txCommit();
-        } else {
+          rv = true;
+        } catch (RuntimeException e) {
           s.dbSess().txRollback();
+          throw new RuntimeException(
+                      "Error granting privilege: " + e
+                    );
         }
       }
     } 
@@ -151,7 +155,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   g   List privileges on this group.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g) {
+  public List has(GrouperSession s, GrouperStem g) {
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
     GrouperMember m     = GrouperMember.load(s, s.subject());
@@ -171,7 +175,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    *
    * @param   s     Act within this {@link GrouperSession}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link GrouperStem} groups.
    */
   public List has(GrouperSession s, String priv) {
     GrouperNamingImpl._init();
@@ -189,11 +193,11 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Return privileges for this {@link GrouperGroup}.
+   * @param   g     Return privileges for this {@link GrouperStem}.
    * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperGroup g, GrouperMember m) {
+  public List has(GrouperSession s, GrouperStem g, GrouperMember m) {
     GrouperNamingImpl._init();
     List      privs = new ArrayList();
     Iterator  iter  = privMap.keySet().iterator();
@@ -216,7 +220,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperSession s, GrouperGroup g, String priv) {
+  public boolean has(GrouperSession s, GrouperStem g, String priv) {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
@@ -243,7 +247,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   s     Act within this {@link GrouperSession}.
    * @param   m     Query for this {@link GrouperMember}.
    * @param   priv  Query for this privilege type.
-   * @return  List of {@link GrouperGroup} groups.
+   * @return  List of {@link GrouperStem} groups.
    */
   public List has(GrouperSession s, GrouperMember m, String priv) {
     GrouperNamingImpl._init();
@@ -266,7 +270,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(
-                     GrouperSession s, GrouperGroup g, 
+                     GrouperSession s, GrouperStem g, 
                      GrouperMember m, String priv
                     )
   {
@@ -289,10 +293,10 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   g     Revoke privilege on this {@link GrouperStem}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperGroup g, String priv) {
+  public boolean revoke(GrouperSession s, GrouperStem g, String priv) {
     GrouperNamingImpl._init();
     boolean rv = false;
     Iterator iter = this.whoHas(s, g, priv).iterator();
@@ -312,12 +316,12 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperGroup}.
+   * @param   g     Revoke privilege on this {@link GrouperStem}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(
-                        GrouperSession s, GrouperGroup g, 
+                        GrouperSession s, GrouperStem g, 
                         GrouperMember m, String priv
                        ) 
   {
@@ -349,11 +353,11 @@ public class GrouperNamingImpl implements GrouperNaming {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   g     Query for this {@link GrouperStem}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperMember} members.
    */
-  public List whoHas(GrouperSession s, GrouperGroup g, String priv) {
+  public List whoHas(GrouperSession s, GrouperStem g, String priv) {
     GrouperNamingImpl._init();
     List members = new ArrayList();
 
