@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.4 2005-02-16 17:19:29 acohen Exp $
-  $Date: 2005-02-16 17:19:29 $
+  $Id: conditions.jsp,v 1.5 2005-02-17 18:54:11 acohen Exp $
+  $Date: 2005-02-17 18:54:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -184,7 +184,7 @@
 <%
     for (int i = 0; i < currentLimits.length; i++)
     {
-      request.setAttribute("limit", currentLimits[i]);
+      request.setAttribute("limitAttr", currentLimits[i]);
 %>
               
               <fieldset>
@@ -198,7 +198,7 @@
                   <tiles:insert
                      page='<%="/tiles/" + currentLimits[i].getRenderer()%>'
                      flush="true">
-                    <tiles:put name="limit" beanName="limit" />
+                    <tiles:put name="limit" beanName="limitAttr" />
                   </tiles:insert>
                 </blockquote>
               </fieldset>
