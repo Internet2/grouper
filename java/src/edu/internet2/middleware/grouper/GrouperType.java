@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ package edu.internet2.middleware.grouper;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.16 2004-12-09 03:26:13 blair Exp $
+ * @version $Id: GrouperType.java,v 1.17 2005-02-07 21:07:02 blair Exp $
  */
 public class GrouperType {
 

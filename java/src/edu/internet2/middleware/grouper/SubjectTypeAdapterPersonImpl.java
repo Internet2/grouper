@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import  edu.internet2.middleware.subject.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.15 2004-12-09 03:49:59 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.16 2005-02-07 21:07:02 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter

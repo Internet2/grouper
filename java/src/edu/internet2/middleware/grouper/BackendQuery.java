@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2004 University Corporation for Advanced Internet Development, Inc.
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: BackendQuery.java,v 1.3 2005-01-31 00:57:18 blair Exp $
+ * @version $Id: BackendQuery.java,v 1.4 2005-02-07 21:07:01 blair Exp $
  */
 public class BackendQuery {
 

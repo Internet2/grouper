@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 The University Of Chicago
+ * Copyright (C) 2004-2005 The University Of Chicago
  * All Rights Reserved. 
  *
  * You may use and distribute under the same terms as Grouper itself
@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.20 2005-01-23 19:36:40 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.21 2005-02-07 21:07:01 blair Exp $ 
  */
 class csv2group {
 
