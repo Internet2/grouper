@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.97 2004-12-03 17:39:29 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.98 2004-12-03 17:46:37 blair Exp $
  */
 public class GrouperBackend {
 
@@ -399,9 +399,9 @@ public class GrouperBackend {
       session.load(g, key);
   
       // Its schema
-      if ( GrouperBackend._groupLoadSchema(session, g) == true ) {
+      if ( GrouperBackend._groupHasSchema(session, g) == true ) {
         // And its attributes
-        GrouperBackend._groupLoadAttributes(session, g, key);
+        GrouperBackend._groupAttachAttrs(session, g, key);
 
         // FIXME Attach s to object?
 
@@ -1248,6 +1248,42 @@ public class GrouperBackend {
                                     );
   }
 
+  /* (!javadoc)
+   * Attach attributes to a group.
+   * FIXME Won't calling g.attribute(...) eventually cause the group's
+   *       modify attrs to be updated every time this group is laoded?
+   */
+  private static void _groupAttachAttrs(Session session, GrouperGroup g, String key) {
+    // TODO Do I even need `key' passed in?
+    Iterator iter = GrouperBackend.attributes(g).iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
+      g.attribute( attr.field(), attr.value() );
+    }
+  }
+
+  /*
+   * TODO Of what value is this method?  If it would either:
+   *      - Take a group type and validate whether this group is of
+   *        that type
+   *      - Or attached the type to the group object
+   *
+   *      *Then* this method might have some value.  Right now I'm
+   *      dubious.
+   */
+  private static boolean _groupHasSchema(Session session, GrouperGroup g) {
+    boolean rv    = false;
+    List    vals  = GrouperBackend._queryKV(
+                      session, "GrouperSchema", "groupKey", g.key()
+                    );
+    // We only want one
+    // TODO Attach this to the group object.
+    if (vals.size() == 1) {
+      rv = true;
+    }
+    return rv;
+  }
+
   // FIXME Refactor.  Mercilesssly.
   private static GrouperGroup _groupLookup(
                                 GrouperSession s, Session session, String stem, 
@@ -1284,15 +1320,6 @@ public class GrouperBackend {
     return GrouperBackend.groupLookupByKey(key);
   }
 
-  private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
-    // TODO Do I even need `key' passed in?
-    Iterator iter = GrouperBackend.attributes(g).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      g.attribute( attr.field(), attr.value() );
-    }
-  }
-
   /* (!javadoc)
    * Load a group by name.
    */
@@ -1320,20 +1347,6 @@ public class GrouperBackend {
       }
     }
     return g;
-  }
-
-  // TODO This is becoming really misnamed
-  private static boolean _groupLoadSchema(Session session, GrouperGroup g) {
-    boolean rv    = false;
-    List    vals  = GrouperBackend._queryKV(
-                      session, "GrouperSchema", "groupKey", g.key()
-                    );
-    // We only want one
-    // TODO Attach this to the group object.
-    if (vals.size() == 1) {
-      rv = true;
-    }
-    return rv;
   }
 
   private static void _hibernateSessionClose(Session session) {
