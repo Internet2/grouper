@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.110 2004-12-03 20:58:22 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.111 2004-12-03 21:28:38 blair Exp $
  */
 public class GrouperGroup {
 
@@ -216,6 +216,8 @@ public class GrouperGroup {
 
   /**
    * Set a group attribute.
+   * <p />
+   * If <i>value</i> is <i>null</i>, the attribute will be deleted.
    * 
    * @param   attribute Attribute to set.
    * @param   value     Value of attribute.
@@ -230,7 +232,13 @@ public class GrouperGroup {
       GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
       if        (value == null) {
         // Delete an existing attribute
-        // FIXME Implement...  this._attrDel(attribute); ???
+        if (GrouperBackend.attrDel(this.key, attribute)) {
+          this.attributes.remove(attribute);
+          rv = true;
+        }
+        if (rv != true) {
+          // FIXME Revert
+        }
       } else if (cur == null) {
         // Add a new attribute value
         // FIXME Update modify* opattrs
@@ -576,18 +584,6 @@ public class GrouperGroup {
     } else {
       Grouper.LOGGER.warn("Unable to add attribute " +
                           attribute + "=" + value);
-    }
-  }
-
-  /*
-   * Delete an attribute
-   */
-  private void _attrDel(String attribute) {
-    GrouperAttribute attr = null;
-    if (attr != null) {
-      attributes.remove(attribute);
-    } else {
-      Grouper.LOGGER.warn("Unable to remove attribute " + attribute);
     }
   }
 
