@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.87 2004-12-02 15:23:44 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.88 2004-12-02 16:09:02 blair Exp $
  */
 public class GrouperBackend {
 
@@ -233,12 +233,24 @@ public class GrouperBackend {
       boolean       granted = false;
       if (m != null) { // FIXME Bah
         GrouperBackend.LOGGER_GB.debug("Converted to member " + m);
-        if (Grouper.access().grant(s, g, m, "ADMIN") == true) {
-          GrouperBackend.LOGGER_GB.debug("Granted ADMIN to " + m);
-          t.commit(); // XXX Is this commit necessary?
-          granted = true;
+        // `naming' groups get `STEM', not `ADMIN'
+        if (g.type().equals("naming")) {
+          if (Grouper.naming().grant(s, g, m, "STEM") == true) {
+            GrouperBackend.LOGGER_GB.debug("Granted STEM to " + m);
+            t.commit(); // XXX Is this commit necessary?
+            granted = true;
+          } else {
+            GrouperBackend.LOGGER_GB.debug("Unable to grant STEM to " + m);
+          }
         } else {
-          GrouperBackend.LOGGER_GB.debug("Unable to grant ADMIN to " + m);
+          // For all other group types default to `ADMIN'
+          if (Grouper.access().grant(s, g, m, "ADMIN") == true) {
+            GrouperBackend.LOGGER_GB.debug("Granted ADMIN to " + m);
+            t.commit(); // XXX Is this commit necessary?
+            granted = true;
+          } else {
+            GrouperBackend.LOGGER_GB.debug("Unable to grant ADMIN to " + m);
+          }
         }
       } else {
         GrouperBackend.LOGGER_GB.debug("Unable to convert to member");
