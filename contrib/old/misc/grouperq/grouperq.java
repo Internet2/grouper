@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.8 2004-12-08 01:27:47 blair Exp $
+ * @version $Id: grouperq.java,v 1.9 2004-12-08 03:17:59 blair Exp $
  */
 class grouperq {
 
@@ -35,10 +35,12 @@ class grouperq {
  
   private static CommandLine    cmd;
   private static String         field;
+  private static GrouperGroup   grpQueryOn;
   private static GrouperMember  mem;
   private static GrouperMember  memQueryOn;
   private static GrouperSession s;
   private static Options        options;
+  private static String         queryGroupName;
   private static String         querySubjectID;
   private static Subject        subj;  
   private static String         subjectID;
@@ -51,8 +53,7 @@ class grouperq {
   public static void main(String[] args) {
     _opts(args);      // Parse and handle command line options
     _grouperStart();  // Initialize Grouper and start session
-    List vals = _grouperQuery();  // Perform a naive query
-    _report(vals);    // Now spew the results
+    _grouperQuery();  // Perform a naive query and output results
     _grouperStop();   // And we're done.  Tidy up.
     System.exit(0);
   }
@@ -68,20 +69,27 @@ class grouperq {
    * <p />
    * @return  List of query results.
    */
-  private static List _grouperQuery() {
-    List vals = new ArrayList();
+  private static void _grouperQuery() {
+    if ( (queryGroupName != null) && (querySubjectID != null) ) {
+      System.err.println("ERROR: Cannot use both -g and -m!");
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(NAME, options);
+      System.exit(64);
+    }
     if (field == null) {
       _verbose("Using default group field (" + Grouper.DEF_LIST_TYPE + ")");
       field = Grouper.DEF_LIST_TYPE;
     }
     _verbose("Looking up field '" + field + "'");
+    _queryOnGroup();
     _queryOnMember();
-    if (memQueryOn != null) {
-      vals = memQueryOn.listVals(s, field);
+    if        (grpQueryOn != null) {
+      _reportMembers( grpQueryOn.listVals(s, field) );
+    } else if (memQueryOn != null) {
+      _reportGroups( memQueryOn.listVals(s, field) );
     } else {
-      System.err.println("ERROR: Unable to determine member to query on");
+      System.err.println("ERROR: Unable to determine what to query on");
     }
-    return vals;
   } 
 
   /* (!javadoc)
@@ -137,8 +145,20 @@ class grouperq {
                      );
     options.addOption("h", false, "Print usage information");
     options.addOption(
+                      OptionBuilder.withArgName("group")
+                        .withDescription(
+                          "Specify group to query on [Cannot be " +
+                          "used with '-m']"
+                         )
+                        .hasArg()
+                        .create("g")
+                     );
+    options.addOption(
                       OptionBuilder.withArgName("member")
-                        .withDescription("Specify member to query on")
+                        .withDescription(
+                           "Specify member to query on [Cannot be " +
+                           "used with '-g']"
+                         )
                         .hasArg()
                         .create("m")
                      );
@@ -183,6 +203,10 @@ class grouperq {
       field = cmd.getOptionValue("f");
       _verbose("Using field '" + field + "'");
     }
+    if (cmd.hasOption("g")) {
+      queryGroupName = cmd.getOptionValue("g");
+      _verbose("Got group '" + queryGroupName + "'");
+    }
     if (cmd.hasOption("m")) {
       querySubjectID = cmd.getOptionValue("m");
       _verbose("Got member '" + querySubjectID + "'");
@@ -190,6 +214,15 @@ class grouperq {
     if (cmd.hasOption("S")) {
       subjectID = cmd.getOptionValue("S");
       _verbose("Got subject '" + subjectID + "'");
+    }
+  }
+
+  /* (!javadoc)
+   * Determine what, if any, group to query on
+   */
+  private static void _queryOnGroup() {
+    if (queryGroupName != null) {
+      grpQueryOn = GrouperGroup.loadByName(s, queryGroupName);
     }
   }
 
@@ -209,22 +242,12 @@ class grouperq {
   }
 
   /* (!javadoc)
-   *
-   * Present the query results.
-   * <p />
-   * @param   vals  List of values to report on.
-   */
-  private static void _report(List vals) {
-    _verbose("Results returned by query: " + vals.size());
-    _reportGroups(vals);
-  }
-
-  /* (!javadoc)
    * Report on groups within search results
    */
   private static void _reportGroups(List vals) {
-    GrouperMember m = memQueryOn; // Too damn much typing otherwise
-    if (vals.size() > 0) {
+    _verbose("Results returned by query: " + vals.size());
+    if ( (memQueryOn != null) && (vals.size() > 0) ) {
+      GrouperMember m = memQueryOn; // Too damn much typing otherwise
       System.out.println("subjectID: " + m.subjectID());
       System.out.println("subjectTypeID: " + m.typeID());
       System.out.println("memberID: " + m.memberID());
@@ -241,6 +264,47 @@ class grouperq {
           System.out.println(
             "effectiveMemberOf: " + g.name() + " (" + g.type() + ") " +
             "via " + v.name() + " (" + v.type() + ")"
+          );
+        }
+      }
+      System.out.println();
+    }
+  }
+
+  /* (!javadoc)
+   * Report on members within search results
+   */
+  private static void _reportMembers(List vals) {
+    _verbose("Results returned by query: " + vals.size());
+    if ( (grpQueryOn != null) && (vals.size() > 0) ) {
+      GrouperGroup g = grpQueryOn; // Too damn much typing otherwise
+      System.out.println("name: " + g.name());
+      System.out.println("type: " + g.type());
+      System.out.println("stem: " + g.attribute(s, "stem").value());
+      System.out.println("extn: " + g.attribute(s, "extension").value());
+      System.out.println("groupID: " + g.id());
+      Iterator iter = vals.iterator();
+      while (iter.hasNext()) {
+        GrouperList gl  = (GrouperList) iter.next();
+        GrouperGroup v  = gl.via();
+        GrouperMember m = gl.member();
+        String mem      = null;
+        if (m.typeID().equals("group")) {
+          GrouperGroup gAsM = GrouperGroup.loadByID(s, m.subjectID() );
+          if (gAsM != null) {
+            mem = gAsM.name() + " (" + gAsM.type() + ")";
+          } 
+        }
+        // If not set, take the safe approach
+        if (mem == null) {
+          mem = m.subjectID() + " (" + m.typeID() + ")";
+        }
+        if (v == null) {
+          System.out.println("immediateMember: " + mem);
+        } else {
+          System.out.println(
+            "effectiveMember: " + mem + " via " + v.name() + 
+            " (" + v.type() + ")"
           );
         }
       }

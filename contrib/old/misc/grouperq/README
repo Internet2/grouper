@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.3 2004-12-08 01:27:47 blair Exp $
+$Id: README,v 1.4 2004-12-08 03:17:59 blair Exp $
 
 ---
 
@@ -31,7 +31,6 @@ These are less bugs and more incomplete features:
 * Add csv output?
 * Add XML output?
 * Add ability to query for _all_ types of list values
-* Query on group
 * Query on group type
 * Query on namespace
 * Query on priv
@@ -39,5 +38,6 @@ These are less bugs and more incomplete features:
 * Query on immediate memberships
 * Query on create time
 * Query on modify time
+
 
 
