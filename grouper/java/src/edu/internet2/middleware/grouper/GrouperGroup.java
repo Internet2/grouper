@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.116 2004-12-04 05:30:11 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.117 2004-12-04 18:06:37 blair Exp $
  */
 public class GrouperGroup {
 
@@ -239,49 +239,90 @@ public class GrouperGroup {
         );
       } else {
         // TODO Validate?
+        /*
+         * TODO There is *far* too much code duplication in this
+         *      method.  It will need to be refactored and cleaned up.
+         */
         GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
+        // In case we need to revert
+        String curModTime     = this.getModifyTime();
+        String curModSubj     = this.getModifySubject();
         if        (value == null) {
           // Delete an existing attribute
-          if (GrouperBackend.attrDel(this.key, attribute)) {
+          this.setModifyTime(    GrouperGroup._now()       );
+          this.setModifySubject( this.gs.subject().getId() );
+          if (
+              (GrouperBackend.attrDel(this.key, attribute)) &&
+              (GrouperBackend.groupUpdate(this.gs, this))
+             )
+          {
             this.attributes.remove(attribute);
-          rv = true;
+            rv = true;
           }
           if (rv != true) {
-            // FIXME Revert
+            // Revert attribute change
+            if (!this._attrAdd(attribute, cur)) {
+              Grouper.LOGGER.warn("Unable to revert failed attribute delete!");
+              System.exit(1);
+            }
+            // Revert modify* attr changes 
+            this.setModifyTime(curModTime);
+            this.setModifySubject(curModSubj);
           }
         } else if (cur == null) {
           // Add a new attribute value
-          // FIXME Update modify* opattrs
-          GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
-          if (
-              (attr != null)                   &&
-              (this._attrAdd(attribute, attr)) //&&
-              //(GrouperBackend.groupUpdate(this.gs, this))   
-             )
-          {
-            /* 
-             * We do not need to revert changes in this situation as
-             * there should not be an old value to revert to...
-             */
-            rv = true;
-          } 
+          GrouperAttribute attr = GrouperBackend.attrAdd(
+                                    this.key, attribute, value
+                                  );
+          if (initialized == true) {
+            this.setModifyTime(    GrouperGroup._now()       );
+            this.setModifySubject( this.gs.subject().getId() );
+            if (
+                (attr != null)                              &&
+                (this._attrAdd(attribute, attr))            &&
+                (GrouperBackend.groupUpdate(this.gs, this))   
+               )
+            {
+              rv = true;
+            }  else {
+              // We only need to revert modify* attr changes as there is
+              // no attribute value to revert back to in this case.
+              this.setModifyTime(curModTime);
+              this.setModifySubject(curModSubj);
+              rv = false;
+            }
+          } else {
+            if (
+                (attr != null)                   &&
+                (this._attrAdd(attribute, attr))
+               )
+            {
+              rv = true;
+            }
+          }
         } else {
           // Update attribute value
-          GrouperAttribute attr = GrouperBackend.attrAdd(this.key, attribute, value);
+          GrouperAttribute attr = GrouperBackend.attrAdd(
+                                    this.key, attribute, value
+                                  );
+          this.setModifyTime(    GrouperGroup._now()       );
+          this.setModifySubject( this.gs.subject().getId() );
           if (
-              (attr != null)                   &&
-              (this._attrAdd(attribute, attr)) //&&
-              //(GrouperBackend.groupUpdate(this.gs, this))   
+              (attr != null)                              &&
+              (this._attrAdd(attribute, attr))            &&
+              (GrouperBackend.groupUpdate(this.gs, this))   
              )
           {
             rv = true;
           } else {
-            // Revert changes
-            // FIXME Revert opattr changes
+            // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
               Grouper.LOGGER.warn("Unable to revert failed attribute update!");
               System.exit(1);
             }
+            // Revert modify* attr changes 
+            this.setModifyTime(curModTime);
+            this.setModifySubject(curModSubj);
             rv = false;
           }
         }
