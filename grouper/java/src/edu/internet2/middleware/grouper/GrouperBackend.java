@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.13 2004-10-29 13:25:30 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.14 2004-11-05 02:00:23 blair Exp $
  */
 public class GrouperBackend {
 
@@ -67,9 +67,11 @@ public class GrouperBackend {
 
       // And make the creator a member of the "admins" list
       GrouperMembership mship = new GrouperMembership(); 
-      // FIXME No, no, no.  
-      // BDC mship.set(m.groupKey, "admins", m.grprSession.subject().memberID(), true);
-      // BDC session.save(mship);
+      // FIXME Group Key is private.  Fuck!  How to manage?
+      //       But wait!  GUID!
+      // TODO Don't hardcode "admins"
+      mship.set(g.groupKey(), "admins", s.subject().id(), true);
+      session.save(mship);
 
       t.commit();
     } catch (Exception e) {
