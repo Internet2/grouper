@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.20 2004-11-10 17:07:27 blair Exp $
+# $Id: API,v 1.21 2004-11-10 17:21:54 blair Exp $
 #
 # TODO Interfaces
 #
@@ -69,11 +69,11 @@ GrouperGroup
     boolean exists()
     String key()
       XXX Should NOT be public
-    List list(GrouperSession s, String list)
-      XXX Is this a wise name?
-    boolean listAdd(GrouperSession s, GrouperMember member, String list)
-    boolean listRemove(GrouperSession s, GrouperMember member, String list)
+    List listVals(GrouperSession s, String list)
+    boolean listAddVal(GrouperSession s, GrouperMember member, String list)
+    boolean listDelVal(GrouperSession s, GrouperMember member, String list)
     String type()
+
 
 
 GrouperMember

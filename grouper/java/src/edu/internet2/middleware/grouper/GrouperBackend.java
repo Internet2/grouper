@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.21 2004-11-10 17:10:44 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.22 2004-11-10 17:21:54 blair Exp $
  */
 public class GrouperBackend {
 
@@ -210,7 +210,7 @@ public class GrouperBackend {
    * @param s     Return list data within this session context.
    * @param list  Return this list type.
    */
-  protected static List list(GrouperGroup g, GrouperSession s, String list) {
+  protected static List listVals(GrouperGroup g, GrouperSession s, String list) {
     GrouperBackend._init();
     List members = new ArrayList();
     // FIXME Better validation efforts, please.
@@ -253,7 +253,7 @@ public class GrouperBackend {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
-  protected static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+  protected static boolean listAddVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     GrouperBackend._init();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
@@ -299,7 +299,7 @@ public class GrouperBackend {
    * @param m     Remove this member.
    * @param list  Remove member from this list.
    */
-  protected static boolean listRemove(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+  protected static boolean listDelVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
     GrouperBackend._init();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
