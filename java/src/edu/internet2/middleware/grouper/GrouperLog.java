@@ -63,7 +63,7 @@ import  org.apache.log4j.*;
  * This class is only used internally.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.2 2004-12-08 02:03:47 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.3 2004-12-08 05:15:00 blair Exp $
  */
 public class GrouperLog {
 
@@ -221,7 +221,7 @@ public class GrouperLog {
                  )
   {
     String pre  = "'" + s.subject().getId() + "' ";
-    String post = "memberID='" + m.memberID() + "' subjectID='" +
+    String post = " memberID='" + m.memberID() + "' subjectID='" +
                   m.subjectID() + "' to '" + g.name() + "' (" +
                   Grouper.DEF_LIST_TYPE + ")";
     if (rv == true) {
