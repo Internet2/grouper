@@ -8,7 +8,7 @@ import  java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.12 2004-04-29 15:44:04 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.13 2004-04-29 16:21:02 blair Exp $
  */
 public class GrouperMember {
 
@@ -36,8 +36,7 @@ public class GrouperMember {
    *       the member memberID.</li>
    *  </ul>
    *  <li>Sets isGroup as appropriate</li>
-   *  <li>XXX Cache privs</li>
-   *  <li>XXX Cache memberships</li>
+   *  <li>XXX Cache memberships -- or not?</li>
    * </ul>
    */
   public GrouperMember(GrouperSession s, String member, boolean isGroup) {
