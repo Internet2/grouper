@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.53 2004-10-12 18:37:51 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.54 2004-11-06 03:45:06 blair Exp $
  */
 public class GrouperSession {
 
@@ -42,6 +42,11 @@ public class GrouperSession {
   public GrouperSession() {
     this._init();
   }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
 
   /**
    * Start a {@link Grouper} session.
@@ -69,12 +74,9 @@ public class GrouperSession {
    */
   public void stop() { 
     // FIXME What do we do here?
-    // this._init();
+    // Maybe? this._init();
+    // Wipe out entry from session table?
   }
-
-  /*
-   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
-   */
 
   /**
    * Return subject of current session as a {@link GrouperMember}
@@ -87,121 +89,9 @@ public class GrouperSession {
     return (GrouperMember) this.subject;
   }
 
-  /**
-   * Look up a subject via the {@link GrouperSubject} interface.
-   * <p>
-   * XXX What is meant by "id"?
-   *
-   * @param   id  The identity of the subject to look up.
-   * @return  A {@link GrouperMember} object.
-   */
-  public GrouperMember lookup(String id) {
-    return _lookup(subjectID);
-  }
-
-  /**
-   * Grant specified privilege on specified group to specified member.
-   * <p>
-   * Dispatches to the configured implementation of either the 
-   * {@link GrouperAccess} or {@link GrouperNaming} interfaces.
-   *
-   * @param   g     Grant privilege on this group.
-   * @param   m     Grant privilege to this member.
-   * @param   priv  Privilege to grant.
-   */
-  public void grantPriv(GrouperGroup g, GrouperMember m, String priv) {
-    // XXX DTRT depending upon whether it is an "access" or a "naming"
-    //     privilege
-    // XXX Should the naming priv require a group object?
-    // this.intAccess.grant(g, m, priv);
-    // this.intNaming.grant(g, m, priv);
-  }
-
-  /**
-   * Revoke specified privilege from specified member on specified
-   * group.
-   * <p>
-   * Dispatches to the configured implementation of either the
-   * {@link GrouperAccess} or {@link GrouperNaming} interfaces.
-   *
-   * @param   g     Revoke privilege on this group.
-   * @param   m     Revoke privilege for this member.
-   * @param   priv  Privilege to revoke.
-   */
-  public void revokePriv(GrouperGroup g, GrouperMember m, String priv) {
-    // XXX DTRT depending upon whether it is an "access" or a "naming"
-    //     privilege
-    // XXX Should the naming priv require a group object?
-    // this.intAccess.revoke(g, m, priv);
-    // this.intNaming.revoke(g, m, priv);
-  }
-
-  /**
-   * List privileges for current subject on the specified group.
-   *
-   * @param   g   List privileges on this group.
-   * @return  List of privileges.
-   */
-  public List hasPriv(GrouperGroup g) {
-    // XXX DTRT depending upon whether it is an "access" or a "naming"
-    //     privilege
-    // return this.intAccess.has(g);
-    // return this.intNaming.has(g);
-    List privs = new ArrayList();
-    return privs;
-  }
-
-  /**
-   * List privileges for specified member on the specified group.
-   *
-   * @param   g   List privileges on this group.
-   * @param   m   List privileges for this member.
-   * @return  List of privileges.
-   */
-  public List hasPriv(GrouperGroup g, GrouperMember m) {
-    // XXX DTRT depending upon whether it is an "access" or a "naming"
-    //     privilege
-    // return this.intAccess.has(g, m);
-    // return this.intNaming.has(g, m);
-    List privs = new ArrayList();
-    return privs;
-  }
-
-  /**
-   * Verify whether current subject has the specified privilege on the
-   * specified group.
-   *
-   * @param   g     Verify privilege for this group.
-   * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the group.
-   */
-  public boolean hasPriv(GrouperGroup g, String priv) {
-    // XXX DTRT depending upon whether it is an "access" or a "naming"
-    //     privilege
-    // return this.intAccess.has(g, priv);
-    // return this.intNaming.has(g, priv);
-    return false;
-  }
-
-  /**
-   * Verify whether the specified subject has the specified privilege
-   * on the specified group.
-   *
-   * @param   g     Verify privilege for this group.
-   * @param   m     Verify privilege for this member.
-   * @param   priv  Verify this privilege.
-   * @return  True if subject has this privilege on the group.
-   */
-  public boolean hasPriv(GrouperGroup g, GrouperMember m, String priv) {
-    // XXX DTRT depending upon whether it is an "access" or a "naming"
-    //     privilege
-    // return this.intAccess.has(g, m, priv);
-    // return this.intNaming.has(g, m, priv);
-    return false;
-  }
 
   /*
-   * PUBLIC METHODS ABOVE, PRIVATE METHODS BELOW.
+   * PRIVATE INSTANCE METHODS
    */
 
   /*
@@ -217,12 +107,10 @@ public class GrouperSession {
   }
 
   /*
-   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
-   */
-
-  /*
    * Instantiate internal references to the  access, naming, and
    * subject interfaces.
+   *
+   * TODO Is this the right location for such code?
    */ 
   private void _createInterfaces() {
     // Create internal references to the various interfaces
@@ -232,6 +120,8 @@ public class GrouperSession {
 
   /*
    * Instantiate an object -- reflectively
+   *
+   * TODO Is this the right location for such code?
    */
   private Object _createObject(String name) {
     Object    object      = null;
@@ -250,29 +140,6 @@ public class GrouperSession {
     return object;
   }
      
-  /*
-   * Look up a subject via subject interface.
-   * <p>
-   * TODO Add a `type' parameter?
-   *
-   * @param id  The identify of the subject to look up.
-   * @return  A {@link GrouperMember} object.
-   */
-  private GrouperMember _lookup(String id) {
-    GrouperMember m = null;
-
-    // TODO Don't hardcode type
-    m = GrouperSubject.lookup(id, "person");
-    if (m == null) {
-      // XXX This should instead throw some sort of an exception.
-      //     Or something.
-      System.exit(1);
-    }
-    this.subjectID = id;
-
-    return m;
-  }
-
   /*
    * Register a new session with the groups registry.
    */
@@ -297,8 +164,9 @@ public class GrouperSession {
     GrouperBackend.addSession(this);
   }
 
+
   /*
-   * Below for Hibernate
+   * HIBERNATE
    */
   
   private String getSessionID() {
