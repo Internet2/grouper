@@ -24,32 +24,32 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.37 2004-09-10 18:23:08 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.38 2004-09-19 03:10:41 blair Exp $
  */
 public class GrouperGroup {
 
   // Operational attributes and information
-  private static String groupKey;
-  private static int    groupType;
+  private String groupKey;
+  private String groupType;
   // TODO Stuff into a map?
-  private static String createTime;
-  private static String createSubject;
-  private static String createSource;
-  private static String modifyTime;
-  private static String modifySubject;
-  private static String modifySource;
-  private static String comment;
+  private String createTime;
+  private String createSubject;
+  private String createSource;
+  private String modifyTime;
+  private String modifySubject;
+  private String modifySource;
+  private String comment;
 
   // Grouper attributes (fields)
-  private static Map  attributes;
+  private Map  attributes;
 
   // Grouper Session
-  private static GrouperSession grprSession;
+  private GrouperSession grprSession;
   // Hibernate Session
-  private static Session        session;
+  private Session        session;
 
   // Does the group exist?
-  private static boolean  exists;
+  private boolean  exists;
 
   /**
    * Create a new object representing a single {@link Grouper} group.
@@ -64,7 +64,7 @@ public class GrouperGroup {
     createSource  = null;
     exists        = false;
     groupKey      = null;
-    groupType     = 1;    // TODO Don't hardcode this
+    groupType     = null; // TODO Don't hardcode this
     grprSession   = null;
     modifyTime    = null;
     modifySubject = null;
@@ -336,7 +336,7 @@ public class GrouperGroup {
    */
   private boolean _validateAttribute(String attribute) {
     boolean rv = false;
-    if (this.groupType > 0) { // FIXME I can do better than this.
+    if (this.groupType != null) { // FIXME I can do better than this.
       // We have a group type.  Now what?
       if (grprSession.groupField(this.groupType, attribute) == true) {
         // Our attribute passes muster.
