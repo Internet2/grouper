@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.126 2004-12-07 02:04:58 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.127 2004-12-07 03:56:41 blair Exp $
  */
 public class GrouperBackend {
 
@@ -85,15 +85,6 @@ public class GrouperBackend {
    */
   private static Configuration   cfg;     // Hibernate configuration
   private static SessionFactory  factory; // Hibernate session factory
-
-
-  /*
-   * CONSTRUCTORS
-   */
-  protected GrouperBackend() {
-    // Provided only for the benefit of finding the Grouper.hbm.xml
-    // files.  And yes, there *has* to be a better way.
-  }
 
 
   /*
@@ -1584,8 +1575,10 @@ public class GrouperBackend {
    */
   private static Session _init() {
     if (cfg == null) {
-      GrouperBackend  tmp = new GrouperBackend();
-      InputStream     in  = tmp.getClass().getResourceAsStream("Grouper.hbm.xml");
+      // TODO Hateful
+      GrouperSession tmp = new GrouperSession();
+      InputStream    in  = tmp.getClass()
+                              .getResourceAsStream("/Grouper.hbm.xml");
       try {
         // conf.load(in);
         cfg = new Configuration()
