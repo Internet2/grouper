@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.6 2004-11-04 20:57:55 blair Exp $ -->
+<!-- $Id: build.xml,v 1.7 2004-11-10 16:34:05 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -89,6 +89,18 @@
     <!-- Yes, yes.  Ugly, ugly hacks.  I know.  -->
     <move file="${build}/grouper.script"      tofile="${build}/grouper.script.last"/>
     <copy file="${build}/grouper.script.orig" tofile="${build}/grouper.script"/>
+  </target>
+
+  <target name="db" description="Launch HSQLDB UI">
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="org.hsqldb.jdbcDriver"/>
+      <arg value="-url"/>
+      <arg value="jdbc:hsqldb:${build}/grouper"/>
+      <arg value="-user"/>
+      <arg value="sa"/>
+    </java>
   </target>
 
   <target name="db-init" 
