@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.74 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.75 2004-11-30 17:02:24 blair Exp $
  */
 public class GrouperBackend {
 
@@ -444,9 +444,12 @@ public class GrouperBackend {
                                          session, via.group(),
                                          mem, list, memberOfBase
                                         );
-            } // TOD else...
+            } // TODO else...
           }
         }
+
+        // Update modify information
+        session.update(g);
 
         // Commit it
         t.commit();
@@ -545,6 +548,9 @@ public class GrouperBackend {
             } // TODO else...
           }
         }
+
+        // Update modify information
+        session.update(g);
 
         // Commit it
         t.commit();
