@@ -7,15 +7,18 @@ import  java.util.*;
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.24 2004-08-06 18:21:35 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.25 2004-08-11 20:14:19 blair Exp $
  */
 public class GrouperGroup {
 
   private String groupKey;
-  // XXX Expect this to change.
-  private String compoundExpr;
-  // XXX Expect this to change.
-  private String flattenedExpr;
+  private String createTime;
+  private String createSubject;
+  private String createSource;
+  private String modifyTime;
+  private String modifySubject;
+  private String modifySource;
+  private String comment;
 
   private GrouperSession  intSess   = null;
   private String          groupID   = null;
@@ -24,8 +27,13 @@ public class GrouperGroup {
 
   public GrouperGroup() {
     groupKey      = null;
-    compoundExpr  = null;
-    flattenedExpr = null;
+    createTime    = null;
+    createSubject = null;
+    createSource  = null;
+    modifyTime    = null;
+    modifySubject = null;
+    modifySource  = null;
+    comment       = null;
   }
 
   /**
@@ -43,9 +51,6 @@ public class GrouperGroup {
    * @param   groupName Name of group.
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
-    groupKey      = null;
-    compoundExpr  = null;
-    flattenedExpr = null;
 
     // Internal reference to the session we are using.
     this.intSess    = s;
@@ -409,21 +414,61 @@ public class GrouperGroup {
     this.groupKey = groupKey;
   }
 
-  private String getCompoundExpr() {
-    return this.compoundExpr;
+  private String getCreateTime() {
+    return this.createTime;
   }
  
-  private void setCompoundExpr(String compoundExpr) {
-    this.compoundExpr = compoundExpr;
+  private void setCreateTime(String createTime) {
+    this.createTime = createTime;
   }
  
-  private String getFlattenedExpr() {
-    return this.flattenedExpr;
+  private String getCreateSubject() {
+    return this.createSubject;
   }
  
-  private void setFlattenedExpr(String flattenedExpr) {
-    this.flattenedExpr = flattenedExpr;
+  private void setCreateSubject(String createSubject) {
+    this.createSubject = createSubject;
   }
  
+  private String getCreateSource() {
+    return this.createSource;
+  }
+ 
+  private void setCreateSource(String createSource) {
+    this.createSource = createSource;
+  }
+ 
+  private String getModifyTime() {
+    return this.modifyTime;
+  }
+ 
+  private void setModifyTime(String modifyTime) {
+    this.modifyTime = modifyTime;
+  }
+ 
+  private String getModifySubject() {
+    return this.modifySubject;
+  }
+ 
+  private void setModifySubject(String modifySubject) {
+    this.modifySubject = modifySubject;
+  }
+ 
+  private String getModifySource() {
+    return this.modifySource;
+  }
+ 
+  private void setModifySource(String modifySource) {
+    this.modifySource = modifySource;
+  }
+
+  private String getComment() {
+    return this.comment;
+  }
+
+  private void setComment(String comment) {
+    this.comment = comment;
+  } 
+
 }
 
