@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.47 2005-02-06 04:18:52 blair Exp $
+$Id: API,v 1.48 2005-02-08 04:13:36 blair Exp $
 
 ---
 
@@ -15,7 +15,7 @@ $Id: API,v 1.47 2005-02-06 04:18:52 blair Exp $
 #### Instance Methods
 
 * boolean             can(privilege)
-* boolean             grant(session, group, member)
+* boolean             grant(session, group, member, privilege)
 * List                has(session, group)
 * List                has(session, group, member)
 * boolean             has(session, group, member, privilege)
@@ -31,7 +31,7 @@ $Id: API,v 1.47 2005-02-06 04:18:52 blair Exp $
 #### Instance Methods
 
 * boolean             can(privilege)
-* boolean             grant(session, group, member)
+* boolean             grant(session, group, member, privilege)
 * List                has(session, group)
 * List                has(session, group, member)
 * boolean             has(session, group, member, privilege)
@@ -73,7 +73,7 @@ $Id: API,v 1.47 2005-02-06 04:18:52 blair Exp $
 #### Instance Methods
 
 * boolean             can(privilege)
-* boolean             grant(session, group, member)
+* boolean             grant(session, group, member, privilege)
 * List                has(session, group)
 * List                has(session, group, member)
 * boolean             has(session, group, member, privilege)
@@ -165,7 +165,7 @@ $Id: API,v 1.47 2005-02-06 04:18:52 blair Exp $
 #### Instance Methods
 
 * boolean             can(privilege)
-* boolean             grant(session, group, member)
+* boolean             grant(session, group, member, privilege)
 * List                has(session, group)
 * List                has(session, group, member)
 * boolean             has(session, group, member, privilege)
