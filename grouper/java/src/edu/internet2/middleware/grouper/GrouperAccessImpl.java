@@ -7,7 +7,7 @@ import  java.util.List;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.5 2004-04-30 15:15:55 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.6 2004-04-30 15:22:20 blair Exp $
  */
 public class InternalGrouperAccess implements GrouperAccess {
   /**
@@ -19,7 +19,7 @@ public class InternalGrouperAccess implements GrouperAccess {
   }
 
   /**
-   * Grant privilege on a {@link Grouper} group.
+   * Grant an access privilege on a {@link Grouper} group.
    * <p>
    * <ul>
    *  <li>XXX Confirm that subjectID has appropriate privilege to
@@ -33,7 +33,7 @@ public class InternalGrouperAccess implements GrouperAccess {
   }
 
   /**
-   * Revoke privilege on a {@link Grouper} group.
+   * Revoke an access privilege on a {@link Grouper} group.
    * <p>
    * <ul>
    *  <li>XXX Confirm that subjectID has appropriate privilege to
@@ -47,7 +47,7 @@ public class InternalGrouperAccess implements GrouperAccess {
   }
 
   /**
-   * Return all privileges that the current session's subject has on 
+   * Return all access privileges that the current session's subject has on 
    * a {@link GrouperGroup}.
    * <p>
    * <ul>
@@ -60,7 +60,7 @@ public class InternalGrouperAccess implements GrouperAccess {
   }
 
   /**
-   * Return all privileges for a {@link GrouperMember} on a 
+   * Return all access privileges for a {@link GrouperMember} on a 
    * {@link GrouperGroup}.
    * <p>
    * <ul>
@@ -75,7 +75,7 @@ public class InternalGrouperAccess implements GrouperAccess {
 
   /**
    * Verify whether the current session's subject has a specified 
-   * privilege on a {@link GrouperGroup}.
+   * access privilege on a {@link GrouperGroup}.
    * <p>
    * <ul>
    *  <li>XXX Confirm that subjectID has appropriate privilege to 
@@ -90,7 +90,7 @@ public class InternalGrouperAccess implements GrouperAccess {
 
   /**
    * Verify whether a {@link GrouperMember} has a specified privilege
-   * on a {@link GrouperGroup}.
+   * access on a {@link GrouperGroup}.
    * <p>
    * <ul>
    *  <li>XXX Confirm that subjectID has appropriate privilege to 
