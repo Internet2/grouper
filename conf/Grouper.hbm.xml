@@ -52,7 +52,7 @@
   <class name="GrouperGroup" table="grouper_group" mutable="true">
     <id name="groupKey" type="string">
       <column name="groupKey" sql-type="char(255)" not-null="true"/>
-      <generator class="assigned"/>
+      <generator class="uuid.hex"/>
     </id>
     <property name="createTime">
       <column name="createTime" length="255"/>
