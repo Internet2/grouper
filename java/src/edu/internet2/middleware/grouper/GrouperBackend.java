@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.83 2004-12-02 02:33:49 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.84 2004-12-02 03:02:00 blair Exp $
  */
 public class GrouperBackend {
 
@@ -456,8 +456,8 @@ public class GrouperBackend {
 
         // Grab immediate list data to update
         List imms = GrouperBackend._listVals(
-                                             session, memberOfBase,
-                                             null, list, "immediate"
+                                             session, memberOfBase, null,
+                                             list, Grouper.MEM_IMM
                                             );
 
         // Update effective list data
@@ -603,7 +603,10 @@ public class GrouperBackend {
     if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession"))
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, null, null, list, null);
+      vals = GrouperBackend._listVals(
+                                      session, null, null, 
+                                      list, Grouper.MEM_ALL
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -631,7 +634,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, g, null, list, null);
+      vals = GrouperBackend._listVals(
+                                      session, g, null, 
+                                      list, Grouper.MEM_ALL
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -658,7 +664,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, null, m, list, null);
+      vals = GrouperBackend._listVals(
+                                      session, null, m, 
+                                      list, Grouper.MEM_ALL
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -680,7 +689,10 @@ public class GrouperBackend {
     if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession"))
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, null, null, list, "effective");
+      vals = GrouperBackend._listVals(
+                                      session, null, null, 
+                                      list, Grouper.MEM_EFF
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -708,7 +720,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, g, null, list, "effective");
+      vals = GrouperBackend._listVals(
+                                      session, g, null, 
+                                      list, Grouper.MEM_EFF
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -735,7 +750,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, null, m, list, "effective");
+      vals = GrouperBackend._listVals(
+                                      session, null, m, 
+                                      list, Grouper.MEM_EFF
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -757,7 +775,10 @@ public class GrouperBackend {
     if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession")) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, null, null, list, "immediate");
+      vals = GrouperBackend._listVals(
+                                      session, null, null, 
+                                      list, Grouper.MEM_IMM
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -784,7 +805,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, g, null, list, "immediate");
+      vals = GrouperBackend._listVals(
+                                      session, g, null, 
+                                      list, Grouper.MEM_IMM
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -811,7 +835,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      vals = GrouperBackend._listVals(session, null, m, list, "immediate");
+      vals = GrouperBackend._listVals(
+                                      session, null, m, 
+                                      list, Grouper.MEM_IMM
+                                     );
     }
     GrouperBackend._hibernateSessionClose(session);
     return vals;
@@ -1427,10 +1454,10 @@ public class GrouperBackend {
       mkey_param = GrouperBackend.VAL_NOTNULL;
     }
     String via_param  = null;
-    if (via != null)  {
-      if        (via.equals("effective")) {
+    if (!via.equals(Grouper.MEM_ALL)) {
+      if        (via.equals(Grouper.MEM_EFF)) {
         via_param = GrouperBackend.VAL_NOTNULL;
-      } else if (via.equals("immediate")) {
+      } else if (via.equals(Grouper.MEM_IMM)) {
         via_param = GrouperBackend.VAL_NULL;
       } else {
         System.err.println("Invalid via requirement: " + via);
