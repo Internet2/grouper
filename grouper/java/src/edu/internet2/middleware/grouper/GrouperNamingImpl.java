@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.34 2004-12-06 02:10:28 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.35 2004-12-06 23:43:48 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -134,6 +134,19 @@ public class GrouperNamingImpl implements GrouperNaming {
         }
       }
     } 
+    // TODO Make this cleaner|easier?
+    GrouperAttribute name = g.attribute("name");
+    if (rv == true) {
+      Grouper.LOG.info(
+        s.subject().getId() + " granted " + priv + " to " +
+        m.memberID() + " on " + name.value()
+      );
+    } else {
+      Grouper.LOG.info(
+        s.subject().getId() + " failed to grant " + priv + " to " +
+        m.memberID() + " on " + name.value()
+      );
+    }
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
@@ -335,6 +348,19 @@ public class GrouperNamingImpl implements GrouperNaming {
         }
       }
     } 
+    // TODO Make this cleaner|easier?
+    GrouperAttribute name = g.attribute("name");
+    if (rv == true) {
+      Grouper.LOG.info(
+        s.subject().getId() + " revoked " + priv + " from " +
+        m.memberID() + " on " + name.value()
+      );
+    } else {
+      Grouper.LOG.info(
+        s.subject().getId() + " failed to revoke " + priv + " from " +
+        m.memberID() + " on " + name.value()
+      );
+    }
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }

@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.40 2004-12-06 20:15:13 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.41 2004-12-06 23:43:48 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -134,6 +134,19 @@ public class GrouperAccessImpl implements GrouperAccess {
         }
       }
     } 
+    // TODO Make this cleaner|easier?
+    GrouperAttribute name = g.attribute("name");
+    if (rv == true) {
+      Grouper.LOG.info(
+        s.subject().getId() + " granted " + priv + " to " +
+        m.memberID() + " on " + name.value()
+      );
+    } else {
+      Grouper.LOG.info(
+        s.subject().getId() + " failed to grant " + priv + " to " +
+        m.memberID() + " on " + name.value()
+      );
+    }
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
@@ -334,6 +347,19 @@ public class GrouperAccessImpl implements GrouperAccess {
         }
       }
     } 
+    // TODO Make this cleaner|easier?
+    GrouperAttribute name = g.attribute("name");
+    if (rv == true) {
+      Grouper.LOG.info(
+        s.subject().getId() + " revoked " + priv + " from " +
+        m.memberID() + " on " + name.value()
+      );
+    } else {
+      Grouper.LOG.info(
+        s.subject().getId() + " failed to revoke " + priv + " from " +
+        m.memberID() + " on " + name.value()
+      );
+    }
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }

@@ -61,7 +61,7 @@ import  edu.internet2.middleware.subject.*;
  * TODO This is a nightmare.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.67 2004-12-06 20:15:13 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.68 2004-12-06 23:43:48 blair Exp $
  */
 public class GrouperSession {
 
@@ -119,9 +119,9 @@ public class GrouperSession {
       gs = new GrouperSession(s);
       // Register a new session
       if (gs._registerSession()) {
-        Grouper.LOG.info("Started session for " + s);
+        Grouper.LOG.info("Started session for " + gs.subjectID);
       }  else {
-        Grouper.LOG.info("Failed to start session for " + s);
+        Grouper.LOG.info("Failed to start session for " + gs.subjectID);
       }
     }
     return gs;
@@ -144,9 +144,9 @@ public class GrouperSession {
     if (this.sessionID != null) {
       if (GrouperBackend.sessionDel(this)) {
         rv = true;
+        Grouper.LOG.info("Stopped session for " + this.subjectID);
       }
     }
-    Grouper.LOG.info("Stopped session for " + this.subject);
     return rv;
   }
 
