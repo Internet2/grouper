@@ -7,7 +7,7 @@ import java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.5 2004-04-14 03:05:42 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.6 2004-04-20 21:36:31 blair Exp $
  */
 public class GrouperMember {
 
@@ -39,27 +39,53 @@ public class GrouperMember {
     // Nothing -- Yet
   }
 
-  public List immediateMemberships(int groupFieldID) {
-    return null;
-  }
-
+  /**
+   * Return immediate memberships for "member".
+   * <p>
+   * <ul>
+   *  <li>Query the <i>grouper_membership</i> table for rows matching
+   *      the appropriate "memberID", "groupFieldID", and
+   *      "isImmediate".</li>
+   *  <li>XXX What authZ considerations are here?</li>
+   * </ul>
+   * 
+   * @param  groupField  Type of group field to return.
+   * @return List of {@link GrouperGroup} objects representing
+   * immediate memberships.
+   */
   public List immediateMemberships(String groupFieldID) {
     return null;
   }
 
-  public List effectiveMemberships(int groupFieldID) {
-    return null;
-  }
-
+  /**
+   * Return effective memberships for "member".
+   * <p>
+   * <ul>
+   *  <li>Query the <i>grouper_membership</i> table for rows matching
+   *      the appropriate "memberID", "groupFieldID", and
+   *      "isImmediate".</li>
+   *  <li>XXX What authZ considerations are here?</li>
+   * </ul>
+   * 
+   * @param  groupField  Type of group field to return.
+   * @return List of {@link GrouperGroup} objects representing
+   * effective memberships
+   */
   public List effectiveMemberships(String groupFieldID) {
     return null;
   }
 
+  /**
+   * Returns true if member object is a group.
+   * <p>
+   * <ul>
+   *  <li>XXX Determine what exactly is being set internally</li>
+   * </ul>
+   *
+   * @return True if @{lilnk Grouper} member is a {@link Grouper}
+   * group, false otherwise.
+   */
   public boolean isGroup() {
-    /* 
-      Returns true if the GrouperMember object is a group. 
-      - XXX How does it know if it is a group or not?
-    */
     return false;
   }
 
