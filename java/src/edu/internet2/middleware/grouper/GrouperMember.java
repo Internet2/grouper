@@ -8,7 +8,7 @@ import  java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.11 2004-04-29 05:23:36 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.12 2004-04-29 15:44:04 blair Exp $
  */
 public class GrouperMember {
 
@@ -106,7 +106,7 @@ public class GrouperMember {
    * @return  String representing the <i>memberID</i> for this 
    *   {@link GrouperMember} object.
    */
-  public String whoami() {
+  public String whoAmI() {
     return this.subject;
   }
 
