@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.10 2004-04-30 15:41:19 blair Exp $
+-- $Id: mysql.sql,v 1.11 2004-05-01 17:06:16 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -140,23 +140,27 @@ INSERT INTO grouper_types (groupType)
 
 -- Insert the fields of the base group
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("description", "READ",   "ADMIN",  'FALSE');
+  VALUES ("name",         "READ",   "ADMIN",  'FALSE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("members",     "READ",   "UPDATE", 'TRUE');
+  VALUES ("description",  "READ",   "ADMIN",  'FALSE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("viewers",     "UPDATE", "UPDATE", 'TRUE');
+  VALUES ("members",      "READ",   "UPDATE", 'TRUE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("readers",     "UPDATE", "UPDATE", 'TRUE');
+  VALUES ("viewers",      "UPDATE", "UPDATE", 'TRUE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("updaters",    "UPDATE", "UPDATE", 'TRUE');
+  VALUES ("readers",      "UPDATE", "UPDATE", 'TRUE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("admins",      "ADMIN",  "ADMIN",  'TRUE');
+  VALUES ("updaters",     "UPDATE", "UPDATE", 'TRUE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("optins",      "READ",   "UPDATE", 'TRUE');
+  VALUES ("admins",       "ADMIN",  "ADMIN",  'TRUE');
 INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
-  VALUES ("optouts",     "READ",   "UPDATE", 'TRUE');
+  VALUES ("optins",       "READ",   "UPDATE", 'TRUE');
+INSERT INTO grouper_fields (groupField, readPriv, writePriv, isList)
+  VALUES ("optouts",      "READ",   "UPDATE", 'TRUE');
 
 -- Assign the fields to the base group
+INSERT INTO grouper_typedefs (groupType, groupField)
+  VALUES ("base", "name");
 INSERT INTO grouper_typedefs (groupType, groupField)
   VALUES ("base", "description");
 INSERT INTO grouper_typedefs (groupType, groupField)
@@ -176,5 +180,7 @@ INSERT INTO grouper_typedefs (groupType, groupField)
 
 -- Insert some test members
 INSERT INTO grouper_members (memberID, presentationID)
-  VALUES ("blair", "blair christensen.");
+  VALUES ("2f8996715", "blair");
+INSERT INTO grouper_members (memberID, presentationID)
+  VALUES ("a8cca1b06", "tbarton");
 
