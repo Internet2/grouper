@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.94 2004-11-30 19:25:10 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.95 2004-11-30 20:26:42 blair Exp $
  */
 public class GrouperGroup {
 
@@ -214,14 +214,15 @@ public class GrouperGroup {
       // TODO Validate?
       // TODO Why do I create an object first?
       // TODO The attribute is not properly Hibernated
-      GrouperAttribute attr = new GrouperAttribute(
-                                this.key, attribute, value
-                              );
-      if (attr != null) {
-        attributes.put(attribute, attr);
+      GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
+      if        (value == null) {
+        System.err.println("DELETE " + attribute);
+        // FIXME this._attrDel(attribute);
+      } else if (cur == null)   {
+        this._attrAdd(attribute, value);  
       } else {
-        Grouper.LOGGER.warn("Unable to add attribute " +
-                            attribute + "=" + value);
+        System.err.println("UPDATE " + attribute);
+        // FIXME this._attrUpdate(attribute, value);
       }
     }
   }
@@ -503,6 +504,55 @@ public class GrouperGroup {
    */
 
   /*
+   * Add an attribute
+   */
+  private void _attrAdd(String attribute, String value) {
+    GrouperAttribute attr = new GrouperAttribute(
+                              this.key, attribute, value
+                            );
+    if (attr != null) {
+      attributes.put(attribute, attr);
+    } else {
+      Grouper.LOGGER.warn("Unable to add attribute " +
+                          attribute + "=" + value);
+    }
+  }
+
+  /*
+   * Delete an attribute
+   */
+  private void _attrDel(String attribute) {
+    GrouperAttribute attr = null;
+/*
+    GrouperAttribute attr = new GrouperAttribute(
+                              this.key, attribute, value
+                            );
+*/
+    if (attr != null) {
+      System.err.println("DELETE " + attribute);
+      attributes.remove(attribute);
+    } else {
+      Grouper.LOGGER.warn("Unable to remove attribute " + attribute);
+    }
+  }
+
+  /*
+   * Update an attribute
+   */
+  private void _attrUpdate(String attribute, String value) {
+    GrouperAttribute attr = new GrouperAttribute(
+                              this.key, attribute, value
+                            );
+    if (attr != null) {
+      System.err.println("UPDATE " + attribute);
+      attributes.put(attribute, attr);
+    } else {
+      Grouper.LOGGER.warn("Unable to update attribute " +
+                          attribute + "=" + value);
+    }
+  }
+
+  /*
    * Initialize aspects of the group before creating it.
    *
    * @param   s           Session to create the group within.
@@ -512,9 +562,9 @@ public class GrouperGroup {
    * @return  A {@link GrouperGroup} object.
    */
   private static GrouperGroup _create(
-                                    GrouperSession s, String stem, 
-                                    String extension, String type
-                                   )
+                                      GrouperSession s, String stem, 
+                                      String extension, String type
+                                     )
   {
     // TODO Can I move all|most of this to GrouperBackend?
     GrouperGroup g = new GrouperGroup();
@@ -526,8 +576,8 @@ public class GrouperGroup {
     g.setGroupKey( GrouperBackend.uuid() );
     g.setGroupID(  GrouperBackend.uuid() );
 
-    g.attribute("stem", stem);
-    g.attribute("extension", extension);
+    g._attrAdd("stem", stem);
+    g._attrAdd("extension", extension);
     g.type = type;
 
     // Set some of the operational attributes
