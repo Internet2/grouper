@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.164 2005-03-07 19:30:41 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.165 2005-03-07 20:47:35 blair Exp $
  */
 public class GrouperGroup {
 
@@ -686,10 +686,10 @@ public class GrouperGroup {
         if (ns != null) {
           if (type.equals("naming")) {
             // If a naming group, does the subject have STEM on `stem'?
-            rv = Grouper.naming().has(s, ns, Grouper.PRIV_STEM);
+            rv = s.naming().has(s, ns, Grouper.PRIV_STEM);
           } else {
             // Otherwise, does the subject have `CREATE' on `stem'?
-            rv = Grouper.naming().has(s, ns, Grouper.PRIV_CREATE);
+            rv = s.naming().has(s, ns, Grouper.PRIV_CREATE);
           }
         }
       }
@@ -705,7 +705,7 @@ public class GrouperGroup {
     if (GrouperBackend.sessionValid(s)) {
       // FIXME Support for multiple list types
       if ( (s != null) && (g != null) ) {
-        if (Grouper.access().has(s, g, Grouper.PRIV_ADMIN)) {
+        if (s.access().has(s, g, Grouper.PRIV_ADMIN)) {
           rv = true;
         }
       }
@@ -721,7 +721,7 @@ public class GrouperGroup {
     boolean rv = false;
     if (GrouperBackend.sessionValid(g.s)) {
       if (g != null) {
-        if (Grouper.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
+        if (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
           rv = true;
         }
       }
@@ -739,8 +739,8 @@ public class GrouperGroup {
       // FIXME Support for multiple list types
       if ( (g != null) && (list != null) ) {
         if (
-            (Grouper.access().has(g.s, g, Grouper.PRIV_UPDATE)) ||
-            (Grouper.access().has(g.s, g, Grouper.PRIV_ADMIN))
+            (g.s.access().has(g.s, g, Grouper.PRIV_UPDATE)) ||
+            (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN))
            )
         {
           rv = true;

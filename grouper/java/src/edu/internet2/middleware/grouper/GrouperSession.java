@@ -55,6 +55,7 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
+import  java.lang.reflect.*;
 
 
 /** 
@@ -62,7 +63,7 @@ import  java.io.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.78 2005-03-07 19:30:41 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.79 2005-03-07 20:47:35 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -70,11 +71,15 @@ public class GrouperSession implements Serializable {
    * PRIVATE INSTANCE VARIABLES
    */
   // Member & Subject that this session is running under
-  private transient GrouperMember m; 
-  private transient Subject       subject;
+  private transient GrouperMember   m; 
+  private transient Subject         subject;
 
   // Object containing the Hibernate session for this session
-  private transient Session       dbSess;
+  private transient Session         dbSess;
+
+  // Access and Naming privilege interfaces
+  private transient GrouperAccess   access; 
+  private transient GrouperNaming   naming; 
 
   /* 
    * The id of the session's subject.  Despite the fact that I can get
@@ -145,6 +150,24 @@ public class GrouperSession implements Serializable {
    */
 
   /**
+   * Retrieve a {@link GrouperAccess} access privilege resolver.
+   * <p />
+   * @return  {@link GrouperAccess} object.
+   */
+  public GrouperAccess access() {
+    return access;
+  }
+
+  /**
+   * Retrieve a {@link GrouperNaming} naming privilege resolver.
+   * <p />
+   * @return  {@link GrouperNaming} object.
+   */
+  public GrouperNaming naming() {
+    return naming;
+  }
+
+  /**
    * Stop the {@link Grouper} session.
    * <p />
    * @return  True if session stopped.
@@ -198,8 +221,14 @@ public class GrouperSession implements Serializable {
    * Initialize instance variables
    */
   private void _init() {
+    this.access     = (GrouperAccess) _interfaceCreate(
+                        Grouper.config("interface.access")
+                      );
     this.dbSess     = null;
     this.memberID   = null;
+    this.naming     = (GrouperNaming) _interfaceCreate(
+                        Grouper.config("interface.naming")
+                      );
     this.sessionID  = null;
     this.startTime  = null;
     this.subject    = null;
@@ -236,6 +265,34 @@ public class GrouperSession implements Serializable {
     GrouperBackend.sessionAdd(this);
 
     return true;
+  }
+
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Instantiate an interface reflectively
+   */
+  private static Object _interfaceCreate(String name) {
+    try {
+      Class classType     = Class.forName(name);
+      Class[] paramsClass = new Class[] { };
+      try {
+        Constructor con = classType.getDeclaredConstructor(paramsClass);
+        Object[] params = new Object[] { };
+        try {
+          return con.newInstance(params);
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to instantiate class: " + name);
+        }
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException("Unable to find constructor for class: " + name);
+      }
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException("Unable to find class: " + name);
+    }
   }
 
 
