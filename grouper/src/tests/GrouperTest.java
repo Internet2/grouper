@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.22 2004-08-11 22:33:45 blair Exp $
+ * $Id: GrouperTest.java,v 1.23 2004-08-19 19:27:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -405,5 +405,59 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(memberType);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
+
+  /*
+   * Does Group exist?  No.
+   */
+  public void testGroupExistFalse() {
+    G = new Grouper();
+    G.initialize();
+    GrouperSession s = new GrouperSession();
+    s.start( G, G.config("member.system"), true );
+    GrouperGroup grp = new GrouperGroup();
+    // Attach a session
+    grp.session(s);
+
+    // Identify the group
+    grp.attribute("stem", "a stem");
+    grp.attribute("descriptor", "a descriptor");
+
+    // Confirm that group doesn't exist
+    Assert.assertFalse( grp.exist() );
+
+    // We're done
+    s.end();
+    G.destroy();
+  }
+
+  /*
+   * Create a group
+   */
+  public void testCreateGroup() {
+    G = new Grouper();
+    G.initialize();
+    GrouperSession s = new GrouperSession();
+    s.start( G, G.config("member.system"), true );
+    GrouperGroup grp = new GrouperGroup();
+    // Attach a session
+    grp.session(s);
+
+    // Identify the group
+    grp.attribute("stem", "a stem");
+    grp.attribute("descriptor", "a descriptor");
+    // Describe the group
+    grp.attribute("description", "a group");
+
+    // Create it
+    grp.create();
+
+    // Confirm that the group exists
+    Assert.assertTrue( grp.exist() );
+    
+    // We're done
+    s.end();
+    G.destroy();
+  }
+
 }
 
