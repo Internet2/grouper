@@ -7,11 +7,11 @@ define(`_TYPE_STRING_VAR',dnl
 ifdef(`ORACLE', `VARCHAR2($1)', `VARCHAR($1)')dnl
 )dnl
 define(`_TYPE_TIME',        `_TYPE_STRING_VAR(16)')dnl
-define(`_TYPE_UUID',        `_TYPE_STRING_VAR(16)')dnl
+define(`_TYPE_UUID',        `_TYPE_STRING_VAR(64)')dnl
 
 -- 
 -- Grouper Database Schema
--- $Id: schema.m4,v 1.2 2005-02-16 20:23:08 blair Exp $
+-- $Id: schema.m4,v 1.3 2005-02-16 23:24:24 blair Exp $
 -- 
 
 _DROP_TABLE(`grouper_attribute')
