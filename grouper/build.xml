@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.16 2004-11-20 01:53:18 blair Exp $ -->
+<!-- $Id: build.xml,v 1.17 2004-11-20 04:01:06 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -12,6 +12,8 @@
   <property name="javadoc.source"   value="${src}"/>
   <property name="javadoc.dest"     value="${dist}/api"/>
   <property name="javadoc.packages" value="edu.internet2.middleware.grouper.*"/>
+  <property name="jdbc.driver"      value="org.hsqldb.jdbcDriver"/>
+  <property name="jdbc.url"         value="jdbc:hsqldb:${dist}/run/grouper"/>
 
   <target name="init">
     <tstamp />
@@ -115,17 +117,18 @@
       <classpath refid="project.class.path" />
     </java>
     <!-- Yes, yes.  Ugly, ugly hacks.  I know.  -->
-    <move file="${build}/grouper.script"      tofile="${build}/grouper.script.last"/>
-    <copy file="${build}/grouper.script.orig" tofile="${build}/grouper.script"/>
+    <move file="${dist}/run/grouper.script"      tofile="${dist}/run/grouper.script.last"/>
+    <copy file="${dist}/run/grouper.script.orig" tofile="${dist}/run/grouper.script"/>
   </target>
 
   <target name="db" description="Launch HSQLDB UI">
+    <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
       <classpath refid="project.class.path"/>
       <arg value="-driver"/>
-      <arg value="org.hsqldb.jdbcDriver"/>
+      <arg value="${jdbc.driver}"/>
       <arg value="-url"/>
-      <arg value="jdbc:hsqldb:${build}/grouper"/>
+      <arg value="${jdbc.url}"/>
       <arg value="-user"/>
       <arg value="sa"/>
     </java>
@@ -133,12 +136,13 @@
 
   <target name="db-init" 
     description="Initialize HSQDBL database">
+    <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
       <classpath refid="project.class.path"/>
       <arg value="-driver"/>
-      <arg value="org.hsqldb.jdbcDriver"/>
+      <arg value="${jdbc.driver}"/>
       <arg value="-url"/>
-      <arg value="jdbc:hsqldb:${build}/grouper"/>
+      <arg value="${jdbc.url}"/>
       <arg value="-user"/>
       <arg value="sa"/>
       <arg value="-script"/>
@@ -148,19 +152,20 @@
 
   <target name="db-init-test" 
     description="Populate HSQLDB database with some test data">
+    <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
       <classpath refid="project.class.path"/>
       <arg value="-driver"/>
-      <arg value="org.hsqldb.jdbcDriver"/>
+      <arg value="${jdbc.driver}"/>
       <arg value="-url"/>
-      <arg value="jdbc:hsqldb:${build}/grouper"/>
+      <arg value="${jdbc.url}"/>
       <arg value="-user"/>
       <arg value="sa"/>
       <arg value="-script"/>
       <arg value="sql/base.sql"/>
     </java>
     <!-- I want a pristine copy to utilize later.  Yes, this is a kludge. -->
-    <copy file="${build}/grouper.script" tofile="${build}/grouper.script.orig"/>
+    <copy file="${dist}/run/grouper.script" tofile="${dist}/run/grouper.script.orig"/>
   </target>
 
 </project>
