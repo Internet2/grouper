@@ -117,6 +117,9 @@ public class TestAll extends TestCase {
     // TODO TestNamingPrivsRevoke
     // TODO Flesh out
     suite.addTestSuite(TestAccessPrivs.class);
+    suite.addTestSuite(TestAccessGrantMoF0.class);
+    suite.addTestSuite(TestAccessGrantMoF1.class);
+    suite.addTestSuite(TestAccessGrantMoF2.class);
     // TODO TestAccessPrivsGrant
     // TODO TestAccessPrivsRevoke
     // TODO Flesh out
