@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.63 2004-11-23 22:16:43 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.64 2004-11-25 01:55:29 blair Exp $
  */
 public class GrouperBackend {
 
@@ -89,9 +89,9 @@ public class GrouperBackend {
     List    attributes = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_attribute " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-        "WHERE groupKey='" + g.key() + "'"
+        "FROM GrouperAttribute AS ga"   +
+        " WHERE "                       +
+        "ga.groupKey='" + g.key() + "'"
       );
       attributes = q.list();
     } catch (Exception e) {
@@ -208,10 +208,7 @@ public class GrouperBackend {
     Session session = GrouperBackend._init();
     List    fields  = new ArrayList();
     try {
-      Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_FIELD " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperField"
-      );
+      Query q = session.createQuery("FROM GrouperField");
       fields = q.list();
     } catch (Exception e) {
       System.err.println(e);
@@ -560,10 +557,7 @@ public class GrouperBackend {
     Session session   = GrouperBackend._init();
     List    typeDefs  = new ArrayList();
     try {
-      Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_GROUPTYPEDEFS " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperTypeDef"
-        );
+      Query q = session.createQuery("FROM GrouperTypeDef");
       typeDefs = q.list();
     } catch (Exception e) {
       System.err.println(e);
@@ -582,10 +576,7 @@ public class GrouperBackend {
     Session session = GrouperBackend._init();
     List    types   = new ArrayList();
     try {
-      Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_GROUPTYPES " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperType"
-        );
+      Query q = session.createQuery("FROM GrouperType");
       types = q.list();
     } catch (Exception e) {
       System.err.println(e);
@@ -605,12 +596,19 @@ public class GrouperBackend {
     GrouperMember m       = null;
     try {
       Query q = session.createQuery(
+        "FROM GrouperMember AS mem"           +
+        " WHERE "                             +
+        "mem.subjectID='"     + id      + "'" +
+        " AND "                               +
+        "mem.subjectTypeID='" + typeID  + "'"
+/*
         "SELECT ALL FROM GROUPER_MEMBER "     +
         "IN CLASS edu.internet2.middleware.grouper.GrouperMember " +
         "WHERE "                              +
         "subjectID='"     + id      + "' "    + 
         "AND "                                +
         "subjectTypeID='" + typeID  + "'"
+*/
       );
       if (q.list().size() == 1) {
         // We only want *one* member.
@@ -671,9 +669,9 @@ public class GrouperBackend {
     List    schemas = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_schema " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperSchema " +
-        "WHERE groupKey='" + g.key() + "'"
+        "FROM GrouperSchema AS gs"      +
+        " WHERE "                       +
+        "gs.groupKey='" + g.key() + "'" 
       );
       schemas = q.list();
     } catch (Exception e) {
@@ -702,10 +700,9 @@ public class GrouperBackend {
     Subject subj    = null;
     try {
       Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_GROUP "     +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
-        "WHERE "                              +
-        "groupKey='"      + id      + "' "
+        "FROM GrouperGroup AS grp"  +
+        " WHERE "                   +
+        "grp.groupKey='" + id + "'"
       );
       // We only want *one* subject.
       if (q.list().size() == 1) {
@@ -740,12 +737,11 @@ public class GrouperBackend {
     Subject subj    = null;
     try {
       Query q = session.createQuery(
-        "SELECT ALL FROM GROUPER_SUBJECT "     +
-        "IN CLASS edu.internet2.middleware.grouper.SubjectImpl " +
-        "WHERE "                              +
-        "subjectID='"     + id      + "' "    + 
-        "AND "                                +
-        "subjectTypeID='" + typeID  + "'"
+        "FROM SubjectImpl AS subj"              +
+        " WHERE "                               +
+        "subj.subjectID='"      + id      + "'" +
+        " AND "                                 +
+        "subj.subjectTypeID='"  + typeID  + "'"
       );
       if (q.list().size() == 1) {
         // We only want *one* subject.
@@ -769,10 +765,7 @@ public class GrouperBackend {
     Session session = GrouperBackend._init();
     List    types   = new ArrayList();
     try {
-      Query q = session.createQuery(
-        "SELECT ALL FROM grouper_subjectType " +
-        "IN CLASS edu.internet2.middleware.grouper.SubjectTypeImpl"
-        );
+      Query q = session.createQuery("FROM SubjectTypeImpl");
       types = q.list();
     } catch (Exception e) {
       System.err.println(e);
@@ -791,12 +784,11 @@ public class GrouperBackend {
     List    descriptors = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_attribute " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-        "WHERE " +
-        "groupField='descriptor' " + 
-        "AND " +
-        "groupFieldValue='" + descriptor + "'"
+        "FROM GrouperAttribute AS ga"             +
+        " WHERE "                                 +
+        "ga.groupField='descriptor'"              +
+        " AND "                                   +
+        "ga.groupFieldValue='" + descriptor + "'"        
       );
       descriptors = q.list();
     } catch (Exception e) {
@@ -883,10 +875,9 @@ public class GrouperBackend {
               // with matching keys.  We exist!
               try {
                 Query q = session.createQuery(
-                  "SELECT ALL FROM GROUPER_GROUP " +
-                  "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
-                  "WHERE "                          +
-                  "groupKey='" + possDesc.key()     + "'"
+                  "FROM GrouperGroup AS grp"              +
+                  " WHERE "                               +
+                  "grp.groupKey='" + possDesc.key() + "'"
                 );
                 if (q.list().size() == 1) {
                   // We may have a group to restore.  Now check to see
@@ -1385,12 +1376,11 @@ public class GrouperBackend {
     List    stems   = new ArrayList();
     try {
       Query q = session.createQuery(
-        "SELECT FROM grouper_attribute " +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-        "WHERE " +
-        "groupField='stem' " + 
-        "AND " +
-        "groupFieldValue='" + stem + "'"
+        "FROM GrouperAttribute AS ga"       +
+        " WHERE "                           +
+        "ga.groupField='stem'"              +
+        " AND "                             +
+        "ga.groupFieldValue='" + stem + "'"
       );
       stems = q.list();
     } catch (Exception e) {
