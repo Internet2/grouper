@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.9 2004-12-09 18:18:39 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.10 2004-12-09 18:29:18 blair Exp $
  */
 public class GrouperQuery {
 
@@ -70,7 +70,7 @@ public class GrouperQuery {
   private static final String KEY_CA = "createdAfter";
   private static final String KEY_CB = "createdBefore";
   private static final String KEY_GT = "groupType";
-  private static final String KEY_M  = "membership";
+  private static final String KEY_MT = "membershipType";
   private static final String KEY_MA = "modifiedAfter";
   private static final String KEY_MB = "modifiedBefore";
 
@@ -152,7 +152,7 @@ public class GrouperQuery {
   }
 
   /**
-   * Set membership query filter.
+   * Set membership type query filter.
    * <p />
    *
    * @param   type  Type of membership to query on.  Valid options are
@@ -160,8 +160,8 @@ public class GrouperQuery {
   *    <i>Grouper.MEM_IMM</i>.
    * @return  True if one or more matches found.
    */
-  public boolean membership(String type) throws GrouperException {
-    return this._queryMembership(type);
+  public boolean membershipType(String type) throws GrouperException {
+    return this._queryMembershipType(type);
   }
 
   /**
@@ -333,12 +333,12 @@ public class GrouperQuery {
   }
 
   /* (!javadoc)
-   * Perform membership query.
+   * Perform membership type query.
    */
-  private boolean _queryMembership(String type) throws GrouperException {
+  private boolean _queryMembershipType(String type) throws GrouperException {
     boolean rv    = false;
     List    vals  = new ArrayList();
-    this.candidates.remove(KEY_M);
+    this.candidates.remove(KEY_MT);
     if        (type.equals(Grouper.MEM_ALL)) {
       // Query for both effective + immediate memberships
       vals = GrouperBackend.listVals(this.gs, Grouper.DEF_LIST_TYPE);
@@ -354,7 +354,7 @@ public class GrouperQuery {
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
-    this.candidates.put(KEY_M, vals);
+    this.candidates.put(KEY_MT, vals);
     return rv; 
   }
 

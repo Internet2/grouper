@@ -145,7 +145,7 @@ public class TestQueries extends TestCase {
 
     // We want MEM_ALL
     try {
-      Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
+      Assert.assertTrue( q.membershipType(Grouper.MEM_ALL) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
@@ -158,14 +158,14 @@ public class TestQueries extends TestCase {
 
     // We want MEM_EFF
     try {
-      Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
+      Assert.assertFalse( q.membershipType(Grouper.MEM_EFF) );
     } catch (GrouperException e) {
       Assert.fail("Exception: MEM_EFF");
     }
 
     // We want MEM_IMM
     try {
-      Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
+      Assert.assertTrue( q.membershipType(Grouper.MEM_IMM) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
@@ -205,7 +205,7 @@ public class TestQueries extends TestCase {
       Assert.assertNotNull(obj);
       Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
       // Now with MEM_ALL
-      Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
+      Assert.assertTrue( q.membershipType(Grouper.MEM_ALL) );
       vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
@@ -219,7 +219,7 @@ public class TestQueries extends TestCase {
     // We want DEF_GROUP_TYPE + MEM_EFF
     try {
       // Clear membership query filter
-      q.clear("membership");
+      q.clear("membershipType");
       // First DEF_GROUP_TYPE
       Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
       List vals = q.query();
@@ -229,7 +229,7 @@ public class TestQueries extends TestCase {
       Assert.assertNotNull(obj);
       Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
       // Now with MEM_EFF
-      Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
+      Assert.assertFalse( q.membershipType(Grouper.MEM_EFF) );
       vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 0 );
@@ -240,7 +240,7 @@ public class TestQueries extends TestCase {
     // We want DEF_GROUP_TYPE + MEM_IMM
     try {
       // Clear membership query filter
-      q.clear("membership");
+      q.clear("membershipType");
       // First DEF_GROUP_TYPE
       Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
       List vals = q.query();
@@ -250,7 +250,7 @@ public class TestQueries extends TestCase {
       Assert.assertNotNull(obj);
       Assert.assertTrue( klassGL.equals( obj.getClass().getName() ) );
       // Now with MEM_IMM
-      Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
+      Assert.assertTrue( q.membershipType(Grouper.MEM_IMM) );
       vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
@@ -284,7 +284,7 @@ public class TestQueries extends TestCase {
       // First NS_TYPE
       Assert.assertFalse( q.groupType(Grouper.NS_TYPE) );
       // Now MEM_ALL
-      Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
+      Assert.assertTrue( q.membershipType(Grouper.MEM_ALL) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 0 );
@@ -299,7 +299,7 @@ public class TestQueries extends TestCase {
       // First NS_TYPE
       Assert.assertFalse( q.groupType(Grouper.NS_TYPE) );
       // Now MEM_EFF
-      Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
+      Assert.assertFalse( q.membershipType(Grouper.MEM_EFF) );
     } catch (GrouperException e) {
       Assert.fail("Exception: DEF_GROUP_TYPE,MEM_EFF");
     }
@@ -311,7 +311,7 @@ public class TestQueries extends TestCase {
       // First NS_TYPE
       Assert.assertFalse( q.groupType(Grouper.NS_TYPE) );
       // Now MEM_IMM
-      Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
+      Assert.assertTrue( q.membershipType(Grouper.MEM_IMM) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 0 );
