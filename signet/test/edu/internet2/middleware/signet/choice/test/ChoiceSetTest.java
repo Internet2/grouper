@@ -6,10 +6,16 @@
  */
 package edu.internet2.middleware.signet.choice.test;
 
+import java.util.Set;
+
 import junit.framework.TestCase;
 
+import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
 
 /**
  * @author acohen
@@ -58,25 +64,77 @@ public class ChoiceSetTest extends TestCase
   {
     super(name);
   }
-
+  
   public final void testGetId()
+  throws ObjectNotFoundException
   {
-    //TODO Implement getId().
+    for (int choiceSetIndex = 0;
+    		 choiceSetIndex < Constants.MAX_CHOICE_SETS;
+    		 choiceSetIndex++)
+    {
+      ChoiceSet choiceSet
+      	= fixtures
+      			.getSubsystem()
+      				.getChoiceSet
+      					(fixtures.makeChoiceSetId(choiceSetIndex));
+      
+      String id = choiceSet.getId();
+      assertEquals(id, fixtures.makeChoiceSetId(choiceSetIndex));
+    }
   }
 
   public final void testGetSubsystem()
+  throws ObjectNotFoundException
   {
-    //TODO Implement getSubsystem().
+    for (int choiceSetIndex = 0;
+		 		 choiceSetIndex < Constants.MAX_CHOICE_SETS;
+		 		 choiceSetIndex++)
+    {
+      ChoiceSet choiceSet
+      	= fixtures
+      			.getSubsystem()
+      				.getChoiceSet
+      					(fixtures.makeChoiceSetId(choiceSetIndex));
+ 
+      Subsystem subsystem = choiceSet.getSubsystem();
+      assertEquals(subsystem, fixtures.getSubsystem());
+    }
   }
 
   public final void testGetChoiceSetAdapter()
+  throws ObjectNotFoundException
   {
-    //TODO Implement getChoiceSetAdapter().
+    for (int choiceSetIndex = 0;
+		 		 choiceSetIndex < Constants.MAX_CHOICE_SETS;
+		 		 choiceSetIndex++)
+    {
+      ChoiceSet choiceSet
+      	= fixtures
+      			.getSubsystem()
+      				.getChoiceSet
+      					(fixtures.makeChoiceSetId(choiceSetIndex));
+
+      ChoiceSetAdapter adapter = choiceSet.getChoiceSetAdapter();
+      assertNotNull(adapter);
+    }
   }
 
   public final void testGetChoices()
+  throws ObjectNotFoundException
   {
-    //TODO Implement getChoices().
-  }
+    for (int choiceSetIndex = 0;
+		 		 choiceSetIndex < Constants.MAX_CHOICE_SETS;
+		 		 choiceSetIndex++)
+    {
+      ChoiceSet choiceSet
+      	= fixtures
+      			.getSubsystem()
+      				.getChoiceSet
+      					(fixtures.makeChoiceSetId(choiceSetIndex));
 
+      // choiceSet 0 has 0 choices, choiceSet 1 has 1, and so on.
+      Set choices = choiceSet.getChoices();
+      assertEquals(choiceSetIndex, choices.size());
+    }
+  }
 }
