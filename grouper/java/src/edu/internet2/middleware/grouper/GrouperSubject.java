@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
@@ -61,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.34 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.35 2005-03-29 17:41:24 blair Exp $
  */
 public class GrouperSubject {
 
@@ -82,7 +83,7 @@ public class GrouperSubject {
    * @return  A {@link GrouperSubject} object
    */
   public static Subject load(String id) {
-    return _load(id, Grouper.DEF_SUBJ_TYPE);
+    return GrouperSubject.load(id, Grouper.DEF_SUBJ_TYPE);
   }
 
   /**
@@ -93,15 +94,6 @@ public class GrouperSubject {
    * @return  A {@link GrouperSubject} object
    */
   public static Subject load(String id, String typeID) {
-    return _load(id, typeID);
-  }
-
-
-  /*
-   * PRIVATE CLASS METHODS
-   */
-
-  private static Subject _load(String id, String typeID) {
     Subject             subj  = null;
     SubjectType         st    = Grouper.subjectType(typeID);
     SubjectTypeAdapter  sta   = null;
@@ -120,7 +112,6 @@ public class GrouperSubject {
         try {
           subj = sta.getSubject(st, id);
         } catch (SubjectNotFoundException e) {
-          // TODO WRONG!
           throw new RuntimeException("No adapter for type " + typeID);
         }
       }
