@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.170 2005-03-15 16:13:25 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.171 2005-03-19 16:28:46 blair Exp $
  */
 public class GrouperGroup {
 
@@ -1159,9 +1159,11 @@ public class GrouperGroup {
         subj = GrouperSubject.load(mem.subjectID(), mem.typeID());
       }
     }
+/* TODO Arguably this is correct but right now it is not
     if (subj == null) {
       return new SubjectImpl();
     }
+*/
     return subj;
   }
 
