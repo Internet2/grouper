@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.57 2005-03-19 20:26:32 blair Exp $
+$Id: API,v 1.58 2005-03-21 03:12:39 blair Exp $
 
 ---
 
@@ -219,6 +219,10 @@ $Id: API,v 1.57 2005-03-19 20:26:32 blair Exp $
 * boolean             stop()
 * GrouperNaming       naming()
 * Subject             subject()
+
+
+### GrouperStem
+
 
 ### GrouperSubject
 

@@ -63,9 +63,9 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.174 2005-03-21 02:26:46 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.175 2005-03-21 03:12:39 blair Exp $
  */
-public class GrouperGroup {
+public class GrouperGroup extends Group {
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -153,35 +153,6 @@ public class GrouperGroup {
       Grouper.log().groupDel(rv, s, g);
     }
     return rv;
-  }
-
-  /**
-   * Format a {@link GrouperGroup} name.
-   * <p />
-   * @param   stem  Stem of the {@link GrouperGroup}.
-   * @param   extn  Extension of the {@link GrouperGroup}.
-   * @return  String representation of the group <i>stem</i>,
-   *   delimiter, and <i>extension</i>.
-   */
-  public static String groupName(String stem, String extn) {
-    String name;
-    if (stem.equals(Grouper.NS_ROOT)) {
-      name = extn;
-    } else {
-      // TODO String delim = Grouper.config("hierarchy.delimiter");
-      String delim = Grouper.HIER_DELIM;
-      if (extn.indexOf(delim) != -1) {
-        // FIXME Throw an exception?  And then test for failure?
-        //       Or settle for ye olde null
-        Grouper.log().event(
-          "Extension `" + extn + "' contains delimiter `" + delim + "'"
-        );
-        name = null;
-      } else {
-        name = stem + delim + extn;
-      }
-    }
-    return name;
   }
 
   /**

@@ -72,6 +72,7 @@ public class Constants {
   public static final String KLASS_GQ     = "edu.internet2.middleware.grouper.GrouperQuery";
   public static final String KLASS_GSC    = "edu.internet2.middleware.grouper.GrouperSchema";
   public static final String KLASS_GS     = "edu.internet2.middleware.grouper.GrouperSession";
+  public static final String KLASS_GST    = "edu.internet2.middleware.grouper.GrouperStem";
   public static final String KLASS_GSA    = "edu.internet2.middleware.grouper.GrouperSubjectAttribute";
   public static final String KLASS_GT     = "edu.internet2.middleware.grouper.GrouperType";
   public static final String KLASS_GTD    = "edu.internet2.middleware.grouper.GrouperTypeDef";
