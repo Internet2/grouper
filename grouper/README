@@ -7,7 +7,7 @@ This file is intended to give you a brief overview of how this
 directory tree is structured and how to get started with compiling,
 testing, and running Grouper.
 
-$Id: README,v 1.22 2004-12-05 16:13:38 blair Exp $
+$Id: README,v 1.23 2004-12-07 03:14:04 blair Exp $
 
 ---
 
@@ -40,6 +40,18 @@ warning messages to log4j, some of which may end up on the console.
 If the test suite fails, it may leave the HSQLDB database in an
 state different from what the test harness is expecting.  To remedy
 this, rerun the database initialization commands specified above.
+
+---
+
+## Using 
+
+This will build _Grouper.jar_ and _Grouper-lib.jar_ files in the
+_dist/lib_ directory.  
+
+  % ant dist
+
+To use Grouper, one's $CLASSPATH will need to include those two
+.jar files and Grouper configuration directory.
 
 ---
 
