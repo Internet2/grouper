@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.6 2004-06-02 22:02:49 blair Exp $
+ * $Id: GrouperTest.java,v 1.7 2004-06-02 22:17:06 blair Exp $
  */
 
 import edu.internet2.middleware.directory.grouper.*;
@@ -62,8 +62,8 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /* Create a session as SubjectID "member.system", 1 argument method */
-  public void testSessionCreateAsMemberSystemOneArgMethod() {
+  /* Start a session as SubjectID "member.system", 1 argument method */
+  public void testSessionStartAsMemberSystemOneArgMethod() {
     G.initialize();
     GrouperSession s= new GrouperSession(G);
     try {
@@ -73,8 +73,8 @@ public class GrouperTest extends TestCase {
     }
   }
   
-  /* Create a session as SubjectID "member.system", 2 argument method */
-  public void testSessionCreateAsMemberSystemTwoArgMethod() {
+  /* Start a session as SubjectID "member.system", 2 argument method */
+  public void testSessionStartAsMemberSystemTwoArgMethod() {
     G.initialize();
     GrouperSession s= new GrouperSession(G);
     try {
@@ -84,8 +84,8 @@ public class GrouperTest extends TestCase {
     }
   }
   
-  /* Create and end a session as SubjectID "member.system", 1 argument method */
-  public void testSessionCreateEndAsMemberSystemOneArgMethod() {
+  /* Start and end a session as SubjectID "member.system", 1 argument method */
+  public void testSessionStartEndAsMemberSystemOneArgMethod() {
     G.initialize();
     GrouperSession s= new GrouperSession(G);
     try {
@@ -96,12 +96,12 @@ public class GrouperTest extends TestCase {
     try {
       s.end();
     } catch(Exception e) {
-      Assert.fail("Exception thrown when ending sessin");
+      Assert.fail("Exception thrown when ending session");
     }
   }
   
-  /* Create and end a session as SubjectID "member.system", 2 argument method */
-  public void testSessionCreateEndAsMemberSystemTwoArgMethod() {
+  /* Start and end a session as SubjectID "member.system", 2 argument method */
+  public void testSessionStartEndAsMemberSystemTwoArgMethod() {
     G.initialize();
     GrouperSession s= new GrouperSession(G);
     try {
@@ -112,13 +112,24 @@ public class GrouperTest extends TestCase {
     try {
       s.end();
     } catch(Exception e) {
-      Assert.fail("Exception thrown when ending sessin");
+      Assert.fail("Exception thrown when ending session");
     }
   }
-  
+
+  /* Attempt to end a session that hasn't been started */
+  public void testSessionEndWithoutStart() {
+    G.initialize();
+    GrouperSession s = new GrouperSession(G);
+    try {
+      // XXX This may fail if we start throwing exceptions. 
+      s.end();
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when ending unstarted session");
+    }
+  }
+
   /*
    * TODO Tests To Write
-   * - Ending a session that hasn't been started
    * - Session creation as memberID ???
    * - Session creation as subjectID ???
    * - TODO And all the ones I haven't thought of or written down yet
