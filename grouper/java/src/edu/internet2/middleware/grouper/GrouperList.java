@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.28 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperList.java,v 1.29 2004-12-09 02:30:36 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -87,9 +87,7 @@ public class GrouperList implements Serializable {
     this._init();
   }
 
-  /**
-   * Construct a new {@link GrouperList} object.
-   * <p />
+  /* (!javadoc)
    * TODO This should <b>only</b> be used within Grouper and I'd
    *      prefer to not be relying upon <i>protected</i> for that...
    */
@@ -143,10 +141,9 @@ public class GrouperList implements Serializable {
   }
 
   /**
-   * Returns the {@link GrouperGroup} object that caused this
-   * effective relationship.
+   * If this object represents an effective membership, returning the
+   * {@link GrouperGroup} object that caused the effective membership.
    * <p />
-   *
    * @return  A {@link GrouperGroup} object.
    */
   public GrouperGroup via() {
