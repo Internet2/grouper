@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.72 2004-11-16 18:43:14 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.73 2004-11-16 22:09:25 blair Exp $
  */
 public class GrouperGroup {
 
@@ -160,6 +160,10 @@ public class GrouperGroup {
         if (this.attributes.containsKey("descriptor")) {
           // And a descriptor
           if (this.grprSession != null) {
+            /* TODO This method, in particular this check, is proving
+             *      to be nothing but trouble.  At the least call out
+             *      to various GB methods to determine existence.
+             */
             // And a session to load a group
             // FIXME Provide a method of confirming a group's existence
             //       that doesn't rely upon loading a group and checking for
