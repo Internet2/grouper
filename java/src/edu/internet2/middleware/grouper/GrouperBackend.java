@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.113 2004-12-05 04:08:18 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.114 2004-12-05 19:20:09 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1508,22 +1508,24 @@ public class GrouperBackend {
     // TODO Have GrouperList call this and its kin?
     Session     session   = GrouperBackend._init();
     GrouperList gl        = null;
-    List        vals      = new ArrayList();
-    String      via_param;
-    if (via == null)  {
-      via_param = GrouperBackend.VAL_NULL;
-    } else {
-      via_param = via.key();
+    if (g != null) { // TODO 
+      List        vals      = new ArrayList();
+      String      via_param;
+      if (via == null)  {
+        via_param = GrouperBackend.VAL_NULL;
+      } else {
+        via_param = via.key();
+      }
+      vals = GrouperBackend._queryGrouperList(
+                                              session, g.key(), 
+                                              m.key(), list, via_param
+                                             );
+      // We only want one
+      if (vals.size() == 1) {
+        gl = (GrouperList) vals.get(0);
+      }
+      GrouperBackend._hibernateSessionClose(session);
     }
-    vals = GrouperBackend._queryGrouperList(
-                                            session, g.key(), 
-                                            m.key(), list, via_param
-                                           );
-    // We only want one
-    if (vals.size() == 1) {
-      gl = (GrouperList) vals.get(0);
-    }
-    GrouperBackend._hibernateSessionClose(session);
     return gl;
   }
 
