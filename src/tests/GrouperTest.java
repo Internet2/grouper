@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.58 2004-10-11 18:14:02 blair Exp $
+ * $Id: GrouperTest.java,v 1.59 2004-10-12 18:37:51 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -256,8 +256,8 @@ public class GrouperTest extends TestCase {
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertNotNull(m);
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
-    Assert.assertTrue( id.equals( m.memberID() ) );
-    Assert.assertTrue( type.equals( m.memberType() ) );
+    Assert.assertTrue( id.equals( m.id() ) );
+    Assert.assertTrue( type.equals( m.type() ) );
   }
 
   public void testGrouperSubjectClassLookup() {
@@ -268,8 +268,8 @@ public class GrouperTest extends TestCase {
     String klass = "edu.internet2.middleware.grouper.GrouperMember";
     Assert.assertNotNull(m);
     Assert.assertTrue( klass.equals( m.getClass().getName() ) );
-    Assert.assertTrue( id.equals( m.memberID() ) );
-    Assert.assertTrue( type.equals( m.memberType() ) );
+    Assert.assertTrue( id.equals( m.id() ) );
+    Assert.assertTrue( type.equals( m.type() ) );
   }
 
   //
