@@ -188,7 +188,7 @@ public class TestInstantiate extends TestCase {
     Assert.assertNotNull("obj !null", obj);
     Assert.assertTrue(
                       "correct class",
-                      Util.KLASS_MV.equals( obj.getClass().getName() ) 
+                      Constants.KLASS_MV.equals( obj.getClass().getName() ) 
                      );
   }
 

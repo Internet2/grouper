@@ -55,15 +55,15 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 
 
-public class Util {
+public class Constants {
 
   /*
    * PUBLIC CLASS CONSTANTS
    */
-  public static final String klassGG = "edu.internet2.middleware.grouper.GrouperGroup";
-  public static final String klassSI = "edu.internet2.middleware.grouper.SubjectImpl";
+  public static final String KLASS_GG = "edu.internet2.middleware.grouper.GrouperGroup";
   public static final String KLASS_GF = "edu.internet2.middleware.grouper.GrouperField";
   public static final String KLASS_MV = "edu.internet2.middleware.grouper.MemberVia";
+  public static final String KLASS_SI = "edu.internet2.middleware.grouper.SubjectImpl";
   public static final String KLASS_VP = "edu.internet2.middleware.grouper.ViaPath";
 
 

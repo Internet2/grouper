@@ -55,7 +55,6 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
-
 public class TestNamespaces extends TestCase {
 
   private String  klass   = "edu.internet2.middleware.grouper.GrouperGroup";

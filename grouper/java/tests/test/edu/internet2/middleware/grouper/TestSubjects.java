@@ -132,27 +132,27 @@ public class TestSubjects extends TestCase {
   // begin: testLoadOneParam
 
   public void testLoadOneParam_0() {
-    Subject subj = GrouperSubject.load(Util.rooti);
+    Subject subj = GrouperSubject.load(Constants.rooti);
     Assert.assertNotNull(subj);
-    Assert.assertTrue( Util.klassSI.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( subj.getId().equals(Util.rooti) );
+    Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
+    Assert.assertTrue( subj.getId().equals(Constants.rooti) );
     Assert.assertNotNull( subj.getSubjectType() );
-    Assert.assertTrue( subj.getSubjectType().getId().equals(Util.roott));
+    Assert.assertTrue( subj.getSubjectType().getId().equals(Constants.roott));
     Assert.assertTrue( subj.getSubjectType().getName().equals("Person") );
   }
 
   public void testLoadOneParam_1() {
-    Subject subj = GrouperSubject.load(Util.m0i);
+    Subject subj = GrouperSubject.load(Constants.m0i);
     Assert.assertNotNull("subj not null", subj);
     Assert.assertTrue(
                       "subj right class",  
-                      Util.klassSI.equals( subj.getClass().getName() ) 
+                      Constants.KLASS_SI.equals( subj.getClass().getName() ) 
                      );
-    Assert.assertTrue("subj id matches", subj.getId().equals(Util.m0i) );
+    Assert.assertTrue("subj id matches", subj.getId().equals(Constants.m0i) );
     Assert.assertNotNull("subj type not null", subj.getSubjectType() );
     Assert.assertTrue(
                       "subjtype id matches",  
-                      subj.getSubjectType().getId().equals(Util.m0t));
+                      subj.getSubjectType().getId().equals(Constants.m0t));
     Assert.assertTrue(
                       "subjtype name matches",
                       subj.getSubjectType().getName().equals("Person") 

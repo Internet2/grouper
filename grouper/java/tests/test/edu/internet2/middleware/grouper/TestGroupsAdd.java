@@ -502,26 +502,26 @@ public class TestGroups extends TestCase {
 
   public void testCreateG7() {
     //Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Subject subj = GrouperSubject.load(Util.m0i, Util.m0t);
+    Subject subj = GrouperSubject.load(Constants.m0i, Constants.m0t);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Attempt to create a group in a ns where the subject does not
     // have the STEM priv
-    String stem = Util.stem6;
-    String extn = Util.extn6;
+    String stem = Constants.stem6;
+    String extn = Constants.extn6;
     GrouperGroup g = GrouperGroup.create(s, stem, extn);
     Assert.assertNull(g);
     s.stop();
   }
 
   public void testFetchG10() {
-    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // g0
-    GrouperGroup g  = GrouperGroup.load(s, Util.stem0, Util.extn0);
+    GrouperGroup g  = GrouperGroup.load(s, Constants.stem0, Constants.extn0);
     Assert.assertNotNull("g0 !null", g);
     Assert.assertNotNull("g0 name !null", g.name());
     Assert.assertNotNull("g0 id !null", g.id());

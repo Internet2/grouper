@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.24 2005-03-17 16:36:36 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.25 2005-03-17 16:42:05 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -102,7 +102,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("admins !null", gf);
     Assert.assertTrue(
                       "admins is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "admins groupField",
@@ -126,7 +126,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("creators !null", gf);
     Assert.assertTrue(
                       "creators is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "creators groupField " + gf.groupField(),
@@ -150,7 +150,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("description !null", gf);
     Assert.assertTrue(
                       "description is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "description groupField",
@@ -174,7 +174,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("displayExtension !null", gf);
     Assert.assertTrue(
                       "displayExtension is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "displayExtension groupField",
@@ -198,7 +198,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("field !null", gf);
     Assert.assertTrue(
                       "displayName is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "displayName groupField",
@@ -222,7 +222,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("extension !null", gf);
     Assert.assertTrue(
                       "extension is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "extension groupField",
@@ -246,7 +246,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("members !null", gf);
     Assert.assertTrue(
                       "members is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "members groupField",
@@ -269,7 +269,7 @@ public class TestConfigAndSchema extends TestCase {
     gf = (GrouperField) fields.get(idx);
     Assert.assertTrue(
                       "name is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "name groupField",
@@ -293,7 +293,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("optins !null", gf);
     Assert.assertTrue(
                       "optins is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "optins groupField",
@@ -317,7 +317,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("optouts !null", gf);
     Assert.assertTrue(
                       "optouts is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "optouts groupField",
@@ -341,7 +341,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("readers !null", gf);
     Assert.assertTrue(
                       "readers is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "readers groupField",
@@ -366,7 +366,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("stem !null", gf);
     Assert.assertTrue(
                       "stem is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "stem groupField",
@@ -390,7 +390,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("stemmers !null", gf);
     Assert.assertTrue(
                       "stemmers is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "stemmers groupField",
@@ -414,7 +414,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("updaters !null", gf);
     Assert.assertTrue(
                       "updaters is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "updaters groupField",
@@ -438,7 +438,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull("viewers !null", gf);
     Assert.assertTrue(
                       "viewers is GrouperField", 
-                      Util.KLASS_GF.equals(gf.getClass().getName())
+                      Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
                       "viewers groupField",
