@@ -1,6 +1,6 @@
 <!--
-  $Id: main-print.jsp,v 1.7 2005-02-09 22:00:35 acohen Exp $
-  $Date: 2005-02-09 22:00:35 $
+  $Id: main-print.jsp,v 1.8 2005-02-24 18:47:31 acohen Exp $
+  $Date: 2005-02-24 18:47:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -36,6 +36,8 @@
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
   
 <% 
   Signet signet
@@ -106,40 +108,39 @@
 %>
 	        
           <tr>
-            <td>
+            <td> <!-- person -->
               <%=grantee.getName()%>
-            </td>
-            <td>
+            </td> <!-- person -->
+            
+            <td> <!-- privilege -->
               <%=subsystem.getName()%> : <%=category.getName()%> :
               <span>
                 <%=assignment.getFunction().getName()%>
               </span>
-            </td>
-            <td>&nbsp;</td>
-            <td>
-              <span>
-                <span class="dropback">
-                   
-                </span> <br />
-                <span class="dropback">
-                   
-                </span>
-                 
-              </span>
-            </td>
-            <td>
+            </td> <!-- privilege -->
+            
+            <td> <!-- scope -->
+              &nbsp;
+            </td> <!-- scope -->
+            
+            <td> <!-- limits -->
+                <%=Common.displayLimitValues(assignment)%>
+            </td> <!-- limits -->
+            
+            <td> <!-- status -->
 <%=
   assignment.getStatus().getName()
   + (assignment.isGrantOnly()==false?", can use":"")
   + (assignment.isGrantable()?", can grant":"")
 %>
-            </td>
-            <td nowrap="nowrap">
+            </td> <!-- status -->
+            
+            <td nowrap="nowrap"> <!-- granted -->
 <%=
   // dateFormat.format(assignment.getCreateDateTime())
   ""
 %>
-            </td>
+            </td> <!-- granted -->
           </tr>
   	
 <% 
