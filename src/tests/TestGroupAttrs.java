@@ -164,6 +164,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull("g modifySource null", g.modifySource() );
     Assert.assertNull("g modifySubject !null", g.modifySubject().getId() );
     Assert.assertNull("g modifyTime !null", g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs1() {
@@ -194,6 +195,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs2() {
@@ -223,6 +225,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs3() {
@@ -252,6 +255,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs4() {
@@ -282,6 +286,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs5() {
@@ -312,6 +317,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs6() {
@@ -342,6 +348,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs7() {
@@ -372,6 +379,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
+    s.stop();
   }
 
 
@@ -555,6 +563,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs9() {
@@ -587,6 +596,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs10() {
@@ -618,6 +628,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs11() {
@@ -649,6 +660,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs12() {
@@ -681,6 +693,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs13() {
@@ -713,6 +726,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs14() {
@@ -745,6 +759,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs15() {
@@ -777,6 +792,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   // 
@@ -959,6 +975,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs17() {
@@ -991,6 +1008,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs18() {
@@ -1022,6 +1040,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs19() {
@@ -1053,6 +1072,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs20() {
@@ -1085,6 +1105,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs21() {
@@ -1117,6 +1138,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs22() {
@@ -1149,6 +1171,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs23() {
@@ -1181,6 +1204,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   // 
@@ -1352,6 +1376,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs25() {
@@ -1382,6 +1407,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs26() {
@@ -1411,6 +1437,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs27() {
@@ -1440,6 +1467,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs28() {
@@ -1470,6 +1498,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs29() {
@@ -1500,6 +1529,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs30() {
@@ -1530,6 +1560,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   public void testFetchAttrs31() {
@@ -1560,6 +1591,7 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNull( g.modifySource() );
     Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
+    s.stop();
   }
 
   //

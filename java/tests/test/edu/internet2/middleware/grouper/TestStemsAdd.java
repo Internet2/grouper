@@ -86,7 +86,6 @@ public class TestNamespaces extends TestCase {
   
 
   // Fetch a non-existent namespaces
-/*
   public void testGroupsExistFalse() {
     Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
@@ -104,7 +103,6 @@ public class TestNamespaces extends TestCase {
     // We're done
     s.stop();
   }
-*/
 
   public void testCreateNS0() {
     Subject subj  = GrouperSubject.load(
