@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.48 2005-03-21 18:46:01 blair Exp $ -->
+<!-- $Id: build.xml,v 1.49 2005-03-27 16:33:31 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -168,7 +168,7 @@
   </target> 
   <target name="clover.html" depends="with.clover">
     <clover-report>
-      <current outfile="${dist}/clover_html">
+      <current outfile="clover">
         <format type="html"/>
       </current>
     </clover-report>
