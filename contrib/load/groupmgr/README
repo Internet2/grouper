@@ -1,9 +1,9 @@
 
-# Program to add and delete groups, memberships, and attributes. 
+# Program to add and delete groups and memberships.
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.6 2004-12-08 05:28:53 blair Exp $
+$Id: README,v 1.7 2004-12-08 05:42:36 blair Exp $
 
 ---
 
@@ -40,13 +40,11 @@ Add a group as a member:
 
     % java -a -G -m test:baz s -test -e foo 
 
---
+Delete a member
 
-## Bugs
+    % java -d -m johndoe s -test -e foo 
 
-* No support for removing members
-* No support for modifying attributes
+Delete a group as a member:
 
-
-
+    % java -d -G -m test:baz s -test -e foo 
 

@@ -1,7 +1,7 @@
 
 # Grouper Contributed Code
 
-$Id: README,v 1.8 2004-12-08 03:17:59 blair Exp $
+$Id: README,v 1.9 2004-12-08 05:42:36 blair Exp $
 
 ---
 
@@ -11,8 +11,8 @@ These programs can be used to load data into the group registry.
 
 ### load/csv2group
 
-Program to load groups and memberships into the registry using the
-_Grouper_ API.
+Program to load groups and memberships from a CSV file into the
+registry using the _Grouper_ API.
 
 * Contributed by _The University Of Chicago_ on 20041203.
 * Last updated on 20041207.
@@ -20,11 +20,20 @@ _Grouper_ API.
 
 ### load/cvs2subject
 
-Program to populate _grouper_subject_ table with I2MI Subjects.
+Program to populate _grouper_subject_ table with I2MI Subjects from a
+CSV file.
 
 * Contributed by _The University Of Chicago_ on 20040702.
 * Last updated on 20041203.
 * See load/csv2subject/README for more information.
+
+### load/groupmgr
+
+Program to add and delete groups, memberships, and attributes.
+
+* Contributed by _The University Of Chicago_ on 20041207.
+* Last updated on 20041207.
+* See load/groupmgr/README for more information.
 
 -- 
 
