@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.57 2004-10-11 18:07:03 blair Exp $
+ * $Id: GrouperTest.java,v 1.58 2004-10-11 18:14:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -446,7 +446,7 @@ public class GrouperTest extends TestCase {
     GrouperGroup g = GrouperGroup.load(s, "stem.0", "desc.0");
 
     // Confirm that group doesn't exist
-    Assert.assertFalse( g.exist() );
+    Assert.assertFalse( g.exists() );
 
     // We're done
     s.stop();
@@ -463,7 +463,7 @@ public class GrouperTest extends TestCase {
     GrouperGroup grp = GrouperGroup.create(s, "stem.1", "descriptor.1");
 
     // Confirm that the group exists
-    Assert.assertTrue( grp.exist() );
+    Assert.assertTrue( grp.exists() );
    
     // We're done
     s.stop();
@@ -487,7 +487,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( klass.equals( grp.getClass().getName() ) );
 
     // Assert that the group is considered to exist
-    Assert.assertTrue( grp.exist() );
+    Assert.assertTrue( grp.exists() );
    
     // We're done
     s.stop();
