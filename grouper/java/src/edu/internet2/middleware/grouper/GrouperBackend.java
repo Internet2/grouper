@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.181 2005-03-22 17:15:36 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.182 2005-03-22 18:07:29 blair Exp $
  */
 public class GrouperBackend {
 
@@ -246,7 +246,7 @@ public class GrouperBackend {
   /* !javadoc
    * Attach attributes to a group
    */
-  private static boolean _attributesAdd(GrouperSession s, GrouperGroup g) {
+  protected static boolean _attributesAdd(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     Iterator iter = g.attributes().keySet().iterator();
     while (iter.hasNext()) {
@@ -269,7 +269,7 @@ public class GrouperBackend {
   /* !javadoc
    * Delete all attributes attached to a group
    */
-  private static boolean _attributesDel(GrouperSession s, GrouperGroup g) {
+  protected static boolean _attributesDel(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     Iterator iter = attributes(s, g).iterator();
     while (iter.hasNext()) {
@@ -287,7 +287,7 @@ public class GrouperBackend {
   /* !javadoc
    * Add a GrouperList object
    */
-  private static void _listAddVal(GrouperSession s, GrouperList gl) {
+  protected static void _listAddVal(GrouperSession s, GrouperList gl) {
     GrouperSession.validate(s);
     GrouperList.validate(gl);
 
@@ -308,7 +308,7 @@ public class GrouperBackend {
    * Delete a GrouperList object
    */
   // TODO Refactor into smaller components
-  private static void _listDelVal(GrouperSession s, GrouperList gl) {
+  protected static void _listDelVal(GrouperSession s, GrouperList gl) {
     Query   q;
     // TODO Refactor out
     Grouper.log().backend("_listDelVal() (g) " + gl.group().name());
@@ -381,7 +381,7 @@ public class GrouperBackend {
   /* !javadoc
    * Check whether a list value exists.
    */
-  private static boolean _listValExist(GrouperSession s, GrouperList gl) {
+  protected static boolean _listValExist(GrouperSession s, GrouperList gl) {
     Query   q;
     String  qry;
     String  qryEff  = "GrouperList.by.group.and.member.and.list.and.is.eff"; 
@@ -426,7 +426,7 @@ public class GrouperBackend {
   /* !javadoc
    * Revoke all access privs attached to a group
    */
-  private static boolean _privAccessRevokeAll(
+  protected static boolean _privAccessRevokeAll(
                            GrouperSession s, GrouperGroup g
                          ) 
   {
@@ -452,7 +452,7 @@ public class GrouperBackend {
   /* !javadoc
    * Grant PRIV_ADMIN to group creator upon creation
    */
-  private static boolean _privGrantAdminUponCreate(
+  protected static boolean _privGrantAdminUponCreate(
                            GrouperSession s, GrouperGroup g,
                            GrouperMember m
                          )
@@ -473,7 +473,7 @@ public class GrouperBackend {
   /* !javadoc
    * Grant PRIV_STEM to stem creator upon creation
    */
-  private static boolean _privGrantStemUponCreate(
+  protected static boolean _privGrantStemUponCreate(
                            GrouperSession s, GrouperGroup g,
                            GrouperMember m
                          )
@@ -494,7 +494,7 @@ public class GrouperBackend {
   /* !javadoc
    * Grant appropriate privilege to group|stem creator upon creation
    */
-  private static boolean _privGrantUponCreate(
+  protected static boolean _privGrantUponCreate(
                            GrouperSession s, GrouperGroup g
                          )
   {
@@ -532,7 +532,7 @@ public class GrouperBackend {
   /* !javadoc
    * Revoke all naming privs attached to a group
    */
-  private static boolean _privNamingRevokeAll(
+  protected static boolean _privNamingRevokeAll(
                            GrouperSession s, GrouperGroup g
                          ) 
   {
@@ -552,7 +552,7 @@ public class GrouperBackend {
   /* !javadoc
    * Validate that a group is eligible to be created
    */
-  private static boolean _validateGroupAdd(
+  protected static boolean _validateGroupAdd(
                            GrouperSession s, GrouperGroup g
                          )
   {
@@ -567,7 +567,7 @@ public class GrouperBackend {
   /* !javadoc
    * Validate that a group is eligible to be deleted
    */
-  private static boolean _validateGroupDel(
+  protected static boolean _validateGroupDel(
                            GrouperSession s, GrouperGroup g
                          ) 
   {
@@ -598,7 +598,7 @@ public class GrouperBackend {
   /* !javadoc
    * Return true if the list value appears remotely legitimate.
    */
-  private static boolean _validateListVal(
+  protected static boolean _validateListVal(
                             GrouperSession s, GrouperList gl
                           )
   {
@@ -720,33 +720,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  // FIXME Refactor.  Mercilesssly.
-  protected static GrouperGroup groupLoadByKey(GrouperSession s, GrouperGroup g, String key) {
-    if (key != null) {
-      try {
-        // Attempt to load a stored group into the current object
-        g = (GrouperGroup) s.dbSess().session().get(GrouperGroup.class, key);
-        if (g != null) {
-          // Its schema
-          GrouperSchema schema = GrouperBackend._groupSchema(s, g);
-          if (schema != null) {
-            if (GrouperBackend._groupAttachAttrs(s, g)) {
-              g.type( schema.type() );
-            } else {
-              g = null;
-            }
-          } else {
-            g = null;
-          }
-        }
-      } catch (HibernateException e) {
-        // TODO Rollback if load fails?  Unset this.exists?
-        throw new RuntimeException("Error loading group: " + e);
-      }
-    }
-    return g;
   }
 
   /**
@@ -1382,7 +1355,7 @@ public class GrouperBackend {
     return rv;
   }
 
-  private static List _extensions(GrouperSession s, String extension) {
+  protected static List _extensions(GrouperSession s, String extension) {
     String  qry   = "GrouperAttribute.by.extension";
     List    vals  = new ArrayList();
     try {
@@ -1411,7 +1384,7 @@ public class GrouperBackend {
    *       But perhaps the `initialized' hack that I added for another
    *       reason will work?
    */
-  private static boolean _groupAttachAttrs(GrouperSession s, GrouperGroup g) {
+  protected static boolean _groupAttachAttrs(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
     if (g != null) {
       Iterator iter = GrouperBackend.attributes(s, g).iterator();
@@ -1453,7 +1426,7 @@ public class GrouperBackend {
           g = (GrouperGroup) vals.get(0);
           if ( (g != null) && (g.key() != null) ) {
             key = g.key();
-            g = GrouperBackend.groupLoadByKey(s, g, key);
+            g = GrouperGroup.loadByKey(s, g, key);
           }
         }
       } catch (HibernateException e) {
@@ -1499,7 +1472,7 @@ public class GrouperBackend {
                 if (gs.size() == 1) {
                   GrouperSchema schema = (GrouperSchema) gs.get(0);
                   if (schema.type().equals(type)) {
-                    g = groupLoadByKey(s, g, attr.key());
+                    g = GrouperGroup.loadByKey(s, g, attr.key());
                     if (g != null) {
                       if (g.type().equals(type)) {
                         initialized = true;
@@ -1542,7 +1515,7 @@ public class GrouperBackend {
    * {@link GrouperSchema} object.
    * TODO This will need poking when we support multiple types.
    */
-  private static GrouperSchema _groupSchema(GrouperSession s, GrouperGroup g) {
+  protected static GrouperSchema _groupSchema(GrouperSession s, GrouperGroup g) {
     String        qry     = "GrouperSchema.by.key";
     GrouperSchema schema  = null;
     try {
@@ -1570,12 +1543,12 @@ public class GrouperBackend {
    * Iterate through a list and fully load {@link GrouperGroup}
    * objects.
    */
-  private static List _iterGroup(GrouperSession s, Iterator iter) {
+  protected static List _iterGroup(GrouperSession s, Iterator iter) {
     List vals = new ArrayList();
     while (iter.hasNext()) {
       GrouperGroup g = (GrouperGroup) iter.next();
       if (g != null) {
-        g = GrouperBackend.groupLoadByKey(s, g, g.key());
+        g = GrouperGroup.loadByKey(s, g, g.key());
         if (g != null) {
           vals.add(g);
         }
@@ -1587,7 +1560,7 @@ public class GrouperBackend {
   /* (!javadoc)
    * True if the stem exists.
    */
-  private static boolean _stemLookup(GrouperSession s, String stem) {
+  protected static boolean _stemLookup(GrouperSession s, String stem) {
     boolean rv = false;
     if (stem.equals(Grouper.NS_ROOT)) {
       rv = true;
@@ -1602,7 +1575,7 @@ public class GrouperBackend {
     return rv;
   }
 
-  private static List _stems(GrouperSession s, String stem) {
+  protected static List _stems(GrouperSession s, String stem) {
     String  qry   = "GrouperAttribute.by.stem";
     List    vals  = new ArrayList();
     try {

@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.176 2005-03-22 02:56:19 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.177 2005-03-22 18:07:29 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -787,9 +787,35 @@ public class GrouperGroup extends Group {
   }
 
   protected static GrouperGroup loadByKey(GrouperSession s, String key) {
+    return GrouperGroup.loadByKey(s, new GrouperGroup(), key);
+  }
+  protected static GrouperGroup loadByKey(
+                                  GrouperSession s, GrouperGroup g,
+                                  String key
+                                )
+  { 
     GrouperSession.validate(s);
-    GrouperGroup g = new GrouperGroup();
-    g = GrouperBackend.groupLoadByKey(s, g, key);
+    try {
+      // Attempt to load a stored group into the current object
+      g = (GrouperGroup) s.dbSess().session().get(GrouperGroup.class, key);
+      if (g != null) {
+        // Its schema
+        GrouperSchema schema = GrouperBackend._groupSchema(s, g);
+        if (schema != null) {
+          if (GrouperBackend._groupAttachAttrs(s, g)) {
+            g.type( schema.type() );
+          } else {
+            g = null;
+          }
+        } else {
+          g = null;
+        }
+      }
+    } catch (HibernateException e) {
+      // TODO Rollback if load fails?  Unset this.exists?
+      throw new RuntimeException("Error loading group: " + e);
+    }
+
     if (g != null) {
       g.initialized = true; // FIXME UGLY HACK!
       g.s = s; // Attach GrouperSession
@@ -865,10 +891,11 @@ public class GrouperGroup extends Group {
     // Verify subject has sufficient privs
     if (this._canModAttr(this)) {
       // Hibernate the attribute
-      GrouperAttribute attr = GrouperBackend.attrAdd(
-                                this.s, this.key, attribute, value
-                              );
-      if (attr != null) {
+      GrouperAttribute attr = new GrouperAttribute(
+                                    this.key, attribute, value
+                                  );
+      try {
+        GrouperAttribute.save(this.s, attr);
         // Now update this object and save it to persist the opattrs
         this.setModifyTime( GrouperGroup._now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
@@ -877,6 +904,8 @@ public class GrouperGroup extends Group {
         if (GrouperBackend.groupUpdate(s, this)) {
           rv = true;
         }
+      } catch (RuntimeException e) {
+        rv = false;
       }
     }
     Grouper.log().groupAttrAdd(rv, this.s, this, attribute, value);
@@ -931,11 +960,12 @@ public class GrouperGroup extends Group {
     // Verify subject has sufficient privs
     if (this._canModAttr(this)) {
       // Hibernate the attribute
-      GrouperAttribute attr = GrouperBackend.attrAdd(
-                                this.s, this.key, attribute, value
-                              );
-      if (attr != null) {
+      GrouperAttribute attr = new GrouperAttribute(
+                                    this.key, attribute, value
+                                  );
+      try {
         // Now update this object and save it to persist the opattrs
+        GrouperAttribute.save(this.s, attr);
         this.setModifyTime( GrouperGroup._now() );
         GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
         this.setModifySubject( mem.key() );
@@ -943,6 +973,8 @@ public class GrouperGroup extends Group {
         if (GrouperBackend.groupUpdate(this.s, this)) {
           rv = true;
         }
+      } catch (RuntimeException e) {
+        rv = false;
       }
     }
     Grouper.log().groupAttrUpdate(rv, this.s, this, attribute, value);
