@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.50 2004-11-22 01:20:23 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.51 2004-11-22 02:20:21 blair Exp $
  */
 public class GrouperBackend {
 
@@ -680,18 +680,38 @@ public class GrouperBackend {
         session.save(attr);
       }
 
-      // And make the creator a member of the "admins" list
-      GrouperMembership mship = new GrouperMembership(); 
-      // FIXME Group Key is private.  Fuck!  How to manage?
-      //       But wait!  GUID!
-      // TODO Don't hardcode "admins"
-      // TODO And really, this should be assign a priv, via the priv
-      //      interface, rather than just assuming we are using Grouper's
-      //      internal priv model.
-      mship.set(g.key(), "admins", s.subject().getId(), true);
-      session.save(mship);
-
+      /*
+       * I need to commit the group to the groups registry before
+       * granting the ADMIN privs as the act of granting, especially if
+       * using the default access privilege implementation, may need to
+       * load the group from the groups registry.  If it hasn't been
+       * committed, that will obviously fail and Java will go BOOM!
+       *
+       * Of course, this may make rolling back even the granting fails
+       * even more interesting.
+       */
       t.commit();
+
+      // And grant ADMIN privilege to the list creator
+      GrouperMember m = GrouperMember.lookup( 
+                                             s.subject().getId(),
+                                             s.subject().getSubjectType().getId()
+                                            );
+      if (
+          (m != null) && // FIXME Bah
+          (GrouperPrivilege.grant(s, g, m, "ADMIN") == true)
+         )
+      {
+        t.commit(); // XXX Is this commit necessary?
+      } else {
+        /*
+         * TODO Rollback?  Exception?  The rollback would also need to
+         *      rollback the granting of the ADMIN privilege.  Or at
+         *      least try to.
+         */
+        System.err.println("Unable to create group " + g);
+        System.exit(1);
+      }
     } catch (Exception e) {
       // TODO We probably need a rollback in here in case of failure
       //      above.
@@ -994,6 +1014,7 @@ public class GrouperBackend {
 
     // Confirm that list data doesn't already exist
     if (GrouperBackend._listValExist(g, m, list, via) == false) {
+      // XXX System.err.println("_lISTADDVAL VALUES DO NOT EXIST");
       // Instantiate the GrouperMembership object
       GrouperMembership mship = new GrouperMembership(g, m, list, via);
       // Save it
@@ -1003,6 +1024,8 @@ public class GrouperBackend {
         System.err.println(e);
         System.exit(1);
       }
+    } else {
+      // XXX System.err.println("_LISTADDVAL VALUES EXIST");
     }
   }
 

@@ -19,7 +19,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class providing read/write access to Grouper privileges.
  *
  * @author  blair christensen.
- * @version $Id: GrouperPrivilege.java,v 1.2 2004-11-22 01:40:23 blair Exp $
+ * @version $Id: GrouperPrivilege.java,v 1.3 2004-11-22 02:20:21 blair Exp $
  */
 public class GrouperPrivilege {
 
@@ -50,7 +50,7 @@ public class GrouperPrivilege {
                           ) 
   {
     GrouperPrivilege._init();
-   return  access.grant(s, g, m, priv);
+    return  access.grant(s, g, m, priv);
   }
 
   /**
