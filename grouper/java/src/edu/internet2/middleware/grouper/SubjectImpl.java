@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
@@ -63,7 +64,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.18 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.19 2005-03-29 15:44:36 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
@@ -84,7 +85,7 @@ public class SubjectImpl
    * Null-argument constructor for Hibernate.
    */
   public SubjectImpl() {
-    this._init();
+    // Nothing
   }
 
   /* (!javadoc)
@@ -92,7 +93,6 @@ public class SubjectImpl
    *      prefer to not be relying upon <i>protected</i> for that...
    */
   protected SubjectImpl(String id, String typeID) {
-    this._init();
     this.id     = id;
     this.typeID = typeID;
   }
@@ -167,15 +167,6 @@ public class SubjectImpl
     return this.getClass().getName()  + ":" +
            this.getSubjectType()      + ":" +
            this.getId();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-  private void _init() {
-    this.id     = id;
-    this.typeID = typeID;
   }
 
 
