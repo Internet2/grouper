@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.171 2005-03-19 16:28:46 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.172 2005-03-19 20:25:25 blair Exp $
  */
 public class GrouperGroup {
 
@@ -600,7 +600,30 @@ public class GrouperGroup {
    * @return  Name of group.
    */
   public String name() {
-    return this.attribute("name").value();
+    // TODO This isn't right
+    String name = null;
+    if (this.attribute("name") != null) {
+      name = this.attribute("name").value();
+    }
+    return name;
+    //return this.attribute("name").value();
+  }
+
+  /**
+   * Retrieve {@link GrouperMember} object for this 
+   * {@link GrouperGroup}.
+   * </p>
+   * @return {@link GrouperMember} object
+   */
+  public GrouperMember toMember() {
+    GrouperSession.validate(this.s);
+    GrouperMember m = GrouperMember.load(
+                        this.s, this.getGroupID(), "group"
+                      );
+    if (m == null) {
+      throw new RuntimeException("Error converting group to member");
+    }
+    return m;
   }
 
   /**
@@ -796,6 +819,7 @@ public class GrouperGroup {
   }
 
   protected static GrouperGroup loadByKey(GrouperSession s, String key) {
+    GrouperSession.validate(s);
     GrouperGroup g = new GrouperGroup();
     g = GrouperBackend.groupLoadByKey(s, g, key);
     if (g != null) {
@@ -1154,7 +1178,7 @@ public class GrouperGroup {
   private Subject _returnSubjectObject(String memberKey) {
     Subject subj = null;
     if (memberKey != null) {
-      GrouperMember mem = GrouperBackend.member(this.s, memberKey);
+      GrouperMember mem = GrouperMember.loadByKey(this.s, memberKey);
       if (mem != null) {
         subj = GrouperSubject.load(mem.subjectID(), mem.typeID());
       }
