@@ -63,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.84 2005-03-15 16:13:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.85 2005-03-19 20:20:28 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -100,6 +100,12 @@ public class GrouperSession implements Serializable {
    */
   public GrouperSession() {
     this._init();
+  }
+
+  protected static void validate(GrouperSession s) {
+    if (s == null) {
+      throw new RuntimeException("session is null");
+    }
   }
 
   /* (!javadoc)
