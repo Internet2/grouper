@@ -1,0 +1,45 @@
+<!-- $Id: build.xml,v 1.1 2004-11-30 06:55:10 blair Exp $ -->
+
+<project name="Grouper" default="build" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="app.name"         value="grouperq"/>
+  <property name="src"              location="${basedir}"/>
+  <property name="grouper.basedir"  location="../../.."/>
+  <property name="build"            location="${grouper.basedir}/build"/>
+
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build}" />
+    <!-- only define our classpath once -->
+    <path id="project.class.path">
+      <pathelement path="${classpath}"/>
+      <!-- for configuration files -->
+      <pathelement path="${grouper.basedir}/conf/"/>
+      <fileset dir="${grouper.basedir}/java/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement location="${grouper.basedir}/build/"/>
+    </path>
+  </target>
+
+  <target name="build">
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="project.class.path" />
+      <include name="grouperq.java" />
+    </javac>
+  </target>
+
+  <!-- FIXME This doesn't really work -->
+  <target name="grouperq">
+    <java fork="yes" classname="grouperq" failonerror="true">
+      <classpath refid="project.class.path" />
+    </java>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete file="${grouper.basedir}/build/${app.name}.class" /> 
+  </target>
+
+</project>
+

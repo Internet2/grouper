@@ -1,11 +1,17 @@
-#
-# Grouper Contributed Software README
-# $Id: README,v 1.3 2004-11-02 16:51:30 blair Exp $
-#
 
-Contributions:
+Grouper Contributed SOFTWARE README.
+
+Contents:
 
   load/LoadGrouperMembersTableFromCSV
     - Populates 'members_table' from CSV file.
     - Contributed by The University Of Chicago on 20040702
+
+  misc/grouperq
+    "This program demonstrates how to use the Grouper API to search
+    the Grouper group registry."
+    - Contributed by The University Of Chicago on 20041130
+
+
+$Id: README,v 1.4 2004-11-30 06:55:10 blair Exp $
 
