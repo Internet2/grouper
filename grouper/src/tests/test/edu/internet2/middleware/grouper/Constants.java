@@ -76,8 +76,14 @@ public class Util {
   /*
    * PUBLIC NS CONSTANTS
    */
-  public static final String ns2s = Grouper.NS_ROOT;
-  public static final String ns2e = "stem.2";
+  public static final String ns0s   = Grouper.NS_ROOT;
+  public static final String ns0e   = "stem.0";
+  public static final String ns00s  = "stem.0";
+  public static final String ns00e  = "stem.0.0";
+  public static final String ns1s   = Grouper.NS_ROOT;
+  public static final String ns1e   = "stem.1";
+  public static final String ns2s   = Grouper.NS_ROOT;
+  public static final String ns2e   = "stem.2";
 
 
   /*
