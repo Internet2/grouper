@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.85 2004-12-02 07:38:51 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.86 2004-12-02 07:41:27 blair Exp $
  */
 public class GrouperBackend {
 
@@ -377,6 +377,52 @@ public class GrouperBackend {
     return g;
   }
 
+  // FIXME Refactor.  Mercilesssly.
+  protected static GrouperGroup groupLoadByKey(String key) {
+    /*
+     * While most private class methods take a Session as an argument,
+     * this method does not because to do so would possibly cause
+     * non-uniqueness issues.
+     */
+    Session       session = GrouperBackend._init();
+    GrouperGroup  g       = new GrouperGroup();
+
+    // TODO Verify that key != null
+    try {
+      // Attempt to load a stored group into the current object
+      Transaction tx = session.beginTransaction();
+      session.load(g, key);
+  
+      // Its schema
+      if ( GrouperBackend._groupLoadSchema(session, g) == true ) {
+        // And its attributes
+        GrouperBackend._groupLoadAttributes(session, g, key);
+
+        // FIXME Attach s to object?
+
+        tx.commit();
+      } else {
+        System.err.println("Unable to load group schema");
+        System.exit(1);
+      }
+    } catch (Exception e) {
+      // TODO Rollback if load fails?  Unset this.exists?
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return g;
+  }
+
+  private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
+    // TODO Do I even need `key' passed in?
+    Iterator iter = GrouperBackend.attributes(g).iterator();
+    while (iter.hasNext()) {
+      GrouperAttribute attr = (GrouperAttribute) iter.next();
+      g.attribute( attr.field(), attr.value() );
+    }
+  }
+
   /**
    * TODO Does this actually work?
    */
@@ -545,7 +591,7 @@ public class GrouperBackend {
                             ).iterator();
         while (iterViaG.hasNext()) {
           GrouperList   gl  = (GrouperList) iterViaG.next();
-          GrouperGroup  grp = GrouperBackend._groupLoadByKey( gl.groupKey() );
+          GrouperGroup  grp = GrouperBackend.groupLoadByKey( gl.groupKey() );
           GrouperMember mem = GrouperBackend.member( gl.memberKey() );
           if ( (grp != null) && (mem != null) ) {
             GrouperBackend._listDelVal(session, grp, mem, list, g);
@@ -563,7 +609,7 @@ public class GrouperBackend {
                                       ).iterator();
           while (iterViaMAsG.hasNext()) {
             GrouperList   gl  = (GrouperList) iterViaMAsG.next();
-            GrouperGroup  grp = GrouperBackend._groupLoadByKey( gl.groupKey() );
+            GrouperGroup  grp = GrouperBackend.groupLoadByKey( gl.groupKey() );
             GrouperMember mem = GrouperBackend.member( gl.memberKey() );
             if ( (grp != null) && (mem != null) ) {
               GrouperBackend._listDelVal(session, grp, mem, list, mAsG);
@@ -1021,7 +1067,7 @@ public class GrouperBackend {
         // ... And fully populate it (explicitly) since I'm not (yet)
         // making full use of everything Hibernate has to offer.
         // TODO Is this necessary?
-        g = GrouperBackend._groupLoadByKey(g.key());
+        g = GrouperBackend.groupLoadByKey(g.key());
         // ... And convert it to a subject object
         subj = new SubjectImpl(id, typeID);
       } else {
@@ -1189,7 +1235,7 @@ public class GrouperBackend {
       }
     }
     if (key != null) {
-      g = GrouperBackend._groupLoadByKey(key);
+      g = GrouperBackend.groupLoadByKey(key);
     }
     // TODO Here I return a dummy object while elsewhere, and with
     //      other classes, I return null.  Standardize.  I *probably*
@@ -1213,53 +1259,7 @@ public class GrouperBackend {
     }
     GrouperBackend._hibernateSessionClose(session);
     // TODO Verify that key != null or let ByKey() handle that?
-    return GrouperBackend._groupLoadByKey(key);
-  }
-
-  // FIXME Refactor.  Mercilesssly.
-  private static GrouperGroup _groupLoadByKey(String key) {
-    /*
-     * While most private class methods take a Session as an argument,
-     * this method does not because to do so would possibly cause
-     * non-uniqueness issues.
-     */
-    Session       session = GrouperBackend._init();
-    GrouperGroup  g       = new GrouperGroup();
-
-    // TODO Verify that key != null
-    try {
-      // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction();
-      session.load(g, key);
-  
-      // Its schema
-      if ( GrouperBackend._groupLoadSchema(session, g) == true ) {
-        // And its attributes
-        GrouperBackend._groupLoadAttributes(session, g, key);
-
-        // FIXME Attach s to object?
-
-        tx.commit();
-      } else {
-        System.err.println("Unable to load group schema");
-        System.exit(1);
-      }
-    } catch (Exception e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return g;
-  }
-
-  private static void _groupLoadAttributes(Session session, GrouperGroup g, String key) {
-    // TODO Do I even need `key' passed in?
-    Iterator iter = GrouperBackend.attributes(g).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      g.attribute( attr.field(), attr.value() );
-    }
+    return GrouperBackend.groupLoadByKey(key);
   }
 
   // TODO This is becoming really misnamed
@@ -1577,7 +1577,7 @@ public class GrouperBackend {
                                 ).iterator();
           while (iter.hasNext()) {
             GrouperList   gl  = (GrouperList) iter.next();
-            GrouperGroup  grp = GrouperBackend._groupLoadByKey( gl.groupKey() );
+            GrouperGroup  grp = GrouperBackend.groupLoadByKey( gl.groupKey() );
             groups.add(grp);
           }
         }
