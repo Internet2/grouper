@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.13 2004-11-06 03:45:06 blair Exp $
+# $Id: API,v 1.14 2004-11-08 18:30:35 blair Exp $
 #
 # TODO Interfaces
 #
@@ -92,9 +92,8 @@ GrouperGroup
     String groupKey()
       XXX Probably shouldn't be public
     String groupType()
+    listAdd(GrouperSession s, GrouperMember member, String list)
 
-
-XXX
 
 GrouperMember
   Class Methods

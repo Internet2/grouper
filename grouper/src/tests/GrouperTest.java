@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.68 2004-11-05 18:46:27 blair Exp $
+ * $Id: GrouperTest.java,v 1.69 2004-11-08 18:30:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -525,6 +525,35 @@ public class GrouperTest extends TestCase {
     // We're done
     s.stop();
   }
+
+  // Add a member
+  public void testAddMemberToGroup() {
+    G = new Grouper();
+    GrouperSession s = new GrouperSession();
+    GrouperMember subject = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subject);
+
+    // Fetch the group
+    GrouperGroup grp = GrouperGroup.load(s, "stem.1", "descriptor.1");
+
+    // Fetch a member
+    GrouperMember member = GrouperSubject.lookup( "blair", "person" );
+
+    // Assert that the returned member is not null
+    Assert.assertNotNull(member);
+
+    // Add a member to the group's "members" list
+    Assert.assertTrue( grp.listAdd(s, member, "members") );
+
+    // We're done
+    s.stop();
+  }
+
+  // TODO Add members
+  // TODO Add to invalid list
+  // TODO Fetch member
+  // TODO Fetch members
+  // TODO Fetch from invalid list
 
   //
   // Class: GrouperSubjectImpl
