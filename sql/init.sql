@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.3 2004-12-03 04:15:09 blair Exp $
+-- $Id: init.sql,v 1.4 2004-12-04 01:10:46 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -69,4 +69,7 @@ INSERT INTO grouper_subjectType (subjectTypeID, name, adapterClass)
 INSERT INTO grouper_subjectType (subjectTypeID, name, adapterClass)
   VALUES ('group', 'Group', 
           'edu.internet2.middleware.grouper.SubjectTypeAdapterGroupImpl');
+
+INSERT INTO grouper_subject (subjectID, subjectTypeID)
+  VALUES ('GrouperSystem', 'person');
 
