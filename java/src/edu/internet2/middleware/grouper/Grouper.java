@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.68 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: Grouper.java,v 1.69 2005-02-07 21:41:38 blair Exp $
  */
 public class Grouper {
 
@@ -370,9 +370,7 @@ public class Grouper {
   private static void _init() {
     if (initialized == false) {
       log.event("Initializing Grouper");
-      // TODO Hateful
-      GrouperSession tmp = new GrouperSession();
-      InputStream    in  = tmp.getClass()
+      InputStream in = Grouper.class
                               .getResourceAsStream("/" + confFile);
       try {
         conf.load(in);
