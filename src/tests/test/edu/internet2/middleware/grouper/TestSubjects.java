@@ -108,14 +108,23 @@ public class TestSubjects extends TestCase {
     String id     = "blair";
     String type   = Grouper.DEF_SUBJ_TYPE;
     Subject subj  = GrouperSubject.load(id, type);
-    Assert.assertNotNull(subj);
+    Assert.assertNotNull("subj not null", subj);
     String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
-    Assert.assertTrue( klass.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( id.equals( subj.getId() ) );
+    Assert.assertTrue(
+                      "subj right class",  
+                      klass.equals( subj.getClass().getName() ) 
+                     );
+    Assert.assertTrue("id matches",  id.equals( subj.getId() ) );
     String name   = "Person";
-    Assert.assertNotNull( subj.getSubjectType() );
-    Assert.assertTrue( name.equals( subj.getSubjectType().getName() ) );
-    Assert.assertTrue( type.equals( subj.getSubjectType().getId() ) );
+    Assert.assertNotNull("subjtype not null", subj.getSubjectType() );
+    Assert.assertTrue(
+                      "subjtype name matches",   
+                      name.equals( subj.getSubjectType().getName() ) 
+                     );
+    Assert.assertTrue(
+                      "subjtype id matches",  
+                      type.equals( subj.getSubjectType().getId() ) 
+                     );
   }
 
   // begin: testLoadOneParam
@@ -132,12 +141,20 @@ public class TestSubjects extends TestCase {
 
   public void testLoadOneParam_1() {
     Subject subj = GrouperSubject.load(Util.m0i);
-    Assert.assertNotNull(subj);
-    Assert.assertTrue( Util.klassSI.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( subj.getId().equals(Util.m0i) );
-    Assert.assertNotNull( subj.getSubjectType() );
-    Assert.assertTrue( subj.getSubjectType().getId().equals(Util.m0t));
-    Assert.assertTrue( subj.getSubjectType().getName().equals("Person") );
+    Assert.assertNotNull("subj not null", subj);
+    Assert.assertTrue(
+                      "subj right class",  
+                      Util.klassSI.equals( subj.getClass().getName() ) 
+                     );
+    Assert.assertTrue("subj id matches", subj.getId().equals(Util.m0i) );
+    Assert.assertNotNull("subj type not null", subj.getSubjectType() );
+    Assert.assertTrue(
+                      "subjtype id matches",  
+                      subj.getSubjectType().getId().equals(Util.m0t));
+    Assert.assertTrue(
+                      "subjtype name matches",
+                      subj.getSubjectType().getName().equals("Person") 
+                     );
   }
 
   // end: testLoadOneParam
