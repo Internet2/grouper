@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -60,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.17 2005-03-09 05:02:18 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.18 2005-03-22 16:45:01 blair Exp $
  */
 public class GrouperQuery {
 
@@ -79,7 +80,7 @@ public class GrouperQuery {
    * PRIVATE INSTANCE VARIABLES
    */
   private GrouperSession  s;
-  private Map             candidates;
+  private Map             candidates = new HashMap();
 
 
   /*
@@ -90,7 +91,6 @@ public class GrouperQuery {
    * Construct a new {@link GrouperQuery} object.
    */
   public GrouperQuery(GrouperSession s) {
-    this._init();
     this.s = s;
   }
 
@@ -260,12 +260,124 @@ public class GrouperQuery {
     return candidates;
   }
 
-  /* (!javadoc)
-   * Initialize instance variables.
+  /*
+   * @return List of groups created after a specified date.
    */
-  private void _init() {
-    this.candidates = new HashMap();
-    this.s          = null;
+  private List _groupCreatedAfter(java.util.Date d) {
+    String  qry   = "GrouperGroup.by.created.after";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperGroup g = (GrouperGroup) iter.next();
+          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * @return List of groups created before a specified date.
+   */
+  private List _groupCreatedBefore(java.util.Date d) {
+    String  qry   = "GrouperGroup.by.created.before";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperGroup g = (GrouperGroup) iter.next();
+          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * @return List of groups modified after a specified date.
+   */
+  private List _groupModifiedAfter(java.util.Date d) {
+    String  qry   = "GrouperGroup.by.modified.after";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperGroup g = (GrouperGroup) iter.next();
+          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
+
+  /*
+   * @return List of groups modified before a specified date.
+   */
+  private List _groupModifiedBefore(java.util.Date d) {
+    String  qry   = "GrouperGroup.by.modified.before";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperGroup g = (GrouperGroup) iter.next();
+          g = GrouperBackend.groupLoadByKey(this.s, g, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
   }
 
   /* (!javadoc)
@@ -276,9 +388,7 @@ public class GrouperQuery {
     List    vals  = new ArrayList();
     this.candidates.remove(KEY_CA);
     // Find all groups created after this date
-    vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupCreatedAfter(this.s, date)
-           );
+    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedAfter(date));
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
@@ -294,9 +404,7 @@ public class GrouperQuery {
     List    vals  = new ArrayList();
     this.candidates.remove(KEY_CB);
     // Find all groups created before this date
-    vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupCreatedBefore(this.s, date)
-           );
+    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedBefore(date));
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
@@ -368,9 +476,7 @@ public class GrouperQuery {
     List    vals  = new ArrayList();
     this.candidates.remove(KEY_MA);
     // Find all groups modified after this date
-    vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupModifiedAfter(this.s, date)
-           );
+    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedAfter(date));
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }
@@ -386,9 +492,7 @@ public class GrouperQuery {
     List    vals  = new ArrayList();
     this.candidates.remove(KEY_MB);
     // Find all groups modified before this date
-    vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupModifiedBefore(this.s, date)
-           );
+    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedBefore(date));
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
     }

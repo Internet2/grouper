@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.177 2005-03-22 14:38:00 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.178 2005-03-22 16:45:01 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1199,122 +1199,6 @@ public class GrouperBackend {
       } catch (HibernateException e) {
         throw new RuntimeException(
                     "Error getting results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query for groups created after the specified time.
-   * <p />
-   *
-   * @param   d   A {@link java.util.Date} object.
-   * @return  List of {@link GrouperGroup} objects.
-   */
-  protected static List groupCreatedAfter(GrouperSession s, java.util.Date d) {
-    String  qry   = "GrouperGroup.by.created.after";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        Iterator iter = q.list().iterator();
-        vals = GrouperBackend._iterGroup(s, iter);
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query for groups created before the specified time.
-   * <p />
-   *
-   * @param   d   A {@link java.util.Date} object.
-   * @return  List of {@link GrouperGroup} objects.
-   */
-  protected static List groupCreatedBefore(GrouperSession s, java.util.Date d) {
-    String  qry   = "GrouperGroup.by.created.before";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        Iterator iter = q.list().iterator();
-        vals = GrouperBackend._iterGroup(s, iter);
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query for groups modified after the specified time.
-   * <p />
-   *
-   * @param   d   A {@link java.util.Date} object.
-   * @return  List of {@link GrouperGroup} objects.
-   */
-  protected static List groupModifiedAfter(GrouperSession s, java.util.Date d) {
-    String  qry   = "GrouperGroup.by.modified.after";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        Iterator iter = q.list().iterator();
-        vals = GrouperBackend._iterGroup(s, iter);
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  /**
-   * Query for groups modified before the specified time.
-   * <p />
-   *
-   * @param   d   A {@link java.util.Date} object.
-   * @return  List of {@link GrouperGroup} objects.
-   */
-  protected static List groupModifiedBefore(GrouperSession s, java.util.Date d) {
-    String  qry   = "GrouperGroup.by.modified.before";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        Iterator iter = q.list().iterator();
-        vals = GrouperBackend._iterGroup(s, iter);
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
                   );
       }
     } catch (HibernateException e) {
