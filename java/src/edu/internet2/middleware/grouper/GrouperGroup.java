@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.115 2004-12-04 05:28:30 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.116 2004-12-04 05:30:11 blair Exp $
  */
 public class GrouperGroup {
 
@@ -73,7 +73,7 @@ public class GrouperGroup {
   private String          createTime;
   private String          createSubject;
   private String          createSource;
-  private GrouperSession  grprSession;
+  private GrouperSession  gs;
   private String          id;
   private boolean         initialized   = false; // FIXME UGLY HACK!
   private String          key;
@@ -256,7 +256,7 @@ public class GrouperGroup {
           if (
               (attr != null)                   &&
               (this._attrAdd(attribute, attr)) //&&
-              //(GrouperBackend.groupUpdate(this.grprSession, this))   
+              //(GrouperBackend.groupUpdate(this.gs, this))   
              )
           {
             /* 
@@ -271,7 +271,7 @@ public class GrouperGroup {
           if (
               (attr != null)                   &&
               (this._attrAdd(attribute, attr)) //&&
-              //(GrouperBackend.groupUpdate(this.grprSession, this))   
+              //(GrouperBackend.groupUpdate(this.gs, this))   
              )
           {
             rv = true;
@@ -532,7 +532,7 @@ public class GrouperGroup {
     GrouperGroup g = GrouperBackend.groupLookupByKey(key);
     if (g != null) {
       // Attach session
-      g.grprSession = s;
+      g.gs = s;
       // Attach type  
       // FIXME Grr....
       g.type = type;
@@ -549,7 +549,7 @@ public class GrouperGroup {
     GrouperGroup g = GrouperBackend.groupLookup(s, stem, extn, type);
     if (g != null) {
       // Attach session
-      g.grprSession = s;
+      g.gs = s;
       // Attach type  
       // FIXME Grr....
       g.type = type;
@@ -635,7 +635,7 @@ public class GrouperGroup {
         g = new GrouperGroup();
 
         // Attach session
-        g.grprSession  = s;
+        g.gs  = s;
 
         // Generate the UUIDs
         g.setGroupKey( GrouperBackend.uuid() );
@@ -682,7 +682,7 @@ public class GrouperGroup {
     this.createSubject  = null;
     this.createSource   = null;
     this.key            = null;
-    this.grprSession    = null;
+    this.gs             = null;
     this.modifyTime     = null;
     this.modifySubject  = null;
     this.modifySource   = null;
