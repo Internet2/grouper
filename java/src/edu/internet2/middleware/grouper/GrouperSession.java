@@ -14,7 +14,7 @@ import  net.sf.hibernate.cfg.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.26 2004-07-14 02:46:20 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.27 2004-07-15 02:34:05 blair Exp $
  */
 public class GrouperSession {
 
@@ -105,7 +105,15 @@ public class GrouperSession {
    * </ul>
    */
   public void end() { 
-    // Nothing -- Yet
+    // It looks like we have a session.  Attempt to close it.
+    if (this.session != null) {
+      try {
+        this.session.close();
+      } catch (Exception e) {
+        System.err.println(e);
+        System.exit(1); 
+      }
+    }
   }
 
   /**
@@ -327,33 +335,19 @@ public class GrouperSession {
     this.subject = this.lookupSubject(subjectID);
 
     try {
-      Class.forName( this.intG.config("jdbc.driver") ).newInstance();
-      con = DriverManager.getConnection( this.intG.config("jdbc.url"),
-                                         this.intG.config("jdbc.username"),
-                                         this.intG.config("jdbc.password") );
+      Configuration cfg = new Configuration()
+        .addFile("conf/GrouperSession.hbm.xml");
       try {
-        Properties props  = new Properties();
-        Configuration cfg = new Configuration()
-          .addFile("conf/GrouperSession.hbm.xml")
-          .setProperties(props);
-        try {
-          sessions = cfg.buildSessionFactory();
-        } catch (Exception e) {
-          System.err.println(e);
-          System.exit(1);
-        }
+        sessions = cfg.buildSessionFactory();
+        this.session = sessions.openSession();
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
       }
-    } catch(Exception e) {
-      System.err.println("Failed to load JDBC driver '" + 
-                          this.intG.config("jdbc.driver") + "'");
+    } catch (Exception e) {
+      System.err.println(e);
       System.exit(1);
     }
-
-    // Initiate Hibernate session
-    this.session = this.sessions.openSession(this.con);
 
     // TODO Make this configurable.  Or something.
     this._cullSessions();
