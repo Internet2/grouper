@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.102 2004-12-02 17:43:14 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.103 2004-12-02 18:26:56 blair Exp $
  */
 public class GrouperGroup {
 
@@ -84,8 +84,6 @@ public class GrouperGroup {
   private Map  attributes;
   // Grouper Session
   private GrouperSession  grprSession;
-  // Does the group exist?
-  private boolean  exists;
 
 
   /*
@@ -280,51 +278,6 @@ public class GrouperGroup {
    */
   public Map attributes() {
     return this.attributes;
-  }
-
-  /**
-   * Does this {@link Grouper} group exist?
-   *
-   * @return Boolean true if the group exists, false otherwise.
-   */
-  public boolean exists() {
-    if (this.exists == true) {
-      // We are already marked as existing.  Assume that our status
-      // hasn't changed.
-      return this.exists;
-    } else {
-      // Otherwise attempt to find and load the group from the
-      // persistent store.
-      if (this.attributes.containsKey("stem")) {
-        // We need a stem
-        if (this.attributes.containsKey("extension")) {
-          // And an extension
-          if (this.grprSession != null) {
-            /* TODO This method, in particular this check, is proving
-             *      to be nothing but trouble.  At the least call out
-             *      to various GB methods to determine existence.
-             */
-            // And a session to load a group
-            // FIXME Provide a method of confirming a group's existence
-            //       that doesn't rely upon loading a group and checking for
-            //       the presence of a `key'.
-            GrouperGroup g = GrouperGroup.load(
-                                               this.grprSession,
-                                               this.attribute("stem").value(),
-                                               this.attribute("extension").value()
-                                              );
-            // Does the returned GrouperGroup object contain a group
-            // key?  If so, the group is considered to exist.
-            //if (g.key() != null) {
-            if ( ( g != null) && ( g.key() != null ) ) {
-              this.exists = true;
-              return true;
-            }
-          }
-        }
-      }
-    }
-    return false;
   }
 
   /**
@@ -643,8 +596,7 @@ public class GrouperGroup {
     if (g._validateCreate()) {
       // And now attempt to add the group to the store
       GrouperBackend.groupAdd(s, g);
-      g.exists = true;
-    }
+    } // TODO Return null otherwise?
     return g;
   }
 
@@ -657,7 +609,6 @@ public class GrouperGroup {
     this.createTime     = null;
     this.createSubject  = null;
     this.createSource   = null;
-    this.exists         = false;
     this.key            = null;
     this.grprSession    = null;
     this.modifyTime     = null;
@@ -772,8 +723,6 @@ public class GrouperGroup {
         (attributes.containsKey("stem"))            &&
         // And an extension?
         (attributes.containsKey("extension"))      && 
-        // And do the stem and extension already exist?
-        (this.exists() == false)                    && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
         // TODO Member Object for the admin of the group
