@@ -1,57 +1,54 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  java.sql.*;
-import  java.util.Date;
-import  java.util.List;
 import  java.util.ArrayList;
+import  java.util.Date;
+import  java.util.HashMap;
+import  java.util.List;
 import  java.util.Map;
 
 /** 
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.18 2004-05-02 00:19:38 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.19 2004-05-02 01:05:38 blair Exp $
  */
 public class GrouperGroup {
 
-  private GrouperSession intSess  = null;
-  private String  groupID         = null;
-  private String  groupName       = null;
-
-  /*
-   * TODO
-   * - GrouperFieldPrivileges
-   *  - field level access
-   *    - two caches: one for ui, one for api?
-   */
+  private GrouperSession  intSess   = null;
+  private String          groupID   = null;
+  private String          groupName = null;
+  private boolean         exists    = false;
 
   /**
    * Create a new object that represents a single {@link Grouper}
    * group. 
    * <p>
    * <ul>
-   *  <li>Cache the <i>subject</i>'s privileges for this group.</li>
-   *  <li>XXX Leave the rest for lazy evaluation later?</li>
+   *  <li>Caches the group name.</li>
+   *  <li>Checks and caches whether group exists.</li>
+   *  <li>If group exists, the privileges of the current subject   
+   *      on this group will be cached.</li>
    * </ul>
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
     // Internal reference to the session we are using.
-    this.intSess = s;
+    this.intSess    = s;
     // XXX Hrm...
-    this.groupName = groupName;
+    this.groupName  = groupName;
+    // XXX Also dubious
+    this.exists     = true;  
   }
 
   /**
-   * Returns a list of all {@link GrouperGroup} memberships of type
-   * "members".
+   * Retrieves all memberships of type "members".
    * <p>
    * <ul>
-   *  <li>Verify that the session's subject has sufficient privileges
-   *      to read type "members" for this group.</li>
-   *  <li>Fetch and return rows from the <i>grouper_membership</i>
-   *      table that represent "members" and have the appropriate
-   *      <i>groupId</i> value.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view desired information.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table
+   *      that represent "members" and have the appropriate
+   *      <i>groupID</i> value.</li>
    * </ul>
    *
    * @return  List of group memberships.
@@ -80,37 +77,33 @@ public class GrouperGroup {
   }
 
   /**
-   * Returns a list of all {@link GrouperGroup} memberships of type
-   * <i>groupField</li>.
+   * Retrieves all memberships of a specified type.
    * <p>
    * <ul>
-   *  <li>Verify that the session's subject has sufficient privileges
-   *      to read type <i>groupField</i> for this group.</li>
-   *  <li>Fetch and return rows from the <i>grouper_membership</i>
-   *      table with the appropriate <i>groupID</i> and <i>groupField</i>
-   *      values.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view desired information.</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table
+   *      that have the appropriate <i>groupID</i> and 
+   *      <i>groupField</i> values.</li>
    * </ul>
    *
    * @param   groupField  Type of group to return.
    * @return  List of group memberships.
    */
   public List getMembership(String groupField) {
-    List membership = null;
+    List membership = new ArrayList();
     return membership;
   }
 
   /**
-   * Returns a list of all {@link GrouperGroup} memberships of type
-   * <i>groupField</li>.
+   * Retrieves all memberships of a specified type and immediacy.
    * <p>
    * <ul>
-   *  <li>Verify that the session's subject has sufficient privileges
-   *      to read type <i>groupField</i> for this group.</li>
-   *  <li>Fetch and return rows from the <i>grouper_membership</i>
-   *      table with the appropriate <i>groupID</i>, <i>groupField</i>,
-   *      and <i>isImmediate</i> values.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Verify that the current subject has sufficient
+   *      privileges to view desired information..</li>
+   *  <li>Fetch rows from the <i>grouper_membership</i> table
+   *      that have the appropriate <i>groupID</i>, 
+   *      <i>groupField</i>, and <i>isImmediate</i> values.</li>
    * </ul>
    *
    * @param   groupField  Type of group to return.
@@ -119,36 +112,35 @@ public class GrouperGroup {
    * @return  List of group memberships..
    */
   public List getMembership(String groupField, boolean isImmediate) {
-    List membership = null;
+    List membership = new ArrayList();
     return membership;
   }
 
-  /*
-   * Returns a map of all the metadata for a {@link GrouperGroup}.
+  /**
+   * Retrieves all metadata.
    * <p>
    * <ul>
-   *  <li>Fetch and return rows from the <i>grouper_metadata</i>
-   *      table that this session's subject has sufficient privileges
-   *      to read.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      view desired information.</li>
+   *  <li>Fetch rows from the <i>grouper_metadata</i> table that have
+   *      the appropriate <i>groupID</i> value.
    * </ul>
    *
    * @return  Map of all accessible group metadata.
   */
   public Map getMetadata() {
-    Map metadata = null;
+    Map metadata = new HashMap();
     return metadata;
   }
 
-  /*
-   * Returns a single item of metadata for a {link GrouperGroup}.
+  /**
+   * Retrieves a single item of metadata.
    * <p>
    * <ul>
-   *  <li>Verify that this session's subject has sufficient privileges
-   *      to read the desired item of metadata.</li>
-   *  <li>Fetch and return the desired metadata from the
-   *      <i>grouper_metadata</i> table.</li>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      view the desired informaton.</li>
+   *  <li>Fetch row from the <i>grouper_metadata</i> table that has the 
+   *      appropriate <i>groupID</i> and <i>groupField</i> values.</li>
    * </ul>
    *
    * @param   groupField Desired metadata for this {@link GrouperGroup}.
@@ -159,23 +151,20 @@ public class GrouperGroup {
   }
 
   /**
-   * Create a new {@link Grouper} group.
+   * Create a new group of type "base".
    * <p>
    * <ul>
-   *  <li>Verify that the "subjectID" has sufficient privileges to
-   *      create the group.</li>
-   *  <li>Update the <i>grouper_group</i> table.</li>
-   *  <li>Update the <i>grouper_schema</i> table using the default
-   *      <i>groupType</i>.</li>
-   *  <li>Update the <i>grouper_membership</i> table by making
-   *      "subjectID" an "admin".</li>
-   *  <li>Update the <i>grouper_metadata</i> table</li>
-   *  <li>XXX If group was automatically created, admin list is
-	 *      empty.  If manually created, the creator is the admin.
-	 *       But how do we know if the list was created automatically
-	 *      or manually?</li>
-   *  <li>XXX Granting of "admin" after creating may fail.  So be
-   *      it.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      create the desired group.</li>
+   *  <li>If yes:</li>
+   *  <ul>
+   *   <li>Update the <i>grouper_group</i> table.</li>
+   *   <li>Update the <i>grouper_schema</i> table.</li>
+   *   <li>Update the <i>grouper_metadata</i> table.</li>
+   *   <li>Grant the current subject "admin" privileges on the new
+   *       group.</li>
+   *   <li>Update the internal <i>exists</i> flag.</li>
+   *  </ul>
    * </ul>
    */
   public void create() {
@@ -183,17 +172,20 @@ public class GrouperGroup {
   }
 
   /**
-   * Create a new {@link Grouper} group.
+   * Create a new group of type <i>groupType</i>.
    * <p>
    * <ul>
-   *  <li>Verify that the "subjectID" has sufficient privileges to
-   *      create the group.</li>
-   *  <li>Update the <i>grouper_group</i> table.</li>
-   *  <li>Update the <i>grouper_schema</i> table using "groupType"
-   *      as the <i>groupType</i>.</li>
-   *  <li>Update the <i>grouper_membership</i> table by making
-   *      "subjectID" an "admin".</li>
-   *  <li>Update the <i>grouper_metadata</i> table</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      create the desired group.</li>
+   *  <li>If yes:</li>
+   *  <ul>
+   *   <li>Update the <i>grouper_group</i> table.</li>
+   *   <li>Update the <i>grouper_schema</i> table.</li>
+   *   <li>Update the <i>grouper_metadata</i> table.</li>
+   *   <li>Grant the current subject "admin" privileges on the new
+   *       group.</li>
+   *   <li>Update the internal <i>exists</i> flag.</li>
+   *  </ul>
    * </ul>
    */
   public void create(String groupType) {
@@ -201,13 +193,12 @@ public class GrouperGroup {
   }
 
   /**
-   * Rename a {@link Grouper} group.
+   * Rename a group.
    * <p>
    * <ul>
-   *  <li>Verify that the "subjectID" has sufficient privileges to
-   *      rename the group.</li>
-   *  <li>Update the <i>grouper_group</i> table.</li>
-   *  <li>??? Possibly update the <i>grouper_metadata</i> table.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      rename the group as the desired stem and descriptor.</li>
+   *  <li>Update the <i>grouper_metadata</i> table.</li>
    * </ul>
    */
   public void rename(String newGroupName) {
@@ -215,19 +206,17 @@ public class GrouperGroup {
   }
 
   /** 
-   * Delete a {@link Grouper} group.
+   * Delete a group.
    * <p>
    * <ul>
-   *  <li>Verify that the "subjectID" has sufficient privileges to
-   *       delete the group.</li>
-   *  <li>Atomically:</li>
-   *  <ul>
-   *   <li>Update the <i>grouper_metadata</i> table</li>
-   *   <li>Update the <i>grouper_group</i> table.</li>
-   *   <li>Update the <i>grouper_schema</i> table.</li>
-   *   <li>XXX Update the <i>grouper_membership</i> table.</li>
-   *   <li>XXX Update the <i>grouper_via</i> table.</li>
-   *  </ul>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      delete the group.</li>
+   *  <li>Update the <i>grouper_group</i> table.</li>
+   *  <li>Update the <i>grouper_schema</i> table.</li>
+   *  <li>Update the <i>grouper_metadata</i> table.</li>
+   *  <li>Update the <i>grouper_membership</i> table.</li>
+   *  <li>Update the <i>grouper_via</i> table.</li>
+   *  <li>Update the internal <i>exists</i> flag.</li>
    * </ul>
    */
   public void delete() {
@@ -235,13 +224,12 @@ public class GrouperGroup {
   }
 
   /**
-   * Add metadata "value" to group field "groupField".
+   * Add metadata to a group.
    * <p>
    * <ul>
-   *  <li>Verify that "subjectID" has sufficient privileges to VIEW and
-   *      ADMIN the group.</li>
-   *  <li>Update the <i>grouper_metadata</i> table with this
-   *      information.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      update the specified metadata.</li>
+   *  <li>Update the <i>grouper_metadata</i> table.</li>
    * </ul>
    *
    * @param   groupField  The field type for this member.
@@ -252,16 +240,35 @@ public class GrouperGroup {
   }
 
   /**
-   * Add member "member" to the group field "groupField".
+   * Add new "member" membership.
    * <p>
    * <ul>
-   *  <li>Verify that "subjectID" has sufficient privileges to VIEW and
-   *      either UPDATE or OPTIN the group.</li>
-   *  <li>Update the <i>grouper_membership</i> table with this
-   *      immediate membership information and the default TTL.</li>
-   *  <li>XXX Update the <i>grouper_membership</i> and <i>grouper_via</i>
-   *      tables with any new effective memberships that have been
-   *      created.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      add a new membership of this type.</li>
+   *  <li>Update the <i>grouper_membership</i> table to with this new
+   *      membership.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any new effective
+   *      memberships.</li>
+   * </ul>
+   *
+   * @param   member      The member to add.
+   */
+  public void addValue(GrouperMember member) {
+    // Nothing -- Yet
+  }
+
+  /**
+   * Add new membership of type <i>groupField</i>.
+   * <p>
+   * <ul>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      add a new membership of this type.</li>
+   *  <li>Update the <i>grouper_membership</i> table to with this new
+   *      membership.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any new effective
+   *      memberships.</li>
    * </ul>
    *
    * @param   groupField  The field type for this member.
@@ -272,16 +279,16 @@ public class GrouperGroup {
   }
 
   /**
-   * Add member "member" to the group field "groupField".
+   * Add new membership of type <i>groupField</i> with non-default TTL.
    * <p>
    * <ul>
-   *  <li>Verify that "subjectID" has sufficient privileges to VIEW and
-   *      either UPDATE or OPTIN the group.</li>
-   *  <li>Update the <i>grouper_membership</i> table with this
-   *      immediate membership information.</li>
-   *  <li>XXX Update the <i>grouper_membership</i> and <i>grouper_via</i>
-   *      tables with any new effective memberships that have been
-   *      created.</li>
+   *  <li>Verify that the current subject has sufficient privileges to
+   *      add a new membership of this type.</li>
+   *  <li>Update the <i>grouper_membership</i> table to with this new
+   *      membership.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any new effective
+   *      memberships.</li>
    * </ul>
    *
    * @param   groupField  The field type for this member.
@@ -296,55 +303,58 @@ public class GrouperGroup {
    * Remove group metadata.
    * <p>
    * <ul>
-   *  <li>Verify that "subjectID" has sufficient privileges to ADMIN
-   *      (?) the group.</li>
-   *  <li>Remove fields from the <i>grouper_metadata</i> table with the
-   *      appropriate "groupID", "groupField", and "value".</li>
-   *  <li>XXX Should value be required?  What if it was optional?
-   *      Requiring the value looks like it may be an extra hoop
-   *      that we don't need to jump through.</li>
+   *  <li>Verify that the current subject has sufficient privilges to
+   *      remove the specified metadata.</li>
+   *  <li>Update <i>grouper_metadata</i> table.</li>
    * </ul>
    * 
    * @param   groupField  The metadata field.
-   * @param   value       The value to remove.
    */
-  public void  removeValue(String groupField, String value) {
+  public void  removeValue(String groupField) {
     // Nothing -- Yet
   }
 
   /**
-   * Remove group member..
+   * Remove existing "member" membership.
    * <p>
    * <ul>
-   *  <li>Verify that "subjectID" has sufficient privileges to ADMIN
-   *      (?) the group.</li>
-   *  <li>Remove fields from the <i>grouper_metadata</i> table with the
-   *      appropriate "groupID", "groupField", and "value".</li>
-   *  <li>XXX Should value be required?  What if it was optional?
-   *      Requiring the value looks like it may be an extra hoop
-   *      that we don't need to jump through.</li>
-   *  <li>Verify that "subjectID" has sufficient privileges to VIEW and
-   *      either UPDATE or OPTIN the group.</li>
-   *  <li>Remove "member" from "groupField" for "groupID" in the 
-   *      <i>grouper_membership</i> table.</li>
-   *  <li>XXX Update the <i>grouper_membership</i> and <i>grouper_via</i>
-   *      tables to reflect any changes in effective memberships that 
-   *      may have resulted from this change.</li>
+   *  <li>Verify that the current subject has sufficient privileges to 
+   *      remove the specified membership.</li>
+   *  <li>Update <i>grouper_membership</i> table to reflect the loss of
+   *      this membership.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any loss of effective
+   *      memberships.</li>
    * </ul>
-   * 
-   * @param   groupField  The field type for this member.
-   * @param   member      The member to add.
+   *
+   * @param   member    The membership to remove.
    */
-  public void  removeValue(String groupField, GrouperMember member) {
+  public void removeValue(GrouperMember member) {
     // Nothing -- Yet
   }
 
   /**
-   * Identify a {@link GrouperGroup} object.
+   * Remove existing membership of type <i>groupField</i>.
    * <p>
    * <ul>
-   *  <li>XXX Add to docs/examples/.</li>
+   *  <li>Verify that the current subject has sufficient privileges to 
+   *      remove the specified membership.</li>
+   *  <li>Update <i>grouper_membership</i> table to reflect the loss of
+   *      this membership.</li>
+   *  <li>Update the <i>grouper_membership</i> and <i>grouper_via</i>
+   *      tables as appropriate to reflect any loss of effective
+   *      memberships.</li>
    * </ul>
+   *
+   * @param   member      The membership to remove.
+   * @param   groupField  Type of membership to remove.
+   */
+  public void removeValue(GrouperMember member, String groupField) {
+    // Nothing -- Yet
+  }
+
+  /**
+   * Identify a group object.
    *
    * @return  Group name.
    */
