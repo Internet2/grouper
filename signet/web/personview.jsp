@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.7 2005-02-24 01:09:39 jvine Exp $
-  $Date: 2005-02-24 01:09:39 $
+  $Id: personview.jsp,v 1.8 2005-02-24 19:15:24 acohen Exp $
+  $Date: 2005-02-24 19:15:24 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -98,6 +98,8 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+
 <% 
   Signet signet
      = (Signet)
@@ -149,97 +151,97 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-				Privileges assigned to
-       	<h1>
-         	<%=currentGranteePrivilegedSubject.getName()%>
-       	</h1>
-       	<span class="dropback">
-         	<%=currentGranteePrivilegedSubject.getDescription()%>
-       	</span> <!-- dropback -->	
-     	</div>
-     	<div class="tableheader">
-       	<form name="pickSubsystem" action="PersonView.do">
-         	<!-- the following two a tags must be within the form tag, but
+        Privileges assigned to
+         <h1>
+           <%=currentGranteePrivilegedSubject.getName()%>
+         </h1>
+         <span class="dropback">
+           <%=currentGranteePrivilegedSubject.getDescription()%>
+         </span> <!-- dropback -->  
+       </div>
+       <div class="tableheader">
+         <form name="pickSubsystem" action="PersonView.do">
+           <!-- the following two a tags must be within the form tag, but
                  before the generated text that appears in the tableheader row -->
-         	<a
+           <a
               style="float: right;"
               href="javascript:;"
               onClick="alert('This will download the data shown in the table in an Excel-readable format.')">
-           	<img
+             <img
                 src="images/icon_spread.gif"
                 width="20"
                 height="20"
                 class="icon"
                 style="margin-left: 10px;" />
-           	Export to Excel
-         	</a>
-         	<a
+             Export to Excel
+           </a>
+           <a
               style="float: right;"
               href="PersonViewPrint.do">
-           	<img
+             <img
                 src="images/icon_printsion.gif"
                 width="21"
                 height="20"
                 class="icon" />
-           	Printable version
-         	</a>
-         	<h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
-					<fieldset>
-         	<select
+             Printable version
+           </a>
+           <h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
+          <fieldset>
+           <select
               name="subsystemId"
               id="subsystem">
-	
+  
             <option
                 selected="selected"
                 onClick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=true">
-             	(assigned privilege types)
-           	</option>
-              	
+               (assigned privilege types)
+             </option>
+                
 <%
   Set assignmentsReceived
-  	= new TreeSet
-  			(currentGranteePrivilegedSubject
-  				.getAssignmentsReceived(Status.ACTIVE, null));
+    = new TreeSet
+        (currentGranteePrivilegedSubject
+          .getAssignmentsReceived(Status.ACTIVE, null));
   Set subsystemsOfReceivedAssignments = new HashSet();
   Iterator assignmentsReceivedIterator
-  	= assignmentsReceived.iterator();
+    = assignmentsReceived.iterator();
   while (assignmentsReceivedIterator.hasNext())
   {
     Assignment receivedAssignment
       = (Assignment)(assignmentsReceivedIterator.next());
     subsystemsOfReceivedAssignments.add
-    	(receivedAssignment.getFunction().getSubsystem());
+      (receivedAssignment.getFunction().getSubsystem());
   }
 
   Iterator subsystemsIterator
-  	= subsystemsOfReceivedAssignments.iterator();
+    = subsystemsOfReceivedAssignments.iterator();
   while (subsystemsIterator.hasNext())
   {
     Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
 %>
-           	<option
+             <option
                 value="<%=subsystem.getId()%>"
                 onClick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=false">
-             	<%=subsystem.getName()%>
-           	</option>
-              	
+               <%=subsystem.getName()%>
+             </option>
+                
 <%
   }
 %>
-	
+  
           </select>
-                    	
+                      
           <input
               class="button1"
               disabled="true"
               type="submit"
               name="showSubsystemPrivs"
               value="Show"/>
-						</fieldset>	
-       	</form> <!-- pickSubsystem -->
-     	</div>
-     	<!-- tableheader -->
-            	
+            </fieldset>  
+         </form> <!-- pickSubsystem -->
+       </div>
+       <!-- tableheader -->
+              
       <form
           onSubmit
             ="return confirm
@@ -254,136 +256,131 @@
           method="post"
           name="checkform"
           id="checkform">
-       	<div class="tablecontent">
-         	<table class="full">
-           	<tr class="columnhead">
-             	<td width="30%">
-               	<img
+         <div class="tablecontent">
+           <table class="full">
+             <tr class="columnhead">
+               <td width="30%">
+                 <img
                     src="images/icon_down_unsel.gif"
                     width="17"
                     height="17" />
-               	Privilege
-             	</td>
-             	<td width="20%">
-               	Scope
-             	</td>
-             	<td>
-               	Limits
-             	</td>
-             	<td width="10%" align="left">Status</td>
-             	<td width="10%" align="left">
-               	All:
-               	<input
+                 Privilege
+               </td>
+               <td width="20%">
+                 Scope
+               </td>
+               <td>
+                 Limits
+               </td>
+               <td width="10%" align="left">Status</td>
+               <td width="10%" align="left">
+                 All:
+                 <input
                     name="checkAll"
                     type="checkbox"
                     id="checkAll"
                     onClick="selectAll(this.checked);"
                     value="Check All" />
-             	</td>
-           	</tr>
-                	
+               </td>
+             </tr>
+                  
 <%
   if (currentSubsystem != null)
   {
     Set assignmentsReceivedForCurrentSubsystem
       = new TreeSet
-      		(currentGranteePrivilegedSubject
-      			.getAssignmentsReceived(Status.ACTIVE, currentSubsystem));
+          (currentGranteePrivilegedSubject
+            .getAssignmentsReceived(Status.ACTIVE, currentSubsystem));
     Iterator assignmentsIterator
-    	= assignmentsReceivedForCurrentSubsystem.iterator();
+      = assignmentsReceivedForCurrentSubsystem.iterator();
     while (assignmentsIterator.hasNext())
     {
       Assignment assignment = (Assignment)(assignmentsIterator.next());
 %>
-	
-              <tr>
-               	<td>
-                 	<a
-                      style="float: right;"
-                      href="javascript:openWindow
-                              ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
-                      	       'popup',
-                      	       'scrollbars=yes,
-                      	        resizable=yes,
-                      	        width=500,
-                      	        height=100');">
-                   	<img
-                        src="images/info.gif"
-                        width="20"
-                        height="20" />
-                 	</a>
-                 	<%=assignment.getFunction().getCategory().getName()%>
-                 	: 
-                 	<%=assignment.getFunction().getName()%>
-               	</td>
-               	<td>
-                 	<%=assignment.getScope().getName()%>
-               	</td>
-               	<td >
-                 	<a
-                      style="float: right;"
-                      href="NotYetImplemented.do">
-                   	<img
-                        src="images/icon_arrow_right.gif"
-                        width="16"
-                        height="16"
-                        class="icon" />
-                   	edit
-                 	</a>
-                 	<span class="dropback">
-                   	<!--Approval limit:--> 
-                 	</span>
-                 	<!--$500-->
-                 	<br />
-                 	<span class="dropback">
-                   	<!--Account:--> 
-                 	</span>
-                 	<!--1003321, 1003329-567, 1003329-992, 1003354, 1003372-001-->
-               	</td>
-               	<td align="center" >&nbsp;</td>
-               	<td align="center" >
-                 	<input
+  
+             <tr>
+               <td> <!-- privilege -->
+                 <a
+                   style="float: right;"
+                   href="javascript:openWindow
+                     ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
+                      'popup',
+                      'scrollbars=yes,
+                      resizable=yes,
+                      width=500,
+                      height=100');">
+                   <img
+                     src="images/info.gif"
+                     width="20"
+                     height="20" />
+                 </a>
+                 <%=assignment.getFunction().getCategory().getName()%>
+                 : 
+                 <%=assignment.getFunction().getName()%>
+               </td> <!-- privilege -->
+               
+               <td> <!-- scope -->
+                 <%=assignment.getScope().getName()%>
+               </td> <!-- scope -->
+               
+               <td> <!-- limits -->
+                 <a
+                   style="float: right;"
+                   href="NotYetImplemented.do">
+                   <img
+                     src="images/icon_arrow_right.gif"
+                       width="16"
+                       height="16"
+                       class="icon" />
+                   edit
+                 </a>
+                <%=Common.displayLimitValues(assignment)%>
+               </td> <!-- limits -->
+               
+                 <td align="center" >&nbsp;</td>
+                 <td align="center" >
+                   <input
                       name="revoke"
                       type="checkbox"
                       id="<%=assignment.getNumericId()%>"
                       value="<%=assignment.getNumericId()%>"
                       <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "disabled=\"true\"")%>
                       onClick="selectThis(this.checked);">
-               	</td>
-             	</tr>
-                	
+                 </td>
+               </tr>
+                  
 <%
     }
   }
 %>
-	
+  
               <tr >
-               	<td>&nbsp;
-                    	
+                 <td>&nbsp;
+                      
                 </td>
-               	<td>&nbsp;
-                    	
+                 <td>&nbsp;
+                      
                 </td>
-               	<td >&nbsp;
-                    	
+                 <td >&nbsp;
+                      
                 </td>
-               	<td align="center" >&nbsp;</td>
-               	<td align="center" >
-                 	<input
+                 <td align="center" >&nbsp;</td>
+                 <td align="center" >
+                   <input
                       name="revokeButton"
                       type="submit"
                       disabled="true"
                       class="button1"
                       value="Revoke" />
-               	</td>
-             	</tr>
-           	</table>
-       	</div> <!-- tablecontent -->
-     	</form>
-     	<!-- checkform -->
-        	<!-- table1 -->
-	<jsp:include page="footer.jsp" flush="true" />
-   	</div><!-- Content -->
+                 </td>
+               </tr>
+             </table>
+         </div> <!-- tablecontent -->
+       </form>
+       <!-- checkform -->
+          <!-- table1 -->
+  <jsp:include page="footer.jsp" flush="true" />
+     </div><!-- Content -->
       <div id="Sidebar">
         
 <% 
@@ -425,8 +422,8 @@
                   class="button1"
                   <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
                   value="Start &gt;&gt;" />
-								<br />
-						<span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
+                <br />
+            <span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
               <!-- actionbox -->
           </form>
         </div> <!-- grant -->
@@ -434,7 +431,7 @@
 <%
   }
 %>
-				 <div class="findperson">
+         <div class="findperson">
             <h2>
               find a person
             </h2>
@@ -453,14 +450,14 @@
                   class="button1"
                   onClick="javascript:showResult();"
                   value="Search" /> 
-						 <br />
+             <br />
              <span class="dropback">
-							 Enter a person's name, and click "Search."
- 		         </span>
+               Enter a person's name, and click "Search."
+              </span>
            </p>
            <div id="Results" style="display:none">
              Your search found:
-          	<div class="scroll">						 
+            <div class="scroll">             
                        
 <%
   Set privilegedSubjects
@@ -473,7 +470,7 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-							 <br />
+               <br />
                <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
                  <%=listSubject.getName()%>
                </a>
@@ -482,9 +479,9 @@
 <%
   }
 %>
-							</div> <!-- scroll -->
-     	      </div>           <!-- results -->
-         </div>				 <!-- findperson -->         
+              </div> <!-- scroll -->
+             </div>           <!-- results -->
+         </div>         <!-- findperson -->         
           <div class="views">
             <h2>
               View privileges...
@@ -523,12 +520,12 @@
         </div> <!-- views -->
             
           
-				<div class="helpbox">
-       		<h2>
-          	Help
-		      </h2>
-					<jsp:include page="personview-help.jsp" flush="true" />
-	      </div> <!-- helpbox-->	
+        <div class="helpbox">
+           <h2>
+            Help
+          </h2>
+          <jsp:include page="personview-help.jsp" flush="true" />
+        </div> <!-- helpbox-->  
       </div> 
       <!-- Sidebar -->
 </div> <!-- Layout -->
