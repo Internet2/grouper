@@ -23,17 +23,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <o:DocumentProperties>
   <o:Author>Tom Barton</o:Author>
   <o:LastAuthor>Tom Barton</o:LastAuthor>
-  <o:Revision>2</o:Revision>
-  <o:TotalTime>4441</o:TotalTime>
+  <o:Revision>12</o:Revision>
+  <o:TotalTime>4467</o:TotalTime>
   <o:Created>2004-12-09T21:18:00Z</o:Created>
-  <o:LastSaved>2004-12-09T21:18:00Z</o:LastSaved>
+  <o:LastSaved>2004-12-09T21:50:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>5855</o:Words>
-  <o:Characters>33374</o:Characters>
+  <o:Words>5896</o:Words>
+  <o:Characters>33612</o:Characters>
   <o:Company>The University of Chicago</o:Company>
-  <o:Lines>278</o:Lines>
+  <o:Lines>280</o:Lines>
   <o:Paragraphs>78</o:Paragraphs>
-  <o:CharactersWithSpaces>39151</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>39430</o:CharactersWithSpaces>
   <o:Version>10.6714</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
@@ -4207,7 +4207,7 @@ infrastructure. </p>
 
 <p class=MsoNormal>In addition to this Implementation Guide, the Grouper 0.5
 distribution contains javadoc<span style='color:red'> </span>and other germinal
-guides for developers (i.e., good intention outwieghs substance at the moment).
+guides for developers (i.e., good intention outweighs substance at the moment).
 All of these are found in the doc/ directory of the distribution, which also
 contains a file called NEWS that lists features in 0.5, those that are slated
 for a future release, and known problems with 0.5. If this document and the
@@ -4264,7 +4264,7 @@ style='mso-bidi-font-style:normal'>java</i></span>/</p>
 <p class=MsoNormal style='margin-left:1.0in'><span class=GramE><i
 style='mso-bidi-font-style:normal'>lib</i></span><i style='mso-bidi-font-style:
 normal'>/</i><span style='mso-tab-count:1'>       </span><span
-style='mso-tab-count:1'>            </span>3<sup>rd</sup> party jarfiles that
+style='mso-tab-count:1'>            </span>3<sup>rd</sup> party jar files that
 grouper depends on</p>
 
 <p class=MsoNormal style='margin-left:1.0in'><span class=GramE><i
@@ -4342,7 +4342,7 @@ directory.</p>
 <p class=MsoNormal style='margin-left:.3in;text-indent:-.3in;mso-list:l19 level1 lfo36;
 tab-stops:list .3in'><![if !supportLists]><span style='mso-list:Ignore'>5.<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><![endif]>Do &quot;any db-init db-init-test&quot; to create and
+</span></span><![endif]>Do &quot;ant db-init db-init-test&quot; to create and
 test the Groups Registry in the HSQLDB database provided. The database is
 created in the <i style='mso-bidi-font-style:normal'>$GROUPER_BASE/dist/run/</i>
 directory. </p>
@@ -4361,10 +4361,12 @@ second HSQL Database Manager window will pop up with some more commands
 preloaded, but this time you’ll see a list of tables in the Grouper Registry in
 the left-hand pane of the window. Press &quot;Execute&quot;. At this point the
 Groups Registry has been seeded with definitions of the &quot;base&quot; and &quot;naming&quot;
-group types (in the grouper_type, grouper_type_def, and grouper_field tables)
-and the &quot;GrouperSystem&quot; subject has been created in the
-grouper_subject table. You can execute select statements to see these, just for
-fun. Exit the HSQL Database Manager when you’re done.</p>
+group types (in the <i style='mso-bidi-font-style:normal'>grouper_type</i>, <i
+style='mso-bidi-font-style:normal'>grouper_type_def</i>, and <i
+style='mso-bidi-font-style:normal'>grouper_field</i> tables) and the &quot;GrouperSystem&quot;
+subject has been created in the <i style='mso-bidi-font-style:normal'>grouper_subject</i>
+table. You can execute select statements to see these, just for fun. Exit the
+HSQL Database Manager when you’re done.</p>
 
 <p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l19 level2 lfo36;
 tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
@@ -4404,17 +4406,20 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 <p class=MsoNormal>Grouper 0.5 has only a few configuration options. The
 configuration files are in the <i style='mso-bidi-font-style:normal'>$GROUPER_BASE/conf</i>
-directory. That directory contains five files, two that should not be modified
-and three that should be. Do not modify <i style='mso-bidi-font-style:normal'>ehcache.xml</i>
-and <i style='mso-bidi-font-style:normal'>Grouper.hbm.xml</i>. Do modify <i
+directory. That directory contains five files, one that should not be modified,
+another that can be modified only with care, and three that should be modified.
+Do not modify <i style='mso-bidi-font-style:normal'>Grouper.hbm.xml</i>. With
+care, you can modify <i style='mso-bidi-font-style:normal'>ehcache.xml</i> to
+tweak cache parameters but not to add or remove caches. Do modify <i
 style='mso-bidi-font-style:normal'>Grouper.properties</i>, <i style='mso-bidi-font-style:
-normal'>hibernate.properties</i>, and <i style='mso-bidi-font-style:normal'>log4j.properties</i>.</p>
+normal'>hibernate.properties</i>, and <i style='mso-bidi-font-style:normal'>log4j.properties</i>
+as follows.</p>
 
 <p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>Grouper.properties</i>
 file for version 0.5 contains just three declarations. First is the <i
 style='mso-bidi-font-style:normal'>subjectID</i> for Grouper’s superuser, by
 default <i style='mso-bidi-font-style:normal'>GrouperSystem</i>. This subject
-has unlimited prviliege within the Grouper API. The other two declarations
+has unlimited privilege within the Grouper API. The other two declarations
 specify the classes implementing Grouper’s Access and Naming Privilege
 Interfaces. These are defaulted to use Grouper’s internal privilege
 implementation.</p>
@@ -4538,7 +4543,7 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 <p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>csv2group</i>
 program is a very simple means to add namespaces, groups, and members to the
-Groups Registry.However, it doesn't delete groups or memberships - that is an
+Groups Registry. However, it doesn't delete groups or memberships - that is an
 exercise left to each site's developers! To use it,</p>
 
 <p class=MsoNormal style='margin-left:.3in;text-indent:-.3in;mso-list:l17 level1 lfo50;
@@ -4555,8 +4560,9 @@ follow its instructions.</p>
 
 <p class=MsoNormal>The <i style='mso-bidi-font-style:normal'>csv2group</i> program
 interacts with the Groups Registry as the <i style='mso-bidi-font-style:normal'>GrouperSystem</i>
-subject. You'll want to add the subjects in the csv2subject/sample.csv file
-before loading the sample groups in this sample.csv – the members of the sample
+subject. You'll want to add the subjects in the <i style='mso-bidi-font-style:
+normal'>csv2subject/sample.csv</i> file before loading the sample groups in
+this <i style='mso-bidi-font-style:normal'>sample.csv</i> – the members of the sample
 groups are taken from the list of sample subjects.</p>
 
 <h3 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
@@ -5054,7 +5060,7 @@ through <i style='mso-bidi-font-style:normal'>optouts</i> lists are used only
 if Grouper’s default privilege implementation is used (see section <span
 style='mso-field-code:" REF _Ref90260330 \\r \\h "'>3.4<!--[if gte mso 9]><xml>
  <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000D0000005F00520065006600390030003200360030003300330030000000</w:data>
-</xml><![endif]--></span>). So, a group is a list of members, a descripiton,
+</xml><![endif]--></span>). So, a group is a list of members, a description,
 and a set of naming elements, together with privileges that subjects have over
 those things. </p>
 
@@ -5353,26 +5359,25 @@ cases</a> identified by MACE-Dir-Groups working group members, Grouper was desig
 from the start to enable implementation sites to extend the set of attributes
 and lists available to associate with some groups. This was done by declaring
 attributes, lists, and their properties in tables within the Groups Registry
-rather than having them repesented as static schematic elements of that
+rather than having them represented as static schematic elements of that
 database. Sets of attributes and lists are packaged into group <i
-style='mso-bidi-font-style:normal'>types</i>, and, <span style='color:red'>in a
-future release of Grouper (do we know which?)</span>, each group can be
-assigned to any number of types. This is similar to how schemas for LDAP
-directories are managed and extended: LDAP attributes are packaged into
-objectclasses, and each LDAP entry can have a set of objectclasses associated
-with it, allowing different entries to serve different purposes. However, since
-in Grouper 0.5 a group can have only a single type, each site using extended
-types will need to ensure that each extended type includes all of the naming
-related base fields, <i style='mso-bidi-font-style:normal'>members</i>, and all
-of the privilege lists unless the site is using an access privilege interface
-implementation different from Grouper’s default. </p>
+style='mso-bidi-font-style:normal'>types</i>, and, in a future release of
+Grouper, each group can be assigned to any number of types. This is similar to
+how schemas for LDAP directories are managed and extended: LDAP attributes are
+packaged into objectclasses, and each LDAP entry can have a set of
+objectclasses associated with it, allowing different entries to serve different
+purposes. However, since in Grouper 0.5 a group can have only a single type,
+each site using extended types will need to ensure that each extended type
+includes all of the naming related base fields, <i style='mso-bidi-font-style:
+normal'>members</i>, and all of the privilege lists unless the site is using an
+access privilege interface implementation different from Grouper’s default. </p>
 
 <p class=MsoNormal>Grouper 0.5 ships with two group types. All groups are of
 the <i style='mso-bidi-font-style:normal'>base</i> type - its structure is
 given in<span style='color:red'> <span style='mso-field-code:" REF _Ref90011411 \\h "'><span
 style='color:windowtext'>Table <span style='mso-no-proof:yes'>1</span></span><!--[if gte mso 9]><xml>
  <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000D0000005F00520065006600390030003000310031003400310031000000</w:data>
-</xml><![endif]--></span></span>. Namespaces are modelled internally to Grouper
+</xml><![endif]--></span></span>. Namespaces are modeled internally to Grouper
 as groups of <i style='mso-bidi-font-style:normal'>naming</i> type. Its
 structure is given in<span style='color:red'> <span style='mso-field-code:" REF _Ref90011423 \\h "'><span
 style='color:windowtext'>Table <span style='mso-no-proof:yes'>2</span></span><!--[if gte mso 9]><xml>
@@ -5415,7 +5420,7 @@ style, as desired by each implementation site.</p>
 
 <p class=MsoNormal>Since a group must be named within a namespace, it is
 necessary to create a namespace before any groups can be created. In Grouper
-0.5 namespaces are modelled as groups of naming type, so namespaces and groups
+0.5 namespaces are modeled as groups of naming type, so namespaces and groups
 are created in a similar manner, using the <i style='mso-bidi-font-style:normal'>GrouperGroup.create</i>
 method. Groups are created using a form of the <i style='mso-bidi-font-style:
 normal'>create</i> method that defaults to creating groups of the default,
@@ -5889,8 +5894,8 @@ introduced next.</p>
 
 <p class=MsoNormal>Note that <i style='mso-bidi-font-style:normal'>displayExtension</i>
 and <i style='mso-bidi-font-style:normal'>displayName</i>, although declared in
-Grouper 0.5’s base type, are not exposed in the API. That will come with <span
-style='color:red'>the 0.5.1 maintenance release (true??)</span>.</p>
+Grouper 0.5’s base type, are not exposed in the API. That will come with the
+0.5.1 maintenance release.</p>
 
 <h2 style='margin-left:0in;text-indent:0in'><a name="_Ref90260330"><![if !supportLists]><span
 style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>3.4.<span
@@ -6127,9 +6132,10 @@ above privilege characteristics will be fully implemented only in the next
 release, a maintenance release to be called Grouper 0.5.1</b>.</p>
 
 <p class=MsoNormal>Top-level namespaces, i.e., those for which the <i
-style='mso-bidi-font-style:normal'>stem </i>attribute is null, can only be
-created by the <i style='mso-bidi-font-style:normal'>GrouperSystem</i>
-distinguished subject in Grouper 0.5.</p>
+style='mso-bidi-font-style:normal'>stem </i>attribute is the constant <i
+style='mso-bidi-font-style:normal'>Grouper.NS_ROOT</i>, can only be created by
+the <i style='mso-bidi-font-style:normal'>GrouperSystem</i> distinguished
+subject in Grouper 0.5.</p>
 
 <p class=MsoNormal>The Grouper API presents and <span class=GramE>itself</span>
 uses abstracted interfaces, <i style='mso-bidi-font-style:normal'>GrouperAccess</i>
@@ -6246,14 +6252,14 @@ authentication – it might not even be known by the person to whom it is
 associated. How would I identify myself to Grouper if I wished to opt-in to a
 list or manage a group?</p>
 
-<p class=MsoNormal>Grouper accomodates subject identifer issues in two ways.
+<p class=MsoNormal>Grouper accommodates subject identifier issues in two ways.
 First, it maintains guids for every subject and group in the deployment. These
 are never exposed by the API, but are associated with externally supplied
 subject identifiers in the <i style='mso-bidi-font-style:normal'>grouper_member</i>
 table. This approach allows the identifier associated with a given subject to
 be changed without any need to change actual memberships (although the supporting
 <i style='mso-bidi-font-style:normal'>GrouperMember</i> method is only slated
-for inclusion in <span style='color:red'>the 0.5.1 release</span>). </p>
+for inclusion in the 0.5.1 release). </p>
 
 <p class=MsoNormal>Second, by release 0.6, the Grouper API will incorporate an
 identifier lookup and translation service called the Subject Interface being
@@ -6262,11 +6268,11 @@ to lookup subjects that are presented with an identifier in one namespace and
 obtain identifiers in other namespaces for that subject. That means that it can
 translate a username into a registryID and vice-versa, for example. So, when a
 user authenticates to an application using the Grouper API, that application
-can use the Subject Interface to fetch an identifer for that person chosen by
+can use the Subject Interface to fetch an identifier for that person chosen by
 the site for use in memberships. Similarly, when a membership in the Groups
-Registry is to be expressed elsewhere, the identifer used for group members can
-be translated by a provisoning connector by use of the Subject Interface into
-one that is suitable in the provisioned context.</p>
+Registry is to be expressed elsewhere, the identifier used for group members
+can be translated by a provisioning connector by use of the Subject Interface
+into one that is suitable in the provisioned context.</p>
 
 <h1 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
 style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.<span
@@ -6283,9 +6289,8 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 <p class=MsoNormal>Grouper 0.5 ships with the HSQLDB relational database and Hibernate
 (<a href="http://www.hibernate.org/">http://www.hibernate.org/</a>) for object
-persistence. Hibernate uses JDBC to actually map objects to persistent storage.
-So it should not be difficult to make Grouper use any of a variety of common
-RDBMS systems.</p>
+persistence. Hibernate uses JDBC to coonnect to an RDBMS, so it should not be
+difficult to make Grouper use any of a variety of common RDBMS systems.</p>
 
 <p class=MsoNormal>To use an alternate database you’ll need to </p>
 
@@ -6296,8 +6301,8 @@ Grouper’s Hibernate configuration file to connect to your RDBMS, and</p>
 
 <p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l14 level1 lfo42;
 tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>arrange
-an alternative database initialization process.</p>
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><span
+class=GramE>arrange</span> an alternative database initialization process.</p>
 
 <p class=MsoNormal>The Hibernate configuration is in <i style='mso-bidi-font-style:
 normal'>$GROUPER_BASE/conf/hibernate.properties</i>. Several of its declarations
@@ -6308,16 +6313,18 @@ Grouper based on the experiences of early adopters.</p>
 <p class=MsoNormal>The &quot;db-init&quot; ant target in <i style='mso-bidi-font-style:
 normal'>$GROUPER_BASE/build.xml</i> creates and initializes the database
 relying on SQL scripts located in the <i style='mso-bidi-font-style:normal'>$GROUPER_BASE/sql/</i>
-directory. These are believed and intended to be vanilla SQL92 and if so ought
-to work for other relational databases, but this has not been verified as yet.
-Some modification may be required.</p>
+directory. Although these are believed and intended to be vanilla SQL92 and if so
+ought to work for other relational databases, this has not been verified as
+yet. Some modification may be required. And the &quot;db-init&quot; ant target
+itself is specific to HSQLDB. You will need to use an alternative method to
+initialize a different RDBMS.</p>
 
 <p class=MsoNormal><span class=GramE>To verify that your database is
 functioning correctly with Grouper, change directory to <i style='mso-bidi-font-style:
 normal'>$GROUPER_BASE</i> and run &quot;ant test&quot;.</span></p>
 
 <h2 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
-style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.2.<span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.1.<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>SQL tuning</h2>
 
@@ -6325,7 +6332,7 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 early adopters. </p>
 
 <h2 style='margin-left:0in;text-indent:0in'><a name="_Ref90115366"><![if !supportLists]><span
-style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.3.<span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.2.<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Getting subjects into Grouper</a></h2>
 
@@ -6390,7 +6397,7 @@ for the <i style='mso-bidi-font-style:normal'>group subjectType</i> should not
 be changed! Else why are you bothering with Grouper?<span style='color:red'><o:p></o:p></span></p>
 
 <h2 style='margin-left:0in;text-indent:0in'><![if !supportLists]><span
-style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.4.<span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.3.<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Loaders and provisioning connectors</h2>
 
@@ -6426,7 +6433,7 @@ is assumed that sites will secure access to the Grouper API as they do other inf
 services, with a combination of host and application platform security
 measures.</p>
 
-<p class=MsoNormal>Loaders and provisioning conectors may use the Subject
+<p class=MsoNormal>Loaders and provisioning connectors may use the Subject
 Interface, after its incorporation into Grouper in release 0.6, to lookup and
 translate external identifiers for subjects into those selected for use as Grouper
 <i style='mso-bidi-font-style:normal'>subjectIDs</i>. </p>
@@ -6439,13 +6446,13 @@ groups. These include</p>
 tab-stops:list .2in'><![if !supportLists]><span style='font-family:Symbol;
 mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
 style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>specifying a time before which the group was modifed</p>
+</span></span></span><![endif]>specifying a time before which the group was modified</p>
 
 <p class=MsoNormal style='margin-left:.2in;text-indent:-.2in;mso-list:l24 level1 lfo47;
 tab-stops:list .2in'><![if !supportLists]><span style='font-family:Symbol;
 mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
 style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>specifying a time after which the group was modifed</p>
+</span></span></span><![endif]>specifying a time after which the group was modified</p>
 
 <p class=MsoNormal style='margin-left:.2in;text-indent:-.2in;mso-list:l24 level1 lfo47;
 tab-stops:list .2in'><![if !supportLists]><span style='font-family:Symbol;
@@ -6475,7 +6482,7 @@ group has immediate or effective memberships, or both.</p>
 
 <p class=MsoNormal>These filters can be combined to constrain a single search.
 A search is executed using the selected filters by the <i style='mso-bidi-font-style:
-normal'>GrouperQuery.query</i> method. Further seach capabilities are slated
+normal'>GrouperQuery.query</i> method. Further search capabilities are slated
 for later releases of Grouper. See <a
 href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-search-00.html">Grouper
 API Search &amp; Browse Capabilities</a> for details. </p>
@@ -6650,11 +6657,11 @@ Grouper.</p>
 referred to in this table is an internal globally unique identifier that Grouper
 assigns to each subject it comes into contact with. The <i style='mso-bidi-font-style:
 normal'>GrouperGroup.createSubject</i> and <i style='mso-bidi-font-style:normal'>GrouperGroup.modifySubject</i>
-methods return the <i style='mso-bidi-font-style:normal'>subjectID</i>
+methods return <i style='mso-bidi-font-style:normal'>GrouperSubject</i> objects
 corresponding to this <i style='mso-bidi-font-style:normal'>memberKey</i>.<o:p></o:p></p>
 
 <h2 style='margin-left:0in;text-indent:0in'><a name="_Ref90022883"><![if !supportLists]><span
-style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.5.<span
+style='mso-fareast-font-family:Arial'><span style='mso-list:Ignore'>4.4.<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Integrating Grouper with an external privilege
 management system</a></h2>
