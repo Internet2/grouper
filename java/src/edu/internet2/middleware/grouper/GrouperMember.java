@@ -11,6 +11,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 
 
 /** 
@@ -18,7 +19,7 @@ import  edu.internet2.middleware.subject.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.37 2004-11-16 22:14:46 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.38 2004-11-20 16:00:07 blair Exp $
  */
 public class GrouperMember {
 
@@ -135,6 +136,76 @@ public class GrouperMember {
   public String key() {
     return this.getMemberKey();
   }
+
+  /**
+   * Return all group memberships of type "members" for this 
+   * {@link GrouperMember}.
+   *
+   * @param   s       Session to query within.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List listVals(GrouperSession s) {
+    return GrouperBackend.listVals(this, s, "members");
+  }
+
+  /**
+   * Return all group memberships of the specified type for 
+   * this {@link GrouperMember}.
+   *
+   * @param   s       Session to query within.
+   * @param   list    Type of list membership to query on.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List listVals(GrouperSession s, String list) {
+    return GrouperBackend.listVals(this, s, list);
+  }
+
+  /**
+   * Return all effective group memberships of type "members" for
+   * this {@link GrouperMember}.
+   *
+   * @param   s       Session to query within.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List listEffVals(GrouperSession s) {
+    return GrouperBackend.listEffVals(this, s, "members");
+  }
+
+  /**
+   * Return all effective group memberships of the specified type 
+   * for this {@link GrouperMember}.
+   *
+   * @param   s       Session to query within.
+   * @param   list    Type of list membership to query on.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List listEffVals(GrouperSession s, String list) {
+    return GrouperBackend.listEffVals(this, s, list);
+  }
+
+  /**
+   * Return all immediate group memberships of type "members" for 
+   * this {@link GrouperMember}.
+   *
+   * @param   s       Session to query within.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List listImmVals(GrouperSession s) {
+    return GrouperBackend.listImmVals(this, s, "members");
+  }
+
+  /**
+   * Return all immediate group memberships of the specified type 
+   * for this {@link GrouperMember}.
+   *
+   * @param   s       Session to query within.
+   * @param   list    Type of list membership to query on.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List listImmVals(GrouperSession s, String list) {
+    return GrouperBackend.listImmVals(this, s, list);
+  }
+
 
   public String toString() {
     // TODO Remove key
