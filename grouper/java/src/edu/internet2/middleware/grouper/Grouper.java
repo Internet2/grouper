@@ -11,13 +11,13 @@ import  java.util.Properties;
  * Class representing the {@link Grouper} environment.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.17 2004-07-14 02:49:34 blair Exp $
+ * @version $Id: Grouper.java,v 1.18 2004-07-26 17:02:54 blair Exp $
  */
 public class Grouper {
 
   private Properties      conf      = new Properties();
   // XXX That's just wrong.  But it'll do for now.
-  private String          confFile  = "conf/grouper.cf";
+  private String          confFile  = "conf/grouper.properties";
   private GrouperSession  intSess   = null;
   private List            fields    = null;
   private List            types     = null;
@@ -40,8 +40,8 @@ public class Grouper {
    *  <li>Reads and caches the following tables:</li>
    *  <ul>
    *   <li><i>grouper_fields</i></li>
-   *   <li><i>grouper_typeDefs</i></li>
-   *   <li><i>grouper_types</i></li>
+   *   <li><i>grouper_groupTypeDefs</i></li>
+   *   <li><i>grouper_groupTypes</i></li>
    * </ul>
    */
   public void initialize() {
