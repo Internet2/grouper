@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.136 2004-12-07 05:11:24 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.137 2004-12-07 18:57:30 blair Exp $
  */
 public class GrouperGroup {
 
@@ -599,7 +599,10 @@ public class GrouperGroup {
    * Does the current subject have permission to create 
    * groups within the specified stem.
    */
-  private static boolean _canCreate(GrouperSession s, String stem) {
+  private static boolean _canCreate(
+                           GrouperSession s, String stem, String type
+                         ) 
+  {
     boolean rv = false;
     if (GrouperBackend.sessionValid(s)) {
       // We are adding a top-level namespace.
@@ -609,13 +612,16 @@ public class GrouperGroup {
           return true;
         }
       } else {
-        // Does the current subject have CREATE on `stem'?
         GrouperGroup ns = GrouperBackend.groupLoadByName(
                             s, stem, Grouper.NS_TYPE
                           );
         if (ns != null) {
-          if (Grouper.naming().has(s, ns, Grouper.PRIV_CREATE)) {
-            rv = true;
+          if (type.equals("naming")) {
+            // If a naming group, does the subject have STEM on `stem'?
+            rv = Grouper.naming().has(s, ns, Grouper.PRIV_STEM);
+          } else {
+            // Otherwise, does the subject have `CREATE' on `stem'?
+            rv = Grouper.naming().has(s, ns, Grouper.PRIV_CREATE);
           }
         }
       }
@@ -765,7 +771,7 @@ public class GrouperGroup {
   {
     GrouperGroup g = null;
     String name = GrouperBackend.groupName(stem, extn);
-    if (GrouperGroup._canCreate(s, stem)) {
+    if (GrouperGroup._canCreate(s, stem, type)) {
       // Check to see if the group already exists.
       g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
       if (g != null) {

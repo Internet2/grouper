@@ -69,7 +69,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.128 2004-12-07 05:11:24 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.129 2004-12-07 18:57:30 blair Exp $
  */
 public class GrouperBackend {
 
@@ -247,6 +247,13 @@ public class GrouperBackend {
          */
         t.commit();
 
+        // We need a root session for for bootstrap privilege granting
+        Subject         rootS = GrouperSubject.load(
+                                  Grouper.config("member.system"),
+                                  Grouper.DEF_SUBJ_TYPE
+                                );
+        GrouperSession  roots = GrouperSession.start(rootS);
+
         // And grant ADMIN privilege to the list creator
         Grouper.log().backend("Converting subject " + s);
         GrouperMember m       = GrouperMember.load( s.subject() );
@@ -255,7 +262,7 @@ public class GrouperBackend {
           Grouper.log().backend("Converted to member " + m);
           // NS_TYPE groups get `STEM', not `ADMIN'
           if (g.type().equals(Grouper.NS_TYPE)) {
-            if (Grouper.naming().grant(s, g, m, "STEM") == true) {
+            if (Grouper.naming().grant(roots, g, m, "STEM") == true) {
               Grouper.log().backend("Granted STEM to " + m);
               t.commit(); // XXX Is this commit necessary?
               granted = true;
@@ -265,7 +272,7 @@ public class GrouperBackend {
             }
           } else {
             // For all other group types default to `ADMIN'
-            if (Grouper.access().grant(s, g, m, Grouper.PRIV_ADMIN)) {
+            if (Grouper.access().grant(roots, g, m, Grouper.PRIV_ADMIN)) {
               Grouper.log().backend("Granted ADMIN to " + m);
               t.commit(); // XXX Is this commit necessary?
               granted = true;
@@ -277,6 +284,8 @@ public class GrouperBackend {
         } else {
           Grouper.log().backend("Unable to convert to member");
         }
+        // Close root session
+        roots.stop();
         if (granted == false) {
           /*
            * TODO Rollback?  Exception?  The rollback would also need to

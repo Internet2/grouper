@@ -633,5 +633,58 @@ public TestNamingPrivs(String name) {
     s.stop();
   }
 
+  // root grant CREATE on ns0 to m0
+  public void testGrant4() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g = GrouperGroup.load(s, Util.ns0s, Util.ns0e, Grouper.NS_TYPE);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
+    Assert.assertTrue( Grouper.naming().grant(s, g, m, Grouper.PRIV_CREATE) );
+    s.stop();
+  }
+
+  // m0 create base group within ns0
+  public void testCreate0() {
+    Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g = GrouperGroup.create(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    s.stop();
+  }
+
+  // m0 delete base group within ns0
+  public void testDelete0() {
+    Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g = GrouperGroup.load(s, Util.stem4, Util.extn4);
+    Assert.assertNotNull(g);
+    Assert.assertTrue( GrouperGroup.delete(s, g) );
+    s.stop();
+  }
+
+  // m0 !create naming group within ns0
+  public void testCreate1() {
+    Subject subj  = GrouperSubject.load(Util.m0i, Util.m0t);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g = GrouperGroup.create(s, Util.stem4, Util.extn4, Grouper.NS_TYPE);
+    Assert.assertNull(g);
+    s.stop();
+  }
+
+  // root revoke CREATE on ns0 from m0
+  public void testRevoke6() {
+    Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    GrouperGroup g = GrouperGroup.load(s, Util.ns0s, Util.ns0e, Grouper.NS_TYPE);
+    GrouperMember m = GrouperMember.load(Util.m0i, Util.m0t);
+    Assert.assertTrue( Grouper.naming().revoke(s, g, m, Grouper.PRIV_CREATE) );
+    s.stop();
+  }
+
 }
 
