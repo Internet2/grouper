@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.13 2004-12-08 17:04:25 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.14 2004-12-09 21:22:10 blair Exp $ 
  */
 class csv2group {
 
@@ -163,12 +163,12 @@ class csv2group {
   private static boolean _groupAdd(List tokens) {
     boolean rv = false;
     String stem = (String) tokens.get(0);
-    String extn = (String) tokens.get(0);
+    String extn = (String) tokens.get(1);
     GrouperGroup g = GrouperGroup.create(
                        s, stem, extn, Grouper.DEF_GROUP_TYPE
                      );
     if (g != null) {
-      _verbose("Added group: " + g);
+      _verbose("Added group: " + g.name());
       rv = true;
     } else {
       System.err.println(
@@ -320,7 +320,7 @@ class csv2group {
     }
     GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
     if (g != null) {
-      _verbose("Added stem: " + g);
+      _verbose("Added stem: " + g.name());
       rv = true;
     } else {
       System.err.println(
