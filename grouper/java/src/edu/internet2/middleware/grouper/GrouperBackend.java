@@ -27,7 +27,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.70 2004-11-28 02:03:58 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.71 2004-11-28 04:17:47 blair Exp $
  */
 public class GrouperBackend {
 
@@ -182,14 +182,22 @@ public class GrouperBackend {
       t.commit();
 
       // And grant ADMIN privilege to the list creator
-      GrouperMember m = GrouperMember.lookup( s.subject() );
-      if (
-          (m != null) && // FIXME Bah
-          (Grouper.access().grant(s, g, m, "ADMIN") == true)
-         )
-      {
-        t.commit(); // XXX Is this commit necessary?
+      GrouperBackend.LOGGER_GB.debug("Converting subject " + s);
+      GrouperMember m       = GrouperMember.lookup( s.subject() );
+      boolean       granted = false;
+      if (m != null) { // FIXME Bah
+        GrouperBackend.LOGGER_GB.debug("Converted to member " + m);
+        if (Grouper.access().grant(s, g, m, "ADMIN") == true) {
+          GrouperBackend.LOGGER_GB.debug("Granted ADMIN to " + m);
+          t.commit(); // XXX Is this commit necessary?
+          granted = true;
+        } else {
+          GrouperBackend.LOGGER_GB.debug("Unable to grant ADMIN to " + m);
+        }
       } else {
+        GrouperBackend.LOGGER_GB.debug("Unable to convert to member");
+      }
+      if (granted == false) {
         /*
          * TODO Rollback?  Exception?  The rollback would also need to
          *      rollback the granting of the ADMIN privilege.  Or at
@@ -292,7 +300,7 @@ public class GrouperBackend {
         GrouperGroup memberOfBase = g;
         // Is this member a group?
         if (m.typeID().equals("group")) {
-          memberOfBase = GrouperBackend._groupLoad( m.id() );
+          memberOfBase = GrouperBackend._groupLoadByID( m.id() );
         }
 
         // Grab immediate list data to update
@@ -379,7 +387,7 @@ public class GrouperBackend {
         Iterator      viaIter;
         if (m.typeID().equals("group")) {
           // Behave one way if the member is a group
-          memberOfBase  = GrouperBackend._groupLoad( m.id() );
+          memberOfBase  = GrouperBackend._groupLoadByID( m.id() );
           // Find effective memberships created in group `g' due to `m'
           // being a group.
           viaIter = GrouperBackend._queryGrouperList(
@@ -410,7 +418,7 @@ public class GrouperBackend {
                     ).iterator();
           while (viaIter.hasNext()) {
             GrouperList   lv  = (GrouperList) viaIter.next();
-            GrouperGroup  grp = GrouperBackend._groupLoad( lv.groupKey() );
+            GrouperGroup  grp = GrouperBackend._groupLoadByKey( lv.groupKey() );
             GrouperMember mem = GrouperBackend._member( lv.memberKey());
             GrouperBackend._listDelVal(session, grp, mem, list, memberOfBase);
           }
@@ -678,7 +686,7 @@ public class GrouperBackend {
     Subject subj    = null;
     List    vals    = GrouperBackend._queryKV(
                                               session, "GrouperGroup", 
-                                              "groupKey", id
+                                              "groupID", id
                                              );
     // We only want one
     if (vals.size() == 1) {
@@ -687,10 +695,21 @@ public class GrouperBackend {
         // ... And fully populate it (explicitly) since I'm not (yet)
         // making full use of everything Hibernate has to offer.
         // TODO Is this necessary?
-        g = GrouperBackend._groupLoad(g.key());
+        g = GrouperBackend._groupLoadByKey(g.key());
         // ... And convert it to a subject object
         subj = new SubjectImpl(id, typeID);
+      } else {
+        GrouperBackend.LOGGER_GB.debug(
+                                       "subjectLookupTypeGroup() " +
+                                       "Returned group is null"
+                                      );
       }
+    } else {
+      GrouperBackend.LOGGER_GB.debug(
+                                     "subjectLookupTypeGroup() "  +
+                                     "Found " + vals.size()       +
+                                     " matching groups"
+                                    );
     }
     GrouperBackend._hibernateSessionClose(session);
     return subj;
@@ -741,43 +760,6 @@ public class GrouperBackend {
                                      "groupField", "extension",
                                      "groupFieldValue", extension
                                     );
-  }
-
-  // FIXME Refactor.  Mercilesssly.
-  // TODO  Take group type into account.
-  private static GrouperGroup _groupLoad(String key) {
-    /*
-     * While most private class methods take a Session as an argument,
-     * this method does not because to do so would possibly cause
-     * non-uniqueness issues.
-     */
-    Session       session = GrouperBackend._init();
-    GrouperGroup  g       = new GrouperGroup();
-
-    try {
-      // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction();
-      session.load(g, key);
-  
-      // Its schema
-      if ( GrouperBackend._groupLoadSchema(session, g) == true ) {
-        // And its attributes
-        GrouperBackend._groupLoadAttributes(session, g, key);
-
-        // FIXME Attach s to object?
-
-        tx.commit();
-      } else {
-        System.err.println("Unable to load group schema");
-        System.exit(1);
-      }
-    } catch (Exception e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      System.err.println(e);
-      System.exit(1);
-    }
-    GrouperBackend._hibernateSessionClose(session);
-    return g;
   }
 
   // FIXME Refactor.  Mercilesssly.
@@ -839,11 +821,67 @@ public class GrouperBackend {
       }
     }
     if (key != null) {
-      g = GrouperBackend._groupLoad(key);
+      g = GrouperBackend._groupLoadByKey(key);
     }
     // TODO Here I return a dummy object while elsewhere, and with
     //      other classes, I return null.  Standardize.  I *probably*
     //      should return null.
+    return g;
+  }
+
+  // FIXME Refactor.  Mercilesssly.
+  // TODO  Take group type into account.
+  private static GrouperGroup _groupLoadByID(String id) {
+    Session session = GrouperBackend._init();
+    String  key     = null;
+    List    vals    = GrouperBackend._queryKV(
+                        session, "GrouperGroup",
+                        "groupID", id
+                      );
+    // We only want one
+    if (vals.size() == 1) {
+      GrouperGroup g = (GrouperGroup) vals.get(0);
+      key = g.key();
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    // TODO Verify that key != null or let ByKey() handle that?
+    return GrouperBackend._groupLoadByKey(key);
+  }
+
+  // FIXME Refactor.  Mercilesssly.
+  private static GrouperGroup _groupLoadByKey(String key) {
+    /*
+     * While most private class methods take a Session as an argument,
+     * this method does not because to do so would possibly cause
+     * non-uniqueness issues.
+     */
+    Session       session = GrouperBackend._init();
+    GrouperGroup  g       = new GrouperGroup();
+
+    // TODO Verify that key != null
+    try {
+      // Attempt to load a stored group into the current object
+      Transaction tx = session.beginTransaction();
+      session.load(g, key);
+  
+      // Its schema
+      if ( GrouperBackend._groupLoadSchema(session, g) == true ) {
+        // And its attributes
+        GrouperBackend._groupLoadAttributes(session, g, key);
+
+        // FIXME Attach s to object?
+
+        tx.commit();
+      } else {
+        System.err.println("Unable to load group schema");
+        System.exit(1);
+      }
+    } catch (Exception e) {
+      // TODO Rollback if load fails?  Unset this.exists?
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
     return g;
   }
 
@@ -1126,7 +1164,7 @@ public class GrouperBackend {
     newGroups = GrouperBackend._memberOfQuery(session, g, list);
     // For each group in `newGroups', convert to a membership object
     // and assign to `memberships'
-    GrouperMember member  = GrouperMember.lookup( g.key(), "group");
+    GrouperMember member  = GrouperMember.lookup( g.id(), "group");
     Iterator      immIter = newGroups.iterator();
     while (immIter.hasNext()) {
       GrouperGroup  immediate = (GrouperGroup) immIter.next();
@@ -1183,15 +1221,17 @@ public class GrouperBackend {
         // Query away!
         // Make group a member
         // TODO Or should I just cheat and go straight to the GB method?
-        GrouperMember m     = GrouperMember.lookup( g.key(), "group" );
-        Iterator      iter  = GrouperBackend._queryGrouperList(
-                                session, GrouperBackend.VAL_NOTNULL, 
-                                m.key(), list, GrouperBackend.VAL_NULL
-                              ).iterator();
-        while (iter.hasNext()) {
-          GrouperList   gl  = (GrouperList) iter.next();
-          GrouperGroup  grp = GrouperBackend._groupLoad( gl.groupKey() );
-          groups.add(grp);
+        GrouperMember m     = GrouperMember.lookup( g.id(), "group" );
+        if (m != null) { // FIXME Bah!
+          Iterator      iter  = GrouperBackend._queryGrouperList(
+                                  session, GrouperBackend.VAL_NOTNULL, 
+                                  m.key(), list, GrouperBackend.VAL_NULL
+                                ).iterator();
+          while (iter.hasNext()) {
+            GrouperList   gl  = (GrouperList) iter.next();
+            GrouperGroup  grp = GrouperBackend._groupLoadByKey( gl.groupKey() );
+            groups.add(grp);
+          }
         }
       } catch (Exception e) {
         System.err.println(e);

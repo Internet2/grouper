@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.17 2004-11-27 00:44:29 blair Exp $
+ * $Id: TestGroupLists.java,v 1.18 2004-11-28 04:17:47 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -257,7 +257,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(grp1);
     Assert.assertTrue(grp1.exists());
     // Fetch g1 as m0
-    GrouperMember   m0      = GrouperMember.lookup( grp1.key(), "group");
+    GrouperMember   m0      = GrouperMember.lookup( grp1.id(), "group");
     Assert.assertNotNull(m0);
     // Add m0 to g0 "members"
     Assert.assertTrue( grp0.listAddVal(s, m0, "members") );
@@ -373,7 +373,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(grp2);
     Assert.assertTrue(grp2.exists());
     // Fetch g2 as m0
-    GrouperMember   m0      = GrouperMember.lookup( grp2.key(), "group");
+    GrouperMember   m0      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m0);
     // Add m0 to g0 "members"
     Assert.assertTrue( grp0.listAddVal(s, m0, "members") );
@@ -612,7 +612,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(grp1);
     Assert.assertTrue(grp1.exists());
     // Fetch g1 as m1
-    GrouperMember   m1      = GrouperMember.lookup( grp1.key(), "group");
+    GrouperMember   m1      = GrouperMember.lookup( grp1.id(), "group");
     Assert.assertNotNull(m1);
     // Remove m1 (g1) from g0 "members"
     Assert.assertTrue( grp0.listDelVal(s, m1, "members") );
@@ -730,7 +730,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(grp2);
     Assert.assertTrue(grp2.exists());
     // Fetch g2 as m2
-    GrouperMember   m2      = GrouperMember.lookup( grp2.key(), "group");
+    GrouperMember   m2      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m2);
     // Remove m2 (g2) from g0 "members"
     Assert.assertTrue( grp0.listDelVal(s, m2, "members") );
@@ -848,7 +848,7 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(grp2);
     Assert.assertTrue(grp2.exists());
     // Fetch g2 as m2
-    GrouperMember   m2      = GrouperMember.lookup( grp2.key(), "group");
+    GrouperMember   m2      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m2);
     // Add m2/g2 to g0
     Assert.assertTrue( grp0.listAddVal(s, m2, "members") );
@@ -965,7 +965,7 @@ public class TestGroupLists extends TestCase {
     GrouperMember   m1      = GrouperMember.lookup("notblair", "person");
     Assert.assertNotNull(m1);
     // Fetch g2 as m2
-    GrouperMember   m2      = GrouperMember.lookup( grp2.key(), "group");
+    GrouperMember   m2      = GrouperMember.lookup( grp2.id(), "group");
     Assert.assertNotNull(m2);
     // Remove m1 from g2 "members"
     Assert.assertTrue( grp2.listDelVal(s, m1, "members") );
@@ -1101,9 +1101,9 @@ public class TestGroupLists extends TestCase {
     // m0
     GrouperMember   m0      = GrouperMember.lookup("blair", "person");
     // m1
-    GrouperMember   m1      = GrouperMember.lookup( g1.key(), "group");
+    GrouperMember   m1      = GrouperMember.lookup( g1.id(), "group");
     // m2
-    GrouperMember   m2      = GrouperMember.lookup( g2.key(), "group");
+    GrouperMember   m2      = GrouperMember.lookup( g2.id(), "group");
     // m3
     GrouperMember   m3      = GrouperMember.lookup("notblair", "person");
 
