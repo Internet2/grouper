@@ -99,8 +99,8 @@ public class TestGroupsDelete extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0 = GrouperGroup.create(
@@ -108,7 +108,12 @@ public class TestGroupsDelete extends TestCase {
                       );
  
     // Delete g0
-    Assert.assertTrue("delete g0", GrouperGroup.delete(s, g0));
+    try {
+      GrouperGroup.delete(s, g0);
+      Assert.assertTrue("delete g0", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete g0");
+    }
    
     s.stop();
   }
@@ -119,15 +124,20 @@ public class TestGroupsDelete extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create g0
     GrouperGroup g0 = GrouperGroup.create(
                         s, Constants.g0s, Constants.g0e
                       );
     // Delete g0
-    GrouperGroup.delete(s, g0);
+    try {
+      GrouperGroup.delete(s, g0);
+      Assert.assertTrue("delete g0", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete g0");
+    }
 
     // Fetch g0
     GrouperGroup g = GrouperGroup.load(
@@ -161,12 +171,12 @@ public class TestGroupsDelete extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create g1
     GrouperGroup g1 = GrouperGroup.create(
@@ -174,7 +184,12 @@ public class TestGroupsDelete extends TestCase {
                        );
 
     // Delete g1
-    Assert.assertTrue("delete g1",  GrouperGroup.delete(s, g1));
+    try {
+      GrouperGroup.delete(s, g1);
+      Assert.assertTrue("delete g1", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete g1");
+    }
 
     s.stop();
   }
@@ -185,19 +200,24 @@ public class TestGroupsDelete extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create g1
     GrouperGroup g1 = GrouperGroup.create(
                         s, Constants.g1s, Constants.g1e
                       );
     // Delete g1
-    GrouperGroup.delete(s, g1);
+    try {
+      GrouperGroup.delete(s, g1);
+      Assert.assertTrue("delete g1", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete g1");
+    }
 
     // Fetch g1
     GrouperGroup g = GrouperGroup.load(
@@ -231,16 +251,16 @@ public class TestGroupsDelete extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create ns2
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.create(
+                         s, Constants.ns2s, Constants.ns2e
                        );
     // Create g2
     GrouperGroup g2 = GrouperGroup.create(
@@ -248,7 +268,12 @@ public class TestGroupsDelete extends TestCase {
                       );
 
     // Delete g2
-    Assert.assertTrue("delete g2", GrouperGroup.delete(s, g2));
+    try {
+      GrouperGroup.delete(s, g2);
+      Assert.assertTrue("delete g2", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete g2");
+    }
   
     s.stop();
   }
@@ -259,23 +284,28 @@ public class TestGroupsDelete extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
-    GrouperGroup ns0 = GrouperGroup.create(
-                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+    GrouperStem ns0 = GrouperStem.create(
+                         s, Constants.ns0s, Constants.ns0e
                        );
     // Create ns1
-    GrouperGroup ns1 = GrouperGroup.create(
-                         s, Constants.ns1s, Constants.ns1e, Grouper.NS_TYPE
+    GrouperStem ns1 = GrouperStem.create(
+                         s, Constants.ns1s, Constants.ns1e
                        );
     // Create ns2
-    GrouperGroup ns2 = GrouperGroup.create(
-                         s, Constants.ns2s, Constants.ns2e, Grouper.NS_TYPE
+    GrouperStem ns2 = GrouperStem.create(
+                         s, Constants.ns2s, Constants.ns2e
                        );
     // Create g2
     GrouperGroup g2 = GrouperGroup.create(
                         s, Constants.g2s, Constants.g2e
                       );
     // Delete g2
-    GrouperGroup.delete(s, g2);
+    try {
+      GrouperGroup.delete(s, g2);
+      Assert.assertTrue("delete g2", true);
+    } catch (RuntimeException e) {
+      Assert.fail("delete g2");
+    }
 
     // Fetch g2
     GrouperGroup g = GrouperGroup.load(
