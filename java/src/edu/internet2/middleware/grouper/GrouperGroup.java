@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.178 2005-03-22 18:14:09 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.179 2005-03-22 18:46:28 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -733,11 +733,29 @@ public class GrouperGroup extends Group {
    * Retrieve list values.
    */
   private List _listVals(GrouperGroup g, String list) {
-    List vals = GrouperBackend.listVals(this.s, g, list);
-    // TODO Less than optimal
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      GrouperList lv = (GrouperList) iter.next();
+    String  qry   = "GrouperList.by.group.and.list";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      q.setString(1, list);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }
@@ -746,12 +764,31 @@ public class GrouperGroup extends Group {
    * Retrieve effective list values.
    */
   private List _listEffVals(GrouperGroup g, String list) {
-    List vals = GrouperBackend.listEffVals(this.s, g, list);
-    // TODO Less than optimal
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      GrouperList lv = (GrouperList) iter.next();
-    }
+    String  qry   = "GrouperList.by.group.and.list.and.is.eff";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      q.setString(1, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    } 
     return vals;
   }
 
@@ -759,11 +796,23 @@ public class GrouperGroup extends Group {
    * Retrieve immediate list values.
    */
   private List _listImmVals(GrouperGroup g, String list) {
-    List vals = GrouperBackend.listImmVals(this.s, g, list);
-    // TODO Less than optimal
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      GrouperList lv = (GrouperList) iter.next();
+    String  qry   = "GrouperList.by.group.and.list.and.is.imm";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key());
+      q.setString(1, list);
+      try {
+        vals = q.list();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
     }
     return vals;
   }

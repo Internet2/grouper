@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.53 2005-03-22 18:28:16 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.54 2005-03-22 18:46:28 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -364,9 +364,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     List members = new ArrayList();
 
     if (this.can(priv) == true) {
-      Iterator iter = GrouperBackend.listVals(
-                        s, g, (String) privMap.get(priv)
-                      ).iterator();
+      Iterator iter = g.listVals( (String) privMap.get(priv)).iterator();
       while (iter.hasNext()) {
         GrouperList   gl  = (GrouperList) iter.next();
         gl.load(s);
