@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.35 2004-09-10 02:07:45 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.36 2004-09-10 16:03:25 blair Exp $
  */
 public class GrouperGroup {
 
@@ -122,8 +122,9 @@ public class GrouperGroup {
     this.setCreateTime( Long.toString(now.getTime()) );
     this.setCreateSubject( this.grprSession.whoAmI() );
 
-    // Confirm that we are attempting to add a valid group type
-    if (grprSession.groupType(this.groupType) == true) {
+    // Verify that we have everything we need to create a group
+    // and that this subject is privileged to create this group.
+    if (this._validateCreate()) {
       // And now attempt to add the group to the store
       try {
         Transaction t = session.beginTransaction();
@@ -141,25 +142,15 @@ public class GrouperGroup {
         session.save(schema);
 
         // The Group attributes
-        Iterator iter = attributes.keySet().iterator();
-        while (iter.hasNext()) {
+        for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
           GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-          // TODO I should (possibly) revalidate the attributes due to
-          //      lack of a group type -- or a changed group type.  Add
-          //      some sort of dirty flag to trigger|!trigger this from
-          //      occurring.
-          if (this._validateAttribute( attr.field()) ) {
-            attr.set(this.groupKey, attr.field(), attr.value());
-            session.save(attr);
-          } else {
-            // TODO Exception and rollback, *not* exit.
-            System.err.println("Attribute " + attr.field() + " is not valid!");
-            System.exit(1);
-          }
+          attr.set(this.groupKey, attr.field(), attr.value());
+          session.save(attr);
         }
 
         // And make the creator a member of the "admins" list
         GrouperMembership mship = new GrouperMembership(); 
+        // FIXME No, no, no.  
         mship.set(this.groupKey, "admins", this.grprSession.whoAmI(), true);
         session.save(mship);
 
@@ -340,8 +331,7 @@ public class GrouperGroup {
    * Validate whether an attribute is valid for the current group type.
    *
    * @return Boolean true if attribute is valid for type or we are
-   * unable to valid the attribute at this type, otherwise boolean
-   * false
+   * unable to valid the attribute at this type, false otherwise.
    */
   private boolean _validateAttribute(String attribute) {
     boolean rv = false;
@@ -357,6 +347,54 @@ public class GrouperGroup {
       rv = true;
     }
     return rv;
+  }
+
+  /*
+   * Validate whether all attributes are valid for the current group
+   * type.
+   *
+   * @return Boolean true if the attributes are valid for the group
+   * type, false otherwise.
+   */
+  private boolean _validateAttributes() {
+    for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
+      GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+      // TODO I should (possibly) revalidate the attributes due to
+      //      lack of a group type -- or a changed group type.  Add
+      //      some sort of dirty flag to trigger|!trigger this from
+      //      occurring.
+      if ( !this._validateAttribute( attr.field()) ) {
+        return false;
+      }
+    }
+    return true;
+  }
+ 
+  /*
+   * Validate whether a group can be created.
+   *
+   * @return Boolean true if the group is valid to be created,
+   * false otherwise.
+   */
+  private boolean _validateCreate() {
+    if (
+        // Do we have a valid group type?
+        (grprSession.groupType(this.groupType) == true) &&
+        // And a stem?
+        (attributes.containsKey("stem")) &&
+        // And a descriptor?
+        (attributes.containsKey("descriptor")) && 
+        // And do the stem and descriptor already exist?
+        (this.exist() == false) && 
+        // And are the group attributes valid?
+        (this._validateAttributes()) 
+        // TODO Member Object for the admin of the group
+        // TODO CREATE priv for stem
+       )
+    {
+      return true;
+    }
+    return false;
   }
 
   /*
