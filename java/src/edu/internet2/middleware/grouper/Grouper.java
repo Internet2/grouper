@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.34 2004-10-11 17:44:37 blair Exp $
+ * @version $Id: Grouper.java,v 1.35 2004-10-11 17:52:23 blair Exp $
  */
 public class Grouper {
 
@@ -142,17 +142,6 @@ public class Grouper {
   public static List groupTypes() {
     _init();
     return groupTypes;
-  }
-
-  /*
-   * PUBLIC METHODS
-   */
-
-  /**
-   * Destroy {@link Grouper} environment.
-   */ 
-  public void destroy() {
-    // Nothing 
   }
 
   /*
