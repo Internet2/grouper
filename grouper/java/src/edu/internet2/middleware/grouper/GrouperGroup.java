@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.54 2004-10-13 16:53:15 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.55 2004-10-13 18:16:50 blair Exp $
  */
 public class GrouperGroup {
 
@@ -161,7 +161,7 @@ public class GrouperGroup {
     } else {
       // Otherwise attempt to find and load the group from the
       // persistent store.
-      if (this.attributes.containsKey("stem")) {
+      if (this.attributes.containsKey("namespace")) {
         // We need a namespace
         // BDC String namespace = this.attribute("namespace").value();
         if (this.attributes.containsKey("descriptor")) {
@@ -173,7 +173,7 @@ public class GrouperGroup {
             //       that doesn't rely upon loading a group and checking for
             //       the presence of a `groupKey'.
             GrouperGroup g = GrouperBackend.group(this.grprSession,
-                                                  this.attribute("stem").value(),
+                                                  this.attribute("namespace").value(),
                                                   this.attribute("descriptor").value());
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
@@ -216,7 +216,7 @@ public class GrouperGroup {
    * @return  A string representation of the object.
    */
   public String toString() {
-    GrouperAttribute namespace = (GrouperAttribute) attributes.get("stem");
+    GrouperAttribute namespace = (GrouperAttribute) attributes.get("namespace");
     GrouperAttribute desc = (GrouperAttribute) attributes.get("descriptor");
     return this.getClass()  + ":" +
            this.groupKey    + ":" + 
@@ -242,7 +242,7 @@ public class GrouperGroup {
     // Generate the UUID (groupKey)
     this.setGroupKey( GrouperBackend.uuid() );
 
-    this.attribute("stem", namespace);
+    this.attribute("namespace", namespace);
     this.attribute("descriptor", descriptor);
 
     // Set some of the operational attributes
@@ -307,7 +307,7 @@ public class GrouperGroup {
         // Do we have a valid group type?
         (Grouper.groupType(this.groupType) == true) &&
         // And a namespace?
-        (attributes.containsKey("stem"))            &&
+        (attributes.containsKey("namespace"))            &&
         // And a descriptor?
         (attributes.containsKey("descriptor"))      && 
         // And do the namespace and descriptor already exist?
