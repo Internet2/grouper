@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2004-06-17 16:43:28 blair Exp $ -->
+<!-- $Id: build.xml,v 1.2 2004-06-17 16:50:24 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -10,7 +10,7 @@
   <property name="build-test"       location="build/test"/>
   <property name="dist"             location="dist"/>
   <property name="javadoc.source"   value="${src}"/>
-  <property name="javadoc.dest"     value="${build}/api"/>
+  <property name="javadoc.dest"     value="${dist}/api"/>
   <property name="javadoc.packages" value="edu.internet2.middleware.directory.grouper.*"/>
 
   <target name="init">
