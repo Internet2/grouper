@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.135 2004-12-08 17:53:30 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.136 2004-12-08 18:42:29 blair Exp $
  */
 public class GrouperBackend {
 
@@ -573,6 +573,7 @@ public class GrouperBackend {
           // Update immediate list data first
           GrouperBackend._listAddVal(session, g, m, list, null);
 
+          // TODO Refactor to a method
           /* 
            * Find where `g' is a member and make `m' an effective
            * member, via `g', of those groups.
@@ -588,34 +589,33 @@ public class GrouperBackend {
             groups.add(glA.group());
           }
 
+          // TODO Refactor to a method
           /*
            * If `m' is a group, convert it from a member to a group
-	         * object.  Then, query to see who its effective and
-	         * immediate list members are and then add those members
-           * to all groups where `m' is a member.
+	         * object.  Then, query to find its list members and then add
+	         * those members to all groups where `m' is a member.
            */
           if (m.typeID().equals("group")) {
             groups.add(g);
             GrouperGroup gm = GrouperBackend._groupLoadByID(m.subjectID());
-            Iterator imms = GrouperBackend.listImmVals(s, gm, list).iterator();
-            while (imms.hasNext()) {
-              GrouperList glI = (GrouperList) imms.next();
-              Iterator iterI = groups.iterator();
-              while (iterI.hasNext()) {
-                GrouperGroup ggI = (GrouperGroup) iterI.next();
-                GrouperBackend._listAddVal(
-                  session, ggI, glI.member(), list, gm
-                );
+            // Find all members of `m'
+            Iterator mems   = GrouperBackend.listVals(s, gm, list).iterator();
+            while (mems.hasNext()) {
+              GrouperList gl = (GrouperList) mems.next();
+              // If we have a via, use that, otherwise use `m' 
+              GrouperGroup v = gl.via();
+              if (v == null) {
+                v = gm;
               }
-            }
-            Iterator effs = GrouperBackend.listEffVals(s, gm, list).iterator();
-            while (effs.hasNext()) {
-              GrouperList glE = (GrouperList) effs.next();
-              Iterator iterE = groups.iterator();
-              while (iterE.hasNext()) {
-                GrouperGroup ggE = (GrouperGroup) iterE.next();
+              /*
+               * Add all members of `m' to all groups that `m' and `g'
+               * belong to
+               */
+              Iterator iter = groups.iterator();
+              while (iter.hasNext()) {
+                GrouperGroup group = (GrouperGroup) iter.next();
                 GrouperBackend._listAddVal(
-                  session, ggE, glE.member(), list, glE.via()
+                  session, group, gl.member(), list, v
                 );
               }
             }
@@ -665,6 +665,7 @@ public class GrouperBackend {
         // Update immediate list data for `m' first
         GrouperBackend._listDelVal(session, g, m, list, null);
 
+        // TODO Refactor to a method
         /* 
          * Find where `m' is a member via `g' and remove those
          * effective memberships.
@@ -684,38 +685,33 @@ public class GrouperBackend {
           }
         }
 
+        // TODO Refactor to a method
         /*
-         * If `m' is a group, convert it from a member to a group
-         * object.  Then, query to see who its effective and
-         * immediate list members are and then remove those memberships
-         * from all groups where `m' was a member.
-         */
+        * If `m' is a group, convert it from a member to a group
+	      * object.  Then, query to find its list members and then delete
+	      * those members to all groups where `m' is a member.
+        */
         if (m.typeID().equals("group")) {
           groups.add(g);
           GrouperGroup gm = GrouperBackend._groupLoadByID(m.subjectID());
-          Iterator imms = GrouperBackend.listImmVals(
-                            s, gm, list
-                          ).iterator();
-          while (imms.hasNext()) {
-            GrouperList glI = (GrouperList) imms.next(); 
-            Iterator iter = groups.iterator();
-            while (iter.hasNext()) {
-              GrouperGroup ggI = (GrouperGroup) iter.next();
-              GrouperBackend._listDelVal(
-                session, ggI, glI.member(), list, gm
-              );
+          // Find all members of `m'
+          Iterator mems   = GrouperBackend.listVals(s, gm, list).iterator();
+          while (mems.hasNext()) {
+            GrouperList gl = (GrouperList) mems.next();
+            // If we have a via, use that, otherwise use `m' 
+            GrouperGroup v = gl.via();
+            if (v == null) {
+              v = gm;
             }
-          }
-          Iterator effs = GrouperBackend.listEffVals(
-                            s, gm, list
-                          ).iterator();
-          while (effs.hasNext()) {
-            GrouperList glE = (GrouperList) effs.next(); 
+            /*
+             * Delete all members of `m' from all groups that `m' and `g'
+             * belong to
+             */
             Iterator iter = groups.iterator();
             while (iter.hasNext()) {
-              GrouperGroup ggE = (GrouperGroup) iter.next();
+              GrouperGroup group = (GrouperGroup) iter.next();
               GrouperBackend._listDelVal(
-                session, ggE, glE.member(), list, glE.via()
+                session, group, gl.member(), list, v
               );
             }
           }
