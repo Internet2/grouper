@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.17 2005-03-09 07:53:43 acohen Exp $
-  $Date: 2005-03-09 07:53:43 $
+  $Id: main.jsp,v 1.18 2005-03-16 16:26:27 acohen Exp $
+  $Date: 2005-03-16 16:26:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -226,35 +226,13 @@
               name="searchbutton"
               type="button"
               class="button1"
-              onclick="javascript:showResult();"
+              onclick="javascript:loadXMLDoc('personQuickSearch.jsp');"
               value="Search" />
           <br />
           <span class="dropback">Enter a person's name, and click "Search."
           </span></p>
-        <div id="Results" style="display:none">
-          Your search found:
-         	<div class="scroll">
-<%
-  Set privilegedSubjects
-    = signet.getPrivilegedSubjects();
-      
-  SortedSet sortSet = new TreeSet(privilegedSubjects);
-  Iterator sortSetIterator = sortSet.iterator();
-  while (sortSetIterator.hasNext())
-  {
-    PrivilegedSubject listSubject
-      = (PrivilegedSubject)(sortSetIterator.next());
-%>
-            <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
-              <%=listSubject.getName()%>
-						</a><br /><!-- it's important for the br to be on the same line as the a -->
-            <span class="dropback"><%=listSubject.getDescription()%></span>
-            <br />
-<%
-  }
-%>
-						</div> <!-- scroll -->
-          </div> <!-- results -->
+        <div id="PersonSearchResults" style="display:none">
+          </div> <!-- PersonSearchResults -->
       </div><!-- findperson -->		 
       <div class="views">
  		    <h2>
