@@ -39,8 +39,7 @@ CREATE  TABLE grouper_list (
   groupField    VARCHAR(64) NOT NULL,
   memberKey     VARCHAR(64) NOT NULL,
   pathKey       VARCHAR(64),
-  viaKey        VARCHAR(64),
-  removeAfter   VARCHAR(16)
+  viaKey        VARCHAR(64)
 );
 CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list 
   (groupKey, groupField, memberKey, pathKey);
