@@ -84,5 +84,11 @@ Contents:
     - Source:   <http://logging.apache.org/>
     - License:  Apache License, Version 2.0
 
-$Id: README,v 1.2 2004-08-24 17:44:27 blair Exp $
+  subject.jar
+    "TODO The I2MI Subject Interface."
+    - Version:  CVS HEAD checkout on 20041101
+    - Source:   TODO
+    - License:  TODO
+
+$Id: README,v 1.3 2004-11-02 15:35:43 blair Exp $
 
