@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.24 2004-11-12 04:25:41 blair Exp $
+# $Id: API,v 1.25 2004-11-12 20:18:00 blair Exp $
 #
 # TODO Interfaces
 #
@@ -127,8 +127,8 @@ GrouperSession
     GrouperSession()
 
   Instance Methods
-    void start(GrouperMember s)
-    void stop()
+    boolean start(Subject s)
+    boolean stop()
     GrouperMember subject()
 
 
