@@ -167,6 +167,9 @@ td {
 	vertical-align: top;
 	border-bottom: 1px solid #DDD;		
 }
+td.date {
+  white-space: nowrap;
+}
 table.invis td {
 	border: none;
 }
@@ -181,6 +184,7 @@ th {
 	color: #FFF;
 	padding: 0px 3px 1px 3px;
 	white-space: nowrap;
+	border: none;	
 }
 
 /* UNORDERED LIST */
@@ -222,6 +226,7 @@ ol {
 	}
 #Footer {
 	clear: left;
+	margin-left: 186px;	
 	margin-top: 50px;
 	color: #666;
 }	
@@ -347,7 +352,7 @@ ol {
 	font-weight: normal;	
 }
 .button-def {
-	margin: 15px 0px 15px 0px;
+	margin: 5px 0px 15px 0px;
 	background-color: #EEE;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	font-size: 11px;

@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.11 2005-02-24 22:17:55 acohen Exp $
-  $Date: 2005-02-24 22:17:55 $
+  $Id: main.jsp,v 1.12 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -53,8 +53,8 @@
   <form name="form1" method="post" action="">
     <div id="Header">  
       <div id="Logo">
-      <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />      </div> 
-      <!-- Logo -->
+      <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" /> 
+      </div> <!-- Logo -->
       <div id="Signet">
         <img src="images/signet.gif" alt="Signet" height="60" width="49">
       </div> <!-- Signet -->
@@ -71,13 +71,8 @@
     </span> <!-- select -->
   </div> <!-- Navbar -->
   
-<!--
- <div id="Navbar"><span class="logout"><a href="blank.html">User Name: Logout</a></span><span class="select">Home</span></div>
--->
-  
   <div id="Layout">
     <div id="Content"> 
-      <div class="table1"> 
         <div class="tableheader">
           <a
             style="float: right;"
@@ -116,11 +111,11 @@
           <input name="Submit" type="submit" class="button1" value="Show" />
 -->
 
-        </div>
+        </div> <!-- tableheader -->
         <div class="tablecontent"> 
-          <table class="full">            
-            <tr> 
-              <td nowrap="nowrap" class="columnhead">
+          <table>            
+            <tr class="columnhead"> 
+              <td>
                 <img
                   src="images/icon_down_unsel.gif"
                   alt="[sort by]"
@@ -129,17 +124,19 @@
                   border="0" />
                 Person
               </td>
-              <td nowrap="nowrap" class="columnhead">
+              <td width="30%">
                 Privilege
               </td>
-              <td nowrap="nowrap" class="columnhead">Scope</td>
-              <td nowrap="nowrap" class="columnhead">
+              <td width="20%">
+								Scope
+							</td>
+              <td>
                 Limits
               </td>
-              <td nowrap="nowrap" class="columnhead">
+              <td>
                 Status
               </td>
-              <td nowrap="nowrap" class="columnhead">
+              <td>
                 Granted
               </td>
             </tr>
@@ -200,7 +197,7 @@
   + (assignment.isGrantable()?", can grant":"")
 %>
               </td> <!-- status -->
-              <td nowrap="nowrap">
+              <td class="date">
 <%=
   // assignment.getCreateDateTime() is no longer supported. Eventually,
   // I'll need to remove this reference a little more completely.
@@ -216,10 +213,9 @@
 	
             
           </table>
-        </div>
-      </div>
-      <jsp:include page="footer.jsp" flush="true" />
-    </div>
+      </div> <!-- tablecontent -->
+    </div> <!-- Content -->
+    <jsp:include page="footer.jsp" flush="true" />
     <div id="Sidebar">
 			<div class="findperson"> 
         <h2>
@@ -242,7 +238,7 @@
               value="Search" />
           <br />
           <span class="dropback">Enter a person's name, and click "Search."
-          </span> </p>
+          </span></p>
         <div id="Results" style="display:none">
           Your search found:
          	<div class="scroll">
@@ -257,23 +253,20 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-            <br />
             <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
               <%=listSubject.getName()%>
             </a>
             <br />
-            <!--Stanford Linear Accelerator Center, --><span class="dropback"><%=listSubject.getDescription()%></span>
+            <span class="dropback"><%=listSubject.getDescription()%></span>
+            <br />
 <%
   }
 %>
 						</div> <!-- scroll -->
-          </div>
-        <!-- results -->
-          <!-- actionbox -->
-      </div>
-			<!-- findperson -->		 
+          </div> <!-- results -->
+      </div><!-- findperson -->		 
       <div class="views">
-        <h2>
+ 		    <h2>
           View privileges...
         </h2> 
         <p>
@@ -297,7 +290,6 @@
             by scope
           </a>
         </p>
-          <!-- actionbox -->
       </div> <!-- views-->
 	    <div class="helpbox">
        <h2>
@@ -307,7 +299,7 @@
       </div> <!-- helpbox-->	
       
   </div> <!-- Sidebar -->
- </div>	
+ </div>	<!-- Layout -->
 </form>
 </body>
 </html>

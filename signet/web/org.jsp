@@ -1,6 +1,6 @@
 <!--
-  $Id: org.jsp,v 1.2 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: org.jsp,v 1.3 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -75,7 +75,7 @@
     <form name="form1" action="">
       <div id="Header">
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
+          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
         </div>
         <div id="Signet">
 					<img src="images/signet.gif" alt="Signet" height="60" width="49">

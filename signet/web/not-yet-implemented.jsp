@@ -1,6 +1,6 @@
 <!--
-  $Id: not-yet-implemented.jsp,v 1.2 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: not-yet-implemented.jsp,v 1.3 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -59,8 +59,9 @@
     <form name="form1" action="">
       <div id="Header">  
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
-        </div> <!-- Logo -->
+          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
+        </div> 
+        <!-- Logo -->
 
         <div id="Signet">
           <img src="images/signet.gif" width="49" height="60" alt="Signet" />
@@ -91,10 +92,9 @@
             <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Return to home page
           </a>
           or click your browser's back button.
-					<jsp:include page="footer.jsp" flush="true" />
         </div> <!-- Content -->
-        <div id="Sidebar">
-        </div>
+					<jsp:include page="footer.jsp" flush="true" />
+
       </div>	
     </form>
   </body>

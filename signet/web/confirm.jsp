@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.5 2005-02-24 01:09:39 jvine Exp $
-  $Date: 2005-02-24 01:09:39 $
+  $Id: confirm.jsp,v 1.6 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -89,8 +89,8 @@
     
       <div id="Header">
         <div id="Logo">
-        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
-        <!-- Logo -->
+        <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
+				</div> <!-- Logo -->
         <div id="Signet">
           <a href="Start.do">
             <img src="images/signet.gif" width="49" height="60" alt="Signet" />
@@ -108,9 +108,8 @@
           <a href="Start.do">
             Home
           </a>
-          >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
-          <a href="<%=personViewHref%>"
-            >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
+          &gt; <!-- displays as text right-angle bracket -->
+          <a href="<%=personViewHref%>">  
             <%=currentGranteePrivilegedSubject.getName()%>
           </a>
           &gt; Grant new privilege
@@ -125,7 +124,7 @@
               <%=currentGranteePrivilegedSubject.getName()%>
             </h1>
             <span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,  Technology Strategy and Support Operations-->
-          </div>
+          </div> <!-- ViewHead -->
            
           <div class="section">
             <h2><%=currentSubsystem.getName()%> privilege granted</h2>
@@ -141,8 +140,6 @@
             </ul>
           </div><!-- section -->
               
-
-          <!-- tableheader -->
           <div class="section">
             <h2>
               scope
@@ -244,9 +241,10 @@
              </p>
            </div>
            <!-- section -->
-                    
+
+         </div> <!-- Content -->                    
           <jsp:include page="footer.jsp" flush="true" /> 
-         </div><div id="Sidebar">
+				 <div id="Sidebar">
           <div class="findperson">
             <h2>
               Find a person
@@ -274,22 +272,20 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-          	  <br />
+
               <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
                 <%=listSubject.getName()%>
               </a>
               <br />
-              <!--Stanford Linear Accelerator Center, --><%=listSubject.getDescription()%>
+              <%=listSubject.getDescription()%>
+          	  <br />
 <%
   }
 %>
 
 							</div> <!-- scroll -->
-              </div>
-            <!-- results -->
-              <!-- actionbox -->
-          </div>
-          <!-- findperson -->
+            </div> <!-- results -->
+          </div> <!-- findperson -->
 
           <div class="views">
             <h2>
@@ -311,7 +307,6 @@
                   
           <div class="helpbox">
             <h2>Help</h2>
-            <!-- actionheader -->
             <jsp:include page="confirm-help.jsp" flush="true" />          
           </div>  <!-- end helpbox -->
          </div> <!-- Sidebar -->

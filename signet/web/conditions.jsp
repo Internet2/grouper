@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.6 2005-02-24 01:09:39 jvine Exp $
-  $Date: 2005-02-24 01:09:39 $
+  $Id: conditions.jsp,v 1.7 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -90,8 +90,8 @@
     <form name="form1" action="Confirm.do">
       <div id="Header">  
         <div id="Logo">
-        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
-        <!-- Logo -->
+        <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
+        </div> <!-- Logo -->
         <div id="Signet">
 					<img src="images/signet.gif" alt="Signet" height="60" width="49">
         </div> <!-- Signet -->
@@ -107,9 +107,8 @@
           <a href="Start.do">
             Home
           </a>
-          >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
-          <a href="<%=personViewHref%>"
-            >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
+          &gt; <!-- displays as text right-angle bracket -->
+          <a href="<%=personViewHref%>"> 
             <%=currentGranteePrivilegedSubject.getName()%>
           </a>
           &gt; Grant new privilege
@@ -123,8 +122,8 @@
             <h1>
               <%=currentGranteePrivilegedSubject.getName()%>
        	    </h1>
-       	    <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
-            </div>
+       	    <span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+            </div>  <!-- ViewHead -->
           
             <div class="section">
              <h2>New <%=currentSubsystem.getName()%> privilege</h2>
@@ -235,20 +234,20 @@
               </p>
               <p>
                 <a href="<%=personViewHref%>">
-                  <img src="images/icon_arrow_left.gif" width="16" height="16" />Cancel and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+                  <img src="images/icon_arrow_left.gif" width="16" height="16" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
                 </a>
               </p>
             </div> <!-- section -->
+        </div> <!--Content -->
 	      <jsp:include page="footer.jsp" flush="true" />
-        </div>
-      
+				      
         <div id="Sidebar">
           <div class="helpbox">
 			 	  	<h2>Help</h2>
 			  		<jsp:include page="grant-help.jsp" flush="true" />          
 					</div> <!-- Helpbox -->
         </div> <!-- Sidebar -->
-      </div>	
+      </div> <!-- Layout -->
     </form>
   </body>
 </html>

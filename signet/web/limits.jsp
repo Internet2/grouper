@@ -1,6 +1,6 @@
 <!--
-  $Id: limits.jsp,v 1.3 2005-02-24 01:09:39 jvine Exp $
-  $Date: 2005-02-24 01:09:39 $
+  $Id: limits.jsp,v 1.4 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -84,8 +84,8 @@
     <form name="form1" action="Confirm.do">
       <div id="Header">  
         <div id="Logo">
-        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
-        <!-- Logo -->
+        <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
+        </div> <!-- Logo -->
         <div id="Signet">
 					<img src="images/signet.gif" alt="Signet" height="60" width="49">
         </div> <!-- Signet -->
@@ -101,9 +101,8 @@
           <a href="Start.do">
             Home
           </a>
-          >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
-          <a href="<%=personViewHref%>"
-            >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
+          &gt; <!-- displays as text right-angle bracket -->
+          <a href="<%=personViewHref%>">
             <%=currentGranteePrivilegedSubject.getName()%>
           </a>
           &gt; Grant new privilege
@@ -166,8 +165,7 @@
                 class="button2"
                 onclick=(parent.location='<%=orgBrowseHref%>')
                 value="&lt;&lt; Change scope" />
-         	</div>
-         	<!-- section -->
+         	</div>  	<!-- section -->
           	
           <!--
           
@@ -389,7 +387,9 @@
        		grant this privilege to others
      		</blockquote>
       		</fieldset>
-      		</div><div class="section">
+      		</div> <!-- section -->
+					
+					<div class="section">
         		<input
           name="Button"
           type="submit"
@@ -400,17 +400,17 @@
          		<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
         		</a>
       		</p>
-            		</div>
-            	<jsp:include page="footer.jsp" flush="true" />
-		</div>
+            		</div> <!-- section -->
+            
+		</div> <!-- Content -->
+			<jsp:include page="footer.jsp" flush="true" />
 		<div id="Sidebar">
   <div class="helpbox">
    	<h2>Help</h2>
-   	<!-- actionheader -->
    	<jsp:include page="grant-help.jsp" flush="true" />          
 	</div>  <!-- end helpbox -->
-</div>
-</div>	
+</div> <!-- Sidebar -->
+</div>	 <!-- Layout -->
 </form>
 </body>
 </html>

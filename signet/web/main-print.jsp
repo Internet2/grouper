@@ -1,6 +1,6 @@
 <!--
-  $Id: main-print.jsp,v 1.8 2005-02-24 18:47:31 acohen Exp $
-  $Date: 2005-02-24 18:47:31 $
+  $Id: main-print.jsp,v 1.9 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -54,7 +54,7 @@
     <form name="form1" method="post" action="">
       <div id="Header">
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
+          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
         </div>
       </div>
       <div id="Layout"> 
@@ -62,30 +62,30 @@
        <h1>
           Privileges you have granted</h1>
   	    
-        <table class="full">            
+        <table>            
           <tr>
-            <td nowrap="nowrap">
+            <td>
               <b>
                 Person
               </b>
             </td>
-            <td nowrap="nowrap">
+            <td>
               <b>
                 Privilege
               </b>
             </td>
-            <td nowrap="nowrap"><b>Scope</b></td>
-            <td nowrap="nowrap">
+            <td><b>Scope</b></td>
+            <td>
               <b>
                 Limits
               </b>
             </td>
-            <td nowrap="nowrap">
+            <td>
               <b>
                 Status
               </b>
             </td>
-            <td nowrap="nowrap">
+            <td>
               <b>
                 Granted
               </b>
@@ -114,9 +114,7 @@
             
             <td> <!-- privilege -->
               <%=subsystem.getName()%> : <%=category.getName()%> :
-              <span>
                 <%=assignment.getFunction().getName()%>
-              </span>
             </td> <!-- privilege -->
             
             <td> <!-- scope -->
@@ -135,7 +133,7 @@
 %>
             </td> <!-- status -->
             
-            <td nowrap="nowrap"> <!-- granted -->
+            <td> <!-- granted -->
 <%=
   // dateFormat.format(assignment.getCreateDateTime())
   ""

@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.8 2005-02-24 19:15:24 acohen Exp $
-  $Date: 2005-02-24 19:15:24 $
+  $Id: personview.jsp,v 1.9 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -123,7 +123,7 @@
 %>
   <div id="Header">  
     <div id="Logo">
-      <img src="images/KITN.gif" width="216" height="60" alt="logo" />
+      <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
     </div> <!-- Logo -->
     <div id="Signet">
       <img
@@ -144,7 +144,7 @@
       <a href="Start.do">
         Home
       </a>
-      > <%=currentGranteePrivilegedSubject.getName()%>
+      &gt; <%=currentGranteePrivilegedSubject.getName()%>
     </span> <!-- select -->
   </div> <!-- Navbar -->
   
@@ -156,14 +156,12 @@
            <%=currentGranteePrivilegedSubject.getName()%>
          </h1>
          <span class="dropback">
-           <%=currentGranteePrivilegedSubject.getDescription()%>
-         </span> <!-- dropback -->  
-       </div>
+           <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
+         </span> 
+       </div> <!-- ViewHead -->
        <div class="tableheader">
          <form name="pickSubsystem" action="PersonView.do">
-           <!-- the following two a tags must be within the form tag, but
-                 before the generated text that appears in the tableheader row -->
-           <a
+		         <a
               style="float: right;"
               href="javascript:;"
               onClick="alert('This will download the data shown in the table in an Excel-readable format.')">
@@ -186,7 +184,7 @@
              Printable version
            </a>
            <h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
-          <fieldset>
+           <span style="white-space: nowrap;"> <!-- keep select & button together -->
            <select
               name="subsystemId"
               id="subsystem">
@@ -237,10 +235,9 @@
               type="submit"
               name="showSubsystemPrivs"
               value="Show"/>
-            </fieldset>  
+            </span>  
          </form> <!-- pickSubsystem -->
-       </div>
-       <!-- tableheader -->
+       </div> <!-- tableheader -->
               
       <form
           onSubmit
@@ -257,7 +254,7 @@
           name="checkform"
           id="checkform">
          <div class="tablecontent">
-           <table class="full">
+           <table>
              <tr class="columnhead">
                <td width="30%">
                  <img
@@ -272,8 +269,8 @@
                <td>
                  Limits
                </td>
-               <td width="10%" align="left">Status</td>
-               <td width="10%" align="left">
+               <td>Status</td>
+               <td width="10%">
                  All:
                  <input
                     name="checkAll"
@@ -337,7 +334,7 @@
                 <%=Common.displayLimitValues(assignment)%>
                </td> <!-- limits -->
                
-                 <td align="center" >&nbsp;</td>
+                 <td>&nbsp;</td>
                  <td align="center" >
                    <input
                       name="revoke"
@@ -364,7 +361,7 @@
                  <td >&nbsp;
                       
                 </td>
-                 <td align="center" >&nbsp;</td>
+                 <td>&nbsp;</td>
                  <td align="center" >
                    <input
                       name="revokeButton"
@@ -376,11 +373,9 @@
                </tr>
              </table>
          </div> <!-- tablecontent -->
-       </form>
-       <!-- checkform -->
-          <!-- table1 -->
-  <jsp:include page="footer.jsp" flush="true" />
+       </form> <!-- checkform -->
      </div><!-- Content -->
+  <jsp:include page="footer.jsp" flush="true" />
       <div id="Sidebar">
         
 <% 
@@ -394,13 +389,7 @@
           </h2>
           <form action="Functions.do">
             <p>
-              <span class="tableheader">
-                <select name="select" class="long">
-<!--
-                    <option selected="selected">
-                      (privileges you can grant)
-                    </option>
--->
+              <select name="select" class="long">
 
 <%
     Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
@@ -414,8 +403,8 @@
 <%
     }
 %>
-                </select>
-              </span> <!-- tableheader --> 
+              </select>
+       
               <input
                   type="submit"
                   name="Button"
@@ -424,7 +413,6 @@
                   value="Start &gt;&gt;" />
                 <br />
             <span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
-              <!-- actionbox -->
           </form>
         </div> <!-- grant -->
           
@@ -470,18 +458,18 @@
     PrivilegedSubject listSubject
       = (PrivilegedSubject)(sortSetIterator.next());
 %>
-               <br />
                <a href="PersonView.do?granteeSubjectTypeId=<%=listSubject.getSubjectTypeId()%>&granteeSubjectId=<%=listSubject.getSubjectId()%>">
                  <%=listSubject.getName()%>
                </a>
                <br />
                <span class="dropback"><%=listSubject.getDescription()%></span>
+               <br />
 <%
   }
 %>
               </div> <!-- scroll -->
-             </div>           <!-- results -->
-         </div>         <!-- findperson -->         
+             </div> <!-- results -->
+          </div> <!-- findperson -->         
           <div class="views">
             <h2>
               View privileges...
@@ -516,7 +504,6 @@
                 by scope
               </a>
             </p>
-              <!-- actionbox -->
         </div> <!-- views -->
             
           
@@ -526,8 +513,7 @@
           </h2>
           <jsp:include page="personview-help.jsp" flush="true" />
         </div> <!-- helpbox-->  
-      </div> 
-      <!-- Sidebar -->
-</div> <!-- Layout -->
+      </div> <!-- Sidebar -->
+		</div> <!-- Layout -->
   </body>
 </html>

@@ -1,6 +1,6 @@
 <!--
-  $Id: personview-print.jsp,v 1.4 2005-02-24 20:33:15 acohen Exp $
-  $Date: 2005-02-24 20:33:15 $
+  $Id: personview-print.jsp,v 1.5 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -64,7 +64,7 @@
   
       <div id="Header">  
         <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
+          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
         </div>
       </div>
        
@@ -73,15 +73,9 @@
         <h1>
           <%=currentSubsystem.getName()%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
         </h1>
-        <span class="dropback">
           <%=currentGranteePrivilegedSubject.getDescription()%>
-        </span>
-        <br />
-        <br />
-         
-        <div class="tablecontent"> 
-            
-          <table class="full">
+        
+          <table>
             <tr>
               <td><b>Privilege</b></td>
               <td><b>Scope</b></td>
@@ -100,20 +94,20 @@
       Assignment assignment = (Assignment)(assignmentsIterator.next());
 %>
   
-            <tr >
-              <td >
+            <tr>
+              <td>
                 <%=assignment.getFunction().getCategory().getName()%>
                 :
                 <%=assignment.getFunction().getName()%>
               </td>
-              <td >
+              <td>
                 <%=assignment.getScope().getName()%>
               </td>
               
-              <td  > <!-- limits -->
+              <td> <!-- limits -->
                 <%=Common.displayLimitValues(assignment)%>
               </td> <!-- limits -->
-              <td  > <!-- status -->
+              <td> <!-- status -->
               </td> <!-- status -->
             </tr>
 <%
@@ -122,8 +116,6 @@
 %>
             
           </table>
-        </div> 
-        <!-- tablecontent -->
       <jsp:include page="footer.jsp" flush="true" />  
       </div> <!-- layout -->
     </form>

@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.3 2005-02-24 01:09:39 jvine Exp $
-  $Date: 2005-02-24 01:09:39 $
+  $Id: functions.jsp,v 1.4 2005-02-24 22:19:29 jvine Exp $
+  $Date: 2005-02-24 22:19:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -66,7 +66,8 @@
     <form name="form1" method="post" action="OrgBrowse.do">
       <div id="Header">
         <div id="Logo">
-        <img src="images/organisation-logo.jpg" width="83" height="60" alt="logo" />        </div> 
+        <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
+				</div> 
         <!-- Logo -->
         
         <div id="Signet">
@@ -83,9 +84,9 @@
             <a href="Start.do">
               Home
             </a>
-            >  <!-- This single right-angle-bracket is just a text element, not an HTML token. -->
-            <a href="<%=personViewHref%>"
-              ><%=currentGranteePrivilegedSubject.getName()%>
+            &gt; <!-- displays as text right-angle bracket -->
+            <a href="<%=personViewHref%>">
+						<%=currentGranteePrivilegedSubject.getName()%>
             </a>
             &gt; Grant new privilege
           </span> <!-- select -->
@@ -97,17 +98,16 @@
           <div id="ViewHead">
 						Granting new privilege to
            	<h1><%=currentGranteePrivilegedSubject.getName()%></h1>
-           	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
-         	</div>
+           	<span class="dropback">
+						<%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+					</div> <!-- ViewHead -->
          
          	<div class="section">
 					<h2>
            	New <%=currentSubsystem.getName()%> privilege
          	</h2> 
-           	<p>
-						 	<span class="dropback">
+           	<p class="dropback">
              	 Select the privilege you want to grant. Only privileges you are authorized to grant are listed.
-						  </span>
 							</p>
 							
                	<select name="step3" size="10" class="long" id="step3" style="float: left;">
@@ -137,10 +137,10 @@
 %>
                	</select>
      
-			<div class="description">Category name : <span class="keyname">Function name</span><br />
-		 					Description goes here.
-				</div>
-				</div> 	<!-- section -->
+							<div class="description">Category name : <span class="keyname">Function name</span><br />
+		 						Description goes here.
+							</div>  <!-- description -->
+					 </div> 	<!-- section -->
 					
            <div class="section">
              	<input
@@ -154,15 +154,13 @@
                	<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
              	</a>
            	</p>
-         	</div>
-         	<!-- section -->
+         	</div>	<!-- section -->
 					
-	<jsp:include page="footer.jsp" flush="true" />
        	</div><!-- Content -->
+				<jsp:include page="footer.jsp" flush="true" />
         <div id="Sidebar">
           <div class="helpbox">
           	<h2>Help</h2>
-          	<!-- actionheader -->
           	<jsp:include page="grant-help.jsp" flush="true" />          
 					</div>  <!-- end helpbox -->
         </div> <!-- Sidebar -->
