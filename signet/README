@@ -20,7 +20,7 @@ Quick Start
 (7) Change the feedback href in webapp/signet/footer.jsp to point to your preferred email address.
 
 To populate the Signet demo application with sample data:
-(1) Use the SubsystemXmlLoader to create the demo sample Subsystem by executing the util/loader/subsystem/run.sh script with sample demo/Subsystem.xml file.
+(1) Use the SubsystemXmlLoader to create the demo sample Subsystem by executing the util/subsystemloader/run.sh script with sample the demo/Subsystem.xml file. You'll need to set your database connection parameter in util/classes/hibernate.cfg.xml.
 (2) Execute the sql/subject.sql script to load the sample person data.
 (3) Execute the sql/tree.sql script to load the sample organization tree data.
 
