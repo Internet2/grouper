@@ -152,7 +152,7 @@
     from GrouperAttribute where groupKey = ?
   ]]></query>
 
-  <query name="GrouperAttribute.by.key.and.value"><![CDATA[
+  <query name="GrouperAttribute.by.key.and.field"><![CDATA[
     from GrouperAttribute where 
       groupKey    = ?     and
       groupField  = ?

@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.26 2005-03-26 05:44:03 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.27 2005-03-26 17:12:00 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -145,12 +145,12 @@ public class GrouperAttribute implements Serializable {
    * Save an attribute in the groups registry.
    */
   protected static void save(GrouperSession s, GrouperAttribute attr) {
-    String            qry   = "GrouperAttribute.by.key.and.value";
+    String            qry   = "GrouperAttribute.by.key.and.field";
     List              vals  = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, attr.key());
-      q.setString(1, attr.value());
+      q.setString(1, attr.field());
       try {
         vals = q.list();
         if (vals.size() == 0) {
@@ -174,6 +174,7 @@ public class GrouperAttribute implements Serializable {
                           "Error updating attribute " + attr + ": " + e
                         );
             }
+          } else {
           }
         } 
       } catch (HibernateException e) {
