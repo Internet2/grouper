@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.51 2005-03-22 21:26:58 blair Exp $
+ * @version $Id: GrouperList.java,v 1.52 2005-03-23 21:45:40 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -271,7 +271,6 @@ public class GrouperList implements Serializable {
       } catch (HibernateException e) {
         throw new RuntimeException("Unable to create query: " + e);
       }
-      Grouper.log().backend("_listDelVal() (v) " + gl.via().name());
     } else {
       try {
         // TODO Why can't I use delete() with a parameterized query?
@@ -288,7 +287,6 @@ public class GrouperList implements Serializable {
       } catch (HibernateException e) {
         throw new RuntimeException("Unable to create query: " + e);
       }
-      Grouper.log().backend("_listDelVal() (v) null");
     }
 
     try {
@@ -297,7 +295,6 @@ public class GrouperList implements Serializable {
         GrouperList del = (GrouperList) vals.get(0);
         try {
           s.dbSess().session().delete(del);
-          Grouper.log().backend("_listDelVal() deleted");
         } catch (HibernateException e) {
           throw new RuntimeException(
                       "Error deleting list value: " + e

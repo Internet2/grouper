@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.196 2005-03-23 21:35:24 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.197 2005-03-23 21:45:40 blair Exp $
  */
 public class GrouperBackend {
 
@@ -184,16 +184,7 @@ public class GrouperBackend {
           if (g != null) {
             // ... And convert it to a subject object
             subj = new SubjectImpl(id, typeID);
-          } else {
-            Grouper.log().backend(
-              "subjectLookupTypeGroup() Returned group is null"
-            );
           }
-        } else {
-          Grouper.log().backend(
-            "subjectLookupTypeGroup() Found " + vals.size() + 
-            " matching groups"
-          );
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -264,7 +255,9 @@ public class GrouperBackend {
             s.dbSess().session().delete(attr);
             rv = true;
           } catch (HibernateException e) {
-            Grouper.log().backend("Unable to delete attribute " + field);
+            throw new RuntimeException(
+                        "Error deleting attribute: " + e
+                      );
           }
         }
       } catch (HibernateException e) {
