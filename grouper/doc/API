@@ -1,8 +1,267 @@
-#
-# Condensed Grouper API
-# $Id: API,v 1.26 2004-11-23 22:20:48 blair Exp $
-#
-#
 
-TODO
+# Grouper API 
+
+This file contains a synopsis of the Grouper API.  For more details,
+see the API javadoc and other documentation.
+
+$Id: API,v 1.27 2004-12-05 20:53:56 blair Exp $
+
+---
+
+## Interfaces
+
+### GrouperAccess
+
+#### Instance Methods
+
+* boolean             can(privilege)
+* boolean             grant(session, group, member)
+* List                has(session, group)
+* List                has(session, group, member)
+* boolean             has(session, group, member, privilege)
+* boolean             has(session, group, privilege)
+* List                has(session, member, privilege)
+* List                has(session, privilege)
+* boolean             revoke(session, group, member, privilege)
+* boolean             revoke(session, group, privilege)
+* List                whoHas(session, group, privilege)
+
+### GrouperNaming
+
+#### Instance Methods
+
+* boolean             can(privilege)
+* boolean             grant(session, group, member)
+* List                has(session, group)
+* List                has(session, group, member)
+* boolean             has(session, group, member, privilege)
+* boolean             has(session, group, privilege)
+* List                has(session, member, privilege)
+* List                has(session, privilege)
+* boolean             revoke(session, group, member, privilege)
+* boolean             revoke(session, group, privilege)
+* List                whoHas(session, group, privilege)
+
+---
+
+## Exceptions
+
+### GrouperException
+
+---
+
+## Classes
+
+### Grouper
+
+#### Class Methods
+
+* GrouperAccess       access()
+* String              config(parameter)
+* boolean             groupField(groupType, groupField)
+* List                groupFields()
+* boolean             groupType(groupType)
+* List                groupTypeDefs()
+* List                groupTypes()
+* boolean             hasSubjectType(subjectTypeID)
+* GrouperNaming       naming()
+* SubjectType         subjectType(subjectTypeID)
+* List                subjectTypes()
+
+### GrouperAccessImpl
+
+#### Instance Methods
+
+* boolean             can(privilege)
+* boolean             grant(session, group, member)
+* List                has(session, group)
+* List                has(session, group, member)
+* boolean             has(session, group, member, privilege)
+* boolean             has(session, group, privilege)
+* List                has(session, member, privilege)
+* List                has(session, privilege)
+* boolean             revoke(session, group, member, privilege)
+* boolean             revoke(session, group, privilege)
+* List                whoHas(session, group, privilege)
+
+### GrouperAttribute
+
+#### Instance Methods
+
+* String              field()
+* String              value()
+
+### GrouperBackend
+
+#### Class Methods
+
+* String              groupName(stem, extension)
+
+### GrouperGroup
+
+#### Class Methods
+
+* GrouperGroup        create(session, stem, extension)
+* GrouperGroup        create(session, stem, extension, groupType)
+* boolean             delete(session, group)
+* GrouperGroup        load(session, stem, extension)
+* GrouperGroup        load(session, stem, extension, groupType)
+
+#### Instance Methods
+
+* GrouperAttribute    attribute(attribute)
+* boolean             attribute(attribute, value)
+* Map                 attributes()
+* String              createSource()
+* String              createSubject()
+* String              createTime()
+* String              id()
+* boolean             listAddVal(session, member)
+* boolean             listDelVal(session, member)
+* List                listEffVals(session)
+* List                listEffVals(session, listType)
+* List                listImmVals(session)
+* List                listImmVals(session)
+* List                listVals(session, listType)
+* List                listVals(session, listType)
+* String              modifySource()
+* String              modifySubject()
+* String              modifyTime()
+* String              type()
+
+### GrouperList
+
+#### Instance Methods
+
+* GrouperGroup        group()
+* FIXME String              groupField()
+* GrouperMember       member()
+* FIXME String              memberKey()
+* FIXME String              via()
+
+### GrouperMember
+
+#### Class Methods
+
+* FIXME GrouperMember       lookup(subjectID, subjectTypeID)
+* FIXME GrouperMember       lookup(subject)
+
+#### Instance Methods
+
+* List                listEffVals(session)
+* List                listEffVals(session)
+* List                listImmVals(session, listType)
+* List                listImmVals(session, listType)
+* List                listVals(session)
+* List                listVals(session, listType)
+* String              memberID()
+* String              subjectID()
+* String              typeID()
+
+### GrouperNamingImpl
+
+#### Instance Methods
+
+* boolean             can(privilege)
+* boolean             grant(session, group, member)
+* List                has(session, group)
+* List                has(session, group, member)
+* boolean             has(session, group, member, privilege)
+* boolean             has(session, group, privilege)
+* List                has(session, member, privilege)
+* List                has(session, privilege)
+* boolean             revoke(session, group, member, privilege)
+* boolean             revoke(session, group, privilege)
+* List                whoHas(session, group, privilege)
+
+### GrouperQuery
+
+#### Instance Methods
+
+* boolean             groupType(groupType)
+* boolean             membership(membershipType)
+* List                query()
+
+### GrouperSchema
+
+#### Instance Methods
+
+* String              type()
+
+### GrouperSession
+
+#### Instance Methods
+
+* boolean             start(subject)
+* boolean             stop()
+* Subject             subject()
+
+### GrouperSubject
+
+#### Class Methods
+
+* FIXME Subject             lookup(subjectID, subjectTypeID)
+
+### GrouperSubjectAttribute
+
+#### Instance Methods
+
+* String              name()
+* String              searchValue()
+* String              typeID()
+* String              value()
+
+### GrouperTypeDef
+
+#### Instance Methods
+
+* FIXME String              groupField()
+* FIXME String              groupType()
+
+### SubjectImpl
+
+#### Instance Methods
+
+* void                addAttribute(attribute, value )
+* String[]            getAttributeArray(attribute)
+* String              getDescription()
+* String              getId()
+* String              getName()
+* SubjectType         getSubjectType()
+
+### SubjectTypeAdapterGroupImpl
+
+#### Instance Methods
+
+* void                destroy()
+* Subject             getSubject(subjectType, subjectID)
+* Subject             getSubjectByDisplayId(subjectType, displayID)
+* Subject[]           getSubjects(subjectType)
+* void                init()
+* boolean             isModifiable()
+* Subject             newSubject(subjectType, subjectID, name, description, displayID)
+* Subject             quickSearch(searchValue)
+* Subject[]           searchByIdentifier(subjectType, subjectID)
+
+### SubjectTypeAdapterPersonImpl
+
+#### Instance Methods
+
+* void                destroy()
+* Subject             getSubject(subjectType, subjectID)
+* Subject             getSubjectByDisplayId(subjectType, displayID)
+* Subject[]           getSubjects(subjectType)
+* void                init()
+* boolean             isModifiable()
+* Subject             newSubject(subjectType, subjectID, name, description, displayID)
+* Subject             quickSearch(searchValue)
+* Subject[]           searchByIdentifier(subjectType, subjectID)
+
+### SubjectTypeImpl
+
+#### Instance Methods
+
+* SubjectTypeAdapter  getAdapter()
+* String              getId()
+* String              getName()
 
