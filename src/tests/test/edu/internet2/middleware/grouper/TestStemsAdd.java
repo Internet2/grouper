@@ -55,9 +55,9 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
-public class TestNamespaces extends TestCase {
+public class TestStemsAdd extends TestCase {
 
-  public TestNamespaces(String name) {
+  public TestStemsAdd(String name) {
     super(name);
   }
 
