@@ -63,7 +63,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.79 2005-03-07 20:47:35 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.80 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -107,8 +107,9 @@ public class GrouperSession implements Serializable {
    */
   private GrouperSession(Subject subj) {
     this._init();
+    this.dbSess   = new Session(); 
     this.subject  = subj;
-    this.m        = GrouperMember.load(this, subj);
+    this.m        = GrouperMember.load(subj);
     if (m == null) {
       throw new RuntimeException("Unable to load member object");
     }
@@ -127,21 +128,20 @@ public class GrouperSession implements Serializable {
    *   of this session.
    * @return  True if session started.
    */
-  public static GrouperSession start(Subject s) {
+  public static GrouperSession start(Subject subj) {
     // TODO Plugin an external session handling mechanism?  Yes, please!
     // TODO Should I cache privs + memberships?
-    GrouperSession gs = null;
+    GrouperSession s = null;
     // Register the Grouper session
-    if (s != null) {
-      gs = new GrouperSession(s);
-      boolean rv = gs._registerSession();
-      if (rv) {
-        // Initialize the Hibernate session
-       gs.dbSess = new Session(); 
-      }
-      Grouper.log().sessionStart(rv, gs);
+    if (subj != null) {
+      s = new GrouperSession(subj);
+      // Initialize and attach the Hibernate session
+      s.dbSess.txStart();
+      boolean rv = s._registerSession();
+      s.dbSess.txCommit();
+      Grouper.log().sessionStart(rv, s);
     }
-    return gs;
+    return s;
   }
 
 
@@ -174,11 +174,13 @@ public class GrouperSession implements Serializable {
    */
   public boolean stop() { 
     boolean rv = false;
+    this.dbSess.txStart();
     if (this.sessionID != null) {
       if (GrouperBackend.sessionDel(this)) {
         rv = true;
       }
     }
+    this.dbSess.txStart();
     this.dbSess.stop();
     Grouper.log().sessionStop(rv, this);
     return rv;
@@ -238,8 +240,12 @@ public class GrouperSession implements Serializable {
   private void readObject(ObjectInputStream ois)
                  throws ClassNotFoundException, IOException 
   {
+    // this._init();
+
     // Perform default deserialization
      ois.defaultReadObject();
+
+    this.dbSess = new Session(); 
 
     // Restore GrouperMember object
     this.m = GrouperMember.load(this, this.memberID);

@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -62,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.60 2005-03-07 19:30:41 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.61 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperMember {
 
@@ -90,6 +91,11 @@ public class GrouperMember {
   /* (!javadoc)
    * This should <b>only</b> be used within this class.
    */
+  protected GrouperMember(Session dbSess, String subjectID, String subjectTypeID) {
+    this._init();
+    this.subjectID      = subjectID;
+    this.subjectTypeID  = subjectTypeID;
+  }
   private GrouperMember(GrouperSession s, String subjectID, String subjectTypeID) {
     this._init();
     this.s              = s;
@@ -112,37 +118,47 @@ public class GrouperMember {
    * @param   subj  A {@link Subject} object.
    * @return  A {@link GrouperMember} object.
    */
-  public static GrouperMember load(GrouperSession s, Subject subj) {
+  protected static GrouperMember load(GrouperSession s, Subject subj) { 
+    GrouperMember m = GrouperMember.load(subj);
+    if (m != null) {
+      m.s = s;
+    }
+    return m;
+  }
+  //protected static GrouperMember load(Session dbSess, Subject subj) {
+  //}
+  public static GrouperMember load(Subject subj) {
+    Session dbSess = new Session();
+
     // Attempt to load an already existing member
     GrouperMember member = GrouperBackend.member(
-                             subj.getId(), subj.getSubjectType().getId()
+                             dbSess, subj.getId(), subj.getSubjectType().getId()
                            );
-    /*
-     * We have an already existing member.  Return the un-Hibernated
-     * object.
-     */
-    if (member != null) { return member; }
+    if (member == null) {
+      /*
+       * If the subject is valid but a matching member object does not
+       * exist, create a new one, assign a key, etc.
+       */ 
+      // TODO Is there a reason why I am not just passing in the
+      //      `subjectID' and `subjectTypeID' passed as params to
+      //      this method?
+      member = new GrouperMember(
+                                 dbSess, subj.getId(),
+                                 subj.getSubjectType().getId()
+                                );
+      // Give it a private UUID
+      member.setMemberKey( GrouperBackend.uuid() );
+      // Give it a public UUID
+      member.setMemberID(  GrouperBackend.uuid() );
 
-    /*
-     * If the subject is valid but a matching member object does not
-     * exist, create a new one, assign a key, etc.
-     */ 
-    // TODO Is there a reason why I am not just passing in the
-    //      `subjectID' and `subjectTypeID' passed as params to
-    //      this method?
-    member = new GrouperMember(
-                               s, subj.getId(),
-                               subj.getSubjectType().getId()
-                              );
-    // Give it a private UUID
-    member.setMemberKey( GrouperBackend.uuid() );
-    // Give it a public UUID
-    member.setMemberID(  GrouperBackend.uuid() );
+      // Hibernate and return the member
+      member = GrouperBackend.memberAdd(dbSess, member);
 
-    // Hibernate and return the member
-    member = GrouperBackend.memberAdd(member);
+      Grouper.log().memberAdd(member, subj);
+    } 
 
-    Grouper.log().memberAdd(member, subj);
+    dbSess.stop();
+
     return member;
   }
 
@@ -174,7 +190,7 @@ public class GrouperMember {
     //      and then fall back to subject?
     if (subj == null)  { return null; }
 
-    return GrouperMember.load(s, subj);
+    return GrouperMember.load(subj);
   }
 
   /**
@@ -190,7 +206,7 @@ public class GrouperMember {
   public static GrouperMember load(GrouperSession s, String memberID) {
     // Attempt to load an already existing member
     // TODO Why am I not using the constructor?
-    GrouperMember member = GrouperBackend.memberByID(memberID);
+    GrouperMember member = GrouperBackend.memberByID(s, memberID);
     if (member == null) {
       throw new RuntimeException(
                                  "memberID " + memberID + 

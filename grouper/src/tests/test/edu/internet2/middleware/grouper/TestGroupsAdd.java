@@ -433,7 +433,7 @@ public class TestGroups extends TestCase {
     // Attempt to fetch a DEF_GROUP_TYPE group as a NS_TYPE group
     // g0
     GrouperGroup g  = GrouperGroup.load(s, stem0, extn0, Grouper.NS_TYPE);
-    Assert.assertNull(g);
+    Assert.assertNull("g !null", g);
     s.stop();
   }
 
@@ -517,12 +517,13 @@ public class TestGroups extends TestCase {
     Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
+
     // g0
     GrouperGroup g  = GrouperGroup.load(s, Util.stem0, Util.extn0);
-    Assert.assertNotNull(g);
-    Assert.assertNotNull(g.name());
-    Assert.assertNotNull(g.id());
-    Assert.assertNotNull(g.type());
+    Assert.assertNotNull("g0 !null", g);
+    Assert.assertNotNull("g0 name !null", g.name());
+    Assert.assertNotNull("g0 id !null", g.id());
+    Assert.assertNotNull("g0 type !null", g.type());
     // Refetch by id
     GrouperGroup g1 = GrouperGroup.loadByID(s, g.id());
     Assert.assertNotNull(g1);
@@ -559,6 +560,7 @@ public class TestGroups extends TestCase {
     Assert.assertTrue(g.name().equals(g4.name()));
     Assert.assertTrue(g.id().equals(g4.id()));
     Assert.assertTrue(g.type().equals(g4.type()));
+
     s.stop();
   }
 

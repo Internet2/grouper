@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.45 2005-03-07 19:30:41 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.46 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -131,7 +131,7 @@ public class GrouperNamingImpl implements GrouperNaming {
         if (this.has(s, g, Grouper.PRIV_STEM)) {
           if (
               GrouperBackend.listAddVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv), null)
+                s, new GrouperList(g, m, (String) privMap.get(priv))
               ) == true
              )
           {
@@ -227,7 +227,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       } else {
         GrouperMember m = GrouperMember.load(s, s.subject());
         rv = GrouperBackend.listVal(
-               s, new GrouperList(g, m, (String) privMap.get(priv), null)
+               s, new GrouperList(g, m, (String) privMap.get(priv))
              );
       }
     } else {
@@ -276,7 +276,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     boolean rv = false;
     if (this.can(priv) == true) {
       rv = GrouperBackend.listVal(
-             s, new GrouperList(g, m, (String) privMap.get(priv), null)
+             s, new GrouperList(g, m, (String) privMap.get(priv))
            );
     } else {
       // TODO I should probably throw an exception
@@ -333,7 +333,7 @@ public class GrouperNamingImpl implements GrouperNaming {
         if (this.has(s, g, Grouper.PRIV_STEM)) {
           if (
               GrouperBackend.listDelVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv), null)
+                s, new GrouperList(g, m, (String) privMap.get(priv))
               ) == true
              )
           {

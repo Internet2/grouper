@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.16 2005-03-04 19:49:40 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.17 2005-03-09 05:02:18 blair Exp $
  */
 public class GrouperQuery {
 
@@ -277,7 +277,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_CA);
     // Find all groups created after this date
     vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupCreatedAfter(date)
+             this.s, GrouperBackend.groupCreatedAfter(this.s, date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -295,7 +295,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_CB);
     // Find all groups created before this date
     vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupCreatedBefore(date)
+             this.s, GrouperBackend.groupCreatedBefore(this.s, date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -369,7 +369,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_MA);
     // Find all groups modified after this date
     vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupModifiedAfter(date)
+             this.s, GrouperBackend.groupModifiedAfter(this.s, date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
@@ -387,7 +387,7 @@ public class GrouperQuery {
     this.candidates.remove(KEY_MB);
     // Find all groups modified before this date
     vals = GrouperQuery._iterGroup(
-             this.s, GrouperBackend.groupModifiedBefore(date)
+             this.s, GrouperBackend.groupModifiedBefore(this.s, date)
            );
     if ( (vals != null) && (vals.size() > 0) ) {
       rv = true;
