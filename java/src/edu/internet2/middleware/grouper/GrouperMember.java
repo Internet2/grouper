@@ -18,7 +18,7 @@ import  edu.internet2.middleware.subject.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.34 2004-11-16 02:00:47 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.35 2004-11-16 17:48:49 blair Exp $
  */
 public class GrouperMember {
 
@@ -101,7 +101,7 @@ public class GrouperMember {
 
     // Hibernate and return the member
     member = GrouperBackend.memberAdd(member);
-   
+  
     return member;
   }
 
