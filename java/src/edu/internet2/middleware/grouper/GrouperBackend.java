@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.82 2004-12-01 04:25:55 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.83 2004-12-02 02:33:49 blair Exp $
  */
 public class GrouperBackend {
 
@@ -588,14 +588,40 @@ public class GrouperBackend {
   }
 
   /**
-   * Return list data from the backend store.
+   * Query for memberships in the specified list.
+   * <p />
    *
-   * @param s     Return list data within this session context.
-   * @param list  Return this list type.
+   * @param   s     Perform query within this session.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
+   */
+  protected static List listVals(GrouperSession s, String list) {
+    Session session = GrouperBackend._init();
+    List    vals    = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession"))
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      vals = GrouperBackend._listVals(session, null, null, list, null);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
+   * Query for memberships of the specified list in the specified
+   * group.
+   * <p />
+   *
+   * @param   s     Perform query within this session.
+   * @param   g     Query on this {@link GrouperGroup}.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
-    List    members = new ArrayList();
+    List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -605,23 +631,25 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      members = GrouperBackend._listVals(session, g, null, list, null);
+      vals = GrouperBackend._listVals(session, g, null, list, null);
     }
     GrouperBackend._hibernateSessionClose(session);
-    return members;
+    return vals;
   }
 
   /**
-   * Return all group memberships of the specified type for the 
-   * specified {@link GrouperMember}.
+   * Query for memberships of the specified list for the specified
+   * member.
+   * <p />
    *
-   * @param   s       Session to query within.
-   * @param   list    Type of list membership to query on.
-   * @return  List of {@link GrouperGroup} objects.
+   * @param   s     Perform query within this session.
+   * @param   m     Query on this {@link GrouperMember}.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   protected static List listVals(GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
-    List    groups  = new ArrayList();
+    List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -630,15 +658,47 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      groups = GrouperBackend._listVals(session, null, m, list, null);
+      vals = GrouperBackend._listVals(session, null, m, list, null);
     }
     GrouperBackend._hibernateSessionClose(session);
-    return groups;
+    return vals;
   }
 
+  /**
+   * Query for effective memberships in the specified list.
+   * <p />
+   *
+   * @param   s     Perform query within this session.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
+   */
+  protected static List listEffVals(GrouperSession s, String list) {
+    Session session = GrouperBackend._init();
+    List    vals    = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession"))
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      vals = GrouperBackend._listVals(session, null, null, list, "effective");
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
+   * Query for effective memberships of the specified list in the
+   * specified group.
+   * <p />
+   *
+   * @param   s     Perform query within this session.
+   * @param   g     Query on this group.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
+   */
   protected static List listEffVals(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
-    List    members = new ArrayList();
+    List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -648,23 +708,25 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      members = GrouperBackend._listVals(session, g, null, list, "effective");
+      vals = GrouperBackend._listVals(session, g, null, list, "effective");
     }
     GrouperBackend._hibernateSessionClose(session);
-    return members;
+    return vals;
   }
 
   /**
-   * Return all effective group memberships of the specified type
-   * for the specified {@link GrouperMember}.
+   * Query for effective memberships for the specified member in the
+   * specified list.
+   * <p />
    *
-   * @param   s       Session to query within.
-   * @param   list    Type of list membership to query on.
-   * @return  List of {@link GrouperGroup} objects.
+   * @param   s     Perform query within this session.
+   * @param   m     Query on this {@link GrouperMember}.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   protected static List listEffVals(GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
-    List    groups  = new ArrayList();
+    List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -673,15 +735,46 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      groups = GrouperBackend._listVals(session, null, m, list, "effective");
+      vals = GrouperBackend._listVals(session, null, m, list, "effective");
     }
     GrouperBackend._hibernateSessionClose(session);
-    return groups;
+    return vals;
   }
 
+  /**
+   * Query for immediate memberships in the specified list.
+   * <p />
+   *
+   * @param   s     Perform query within this session.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
+   */
+  protected static List listImmVals(GrouperSession s, String list) {
+    Session session = GrouperBackend._init();
+    List    vals    = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession")) 
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      vals = GrouperBackend._listVals(session, null, null, list, "immediate");
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+  
+  /**
+   * Query for immediate memberships in the specified list.
+   * <p />
+   *
+   * @param   s     Perform query within this session.
+   * @param   g     Query on this {@link GrouperGroup}.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
+   */
   protected static List listImmVals(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
-    List    members = new ArrayList();
+    List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -691,23 +784,25 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      members = GrouperBackend._listVals(session, g, null, list, "immediate");
+      vals = GrouperBackend._listVals(session, g, null, list, "immediate");
     }
     GrouperBackend._hibernateSessionClose(session);
-    return members;
+    return vals;
   }
 
   /**
-   * Return all immediate group memberships of the specified type
-   * for the specified {@link GrouperMember}.
+   * Query for immediate memberships for the specified member in the
+   * specified list.
+   * <p />
    *
-   * @param   s       Session to query within.
-   * @param   list    Type of list membership to query on.
-   * @return  List of {@link GrouperGroup} objects.
+   * @param   s     Perform query within this session.
+   * @param   m     Query on this member.
+   * @param   list  Query on this list type.
+   * @return  List of {@link GrouperList} objects.
    */
   protected static List listImmVals(GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
-    List    groups  = new ArrayList();
+    List    vals    = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -716,10 +811,10 @@ public class GrouperBackend {
        ) 
     {
       // TODO Verify that the subject has privilege to retrieve this list data
-      groups = GrouperBackend._listVals(session, null, m, list, "immediate");
+      vals = GrouperBackend._listVals(session, null, m, list, "immediate");
     }
     GrouperBackend._hibernateSessionClose(session);
-    return groups;
+    return vals;
   }
 
   /**

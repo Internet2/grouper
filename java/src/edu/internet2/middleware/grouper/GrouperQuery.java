@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import  java.util.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -59,13 +60,15 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.1 2004-12-01 04:37:09 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.2 2004-12-02 02:33:49 blair Exp $
  */
 public class GrouperQuery {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
+  private GrouperSession  gs;
+  private Map             candidates;
 
 
   /*
@@ -75,14 +78,52 @@ public class GrouperQuery {
   /**
    * Construct a new {@link GrouperQuery} object.
    */
-  public GrouperQuery() {
+  public GrouperQuery(GrouperSession s) {
     this._init();
+    this.gs = s;
   }
 
 
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Set membership query filter.
+   * <p />
+   *
+   * @param   type  Type of membership to query on.  Valid options are
+   *   null, "effective", and "immediate".
+   * @return  Boolean true if matching items were found, otherwise
+   *   false.
+   */
+  public boolean membership(String type) throws GrouperException {
+    return this._queryMembership(type);
+  }
+
+  /**
+   * Query the group registry used the already specified filters.
+   * <p />
+   * TODO There will be <b>nothing</b> optimal about the first
+   * implementation of this method -- or class, for that matter.
+   *
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List query() {
+    List    vals  = new ArrayList();
+    Iterator  iter = this.candidates.keySet().iterator();
+    while (iter.hasNext()) {
+      List cands = (List) this.candidates.get( iter.next() );
+      vals = this._candidateSelect(vals, cands);       
+      // We have already failed to find anything
+      if (vals.size() == 0) {
+        break;
+      }
+    }
+    // Filter candidates through privilege interfaces
+    // FIXME vals  = this._candidateFilter(vals);
+    return vals;
+  }
 
   /**
    * Return a string representation of the {@link GrouperQuery} object.
@@ -94,15 +135,74 @@ public class GrouperQuery {
     return new ToStringBuilder(this).toString();
   }
 
-  /*
-   * PROTECTED INSTANCE METHODS
-   */
 
   /*
    * PRIVATE INSTANCE METHODS
    */
+
+  /* (!javadoc)
+   * Perform query candidate selection.
+   */
+  private List _candidateSelect(List vals, List candidates) {
+    List      selected  = new ArrayList();
+    Iterator  iter      = candidates.iterator();
+    while (iter.hasNext()) {
+      /*
+       * TODO This assumes I'll only be dealing with GrouperList
+       *      objects.  Is that a safe assumption?
+       */
+      GrouperList gl = (GrouperList) iter.next();
+      if        (vals.size() == 0)  {
+        selected.add(gl);
+      } else if (vals.size() > 0)   {
+        if (vals.contains(gl)) {
+          selected.add(gl);
+        } else {
+        }
+      }
+    }
+    return selected;
+  }
+
+  /* (!javadoc)
+   * Perform query candidate privilege selection.
+   */
+  private List _candidateFilter(List candidates) {
+    // FIXME Just a passthrough for now
+    return candidates;
+  }
+
+  /* (!javadoc)
+   * Initialize instance variables.
+   */
   private void _init() {
-    // Nothing -- yet
+    this.candidates = new HashMap();
+    this.gs         = null;
+  }
+
+  /* (!javadoc)
+   * Perform membership query.
+   */
+  private boolean _queryMembership(String type) throws GrouperException {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    if (type == null) { // FIXME Null is ugly
+      // Query for both effective + immediate memberships
+      vals = GrouperBackend.listVals(this.gs, Grouper.DEF_LIST_TYPE);
+    } else if (type.equals("effective")) {
+      // Query for effective memberships
+      vals = GrouperBackend.listEffVals(this.gs, Grouper.DEF_LIST_TYPE);
+    } else if (type.equals("immediate")) {
+      // Query for immediate memberships
+      vals = GrouperBackend.listImmVals(this.gs, Grouper.DEF_LIST_TYPE);
+    } else {
+      throw new GrouperException("Unknown membership type: " + type);
+    } 
+    if ( (vals != null) && (vals.size() > 0) ) {
+      this.candidates.put("membership", vals);
+      rv = true;
+    }
+    return rv; 
   }
 
 }
