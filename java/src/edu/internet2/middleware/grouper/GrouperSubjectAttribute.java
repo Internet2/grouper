@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
 import  org.apache.commons.lang.builder.EqualsBuilder;
@@ -62,7 +63,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.12 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.13 2005-03-29 15:48:51 blair Exp $
  */
 public class GrouperSubjectAttribute implements Serializable {
 
@@ -85,7 +86,7 @@ public class GrouperSubjectAttribute implements Serializable {
    * Null-argument constructor for Hibernate.
    */
   public GrouperSubjectAttribute() {
-    this._init();
+    // Nothing
   }
 
 
@@ -158,21 +159,6 @@ public class GrouperSubjectAttribute implements Serializable {
    */
   public String value() {
     return this.getValue();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE MTHODS
-   */
-
-  /*
-   * Initialize instance variables.
-   */
-  private void _init() {
-    this.name         = null;
-    this.searchValue  = null;
-    this.typeID       = null;
-    this.value        = null;
   }
 
 
