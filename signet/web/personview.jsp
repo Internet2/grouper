@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.9 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: personview.jsp,v 1.10 2005-02-24 23:34:45 acohen Exp $
+  $Date: 2005-02-24 23:34:45 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -242,8 +242,8 @@
       <form
           onSubmit
             ="return confirm
-               ('Are you sure you want to revoke the '
-                + (selectCount() == 1 ? '' : selectCount())
+               ('Are you sure you want to revoke the'
+                + (selectCount() == 1 ? '' : (' ' + selectCount()))
                 + ' selected assignment'
                 + (selectCount() > 1 ? 's' : '')
                 + '?'
