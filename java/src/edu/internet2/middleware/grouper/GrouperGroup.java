@@ -17,16 +17,9 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.82 2004-11-23 18:14:37 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.83 2004-11-23 18:38:22 blair Exp $
  */
 public class GrouperGroup {
-
-  /*
-   * PRIVATE CONSTANTS
-   */
-  private static final String defaultType = "base";
-  // TODO "members", both code and javadoc
-
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -81,7 +74,7 @@ public class GrouperGroup {
                                     String descriptor
                                    )
   {
-    return GrouperGroup._create(s, stem, descriptor, defaultType);
+    return GrouperGroup._create(s, stem, descriptor, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
@@ -115,7 +108,7 @@ public class GrouperGroup {
                                   String stem, String descriptor
                                  )
   {
-    return GrouperGroup._load(s, stem, descriptor, defaultType);
+    return GrouperGroup._load(s, stem, descriptor, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
@@ -245,7 +238,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Return list values of type "members" for this 
+   * Return list values of the default list type for this 
    * {@link GrouperGroup}.
    * <p />
    *
@@ -253,7 +246,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listVals(GrouperSession s) {
-    return GrouperBackend.listVals(s, this, "members");
+    return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -270,7 +263,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Return effective list values of type "members" for this 
+   * Return effective list values of the default list type for this 
    * {@link GrouperGroup}.
    * <p />
    *
@@ -278,7 +271,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listEffVals(GrouperSession s) {
-    return GrouperBackend.listEffVals(s, this, "members");
+    return GrouperBackend.listEffVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -295,7 +288,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Return immediate list values of type "members" for this 
+   * Return immediate list values of the default list type for this 
    * {@link GrouperGroup}.
    * <p />
    *
@@ -303,7 +296,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listImmVals(GrouperSession s) {
-    return GrouperBackend.listImmVals(s, this, "members");
+    return GrouperBackend.listImmVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -320,7 +313,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Add a {@link GrouperMember} to the "members" list.
+   * Add a {@link GrouperMember} to the default list type.
    * <p />
    * TODO Test
    * TODO Make a variant that takes a GrouperGroup instead of a
@@ -331,7 +324,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
-    return GrouperBackend.listAddVal(s, this, m, "members");
+    return GrouperBackend.listAddVal(s, this, m, Grouper.DEF_LIST_TYPE);
   }
 
   /**
@@ -351,7 +344,7 @@ public class GrouperGroup {
   }
 
   /**
-   * Delete a {@link GrouperMember} from the "members" list.
+   * Delete a {@link GrouperMember} from default list type.
    * <p />
    * TODO Test
    * TODO Make a variant that takes a GrouperGroup instead of a
@@ -362,7 +355,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
-    return GrouperBackend.listDelVal(s, this, m, "members");
+    return GrouperBackend.listDelVal(s, this, m, Grouper.DEF_LIST_TYPE);
   }
 
   /**
