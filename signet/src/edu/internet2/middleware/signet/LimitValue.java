@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.3 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: LimitValue.java,v 1.4 2005-02-25 20:16:20 acohen Exp $
+$Date: 2005-02-25 20:16:20 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,7 @@ import java.util.HashSet;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.choice.ChoiceSetNotFoundException;
 
 /**
@@ -73,6 +74,35 @@ public class LimitValue
   void setValue(String value)
   {
     this.value = value;
+  }
+  
+  /**
+   * Gets the display-value for this limit-value, if it's available in the
+   * database. Otherwise, it returns the internal value.
+   */
+  public String getDisplayValue()
+  {
+    String displayValue;
+    
+    try
+    {
+      displayValue
+      	= this
+      			.limit
+      				.getChoiceSet()
+      					.getChoiceByValue(this.value)
+      						.getDisplayValue();
+    }
+    catch (ChoiceNotFoundException e)
+    {
+      displayValue = this.value + " (display-value not available)";
+    }
+    catch (ObjectNotFoundException e)
+    {
+      displayValue = this.value + " (display-value not available)";
+    }
+    
+    return displayValue;
   }
 
   public boolean equals(Object obj)

@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.6 2005-02-24 22:19:29 jvine Exp $
-  $Date: 2005-02-24 22:19:29 $
+  $Id: confirm.jsp,v 1.7 2005-02-25 20:16:20 acohen Exp $
+  $Date: 2005-02-25 20:16:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -186,7 +186,7 @@
       {
 %>
                   <%=(limitValuesPrinted++ > 0) ? "<br />" : ""%>
-                  <%=limitValue.getValue()%>
+                  <%=limitValue.getDisplayValue()%>
 <%
       }
     }

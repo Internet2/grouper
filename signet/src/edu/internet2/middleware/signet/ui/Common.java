@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.4 2005-02-24 01:54:53 acohen Exp $
-  $Date: 2005-02-24 01:54:53 $
+  $Id: Common.java,v 1.5 2005-02-25 20:16:20 acohen Exp $
+  $Date: 2005-02-25 20:16:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -99,8 +99,8 @@ public class Common
         LimitValue limitValue = limitValues[limitValueIndex];
         if (limitValue.getLimit().equals(limit))
         {
-        strBuf.append((limitValuesPrinted++ > 0) ? ", " : "");
-        strBuf.append(limitValue.getValue());
+          strBuf.append((limitValuesPrinted++ > 0) ? ", " : "");
+          strBuf.append(limitValue.getDisplayValue());
         }
       }
     }
