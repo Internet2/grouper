@@ -22,6 +22,19 @@
     </property>
   </class>
 
+  <class name="GrouperGroup" table="grouper_group" mutable="true">
+    <id name="groupKey" type="string">
+      <column name="groupKey" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="compoundExpr">
+      <column name="compoundExpr" length="255"/>
+    </property>
+    <property name="flattenedExpr">
+      <column name="flattenedExpr" length="255"/>
+    </property>
+  </class>
+
   <class name="GrouperSession" table="grouper_session">
     <id name="sessionID" type="string" unsaved-value="null" >
       <column name="sessionID" sql-type="char(255)" not-null="true"/>

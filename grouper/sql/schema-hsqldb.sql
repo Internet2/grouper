@@ -1,15 +1,22 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.4 2004-08-03 00:56:55 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.5 2004-08-06 18:21:35 blair Exp $
 -- 
 
 -- XXX Right types?
 -- XXX Do I need a unique constraint on groupField?
-CREATE TABLE grouper_Fields (
+CREATE TABLE grouper_fields (
   groupField  VARCHAR(255) NOT NULL PRIMARY KEY,
   readPriv    VARCHAR(255),
   writePriv   VARCHAR(255),
   isList      VARCHAR(255)
+);
+
+CREATE TABLE grouper_group (
+  groupKey      VARCHAR(255) NOT NULL PRIMARY KEY,
+  compoundExpr  VARCHAR(255),
+  flattenedExpr VARCHAR(255),
+  CONSTRAINT    uniq_gk UNIQUE (groupKey)
 );
 
 CREATE TABLE grouper_typeDefs (
