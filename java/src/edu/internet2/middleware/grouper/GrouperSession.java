@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.45 2004-09-19 16:21:35 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.46 2004-09-19 18:08:03 blair Exp $
  */
 public class GrouperSession {
 
@@ -163,7 +163,6 @@ public class GrouperSession {
    * @return  Identity of the current session's subject.
    */
   public String whoAmI() {
-    System.err.println("whoAmI()");
     return this.subject.memberID();
   }
 

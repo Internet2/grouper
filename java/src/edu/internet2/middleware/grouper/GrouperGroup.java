@@ -22,7 +22,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.40 2004-09-19 17:10:31 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.41 2004-09-19 18:08:03 blair Exp $
  */
 public class GrouperGroup {
 
@@ -60,7 +60,7 @@ public class GrouperGroup {
     createSource  = null;
     exists        = false;
     groupKey      = null;
-    groupType     = null; // TODO Don't hardcode this
+    groupType     = "base"; // TODO Don't hardcode this
     grprSession   = null;
     modifyTime    = null;
     modifySubject = null;
@@ -80,6 +80,40 @@ public class GrouperGroup {
                                     String descriptor) 
   {
     return GrouperBackend.group(s, stem, descriptor);
+  }
+
+  /**
+   * Create a {@link Grouper} group.
+   */ 
+  public boolean create(GrouperSession s) {
+    this.grprSession = s;
+  //public static GrouperGroup create(GrouperSession, String stem,
+  //                                  String descriptor)
+  //{
+    // FIXME Damn this is ugly.
+
+    // Set some of the operational attributes
+    // TODO Most, if not all, of the operational attributes should be
+    //      handled by Hibernate interceptors.  A task for another day.
+    java.util.Date now = new java.util.Date();
+    this.setCreateTime( Long.toString(now.getTime()) );
+    this.setCreateSubject( this.grprSession.whoAmI() );
+
+    // Generate the UUID (groupKey)
+    this.groupKey = GrouperBackend.uuid();
+
+    // Verify that we have everything we need to create a group
+    // and that this subject is privileged to create this group.
+    if (this._validateCreate()) {
+      // And now attempt to add the group to the store
+      // FIXME 
+      this.groupType = "base";
+      GrouperBackend.addGroup(this.grprSession, this);
+      this.exists = true;
+      return true;
+    }
+    System.err.println("Invalid group type: " + this.groupType);
+    return false;
   }
 
   /**
@@ -118,32 +152,6 @@ public class GrouperGroup {
    */
   public Map attributes() {
     return this.attributes;
-  }
-
-  /**
-   * Create a {@link Grouper} group.
-   */ 
-  public boolean create() {
-    // FIXME Damn this is ugly.
-
-    // Set some of the operational attributes
-    // TODO Most, if not all, of the operational attributes should be
-    //      handled by Hibernate interceptors.  A task for another day.
-    java.util.Date now = new java.util.Date();
-    this.setCreateTime( Long.toString(now.getTime()) );
-    this.setCreateSubject( this.grprSession.whoAmI() );
-
-    // Verify that we have everything we need to create a group
-    // and that this subject is privileged to create this group.
-    if (this._validateCreate()) {
-      // Generate the UUID (groupKey)
-      this.groupKey = GrouperBackend.uuid();
-      // And now attempt to add the group to the store
-      GrouperBackend.addGroup(this.grprSession, this);
-      return true;
-    }
-    System.err.println("Invalid group type: " + this.groupType);
-    return false;
   }
 
   /**
