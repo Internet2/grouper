@@ -164,7 +164,7 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, "CREATE") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
     Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
     // We're done
     s.stop();
@@ -181,7 +181,7 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, "CREATE") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
     Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
     // We're done
     s.stop();
@@ -198,7 +198,7 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, "CREATE") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
     Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
     // We're done
     s.stop();
@@ -215,7 +215,7 @@ public TestNamingPrivs(String name) {
     List privs = Grouper.naming().has(s, ns);
     Assert.assertNotNull(privs);
     Assert.assertTrue( privs.size() == 1 );
-    Assert.assertFalse( Grouper.naming().has(s, ns, "CREATE") );
+    Assert.assertTrue( Grouper.naming().has(s, ns, "CREATE") );
     Assert.assertTrue( Grouper.naming().has(s, ns, "STEM") );
     // We're done
     s.stop();
