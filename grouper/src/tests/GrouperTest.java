@@ -1,5 +1,5 @@
 /*
- * $Id: GrouperTest.java,v 1.4 2004-06-02 16:03:11 blair Exp $
+ * $Id: GrouperTest.java,v 1.5 2004-06-02 17:40:08 blair Exp $
  */
 
 import edu.internet2.middleware.directory.grouper.*;
@@ -48,6 +48,14 @@ public class GrouperTest extends TestCase {
     }
   }
 
+  /* Get a runtime configuration setting */
+  public void testGetRuntimeConfigSetting() {
+    G.initialize();
+    
+    String expVal = "GrouperSystem";
+    Assert.assertTrue( expVal.equals( G.config("member.system") ) );
+  }
+
   /* Instantiate a Grouper session */
   public void testSessionInstantiate() {
     G.initialize();
@@ -60,15 +68,63 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
-  /* Create a grouper session as 'GrouperSystem' */
-  /* XXX Or should it be as whomever is listed in the cf file? */
+  /* Create a session as SubjectID "member.system", 1 argument method */
+  public void testSessionCreateAsMemberSystemOneArgMethod() {
+    G.initialize();
+    GrouperSession s= new GrouperSession(G);
+    try {
+      s.start( G.config("member.system") );
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when starting session");
+    }
+  }
+  
+  /* Create a session as SubjectID "member.system", 2 argument method */
+  public void testSessionCreateAsMemberSystemTwoArgMethod() {
+    G.initialize();
+    GrouperSession s= new GrouperSession(G);
+    try {
+      s.start( G.config("member.system"), true );
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when starting session");
+    }
+  }
+  
+  /* Create and end a session as SubjectID "member.system", 1 argument method */
+  public void testSessionCreateEndAsMemberSystemOneArgMethod() {
+    G.initialize();
+    GrouperSession s= new GrouperSession(G);
+    try {
+      s.start( G.config("member.system") );
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when starting session");
+    }
+    try {
+      s.end();
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when ending sessin");
+    }
+  }
+  
+  /* Create and end a session as SubjectID "member.system", 2 argument method */
+  public void testSessionCreateEndAsMemberSystemTwoArgMethod() {
+    G.initialize();
+    GrouperSession s= new GrouperSession(G);
+    try {
+      s.start( G.config("member.system"), true );
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when starting session");
+    }
+    try {
+      s.end();
+    } catch(Exception e) {
+      Assert.fail("Exception thrown when ending sessin");
+    }
+  }
   
   /*
    * TODO Tests To Write
-   * - Session creation as 'member.system'
-   * - Session creation/destruction as 'member.system' 
    * - Ending a session that hasn't been started
-   * - Session double destruction
    * - Session creation as memberID ???
    * - Session creation as subjectID ???
    * - TODO And all the ones I haven't thought of or written down yet
