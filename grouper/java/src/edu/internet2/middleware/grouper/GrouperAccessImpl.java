@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.43 2004-12-09 01:43:16 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.44 2005-02-07 16:33:23 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -288,21 +288,12 @@ public class GrouperAccessImpl implements GrouperAccess {
   public boolean revoke(GrouperSession s, GrouperGroup g, String priv) {
     GrouperAccessImpl._init();
     boolean rv = false;
-    if (this.can(priv) == true) {
-      if (GrouperBackend.sessionValid(s)) {
-        /*
-         * FIXME I should be doing a GroupField lookup on `priv'
-         */
-        if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-          Iterator iter = this.whoHas(s, g, priv).iterator();
-          while (iter.hasNext()) {
-            GrouperMember m = (GrouperMember) iter.next();
-            this.revoke(s, g, m, priv);
-          }
-          rv = true; // FIXME
-        }
-      }
+    Iterator iter = this.whoHas(s, g, priv).iterator();
+    while (iter.hasNext()) {
+      GrouperMember m = (GrouperMember) iter.next();
+      this.revoke(s, g, m, priv);
     }
+    rv = true; // FIXME
     // TODO Should this return a list of deleted members?
     // TODO I should probably throw an exception if invalid priv
     return rv;
