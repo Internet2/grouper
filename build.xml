@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.46 2005-03-19 21:17:54 blair Exp $ -->
+<!-- $Id: build.xml,v 1.47 2005-03-19 23:57:52 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -102,136 +102,13 @@
     </javac>
   </target>
 
-  <!-- 
-    TODO Now that tests are stateless I shouldn't need to manually
-         specific everything, right?  Actually no.  I need to wait
-         until I have all of the test classes updated before I make
-         that switch.
-    -->
   <target name="test-run" depends="test-build,db-init-test">
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestInstantiate" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestConfigAndSchema" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestSubjects" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestSessions" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestMembers" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestStemsAdd" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestStemsDelete" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestStemsAttrs" />
-      <classpath refid="project.class.path" />
-    </java>
-<!-- TODO TestStemsAttrsAdd -->
-<!-- TODO TestStemsAttrsMod -->
-<!-- TODO TestStemsAttrsDel -->
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestStemsMoF" />
-      <classpath refid="project.class.path" />
-    </java>
-<!-- TODO TestStemsMoFAdd -->
-<!-- TODO TestStemsMoFDel -->
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsAdd" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsDelete" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsAttrs" />
-      <classpath refid="project.class.path" />
-    </java>
-<!-- TODO TestGroupsAttrsAdd -->
-<!-- TODO TestGroupsAttrsMod -->
-<!-- TODO TestGroupsAttrsDel -->
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoF" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoFAdd0" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoFAdd1" />
-      <classpath refid="project.class.path" />
-    </java>
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupsMoFAdd2" />
-      <classpath refid="project.class.path" />
-    </java>
-<!-- TODO TestGroupsMoFDel -->
-<!-- TODO TestMixedMoF -->
-<!-- TODO TestMixedMoFAdd -->
-<!-- TODO TestMixedMoFDel -->
-<!--
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestGroupLists" />
-      <classpath refid="project.class.path" />
-    </java>
--->
-<!-- TODO TestNamingPrivs -->
-<!-- TODO TestNamingPrivsGrant -->
-<!-- TODO TestNamingPrivsRevoke -->
-<!--
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestNamingPrivs" />
-      <classpath refid="project.class.path" />
-    </java>
--->
-<!-- TODO TestAccessPrivs -->
-<!-- TODO TestAccessPrivsGrant -->
-<!-- TODO TestAccessPrivsRevoke -->
-<!--
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestAccessPrivs" />
-      <classpath refid="project.class.path" />
-    </java>
--->
-    <java fork="yes" classname="junit.textui.TestRunner" 
-      taskname="junit" failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestQueries" />
-      <classpath refid="project.class.path" />
+    <java fork="yes" 
+          classname="junit.textui.TestRunner"
+          taskname="junit" 
+          failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.TestAll"/>
+      <classpath refid="project.class.path"/>
     </java>
   </target>
 

@@ -80,22 +80,14 @@ public class TestSessions extends TestCase {
   
 
   // Start a session as "member.system"
-  public void testSessionStartAsMemberSystem() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    Assert.assertNotNull("subject !null", subj);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull("session !null", s);
-  }
-
-  // Start and end a session as SubjectID "member.system"
-  public void testSessionStartEndAsMemberSystem() {
+  public void testSessionStartAndStopAsMemberSystem() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
     Assert.assertTrue("session stopped", s.stop() );
   }
-  
+
   // Verify the subject of the current session 
   public void testSessionSubject() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
@@ -147,6 +139,7 @@ public class TestSessions extends TestCase {
                                 Grouper.config("member.system") 
                               ) 
                             );
+          Assert.assertTrue("session stopped",  retSess.stop());
         } catch (ClassNotFoundException cnfe) {
           Assert.fail("Failure to find class when deserializing session");
         }
@@ -155,8 +148,6 @@ public class TestSessions extends TestCase {
       }
     } catch (IOException ioe) {
       Assert.fail("IO error while serializing session");
-    } finally {
-      Assert.assertTrue("session stopped",  s.stop());
     }
   }
 
