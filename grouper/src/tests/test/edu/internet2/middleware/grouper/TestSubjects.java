@@ -13,15 +13,13 @@
  */
 
 /*
- * $Id: TestSubjects.java,v 1.4 2004-11-12 19:31:58 blair Exp $
+ * $Id: TestSubjects.java,v 1.5 2004-11-12 20:21:59 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.lang.reflect.*;
-import  java.util.*;
 import  junit.framework.*;
 
 

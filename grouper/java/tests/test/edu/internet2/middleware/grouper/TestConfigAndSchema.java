@@ -13,14 +13,13 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.5 2004-11-12 16:38:29 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.6 2004-11-12 20:21:59 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.lang.reflect.*;
 import  java.util.*;
 import  junit.framework.*;
 
