@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.37 2004-09-19 15:52:54 blair Exp $
+ * $Id: GrouperTest.java,v 1.38 2004-09-19 15:56:44 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -380,8 +380,6 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
-/*
-
   //
   // Class: GrouperGroup
   //
@@ -477,6 +475,7 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
+/*
   // Does Group exist?  No.
   public void testGroupExistFalse() {
     G = new Grouper();
