@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.154 2005-03-04 19:40:15 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.155 2005-03-04 20:27:38 blair Exp $
  */
 public class GrouperBackend {
 
@@ -675,8 +675,8 @@ public class GrouperBackend {
     boolean rv = false;
     // Convert the group to member to see if it has any mships
     GrouperMember asMem = GrouperMember.load(g.id(), "group");
-    if ((g.listVals(s).size() != 0) || (asMem.listVals(s).size() != 0)) {
-      if (g.listVals(s).size() != 0) {
+    if ((g.listVals().size() != 0) || (asMem.listVals(s).size() != 0)) {
+      if (g.listVals().size() != 0) {
         Grouper.log().event(
           "ERROR: Unable to delete group as it still has members"
         );
