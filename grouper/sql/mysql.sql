@@ -1,6 +1,6 @@
 -- 
 -- Create the appropriate Grouper tables
--- $Id: mysql.sql,v 1.2 2004-03-24 21:22:52 blair Exp $
+-- $Id: mysql.sql,v 1.3 2004-03-25 01:39:35 blair Exp $
 -- 
 
 DROP   DATABASE grouper;
@@ -59,9 +59,10 @@ CREATE TABLE grouper_membership (
   -- XXX Maybe just store this as a string and rely on Java to Do The
   -- XXX Right Thing?  Good thing we don't care about aging -- yet.
   removeAfter       VARCHAR(255),
-  PRIMARY KEY(groupID, groupFieldID),
+  INDEX(groupID),
+  INDEX(groupFieldID),
   CONSTRAINT FOREIGN KEY (groupID)      REFERENCES grouper_group(groupID),
-  -- TODO CONSTRAINT FOREIGN KEY (groupFieldID) REFERENCES grouper_fields (groupFieldID)
+  CONSTRAINT FOREIGN KEY (groupFieldID) REFERENCES grouper_fields (groupFieldID)
 ) TYPE=InnoDB;
 CREATE INDEX member_groupmember_idx 
   ON grouper_membership (memberID, groupMemberID);
@@ -71,17 +72,25 @@ CREATE TABLE grouper_metadata (
   groupFieldID      INTEGER UNSIGNED NOT NULL,
   -- XXX No idea
   groupFieldValue   VARCHAR(255),
-  PRIMARY KEY (groupID, groupFieldID),
-  FOREIGN KEY (groupID)       REFERENCES grouper_group(groupID),
-  -- TODO FOREIGN KEY (groupFieldID)  REFERENCES grouper_fields(groupFieldiD),
+  INDEX(groupID),
+  INDEX(groupFieldID),
+  FOREIGN KEY (groupID)      REFERENCES grouper_group(groupID),
+  FOREIGN KEY (groupFieldID) REFERENCES grouper_fields(groupFieldiD),
 ) TYPE=InnoDB;
+
+CREATE TABLE grouper_types (
+  groupTypeID       INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
+  groupTypename     VARCHAR(255) NOT NULL
+) TYPE=InnoDB;
+CREATE INDEX grouptypeid_idx ON grouper_types (groupTypeID);
 
 CREATE TABLE grouper_schema (
   groupID           INTEGER UNSIGNED NOT NULL,
   groupTypeID       INTEGER UNSIGNED NOT NULL,
-  PRIMARY KEY (groupID, groupTypeID),
-  FOREIGN KEY (groupID)       REFERENCES grouper_group(groupID),
-  -- TODO FOREIGN KEY (groupTypeID)   REFERENCES grouper_types(groupTypeID),
+  INDEX(groupID),
+  INDEX(groupTypeID),
+  FOREIGN KEY (groupID)     REFERENCES grouper_group(groupID),
+  FOREIGN KEY (groupTypeID) REFERENCES grouper_types(groupTypeID)
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_session (
@@ -93,16 +102,13 @@ CREATE TABLE grouper_session (
   startTime         VARCHAR(255) NOT NULL
 ) TYPE=InnoDB;
 
-CREATE TABLE grouper_types (
-  groupTypeID       INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
-  groupTypename     VARCHAR(255) NOT NULL
-) TYPE=InnoDB;
-
 CREATE TABLE grouper_typedefs (
   groupTypeID       INTEGER UNSIGNED NOT NULL,
   groupFieldID      INTEGER UNSIGNED NOT NULL,
-  -- TODO FOREIGN KEY (groupTypeID)   REFERENCES grouper_types (groupTypeID),
-  -- TODO FOREIGN KEY (groupFieldID)  REFERENCES grouper_fields (groupFieldiD),
+  INDEX(groupTypeID),
+  INDEX(groupFieldID),
+  FOREIGN KEY (groupTypeID)  REFERENCES grouper_types(groupTypeID),
+  FOREIGN KEY (groupFieldID) REFERENCES grouper_fields(groupFieldiD)
 ) TYPE=InnoDB;
 
 CREATE TABLE grouper_via (
