@@ -39,11 +39,11 @@ CREATE  TABLE grouper_list (
   groupKey      VARCHAR2(64) NOT NULL,
   groupField    VARCHAR2(64) NOT NULL,
   memberKey     VARCHAR2(64) NOT NULL,
-  pathKey       VARCHAR2(64),
+  chainKey      VARCHAR2(64),
   viaKey        VARCHAR2(64)
 );
-CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list 
-  (groupKey, groupField, memberKey, pathKey);
+CREATE UNIQUE INDEX idx_gl_gk_gf_mk_ck ON grouper_list 
+  (groupKey, groupField, memberKey, chainKey);
 
 DROP TABLE grouper_member;
 CREATE TABLE grouper_member (
@@ -54,6 +54,18 @@ CREATE TABLE grouper_member (
 );
 CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
   (subjectID, subjectTypeID);
+
+DROP TABLE grouper_memberVia;
+CREATE  TABLE grouper_memberVia (
+  chainKey    VARCHAR2(64) NOT NULL,
+  chainIdx    INTEGER NOT NULL,
+  listKey     VARCHAR2(64) NOT NULL,
+  CONSTRAINT  uniq_gmv_ck_ci_lk UNIQUE (chainKey, chainIdx, listKey)
+);
+
+-- TODO Are these the right indices for this table?
+CREATE  INDEX idx_mv_ck ON grouper_memberVia (chainKey);
+CREATE  INDEX idx_mv_lk ON grouper_memberVia (listKey);
 
 DROP TABLE grouper_schema;
 CREATE TABLE grouper_schema (
@@ -105,18 +117,6 @@ DROP TABLE grouper_type;
 CREATE TABLE grouper_type (
   groupType   VARCHAR2(64) NOT NULL PRIMARY KEY
 );
-
-DROP TABLE grouper_viaElement;
-CREATE  TABLE grouper_viaElement (
-  pathKey       VARCHAR2(64) NOT NULL,
-  pathIdx       BIGINT NOT NULL,
-  groupKey      VARCHAR2(64) NOT NULL,
-  CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
-);
-
--- TODO Are these the right indices for this table?
-CREATE  INDEX gve_pk ON grouper_viaElement (pathKey);
-CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
 
 COMMIT;
 
