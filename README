@@ -1,5 +1,5 @@
 #
-# $Id: README,v 1.3 2004-03-11 18:24:53 blair Exp $
+# $Id: README,v 1.4 2004-03-12 18:34:22 blair Exp $
 #
 
  ---------
@@ -141,4 +141,42 @@ Add_group_data & Remove_group_data can reference groupFieldIDs of
 membership fields. Or do you think it more natural to have separate
 data and membership modifying functions?
 
+
+ -----------------------
+/ RUBBISH TO ORGANIZE /
+----------------------
+
+- Is this correct?  Or should it reflect the additional types of
+  privileges?
+   member:hasPriv (subjectID, groupName, CREATE || VIEW || READ || UPDATE || DELETE)
+- How does one specify *everyone can join* for an optin list?
+  - Does one take the same approach for optouts?
+    - I suppose one could just have a group of *everyone*
+      - Should the default be 'everyone' or 'nobody'?
+- optouts/views formatting
+- Consistent use of "opt(in|out)/opt-(in|out)"
+- 'admin' is all inclusive
+- "Likewise, search hits for groups and membership specifications for
+  groups are filtered by the subject's viewing privilege,"
+  - Does viewing only allow the display of the group's existence or
+    does it also allow display of members?
+  - What is meant by "membership specifications"?
+- Optional namespace for personal groups that is site-configurable?
+- General questions/concerns about the security model and the extension
+  of the security model that I can't exactly formulate.  Something is
+  bugging me but I'm not sure what.
+
+- ??? Where/When is cf sucked in?
+  - cf jsp case
+    - remind myself how jsps work
+      - when 
+  - Grouper object as singleton?
+- XXX each instance of the grouper class represent single groups
+- ??? maintenance of member table; how do we add new members?
+  - NOTE: 'members', *not* 'membership' table
+    - separate program for batch/diff mods to 'members' table?  Or do
+      we go through the API?
+
+- XXX Make note of all site configurable options
+- Pedantic: s,Blair Christensen,blair christensen.,
 
