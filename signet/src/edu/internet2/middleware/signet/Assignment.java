@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.4 2005-01-11 20:38:44 acohen Exp $
-$Date: 2005-01-11 20:38:44 $
+$Id: Assignment.java,v 1.5 2005-02-08 19:20:50 acohen Exp $
+$Date: 2005-02-08 19:20:50 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -141,13 +141,6 @@ public boolean isGrantOnly();
  * @return the Status of this Assignment.
  */
 public Status getStatus();
-
-/**
- * Gets the date and time this entity was first created.
- * 
- * @return  the date and time this entity was first created.
- */
-public Date getCreateDatetime();
 
 /**
  * Revokes this Assignment from its current grantee.

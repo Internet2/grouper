@@ -23,6 +23,9 @@ public class Constants
   
   public static final int MAX_CHOICE_SETS = 3;
   public static final int MAX_LIMITS			= 3;
+  public static final int MAX_PERMISSIONS = 3;
+  public static final int MAX_FUNCTIONS		= 3;
+  public static final int MAX_CATEGORIES	= 3;
 
 //  static final String EMPTY_CHOICE_SET_ID
 //  	= "This is the ID of an empty ChoiceSet";

@@ -1,6 +1,6 @@
 /*--
-$Id: AddData.java,v 1.4 2005-01-12 17:28:05 acohen Exp $
-$Date: 2005-01-12 17:28:05 $
+$Id: AddData.java,v 1.5 2005-02-08 19:20:50 acohen Exp $
+$Date: 2005-02-08 19:20:50 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -745,11 +745,11 @@ throws ObjectNotFoundException
              		 "my_helptext002");
   
   function000.addPermission
-  	(signet.newPermission("my_id0000", subsystem0, Status.ACTIVE));
+  	(signet.newPermission(subsystem0, "my_id0000", Status.ACTIVE));
   function000.addPermission
-  	(signet.newPermission("my_id0001", subsystem0, Status.ACTIVE));
+  	(signet.newPermission(subsystem0, "my_id0001", Status.ACTIVE));
   function000.addPermission
-  	(signet.newPermission("my_id0002", subsystem0, Status.ACTIVE));
+  	(signet.newPermission(subsystem0, "my_id0002", Status.ACTIVE));
 
   Tree tree00
   	= signet.newTree

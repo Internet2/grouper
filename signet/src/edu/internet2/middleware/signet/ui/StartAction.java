@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.2 2005-01-10 21:52:16 acohen Exp $
-  $Date: 2005-01-10 21:52:16 $
+  $Id: StartAction.java,v 1.3 2005-02-08 19:20:50 acohen Exp $
+  $Date: 2005-02-08 19:20:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -76,6 +76,7 @@ public final class StartAction extends BaseAction
       session.setAttribute("signet", signet);
     }
     
+    
 
     PrivilegedSubject currentUser
     	= (PrivilegedSubject)(session.getAttribute("loggedInPrivilegedSubject"));
@@ -115,7 +116,7 @@ public final class StartAction extends BaseAction
       
       session.setAttribute("loggedInPrivilegedSubject", currentUser);
     }
-
+    
     // Forward to our success page
     return findSuccess(mapping);
   }

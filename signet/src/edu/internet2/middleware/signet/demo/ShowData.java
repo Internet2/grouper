@@ -1,6 +1,6 @@
 /*--
-$Id: ShowData.java,v 1.5 2005-01-12 17:28:05 acohen Exp $
-$Date: 2005-01-12 17:28:05 $
+$Id: ShowData.java,v 1.6 2005-02-08 19:20:50 acohen Exp $
+$Date: 2005-02-08 19:20:50 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -398,9 +398,6 @@ private static String SUPERSUBJECT_DISPLAY_ID = "SignetSuperSubject";
       	("--FUNCTION: " + assignment.getFunction());
       System.out.println
       	("--SCOPE: " + assignment.getScope());
-      System.out.println
-      	("--CREATEDATE: "
-      	 + dateFormat.format(assignment.getCreateDatetime()));
     }
     System.out.println("<<END OF ASSIGNMENTS>>");
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.4 2005-02-01 19:48:20 acohen Exp $
-$Date: 2005-02-01 19:48:20 $
+$Id: Subsystem.java,v 1.5 2005-02-08 19:20:50 acohen Exp $
+$Date: 2005-02-08 19:20:50 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -51,6 +51,14 @@ extends HelpText, Entity, Name, Comparable
    * 		Subsystem.
    */
   public Set getCategories();
+  
+  /**
+   * Gets a single Category currently associated with this Subsystem.
+   * 
+   * @return Returns the specified Category.
+   */
+  public Category getCategory(String categoryId)
+  throws ObjectNotFoundException;
   
   /**
    * Gets the Functions currently associated with this Subsystem.
@@ -137,5 +145,20 @@ extends HelpText, Entity, Name, Comparable
    * @return the specified Limit
    */
   public Limit getLimit(String id)
+  throws ObjectNotFoundException;
+  
+  /**
+   * Get the Permissions currently associated with this Subsystem.
+   * @param permissionId
+   * @return a Map of the Permissions, indexed by permissionId.
+   */
+  public Map getPermissions();
+
+  /**
+   * Gets a single Permission associated with this Subsystem by its ID.
+   * @param id
+   * @return the specified Permission.
+   */
+  public Permission getPermission(String id)
   throws ObjectNotFoundException;
 }

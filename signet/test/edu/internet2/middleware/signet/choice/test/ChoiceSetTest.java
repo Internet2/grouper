@@ -65,8 +65,8 @@ public class ChoiceSetTest extends TestCase
     		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
       
@@ -83,13 +83,13 @@ public class ChoiceSetTest extends TestCase
 		 		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
  
       Subsystem subsystem = choiceSet.getSubsystem();
-      assertEquals(subsystem, fixtures.getSubsystem());
+      assertEquals(subsystem, signet.getSubsystem(Constants.SUBSYSTEM_ID));
     }
   }
 
@@ -101,8 +101,8 @@ public class ChoiceSetTest extends TestCase
 		 		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
 
@@ -119,8 +119,8 @@ public class ChoiceSetTest extends TestCase
 		 		 choiceSetIndex++)
     {
       ChoiceSet choiceSet
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
 

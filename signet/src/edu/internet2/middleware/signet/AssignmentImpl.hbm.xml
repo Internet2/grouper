@@ -65,8 +65,8 @@
 			cascade="save-update"
 			not-null="true">
 			
-			<column name="subsystemID"/>
 			<column name="functionID"/>
+			<column name="subsystemID"/>
 		</many-to-one>
 
 		<many-to-one

@@ -8,8 +8,11 @@ package edu.internet2.middleware.signet.test;
 
 import javax.naming.OperationNotSupportedException;
 
+import edu.internet2.middleware.signet.Category;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
@@ -25,6 +28,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 public class Fixtures
 {
+  Signet		signet;
   Subsystem	subsystem;
   
   /**
@@ -38,56 +42,67 @@ public class Fixtures
   	ObjectNotFoundException
   {
     super();
-    subsystem
-    	= getOrCreateSubsystem(signet, Constants.SUBSYSTEM_ID);
+    this.signet = signet;
+    this.subsystem = getOrCreateSubsystem();
+    
+    for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
+    {
+      Category category = getOrCreateCategory(i); 
+    }
     
     for (int i = 0; i < Constants.MAX_CHOICE_SETS; i++)
     {
-      ChoiceSet emptyChoiceSet = getOrCreateChoiceSet(signet, i); 
+      ChoiceSet emptyChoiceSet = getOrCreateChoiceSet(i); 
     }
     
     for (int i = 0; i < Constants.MAX_LIMITS; i++)
     {
-      Limit limit = getOrCreateLimit(signet, i);
+      Limit limit = getOrCreateLimit(i);
+    }
+    
+    for (int i = 0; i < Constants.MAX_FUNCTIONS; i++)
+    {
+      Function function = getOrCreateFunction(i);
+    }
+    
+    for (int i = 0; i < Constants.MAX_PERMISSIONS; i++)
+    {
+      Permission permission = getOrCreatePermission(i);
+      
+      // Permission 0 is associated with Limit 0 and Function 0,
+      // Permission 1 is associated with Limit 1 and Function 1, and so on.
+      permission.addLimit(getOrCreateLimit(i));
+      permission.addFunction(getOrCreateFunction(i));
     }
   }
   
-  public Subsystem getSubsystem()
-  {
-    return this.subsystem;
-  }
-  
-  private Subsystem getOrCreateSubsystem
-  	(Signet signet,
-  	 String id)
+  private Subsystem getOrCreateSubsystem()
   throws ObjectNotFoundException
   {
-    Subsystem subsystem = null;
-    
     try
     {
-      signet.getSubsystem(id);
+      this.subsystem = this.signet.getSubsystem(Constants.SUBSYSTEM_ID);
     }
     catch (ObjectNotFoundException onfe)
     {
-      subsystem
+      this.subsystem
       	= signet.newSubsystem
-      			(id,
+      			(Constants.SUBSYSTEM_ID,
       			 Constants.SUBSYSTEM_NAME,
       			 Constants.SUBSYSTEM_HELPTEXT);
       
       signet.save(subsystem);
+      
+      // Let's fetch that newly-created Subsystem from the database.
+      // This step is not necessary, but it exercises a little more code.
+      
+      this.subsystem = this.signet.getSubsystem(Constants.SUBSYSTEM_ID);
     }
     
-    // Let's fetch that newly-created Subsystem from the database.
-    // This step is not necessary, but it exercises a little more code.
-    
-    return signet.getSubsystem(id);
+    return this.subsystem;
   }
   
-  ChoiceSet getOrCreateChoiceSet
-  	(Signet		signet,
-  	 int			choiceSetNumber)
+  private ChoiceSet getOrCreateChoiceSet(int choiceSetNumber)
   throws
   	OperationNotSupportedException,
   	ObjectNotFoundException
@@ -103,7 +118,7 @@ public class Fixtures
     catch (ObjectNotFoundException onfe)
     {
       choiceSet
-      	= signet.newChoiceSet
+      	= this.signet.newChoiceSet
       			(subsystem, makeChoiceSetId(choiceSetNumber));
       
       for (int i = 0; i < choiceSetNumber; i++)
@@ -118,7 +133,7 @@ public class Fixtures
   	  			   makeChoiceRank(i, choiceSetNumber));
       }
       
-      signet.save(choiceSet);
+      this.signet.save(choiceSet);
   
       // Fetch that newly-stored ChoiceSet object from the database.
       // This step is not really necessary, but exercises a little
@@ -131,9 +146,7 @@ public class Fixtures
     return choiceSet;
   }
   
-  Limit getOrCreateLimit
-  	(Signet		signet,
-  	 int			limitNumber)
+  private Limit getOrCreateLimit(int limitNumber)
   throws
   	ObjectNotFoundException
   {
@@ -150,7 +163,7 @@ public class Fixtures
       // Limit 0 contains ChoiceSet 0, Limit 1 contains ChoiceSet 1,
       // and so forth.
       limit
-      	= signet.newLimit
+      	= this.signet.newLimit
       			(subsystem,
       			 makeLimitId(limitNumber),
       			 makeLimitValueType(limitNumber),
@@ -159,18 +172,160 @@ public class Fixtures
       		   makeLimitHelpText(limitNumber),
       		   Status.ACTIVE,
       		   "dummyLimitRenderer.jsp");
-    }
       
-    signet.save(limit);
-  
-    // Fetch that newly-stored Limit object from the database.
-    // This step is not really necessary, but exercises a little
-    // more code.
-    limit
-     	= this.subsystem.getLimit
-     			(makeLimitId(limitNumber));
+      signet.save(limit);
+    
+      // Fetch that newly-stored Limit object from the database.
+      // This step is not really necessary, but exercises a little
+      // more code.
+      limit
+       	= this.subsystem.getLimit
+       			(makeLimitId(limitNumber));
+    }
     
     return limit;
+  }
+  
+  private Category getOrCreateCategory(int categoryNumber)
+  throws
+  	ObjectNotFoundException
+  {
+    Category category;
+    
+    try
+    {
+      category
+      	= this.subsystem.getCategory
+      			(makeCategoryId(categoryNumber));
+    }
+    catch (ObjectNotFoundException onfe)
+    {      
+      category
+      	= this.signet.newCategory
+      			(subsystem,
+      			 makeCategoryId(categoryNumber),
+      			 makeCategoryName(categoryNumber),
+      		   Status.ACTIVE);
+      
+      signet.save(category);
+    
+      // Fetch that newly-stored Function object from the database.
+      // This step is not really necessary, but exercises a little
+      // more code.
+      category
+       	= this.subsystem.getCategory
+       			(makeCategoryId(categoryNumber));
+    }
+    
+    return category;
+  }
+  
+  /**
+   * @param categoryNumber
+   * @return
+   */
+  private String makeCategoryName(int categoryNumber)
+  {
+    return "CATEGORY_" + categoryNumber + "_NAME";
+  }
+
+  /**
+   * @param categoryNumber
+   * @return
+   */
+  private String makeCategoryId(int categoryNumber)
+  {
+    return "CATEGORY_" + categoryNumber + "_ID";
+  }
+
+  private Function getOrCreateFunction(int functionNumber)
+  throws
+  	ObjectNotFoundException
+  {
+    Function function;
+    
+    try
+    {
+      function
+      	= this.subsystem.getFunction
+      			(makeFunctionId(functionNumber));
+    }
+    catch (ObjectNotFoundException onfe)
+    {      
+      // Category 0 contains Function 0, Category 1 contains Function 1,
+      // and so forth.
+      function
+      	= this.signet.newFunction
+      			(subsystem.getCategory(makeCategoryId(functionNumber)),
+      			 makeFunctionId(functionNumber),
+      			 makeFunctionName(functionNumber),
+      		   Status.ACTIVE,
+      		   makeFunctionHelpText(functionNumber));
+      
+      signet.save(function);
+    
+      // Fetch that newly-stored Function object from the database.
+      // This step is not really necessary, but exercises a little
+      // more code.
+      function
+       	= this.subsystem.getFunction
+       			(makeFunctionId(functionNumber));
+    }
+    
+    return function;
+  }
+  
+  /**
+   * @param functionNumber
+   * @return
+   */
+  private String makeFunctionName(int functionNumber)
+  {
+    return "FUNCTION_" + functionNumber + "_NAME";
+  }
+
+  /**
+   * @param functionNumber
+   * @return
+   */
+  private String makeFunctionHelpText(int functionNumber)
+  {
+    return "FUNCTION_" + functionNumber + "_HELPTEXT";
+  }
+
+  private Permission getOrCreatePermission(int permissionNumber)
+  throws
+  	ObjectNotFoundException
+  {
+    Permission permission;
+    
+    try
+    {
+      permission
+      	= this.subsystem.getPermission
+      			(makePermissionId(permissionNumber));
+    }
+    catch (ObjectNotFoundException onfe)
+    {      
+      // Permission 0 contains Limit 0, Permission 1 contains Limit 1,
+      // and so forth.
+      permission
+      	= this.signet.newPermission
+      			(subsystem,
+      			 makePermissionId(permissionNumber),
+      		   Status.ACTIVE);
+      
+      signet.save(permission);
+    
+      // Fetch that newly-stored Permission object from the database.
+      // This step is not really necessary, but exercises a little
+      // more code.
+      permission
+       	= this.subsystem.getPermission
+       			(makePermissionId(permissionNumber));
+    }
+    
+    return permission;
   }
   
   public String makeChoiceValue(int choiceNumber)
@@ -203,6 +358,11 @@ public class Fixtures
     return "LIMIT_" + limitNumber + "_ID";
   }
   
+  public String makePermissionId(int permissionNumber)
+  {
+    return "PERMISSION_" + permissionNumber + "_ID";
+  }
+  
   public String makeLimitName(int limitNumber)
   {
     return "LIMIT_" + limitNumber + "_NAME";
@@ -227,5 +387,10 @@ public class Fixtures
       default:
         return ValueType.STRING;
     }
+  }
+  
+  public String makeFunctionId(int functionNumber)
+  {
+    return "FUNCTION_" + functionNumber + "_ID";
   }
 }

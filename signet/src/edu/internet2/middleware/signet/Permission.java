@@ -1,6 +1,6 @@
 /*--
- $Id: Permission.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: Permission.java,v 1.4 2005-02-08 19:20:50 acohen Exp $
+ $Date: 2005-02-08 19:20:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -31,12 +31,26 @@ extends SubsystemPart
    * 
    * @param functions The Functions associated with this Permission.
    */
-  void setFunctionsArray(Function[] functions);
+  public void setFunctionsArray(Function[] functions);
   
   /**
    * Adds a Function to the set of Functions associated with this Permission.
    * 
    * @param function
    */
-  void addFunction(Function function);
+  public void addFunction(Function function);
+  
+  /**
+   * Adds a Limit to the set of Limits associated with this Permission.
+   * 
+   * @param limit
+   */
+  public void addLimit(Limit limit);
+  
+  /**
+   * Gets the Limits associated with this Permission.
+   * 
+   * @param limits the Limits associated with this Permission.
+   */
+  public Limit[] getLimitsArray();
 }

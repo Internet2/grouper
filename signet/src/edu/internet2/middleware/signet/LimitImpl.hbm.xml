@@ -64,7 +64,6 @@
 			 a Struts Tile which displays this Limit. -->
 		<property
 			name="renderer"
-			column="presentationClass"
 			not-null="true">
 		</property>
 	</class>

@@ -38,6 +38,7 @@
 			not-null="true">
 		</property>
 		
+<!--
 		<property name="createDatetime" type="timestamp" not-null="true"/>
 		<property name="createDbAccount" type="string" not-null="true"/>
 		<property name="createUserID" type="string" not-null="false"/>
@@ -46,5 +47,6 @@
 		<property name="modifyUserID" type="string" not-null="false"/>
 		<property name="modifyContext" type="string" not-null="false"/>
 		<property name="comment" type="string" not-null="false"/>
+-->
 	</class>
 </hibernate-mapping>

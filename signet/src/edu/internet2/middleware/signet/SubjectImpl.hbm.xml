@@ -27,6 +27,8 @@
 			name="description" type="string" not-null="false"/>
 		<property
 			name="displayId" column="displayID" type="string" not-null="false"/>
+			
+<!--
 		<property
 			name="createDatetime" type="timestamp" not-null="true"/>
 		<property
@@ -43,5 +45,6 @@
 			name="modifyContext" type="string" not-null="false"/>
 		<property
 			name="comment" type="string" not-null="false"/>
+-->
 	</class>
 </hibernate-mapping>

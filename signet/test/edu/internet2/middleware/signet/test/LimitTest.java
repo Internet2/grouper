@@ -71,8 +71,8 @@ public class LimitTest extends TestCase
 		 limitIndex++)
     {
       Limit limit
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getLimit
       					(fixtures.makeLimitId(limitIndex));
  
@@ -91,15 +91,17 @@ public class LimitTest extends TestCase
 		 limitIndex++)
     {
       Limit limit
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getLimit
       					(fixtures.makeLimitId(limitIndex));
 
       // Limit 0 contains ChoiceSet 0, Limit 1 contains ChoiceSet 1,
       // and so forth.
       ChoiceSet choiceSet = limit.getChoiceSet();
-      assertEquals(choiceSet, fixtures.getOrCreateChoiceSet(signet, limitIndex));
+      assertEquals
+      	(choiceSet,
+      	 signet.getChoiceSet(fixtures.makeChoiceSetId(limitIndex)));
     }
   }
 
@@ -111,8 +113,8 @@ public class LimitTest extends TestCase
 		 limitIndex++)
     {
       Limit limit
-      	= fixtures
-      			.getSubsystem()
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
       				.getLimit
       					(fixtures.makeLimitId(limitIndex));
  
@@ -129,8 +131,8 @@ public class LimitTest extends TestCase
     		 limitIndex++)
     {
     	Limit limit
-				= fixtures
-						.getSubsystem()
+				= signet
+						.getSubsystem(Constants.SUBSYSTEM_ID)
 							.getLimit
 								(fixtures.makeLimitId(limitIndex));
 

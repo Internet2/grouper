@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.6 2005-02-01 19:48:20 acohen Exp $
- $Date: 2005-02-01 19:48:20 $
+ $Id: SubsystemImpl.java,v 1.7 2005-02-08 19:20:50 acohen Exp $
+ $Date: 2005-02-08 19:20:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -35,17 +35,18 @@ class SubsystemImpl
   
   private Set     categories;
   private Set     functions;
-  private Set     permissions;
 
   private Map			choiceSets;
   private Map			limits;
+  private Map     permissions;
   private Map     functionsMap;
   
   private Tree    tree;
 
-  private boolean choiceSetsNotYetFetched = true;
-  private boolean functionsNotYetFetched	= true;
-  private boolean limitsNotYetFetched			= true;
+  private boolean choiceSetsNotYetFetched 	= true;
+  private boolean functionsNotYetFetched		= true;
+  private boolean limitsNotYetFetched				= true;
+  private boolean permissionsNotYetFetched 	= true;
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -56,10 +57,10 @@ class SubsystemImpl
     super();
     this.categories = new HashSet();
     this.functions = new HashSet();
-    this.permissions = new HashSet();
 
     this.choiceSets = new HashMap();
     this.limits = new HashMap();
+    this.permissions = new HashMap();
     this.functionsMap = new HashMap();
   }
 
@@ -83,10 +84,10 @@ class SubsystemImpl
     this.helpText = helpText;
     this.categories = new HashSet();
     this.functions = new HashSet();
-    this.permissions = new HashSet();
 
     this.choiceSets = new HashMap();
     this.limits = new HashMap();
+    this.permissions = new HashMap();
     this.functionsMap = buildMap(this.functions);
   }
 
@@ -195,6 +196,34 @@ class SubsystemImpl
   {
     return this.categories;
     // return UnmodifiableSet.decorate(this.categories);
+  }
+  
+  public Category getCategory(String categoryId)
+  throws ObjectNotFoundException
+  {
+    Category requestedCategory = null;
+    
+    Iterator categoriesIterator = this.categories.iterator();
+    while (categoriesIterator.hasNext())
+    {
+      Category candidate = (Category)(categoriesIterator.next());
+      if (candidate.getId().equals(categoryId))
+      {
+        requestedCategory = candidate;
+      }
+    }
+    
+    if (requestedCategory == null)
+    {
+      throw new ObjectNotFoundException
+      	("The Subsystem with ID '" 
+      	 + this.getId()
+      	 + "' does not contain a Category with ID '"
+      	 + categoryId
+      	 + "'.");
+    }
+    
+    return requestedCategory;
   }
 
   /**
@@ -354,6 +383,11 @@ class SubsystemImpl
   {
     this.limits.put(limit.getId(), limit);
   }
+  
+  void add(Permission permission)
+  {
+    this.permissions.put(permission.getId(), permission);
+  }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Subsystem#add(edu.internet2.middleware.signet.Category)
@@ -426,5 +460,55 @@ class SubsystemImpl
     }
     
     return limit;
+  }
+  
+  /**
+   * @return Returns the Permissions associated with this Subsystem.
+   */
+  public Map getPermissions()
+  {
+    // I really want to handle this purely through Hibernate mappings, but
+    // I haven't figured out how yet.
+
+    if (this.permissionsNotYetFetched == true)
+    {
+      // We have not yet fetched the Permissions associated with this
+      // Subsystem from the database. Let's make a copy of
+      // whatever in-memory Permissions we DO have, because they
+      // represent defined-but-not-necessarily-yet-persisted
+      // Permissions.
+      Map unsavedPermissions = this.permissions;
+
+      this.permissions
+      	= this.getSignet().getPermissionsBySubsystem(this);
+
+      this.permissions.putAll(unsavedPermissions);
+
+      this.permissionsNotYetFetched = false;
+    }
+    
+    return UnmodifiableMap.decorate(this.permissions);
+  }
+  
+  public Permission getPermission(String id)
+  throws ObjectNotFoundException
+  {
+    // First, make sure that the Permissions have been fetched from
+    // the database.
+    Map permissions = this.getPermissions();
+    
+    Permission permission = (Permission)(permissions.get(id));
+    
+    if (permission == null)
+    {
+      throw new ObjectNotFoundException
+      	("The Subsystem with ID '"
+      	 + this.getId()
+      	 + "' does not contain a Permission with ID '"
+      	 + id
+      	 + "'.");
+    }
+    
+    return permission;
   }
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.10 2005-02-03 00:49:42 acohen Exp $
- $Date: 2005-02-03 00:49:42 $
+ $Id: Signet.java,v 1.11 2005-02-08 19:20:50 acohen Exp $
+ $Date: 2005-02-08 19:20:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -858,6 +858,43 @@ public final class Signet
     return limits;
   }
 
+  // I really want to do away with this method, having the Subsystem
+  // pick up its associated Permissions via Hibernate object-mapping.
+  // I just haven't figured out how to do that yet.
+  Map getPermissionsBySubsystem(Subsystem subsystem)
+  {
+    Query query;
+    List resultList;
+
+    try
+    {
+      query = session
+          .createQuery
+          	("from edu.internet2.middleware.signet.PermissionImpl"
+             + " as limit where subsystemID = :id");
+
+      query.setString("id", subsystem.getId());
+
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+
+    Map permissions = new HashMap(resultList.size());
+
+    Iterator resultListIterator = resultList.iterator();
+    while (resultListIterator.hasNext())
+    {
+      Permission permission = (Permission)(resultListIterator.next());
+      ((PermissionImpl)permission).setSignet(this);
+      permissions.put(permission.getId(), permission);
+    }
+
+    return permissions;
+  }
+
   /**
    * Gets all Assignments in the Signet database. Should probably be changed to
    * return a type-safe Collection.
@@ -994,14 +1031,19 @@ public final class Signet
   /**
    * Creates a new Permission.
    * 
-   * @param id
-   * @param subsystem
+   * @param subsystem the Subsystem which will contain the new Permission.
+   * @param id the ID of the new Permission.
+   * @param status the Status of the new Permission.
    * @return
    */
-  public Permission newPermission(String id, Subsystem subsystem, Status status)
+  public Permission newPermission
+  	(Subsystem subsystem, String id, Status status)
   {
-    Permission newPermission = new PermissionImpl(id,
-        (SubsystemImpl) subsystem, status);
+    Permission newPermission
+    	= new PermissionImpl
+    			((SubsystemImpl) subsystem, id, status);
+    
+    ((SubsystemImpl)subsystem).add(newPermission);
 
     return newPermission;
   }

@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: PermissionImpl.java,v 1.4 2005-02-08 19:20:50 acohen Exp $
+ $Date: 2005-02-08 19:20:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -25,8 +25,9 @@ class PermissionImpl
 extends EntityImpl
 implements Permission
 {
-  private Subsystem			subsystem;
-  private Set						functions;
+  private Subsystem	subsystem;
+  private Set				functions;
+  private Set				limits;
   
   /**
    * Hibernate requires that each persistable entity have a default
@@ -36,6 +37,7 @@ implements Permission
   {
     super();
     this.functions = new HashSet();
+    this.limits = new HashSet();
   }
   
   /**
@@ -44,13 +46,14 @@ implements Permission
    *            other documents used by analysts.
    */
   PermissionImpl
-    (String 				id,
-     SubsystemImpl 	subsystem,
+    (SubsystemImpl 	subsystem,
+     String 				id,
      Status					status)
   {
     super(subsystem.getSignet(), id, null, status);
     this.setSubsystem(subsystem);
     this.functions = new HashSet();
+    this.limits = new HashSet();
   }
   
   /**
@@ -58,25 +61,16 @@ implements Permission
    */
   public Function[] getFunctionsArray()
   {
-    Function[] functionsArray;
-    
-    if (this.functions == null)
-    {
-      functionsArray = new Function[0];
-    }
-    else
-    {
-      functionsArray = new Function[this.functions.size()];
-      Iterator functionsIterator = this.functions.iterator();
-      int i = 0;
-      while (functionsIterator.hasNext())
-      {
-        functionsArray[i] = (Function)(functionsIterator.next());
-        i++;
-      }
-    }
-    
-    return functionsArray;
+      Function[] functionsArray = new Function[0];
+      
+      return (Function[])(this.functions.toArray(functionsArray));
+  }
+  
+  public Limit[] getLimitsArray()
+  {
+      Limit[] limitsArray = new Limit[0];
+      
+      return (Limit[])(this.limits.toArray(limitsArray));
   }
   
   /**
@@ -106,6 +100,19 @@ implements Permission
     return this.functions;
   }
   
+  /* This method exists only for use by Hibernate. */
+  void setLimits(Set limits)
+  {
+    this.limits = limits;
+  }
+  
+  /* This method exists only for use by Hibernate.
+   */
+  Set getLimits()
+  {
+    return this.limits;
+  }
+  
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Permission#addFunction(edu.internet2.middleware.signet.Function)
    */
@@ -120,6 +127,11 @@ implements Permission
       this.functions.add(function);
       function.addPermission(this);
     }
+  }
+
+  public void addLimit(Limit limit)
+  {
+    this.limits.add(limit);
   }
   
   /* (non-Javadoc)

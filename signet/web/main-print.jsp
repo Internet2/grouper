@@ -1,6 +1,6 @@
 <!--
-  $Id: main-print.jsp,v 1.4 2005-01-11 20:38:44 acohen Exp $
-  $Date: 2005-01-11 20:38:44 $
+  $Id: main-print.jsp,v 1.5 2005-02-08 19:20:50 acohen Exp $
+  $Date: 2005-02-08 19:20:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -196,7 +196,9 @@
               </td>
               <td nowrap="nowrap" class="line">
 <%=
-  dateFormat.format(assignment.getCreateDatetime())
+  // getCreateDateTime() is not currently part of the Assignment API.
+  // dateFormat.format(assignment.getCreateDatetime())
+  ""
 %>
               </td>
             </tr>
