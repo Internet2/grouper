@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.32 2004-12-09 05:37:39 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.33 2005-01-27 23:12:40 blair Exp $
  */
 public class GrouperSubject {
 
@@ -121,8 +121,7 @@ public class GrouperSubject {
           subj = sta.getSubject(st, id);
         } catch (SubjectNotFoundException e) {
           // TODO WRONG!
-          System.err.println("No adapter for type " + typeID);
-          System.exit(1);
+          throw new RuntimeException("No adapter for type " + typeID);
         }
       }
     }
