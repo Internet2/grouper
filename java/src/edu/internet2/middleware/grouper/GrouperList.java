@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.24 2004-12-04 19:19:18 blair Exp $
+ * @version $Id: GrouperList.java,v 1.25 2004-12-06 02:03:00 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -111,7 +111,10 @@ public class GrouperList implements Serializable {
    */
 
   /**
-   * TODO MAY NOT REMAIN
+   * Return the group field for this list value.
+   * <p />
+   *
+   * @return  Field name.
    */
   public String groupField() {
     return this.getGroupField();
@@ -125,14 +128,13 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperMember} object.
    */
   public GrouperMember member() {
-    return GrouperBackend.member(this.memberKey());
+    return GrouperBackend.member(this.getMemberKey());
   }
 
   /**
    * Returns the {@link GrouperGroup} object referenced by this 
    * {@link GrouperList} object.
    * <p />
-   * TODO
    *
    * @return  A {@link GrouperGroup} object.
    */
@@ -141,17 +143,14 @@ public class GrouperList implements Serializable {
   }
 
   /**
-   * TODO Either remove or at least make protected
+   * Returns the {@link GrouperGroup} object that caused this
+   * effective relationship.
+   * <p />
+   *
+   * @return  A {@link GrouperGroup} object.
    */
-  public String memberKey() {
-    return this.getMemberKey();
-  }
-
-  /**
-   * TODO MAY NOT REMAIN
-   */
-  public String via() {
-    return this.getVia();
+  public GrouperGroup via() {
+    return GrouperBackend.groupLoadByKey(this.getVia());
   }
 
   public boolean equals(Object o) {

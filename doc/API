@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.30 2004-12-06 00:52:22 blair Exp $
+$Id: API,v 1.31 2004-12-06 02:03:00 blair Exp $
 
 ---
 
@@ -134,10 +134,9 @@ $Id: API,v 1.30 2004-12-06 00:52:22 blair Exp $
 #### Instance Methods
 
 * GrouperGroup        group()
-* FIXME String              groupField()
+* String              groupField()
 * GrouperMember       member()
-* FIXME String              memberKey()
-* FIXME String              via()
+* GrouperGroup        via()
 
 ### GrouperMember
 
