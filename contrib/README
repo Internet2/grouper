@@ -1,17 +1,39 @@
 
-Grouper Contributed SOFTWARE README.
+# Grouper Contributed Code
 
-Contents:
+$Id: README,v 1.5 2004-12-03 17:06:44 blair Exp $
 
-  load/LoadGrouperMembersTableFromCSV
-    - Populates 'members_table' from CSV file.
-    - Contributed by The University Of Chicago on 20040702
+---
 
-  misc/grouperq
-    "This program demonstrates how to use the Grouper API to search
-    the Grouper group registry."
-    - Contributed by The University Of Chicago on 20041130
+## Loaders
 
+These programs can be used to load data into the group registry.
 
-$Id: README,v 1.4 2004-11-30 06:55:10 blair Exp $
+### load/cvs2subject
+
+Program to populate _grouper_subject_ table with I2MI Subjects.
+
+* Contributed by _The University Of Chicago_ on 20040702.
+* Last updated on 20041203.
+* See load/csv2subject/README for more information.
+
+-- 
+
+## Provisioners
+
+These programs can be used to provision data from the group registry to
+sources of runtime information.
+
+---
+
+## Miscellaneous
+
+### misc/grouperq
+
+Demonstration program for querying the group registry using the
+_Grouper_ API.
+
+* Contributed by _The University Of Chicago_ on 20041130.
+* Last updated on 20041130.
+* See misc/grouperq/README for more information.
 
