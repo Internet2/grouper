@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.5 2005-01-27 02:02:40 blair Exp $
+$Id: LAYOUT,v 1.6 2005-02-16 20:10:18 blair Exp $
 
 ---
 
@@ -119,15 +119,23 @@ Grouper README.
 
 ## sql/
 
-### sql/hsqldb.sql
+### sql/schema.m4
+
+m4 source file used to generate database-specific schema files.
+
+### sql/schema-hsqldb.sql
 
 HSQLDB database schema specification.
 
+### sql/schema-oracle.sql
+
+Oracle database schema specification.
+
 ### sql/init.sql
 
-Grouper schema data.
+Default Grouper schema.  Needed to use Grouper.
 
 ### sql/test.sql
 
-Data necessary to run the test harness.
+Test data needed for running the test harness.
 
