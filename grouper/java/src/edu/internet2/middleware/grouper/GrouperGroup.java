@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.118 2004-12-04 19:19:18 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.119 2004-12-05 01:02:33 blair Exp $
  */
 public class GrouperGroup {
 
@@ -561,6 +561,35 @@ public class GrouperGroup {
    * PRIVATE CLASS METHODS
    */
 
+  /* (!javadoc)
+   * Does the current subject have permission to create 
+   * groups within the specified stem.
+   */
+  private static boolean _canCreate(
+                           GrouperSession s, String stem
+                         )
+  {
+    boolean rv = false;
+    // We are adding a top-level namespace.
+    if (stem.equals(Grouper.NS_ROOT)) {
+      // And only member.system can do so in this release
+      if (s.subject().getId().equals(Grouper.config("member.system"))) {
+        return true;
+      }
+    } else {
+      // Does the current subject have CREATE on `stem'?
+      GrouperGroup ns = GrouperBackend.groupLoadByName(
+                          s, stem, Grouper.NS_TYPE
+                        );
+      if (ns != null) {
+        if (Grouper.naming().has(s, ns, "CREATE")) {
+          rv = true;
+        }
+      }
+    }
+    return rv;
+  }
+
   /*
    * Retrieve a group from the groups registry
    */
@@ -654,60 +683,61 @@ public class GrouperGroup {
                                       String extn, String type
                                      )
   {
-    // Check to see if the group already exists.
-    GrouperGroup g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
-    if (g != null) {
-      /*
-       * TODO Group already exists.  Ideally we'd throw an exception or
-       *      something, but, for now...
-       */
-      Grouper.LOGGER.warn(
-                          "Cannot create `" +
-                          GrouperBackend.groupName(stem, extn) +
-                          "' (" + type + ") as it already exists."
-                         );
-    
-      g = null;
-    } else {
-      String name = GrouperBackend.groupName(stem, extn);
-      if (name != null) {
-        // TODO Can I move all|most of this to GrouperBackend?
-        g = new GrouperGroup();
-
-        // Attach session
-        g.gs  = s;
-
-        // Generate the UUIDs
-        g.setGroupKey( GrouperBackend.uuid() );
-        g.setGroupID(  GrouperBackend.uuid() );
-
-        g._attrAdd("stem",      stem);
-        g._attrAdd("extension", extn);
-        g._attrAdd("name",      name);
-        g.type = type;
-
-        // Set some of the operational attributes
+    GrouperGroup g = null;
+    if (GrouperGroup._canCreate(s, stem)) {
+      // Check to see if the group already exists.
+      g = GrouperGroup._loadByStemExtn(s, stem, extn, type);
+      if (g != null) {
         /*
-         * TODO Most, if not all, of the operational attributes should be
-         *      handled by Hibernate interceptors.  A task for another day.
+         * TODO Group already exists.  Ideally we'd throw an exception or
+         *      something, but, for now...
          */
-        g.setCreateTime(    GrouperGroup._now() );
-        g.setCreateSubject( s.subject().getId() );
-
-        // Verify that we have everything we need to create a group
-        // and that this subject is privileged to create this group.
-        if (g._validateCreate()) {
-          // And now attempt to add the group to the store
-          if (GrouperBackend.groupAdd(s, g)) {
-            g.initialized = true; // FIXME UGLY HACK!
-          } else {
-            g = null;  
-          }
-        }
-      } else {
-        // TODO Log
+        Grouper.LOGGER.warn(
+                            "Cannot create `" +
+                            GrouperBackend.groupName(stem, extn) +
+                            "' (" + type + ") as it already exists."
+                           );
         g = null;
+      } else {
+        String name = GrouperBackend.groupName(stem, extn);
+        if (name != null) {
+          // TODO Can I move all|most of this to GrouperBackend?
+          g = new GrouperGroup();
+          // Attach session
+          g.gs  = s;
+          // Generate the UUIDs
+          g.setGroupKey( GrouperBackend.uuid() );
+          g.setGroupID(  GrouperBackend.uuid() );
+          // Set attributes
+          g._attrAdd("stem",      stem);
+          g._attrAdd("extension", extn);
+          g._attrAdd("name",      name);
+          g.type = type;
+          // Set some of the operational attributes
+          /*
+           * TODO Most, if not all, of the operational attributes should be
+           *      handled by Hibernate interceptors.  A task for another day.
+           */
+          g.setCreateTime(    GrouperGroup._now() );
+          g.setCreateSubject( s.subject().getId() );
+
+          // Verify that we have everything we need to create a group
+          // and that this subject is privileged to create this group.
+          if (g._validateCreate()) {
+            // And now attempt to add the group to the store
+            if (GrouperBackend.groupAdd(s, g)) {
+              g.initialized = true; // FIXME UGLY HACK!
+            } else {
+              g = null;  
+            }
+          }
+        } else {
+          // TODO Log
+          g = null;
+        }
       }
+    } else {
+      Grouper.LOGGER.warn("Subject does not have CREATE priv on this stem");
     }
     return g;
   }
