@@ -55,27 +55,34 @@ package edu.internet2.middleware.grouper;
  * Class representing a field within a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.12 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperField.java,v 1.13 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperField {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String groupField;
-  // XXX GrouperPrivileges? object?
   private String readPriv;
-  // XXX GrouperPrivileges? object?
   private String writePriv;
-  // XXX Proper type?
   private String isList;
+
+
+  /*
+   * CONSTRUCTORS
+   */
 
   /**
    * Create a {@link GrouperField} object.
    */
   public GrouperField() {
-    groupField  = null;
-    readPriv    = null;
-    writePriv   = null;
-    isList      = null;
+    this._init();
   }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
 
   public String toString() {
     return  this.getGroupField()  + ":" + 
@@ -84,8 +91,24 @@ public class GrouperField {
             this.getIsList();
   }
 
+
   /*
-   * Below for Hibernate
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.groupField  = null;
+    this.readPriv    = null;
+    this.writePriv   = null;
+    this.isList      = null;
+  }
+
+
+  /*
+   * HIBERNATE
    */
 
   private String getGroupField() {

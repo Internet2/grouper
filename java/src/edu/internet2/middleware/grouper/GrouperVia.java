@@ -58,30 +58,43 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class representing a via (or lack of via) relationship.
  *
  * @author  blair christensen.
- * @version $Id: GrouperVia.java,v 1.3 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperVia.java,v 1.4 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperVia {
 
-  // What we need to identify a via (or lack of via) relationship
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private GrouperMember member;   // I am a member
   private GrouperGroup  group;    // Of this group
   private GrouperGroup  via;      // Via this group
 
 
+  /*
+   * CONSTRUCTORS
+   */
+
   /**
    * Create a {@link GrouperVia} object.
+   * <p />
+   * TODO Should this be public?
+   * TODO Is this class even needed?
    */
   public GrouperVia() {
-    // Nothing 
+    this._init();
   }
 
   /**
    * Create a {@link GrouperVia} object.
+   * <p />
+   * TODO Should this be public?
+   * TODO Is this class even needed?
    */
   public GrouperVia(GrouperMember member, GrouperGroup group, GrouperGroup via) {
-    this.member  = member;
-    this.group   = group;
-    this.via     = via;
+    this._init();
+    this.member = member;
+    this.group  = group;
+    this.via    = via;
   }
 
 
@@ -125,6 +138,14 @@ public class GrouperVia {
     return this.via;
   }
 
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+  private void _init() {
+    this.member  = member;
+    this.group   = group;
+    this.via     = via;
+  }
 
 }
 

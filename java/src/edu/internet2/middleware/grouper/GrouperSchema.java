@@ -60,13 +60,20 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.11 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.12 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String groupKey;
   private String groupType;
 
+
+  /*
+   * CONSTRUCTORS
+   */
   public GrouperSchema() {
     this._init();
   }

@@ -60,18 +60,23 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO 
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.10 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.11 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String  groupKey;
   private String  groupField;
   private String  groupFieldValue;
 
+
+  /*
+   * CONSTRUCTORS
+   */
   public GrouperAttribute() {
-    groupKey        = null;
-    groupField      = null;
-    groupFieldValue = null;
+    this._init();
   }
 
 
@@ -115,6 +120,20 @@ public class GrouperAttribute implements Serializable {
   protected String key() {
     // TODO This does expose the group key.  Do we want that?
     return this.getGroupKey();
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.groupKey        = null;
+    this.groupField      = null;
+    this.groupFieldValue = null;
   }
 
 

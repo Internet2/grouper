@@ -55,25 +55,51 @@ package edu.internet2.middleware.grouper;
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.11 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperType.java,v 1.12 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperType {
 
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String groupType;
+
+
+  /*
+   * CONSTRUCTORS
+   */
 
   /**
    * Create a {@link GrouperType} object.
    */
   public GrouperType() {
-    groupType = null;
+    this._init();
   }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
 
   public String toString() {
     return "" + this.getGroupType();
   }
 
+
   /*
-   * Below for Hibernate
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.groupType = null;
+  }
+
+
+  /*
+   * HIBERNATE
    */
 
   private String getGroupType() {

@@ -59,13 +59,16 @@ import  edu.internet2.middleware.subject.*;
  * for type "group".
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.5 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: SubjectTypeAdapterGroupImpl.java,v 1.6 2004-11-30 00:59:17 blair Exp $
  */
 public class  SubjectTypeAdapterGroupImpl
 	extends     AbstractSubjectTypeAdapter
 	implements  SubjectTypeAdapter
 {
 
+  /*
+   * CONSTRUCTORS
+   */
   public SubjectTypeAdapterGroupImpl() {
     super();
   }

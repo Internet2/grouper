@@ -61,17 +61,24 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Class representing a {@link Grouper} subject attribute.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubjectAttribute.java,v 1.5 2004-11-29 19:05:17 blair Exp $
+ * @version $Id: GrouperSubjectAttribute.java,v 1.6 2004-11-30 00:59:17 blair Exp $
  */
 public class GrouperSubjectAttribute implements Serializable{
 
-  // What we need to identify a subject attribute
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
   private String  id;
   private int     instance;
   private String  name;
   private String  searchValue;
   private String  typeID;
   private String  value;
+
+
+  /*
+   * CONSTRUCTORS
+   */
 
   /**
    * Create a new {@link GrouperSubjectAttribute} object.
