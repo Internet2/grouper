@@ -18,12 +18,19 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.45 2004-11-22 15:23:25 blair Exp $
+ * @version $Id: Grouper.java,v 1.46 2004-11-23 18:38:22 blair Exp $
  */
 public class Grouper {
 
   /*
-   * CLASS VARIABLES 
+   * PUBLIC CONSTANTS
+   */
+  public static final String DEF_GROUP_TYPE  = "base";
+  public static final String DEF_LIST_TYPE   = "members";
+
+
+  /*
+   * PRIVATE CLASS VARIABLES 
    */
 
   // Is the environment initialized
