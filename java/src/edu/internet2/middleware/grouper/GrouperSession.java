@@ -24,7 +24,7 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.35 2004-09-08 16:52:29 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.36 2004-09-09 00:29:18 blair Exp $
  */
 public class GrouperSession {
 
@@ -68,6 +68,29 @@ public class GrouperSession {
     this.subject        = null;
     this.subjectID      = null;
   }
+
+  /**
+   * Confirm validity of a group type.
+   * <p>
+   * TODO Standardize as String, not int?
+   *
+   * @return  Boolean true if {@link GroupType} is valid, false
+   * otherwise.
+   */
+  public boolean groupType(int type) {
+    List types = this._G.groupTypes();
+    for (Iterator iter = types.iterator(); iter.hasNext();) {
+      GrouperType t = (GrouperType) iter.next();
+      if ( t.toString().equals( Integer.toString(type) ) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /*
+   * BELOW LURKS FAR MORE MADNESS THAN ABOVE
+   */
 
   /**
    * Start a {@link Grouper} session.
