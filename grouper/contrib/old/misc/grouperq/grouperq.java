@@ -16,28 +16,9 @@ import  org.apache.commons.cli.*;
  * This program demonstrates how to use the {@link Grouper} API to
  * search the {@link Grouper} group registry.
  * <p />
- * <ol>
- *  <li>TODO Switch to GrouperQuery querying as that will allow me to
- *      impliment many of the other desired features.</li>
- *  <li>TODO Pretty print</li>
- *  <li>TODO Instantiate group and member objects from gl information</li>
- *  <li>TODO Add cvs/ldif-life output option</li>
- *  <li>TODO Query for all types of memberships by default?</li>
- *  <li>TODO Query on member</li>
- *  <li>TODO Query on stem</li>
- *  <li>TODO Query on extension</li>
- *  <li>TODO Query on group</li>
- *  <li>TODO Query on priv</li>
- *  <li>TODO Query on effective</li>
- *  <li>TODO Query on immediate</li>
- *  <li>TODO Query on create time</li>
- *  <li>TODO Query on modify time</li>
- *  <li>TODO Add to <i>edu.internet2.middleware.grouper.contrib</i>
- *      package?</li>
- * </ol>
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.6 2004-12-06 02:10:28 blair Exp $
+ * @version $Id: grouperq.java,v 1.7 2004-12-08 01:11:19 blair Exp $
  */
 class grouperq {
 
@@ -202,10 +183,34 @@ class grouperq {
    */
   private static void _report(List vals) {
     _verbose("Results returned by query: " + vals.size());
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      GrouperList gl = (GrouperList) iter.next();
-      System.out.println( gl );
+    _reportGroups(vals);
+  }
+
+  /* (!javadoc)
+   * Report on groups within search results
+   */
+  private static void _reportGroups(List vals) {
+    if (vals.size() > 0) {
+      System.out.println("subjectID: " + mem.subjectID());
+      System.out.println("subjectTypeID: " + mem.typeID());
+      System.out.println("memberID: " + mem.memberID());
+      Iterator iter = vals.iterator();
+      while (iter.hasNext()) {
+        GrouperList gl  = (GrouperList) iter.next();
+        GrouperGroup g  = gl.group();
+        GrouperGroup v  = gl.via();
+        if (v == null) {
+          System.out.println(
+            "immediateMemberOf: " + g.name() + " (" + g.type() + ")"
+          );
+        } else {
+          System.out.println(
+            "effectiveMemberOf: " + g.name() + " (" + g.type() + ") " +
+            "via " + v.name() + " (" + v.type() + ")"
+          );
+        }
+      }
+      System.out.println();
     }
   }
 
