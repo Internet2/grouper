@@ -14,13 +14,13 @@ import  org.apache.commons.cli.*;
 
 
 /**
- * Program to add and delete groups, memberships, and attributes using
- * the {@link Grouper} API.
+ * Program to add and delete groups and memberships using the 
+ * {@link Grouper} API.
  * <p />
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.6 2004-12-08 05:28:53 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.7 2004-12-08 05:42:36 blair Exp $ 
  */
 class groupmgr {
 
@@ -31,7 +31,7 @@ class groupmgr {
 
 
   /*
-   * PRIVATE CLAS VARIABLES
+   * PRIVATE CLASS VARIABLES
    */
   private static boolean        actUponG;
   private static boolean        actUponM;
@@ -91,6 +91,8 @@ class groupmgr {
     } else if (toDel == true) {
       if        (actUponG  == true) {
         rv = _groupDel(); 
+      } else if (actUponM  == true) {
+        rv = _memberDel();
       } else if (actUponNS == true) {
         System.err.println("Namespace deletions not supported!");
         _usage();
@@ -192,11 +194,6 @@ class groupmgr {
         if (mg != null) {
           sid   = mg.id();
           stid  = "group";
-        } else {
-          System.err.println(
-            "Unable to fetch member `" + 
-            GrouperBackend.groupName(stem, extn) + "'"
-          );
         }
       } else {
         sid   = member;
@@ -212,21 +209,54 @@ class groupmgr {
             rv = true;
             _verbose("Added `" + member + "' to `" + g.name() + "'");
           }
-        } else {
-          System.err.println(
-            "Unable to fetch group `" +
-            GrouperBackend.groupName(stem, extn) + "'"
-          );
         }
-      } else {
-        System.err.println(
-          "Unable to fetch member `" + member + "'"
-        );
       }
     }
     if (rv != true) {
       System.err.println(
         "Failed to add `" + member + "' to `" + 
+        GrouperBackend.groupName(stem, extn) + "'"
+      );
+    }
+    return rv;
+  }
+
+  /* (!javadoc)
+   * Delete a member from the registry.
+   */
+  private static boolean _memberDel() {
+    boolean rv = false;
+    if ( (stem != null) && (extn != null) && (mem != null) ) {
+      stem = _translateRoot(stem);
+      GrouperMember m     = null;
+      String        sid   = null;
+      String        stid  = null;
+      if (memberIsGroup) {
+        GrouperGroup mg = GrouperGroup.loadByName(s, member);
+        if (mg != null) {
+          sid   = mg.id();
+          stid  = "group";
+        }
+      } else {
+        sid   = member;
+        stid  = Grouper.DEF_SUBJ_TYPE;
+      }
+      // Load the member
+      m = GrouperMember.load(sid, stid);
+      if (m != null) {
+        // Load the group
+        GrouperGroup g = GrouperGroup.load(s, stem, extn);
+        if (g != null) {
+          if (g.listDelVal(s, m)) {
+            rv = true;
+            _verbose("Deleted `" + member + "' from `" + g.name() + "'");
+          }
+        }
+      }
+    }
+    if (rv != true) {
+      System.err.println(
+        "Failed to delete `" + member + "' from `" + 
         GrouperBackend.groupName(stem, extn) + "'"
       );
     }

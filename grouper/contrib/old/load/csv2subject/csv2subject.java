@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.11 2004-12-05 04:15:14 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.12 2004-12-08 05:42:36 blair Exp $ 
  */
 class csv2subject {
 
@@ -33,7 +33,7 @@ class csv2subject {
 
 
   /*
-   * PRIVATE CLAS VARIABLES
+   * PRIVATE CLASS VARIABLES
    */
   private static CommandLine  cmd;
   private static Properties   conf    = new Properties();

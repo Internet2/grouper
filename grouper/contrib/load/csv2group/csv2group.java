@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.11 2004-12-07 21:49:21 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.12 2004-12-08 05:42:36 blair Exp $ 
  */
 class csv2group {
 
@@ -31,7 +31,7 @@ class csv2group {
 
 
   /*
-   * PRIVATE CLAS VARIABLES
+   * PRIVATE CLASS VARIABLES
    */
   private static CommandLine    cmd;
   private static GrouperMember  mem;
