@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.2 2004-12-07 03:08:50 blair Exp $ -->
+<!-- $Id: build.xml,v 1.3 2004-12-09 19:19:42 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -31,7 +31,7 @@
   </target>
 
   <target name="clean" description="clean up" >
-    <delete file="${build}/{$app.name}.class"/>
+    <delete file="${build}/${app.name}.class"/>
   </target>
 
 </project>
