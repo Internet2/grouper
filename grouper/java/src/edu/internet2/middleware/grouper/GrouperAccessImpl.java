@@ -1,10 +1,12 @@
 package edu.internet2.middleware.directory.grouper;
 
+import  edu.internet2.middleware.directory.grouper.*;
+
 /** 
  * Default implementation of the {@link GrouperPrivilege} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.2 2004-04-27 05:24:41 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.3 2004-04-29 03:43:58 blair Exp $
  */
 public class InternalGrouperPrivilege implements GrouperPrivilege {
   /**
