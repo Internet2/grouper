@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.180 2005-03-22 17:08:58 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.181 2005-03-22 17:15:36 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1199,33 +1199,6 @@ public class GrouperBackend {
                 );
     }
     return vals;
-  }
-
-  /*
-   * Retrieve GrouperMember by memberID
-   */
-  protected static GrouperMember memberByID(GrouperSession s, String id) {
-    String        qry = "GrouperMember.by.id";
-    GrouperMember m   = new GrouperMember();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, id);
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          m = (GrouperMember) vals.get(0);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                   "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    } 
-    return m;
   }
 
   /**
