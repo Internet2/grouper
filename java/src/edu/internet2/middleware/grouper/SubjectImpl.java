@@ -17,10 +17,10 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
- * Implementation of the I2MI {{@link Subject}} interface.
+ * Implementation of the I2MI {@link Subject} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.6 2004-11-16 01:59:30 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.7 2004-11-22 04:20:32 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
