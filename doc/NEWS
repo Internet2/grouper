@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.4 2004-12-05 22:24:24 blair Exp $
+$Id: NEWS,v 1.5 2004-12-05 23:31:41 blair Exp $
 
 ---
 
@@ -36,7 +36,6 @@ $Id: NEWS,v 1.4 2004-12-05 22:24:24 blair Exp $
 * Javadoc API documentation (#132)
 * Search: By group create time (#155)
 * Search: By group modify time (#155)
-* Using memberKey for the createSubject and modifySubject operational attributes (#157)
 
 
 ### Postponed From This Release

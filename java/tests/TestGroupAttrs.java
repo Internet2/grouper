@@ -163,10 +163,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -193,10 +193,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -223,10 +223,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -253,10 +253,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -283,10 +283,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -313,10 +313,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -343,10 +343,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -373,10 +373,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject() );
+    Assert.assertNull( g.modifySubject().getId() );
     Assert.assertNull( g.modifyTime() );
   }
 
@@ -560,10 +560,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -592,10 +592,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -624,10 +624,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -656,10 +656,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -688,10 +688,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -720,10 +720,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -752,10 +752,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -784,10 +784,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -970,10 +970,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1002,10 +1002,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1034,10 +1034,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1066,10 +1066,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1098,10 +1098,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1130,10 +1130,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1162,10 +1162,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1194,10 +1194,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertNotNull( g.attribute("description") );
     Assert.assertTrue( g.attribute("description").value().equals(desc) );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1369,10 +1369,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1399,10 +1399,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1429,10 +1429,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1459,10 +1459,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1489,10 +1489,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1519,10 +1519,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1549,10 +1549,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 
@@ -1579,10 +1579,10 @@ public class TestGroupAttrs extends TestCase {
     Assert.assertTrue( g.attribute("name").value().equals(name) );
     Assert.assertNull( g.attribute("description") );
     Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject() );
+    Assert.assertNotNull( g.createSubject().getId() );
     Assert.assertNotNull( g.createTime() );
     Assert.assertNull( g.modifySource() );
-    Assert.assertNotNull( g.modifySubject() );
+    Assert.assertNotNull( g.modifySubject().getId() );
     Assert.assertNotNull( g.modifyTime() );
   }
 

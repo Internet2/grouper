@@ -52,6 +52,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -61,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.125 2004-12-05 22:22:34 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.126 2004-12-05 23:31:41 blair Exp $
  */
 public class GrouperGroup {
 
@@ -248,12 +249,13 @@ public class GrouperGroup {
          */
         GrouperAttribute cur = (GrouperAttribute) attributes.get(attribute);
         // In case we need to revert
-        String curModTime     = this.getModifyTime();
-        String curModSubj     = this.getModifySubject();
+        String curModTime = this.getModifyTime();
+        String curModSubj = this.getModifySubject();
         if        (value == null) {
           // Delete an existing attribute
           this.setModifyTime(    GrouperGroup._now()       );
-          this.setModifySubject( this.gs.subject().getId() );
+          GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+          this.setModifySubject( mem.key() );
           if (
               (this._canModAttr(this.gs, this))             &&
               (GrouperBackend.attrDel(this.key, attribute)) &&
@@ -280,7 +282,8 @@ public class GrouperGroup {
                                   );
           if (initialized == true) {
             this.setModifyTime(    GrouperGroup._now()       );
-            this.setModifySubject( this.gs.subject().getId() );
+            GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+            this.setModifySubject( mem.key() );
             if (
                 (attr != null)                              && 
                 (this._canModAttr(this.gs, this))           &&
@@ -311,7 +314,8 @@ public class GrouperGroup {
                                     this.key, attribute, value
                                   );
           this.setModifyTime(    GrouperGroup._now()       );
-          this.setModifySubject( this.gs.subject().getId() );
+          GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+          this.setModifySubject( mem.key() );
           if (
               (attr != null)                              &&
               (this._canModAttr(this.gs, this))           &&
@@ -350,11 +354,12 @@ public class GrouperGroup {
   public String createSource() {
     return this.getCreateSource();
   }
+
   // TODO
-  public String createSubject() {
-    // TODO Return `Subject' object?
-    return this.getCreateSubject();
+  public Subject createSubject() {
+    return this._returnSubjectObject(this.getCreateSubject()); 
   }
+
   // TODO
   public String createTime() {
     // TODO Return date object?
@@ -497,11 +502,12 @@ public class GrouperGroup {
   public String modifySource() {
     return this.getModifySource();
   }
+
   // TODO
-  public String modifySubject() {
-    // TODO Return `Subject' object?
-    return this.getModifySubject();
+  public Subject modifySubject() {
+    return this._returnSubjectObject(this.getModifySubject()); 
   }
+
   // TODO
   public String modifyTime() {
     // TODO Return date object?
@@ -752,7 +758,8 @@ public class GrouperGroup {
            *      handled by Hibernate interceptors.  A task for another day.
            */
           g.setCreateTime(    GrouperGroup._now() );
-          g.setCreateSubject( s.subject().getId() );
+          GrouperMember mem = GrouperMember.lookup( s.subject() );
+          g.setCreateSubject( mem.key() );
 
           // Verify that we have everything we need to create a group
           // and that this subject is privileged to create this group.
@@ -808,7 +815,8 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    this.setModifySubject( s.subject().getId() );
+    GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+    this.setModifySubject( mem.key() );
     if (GrouperBackend.listAddVal(s, this, m, list) == true) {
       rv = true;
     } else {
@@ -832,7 +840,8 @@ public class GrouperGroup {
     String curModTime = this.getModifyTime();
     String curModSubj = this.getModifySubject();
     this.setModifyTime( GrouperGroup._now() );
-    this.setModifySubject( s.subject().getId() );
+    GrouperMember mem = GrouperMember.lookup( this.gs.subject());
+    this.setModifySubject( mem.key() );
     if (GrouperBackend.listDelVal(s, this, m, list) == true) {
       rv = true;
     } else {
@@ -841,6 +850,25 @@ public class GrouperGroup {
       this.setModifySubject(curModSubj);
     }
     return rv;
+  }
+
+  /* (!javadoc)
+   * Try to return an initialized Subject object.  If not, default to
+   * an unitialized object.  Used by the (create|modify)Subject opattr
+   * methods.
+   */
+  private Subject _returnSubjectObject(String memberKey) {
+    Subject subj = null;
+    if (memberKey != null) {
+      GrouperMember mem = GrouperBackend.member(memberKey);
+      if (mem != null) {
+        subj = GrouperSubject.lookup(mem.subjectID(), mem.typeID());
+      }
+    }
+    if (subj == null) {
+      return new SubjectImpl();
+    }
+    return subj;
   }
 
   /*

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.27 2004-12-05 20:53:56 blair Exp $
+$Id: API,v 1.28 2004-12-05 23:31:41 blair Exp $
 
 ---
 
@@ -114,7 +114,7 @@ $Id: API,v 1.27 2004-12-05 20:53:56 blair Exp $
 * Map                 attributes()
 * String              createSource()
 * String              createSubject()
-* String              createTime()
+* Subject             createTime()
 * String              id()
 * boolean             listAddVal(session, member)
 * boolean             listDelVal(session, member)
@@ -125,7 +125,7 @@ $Id: API,v 1.27 2004-12-05 20:53:56 blair Exp $
 * List                listVals(session, listType)
 * List                listVals(session, listType)
 * String              modifySource()
-* String              modifySubject()
+* Subject             modifySubject()
 * String              modifyTime()
 * String              type()
 
