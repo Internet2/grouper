@@ -17,7 +17,7 @@ import  edu.internet2.middleware.subject.*;
  * for type "person".
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.4 2004-11-15 19:39:52 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.5 2004-11-15 19:56:52 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter
@@ -38,7 +38,7 @@ public class  SubjectTypeAdapterPersonImpl
   }
 
   public Subject getSubject(SubjectType type, String id) {
-    return GrouperBackend.subject(id, type.getId());
+    return GrouperBackend.subjectLookupTypePerson(id, type.getId());
   }
 
   public Subject getSubjectByDisplayId(SubjectType type, String displayId) {
