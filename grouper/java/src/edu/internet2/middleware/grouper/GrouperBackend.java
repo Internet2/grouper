@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.111 2004-12-04 19:19:18 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.112 2004-12-05 01:01:19 blair Exp $
  */
 public class GrouperBackend {
 
@@ -469,6 +469,21 @@ public class GrouperBackend {
       System.err.println(e);
       System.exit(1);
     }
+    GrouperBackend._hibernateSessionClose(session);
+    return g;
+  }
+
+  /* (!javadoc)
+   * Load a group by name.
+   */
+  protected static GrouperGroup groupLoadByName(
+                     GrouperSession s, String name, String type
+                   ) 
+  {
+    Session       session = GrouperBackend._init();
+    GrouperGroup g = GrouperBackend._groupLoadByName(
+                      s, session, name, type
+                     );
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
