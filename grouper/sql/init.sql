@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.9 2005-02-07 20:23:21 blair Exp $
+-- $Id: init.sql,v 1.10 2005-02-17 19:17:54 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -27,13 +27,13 @@ INSERT INTO grouper_field (groupField, readPriv, writePriv, isList)
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('optouts', 'UPDATE', 'UPDATE', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('name', 'VIEW', '', 'FALSE');
+  VALUES ('name', 'VIEW', 'SYSTEM', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('stemmers', 'STEM', 'STEM', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('creators', 'STEM', 'STEM', 'TRUE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('displayName', 'VIEW', '', 'FALSE');
+  VALUES ('displayName', 'VIEW', 'SYSTEM', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('displayExtension', 'VIEW', 'ADMIN', 'FALSE');
 

@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.22 2005-02-17 18:41:28 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.23 2005-02-17 19:17:54 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -206,7 +206,10 @@ public class TestConfigAndSchema extends TestCase {
                       "displayName readPriv",
                       gf.readPriv().equals("VIEW")
                      );
-    Assert.assertNull("displayName writePriv", gf.writePriv());
+    Assert.assertTrue(
+                      "displayName writePriv",
+                      gf.writePriv().equals("SYSTEM")
+                     );
     Assert.assertTrue(
                       "displayName isList",
                       gf.isList().equals("FALSE")
@@ -274,7 +277,10 @@ public class TestConfigAndSchema extends TestCase {
                       "name readPriv",
                       gf.readPriv().equals("VIEW")
                      );
-    Assert.assertNull("name writePriv", gf.writePriv());
+    Assert.assertTrue(
+                      "name writePriv",
+                      gf.writePriv().equals("SYSTEM")
+                     );
     Assert.assertTrue(
                       "name isList",
                       gf.isList().equals("FALSE")
