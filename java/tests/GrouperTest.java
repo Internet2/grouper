@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.30 2004-09-10 18:18:11 blair Exp $
+ * $Id: GrouperTest.java,v 1.31 2004-09-16 17:25:05 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -458,7 +458,7 @@ public class GrouperTest extends TestCase {
     s.start( G, G.config("member.system"), true );
 
     GrouperMember member = s.lookup( G.config("member.system") );
-    Assert.assertTrue( member.subjectID().equals( G.config("member.system") )); 
+    Assert.assertTrue( member.memberID().equals( G.config("member.system") )); 
     
     s.end();
     G.destroy();
