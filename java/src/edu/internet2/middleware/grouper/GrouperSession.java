@@ -9,7 +9,7 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.18 2004-04-30 17:58:28 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.19 2004-05-02 00:18:28 blair Exp $
  */
 public class GrouperSession {
 
@@ -199,8 +199,7 @@ public class GrouperSession {
   private GrouperMember _lookupSubject(String subjectID) {
     GrouperMember m = null;
 
-    // XXX Grab this from config
-    if (subjectID == "GrouperSystem") {
+    if (subjectID.equals( intG.config("member.system") )) {
       m = new GrouperMember(this, subjectID, false);
     } else {
       m = this.intSubject.lookup(subjectID);
