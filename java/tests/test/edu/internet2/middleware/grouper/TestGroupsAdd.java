@@ -342,16 +342,16 @@ public class TestGroups extends TestCase {
 
   // Delete a group
   public void testDeleteGroups0() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj  = GrouperSubject.load(
+                      Grouper.config("member.system"), 
+                      Grouper.DEF_SUBJ_TYPE
+                    );
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
-
-
+    Assert.assertNotNull("session !null", s);
     // Delete g4
-    GrouperGroup  g4 = GrouperGroup.load(s, stem4, extn4);
-    Assert.assertNotNull(g4);
-    Assert.assertTrue( GrouperGroup.delete(s, g4) );
-
+    GrouperGroup g4 = GrouperGroup.load(s, stem4, extn4);
+    Assert.assertNotNull("g4 loaded, !null", g4);
+    Assert.assertTrue("g4 deleted",  GrouperGroup.delete(s, g4) );
     // We're done
     s.stop();
   }
