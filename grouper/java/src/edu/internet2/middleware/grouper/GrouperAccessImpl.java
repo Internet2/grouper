@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.31 2004-11-28 17:34:09 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.32 2004-11-29 18:51:12 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -278,7 +278,16 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     List members = new ArrayList();
     if (this.can(priv) == true) {
-      members = GrouperBackend.listVals(s, g, (String) privMap.get(priv));
+      Iterator iter = GrouperBackend.listVals(
+                                              s, g, (String) privMap.get(priv)
+                                             ).iterator();
+      while (iter.hasNext()) {
+        GrouperList   gl  = (GrouperList) iter.next();
+        GrouperMember m   = gl.member();
+        if (m != null) {
+          members.add(m);
+        }
+      } 
     } // TODO Exception if invalid priv?
     return members;
   }
