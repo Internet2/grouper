@@ -62,6 +62,7 @@ public class Util {
    */
   public static final String klassGG = "edu.internet2.middleware.grouper.GrouperGroup";
   public static final String klassSI = "edu.internet2.middleware.grouper.SubjectImpl";
+  public static final String KLASS_GF = "edu.internet2.middleware.grouper.GrouperField";
   public static final String KLASS_VE = "edu.internet2.middleware.grouper.ViaElement";
   public static final String KLASS_VP = "edu.internet2.middleware.grouper.ViaPath";
 

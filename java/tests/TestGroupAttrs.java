@@ -60,13 +60,10 @@ import  junit.framework.*;
 public class TestGroupAttrs extends TestCase {
 
   /// Naming Groups
-  private String  ns_stem0  = Grouper.NS_ROOT;
   private String  ns_extn0  = "stem.0";
   private String  ns_stem00 = "stem.0";
   private String  ns_extn00 = "stem.0.0";
-  private String  ns_stem1  = Grouper.NS_ROOT;
   private String  ns_extn1  = "stem.1";
-  private String  ns_stem2  = Grouper.NS_ROOT;
   private String  ns_extn2  = "stem.2";
 
   // Groups
@@ -106,16 +103,16 @@ public class TestGroupAttrs extends TestCase {
 
     // Fetch namespaces
     // ns0
-    GrouperGroup ns0 = GrouperGroup.load(s, ns_stem0, ns_extn0, Grouper.NS_TYPE);
+    GrouperGroup ns0 = GrouperGroup.load(s, Grouper.NS_ROOT, ns_extn0, Grouper.NS_TYPE);
     Assert.assertNotNull(ns0);
     // ns00
     GrouperGroup ns00 = GrouperGroup.load(s, ns_stem00, ns_extn00, Grouper.NS_TYPE);
     Assert.assertNotNull(ns00);
     // ns1
-    GrouperGroup ns1 = GrouperGroup.load(s, ns_stem1, ns_extn1, Grouper.NS_TYPE);
+    GrouperGroup ns1 = GrouperGroup.load(s, Grouper.NS_ROOT, ns_extn1, Grouper.NS_TYPE);
     Assert.assertNotNull(ns1);
     // ns2
-    GrouperGroup ns2 = GrouperGroup.load(s, ns_stem2, ns_extn2, Grouper.NS_TYPE);
+    GrouperGroup ns2 = GrouperGroup.load(s, Grouper.NS_ROOT, ns_extn2, Grouper.NS_TYPE);
     Assert.assertNotNull(ns2);
     // Fetch groups
     // g0
@@ -148,26 +145,25 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
-    Assert.assertNotNull(g);
-    Assert.assertNotNull( g.id() );
-    Assert.assertNotNull( g.type() );
-    Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
-    Assert.assertNotNull( g.attribute(s, "extension") );
-    Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
-    Assert.assertNotNull(name);
-    Assert.assertTrue( g.attribute(s, "name").value().equals(name) );
-    Assert.assertNull( g.attribute(s, "description") );
-    Assert.assertNull( g.createSource() );
-    Assert.assertNotNull( g.createSubject().getId() );
-    Assert.assertNotNull( g.createTime() );
-    Assert.assertNull( g.modifySource() );
-    Assert.assertNull( g.modifySubject().getId() );
-    Assert.assertNull( g.modifyTime() );
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
+    Assert.assertNotNull("g !null", g);
+    Assert.assertNotNull("g id !null", g.id() );
+    Assert.assertNotNull("g type !null", g.type() );
+    Assert.assertNotNull("g stem !null", g.attribute(s, "stem") );
+    Assert.assertTrue("g stem value", g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
+    Assert.assertNotNull("g extn !null", g.attribute(s, "extension") );
+    Assert.assertTrue("g extn value", g.attribute(s, "extension").value().equals(extn) );
+    Assert.assertNotNull("g name !null", name);
+    Assert.assertTrue("g name value", g.attribute(s, "name").value().equals(name) );
+    Assert.assertNull("g desc null", g.attribute(s, "description") );
+    Assert.assertNull("g createSource null", g.createSource() );
+    Assert.assertNotNull("g createSubject !null", g.createSubject().getId() );
+    Assert.assertNotNull("g createTime !null", g.createTime() );
+    Assert.assertNull("g modifySource null", g.modifySource() );
+    Assert.assertNull("g modifySubject !null", g.modifySubject().getId() );
+    Assert.assertNull("g modifyTime !null", g.modifyTime() );
   }
 
   public void testFetchAttrs1() {
@@ -208,15 +204,14 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -238,15 +233,14 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -393,11 +387,10 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", desc) );
     s.stop();
@@ -429,11 +422,10 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", desc) );
     s.stop();
@@ -447,11 +439,10 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", desc) );
     s.stop();
@@ -543,16 +534,15 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -607,16 +597,15 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -639,16 +628,15 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -803,11 +791,10 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My New Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", desc) );
     s.stop();
@@ -839,11 +826,10 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My New Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", desc) );
     s.stop();
@@ -857,11 +843,10 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My New Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", desc) );
     s.stop();
@@ -953,16 +938,15 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My New Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -1017,16 +1001,15 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My New Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -1049,16 +1032,15 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
     String desc = "My New Description: " + name;
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -1213,10 +1195,9 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", null) );
     s.stop();
@@ -1247,10 +1228,9 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", null) );
     s.stop();
@@ -1264,10 +1244,9 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertTrue( g.attribute(s, "description", null) );
     s.stop();
@@ -1354,15 +1333,14 @@ public class TestGroupAttrs extends TestCase {
 
     // ns0
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem0;
     String extn = ns_extn0; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -1414,15 +1392,14 @@ public class TestGroupAttrs extends TestCase {
 
     // ns1
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem1;
     String extn = ns_extn1; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
@@ -1444,15 +1421,14 @@ public class TestGroupAttrs extends TestCase {
 
     // ns2
     String type = Grouper.NS_TYPE;
-    String stem = ns_stem2;
     String extn = ns_extn2; 
-    String name = GrouperGroup.groupName(stem, extn);
-    GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+    String name = GrouperGroup.groupName(Grouper.NS_ROOT, extn);
+    GrouperGroup g = GrouperGroup.load(s, Grouper.NS_ROOT, extn, type);
     Assert.assertNotNull(g);
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute(s, "stem") );
-    Assert.assertTrue( g.attribute(s, "stem").value().equals(stem) );
+    Assert.assertTrue( g.attribute(s, "stem").value().equals(Grouper.NS_ROOT) );
     Assert.assertNotNull( g.attribute(s, "extension") );
     Assert.assertTrue( g.attribute(s, "extension").value().equals(extn) );
     Assert.assertNotNull(name);
