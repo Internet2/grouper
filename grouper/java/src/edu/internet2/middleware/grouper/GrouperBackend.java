@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.123 2004-12-06 19:47:57 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.124 2004-12-06 19:54:53 blair Exp $
  */
 public class GrouperBackend {
 
@@ -453,15 +453,15 @@ public class GrouperBackend {
   
       // Its schema
       GrouperSchema schema = GrouperBackend._groupSchema(session, g);
-      if (schema != null) {
-        // And its attributes
-        // TODO Why do I need to pass in the key?
-        GrouperBackend._groupAttachAttrs(session, g, key);
-        g.type( schema.type() );
-        // g = GrouperGroup.loadByKey(g.key(), schema.type());
-        // FIXME Attach s to object?
+      if (
+          (schema != null)                                &&
+          (GrouperBackend._groupAttachAttrs(session, g))  &&
+          (g.type( schema.type() ) )
+         )
+      {
+        // TODO Attach s to object?
       } else {
-        System.err.println("Unable to load group schema");
+        System.err.println("Unable to properly load group");
         System.exit(1);
       }
     } catch (Exception e) {
@@ -1448,18 +1448,22 @@ public class GrouperBackend {
   /* (!javadoc)
    * Attach attributes to a group.
    * FIXME Won't calling g.attribute(...) eventually cause the group's
-   *       modify attrs to be updated every time this group is laoded?
+   *       modify attrs to be updated every time this group is loaded?
    *      
    *       But perhaps the `initialized' hack that I added for another
    *       reason will work?
    */
-  private static void _groupAttachAttrs(Session session, GrouperGroup g, String key) {
-    // TODO Do I even need `key' passed in?
-    Iterator iter = GrouperBackend.attributes(g).iterator();
-    while (iter.hasNext()) {
-      GrouperAttribute attr = (GrouperAttribute) iter.next();
-      g.attribute( attr.field(), attr.value() );
+  private static boolean _groupAttachAttrs(Session session, GrouperGroup g) {
+    boolean rv = false;
+    if (g != null) {
+      Iterator iter = GrouperBackend.attributes(g).iterator();
+      while (iter.hasNext()) {
+        GrouperAttribute attr = (GrouperAttribute) iter.next();
+        g.attribute( attr.field(), attr.value() );
+        rv = true;
+      }
     }
+    return rv;
   }
 
   // FIXME Refactor.  Mercilesssly.
