@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.2 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: ChoiceImpl.java,v 1.3 2005-03-01 20:42:49 acohen Exp $
+$Date: 2005-03-01 20:42:49 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,9 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
@@ -237,5 +240,40 @@ class ChoiceImpl implements Choice
   void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
+  }
+  
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object obj)
+  {
+    if ( !(obj instanceof ChoiceImpl) )
+    {
+      return false;
+    }
+    
+    ChoiceImpl rhs = (ChoiceImpl) obj;
+    return new EqualsBuilder()
+    	.append(this.displayOrder, rhs.displayOrder)
+    	.append(this.rank, rank)
+      .append(this.displayValue, rhs.displayValue)
+      .append(this.value, rhs.value)
+      .isEquals();
+  }
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode()
+  {
+    // you pick a hard-coded, randomly chosen, non-zero, odd number
+    // ideally different for each class
+    return new HashCodeBuilder(17, 37)
+  		.append(this.displayOrder)
+  		.append(this.rank)
+  		.append(this.displayValue)
+  		.append(this.value)
+      .toHashCode();
   }
 }

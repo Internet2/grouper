@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.9 2005-02-25 23:13:06 acohen Exp $
-  $Date: 2005-02-25 23:13:06 $
+  $Id: confirm.jsp,v 1.10 2005-03-01 20:42:49 acohen Exp $
+  $Date: 2005-03-01 20:42:49 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -157,7 +157,7 @@
             <table class="invis">
 <%
   Limit[] limits = currentAssignment.getFunction().getLimitsArray();
-  LimitValue[] limitValues = currentAssignment.getLimitValuesArray();
+  LimitValue[] limitValues = currentAssignment.getLimitValuesInDisplayOrder();
   for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
   {
     Limit limit = limits[limitIndex];

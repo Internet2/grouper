@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.6 2005-02-20 07:31:14 acohen Exp $
-$Date: 2005-02-20 07:31:14 $
+$Id: Assignment.java,v 1.7 2005-03-01 20:42:49 acohen Exp $
+$Date: 2005-03-01 20:42:49 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,8 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+
+import edu.internet2.middleware.signet.choice.Choice;
 
 /**
 * 
@@ -158,6 +160,14 @@ throws SignetAuthorityException;
  * along with the values of those Limits.
  */
 public LimitValue[] getLimitValuesArray();
+
+/**
+ * Returns all of the Limits and Limit-values applied to this Assignment, in
+ * display order.
+ * @return all of the Limits and Limit-values applied to this Assignment, in
+ * display order.
+ */
+public LimitValue[] getLimitValuesInDisplayOrder();
 
 ///**
 // * @return the PrivilegedSubject who is the proxy that created/modified this 

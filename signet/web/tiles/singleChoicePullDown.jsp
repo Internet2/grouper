@@ -16,20 +16,18 @@ String limitParamName = LimitRenderer.makeLimitValueParamName(limit);
 <select class="<%=limit.getDataType()%>" name="<%=limitParamName%>">
 
 <% 
-Iterator choicesIterator = limit.getChoiceSet().getChoices().iterator();
-boolean isFirstChoice = true;
+Choice[] choices = limit.getChoiceSet().getChoicesInDisplayOrder();
     
-while (choicesIterator.hasNext())
+for (int i = 0; i < choices.length; i ++)
 {
-  Choice choice = (Choice)(choicesIterator.next());
+  Choice choice = choices[i];
 %>
 
- <option <%=(isFirstChoice ? " selected" : "")%> value=<%=choice.getValue()%>>
+ <option <%=((i == 0) ? " selected" : "")%> value=<%=choice.getValue()%>>
     <%=choice.getDisplayValue()%>
   </option>
 
 <%
-  isFirstChoice = false;
 }
 %>
 

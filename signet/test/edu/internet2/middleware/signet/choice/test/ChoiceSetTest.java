@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetTest.java,v 1.7 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: ChoiceSetTest.java,v 1.8 2005-03-01 20:42:49 acohen Exp $
+$Date: 2005-03-01 20:42:49 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
 import edu.internet2.middleware.signet.test.Constants;
@@ -133,6 +134,36 @@ public class ChoiceSetTest extends TestCase
       // and so on.
       Set choices = choiceSet.getChoices();
       assertEquals(choiceSetIndex + 1, choices.size());
+    }
+  }
+  
+  public final void testGetChoicesInDisplayOrder()
+  throws ObjectNotFoundException
+  {
+    for (int choiceSetIndex = 0;
+		 		 choiceSetIndex < Constants.MAX_CHOICE_SETS;
+		 		 choiceSetIndex++)
+    {
+      ChoiceSet choiceSet
+      	= signet
+      			.getSubsystem(Constants.SUBSYSTEM_ID)
+      				.getChoiceSet
+      					(fixtures.makeChoiceSetId(choiceSetIndex));
+
+      // choiceSet 0 contains choice 0, choiceSet 1 contains choices 0 and 1,
+      // and so on. We'll just make sure that the various choiceSets are in
+      // display order.
+      Choice[] orderedChoices = choiceSet.getChoicesInDisplayOrder();
+
+      int maxDisplayOrderSoFar = 0;
+      for (int i = 0; i < orderedChoices.length; i++)
+      {
+        Choice choice = orderedChoices[i];
+        assertTrue
+        	("The display-order of sorted Choices must never descend.",
+        	 choice.getDisplayOrder() >= maxDisplayOrderSoFar);
+        maxDisplayOrderSoFar = choice.getDisplayOrder();
+      }      
     }
   }
 }

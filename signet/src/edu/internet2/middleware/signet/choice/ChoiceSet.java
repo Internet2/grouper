@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.5 2005-02-20 07:31:14 acohen Exp $
-$Date: 2005-02-20 07:31:14 $
+$Id: ChoiceSet.java,v 1.6 2005-03-01 20:42:49 acohen Exp $
+$Date: 2005-03-01 20:42:49 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,6 +10,7 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.choice;
 
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -43,6 +44,14 @@ public interface ChoiceSet
 	 * Returns all of the Choices contained by this ChoiceSet.
 	 */
 	public Set getChoices();
+	
+	/**
+	 * Returns all of the Choices contained by this ChoiceSet, in display
+	 * order.
+	 * @return all of the Choices contained by this ChoiceSet, in display
+	 * order.
+	 */
+	public Choice[] getChoicesInDisplayOrder();
 	
 	/**
 	 * Retrieves the Choice in a ChoiceSet with the specified value.

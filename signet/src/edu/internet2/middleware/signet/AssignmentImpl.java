@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.6 2005-02-21 23:27:34 acohen Exp $
- $Date: 2005-02-21 23:27:34 $
+ $Id: AssignmentImpl.java,v 1.7 2005-03-01 20:42:49 acohen Exp $
+ $Date: 2005-03-01 20:42:49 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@
  */
 package edu.internet2.middleware.signet;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -600,5 +601,15 @@ implements Assignment, Comparable
   void setLimitValues(Set limitValues)
   {
     this.limitValues = limitValues;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getLimitValuesInDisplayOrder()
+   */
+  public LimitValue[] getLimitValuesInDisplayOrder()
+  {
+    LimitValue[] limitValues = this.getLimitValuesArray();
+    Arrays.sort(limitValues, new LimitValueDisplayOrderComparator());
+    return limitValues;
   }
 }

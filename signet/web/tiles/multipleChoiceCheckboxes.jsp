@@ -12,14 +12,15 @@
 <%
 String limitValueParamName = LimitRenderer.makeLimitValueParamName(limit);
 Iterator choicesIterator = limit.getChoiceSet().getChoices().iterator();
-int choiceNumber = 0;
+
+Choice[] choices = limit.getChoiceSet().getChoicesInDisplayOrder();
     
-while (choicesIterator.hasNext())
+for (int i = 0; i < choices.length; i ++)
 {
-  Choice choice = (Choice)(choicesIterator.next());
+  Choice choice = choices[i];
 %>
 
-  <%=((choiceNumber > 0) ? "<br />" : "")%>
+  <%=((i > 0) ? "<br />" : "")%>
 
   <input
      name="<%=limitValueParamName%>"
@@ -31,7 +32,6 @@ while (choicesIterator.hasNext())
   </label>
 
 <%
-  choiceNumber++;
 }
 %>
 

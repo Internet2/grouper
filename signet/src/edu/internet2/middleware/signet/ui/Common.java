@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.6 2005-02-28 16:21:14 acohen Exp $
-  $Date: 2005-02-28 16:21:14 $
+  $Id: Common.java,v 1.7 2005-03-01 20:42:49 acohen Exp $
+  $Date: 2005-03-01 20:42:49 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -94,7 +94,7 @@ public class Common
     StringBuffer strBuf = new StringBuffer();
 
     Limit[] limits = assignment.getFunction().getLimitsArray();
-    LimitValue[] limitValues = assignment.getLimitValuesArray();
+    LimitValue[] limitValues = assignment.getLimitValuesInDisplayOrder();
     for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
     {
       Limit limit = limits[limitIndex];

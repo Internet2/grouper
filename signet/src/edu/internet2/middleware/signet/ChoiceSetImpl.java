@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.2 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: ChoiceSetImpl.java,v 1.3 2005-03-01 20:42:49 acohen Exp $
+$Date: 2005-03-01 20:42:49 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -281,5 +282,17 @@ class ChoiceSetImpl implements ChoiceSet
     return new EqualsBuilder()
                     .append(this.getId(), rhs.getId())
                     .isEquals();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.choice.ChoiceSet#getChoicesInDisplayOrder()
+   */
+  public Choice[] getChoicesInDisplayOrder()
+  {
+    Choice[] choiceArray = new Choice[0];
+    choiceArray = (Choice[])(this.getChoices().toArray(choiceArray));
+    
+    Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
+    return choiceArray;
   }
 }
