@@ -64,29 +64,34 @@
  * % javac subject2csv.java
  * % java subject2csv /path/to/csv/file
  *
- * $Id: csv2subject.java,v 1.3 2004-12-03 15:06:28 blair Exp $ 
+ * $Id: csv2subject.java,v 1.4 2004-12-03 15:31:35 blair Exp $ 
  */
 
-import  java.io.BufferedReader;
-import  java.io.File;
-import  java.io.FileReader;
-import  java.io.IOException;
+import  java.io.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
-import  java.util.StringTokenizer;
+import  java.util.*;
 
 class csv2subject {
-  /* 
-   * Update these variables to match your local configuration.
-   */ 
-  public static String     jdbcDriver    = "com.mysql.jdbc.Driver";
-  public static String     jdbcUrl       = "jdbc:mysql://localhost:3306/grouper";
-  public static String     jdbcUsername  = "grouper";
-  public static String     jdbcPassword  = "gr0up3r";
 
-  public static Connection con           = null;
+  /*
+   * PRIVATE CONSTANTS
+   */
+  private static final String cf = "csv2subject.properties";
+
+
+  /*
+   * PRIVATE CLAS VARIABLES
+   */
+  private static Properties conf    = new Properties();
+  private static Connection conn    = null;
+  private static boolean    verbose = true;
+
 
   public static void main(String[] args) {
+    _cfRead();
+
+/*
     if (args.length == 1) {
       File f = new File(args[0]);
       if (!f.exists()) {
@@ -120,8 +125,10 @@ class csv2subject {
       System.err.println("USAGE: subject2csv /path/to/csv/file");
       System.exit(64);
     }
+*/
   }
 
+/*
   // Initialize the JDBC connection
   private static void _createConnection() {
     try {
@@ -132,9 +139,11 @@ class csv2subject {
       System.exit(1);
     }
   }
+*/
 
   // Inserts the memberID, presentationID pair into the
   // 'grouper_members' table 
+/*
   private static void _insertMember(String memberID, String presentationID) {
     Statement stmt = null;
     try { 
@@ -154,6 +163,42 @@ class csv2subject {
     } catch (Exception e) {
       System.err.println("Unable to create statement");
       System.exit(1);
+    }
+  }
+*/
+
+  /* (!javadoc)
+   *
+   * @return Boolean true if succesful.
+   */
+  private static void _cfRead() {
+    try {
+      FileInputStream in = new FileInputStream(cf);
+      try { 
+        conf.load(in);
+      } catch (IOException ie) { 
+        System.err.println("Unable to read '" + cf + "'");
+        System.exit(1);
+      }
+    } catch (FileNotFoundException fe) {
+      System.err.println("Could not find '" + cf + "'");
+      System.exit(1);
+    }
+    _verbose("driver    " + conf.get("jdbc.driver"));
+    _verbose("url       " + conf.get("jdbc.url"));
+    _verbose("username  " + conf.get("jdbc.username"));
+    _verbose("password  " + conf.get("jdbc.password"));
+  }
+
+  /* (!javadoc)
+   *
+   * Conditionally print messages depending upon verbosity level.
+   * <p />
+   * @param   msg Message to print if running verbosely.
+   */
+  private static void _verbose(String msg) {
+    if (verbose == true) {
+      System.err.println(msg);
     }
   }
 
