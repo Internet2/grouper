@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.24 2004-11-23 22:16:43 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.25 2004-11-28 17:09:45 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -235,6 +235,26 @@ public class GrouperNamingImpl implements GrouperNaming {
     } 
     // TODO I should probably throw an exception if invalid priv
     return rv;
+  }
+
+  /**
+   * List members who have the specified privilege on the 
+   * specified group.
+   * <p />
+   * See implementations for more information.
+   *
+   * @param   s     Act within this {@link GrouperSession}.
+   * @param   g     Query for this {@link GrouperGroup}.
+   * @param   priv  Query for this privilege type.
+   * @return  List of {@link GrouperMember} members.
+   */
+  public List whoHas(GrouperSession s, GrouperGroup g, String priv) {
+    GrouperNamingImpl._init();
+    List members = new ArrayList();
+    if (this.can(priv) == true) {
+      members = GrouperBackend.listVals(s, g, (String) privMap.get(priv));
+    } // TODO Exception if invalid priv?
+    return members;
   }
 
 
