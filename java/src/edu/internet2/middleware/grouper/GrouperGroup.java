@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.67 2004-11-13 04:28:20 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.68 2004-11-15 16:25:32 blair Exp $
  */
 public class GrouperGroup {
 
@@ -76,7 +76,7 @@ public class GrouperGroup {
     // and that this subject is privileged to create this group.
     if (g._validateCreate()) {
       // And now attempt to add the group to the store
-      GrouperBackend.addGroup(s, g);
+      GrouperBackend.groupAdd(s, g);
       g.exists = true;
     }
     return g;
@@ -94,7 +94,7 @@ public class GrouperGroup {
                                   String stem, 
                                   String descriptor)
   {
-    return GrouperBackend.group(s, stem, descriptor);
+    return GrouperBackend.groupLoad(s, stem, descriptor);
   }
 
   /*
@@ -153,18 +153,16 @@ public class GrouperGroup {
       // persistent store.
       if (this.attributes.containsKey("stem")) {
         // We need a stem
-        // BDC String stem = this.attribute("stem").value();
         if (this.attributes.containsKey("descriptor")) {
           // And a descriptor
-          // BDC String desc = this.attribute("descriptor").value();
           if (this.grprSession != null) {
             // And a session to load a group
             // FIXME Provide a method of confirming a group's existence
             //       that doesn't rely upon loading a group and checking for
             //       the presence of a `key'.
-            GrouperGroup g = GrouperBackend.group(this.grprSession,
-                                                  this.attribute("stem").value(),
-                                                  this.attribute("descriptor").value());
+            GrouperGroup g = GrouperBackend.groupLoad(this.grprSession,
+                                                      this.attribute("stem").value(),
+                                                      this.attribute("descriptor").value());
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
             if (g.key() != null) {
@@ -238,13 +236,13 @@ public class GrouperGroup {
    * @return  A string representation of the object.
    */
   public String toString() {
-    GrouperAttribute stem = (GrouperAttribute) attributes.get("stem");
-    GrouperAttribute desc = (GrouperAttribute) attributes.get("desc");
-    return this.getClass()  + ":" +
-           this.key         + ":" + 
-           stem.value()     + ":" +
-           desc.value(); 
+    // TODO This should probably return UUID, not key
+    return this.getClass()                        + ":" +
+           this.key                               + ":" + 
+           this.attribute("stem").value()         + ":" +
+           this.attribute("descriptor").value();
   }
+
 
   /*
    * PRIVATE INSTANCE METHODS

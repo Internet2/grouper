@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.31 2004-11-13 05:26:48 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.32 2004-11-15 16:25:32 blair Exp $
  */
 public class GrouperBackend {
 
@@ -53,54 +53,6 @@ public class GrouperBackend {
   /*
    * PROTECTED CLASS METHODS 
    */
-
-  /**
-   * Add {@link GrouperGroup} to backend store.
-   *
-   * @param s {@link GrouperSession}
-   * @param g {@link GrouperGroup} to add
-   */
-  protected static void addGroup(GrouperSession s, GrouperGroup g) {
-    GrouperBackend._init();
-    try {
-      Transaction t = session.beginTransaction();
-
-      // The Group object
-      session.save(g);
-
-      // FIXME 
-      String gt = "base";
-      // The Group schema
-      GrouperSchema schema = new GrouperSchema(g.key(), gt);
-      session.save(schema);
-
-      // The Group attributes
-      Map attributes = g.attributes();
-      for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
-        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        attr.set(g.key(), attr.field(), attr.value());
-        session.save(attr);
-      }
-
-      // And make the creator a member of the "admins" list
-      GrouperMembership mship = new GrouperMembership(); 
-      // FIXME Group Key is private.  Fuck!  How to manage?
-      //       But wait!  GUID!
-      // TODO Don't hardcode "admins"
-      // TODO And really, this should be assign a priv, via the priv
-      //      interface, rather than just assuming we are using Grouper's
-      //      internal priv model.
-      mship.set(g.key(), "admins", s.subject().getId(), true);
-      session.save(mship);
-
-      t.commit();
-    } catch (Exception e) {
-      // TODO We probably need a rollback in here in case of failure
-      //      above.
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
 
   /**
    * Add a new {@link GrouperSession}.
@@ -365,42 +317,6 @@ public class GrouperBackend {
   }
 
   // TODO
-  protected static void loadGroup(GrouperSession s, GrouperGroup g, String key) {
-    GrouperBackend._init();
-    try {
-      // Attempt to load a stored group into the current object
-      Transaction tx = session.beginTransaction();
-      session.load(g, key);
-      
-      // Its schema
-      List schemas = GrouperBackend.schemas(g);
-      if (schemas.size() == 1) {
-        GrouperSchema schema = (GrouperSchema) schemas.get(0);
-        // TODO Attach this to the group object.
-      } else {
-        System.err.println("Found " + schemas.size() + 
-                           " schema definitions.");
-        System.exit(1);
-      }
-
-      // And its attributes
-      List attrs = GrouperBackend.attributes(g);
-      for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
-        GrouperAttribute attr = (GrouperAttribute) attrIter.next();
-        g.attribute( attr.field(), attr.value() );
-      }
-
-      // FIXME Attach s to object?
-
-      tx.commit();
-    } catch (Exception e) {
-      // TODO Rollback if load fails?  Unset this.exists?
-      System.err.println(e);
-      System.exit(1);
-    }
-  }
-
-  // TODO
   protected static List stems(GrouperSession s, String stem) {
     GrouperBackend._init();
     List stems = new ArrayList();
@@ -569,11 +485,66 @@ public class GrouperBackend {
     return null;
   }
 
-  protected static GrouperGroup group(GrouperSession s, 
-                                      String stem,
-                                      String descriptor) 
-  {
+  /**
+   * Add {@link GrouperGroup} to backend store.
+   *
+   * @param s {@link GrouperSession}
+   * @param g {@link GrouperGroup} to add
+   */
+  protected static void groupAdd(GrouperSession s, GrouperGroup g) {
     GrouperBackend._init();
+    try {
+      Transaction t = session.beginTransaction();
+
+      // The Group object
+      session.save(g);
+
+      // FIXME 
+      String gt = "base";
+      // The Group schema
+      GrouperSchema schema = new GrouperSchema(g.key(), gt);
+      session.save(schema);
+
+      // The Group attributes
+      Map attributes = g.attributes();
+      for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
+        GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
+        attr.set(g.key(), attr.field(), attr.value());
+        session.save(attr);
+      }
+
+      // And make the creator a member of the "admins" list
+      GrouperMembership mship = new GrouperMembership(); 
+      // FIXME Group Key is private.  Fuck!  How to manage?
+      //       But wait!  GUID!
+      // TODO Don't hardcode "admins"
+      // TODO And really, this should be assign a priv, via the priv
+      //      interface, rather than just assuming we are using Grouper's
+      //      internal priv model.
+      mship.set(g.key(), "admins", s.subject().getId(), true);
+      session.save(mship);
+
+      t.commit();
+    } catch (Exception e) {
+      // TODO We probably need a rollback in here in case of failure
+      //      above.
+      System.err.println(e);
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Retrieve {@link GrouperGroup} from backend store.
+   */
+  protected static GrouperGroup groupLoad(GrouperSession s, 
+                                          String stem,
+                                          String descriptor) 
+  {
+    // TODO Refactor out common code in the two versions of groupLoad()
+    GrouperBackend._init();
+
+    GrouperGroup  g   = null;
+    String        key = null;
 
     // TODO Please.  Make this better.  Please, please, please.
     //      For whatever reason, SQL and quality code are evading
@@ -610,7 +581,14 @@ public class GrouperBackend {
                   "groupKey='" + possDesc.key()     + "'"
                 );
                 if (q.list().size() == 1) {
-                  return (GrouperGroup) q.list().get(0);
+                  // Restore group
+                  g   = (GrouperGroup) q.list().get(0);
+                  key = possDesc.key();
+                  //GrouperGroup ng = new GrouperGroup();
+                  // Move|Duplicate Hibernate load here?
+                  GrouperBackend.groupLoad(s, g, key);
+                  //return ng;
+                  return g;
                 }
               } catch (Exception e) {
                 System.err.println(e);
@@ -625,6 +603,32 @@ public class GrouperBackend {
     //      other classes, I return null.  Standardize.  I *probably*
     //      should return null.
     return new GrouperGroup();
+  }
+
+  /**
+   * Retrieve {@link GrouperGroup} from backend store.
+   */
+  protected static void groupLoad(GrouperSession s, GrouperGroup g, String key) {
+    GrouperBackend._init();
+    try {
+      // Attempt to load a stored group into the current object
+      Transaction tx = session.beginTransaction();
+      session.load(g, key);
+  
+      // Its schema
+      GrouperBackend._groupLoadSchema(g, key);
+   
+      // And its attributes
+      GrouperBackend._groupLoadAttributes(g, key);
+
+      // FIXME Attach s to object?
+
+      tx.commit();
+    } catch (Exception e) {
+      // TODO Rollback if load fails?  Unset this.exists?
+      System.err.println(e);
+      System.exit(1);
+    }
   }
 
   /**
@@ -691,6 +695,27 @@ public class GrouperBackend {
         System.err.println(e);
         System.exit(1);
       }
+    }
+  }
+
+  private static void _groupLoadAttributes(GrouperGroup g, String key) {
+    // TODO Do I even need `key' passed in?
+    List attrs = GrouperBackend.attributes(g);
+    for (Iterator attrIter = attrs.iterator(); attrIter.hasNext();) {
+      GrouperAttribute attr = (GrouperAttribute) attrIter.next();
+      g.attribute( attr.field(), attr.value() );
+    }
+  }
+
+  private static void _groupLoadSchema(GrouperGroup g, String key) { 
+    List schemas = GrouperBackend.schemas(g);
+    if (schemas.size() == 1) {
+      GrouperSchema schema = (GrouperSchema) schemas.get(0);
+      // TODO Attach this to the group object.
+    } else {
+      System.err.println("Found " + schemas.size() + 
+                         " schema definitions.");
+      System.exit(1);
     }
   }
 
