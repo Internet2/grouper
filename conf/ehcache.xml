@@ -78,15 +78,6 @@
   />
 
   <!-- XXX I have no idea what is appropriate for this cache -->
-  <cache name="edu.internet2.middleware.group.GrouperSubject"
-    maxElementsInMemory="10000"
-    eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- XXX I have no idea what is appropriate for this cache -->
   <cache name="edu.internet2.middleware.group.GrouperSubjectAttribute"
     maxElementsInMemory="10000"
     eternal="false"
@@ -132,6 +123,24 @@
   />
 
   <!-- XXX I have no idea what is appropriate for this cache -->
+  <cache name="edu.internet2.middleware.group.SubjectImpl"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- Non-mutable table with few items -->
+  <cache name="edu.internet2.middleware.grouper.SubjectTypeImpl"
+    maxElementsInMemory="100"
+    eternal="true"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
+  <!-- XXX I have no idea what is appropriate for this cache -->
   <cache name="net.sf.hibernate.cache.QueryCache"
     maxElementsInMemory="10000"
     eternal="false"
@@ -144,15 +153,6 @@
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="10000"
     eternal="false"
-    timeToIdleSeconds="300"
-    timeToLiveSeconds="600"
-    overflowToDisk="true"
-  />
-
-  <!-- Non-mutable table with few items -->
-  <cache name="edu.internet2.middleware.grouper.SubjectTypeImpl"
-    maxElementsInMemory="100"
-    eternal="true"
     timeToIdleSeconds="300"
     timeToLiveSeconds="600"
     overflowToDisk="true"

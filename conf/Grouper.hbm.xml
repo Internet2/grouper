@@ -105,16 +105,6 @@
     </property>
   </class>
 
-  <class name="GrouperSubject" table="grouper_subject">
-    <id name="subjectID" type="string" unsaved-value="null" >
-      <column name="subjectID" sql-type="char(255)" not-null="true"/>
-      <generator class="assigned"/>
-    </id>
-    <property name="subjectTypeID">
-      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
-    </property>
-  </class>
-
   <class name="GrouperSubjectAttribute" table="grouper_SubjectAttribute">
     <composite-id access="field">
       <key-property name="subjectID"     type="string" column="subjectID"/>
@@ -148,6 +138,16 @@
       <key-property name="groupType"  type="string" column="groupType"/>
       <key-property name="groupField" type="string"  column="groupField"/>
     </composite-id>
+  </class>
+
+  <class name="SubjectImpl" table="grouper_subject">
+    <id name="subjectID" type="string" unsaved-value="null" >
+      <column name="subjectID" sql-type="char(255)" not-null="true"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="subjectTypeID">
+      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
+    </property>
   </class>
 
   <class name="SubjectTypeImpl" table="grouper_subjectType" mutable="false">
