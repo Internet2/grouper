@@ -10,6 +10,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -23,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.26 2004-11-12 16:38:29 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.27 2004-11-12 17:55:30 blair Exp $
  */
 public class GrouperBackend {
 
@@ -587,6 +588,40 @@ public class GrouperBackend {
     }
     return new GrouperGroup();
   }
+
+  /**
+   * Query for a single {@link Subject} using the default, internal
+   * subject store.
+   *
+   * @return  {@link Subject} object or null.
+   */
+  protected static Subject subject(String id, String typeID) {
+    GrouperBackend._init();
+    Subject subj = null;
+    try {
+      Query q = session.createQuery(
+        "SELECT ALL FROM GROUPER_SUBJECT "     +
+        "IN CLASS edu.internet2.middleware.grouper.SubjectImpl " +
+        "WHERE "                              +
+        "subjectID='"     + id      + "' "    + 
+        "AND "                                +
+        "subjectTypeID='" + typeID  + "'"
+      );
+      if (q.list().size() == 1) {
+        // We only want *one* subject.
+        subj = (Subject) q.list().get(0);
+        System.err.println("YES! " + id + " + " + typeID + " + " + subj);
+      } else {
+        System.err.println("NO!  " + id + " + " + typeID);
+      }
+      // TODO Throw an exception?
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    return subj;
+  }
+
 
   /*
    * PRIVATE INSTANCE METHODS

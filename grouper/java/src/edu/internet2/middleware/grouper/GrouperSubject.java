@@ -11,27 +11,19 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.io.Serializable;
 import  java.util.*;
-import  org.apache.commons.lang.builder.EqualsBuilder;
-import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
  * Class for performing subject lookups.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.18 2004-11-12 17:38:36 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.19 2004-11-12 17:55:30 blair Exp $
  */
-public class GrouperSubject implements Serializable {
-
-  // What we need to identify a subject
-  private String id;
-  private String typeID;
-
+public class GrouperSubject {
 
   public GrouperSubject() {
-    this._init();
+    super();
   }
     
 
@@ -48,6 +40,8 @@ public class GrouperSubject implements Serializable {
    */
   public static Subject lookup(String id, String typeID) {
     Subject     subj  = null;
+    // TODO Add static map of adapters and instantiated objects for
+    //      each?
     SubjectType st    = Grouper.subjectType(typeID);
     if (st != null) {
       SubjectTypeAdapter sta = st.getAdapter();
@@ -62,40 +56,6 @@ public class GrouperSubject implements Serializable {
       }
     }
     return subj;
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initailize instance variables
-   */
-  private void _init() {
-    this.id     = null;
-    this.typeID = null;
-  }
-
-
-  /*
-   * HIBERNATE
-   */
-
-  private String getSubjectID() {
-    return this.id;
-  }
-
-  private void setSubjectID(String id) {
-    this.id = id;
-  }
-
-  private String getSubjectTypeID() {
-    return this.typeID;
-  }
-
-  private void setSubjectTypeID(String typeID) {
-    this.typeID = typeID;
   }
 
 }
