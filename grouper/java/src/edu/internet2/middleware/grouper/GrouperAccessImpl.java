@@ -59,7 +59,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.39 2004-12-06 02:10:28 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.40 2004-12-06 20:15:13 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -127,7 +127,7 @@ public class GrouperAccessImpl implements GrouperAccess {
          * FIXME I should be doing a GroupField lookup on `priv'
          */
         if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-          Grouper.LOGGER.debug("Grant " + priv + " on " + g + " to " + m);
+          Grouper.LOG.debug("Grant " + priv + " on " + g + " to " + m);
           if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
             rv = true;
           }

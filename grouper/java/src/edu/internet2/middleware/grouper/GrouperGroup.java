@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.132 2004-12-06 19:16:34 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.133 2004-12-06 20:15:13 blair Exp $
  */
 public class GrouperGroup {
 
@@ -243,7 +243,7 @@ public class GrouperGroup {
            )
          ) 
       {
-        Grouper.LOGGER.info(
+        Grouper.LOG.info(
           "ERROR: `" + attribute + "' modification is not currently supported!"
         );
       } else {
@@ -273,7 +273,7 @@ public class GrouperGroup {
           if (rv != true) {
             // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
-              Grouper.LOGGER.warn("Unable to revert failed attribute delete!");
+              Grouper.LOG.warn("Unable to revert failed attribute delete!");
               System.exit(1);
             }
             // Revert modify* attr changes 
@@ -332,7 +332,7 @@ public class GrouperGroup {
           } else {
             // Revert attribute change
             if (!this._attrAdd(attribute, cur)) {
-              Grouper.LOGGER.warn("Unable to revert failed attribute update!");
+              Grouper.LOG.warn("Unable to revert failed attribute update!");
               System.exit(1);
             }
             // Revert modify* attr changes 
@@ -714,7 +714,7 @@ public class GrouperGroup {
       attributes.put(attribute, attr);
       rv = true;
     } else {
-      Grouper.LOGGER.warn("Unable to add attribute " + attribute);
+      Grouper.LOG.warn("Unable to add attribute " + attribute);
     }
     return rv;
   }
@@ -729,7 +729,7 @@ public class GrouperGroup {
     if (attr != null) {
       attributes.put(attribute, attr);
     } else {
-      Grouper.LOGGER.warn("Unable to add attribute " +
+      Grouper.LOG.warn("Unable to add attribute " +
                           attribute + "=" + value);
     }
   }
@@ -757,11 +757,10 @@ public class GrouperGroup {
          * TODO Group already exists.  Ideally we'd throw an exception or
          *      something, but, for now...
          */
-        Grouper.LOGGER.info(
-                            "Cannot create `" +
-                            GrouperBackend.groupName(stem, extn) +
-                            "' (" + type + ") as it already exists."
-                           );
+        Grouper.LOG.info(
+          "Cannot create `" + GrouperBackend.groupName(stem, extn) +
+          "' (" + type + ") as it already exists."
+        );
         g = null;
       } else {
         String name = GrouperBackend.groupName(stem, extn);
@@ -809,10 +808,10 @@ public class GrouperGroup {
         }
       }
     } else {
-      Grouper.LOGGER.info(
-        "Subject does not have "  + 
-        Grouper.PRIV_CREATE       +
-        " privileges on this stem");
+      Grouper.LOG.info(
+        "Subject does not have " + Grouper.PRIV_CREATE + 
+        " privileges on this stem"
+      );
     }
     return g;
   }
