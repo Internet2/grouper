@@ -61,7 +61,7 @@ import  java.lang.reflect.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.11 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.12 2004-12-09 01:28:38 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
@@ -133,6 +133,11 @@ public class SubjectTypeImpl implements SubjectType {
     return this.name;
   }
 
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
   public String toString() {
     return this.getClass().getName()  + ":" +
            this.getId()               + ":" +

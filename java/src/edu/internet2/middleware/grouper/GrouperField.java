@@ -56,7 +56,7 @@ package edu.internet2.middleware.grouper;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.15 2004-12-01 04:25:55 blair Exp $
+ * @version $Id: GrouperField.java,v 1.16 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperField {
 
@@ -85,6 +85,11 @@ public class GrouperField {
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
   public String toString() {
     return  this.getGroupField()  + ":" + 
             this.getReadPriv()    + ":" +

@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.15 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.16 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -92,6 +92,14 @@ public class GrouperTypeDef implements Serializable {
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * Compares the specified object with this type definition for equality.
+   * <p />
+   * @param o Object to be compared for equality with this type
+   *   definition.
+   * @return  True if the specified object is equal to this type
+   *   definition.
+   */
   public boolean equals(Object o) {
      return EqualsBuilder.reflectionEquals(this, o);
    }
@@ -114,10 +122,20 @@ public class GrouperTypeDef implements Serializable {
     return this.getGroupType();
   }
 
+  /**
+   * Returns the hash code value for this type definition.
+   * <p />
+   * @return  The hash code value for this type definition.
+   */
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
 
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
   public String toString() {
     return this.getGroupType()  + ":" + this.getGroupField();
   }

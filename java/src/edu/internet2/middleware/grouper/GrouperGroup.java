@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.141 2004-12-08 03:03:36 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.142 2004-12-09 01:28:38 blair Exp $
  */
 public class GrouperGroup {
 
@@ -562,10 +562,9 @@ public class GrouperGroup {
   }
 
   /**
-   * Return a string representation of the {@link GrouperSchema}
-   * object.
+   * Return a string representation of this object.
    * <p />
-   * @return String representation of the object.
+   * @return String representation of this object.
    */
   public String toString() {
     // TODO GrouperAttribute stem = (GrouperAttribute) this.attributes.get("stem");
