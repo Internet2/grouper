@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -19,7 +20,7 @@ import  java.util.*;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.13 2004-08-24 17:37:57 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.14 2004-09-10 18:23:08 blair Exp $
  */
 public interface GrouperAccess {
   /**

@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -19,7 +20,7 @@ import  java.io.Serializable;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.6 2004-09-10 01:48:08 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.7 2004-09-10 18:23:09 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 

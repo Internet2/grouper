@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +24,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.28 2004-09-10 17:51:12 blair Exp $
+ * @version $Id: Grouper.java,v 1.29 2004-09-10 18:23:08 blair Exp $
  */
 public class Grouper {
 

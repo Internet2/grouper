@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2004 TODO
+ * Copyright (C) 2004 Internet2
+ * Copyright (C) 2004 The University Of Chicago
  * All Rights Reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -21,7 +22,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.24 2004-09-10 18:16:49 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.25 2004-09-10 18:23:08 blair Exp $
  */
 public class GrouperMember {
 
