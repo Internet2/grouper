@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.36 2005-03-15 15:06:39 blair Exp $
+ * @version $Id: GrouperList.java,v 1.37 2005-03-15 15:10:39 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -77,7 +77,6 @@ public class GrouperList implements Serializable {
   private String          groupField;
   private String          memberKey;
   private String          pathKey;
-  private String          removeAfter;
   private GrouperSession  s;
   private String          viaKey;
 
@@ -277,7 +276,6 @@ public class GrouperList implements Serializable {
     this.groupKey     = null;
     this.groupField   = null;
     this.memberKey    = null;
-    this.removeAfter  = null;
     this.viaKey       = null;
   }
 
@@ -324,14 +322,6 @@ public class GrouperList implements Serializable {
 
   private void setViaKey(String viaKey) {
     this.viaKey = viaKey;
-  }
-
-  private String getRemoveAfter() {
-    return this.removeAfter;
-  }
-
-  private void setRemoveAfter(String removeAfter) {
-    this.removeAfter = removeAfter;
   }
 
 }
