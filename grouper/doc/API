@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.39 2004-12-09 05:37:39 blair Exp $
+$Id: API,v 1.40 2004-12-09 14:09:56 blair Exp $
 
 ---
 
@@ -91,12 +91,6 @@ $Id: API,v 1.39 2004-12-09 05:37:39 blair Exp $
 * String              field()
 * String              value()
 
-### GrouperBackend
-
-#### Class Methods
-
-* String              groupName(stem, extension)
-
 ### GrouperGroup
 
 #### Class Methods
@@ -104,6 +98,7 @@ $Id: API,v 1.39 2004-12-09 05:37:39 blair Exp $
 * GrouperGroup        create(session, stem, extension)
 * GrouperGroup        create(session, stem, extension, groupType)
 * boolean             delete(session, group)
+* String              groupName(stem, extension)
 * GrouperGroup        load(session, stem, extension)
 * GrouperGroup        load(session, stem, extension, groupType)
 * GrouperGroup        loadByID(session, groupID)
