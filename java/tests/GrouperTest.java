@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.25 2004-08-26 18:19:34 blair Exp $
+ * $Id: GrouperTest.java,v 1.26 2004-08-27 18:33:41 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -472,5 +472,40 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
+  /*
+   * Fetch a group
+   */
+  public void testFetchGroup() {
+    G = new Grouper();
+    G.initialize();
+    GrouperSession s = new GrouperSession();
+    s.start( G, G.config("member.system"), true );
+    GrouperGroup grp = new GrouperGroup();
+    // Attach a session
+    grp.session(s);
+
+    // Identify the group
+    grp.attribute("stem", "stem.1");
+    grp.attribute("descriptor", "descriptor.1");
+
+    // Confirm the class type of the group
+    Class  klass    = grp.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperGroup";
+
+    Assert.assertNotNull(grp);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  
+    // Confirm that we can fetch an attribute and that it 
+    // matches what we expect. 
+    GrouperAttribute description  = grp.attribute("description");
+    String expDescription         = "group.1";
+
+    Assert.assertNotNull(description);
+    Assert.assertTrue( expDescription.equals(description.value()) );
+
+    // We're done
+    s.end();
+    G.destroy();
+  }
 }
 
