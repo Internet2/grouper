@@ -52,16 +52,19 @@
 /*
  * Sample loader for populating the 'grouper_members' table from a CSV
  * file of the format: 
- *  memberId,presentationID
+ *  subjectID,subjectTypeID
  *
  * You will need to modify the jdbc* variables to reflect your local
  * configuration.
  *
- * Usage:
- * % javac LoadGrouperMembersTableFromCSV.java
- * % java LoadGrouperMembersTableFromCSV /path/to/csv/file
+ * Ideally this would all go through the I2MI Subject interface but
+ * until that stabilizes, lets cheat.
  *
- * $Id: csv2subject.java,v 1.2 2004-11-29 19:05:17 blair Exp $ 
+ * Usage:
+ * % javac subject2csv.java
+ * % java subject2csv /path/to/csv/file
+ *
+ * $Id: csv2subject.java,v 1.3 2004-12-03 15:06:28 blair Exp $ 
  */
 
 import  java.io.BufferedReader;
@@ -72,7 +75,7 @@ import  java.lang.reflect.*;
 import  java.sql.*;
 import  java.util.StringTokenizer;
 
-class LoadGrouperMembersTableFromCSV {
+class csv2subject {
   /* 
    * Update these variables to match your local configuration.
    */ 
@@ -114,7 +117,7 @@ class LoadGrouperMembersTableFromCSV {
         System.exit(1); 
       }
     } else {
-      System.err.println("USAGE: LoadGrouperMembersTableFromCSV /path/to/csv/file");
+      System.err.println("USAGE: subject2csv /path/to/csv/file");
       System.exit(64);
     }
   }
