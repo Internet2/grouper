@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.32 2004-12-06 02:10:28 blair Exp $
+$Id: API,v 1.33 2004-12-06 19:37:06 blair Exp $
 
 ---
 
@@ -177,8 +177,12 @@ $Id: API,v 1.32 2004-12-06 02:10:28 blair Exp $
 
 #### Instance Methods
 
+* boolean             createdAfter(date)
+* boolean             createdBefore(date)
 * boolean             groupType(groupType)
 * boolean             membership(membershipType)
+* boolean             modifedAfter(date)
+* boolean             modifiedBefore(date)
 * List                query()
 
 ### GrouperSchema

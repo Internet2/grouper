@@ -92,7 +92,7 @@ public class TestQueries extends TestCase {
 
   // Test requirements for other *real* tests
   public void testRequirements() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
@@ -119,7 +119,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryInstantiate() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -135,13 +135,13 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
 
     // Create query object
-    GrouperQuery    q     = new GrouperQuery(s);
+    GrouperQuery q = new GrouperQuery(s);
 
     // We want MEM_ALL
     try {
@@ -186,13 +186,13 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
 
     // Create query object
-    GrouperQuery    q     = new GrouperQuery(s);
+    GrouperQuery q = new GrouperQuery(s);
 
     // We want DEF_GROUP_TYPE + MEM_ALL
     try {
@@ -269,13 +269,13 @@ public class TestQueries extends TestCase {
     // g1 ()    ()
     // g2 ()    ()
     //
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
 
     // Create query object
-    GrouperQuery    q     = new GrouperQuery(s);
+    GrouperQuery q = new GrouperQuery(s);
 
     // We want NS_TYPE + MEM_ALL
     try {
@@ -317,6 +317,194 @@ public class TestQueries extends TestCase {
 
     // We're done
     s.stop(); 
+  }
+
+  public void testQuery3() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want created before now
+    try {
+      Assert.assertTrue( q.createdBefore( new java.util.Date() ) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: createdBefore:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery4() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want created after now
+    try {
+      Assert.assertFalse( q.createdAfter( new java.util.Date() ) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: createdAfter:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery5() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want modified before now
+    try {
+      Assert.assertTrue( q.modifiedBefore( new java.util.Date() ) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: modifiedBefore:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery6() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want modified after now
+    try {
+      Assert.assertFalse( q.modifiedAfter( new java.util.Date() ) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: modifiedAfter:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery7() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want created before now
+    try {
+      Assert.assertTrue( q.createdBefore( new java.util.Date() ) );
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: createdBefore:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery8() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want created after now
+    try {
+      Assert.assertFalse( q.createdAfter( new java.util.Date() ) );
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: createdAfter:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery9() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want modified before now
+    try {
+      Assert.assertTrue( q.modifiedBefore( new java.util.Date() ) );
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 1 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: modifiedBefore:NOW");
+    }
+    s.stop();
+  }
+
+  public void testQuery10() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    Subject subj = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull(s);
+    // Create query object
+    GrouperQuery q = new GrouperQuery(s);
+    // We want modified after now
+    try {
+      Assert.assertFalse( q.modifiedAfter( new java.util.Date() ) );
+      Assert.assertTrue( q.groupType(Grouper.DEF_GROUP_TYPE) );
+      List vals = q.query();
+      Assert.assertNotNull(vals);
+      Assert.assertTrue( vals.size() == 0 );
+    } catch (GrouperException e) {
+      Assert.fail("Exception: modifiedAfter:NOW");
+    }
+    s.stop();
   }
 
 }
