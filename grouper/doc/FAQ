@@ -1,6 +1,6 @@
 # Grouper FAQ
 
-$Id: FAQ,v 1.6 2004-12-09 01:15:12 blair Exp $
+$Id: FAQ,v 1.7 2004-12-09 02:26:04 blair Exp $
 
 ---
 
@@ -8,11 +8,124 @@ $Id: FAQ,v 1.6 2004-12-09 01:15:12 blair Exp $
 
 ### Environment
 
+
 #### Q: How do I access _Grouper_ configuration parameters?
 
 A: Use the `Grouper.config()' method.
   
     String delim = Grouper.config("hierarchy.delimiter");
+
+
+### Groups
+
+#### Q: How do I create a namespace?
+
+A: Use the `GrouperGroup.create()' method.
+
+    GrouperGroup ns = GrouperGroup.create(s, stem, extn, "naming");    
+
+#### Q: How do I create a group?
+
+A: Use the `GrouperGroup.create()' method.
+
+    GrouperGroup g = GrouperGroup.create(s, stem, extn);
+
+#### Q: How do I retrieve a group by stem and extension?
+
+A: Use the `GrouperGroup.load()' method.
+
+    GrouperGroup g = GrouperGroup.load(s, stem, extn);
+
+#### Q: How do I retrieve a group by name?
+
+A: Use the `GrouperGroup.loadByName()' method.
+
+    GrouperGroup g = GrouperGroup.loadByName(s, name);
+
+#### Q: How do I retrieve a group by GUID?
+
+A: Use the `GrouperGroup.loadByID()' method.
+
+    GrouperGroup g = GrouperGroup.loadByID(s, guid);
+
+#### Q: How do I delete a group?
+
+A: Use the `GrouperGroup.delete()' method.
+
+    GrouperGroup.delete(s, g);
+
+#### Q: How do I add a list value?
+
+A: Use the `GrouperGroup.listAddVal()' method.
+
+    g.listAddVal(s, m);
+
+#### Q: How do I delete a list value?
+
+A: Use the `GrouperGroup.listDelVal()' method.
+
+    g.listDelVal(s, m);
+
+### Q: How do I retrieve a group's members?
+
+A: Use the `GrouperGroup.listVals()' method.
+
+    List members = g.listVals(s);
+
+### Q: How do I retrieve a group's immediate members?
+
+A: Use the `GrouperGroup.listImmVals()' method.
+
+    List immediateMembers = g.listImmVals(s);
+
+### Q: How do I retrieve a group's effective members?
+
+A: Use the `GrouperGroup.listEffVals()' method.
+
+    List effectiveMembers = g.listEffVals(s);
+
+#### Q: How do I retrieve a group attribute?
+
+A: Use the `GrouperGroup.attribute()' method.
+
+    GrouperAttribute attr = g.attribute("description");
+
+#### Q: How do I set a group attribute?
+
+A: Use the `GrouperGroup.attribute()' method.
+
+    g.attribute("description", "this is a sampe description");
+
+#### Q: How do I delete a group attribute?
+
+A: Use the `GrouperGroup.attribute()' method.
+
+    g.attribute("description", null);
+
+#### Q: How do I see when a group was created?
+
+A: Use the `GrouperGroup.createTime()' method.
+
+    String secondsSinceEpoch = g.createTime();
+
+#### Q: How do I see who created a group?
+
+A: Use the `GrouperGroup.createSubject()' method.
+
+    Subject creator = g.createSubject();
+
+#### Q: How do I see when a group was modifed?
+
+A: Use the `GrouperGroup.modifyTime()' method.
+
+    String secondsSinceEpoch = g.modifyTime();
+
+#### Q: How do I see who last modified a group?
+
+A: Use the `GrouperGroup.modifySubject()' method.
+
+    Subject modifier = g.modifySubject();
+
 
 ### Privileges - Access
 
@@ -28,6 +141,7 @@ A: Use the `Grouper.access().revoke()' method.
 
     Grouper.access().revoke(s, g, m, Grouper.PRIV_ADMIN);
 
+
 ### Privileges - Naming
 
 #### Q: How do I grant a naming privilege?
@@ -41,6 +155,7 @@ A: Use the `Grouper.naming().grant()' method.
 A: Use the `Grouper.access().revoke()' method.
 
     Grouper.naming().revoke(s, ns, m, Grouper.PRIV_CREATE);
+
 
 ...
 

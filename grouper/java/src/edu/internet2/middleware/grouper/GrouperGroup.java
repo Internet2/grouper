@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.143 2004-12-09 01:43:17 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.144 2004-12-09 02:26:05 blair Exp $
  */
 public class GrouperGroup {
 
@@ -86,11 +86,8 @@ public class GrouperGroup {
   /*
    * CONSTRUCTORS
    */
-
   /**
-   * Create a new object representing a {@link Grouper} group.
-   * <p>
-   * TODO Document further
+   * Null-argument constructor for Hibernate.
    */
   public GrouperGroup() {
     this._init();
@@ -102,11 +99,11 @@ public class GrouperGroup {
    */
 
   /**
-   * Class method to create a group.
-   *
+   * Create a group.
+   * <p />
    * @param   s           Session to create the group within.
    * @param   stem        Stem to create the group within.
-   * @param   extension   Extension to assign to group.
+   * @param   extension   Extension to assign to the group.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
@@ -118,11 +115,11 @@ public class GrouperGroup {
   }
 
   /**
-   * Class method to create a group.
-   *
-   * @param   s           Session to create the group within.
+   * Create a group.
+   * <p />
+   * @param   s           Session  to create the group within.
    * @param   stem        Stem to create the group within.
-   * @param   extension   Extension to assign to group.
+   * @param   extension   Extension to assign to the group.
    * @param   type        Type of group to create.
    * @return  A {@link GrouperGroup} object.
    */ 
@@ -135,10 +132,8 @@ public class GrouperGroup {
   }
 
   /** 
-   * Class method to delete a {@link GrouperGroup}.
+   * Delete a group.
    * <p />
-   * TODO Version that takes a stem and extension?  And type?
-   *
    * @param   s   Session to delete the group within.
    * @param   g   Group to delete.
    * @return  True if the group was deleted.
@@ -153,9 +148,8 @@ public class GrouperGroup {
   }
 
   /**
-   * Class method to retrieve a group from the groups registry.
+   * Retrieve a group by stem and extension.
    * <p />
-   *
    * @param   s           Session to load the group within.
    * @param   stem        Stem of the group to load.
    * @param   extension   Extension of the group to load.
@@ -171,57 +165,13 @@ public class GrouperGroup {
            );
   }
 
-  public static GrouperGroup loadByID(
-                               GrouperSession s, String id
-                             )
-  {
-    return GrouperGroup._loadByID(
-             s, id, Grouper.DEF_GROUP_TYPE
-           );
-  }
-
-  public static GrouperGroup loadByID(
-                               GrouperSession s, String id, String type
-                             )
-  {
-    return GrouperGroup._loadByID(s, id, type);
-  }
-
-  public static GrouperGroup loadByName(
-                               GrouperSession s, String name
-                             )
-  {
-    return GrouperGroup._loadByName(
-             s, name, Grouper.DEF_GROUP_TYPE
-           );
-  }
-
-  public static GrouperGroup loadByName(
-                               GrouperSession s, String name, String type
-                             )
-  {
-    return GrouperGroup._loadByName(s, name, type);
-  }
-
   /**
-   * TODO
-   */
-  protected static GrouperGroup loadByKey(
-                                  GrouperSession s, String key, 
-                                  String type
-                                ) 
-  {
-    return GrouperGroup._loadByKey(s, key, type);
-  }
-
-  /**
-   * Class method to retrieve a group from the groups registry.
+   * Retrieve a group by stem and extension.
    * <p />
-   *
    * @param   s           Session to load the group within.
    * @param   stem        Stem of the group to load.
    * @param   extension   Extension of the group to load.
-   * @param   type        Type of group to load.
+   * @param   type        The type of group to load.
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
@@ -232,15 +182,78 @@ public class GrouperGroup {
     return GrouperGroup._loadByStemExtn(s, stem, extension, type);
   }
 
+  /**
+   * Retrieve a group by public GUID.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   id          Group GUID.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup loadByID(
+                               GrouperSession s, String id
+                             )
+  {
+    return GrouperGroup._loadByID(
+             s, id, Grouper.DEF_GROUP_TYPE
+           );
+  }
+
+  /**
+   * Retrieve a group by public GUID.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   id          Group GUID.
+   * @param   type        The type of group to retrieve.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup loadByID(
+                               GrouperSession s, String id, String type
+                             )
+  {
+    return GrouperGroup._loadByID(s, id, type);
+  }
+
+  /**
+   * Retrieve a group by name.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   name        Name of group.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup loadByName(
+                               GrouperSession s, String name
+                             )
+  {
+    return GrouperGroup._loadByName(
+             s, name, Grouper.DEF_GROUP_TYPE
+           );
+  }
+
+  /**
+   * Retrieve a group by name.
+   * <p />
+   * @param   s           Session to load the group within.
+   * @param   name        Name of group.
+   * @param   type        The type of group to retrieve.
+   * @return  A {@link GrouperGroup} object.
+   */
+  public static GrouperGroup loadByName(
+                               GrouperSession s, String name, String type
+                             )
+  {
+    return GrouperGroup._loadByName(s, name, type);
+  }
+
 
   /*
    * PUBLIC INSTANCE METHODS
    */
 
   /**
-   * Get a group attribute.
-   *
-   * @param   attribute The attribute to get.
+   * Retrieve a group attribute.
+   * <p />
+   * @param   s         Retrieve attribute using this session.
+   * @param   attribute The attribute to retrieve.
    * @return  A {@link GrouperAttribute} object.
    */
   public GrouperAttribute attribute(GrouperSession s, String attribute) {
@@ -248,13 +261,14 @@ public class GrouperGroup {
   }
 
   /**
-   * Set a group attribute.
+   * Set the value of a group attribute.
    * <p />
    * If <i>value</i> is <i>null</i>, the attribute will be deleted.
    * 
-   * @param   attribute Attribute to set.
-   * @param   value     Value of attribute.
-   * @return  True if the attribute was added.
+   * @param   s           Set attribute using this session.
+   * @param   attribute   Set this attribute.
+   * @param   value       Set attribute to this value.
+   * @return  True if the attribute was set.
    */
   public boolean attribute(GrouperSession s, String attribute, String value) {
     boolean rv = false;
@@ -382,136 +396,141 @@ public class GrouperGroup {
   }
 
   /** 
-   * Get all group attributes.
-   *
-   * @return  A map of all group attributes.
+   * Retrieve all of this group's attributes.
+   * <p />
+   * @return  A map of {@link GrouperAttribute} objects.
    */
   public Map attributes() {
     return this.attributes;
   }
 
-  // TODO
+  /**
+   * Retrieve the <i>createSource</i> operational attribute value.
+   * <p  />
+   * This attribute is not currently used.
+   *
+   * @return <i>createSource</i> value.
+   */
   public String createSource() {
     return this.getCreateSource();
   }
 
-  // TODO
+  /**
+   * Retrieve the <i>createSubject</i> operational attribute value.
+   * <p  />
+   * @return A {@link Subject} object.
+   */
   public Subject createSubject() {
     return this._returnSubjectObject(this.getCreateSubject()); 
   }
 
-  // TODO
+  /**
+   * Retrieve the <i>createTime</i> operational attribute value.
+   * <p  />
+   * @return <i>createTime</i> value in seconds since the epoch.
+   */
   public String createTime() {
     // TODO Return date object?
     return this.getCreateTime();
   }
 
   /**
-   * Return group ID.
+   * Retrieve group's public GUID.
    * <p />
-   *
-   * @return Group ID of the {@link GrouperGroup}
+   * @return Public GUID.
    */
   public String id() {
     return this.getGroupID();
   }
 
   /**
-   * Return group's type.
-   *
-   * @return Group type
+   * Retrieve group's type.
+   * <p />
+   * @return Type of group.
    */
   public String type() {
     return this.type;
   }
 
   /**
-   * Return list values of the default list type for this 
-   * {@link GrouperGroup}.
+   * Retrieve list values of the default list type for this group.
    * <p />
-   *
-   * @param   s     Return list data within this session context.
-   * @return  List of effective {@link GrouperList} objects.
+   * @param   s     Retrieve list values using this session.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s) {
     return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
-   * Return list values of the specified type for this
-   * {@link GrouperGroup}.
+   * Retrieve list values of the specified type for this group.
    * <p />
-   *
-   * @param   s     Return list data within this session context.
+   * @param   s     Retrieve list values using this session.
    * @param   list  Return this list type.
-   * @return  List of effective {@link GrouperList} objects.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s, String list) {
     return GrouperBackend.listVals(s, this, list);
   }
 
   /**
-   * Return effective list values of the default list type for this 
-   * {@link GrouperGroup}.
+   * Retrieve effective list values of the default list type for this
+   * group.
    * <p />
-   *
-   * @param   s     Return list data within this session context.
-   * @return  List of effective {@link GrouperList} objects.
+   * @param   s     Retrieve list values using this session.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(GrouperSession s) {
     return GrouperBackend.listEffVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
-   * Return effective list values of the specified type for this
-   * {@link GrouperGroup}.
+   * Retrieve effective list values of the specified type for this
+   * group.
    * <p />
-   *
-   * @param   s     Return list data within this session context.
+   * @param   s     Retrieve list values using this session.
    * @param   list  Return this list type.
-   * @return  List of effective {@link GrouperList} objects.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(GrouperSession s, String list) {
     return GrouperBackend.listEffVals(s, this, list);
   }
 
   /**
-   * Return immediate list values of the default list type for this 
-   * {@link GrouperGroup}.
+   * Retrieve immediate list values of the default list type for this
+   * group.
    * <p />
-   *
-   * @param   s     Return list data within this session context.
-   * @return  List of effective {@link GrouperList} objects.
+   * @param   s     Retrieve list values using this session.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals(GrouperSession s) {
     return GrouperBackend.listImmVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /**
-   * Return immediate list values of the specified type for this
-   * {@link GrouperGroup}.
+   * Retrieve immediate list values of the specified type for this
+   * group.
    * <p />
-   *
-   * @param   s     Return list data within this session context.
+   * @param   s     Retrieve list values using this session.
    * @param   list  Return this list type.
-   * @return  List of effective {@link GrouperList} objects.
+   * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals(GrouperSession s, String list) {
     return GrouperBackend.listImmVals(s, this, list);
   }
 
   /**
-   * Add a {@link GrouperMember} to the default list type.
+   * Add a list value of the default list type.
    * <p />
-   * TODO Test
-   * TODO Make a variant that takes a GrouperGroup instead of a
-   *      GrouperMember?
-   *
-   * @param   s     Add member within this session context.
+   * @param   s     Add member using this session. 
    * @param   m     Add this member.
    * @return  True if the list value was added.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
+    /* 
+     * TODO Add a variant that takes a GrouperGroup instead of a
+     * GrouperMember?
+     */
     boolean rv = false;
     if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
       rv = this._listAddVal(s, m, Grouper.DEF_LIST_TYPE);
@@ -521,17 +540,17 @@ public class GrouperGroup {
   }
 
   /**
-   * Delete a {@link GrouperMember} from default list type.
+   * Delete a list value of the default list type.
    * <p />
-   * TODO Test
-   * TODO Make a variant that takes a GrouperGroup instead of a
-   *      GrouperMember?
-   *
-   * @param   s     Delete member within this session context.
+   * @param   s     Delete member using this session.
    * @param   m     Delete this member.
    * @return  True if the list value was deleted.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
+    /* 
+     * TODO Add a variant that takes a GrouperGroup instead of a
+     * GrouperMember?
+     */
     boolean rv = false;
     if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
       rv = this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
@@ -540,22 +559,44 @@ public class GrouperGroup {
     return rv;
   }
 
-  // TODO
+  /**
+   * Retrieve the <i>modifySource</i> operational attribute value.
+   * <p  />
+   * This attribute is not currently used.
+   *
+   * @return <i>modifySource</i> value.
+   */
   public String modifySource() {
     return this.getModifySource();
   }
 
-  // TODO
+  /**
+   * Retrieve the <i>modifySubject</i> operational attribute value.
+   * <p  />
+   * @return A {@link Subject} object.
+   */
   public Subject modifySubject() {
     return this._returnSubjectObject(this.getModifySubject()); 
   }
 
-  // TODO
+  /**
+   * Retrieve the <i>modifyTime</i> operational attribute.
+   * <p  />
+   * @return <i>modifyTime</i> value in seconds since the epoch.
+   */
   public String modifyTime() {
     // TODO Return date object?
     return this.getModifyTime();
   }
 
+  /**
+   * Retrieve the <i>name</i> attribute.
+   * <p>
+   * This is a convenience method.  The value can also be retrieved
+   * using the <i>attribute()</i> method.
+   *
+   * @return  Name of group.
+   */
   public String name() {
     return this.attribute("name").value();
   }
@@ -606,6 +647,17 @@ public class GrouperGroup {
    */
   protected String key() {
     return this.getGroupKey();
+  }
+
+  /* (!javadoc)
+   * Retrieve a group by key.
+   */
+  protected static GrouperGroup loadByKey(
+                                  GrouperSession s, String key, 
+                                  String type
+                                ) 
+  {
+    return GrouperGroup._loadByKey(s, key, type);
   }
 
   /**
