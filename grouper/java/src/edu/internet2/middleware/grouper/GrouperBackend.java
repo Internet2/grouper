@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.34 2004-11-15 17:27:14 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.35 2004-11-15 19:58:15 blair Exp $
  */
 public class GrouperBackend {
 
@@ -643,12 +643,43 @@ public class GrouperBackend {
 
 
   /**
-   * Query for a single {@link Subject} using the default, internal
-   * subject store.
+   * Query for a single {@link Subject} of type "group".
    *
    * @return  {@link Subject} object or null.
    */
-  protected static Subject subject(String id, String typeID) {
+  protected static Subject subjectLookupTypeGroup(String id, String typeID) {
+    Session session = GrouperBackend._init();
+    Subject subj    = null;
+    try {
+      Query q = session.createQuery(
+        "SELECT ALL FROM GROUPER_GROUP "     +
+        "IN CLASS edu.internet2.middleware.grouper.GrouperGroup " +
+        "WHERE "                              +
+        "groupKey='"      + id      + "' "
+      );
+      if (q.list().size() == 1) {
+        // We only want *one* subject.
+        // Now fetch the group object 
+        GrouperGroup g = (GrouperGroup) q.list().get(0);
+        // ... And convert it to a subject object
+        subj = new SubjectImpl(id, typeID);
+      }
+      // TODO Throw an exception?
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return subj;
+  }
+
+  /**
+   * Query for a single {@link Subject} of the type "person" using the
+   * internal subject store.
+   *
+   * @return  {@link Subject} object or null.
+   */
+  protected static Subject subjectLookupTypePerson(String id, String typeID) {
     Session session = GrouperBackend._init();
     Subject subj    = null;
     try {
