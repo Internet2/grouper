@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.58 2004-11-23 18:06:14 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.59 2004-11-23 18:14:37 blair Exp $
  */
 public class GrouperBackend {
 
@@ -269,7 +269,7 @@ public class GrouperBackend {
    * @param m     Add this member.
    * @param list  Add member to this list.
    */
-  protected static boolean listAddVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+  protected static boolean listAddVal(GrouperSession s, GrouperGroup g, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
     boolean rv      = false;
     // TODO  Reorder params.  Sessions should always come first?  Check
@@ -350,7 +350,7 @@ public class GrouperBackend {
    * @param m     Remove this member.
    * @param list  Remove member from this list.
    */
-  protected static boolean listDelVal(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
+  protected static boolean listDelVal(GrouperSession s, GrouperGroup g, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
     boolean rv      = false;
     // FIXME Better validation efforts, please.
@@ -422,7 +422,7 @@ public class GrouperBackend {
    * @param s     Return list data within this session context.
    * @param list  Return this list type.
    */
-  protected static List listVals(GrouperGroup g, GrouperSession s, String list) {
+  protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
     List    members = new ArrayList();
     // FIXME Better validation efforts, please.
@@ -448,7 +448,7 @@ public class GrouperBackend {
    * @param   list    Type of list membership to query on.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List listVals(GrouperMember m, GrouperSession s, String list) {
+  protected static List listVals(GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
     List    groups  = new ArrayList();
     // FIXME Better validation efforts, please.
@@ -465,7 +465,7 @@ public class GrouperBackend {
     return groups;
   }
 
-  protected static List listEffVals(GrouperGroup g, GrouperSession s, String list) {
+  protected static List listEffVals(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
     List    members = new ArrayList();
     // FIXME Better validation efforts, please.
@@ -491,7 +491,7 @@ public class GrouperBackend {
    * @param   list    Type of list membership to query on.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List listEffVals(GrouperMember m, GrouperSession s, String list) {
+  protected static List listEffVals(GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
     List    groups  = new ArrayList();
     // FIXME Better validation efforts, please.
@@ -508,7 +508,7 @@ public class GrouperBackend {
     return groups;
   }
 
-  protected static List listImmVals(GrouperGroup g, GrouperSession s, String list) {
+  protected static List listImmVals(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
     List    members = new ArrayList();
     // FIXME Better validation efforts, please.
@@ -534,7 +534,7 @@ public class GrouperBackend {
    * @param   list    Type of list membership to query on.
    * @return  List of {@link GrouperGroup} objects.
    */
-  protected static List listImmVals(GrouperMember m, GrouperSession s, String list) {
+  protected static List listImmVals(GrouperSession s, GrouperMember m, String list) {
     Session session = GrouperBackend._init();
     List    groups  = new ArrayList();
     // FIXME Better validation efforts, please.

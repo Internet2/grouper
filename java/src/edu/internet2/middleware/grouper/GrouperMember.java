@@ -19,7 +19,7 @@ import  java.util.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.41 2004-11-23 17:08:37 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.42 2004-11-23 18:14:37 blair Exp $
  */
 public class GrouperMember {
 
@@ -166,7 +166,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List listVals(GrouperSession s) {
-    return GrouperBackend.listVals(this, s, "members");
+    return GrouperBackend.listVals(s, this, "members");
   }
 
   /**
@@ -178,7 +178,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List listVals(GrouperSession s, String list) {
-    return GrouperBackend.listVals(this, s, list);
+    return GrouperBackend.listVals(s, this, list);
   }
 
   /**
@@ -189,7 +189,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List listEffVals(GrouperSession s) {
-    return GrouperBackend.listEffVals(this, s, "members");
+    return GrouperBackend.listEffVals(s, this, "members");
   }
 
   /**
@@ -201,7 +201,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List listEffVals(GrouperSession s, String list) {
-    return GrouperBackend.listEffVals(this, s, list);
+    return GrouperBackend.listEffVals(s, this, list);
   }
 
   /**
@@ -212,7 +212,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List listImmVals(GrouperSession s) {
-    return GrouperBackend.listImmVals(this, s, "members");
+    return GrouperBackend.listImmVals(s, this, "members");
   }
 
   /**
@@ -224,7 +224,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperGroup} objects.
    */
   public List listImmVals(GrouperSession s, String list) {
-    return GrouperBackend.listImmVals(this, s, list);
+    return GrouperBackend.listImmVals(s, this, list);
   }
 
 

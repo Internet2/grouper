@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.25 2004-11-22 15:23:25 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.26 2004-11-23 18:14:37 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -72,7 +72,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.listAddVal(g, s, m, (String) privMap.get(priv)) == true) {
+      if (GrouperBackend.listAddVal(s, g, m, (String) privMap.get(priv)) == true) {
         rv = true;
       }
     } 
@@ -115,7 +115,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
       GrouperMember m     = GrouperMember.lookup( s.subject() ); 
-      privs = GrouperBackend.listVals(m, s, (String) privMap.get(priv));
+      privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
     } 
     // TODO Throw exception if invalid priv?
     return privs;
@@ -180,7 +180,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      privs = GrouperBackend.listVals(m, s, (String) privMap.get(priv));
+      privs = GrouperBackend.listVals(s, m, (String) privMap.get(priv));
     } // TODO Exception if invalid priv?
     return privs;
   }
@@ -229,7 +229,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.listDelVal(g, s, m, (String) privMap.get(priv)) == true) {
+      if (GrouperBackend.listDelVal(s, g, m, (String) privMap.get(priv)) == true) {
         rv = true;
       }
     } 
