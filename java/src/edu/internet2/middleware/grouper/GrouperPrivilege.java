@@ -19,7 +19,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class providing read/write access to Grouper privileges.
  *
  * @author  blair christensen.
- * @version $Id: GrouperPrivilege.java,v 1.3 2004-11-22 02:20:21 blair Exp $
+ * @version $Id: GrouperPrivilege.java,v 1.4 2004-11-22 04:19:19 blair Exp $
  */
 public class GrouperPrivilege {
 
@@ -108,9 +108,16 @@ public class GrouperPrivilege {
    */
   public static List has(GrouperSession s, String priv) {
     GrouperPrivilege._init();
-    // TODO Dispatch based upon priv type
-    // return access.has(s, priv);
-    // return naming.has(s, priv);
+    // Dispatch based upon priv type
+    if        (access.can(priv) == true) {
+      return access.has(s, priv);
+    } else if (naming.can(priv) == true) {
+      return naming.has(s, priv);
+    } else {
+      // TODO Throw exception?
+      System.err.println("UNKNOWN PRIV!");
+      System.exit(1);
+    } 
     return null;
   }
 
@@ -159,8 +166,8 @@ public class GrouperPrivilege {
   }
 
   /**
-   * List groups or stems, depending upon the privilege type, where
-   * the specified member has the specified privilege.
+   * List groups where the specified member has the specified
+   * privilege.
    * <p>
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -170,13 +177,8 @@ public class GrouperPrivilege {
    */
   public static List has(GrouperSession s, GrouperMember m, String priv) {
     GrouperPrivilege._init();
-    // TODO Dispatch based upon priv type
-    // return access.has(s, m, priv);
-    // return naming.has(s, stem, m);
-    return null;
+    return access.has(s, m, priv);
   }
-
-
 
   /**
    * Verify whether the specified member has the specified privilege

@@ -16,9 +16,19 @@ import  java.util.*;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.20 2004-11-22 01:40:23 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.21 2004-11-22 04:19:19 blair Exp $
  */
 public interface GrouperAccess {
+
+  /**
+   * Verify whether this implementation of the {@link GrouperAccess}
+   * interface can handle this privilege.
+   *
+   * @param   priv  The privilege to verify.
+   * @return  Boolean true if this implementation handles the specified
+   * privilege, boolean false otherwise.
+   */
+  public boolean can(String priv);
 
   /**
    * Grant an access privilege on a {@link GrouperGroup}.
