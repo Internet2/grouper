@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.175 2005-03-22 02:15:54 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.176 2005-03-22 02:56:19 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1432,62 +1432,6 @@ public class GrouperBackend {
       throw new RuntimeException("Error deleting session: " + e);
     }
     return true;
-  }
-
-  /**
-   * Is the {@link GrouperSession} still valid?
-   * <p />
-   *
-   * @param   s   Session to validate. 
-   * @return  True if the session is still valid.
-   */
-  protected static boolean sessionValid(GrouperSession s) {
-    boolean rv  = false;
-    String  qry = "GrouperSession.by.id";
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, s.id());
-      try {
-        List vals = q.list();
-        if (vals.size() == 1) {
-          rv = true;
-        } else {
-          Grouper.log().event("Attempt to use an invalid session");
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return rv;
-  }
-
-  /**
-   * Cull old sessions.
-   * <p />
-   * TODO Go away. 
-   */
-  protected static void sessionsCull(GrouperSession s) {
-    /* XXX Until I find the time to identify a better way of managing
-     *     sessions -- which I *know* exists -- be crude about it. */
-    java.util.Date  now     = new java.util.Date();
-    long nowTime = now.getTime();
-    long tooOld  = nowTime - 360000;
-
-    try {
-      s.dbSess().session().delete(
-        "FROM GrouperSession AS gs" +
-        " WHERE "                   +
-        "gs.startTime > " + nowTime
-      );
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   // TODO

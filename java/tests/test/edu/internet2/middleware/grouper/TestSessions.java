@@ -85,7 +85,7 @@ public class TestSessions extends TestCase {
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
-    Assert.assertTrue("session stopped", s.stop() );
+    s.stop();
   }
 
   // Verify the subject of the current session 
@@ -102,7 +102,7 @@ public class TestSessions extends TestCase {
                           Grouper.config("member.system") 
                         ) 
                      );
-    Assert.assertTrue("session stopped",  s.stop());
+    s.stop();
   }
 
   // Serialize a session
@@ -139,7 +139,7 @@ public class TestSessions extends TestCase {
                                 Grouper.config("member.system") 
                               ) 
                             );
-          Assert.assertTrue("session stopped",  retSess.stop());
+          retSess.stop();
         } catch (ClassNotFoundException cnfe) {
           Assert.fail("Failure to find class when deserializing session");
         }
