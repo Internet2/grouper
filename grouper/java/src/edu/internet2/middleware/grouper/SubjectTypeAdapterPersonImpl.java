@@ -16,7 +16,7 @@ import  edu.internet2.middleware.subject.*;
  * Implementation of the I2MI {{@link SubjectTypeAdapter}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.2 2004-11-12 16:38:29 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.3 2004-11-12 17:37:26 blair Exp $
  */
 public class  SubjectTypeAdapterImpl
 	extends     AbstractSubjectTypeAdapter
@@ -37,7 +37,7 @@ public class  SubjectTypeAdapterImpl
   }
 
   public Subject getSubject(SubjectType type, String id) {
-    return null;
+    return GrouperBackend.subject(id, type.getId());
   }
 
   public Subject getSubjectByDisplayId(SubjectType type, String displayId) {
@@ -57,10 +57,10 @@ public class  SubjectTypeAdapterImpl
   }
 
   public Subject newSubject(SubjectType type, 
-                            String id, 
-                            String name, 
-                            String description, 
-                            String displayId) 
+                            String      id, 
+                            String      name, 
+                            String      description, 
+                            String      displayId) 
   {
     return null;
   }
