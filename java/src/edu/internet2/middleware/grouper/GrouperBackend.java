@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.16 2004-11-08 20:11:57 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.17 2004-11-08 20:39:19 blair Exp $
  */
 public class GrouperBackend {
 
@@ -54,14 +54,14 @@ public class GrouperBackend {
       // FIXME 
       String gt = "base";
       // The Group schema
-      GrouperSchema schema = new GrouperSchema(g.groupKey(), gt);
+      GrouperSchema schema = new GrouperSchema(g.key(), gt);
       session.save(schema);
 
       // The Group attributes
       Map attributes = g.attributes();
       for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
         GrouperAttribute attr = (GrouperAttribute) attributes.get( iter.next() );
-        attr.set(g.groupKey(), attr.field(), attr.value());
+        attr.set(g.key(), attr.field(), attr.value());
         session.save(attr);
       }
 
@@ -70,7 +70,7 @@ public class GrouperBackend {
       // FIXME Group Key is private.  Fuck!  How to manage?
       //       But wait!  GUID!
       // TODO Don't hardcode "admins"
-      mship.set(g.groupKey(), "admins", s.subject().id(), true);
+      mship.set(g.key(), "admins", s.subject().id(), true);
       session.save(mship);
 
       t.commit();
@@ -112,7 +112,7 @@ public class GrouperBackend {
       Query q = session.createQuery(
         "SELECT FROM grouper_attributes " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
-        "WHERE groupKey='" + g.groupKey() + "'"
+        "WHERE groupKey='" + g.key() + "'"
       );
       attributes = q.list();
     } catch (Exception e) {
@@ -193,11 +193,12 @@ public class GrouperBackend {
    * @param list  Add member to this list.
    */
   public static boolean listAdd(GrouperGroup g, GrouperSession s, GrouperMember m, String list) {
-    // TODO Verify that g, s, m, and list are all valid
+    // FIXME Better validation efforts, please.
     if (
         g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
         s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
-        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")
+        m.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperMember")  &&
+        Grouper.groupField(g.type(), list)
        ) 
     {
       // TODO Verify that the subject has privilege to add this list data
@@ -337,7 +338,7 @@ public class GrouperBackend {
       Query q = session.createQuery(
         "SELECT FROM grouper_schema " +
         "IN CLASS edu.internet2.middleware.grouper.GrouperSchema " +
-        "WHERE groupKey='" + g.groupKey() + "'"
+        "WHERE groupKey='" + g.key() + "'"
       );
       schemas = q.list();
     } catch (Exception e) {

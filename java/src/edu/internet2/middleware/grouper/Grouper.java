@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.35 2004-10-11 17:52:23 blair Exp $
+ * @version $Id: Grouper.java,v 1.36 2004-11-08 20:39:19 blair Exp $
  */
 public class Grouper {
 
@@ -76,6 +76,8 @@ public class Grouper {
    */
   public static boolean groupField(String type, String field) {
     _init();
+    // TODO Do I need another version of this method to distinguish
+    //      between valid attribute and list data?
     // TODO Why the convert?
     List typeDefs = Grouper.groupTypeDefs();
     for (Iterator iter = typeDefs.iterator(); iter.hasNext();) {
