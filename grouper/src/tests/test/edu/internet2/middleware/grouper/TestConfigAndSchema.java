@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.6 2004-11-12 20:21:59 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.7 2004-11-15 19:41:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -145,25 +145,38 @@ public class TestConfigAndSchema extends TestCase {
 
   // Get cached SubjectTypes 
   public void testGetSubjectTypes() {
-    Grouper G = new Grouper();
-    List types = G.subjectTypes();
+    Grouper G               = new Grouper();
+    List    types           = G.subjectTypes();
     Assert.assertNotNull(types);
-    Assert.assertEquals(1, types.size());
-    //SubjectType st = (SubjectType) types.get(0);
-    SubjectType st  = Grouper.subjectType("person");
-    Assert.assertNotNull(st);
-    String klass    = "edu.internet2.middleware.grouper.SubjectTypeImpl";
-    Assert.assertTrue( klass.equals( st.getClass().getName() ) );
-    String adapterClass = "edu.internet2.middleware.grouper.SubjectTypeAdapterImpl";
-    SubjectTypeAdapter sta = st.getAdapter();
-    Assert.assertNotNull(sta);
-    Assert.assertNotNull( sta.getClass().getName() );
-    //Assert.assertTrue( adapterClass.equals( sta.getClass().getName() ) );
-    //Assert.assertTrue( adapterClass.equals( st.getAdapter().getClass().getName() ) );
-    String name         = "Person";
-    Assert.assertTrue( name.equals( st.getName() ) );
-    String typeID       = "person";
-    Assert.assertTrue( typeID.equals( st.getId() ) );
+    Assert.assertEquals(2, types.size());
+
+    SubjectType stGroup         = Grouper.subjectType("group");
+    Assert.assertNotNull(stGroup);
+    String klassGroup           = "edu.internet2.middleware.grouper.SubjectTypeImpl";
+    Assert.assertTrue( klassGroup.equals( stGroup.getClass().getName()) );
+    Assert.assertNotNull( stGroup.getId() );
+    Assert.assertTrue( stGroup.getId().equals( "group" ) );
+    Assert.assertNotNull( stGroup.getName() );
+    Assert.assertTrue( stGroup.getName().equals( "Group" ) );
+    SubjectTypeAdapter staGroup = stGroup.getAdapter();
+    Assert.assertNotNull( staGroup );
+    String klassGroupAdapter    = "edu.internet2.middleware.grouper.SubjectTypeAdapterGroupImpl";
+    Assert.assertTrue( klassGroupAdapter.equals( staGroup.getClass().getName() ) );
+    Assert.assertNotNull( staGroup.getClass().getName() );
+    
+    SubjectType stPerson        = Grouper.subjectType("person");
+    Assert.assertNotNull(stPerson);
+    String klassPerson          = "edu.internet2.middleware.grouper.SubjectTypeImpl";
+    Assert.assertTrue( klassPerson.equals( stPerson.getClass().getName()) );
+    Assert.assertNotNull( stPerson.getId() );
+    Assert.assertTrue( stPerson.getId().equals( "person" ) );
+    Assert.assertNotNull( stPerson.getName() );
+    Assert.assertTrue( stPerson.getName().equals( "Person" ) );
+    SubjectTypeAdapter staPerson = stPerson.getAdapter();
+    Assert.assertNotNull( staPerson );
+    String klassPersonAdapter    = "edu.internet2.middleware.grouper.SubjectTypeAdapterPersonImpl";
+    Assert.assertTrue( klassPersonAdapter.equals( staPerson.getClass().getName() ) );
+    Assert.assertNotNull( staPerson.getClass().getName() );
   }
 
   // TODO Test boolean assertion|validity methods
