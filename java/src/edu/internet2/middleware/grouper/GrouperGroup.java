@@ -8,7 +8,7 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.5 2004-04-20 17:15:55 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.6 2004-04-20 17:19:28 blair Exp $
  */
 public class GrouperGroup {
 
@@ -58,7 +58,7 @@ public class GrouperGroup {
     return null;
   }
 
-  /*
+  /**
    * Return a map of nonlist member data for a {@link Grouper} group.
    * <p>
    * <ul>
