@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.106 2004-12-04 03:14:35 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.107 2004-12-04 04:47:09 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1296,6 +1296,9 @@ public class GrouperBackend {
    * Attach attributes to a group.
    * FIXME Won't calling g.attribute(...) eventually cause the group's
    *       modify attrs to be updated every time this group is laoded?
+   *      
+   *       But perhaps the `initialized' hack that I added for another
+   *       reason will work?
    */
   private static void _groupAttachAttrs(Session session, GrouperGroup g, String key) {
     // TODO Do I even need `key' passed in?
