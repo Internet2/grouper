@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.14 2004-12-09 21:22:10 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.15 2005-01-23 17:44:42 blair Exp $ 
  */
 class csv2group {
 
@@ -49,7 +49,7 @@ class csv2group {
   public static void main(String[] args) {
     _opts(args);            // Parse and handle command line options
     _grouperStart();        // Initialize Grouper and start session
-    _cvsReadAndExecute();   // Read and parse input file
+    _csvReadAndExecute();   // Read and parse input file
     _grouperStop();         // And we're done.  Tidy up.
     System.exit(0);
   }
@@ -62,12 +62,15 @@ class csv2group {
   /* (!javadoc)
    * Read in CSV file and execute accordingly
    */
-  private static void _cvsReadAndExecute() {
+  private static void _csvReadAndExecute() {
     if (path != null) {
       try { 
         BufferedReader  br    = new BufferedReader(new FileReader(path));
         String          line  = null; 
         while ((line=br.readLine()) != null){ 
+          if (line.startsWith("#")) {
+            continue; // Ignore comments  
+          }
           StringTokenizer st = new StringTokenizer(line, ",");
           /*
            * Trust the dispatch engine to DTRT.

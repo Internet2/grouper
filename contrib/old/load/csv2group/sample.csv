@@ -1,3 +1,6 @@
+#
+# This is a sample _csv2group_ source file.
+#
 stem,add,Grouper.NS_ROOT,alt
 stem,add,alt,test
 group,add,alt:test,group
