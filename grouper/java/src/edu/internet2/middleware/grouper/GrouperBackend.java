@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.100 2004-12-03 20:55:18 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.101 2004-12-03 21:27:52 blair Exp $
  */
 public class GrouperBackend {
 
@@ -140,8 +140,9 @@ public class GrouperBackend {
    * @return  The added {@link GrouperAttribute} object.
    */
   protected static GrouperAttribute attrAdd(
-                     String key, String field, String value
-                   ) 
+                                            String key, String field, 
+                                            String value
+                                           ) 
   {
     Session session = GrouperBackend._init();
     GrouperAttribute attr = GrouperBackend._attributeStore(
@@ -149,6 +150,25 @@ public class GrouperBackend {
                             ); 
     GrouperBackend._hibernateSessionClose(session);
     return attr;
+  }
+
+  /**
+   * Delete a {@link GrouperAttribute} from the registry.
+   * <p />
+   *
+   * @param   key     {@link GrouperGroup} key.
+   * @param   field   {@link GrouperField} field.
+   * @return  The added {@link GrouperAttribute} object.
+   */
+  protected static boolean attrDel(
+                                   String key, String field
+                                  ) 
+  {
+    boolean rv = false;
+    Session session = GrouperBackend._init();
+    rv = GrouperBackend._attrDel(session, key, field);
+    GrouperBackend._hibernateSessionClose(session);
+    return rv;
   }
 
   /**
@@ -1242,6 +1262,26 @@ public class GrouperBackend {
       }
     } // TODO else...
     return attr;
+  }
+
+  private static boolean _attrDel(
+                           Session session, String key, String field
+                         ) 
+  {
+    boolean rv = false;
+    List vals = GrouperBackend._queryGrouperAttr(session, key, field);
+    if (vals.size() == 1) {
+      try {
+        GrouperAttribute attr = (GrouperAttribute) vals.get(0);
+        session.delete(attr);
+        rv = true;
+      } catch (HibernateException e) {
+        GrouperBackend.LOGGER.warn(
+                                   "Unable to delete attribute " + field
+                                  );
+      }
+    }
+    return rv;
   }
 
   private static List _extensions(Session session, String extension) {
