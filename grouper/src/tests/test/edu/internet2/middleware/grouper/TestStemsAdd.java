@@ -91,7 +91,7 @@ public class TestNamespaces extends TestCase {
   // Fetch a non-existent namespaces
   public void testGroupsExistFalse() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Confirm that namespaces don't exist
     GrouperGroup    ns0   = GrouperGroup.lookup(s, stem0, extn0, Grouper.NS_TYPE);
@@ -108,7 +108,7 @@ public class TestNamespaces extends TestCase {
 
   public void testCreateNS0() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create ns0
     String stem = stem0;
@@ -127,7 +127,7 @@ public class TestNamespaces extends TestCase {
 
   public void testCreateNS1() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create ns00
     String stem = stem00;
@@ -146,7 +146,7 @@ public class TestNamespaces extends TestCase {
 
   public void testCreateNS2() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create ns1
     String stem = stem1;
@@ -165,7 +165,7 @@ public class TestNamespaces extends TestCase {
 
   public void testCreateNS3() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create ns2
     String stem = stem2;
@@ -184,7 +184,7 @@ public class TestNamespaces extends TestCase {
 
   public void testFetchNS0() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns0
     String stem = stem0;
@@ -204,7 +204,7 @@ public class TestNamespaces extends TestCase {
 
   public void testFetchNS1() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns00
     String stem = stem00;
@@ -224,7 +224,7 @@ public class TestNamespaces extends TestCase {
 
   public void testFetchNS2() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns1
     String stem = stem1;
@@ -244,7 +244,7 @@ public class TestNamespaces extends TestCase {
 
   public void testFetchNS3() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns2
     String stem = stem2;

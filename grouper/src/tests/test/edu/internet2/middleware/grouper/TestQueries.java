@@ -65,9 +65,9 @@ public class TestQueries extends TestCase {
   private String klass    = "edu.internet2.middleware.grouper.GrouperQuery";
   private String klassGL  = "edu.internet2.middleware.grouper.GrouperList";
   private String m0id     = "blair";
-  private String m0type   = "person";
+  private String m0type   = Grouper.DEF_SUBJ_TYPE;
   private String m1id     = "notblair";
-  private String m1type   = "person";
+  private String m1type   = Grouper.DEF_SUBJ_TYPE;
   private String stem0    = "stem.0";
   private String stem1    = "stem.1";
   private String stem2    = "stem.2";
@@ -94,7 +94,7 @@ public class TestQueries extends TestCase {
   public void testRequirements() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch the groups
@@ -120,7 +120,7 @@ public class TestQueries extends TestCase {
 
   public void testQueryInstantiate() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     GrouperQuery    q0    = new GrouperQuery(s);
     Assert.assertNotNull(q0);
@@ -135,7 +135,7 @@ public class TestQueries extends TestCase {
     // g2 ()    ()
     //
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
 
     // Create query object
@@ -185,7 +185,7 @@ public class TestQueries extends TestCase {
     // g2 ()    ()
     //
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
 
     // Create query object
@@ -267,7 +267,7 @@ public class TestQueries extends TestCase {
     // g2 ()    ()
     //
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
 
     // Create query object

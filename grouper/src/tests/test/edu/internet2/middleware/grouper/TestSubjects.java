@@ -78,7 +78,7 @@ public class TestSubjects extends TestCase {
 
   public void testSubjectInterfaceLookupFailureInvalidID() {
     String id     = "invalid id";
-    String type   = "person";
+    String type   = Grouper.DEF_SUBJ_TYPE;
     Subject subj  = GrouperSubject.lookup(id, type);
     Assert.assertNull(subj);
   }
@@ -92,7 +92,7 @@ public class TestSubjects extends TestCase {
 
   public void testSubjectInterfaceLookupMemberSystem() {
     String id     = Grouper.config("member.system");
-    String type   = "person";
+    String type   = Grouper.DEF_SUBJ_TYPE;
     Subject subj  = GrouperSubject.lookup(id, type);
     Assert.assertNotNull(subj);
     String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
@@ -106,7 +106,7 @@ public class TestSubjects extends TestCase {
 
   public void testSubjectInterfaceLookup() {
     String id     = "blair";
-    String type   = "person";
+    String type   = Grouper.DEF_SUBJ_TYPE;
     Subject subj  = GrouperSubject.lookup(id, type);
     Assert.assertNotNull(subj);
     String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
