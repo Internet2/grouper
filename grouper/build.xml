@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.5 2004-11-02 16:49:22 blair Exp $ -->
+<!-- $Id: build.xml,v 1.6 2004-11-04 20:57:55 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -86,6 +86,9 @@
       <arg value="test.edu.internet2.middleware.grouper.GrouperTest" />
       <classpath refid="project.class.path" />
     </java>
+    <!-- Yes, yes.  Ugly, ugly hacks.  I know.  -->
+    <move file="${build}/grouper.script"      tofile="${build}/grouper.script.last"/>
+    <copy file="${build}/grouper.script.orig" tofile="${build}/grouper.script"/>
   </target>
 
   <target name="db-init" 
@@ -116,6 +119,8 @@
       <arg value="-script"/>
       <arg value="sql/base.sql"/>
     </java>
+    <!-- I want a pristine copy to utilize later.  Yes, this is a kludge. -->
+    <copy file="${build}/grouper.script" tofile="${build}/grouper.script.orig"/>
   </target>
 
 </project>
