@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.33 2004-09-19 01:01:05 blair Exp $
+ * $Id: GrouperTest.java,v 1.34 2004-09-19 01:11:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -109,27 +109,38 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(fields);
     Assert.assertEquals(10, fields.size());
 
+    String expKlass = "edu.internet2.middleware.grouper.GrouperField";
     String field;
     field = "admins:ADMIN:ADMIN:TRUE";
     Assert.assertTrue( field.equals( fields.get(0).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(0).getClass().getName() ) );
     field = "description:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(1).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(1).getClass().getName() ) );
     field = "descriptor:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(2).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(2).getClass().getName() ) );
     field = "members:READ:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(3).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(3).getClass().getName() ) );
     field = "optins:READ:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(4).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(4).getClass().getName() ) );
     field = "optouts:READ:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(5).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(5).getClass().getName() ) );
     field = "readers:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(6).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(6).getClass().getName() ) );
     field = "stem:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(7).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(7).getClass().getName() ) );
     field = "updaters:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(8).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(8).getClass().getName() ) );
     field = "viewers:UPDATE:UPDATE:TRUE";
     Assert.assertTrue( field.equals( fields.get(9).toString() ) );
+    Assert.assertTrue( expKlass.equals( fields.get(9).getClass().getName() ) );
 
     G.destroy();
   }
@@ -158,8 +169,10 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
 
+    String expKlass = "edu.internet2.middleware.grouper.GrouperType";
     String type = "1";
     Assert.assertTrue( type.equals( types.get(0).toString() ) );
+    Assert.assertTrue( expKlass.equals( types.get(0).getClass().getName() ) );
 
     G.destroy();
   }
@@ -189,31 +202,73 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(typeDefs);
     Assert.assertEquals(10, typeDefs.size());
 
+    String expKlass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
     typeDef = "1:stem";
     Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(0).getClass().getName() ) );
     typeDef = "1:descriptor";
     Assert.assertTrue( typeDef.equals( typeDefs.get(1).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(1).getClass().getName() ) );
     typeDef = "1:description";
     Assert.assertTrue( typeDef.equals( typeDefs.get(2).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(2).getClass().getName() ) );
     typeDef = "1:members";
     Assert.assertTrue( typeDef.equals( typeDefs.get(3).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(3).getClass().getName() ) );
     typeDef = "1:viewers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(4).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(4).getClass().getName() ) );
     typeDef = "1:readers";
     Assert.assertTrue( typeDef.equals( typeDefs.get(5).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(5).getClass().getName() ) );
     typeDef = "1:updaters";
     Assert.assertTrue( typeDef.equals( typeDefs.get(6).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(6).getClass().getName() ) );
     typeDef = "1:admins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(7).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(7).getClass().getName() ) );
     typeDef = "1:optins";
     Assert.assertTrue( typeDef.equals( typeDefs.get(8).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(8).getClass().getName() ) );
     typeDef = "1:optouts";
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
+    Assert.assertTrue( expKlass.equals( typeDefs.get(9).getClass().getName() ) );
 
     G.destroy();
   }
  
+  //
+  // Class: GrouperMember
+  //
+   
+  // Instantiate a GrouperMembership instance 
+  public void testGrouperMemberInstantiate() {
+    GrouperMember member = new GrouperMember();
+
+    Class  klass    = member.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+
+    Assert.assertNotNull(member);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  // GrouperMember creation 
+  public void testGrouperMemberCreation() {
+    G = new Grouper();
+    G.init();
+/*
+    GrouperSession s = new GrouperSession();
+    s.start( G, G.config("member.system"), true );
+
+    GrouperMember member = s.lookup( G.config("member.system") );
+    Assert.assertTrue( member.memberID().equals( G.config("member.system") )); 
+    
+    s.end();
+*/
+    G.destroy();
+  }
+
 /*
   //
   // Class: GrouperSession
@@ -417,36 +472,6 @@ public class GrouperTest extends TestCase {
 
     Assert.assertNotNull(list);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
-  }
-
-  //
-  // Class: GrouperMember
-  //
-   
-
-  // Instantiate a GrouperMembership instance 
-  public void testGrouperMemberInstantiate() {
-    GrouperMember member = new GrouperMember();
-
-    Class  klass    = member.getClass();
-    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
-
-    Assert.assertNotNull(member);
-    Assert.assertTrue( expKlass.equals( klass.getName() ) );
-  }
-
-  // GrouperMember creation 
-  public void testGrouperMemberCreation() {
-    G = new Grouper();
-    G.init();
-    GrouperSession s = new GrouperSession();
-    s.start( G, G.config("member.system"), true );
-
-    GrouperMember member = s.lookup( G.config("member.system") );
-    Assert.assertTrue( member.memberID().equals( G.config("member.system") )); 
-    
-    s.end();
-    G.destroy();
   }
 
   //
