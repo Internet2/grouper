@@ -1,18 +1,24 @@
 package edu.internet2.middleware.directory.grouper;
 
 import  edu.internet2.middleware.directory.grouper.*;
+import  java.util.ArrayList;
 import  java.util.List;
 
 /** 
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.4 2004-04-30 15:29:15 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.5 2004-05-02 04:45:16 blair Exp $
  */
 public class InternalGrouperNaming implements GrouperNaming {
 
   private GrouperSession intSess = null;
 
+  /**
+   * Create a naming interface object.
+   *
+   * @param   s   Session context.
+   */
   public InternalGrouperNaming(GrouperSession s) {
     // Internal reference to the session we are using.
     intSess = s;
@@ -37,7 +43,8 @@ public class InternalGrouperNaming implements GrouperNaming {
    * a {@link GrouperGroup}.
    */
   public List has(GrouperGroup g) {
-    return null;
+    List privs = new ArrayList();
+    return privs; 
   }
 
   /**
@@ -45,7 +52,8 @@ public class InternalGrouperNaming implements GrouperNaming {
    * {@link GrouperGroup}.
    */
   public List has(GrouperGroup g, GrouperMember m) {
-    return null;
+    List privs = new ArrayList();
+    return privs; 
   }
 
   /**
@@ -63,5 +71,6 @@ public class InternalGrouperNaming implements GrouperNaming {
   public boolean has(GrouperGroup g, GrouperMember m, String priv) {
     return false;
   }
+
 }
 

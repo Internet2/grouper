@@ -1,26 +1,15 @@
 package edu.internet2.middleware.directory.grouper;
 
 /** 
- * Public {@link Grouper} interface for identifying {@link Grouper}
- * subjects.
+ * Interface for identifying {@link Grouper} subjects.
  * <p>
  * See {@link InternalGrouperSubject} for the default implementation
  * of this interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.4 2004-04-29 05:20:59 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.5 2004-05-02 04:45:16 blair Exp $
  */
 public interface GrouperSubject {
-  /**
-   * Looks up "subject" via the class specified in the
-   * "interface.subject" configuration directive.
-   * <p>
-   * If successful, "subject" will be mapped to a {@link GrouperMember} object.
-   *
-   * @param   subject The subject that we are attempting to lookup.
-   * @return  A {@link GrouperMember} object.
-   */
-  public GrouperMember lookup(String subject);
 
   /**
    * Looks up "subject" via the class specified in the
@@ -28,11 +17,25 @@ public interface GrouperSubject {
    * <p>
    * If successful, "subject" will be mapped to a {@link GrouperMember} object.
    *
-   * @param   subject The subject that we are attempting to lookup.
-   * @param   isMember  If true, the subject is assumed to be a
-   * memberID and not a presentationID.
-   * @return  A {@link GrouperMember} object.
+   * @param   subjectID   A <i>memberID</i> or <i>presentationID</i>
+   * @return  {@link GrouperMember} object representing
+   *   <i>subjectID</i>.
    */
-  public GrouperMember lookup(String subject, boolean isMember);
+  public GrouperMember lookup(String subjectID);
+
+  /**
+   * Looks up "subject" via the class specified in the
+   * "interface.subject" configuration directive.
+   * <p>
+   * If successful, "subject" will be mapped to a {@link GrouperMember} object.
+   *
+   * @param   subjectID   A <i>memberID</i> or <i>presentationID</i>
+   * @param   isMember    True if <i>subjectID</i> is a
+   *   <i>memberID</i>, false if it is a <i>presentationID</i>.
+   * @return  {@link GrouperMember} object representing
+   *   <i>subjectID</i>.
+   */
+  public GrouperMember lookup(String subjectID, boolean isMember);
+
 }
 
