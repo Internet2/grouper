@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.2 2004-12-02 02:33:49 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.3 2004-12-02 03:02:00 blair Exp $
  */
 public class GrouperQuery {
 
@@ -93,7 +93,8 @@ public class GrouperQuery {
    * <p />
    *
    * @param   type  Type of membership to query on.  Valid options are
-   *   null, "effective", and "immediate".
+   *   <i>Grouper.MEM_ALL</i>, <i>Grouper.MEM_EFF</i>, and
+  *    <i>Grouper.MEM_IMM</i>.
    * @return  Boolean true if matching items were found, otherwise
    *   false.
    */
@@ -186,13 +187,13 @@ public class GrouperQuery {
   private boolean _queryMembership(String type) throws GrouperException {
     boolean rv    = false;
     List    vals  = new ArrayList();
-    if (type == null) { // FIXME Null is ugly
+    if        (type.equals(Grouper.MEM_ALL)) {
       // Query for both effective + immediate memberships
       vals = GrouperBackend.listVals(this.gs, Grouper.DEF_LIST_TYPE);
-    } else if (type.equals("effective")) {
+    } else if (type.equals(Grouper.MEM_EFF)) {
       // Query for effective memberships
       vals = GrouperBackend.listEffVals(this.gs, Grouper.DEF_LIST_TYPE);
-    } else if (type.equals("immediate")) {
+    } else if (type.equals(Grouper.MEM_IMM)) {
       // Query for immediate memberships
       vals = GrouperBackend.listImmVals(this.gs, Grouper.DEF_LIST_TYPE);
     } else {

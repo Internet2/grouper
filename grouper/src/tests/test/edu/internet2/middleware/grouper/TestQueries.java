@@ -199,7 +199,7 @@ public class TestQueries extends TestCase {
 
     // We want all members
     try {
-      Assert.assertTrue( q.membership(null) );
+      Assert.assertTrue( q.membership(Grouper.MEM_ALL) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
@@ -212,14 +212,14 @@ public class TestQueries extends TestCase {
 
     // We want effective members
     try {
-      Assert.assertFalse( q.membership("effective") );
+      Assert.assertFalse( q.membership(Grouper.MEM_EFF) );
     } catch (GrouperException e) {
       Assert.fail("Exception: 'q.membership(null)'");
     }
 
     // We want immediate members
     try {
-      Assert.assertTrue( q.membership("immediate") );
+      Assert.assertTrue( q.membership(Grouper.MEM_IMM) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
