@@ -8,9 +8,12 @@ import java.util.Map;
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.14 2004-04-30 17:11:05 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.15 2004-04-30 18:04:44 blair Exp $
  */
 public class GrouperGroup {
+
+  private String  groupID   = null;
+  private String  groupName = null;
 
   /*
    * TODO
@@ -306,6 +309,23 @@ public class GrouperGroup {
    */
   public void  removeValue(String groupField, GrouperMember member) {
     // Nothing -- Yet
+  }
+
+  /**
+   * Identify a {@link GrouperGroup} object.
+   * <p>
+   * <ul>
+   *  <li>XXX Add to docs/examples/.</li>
+   * </ul>
+   *
+   * @return  Group name.
+   */
+  public String whoAmI() {
+    if (this.groupName == null) {
+      // XXX Query <i>grouper_metadata</i> table, fetch <i>name</i>,
+      //     and cache it in <i>this.groupName</i>.
+    }
+    return this.groupName;
   }
 
 }
