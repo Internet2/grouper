@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.99 2004-12-03 18:48:01 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.100 2004-12-03 20:55:18 blair Exp $
  */
 public class GrouperBackend {
 
@@ -131,7 +131,7 @@ public class GrouperBackend {
    */
 
   /**
-   * Add a {@link GrouperAttribute} to the registry.
+   * Store a {@link GrouperAttribute} in the registry.
    * <p />
    *
    * @param   key     {@link GrouperGroup} key.
@@ -140,9 +140,8 @@ public class GrouperBackend {
    * @return  The added {@link GrouperAttribute} object.
    */
   protected static GrouperAttribute attrAdd(
-                                            String key, String field, 
-                                            String value
-                                           ) 
+                     String key, String field, String value
+                   ) 
   {
     Session session = GrouperBackend._init();
     GrouperAttribute attr = GrouperBackend._attributeStore(
@@ -1232,7 +1231,7 @@ public class GrouperBackend {
       if (!attr.value().equals(value)) {
         try {
           attr = new GrouperAttribute(key, field, value);
-          session.save(attr);
+          session.update(attr);
         } catch (HibernateException e) {
           attr = null;
           GrouperBackend.LOGGER.warn(
