@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.1 2004-11-21 23:55:55 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.2 2004-11-22 01:40:23 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -105,7 +105,61 @@ public class TestAccessPrivs extends TestCase {
     s.stop();
   }
 
-  // ...
+  public void testHasGrantHasRevokeHas() {
+    GrouperSession  s     = new GrouperSession();
+    Assert.assertNotNull(s);
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Assert.assertNotNull(subj);
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup  grp0 = GrouperGroup.load(s, stem0, desc0);
+    // Fetch Member 0
+    GrouperMember m0   = GrouperMember.lookup(m0id, m0type);
+
+    // Assert what privs m0 has on grp0
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "ADMIN") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTIN") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTOUT") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "READ") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "UPDATE") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "VIEW") );
+
+    // Grant m0 all privs on grp0
+    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "ADMIN") );
+    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "OPTIN") );
+    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "OPTOUT") );
+    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "READ") );
+    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "UPDATE") );
+    Assert.assertTrue( GrouperPrivilege.grant(s, grp0, m0, "VIEW") );
+
+    // Assert what privs m0 has on grp0
+    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "ADMIN") );
+    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "OPTIN") );
+    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "OPTOUT") );
+    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "READ") );
+    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "UPDATE") );
+    Assert.assertTrue( GrouperPrivilege.has(s, grp0, m0, "VIEW") );
+
+    // Revoke all privs m0 has on grp0
+    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "ADMIN") );
+    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "OPTIN") );
+    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "OPTOUT") );
+    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "READ") );
+    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "UPDATE") );
+    Assert.assertTrue( GrouperPrivilege.revoke(s, grp0, m0, "VIEW") );
+
+    // Assert what privs m0 has on grp0
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "ADMIN") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTIN") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "OPTOUT") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "READ") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "UPDATE") );
+    Assert.assertFalse( GrouperPrivilege.has(s, grp0, m0, "VIEW") );
+
+    // We're done
+    s.stop();
+  }
+
   public void testHasPrivsCurrentSubject() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);

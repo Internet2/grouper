@@ -16,7 +16,7 @@ import  java.util.*;
  * {@link Grouper} Access Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.19 2004-11-22 01:25:45 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.20 2004-11-22 01:40:23 blair Exp $
  */
 public interface GrouperAccess {
 
@@ -30,7 +30,7 @@ public interface GrouperAccess {
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public void grant(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean grant(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
 
   /**
    * List access privileges for current subject on the specified group.
@@ -116,7 +116,7 @@ public interface GrouperAccess {
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public void revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
+  public boolean revoke(GrouperSession s, GrouperGroup g, GrouperMember m, String priv);
 
 }
 

@@ -19,7 +19,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Class providing read/write access to Grouper privileges.
  *
  * @author  blair christensen.
- * @version $Id: GrouperPrivilege.java,v 1.1 2004-11-20 18:46:36 blair Exp $
+ * @version $Id: GrouperPrivilege.java,v 1.2 2004-11-22 01:40:23 blair Exp $
  */
 public class GrouperPrivilege {
 
@@ -44,13 +44,13 @@ public class GrouperPrivilege {
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public static void grant(
+  public static boolean grant(
                            GrouperSession s, GrouperGroup g, 
                            GrouperMember m, String priv
                           ) 
   {
     GrouperPrivilege._init();
-    access.grant(s, g, m, priv);
+   return  access.grant(s, g, m, priv);
   }
 
   /**
@@ -62,13 +62,13 @@ public class GrouperPrivilege {
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public static void grant(
+  public static boolean grant(
                            GrouperSession s, GrouperStem stem, 
                            GrouperMember m, String priv
                           ) 
   {
     GrouperPrivilege._init();
-    naming.grant(s, stem, m, priv);
+    return naming.grant(s, stem, m, priv);
   }
 
   /**
@@ -227,13 +227,13 @@ public class GrouperPrivilege {
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public static void revoke(
+  public static boolean revoke(
                             GrouperSession s, GrouperGroup g, 
                             GrouperMember m, String priv
                            ) 
   {
     GrouperPrivilege._init();
-    access.revoke(s, g, m, priv);
+    return access.revoke(s, g, m, priv);
   }
 
   /**
@@ -245,13 +245,13 @@ public class GrouperPrivilege {
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public static void revoke(
+  public static boolean revoke(
                             GrouperSession s, GrouperStem stem, 
                             GrouperMember m, String priv
                            )  
   {
     GrouperPrivilege._init();
-    naming.revoke(s, stem, m, priv);
+    return naming.revoke(s, stem, m, priv);
   }
 
 

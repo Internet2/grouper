@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.19 2004-11-22 01:20:23 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.20 2004-11-22 01:40:23 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -48,16 +48,20 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
-  public void grant(
-                    GrouperSession s, GrouperGroup g, 
-                    GrouperMember m, String priv
-                   ) 
+  public boolean grant(
+                       GrouperSession s, GrouperGroup g, 
+                       GrouperMember m, String priv
+                      ) 
   {
     GrouperAccessImpl._init();
+    boolean rv = false;
     if (privMap.containsKey(priv)) {
-      GrouperBackend.listAddVal(g, s, m, (String) privMap.get(priv));
+      if (GrouperBackend.listAddVal(g, s, m, (String) privMap.get(priv)) == true) {
+        rv = true;
+      }
     } 
     // TODO I should probably throw an exception if invalid priv
+    return rv;
   }
 
   /**
@@ -170,16 +174,20 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
-  public void revoke(
-                     GrouperSession s, GrouperGroup g, 
-                     GrouperMember m, String priv
-                    ) 
+  public boolean revoke(
+                        GrouperSession s, GrouperGroup g, 
+                        GrouperMember m, String priv
+                       ) 
   {
     GrouperAccessImpl._init();
+    boolean rv = false;
     if (privMap.containsKey(priv)) {
-      GrouperBackend.listDelVal(g, s, m, (String) privMap.get(priv));
+      if (GrouperBackend.listDelVal(g, s, m, (String) privMap.get(priv)) == true) {
+        rv = true;
+      }
     } 
     // TODO I should probably throw an exception if invalid priv
+    return rv;
   }
 
 
