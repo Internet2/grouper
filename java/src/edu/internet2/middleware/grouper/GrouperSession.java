@@ -10,21 +10,24 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
+// TODO Needed?
 import  java.lang.reflect.*;  
+// TODO Needed?
 import  java.util.*;
 
 /** 
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.54 2004-11-06 03:45:06 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.55 2004-11-12 20:18:00 blair Exp $
  */
 public class GrouperSession {
 
   // Subject this session is running under
-  private GrouperMember   subject;
-  // The memberID of the session's subject
-  private String          subjectID;
+  private Subject subject;
+  // The subjectID of the session's subject
+  private String  subjectID;
 
   // Internal reference to the Access interface
   private GrouperAccess   intAccess;
@@ -55,16 +58,19 @@ public class GrouperSession {
    * TODO Cache privs|memberships?
    *
    * @param G {@link Grouper} object.
-   * @param s {@link GrouperMember} member object to act as
+   * @param s {@link Subject} subject object to act as
    * for the duration of this session.
    */
-  public void start(GrouperMember s) {
+  public boolean start(Subject s) {
     // Keep track of who we are
     this.subject    = s;
-    this.subjectID  = s.id();
+    this.subjectID  = s.getId();
 
     // Register a new session
-    this._registerSession();
+    if (this._registerSession()) {
+      return true;
+    } 
+    return false;
   }
 
   /**
@@ -72,21 +78,25 @@ public class GrouperSession {
    * <p>
    * TODO Update <i>grouper_session</i> table.
    */
-  public void stop() { 
+  public boolean stop() { 
     // FIXME What do we do here?
     // Maybe? this._init();
     // Wipe out entry from session table?
+    if (this.subject == null || this.subjectID == null) {
+      return false;
+    }
+    return true;
   }
 
   /**
-   * Return subject of current session as a {@link GrouperMember}
+   * Return subject of current session as a {@link Subject}
    * object.
    *
-   * @return  Subject of current session as a {@link GrouperMember}
+   * @return  Subject of current session as a {@link Subject}
    * object.
    */
-  public GrouperMember subject() {
-    return (GrouperMember) this.subject;
+  public Subject subject() {
+    return (Subject) this.subject;
   }
 
 
@@ -143,7 +153,7 @@ public class GrouperSession {
   /*
    * Register a new session with the groups registry.
    */
-  private void _registerSession() {
+  private boolean _registerSession() {
     // Create internal representations of the various Grouper
     // interfaces
     this._createInterfaces();
@@ -162,6 +172,8 @@ public class GrouperSession {
 
     // And now save the session
     GrouperBackend.addSession(this);
+
+    return true;
   }
 
 
