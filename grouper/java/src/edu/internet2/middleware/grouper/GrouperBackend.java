@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.84 2004-12-02 03:02:00 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.85 2004-12-02 07:38:51 blair Exp $
  */
 public class GrouperBackend {
 
@@ -857,9 +857,37 @@ public class GrouperBackend {
   }
 
   /**
-   * Valid {@link GrouperType} items.
+   * Query for all groups of the specified type.
+   * <p />
    *
-   * @return List of group types.
+   * @param   s     Perform query within this session.
+   * @param   type  Query on this {@link GrouperGroup} type.
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  protected static List groupType(GrouperSession s, String type) {
+    Session   session = GrouperBackend._init();
+    List      vals    = new ArrayList();
+    Iterator  iter    = GrouperBackend._queryKV(
+                                                session, "GrouperSchema",
+                                                "groupType", type
+                                               ).iterator();
+    while (iter.hasNext()) {
+      GrouperSchema gs = (GrouperSchema) iter.next();
+      // TODO What a hack
+      GrouperGroup g = GrouperGroup.loadByKey(s, gs.key(), type);
+      if (g != null) {
+        vals.add(g);
+      }
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+
+  /**
+   * Retrieve all valid {@link GrouperGroup} types.
+   * <p />
+   *
+   * @return List of {@link GrouperType} objects.
    */
   protected static List groupTypes() {
     Session session = GrouperBackend._init();
