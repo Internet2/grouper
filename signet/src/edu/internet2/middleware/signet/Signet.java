@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.13 2005-02-14 02:33:28 acohen Exp $
- $Date: 2005-02-14 02:33:28 $
+ $Id: Signet.java,v 1.14 2005-02-20 07:31:14 acohen Exp $
+ $Date: 2005-02-20 07:31:14 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1146,6 +1146,18 @@ public final class Signet
     }
 
     return destArray;
+  }
+
+  /**
+   * Gets a single PrivilegedSubject by its underlying Subject.
+   * 
+   * @param subject
+   * @return
+   * @throws ObjectNotFoundException
+   */
+  public PrivilegedSubject getPrivilegedSubject(Subject subject)
+  {
+    return new PrivilegedSubjectImpl(this, subject);
   }
 
   /**

@@ -6,14 +6,22 @@
  */
 package edu.internet2.middleware.signet.test;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import javax.naming.OperationNotSupportedException;
 
+import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
+import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.DataType;
@@ -34,25 +42,55 @@ public class Fixtures
 {
   Signet		signet;
   Subsystem	subsystem;
+  Tree			tree;
   
   /**
    * @throws OperationNotSupportedException
-   * @throws ObjectNotFoundException
    * @throws TreeNotFoundException
+   * @throws ObjectNotFoundException
+   * @throws SignetAuthorityException
+   * 
+   * This method creates a data-set with the following shape:
+   * 
+   * Subsystem
+   *   Category 0
+   *     Function 0
+   *       Permission 0
+   *         Limit 0
+   *           ChoiceSet 0
+   *             Choice 0
+   *   Category 1
+   *     Function 1
+   *       Permission 1
+   *         Limit 1
+   *           ChoiceSet 1
+   *             Choice 0
+   *             Choice 1
+   *   Category 2
+   *     Function 2
+   *       Permission 2
+   *         Limit 2
+   *           ChoiceSet 2
+   *             Choice 0
+   *             Choice 1
+   *             Choice 2
+   * 
+   * 
    * 
    */
   public Fixtures(Signet signet)
   throws
   	OperationNotSupportedException,
-  	ObjectNotFoundException,
-  	TreeNotFoundException
+  	TreeNotFoundException,
+  	SignetAuthorityException,
+  	ObjectNotFoundException
   {
     super();
     this.signet = signet;
     this.subsystem = getOrCreateSubsystem();
     
-    Tree tree = getOrCreateTree();
-    subsystem.setTree(tree);
+    this.tree = getOrCreateTree();
+    this.subsystem.setTree(this.tree);
     
     for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
     {
@@ -61,7 +99,7 @@ public class Fixtures
     
     for (int i = 0; i < Constants.MAX_CHOICE_SETS; i++)
     {
-      ChoiceSet emptyChoiceSet = getOrCreateChoiceSet(i); 
+      ChoiceSet choiceSet = getOrCreateChoiceSet(i); 
     }
     
     for (int i = 0; i < Constants.MAX_LIMITS; i++)
@@ -84,14 +122,60 @@ public class Fixtures
       permission.addLimit(getOrCreateLimit(i));
     }
     
-    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
-    {
-      Subject subject = getOrCreateSubject(i);
-    }
-    
     signet.save(this.subsystem);
+    
+//    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+//    {
+//      Assignment assignment = getOrCreateAssignment(i);
+//      this.signet.save(assignment);
+//    }
+    
   }
   
+  private Assignment getOrCreateAssignment(int assignmentNumber)
+  throws
+  	SignetAuthorityException,
+  	ObjectNotFoundException
+  {
+    PrivilegedSubject superPrivilegedSubject
+    	= signet.getSuperPrivilegedSubject();
+    TreeNode rootNode = getRoot(tree);
+
+    Subject subject = getOrCreateSubject(assignmentNumber);
+    Function function = getOrCreateFunction(assignmentNumber);
+    
+    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    Assignment assignment
+    	= superPrivilegedSubject.grant
+    			(pSubject,
+    	     rootNode,
+    	     function,
+    	     getLimitValueMap(function),
+    	     true,    // canGrant
+    	     false);  // grantOnly
+    
+    return assignment;
+  }
+
+  private Map getLimitValueMap(Function function)
+  throws ObjectNotFoundException
+  {
+    Limit limit = function.getLimitsArray()[0];
+    Set choices = limit.getChoiceSet().getChoices();
+    Choice choice = null;
+    
+    Iterator choicesIterator = choices.iterator();
+    while (choicesIterator.hasNext())
+    {
+      choice = (Choice)(choicesIterator.next());
+    }
+    
+    Map limitValueMap = new HashMap();
+    limitValueMap.put(limit, choice.getValue());
+    
+    return limitValueMap;
+  }
+
   /**
    * @param i
    * @return
@@ -120,7 +204,7 @@ public class Fixtures
    * @param subjectNumber
    * @return
    */
-  private String makeSubjectId(int subjectNumber)
+  String makeSubjectId(int subjectNumber)
   {
     return "SUBJECT_" + subjectNumber + "_ID";
   }
@@ -225,10 +309,10 @@ public class Fixtures
       	= this.signet.newChoiceSet
       			(subsystem, makeChoiceSetId(choiceSetNumber));
       
-      for (int i = 0; i < choiceSetNumber; i++)
+      for (int i = 0; i <= choiceSetNumber; i++)
       {
         // Create and persist the Choice object to be tested.
-        // ChoiceSet 0 has 0 choices, choiceSet 1 has 1, and so on.
+        // ChoiceSet 0 has choice 0, choiceSet 1 has choices 0 and 1, and so on.
         Choice choice
         	= choiceSet.addChoice
         			(makeChoiceValue(i),
@@ -486,5 +570,28 @@ public class Fixtures
   public String makeFunctionId(int functionNumber)
   {
     return "FUNCTION_" + functionNumber + "_ID";
+  }
+
+  /**
+   * @param limitNumber
+   * @return
+   */
+  public String makeLimitValue(int limitNumber)
+  {
+    return "LIMIT_" + limitNumber + "_VALUE";
+  }
+  
+  private TreeNode getRoot(Tree tree)
+  {
+    TreeNode root = null;
+    
+    Set roots = tree.getRoots();
+    Iterator rootsIterator = roots.iterator();
+    while (rootsIterator.hasNext())
+    {
+      root = (TreeNode)(rootsIterator.next());
+    }
+    
+    return root;
   }
 }

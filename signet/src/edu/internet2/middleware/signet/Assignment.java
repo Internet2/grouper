@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.5 2005-02-08 19:20:50 acohen Exp $
-$Date: 2005-02-08 19:20:50 $
+$Id: Assignment.java,v 1.6 2005-02-20 07:31:14 acohen Exp $
+$Date: 2005-02-20 07:31:14 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -151,6 +151,14 @@ public Status getStatus();
 public void revoke(PrivilegedSubject revoker)
 throws SignetAuthorityException;
 
+/**
+ * Gets the Limits and Limit-values applied to this Assignment.
+ * 
+ * @return an array of Limits (constraints) applied to this Assignment,
+ * along with the values of those Limits.
+ */
+public LimitValue[] getLimitValuesArray();
+
 ///**
 // * @return the PrivilegedSubject who is the proxy that created/modified this 
 // * 		assignment.
@@ -163,10 +171,6 @@ throws SignetAuthorityException;
 // */
 //Permission[] getPermissions();
 //
-///**
-// * @return an array of Limits (constraints) applied to this assignment.
-//*/
-//Limit[] getLimits();
 //
 ///**
 // * @return an array of Prerequisites applied to this assignment.  Note 

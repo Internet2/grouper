@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: PrivilegedSubject.java,v 1.4 2005-02-20 07:31:14 acohen Exp $
+ $Date: 2005-02-20 07:31:14 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@
  */
 package edu.internet2.middleware.signet;
 
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -45,6 +46,9 @@ public interface PrivilegedSubject extends Subject, Comparable
     (Assignment anAssignment, String actor);
   
   /**
+   * @deprecated This function is superseded by the newer version, which
+   * includes a "limitValues" parameter.
+   * 
    * Creates an Assignment by granting a Function to a PrivilegedSubject.
    * 
    * @param grantee
@@ -68,10 +72,36 @@ public interface PrivilegedSubject extends Subject, Comparable
   	ObjectNotFoundException;
   
   /**
+   * Creates an Assignment by granting a Function to a PrivilegedSubject.
+   * 
+   * @param grantee
+   * @param scope
+   * @param function
+   * @param limitValues a Map indexed by Limit, whose values are Strings.
+   * @param canGrant
+   * @param grantOnly
+   * 
+   * @return the resulting Assignment
+   * 
+   * @throws SignetAuthorityException, ObjectNotFoundException
+   */
+  public Assignment grant
+  (PrivilegedSubject 	grantee,
+   TreeNode 					scope,
+   Function 					function,
+   Map								limitValues,
+   boolean 						canGrant,
+   boolean 						grantOnly)
+  throws
+  	SignetAuthorityException,
+  	ObjectNotFoundException;
+  
+  /**
    * Gets all the Assignments which have been received by this
    * PrivilegedSubject.
    * 
-   * @param status
+   * @param status The Status value to filter the result by. A null value
+   * returns all Assignments regardless of Status.
    * @param subsystem
    * @return all the Assignments which have been received by this
    * PrivilegedSubject.

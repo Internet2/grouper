@@ -124,9 +124,10 @@ public class ChoiceSetTest extends TestCase
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
 
-      // choiceSet 0 has 0 choices, choiceSet 1 has 1, and so on.
+      // choiceSet 0 contains choice 0, choiceSet 1 contains choices 0 and 1,
+      // and so on.
       Set choices = choiceSet.getChoices();
-      assertEquals(choiceSetIndex, choices.size());
+      assertEquals(choiceSetIndex + 1, choices.size());
     }
   }
 }

@@ -96,4 +96,9 @@ public class LimitRenderer
   {
     return "LIMIT_" + limit.getId();
   }
+  
+  public static String makeChoiceName(Limit limit, int choiceNumber)
+  {
+    return makeLimitName(limit) + "_LIMIT_" + choiceNumber;
+  }
 }

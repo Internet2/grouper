@@ -1,41 +1,35 @@
-/*
- * Created on Dec 7, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package edu.internet2.middleware.signet;
 
 import java.io.Serializable;
 
 /**
- *	Limit IDs are composite in nature, naming both the Limit
+ *	ChoiceSet IDs are composite in nature, naming both the ChoiceSet
  *	and its enclosing Subsystem. Both parts are required to uniquely
- *	identify a Limit.
+ *	identify a ChoiceSet.
  *
  *	This code was copied from example code in "Hibernate in Action", page
  *  334.
  */
-class LimitFullyQualifiedId implements Serializable
+class ChoiceSetFullyQualifiedId implements Serializable
 {
   private String	subsystemId;
-  private String	limitId;
+  private String	choiceSetId;
 
   /**
    * Hibernate requires that each persistable entity have a default
    * constructor.
    */
-  public LimitFullyQualifiedId()
+  public ChoiceSetFullyQualifiedId()
   {
       super();
   }
   
-  public LimitFullyQualifiedId
+  public ChoiceSetFullyQualifiedId
   	(String	subsystemId,
-  	 String	limitId)
+  	 String	choiceSetId)
   {
     this.subsystemId = subsystemId;
-    this.limitId = limitId;
+    this.choiceSetId = choiceSetId;
   }
   
   public String getSubsystemId()
@@ -48,14 +42,14 @@ class LimitFullyQualifiedId implements Serializable
     this.subsystemId = subsystemId;
   }
   
-  public String getLimitId()
+  public String getChoiceSetId()
   {
-    return this.limitId;
+    return this.choiceSetId;
   }
   
-  void setLimitId(String limitId)
+  void setChoiceSetId(String choiceSetId)
   {
-    this.limitId = limitId;
+    this.choiceSetId = choiceSetId;
   }
   
   public boolean equals(Object o)
@@ -70,19 +64,19 @@ class LimitFullyQualifiedId implements Serializable
       return false;
     }
     
-    if (!(o instanceof LimitFullyQualifiedId))
+    if (!(o instanceof ChoiceSetFullyQualifiedId))
     {
       return false;
     }
     
-    final LimitFullyQualifiedId lfqId = (LimitFullyQualifiedId)o;
+    final ChoiceSetFullyQualifiedId csfqId = (ChoiceSetFullyQualifiedId)o;
     
-    if (!subsystemId.equals(lfqId.getSubsystemId()))
+    if (!subsystemId.equals(csfqId.getSubsystemId()))
     {
       return false;
     }
     
-    if (!limitId.equals(lfqId.getLimitId()))
+    if (!choiceSetId.equals(csfqId.getChoiceSetId()))
     {
       return false;
     }
@@ -94,9 +88,9 @@ class LimitFullyQualifiedId implements Serializable
   {
     int hashCode = 0;
     
-    if (limitId != null)
+    if (choiceSetId != null)
     {
-    	hashCode = limitId.hashCode();
+    	hashCode = choiceSetId.hashCode();
     }
 
     return hashCode;
@@ -107,8 +101,8 @@ class LimitFullyQualifiedId implements Serializable
     return
     	"[subsystemId='"
     	+ subsystemId
-    	+ "',limitId='"
-    	+ limitId
+    	+ "',choiceSetId='"
+    	+ choiceSetId
     	+ "']";
   }
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.4 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: AssignmentImpl.java,v 1.5 2005-02-20 07:31:14 acohen Exp $
+ $Date: 2005-02-20 07:31:14 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,9 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -62,6 +65,7 @@ implements Assignment, Comparable
   private PrivilegedSubject revoker;
   private TreeNode					scope;
   private FunctionImpl			function;
+  private Set								limitValues;
   private boolean						grantable;
   private boolean						grantOnly;
   private Date							effectiveDate;
@@ -72,25 +76,27 @@ implements Assignment, Comparable
   public AssignmentImpl()
   {
     super();
+    this.limitValues = new HashSet();
   }
   
   public AssignmentImpl
-  (Signet							signet,
-      PrivilegedSubject	grantor, 
-      PrivilegedSubject 	grantee,
-      TreeNode						scope,
-      Function						function,
-      boolean						canGrant,
-      boolean						grantOnly)
+  	(Signet							signet,
+     PrivilegedSubject	grantor, 
+     PrivilegedSubject 	grantee,
+     TreeNode						scope,
+     Function						function,
+     Map								limitValues,
+     boolean						canGrant,
+     boolean						grantOnly)
   throws
-  SignetAuthorityException
+  	SignetAuthorityException
   {
     super(signet, null, null, Status.ACTIVE);
     
     if (function == null)
     {
       throw new IllegalArgumentException
-      ("It's illegal to grant an Assignment for a NULL Function.");
+      	("It's illegal to grant an Assignment for a NULL Function.");
     }
     
     if ((canGrant == false) && (grantOnly == true))
@@ -99,12 +105,15 @@ implements Assignment, Comparable
       ("It is illegal to create a new Assignment with both its canGrant"
           + " and grantOnly attributes set true.");
     }
+    
+    this.limitValues = new HashSet();
 
     this.setGrantor(grantor);
     this.setGrantee(grantee);
     
     this.scope = scope;
     this.function = (FunctionImpl)function;
+    this.setAllLimitValues(function, limitValues);
     this.grantable = canGrant;
     this.grantOnly = grantOnly;
     
@@ -115,14 +124,46 @@ implements Assignment, Comparable
     {
       throw new SignetAuthorityException
       ("The grantor '"
-          + grantor.getId()
-          + "' does not have the authority to assign the function '"
-          + function.getId()
-          + "' in the scope '"
-          + scope.getId()
-          + "'. "
-          + this.grantor.editRefusalExplanation(this, "grantor"));
+       + grantor.getId()
+       + "' does not have the authority to assign the function '"
+       + function.getId()
+       + "' in the scope '"
+       + scope.getId()
+       + "'. "
+       + this.grantor.editRefusalExplanation(this, "grantor"));
     }
+  }
+  
+  private void setAllLimitValues
+  	(Function function,
+  	 Map			limitValues)
+  throws IllegalArgumentException
+  {
+    Limit limits[] = function.getLimitsArray();
+    for (int i = 0; i < limits.length; i++)
+    {
+      Limit limit = limits[i];
+      String value = (String)(limitValues.get(limit));
+      
+      if (value == null)
+      {
+        throw new IllegalArgumentException
+        	("An attempt to grant an Assignment for the Function '"
+        	 + function.getId()
+        	 + "' failed because the supplied set of limit-values did not"
+        	 + " include a value for the required limit '"
+        	 + limit.getId()
+        	 + "'.");
+      }
+      
+      this.limitValues.add(new LimitValue(limit, value));
+    }
+  }
+  
+  public LimitValue[] getLimitValuesArray()
+  {
+    LimitValue limitValuesArray[] = new LimitValue[0];
+    return (LimitValue[])(this.limitValues.toArray(limitValuesArray));
   }
   
   /* (non-Javadoc)

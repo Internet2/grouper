@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.4 2005-01-21 20:30:47 acohen Exp $
- $Date: 2005-01-21 20:30:47 $
+ $Id: PrivilegedSubjectImpl.java,v 1.5 2005-02-20 07:31:14 acohen Exp $
+ $Date: 2005-02-20 07:31:14 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -11,6 +11,7 @@ package edu.internet2.middleware.signet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.set.UnmodifiableSet;
@@ -680,20 +681,54 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return this.subject;
   }
 
-  public Assignment grant(PrivilegedSubject grantee, TreeNode scope,
-      Function function, boolean canGrant, boolean grantOnly)
-      throws SignetAuthorityException, ObjectNotFoundException
+  public Assignment grant
+  	(PrivilegedSubject 	grantee,
+  	 TreeNode 					scope,
+     Function 					function,
+     boolean 						canGrant,
+     boolean 						grantOnly)
+  throws
+  	SignetAuthorityException,
+  	ObjectNotFoundException
+  {
+    return this.grant
+    	(grantee,
+    	 scope,
+    	 function,
+    	 null,
+    	 canGrant,
+    	 grantOnly);
+  }
+
+  public Assignment grant
+  	(PrivilegedSubject 	grantee,
+  	 TreeNode 					scope,
+     Function 					function,
+     Map								limitValues,
+     boolean 						canGrant,
+     boolean 						grantOnly)
+  throws
+  	SignetAuthorityException,
+  	ObjectNotFoundException
   {
     if (function == null)
     {
-      throw new IllegalArgumentException(
-          "It's illegal to grant an Assignment on a NULL Function.");
+      throw new IllegalArgumentException
+      	("It's illegal to grant an Assignment on a NULL Function.");
     }
 
     Assignment newAssignment = null;
 
-    newAssignment = new AssignmentImpl(this.signet, this, grantee, scope,
-        function, canGrant, grantOnly);
+    newAssignment
+    	= new AssignmentImpl
+    			(this.signet,
+    			 this,
+    			 grantee,
+    			 scope,
+    			 function,
+    			 limitValues,
+    			 canGrant,
+    			 grantOnly);
 
     this.addAssignmentGranted(newAssignment);
     ((PrivilegedSubjectImpl) grantee).addAssignmentReceived(newAssignment);

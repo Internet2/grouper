@@ -7,10 +7,6 @@
 		table="Assignment"
 		lazy="true">
 		
-		<meta attribute="class-description">
-			@author Andy Cohen
-		</meta>
-		
 <!--
 		NOTE: The following ID declaration must be used on HSQL.
 -->
@@ -41,23 +37,6 @@
 			name="granteeId" column="granteeID" />
 		<property
 			name="granteeTypeId" column="granteeTypeID" />
-			
-<!--
-		<many-to-one name="grantor" class="edu.internet2.middleware.signet.PrivilegedSubjectImpl" cascade="save-update" not-null="true">
-			<column name="grantorID"/>
-			<column name="grantorTypeID"/>
-		</many-to-one>
-		
-		<many-to-one
-			name="grantee"
-			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
-			cascade="save-update"
-			not-null="true">
-			
-			<column name="granteeID"/>
-			<column name="granteeTypeID"/>
-		</many-to-one>
--->
 		
 		<many-to-one
 			name="function"
@@ -79,9 +58,10 @@
 			<column name="scopeNodeID"/>
 		</many-to-one>
 		
-		<property name="status" type="edu.internet2.middleware.signet.StatusType" not-null="true">
-			<meta attribute="use-in-tostring">true</meta>
-		</property>
+		<property
+			name="status"
+			type="edu.internet2.middleware.signet.StatusType"
+			not-null="true"/>
 		<property
 			name="grantable"
 			column="canGrant"
@@ -91,17 +71,6 @@
 			name="grantOnly"
 			type="boolean"
 			not-null="true"/>
-			
-<!--
-		<property name="effectiveDate" type="timestamp" not-null="true"/>
-		<property name="createDatetime" type="timestamp" not-null="true"/>
-		<property name="createDbAccount" type="string" not-null="true"/>
-		<property name="createUserID" type="string" not-null="false"/>
-		<property name="createContext" type="string" not-null="false"/>
-		<property name="modifyDbAccount" type="string" not-null="true"/>
-		<property name="modifyUserID" type="string" not-null="false"/>
-		<property name="modifyContext" type="string" not-null="false"/>
-		<property name="comment" type="string" not-null="false"/>
--->
+
 	</class>
 </hibernate-mapping>

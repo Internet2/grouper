@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.4 2005-02-01 19:48:20 acohen Exp $
-$Date: 2005-02-01 19:48:20 $
+$Id: ChoiceSet.java,v 1.5 2005-02-20 07:31:14 acohen Exp $
+$Date: 2005-02-20 07:31:14 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.naming.OperationNotSupportedException;
 
+import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Subsystem;
 
 /**
@@ -29,8 +30,9 @@ public interface ChoiceSet
 	 * Indicates if this ChoiceSet is restricted to the returned
 	 * Subsystem. A null value indicates this ChoiceSet
 	 * is usable by any Subsystem.
+	 * @throws ObjectNotFoundException
 	 */
-	public Subsystem getSubsystem();
+	public Subsystem getSubsystem() throws ObjectNotFoundException;
 
 	/**
 	 * Returns the ChoiceSet adapter.
