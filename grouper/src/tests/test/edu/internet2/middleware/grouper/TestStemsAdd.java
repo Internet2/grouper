@@ -61,13 +61,13 @@ public class TestNamespaces extends TestCase {
   private String  klass   = "edu.internet2.middleware.grouper.GrouperGroup";
   private String  naming  = "naming";
 
-  private String  stem0   = "";
+  private String  stem0   = Grouper.NS_ROOT;
   private String  extn0   = "stem.0";
   private String  stem00  = "stem.0";
   private String  extn00  = "stem.0.0";
-  private String  stem1   = "";
+  private String  stem1   = Grouper.NS_ROOT;
   private String  extn1   = "stem.1";
-  private String  stem2   = "";
+  private String  stem2   = Grouper.NS_ROOT;
   private String  extn2   = "stem.2";
   
 
