@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupsAdd.java,v 1.6 2004-11-22 18:32:05 blair Exp $
+ * $Id: TestGroupsAdd.java,v 1.7 2004-11-22 18:36:14 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -62,7 +62,7 @@ public class TestGroups extends TestCase {
     Assert.assertFalse( grp0.exists() );
     GrouperGroup    grp1  = GrouperGroup.load(s, stem1, desc1);
     Assert.assertFalse( grp1.exists() );
-    GrouperGroup    grp2  = GrouperGroup.load(s, stem1, desc2);
+    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, desc2);
     Assert.assertFalse( grp2.exists() );
     // We're done
     s.stop();
