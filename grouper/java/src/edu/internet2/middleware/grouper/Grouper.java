@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.27 2004-09-08 22:25:53 blair Exp $
+ * @version $Id: Grouper.java,v 1.28 2004-09-10 17:51:12 blair Exp $
  */
 public class Grouper {
 
@@ -108,12 +108,7 @@ public class Grouper {
   }
 
   /**
-   * Get {@link Grouper} configuration parameter.
-   * <p>
-   * <ul>
-   *  <li>Returns value of requested run-time configuration
-   *      parameter.</li>
-   * </ul> 
+   * {@link Grouper} run-time configuration parameter getter.
    * 
    * @param   parameter Requested configuration parameter.
    * @return  Value of configuration parameter.
