@@ -1,0 +1,88 @@
+<!-- $Id: build.xml,v 1.1 2004-06-17 16:43:28 blair Exp $ -->
+
+<project name="Grouper" default="build" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="app.name"         value="Grouper"/>
+  <property name="src"              location="java/src"/>
+  <property name="build"            location="build"/>
+  <property name="src-test"         location="java/tests"/>
+  <property name="build-test"       location="build/test"/>
+  <property name="dist"             location="dist"/>
+  <property name="javadoc.source"   value="${src}"/>
+  <property name="javadoc.dest"     value="${build}/api"/>
+  <property name="javadoc.packages" value="edu.internet2.middleware.directory.grouper.*"/>
+
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build}" />
+    <!-- only define our classpath once -->
+    <path id="project.class.path">
+      <pathelement path="${classpath}"/>
+      <fileset dir="java/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${dist}/lib">
+        <include name="${app.name}-${DSTAMP}.jar" />
+        <include name="${app.name}-Test.jar" />
+      </fileset>
+    </path>
+  </target>
+
+  <target name="build" depends="init"
+        description="compile the source " >
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+
+  <target name="dist" depends="build" description="generate the distribution" >
+    <mkdir dir="${dist}/lib" />
+    <jar jarfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build}" />
+    <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
+  </target>
+
+  <target name="jar" depends="dist" />
+
+  <target name="clean" description="clean up" >
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <target name="all" depends="dist,test,javadoc" />
+
+  <target name="javadoc">
+    <mkdir dir="${javadoc.source}"/>
+    <javadoc sourcepath="${javadoc.source}" 
+      destdir="${javadoc.dest}" 
+      packagenames="${javadoc.packages}" 
+      classpathref="project.class.path" 
+      private="true"   
+      author="true"/>
+  </target>
+
+  <target name="doc" depends="javadoc" />
+
+  <target name="test" depends="test-jar,test-run">
+  </target>
+
+  <target name="test-build" depends="jar">
+    <mkdir dir="${build-test}" />
+    <javac srcdir="${src-test}" destdir="${build-test}">
+      <classpath refid="project.class.path" />
+      <include name="**/*.java" />
+    </javac>
+    </target>
+
+  <target name="test-jar" depends="test-build">
+    <jar jarfile="${dist}/lib/${app.name}-Test.jar" basedir="${build-test}" />
+  </target>
+
+  <target name="test-run" depends="test-build">
+    <java fork="yes" classname="junit.textui.TestRunner" 
+      taskname="junit" failonerror="true">
+      <arg value="test.edu.internet2.middleware.directory.grouper.GrouperTest" />
+      <classpath refid="project.class.path" />
+    </java>
+  </target>
+
+</project>
+
