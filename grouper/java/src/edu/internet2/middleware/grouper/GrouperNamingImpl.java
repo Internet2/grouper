@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 
@@ -60,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.58 2005-03-25 19:50:58 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.59 2005-03-29 18:10:40 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
