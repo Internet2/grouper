@@ -35,6 +35,13 @@
     </property>
   </class>
 
+  <class name="GrouperSchema" table="grouper_schema" mutable="true">
+    <composite-id access="field">
+      <key-property name="groupKey"   type="string"  column="groupKey"/>
+      <key-property name="groupType"  type="integer" column="groupType"/>
+    </composite-id>
+  </class>
+
   <class name="GrouperSession" table="grouper_session">
     <id name="sessionID" type="string" unsaved-value="null" >
       <column name="sessionID" sql-type="char(255)" not-null="true"/>

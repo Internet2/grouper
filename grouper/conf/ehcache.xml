@@ -59,6 +59,15 @@
     overflowToDisk="true"
   />
 
+  <!-- XXX I have no idea what is appropriate for this cache -->
+  <cache name="edu.internet2.middleware.group.GrouperSchema"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+  />
+
   <!-- Non-mutable table with few items -->
   <cache name="edu.internet2.middleware.grouper.GrouperType"
     maxElementsInMemory="100"
