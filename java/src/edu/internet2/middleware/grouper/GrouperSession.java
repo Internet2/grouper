@@ -52,11 +52,9 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.grouper.database.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
-import  java.sql.*;
-import  net.sf.hibernate.*;
-import  net.sf.hibernate.cfg.*;
 
 
 /** 
@@ -64,7 +62,7 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.76 2005-03-02 22:39:12 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.77 2005-03-04 19:17:58 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -75,11 +73,8 @@ public class GrouperSession implements Serializable {
   private transient GrouperMember m; 
   private transient Subject       subject;
 
-  // For Hibernate
-  private transient Session         session;
-  private transient int             sessionCnt;
-  private static    Configuration   cfg;     
-  private static    SessionFactory  factory;
+  // Object containing the Hibernate session for this session
+  private transient Session       dbSess;
 
   /* 
    * The id of the session's subject.  Despite the fact that I can get
@@ -131,10 +126,14 @@ public class GrouperSession implements Serializable {
     // TODO Plugin an external session handling mechanism?  Yes, please!
     // TODO Should I cache privs + memberships?
     GrouperSession gs = null;
+    // Register the Grouper session
     if (s != null) {
       gs = new GrouperSession(s);
-      // Register a new session
       boolean rv = gs._registerSession();
+      if (rv) {
+        // Initialize the Hibernate session
+       gs.dbSess = new Session(); 
+      }
       Grouper.log().sessionStart(rv, gs);
     }
     return gs;
@@ -157,6 +156,7 @@ public class GrouperSession implements Serializable {
         rv = true;
       }
     }
+    this.dbSess.stop();
     Grouper.log().sessionStop(rv, this);
     return rv;
   }
@@ -176,60 +176,10 @@ public class GrouperSession implements Serializable {
    */
 
   /*
-   * Return the current Hibernate session
+   * Return the database session.
    */
   protected Session dbSess() {
-    if (this.session != null) {
-      return this.session;
-    } else {
-      // TODO Is this the right response?
-      throw new RuntimeException("No open database session!");
-    }
-  }
-
-  /*
-   * Start (or reuse) a Hibernate session
-   */
-  protected void dbSessStart() {
-    if (this.session == null) {
-      _configuration();
-      _sessionFactory();
-      try {
-        this.session = factory.openSession();
-      } catch (HibernateException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    /*
-     * Increment session count by one for each time we pass through
-     * this method.  We need to keep track of how deeply nested we
-     * might be within nested API methods so that we don't erroneously
-     * close a session until we return to the original caller.
-     */
-    sessionCnt += 1;
-  }
-
-  /*
-   * Stop (or not) a Hibernate session
-   */
-  protected void dbSessStop() {
-    sessionCnt -= 1; 
-    if (sessionCnt <= 0) {
-      // We have presumably found the original caller and can now
-      // cleanup
-      try {
-        session.connection().commit();
-        try {
-          session.close();
-          session    = null;
-          sessionCnt = 0;
-        } catch (HibernateException e) {
-          throw new RuntimeException(e);
-        }
-      } catch (Exception e) {
-        throw new RuntimeException("SQL Commit Exception:" + e);
-      }
-    }
+    return this.dbSess;
   }
 
   /*
@@ -241,35 +191,6 @@ public class GrouperSession implements Serializable {
 
 
   /*
-   * PRIVATE CLASS METHODS
-   */
-  private static void _configuration() {
-    if (cfg == null) {
-      InputStream in = Session.class
-                         .getResourceAsStream("/Grouper.hbm.xml"); 
- 
-      try {
-        // conf.load(in);
-        cfg = new Configuration()
-          .addInputStream(in);
-      } catch (MappingException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  private static void _sessionFactory() {
-    if (factory == null) {
-      try {
-        factory = cfg.buildSessionFactory();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    } 
-  }
-
-
-  /*
    * PRIVATE INSTANCE METHODS
    */
 
@@ -277,6 +198,7 @@ public class GrouperSession implements Serializable {
    * Initialize instance variables
    */
   private void _init() {
+    this.dbSess     = null;
     this.memberID   = null;
     this.sessionID  = null;
     this.startTime  = null;
