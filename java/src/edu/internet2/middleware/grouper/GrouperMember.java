@@ -7,7 +7,7 @@ import java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.6 2004-04-20 21:36:31 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.7 2004-04-20 21:38:43 blair Exp $
  */
 public class GrouperMember {
 
@@ -53,7 +53,7 @@ public class GrouperMember {
    * @return List of {@link GrouperGroup} objects representing
    * immediate memberships.
    */
-  public List immediateMemberships(String groupFieldID) {
+  public List immediateMemberships(String groupField) {
     return null;
   }
 
@@ -71,7 +71,7 @@ public class GrouperMember {
    * @return List of {@link GrouperGroup} objects representing
    * effective memberships
    */
-  public List effectiveMemberships(String groupFieldID) {
+  public List effectiveMemberships(String groupField) {
     return null;
   }
 
