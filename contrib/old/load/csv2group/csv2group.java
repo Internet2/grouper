@@ -56,7 +56,7 @@
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.2 2004-12-04 02:45:25 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.3 2004-12-04 03:14:34 blair Exp $ 
  */
 
 import  edu.internet2.middleware.grouper.*;
@@ -71,8 +71,7 @@ class csv2group {
   /*
    * PRIVATE CONSTANTS
    */
-  private static final String NAME      = "csv2group";
-  private static final String DEF_STID  = "person";
+  private static final String NAME = "csv2group";
 
 
   /*
@@ -329,9 +328,9 @@ class csv2group {
         System.exit(1);
       }
     }
-    _verbose("Using default subjectTypeID (" + DEF_STID + ")");
+    _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = GrouperSubject.lookup(subjectID, DEF_STID);
+    subj = GrouperSubject.lookup(subjectID, Grouper.DEF_SUBJ_TYPE);
   }
 
   /* (!javadoc)

@@ -93,7 +93,7 @@ public class TestGroups extends TestCase {
   // Fetch non-existent groups
   public void testGroupsExistFalse() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
 
     // Confirm that groups don't exist
@@ -114,7 +114,7 @@ public class TestGroups extends TestCase {
 
   public void testCreateG0() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create g0
     String stem = stem0;
@@ -133,7 +133,7 @@ public class TestGroups extends TestCase {
 
   public void testCreateG1() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create g1
     String stem = stem1;
@@ -152,7 +152,7 @@ public class TestGroups extends TestCase {
 
   public void testCreateG2() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create g2
     String stem = stem2;
@@ -171,7 +171,7 @@ public class TestGroups extends TestCase {
 
   public void testCreateG3() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create g3
     String stem = stem3;
@@ -190,7 +190,7 @@ public class TestGroups extends TestCase {
 
   public void testCreateG4() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Create g4
     String stem = stem4;
@@ -209,7 +209,7 @@ public class TestGroups extends TestCase {
 
   public void testFetchG0() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch g0
     GrouperGroup g = GrouperGroup.lookup(s, stem0, extn0);
@@ -232,7 +232,7 @@ public class TestGroups extends TestCase {
 
   public void testFetchG1() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch g1
     GrouperGroup g = GrouperGroup.lookup(s, stem1, extn1);
@@ -255,7 +255,7 @@ public class TestGroups extends TestCase {
 
   public void testFetchG2() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch g2
     GrouperGroup g = GrouperGroup.lookup(s, stem2, extn2);
@@ -278,7 +278,7 @@ public class TestGroups extends TestCase {
 
   public void testFetchG3() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch g3
     GrouperGroup g = GrouperGroup.lookup(s, stem3, extn3);
@@ -301,7 +301,7 @@ public class TestGroups extends TestCase {
 
   public void testFetchG4() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch g4
     GrouperGroup g = GrouperGroup.lookup(s, stem4, extn4);
@@ -325,7 +325,7 @@ public class TestGroups extends TestCase {
   // Delete a group
   public void testDeleteGroups0() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
 
     // Delete g4
@@ -340,7 +340,7 @@ public class TestGroups extends TestCase {
   // Fetch valid groups
   public void testFetchGroups1() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
 
     // Fetch the groups
@@ -394,7 +394,7 @@ public class TestGroups extends TestCase {
 
   public void testCreateG5() {
     GrouperSession  s     = new GrouperSession();
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Attempt to recreate g0
     String stem = stem0;

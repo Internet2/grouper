@@ -80,7 +80,7 @@ import  org.apache.commons.cli.*;
  * </ol>
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.1 2004-11-30 06:55:10 blair Exp $
+ * @version $Id: grouperq.java,v 1.2 2004-12-04 03:14:35 blair Exp $
  */
 class grouperq {
 
@@ -88,9 +88,8 @@ class grouperq {
    * PRIVATE CLASS CONSTANTS
    */
 
-  private static final String NAME      = "grouperq";
-  private static final String DEF_FIELD = "members";
-  private static final String DEF_STID  = "person";
+  private static final String NAME = "grouperq";
+
 
   /*
    * PRIVATE CLASS VARIABLES
@@ -132,8 +131,8 @@ class grouperq {
   private static List _grouperQuery() {
     List vals = new ArrayList();
     if (field == null) {
-      _verbose("Using default group field (" + DEF_FIELD + ")");
-      field = DEF_FIELD;
+      _verbose("Using default group field (" + Grouper.DEF_LIST_TYPE + ")");
+      field = Grouper.DEF_LIST_TYPE;
     }
     _verbose("Looking up field '" + subjectID + "'");
     vals = mem.listVals(s, field);
@@ -266,9 +265,9 @@ class grouperq {
         System.exit(1);
       }
     }
-    _verbose("Using default subjectTypeID (" + DEF_STID + ")");
+    _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = GrouperSubject.lookup(subjectID, DEF_STID);
+    subj = GrouperSubject.lookup(subjectID, Grouper.DEF_SUBJ_TYPE);
   }
 
   /* (!javadoc)

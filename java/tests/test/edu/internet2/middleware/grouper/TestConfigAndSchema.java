@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.15 2004-12-04 02:43:46 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.16 2004-12-04 03:14:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -220,12 +220,12 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertTrue( klassGroupAdapter.equals( staGroup.getClass().getName() ) );
     Assert.assertNotNull( staGroup.getClass().getName() );
     
-    SubjectType stPerson        = Grouper.subjectType("person");
+    SubjectType stPerson        = Grouper.subjectType(Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull(stPerson);
     String klassPerson          = "edu.internet2.middleware.grouper.SubjectTypeImpl";
     Assert.assertTrue( klassPerson.equals( stPerson.getClass().getName()) );
     Assert.assertNotNull( stPerson.getId() );
-    Assert.assertTrue( stPerson.getId().equals( "person" ) );
+    Assert.assertTrue( stPerson.getId().equals( Grouper.DEF_SUBJ_TYPE ) );
     Assert.assertNotNull( stPerson.getName() );
     Assert.assertTrue( stPerson.getName().equals( "Person" ) );
     SubjectTypeAdapter staPerson = stPerson.getAdapter();

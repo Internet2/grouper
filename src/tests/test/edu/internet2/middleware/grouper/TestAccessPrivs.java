@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.15 2004-12-03 03:46:40 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.16 2004-12-04 03:14:35 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -68,9 +68,9 @@ public class TestAccessPrivs extends TestCase {
   private String extn2  = "extn.2";
   private String klass  = "edu.internet2.middleware.grouper.GrouperGroup";
   private String m0id   = "blair";
-  private String m0type = "person";
+  private String m0type = Grouper.DEF_SUBJ_TYPE;
   private String m1id   = "notblair";
-  private String m1type = "person";
+  private String m1type = Grouper.DEF_SUBJ_TYPE;
   private String stem0  = "stem.0";
   private String stem1  = "stem.1";
   private String stem2  = "stem.2";
@@ -97,7 +97,7 @@ public class TestAccessPrivs extends TestCase {
   public void testRequirements() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch the groups
@@ -142,7 +142,7 @@ public class TestAccessPrivs extends TestCase {
   public void testHasGrantHasRevokeHas() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch g0
@@ -326,7 +326,7 @@ public class TestAccessPrivs extends TestCase {
   public void testHasPrivsCurrentSubject() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch the groups

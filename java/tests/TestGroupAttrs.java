@@ -101,7 +101,7 @@ public class TestGroupAttrs extends TestCase {
   public void testRequirements() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch namespaces
@@ -143,7 +143,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs0() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -173,7 +173,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs1() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -203,7 +203,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs2() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -233,7 +233,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs3() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -263,7 +263,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs4() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -293,7 +293,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs5() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -323,7 +323,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs6() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2 
@@ -353,7 +353,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs7() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3
@@ -388,7 +388,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr0() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -406,7 +406,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr1() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -424,7 +424,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr2() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -442,7 +442,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr3() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -460,7 +460,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr4() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -478,7 +478,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr5() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -496,7 +496,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr6() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2
@@ -514,7 +514,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr7() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3
@@ -538,7 +538,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs8() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -570,7 +570,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs9() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -602,7 +602,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs10() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -634,7 +634,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs11() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -666,7 +666,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs12() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -698,7 +698,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs13() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -730,7 +730,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs14() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2 
@@ -762,7 +762,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs15() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3
@@ -798,7 +798,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr8() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -816,7 +816,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr9() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -834,7 +834,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr10() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -852,7 +852,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr11() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -870,7 +870,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr12() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -888,7 +888,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr13() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -906,7 +906,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr14() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2
@@ -924,7 +924,7 @@ public class TestGroupAttrs extends TestCase {
   public void testAddAttr15() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3
@@ -948,7 +948,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs16() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -980,7 +980,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs17() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -1012,7 +1012,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs18() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -1044,7 +1044,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs19() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -1076,7 +1076,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs20() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -1108,7 +1108,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs21() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -1140,7 +1140,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs22() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2 
@@ -1172,7 +1172,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs23() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3
@@ -1208,7 +1208,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr0() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -1225,7 +1225,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr1() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -1242,7 +1242,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr2() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -1259,7 +1259,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr3() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -1276,7 +1276,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr4() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -1293,7 +1293,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr5() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -1310,7 +1310,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr6() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2
@@ -1327,7 +1327,7 @@ public class TestGroupAttrs extends TestCase {
   public void testDelAttr7() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3
@@ -1349,7 +1349,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs24() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns0
@@ -1379,7 +1379,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs25() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns00
@@ -1409,7 +1409,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs26() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns1
@@ -1439,7 +1439,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs27() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // ns2
@@ -1469,7 +1469,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs28() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g0
@@ -1499,7 +1499,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs29() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g1
@@ -1529,7 +1529,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs30() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g2 
@@ -1559,7 +1559,7 @@ public class TestGroupAttrs extends TestCase {
   public void testFetchAttrs31() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // g3

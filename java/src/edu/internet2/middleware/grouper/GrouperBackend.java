@@ -70,7 +70,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.105 2004-12-04 02:43:46 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.106 2004-12-04 03:14:35 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1174,8 +1174,8 @@ public class GrouperBackend {
   }
 
   /**
-   * Query for a single {@link Subject} of the type "person" using the
-   * internal subject store.
+   * Query for a single {@link Subject} of the type DEF_SUBJ_TYPE using 
+   * the internal subject store.
    *
    * @return  {@link Subject} object or null.
    */

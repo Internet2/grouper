@@ -72,8 +72,8 @@ public class TestNamingPrivs extends TestCase {
  
   private String  m0id    = "blair";
   private String  m1id    = "notblair";
-  private String  m0type  = "person";
-  private String  m1type  = "person";
+  private String  m0type  = Grouper.DEF_SUBJ_TYPE;
+  private String  m1type  = Grouper.DEF_SUBJ_TYPE;
 
 public TestNamingPrivs(String name) {
     super(name);
@@ -97,7 +97,7 @@ public TestNamingPrivs(String name) {
   public void testRequirements() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch the namespaces
@@ -156,7 +156,7 @@ public TestNamingPrivs(String name) {
   public void testHas0() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem0, extn0, Grouper.NS_TYPE);
@@ -173,7 +173,7 @@ public TestNamingPrivs(String name) {
   public void testHas1() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem00, extn00, Grouper.NS_TYPE);
@@ -190,7 +190,7 @@ public TestNamingPrivs(String name) {
   public void testHas2() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem1, extn1, Grouper.NS_TYPE);
@@ -207,7 +207,7 @@ public TestNamingPrivs(String name) {
   public void testHas3() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem2, extn2, Grouper.NS_TYPE);
@@ -224,7 +224,7 @@ public TestNamingPrivs(String name) {
   public void testHas4() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem0, extn0, Grouper.NS_TYPE);
@@ -243,7 +243,7 @@ public TestNamingPrivs(String name) {
   public void testHas5() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem00, extn00, Grouper.NS_TYPE);
@@ -262,7 +262,7 @@ public TestNamingPrivs(String name) {
   public void testHas6() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem1, extn1, Grouper.NS_TYPE);
@@ -281,7 +281,7 @@ public TestNamingPrivs(String name) {
   public void testHas7() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     s.start(subj);
     // Fetch ns
     GrouperGroup ns = GrouperGroup.lookup(s, stem2, extn2, Grouper.NS_TYPE);

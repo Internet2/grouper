@@ -80,7 +80,7 @@ public class TestSessions extends TestCase {
   public void testSessionStartAsMemberSystem() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     Assert.assertTrue( s.start(subj) );
   }
@@ -89,7 +89,7 @@ public class TestSessions extends TestCase {
   public void testSessionStartEndAsMemberSystem() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     Assert.assertTrue( s.start(subj) );
     Assert.assertTrue( s.stop() );
@@ -99,7 +99,7 @@ public class TestSessions extends TestCase {
   public void testSessionEndWithoutStart() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     Assert.assertFalse( s.stop() );
   }
@@ -108,7 +108,7 @@ public class TestSessions extends TestCase {
   public void testSessionSubject() {
     GrouperSession  s     = new GrouperSession();
     Assert.assertNotNull(s);
-    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    Subject         subj  = GrouperSubject.lookup( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
     Assert.assertNotNull(subj);
     Assert.assertTrue( s.start(subj) );
     Subject         ret   =  s.subject();
