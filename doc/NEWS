@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.7 2004-12-06 01:29:20 blair Exp $
+$Id: NEWS,v 1.8 2004-12-06 01:37:52 blair Exp $
 
 ---
 
@@ -43,6 +43,8 @@ $Id: NEWS,v 1.7 2004-12-06 01:29:20 blair Exp $
 * `displayName' and `displayExtension' attribute support (#270)
 * Proper schema validation (#267)
 * Custom group types are not very well supported (#269)
+* Groups having multiple types (#271)
+* Changing group type(s) (#272)
 * Group Hierarchy Depth Restrictions
 * Personal Groups
 * Removal of _GrouperMember_ objects
