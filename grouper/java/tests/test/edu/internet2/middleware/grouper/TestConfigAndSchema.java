@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.21 2005-02-07 21:07:02 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.22 2005-02-17 18:41:28 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -90,70 +90,365 @@ public class TestConfigAndSchema extends TestCase {
   // Get cached GrouperFields 
   public void testGetGrouperFields() {
     List fields = Grouper.groupFields();
-    Assert.assertNotNull(fields);
-    Assert.assertEquals(15, fields.size());
-    String klass = "edu.internet2.middleware.grouper.GrouperField";
-    String field;
+    Assert.assertNotNull("fields !null", fields);
+    Assert.assertEquals("15 fields returned", 15, fields.size());
+    GrouperField gf;
+    Collections.sort(fields);
+
     int idx = 0;
-    field = "admins:ADMIN:ADMIN:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("admins !null", gf);
+    Assert.assertTrue(
+                      "admins is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "admins groupField",
+                      gf.groupField().equals("admins")
+                     );
+    Assert.assertTrue(
+                      "admins readPriv",
+                      gf.readPriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "admins writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "admins isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "creators:STEM:STEM:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("creators !null", gf);
+    Assert.assertTrue(
+                      "creators is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "creators groupField " + gf.groupField(),
+                      gf.groupField().equals("creators")
+                     );
+    Assert.assertTrue(
+                      "creators readPriv",
+                      gf.readPriv().equals("STEM")
+                     );
+    Assert.assertTrue(
+                      "creators writePriv", 
+                      gf.writePriv().equals("STEM")
+                     );
+    Assert.assertTrue(
+                      "creators isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "description:READ:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("description !null", gf);
+    Assert.assertTrue(
+                      "description is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "description groupField",
+                      gf.groupField().equals("description")
+                     );
+    Assert.assertTrue(
+                      "description readPriv",
+                      gf.readPriv().equals("READ")
+                     );
+    Assert.assertTrue(
+                      "description writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "description isList",
+                      gf.isList().equals("FALSE")
+                     );
+
     idx += 1;
-    field = "displayExtension:VIEW:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("displayExtension !null", gf);
+    Assert.assertTrue(
+                      "displayExtension is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "displayExtension groupField",
+                      gf.groupField().equals("displayExtension")
+                     );
+    Assert.assertTrue(
+                      "displayExtension readPriv",
+                      gf.readPriv().equals("VIEW")
+                     );
+    Assert.assertTrue(
+                      "displayExtension writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "displayExtension isList",
+                      gf.isList().equals("FALSE")
+                     );
+
     idx += 1;
-    field = "displayName:VIEW::FALSE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("field !null", gf);
+    Assert.assertTrue(
+                      "displayName is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "displayName groupField",
+                      gf.groupField().equals("displayName")
+                     );
+    Assert.assertTrue(
+                      "displayName readPriv",
+                      gf.readPriv().equals("VIEW")
+                     );
+    Assert.assertNull("displayName writePriv", gf.writePriv());
+    Assert.assertTrue(
+                      "displayName isList",
+                      gf.isList().equals("FALSE")
+                     );
+
     idx += 1;
-    field = "extension:VIEW:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("extension !null", gf);
+    Assert.assertTrue(
+                      "extension is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "extension groupField",
+                      gf.groupField().equals("extension")
+                     );
+    Assert.assertTrue(
+                      "extension readPriv",
+                      gf.readPriv().equals("VIEW")
+                     );
+    Assert.assertTrue(
+                      "extension writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "extension isList",
+                      gf.isList().equals("FALSE")
+                     );
+    
     idx += 1;
-    field = "members:READ:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("members !null", gf);
+    Assert.assertTrue(
+                      "members is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "members groupField",
+                      gf.groupField().equals("members")
+                     );
+    Assert.assertTrue(
+                      "members readPriv",
+                      gf.readPriv().equals("READ")
+                     );
+    Assert.assertTrue(
+                      "members writePriv", 
+                      gf.writePriv().equals("UPDATE")
+                     );
+    Assert.assertTrue(
+                      "members isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "name:VIEW::FALSE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertTrue(
+                      "name is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "name groupField",
+                      gf.groupField().equals("name")
+                     );
+    Assert.assertTrue(
+                      "name readPriv",
+                      gf.readPriv().equals("VIEW")
+                     );
+    Assert.assertNull("name writePriv", gf.writePriv());
+    Assert.assertTrue(
+                      "name isList",
+                      gf.isList().equals("FALSE")
+                     );
+
     idx += 1;
-    field = "optins:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("optins !null", gf);
+    Assert.assertTrue(
+                      "optins is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "optins groupField",
+                      gf.groupField().equals("optins")
+                     );
+    Assert.assertTrue(
+                      "optins readPriv",
+                      gf.readPriv().equals("UPDATE")
+                     );
+    Assert.assertTrue(
+                      "optins writePriv", 
+                      gf.writePriv().equals("UPDATE")
+                     );
+    Assert.assertTrue(
+                      "optins isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "optouts:UPDATE:UPDATE:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("optouts !null", gf);
+    Assert.assertTrue(
+                      "optouts is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "optouts groupField",
+                      gf.groupField().equals("optouts")
+                     );
+    Assert.assertTrue(
+                      "optouts readPriv",
+                      gf.readPriv().equals("UPDATE")
+                     );
+    Assert.assertTrue(
+                      "optouts writePriv", 
+                      gf.writePriv().equals("UPDATE")
+                     );
+    Assert.assertTrue(
+                      "optouts isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "readers:ADMIN:ADMIN:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("readers !null", gf);
+    Assert.assertTrue(
+                      "readers is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "readers groupField",
+                      gf.groupField().equals("readers")
+                     );
+    Assert.assertTrue(
+                      "readers readPriv",
+                      gf.readPriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "readers writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "readers isList",
+                      gf.isList().equals("TRUE")
+                     );
+
+
     idx += 1;
-    field = "stem:VIEW:ADMIN:FALSE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("stem !null", gf);
+    Assert.assertTrue(
+                      "stem is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "stem groupField",
+                      gf.groupField().equals("stem")
+                     );
+    Assert.assertTrue(
+                      "stem readPriv",
+                      gf.readPriv().equals("VIEW")
+                     );
+    Assert.assertTrue(
+                      "stem writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "stem isList",
+                      gf.isList().equals("FALSE")
+                     );
+
     idx += 1;
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
-    field = "stemmers:STEM:STEM:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("stemmers !null", gf);
+    Assert.assertTrue(
+                      "stemmers is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "stemmers groupField",
+                      gf.groupField().equals("stemmers")
+                     );
+    Assert.assertTrue(
+                      "stemmers readPriv",
+                      gf.readPriv().equals("STEM")
+                     );
+    Assert.assertTrue(
+                      "stemmers writePriv", 
+                      gf.writePriv().equals("STEM")
+                     );
+    Assert.assertTrue(
+                      "stemmers isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "updaters:ADMIN:ADMIN:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("updaters !null", gf);
+    Assert.assertTrue(
+                      "updaters is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "updaters groupField",
+                      gf.groupField().equals("updaters")
+                     );
+    Assert.assertTrue(
+                      "updaters readPriv",
+                      gf.readPriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "updaters writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "updaters isList",
+                      gf.isList().equals("TRUE")
+                     );
+
     idx += 1;
-    field = "viewers:ADMIN:ADMIN:TRUE";
-    Assert.assertTrue( field.equals( fields.get(idx).toString() ) );
-    Assert.assertTrue( klass.equals( fields.get(idx).getClass().getName() ) );
+    gf = (GrouperField) fields.get(idx);
+    Assert.assertNotNull("viewers !null", gf);
+    Assert.assertTrue(
+                      "viewers is GrouperField", 
+                      Util.KLASS_GF.equals(gf.getClass().getName())
+                     );
+    Assert.assertTrue(
+                      "viewers groupField",
+                      gf.groupField().equals("viewers")
+                     );
+    Assert.assertTrue(
+                      "viewers readPriv",
+                      gf.readPriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "viewers writePriv", 
+                      gf.writePriv().equals("ADMIN")
+                     );
+    Assert.assertTrue(
+                      "viewers isList",
+                      gf.isList().equals("TRUE")
+                     );
+
   }
 
   // Get cached GrouperTypes 

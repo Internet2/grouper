@@ -582,18 +582,18 @@ public class TestGroupLists extends TestCase {
     Assert.assertNotNull(admin2i);
     Assert.assertTrue(admin2i.size() == 1);
     // Fetch g0 Grouper.DEF_LIST_TYPE
-    List            mem0    = g0.listVals(s, Grouper.DEF_LIST_TYPE);
-    Assert.assertNotNull(mem0);
-    Assert.assertTrue(mem0.size() == 3);
-    List            mem0c   = g0.listVals(s);
-    Assert.assertNotNull(mem0c);
-    Assert.assertTrue(mem0c.size() == 3);
-    List            mem0e   = g0.listEffVals(s, Grouper.DEF_LIST_TYPE); 
-    Assert.assertNotNull(mem0e);
-    Assert.assertTrue(mem0e.size() == 1); 
-    List            mem0i   = g0.listImmVals(s); 
-    Assert.assertNotNull(mem0i);
-    Assert.assertTrue(mem0i.size() == 2); 
+    List mem0 = g0.listVals(s, Grouper.DEF_LIST_TYPE);
+    Assert.assertNotNull("g0 mems !null", mem0);
+    Assert.assertTrue("g0 mems == 3 : " + mem0.size(), mem0.size() == 3);
+    List mem0c = g0.listVals(s);
+    Assert.assertNotNull("g0 mems default !null", mem0c);
+    Assert.assertTrue("g0 mems default == 3", mem0c.size() == 3);
+    List mem0e = g0.listEffVals(s, Grouper.DEF_LIST_TYPE); 
+    Assert.assertNotNull("g0 eff mems !null", mem0e);
+    Assert.assertTrue("g0 eff mems == 1", mem0e.size() == 1); 
+    List mem0i = g0.listImmVals(s); 
+    Assert.assertNotNull("g0 imm mems !null", mem0i);
+    Assert.assertTrue("g0 imm mems == 2", mem0i.size() == 2); 
     // Fetch g1 Grouper.DEF_LIST_TYPE
     List            mem1    = g1.listVals(s, Grouper.DEF_LIST_TYPE);
     Assert.assertNotNull(mem1);
