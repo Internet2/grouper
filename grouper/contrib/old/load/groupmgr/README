@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.4 2004-12-08 04:22:58 blair Exp $
+$Id: README,v 1.5 2004-12-08 04:35:23 blair Exp $
 
 ---
 
@@ -28,13 +28,17 @@ Add a group within _test_:
 
     % java -a -g -s test -e foo
 
+Remove a group within _test_:
+
+    % java -d -g -s test -e bar
+
 --
 
 ## Bugs
 
-* No support for removing groups
 * No support for adding members
 * No support for removing members
 * No support for modifying attributes
+
 
 
