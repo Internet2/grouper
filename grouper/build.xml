@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.13 2004-11-13 06:40:47 blair Exp $ -->
+<!-- $Id: build.xml,v 1.14 2004-11-20 01:32:33 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -25,10 +25,11 @@
       <fileset dir="java/lib">
         <include name="**/*.jar"/>
       </fileset>
+      <pathelement location="${build}/"/>
+      <pathelement location="${build}/test/"/>
       <fileset dir="${dist}/lib">
         <include name="${app.name}-${DSTAMP}.jar" />
       </fileset>
-      <pathelement location="${build}/test/"/>
     </path>
   </target>
 
@@ -68,7 +69,7 @@
   <target name="test" depends="test-run">
   </target>
 
-  <target name="test-build" depends="jar">
+  <target name="test-build" depends="build">
     <mkdir dir="${build-test}" />
     <javac srcdir="${src-test}" destdir="${build-test}">
       <classpath refid="project.class.path" />
