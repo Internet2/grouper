@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.7 2004-12-06 01:29:20 blair Exp $
+-- $Id: init.sql,v 1.8 2004-12-06 14:28:51 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -46,6 +46,10 @@ INSERT INTO grouper_typeDef (groupType, groupField)
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'description');
 INSERT INTO grouper_typeDef (groupType, groupField) 
+  VALUES ('base', 'displayExtension');
+INSERT INTO grouper_typeDef (groupType, groupField) 
+  VALUES ('base', 'displayName');
+INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'members');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'viewers');
@@ -60,6 +64,10 @@ INSERT INTO grouper_typeDef (groupType, groupField)
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'optouts');
 
+INSERT INTO grouper_typeDef (groupType, groupField) 
+  VALUES ('naming', 'displayExtension');
+INSERT INTO grouper_typeDef (groupType, groupField) 
+  VALUES ('naming', 'displayName');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('naming', 'extension');
 INSERT INTO grouper_typeDef (groupType, groupField) 
