@@ -103,6 +103,12 @@ public class Util {
   public static final String extn5 = "ext:n.5";
   public static final String stem6 = "stem.0";
   public static final String extn6 = "extn.6";
+  public static final String stem7 = "stem.0";
+  public static final String extn7 = "extn.7";
+  public static final String stem8 = "stem.0";
+  public static final String extn8 = "extn.8";
+  public static final String stem9 = "stem.1";
+  public static final String extn9 = "extn.9";
 
 }
 
