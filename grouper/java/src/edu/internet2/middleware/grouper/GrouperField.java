@@ -4,7 +4,7 @@ package edu.internet2.middleware.directory.grouper;
  * Class representing a field within a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.4 2004-08-03 01:00:58 blair Exp $
+ * @version $Id: GrouperField.java,v 1.5 2004-08-03 04:36:11 blair Exp $
  */
 public class GrouperField {
 
@@ -20,7 +20,17 @@ public class GrouperField {
    * Create a {@link GrouperField} object.
    */
   public GrouperField() {
-    // Nothing -- Yet
+    groupField  = null;
+    readPriv    = null;
+    writePriv   = null;
+    isList      = null;
+  }
+
+  public String toString() {
+    return  this.getGroupField()  + ":" + 
+            this.getReadPriv()    + ":" +
+            this.getWritePriv()   + ":" +
+            this.getIsList();
   }
 
   /*

@@ -6,16 +6,12 @@ import  java.io.Serializable;
  * Class representing a type definition for a {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.2 2004-08-03 01:09:52 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.3 2004-08-03 04:36:11 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
   private int     groupType;
   private String  groupField;
-
-  /*
-   * XXX Is this class actually needed?
-   */
 
   /**
    * Create a {@link GrouperTypeDef} object.
@@ -25,7 +21,12 @@ public class GrouperTypeDef implements Serializable {
    *     needed for?
    */
   public GrouperTypeDef() {
-    // Nothing -- Yet
+    groupType   = 0;
+    groupField  = null;
+  }
+
+  public String toString() {
+    return this.getGroupType()  + ":" + this.getGroupField();
   }
 
   /*
