@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.48 2005-03-21 21:08:33 blair Exp $
+ * @version $Id: GrouperList.java,v 1.49 2005-03-22 01:49:18 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -106,7 +106,6 @@ public class GrouperList implements Serializable {
    */
   protected GrouperList(GrouperGroup g, GrouperMember m, String list) {
     // TODO See if it exists?
-    // TODO Load chain?
     if (this.getListKey() == null) {
       this.setListKey( new GrouperUUID().toString() );
     }
@@ -138,7 +137,6 @@ public class GrouperList implements Serializable {
             ) 
   {
     // TODO See if it exists?
-    // TODO Load chain?
     if (this.getListKey() == null) {
       this.setListKey( new GrouperUUID().toString() );
     }
@@ -156,7 +154,7 @@ public class GrouperList implements Serializable {
     this.m          = m;
     this.memberKey  = m.key();
     this.groupField = list;
-    this.elements = chain;
+    this.elements   = chain;
     if (chain.size() > 0) {
       MemberVia   mv = (MemberVia) chain.get(0);
       GrouperList gl = (GrouperList) mv.toList(s);
@@ -172,7 +170,6 @@ public class GrouperList implements Serializable {
    */
 
   protected void load(GrouperSession s) {
-    // TODO Load chain?
     GrouperSession.validate(s);
     if (this.g == null) {
       if (this.groupKey == null) {
@@ -189,6 +186,11 @@ public class GrouperList implements Serializable {
     if (this.via == null) {
       if (this.viaKey != null) {
         this.via = GrouperGroup.loadByKey(s, this.viaKey);
+      }
+    }
+    if (this.chainKey != null) {
+      if (this.elements.size() == 0) {
+        this.elements = MemberVia.load(s, this.chainKey);
       }
     }
     GrouperList.validate(this);
@@ -237,7 +239,6 @@ public class GrouperList implements Serializable {
    * @return  List of {@link MemberVia} objects.
    */
   public List chain() {
-    // TODO Lazy load at runtime?
     return this.elements;
   }
 
