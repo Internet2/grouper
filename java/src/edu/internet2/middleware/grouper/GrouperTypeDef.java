@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -63,7 +64,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.20 2005-03-23 21:35:24 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.21 2005-03-29 17:32:02 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 
@@ -79,14 +80,63 @@ public class GrouperTypeDef implements Serializable {
    */
 
   /**
-   * Create a {@link GrouperTypeDef} object.
-   * <p>
-   * XXX Is this class needed?  Or do {@link GrouperField} and 
-   *     {@link GrouperType} provide everything this class might be
-   *     needed for?
+   * Null-argument constructor for Hibernate.
    */
   public GrouperTypeDef() {
-    this._init();
+    // Nothing
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Compares the specified object with this type definition for equality.
+   * <p />
+   * @param o Object to be compared for equality with this type
+   *   definition.
+   * @return  True if the specified object is equal to this type
+   *   definition.
+   */
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  /**
+   * Retrieve the {@link Group} field.
+   * <p />
+   * @return  Name of group field.
+   */
+  public String field() {
+    return this.getGroupField();
+  }
+
+  /**
+   * Return the hash code value for this type definition.
+   * <p />
+   * @return  The hash code value for this type definition.
+   */
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return this.getGroupType()  + ":" + this.getGroupField();
+  }
+
+  /**
+   * Retrieve the {@link Group} type.
+   * <p />
+   * @return  Type of group.
+   */
+  public String type() {
+    return this.getGroupType();
   }
 
 
@@ -115,72 +165,6 @@ public class GrouperTypeDef implements Serializable {
                 );
     }
     return vals;
-  }
-
-
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
-
-  /**
-   * Compares the specified object with this type definition for equality.
-   * <p />
-   * @param o Object to be compared for equality with this type
-   *   definition.
-   * @return  True if the specified object is equal to this type
-   *   definition.
-   */
-  public boolean equals(Object o) {
-     return EqualsBuilder.reflectionEquals(this, o);
-   }
-
-  /**
-   * Retrieves the group field.
-   * <p />
-   * @return  Name of group field.
-   */
-  public String groupField() {
-    return this.getGroupField();
-  }
-
-  /**
-   * Retrieves the group type.
-   * <p />
-   * @return  Type of group.
-   */
-  public String groupType() {
-    return this.getGroupType();
-  }
-
-  /**
-   * Returns the hash code value for this type definition.
-   * <p />
-   * @return  The hash code value for this type definition.
-   */
-  public int hashCode() {
-     return HashCodeBuilder.reflectionHashCode(this);
-   }
-
-  /**
-   * Return a string representation of this object.
-   * <p />
-   * @return String representation of this object.
-   */
-  public String toString() {
-    return this.getGroupType()  + ":" + this.getGroupField();
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Initialize instance variables
-   */
-  private void _init() {
-    this.groupType   = null;
-    this.groupField  = null;
   }
 
 

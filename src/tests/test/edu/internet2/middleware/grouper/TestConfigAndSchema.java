@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.26 2005-03-17 17:33:09 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.27 2005-03-29 17:32:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -106,7 +106,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "admins groupField",
-                      gf.groupField().equals("admins")
+                      gf.field().equals("admins")
                      );
     Assert.assertTrue(
                       "admins readPriv",
@@ -116,10 +116,7 @@ public class TestConfigAndSchema extends TestCase {
                       "admins writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "admins isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("admins isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -129,8 +126,8 @@ public class TestConfigAndSchema extends TestCase {
                       Constants.KLASS_GF.equals(gf.getClass().getName())
                      );
     Assert.assertTrue(
-                      "creators groupField " + gf.groupField(),
-                      gf.groupField().equals("creators")
+                      "creators groupField " + gf.field(),
+                      gf.field().equals("creators")
                      );
     Assert.assertTrue(
                       "creators readPriv",
@@ -140,10 +137,7 @@ public class TestConfigAndSchema extends TestCase {
                       "creators writePriv", 
                       gf.writePriv().equals("STEM")
                      );
-    Assert.assertTrue(
-                      "creators isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("creators isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -154,7 +148,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "description groupField",
-                      gf.groupField().equals("description")
+                      gf.field().equals("description")
                      );
     Assert.assertTrue(
                       "description readPriv",
@@ -164,10 +158,7 @@ public class TestConfigAndSchema extends TestCase {
                       "description writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "description isList",
-                      gf.isList().equals("FALSE")
-                     );
+    Assert.assertFalse("description isList == false", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -178,7 +169,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "displayExtension groupField",
-                      gf.groupField().equals("displayExtension")
+                      gf.field().equals("displayExtension")
                      );
     Assert.assertTrue(
                       "displayExtension readPriv",
@@ -188,10 +179,7 @@ public class TestConfigAndSchema extends TestCase {
                       "displayExtension writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "displayExtension isList",
-                      gf.isList().equals("FALSE")
-                     );
+    Assert.assertFalse("displayExtension isList == false", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -202,7 +190,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "displayName groupField",
-                      gf.groupField().equals("displayName")
+                      gf.field().equals("displayName")
                      );
     Assert.assertTrue(
                       "displayName readPriv",
@@ -212,10 +200,7 @@ public class TestConfigAndSchema extends TestCase {
                       "displayName writePriv",
                       gf.writePriv().equals("SYSTEM")
                      );
-    Assert.assertTrue(
-                      "displayName isList",
-                      gf.isList().equals("FALSE")
-                     );
+    Assert.assertFalse("displayName isList == false", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -226,7 +211,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "extension groupField",
-                      gf.groupField().equals("extension")
+                      gf.field().equals("extension")
                      );
     Assert.assertTrue(
                       "extension readPriv",
@@ -236,10 +221,7 @@ public class TestConfigAndSchema extends TestCase {
                       "extension writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "extension isList",
-                      gf.isList().equals("FALSE")
-                     );
+    Assert.assertFalse("extension isList == false", gf.isList());
     
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -250,7 +232,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "members groupField",
-                      gf.groupField().equals("members")
+                      gf.field().equals("members")
                      );
     Assert.assertTrue(
                       "members readPriv",
@@ -260,10 +242,7 @@ public class TestConfigAndSchema extends TestCase {
                       "members writePriv", 
                       gf.writePriv().equals("UPDATE")
                      );
-    Assert.assertTrue(
-                      "members isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("members isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -273,7 +252,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "name groupField",
-                      gf.groupField().equals("name")
+                      gf.field().equals("name")
                      );
     Assert.assertTrue(
                       "name readPriv",
@@ -283,10 +262,7 @@ public class TestConfigAndSchema extends TestCase {
                       "name writePriv",
                       gf.writePriv().equals("SYSTEM")
                      );
-    Assert.assertTrue(
-                      "name isList",
-                      gf.isList().equals("FALSE")
-                     );
+    Assert.assertFalse("name isList == false", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -297,7 +273,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "optins groupField",
-                      gf.groupField().equals("optins")
+                      gf.field().equals("optins")
                      );
     Assert.assertTrue(
                       "optins readPriv",
@@ -307,10 +283,7 @@ public class TestConfigAndSchema extends TestCase {
                       "optins writePriv", 
                       gf.writePriv().equals("UPDATE")
                      );
-    Assert.assertTrue(
-                      "optins isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("optins isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -321,7 +294,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "optouts groupField",
-                      gf.groupField().equals("optouts")
+                      gf.field().equals("optouts")
                      );
     Assert.assertTrue(
                       "optouts readPriv",
@@ -331,10 +304,7 @@ public class TestConfigAndSchema extends TestCase {
                       "optouts writePriv", 
                       gf.writePriv().equals("UPDATE")
                      );
-    Assert.assertTrue(
-                      "optouts isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("optouts isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -345,7 +315,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "readers groupField",
-                      gf.groupField().equals("readers")
+                      gf.field().equals("readers")
                      );
     Assert.assertTrue(
                       "readers readPriv",
@@ -355,10 +325,7 @@ public class TestConfigAndSchema extends TestCase {
                       "readers writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "readers isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("readers isList == true", gf.isList());
 
 
     idx += 1;
@@ -370,7 +337,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "stem groupField",
-                      gf.groupField().equals("stem")
+                      gf.field().equals("stem")
                      );
     Assert.assertTrue(
                       "stem readPriv",
@@ -380,10 +347,7 @@ public class TestConfigAndSchema extends TestCase {
                       "stem writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "stem isList",
-                      gf.isList().equals("FALSE")
-                     );
+    Assert.assertFalse("stem isList == false", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -394,7 +358,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "stemmers groupField",
-                      gf.groupField().equals("stemmers")
+                      gf.field().equals("stemmers")
                      );
     Assert.assertTrue(
                       "stemmers readPriv",
@@ -404,10 +368,7 @@ public class TestConfigAndSchema extends TestCase {
                       "stemmers writePriv", 
                       gf.writePriv().equals("STEM")
                      );
-    Assert.assertTrue(
-                      "stemmers isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("stemmers isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -418,7 +379,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "updaters groupField",
-                      gf.groupField().equals("updaters")
+                      gf.field().equals("updaters")
                      );
     Assert.assertTrue(
                       "updaters readPriv",
@@ -428,10 +389,7 @@ public class TestConfigAndSchema extends TestCase {
                       "updaters writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "updaters isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("updaters isList == true", gf.isList());
 
     idx += 1;
     gf = (GrouperField) fields.get(idx);
@@ -442,7 +400,7 @@ public class TestConfigAndSchema extends TestCase {
                      );
     Assert.assertTrue(
                       "viewers groupField",
-                      gf.groupField().equals("viewers")
+                      gf.field().equals("viewers")
                      );
     Assert.assertTrue(
                       "viewers readPriv",
@@ -452,10 +410,7 @@ public class TestConfigAndSchema extends TestCase {
                       "viewers writePriv", 
                       gf.writePriv().equals("ADMIN")
                      );
-    Assert.assertTrue(
-                      "viewers isList",
-                      gf.isList().equals("TRUE")
-                     );
+    Assert.assertTrue("viewers isList == true", gf.isList());
 
   }
 

@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
@@ -62,13 +63,14 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.76 2005-03-26 02:59:08 blair Exp $
+ * @version $Id: Grouper.java,v 1.77 2005-03-29 17:32:02 blair Exp $
  */
 public class Grouper {
 
   /*
    * PUBLIC CONSTANTS
    */
+
   /**
    * Default group type.
    */
@@ -138,14 +140,9 @@ public class Grouper {
   /*
    * PROTECTED CONSTANTS
    */
+
   // TODO Replace with configurable 'hierarchy.delimiter'
   protected static final String HIER_DELIM  = ":";
-  protected static final String KLASS_GG    =
-    "edu.internet2.middleware.grouper.GrouperGroup";
-  protected static final String KLASS_GM    =
-    "edu.internet2.middleware.grouper.GrouperMember";
-  protected static final String KLASS_GS    =
-    "edu.internet2.middleware.grouper.GrouperSession";
 
 
   /*
@@ -179,7 +176,6 @@ public class Grouper {
   /**
    * Retrieve a {@link Grouper} configuration parameter.
    * <p />
-   * 
    * @param   parameter Requested configuration parameter.
    * @return  Value of configuration parameter.
    */
@@ -191,34 +187,34 @@ public class Grouper {
   /**
    * Check whether a group field is valid for a given group type.
    * <p />
-   *
-   * @param   type  {@link GrouperGroup} type
-   * @param   field {@link GrouperGroup} field
-   * @return  True if the field is valid for the group type.
+   * @param   type    {@link Group} type
+   * @param   field   {@link Group} field
+   * @return  Boolean true if the field is valid for this group type.
    */
   public static boolean groupField(String type, String field) {
+    boolean rv = false;
     Grouper._init();
     // TODO Do I need another version of this method to distinguish
     //      between valid attribute and list data?
+    // TODO Would it be easier just to query?
     Iterator iter = Grouper.groupTypeDefs().iterator();
     while (iter.hasNext()) {
       GrouperTypeDef td = (GrouperTypeDef) iter.next();
       if ( 
-          (td.groupType().equals(type)) && // If the group type matches
-          (td.groupField().equals(field))  // .. and the group field matches
+          (td.type().equals(type)) && // If the group type matches
+          (td.field().equals(field))  // .. and the group field matches
          )
       {
         // Then we are considered validated.
-        return true;
+        rv = true;
       }
     }
-    return false;
+    return rv;
   }
 
   /**
    * Retrieve all valid group fields.
    * <p />
-   * 
    * @return  List of {@link GrouperField} objects.
    */
   public static List groupFields() {
@@ -229,26 +225,25 @@ public class Grouper {
   /**
    * Check whether a group type is valid.
    * <p />
-   *
-   * @param   type  {@link GrouperGroup} type
+   * @param   type  {@link Group} type
    * @return  True if the type is valid.
    */
   public static boolean groupType(String type) {
+    boolean rv = false;
     Grouper._init();
     Iterator iter = Grouper.groupTypes().iterator();
     while (iter.hasNext()) {
       GrouperType t = (GrouperType) iter.next();
       if ( t.toString().equals(type) ) {
-        return true;
+        rv = true;
       }
     }
-    return false;
+    return rv;
   }
 
   /**
    * Retrieve all group type definitions.
    * <p />
-   *
    * @return  List of {@link GrouperTypeDef} objects.
    */
   public static List groupTypeDefs() {
@@ -259,7 +254,6 @@ public class Grouper {
   /**
    * Retrieve all group types.
    * <p />
-   * 
    * @return  List of {@link GrouperType} objects.
    */
   public static List groupTypes() {
@@ -275,15 +269,16 @@ public class Grouper {
    * @return  True if the type is valid.
    */
   public static boolean hasSubjectType(String type) {
+    boolean rv = false;
     Grouper._init();
     Iterator iter = Grouper.subjectTypes().iterator();
     while (iter.hasNext()) {
       SubjectType t = (SubjectType) iter.next();
       if ( t.toString().equals(type) ) {
-        return true;
+        rv = false;
       }
     }
-    return false;
+    return rv;
   }
 
   /**
@@ -300,7 +295,8 @@ public class Grouper {
     while (iter.hasNext()) {
       SubjectType t = (SubjectType) iter.next();
       if ( t.getId().equals(type) ) {
-        return t;
+        st = t;
+        break;
       }
     }
     return st;
@@ -340,6 +336,7 @@ public class Grouper {
   protected static GrouperLog log() {
     return log;
   }
+
 
   /*
    * PRIVATE CLASS METHODS
