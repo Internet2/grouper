@@ -14,7 +14,7 @@ import  net.sf.hibernate.cfg.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.28 2004-07-26 17:03:30 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.29 2004-07-27 20:15:43 blair Exp $
  */
 public class GrouperSession {
 
@@ -336,10 +336,7 @@ public class GrouperSession {
 
     try {
       Configuration cfg = new Configuration()
-        .addFile("conf/GrouperField.hbm.xml")
-        .addFile("conf/GrouperGroupType.hbm.xml")
-        .addFile("conf/GrouperGroupTypeDef.hbm.xml")
-        .addFile("conf/GrouperSession.hbm.xml");
+        .addFile("conf/Grouper.hbm.xml");
       try {
         sessions = cfg.buildSessionFactory();
         this.session = sessions.openSession();
