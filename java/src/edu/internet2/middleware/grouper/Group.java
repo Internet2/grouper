@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.15 2005-03-27 17:29:48 blair Exp $
+ * @version $Id: Group.java,v 1.16 2005-03-29 14:52:10 blair Exp $
  */
 abstract class Group {
 
@@ -412,12 +412,12 @@ abstract class Group {
    * Does the current subject have privs to delete the current group?
    */
   protected static void subjectCanDelete(GrouperSession s, Group g) {
-    // Right priv required
-    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
-      throw new RuntimeException("Deletion requires ADMIN priv");
-    }
     if (g.type().equals(Grouper.NS_TYPE)) {
       GrouperStem ns = (GrouperStem) g;
+      // Right priv required
+      if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
+        throw new RuntimeException("Deletion requires STEM priv");
+      }
       // Are there child stems?
       if (ns.stems().size() > 0) {
         throw new RuntimeException(
@@ -431,6 +431,11 @@ abstract class Group {
                     "Cannot delete stem with child groups: " +
                     ns.groups().size()
                   );
+      }
+    } else {
+      // Right priv required
+      if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+        throw new RuntimeException("Deletion requires ADMIN priv");
       }
     }
     // Are there any members?
