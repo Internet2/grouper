@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.101 2004-12-02 07:46:11 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.102 2004-12-02 17:43:14 blair Exp $
  */
 public class GrouperGroup {
 
@@ -538,11 +538,13 @@ public class GrouperGroup {
                                    )
   {
     GrouperGroup g = GrouperBackend.groupLoad(s, stem, extension, type);
-    // Attach session
-    g.grprSession = s;
-    // Attach type  
-    // FIXME Grr....
-    g.type = type;
+    if (g != null) {
+      // Attach session
+      g.grprSession = s;
+      // Attach type  
+      // FIXME Grr....
+      g.type = type;
+    }
     return g;
   }
 

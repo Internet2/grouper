@@ -98,15 +98,15 @@ public class TestNamespaces extends TestCase {
     GrouperGroup    ns0   = GrouperGroup.load(s, stem0, extn0, type);
     Assert.assertNotNull(ns0);
     Assert.assertFalse( ns0.exists() );
+    GrouperGroup    ns00  = GrouperGroup.load(s, stem00, extn00, type);
+    Assert.assertNotNull(ns00);
+    Assert.assertFalse( ns00.exists() );
     GrouperGroup    ns1   = GrouperGroup.load(s, stem1, extn1, type);
     Assert.assertNotNull(ns1);
     Assert.assertFalse( ns1.exists() );
     GrouperGroup    ns2   = GrouperGroup.load(s, stem2, extn2, type);
     Assert.assertNotNull(ns2);
     Assert.assertFalse( ns2.exists() );
-    GrouperGroup    ns00  = GrouperGroup.load(s, stem00, extn00, type);
-    Assert.assertNotNull(ns00);
-    Assert.assertFalse( ns00.exists() );
     // We're done
     s.stop();
   }
