@@ -55,7 +55,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class representing a via relationship.
+ * Internal class representing a {@link Grouper} via relationship.
  * <p />
  * This class is only used internally.
  * <ul>
@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * </ul>
  *
  * @author  blair christensen.
- * @version $Id: GrouperVia.java,v 1.7 2004-12-01 04:23:10 blair Exp $
+ * @version $Id: GrouperVia.java,v 1.8 2004-12-01 04:25:55 blair Exp $
  */
 public class GrouperVia {
 
