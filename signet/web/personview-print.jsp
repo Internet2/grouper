@@ -1,6 +1,6 @@
 <!--
-  $Id: personview-print.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: personview-print.jsp,v 1.4 2005-02-24 20:33:15 acohen Exp $
+  $Date: 2005-02-24 20:33:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -36,6 +36,8 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+
 <% 
   Signet signet
      = (Signet)
@@ -67,19 +69,19 @@
       </div>
        
       <div id="Layout"> 
-			<a href="PersonView.do"><img src="images/icon_arrow_left.gif" class="icon" />return</a>
+      <a href="PersonView.do"><img src="images/icon_arrow_left.gif" class="icon" />return</a>
         <h1>
           <%=currentSubsystem.getName()%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
         </h1>
-      	<span class="dropback">
-      	  <%=currentGranteePrivilegedSubject.getDescription()%>
-      	</span>
-      	<br />
-      	<br />
+        <span class="dropback">
+          <%=currentGranteePrivilegedSubject.getDescription()%>
+        </span>
+        <br />
+        <br />
          
         <div class="tablecontent"> 
             
-      	  <table class="full">
+          <table class="full">
             <tr>
               <td><b>Privilege</b></td>
               <td><b>Scope</b></td>
@@ -91,7 +93,7 @@
   {
     Set assignmentsReceivedForCurrentSubsystem
       = currentGranteePrivilegedSubject
-      		.getAssignmentsReceived(Status.ACTIVE, currentSubsystem);
+          .getAssignmentsReceived(Status.ACTIVE, currentSubsystem);
     Iterator assignmentsIterator = assignmentsReceivedForCurrentSubsystem.iterator();
     while (assignmentsIterator.hasNext())
     {
@@ -107,9 +109,12 @@
               <td >
                 <%=assignment.getScope().getName()%>
               </td>
-              <td  >
-              </td>
-              <td  ></td>
+              
+              <td  > <!-- limits -->
+                <%=Common.displayLimitValues(assignment)%>
+              </td> <!-- limits -->
+              <td  > <!-- status -->
+              </td> <!-- status -->
             </tr>
 <%
     }
@@ -119,7 +124,7 @@
           </table>
         </div> 
         <!-- tablecontent -->
-			<jsp:include page="footer.jsp" flush="true" />	
+      <jsp:include page="footer.jsp" flush="true" />  
       </div> <!-- layout -->
     </form>
   </body>
