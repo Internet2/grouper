@@ -4,17 +4,21 @@ package edu.internet2.middleware.directory.grouper;
  * Class representing a type of {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperType.java,v 1.2 2004-08-03 01:07:34 blair Exp $
+ * @version $Id: GrouperType.java,v 1.3 2004-08-03 04:36:11 blair Exp $
  */
 public class GrouperType {
 
-  private int groupType = 0;
+  private int groupType;
 
   /**
    * Create a {@link GrouperType} object.
    */
   public GrouperType() {
-    // Nothing -- Yet
+    groupType = 0;
+  }
+
+  public String toString() {
+    return "" + this.getGroupType();
   }
 
   /*
