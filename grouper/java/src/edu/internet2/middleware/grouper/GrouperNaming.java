@@ -16,9 +16,19 @@ import java.util.*;
  * {@link Grouper} Naming Interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.18 2004-11-22 01:40:23 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.19 2004-11-22 04:19:19 blair Exp $
  */
 public interface GrouperNaming {
+
+  /**
+   * Verify whether this implementation of the {@link GrouperNaming}
+   * interface can handle this privilege.
+   *
+   * @param   priv  The privilege to verify.
+   * @return  Boolean true if this implementation handles the specified
+   * privilege, boolean false otherwise.
+   */
+  public boolean can(String priv);
 
   /**
    * Grant a naming privilege on a {@link GrouperStem}.

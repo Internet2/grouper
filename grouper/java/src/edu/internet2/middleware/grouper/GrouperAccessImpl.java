@@ -16,7 +16,7 @@ import  java.util.*;
  * Default implementation of the {@link GrouperAccess} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.23 2004-11-22 03:23:11 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.24 2004-11-22 04:19:19 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -40,6 +40,22 @@ public class GrouperAccessImpl implements GrouperAccess {
    */
 
   /**
+   * Verify whether this implementation of the {@link GrouperAccess}
+   * interface can handle this privilege.
+   *
+   * @param   priv  The privilege to verify.
+   * @return  Boolean true if this implementation handles the specified
+   * privilege, boolean false otherwise.
+   */
+  public boolean can(String priv) {
+    GrouperAccessImpl._init();
+    if (privMap.containsKey(priv)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Grant an access privilege on a {@link GrouperGroup}.
    * <p>
    *
@@ -55,7 +71,7 @@ public class GrouperAccessImpl implements GrouperAccess {
   {
     GrouperAccessImpl._init();
     boolean rv = false;
-    if (privMap.containsKey(priv)) {
+    if (this.can(priv) == true) {
       if (GrouperBackend.listAddVal(g, s, m, (String) privMap.get(priv)) == true) {
         rv = true;
       }
@@ -96,7 +112,12 @@ public class GrouperAccessImpl implements GrouperAccess {
    */
   public List has(GrouperSession s, String priv) {
     GrouperAccessImpl._init();
-    List privs = new ArrayList();
+    List          privs = new ArrayList();
+    if (this.can(priv) == true) {
+      GrouperMember m     = GrouperMember.lookup( s.subject() ); 
+      privs = GrouperBackend.listVals(m, s, (String) privMap.get(priv));
+    } 
+    // TODO Throw exception if invalid priv?
     return privs;
   }
 
@@ -135,7 +156,7 @@ public class GrouperAccessImpl implements GrouperAccess {
   public boolean has(GrouperSession s, GrouperGroup g, String priv) {
     GrouperAccessImpl._init();
     boolean rv = false;
-    if (privMap.containsKey(priv)) {
+    if (this.can(priv) == true) {
       GrouperMember m = GrouperMember.lookup( s.subject() );
       rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
     } else {
@@ -157,7 +178,10 @@ public class GrouperAccessImpl implements GrouperAccess {
    */
   public List has(GrouperSession s, GrouperMember m, String priv) {
     GrouperAccessImpl._init();
-    List privs = new ArrayList();
+    List          privs = new ArrayList();
+    if (this.can(priv) == true) {
+      privs = GrouperBackend.listVals(m, s, (String) privMap.get(priv));
+    } // TODO Exception if invalid priv?
     return privs;
   }
 
@@ -179,7 +203,7 @@ public class GrouperAccessImpl implements GrouperAccess {
   {
     GrouperAccessImpl._init();
     boolean rv = false;
-    if (privMap.containsKey(priv)) {
+    if (this.can(priv) == true) {
       rv = GrouperBackend.listVal(s, g, m, (String) privMap.get(priv));
     } else {
       // TODO I should probably throw an exception
@@ -204,7 +228,7 @@ public class GrouperAccessImpl implements GrouperAccess {
   {
     GrouperAccessImpl._init();
     boolean rv = false;
-    if (privMap.containsKey(priv)) {
+    if (this.can(priv) == true) {
       if (GrouperBackend.listDelVal(g, s, m, (String) privMap.get(priv)) == true) {
         rv = true;
       }
