@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestGroupLists.java,v 1.16 2004-11-25 03:04:47 blair Exp $
+ * $Id: TestGroupLists.java,v 1.17 2004-11-27 00:44:29 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -52,7 +52,7 @@ public class TestGroupLists extends TestCase {
    */
 
 
-  public void testAddPeopleAsMembers() {
+  public void testAddListData0() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -173,7 +173,7 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-  public void testInvalidFetchListData0() {
+  public void testFetchInvalidListData0() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -218,7 +218,7 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-  public void testAddPeopleAsInvalidMembers() {
+  public void testAddInvalidListData0() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -244,7 +244,7 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
-  public void testAddGroupWithoutMembersAsMember() {
+  public void testAddListData1() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -360,7 +360,7 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-  public void testAddGroupWithMembersAsMember() {
+  public void testAddListData2() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -381,7 +381,7 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
-  public void testFetchListData3() {
+  public void testFetchListData2() {
     //
     // g0 (m0, g1, g2)  (m1)
     // g1 ()            ()
@@ -478,7 +478,7 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-  public void testRemoveMember0() {
+  public void testRemoveListData0() {
     GrouperSession  s       = new GrouperSession();
     Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
     s.start(subj);
@@ -502,10 +502,7 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
-  // TODO Remove g2 from g0 "members"
-  // TODO Remove m1 from g2 "members"
-
-  public void testFetchListData4() {
+  public void testFetchListData3() {
     //
     // g0 (g1, g2)  (m1)
     // g1 ()        ()
@@ -601,6 +598,478 @@ public class TestGroupLists extends TestCase {
     // We're done
     s.stop(); 
   }
+
+  public void testRemoveListData2() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch Group 1
+    GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(grp1);
+    Assert.assertTrue(grp1.exists());
+    // Fetch g1 as m1
+    GrouperMember   m1      = GrouperMember.lookup( grp1.key(), "group");
+    Assert.assertNotNull(m1);
+    // Remove m1 (g1) from g0 "members"
+    Assert.assertTrue( grp0.listDelVal(s, m1, "members") );
+    // We're done
+    s.stop();
+  }
+
+  public void testFetchListData4() {
+    //
+    // g0 (g2)  (m1)
+    // g1 ()    ()
+    // g2 (m1)  ()
+    //
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch Group 1
+    GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(grp1);
+    Assert.assertTrue(grp1.exists());
+    // Fetch Group 2
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch g0 "admins"
+    List            admin0  = grp0.listVals(s, "admins");
+    Assert.assertNotNull(admin0);
+    Assert.assertTrue(admin0.size() == 1);
+    List            admin0e = grp0.listEffVals(s, "admins");
+    Assert.assertNotNull(admin0e);
+    Assert.assertTrue(admin0e.size() == 0);
+    List            admin0i = grp0.listImmVals(s, "admins");
+    Assert.assertNotNull(admin0i);
+    Assert.assertTrue(admin0i.size() == 1);
+    // Fetch g1 "admins"
+    List            admin1  = grp1.listVals(s, "admins");
+    Assert.assertNotNull(admin1);
+    Assert.assertTrue(admin1.size() == 1);
+    List            admin1e = grp1.listEffVals(s, "admins");
+    Assert.assertNotNull(admin1e);
+    Assert.assertTrue(admin1e.size() == 0);
+    List            admin1i = grp1.listImmVals(s, "admins");
+    Assert.assertNotNull(admin1i);
+    Assert.assertTrue(admin1i.size() == 1);
+    // Fetch g2 "admins"
+    List            admin2  = grp2.listVals(s, "admins");
+    Assert.assertNotNull(admin2);
+    Assert.assertTrue(admin2.size() == 1);
+    List            admin2e = grp2.listEffVals(s, "admins");
+    Assert.assertNotNull(admin2e);
+    Assert.assertTrue(admin2e.size() == 0);
+    List            admin2i = grp2.listImmVals(s, "admins");
+    Assert.assertNotNull(admin2i);
+    Assert.assertTrue(admin2i.size() == 1);
+    // Fetch g0 "members"
+    List            mem0    = grp0.listVals(s, "members");
+    Assert.assertNotNull(mem0);
+    Assert.assertTrue(mem0.size() == 2);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 2);
+    List            mem0e   = grp0.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem0e);
+    Assert.assertTrue(mem0e.size() == 1); 
+    List            mem0i   = grp0.listImmVals(s); 
+    Assert.assertNotNull(mem0i);
+    Assert.assertTrue(mem0i.size() == 1); 
+    // Fetch g1 "members"
+    List            mem1    = grp1.listVals(s, "members");
+    Assert.assertNotNull(mem1);
+    Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
+    List            mem1e   = grp1.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem1e);
+    Assert.assertTrue(mem1e.size() == 0);
+    List            mem1i   = grp1.listImmVals(s); 
+    Assert.assertNotNull(mem1i);
+    Assert.assertTrue(mem1i.size() == 0);
+    // Fetch g2 "members"
+    List            mem2    = grp2.listVals(s, "members");
+    Assert.assertNotNull(mem2);
+    Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
+    List            mem2e   = grp2.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem2e);
+    Assert.assertTrue(mem2e.size() == 0);
+    List            mem2i   = grp2.listImmVals(s); 
+    Assert.assertNotNull(mem2i);
+    Assert.assertTrue(mem2i.size() == 1);
+
+    // TODO Assert details about the individual members
+
+    // We're done
+    s.stop(); 
+  }
+
+  public void testRemoveListData3() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch Group 1
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch g2 as m2
+    GrouperMember   m2      = GrouperMember.lookup( grp2.key(), "group");
+    Assert.assertNotNull(m2);
+    // Remove m2 (g2) from g0 "members"
+    Assert.assertTrue( grp0.listDelVal(s, m2, "members") );
+    // We're done
+    s.stop();
+  }
+
+  public void testFetchListData5() {
+    //
+    // g0 ()    ()
+    // g1 ()    ()
+    // g2 (m1)  ()
+    //
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch Group 1
+    GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(grp1);
+    Assert.assertTrue(grp1.exists());
+    // Fetch Group 2
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch g0 "admins"
+    List            admin0  = grp0.listVals(s, "admins");
+    Assert.assertNotNull(admin0);
+    Assert.assertTrue(admin0.size() == 1);
+    List            admin0e = grp0.listEffVals(s, "admins");
+    Assert.assertNotNull(admin0e);
+    Assert.assertTrue(admin0e.size() == 0);
+    List            admin0i = grp0.listImmVals(s, "admins");
+    Assert.assertNotNull(admin0i);
+    Assert.assertTrue(admin0i.size() == 1);
+    // Fetch g1 "admins"
+    List            admin1  = grp1.listVals(s, "admins");
+    Assert.assertNotNull(admin1);
+    Assert.assertTrue(admin1.size() == 1);
+    List            admin1e = grp1.listEffVals(s, "admins");
+    Assert.assertNotNull(admin1e);
+    Assert.assertTrue(admin1e.size() == 0);
+    List            admin1i = grp1.listImmVals(s, "admins");
+    Assert.assertNotNull(admin1i);
+    Assert.assertTrue(admin1i.size() == 1);
+    // Fetch g2 "admins"
+    List            admin2  = grp2.listVals(s, "admins");
+    Assert.assertNotNull(admin2);
+    Assert.assertTrue(admin2.size() == 1);
+    List            admin2e = grp2.listEffVals(s, "admins");
+    Assert.assertNotNull(admin2e);
+    Assert.assertTrue(admin2e.size() == 0);
+    List            admin2i = grp2.listImmVals(s, "admins");
+    Assert.assertNotNull(admin2i);
+    Assert.assertTrue(admin2i.size() == 1);
+    // Fetch g0 "members"
+    List            mem0    = grp0.listVals(s, "members");
+    Assert.assertNotNull(mem0);
+    Assert.assertTrue(mem0.size() == 0);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 0);
+    List            mem0e   = grp0.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem0e);
+    Assert.assertTrue(mem0e.size() == 0); 
+    List            mem0i   = grp0.listImmVals(s); 
+    Assert.assertNotNull(mem0i);
+    Assert.assertTrue(mem0i.size() == 0); 
+    // Fetch g1 "members"
+    List            mem1    = grp1.listVals(s, "members");
+    Assert.assertNotNull(mem1);
+    Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
+    List            mem1e   = grp1.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem1e);
+    Assert.assertTrue(mem1e.size() == 0);
+    List            mem1i   = grp1.listImmVals(s); 
+    Assert.assertNotNull(mem1i);
+    Assert.assertTrue(mem1i.size() == 0);
+    // Fetch g2 "members"
+    List            mem2    = grp2.listVals(s, "members");
+    Assert.assertNotNull(mem2);
+    Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
+    List            mem2e   = grp2.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem2e);
+    Assert.assertTrue(mem2e.size() == 0);
+    List            mem2i   = grp2.listImmVals(s); 
+    Assert.assertNotNull(mem2i);
+    Assert.assertTrue(mem2i.size() == 1);
+
+    // TODO Assert details about the individual members
+
+    // We're done
+    s.stop(); 
+  }
+
+  public void testAddListData3() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch g0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch g2
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch g2 as m2
+    GrouperMember   m2      = GrouperMember.lookup( grp2.key(), "group");
+    Assert.assertNotNull(m2);
+    // Add m2/g2 to g0
+    Assert.assertTrue( grp0.listAddVal(s, m2, "members") );
+    // We're done
+    s.stop();
+  }
+
+  public void testFetchListData6() {
+    //
+    // g0 (g2)  (m1)
+    // g1 ()    ()
+    // g2 (m1)  ()
+    //
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch Group 1
+    GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(grp1);
+    Assert.assertTrue(grp1.exists());
+    // Fetch Group 2
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch g0 "admins"
+    List            admin0  = grp0.listVals(s, "admins");
+    Assert.assertNotNull(admin0);
+    Assert.assertTrue(admin0.size() == 1);
+    List            admin0e = grp0.listEffVals(s, "admins");
+    Assert.assertNotNull(admin0e);
+    Assert.assertTrue(admin0e.size() == 0);
+    List            admin0i = grp0.listImmVals(s, "admins");
+    Assert.assertNotNull(admin0i);
+    Assert.assertTrue(admin0i.size() == 1);
+    // Fetch g1 "admins"
+    List            admin1  = grp1.listVals(s, "admins");
+    Assert.assertNotNull(admin1);
+    Assert.assertTrue(admin1.size() == 1);
+    List            admin1e = grp1.listEffVals(s, "admins");
+    Assert.assertNotNull(admin1e);
+    Assert.assertTrue(admin1e.size() == 0);
+    List            admin1i = grp1.listImmVals(s, "admins");
+    Assert.assertNotNull(admin1i);
+    Assert.assertTrue(admin1i.size() == 1);
+    // Fetch g2 "admins"
+    List            admin2  = grp2.listVals(s, "admins");
+    Assert.assertNotNull(admin2);
+    Assert.assertTrue(admin2.size() == 1);
+    List            admin2e = grp2.listEffVals(s, "admins");
+    Assert.assertNotNull(admin2e);
+    Assert.assertTrue(admin2e.size() == 0);
+    List            admin2i = grp2.listImmVals(s, "admins");
+    Assert.assertNotNull(admin2i);
+    Assert.assertTrue(admin2i.size() == 1);
+    // Fetch g0 "members"
+    List            mem0    = grp0.listVals(s, "members");
+    Assert.assertNotNull(mem0);
+    Assert.assertTrue(mem0.size() == 2);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 2);
+    List            mem0e   = grp0.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem0e);
+    Assert.assertTrue(mem0e.size() == 1); 
+    List            mem0i   = grp0.listImmVals(s); 
+    Assert.assertNotNull(mem0i);
+    Assert.assertTrue(mem0i.size() == 1); 
+    // Fetch g1 "members"
+    List            mem1    = grp1.listVals(s, "members");
+    Assert.assertNotNull(mem1);
+    Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
+    List            mem1e   = grp1.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem1e);
+    Assert.assertTrue(mem1e.size() == 0);
+    List            mem1i   = grp1.listImmVals(s); 
+    Assert.assertNotNull(mem1i);
+    Assert.assertTrue(mem1i.size() == 0);
+    // Fetch g2 "members"
+    List            mem2    = grp2.listVals(s, "members");
+    Assert.assertNotNull(mem2);
+    Assert.assertTrue(mem2.size() == 1);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 1);
+    List            mem2e   = grp2.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem2e);
+    Assert.assertTrue(mem2e.size() == 0);
+    List            mem2i   = grp2.listImmVals(s); 
+    Assert.assertNotNull(mem2i);
+    Assert.assertTrue(mem2i.size() == 1);
+
+    // TODO Assert details about the individual members
+
+    // We're done
+    s.stop(); 
+  }
+
+  public void testRemoveListData4() {
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch g2
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch m1
+    GrouperMember   m1      = GrouperMember.lookup("notblair", "person");
+    Assert.assertNotNull(m1);
+    // Fetch g2 as m2
+    GrouperMember   m2      = GrouperMember.lookup( grp2.key(), "group");
+    Assert.assertNotNull(m2);
+    // Remove m1 from g2 "members"
+    Assert.assertTrue( grp2.listDelVal(s, m1, "members") );
+    // We're done
+    s.stop();
+  }
+
+  public void testFetchListData7() {
+    //
+    // g0 (g2)  ()
+    // g1 ()    ()
+    // g2 ()    ()
+    //
+    GrouperSession  s       = new GrouperSession();
+    Subject         subj    = GrouperSubject.lookup( Grouper.config("member.system"), "person" );
+    s.start(subj);
+    // Fetch Group 0
+    GrouperGroup    grp0    = GrouperGroup.load(s, stem0, extn0);
+    Assert.assertNotNull(grp0);
+    Assert.assertTrue(grp0.exists());
+    // Fetch Group 1
+    GrouperGroup    grp1    = GrouperGroup.load(s, stem1, extn1);
+    Assert.assertNotNull(grp1);
+    Assert.assertTrue(grp1.exists());
+    // Fetch Group 2
+    GrouperGroup    grp2    = GrouperGroup.load(s, stem2, extn2);
+    Assert.assertNotNull(grp2);
+    Assert.assertTrue(grp2.exists());
+    // Fetch g0 "admins"
+    List            admin0  = grp0.listVals(s, "admins");
+    Assert.assertNotNull(admin0);
+    Assert.assertTrue(admin0.size() == 1);
+    List            admin0e = grp0.listEffVals(s, "admins");
+    Assert.assertNotNull(admin0e);
+    Assert.assertTrue(admin0e.size() == 0);
+    List            admin0i = grp0.listImmVals(s, "admins");
+    Assert.assertNotNull(admin0i);
+    Assert.assertTrue(admin0i.size() == 1);
+    // Fetch g1 "admins"
+    List            admin1  = grp1.listVals(s, "admins");
+    Assert.assertNotNull(admin1);
+    Assert.assertTrue(admin1.size() == 1);
+    List            admin1e = grp1.listEffVals(s, "admins");
+    Assert.assertNotNull(admin1e);
+    Assert.assertTrue(admin1e.size() == 0);
+    List            admin1i = grp1.listImmVals(s, "admins");
+    Assert.assertNotNull(admin1i);
+    Assert.assertTrue(admin1i.size() == 1);
+    // Fetch g2 "admins"
+    List            admin2  = grp2.listVals(s, "admins");
+    Assert.assertNotNull(admin2);
+    Assert.assertTrue(admin2.size() == 1);
+    List            admin2e = grp2.listEffVals(s, "admins");
+    Assert.assertNotNull(admin2e);
+    Assert.assertTrue(admin2e.size() == 0);
+    List            admin2i = grp2.listImmVals(s, "admins");
+    Assert.assertNotNull(admin2i);
+    Assert.assertTrue(admin2i.size() == 1);
+    // Fetch g0 "members"
+    List            mem0    = grp0.listVals(s, "members");
+    Assert.assertNotNull(mem0);
+    Assert.assertTrue(mem0.size() == 1);
+    List            mem0c   = grp0.listVals(s);
+    Assert.assertNotNull(mem0c);
+    Assert.assertTrue(mem0c.size() == 1);
+    List            mem0e   = grp0.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem0e);
+    Assert.assertTrue(mem0e.size() == 0); 
+    List            mem0i   = grp0.listImmVals(s); 
+    Assert.assertNotNull(mem0i);
+    Assert.assertTrue(mem0i.size() == 1); 
+    // Fetch g1 "members"
+    List            mem1    = grp1.listVals(s, "members");
+    Assert.assertNotNull(mem1);
+    Assert.assertTrue(mem1.size() == 0);
+    List            mem1c   = grp1.listVals(s);
+    Assert.assertNotNull(mem1c);
+    Assert.assertTrue(mem1c.size() == 0);
+    List            mem1e   = grp1.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem1e);
+    Assert.assertTrue(mem1e.size() == 0);
+    List            mem1i   = grp1.listImmVals(s); 
+    Assert.assertNotNull(mem1i);
+    Assert.assertTrue(mem1i.size() == 0);
+    // Fetch g2 "members"
+    List            mem2    = grp2.listVals(s, "members");
+    Assert.assertNotNull(mem2);
+    Assert.assertTrue(mem2.size() == 0);
+    List            mem2c   = grp2.listVals(s);
+    Assert.assertNotNull(mem2c);
+    Assert.assertTrue(mem2c.size() == 0);
+    List            mem2e   = grp2.listEffVals(s, "members"); 
+    Assert.assertNotNull(mem2e);
+    Assert.assertTrue(mem2e.size() == 0);
+    List            mem2i   = grp2.listImmVals(s); 
+    Assert.assertNotNull(mem2i);
+    Assert.assertTrue(mem2i.size() == 0);
+
+    // TODO Assert details about the individual members
+
+    // We're done
+    s.stop(); 
+  }
+
 
 /*
   // TODO Effective Membership
