@@ -11,7 +11,7 @@ import  net.sf.hibernate.cfg.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.31 2004-08-03 01:31:21 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.32 2004-08-03 04:28:39 blair Exp $
  */
 public class GrouperSession {
 
@@ -22,9 +22,9 @@ public class GrouperSession {
   private GrouperNaming   intNaming       = null;
   private GrouperSubject  intSubject      = null;
   private String          presentationID  = null;
-  private SessionFactory  sessionFactory  = null;
   private GrouperMember   subject         = null;
   private Session         session         = null;
+  private SessionFactory  factory         = null;
   private String          subjectID       = null;
 
   // XXX HACK HACK HACK
@@ -32,7 +32,6 @@ public class GrouperSession {
   private String          sessionID       = null;
   private String          startTime       = null;
 
-  private SessionFactory  sessions        = null;
 
 
   /**
@@ -346,8 +345,8 @@ public class GrouperSession {
       Configuration cfg = new Configuration()
         .addFile("conf/Grouper.hbm.xml");
       try {
-        sessions = cfg.buildSessionFactory();
-        this.session = sessions.openSession();
+        factory = cfg.buildSessionFactory();
+        this.session = factory.openSession();
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
