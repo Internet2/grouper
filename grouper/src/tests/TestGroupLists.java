@@ -143,7 +143,7 @@ public class TestGroupLists extends TestCase {
     // Fetch g's "admins"
     List admins = g.listVals("admins");
     Assert.assertNotNull("admins !null", admins);
-    Assert.assertTrue("admins == 1", admins.size() == 1);
+    Assert.assertTrue("admins == 1 (" + admins.size() + ")", admins.size() == 1);
     List adminsE = g.listEffVals("admins");
     Assert.assertNotNull("adminsE !null", adminsE);
     Assert.assertTrue("adminsE == 0", adminsE.size() == 0);
@@ -1933,14 +1933,14 @@ public class TestGroupLists extends TestCase {
   public void testDel5_0() {
     Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull(s);
+    Assert.assertNotNull("s !null", s);
     GrouperGroup g8 = GrouperGroup.load(s, Util.stem8, Util.extn8);
-    Assert.assertNotNull(g8);
+    Assert.assertNotNull("g8 !null", g8);
     GrouperGroup g9 = GrouperGroup.load(s, Util.stem9, Util.extn9);
-    Assert.assertNotNull(g9);
+    Assert.assertNotNull("g9 !null", g9);
     GrouperMember g8m = GrouperMember.load(s, g8.id(), "group");
-    Assert.assertNotNull(g8m);
-    Assert.assertTrue( g9.listDelVal(g8m) );
+    Assert.assertNotNull("g8m !null", g8m);
+    Assert.assertTrue("g9 delete g8/g8m", g9.listDelVal(g8m) );
     s.stop();
   }
 
@@ -1973,7 +1973,6 @@ public class TestGroupLists extends TestCase {
     s.stop(); 
   }
 
-/*
   public void testDel5_1() {
     Subject subj  = GrouperSubject.load(Util.rooti, Util.roott);
     GrouperSession s = GrouperSession.start(subj);
@@ -1994,6 +1993,7 @@ public class TestGroupLists extends TestCase {
     s.stop();
   }
 
+/*
   public void testFetchLV5_5() {
     //
     //  g7:   m0      / 
