@@ -3,49 +3,100 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.6 2005-02-07 03:03:25 blair Exp $
+$Id: ROADMAP,v 1.7 2005-02-08 21:30:44 blair Exp $
 
 ---
 
 # Grouper 0.5.1
 
 * Fixes for known bugs
-* Improved Java Beans compliance
 * Removal of type argument in GrouperGroup loadByID() and loadByKey()
+* Revised effective membership algorithm
 * Addition of a GrouperStem class for managing and representing
   namespaces
-* Initial cleanup of internal, backend methods
-* Refactoring of test suite
-* Add new tests to the test suite
-* Additional documentation and documentation fixes
-* GrouperAccess.has()
-* Log addition/deletion of effective memberships
 * Improved compatibility with Oracle, MySQL and other versions of
   HSQLDB
+* GrouperAccess.has()
+* Improved Java Beans compliance
+* Log addition/deletion of effective memberships
+* Internal refactoring
+* Additional documentation and documentation fixes
 * A few bits of new and updated contrib code
 
 
 # Grouper 0.6
 
-* Improved group type support (multiple types, type addition|removal)
+"initial UI release, supporting Phase 1 functionality"
+
+* Improved group type support (multiple types, type addition|removal,
+  custom types) (#269, #271, #272)
 * Improved Subject interface
 * Full implementations of the privilege interfaces along with internal
   hooks for calling privilege checks
-* Enhanced search capabilities (Details?)
-* Enhanced browse capabilities (Details?)
-* Ability to rename groups
-* Support for displayName and displayExtension
-* Ability to remove members from grouper_member table
+* Proper schema validation (#267)
+* Search by the set of groups to which a given subject is an immediate 
+  member can be listed [S&B#9]
+* Search by the set of groups to which a given subject is an effective 
+  member can be listed [S&B#10]
+* Search all groups with a given stem [S&B#3]
+* Search all namespaces within a given stem [S&B#4]
+* Search by the set of groups or namespaces created or modified by a 
+  specified subject [S&B#12]
+* Search by the name, extension, or displayName attributes of 
+  groups [S&B#1]
+* Search by the name, extension, or displayName attributes of 
+  namespaces [S&B#2]
+* Search by the extension or displayExtension attributes of groups
+  scoped to groups with a given stem [S&B#5]
+* Search by the extension or displayExtension attributes of
+  namespaces scoped to namespaces with a given stem [S&B#6]
+* Search by the name, extension, or displayName attributes of groups
+  scoped to groups within a namespace subordinate to a given
+  stem [S&B#7]
+* Search by the name, extension, or displayName attributes of
+  namespaces scoped to namespaces subordinate to a given stem [S&B#8]
+* Search by arbitrary attribute
+* Search scope (all namespaces, children of given stem, namespace
+  tree rooted at given stem)
+* Search limits
+* Support for displayName and displayExtension (#270)
 * Ability to rename subjectIDs
-* Internal cleanup and refactoring (Significant, I hope)
+* Ability to rename groups (#262)
+* Ability to remove members from grouper_member table
+* Improved, expanded and more consistent logging policy (#226)
+* Internal refactoring (Significant, I hope)
 * Improved database support and usage
-* Improved, expanded and more consistent logging policy
-* Improved session handling
-* Improved testing
-* New and updated contributed code
 
 
-# Grouper 0.7
+# Grouper 07
+
+"API meeting Phase 2 specs (group math & signet integration)"
 
 * Support for external data validators
+
+
+# Grouper 0.8
+
+"UI supporting Phase 2 functionality"
+
+
+# Grouper 0.9
+
+"API meeting Phase 3 specs (aging of groups and of memberships)"
+
+
+# Grouper 1.0
+
+"UI supporting Phase 3 functionality"
+
+
+# Unassigned
+
+* Paged search results
+* Make search filters an interface that supports arbitrary local
+  filter implementations
+* Group Hierarchy depth restrictions
+* Group Hierarchy delimiter configuration
+* Personal Groups
+* _GrouperQuery_ returning _GrouperGroup_ and _GrouperMember_ objects (#256)
 
