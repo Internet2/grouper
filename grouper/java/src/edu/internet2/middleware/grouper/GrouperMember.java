@@ -8,7 +8,7 @@ import  java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.13 2004-04-29 16:21:02 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.14 2004-04-30 17:30:29 blair Exp $
  */
 public class GrouperMember {
 
@@ -50,38 +50,57 @@ public class GrouperMember {
   }
 
   /**
-   * Return immediate memberships for "member".
+   * Returns a list of all {@link GrouperGroup} memberships of type
+   * "members".
    * <p>
    * <ul>
-   *  <li>Query the <i>grouper_membership</i> table for rows matching
-   *      the appropriate "memberID", "groupField", and
-   *      "isImmediate".</li>
-   *  <li>XXX What authZ considerations are here?</li>
+   *  <li>Fetch and return rows from the <i>grouper_membership</i>
+   *      table that represent "members" and have the appropriate
+   *      <i>memberID</i> value.</li>
+   *  <li>XXX Add to docs/examples/.</li>
    * </ul>
-   * 
-   * @param   groupField  Type of group field to return.
-   * @return  List of {@link GrouperGroup} objects representing
-   *  immediate memberships.
+   *
+   * @return  List of group memberships.
    */
-  public List immediateMemberships(String groupField) {
+  public List getMembership() {
     return null;
   }
 
   /**
-   * Return effective memberships for "member".
+   * Returns a list of all {@link GrouperGroup} memberships of type
+   * <i>groupField</li>.
    * <p>
    * <ul>
-   *  <li>Query the <i>grouper_membership</i> table for rows matching
-   *      the appropriate "memberID", "groupField", and
-   *      "isImmediate".</li>
-   *  <li>XXX What authZ considerations are here?</li>
+   *  <li>Fetch and return rows from the <i>grouper_membership</i>
+   *      table with the appropriate <i>memberID</i> and <i>groupField</i>
+   *      values.</li>
+   *  <li>XXX Add to docs/examples/.</li>
    * </ul>
-   * 
-   * @param   groupField  Type of group field to return.
-   * @return  List of {@link GrouperGroup} objects representing
-   *  effective memberships
+   *
+   * @param   groupField  Type of group to return.
+   * @return  List of group memberships.
    */
-  public List effectiveMemberships(String groupField) {
+  public List getMembership(String groupField) {
+    return null;
+  }
+
+  /**
+   * Returns a list of all {@link GrouperGroup} memberships of type
+   * <i>groupField</li>.
+   * <p>
+   * <ul>
+   *  <li>Fetch and return rows from the <i>grouper_membership</i>
+   *      table with the appropriate <i>groupID</i>, <i>groupField</i>,
+   *      and <i>isImmediate</i> values.</li>
+   *  <li>XXX Add to docs/examples/.</li>
+   * </ul>
+   *
+   * @param   groupField  Type of group to return.
+   * @param   isImmediate Return only immediate or non-immediate
+   *          memberships.
+   * @return  List of group memberships..
+   */
+  public List getMembership(String groupField, boolean isImmediate) {
     return null;
   }
 
