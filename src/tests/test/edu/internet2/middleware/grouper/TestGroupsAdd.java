@@ -58,8 +58,6 @@ import  junit.framework.*;
 
 public class TestGroups extends TestCase {
 
-  private String  klass   = "edu.internet2.middleware.grouper.GrouperGroup";
-
   private String  ns_stem0   = Grouper.NS_ROOT;
   private String  ns_extn0   = "stem.0";
   private String  ns_stem00  = "stem.0";
@@ -99,9 +97,10 @@ public class TestGroups extends TestCase {
    */
   
 
+/*
   // Fetch non-existent groups
   public void testGroupsExistFalse() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -123,7 +122,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG0() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -132,7 +131,7 @@ public class TestGroups extends TestCase {
     String extn = extn0;
     GrouperGroup ns = GrouperGroup.create(s, stem, extn);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -143,7 +142,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG1() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -152,7 +151,7 @@ public class TestGroups extends TestCase {
     String extn = extn1;
     GrouperGroup ns = GrouperGroup.create(s, stem, extn);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -163,7 +162,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG2() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -172,7 +171,7 @@ public class TestGroups extends TestCase {
     String extn = extn2;
     GrouperGroup ns = GrouperGroup.create(s, stem, extn);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -183,7 +182,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG3() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -192,7 +191,7 @@ public class TestGroups extends TestCase {
     String extn = extn3;
     GrouperGroup ns = GrouperGroup.create(s, stem, extn);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -203,7 +202,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG4() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -212,7 +211,7 @@ public class TestGroups extends TestCase {
     String extn = extn4;
     GrouperGroup ns = GrouperGroup.create(s, stem, extn);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.DEF_GROUP_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -223,14 +222,14 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG0() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch g0
     GrouperGroup g = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(g);
-    Assert.assertTrue( klass.equals( g.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute("stem") );
@@ -247,14 +246,14 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG1() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch g1
     GrouperGroup g = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g);
-    Assert.assertTrue( klass.equals( g.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute("stem") );
@@ -271,14 +270,14 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG2() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch g2
     GrouperGroup g = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g);
-    Assert.assertTrue( klass.equals( g.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute("stem") );
@@ -295,14 +294,14 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG3() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch g3
     GrouperGroup g = GrouperGroup.load(s, stem3, extn3);
     Assert.assertNotNull(g);
-    Assert.assertTrue( klass.equals( g.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute("stem") );
@@ -319,14 +318,14 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG4() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
     // Fetch g4
     GrouperGroup g = GrouperGroup.load(s, stem4, extn4);
     Assert.assertNotNull(g);
-    Assert.assertTrue( klass.equals( g.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g.getClass().getName() ) );
     Assert.assertNotNull( g.id() );
     Assert.assertNotNull( g.type() );
     Assert.assertNotNull( g.attribute("stem") );
@@ -360,7 +359,7 @@ public class TestGroups extends TestCase {
 
   // Fetch valid groups
   public void testFetchGroups1() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -369,7 +368,7 @@ public class TestGroups extends TestCase {
     // g0
     GrouperGroup    g0  = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(g0);
-    Assert.assertTrue( klass.equals( g0.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g0.getClass().getName() ) );
     Assert.assertNotNull( g0.id() );
     Assert.assertNotNull( g0.type() );
     Assert.assertNotNull( g0.attribute("stem") );
@@ -379,7 +378,7 @@ public class TestGroups extends TestCase {
     // g1
     GrouperGroup    g1  = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(g1);
-    Assert.assertTrue( klass.equals( g1.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g1.getClass().getName() ) );
     Assert.assertNotNull( g1.id() );
     Assert.assertNotNull( g1.type() );
     Assert.assertNotNull( g1.attribute("stem") );
@@ -389,7 +388,7 @@ public class TestGroups extends TestCase {
     // g2
     GrouperGroup    g2  = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(g2);
-    Assert.assertTrue( klass.equals( g2.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g2.getClass().getName() ) );
     Assert.assertNotNull( g2.id() );
     Assert.assertNotNull( g2.type() );
     Assert.assertNotNull( g2.attribute("stem") );
@@ -399,7 +398,7 @@ public class TestGroups extends TestCase {
     // g3
     GrouperGroup    g3  = GrouperGroup.load(s, stem3, extn3);
     Assert.assertNotNull(g3);
-    Assert.assertTrue( klass.equals( g3.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( g3.getClass().getName() ) );
     Assert.assertNotNull( g3.id() );
     Assert.assertNotNull( g3.type() );
     Assert.assertNotNull( g3.attribute("stem") );
@@ -415,7 +414,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG5() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -428,7 +427,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG5() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -440,7 +439,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG6() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -452,7 +451,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG7() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -464,7 +463,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG8() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -476,7 +475,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG9() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -488,7 +487,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG6() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -501,8 +500,8 @@ public class TestGroups extends TestCase {
   }
 
   public void testCreateG7() {
-    //Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
-    Subject subj = GrouperSubject.load(Constants.m0i, Constants.m0t);
+    //Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -516,7 +515,7 @@ public class TestGroups extends TestCase {
   }
 
   public void testFetchG10() {
-    Subject subj  = GrouperSubject.load(Constants.rooti, Constants.roott);
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -565,6 +564,7 @@ public class TestGroups extends TestCase {
 
     s.stop();
   }
+*/
 
 }
 

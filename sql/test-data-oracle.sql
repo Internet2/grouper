@@ -4,9 +4,9 @@
 -- 
 
 INSERT INTO grouper_subject (subjectID, subjectTypeID)
-  VALUES ('blair', 'person');
+  VALUES ('member 0', 'person');
 INSERT INTO grouper_subject (subjectID, subjectTypeID)
-  VALUES ('notblair', 'person');
+  VALUES ('member 1', 'person');
 
 COMMIT;
 

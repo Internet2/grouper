@@ -57,8 +57,6 @@ import  junit.framework.*;
 
 public class TestNamespaces extends TestCase {
 
-  private String  klass   = "edu.internet2.middleware.grouper.GrouperGroup";
-
   private String  extn0   = "stem.0";
   private String  stem00  = "stem.0";
   private String  extn00  = "stem.0.0";
@@ -88,7 +86,7 @@ public class TestNamespaces extends TestCase {
 
   // Fetch a non-existent namespaces
   public void testGroupsExistFalse() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -106,16 +104,14 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS0() {
-    Subject subj  = GrouperSubject.load(
-                      Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                    );
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("sess !null", s);
     // Create ns0
     String extn = extn0;
     GrouperGroup ns = GrouperGroup.create(s, Grouper.NS_ROOT, extn, Grouper.NS_TYPE);
     Assert.assertNotNull("ns !null", ns);
-    Assert.assertTrue("ns right class",  klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue("ns right class",  Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull("ns type !null",  ns.type() );
     Assert.assertTrue("ns right type",  ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull("ns stem !null", ns.attribute("stem") );
@@ -133,7 +129,7 @@ public class TestNamespaces extends TestCase {
 
 /*
   public void testCreateNS1() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -142,7 +138,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn00;
     GrouperGroup ns = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -153,7 +149,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS2() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -161,7 +157,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn1;
     GrouperGroup ns = GrouperGroup.create(s, Grouper.NS_ROOT, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -174,7 +170,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testCreateNS3() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -182,7 +178,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn2;
     GrouperGroup ns = GrouperGroup.create(s, Grouper.NS_ROOT, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -195,7 +191,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS0() {
-    Subject         subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject         subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -203,7 +199,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn0;
     GrouperGroup ns = GrouperGroup.load(s, Grouper.NS_ROOT, extn, Grouper.NS_TYPE);
     Assert.assertNotNull("ns !null", ns);
-    Assert.assertTrue("ns right class", klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue("ns right class", Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull("ns type !null", ns.type() );
     Assert.assertTrue("ns right type", ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull("ns stem !null", ns.attribute("stem") );
@@ -221,7 +217,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS1() {
-    Subject subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -230,7 +226,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn00;
     GrouperGroup ns = GrouperGroup.load(s, stem, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );
@@ -242,9 +238,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS2() {
-    Subject subj  = GrouperSubject.load(
-                      Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                    );
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session started", s);
 
@@ -252,7 +246,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn1;
     GrouperGroup ns = GrouperGroup.load(s, Grouper.NS_ROOT, extn, Grouper.NS_TYPE);
     Assert.assertNotNull("loaded stem !null", ns);
-    Assert.assertTrue("stem is right class", klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue("stem is right class", Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull("stem type !null", ns.type() );
     Assert.assertTrue("stem has proper type", ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull("stem attr", ns.attribute("stem") );
@@ -270,7 +264,7 @@ public class TestNamespaces extends TestCase {
   }
 
   public void testFetchNS3() {
-    Subject subj  = GrouperSubject.load( Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE );
+    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -278,7 +272,7 @@ public class TestNamespaces extends TestCase {
     String extn = extn2;
     GrouperGroup ns = GrouperGroup.load(s, Grouper.NS_ROOT, extn, Grouper.NS_TYPE);
     Assert.assertNotNull(ns);
-    Assert.assertTrue( klass.equals( ns.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( ns.getClass().getName() ) );
     Assert.assertNotNull( ns.type() );
     Assert.assertTrue( ns.type().equals(Grouper.NS_TYPE) ); 
     Assert.assertNotNull( ns.attribute("stem") );

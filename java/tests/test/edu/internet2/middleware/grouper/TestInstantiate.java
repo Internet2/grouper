@@ -82,104 +82,91 @@ public class TestInstantiate extends TestCase {
   public void testGrouperAccessImplInstantiate() {
     GrouperAccess obj = new GrouperAccessImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperAccessImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GAI.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperAttribute instance 
   public void testGrouperAttributeInstantiate() {
     GrouperAttribute obj = new GrouperAttribute();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperAttribute";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GA.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperField instance 
   public void testGrouperException() {
     GrouperException obj = new GrouperException();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperException";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GE.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperField instance 
   public void testGrouperFieldInstantiate() {
     GrouperField obj = new GrouperField();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperField";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GF.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperGroup instance 
   public void testGrouperGroupInstantiate() {
     GrouperGroup obj = new GrouperGroup();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperGroup";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GG.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperList instance 
   public void testGrouperListInstantiate() {
     GrouperList obj = new GrouperList();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperList";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GL.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperMember instance 
   public void testGrouperMemberInstantiate() {
     GrouperMember obj = new GrouperMember();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperMember";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GM.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperNamingImpl instance 
   public void testGrouperNamingImplInstantiate() {
     GrouperNaming obj = new GrouperNamingImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperNamingImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GNI.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperSchema instance 
   public void testGrouperSchemaInstantiate() {
     GrouperSchema obj = new GrouperSchema();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperSchema";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GSC.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperSession instance 
   public void testGrouperSessionInstantiate() {
     GrouperSession obj = new GrouperSession();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperSession";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GS.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperSubjectAttribute instance 
   public void testGrouperSubjectAttributeInstantiate() {
     GrouperSubjectAttribute obj = new GrouperSubjectAttribute();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperSubjectAttribute";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GSA.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperType instance 
   public void testGrouperTypeInstantiate() {
     GrouperType obj = new GrouperType();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperType";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GT.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a GrouperTypeDef instance 
   public void testGrouperTypeDefInstantiate() {
     GrouperTypeDef obj = new GrouperTypeDef();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_GTD.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a MemberVia instance 
@@ -196,32 +183,28 @@ public class TestInstantiate extends TestCase {
   public void testGrouperSubjectImplInstantiate() {
     SubjectImpl obj = new SubjectImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.SubjectImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_SI.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a SubjectTypeAdapterGroupImpl instance 
   public void testSubjectTypeAdapterGroupImplInstantiate() {
     SubjectTypeAdapterGroupImpl obj = new SubjectTypeAdapterGroupImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.SubjectTypeAdapterGroupImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_STAGI.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a SubjectTypeAdapterPersonImpl instance 
   public void testSubjectTypeAdapterPersonImplInstantiate() {
     SubjectTypeAdapterPersonImpl obj = new SubjectTypeAdapterPersonImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.SubjectTypeAdapterPersonImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_STAPI.equals( obj.getClass().getName() ) );
   }
 
   // Instantiate a SubjectTypeImpl instance 
   public void testSubjectTypeImplInstantiate() {
     SubjectTypeImpl obj = new SubjectTypeImpl();
     Assert.assertNotNull(obj);
-    String klass = "edu.internet2.middleware.grouper.SubjectTypeImpl";
-    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+    Assert.assertTrue( Constants.KLASS_STI.equals( obj.getClass().getName() ) );
   }
 
 }

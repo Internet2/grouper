@@ -81,10 +81,7 @@ public class TestSessions extends TestCase {
 
   // Start a session as "member.system"
   public void testSessionStartAsMemberSystem() {
-    Subject subj = GrouperSubject.load( 
-                     Grouper.config("member.system"), 
-                     Grouper.DEF_SUBJ_TYPE 
-                   );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -92,10 +89,7 @@ public class TestSessions extends TestCase {
 
   // Start and end a session as SubjectID "member.system"
   public void testSessionStartEndAsMemberSystem() {
-    Subject subj = GrouperSubject.load(
-                     Grouper.config("member.system"), 
-                     Grouper.DEF_SUBJ_TYPE 
-                   );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -104,10 +98,7 @@ public class TestSessions extends TestCase {
   
   // Verify the subject of the current session 
   public void testSessionSubject() {
-    Subject subj = GrouperSubject.load(
-                     Grouper.config("member.system"), 
-                     Grouper.DEF_SUBJ_TYPE
-                   );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -124,10 +115,7 @@ public class TestSessions extends TestCase {
 
   // Serialize a session
   public void testSessionSerialization() {
-    Subject subj = GrouperSubject.load(
-                     Grouper.config("member.system"), 
-                     Grouper.DEF_SUBJ_TYPE
-                   );
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
