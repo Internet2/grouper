@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.5 2004-12-08 03:17:59 blair Exp $
+$Id: README,v 1.6 2005-01-23 17:44:42 blair Exp $
 
 ---
 
@@ -42,6 +42,9 @@ Each line should have one of the following formats:
 * Add a _group_ as a member
 
     member,add,<target stem>,<target extension>,<member stem>,<member extension>
+
+A _#_ at the beginning of a line will treat the entire line as a
+comment.
 
 See the _sample.csv_ file for examples.
 
