@@ -12,7 +12,7 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.29 2004-09-08 23:21:32 blair Exp $
+ * $Id: GrouperTest.java,v 1.30 2004-09-10 18:18:11 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -178,6 +178,23 @@ public class GrouperTest extends TestCase {
     G.destroy();
   }
 
+  /* Verify the subject of the current session */
+  public void testSessionSubject() {
+    G = new Grouper();
+    G.init();
+    GrouperSession s = new GrouperSession();
+    s.start( G, G.config("member.system"), true );
+
+    GrouperMember m = s.subject();
+
+    Class klass     = m.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperMember";
+
+    Assert.assertNotNull(m);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+
+    G.destroy();
+  }
 
   /*
    * Class: GrouperField
@@ -433,6 +450,20 @@ public class GrouperTest extends TestCase {
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
+  /* GrouperMember creation */
+  public void testGrouperMemberCreation() {
+    G = new Grouper();
+    G.init();
+    GrouperSession s = new GrouperSession();
+    s.start( G, G.config("member.system"), true );
+
+    GrouperMember member = s.lookup( G.config("member.system") );
+    Assert.assertTrue( member.subjectID().equals( G.config("member.system") )); 
+    
+    s.end();
+    G.destroy();
+  }
+
   /*
    * Class: GrouperMembers
    */
@@ -447,6 +478,7 @@ public class GrouperTest extends TestCase {
     Assert.assertNotNull(members);
     Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
+
   /*
    * Class: GrouperMemberType
    */
