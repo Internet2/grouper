@@ -1,19 +1,22 @@
 package edu.internet2.middleware.directory.grouper;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import  java.sql.*;
+import  java.util.Date;
+import  java.util.List;
+import  java.util.ArrayList;
+import  java.util.Map;
 
 /** 
  * Class representing a {@link Grouper} group.
  *
  * @author blair christensen.
- * @version $Id: GrouperGroup.java,v 1.16 2004-05-01 17:54:18 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.17 2004-05-01 18:31:14 blair Exp $
  */
 public class GrouperGroup {
 
-  private String  groupID   = null;
-  private String  groupName = null;
+  private GrouperSession intSess  = null;
+  private String  groupID         = null;
+  private String  groupName       = null;
 
   /*
    * TODO
@@ -32,7 +35,10 @@ public class GrouperGroup {
    * </ul>
    */
   public GrouperGroup(GrouperSession s, String groupName) { 
-    // Nothing -- Yet
+    // Internal reference to the session we are using.
+    this.intSess = s;
+    // XXX Hrm...
+    this.groupName = groupName;
   }
 
   /**
@@ -51,7 +57,25 @@ public class GrouperGroup {
    * @return  List of group memberships.
    */
   public List getMembership() {
-    List membership = null;
+    List membership = new ArrayList();
+
+    // XXX Isn't this simplistic!
+    // XXX And wrong!
+    try { 
+      Statement stmt  = intSess.connection().createStatement();
+      String    query = "SELECT * FROM grouper_membership WHERE " +
+                        "groupID=1"; // AND groupField='members'";
+      ResultSet rs    = stmt.executeQuery(query);
+      while (rs.next()) {
+        String memberRef = rs.getString("memberID");
+        GrouperMember m = new GrouperMember(this.intSess, rs.getString("memberID"), false);
+        membership.add( (Object) m);
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+
     return membership;
   }
 
