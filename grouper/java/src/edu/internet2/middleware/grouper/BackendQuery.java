@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: BackendQuery.java,v 1.5 2005-03-02 22:39:12 blair Exp $
+ * @version $Id: BackendQuery.java,v 1.6 2005-03-04 19:15:29 blair Exp $
  */
 public class BackendQuery {
 
@@ -177,7 +177,7 @@ public class BackendQuery {
       }
     }
     try {
-      Query q = s.dbSess().createQuery(
+      Query q = s.dbSess().session().createQuery(
         "FROM GrouperList AS gl"      +
         " WHERE "                     +
         "gl.groupKey"   + gkey_txt    +
