@@ -1,6 +1,31 @@
 #
-# $Id: README,v 1.1.1.1 2004-02-27 17:55:52 blair Exp $
+# $Id: README,v 1.2 2004-02-27 19:27:25 blair Exp $
 #
+
+ ---------
+/ LINKS /
+--------
+
++ Grouper Architecture:
+    <file:///home/blair/cvs/work/docs/draft-barton-grouptools-arch-02.html>
++ Grouper Roadmap:
+    <http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-pre01-2.html>
+
+
+ -----------
+/ ROADMAP /
+----------
+
++ Sync with "official" roadmap
++ RDBMS tables
++ JDBC Support
++ API Specification
++ Configuration files
+  + What format?  Please don't say XML!
++ Command line arguments
++ Returning errors/diagnostic messages?
+  + Is this part of logging?
+
 
  --------
 / TODO /
@@ -10,7 +35,28 @@
 + Ant
 + Javadoc
 + Crib package/source layout from Shibboleth
-* AuthN/AuthZ interfaces
+* AuthN/AuthZ interfaces OR:
+  * Management of authorization internal to Grouper.
+  * Lookup and presentation of memberIDs, i.e., the opaque identifiers
+    of external objects that are members of groups.
+  * Determination of last activity time of a group.
+
+    Grouper will include an implementation of the authorization
+    interface that relies on groups within the Groups Registry to
+    express who the Groups API will permit what access to the Groups
+    Registry and to the API.
+
+    Grouper will include an implementation of a lookup and presentation
+    interface that refers to a member table in the Groups Registry.
+    This table will translate memberIDs into presentationIDs,
+    enabling the UI to search for and present member identifiers
+    in terms that may be more meaningful to humans than memberIDs.
+    Grouper will also include a program to perform batch maintenance
+    of this table from external sources, and the API will include
+    a corresponding lookup function. A site may wish to implement
+    the member lookup and presentation interface in a manner that
+    refers instead to their LDAP directory, for example.
+
 
 
  ---------
