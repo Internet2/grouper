@@ -7,7 +7,7 @@ import java.util.List;
  * or a group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.8 2004-04-28 15:51:15 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.9 2004-04-28 16:24:42 blair Exp $
  */
 public class GrouperMember {
 
@@ -87,6 +87,20 @@ public class GrouperMember {
    */
   public boolean isGroup() {
     return false;
+  }
+
+  /**
+   * Identifies a {@link GrouperMember} object.
+   * <p>
+   * <ul>
+   *  <li>XXX Add to docs/examples/.</li>
+   * </ul>
+   *
+   * @return String representing the <i>memberID</i> for this 
+   *         {@link GrouperMember} object.
+   */
+  public String whoami() {
+    // Nothing -- Yet
   }
 
 }
