@@ -18,7 +18,7 @@ import  edu.internet2.middleware.subject.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.36 2004-11-16 18:43:14 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.37 2004-11-16 22:14:46 blair Exp $
  */
 public class GrouperMember {
 
@@ -46,7 +46,6 @@ public class GrouperMember {
     this.subjectID      = subjectID;
     this.subjectTypeID  = subjectTypeID;
   }
-
 
   /*
    * PUBLIC CLASS METHODS
@@ -103,6 +102,13 @@ public class GrouperMember {
     member = GrouperBackend.memberAdd(member);
   
     return member;
+  }
+
+  /**
+   * TODO This method may not last.  Or be replaced by a uuid version?
+   */
+  public static GrouperMember lookup(String key) {
+    return GrouperBackend.member(key);
   }
 
 
