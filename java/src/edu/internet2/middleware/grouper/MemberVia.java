@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.4 2005-03-17 03:33:16 blair Exp $
+ * @version $Id: MemberVia.java,v 1.5 2005-03-17 05:32:37 blair Exp $
  */
 public class MemberVia  {
 
@@ -84,6 +84,18 @@ public class MemberVia  {
   protected MemberVia(GrouperList gl) {
     this._init();
     this.setListKey( gl.key() );
+  }
+  protected GrouperList toList(GrouperSession s) {
+    GrouperList gl = null;
+    try {
+      gl = (GrouperList) s.dbSess().session().get(
+                           GrouperList.class, this.getListKey()
+                         );
+      gl.load(s);
+    } catch (HibernateException e) {
+  
+    }
+    return gl;
   }
   protected void key(String key) {
     this.chainKey = key;

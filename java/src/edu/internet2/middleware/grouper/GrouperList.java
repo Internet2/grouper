@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.42 2005-03-17 03:33:16 blair Exp $
+ * @version $Id: GrouperList.java,v 1.43 2005-03-17 05:32:37 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -127,29 +127,9 @@ public class GrouperList implements Serializable {
     this.groupField = list;
     this.via        = null;
   }
-  protected GrouperList(GrouperGroup g, GrouperMember m, String list, GrouperGroup via) {
-    if (g == null) {
-      throw new RuntimeException("GrouperList: null group");
-    }
-    if (m == null) {
-      throw new RuntimeException("GrouperList: null member");
-    }
-    if (list == null) {
-      throw new RuntimeException("GrouperList: null list");
-    }
-    this.g          = g;
-    this.groupKey   = g.key();
-    this.m          = m;
-    this.memberKey  = m.key();
-    this.groupField = list;
-    this.via        = via;
-    if (via != null) {
-      this.viaKey   = via.key(); 
-    }
-  }
   protected GrouperList(
-              GrouperGroup g, GrouperMember m, String list, 
-              GrouperGroup via, List chain
+              GrouperSession s, GrouperGroup g, GrouperMember m, 
+              String list, List chain
             ) 
   {
     if (g == null) {
@@ -166,30 +146,14 @@ public class GrouperList implements Serializable {
     this.m          = m;
     this.memberKey  = m.key();
     this.groupField = list;
-    this.via        = via;
-    if (via != null) {
-      this.viaKey   = via.key(); 
-    }
     this.elements = chain;
-  }
-  // FIXME Or would I rather just lazily load the objects?
-  protected GrouperList(
-              GrouperSession s, String groupKey, String memberKey, 
-              String list, String viaKey
-            ) 
-  {
-    // FIXME Use this.load(s)?
-    this.g          = GrouperGroup.loadByKey(s, groupKey);
-    this.m          = GrouperBackend.member(s, memberKey);
-    if (viaKey != null) {
-      this.via        = GrouperGroup.loadByKey(s, viaKey);
+    if (chain.size() > 0) {
+      MemberVia   mv = (MemberVia) chain.get(0);
+      GrouperList gl = (GrouperList) mv.toList(s);
+      this.via    = gl.group();
+      this.viaKey = gl.group().key();
     }
-    this.groupKey   = groupKey;
-    this.memberKey  = memberKey;
-    this.groupField = list;
-    this.viaKey     = viaKey;
   }
-
   protected void load(GrouperSession s) {
     // FIXME Validator!
     if (this.groupKey == null) {
