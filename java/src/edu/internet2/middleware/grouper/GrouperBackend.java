@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.151 2005-02-17 18:42:12 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.152 2005-03-02 22:39:12 blair Exp $
  */
 public class GrouperBackend {
 
@@ -448,7 +448,7 @@ public class GrouperBackend {
     // Determine if `m' is a group and has any members
     if (m.typeID().equals("group")) {
       GrouperGroup mAsG = _groupLoadByID(m.subjectID());
-      members.addAll( listVals(s, mAsG, field) );
+      members.addAll( listValsOld(s, mAsG, field) );
       // For each member of `m'
       Iterator iterM = members.iterator();
       while (iterM.hasNext()) {
@@ -958,9 +958,9 @@ public class GrouperBackend {
    * @param   list  Query on this list type.
    * @return  List of {@link GrouperList} objects.
    */
-  protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
+  protected static List listValsOld(GrouperSession s, GrouperGroup g, String list) {
     Session session = GrouperBackend._init();
-    List    vals    = new ArrayList();
+    List vals = new ArrayList();
     // FIXME Better validation efforts, please.
     // TODO  Refactor to a method
     if (
@@ -976,6 +976,24 @@ public class GrouperBackend {
                                      );
     }
     GrouperBackend._hibernateSessionClose(session);
+    return vals;
+  }
+  protected static List listVals(GrouperSession s, GrouperGroup g, String list) {
+    List vals = new ArrayList();
+    // FIXME Better validation efforts, please.
+    // TODO  Refactor to a method
+    if (
+        g.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperGroup")   &&
+        s.getClass().getName().equals("edu.internet2.middleware.grouper.GrouperSession") &&
+        Grouper.groupField(g.type(), list)
+       ) 
+    {
+      // TODO Verify that the subject has privilege to retrieve this list data
+      vals = GrouperBackend._listVals(
+                                      s, g, null, 
+                                      list, Grouper.MEM_ALL
+                                     );
+    }
     return vals;
   }
 
@@ -1889,6 +1907,39 @@ public class GrouperBackend {
              session, gkey_param, mkey_param, list, via_param
            );
   }
+  private static List _listVals(
+                                GrouperSession s, GrouperGroup g, 
+                                GrouperMember m, String list, String via
+                               ) 
+  {
+    // Well isn't this an ugly hack...
+    String gkey_param = null;
+    if (g != null) {
+      gkey_param = g.key();
+    } else {
+      gkey_param = GrouperBackend.VAL_NOTNULL;
+    }
+    String mkey_param = null;
+    if (m != null) {
+      mkey_param = m.key();
+    } else {
+      mkey_param = GrouperBackend.VAL_NOTNULL;
+    }
+    String via_param  = null;
+    if (!via.equals(Grouper.MEM_ALL)) {
+      if        (via.equals(Grouper.MEM_EFF)) {
+        via_param = GrouperBackend.VAL_NOTNULL;
+      } else if (via.equals(Grouper.MEM_IMM)) {
+        via_param = GrouperBackend.VAL_NULL;
+      } else {
+        throw new RuntimeException("Invalid via requirement: " + via);
+      }
+    }
+    return BackendQuery.grouperList(
+             s, gkey_param, mkey_param, list, via_param
+           );
+  }
+   
    
   /* (!javadoc)
    * True if the stem exists.

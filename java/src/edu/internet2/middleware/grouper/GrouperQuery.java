@@ -60,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.12 2005-02-07 21:07:02 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.13 2005-03-02 22:39:12 blair Exp $
  */
 public class GrouperQuery {
 
@@ -317,7 +317,7 @@ public class GrouperQuery {
     Iterator  iter    = groups.iterator();
     while (iter.hasNext()) {
       GrouperGroup g = (GrouperGroup) iter.next();
-      Iterator lvIter =  GrouperBackend.listVals(
+      Iterator lvIter =  GrouperBackend.listValsOld(
                            this.gs, g, Grouper.DEF_LIST_TYPE
                          ).iterator();
       while (lvIter.hasNext()) {
@@ -404,7 +404,7 @@ public class GrouperQuery {
       Iterator iter = groups.iterator();
       while (iter.hasNext()) {
         GrouperGroup g = (GrouperGroup) iter.next();
-        Iterator lvIter =  GrouperBackend.listVals(
+        Iterator lvIter =  GrouperBackend.listValsOld(
                              gs, g, Grouper.DEF_LIST_TYPE
                            ).iterator();
         while (lvIter.hasNext()) {

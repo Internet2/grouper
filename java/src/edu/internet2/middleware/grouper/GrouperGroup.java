@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.155 2005-02-17 18:51:47 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.156 2005-03-02 22:39:12 blair Exp $
  */
 public class GrouperGroup {
 
@@ -406,7 +406,10 @@ public class GrouperGroup {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s) {
-    return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
+    s.dbSessStart();
+    List vals = _listVals(s);
+    s.dbSessStop();
+    return vals;
   }
 
   /**
@@ -417,7 +420,7 @@ public class GrouperGroup {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(GrouperSession s, String list) {
-    return GrouperBackend.listVals(s, this, list);
+    return GrouperBackend.listValsOld(s, this, list);
   }
 
   /**
@@ -771,6 +774,13 @@ public class GrouperGroup {
       }
     }
     return rv;
+  }
+
+  /*
+   * Retrieve list values.
+   */
+  private List _listVals(GrouperSession s) {
+    return GrouperBackend.listVals(s, this, Grouper.DEF_LIST_TYPE);
   }
 
   /*

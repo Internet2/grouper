@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * {@link Grouper}.
  *
  * @author  blair christensen.
- * @version $Id: BackendQuery.java,v 1.4 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: BackendQuery.java,v 1.5 2005-03-02 22:39:12 blair Exp $
  */
 public class BackendQuery {
 
@@ -152,6 +152,49 @@ public class BackendQuery {
     }
     return vals;
   }
+  protected static List grouperList(
+                          GrouperSession s, String gkey,
+                          String  mkey,    String gfield,
+                          String  via
+                        )
+  {
+    List    vals        = new ArrayList();
+    String  gfield_txt  = nullOrVal(gfield);
+    String  gkey_txt    = nullOrVal(gkey);
+    String  mkey_txt    = nullOrVal(mkey);
+    String  via_txt     = "";
+    if (via != null) {
+      if        (via.equals(Grouper.MEM_ALL)) {        
+        // Already set via_txt is fine
+      } else if (via.equals(Grouper.MEM_EFF)) {
+        // We want a value
+        via_txt = " AND gl.via IS NOT NULL";
+      } else if (via.equals(Grouper.MEM_IMM)) {
+        // We don't want a value
+        via_txt = " AND gl.via IS NULL";
+      } else {
+        via_txt = " AND gl.via" + nullOrVal(via);
+      }
+    }
+    try {
+      Query q = s.dbSess().createQuery(
+        "FROM GrouperList AS gl"      +
+        " WHERE "                     +
+        "gl.groupKey"   + gkey_txt    +
+        " AND "                       +
+        "gl.memberKey"  + mkey_txt    +
+        " AND "                       +
+        "gl.groupField" + gfield_txt  +
+        via_txt
+      );
+      Grouper.log().query("grouperList", q);
+      vals = q.list();
+    } catch (HibernateException e) {
+      throw new RuntimeException(e);
+    }
+    return vals;
+  }
+
 
   /*
    * Return all items matching key=value specification.
