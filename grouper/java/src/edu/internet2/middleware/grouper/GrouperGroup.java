@@ -61,7 +61,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.121 2004-12-05 16:31:12 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.122 2004-12-05 19:20:09 blair Exp $
  */
 public class GrouperGroup {
 
@@ -460,7 +460,11 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
-    return this._listAddVal(s, m, Grouper.DEF_LIST_TYPE);
+    boolean rv = false;
+    if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
+      rv = this._listAddVal(s, m, Grouper.DEF_LIST_TYPE);
+    }
+    return rv;
   }
 
   /**
@@ -475,7 +479,11 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
-    return this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
+    boolean rv = false;
+    if (GrouperGroup._canModListVal(s, this, Grouper.DEF_LIST_TYPE)) {
+      rv = this._listDelVal(s, m, Grouper.DEF_LIST_TYPE);
+    }
+    return rv;
   }
 
   // TODO
@@ -553,6 +561,33 @@ public class GrouperGroup {
         if (Grouper.naming().has(s, ns, Grouper.PRIV_CREATE)) {
           rv = true;
         }
+      }
+    }
+    return rv;
+  }
+
+  /* (!javadoc)
+   * Does the current subject have permission to modify list vals of
+   * the specified type on the specified group?
+   */
+  private static boolean _canModListVal(
+                           GrouperSession s, GrouperGroup g, String list
+                         )
+  {
+    boolean rv = false;
+    // FIXME Support for multiple list types
+    if (
+        (s    != null) &&
+        (g    != null) &&
+        (list != null)
+       )
+    {
+      if (
+          (Grouper.access().has(s, g, Grouper.PRIV_UPDATE)) ||
+          (Grouper.access().has(s, g, Grouper.PRIV_UPDATE))
+         )
+      {
+        rv = true;
       }
     }
     return rv;

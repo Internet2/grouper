@@ -58,6 +58,12 @@ import  edu.internet2.middleware.subject.*;
 public class Util {
 
   /*
+   * PUBLIC CLASS CONSTANTS
+   */
+  public static final String klassGG = "edu.internet2.middleware.grouper.GrouperGroup";
+
+
+  /*
    * PUBLIC MEMBER CONSTANTS
    */
   public static final String rooti  = Grouper.config("member.system");
@@ -66,7 +72,6 @@ public class Util {
   public static final String m0t    = Grouper.DEF_SUBJ_TYPE;
   public static final String m1i    = "notblair";
   public static final String m1t    = Grouper.DEF_SUBJ_TYPE;
-
 
   /*
    * PUBLIC NS CONSTANTS
@@ -78,6 +83,12 @@ public class Util {
   /*
    * PUBLIC GROUP CONSTANTS
    */
+  public static final String stem0 = "stem.0";
+  public static final String extn0 = "extn.0";
+  public static final String stem1 = "stem.1";
+  public static final String extn1 = "extn.1";
+  public static final String stem2 = "stem.2";
+  public static final String extn2 = "extn.2";
   public static final String stem6 = "stem.0";
   public static final String extn6 = "extn.6";
 
