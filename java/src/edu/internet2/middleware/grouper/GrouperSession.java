@@ -5,6 +5,7 @@ import  java.lang.reflect.*;
 import  java.sql.*;
 import  java.util.Date;
 import  java.util.ArrayList;
+import  java.util.Iterator;
 import  java.util.List;
 import  java.util.Properties;
 import  net.sf.hibernate.*;
@@ -14,7 +15,7 @@ import  net.sf.hibernate.cfg.*;
  * Class representing a {@link Grouper} session.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.29 2004-07-27 20:15:43 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.30 2004-08-03 01:19:01 blair Exp $
  */
 public class GrouperSession {
 
@@ -255,12 +256,23 @@ public class GrouperSession {
   /**
    * Provide access to the session's JDBC connection handle.
    * <p>
-   * XXX This may not return here, may not remain public, etc.
+   * XXX This may not remain here, may not remain public, etc.
    *
    * @return JDBC connection handle for this session. 
    */
   public Connection connection() {
     return this.con;
+  }
+
+  /**
+   * Provide access to the Hibernate session.
+   * <p>
+   * XXX This may not remain here, may not remain public, etc.
+   *
+   * @return Hibernate session
+   */
+  public Session session() {
+    return this.session;
   }
 
   /*
