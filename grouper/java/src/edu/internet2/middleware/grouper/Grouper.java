@@ -18,7 +18,7 @@ import  java.util.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.41 2004-11-12 16:38:29 blair Exp $
+ * @version $Id: Grouper.java,v 1.42 2004-11-20 01:53:19 blair Exp $
  */
 public class Grouper {
 
@@ -31,8 +31,7 @@ public class Grouper {
   // A place to hold the run-time environment
   private static Properties conf          = new Properties();
   // Run-time configuration file
-  // TODO Make this more dynamic
-  private static String      confFile     = "conf/grouper.properties"; 
+  private static String      confFile     = "grouper.properties"; 
   // Cached Grouper group fields
   private static List       groupFields   = new ArrayList();
   // Cached Grouper group types
@@ -199,19 +198,13 @@ public class Grouper {
    * Initialize {@link Grouper} environment.
    */
   private static void _init() {
-    // TODO Isn't there a mechanism by which the confFile can be found
-    //      via $CLASSPATH and read in more (in)directly?
     if (initialized == false) {
+      Grouper     tmp = new Grouper();
+      InputStream in  = tmp.getClass().getResourceAsStream("grouper.properties");
       try {
-        FileInputStream in = new FileInputStream(confFile);
-        try {
-          conf.load(in);
-        } catch (IOException e) {
-          System.err.println("Unable to read '" + confFile + "'");
-          System.exit(1); 
-        }
-      } catch (FileNotFoundException e) {
-        System.err.println("Failed to find '" + confFile + "'");
+        conf.load(in);
+      } catch (IOException e) {
+        System.err.println("Unable to read '" + confFile + "'");
         System.exit(1); 
       }
 

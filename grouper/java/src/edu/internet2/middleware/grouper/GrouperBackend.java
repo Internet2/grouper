@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.46 2004-11-19 19:44:05 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.47 2004-11-20 01:53:19 blair Exp $
  */
 public class GrouperBackend {
 
@@ -836,7 +836,7 @@ public class GrouperBackend {
     if (cfg == null) {
       try {
       cfg = new Configuration()
-        .addFile("conf/Grouper.hbm.xml");
+        .addFile("Grouper.hbm.xml");
       } catch (Exception e) {
         System.err.println(e);
         System.exit(1);
