@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.5 2005-02-09 22:00:35 acohen Exp $
-  $Date: 2005-02-09 22:00:35 $
+  $Id: assignment.jsp,v 1.6 2005-02-24 20:02:04 acohen Exp $
+  $Date: 2005-02-24 20:02:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -36,6 +36,8 @@
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+
 <% 
   Signet signet
      = (Signet)
@@ -51,16 +53,18 @@
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
     <div class="section">
-			<h2>
+      <h2>
       <%=currentAssignment.getFunction().getSubsystem().getName()%>
       :
       <%=currentAssignment.getFunction().getCategory().getName()%>
       :
       <%=currentAssignment.getFunction().getName()%>
       </h2>
-		</div>
+    </div>
+    
     <table class="invis">
-	    <tr>
+    
+      <tr>
         <td class="dropback">
           Scope:
         </td>
@@ -68,6 +72,16 @@
           <%=currentAssignment.getScope().getName()%>
         </td>
       </tr>
+      
+      <tr>
+        <td class="dropback">
+          Limits:
+        </td>
+        <td>
+          <%=Common.displayLimitValues(currentAssignment)%>
+        </td>
+      </tr>
+      
       <tr>
         <td class="dropback">
           Extensibility:
@@ -76,6 +90,7 @@
           <%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
         </td>
       </tr>
+      
     </table>
   </body>
 </html>
