@@ -32,3 +32,4 @@ member,add,comp:lang,perl,gerry
 member,add,comp:lang:perl,misc,gerry
 member,add,comp:lang,java,comp:lang:java,announce
 member,add,comp:lang:perl,misc,comp:lang,perl
+member,add,comp:lang,awk,clark
