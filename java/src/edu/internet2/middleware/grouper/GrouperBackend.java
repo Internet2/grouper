@@ -65,7 +65,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.174 2005-03-21 02:26:46 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.175 2005-03-22 02:15:54 blair Exp $
  */
 public class GrouperBackend {
 
@@ -107,12 +107,11 @@ public class GrouperBackend {
         throw new RuntimeException("Error saving group: " + g);
       }
       // Add schema
-      if (_schemaAdd(s, g)) {
-        // Add attributes
-        if (_attributesAdd(s, g)) {
-          if (_privGrantUponCreate(s, g)) {
-            rv = true;
-          }
+      GrouperSchema.save(s, g);
+      // Add attributes
+      if (_attributesAdd(s, g)) {
+        if (_privGrantUponCreate(s, g)) {
+          rv = true;
         }
       }
     } else { 
@@ -148,19 +147,15 @@ public class GrouperBackend {
             // Delete attributes
             if (_attributesDel(s, g))  {
               // Delete schema
-              if (_schemaDel(s, g)) {
-                // Delete group
-                s.dbSess().session().delete(g);
-                // Commit
-                rv = true;
-              }
+              GrouperSchema.delete(s, g);
+              // Delete group
+              s.dbSess().session().delete(g);
+              rv = true;
             }
           }
         }
       } catch (HibernateException e) {
-        // TODO We probably need a rollback in here in case of failure
-        //      above.
-        throw new RuntimeException(e);
+        throw new RuntimeException("Error deleting group: " + e);
       }
     }
     return rv;
@@ -550,58 +545,6 @@ public class GrouperBackend {
     return rv;
   }
 
-  /* !javadoc
-   * Attach schema to a group
-   */
-  private static boolean _schemaAdd(GrouperSession s, GrouperGroup g) {
-    boolean rv = false;
-    try {
-      GrouperSchema schema = new GrouperSchema( g.key(), g.type() );
-      if (schema != null) {
-        s.dbSess().session().save(schema);
-        rv = true;
-      }
-    } catch (HibernateException e) {
-      // FIXME LOG.  Hell, anything.
-    }
-    return rv;
-  }
-
-  /* !javadoc
-   * Delete all schema attached to a group
-   */
-  private static boolean _schemaDel(GrouperSession s, GrouperGroup g) {
-    boolean rv  = false;
-    String  qry = "GrouperSchema.by.key";
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, g.key());
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          GrouperSchema gs = (GrouperSchema) iter.next();
-          try {
-            s.dbSess().session().delete(gs);
-            rv = true;
-          } catch (HibernateException e) {
-            throw new RuntimeException(
-                        "Error deleting schema: " + e
-                      );
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return rv;
-  }
- 
   /* !javadoc
    * Validate that a group is eligible to be created
    */
