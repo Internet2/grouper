@@ -16,9 +16,9 @@ import  java.util.*;
  * Default implementation of the {@link GrouperNaming} interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.15 2004-10-29 13:25:30 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.16 2004-11-20 16:32:17 blair Exp $
  */
-public class InternalGrouperNaming implements GrouperNaming {
+public class GrouperNamingImpl implements GrouperNaming {
 
   private GrouperSession grprSession = null;
 
@@ -27,7 +27,7 @@ public class InternalGrouperNaming implements GrouperNaming {
    *
    * @param   s   Session context.
    */
-  public InternalGrouperNaming(GrouperSession s) {
+  public GrouperNamingImpl(GrouperSession s) {
     // Internal reference to the session we are using.
     grprSession = s;
   }
