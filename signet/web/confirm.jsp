@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: confirm.jsp,v 1.4 2005-02-23 22:05:55 acohen Exp $
+  $Date: 2005-02-23 22:05:55 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -36,6 +36,8 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
+<%@ page import="edu.internet2.middleware.signet.Limit" %>
+<%@ page import="edu.internet2.middleware.signet.LimitValue" %>
 
 <% 
   Signet signet
@@ -118,35 +120,35 @@
       <div id="Layout">
         <div id="Content">
           <div id="ViewHead">
-						Privilege granted to
-           	<h1>
-             	<%=currentGranteePrivilegedSubject.getName()%>
-           	</h1>
-           	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
-         	</div>
-         	
-         	<div class="section">
-					<h2><%=currentSubsystem.getName()%> privilege granted</h2>
-           	<ul class="none">
-             	<li>
-               	<%=currentCategory.getName()%>
-               	<ul class="arrow">
-                 	<li>
-                   	<%=currentFunction.getName()%>
-                 	</li>
-               	</ul>
-             	</li>
-           	</ul>
-         	</div><!-- section -->
-            	
+            Privilege granted to
+            <h1>
+              <%=currentGranteePrivilegedSubject.getName()%>
+            </h1>
+            <span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,  Technology Strategy and Support Operations-->
+          </div>
+           
+          <div class="section">
+            <h2><%=currentSubsystem.getName()%> privilege granted</h2>
+            <ul class="none">
+              <li>
+                <%=currentCategory.getName()%>
+                <ul class="arrow">
+                  <li>
+                    <%=currentFunction.getName()%>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div><!-- section -->
+              
 
-         	<!-- tableheader -->
-         	<div class="section">
-          <h2>
-           	scope
-         	</h2>
-           	<ul class="none">
-              	
+          <!-- tableheader -->
+          <div class="section">
+            <h2>
+              scope
+            </h2>
+            <ul class="none">
+                
               <%=signet.displayAncestry
                     (currentScope,
                      "<ul class=\"arrow\">\n",  // childSeparatorPrefix
@@ -154,58 +156,98 @@
                      "\n</li>\n",               // levelSuffix
                      "\n</ul>")                 // childSeparatorSuffix
                  %>
-              	
+                
             </ul>
-         	</div>
-         	<!-- section -->
-            	
+          </div> <!-- section -->
+              
        
-         	<div class="section">
-          <h2>
-           	Conditions
-         	</h2>
-           	<table class="invis">
-	
+          <div class="section">
+            <h2>
+              Limits
+            </h2>
+            <table class="invis">
+<%
+  Limit[] limits = currentAssignment.getFunction().getLimitsArray();
+  LimitValue[] limitValues = currentAssignment.getLimitValuesArray();
+  for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
+  {
+    Limit limit = limits[limitIndex];
+%>
               <tr>
-               	<td align="right">
-                 	Privilege holder can:
-               	</td>
-               	<td>
-                 	<%=(currentAssignment.isGrantOnly() ? "" : "use this privilege")%>
-                 	<br />
-                 	<%=(currentAssignment.isGrantable() ? "grant this privilege to others" : "")%>
-               	</td>
-             	</tr>
-           	</table>
-         	</div>
-         	<!-- section -->
-                  	
+                <td align="right">
+                  <%=limit.getName()%>:
+                </td>
+                <td>
+<%
+    int limitValuesPrinted = 0;
+    for (int limitValueIndex = 0;
+         limitValueIndex < limitValues.length;
+         limitValueIndex++)
+    {
+      LimitValue limitValue = limitValues[limitValueIndex];
+      if (limitValue.getLimit().equals(limit))
+      {
+%>
+                  <%=(limitValuesPrinted++ > 0) ? "<br />" : ""%>
+                  <%=limitValue.getValue()%>
+<%
+      }
+    }
+%>
+               
+                </td>
+              </tr>
+<%
+  }
+%>
+            </table>
+          </div> <!-- section -->
+              
+       
+          <div class="section">
+            <h2>
+              Conditions
+            </h2>
+            <table class="invis">
+              <tr>
+                <td align="right">
+                  Privilege holder can:
+                </td>
+                <td>
+                  <%=(currentAssignment.isGrantOnly() ? "" : "use this privilege")%>
+                  <br />
+                  <%=(currentAssignment.isGrantable() ? "grant this privilege to others" : "")%>
+                </td>
+              </tr>
+            </table>
+          </div> <!-- section -->
+                    
 
-         	<div class="section">
+           <div class="section">
           <h2>
-           	Continue
-         	</h2>
-           	<p>
-             	<a href="<%=personViewHref%>">
-               	<img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />View all <%=currentGranteePrivilegedSubject.getName()%>'s privileges
-             	</a>
-           	</p>
-           	<p>
-             	<a href="Functions.do?select=<%=currentSubsystem.getId()%>">
-               	<img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
-             	</a>
-           	</p>
-           	<p>
-             	<a href="Start.do">
-               	<img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />Return to home page
-             	</a>
-           	</p>
-         	</div>
-         	<!-- section -->
-                  	
+             Continue
+           </h2>
+             <p>
+               <a href="<%=personViewHref%>">
+                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />View all <%=currentGranteePrivilegedSubject.getName()%>'s privileges
+               </a>
+             </p>
+             <p>
+               <a href="Functions.do?select=<%=currentSubsystem.getId()%>">
+                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
+               </a>
+             </p>
+             <p>
+               <a href="Start.do">
+                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />Return to home page
+               </a>
+             </p>
+           </div>
+           <!-- section -->
+                    
           <jsp:include page="footer.jsp" flush="true" /> 
-       	</div><div id="Sidebar">
-					<div class="findperson">
+         </div><div id="Sidebar">
+          <div class="findperson">
             <h2>
               Find a person
             </h2>
@@ -215,10 +257,10 @@
                 <input name="words" type="text" class="short" id="words" style="width:100px" size="15" maxlength="500" />
                 <input name="searchbutton" type="button" class="button1" onclick="javascript:showResult();" value="Search" />
               <br />
-		            <span class="dropback">
-									Enter a person's name, and click "Search."
-    		        </span>
-							</p>
+                <span class="dropback">
+                  Enter a person's name, and click "Search."
+                </span>
+              </p>
               <div id="Results" style="display:none">
                 Your search found:
               <ol>
@@ -246,10 +288,10 @@
 %>
               </ol>
             </div> <!-- results -->
-    	     </div> <!-- actionbox -->
-  	      </div> <!-- findperson -->
+           </div> <!-- actionbox -->
+          </div> <!-- findperson -->
 
-					<div class="views">
+          <div class="views">
             <h2>
               View privileges...
             </h2>
@@ -268,12 +310,12 @@
               </p>
             </div>
           </div> <!-- views -->
-									
+                  
           <div class="helpbox">
-          	<h2>Help</h2>
-          	<!-- actionheader -->
-          	<jsp:include page="confirm-help.jsp" flush="true" />          
-					</div>  <!-- end helpbox -->
+            <h2>Help</h2>
+            <!-- actionheader -->
+            <jsp:include page="confirm-help.jsp" flush="true" />          
+          </div>  <!-- end helpbox -->
          </div> <!-- Sidebar -->
         
       </div> <!-- Layout -->
