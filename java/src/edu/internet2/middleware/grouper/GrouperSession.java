@@ -3,12 +3,13 @@ package edu.internet2.middleware.directory.grouper;
 import  edu.internet2.middleware.directory.grouper.*;
 import  java.lang.reflect.*;
 import  java.sql.*;
+import  java.util.List;
 
 /** 
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.13 2004-04-29 15:44:04 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.14 2004-04-29 16:15:17 blair Exp $
  */
 public class GrouperSession {
 
@@ -136,6 +137,17 @@ public class GrouperSession {
 
   public GrouperMember lookupSubject(String subjectID, boolean isMember) {
     return _lookupSubject(subjectID);
+  }
+
+  public List allowedStems() {
+    // XXX Fetch all stems and return them
+    List stems = null;
+    return stems;
+  }
+
+  public boolean allowedStems(String stem) {
+    // XXX Do we have access to a *particular* stem?
+    return false;
   }
 
   private GrouperMember _lookupSubject(String subjectID) {
