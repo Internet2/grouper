@@ -8,31 +8,31 @@ package edu.internet2.middleware.directory.grouper;
  * of this interface.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.3 2004-04-14 03:05:42 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.4 2004-04-29 05:20:59 blair Exp $
  */
 public interface GrouperSubject {
   /**
-   * Looks up "subjectID" via the class specified in the
+   * Looks up "subject" via the class specified in the
    * "interface.subject" configuration directive.
    * <p>
-   * If successful, "subjectID" will be mapped to a {@link GrouperMember} object.
+   * If successful, "subject" will be mapped to a {@link GrouperMember} object.
    *
-   * @param subjectID The subject that we are attempting to lookup.
-   * @return A {@link GrouperMember} object.
+   * @param   subject The subject that we are attempting to lookup.
+   * @return  A {@link GrouperMember} object.
    */
-  public GrouperMember lookup(String subjectID);
+  public GrouperMember lookup(String subject);
 
   /**
-   * Looks up "subjectID" via the class specified in the
+   * Looks up "subject" via the class specified in the
    * "interface.subject" configuration directive.
    * <p>
-   * If successful, "subjectID" will be mapped to a {@link GrouperMember} object.
+   * If successful, "subject" will be mapped to a {@link GrouperMember} object.
    *
-   * @param subjectID The subject that we are attempting to lookup.
-   * @param isMember  If true, the subjectID is assumed to be a
+   * @param   subject The subject that we are attempting to lookup.
+   * @param   isMember  If true, the subject is assumed to be a
    * memberID and not a presentationID.
-   * @return A {@link GrouperMember} object.
+   * @return  A {@link GrouperMember} object.
    */
-  public GrouperMember lookup(String subjectID, boolean isMember);
+  public GrouperMember lookup(String subject, boolean isMember);
 }
 
