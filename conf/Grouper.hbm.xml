@@ -117,5 +117,26 @@
     <property name="adapterClass" type="string" not-null="true"/>
   </class>
 
+  <class name="ViaElement"  table="grouper_viaElement">
+    <!-- TODO I suspect this is all wrong -->
+    <composite-id access="field">
+      <key-property name="pathKey"  type="string"   column="pathKey"/>
+      <key-property name="pathIdx"  type="integer"  column="pathIdx"/>
+      <key-property name="groupKey" type="string"   column="groupKey"/>
+    </composite-id>
+  </class>
+
+  <class name="ViaPath" table="grouper_viaPath" mutable="true">
+    <!-- TODO I suspect this is all wrong -->
+    <id name="pathKey" type="string" unsaved-value="null">
+      <generator class="assigned"/>
+    </id>
+    <list name="elements" table="grouper_viaElement">
+      <key    column="pathKey"/>
+      <index  column="pathIdx"/>
+      <composite-element class="ViaElement"/>
+    </list>
+  </class>
+
 </hibernate-mapping>
 

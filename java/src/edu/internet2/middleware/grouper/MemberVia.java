@@ -49,77 +49,117 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.edu.internet2.middleware.grouper;
-
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+package edu.internet2.middleware.grouper;
 
 
-public class Util {
-
-  /*
-   * PUBLIC CLASS CONSTANTS
-   */
-  public static final String klassGG = "edu.internet2.middleware.grouper.GrouperGroup";
-  public static final String klassSI = "edu.internet2.middleware.grouper.SubjectImpl";
-  public static final String KLASS_VE = "edu.internet2.middleware.grouper.ViaElement";
-  public static final String KLASS_VP = "edu.internet2.middleware.grouper.ViaPath";
+import  java.io.Serializable;
+import  org.apache.commons.lang.builder.EqualsBuilder;
+import  org.apache.commons.lang.builder.HashCodeBuilder;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
-  /*
-   * PUBLIC MEMBER CONSTANTS
-   */
-  public static final String rooti  = Grouper.config("member.system");
-  public static final String roott  = Grouper.DEF_SUBJ_TYPE;
-  public static final String m0i    = "blair";
-  public static final String m0t    = Grouper.DEF_SUBJ_TYPE;
-  public static final String m1i    = "notblair";
-  public static final String m1t    = Grouper.DEF_SUBJ_TYPE;
+/** 
+ * Class modeling a {@link Grouper} via path element.
+ * <p />
+ *
+ * @author  blair christensen.
+ * @version $Id: MemberVia.java,v 1.1 2005-02-14 01:07:01 blair Exp $
+ */
+public class ViaElement implements Serializable {
 
   /*
-   * PUBLIC NS CONSTANTS
+   * PRIVATE INSTANCE VARIABLES
    */
-  public static final String ns0s   = Grouper.NS_ROOT;
-  public static final String ns0e   = "stem.0";
-  public static final String ns00s  = "stem.0";
-  public static final String ns00e  = "stem.0.0";
-  public static final String ns1s   = Grouper.NS_ROOT;
-  public static final String ns1e   = "stem.1";
-  public static final String ns2s   = Grouper.NS_ROOT;
-  public static final String ns2e   = "stem.2";
+  private String  groupKey;
+  private int     pathIdx;
+  private String  pathKey;
 
 
   /*
-   * PUBLIC GROUP CONSTANTS
+   * CONSTRUCTORS
    */
-  public static final String stem0  = "stem.0";
-  public static final String extn0  = "extn.0";
-  public static final String stem1  = "stem.1";
-  public static final String extn1  = "extn.1";
-  public static final String stem2  = "stem.2";
-  public static final String extn2  = "extn.2";
-  public static final String stem3  = "stem.0";
-  public static final String extn3  = "extn.3";
-  public static final String stem4  = "stem.0";
-  public static final String extn4  = "extn.4";
-  public static final String stem5  = "stem.0";
-  public static final String extn5  = "ext:n.5";
-  public static final String stem6  = "stem.0";
-  public static final String extn6  = "extn.6";
-  public static final String stem7  = "stem.0";
-  public static final String extn7  = "extn.7";
-  public static final String stem8  = "stem.0";
-  public static final String extn8  = "extn.8";
-  public static final String stem9  = "stem.1";
-  public static final String extn9  = "extn.9";
-  public static final String stem10 = "stem.1";
-  public static final String extn10 = "extn.10";
-  public static final String stem11 = "stem.1";
-  public static final String extn11 = "extn.11";
-  public static final String stem12 = "stem.1";
-  public static final String extn12 = "extn.12";
-  public static final String stem13 = "stem.1";
-  public static final String extn13 = "extn.13";
+
+  public ViaElement() {
+    this._init();
+  }
+
+
+  /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Compares the specified object with this via element for equality.
+   * <p />
+   * @param o Object to be compared for equality with this via element.
+   * @return  True if the specified object is equal to this via element.
+   */
+  public boolean equals(Object o) {
+     return EqualsBuilder.reflectionEquals(this, o);
+   }
+
+  /**
+   * Returns the hash code value for this via element.
+   * <p />
+   * @return  The hash code value for this via element.
+   */
+  public int hashCode() {
+     return HashCodeBuilder.reflectionHashCode(this);
+   }
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    // TODO Spit out group name as well?
+    return  this.getPathKey() + ":" +
+            this.getPathIdx();
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Initialize instance variables
+   */
+  private void _init() {
+    this.groupKey = null;
+    this.pathIdx  = -1;
+    this.pathKey  = null;
+  }
+
+
+  /*
+   * HIBERNATE
+   */
+
+  private String getGroupKey() {
+    return this.groupKey;
+  }
+
+  private void setGroupKey(String key) {
+    this.groupKey = key;
+  } 
+
+  private int getPathIdx() {
+    return this.pathIdx;
+  }
+
+  private void setPathIdx(int idx) {
+    this.pathIdx = idx;
+  } 
+
+  private String getPathKey() {
+    return this.pathKey;
+  }
+
+  private void setPathKey(String key) {
+    this.pathKey = key;
+  } 
 
 }
 

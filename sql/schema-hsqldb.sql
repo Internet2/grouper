@@ -1,6 +1,6 @@
 -- 
 -- Create required Grouper tables
--- $Id: schema-hsqldb.sql,v 1.27 2005-02-07 20:23:21 blair Exp $
+-- $Id: schema-hsqldb.sql,v 1.28 2005-02-14 01:07:01 blair Exp $
 -- 
 
 DROP   TABLE grouper_attribute IF EXISTS;
@@ -36,17 +36,20 @@ CREATE TABLE grouper_group (
   CONSTRAINT    uniq_gg_gid  UNIQUE (groupID)
 );
 
-DROP   TABLE grouper_list IF EXISTS;
-CREATE TABLE grouper_list (
-  groupKey        VARCHAR NOT NULL,
-  groupField      VARCHAR NOT NULL,
-  memberKey       VARCHAR NOT NULL,
-  via             VARCHAR,
-  removeAfter     VARCHAR,
-  CONSTRAINT      uniq_gl_gk_gf_mk_via UNIQUE (groupKey, groupField, memberKey, via)
+DROP    TABLE grouper_list IF EXISTS;
+CREATE  TABLE grouper_list (
+  groupKey      VARCHAR NOT NULL,
+  groupField    VARCHAR NOT NULL,
+  memberKey     VARCHAR NOT NULL,
+  pathKey       VARCHAR,
+  via           VARCHAR,         
+  removeAfter   VARCHAR,
+  CONSTRAINT    uniq_gl_gk_gf_mk_pk UNIQUE (
+                  groupKey, groupField, memberKey, pathKey
+                )
 );
-CREATE INDEX idx_gl_gk_gf_mk_via ON grouper_list 
-  (groupKey, groupField, memberKey, via);
+CREATE  INDEX idx_gl_gk_gf_mk_pk ON grouper_list 
+  (groupKey, groupField, memberKey, pathKey);
 
 DROP   TABLE grouper_member IF EXISTS;
 CREATE TABLE grouper_member (
@@ -122,6 +125,24 @@ CREATE TABLE grouper_type (
   groupType   VARCHAR NOT NULL PRIMARY KEY,
   CONSTRAINT  uniq_gtype_gt UNIQUE (groupType)
 );
+
+DROP    TABLE grouper_viaElement IF EXISTS;
+CREATE  TABLE grouper_viaElement (
+  pathKey       VARCHAR NOT NULL,
+  pathIdx       INTEGER NOT NULL,
+  groupKey      VARCHAR NOT NULL,
+  CONSTRAINT    uniq_gve_pk_pi_gk UNIQUE (pathKey, pathIdx, groupKey)
+);
+-- TODO Are these the right indices for this table?
+CREATE  INDEX gve_pk ON grouper_viaElement (pathKey);
+CREATE  INDEX gve_gk ON grouper_viaElement (groupKey);
+
+DROP    TABLE grouper_viaPath IF EXISTS;
+CREATE  TABLE grouper_viaPath (
+  pathKey       VARCHAR NOT NULL PRIMARY KEY,
+  CONSTRAINT    uniq_gvp_pk UNIQUE (pathKey)
+);
+CREATE  INDEX gvp_pk ON grouper_viaPath (pathKey);
 
 COMMIT;
 
