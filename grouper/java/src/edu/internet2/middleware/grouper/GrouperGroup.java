@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.153 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.154 2005-02-16 20:07:50 blair Exp $
  */
 public class GrouperGroup {
 
@@ -70,12 +70,12 @@ public class GrouperGroup {
    * PRIVATE INSTANCE VARIABLES
    */
   private Map             attributes;
-  private String          comment;
   private String          createTime;
   private String          createSubject;
   private String          createSource;
   private String          id;
   private boolean         initialized   = false; // FIXME UGLY HACK!
+  private String          groupComment;
   private String          key;
   private String          modifyTime;
   private String          modifySubject;
@@ -1058,10 +1058,10 @@ public class GrouperGroup {
    */
   private void _init() { 
     this.attributes     = new HashMap();
-    this.comment        = null;
     this.createTime     = null;
     this.createSubject  = null;
     this.createSource   = null;
+    this.groupComment   = null;
     this.key            = null;
     this.modifyTime     = null;
     this.modifySubject  = null;
@@ -1278,12 +1278,12 @@ public class GrouperGroup {
     this.modifySource = modifySource;
   }
 
-  private String getComment() {
-    return this.comment;
+  private String getGroupComment() {
+    return this.groupComment;
   }
 
-  private void setComment(String comment) {
-    this.comment = comment;
+  private void setGroupComment(String comment) {
+    this.groupComment = comment;
   } 
 
 }
