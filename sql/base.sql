@@ -1,5 +1,5 @@
 -- 
--- $Id: base.sql,v 1.16 2004-11-23 18:51:50 blair Exp $
+-- $Id: base.sql,v 1.17 2004-11-25 03:04:47 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -7,7 +7,7 @@ INSERT INTO grouper_type (groupType) VALUES ('base');
 INSERT INTO grouper_type (groupType) VALUES ('naming');
 
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
-  VALUES ('descriptor', 'READ', 'ADMIN', 'FALSE');
+  VALUES ('extension', 'READ', 'ADMIN', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('stem', 'READ', 'ADMIN', 'FALSE');
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
@@ -27,7 +27,7 @@ INSERT INTO grouper_field (groupField, readPriv, writePriv, isList)
 INSERT INTO grouper_field (groupField, readPriv, writePriv, isList) 
   VALUES ('optouts', 'READ', 'UPDATE', 'TRUE');
 INSERT INTO grouper_typeDef (groupType, groupField) 
-  VALUES ('base', 'descriptor');
+  VALUES ('base', 'extension');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'stem');
 INSERT INTO grouper_typeDef (groupType, groupField) 
@@ -47,7 +47,7 @@ INSERT INTO grouper_typeDef (groupType, groupField)
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('base', 'optouts');
 INSERT INTO grouper_typeDef (groupType, groupField) 
-  VALUES ('naming', 'descriptor');
+  VALUES ('naming', 'extension');
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('naming', 'stem');
 INSERT INTO grouper_typeDef (groupType, groupField) 

@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.65 2004-11-25 02:06:46 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.66 2004-11-25 03:04:47 blair Exp $
  */
 public class GrouperBackend {
 
@@ -127,11 +127,11 @@ public class GrouperBackend {
   }
 
   // TODO
-  protected static List descriptors(GrouperSession s, String descriptor) {
+  protected static List extensions(GrouperSession s, String extension) {
     Session session     = GrouperBackend._init();
-    List    descriptors = GrouperBackend._descriptors(session, descriptor);
+    List    extensions  = GrouperBackend._extensions(session, extension);
     GrouperBackend._hibernateSessionClose(session);
-    return descriptors;
+    return extensions;
   }
 
   /**
@@ -223,13 +223,13 @@ public class GrouperBackend {
    */
   protected static GrouperGroup groupLoad(
                                           GrouperSession s, String stem,
-                                          String descriptor, String type
+                                          String extension, String type
                                          ) 
   {
     Session session = GrouperBackend._init();
     // TODO G+H Session validation 
     // TODO Priv validation
-    GrouperGroup g = GrouperBackend._groupLoad(session, stem, descriptor, type);
+    GrouperGroup g = GrouperBackend._groupLoad(session, stem, extension, type);
     GrouperBackend._hibernateSessionClose(session);
     return g;
   }
@@ -766,26 +766,23 @@ public class GrouperBackend {
    * PRIVATE CLASS METHODS
    */
 
-  private static List _descriptors(Session session, String descriptor) {
-    List    descriptors = new ArrayList();
+  private static List _extensions(Session session, String extension) {
+    List extensions = new ArrayList();
     try {
       Query q = session.createQuery(
         "FROM GrouperAttribute AS ga"             +
         " WHERE "                                 +
-        "ga.groupField='descriptor'"              +
+        "ga.groupField='extension'"               +
         " AND "                                   +
-        "ga.groupFieldValue='" + descriptor + "'"        
+        "ga.groupFieldValue='" + extension + "'"  
       );
-      descriptors = q.list();
+      extensions = q.list();
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
     }
-    return descriptors;
+    return extensions;
   }
-
-  //private static boolean _groupExists(Session session, String stem, String descriptor) {
-  //}
 
   // FIXME Refactor.  Mercilesssly.
   // TODO  Take group type into account.
@@ -827,7 +824,7 @@ public class GrouperBackend {
   // FIXME Refactor.  Mercilesssly.
   private static GrouperGroup _groupLoad(
                                          Session session, String stem, 
-                                         String descriptor, String type
+                                         String extension, String type
                                         ) 
   {
     GrouperGroup  g   = new GrouperGroup();
@@ -836,34 +833,34 @@ public class GrouperBackend {
     // TODO Please.  Make this better.  Please, please, please.
     //      For whatever reason, SQL and quality code are evading
     //      me this week.
-    List descriptors = GrouperBackend._descriptors(session, descriptor);
-    if (descriptors.size() > 0) {
-      // We found one or more potential descriptors.  Now look
+    List extensions = GrouperBackend._extensions(session, extension);
+    if (extensions.size() > 0) {
+      // We found one or more potential extensions.  Now look
       // for matching stems.
       List stems = GrouperBackend._stems(session, stem);
       if (stems.size() > 0) {
-        // We have potential stems and potential descriptors.
+        // We have potential stems and potential extensions.
         // Now see if we have the *right* stem and the *right*
-        // descriptor.
-        Iterator iterDesc = descriptors.iterator();
-        while (iterDesc.hasNext()) {
-          GrouperAttribute possDesc = (GrouperAttribute) iterDesc.next();
+        // extension.
+        Iterator iterExtn = extensions.iterator();
+        while (iterExtn.hasNext()) {
+          GrouperAttribute possExtn = (GrouperAttribute) iterExtn.next();
           Iterator iterStem = stems.iterator();
           while (iterStem.hasNext()) {
             GrouperAttribute possStem = (GrouperAttribute) iterStem.next();
             if (
-                descriptor.equals( possDesc.value() )   &&
+                extension.equals( possExtn.value() )   &&
                 stem.equals(       possStem.value() )   &&
-                possDesc.key().equals( possStem.key() )
+                possExtn.key().equals( possStem.key() )
                )
             {
-              // We have found an appropriate stem and descriptor
+              // We have found an appropriate stem and extension
               // with matching keys.  We exist!
               try {
                 Query q = session.createQuery(
                   "FROM GrouperGroup AS grp"              +
                   " WHERE "                               +
-                  "grp.groupKey='" + possDesc.key() + "'"
+                  "grp.groupKey='" + possExtn.key() + "'"
                 );
                 if (q.list().size() == 1) {
                   // We may have a group to restore.  Now check to see
@@ -871,13 +868,13 @@ public class GrouperBackend {
                   Query schemaQuery = session.createQuery(
                     "FROM GrouperSchema AS schema"              +
                     " WHERE "                                   +
-                    "schema.groupKey='" + possDesc.key() + "'"  +
+                    "schema.groupKey='" + possExtn.key() + "'"  +
                     " AND "                                     +
                     "schema.groupType='"  + type + "'"
                   );
                   if (schemaQuery.list().size() == 1) {
                     // We have a group to restore.  
-                    key = possDesc.key();
+                    key = possExtn.key();
                     break;
                   }
                 }

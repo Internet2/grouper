@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestNamingPrivs.java,v 1.1 2004-11-23 22:16:43 blair Exp $
+ * $Id: TestNamingPrivs.java,v 1.2 2004-11-25 03:04:47 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -32,17 +32,17 @@ public class TestNamingPrivs extends TestCase {
   private String stem1  = null;
   private String stem2  = null;
   private String stem00 = "stem.0";
-  private String desc0  = "stem.0";
-  private String desc1  = "stem.1";
-  private String desc2  = "stem.2";
-  private String desc00 = "stem.0.0";
+  private String extn0  = "stem.0";
+  private String extn1  = "stem.1";
+  private String extn2  = "stem.2";
+  private String extn00 = "stem.0.0";
 */
   private String stem0  = "stem.0";
   private String stem1  = "stem.1";
   private String stem2  = "stem.2";
-  private String desc0  = "desc.0";
-  private String desc1  = "desc.1";
-  private String desc2  = "desc.2";
+  private String extn0  = "extn.0";
+  private String extn1  = "extn.1";
+  private String extn2  = "extn.2";
 
   private String m0id   = "blair";
   private String m1id   = "notblair";
@@ -79,35 +79,35 @@ public TestNamingPrivs(String name) {
     s.start(subj);
     // Fetch the groups
     // g0
-    GrouperGroup    grp0  = GrouperGroup.load(s, stem0, desc0);
+    GrouperGroup    grp0  = GrouperGroup.load(s, stem0, extn0);
     Assert.assertNotNull(grp0);
     Assert.assertTrue( klass.equals( grp0.getClass().getName() ) );
     Assert.assertTrue( grp0.exists() );
     Assert.assertNotNull( grp0.type() );
     Assert.assertNotNull( grp0.attribute("stem") );
     Assert.assertTrue( grp0.attribute("stem").value().equals(stem0) );
-    Assert.assertNotNull( grp0.attribute("descriptor") );
-    Assert.assertTrue( grp0.attribute("descriptor").value().equals(desc0) );
+    Assert.assertNotNull( grp0.attribute("extension") );
+    Assert.assertTrue( grp0.attribute("extension").value().equals(extn0) );
     // g1
-    GrouperGroup    grp1  = GrouperGroup.load(s, stem1, desc1);
+    GrouperGroup    grp1  = GrouperGroup.load(s, stem1, extn1);
     Assert.assertNotNull(grp1);
     Assert.assertTrue( klass.equals( grp1.getClass().getName() ) );
     Assert.assertTrue( grp1.exists() );
     Assert.assertNotNull( grp1.type() );
     Assert.assertNotNull( grp1.attribute("stem") );
     Assert.assertTrue( grp1.attribute("stem").value().equals(stem1) );
-    Assert.assertNotNull( grp1.attribute("descriptor") );
-    Assert.assertTrue( grp1.attribute("descriptor").value().equals(desc1) );
+    Assert.assertNotNull( grp1.attribute("extension") );
+    Assert.assertTrue( grp1.attribute("extension").value().equals(extn1) );
     // g2
-    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, desc2);
+    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, extn2);
     Assert.assertNotNull(grp2);
     Assert.assertTrue( klass.equals( grp2.getClass().getName() ) );
     Assert.assertTrue( grp2.exists() );
     Assert.assertNotNull( grp2.type() );
     Assert.assertNotNull( grp2.attribute("stem") );
     Assert.assertTrue( grp2.attribute("stem").value().equals(stem2) );
-    Assert.assertNotNull( grp2.attribute("descriptor") );
-    Assert.assertTrue( grp2.attribute("descriptor").value().equals(desc2) );
+    Assert.assertNotNull( grp2.attribute("extension") );
+    Assert.assertTrue( grp2.attribute("extension").value().equals(extn2) );
     // Fetch the members
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup(m0id, m0type);
@@ -126,7 +126,7 @@ public TestNamingPrivs(String name) {
     Assert.assertNotNull(subj);
     s.start(subj);
     // Fetch g0
-    GrouperGroup  grp0 = GrouperGroup.load(s, stem0, desc0);
+    GrouperGroup  grp0 = GrouperGroup.load(s, stem0, extn0);
     // Fetch Member 0
     GrouperMember m0   = GrouperMember.lookup(m0id, m0type);
 
@@ -197,11 +197,11 @@ public TestNamingPrivs(String name) {
     s.start(subj);
     // Fetch the groups
     // g0
-    GrouperGroup    grp0  = GrouperGroup.load(s, stem0, desc0);
+    GrouperGroup    grp0  = GrouperGroup.load(s, stem0, extn0);
     // g1
-    GrouperGroup    grp1  = GrouperGroup.load(s, stem1, desc1);
+    GrouperGroup    grp1  = GrouperGroup.load(s, stem1, extn1);
     // g2
-    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, desc2);
+    GrouperGroup    grp2  = GrouperGroup.load(s, stem2, extn2);
     // Fetch the members
     // Fetch Member 0
     GrouperMember   m0      = GrouperMember.lookup(m0id, m0type);

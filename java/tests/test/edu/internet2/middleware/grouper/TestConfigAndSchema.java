@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.10 2004-11-23 19:43:26 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.11 2004-11-25 03:04:47 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -63,7 +63,7 @@ public class TestConfigAndSchema extends TestCase {
     field = "description:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(1).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(1).getClass().getName() ) );
-    field = "descriptor:READ:ADMIN:FALSE";
+    field = "extension:READ:ADMIN:FALSE";
     Assert.assertTrue( field.equals( fields.get(2).toString() ) );
     Assert.assertTrue( klass.equals( fields.get(2).getClass().getName() ) );
     field = "members:READ:UPDATE:TRUE";
@@ -110,7 +110,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertEquals(22, typeDefs.size());
     String klass = "edu.internet2.middleware.grouper.GrouperTypeDef";
     String typeDef;
-    typeDef = "base:descriptor";
+    typeDef = "base:extension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(0).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(0).getClass().getName() ) );
     typeDef = "base:stem";
@@ -140,7 +140,7 @@ public class TestConfigAndSchema extends TestCase {
     typeDef = "base:optouts";
     Assert.assertTrue( typeDef.equals( typeDefs.get(9).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(9).getClass().getName() ) );
-    typeDef = "naming:descriptor";
+    typeDef = "naming:extension";
     Assert.assertTrue( typeDef.equals( typeDefs.get(10).toString() ) );
     Assert.assertTrue( klass.equals( typeDefs.get(10).getClass().getName() ) );
     typeDef = "naming:stem";

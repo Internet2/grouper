@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.85 2004-11-23 19:43:26 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.86 2004-11-25 03:04:47 blair Exp $
  */
 public class GrouperGroup {
 
@@ -66,15 +66,15 @@ public class GrouperGroup {
    *
    * @param   s           Session to create the group within.
    * @param   stem        Stem to create the group within.
-   * @param   descriptor  Descriptor to assign to group.
+   * @param   extension   Extension to assign to group.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
                                     GrouperSession s, String stem, 
-                                    String descriptor
+                                    String extension
                                    )
   {
-    return GrouperGroup._create(s, stem, descriptor, Grouper.DEF_GROUP_TYPE);
+    return GrouperGroup._create(s, stem, extension, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
@@ -82,16 +82,16 @@ public class GrouperGroup {
    *
    * @param   s           Session to create the group within.
    * @param   stem        Stem to create the group within.
-   * @param   descriptor  Descriptor to assign to group.
+   * @param   extension   Extension to assign to group.
    * @param   type        Type of group to create.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
                                     GrouperSession s, String stem, 
-                                    String descriptor, String type
+                                    String extension, String type
                                    )
   {
-    return GrouperGroup._create(s, stem, descriptor, type);
+    return GrouperGroup._create(s, stem, extension, type);
   }
 
   /**
@@ -100,15 +100,15 @@ public class GrouperGroup {
    *
    * @param   s           Session to load the group within.
    * @param   stem        Stem of the group to load.
-   * @param   descriptor  Descriptor of the group to load.
+   * @param   extension   Extension of the group to load.
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
                                   GrouperSession s, 
-                                  String stem, String descriptor
+                                  String stem, String extension
                                  )
   {
-    return GrouperGroup._load(s, stem, descriptor, Grouper.DEF_GROUP_TYPE);
+    return GrouperGroup._load(s, stem, extension, Grouper.DEF_GROUP_TYPE);
   }
 
   /**
@@ -117,16 +117,16 @@ public class GrouperGroup {
    *
    * @param   s           Session to load the group within.
    * @param   stem        Stem of the group to load.
-   * @param   descriptor  Descriptor of the group to load.
+   * @param   extension   Extension of the group to load.
    * @param   type        Type of group to load.
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
                                   GrouperSession s, String stem, 
-                                  String descriptor, String type
+                                  String extension, String type
                                  )
   {
-    return GrouperGroup._load(s, stem, descriptor, type);
+    return GrouperGroup._load(s, stem, extension, type);
   }
 
 
@@ -186,8 +186,8 @@ public class GrouperGroup {
       // persistent store.
       if (this.attributes.containsKey("stem")) {
         // We need a stem
-        if (this.attributes.containsKey("descriptor")) {
-          // And a descriptor
+        if (this.attributes.containsKey("extension")) {
+          // And an extension
           if (this.grprSession != null) {
             /* TODO This method, in particular this check, is proving
              *      to be nothing but trouble.  At the least call out
@@ -200,7 +200,7 @@ public class GrouperGroup {
             GrouperGroup g = GrouperGroup.load(
                                                this.grprSession,
                                                this.attribute("stem").value(),
-                                               this.attribute("descriptor").value()
+                                               this.attribute("extension").value()
                                               );
             // Does the returned GrouperGroup object contain a group
             // key?  If so, the group is considered to exist.
@@ -386,7 +386,7 @@ public class GrouperGroup {
     return this.getClass().getName()              + ":" +
            this.key                               + ":" + 
            this.attribute("stem").value()         + ":" +
-           this.attribute("descriptor").value();
+           this.attribute("extension").value();
   }
 
 
@@ -399,10 +399,10 @@ public class GrouperGroup {
    */
   private static GrouperGroup _load(
                                     GrouperSession s, String stem, 
-                                    String descriptor, String type
+                                    String extension, String type
                                    )
   {
-    GrouperGroup g = GrouperBackend.groupLoad(s, stem, descriptor, type);
+    GrouperGroup g = GrouperBackend.groupLoad(s, stem, extension, type);
     // Attach session
     g.grprSession = s;
     // Attach type  
@@ -421,13 +421,13 @@ public class GrouperGroup {
    *
    * @param   s           Session to create the group within.
    * @param   stem        Stem of the group to be created.
-   * @param   descriptor  Descriptor of group to be created.
+   * @param   extension   Extension of group to be created.
    * @param   type        Type of group to be created.
    * @return  A {@link GrouperGroup} object.
    */
   private static GrouperGroup _create(
                                     GrouperSession s, String stem, 
-                                    String descriptor, String type
+                                    String extension, String type
                                    )
   {
     // TODO Can I move all|most of this to GrouperBackend?
@@ -440,7 +440,7 @@ public class GrouperGroup {
     g.setGroupKey( GrouperBackend.uuid() );
 
     g.attribute("stem", stem);
-    g.attribute("descriptor", descriptor);
+    g.attribute("extension", extension);
     g.type = type;
 
     // Set some of the operational attributes
@@ -537,9 +537,9 @@ public class GrouperGroup {
         (Grouper.groupType(this.type) == true) &&
         // And a stem?
         (attributes.containsKey("stem"))            &&
-        // And a descriptor?
-        (attributes.containsKey("descriptor"))      && 
-        // And do the stem and descriptor already exist?
+        // And an extension?
+        (attributes.containsKey("extension"))      && 
+        // And do the stem and extension already exist?
         (this.exists() == false)                    && 
         // And are the group attributes valid?
         (this._validateAttributes()) 
