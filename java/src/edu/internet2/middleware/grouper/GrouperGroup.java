@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.149 2004-12-09 17:01:49 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.150 2004-12-09 17:12:25 blair Exp $
  */
 public class GrouperGroup {
 
@@ -160,7 +160,8 @@ public class GrouperGroup {
     if (stem.equals(Grouper.NS_ROOT)) {
       name = extn;
     } else {
-      String delim = Grouper.config("hierarchy.delimiter");
+      // TODO String delim = Grouper.config("hierarchy.delimiter");
+      String delim = Grouper.HIER_DELIM;
       if (extn.indexOf(delim) != -1) {
         // FIXME Throw an exception?  And then test for failure?
         //       Or settle for ye olde null

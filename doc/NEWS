@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.14 2004-12-08 03:27:30 blair Exp $
+$Id: NEWS,v 1.15 2004-12-09 17:12:25 blair Exp $
 
 ---
 
@@ -31,13 +31,6 @@ $Id: NEWS,v 1.14 2004-12-08 03:27:30 blair Exp $
 * Contributed: Query Program
 
 
-### Will Be Added
-
-* Javadoc API documentation (#132)
-* More thorough FAQ (#276)
-* Contributed: Grouper adder/deleter (#273)
-
-
 ### Postponed From This Release
 
 * Group renaming (#262)
@@ -46,7 +39,8 @@ $Id: NEWS,v 1.14 2004-12-08 03:27:30 blair Exp $
 * Custom group types are not very well supported (#269)
 * Groups having multiple types (#271)
 * Changing group type(s) (#272)
-* Group Hierarchy Depth Restrictions
+* Group Hierarchy depth restrictions
+* Group Hierarchy delimiter configuration
 * Personal Groups
 * Removal of _GrouperMember_ objects
 * Testing with non-HSQLDB databases

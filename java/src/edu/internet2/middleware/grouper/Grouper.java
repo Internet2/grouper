@@ -63,7 +63,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.64 2004-12-09 01:43:16 blair Exp $
+ * @version $Id: Grouper.java,v 1.65 2004-12-09 17:12:25 blair Exp $
  */
 public class Grouper {
 
@@ -134,6 +134,13 @@ public class Grouper {
    * {@link GrouperNaming} <i>STEM</i> privilege.
    */
   public static final String PRIV_STEM      = "STEM";
+
+
+  /*
+   * PROTECTED CONSTANTS
+   */
+  // TODO Replace with configurable 'hierarchy.delimiter'
+  protected static final String HIER_DELIM  = ":";
 
 
   /*
