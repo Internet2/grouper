@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.69 2004-11-15 18:22:19 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.70 2004-11-16 02:03:31 blair Exp $
  */
 public class GrouperGroup {
 
@@ -244,6 +244,7 @@ public class GrouperGroup {
    */
   public String toString() {
     // TODO This should probably return UUID, not key
+    // TODO Switch to toString builder...
     return this.getClass()                        + ":" +
            this.key                               + ":" + 
            this.attribute("stem").value()         + ":" +
