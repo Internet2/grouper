@@ -51,6 +51,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
 import  java.util.*;
@@ -65,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.10 2005-03-22 02:02:49 blair Exp $
+ * @version $Id: MemberVia.java,v 1.11 2005-03-29 16:03:02 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -130,7 +131,6 @@ public class MemberVia implements Serializable {
   }
 
 
-
   /*
    * PROTECTED CLASS METHODS
    */
@@ -142,19 +142,18 @@ public class MemberVia implements Serializable {
                             GrouperSession s, String listKey, List chain
                           ) 
   {
-    String key = _compare(
-             chain,
-             _filterByLength(
-               chain.size(), _findChains(s, listKey)
+    String key = _compare(  // Compare
+             chain,         // this chain
+             _filterByLength( 
+               chain.size(), // with other chains of the appropriate length
+              _findChains(s, listKey) // that start with this listKey
              )
            );
     return key;
   }
 
   /*
-   * Load a via chain list.
-   * <p />
-   * @return List of {@link MemberVia} objects.
+   * Return via chain as list of {@link MemberVia} objects.
    */
   protected static List load(GrouperSession s, String key) {
     String  qry   = "MemberVia.by.key";
@@ -192,7 +191,7 @@ public class MemberVia implements Serializable {
   }
 
   /*
-   * @return This object's chainKey.
+   * Return this object's chainKey.
    */
   protected String key() {
     return this.getChainKey();
@@ -206,7 +205,7 @@ public class MemberVia implements Serializable {
   }
 
   /* 
-   * @return This object's listKey.
+   * Return This object's listKey.
    */
   protected String listKey() {
     return this.listKey;
@@ -227,7 +226,7 @@ public class MemberVia implements Serializable {
   }
 
   /*
-   * @return This object's {@link GrouperList} object.
+   * Return this object's corresponding {@link GrouperList} object.
    */
   protected GrouperList toList(GrouperSession s) {
     GrouperList gl = null;
@@ -250,8 +249,7 @@ public class MemberVia implements Serializable {
    */
 
   /*
-   * Compare two chains.
-   * @return chainKey is chains are equal.
+   * Compare two chains, returning chainKey if chains are equal.
    */
   private static String _compare(List chain, List chains) {
     String key = null;
@@ -268,14 +266,14 @@ public class MemberVia implements Serializable {
   }
 
   /*
-   *
-   * Compare lists based upon index position and listKey.
-   * @return true if lists are equivalenet.
+   * Compare lists based upon index position and listKey, returning
+   * boolean true if lists are equivalent.
    */
   private static boolean _equals(List a, List b) {
     boolean rv  = false;
     int     idx = 0; 
     Iterator iter = a.iterator();
+    // Step through lists, element-by-element, comparing at each step.
     while (iter.hasNext()) {
       MemberVia mvA = (MemberVia) iter.next();
       MemberVia mvB = (MemberVia) b.get(idx);
@@ -291,8 +289,8 @@ public class MemberVia implements Serializable {
   }
 
   /*
-   * Filter candidate chains based upon chain size.
-   * @return List of chains that are of the appropriate length.
+   * Filter candidate chains based upon chain size, returning all
+   * chains that are of the appropriate length.
    */
   private static List _filterByLength(int length, List chains) {
     List filtered = new ArrayList();
@@ -307,8 +305,8 @@ public class MemberVia implements Serializable {
   }
 
   /*
-   * Find all chains that begin with listKey.
-   * @return List of chains.
+   * Find all chains that begin with listKey, returning as list of
+   * chains.
    */
   private static List _findChains(GrouperSession s, String listKey) {
     List    chains  = new ArrayList();
