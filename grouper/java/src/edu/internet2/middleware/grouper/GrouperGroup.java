@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.175 2005-03-21 03:12:39 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.176 2005-03-22 02:56:19 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -659,25 +659,23 @@ public class GrouperGroup extends Group {
                          ) 
   {
     boolean rv = false;
-    if (GrouperBackend.sessionValid(s)) {
-      // We are adding a top-level namespace.
-      if (stem.equals(Grouper.NS_ROOT)) {
-        // And only member.system can do so in this release
-        if (s.subject().getId().equals(Grouper.config("member.system"))) {
-          rv = true;
-        }
-      } else {
-        GrouperGroup ns = GrouperBackend.groupLoadByName(
-                            s, stem, Grouper.NS_TYPE
-                          );
-        if (ns != null) {
-          if (type.equals("naming")) {
-            // If a naming group, does the subject have STEM on `stem'?
-            rv = s.naming().has(s, ns, Grouper.PRIV_STEM);
-          } else {
-            // Otherwise, does the subject have `CREATE' on `stem'?
-            rv = s.naming().has(s, ns, Grouper.PRIV_CREATE);
-          }
+    // We are adding a top-level namespace.
+    if (stem.equals(Grouper.NS_ROOT)) {
+      // And only member.system can do so in this release
+      if (s.subject().getId().equals(Grouper.config("member.system"))) {
+        rv = true;
+      }
+    } else {
+      GrouperGroup ns = GrouperBackend.groupLoadByName(
+                          s, stem, Grouper.NS_TYPE
+                        );
+      if (ns != null) {
+        if (type.equals("naming")) {
+          // If a naming group, does the subject have STEM on `stem'?
+          rv = s.naming().has(s, ns, Grouper.PRIV_STEM);
+        } else {
+          // Otherwise, does the subject have `CREATE' on `stem'?
+          rv = s.naming().has(s, ns, Grouper.PRIV_CREATE);
         }
       }
     }
@@ -689,12 +687,10 @@ public class GrouperGroup extends Group {
    */
   private static boolean _canDelete(GrouperSession s, GrouperGroup g) {
     boolean rv = false;
-    if (GrouperBackend.sessionValid(s)) {
-      // FIXME Support for multiple list types
-      if ( (s != null) && (g != null) ) {
-        if (s.access().has(s, g, Grouper.PRIV_ADMIN)) {
-          rv = true;
-        }
+    // FIXME Support for multiple list types
+    if ( (s != null) && (g != null) ) {
+      if (s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+        rv = true;
       }
     }
     return rv;
@@ -706,11 +702,9 @@ public class GrouperGroup extends Group {
    */
   private static boolean _canModAttr(GrouperGroup g) {
     boolean rv = false;
-    if (GrouperBackend.sessionValid(g.s)) {
-      if (g != null) {
-        if (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
-          rv = true;
-        }
+    if (g != null) {
+      if (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN)) {
+        rv = true;
       }
     }
     return rv;
@@ -722,16 +716,14 @@ public class GrouperGroup extends Group {
    */
   private static boolean _canModListVal(GrouperGroup g, String list) {
     boolean rv = false;
-    if (GrouperBackend.sessionValid(g.s)) {
-      // FIXME Support for multiple list types
-      if ( (g != null) && (list != null) ) {
-        if (
-            (g.s.access().has(g.s, g, Grouper.PRIV_UPDATE)) ||
-            (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN))
-           )
-        {
-          rv = true;
-        }
+    // FIXME Support for multiple list types
+    if ( (g != null) && (list != null) ) {
+      if (
+          (g.s.access().has(g.s, g, Grouper.PRIV_UPDATE)) ||
+          (g.s.access().has(g.s, g, Grouper.PRIV_ADMIN))
+         )
+      {
+        rv = true;
       }
     }
     return rv;

@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.54 2005-03-20 00:47:40 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.55 2005-03-22 02:56:19 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -124,24 +124,22 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.sessionValid(s)) {
-        /*
-         * FIXME I should be doing a GroupField lookup on `priv'
-         */
-        if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-          s.dbSess().txStart();
-          // TODO Go through GG, not GB?
-          if (
-              GrouperBackend.listAddVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv))
-              ) == true
-             )
-          {
-            rv = true;
-            s.dbSess().txCommit();
-          } else {
-            s.dbSess().txRollback();
-          }
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
+        s.dbSess().txStart();
+        // TODO Go through GG, not GB?
+        if (
+            GrouperBackend.listAddVal(
+              s, new GrouperList(g, m, (String) privMap.get(priv))
+            ) == true
+           )
+        {
+          rv = true;
+          s.dbSess().txCommit();
+        } else {
+          s.dbSess().txRollback();
         }
       }
     } 
@@ -330,24 +328,22 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.sessionValid(s)) {
-        /*
-         * FIXME I should be doing a GroupField lookup on `priv'
-         */
-        if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-          s.dbSess().txStart();
-          // TODO Go through GG
-          if (
-              GrouperBackend.listDelVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv))
-              ) == true
-             )
-          {
-            rv = true;
-            s.dbSess().txCommit();
-          } else {
-            s.dbSess().txRollback();
-          }
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
+        s.dbSess().txStart();
+        // TODO Go through GG
+        if (
+            GrouperBackend.listDelVal(
+              s, new GrouperList(g, m, (String) privMap.get(priv))
+            ) == true
+           )
+        {
+          rv = true;
+          s.dbSess().txCommit();
+        } else {
+          s.dbSess().txRollback();
         }
       }
     } 

@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.50 2005-03-20 05:15:31 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.51 2005-03-22 02:56:20 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -125,27 +125,16 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.sessionValid(s)) {
-        /*
-         * FIXME I should be doing a GroupField lookup on `priv'
-         */
-        if (this.has(s, g, Grouper.PRIV_STEM)) {
-          // BDC s.dbSess().txStart();
-          // TODO Go through GG, not GB?
-/* BDC 
-          if (
-              GrouperBackend.listAddVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv))
-              ) == true
-             )
-          {
-*/
-          if (g.listAddVal(m, (String) privMap.get(priv))) {
-            rv = true;
-            // BDC s.dbSess().txCommit();
-          } else {
-            // BDC s.dbSess().txRollback();
-          }
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, Grouper.PRIV_STEM)) {
+        s.dbSess().txStart();
+        if (g.listAddVal(m, (String) privMap.get(priv))) {
+          rv = true;
+          s.dbSess().txCommit();
+        } else {
+          s.dbSess().txRollback();
         }
       }
     } 
@@ -335,24 +324,22 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      if (GrouperBackend.sessionValid(s)) {
-        /*
-         * FIXME I should be doing a GroupField lookup on `priv'
-         */
-        if (this.has(s, g, Grouper.PRIV_STEM)) {
-          s.dbSess().txStart();
-          // TODO Go through GG
-          if (
-              GrouperBackend.listDelVal(
-                s, new GrouperList(g, m, (String) privMap.get(priv))
-              ) == true
-             )
-          {
-            rv = true;
-            s.dbSess().txCommit();
-          } else {
-            s.dbSess().txRollback();
-          }
+      /*
+       * FIXME I should be doing a GroupField lookup on `priv'
+       */
+      if (this.has(s, g, Grouper.PRIV_STEM)) {
+        s.dbSess().txStart();
+        // TODO Go through GG
+        if (
+            GrouperBackend.listDelVal(
+              s, new GrouperList(g, m, (String) privMap.get(priv))
+            ) == true
+           )
+        {
+          rv = true;
+          s.dbSess().txCommit();
+        } else {
+          s.dbSess().txRollback();
         }
       }
     } 
