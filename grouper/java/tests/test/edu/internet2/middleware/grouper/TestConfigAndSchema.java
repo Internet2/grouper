@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.4 2004-11-12 04:25:41 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.5 2004-11-12 16:38:29 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -150,9 +150,17 @@ public class TestConfigAndSchema extends TestCase {
     List types = G.subjectTypes();
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
-    SubjectType st = (SubjectType) types.get(0);
-    // XXX String adapterClass = "edu.internet2.middleware.grouper.GrouperSubjectTypeAdapterImpl";
-    // XXX Assert.assertTrue( adapterClass.equals( st.adapterClass().getClass().getName() ) );
+    //SubjectType st = (SubjectType) types.get(0);
+    SubjectType st  = Grouper.subjectType("person");
+    Assert.assertNotNull(st);
+    String klass    = "edu.internet2.middleware.grouper.SubjectTypeImpl";
+    Assert.assertTrue( klass.equals( st.getClass().getName() ) );
+    String adapterClass = "edu.internet2.middleware.grouper.SubjectTypeAdapterImpl";
+    SubjectTypeAdapter sta = st.getAdapter();
+    Assert.assertNotNull(sta);
+    Assert.assertNotNull( sta.getClass().getName() );
+    //Assert.assertTrue( adapterClass.equals( sta.getClass().getName() ) );
+    //Assert.assertTrue( adapterClass.equals( st.getAdapter().getClass().getName() ) );
     String name         = "Person";
     Assert.assertTrue( name.equals( st.getName() ) );
     String typeID       = "person";

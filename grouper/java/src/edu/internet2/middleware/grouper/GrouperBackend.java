@@ -23,7 +23,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.25 2004-11-12 04:25:41 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.26 2004-11-12 16:38:29 blair Exp $
  */
 public class GrouperBackend {
 
@@ -484,7 +484,7 @@ public class GrouperBackend {
   }
 
   /**
-   * Valid {@link SubjectTypeImpl} items.
+   * Valid {@link SubjectType} items.
    *
    * @return List of subject types.
    */
