@@ -13,12 +13,13 @@
  */
 
 /*
- * $Id: GrouperTest.java,v 1.64 2004-10-29 13:25:30 blair Exp $
+ * $Id: GrouperTest.java,v 1.65 2004-11-02 19:40:22 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 import  java.io.BufferedReader;
 import  java.io.File;
 import  java.io.FileReader;
@@ -490,6 +491,51 @@ public class GrouperTest extends TestCase {
    
     // We're done
     s.stop();
+  }
+
+  //
+  // Class: GrouperSubjectImpl
+  //
+   
+  // Instantiate a GrouperSubjectImpl instance 
+  public void testGrouperSubjectImplInstantiate() {
+    Subject subj = new GrouperSubjectImpl();
+
+    Class  klass    = subj.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperSubjectImpl";
+
+    Assert.assertNotNull(subj);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  //
+  // Class: GrouperSubjectTypeAdapterImpl
+  //
+   
+  // Instantiate a GrouperSubjectTypeAdapterImpl instance 
+  public void testGrouperSubjectTypeAdapterImplInstantiate() {
+    SubjectTypeAdapter sta = new GrouperSubjectTypeAdapterImpl();
+
+    Class  klass    = sta.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperSubjectTypeAdapterImpl";
+
+    Assert.assertNotNull(sta);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
+  }
+
+  //
+  // Class: GrouperSubjectTypeImpl
+  //
+   
+  // Instantiate a GrouperSubjectTypeImpl instance 
+  public void testGrouperSubjectTypeImplInstantiate() {
+    SubjectType st = new GrouperSubjectTypeImpl();
+
+    Class  klass    = st.getClass();
+    String expKlass = "edu.internet2.middleware.grouper.GrouperSubjectTypeImpl";
+
+    Assert.assertNotNull(st);
+    Assert.assertTrue( expKlass.equals( klass.getName() ) );
   }
 
 }

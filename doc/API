@@ -1,6 +1,6 @@
 #
 # Condensed Grouper API
-# $Id: API,v 1.10 2004-10-28 14:34:39 blair Exp $
+# $Id: API,v 1.11 2004-11-02 19:40:22 blair Exp $
 #
 # TODO Interfaces
 #
@@ -166,6 +166,50 @@ GrouperSubject
   XXX How will this work|interact with the subject interface?
   Class Methods
     GrouperMember lookup(String id, String type)
+
+
+GrouperSubjectImpl
+  Class Methods
+    GrouperSubjectImpl()
+
+  Instance Methods
+    void addAttribute(String name, String value)
+    String[] getAttributeArray(String name)
+    String getDescription()
+    String getDisplayId()
+    String getId()
+    String getName()
+    SubjectType getSubjectType()
+
+
+GrouperSubjectTypeAdapterImpl
+  Class Methods
+    GrouperSubjectTypeAdapterImpl()
+
+  Instance Methods
+    void destroy()
+    Subject getSubject(SubjectType type, String id)
+    Subject getSubjectByDisplayId(SubjectType type, String displayId)
+    Subject[] getSubjects(SubjectType type)
+    void init()
+    boolean isModifiable()
+    Subject newSubject(SubjectType type,
+                       String id, 
+                       String name, 
+                       String description, 
+                       String displayId)
+    Subject quickSearch(String searchValue)
+    Subject[] searchByIdentifier(SubjectType type, String id)
+
+
+GrouperSubjectTypeImpl
+  Class Methods
+    GrouperSubjectTypeImpl()
+
+  Instance Methods
+    SubjectTypeAdapter getAdapter()
+    String getId()
+    String getName()
 
 
 GrouperType
