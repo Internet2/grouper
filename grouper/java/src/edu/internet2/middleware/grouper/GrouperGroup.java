@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.168 2005-03-11 01:17:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.169 2005-03-11 02:55:44 blair Exp $
  */
 public class GrouperGroup {
 
@@ -411,6 +411,9 @@ public class GrouperGroup {
   public String type() {
     return this.type;
   }
+  protected void type(String type) {
+    this.type = type;
+  }
 
   /**
    * Retrieve list values of the default list type for this group.
@@ -643,33 +646,6 @@ public class GrouperGroup {
     return this.getGroupKey();
   }
 
-  /* (!javadoc)
-   * Retrieve a group by key.
-   */
-  protected static GrouperGroup loadByKey(
-                                  GrouperSession s, String key, 
-                                  String type
-                                ) 
-  {
-    return GrouperGroup._loadByKey(s, key, type);
-  }
-
-  /**
-   * Set {@link GrouperGroup} type.
-   * <p />
-   * 
-   * @param   type  Set group to this type.
-   * @return  True if the type was set.
-   */
-  protected boolean type(String type) {
-    boolean rv = false;
-    if (type != null) {
-      this.type = type;
-      rv = true;
-    }
-    return rv;
-  }
-
 
   /*
    * PRIVATE CLASS METHODS
@@ -819,17 +795,10 @@ public class GrouperGroup {
     return g;
   }
 
-  private static GrouperGroup _loadByKey(
-                                GrouperSession s, String key, 
-                                String type
-                              ) 
-  {
+  protected static GrouperGroup loadByKey(GrouperSession s, String key) {
     GrouperGroup g = new GrouperGroup();
     g = GrouperBackend.groupLoadByKey(s, g, key);
     if (g != null) {
-      // Attach type  
-      // FIXME Grr....
-      g.type = type;
       g.initialized = true; // FIXME UGLY HACK!
       g.s = s; // Attach GrouperSession
     }
