@@ -93,6 +93,14 @@ public class TestInstantiate extends TestCase {
   }
 
   // Instantiate a GrouperField instance 
+  public void testGrouperException() {
+    GrouperException obj = new GrouperException();
+    Assert.assertNotNull(obj);
+    String klass = "edu.internet2.middleware.grouper.GrouperException";
+    Assert.assertTrue( klass.equals( obj.getClass().getName() ) );
+  }
+
+  // Instantiate a GrouperField instance 
   public void testGrouperFieldInstantiate() {
     GrouperField obj = new GrouperField();
     Assert.assertNotNull(obj);
