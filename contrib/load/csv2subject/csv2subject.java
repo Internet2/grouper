@@ -64,7 +64,7 @@
  * % javac subject2csv.java
  * % java subject2csv /path/to/csv/file
  *
- * $Id: csv2subject.java,v 1.5 2004-12-03 15:50:46 blair Exp $ 
+ * $Id: csv2subject.java,v 1.6 2004-12-03 16:05:47 blair Exp $ 
  */
 
 import  java.io.*;
@@ -85,47 +85,22 @@ class csv2subject {
    */
   private static Properties conf    = new Properties();
   private static Connection conn    = null;
+  private static Map        newSubs = new HashMap();
   private static boolean    verbose = true;
 
 
   public static void main(String[] args) {
     _cfRead();
     _jdbcConnect();
-    _jdbcDisconnect();
 
-/*
     if (args.length == 1) {
-      File f = new File(args[0]);
-      if (!f.exists()) {
-        System.err.println("File '" + args[0] + "' does not exist.");
-        System.exit(65);
-      }
-
-      try { 
-        BufferedReader  br    = new BufferedReader(new FileReader(args[0])); 
-        String          line  = null; 
-        while ((line=br.readLine()) != null){ 
-          StringTokenizer st        = new StringTokenizer(line, ",");
-          // Blindly assume that if we have two tokens, they are two
-          // *good* tokens
-          if (st.countTokens() == 2) {
-            String memberID       = st.nextToken();
-            String presentationID = st.nextToken();
-            _insertMember(memberID, presentationID);
-          } else {
-            System.err.println("Skipping.  Invalid format: '" + line + "'");
-          }
-        } 
-        br.close(); 
-      } catch (IOException e) { 
-        System.err.println(e); 
-        System.exit(1); 
-      }
+      _csvRead(args[0]);
     } else {
       System.err.println("USAGE: subject2csv /path/to/csv/file");
       System.exit(64);
     }
-*/
+
+    _jdbcDisconnect();
   }
 
 /*
@@ -174,6 +149,39 @@ class csv2subject {
     _verbose("url       " + conf.get("jdbc.url"));
     _verbose("username  " + conf.get("jdbc.username"));
     _verbose("password  " + conf.get("jdbc.password"));
+  }
+
+  /* (!javadoc)
+   * Read in CSV file
+   * <p />
+   * @param path Path to input CSV file
+   */
+  private static void _csvRead(String path) {
+    try { 
+      BufferedReader  br    = new BufferedReader(new FileReader(path));
+      String          line  = null; 
+      while ((line=br.readLine()) != null){ 
+        StringTokenizer st = new StringTokenizer(line, ",");
+        // FIXME Blindly assume that if we have two tokens, they are two
+        //       *good* tokens
+        if (st.countTokens() == 2) {
+          String subjID     = st.nextToken();
+          String subjTypeID = st.nextToken();
+          _verbose(
+            "Found sid=`" + subjID + "', subjTypeID=`" + subjTypeID + "'"
+          );
+          newSubs.put(subjID, subjTypeID);
+        } else {
+          System.err.println("Skipping.  Invalid format: '" + line + "'");
+        }
+      } 
+      br.close(); 
+    } catch (IOException e) { 
+      System.err.println("Error processing '" + path + "': " + e);
+      // Kill whatever might have been added to the hashmap and then
+      // carry on so that our connection is closed
+      newSubs = new HashMap();
+    }
   }
 
   /* (!javadoc)
