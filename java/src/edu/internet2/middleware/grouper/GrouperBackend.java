@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.41 2004-11-19 04:18:45 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.42 2004-11-19 04:29:32 blair Exp $
  */
 public class GrouperBackend {
 
@@ -813,9 +813,9 @@ public class GrouperBackend {
     // XXX System.err.println("_LISTADDVAL " + m);
     // XXX System.err.println("_LISTADDVAL " + list);
     if (via != null) {
-      // XXX System.err.println("_LISTDELVAL " + via);
+      // XXX System.err.println("_LISTADDVAL " + via);
     } else {
-      // XXX System.err.println("_LISTDELVAL null");
+      // XXX System.err.println("_LISTADDVAL null");
     }
 
     // Confirm that list data doesn't already exist
