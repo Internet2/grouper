@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.2 2004-11-11 18:50:02 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.3 2004-11-11 20:26:25 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -151,7 +151,7 @@ public class TestConfigAndSchema extends TestCase {
     Assert.assertNotNull(types);
     Assert.assertEquals(1, types.size());
     GrouperSubjectType st = (GrouperSubjectType) types.get(0);
-    String adapterClass = "edu.internet2.middleware.grouper.GrouperSubjectImpl";
+    String adapterClass = "edu.internet2.middleware.grouper.GrouperSubjectTypeAdapterImpl";
     Assert.assertTrue( adapterClass.equals( st.adapterClass() ) );
     String name         = "Person";
     Assert.assertTrue( name.equals( st.name() ) );
