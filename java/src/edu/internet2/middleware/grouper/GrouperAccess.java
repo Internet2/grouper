@@ -4,14 +4,9 @@ import  java.util.List;
 
 /** 
  * {@link Grouper} Access Interface.
- * <p>
- * <ul>
- *  <li>XXX We may want/need a method that returns all of a user's
- *      {@link GrouperMember}'s privileges.</li>
- * </ul>
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.6 2004-04-30 15:15:55 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.7 2004-04-30 15:18:50 blair Exp $
  */
 public interface GrouperAccess {
   /**
