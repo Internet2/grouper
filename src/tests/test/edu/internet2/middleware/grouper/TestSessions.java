@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.io.*;
 import  junit.framework.*;
 
 
@@ -117,6 +118,56 @@ public class TestSessions extends TestCase {
                         ) 
                      );
     Assert.assertTrue("session stopped",  s.stop());
+  }
+
+  // Serialize a session
+  public void testSessionSerialization() {
+    Subject subj = GrouperSubject.load(
+                     Grouper.config("member.system"), 
+                     Grouper.DEF_SUBJ_TYPE
+                   );
+    Assert.assertNotNull("subject !null", subj);
+    GrouperSession s = GrouperSession.start(subj);
+    Assert.assertNotNull("session !null", s);
+
+    try {
+      File temp = File.createTempFile("GrouperSession", ".txt");
+      temp.deleteOnExit();
+
+      try {
+        // Serialize the session to a file
+        ObjectOutputStream oos = new ObjectOutputStream(
+                                   new FileOutputStream(temp)
+                                 );
+        oos.writeObject(s);
+        oos.close();
+
+        // Read in the serialized session
+        ObjectInputStream ois = new ObjectInputStream(
+                                  new FileInputStream(temp)
+                                );
+        try {
+          GrouperSession retSess = (GrouperSession) ois.readObject();
+          ois.close(); 
+          Assert.assertNotNull("retrieved session !null", retSess);
+          Assert.assertNotNull("retrieved subject !null", retSess.subject());
+          Assert.assertTrue(
+                              "retrieved subject id matches",  
+                              retSess.subject().getId().equals( 
+                                Grouper.config("member.system") 
+                              ) 
+                            );
+        } catch (ClassNotFoundException cnfe) {
+          Assert.fail("Failure to find class when deserializing session");
+        }
+      } catch (FileNotFoundException fnfe) {
+        Assert.fail("File Not Found while serializing session");
+      }
+    } catch (IOException ioe) {
+      Assert.fail("IO error while serializing session");
+    } finally {
+      Assert.assertTrue("session stopped",  s.stop());
+    }
   }
 
 }

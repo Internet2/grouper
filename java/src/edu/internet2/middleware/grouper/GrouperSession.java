@@ -53,7 +53,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.io.Serializable;
+import  java.io.*;
 
 
 /** 
@@ -61,21 +61,22 @@ import  java.io.Serializable;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.73 2005-01-31 00:33:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.74 2005-02-06 04:18:52 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  // Subject this session is running under
-  private Subject subject;
+  // Member & Subject that this session is running under
+  private transient GrouperMember m; 
+  private transient Subject       subject;
   /* 
    * The id of the session's subject.  Despite the fact that I can get
    * this via the subject object, I stash it into a variable to play
    * nicer with Hibernate.
    */
-  private String  subjectID;
+  private String  memberID;
   private String  sessionID;
   private String  startTime;
 
@@ -96,8 +97,12 @@ public class GrouperSession implements Serializable {
    */
   private GrouperSession(Subject subj) {
     this._init();
-    this.subject    = subj;
-    this.subjectID  = subj.getId();
+    this.subject  = subj;
+    this.m        = GrouperMember.load(subj);
+    if (m == null) {
+      throw new RuntimeException("Unable to load member object");
+    }
+    this.memberID = m.memberID();
   }
 
 
@@ -173,10 +178,24 @@ public class GrouperSession implements Serializable {
    * Initialize instance variables
    */
   private void _init() {
+    this.memberID   = null;
     this.sessionID  = null;
     this.startTime  = null;
     this.subject    = null;
-    this.subjectID  = null;
+  }
+
+  // Deserialize an object
+  private void readObject(ObjectInputStream ois)
+                 throws ClassNotFoundException, IOException 
+  {
+    // Perform default deserialization
+     ois.defaultReadObject();
+
+    // Restore GrouperMember object
+    this.m = GrouperMember.load(this.memberID);
+
+    // Restore Subject object
+    this.subject = GrouperSubject.load(m.subjectID(), m.typeID());
   }
 
   /*
@@ -203,20 +222,20 @@ public class GrouperSession implements Serializable {
    * HIBERNATE
    */
   
+  private String getMemberID() {
+    return this.memberID;
+  }
+
+  private void setMemberID(String memberID) {
+    this.memberID = memberID;
+  }
+
   private String getSessionID() {
     return this.sessionID;
   }
 
   private void setSessionID(String sessionID) {
     this.sessionID = sessionID;
-  }
-
-  private String getSubjectID() {
-    return this.subjectID;
-  }
-
-  private void setSubjectID(String subjectID) {
-    this.subjectID = subjectID;
   }
 
   private String getStartTime() {

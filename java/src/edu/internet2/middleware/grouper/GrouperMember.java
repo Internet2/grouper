@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.57 2004-12-09 02:52:32 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.58 2005-02-06 04:18:52 blair Exp $
  */
 public class GrouperMember {
 
@@ -168,6 +168,27 @@ public class GrouperMember {
     if (subj == null)  { return null; }
 
     return GrouperMember.load(subj);
+  }
+
+  /**
+   * Retrieve a {@link GrouperMember} object.
+   * <p />
+   * This method will throw a runtime exception if the specified 
+   * <i>memberID</i> does not exist.
+   *
+   * @param   memberID  ID of member to retrieve.
+   * @return  A {@link GrouperMember} object
+   */
+  public static GrouperMember load(String memberID) {
+    // Attempt to load an already existing member
+    GrouperMember member = GrouperBackend.memberByID(memberID);
+    if (member == null) {
+      throw new RuntimeException(
+                                 "memberID " + memberID + 
+                                 " does not exist!"
+                                );
+    }
+    return member;
   }
 
 
