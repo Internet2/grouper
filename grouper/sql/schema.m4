@@ -49,7 +49,7 @@ CREATE  TABLE grouper_list (
   groupField    _TYPE_STRING() NOT NULL,
   memberKey     _TYPE_UUID() NOT NULL,
   pathKey       _TYPE_UUID(),
-  via           _TYPE_UUID(),
+  viaKey        _TYPE_UUID(),
   removeAfter   _TYPE_TIME()
 );
 CREATE UNIQUE INDEX idx_gl_gk_gf_mk_pk ON grouper_list 

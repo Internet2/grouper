@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.165 2005-03-15 04:39:40 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.166 2005-03-15 15:06:39 blair Exp $
  */
 public class GrouperBackend {
 
@@ -320,7 +320,7 @@ public class GrouperBackend {
               "gl.groupKey    = ? AND "       +
               "gl.memberKey   = ? AND "       +
               "gl.groupField  = ? AND "       +
-              "gl.via         = ?"
+              "gl.viaKey      = ?"
             );
         q.setString(0, gl.group().key());
         q.setString(1, gl.member().key());
@@ -338,7 +338,7 @@ public class GrouperBackend {
               "gl.groupKey    = ? AND "       +
               "gl.memberKey   = ? AND "       +
               "gl.groupField  = ? AND "       +
-              "gl.via         IS NULL"
+              "gl.viaKey      IS NULL"
             );
         q.setString(0, gl.group().key());
         q.setString(1, gl.member().key());

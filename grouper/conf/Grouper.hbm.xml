@@ -42,11 +42,19 @@
       <key-property name="groupKey"   type="string" column="groupKey"/>
       <key-property name="groupField" type="string" column="groupField"/>
       <key-property name="memberKey"  type="string" column="memberKey"/>
-      <key-property name="via"        type="string" column="via"/>
+      <key-property name="pathKey"    type="string" column="pathKey"/>
+      <key-property name="viaKey"     type="string" column="viaKey"/>
     </composite-id>
     <property name="removeAfter">
       <column name="removeAfter" length="255"/>
     </property>
+<!--
+    <list name="elements" table="grouper_viaElement">
+      <key    column="pathKey"/>
+      <index  column="pathIdx"/>
+      <composite-element class="ViaElement"/>
+    </list>
+-->
   </class>
 
   <class name="GrouperMember" table="grouper_member">
@@ -202,7 +210,7 @@
       groupKey    = ?         and
       memberKey   = ?         and
       groupField  = ?         and
-      via         is not null 
+      viaKey      is not null 
   ]]></query>
 
   <query name="GrouperList.by.group.and.member.and.list.and.is.imm"><![CDATA[
@@ -210,7 +218,7 @@
       groupKey    = ?         and
       memberKey   = ?         and
       groupField  = ?         and
-      via         is null 
+      viaKey      is null 
   ]]></query>
 
   <query name="GrouperList.by.group.and.list.and.is.eff"><![CDATA[
@@ -218,7 +226,7 @@
       groupKey    = ?         and
       memberKey   is not null and
       groupField  = ?         and
-      via         is not null 
+      viaKey      is not null 
   ]]></query>
 
   <query name="GrouperList.by.group.and.list.and.is.imm"><![CDATA[
@@ -226,7 +234,7 @@
       groupKey    = ?         and
       memberKey   is not null and
       groupField  = ?         and
-      via         is null 
+      viaKey      is null 
   ]]></query>
 
   <query name="GrouperList.by.list"><![CDATA[
@@ -241,7 +249,7 @@
       groupKey    is not null and
       memberKey   is not null and
       groupField  = ?         and
-      via         is not null 
+      viaKey      is not null 
   ]]></query>
 
   <query name="GrouperList.by.list.and.is.imm"><![CDATA[
@@ -249,7 +257,7 @@
       groupKey    is not null and
       memberKey   is not null and
       groupField  = ?         and
-      via         is null 
+      viaKey      is null 
   ]]></query>
 
   <query name="GrouperList.by.member.and.list"><![CDATA[
@@ -264,7 +272,7 @@
       groupKey    is not null and
       memberKey   = ?         and
       groupField  = ?         and
-      via         is not null 
+      viaKey      is not null 
   ]]></query>
 
   <query name="GrouperList.by.member.and.list.and.is.imm"><![CDATA[
@@ -272,7 +280,7 @@
       groupKey    is not null and
       memberKey   = ?         and
       groupField  = ?         and
-      via         is null 
+      viaKey      is null 
   ]]></query>
 
   <query name="GrouperMember.by.id"><![CDATA[
