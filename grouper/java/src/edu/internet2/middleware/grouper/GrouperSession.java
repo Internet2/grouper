@@ -24,7 +24,7 @@ import  net.sf.hibernate.cfg.*;
  * {@link Grouper} session class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.36 2004-09-09 00:29:18 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.37 2004-09-10 01:49:29 blair Exp $
  */
 public class GrouperSession {
 
@@ -67,6 +67,28 @@ public class GrouperSession {
     this.startTime      = null;
     this.subject        = null;
     this.subjectID      = null;
+  }
+
+  /**
+   * Confirm whether a given group field is valid for a given group
+   * type.
+   *
+   * @return  Boolean true if {@link GroupField} is valid for the given
+   * {@link GroupType}, false otherwise.
+   */
+  public boolean groupField(int type, String field) {
+    List typeDefs = this._G.groupTypeDefs();
+    for (Iterator iter = typeDefs.iterator(); iter.hasNext();) {
+      GrouperTypeDef td = (GrouperTypeDef) iter.next();
+      if ( (td.groupType() == type) &&      // If the group type matches
+           (td.groupField().equals(field))  // .. and the group field matches
+         )
+      {
+        // Then we are considered validated.
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
