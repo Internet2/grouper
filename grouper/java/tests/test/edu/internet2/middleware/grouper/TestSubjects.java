@@ -13,7 +13,7 @@
  */
 
 /*
- * $Id: TestSubjects.java,v 1.3 2004-11-12 16:38:29 blair Exp $
+ * $Id: TestSubjects.java,v 1.4 2004-11-12 19:31:58 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -45,7 +45,7 @@ public class TestSubjects extends TestCase {
    */
   
 
-  public void testGrouperSubjectClassLookupFailure() {
+  public void testSubjectInterfaceLookupFailureInvalidID() {
     Grouper G     = new Grouper();
     String id     = "invalid id";
     String type   = "person";
@@ -53,32 +53,43 @@ public class TestSubjects extends TestCase {
     Assert.assertNull(subj);
   }
 
-  public void testGrouperSubjectClassLookupMemberSystem() {
+  public void testSubjectInterfaceLookupFailureInvalidType() {
+    Grouper G     = new Grouper();
+    String id     = Grouper.config("member.system");
+    String type   = "notaperson";
+    Subject subj  = GrouperSubject.lookup(id, type);
+    Assert.assertNull(subj);
+  }
+
+  public void testSubjectInterfaceLookupMemberSystem() {
     Grouper G     = new Grouper();
     String id     = Grouper.config("member.system");
     String type   = "person";
     Subject subj  = GrouperSubject.lookup(id, type);
-    //Assert.assertNotNull(subj);
-    String klass  = "edu.internet2.middleware.grouper.GrouperSubjImpl";
-    //Assert.assertTrue( klass.equals( subj.getClass().getName() ) );
-    //Assert.assertTrue( id.equals( m.id() ) );
-    //Assert.assertTrue( typeID.equals( m.typeID() ) );
+    Assert.assertNotNull(subj);
+    String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
+    Assert.assertTrue( klass.equals( subj.getClass().getName() ) );
+    Assert.assertTrue( id.equals( subj.getId() ) );
+    String name   = "Person";
+    Assert.assertNotNull( subj.getSubjectType() );
+    Assert.assertTrue( name.equals( subj.getSubjectType().getName() ) );
+    Assert.assertTrue( type.equals( subj.getSubjectType().getId() ) );
   }
 
-/*
-  public void testGrouperSubjectClassLookup() {
-    Grouper G = new Grouper();
+  public void testSubjectInterfaceLookup() {
+    Grouper G     = new Grouper();
     String id     = "blair";
-    String typeID = "person";
-    GrouperMember m = GrouperSubject.lookup(id, typeID);
-    String klass = "edu.internet2.middleware.grouper.GrouperMember";
-    Assert.assertNotNull(m);
-    Assert.assertTrue( klass.equals( m.getClass().getName() ) );
-    Assert.assertTrue( id.equals( m.id() ) );
-    Assert.assertTrue( typeID.equals( m.typeID() ) );
+    String type   = "person";
+    Subject subj  = GrouperSubject.lookup(id, type);
+    Assert.assertNotNull(subj);
+    String klass  = "edu.internet2.middleware.grouper.SubjectImpl";
+    Assert.assertTrue( klass.equals( subj.getClass().getName() ) );
+    Assert.assertTrue( id.equals( subj.getId() ) );
+    String name   = "Person";
+    Assert.assertNotNull( subj.getSubjectType() );
+    Assert.assertTrue( name.equals( subj.getSubjectType().getName() ) );
+    Assert.assertTrue( type.equals( subj.getSubjectType().getId() ) );
   }
-*/
-
 
 }
 

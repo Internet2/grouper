@@ -20,7 +20,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * Implementation of the I2MI {{@link Subject}} interface.
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.3 2004-11-12 17:55:30 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.4 2004-11-12 19:31:58 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
@@ -57,7 +57,7 @@ public class SubjectImpl
   }
 
   public String getId() {
-    return null;
+    return this.getSubjectID();
   }
 
   public String getName() {
@@ -65,7 +65,7 @@ public class SubjectImpl
   }
 
   public SubjectType getSubjectType()  {
-    return null;
+    return Grouper.subjectType(this.typeID);
   }
 
 
