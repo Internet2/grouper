@@ -112,6 +112,12 @@ public class Constants {
   public static final String  g1e = "a group";
   public static final String  g2s = GrouperGroup.groupName(ns2s, ns2e);
   public static final String  g2e = "another group";
+  public static final String  gAs = GrouperGroup.groupName(ns0s, ns0e);
+  public static final String  gAe = "group a";
+  public static final String  gBs = GrouperGroup.groupName(ns0s, ns0e);
+  public static final String  gBe = "group b";
+  public static final String  gCs = GrouperGroup.groupName(ns0s, ns0e);
+  public static final String  gCe = "group c";
 
 }
 
