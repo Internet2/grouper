@@ -25,7 +25,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.64 2004-11-25 01:55:29 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.65 2004-11-25 02:06:46 blair Exp $
  */
 public class GrouperBackend {
 
@@ -601,19 +601,9 @@ public class GrouperBackend {
         "mem.subjectID='"     + id      + "'" +
         " AND "                               +
         "mem.subjectTypeID='" + typeID  + "'"
-/*
-        "SELECT ALL FROM GROUPER_MEMBER "     +
-        "IN CLASS edu.internet2.middleware.grouper.GrouperMember " +
-        "WHERE "                              +
-        "subjectID='"     + id      + "' "    + 
-        "AND "                                +
-        "subjectTypeID='" + typeID  + "'"
-*/
       );
-      if (q.list().size() == 1) {
-        // We only want *one* member.
-        m = (GrouperMember) q.list().get(0);
-      }
+      // We only want *one* member
+      m = (GrouperMember) q.uniqueResult();
       // TODO Throw an exception?
     } catch (Exception e) {
       System.err.println(e);
@@ -704,10 +694,9 @@ public class GrouperBackend {
         " WHERE "                   +
         "grp.groupKey='" + id + "'"
       );
-      // We only want *one* subject.
-      if (q.list().size() == 1) {
-        // Now fetch the group object 
-        GrouperGroup g = (GrouperGroup) q.list().get(0);
+      // We only want *one* group
+      GrouperGroup g = (GrouperGroup) q.uniqueResult();
+      if (g != null) {
         // ... And fully populate it (explicitly) since I'm not (yet)
         // making full use of everything Hibernate has to offer.
         // TODO Is this necessary?
@@ -743,11 +732,8 @@ public class GrouperBackend {
         " AND "                                 +
         "subj.subjectTypeID='"  + typeID  + "'"
       );
-      if (q.list().size() == 1) {
-        // We only want *one* subject.
-        subj = (Subject) q.list().get(0);
-      }
-      // TODO Throw an exception?
+      // We only want *one* subject.
+      subj = (Subject) q.uniqueResult();
     } catch (Exception e) {
       System.err.println(e);
       System.exit(1);
@@ -931,13 +917,11 @@ public class GrouperBackend {
         " WHERE "                               +
         "schema.groupKey='"   + g.key()   + "'"
       );
-      if (q.list().size() == 1) {
-        GrouperSchema schema = (GrouperSchema) q.list().get(0);
-        // TODO Attach this to the group object.
+      // We only want one
+      // TODO Attach this to the group object.
+      GrouperSchema schema = (GrouperSchema) q.uniqueResult();
+      if (schema != null) { 
         rv = true;
-      } else {
-        System.err.println("Found " + q.list().size() + 
-                           " schema definitions.");
       }
     } catch (HibernateException e) {
       System.err.println(e);
@@ -1029,9 +1013,8 @@ public class GrouperBackend {
         " AND "                               +
         "gl.via=" + via_txt
       );   
-      if (q.list().size() == 1) {
-        gl = (GrouperList) q.list().get(0);
-      } 
+      // We only want one
+      gl = (GrouperList) q.uniqueResult();
     } catch (HibernateException e) {
       System.err.println(e);
       System.exit(1);
