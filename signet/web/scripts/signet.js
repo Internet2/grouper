@@ -32,148 +32,53 @@ function CheckAll(){
 	document.checkform.row6.checked = document.checkform.allbox.checked;
 }
 
-var req;
+var requestObject;
 
-// This code was adapted from www.xml.com/pub/a/2005/02/09/xml-http-request.html.
+// This code was adapted from the following web pages:
+//
+//   www.xml.com/pub/a/2005/02/09/xml-http-request.html
+//   www.francisshanahan.com/zuggest.aspx
+
 function loadXMLDoc(url)
 {
-  req = new XMLHttpRequest();
-  req.onreadystatechange = processReqChange;
-  req.open("GET", url, true);
-  req.send(null);
-}
-
-function printXMLDoc(xmlDoc)
-{
-  return printXMLNode("", xmlDoc.documentElement, "");
-} 
-
-function printXMLNode(accumulator, node, prefix)
-{
-  var nodeDescription;
-  if ((typeof node) == "object")
+  if (window.XMLHttpRequest)
   {
-    if (node instanceof Array)
+    requestObject = new XMLHttpRequest();
+
+    if (requestObject)
     {
-      nodeDescription = "Array";
-    }
-    else
-    {
-      if (node.nodeName == "#text")
-      {
-        nodeDescription = node.nodeValue;
-      }
-      else
-      {
-        nodeDescription = "<" + node.nodeName + " " + printAttributes(node) + ">";
-      }
+      requestObject.onreadystatechange = processReqChange;
+      requestObject.open("GET", url, true);
+      requestObject.send(null);
     }
   }
-  else
+  else if (window.ActiveXObject)
   {
-    nodeDescription = (typeof node);
-  }
-  
-  accumulator = accumulator + "\n" + prefix + nodeDescription;
-  var children = node.childNodes;
-  for (var i = 0; i < children.length; i++)
-  {
-    accumulator = printXMLNode(accumulator, children[i], prefix + "--");
-  }
-  
-  if (node.nodeName != "#text")
-  {
-    accumulator = accumulator + "\n" + prefix + "<" + node.tagName + " />";
-  }
-  return accumulator;
-}
+    requestObject = new ActiveXObject("Microsoft.XMLHTTP");
 
-function printAttributes(node)
-{
-  var outStr = "";
-  var attrs = node.attributes;
-  if (attrs == null)
-  {
-    return outStr;
-  }
-  
-  for (var i = 0; i < attrs.length; i++)
-  {
-    if (i > 0)
+    if (requestObject)
     {
-      outStr += " ";
+      requestObject.onreadystatechange = processReqChange;
+      requestObject.open("GET", url, true);
+      requestObject.send();
     }
-    
-    outStr = outStr + attrs.item(i).nodeName + "=" + attrs.item(i).nodeValue;
   }
-  
-  return outStr;
 }
 
-var newWindow;
-
-// This code was adapted from www.xml.com/pub/a/2005/02/09/xml-http-request.html.
 function processReqChange()
 {
-  if (req.readyState == 4) // Request is complete
+  if (requestObject.readyState == 4) // Request is complete
   {
-    if (req.status == 200) // Status is OK
+    if (requestObject.status == 200) // Status is OK
     {
-      // The response contains the name of the Javascript method to invoke in order
-      // to process this query-result, and the query-result-value to pass to that
-      // method. This makes is possible for this method to detect, parse, and forward
-      // query-response data to any number of methods that actually do something useful
-      // with that data.
-         
-      response = req.responseXML.documentElement;
-      
-//      parseError = req;
-//      if (parseError.errorCode != 0)
-//      {
-//        alert("errorCode: " + parseError.errorCode + "\n" +
-//          "filepos: " + parseError.filepos + "\n" +
-//          "line: " + parseError.line + "\n" +
-//          "linepos: " + parseError.linepos + "\n" +
-//          "reason: " + parseError.reason + "\n" +
-//          "srcText: " + parseError.srcText + "\n" +
-//          "url: " + parseError.url);
-//      }
-      
-      methodElement = response.getElementsByTagName('method')[0];
-      methodElementFirstChild = methodElement.firstChild;
-      methodElementFirstChildData = methodElementFirstChild.data;
-      method = methodElementFirstChildData;
-      
-      result = response.getElementsByTagName('result')[0];
-      
-      evalString = method + "(result);";
-      eval(evalString);
+      var searchResultsElement = document.getElementById('PersonSearchResults');
+      searchResultsElement.style.display = 'block';
+      searchResultsElement.innerHTML = requestObject.responseText;
     }
     else
     {
-      alert("There was a problem retrieving the XML data:\n" + req.statusText);
+      alert
+        ("There was a problem retrieving the data:\n" + requestObject.statusText);
     }
   }
-}
-
-function showPersonSearchResults(personSearchResults)
-{
-  var resultsDiv = document.getElementById('PersonSearchResults');
-  resultsDiv.style.display = 'block';
-  
-  if (resultsDiv.firstChild != null)
-  {
-    resultsDiv.removeChild(resultsDiv.firstChild);
-  }
-
-  var resultStr = Sarissa.serialize(personSearchResults);
-  // Here's an embarrassing little hack: On FireFox, Sarissa.serialize includes an
-  // XML namespace of "a0" on each element. This prevents it from recognizing those
-  // tags as legitimate HTML. So, we'll strip those namespace-prefixes off if they're
-  // present. There's probably some way of preventing them in the first place, but
-  // I haven't figured that out yet.
-  var re = new RegExp("a0:", "g");
-  resultStr = resultStr.replace(re, "");
-  
-  resultsDiv.innerHTML = resultStr;
 }

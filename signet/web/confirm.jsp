@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.12 2005-03-17 23:39:31 acohen Exp $
-  $Date: 2005-03-17 23:39:31 $
+  $Id: confirm.jsp,v 1.13 2005-03-25 02:46:27 acohen Exp $
+  $Date: 2005-03-25 02:46:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -18,7 +18,6 @@
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
     </script>
-    <script language="JavaScript" type="text/javascript" src="scripts/sarissa.js"></script>
   </head>
 
   <body>

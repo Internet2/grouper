@@ -9,12 +9,7 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.choice.Choice" %>
 
-<% response.setContentType("text/xml"); %>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<response>
-  <method>showPersonSearchResults</method>
-  <result>
     <div>
       <link href="styles/signet.css" rel="stylesheet" type="text/css" />
       <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
@@ -55,6 +50,3 @@
 %>
       </div> <!-- scroll -->
     </div>
-  </result>
-</response>
-</html>

@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.16 2005-03-17 23:39:31 acohen Exp $
-  $Date: 2005-03-17 23:39:31 $
+  $Id: personview.jsp,v 1.17 2005-03-25 02:46:27 acohen Exp $
+  $Date: 2005-03-25 02:46:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -17,7 +17,6 @@
   </title>
   <link href="styles/signet.css" rel="stylesheet" type="text/css" />
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
-  <script language="JavaScript" type="text/javascript" src="scripts/sarissa.js"></script>
 </head>
 
 <body>
@@ -451,7 +450,7 @@
               </a>
             </p>
             <p>
-              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%><%=currentSubsystem == null ? "" : ("&subsystemId=" + currentSubsystem.getId())%>">
                 <img
                     src="images/icon_arrow_right.gif"
                     width="16"
