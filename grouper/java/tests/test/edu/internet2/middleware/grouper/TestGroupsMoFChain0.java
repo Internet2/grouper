@@ -53,79 +53,73 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
+public class TestGroupsMoFChain0 extends TestCase {
 
-public class TestAll extends TestCase {
-
-  public TestAll(String name) {
+  public TestGroupsMoFChain0(String name) {
     super(name);
   }
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
+  protected void setUp () {
+    DB db = new DB();
+    db.emptyTables();
+    db.stop();
+  }
 
-    suite.addTestSuite(TestInstantiate.class);
-    suite.addTestSuite(TestConfigAndSchema.class);
-    suite.addTestSuite(TestSubjects.class);
-    suite.addTestSuite(TestSessions.class);
-    suite.addTestSuite(TestMembers.class);
-    suite.addTestSuite(TestStemsAdd.class);
-    suite.addTestSuite(TestStemsDelete.class);
-    suite.addTestSuite(TestStemsAttrs.class);
-    // TODO TestStemsAttrsAdd
-    // TODO TestStemsAttrsMod
-    // TODO TestStemsAttrsDel
-    suite.addTestSuite(TestStemsMoF.class);
-    // TODO TestStemsMoFAdd
-    // TODO TestStemsMoFDel
-    suite.addTestSuite(TestGroupsAdd.class);
-    suite.addTestSuite(TestGroupsDelete.class);
-    suite.addTestSuite(TestGroupsAttrs.class);
-    // TODO TestGroupsAttrsAdd
-    // TODO TestGroupsAttrsMod
-    // TODO TestGroupsAttrsDel
-    suite.addTestSuite(TestGroupsMoF.class);
-    suite.addTestSuite(TestGroupsMoFAdd0.class);
-    suite.addTestSuite(TestGroupsMoFChain0.class);
-    suite.addTestSuite(TestGroupsMoFAdd1.class);
-    suite.addTestSuite(TestGroupsMoFChain1.class);
-    suite.addTestSuite(TestGroupsMoFAdd2.class);
-    suite.addTestSuite(TestGroupsMoFAdd3.class);
-    suite.addTestSuite(TestGroupsMoFAdd4.class);
-    suite.addTestSuite(TestGroupsMoFAdd5.class);
-    suite.addTestSuite(TestGroupsMoFAdd6.class);
-    suite.addTestSuite(TestGroupsMoFAdd7.class);
-    suite.addTestSuite(TestGroupsMoFAdd8.class);
-    suite.addTestSuite(TestGroupsMoFAdd9.class);
-    suite.addTestSuite(TestGroupsMoFAdd10.class);
-    // TODO suite.addTestSuite(TestGroupsMoFChain10.class);
-    suite.addTestSuite(TestGroupsMoFDel0.class);
-    suite.addTestSuite(TestGroupsMoFDel1.class);
-    //suite.addTestSuite(TestGroupsMoFDel2.class);
-    //suite.addTestSuite(TestGroupsMoFDel3.class);
-    //suite.addTestSuite(TestGroupsMoFDel4.class);
-    //suite.addTestSuite(TestGroupsMoFDel5.class);
-    //suite.addTestSuite(TestGroupsMoFDel6.class);
-    //suite.addTestSuite(TestGroupsMoFDel7.class);
-    //suite.addTestSuite(TestGroupsMoFDel8.class);
-    //suite.addTestSuite(TestGroupsMoFDel9.class);
-    //suite.addTestSuite(TestGroupsMoFDel10.class);
-    // TODO TestMixedMoF
-    // TODO TestMixedMoFAdd
-    // TODO TestMixedMoFDel
-    // TODO Flesh out
-    suite.addTestSuite(TestNamingPrivs.class);
-    // TODO TestNamingPrivsGrant
-    // TODO TestNamingPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestAccessPrivs.class);
-    // TODO TestAccessPrivsGrant
-    // TODO TestAccessPrivsRevoke
-    // TODO Flesh out
-    suite.addTestSuite(TestQueries.class);
+  protected void tearDown () {
+    // Nothing -- Yet
+  }
 
-    return suite;
+
+  /*
+   * TESTS
+   */
+  
+
+  //
+  // Add m0 to g0
+  //
+  // m0 -> g0
+  //
+  public void testMoF() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create ns0
+    GrouperGroup ns0 = GrouperGroup.create(
+                         s, Constants.ns0s, Constants.ns0e, Grouper.NS_TYPE
+                       );
+    // Create g0
+    GrouperGroup g0  = GrouperGroup.create(
+                         s, Constants.g0s, Constants.g0e
+                       );
+    // Load m0
+    GrouperMember m0 = GrouperMember.load(
+                         s, Constants.mem0I, Constants.mem0T
+                       );
+    // Add m0 to g0's "members"
+    Assert.assertTrue(g0.listAddVal(m0));
+    s.stop();
+
+    // Now reconnect, reload and inspect chains
+    GrouperSession s1 = GrouperSession.start(subj);
+
+    // Load g0
+    GrouperGroup gc0 = GrouperGroup.load(
+                         s1, Constants.g0s, Constants.g0e
+                       );
+    Assert.assertNotNull("gc0 !null", gc0);
+
+    // Now inspect chains
+    Iterator iter0I = gc0.listImmVals("members").iterator();
+    while (iter0I.hasNext()) {
+      GrouperList lv = (GrouperList) iter0I.next();
+      Assert.assertTrue("empty chain", lv.chain().size() == 0);
+    }
+
+    s1.stop();
   }
 
 }
