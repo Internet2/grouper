@@ -17,7 +17,7 @@ import  java.util.*;
  * {@link Grouper} group class.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.81 2004-11-23 17:08:37 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.82 2004-11-23 18:14:37 blair Exp $
  */
 public class GrouperGroup {
 
@@ -253,7 +253,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listVals(GrouperSession s) {
-    return GrouperBackend.listVals(this, s, "members");
+    return GrouperBackend.listVals(s, this, "members");
   }
 
   /**
@@ -266,7 +266,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listVals(GrouperSession s, String list) {
-    return GrouperBackend.listVals(this, s, list);
+    return GrouperBackend.listVals(s, this, list);
   }
 
   /**
@@ -278,7 +278,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listEffVals(GrouperSession s) {
-    return GrouperBackend.listEffVals(this, s, "members");
+    return GrouperBackend.listEffVals(s, this, "members");
   }
 
   /**
@@ -291,7 +291,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listEffVals(GrouperSession s, String list) {
-    return GrouperBackend.listEffVals(this, s, list);
+    return GrouperBackend.listEffVals(s, this, list);
   }
 
   /**
@@ -303,7 +303,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listImmVals(GrouperSession s) {
-    return GrouperBackend.listImmVals(this, s, "members");
+    return GrouperBackend.listImmVals(s, this, "members");
   }
 
   /**
@@ -316,7 +316,7 @@ public class GrouperGroup {
    * @return  List of effective {@link GrouperMembership} objects.
    */
   public List listImmVals(GrouperSession s, String list) {
-    return GrouperBackend.listImmVals(this, s, list);
+    return GrouperBackend.listImmVals(s, this, list);
   }
 
   /**
@@ -331,7 +331,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m) {
-    return GrouperBackend.listAddVal(this, s, m, "members");
+    return GrouperBackend.listAddVal(s, this, m, "members");
   }
 
   /**
@@ -347,7 +347,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listAddVal(GrouperSession s, GrouperMember m, String list) {
-    return GrouperBackend.listAddVal(this, s, m, list);
+    return GrouperBackend.listAddVal(s, this, m, list);
   }
 
   /**
@@ -362,7 +362,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m) {
-    return GrouperBackend.listDelVal(this, s, m, "members");
+    return GrouperBackend.listDelVal(s, this, m, "members");
   }
 
   /**
@@ -378,7 +378,7 @@ public class GrouperGroup {
    * @return  Boolean true if successful, false otherwise.
    */
   public boolean listDelVal(GrouperSession s, GrouperMember m, String list) {
-    return GrouperBackend.listDelVal(this, s, m, list);
+    return GrouperBackend.listDelVal(s, this, m, list);
   }
 
   /**
