@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.28 2005-02-14 00:29:26 blair Exp $
+$Id: NEWS,v 1.29 2005-02-14 00:37:50 blair Exp $
 
 ---
 
@@ -11,6 +11,7 @@ $Id: NEWS,v 1.28 2005-02-14 00:29:26 blair Exp $
 * New: Use Ant's SQL task to to create, initialize and reset
   HSQLDB database (#287)
 * New: GrouperSession objects serializable (#296)
+* New: Hibernate's ODMG interface .jar 
 * Updated: Hibernate .jar from 2.1.7c to 2.1.8
 * Updated: HSQLDB .jar from 1.7.1 to 1.7.2.11
 * Fixed: Removed calls to system.exit() (#179) 
@@ -67,6 +68,7 @@ $Id: NEWS,v 1.28 2005-02-14 00:29:26 blair Exp $
 * Insufficient documentation
 * Insufficient test coverage
 * Slow
+
 
 
 

@@ -99,11 +99,17 @@ Contents:
     - Source:   <http://logging.apache.org/>
     - License:  Apache License, Version 2.0
 
+  odmg.jar
+    "Hibernate provided ODMG compliant persistence manager interface."
+    - Version:  3.0 (?)
+    - Source:   <http://www.hibernate.org/>
+    - License:  LGPL (?)
+
   subject.jar
     "TODO The I2MI Subject Interface."
     - Version:  CVS HEAD checkout on 20041101
     - Source:   TODO
     - License:  TODO
 
-$Id: README,v 1.10 2005-02-08 19:30:44 blair Exp $
+$Id: README,v 1.11 2005-02-14 00:37:50 blair Exp $
 
