@@ -1,13 +1,17 @@
 /*
- * $Id: GrouperTest.java,v 1.9 2004-07-14 02:51:43 blair Exp $
+ * $Id: GrouperTest.java,v 1.10 2004-07-14 19:36:31 blair Exp $
  */
 
 package test.edu.internet2.middleware.directory.grouper;
 
-
-import edu.internet2.middleware.directory.grouper.*;
-import java.lang.reflect.*;
-import junit.framework.*;
+import  edu.internet2.middleware.directory.grouper.*;
+import  java.io.BufferedReader;
+import  java.io.File;
+import  java.io.FileReader;
+import  java.io.IOException;
+import  java.lang.reflect.*;
+import  java.sql.*;
+import  junit.framework.*;
 
 public class GrouperTest extends TestCase {
 
@@ -18,11 +22,58 @@ public class GrouperTest extends TestCase {
   }
 
   protected void setUp () {
+    Connection conn   = null;
+    ResultSet  rs     = null;
+    Statement  st     = null;
+    String sqlFile    = "sql/hsqldb.sql";
+    String sqlStr     = null;
+    try {
+      BufferedReader  br  = new BufferedReader(new FileReader(sqlFile));
+      String          l   = null;
+      while ((l=br.readLine()) != null){
+        if (sqlStr != null) {
+          sqlStr = sqlStr + l + "\n";
+        } else {
+          sqlStr = l + "\n";
+        }
+      }
+      br.close();
+      if (sqlStr != null) {
+        try {
+          Class.forName("org.hsqldb.jdbcDriver");
+          conn = DriverManager.getConnection("jdbc:hsqldb:build/grouper", "sa", "");
+          try {
+            st = conn.createStatement();
+            // XXX Ugh
+            rs = st.executeQuery("DROP TABLE grouper_members IF EXISTS");
+            rs = st.executeQuery("DROP TABLE grouper_session IF EXISTS");
+            rs = st.executeQuery(sqlStr);
+            st.close();
+            conn.close();
+          } catch (Exception e) {
+            System.err.println(e);
+            System.exit(1);
+          }
+        } catch (Exception e) {
+          System.err.println(e);
+          System.exit(1);
+        }
+      } else {
+        System.err.println("Unable to load SQL from '" + sqlFile + "'");
+        System.exit(1);
+      }
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+
+    // TODO Make this into a test of its own and move out of setUp()
     // Establish a new Grouper instance
     G = new Grouper();
   }
 
   protected void tearDown () {
+    // TODO Make this into a test of its own and move out of tearDown()
     // Destroy our Grouper instance
     G.destroy();
   }
