@@ -2,16 +2,20 @@ package edu.internet2.middleware.grouper;
 
 import  java.sql.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 
 /** 
  * Class representing a {@link Grouper} group.
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.25 2004-08-11 20:14:19 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.26 2004-08-19 19:24:43 blair Exp $
  */
 public class GrouperGroup {
 
+  private Session         session;
+
   private String groupKey;
+  private int groupType;
   private String createTime;
   private String createSubject;
   private String createSource;
@@ -20,23 +24,15 @@ public class GrouperGroup {
   private String modifySource;
   private String comment;
 
-  private GrouperSession  intSess   = null;
+  private GrouperSession  intSess;
+  private String          name;
   private String          groupID   = null;
-  private String          groupName = null;
   private boolean         exists    = false;
-
-  public GrouperGroup() {
-    groupKey      = null;
-    createTime    = null;
-    createSubject = null;
-    createSource  = null;
-    modifyTime    = null;
-    modifySubject = null;
-    modifySource  = null;
-    comment       = null;
-  }
+  private Map             attributes;
 
   /**
+   * TODO 
+   *
    * Create a new object that represents a single {@link Grouper}
    * group. 
    * <p>
@@ -48,16 +44,111 @@ public class GrouperGroup {
    * </ul>
    * 
    * @param   s         Session context.
-   * @param   groupName Name of group.
+   * @param   name Name of group.
    */
-  public GrouperGroup(GrouperSession s, String groupName) { 
+  public GrouperGroup() {
+    session       = null;
 
-    // Internal reference to the session we are using.
-    this.intSess    = s;
-    // XXX Hrm...
-    this.groupName  = groupName;
-    // XXX Also dubious
-    this.exists     = true;  
+    // TODO Merge with 'attributes'?
+    groupKey      = null;
+    groupType     = 1;    // TODO Don't hardcode this
+    createTime    = null;
+    createSubject = null;
+    createSource  = null;
+    modifyTime    = null;
+    modifySubject = null;
+    modifySource  = null;
+    comment       = null;
+
+    attributes    = new HashMap();
+    intSess       = null;
+    name          = null;
+  }
+
+  public void session(GrouperSession s) {
+    this.intSess = s;
+    this.session = this.intSess.session();
+  }
+
+  public GrouperSession session() {
+    // TODO Return an exception if !defined?
+    return this.intSess;
+  }
+
+  public void attribute(String attribute, String value) {
+    // TODO Attribute validation
+    /* 
+     * We save the transformation into a GrouperAttribute object until
+     * later as we need to have a valid groupKey.  And yes, this 
+     * can be improved upon.
+     */
+    attributes.put(attribute, value);
+  }
+
+  public String attribute(String attribute) {
+    return (String) attributes.get(attribute);
+  }
+
+  public boolean exist() {
+    // SELECT * FROM grouper_attributes WHERE name=$name
+    try {
+      // FIXME This query is incredibly wrong -- but that's ok as I a
+      //        am fine with this returning false indefinitely for the
+      //        time being.
+      int cnt = ( (Integer) this.session.iterate(
+                    "SELECT count(*) FROM grouper_attributes " +
+                    "IN CLASS edu.internet2.middleware.grouper.GrouperAttribute " +
+                    "WHERE groupField = '" + attributes.get("stem") + 
+                    ":" + attributes.get("descriptor") + "'"
+                    ).next() ).intValue();
+      if (cnt > 0) {
+        return true;
+      } 
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1); 
+    }
+    return false;
+  }
+
+  public void create() {
+    // FIXME Damn this is ugly.
+
+    // Set some of the operational attributes
+    java.util.Date now = new java.util.Date();
+    this.setCreateTime( Long.toString(now.getTime()) );
+    this.setCreateSubject( this.intSess.whoAmI() );
+
+    // And now attempt to add the group to the store
+    try {
+      Transaction t = session.beginTransaction();
+      // The Group object
+      session.save(this);
+
+      // Its schema
+      GrouperSchema schema = new GrouperSchema();
+      schema.set(this.groupKey, this.groupType);
+      session.save(schema);
+
+      // And its attributes
+      Iterator iter = attributes.keySet().iterator();
+      while (iter.hasNext()) {
+        GrouperAttribute attr = new GrouperAttribute();
+        String key = (String) iter.next();
+        attr.set(this.groupKey, key, (String) attributes.get(key));
+        session.save(attr);
+      }
+
+      // And make the creator a member of the "admins" list
+      GrouperMembership mship = new GrouperMembership(); 
+      mship.set(this.groupKey, "admins", this.intSess.whoAmI(), true);
+      session.save(mship);
+
+      t.commit();
+    } catch (Exception e) {
+      System.err.println(e);
+      System.exit(1);
+    }
   }
 
   /**
@@ -148,10 +239,13 @@ public class GrouperGroup {
    *
    * @return  Map of all accessible group metadata.
   */
+/* DEPRECATE */
+/*
   public Map getMetadata() {
     Map metadata = new HashMap();
     return metadata;
   }
+*/
 
   /**
    * Retrieves a single item of metadata.
@@ -166,9 +260,12 @@ public class GrouperGroup {
    * @param   groupField Desired metadata for this {@link GrouperGroup}.
    * @return  Metadata value.
    */
+/* DEPRECATE */
+/*
   public String getMetadata(String groupField) {
     return null;
   }
+*/
 
   /**
    * Create a new group of type "base".
@@ -187,9 +284,9 @@ public class GrouperGroup {
    *  </ul>
    * </ul>
    */
-  public void create() {
-    // Nothing -- Yet
-  }
+  // XXX public void create() {
+  // XXX  // Nothing -- Yet
+  // XXX }
 
   /**
    * Create a new group of type <i>groupType</i>.
@@ -395,11 +492,11 @@ public class GrouperGroup {
    * @return  Group name.
    */
   public String whoAmI() {
-    if (this.groupName == null) {
+    if (this.name == null) {
       // XXX Query <i>grouper_metadata</i> table, fetch <i>name</i>,
-      //     and cache it in <i>this.groupName</i>.
+      //     and cache it in <i>this.name</i>.
     }
-    return this.groupName;
+    return this.name;
   }
 
   /*
