@@ -24,7 +24,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * All methods are static class methods.
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.28 2004-11-12 19:31:58 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.29 2004-11-12 21:54:41 blair Exp $
  */
 public class GrouperBackend {
 
@@ -87,7 +87,10 @@ public class GrouperBackend {
       // FIXME Group Key is private.  Fuck!  How to manage?
       //       But wait!  GUID!
       // TODO Don't hardcode "admins"
-      mship.set(g.key(), "admins", s.subject().id(), true);
+      // TODO And really, this should be assign a priv, via the priv
+      //      interface, rather than just assuming we are using Grouper's
+      //      internal priv model.
+      mship.set(g.key(), "admins", s.subject().getId(), true);
       session.save(mship);
 
       t.commit();

@@ -10,6 +10,7 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 
 
 /** 
@@ -17,7 +18,7 @@ import  edu.internet2.middleware.grouper.*;
  * or a {@link GrouperGroup}.
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.31 2004-11-11 18:28:59 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.32 2004-11-12 21:54:41 blair Exp $
  */
 public class GrouperMember {
 
@@ -44,6 +45,58 @@ public class GrouperMember {
     this._init();
     this.id   = id;
     this.type = type;
+  }
+
+
+  /*
+   * PUBLIC CLASS METHODS
+   */
+
+  /**
+   * TODO
+   *
+   * @param   id      Subject ID
+   * @param   typeID  Subject Type ID
+   * @return  {@link GrouperMember} object
+   */
+  public static GrouperMember lookup(String id, String typeID) {
+    Subject subj = GrouperSubject.lookup(id, typeID);
+    /*
+     * If no subject is returned via the subject interface, assume that
+     * the member either doesn't exist or should no longer exist.  Bail
+     * out.
+     */
+    // TODO What if member can be found but matching subject cannot be
+    //      found?  Or: should I check if the member is defined first
+    //      and then fall back to subject?
+    if (subj == null)  { return null; }
+
+    // TODO Is there a reason why I am not just passing in the `id' and
+    //      `typeID' passed as params to this method?
+    GrouperMember member = GrouperBackend.member(
+                                                 subj.getId(),
+                                                 subj.getSubjectType().getId()
+                                                );
+    /*
+     * We have an already existing member.  Return the un-Hibernated
+     * object.
+     */
+    if (member != null) { return member; }
+
+    /*
+     * If the subject is valid but a matching member object does not
+     * exist, create a new one, assign a key, etc.
+     */ 
+    member = new GrouperMember(
+                                subj.getId(),
+                                subj.getSubjectType().getId()
+                              );
+    if (member != null) {
+      // Give the member a key and then store Hibernate it
+      member.setMemberKey( GrouperBackend.uuid() );
+    }
+
+    return member;
   }
 
 
