@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.5 2004-12-08 03:35:04 blair Exp $
+$Id: README,v 1.6 2004-12-09 20:53:30 blair Exp $
 
 ---
 
@@ -19,10 +19,14 @@ $Id: README,v 1.5 2004-12-08 03:35:04 blair Exp $
     % cd $GROUPER_BASE/misc/grouperq
     % export CLASSPATH=.:/path/to/Grouper.jar:/path/to/Grouper-lib.jar:/path/to/grouper/conf/dir
     % java grouperq -h
-    
-Query for the current subject's group memberships:
+
+Query for the default subject's group memberships:
 
     % java grouperq 
+
+Unless a subject is specified on the command line, grouperq will
+default to using the subject configured in Grouper's _member.system_
+property when connecting to the groups registry.
 
 Query for a specific subject's group memberships:
 
