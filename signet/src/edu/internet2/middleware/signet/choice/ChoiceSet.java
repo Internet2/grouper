@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.3 2005-01-24 18:54:27 acohen Exp $
-$Date: 2005-01-24 18:54:27 $
+$Id: ChoiceSet.java,v 1.4 2005-02-01 19:48:20 acohen Exp $
+$Date: 2005-02-01 19:48:20 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,7 +13,6 @@ import java.util.Set;
 
 import javax.naming.OperationNotSupportedException;
 
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Subsystem;
 
 /**

@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.8 2005-01-21 20:30:47 acohen Exp $
- $Date: 2005-01-21 20:30:47 $
+ $Id: Signet.java,v 1.9 2005-02-01 19:48:20 acohen Exp $
+ $Date: 2005-02-01 19:48:20 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -821,6 +821,43 @@ public final class Signet
     return choiceSets;
   }
 
+  // I really want to do away with this method, having the Subsystem
+  // pick up its associated Limits via Hibernate object-mapping.
+  // I just haven't figured out how to do that yet.
+  Map getLimitsBySubsystem(Subsystem subsystem)
+  {
+    Query query;
+    List resultList;
+
+    try
+    {
+      query = session
+          .createQuery
+          	("from edu.internet2.middleware.signet.LimitImpl"
+             + " as limit where subsystemID = :id");
+
+      query.setString("id", subsystem.getId());
+
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+
+    Map limits = new HashMap(resultList.size());
+
+    Iterator resultListIterator = resultList.iterator();
+    while (resultListIterator.hasNext())
+    {
+      Limit limit = (Limit)(resultListIterator.next());
+      ((LimitImpl)limit).setSignet(this);
+      limits.put(limit.getId(), limit);
+    }
+
+    return limits;
+  }
+
   /**
    * Gets all Assignments in the Signet database. Should probably be changed to
    * return a type-safe Collection.
@@ -1590,6 +1627,32 @@ public final class Signet
   }
 
   /**
+   * This method loads the named HTMLLimitRenderer class, instantiates
+   * it using its parameterless constructor, and passes back the new
+   * instance.
+   * 
+   * @param rendererName The fully-qualified class-name of the
+   * 		HTMLLimitRenderer.
+   * @return the new HTMLLimitRenderer.
+   */
+  HTMLLimitRenderer getHTMLLimitRenderer(String rendererName)
+  {
+    HTMLLimitRenderer renderer
+  		= (HTMLLimitRenderer)
+  				(loadAndCheckAdapter
+  			    (rendererName,
+  			     HTMLLimitRenderer.class,
+  			     "HTMLLimitRenderer"));
+
+    if (renderer instanceof HTMLLimitRendererImpl)
+    {
+      ((HTMLLimitRendererImpl) (renderer)).setSignet(this);
+    }
+
+    return renderer;
+  }
+
+  /**
    * Formats a scope-tree for display. This method should probably be
    * moved to some new, display-oriented class.
    * 
@@ -2141,21 +2204,28 @@ public final class Signet
    * @return
    */
   public Limit newLimit
-  	(String	   name,
-  	 ValueType valueType,
-  	 String limitId,
-  	 String limitType,
-  	 String limitTypeId,
-  	 String helpText)
+  	(Subsystem		subsystem,
+  	 String 			id,
+  	 ValueType		valueType,
+  	 ChoiceSet 		choiceSet,
+  	 HTMLLimitRenderer	htmlRenderer,
+  	 String	   		name,
+  	 String 			helpText,
+  	 Status				status)
   {
     Limit limit
     	= new LimitImpl
-    			(name,
-    			 limitType,
-    			 limitId,
+    			(this,
+    			 subsystem,
+    			 id,
     			 valueType,
-    			 limitTypeId,
-    			 helpText);
+    			 choiceSet,
+    			 htmlRenderer,
+    			 name,
+    			 helpText,
+    			 status);
+    
+    subsystem.add(limit);
     
     return limit;
   }

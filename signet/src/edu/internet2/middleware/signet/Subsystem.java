@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.3 2005-01-21 20:30:47 acohen Exp $
-$Date: 2005-01-21 20:30:47 $
+$Id: Subsystem.java,v 1.4 2005-02-01 19:48:20 acohen Exp $
+$Date: 2005-02-01 19:48:20 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -98,6 +98,14 @@ extends HelpText, Entity, Name, Comparable
   public void add(Category category);
   
   /**
+   * Add a Limit to the set of Limits that are associated with this
+   * Subsystem.
+   * 
+   * @param limit
+   */
+  public void add(Limit limit);
+  
+  /**
    * Get the ChoiceSets currently associated with this Subsystem.
    * @param choiceSetId
    * 
@@ -113,5 +121,21 @@ extends HelpText, Entity, Name, Comparable
    * @throws ObjectNotFoundException
    */
   public ChoiceSet getChoiceSet(String id)
+  throws ObjectNotFoundException;
+  
+  /**
+   * Get the Limits currently associated with this Subsystem.
+   * @param limitId
+   * 
+   * @return a Map of the Limits, indexed by limitId.
+   */
+  public Map getLimits();
+
+  /**
+   * Gets a single Limit associated with this Subsystem by its ID.
+   * @param limit-ID
+   * @return the specified Limit
+   */
+  public Limit getLimit(String id)
   throws ObjectNotFoundException;
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.5 2005-01-21 20:30:47 acohen Exp $
- $Date: 2005-01-21 20:30:47 $
+ $Id: SubsystemImpl.java,v 1.6 2005-02-01 19:48:20 acohen Exp $
+ $Date: 2005-02-01 19:48:20 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -38,12 +38,14 @@ class SubsystemImpl
   private Set     permissions;
 
   private Map			choiceSets;
+  private Map			limits;
   private Map     functionsMap;
   
   private Tree    tree;
 
   private boolean choiceSetsNotYetFetched = true;
-  private boolean functionsNotYetFetched = true;
+  private boolean functionsNotYetFetched	= true;
+  private boolean limitsNotYetFetched			= true;
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -57,6 +59,7 @@ class SubsystemImpl
     this.permissions = new HashSet();
 
     this.choiceSets = new HashMap();
+    this.limits = new HashMap();
     this.functionsMap = new HashMap();
   }
 
@@ -83,6 +86,7 @@ class SubsystemImpl
     this.permissions = new HashSet();
 
     this.choiceSets = new HashMap();
+    this.limits = new HashMap();
     this.functionsMap = buildMap(this.functions);
   }
 
@@ -307,17 +311,24 @@ class SubsystemImpl
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Subsystem#getFunction(java.lang.String)
    */
-  public Function getFunction(String functionId) throws ObjectNotFoundException
+  public Function getFunction(String functionId)
+  throws ObjectNotFoundException
   {
-    // First, let's make sure the Functions are loaded from the database.
+    // First, let's make sure the Functions are loaded from the
+    // database.
     this.getFunctions();
 
-    FunctionImpl function = (FunctionImpl) (this.functionsMap.get(functionId));
+    FunctionImpl function
+    	= (FunctionImpl) (this.functionsMap.get(functionId));
 
     if (function == null)
     {
-      throw new ObjectNotFoundException("Unable to find the Function with ID '"
-          + functionId + "' in the Subsystem '" + this.getId() + "'.");
+      throw new ObjectNotFoundException
+      	("Unable to find the Function with ID '"
+         + functionId
+         + "' in the Subsystem '"
+         + this.getId()
+         + "'.");
     }
 
     if (this.getSignet() != null)
@@ -337,6 +348,11 @@ class SubsystemImpl
   void add(ChoiceSet choiceSet)
   {
     this.choiceSets.put(choiceSet.getId(), choiceSet);
+  }
+  
+  public void add(Limit limit)
+  {
+    this.limits.put(limit.getId(), limit);
   }
 
   /* (non-Javadoc)
@@ -359,5 +375,56 @@ class SubsystemImpl
     otherName = ((Subsystem) o).getName();
 
     return thisName.compareToIgnoreCase(otherName);
+  }
+  
+  /**
+   * @return Returns the Limits associated with this Subsystem.
+   * @throws ObjectNotFoundException
+   */
+  public Map getLimits()
+  {
+    // I really want to handle this purely through Hibernate mappings, but
+    // I haven't figured out how yet.
+
+    if (this.limitsNotYetFetched == true)
+    {
+      // We have not yet fetched the Limits associated with this
+      // Subsystem from the database. Let's make a copy of
+      // whatever in-memory Limits we DO have, because they
+      // represent defined-but-not-necessarily-yet-persisted
+      // Limits.
+      Map unsavedLimits = this.limits;
+
+      this.limits
+      	= this.getSignet().getLimitsBySubsystem(this);
+
+      this.limits.putAll(unsavedLimits);
+
+      this.limitsNotYetFetched = false;
+    }
+    
+    return UnmodifiableMap.decorate(this.limits);
+  }
+  
+  public Limit getLimit(String id)
+  throws ObjectNotFoundException
+  {
+    // First, make sure that the Limits have been fetched from
+    // the database.
+    Map limits = this.getLimits();
+    
+    Limit limit = (Limit)(limits.get(id));
+    
+    if (limit == null)
+    {
+      throw new ObjectNotFoundException
+      	("The Subsystem with ID '"
+      	 + this.getId()
+      	 + "' does not contain a Limit with ID '"
+      	 + id
+      	 + "'.");
+    }
+    
+    return limit;
   }
 }

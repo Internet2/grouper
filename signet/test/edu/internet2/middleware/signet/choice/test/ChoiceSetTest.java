@@ -1,8 +1,5 @@
 /*
  * Created on Jan 14, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package edu.internet2.middleware.signet.choice.test;
 
@@ -13,16 +10,11 @@ import junit.framework.TestCase;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetAdapter;
+import edu.internet2.middleware.signet.test.Constants;
+import edu.internet2.middleware.signet.test.Fixtures;
 
-/**
- * @author acohen
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class ChoiceSetTest extends TestCase
 {
   private Signet		signet;

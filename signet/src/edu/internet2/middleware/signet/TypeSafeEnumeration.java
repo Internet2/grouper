@@ -102,9 +102,9 @@ implements Serializable
    * @throws NoSuchElementException
    *           if there is no such instance.
    */
-  public static Status getInstanceByName(String name)
+  public static Object getInstanceByName(String name)
   {
-    Status result = (Status) instancesByName.get(name);
+    Object result = instancesByName.get(name);
     if (result == null)
     {
       throw new NoSuchElementException(name);

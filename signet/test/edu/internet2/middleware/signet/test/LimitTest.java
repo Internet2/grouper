@@ -6,9 +6,12 @@
  */
 package edu.internet2.middleware.signet.test;
 
+import javax.naming.OperationNotSupportedException;
+
 import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.ValueType;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 import junit.framework.TestCase;
 
@@ -20,21 +23,8 @@ import junit.framework.TestCase;
  */
 public class LimitTest extends TestCase
 {
-  Signet		signet;
-  Limit			limit;
-  
-  private static final String LIMIT_NAME
-  	= "This is the limit name";
-  private static final ValueType LIMIT_VALUETYPE
-  	= ValueType.NUMERIC;
-  private static final String LIMIT_ID
-  	= "This is the limit ID";
-  private static final String LIMIT_TYPE
-  	= "This is the limit type";
-  private static final String LIMIT_TYPE_ID
-  	= "This is the limit type ID";
-  private static final String LIMIT_HELPTEXT
-  	= "This is the limit helptext";
+  private Signet		signet;
+  private Fixtures	fixtures;
   
   public static void main(String[] args)
   {
@@ -47,15 +37,10 @@ public class LimitTest extends TestCase
   protected void setUp() throws Exception
   {
     super.setUp();
+    
     signet = new Signet();
-    limit
-    	= signet.newLimit
-    			(LIMIT_NAME,
-    			 LIMIT_VALUETYPE,
-    			 LIMIT_ID,
-    			 LIMIT_TYPE,
-    			 LIMIT_TYPE_ID,
-    			 LIMIT_HELPTEXT);
+    signet.beginTransaction();
+    fixtures = new Fixtures(signet);
   }
 
   /*
@@ -64,6 +49,8 @@ public class LimitTest extends TestCase
   protected void tearDown() throws Exception
   {
     super.tearDown();
+    
+    signet.commit();
     signet.close();
   }
 
@@ -76,34 +63,79 @@ public class LimitTest extends TestCase
     super(name);
   }
 
-  public final void testGetLimitId()
+  public final void testGetId()
+  throws ObjectNotFoundException
   {
-    assertEquals(LIMIT_ID, limit.getLimitId());
+    for (int limitIndex = 0;
+		 limitIndex < Constants.MAX_LIMITS;
+		 limitIndex++)
+    {
+      Limit limit
+      	= fixtures
+      			.getSubsystem()
+      				.getLimit
+      					(fixtures.makeLimitId(limitIndex));
+ 
+      String id = limit.getId();
+      assertEquals(id, fixtures.makeLimitId(limitIndex));
+    }
   }
 
-  public final void testGetLimitType()
+  public final void testGetChoiceSet()
+  throws
+  	OperationNotSupportedException,
+	ObjectNotFoundException
   {
-    assertEquals(LIMIT_TYPE, limit.getLimitType());
-  }
+    for (int limitIndex = 0;
+		 limitIndex < Constants.MAX_LIMITS;
+		 limitIndex++)
+    {
+      Limit limit
+      	= fixtures
+      			.getSubsystem()
+      				.getLimit
+      					(fixtures.makeLimitId(limitIndex));
 
-  public final void testGetLimitTypeId()
-  {
-    assertEquals(LIMIT_TYPE_ID, limit.getLimitTypeId());
+      // Limit 0 contains ChoiceSet 0, Limit 1 contains ChoiceSet 1,
+      // and so forth.
+      ChoiceSet choiceSet = limit.getChoiceSet();
+      assertEquals(choiceSet, fixtures.getOrCreateChoiceSet(signet, limitIndex));
+    }
   }
 
   public final void testGetName()
+  throws ObjectNotFoundException
   {
-    assertEquals(LIMIT_NAME, limit.getName());
+    for (int limitIndex = 0;
+		 limitIndex < Constants.MAX_LIMITS;
+		 limitIndex++)
+    {
+      Limit limit
+      	= fixtures
+      			.getSubsystem()
+      				.getLimit
+      					(fixtures.makeLimitId(limitIndex));
+ 
+      String name = limit.getName();
+      assertEquals(name, fixtures.makeLimitName(limitIndex));
+    }
   }
 
   public final void testGetHelpText()
+  throws ObjectNotFoundException
   {
-    assertEquals(LIMIT_HELPTEXT, limit.getHelpText());
-  }
+    for (int limitIndex = 0;
+    		 limitIndex < Constants.MAX_LIMITS;
+    		 limitIndex++)
+    {
+    	Limit limit
+				= fixtures
+						.getSubsystem()
+							.getLimit
+								(fixtures.makeLimitId(limitIndex));
 
-  public final void testGetValueType()
-  {
-    assertEquals(LIMIT_VALUETYPE, limit.getValueType());
+    	String helpText = limit.getHelpText();
+    	assertEquals(helpText, fixtures.makeLimitHelpText(limitIndex));
+    }
   }
-
 }

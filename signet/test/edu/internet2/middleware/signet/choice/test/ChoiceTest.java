@@ -12,6 +12,8 @@ import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetNotFoundException;
+import edu.internet2.middleware.signet.test.Constants;
+import edu.internet2.middleware.signet.test.Fixtures;
 import junit.framework.TestCase;
 
 /**
