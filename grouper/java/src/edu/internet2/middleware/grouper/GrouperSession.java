@@ -9,7 +9,7 @@ import  java.util.List;
  * Provides a GrouperSession.
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.14 2004-04-29 16:15:17 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.15 2004-04-29 17:10:25 blair Exp $
  */
 public class GrouperSession {
 
@@ -148,6 +148,21 @@ public class GrouperSession {
   public boolean allowedStems(String stem) {
     // XXX Do we have access to a *particular* stem?
     return false;
+  }
+
+  public void grantPriv(GrouperGroup g, GrouperMember m, String priv) {
+    // XXX Do something
+    this.intPriv.grant(g, m, priv);
+  }
+
+  public void revokePriv(GrouperGroup g, GrouperMember m, String priv) {
+    // XXX Do something
+    this.intPriv.revoke(g, m, priv);
+  }
+
+  public boolean hasPriv(GrouperGroup g, GrouperMember m, String priv) {
+    // XXX Do something
+    return this.intPriv.has(g, m, priv);
   }
 
   private GrouperMember _lookupSubject(String subjectID) {
