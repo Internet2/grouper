@@ -67,7 +67,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperBackend.java,v 1.144 2005-01-31 00:57:18 blair Exp $
+ * @version $Id: GrouperBackend.java,v 1.145 2005-02-06 04:18:52 blair Exp $
  */
 public class GrouperBackend {
 
@@ -1074,6 +1074,23 @@ public class GrouperBackend {
     List    vals    = BackendQuery.all(session, "GrouperType");
     GrouperBackend._hibernateSessionClose(session);
     return vals;
+  }
+
+  /*
+   * Retrieve GrouperMember by memberID
+   */
+  protected static GrouperMember memberByID(String id) {
+    Session       session = GrouperBackend._init();
+    GrouperMember m       = new GrouperMember();
+    List vals = BackendQuery.kv(
+                                session, Grouper.KLASS_GM,
+                                "memberID", id
+                               );
+    if (vals.size() == 1) {
+      m = (GrouperMember) vals.get(0);
+    }
+    GrouperBackend._hibernateSessionClose(session);
+    return m;
   }
 
   /**

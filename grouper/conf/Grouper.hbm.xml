@@ -69,7 +69,7 @@
     <id name="sessionID" type="string" unsaved-value="null" >
       <generator class="assigned"/>
     </id>
-    <property name="subjectID"  type="string" not-null="true"/>
+    <property name="memberID"   type="string" not-null="true"/>
     <property name="startTime"  type="string" not-null="true"/>
   </class>
 
