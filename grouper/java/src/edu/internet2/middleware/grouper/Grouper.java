@@ -22,7 +22,7 @@ import  org.apache.log4j.*;
  * {@link Grouper} environment class.
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.49 2004-11-25 04:36:22 blair Exp $
+ * @version $Id: Grouper.java,v 1.50 2004-11-25 05:34:55 blair Exp $
  */
 public class Grouper {
 
@@ -31,7 +31,12 @@ public class Grouper {
    */
   public static final String DEF_GROUP_TYPE = "base";
   public static final String DEF_LIST_TYPE  = "members";
-  public static final Logger LOGGER         = 
+
+
+  /*
+   * PROTECTED CONSTANTS
+   */
+  protected static final Logger LOGGER = 
     Logger.getLogger(Grouper.class.getName());
 
 
