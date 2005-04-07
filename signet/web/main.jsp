@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.21 2005-03-25 02:46:27 acohen Exp $
-  $Date: 2005-03-25 02:46:27 $
+  $Id: main.jsp,v 1.22 2005-04-07 20:30:15 acohen Exp $
+  $Date: 2005-04-07 20:30:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -165,7 +165,7 @@
                          'scrollbars=yes,
                          resizable=yes,
                          width=500,
-                         height=100');">
+                         height=250');">
                   <img
                     src="images/info.gif"
                     width="20"

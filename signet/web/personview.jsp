@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.19 2005-04-06 23:14:22 acohen Exp $
-  $Date: 2005-04-06 23:14:22 $
+  $Id: personview.jsp,v 1.20 2005-04-07 20:30:15 acohen Exp $
+  $Date: 2005-04-07 20:30:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -293,7 +293,7 @@
                       'scrollbars=yes,
                       resizable=yes,
                       width=500,
-                      height=100');">
+                      height=250');">
                    <img
                      src="images/info.gif"
                      width="20"

@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.8 2005-03-04 18:52:48 acohen Exp $
-  $Date: 2005-03-04 18:52:48 $
+  $Id: assignment.jsp,v 1.9 2005-04-07 20:30:15 acohen Exp $
+  $Date: 2005-04-07 20:30:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -28,6 +28,7 @@
 <%@ page import="java.util.SortedSet" %>
 <%@ page import="java.util.TreeSet" %>
 
+<%@ page import="edu.internet2.middleware.subject.Subject" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
@@ -35,6 +36,8 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
+<%@ page import="edu.internet2.middleware.signet.Limit" %>
+<%@ page import="edu.internet2.middleware.signet.LimitValue" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 
@@ -43,14 +46,23 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
          
-   Assignment currentAssignment
-     = (Assignment)
+  Assignment currentAssignment
+    = (Assignment)
          (request.getSession().getAttribute("currentAssignment"));
          
-   boolean canUse = !(currentAssignment.isGrantOnly());
-   boolean canGrant = currentAssignment.isGrantable();
+  Subject grantee
+    = signet.getSubject
+        (currentAssignment.getGrantee().getSubjectTypeId(),
+         currentAssignment.getGrantee().getSubjectId());
+  Subject grantor
+  	= signet.getSubject
+  		(currentAssignment.getGrantor().getSubjectTypeId(),
+  		 currentAssignment.getGrantor().getSubjectId());
          
-   DateFormat dateFormat = DateFormat.getDateInstance();
+  boolean canUse = !(currentAssignment.isGrantOnly());
+  boolean canGrant = currentAssignment.isGrantable();
+         
+  DateFormat dateFormat = DateFormat.getDateInstance();
 %>
     <div class="section">
       <h2>
@@ -68,22 +80,74 @@
     
       <tr>
         <td class="dropback">
+          Granted to:
+        </td>
+        <td>
+          <%=grantee.getName()%>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="dropback">
+          Granted by:
+        </td>
+        <td>
+          <%=grantor.getName()%>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="dropback">
+          On:
+        </td>
+        <td>
+          <%=dateFormat.format(currentAssignment.getEffectiveDate())%>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="dropback">
           Scope:
         </td>
         <td>
           <%=currentAssignment.getScope().getName()%>
         </td>
       </tr>
-      
+
+<%
+  Limit[] limits = currentAssignment.getFunction().getLimitsArray();
+  LimitValue[] limitValues = currentAssignment.getLimitValuesInDisplayOrder();
+  for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
+  {
+    Limit limit = limits[limitIndex];
+%>
       <tr>
         <td class="dropback">
-          Limits:
+          <%=limit.getName()%>:
         </td>
         <td>
-          <%=Common.displayLimitValues(currentAssignment)%>
+<%
+  StringBuffer strBuf = new StringBuffer();
+  int limitValuesPrinted = 0;
+  for (int limitValueIndex = 0;
+       limitValueIndex < limitValues.length;
+       limitValueIndex++)
+  {
+    LimitValue limitValue = limitValues[limitValueIndex];
+    if (limitValue.getLimit().equals(limit))
+    {
+      strBuf.append((limitValuesPrinted++ > 0) ? ", " : "");
+      strBuf.append(limitValue.getDisplayValue());
+    }
+  }
+%>
+          <%=strBuf%>
         </td>
       </tr>
-      
+<%
+  }
+%>
+
       <tr>
         <td class="dropback">
           Extensibility:
