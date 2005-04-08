@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.16 2005-03-03 18:29:00 acohen Exp $
- $Date: 2005-03-03 18:29:00 $
+ $Id: Signet.java,v 1.17 2005-04-08 00:47:59 acohen Exp $
+ $Date: 2005-04-08 00:47:59 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -750,6 +750,14 @@ public final class Signet
   {
     Query query;
     List resultList;
+    
+    // If this Assignment has not yet been persisted, then let's not waste time
+    // looking for it (or its LimitValues) in the database.
+    if (assignment.getNumericId() == null)
+    {
+      // Just return an empty Set.
+      return new HashSet();
+    }
 
     try
     {
@@ -760,7 +768,9 @@ public final class Signet
                + " as assignmentLimitValue"
                + " where assignmentID = :assignmentId");
 
-      query.setInteger("assignmentId", assignment.getNumericId().intValue());
+      Integer assignmentNumericId = assignment.getNumericId();
+      int id = assignmentNumericId.intValue();
+      query.setInteger("assignmentId", id);
 
       resultList = query.list();
     }

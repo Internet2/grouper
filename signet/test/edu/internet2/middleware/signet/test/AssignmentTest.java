@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.6 2005-04-06 23:31:35 acohen Exp $
-$Date: 2005-04-06 23:31:35 $
+$Id: AssignmentTest.java,v 1.7 2005-04-08 00:47:59 acohen Exp $
+$Date: 2005-04-08 00:47:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -20,6 +21,7 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.subject.Subject;
 
 import junit.framework.TestCase;
