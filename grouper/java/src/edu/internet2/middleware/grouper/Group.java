@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.17 2005-04-08 16:08:51 blair Exp $
+ * @version $Id: Group.java,v 1.18 2005-04-08 16:22:39 blair Exp $
  */
 abstract class Group {
 
@@ -123,6 +123,26 @@ abstract class Group {
    */
 
   /**
+   * Delete a group.
+   * <p />
+   * @param s   Delete group within this session.
+   * @param ns  Delete this group.
+   */
+  public static void delete(GrouperSession s, GrouperGroup g) {
+    Group.delete(s, (Group) g);
+  }
+
+  /**
+   * Delete a stem.
+   * <p />
+   * @param s   Delete namespace within this session.
+   * @param ns  Delete this namespace.
+   */
+  public static void delete(GrouperSession s, GrouperStem ns) {
+    Group.delete(s, (Group) ns);
+  }
+
+  /**
    * Format a group  name.
    * <p />
    * @param   stem  Group stem.
@@ -149,95 +169,27 @@ abstract class Group {
 
 
   /*
+   * PUBLIC INSTANCE METHODS
+   */
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return new ToStringBuilder(this)                            .
+      append("type"     , this.type()                         ) .
+      append("id"       , this.getGroupID()                   ) .
+      append("stem"     , this.attribute("stem").value()      ) .
+      append("extension", this.attribute("extension").value() ) .
+      toString();
+  }
+
+
+  /*
    * PROTECTED CLASS METHODS
    */
-
-  /*
-   * Set an attribute value
-   */ 
-  protected void attribute(
-                   GrouperSession s, Group g, 
-                   String attribute, String value
-                 )
-  {
-    // Normalize the case
-    attribute = attribute.toLowerCase();
-    if (!Grouper.groupField(g.type(), attribute)) {
-      throw new RuntimeException(
-                  "Attribute is not valid for this group type"
-                );
-    }
-    this.subjectCanModAttr(s, g, attribute);
-    try {
-      s.dbSess().txStart();
-      if (value == null) {
-        // Delete
-        g.attributeDel( g.attribute(attribute) );
-      } else {
-        // Add-Or-Update
-        GrouperAttribute attr = new GrouperAttribute(
-                                      g.key(), attribute, value
-                                    );
-        g.attributeAdd(attr);
-      }
-      g.setModified();
-      s.dbSess().txCommit();
-    } catch (RuntimeException e) {
-      s.dbSess().txRollback();
-      throw new RuntimeException("Error modifying attribute: " + e);
-    }
-  }
-
-  /**
-   * Delete a group.
-   * <p />
-   * @param s   Delete group within this session.
-   * @param ns  Delete this group.
-   */
-  public static void delete(GrouperSession s, GrouperGroup g) {
-    Group.delete(s, (Group) g);
-  }
-
-  /**
-   * Delete a stem.
-   * <p />
-   * @param s   Delete namespace within this session.
-   * @param ns  Delete this namespace.
-   */
-  public static void delete(GrouperSession s, GrouperStem ns) {
-    Group.delete(s, (Group) ns);
-  }
-
-  /*
-   * Find and return the group key for (stem, extn, type).
-   * TODO Rename => findKeyStemExtnType
-   */
-  protected static String findKey(
-                            GrouperSession s, String stem, 
-                            String extn, String type
-                          ) 
-  {
-    String qry = "Group.key.by.stem.and.extn.and.type";
-    String key = null;
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, stem);
-      q.setString(1, extn);
-      q.setString(2, type);
-      try {
-        key = (String) q.uniqueResult();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving result for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return key;
-  }
 
   /*
    * Find and return the group key for (id).
@@ -292,6 +244,36 @@ abstract class Group {
   }
 
   /*
+   * Find and return the group key for (stem, extn, type).
+   */
+  protected static String findKeyByStemExtnType(
+                            GrouperSession s, String stem, 
+                            String extn, String type
+                          ) 
+  {
+    String qry = "Group.key.by.stem.and.extn.and.type";
+    String key = null;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, stem);
+      q.setString(1, extn);
+      q.setString(2, type);
+      try {
+        key = (String) q.uniqueResult();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving result for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return key;
+  }
+
+  /*
    * Load {@link Group} by id.
    */
   protected static Group loadByID(GrouperSession s, String id) {
@@ -322,27 +304,6 @@ abstract class Group {
                          )
   {
     return Group.loadByKey(s, Group.findKeyByNameAndType(s, name, type));
-  }
-
-  /*
-   * Number of seconds since the epoch.
-   */
-  protected String now() {
-    java.util.Date now = new java.util.Date();
-    return Long.toString(now.getTime());
-  }
-
-  /*
-   * Convert a string to a date object.
-   * <p />
-   * @return Date object.
-   */
-  protected Date string2date(String seconds) {
-    Date d = null;
-    if (seconds != null) {
-      d = new Date(Long.parseLong(seconds));
-    } 
-    return d; 
   }
 
   /*
@@ -462,32 +423,6 @@ abstract class Group {
   }
 
   /*
-   * Can the current subject modify attributes?
-   */
-  private void subjectCanModAttr(
-                 GrouperSession s, Group g, String attribute
-               )
-  {
-    if ((
-          (attribute.equals("displayname")) ||
-          (attribute.equals("name"))        ||
-          (attribute.equals("stem"))        ||
-          (attribute.equals("extension"))
-       ))
-    {
-      throw new RuntimeException(
-                  "Modification of " + attribute + 
-                  " is not currently allowed"
-                );
-    }
-    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
-      throw new RuntimeException(
-                  "Modification requires ADMIN"
-                );
-    }
-  }
-
-  /*
    * Does the current subject have privs to modify the specified list?
    */
   protected static boolean subjectCanModListVal(
@@ -507,6 +442,42 @@ abstract class Group {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Set an attribute value
+   */ 
+  protected void attribute(
+                   GrouperSession s, Group g, 
+                   String attribute, String value
+                 )
+  {
+    // Normalize the case
+    attribute = attribute.toLowerCase();
+    if (!Grouper.groupField(g.type(), attribute)) {
+      throw new RuntimeException(
+                  "Attribute is not valid for this group type"
+                );
+    }
+    this.subjectCanModAttr(s, g, attribute);
+    try {
+      s.dbSess().txStart();
+      if (value == null) {
+        // Delete
+        g.attributeDel( g.attribute(attribute) );
+      } else {
+        // Add-Or-Update
+        GrouperAttribute attr = new GrouperAttribute(
+                                      g.key(), attribute, value
+                                    );
+        g.attributeAdd(attr);
+      }
+      g.setModified();
+      s.dbSess().txCommit();
+    } catch (RuntimeException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error modifying attribute: " + e);
+    }
+  }
 
   /*
    * Add a list value
@@ -591,20 +562,25 @@ abstract class Group {
     return this.queryListVals(s, qry, g.key(), list);
   }
 
-  /**
-   * Return a string representation of this object.
-   * <p />
-   * @return String representation of this object.
+  /*
+   * Number of seconds since the epoch.
    */
-  public String toString() {
-    return new ToStringBuilder(this)                            .
-      append("type"     , this.type()                         ) .
-      append("id"       , this.getGroupID()                   ) .
-      append("stem"     , this.attribute("stem").value()      ) .
-      append("extension", this.attribute("extension").value() ) .
-      toString();
+  protected String now() {
+    java.util.Date now = new java.util.Date();
+    return Long.toString(now.getTime());
   }
 
+  /*
+   * Convert a string to a date object.
+   * @return Date object.
+   */
+  protected Date string2date(String seconds) {
+    Date d = null;
+    if (seconds != null) {
+      d = new Date(Long.parseLong(seconds));
+    } 
+    return d; 
+  }
 
   /*
    * PRIVATE CLASS METHODS
@@ -731,6 +707,32 @@ abstract class Group {
       {       
         throw new RuntimeException("Error revoking naming privileges");
       }
+    }
+  }
+
+  /*
+   * Can the current subject modify attributes?
+   */
+  private void subjectCanModAttr(
+                 GrouperSession s, Group g, String attribute
+               )
+  {
+    if ((
+          (attribute.equals("displayname")) ||
+          (attribute.equals("name"))        ||
+          (attribute.equals("stem"))        ||
+          (attribute.equals("extension"))
+       ))
+    {
+      throw new RuntimeException(
+                  "Modification of " + attribute + 
+                  " is not currently allowed"
+                );
+    }
+    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+      throw new RuntimeException(
+                  "Modification requires ADMIN"
+                );
     }
   }
 

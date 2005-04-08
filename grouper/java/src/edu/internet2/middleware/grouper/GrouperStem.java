@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.30 2005-04-08 15:56:13 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.31 2005-04-08 16:22:39 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -181,7 +181,7 @@ public class GrouperStem extends Group {
                               String stem, String extension
                             )
   {
-    String key = Group.findKey(s, stem, extension, Grouper.NS_TYPE);
+    String key = Group.findKeyByStemExtnType(s, stem, extension, Grouper.NS_TYPE);
     if (key != null) {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
       return ns;
