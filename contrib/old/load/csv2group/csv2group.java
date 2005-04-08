@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.21 2005-02-07 21:07:01 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.22 2005-04-08 14:30:46 blair Exp $ 
  */
 class csv2group {
 
@@ -174,14 +174,14 @@ class csv2group {
     boolean rv = false;
     String stem = (String) tokens.get(0);
     String extn = (String) tokens.get(1);
-    GrouperGroup g = GrouperGroup.create(
-                       s, stem, extn, Grouper.DEF_GROUP_TYPE
-                     );
-    if (g != null) {
+    try {
+      GrouperGroup g = GrouperGroup.create(
+                         s, stem, extn, Grouper.DEF_GROUP_TYPE
+                       );
       _report("Added group: " + g.name());
       rv = true;
-    } else {
-      System.err.println("Failed to add group " + stem + ":" + extn);
+    } catch (RuntimeException e) {
+      System.err.println("Failed to add group " + stem + ":" + extn + ": " + e);
     }
     return rv;
   }
@@ -242,11 +242,15 @@ class csv2group {
     GrouperGroup g = GrouperGroup.load(s, stem, extn);
     if (g != null) {
       // Load the member
-      GrouperMember m = GrouperMember.load(sid, stid);
+      GrouperMember m = GrouperMember.load(s, sid, stid);
       if (m != null) {
-        if (g.listAddVal(s, m)) {
+        try {
+          g.listAddVal(m);
           rv = true;
           _report("Added member: " + name + " to " + g.name());
+        } catch (RuntimeException e) {
+          System.err.println(e);
+          rv = false;
         }
       }
     }
@@ -352,12 +356,12 @@ class csv2group {
     if (stem.equals("Grouper.NS_ROOT")) {
       stem = Grouper.NS_ROOT;
     }
-    GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
-    if (g != null) {
-      _report("Added stem: " + g.name());
+    try {
+      GrouperStem ns = GrouperStem.create(s, stem, extn);
+      _report("Added stem: " + ns.name());
       rv = true;
-    } else {
-      _report("Failed to add stem " + stem + ":" + extn);
+    } catch (RuntimeException e) {
+      _report("Failed to add stem " + stem + ":" + extn + ": " + e);
     }
     return rv;
   }
