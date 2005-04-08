@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.9 2005-02-07 21:07:01 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.10 2005-04-08 16:46:04 blair Exp $ 
  */
 class groupmgr {
 
@@ -114,16 +114,16 @@ class groupmgr {
     boolean rv = false;
     if ( (stem != null) && (extn != null) ) {
       stem = _translateRoot(stem);
-      GrouperGroup g = GrouperGroup.create(
-                         s, stem, extn, Grouper.DEF_GROUP_TYPE
-                       );
-      if (g != null) {
+      try {
+        GrouperGroup g = GrouperGroup.create(
+                           s, stem, extn, Grouper.DEF_GROUP_TYPE
+                         );
         _verbose("Added group `" + g.name() + "'");
         rv = true;
-      } else {
+      } catch (RuntimeException e) {
         System.err.println(
           "Failed to add group `" + 
-          GrouperGroup.groupName(stem, extn) + "'"
+          GrouperGroup.groupName(stem, extn) + "': " + e
         );
       }
     }
@@ -141,9 +141,12 @@ class groupmgr {
                          s, stem, extn, Grouper.DEF_GROUP_TYPE
                        );
       if (g != null) {
-        if (GrouperGroup.delete(s, g)) {
-          rv = true;
+        try {
+          GrouperGroup.delete(s, g);
           _verbose("Deleted group `" + g.name() + "'");
+          rv = true;
+        } catch (RuntimeException e) {
+          System.err.println("FUCK! " + e);
         }
       }
     }  
@@ -200,14 +203,17 @@ class groupmgr {
         stid  = Grouper.DEF_SUBJ_TYPE;
       }
       // Load the member
-      m = GrouperMember.load(sid, stid);
+      m = GrouperMember.load(s, sid, stid);
       if (m != null) {
         // Load the group
         GrouperGroup g = GrouperGroup.load(s, stem, extn);
         if (g != null) {
-          if (g.listAddVal(s, m)) {
+          try {
+            g.listAddVal(m);
             rv = true;
             _verbose("Added `" + member + "' to `" + g.name() + "'");
+          } catch (RuntimeException e) {
+            System.err.println(e);
           }
         }
       }
@@ -242,14 +248,17 @@ class groupmgr {
         stid  = Grouper.DEF_SUBJ_TYPE;
       }
       // Load the member
-      m = GrouperMember.load(sid, stid);
+      m = GrouperMember.load(s, sid, stid);
       if (m != null) {
         // Load the group
         GrouperGroup g = GrouperGroup.load(s, stem, extn);
         if (g != null) {
-          if (g.listDelVal(s, m)) {
+          try {
+            g.listDelVal(m);
             rv = true;
             _verbose("Deleted `" + member + "' from `" + g.name() + "'");
+          } catch (RuntimeException e) {
+            System.err.println(e);
           }
         }
       }
@@ -385,14 +394,14 @@ class groupmgr {
     boolean rv = false;
     if ( (stem != null) && (extn != null) ) {
       stem = _translateRoot(stem);
-      GrouperGroup g = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
-      if (g != null) {
-        _verbose("Added stem `" + g + "'");
+      try {
+        GrouperStem ns = GrouperStem.create(s, stem, extn);
+        _verbose("Added stem `" + ns + "'");
         rv = true;
-      } else {
+      } catch (RuntimeException e) {
         System.err.println(
           "Failed to add stem `" + 
-          GrouperGroup.groupName(stem, extn) + "'"
+          GrouperGroup.groupName(stem, extn) + "': " + e
         );
       }
     }
