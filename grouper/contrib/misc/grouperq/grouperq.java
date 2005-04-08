@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.14 2005-02-07 21:07:01 blair Exp $
+ * @version $Id: grouperq.java,v 1.15 2005-04-08 17:24:08 blair Exp $
  */
 class grouperq {
 
@@ -84,9 +84,9 @@ class grouperq {
     _queryOnGroup();
     _queryOnMember();
     if      ( (queryGroupName != null) && (grpQueryOn != null) ) {
-      _reportMembers( grpQueryOn.listVals(s, field) );
+      _reportMembers( grpQueryOn.listVals(field) );
     } else if ( ( querySubjectID != null) && (memQueryOn != null) ) {
-      _reportGroups( memQueryOn.listVals(s, field) );
+      _reportGroups( memQueryOn.listVals(field) );
     } else {
       System.err.println("ERROR: Unable to determine what to query on");
     }
@@ -234,14 +234,14 @@ class grouperq {
     // First try looking up the member as DEF_SUBJ_TYPE
     if (querySubjectID != null) {
       memQueryOn = GrouperMember.load(
-                     querySubjectID, Grouper.DEF_SUBJ_TYPE
+                     s, querySubjectID, Grouper.DEF_SUBJ_TYPE
                    );
       // If that doesn't resolve, attempt to look up the member as a
       // group
       if (memQueryOn == null) {
         GrouperGroup g = GrouperGroup.loadByName(s, querySubjectID);
         if (g != null) {
-          memQueryOn = GrouperMember.load(g.id(), "group");
+          memQueryOn = g.toMember();
           if (memQueryOn != null) {
             _verbose("Retrieved member '" + querySubjectID + "' as type 'group'");
           }
@@ -252,7 +252,7 @@ class grouperq {
       }
     } else {
       memQueryOn = GrouperMember.load(
-                     subjectID, Grouper.DEF_SUBJ_TYPE
+                     s, subjectID, Grouper.DEF_SUBJ_TYPE
                    );
     }
   }
@@ -267,7 +267,7 @@ class grouperq {
       String sid = m.subjectID();
       // If member is a group, attempt to fetch name
       if (m.typeID().equals("group")) {
-        GrouperGroup mAsG = GrouperGroup.loadByID(s, m.subjectID());
+        Group mAsG = m.toGroup();
         if (mAsG != null) {
           sid = mAsG.name();
         }
@@ -278,8 +278,8 @@ class grouperq {
       Iterator iter = vals.iterator();
       while (iter.hasNext()) {
         GrouperList gl  = (GrouperList) iter.next();
-        GrouperGroup g  = gl.group();
-        GrouperGroup v  = gl.via();
+        Group       g   = gl.group();
+        Group       v   = gl.via();
         if (v == null) {
           System.out.println(
             "immediateMemberOf: " + g.name() + " (" + g.type() + ")"
@@ -304,8 +304,8 @@ class grouperq {
       GrouperGroup g = grpQueryOn; // Too damn much typing otherwise
       System.out.println("name: " + g.name());
       System.out.println("type: " + g.type());
-      System.out.println("stem: " + g.attribute(s, "stem").value());
-      System.out.println("extn: " + g.attribute(s, "extension").value());
+      System.out.println("stem: " + g.attribute("stem").value());
+      System.out.println("extn: " + g.attribute("extension").value());
       System.out.println("groupID: " + g.id());
       Subject createSubj  = g.createSubject();
       Date   createDate   = g.createTime();
@@ -335,12 +335,12 @@ class grouperq {
       };
       Iterator iter = vals.iterator();
       while (iter.hasNext()) {
-        GrouperList gl  = (GrouperList) iter.next();
-        GrouperGroup v  = gl.via();
-        GrouperMember m = gl.member();
+        GrouperList   gl  = (GrouperList) iter.next();
+        Group         v   = gl.via();
+        GrouperMember m   = gl.member();
         String mem      = null;
         if (m.typeID().equals("group")) {
-          GrouperGroup gAsM = GrouperGroup.loadByID(s, m.subjectID() );
+          Group gAsM = m.toGroup();
           if (gAsM != null) {
             mem = gAsM.name() + " (" + gAsM.type() + ")";
           } 
