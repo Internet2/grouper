@@ -55,6 +55,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
@@ -62,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.16 2005-03-29 14:52:10 blair Exp $
+ * @version $Id: Group.java,v 1.17 2005-04-08 16:08:51 blair Exp $
  */
 abstract class Group {
 
@@ -588,6 +589,20 @@ abstract class Group {
   protected List listImmVals(GrouperSession s, Group g, String list) {
     String  qry   = "GrouperList.by.group.and.list.and.is.imm";
     return this.queryListVals(s, qry, g.key(), list);
+  }
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return new ToStringBuilder(this)                            .
+      append("type"     , this.type()                         ) .
+      append("id"       , this.getGroupID()                   ) .
+      append("stem"     , this.attribute("stem").value()      ) .
+      append("extension", this.attribute("extension").value() ) .
+      toString();
   }
 
 
