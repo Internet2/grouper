@@ -63,14 +63,14 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.204 2005-04-08 16:22:39 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.205 2005-04-08 17:31:01 blair Exp $
  */
 public class GrouperGroup extends Group {
 
   /*
    * PROTECTED INSTANCE VARIABLES
    */
-  private GrouperSession  s;
+  protected GrouperSession  s;
 
 
   /*
@@ -470,18 +470,6 @@ public class GrouperGroup extends Group {
   }
 
   /**
-   * Retrieve the value of the <i>name</i> attribute.
-   * <p>
-   * This is a convenience method.  The value can also be retrieved
-   * using the <i>attribute()</i> method.
-   *
-   * @return  Name of group.
-   */
-  public String name() {
-    return this.attribute("name").value();
-  }
-
-  /**
    * Retrieve {@link GrouperMember} object for this 
    * {@link GrouperGroup}.
    * </p>
@@ -504,10 +492,10 @@ public class GrouperGroup extends Group {
     return m;
   }
 
-  /**
-   * Retrieve group's type.
+  /*
+   * Retrieve group type.
    * <p />
-   * @return Type of group.
+   * @return String group type.
    */
   public String type() {
     return this.type;

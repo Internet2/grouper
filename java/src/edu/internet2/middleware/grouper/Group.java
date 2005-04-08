@@ -63,13 +63,14 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.18 2005-04-08 16:22:39 blair Exp $
+ * @version $Id: Group.java,v 1.19 2005-04-08 17:31:01 blair Exp $
  */
-abstract class Group {
+abstract public class Group {
 
   /*
    * ABSTRACT METHODS 
    */
+  abstract public    String           type();
 
   abstract protected GrouperAttribute attribute(String attribute);
   abstract protected void             attribute(String attribute, String value);
@@ -103,7 +104,6 @@ abstract class Group {
   abstract protected String           modifySource();
   abstract protected Subject          modifySubject();
   abstract protected Date             modifyTime();
-  abstract protected String           name();
   abstract protected void             setCreateSource(String createSource);
   abstract protected void             setCreateSubject(String createSubject);
   abstract protected void             setCreateTime(String createTime);
@@ -115,7 +115,6 @@ abstract class Group {
   abstract protected void             setModifySubject(String modifySubject);
   abstract protected void             setModifyTime(String modifyTime);
   abstract protected GrouperMember    toMember();
-  abstract protected String           type();
 
 
   /*
@@ -173,6 +172,18 @@ abstract class Group {
    */
 
   /**
+   * Retrieve the value of the <i>name</i> attribute.
+   * <p>
+   * This is a convenience method.  The value can also be retrieved
+   * using the <i>attribute()</i> method.
+   *
+   * @return  Name of group.
+   */
+  public String name() {
+    return this.attribute("name").value();
+  }
+
+  /**
    * Return a string representation of this object.
    * <p />
    * @return String representation of this object.
@@ -185,7 +196,6 @@ abstract class Group {
       append("extension", this.attribute("extension").value() ) .
       toString();
   }
-
 
   /*
    * PROTECTED CLASS METHODS
