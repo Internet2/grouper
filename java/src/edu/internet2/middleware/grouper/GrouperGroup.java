@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.201 2005-03-27 17:41:51 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.202 2005-04-08 15:56:13 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -653,8 +653,14 @@ public class GrouperGroup extends Group {
    */
   protected void load(GrouperSession s) {
     this.s = s;
-    this.attributes = GrouperAttribute.attributes(s, this);
-    this.initialized = true;
+    this.attributes   = GrouperAttribute.attributes(s, this);
+    GrouperSchema gs  = GrouperSchema.load(s, this.key);
+    if (gs != null) {
+      this.type = gs.type();
+    } else {
+      throw new RuntimeException("Unable to attach type to group");
+    }
+    this.initialized  = true;
   }
 
   /*
