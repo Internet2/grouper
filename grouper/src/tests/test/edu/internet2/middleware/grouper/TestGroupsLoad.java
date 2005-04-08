@@ -94,6 +94,8 @@ public class TestGroupsLoad extends TestCase {
     // Load g0
     GrouperGroup g = GrouperGroup.load(s, Constants.g0s, Constants.g0e);
     Assert.assertNotNull("g0 !null", g);
+    Assert.assertNotNull("g0 type !null", g.type());
+    Assert.assertTrue("g0 type", g0.type().equals(g.type()));
 
     s.stop();
   }
@@ -115,6 +117,8 @@ public class TestGroupsLoad extends TestCase {
     // Load g0
     GrouperGroup g = GrouperGroup.load(s, Constants.g0s, Constants.g0e, g0.type());
     Assert.assertNotNull("g0 !null", g);
+    Assert.assertNotNull("g0 type !null", g.type());
+    Assert.assertTrue("g0 type", g0.type().equals(g.type()));
 
     s.stop();
   }
@@ -136,6 +140,8 @@ public class TestGroupsLoad extends TestCase {
     // Load g0
     GrouperGroup g = (GrouperGroup) GrouperGroup.loadByID(s, g0.id());
     Assert.assertNotNull("g0 !null", g);
+    Assert.assertNotNull("g0 type !null", g.type());
+    Assert.assertTrue("g0 type", g0.type().equals(g.type()));
 
     s.stop();
   }
@@ -157,6 +163,8 @@ public class TestGroupsLoad extends TestCase {
     // Load g0
     GrouperGroup g = GrouperGroup.loadByName(s, g0.name());
     Assert.assertNotNull("g0 !null", g);
+    Assert.assertNotNull("g0 type !null", g.type());
+    Assert.assertTrue("g0 type", g0.type().equals(g.type()));
 
     s.stop();
   }
@@ -178,6 +186,8 @@ public class TestGroupsLoad extends TestCase {
     // Load g0
     GrouperGroup g = GrouperGroup.loadByName(s, g0.name(), g0.type());
     Assert.assertNotNull("g0 !null", g);
+    Assert.assertNotNull("g0 type !null", g.type());
+    Assert.assertTrue("g0 type", g0.type().equals(g.type()));
 
     s.stop();
   }

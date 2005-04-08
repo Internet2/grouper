@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.29 2005-03-29 17:32:02 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.30 2005-04-08 15:56:13 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -584,8 +584,9 @@ public class GrouperStem extends Group {
    */
   protected void load(GrouperSession s) {
     this.s = s; 
-    this.attributes = GrouperAttribute.attributes(s, this);
-    this.initialized = true;
+    this.attributes   = GrouperAttribute.attributes(s, this);
+    this.type         = Grouper.NS_TYPE;
+    this.initialized  = true;
   }
 
   /*
