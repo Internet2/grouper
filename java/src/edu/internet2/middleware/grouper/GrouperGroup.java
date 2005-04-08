@@ -51,11 +51,11 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
-import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.202 2005-04-08 15:56:13 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.203 2005-04-08 16:08:51 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -470,6 +470,18 @@ public class GrouperGroup extends Group {
   }
 
   /**
+   * Retrieve the value of the <i>name</i> attribute.
+   * <p>
+   * This is a convenience method.  The value can also be retrieved
+   * using the <i>attribute()</i> method.
+   *
+   * @return  Name of group.
+   */
+  public String name() {
+    return this.attribute("name").value();
+  }
+
+  /**
    * Retrieve {@link GrouperMember} object for this 
    * {@link GrouperGroup}.
    * </p>
@@ -557,6 +569,32 @@ public class GrouperGroup extends Group {
   }
 
   /*
+   * Return group key.
+   * <p >
+   * FIXME Can I eventually make this private?
+   *
+   * @return Group key of the {@link GrouperGroup}
+   */
+  protected String key() {
+    return this.getGroupKey();
+  }
+
+  /*
+   * Flesh out the group a bit.
+   */
+  protected void load(GrouperSession s) {
+    this.s = s;
+    this.attributes   = GrouperAttribute.attributes(s, this);
+    GrouperSchema gs  = GrouperSchema.load(s, this.key);
+    if (gs != null) {
+      this.type = gs.type();
+    } else {
+      throw new RuntimeException("Unable to attach type to group");
+    }
+    this.initialized  = true;
+  }
+
+  /*
    * Set create* attributes.
    */
   protected void setCreated() {
@@ -601,77 +639,6 @@ public class GrouperGroup extends Group {
     if (!rv) {
       throw new RuntimeException("Error granting ADMIN to " + m);  
     } 
-  }
-
-
-  /*
-   * ALLES IST GEFUCKT
-   */
-
-
-  protected void type(String type) {
-    this.type = type;
-  }
-
-  /**
-   * Retrieve the <i>name</i> attribute.
-   * <p>
-   * This is a convenience method.  The value can also be retrieved
-   * using the <i>attribute()</i> method.
-   *
-   * @return  Name of group.
-   */
-  public String name() {
-    // TODO This isn't right
-    String name = null;
-    if (this.attribute("name") != null) {
-      name = this.attribute("name").value();
-    }
-    return name;
-    //return this.attribute("name").value();
-  }
-
-  /**
-   * Return a string representation of this object.
-   * <p />
-   * @return String representation of this object.
-   */
-  public String toString() {
-    // TODO GrouperAttribute stem = (GrouperAttribute) this.attributes.get("stem");
-    // TODO GrouperAttribute extn = (GrouperAttribute) this.attributes.get("extn");
-    return new ToStringBuilder(this)          .
-      append("type"     , this.type()       ) .
-      append("id"       , this.getGroupID() ) .
-      // TODO append("stem"     , stemVal           ) .
-      // TODO append("extension", extnVal           ) .
-      toString();
-  }
-
-
-  /*
-   * Flesh out the group a bit.
-   */
-  protected void load(GrouperSession s) {
-    this.s = s;
-    this.attributes   = GrouperAttribute.attributes(s, this);
-    GrouperSchema gs  = GrouperSchema.load(s, this.key);
-    if (gs != null) {
-      this.type = gs.type();
-    } else {
-      throw new RuntimeException("Unable to attach type to group");
-    }
-    this.initialized  = true;
-  }
-
-  /*
-   * Return group key.
-   * <p >
-   * FIXME Can I eventually make this private?
-   *
-   * @return Group key of the {@link GrouperGroup}
-   */
-  protected String key() {
-    return this.getGroupKey();
   }
 
 
