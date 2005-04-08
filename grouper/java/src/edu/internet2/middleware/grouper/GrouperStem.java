@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.31 2005-04-08 16:22:39 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.32 2005-04-08 17:31:01 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -501,27 +501,14 @@ public class GrouperStem extends Group {
     return m;
   }
 
-  /**
-   * Retrieve the value of the <i>name</i> attribute.
-   * <p>
-   * This is a convenience method.  The value can also be retrieved
-   * using the <i>attribute()</i> method.
-   *
-   * @return  Name of group.
-   */
-  public String name() {
-    return this.attribute("name").value();
-  }
-
-  /**
-   * Retrieve namespace's type.
+  /*
+   * Retrieve stem type.
    * <p />
-   * @return Type of namespace.
+   * @return String stem type.
    */
   public String type() {
     return this.type;
   }
-
 
   /*
    * PROTECTED CLASS METHODS
