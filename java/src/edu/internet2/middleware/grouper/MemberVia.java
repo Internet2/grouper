@@ -66,16 +66,17 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.11 2005-03-29 16:03:02 blair Exp $
+ * @version $Id: MemberVia.java,v 1.12 2005-04-11 01:44:38 blair Exp $
  */
 public class MemberVia implements Serializable {
 
   /*
    * PRIVATE INSTANCE VARIABLES
    */
-  private String  chainKey;
-  private int     chainIdx;
-  private String  listKey;
+  private transient GrouperList gl;
+  private           String      chainKey;
+  private           int         chainIdx;
+  private           String      listKey;
 
 
   /*
@@ -88,7 +89,8 @@ public class MemberVia implements Serializable {
 
   protected MemberVia(GrouperList gl) {
     // TODO Try to load?  If not, save chainKey setting for later.
-    this.listKey = gl.key();
+    this.gl       = gl;
+    this.listKey  = gl.key();
   }
 
 
@@ -116,6 +118,34 @@ public class MemberVia implements Serializable {
   public int hashCode() {
      return HashCodeBuilder.reflectionHashCode(this);
    }
+
+  /**
+   * Return the corresponding {@link GrouperList} object for this chain
+   * element.
+   * </p >
+   * @param   s   Load the list within this session.
+   * @return  {@link GrouperList} object.
+   */
+  public GrouperList toList(GrouperSession s) {
+    GrouperList gl = null;
+    if (this.gl != null) {
+      gl = this.gl;
+    } else {
+      try {
+        gl = (GrouperList) s.dbSess().session().get(
+                             GrouperList.class, this.getListKey()
+                         );
+        if (gl != null) {
+          gl.load(s);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error converting MemberVia to list: " + e
+                  ); 
+      }
+    }
+    return gl;
+  }
 
   /**
    * Return a string representation of this object.
@@ -223,24 +253,6 @@ public class MemberVia implements Serializable {
                   "Error saving chain element " + this + ": " + e
                 );
     }   
-  }
-
-  /*
-   * Return this object's corresponding {@link GrouperList} object.
-   */
-  protected GrouperList toList(GrouperSession s) {
-    GrouperList gl = null;
-    try {
-      gl = (GrouperList) s.dbSess().session().get(
-                           GrouperList.class, this.getListKey()
-                         );
-      gl.load(s);
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Error converting MemberVia to list: " + e
-                ); 
-    }
-    return gl;
   }
 
 
