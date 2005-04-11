@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.11 2005-03-29 20:40:58 blair Exp $
+ * @version $Id: MemberOf.java,v 1.12 2005-04-11 02:01:49 blair Exp $
  */
 public class MemberOf {
 
@@ -99,6 +99,8 @@ public class MemberOf {
    */
   public List memberOf(GrouperList gl) {
     List vals = new ArrayList();
+    List effs = new ArrayList(); // TODO What am I trying to accomplish?
+
     // Ensure that the grouper list is properly loaded
     gl.load(this.s); // TODO Argh!
 
@@ -110,16 +112,16 @@ public class MemberOf {
     List isMem = m.listVals( gl.groupField() );
 
     // Add m to groups where g is a member
-    vals.addAll( this._addWhereIsMem(gl, isMem) );
+    effs.addAll( this._addWhereIsMem(gl, isMem) );
 
     // If m is a group...
     if (gl.member().typeID().equals("group")) {
       // ...add additional list values
-      vals.addAll( this._addHasMembers(gl, isMem) );
+      effs.addAll( this._addHasMembers(gl, isMem) );
     }
 
     // Save the chains
-    vals = this._saveChains(vals);
+    vals.addAll( this._saveChains(effs) );
 
     return vals;
   }
@@ -144,14 +146,18 @@ public class MemberOf {
       GrouperList glM = (GrouperList) hasIter.next();
       glM.load(this.s);
       List chain = new ArrayList();
-      chain.addAll( glM.chain() );     // m's via chain...
-      chain.add( new MemberVia(glM) ); // plus m
+
+      // TODO Is this correct?  More tests needed.
+      chain.addAll( glM.chain() );    // Add the chain leading to m
+      chain.add( new MemberVia(gl) ); // Add gl
+
       // Add m's members to g
       vals.add(
         new GrouperList(
               this.s, gl.group(), glM.member(), gl.groupField(), chain
             )
         );
+
       // And now add to where g is a member
       vals.addAll( this._addWhereIsMem(glM, isMem) );
     }
@@ -171,9 +177,15 @@ public class MemberOf {
       GrouperList glM = (GrouperList) iter.next();
       glM.load(this.s);
       List chain = new ArrayList();
-      chain.add( new MemberVia(glM) );  // m's via chain...
-      chain.addAll( glM.chain() );      // plus g's chain
-        // Add m to where g is a member
+
+      // TODO Is this correct?  More tests needed.
+      chain.addAll( gl.chain() );   // Add the chain leading to gl
+      if (glM.member().typeID().equals("group")) {
+        chain.add( new MemberVia(glM) );  // Add g's mship
+      }
+      chain.addAll( glM.chain() );  // Add the chain leading to g's mship
+        
+      // Add m to where g is a member
       vals.add(
         new GrouperList(
               this.s, glM.group(), gl.member(), gl.groupField(), chain
