@@ -133,6 +133,12 @@ public class TestGroupsMoFAdd2 extends TestCase {
     Assert.assertTrue(
       "g0 eff members == 0", g0.listEffVals("members").size() == 0
     );
+    Iterator iter0I = g0.listImmVals().iterator();
+    while (iter0I.hasNext()) {
+      GrouperList lv = (GrouperList) iter0I.next();
+      Assert.assertTrue("g0 empty chain", lv.chain().size() == 0);
+      Assert.assertNull("g0 null via", lv.via());
+    }
 
     // Now inspect g1's, resulting list values
     Assert.assertTrue(
@@ -144,6 +150,20 @@ public class TestGroupsMoFAdd2 extends TestCase {
     Assert.assertTrue(
       "g1 eff members == 1", g1.listEffVals("members").size() == 1
     );
+    Iterator iter1I = g1.listImmVals().iterator();
+    while (iter1I.hasNext()) {
+      GrouperList lv = (GrouperList) iter1I.next();
+      Assert.assertTrue("g1 empty chain", lv.chain().size() == 0);
+      Assert.assertNull("g1 null via", lv.via());
+    }
+    Iterator iter1E = g1.listEffVals().iterator();
+    while (iter1E.hasNext()) {
+      GrouperList lv = (GrouperList) iter1E.next();
+      Assert.assertTrue("g1  chain == 1", lv.chain().size() == 1);
+      Assert.assertNotNull("g1 !null via", lv.via());
+      Assert.assertEquals("g1 member() == m0", m0, lv.member());
+      Assert.assertEquals("g1 via() == g0", g0, lv.via());
+    }
 
     s.stop();
   }

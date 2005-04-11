@@ -152,11 +152,13 @@ public class TestGroupsMoFAdd10 extends TestCase {
     while (iterAI.hasNext()) {
       GrouperList lv = (GrouperList) iterAI.next();
       Assert.assertTrue("gA empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gA null via", lv.via());
     }
     Iterator iterAE = gA.listEffVals("members").iterator();
     while (iterAE.hasNext()) {
       GrouperList lv = (GrouperList) iterAE.next();
       Assert.assertTrue("gA !empty chain", lv.chain().size() > 0);
+      Assert.assertNotNull("gA !null via", lv.via());
     }
 
     // Now inspect gB's, resulting list values
@@ -173,11 +175,13 @@ public class TestGroupsMoFAdd10 extends TestCase {
     while (iterBI.hasNext()) {
       GrouperList lv = (GrouperList) iterBI.next();
       Assert.assertTrue("gB empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gB null via", lv.via());
     }
     Iterator iterBE = gB.listEffVals("members").iterator();
     while (iterBE.hasNext()) {
       GrouperList lv = (GrouperList) iterBE.next();
       Assert.assertTrue("gB !empty chain", lv.chain().size() > 0);
+      Assert.assertNotNull("gB !null via", lv.via());
     }
 
     // Now inspect gC's, resulting list values
@@ -194,11 +198,13 @@ public class TestGroupsMoFAdd10 extends TestCase {
     while (iterCI.hasNext()) {
       GrouperList lv = (GrouperList) iterCI.next();
       Assert.assertTrue("gC empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gC null via", lv.via());
     }
     Iterator iterCE = gC.listEffVals("members").iterator();
     while (iterCE.hasNext()) {
       GrouperList lv = (GrouperList) iterCE.next();
       Assert.assertTrue("gC !empty chain", lv.chain().size() > 0);
+      Assert.assertNotNull("gC !null via", lv.via());
     }
 
     s.stop();
