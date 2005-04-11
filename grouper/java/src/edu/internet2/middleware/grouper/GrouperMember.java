@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.73 2005-03-29 17:32:02 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.74 2005-04-11 01:40:15 blair Exp $
  */
 public class GrouperMember {
 
@@ -311,10 +311,15 @@ public class GrouperMember {
    * @return String representation of this object.
    */
   public String toString() {
+    String subjID = this.getSubjectID();
+    if (this.getSubjectTypeID().equals("group")) {
+      Group g = Group.loadByID(this.s, subjID);
+      subjID = g.name();
+    }
     return new ToStringBuilder(this)                    .
       append("memberID"     , this.getMemberID()      ) .
+      append("subjectID"    , subjID                  ) .
       append("subjectTypeID", this.getSubjectTypeID() ) .
-      append("subjectID"    , this.getSubjectID()     ) .
       toString();
   }
 
