@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.7 2005-02-25 22:07:57 jvine Exp $
-   $Date: 2005-02-25 22:07:57 $
+   $Id: signet.css,v 1.8 2005-04-11 18:06:01 jvine Exp $
+   $Date: 2005-04-11 18:06:01 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1, see doc/license.txt in this distribution.
@@ -396,6 +396,9 @@ ol {
 }
 .dropback {
 	color: #666;
+}
+.error {
+	color: #CC0000;
 }
 .findperson {
 	text-decoration: none;
