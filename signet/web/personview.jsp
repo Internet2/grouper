@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.20 2005-04-07 20:30:15 acohen Exp $
-  $Date: 2005-04-07 20:30:15 $
+  $Id: personview.jsp,v 1.21 2005-04-11 22:40:39 acohen Exp $
+  $Date: 2005-04-11 22:40:39 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,8 +19,24 @@
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 </head>
 
-<body>
+<body onLoad="javascript:initRevokeAllCheckbox();">
   <script type="text/javascript">
+    function initRevokeAllCheckbox()
+    {
+      // If there are no revocable Assignments on this page, then it makes
+      // no sense to have the "revoke all" checkbox enabled.
+      var theCheckAllBox = document.checkform.checkAll;
+      
+      if (selectableCount() > 0)
+      {
+        theCheckAllBox.disabled = false;
+      }
+      else
+      {
+        theCheckAllBox.disabled = true;
+      }
+    }
+    
     function selectThis(isChecked)
     {
       var theCheckAllBox = document.checkform.checkAll;
@@ -73,6 +89,24 @@
         if ((theForm.elements[i].name != 'checkAll')
             && (theForm.elements[i].type == 'checkbox')
             && (theForm.elements[i].checked == true))
+        {
+          count++;
+        }
+      }
+      
+      return count;
+    }
+    
+    function selectableCount()
+    {
+      var theForm = document.checkform;
+      var count = 0;
+      
+      for (var i = 0; i < theForm.elements.length; i++)
+      {
+        if ((theForm.elements[i].name != 'checkAll')
+            && (theForm.elements[i].type == 'checkbox')
+            && (theForm.elements[i].disabled == false))
         {
           count++;
         }
