@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.54 2005-03-29 20:53:36 blair Exp $
+ * @version $Id: GrouperList.java,v 1.55 2005-04-11 01:39:15 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -129,7 +129,7 @@ public class GrouperList implements Serializable {
   }
 
   /*
-   * Create a new {@link GrouperList} object.
+   * Create a new {@link GrouperList} object for an effective mship.
    */
   protected GrouperList(
               GrouperSession s, Group g, GrouperMember m, 
@@ -137,13 +137,27 @@ public class GrouperList implements Serializable {
             ) 
   {
     this(g, m, list);
-    this.elements = chain;
+    // TODO Is this right?
+    if (chain.size() < 1) {
+      throw new RuntimeException(
+                  "Cannot create eff mship with empty chain"
+                );
+    }
     if (chain.size() > 0) {
       MemberVia   mv = (MemberVia) chain.get(0);
       GrouperList gl = (GrouperList) mv.toList(s);
-      this.via    = gl.group();
-      this.viaKey = gl.group().key();
+      // TODO This does no good in a constructor.  Make this method a
+      // static creator method?
+      if (!gl.member().typeID().equals("group")) {
+        throw new RuntimeException(
+          "An effective membership must only contain groups as members"
+        );
+      }
+      this.elements = chain;
+      this.via      = gl.member().toGroup();
+      this.viaKey   = gl.member().toGroup().key();
     }
+    GrouperList.validate(this);
   }
 
 
@@ -295,6 +309,7 @@ public class GrouperList implements Serializable {
    * Save a {@link GrouperList} object to the groups registry.
    */
   protected static void save(GrouperSession s, GrouperList gl) {
+    GrouperList.validate(gl);
     if (gl.getListKey() == null) {
       gl.setListKey( new GrouperUUID().toString() );
     }
@@ -320,6 +335,16 @@ public class GrouperList implements Serializable {
     }
     if (gl.groupField() == null) {
       throw new RuntimeException("list field is null");
+    }
+    if ( (gl.chain().size() > 0) && (gl.via() == null) ) {
+      throw new RuntimeException(
+        "list has via chain but no via group"
+      );
+    }
+    if ( (gl.chain().size() == 0) && (gl.via() != null) ) {
+      throw new RuntimeException(
+        "list has via group but no via chain"
+      );
     }
   }
 
@@ -392,8 +417,17 @@ public class GrouperList implements Serializable {
    * @return String representation of this object.
    */
   public String toString() {
-    // TODO Add more information.
-    return new ToStringBuilder(this).toString();
+    String via    = ""; 
+    if (this.via() != null) {
+      via = this.via().name();
+    }
+    return new ToStringBuilder(this)          .
+      append("group",   this.group().name() ) .
+      append("field",   this.groupField()   ) . 
+      append("member",  this.member()       ) .
+      append("chain",   this.chain().size() ) .
+      append("via",     via                 ) .
+      toString();
   }
 
   /**
