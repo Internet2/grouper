@@ -1,0 +1,137 @@
+<html>
+<head>
+  <title>Grouper 0.5.5 Implementation Guide</title>
+  <style>
+<!--
+#table {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+#td {
+  padding: 3px;
+}
+#title {
+  text-align: center;
+}
+-->
+  </style>
+</head>
+<body>
+<div id="summary">
+grouper-0.5.5-impl-guide-01.html<br />
+10 April 2005
+</div>
+<div id="title">
+<h2>Grouper 0.5.5 Implementation Guide</h2>
+</div>
+<div id="body">
+<p>
+This guide will help you to build and operate Grouper 0.5.5. As this is
+the initial release and there is as yet no previous experience with
+Grouper implementation, even by its developers, the initial form of
+this guide is far from a comprehensive treatment of the topic. Our
+strategy is to bootstrap the documentation process by providing enough
+information to enable early adopters to get going and subsequently
+contribute to the enhancement of this document by their experiences.
+</p>
+<p>
+Along with obtaining Grouper 0.5.5 (see the MACE-Dir-Groups website
+<a href="http://middleware.internet2.edu/dir/groups">&lt;http://middleware.internet2.edu/dir/groups/&gt;</a>
+for instructions), adopters should join the grouper-users at internet2
+dot edu and possibly the grouper-dev at internet2 dot edu mailists
+for collective self-help with implementation and to discuss ideas
+for further development of Grouper.  Instructions for joining these
+lists are also on the MACE-Dir-Groups website.
+</p>
+<div id="section">
+<h3>1. Introduction To Grouper 0.5.5</h3>
+</div>
+<p>
+Grouper 0.5.5 provides an API supporting basic groups management
+capabilities - creation, update, and removal of groups from a Groups
+Registry, subgroups, limited querying capabilities, and logging. It
+also includes sample programs illustrating how to load data into and
+extract data from the Groups Registry.
+</p>
+<p>
+In <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>
+the <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components &amp; architecture section</a>
+depicts the major components of Grouper and their relation to
+elements of an implementation site's existing identity management
+infrastructure. Those components are an API, a relational database
+called the Groups Registry, a set of aging tasks, and one or more
+user interfaces for managing groups. Grouper 0.5.5 is comprised of
+an alpha release of the API and procedures to create the Groups
+Registry within an HSQLDB database. The user interface, aging tasks,
+and some substantial elements of API functionality are slated for
+future release according to the following table.
+</p>
+<table id="table" align="center" border="1">
+<th>Version</th>
+<th>Description</th>
+<tr>
+  <td id="td">0.5</td>
+  <td id="td">initial API release, Phase 1 specifications implemented (basic
+    group management by automation processes)</td>
+</tr>
+<tr>
+  <td id="td">0.6</td>
+  <td id="td">initial UI release, supporting Phase 1 functionality</td>
+</tr>
+<tr>
+  <td id="td">0.7</td>
+  <td id="td">API meeting Phase 2 specs (group math &amp; signet
+    integration)</td>
+</tr>
+<tr>
+  <td id="td">0.8</td>
+  <td id="td">UI supporting Phase 2 functionality</td>
+</tr>
+<tr>
+  <td id="td">0.9</td>
+  <td id="td">API meeting Phase 3 specs (aging of groups and of memberships)</td>
+</tr>
+<tr>
+  <td id="td">1.0</td>
+  <td id="td">UI supporting Phase 3 functionality</td>
+</tr>
+</table>
+</div>
+<p>
+In section 2 of this document we'll start by describing how to
+build, configure, and install the API and Groups Registry. We'll
+lay out Grouper's information and privilege models in section 3 and
+consider how they may integrate with existing identifier namespaces and
+extend existing identity management practices. In section 4 we'll
+consider, at a functional level, how Grouper may be made to articulate
+with an existing infrastructure.
+</p
+<p>
+In addition to this Implementation Guide, the Grouper 0.5.5 distribution
+contains javadoc and other germinal guides for developers (i.e., good
+intention outweighs substance at the moment). All of these are found in
+the doc/ directory of the distribution, which also contains a file
+called NEWS that lists features in 0.5.5, those that are slated for a
+future release, and known problems with 0.5.5. If this document and the
+NEWS file appear to be in conflict on any point, the NEWS file should
+be considered authoritative.
+</p>
+<p>
+Perhaps the best source of API usage guidelines for developers at the
+moment is the set of contributed programs and the suite of test
+programs included with the distribution. They exercise many functional
+aspects of the API, and the latter serve as the benchmark by which to
+assess that a Grouper installation is working properly.
+</p>
+<p>
+"Grouper Phase 1 Specifications" contains an Entity Relationship
+Diagram for an early form of the Groups Registry schema. An ERD of the
+schema deployed in Grouper 0.5.5 can be found 
+<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD4.4.gif">here</a>.
+</p>
+<p>
+In the rest of this document <i>italics</i> are used when introducing or
+defining terms and for file, method, class, and table names.
+</p>
+</body>
+</html>
