@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.12 2005-04-11 01:44:38 blair Exp $
+ * @version $Id: MemberVia.java,v 1.13 2005-04-11 01:49:20 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -137,6 +137,7 @@ public class MemberVia implements Serializable {
                          );
         if (gl != null) {
           gl.load(s);
+          this.gl = gl;
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
