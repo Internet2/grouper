@@ -28,32 +28,33 @@ grouper-0.5.5-impl-guide-01.html<br />
 </div>
 <div id="body">
 <p>
-This guide will help you to build and operate Grouper 0.5.5. As this is
-the initial release and there is as yet no previous experience with
-Grouper implementation, even by its developers, the initial form of
-this guide is far from a comprehensive treatment of the topic. Our
-strategy is to bootstrap the documentation process by providing enough
-information to enable early adopters to get going and subsequently
-contribute to the enhancement of this document by their experiences.
+This guide will help you to build and operate Grouper 0.5.5.  As
+Grouper is still early in its development cycle, there is little
+practical implementation experience and thus this guide is far from a
+comprehensive treatment of the topic.  Our strategy is to bootstrap
+the documentation process by providing enough information for early
+adopters to begin using Grouper and to subsequently contribute to the
+enhancement of this document by their experiences.
 </p>
 <p>
 Along with obtaining Grouper 0.5.5 (see the MACE-Dir-Groups website
 <a href="http://middleware.internet2.edu/dir/groups">&lt;http://middleware.internet2.edu/dir/groups/&gt;</a>
 for instructions), adopters should join the grouper-users at internet2
-dot edu and possibly the grouper-dev at internet2 dot edu mailists
+dot edu and possibly the grouper-dev at internet2 dot edu mailing lists
 for collective self-help with implementation and to discuss ideas
 for further development of Grouper.  Instructions for joining these
 lists are also on the MACE-Dir-Groups website.
 </p>
 <div id="section">
+<a name="section_1"/>
 <h3>1. Introduction To Grouper 0.5.5</h3>
 </div>
 <p>
 Grouper 0.5.5 provides an API supporting basic groups management
 capabilities - creation, update, and removal of groups from a Groups
-Registry, subgroups, limited querying capabilities, and logging. It
-also includes sample programs illustrating how to load data into and
-extract data from the Groups Registry.
+Registry; subgroups; limited querying capabilities and basic logging.
+It also includes sample programs illustrating how to load data into
+and extract data from the Groups Registry.
 </p>
 <p>
 In <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>
@@ -68,96 +69,112 @@ Registry within an HSQLDB database. The user interface, aging tasks,
 and some substantial elements of API functionality are slated for
 future release according to the following table.
 </p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th>Version</th>
 <th>Description</th>
 <tr>
   <td id="td">0.5</td>
-  <td id="td">initial API release, Phase 1 specifications implemented (basic
-    group management by automation processes)</td>
+  <td id="td">Initial API release providing a subset of the Phase 1
+    Specification: basic group management by automation processes</td>
+</tr>
+<tr>
+  <td id="td">0.5.5</td>
+  <td id="td">API maintenance release</td>
 </tr>
 <tr>
   <td id="td">0.6</td>
-  <td id="td">initial UI release, supporting Phase 1 functionality</td>
+  <td id="td">Initial UI release supporting Phase 1 Specification</td>
 </tr>
 <tr>
   <td id="td">0.7</td>
-  <td id="td">API meeting Phase 2 specs (group math &amp; signet
-    integration)</td>
+  <td id="td">API release that meets Phase 2 Specification: group math
+    and Signet integration)</td>
 </tr>
 <tr>
   <td id="td">0.8</td>
-  <td id="td">UI supporting Phase 2 functionality</td>
+  <td id="td">UI release supporting Phase 2 Specification</td>
 </tr>
 <tr>
   <td id="td">0.9</td>
-  <td id="td">API meeting Phase 3 specs (aging of groups and of memberships)</td>
+  <td id="td">API release supporting Phase 3 Specification: group and
+    membership aging</td>
 </tr>
 <tr>
   <td id="td">1.0</td>
-  <td id="td">UI supporting Phase 3 functionality</td>
+  <td id="td">UI supporting Phase 3 Specification</td>
 </tr>
 </table>
 </div>
 <p>
-In section 2 of this document we'll start by describing how to
-build, configure, and install the API and Groups Registry. We'll
-lay out Grouper's information and privilege models in section 3 and
-consider how they may integrate with existing identifier namespaces and
-extend existing identity management practices. In section 4 we'll
-consider, at a functional level, how Grouper may be made to articulate
-with an existing infrastructure.
+In <a href="#section_2">section 2</a> of this document we'll start
+by describing how to build, configure and install the API and
+Groups Registry.  <a href="#section_3">Section 3</a> describes
+Grouper's information and privilege models and how they may integrate
+with existing identifier namespaces and extend existing identity
+management practices.  <a href="#section_4">Section 4</a> describes, on
+a functional level, how Grouper may be made to articulate with an
+existing infrastructure.
 </p
 <p>
 In addition to this Implementation Guide, the Grouper 0.5.5 distribution
 contains javadoc and other germinal guides for developers (i.e., good
 intention outweighs substance at the moment). All of these are found in
-the doc/ directory of the distribution, which also contains a file
-called NEWS that lists features in 0.5.5, those that are slated for a
+the <i>doc/</i> directory of the distribution, which also contains a file
+called <i>NEWS</i> that lists features in 0.5.5, those that are slated for a
 future release, and known problems with 0.5.5. If this document and the
-NEWS file appear to be in conflict on any point, the NEWS file should
-be considered authoritative.
+<i>NEWS</i> file appear to be in conflict on any point, the <i>NEWS</i>
+file should be considered authoritative.
 </p>
 <p>
-Perhaps the best source of API usage guidelines for developers at the
-moment is the set of contributed programs and the suite of test
-programs included with the distribution. They exercise many functional
-aspects of the API, and the latter serve as the benchmark by which to
-assess that a Grouper installation is working properly.
+The best source of API usage guidelines for developers at this time is
+the set of contributed programs and Grouper's test suite, both of which
+are included with the distribution.  They exercise many functional
+aspects of the API and the latter serves as a means of assessing that a
+Grouper installation is working properly.
 </p>
 <p>
-"Grouper Phase 1 Specifications" contains an Entity Relationship
-Diagram for an early form of the Groups Registry schema. An ERD of the
-schema deployed in Grouper 0.5.5 can be found 
+<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>
+contains an Entity Relationship Diagram for an early form of the
+Groups Registry schema. An ERD of the schema deployed in Grouper
+0.5.5 can be found
 <a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD4.4.gif">here</a>.
 </p>
+<div id="subsection">
+<a name="section_1.1"/>
+<h3>1.1 Typographical Conventions</h3>
 <p>
-In the rest of this document <i>italics</i> are used when introducing or
-defining terms and for file, method, class, and table names.
+The following typographical conventions are used throughout this
+document:
+<ul>
+  <li>When defining terms or referring to file, class, method and table
+    names <i>italics</i> will be used.</li>
+  <li>All forms of system-level text and any commands that you must
+    run are set in a <tt>fixed-space font</tt>.</li>
+</ul>
 </p>
 <div id="section">
+<a name="section_2"/>
 <h3>2. Building Grouper 0.5.5</h3>
 <p>
 The top-level directory of the unpacked Grouper 0.5.5 distribution
 contains the following directories and files:
 </p>
 <p>
-<table id="table" align="center" border="0">
+<table id="table" align="center" border="0" width="75%">
 <tr>
   <td id="td"><i>conf/</i></td>
   <td id="td">&nbsp;</td>
-  <td id="td">various configuration files for Grouper and 3rd party
-    components</td>
+  <td id="td">Configuration files for Grouper and third party components</td>
 </tr>
 <tr>
   <td id="td"><i>contrib/</i></td>
   <td id="td">&nbsp;</td>
-  <td id="td">contributed software</td>
+  <td id="td">Contributed software</td>
 </tr>
 <tr>
   <td id="td"><i>doc/</i></td>
   <td id="td">&nbsp;</td>
-  <td id="td">nascent document repository</td>
+  <td id="td">Grouper documentation</td>
 </tr>
 <tr>
   <td id="td">&nbsp;</td>
@@ -172,232 +189,225 @@ contains the following directories and files:
 <tr>
   <td id="td">&nbsp;</td>
   <td id="td"><i>lib/</i></td>
-  <td id="td">3rd party jar files that grouper depends on</td>
+  <td id="td">Third party .jar files required by Grouper</td>
 </tr>
 <tr>
   <td id="td">&nbsp;</td>
   <td id="td"><i>src/</i></td>
-  <td id="td">source for Grouper 0.5.5</td>
+  <td id="td">Grouper source code</td>
 </tr>
 <tr>
   <td id="td">&nbsp;</td>
   <td id="td"><i>tests/</i>
-  <td id="td">test programs</td>
+  <td id="td">Grouper test suite source code</td>
 </tr>
 <tr>
   <td id="td"><i>sql/</i></td>
   <td id="td">&nbsp;</td>
-  <td id="td">sql scripts for creating, initializing, and testing the
+  <td id="td">SQL scripts for creating, initializing and testing the
     Groups Registry</td>
 </tr>
 <tr>
   <td id="td"><i>LICENSE</i></td>
   <td id="td">&nbsp;</td>
-  <td id="td">license under which Grouper 0.5.5 may be used</td>
+  <td id="td">License under which Grouper may be used</td>
 </tr>
 <tr>
   <td id="td"><i>build.xml</i></td>
   <td id="td">&nbsp;</td>
-  <td id="td">ant configuration file</td>
+  <td id="td">Ant configuration file</td>
 </tr>
 </table>
 </p>
 <p>
-The file <i>java/lib/README</i> lists the 3rd party software used by Grouper
-0.5.5 and identifies the version, source, and license for each. README
+The file <i>java/lib/README</i> lists the third party software used by Grouper
+and identifies the version, source, and license for each.  README
 files occur here and there - you should read them!
 </p>
 <p>
-We'll use the symbol "<i>$GROUPER_BASE</i>" below to refer to the top
-level directory of your Grouper distribution.
+We'll use the symbol <i>$GROUPER_BASE</i> throughout this document to
+refer to the top level of your Grouper distribution.
 </p>
 <div id="subsection">
+<a name="section_2.1"/>
 <h4>2.1 Build Instructions</h4>
 </div>
+<p>
 <ol>
-  <li>Get the latest Java SDK (from 
-    <a href="http://java.sun.com/j2se">&lt;http://java.sun.com/j2se&gt;</a>).
-    The JRE alone is not sufficient.</li>
-  <li><p>Get ant (from 
-    <a href="http://ant.apache.org/">&lt;http://ant.apache.org&gt;</a>).</p>
-    <p>Directions for installing ant are in the unpacked distribution
+  <li><p>Get the Java SDK.</p>
+    <p>The SDK may be downloaded from <a href="http://java.sun.com/j2se/">&lt;http://java.sun.com/j2se/&gt;</a>.
+    The JRE alone is not sufficient.</p></li>
+  <li><p>Get Ant</p>
+    <p>Ant may be downloaded from <a href="http://ant.apache.org/">&lt;http://ant.apache.org&gt;</a>.</p>
+    <p>Directions for installing Ant are in the unpacked distribution
     at <i>docs/manual/install.html#installing</i>. You may need to
     copy <i>tools.jar</i> from <i>$JAVA_HOME/lib</i> to
     <i>$ANT_HOME/lib</i> to get ant working properly.</p></li>
-  <li>Change directory to the root of the unpacked Grouper 0.5.5
-    distribution.</li>
-  <li><p>Do "ant build".</p>
-    <p>This will compile grouper and place the class files under
+  <li>Change directory to <i>$GROUPER_BASE</i>.</li>
+  <li><p><tt>ant build</tt></p>
+    <p>This will compile Grouper and place the class files under
     the <i>$GROUPER_BASE/build</i> directory.</p></li>
-  <li>Do "ant db-init db-init-test" to create and test the Groups
-    Registry in the HSQLDB database provided. The database is created
-    in the <i>$GROUPER_BASE/dist/run/</i> directory.
-  <ol>
-    <li>A "HSQL Database Manager" window will pop up with some
-      commands preloaded. Press "Execute", wait for the result, then
-      exit the HSQL Database Manager.</li>
-    <li>A second HSQL Database Manager window will pop up with some
-      more commands preloaded, but this time you'll see a list of
-      tables in the Grouper Registry in the left-hand pane of the
-      window. Press "Execute". At this point the Groups Registry
-      has been seeded with definitions of the "base" and "naming"
-      group types (in the <i>grouper_type</i>, <i>grouper_type_def</i>,
-      and <i>grouper_field</i> tables) and the "GrouperSystem"
-      subject has been created in the grouper_subject table.  You
-      can execute select statements to see these, just for fun.
-      Exit the HSQL Database Manager when you're done.</li>
-    <li>A third HSQL Database Manager window will pop up with yet more
-      commands preloaded. These will test that the HSQLDB instance
-      is in fact working by entering a few test values into the
-      grouper_subject table.  Press the "Execute" button. Exit the
-      HSQL Database Manager when you're done.</li>
-  </ol>
-  <li><p>Do "ant test". This compiles and runs a suite of test
-    programs that exercise the API to ensure that all's well. The
-    testing log is in the <i>$GROUPER_BASE/dist/run/</i>
-    directory.</p>
-    <p>At any point you can run "ant db" in the <i>$GROUPER_BASE</i> directory
-    to fire up the HSQL Database Manager app to look at what's in
-    the Groups Registry. You'll have full access to the database
-    when you do.</p></li>
-  <li>Do "ant dist" to create two jar files containing all of
-    Grouper's components and the 3rd party libraries on which it
-    depends, located in <i>$GROUPER_BASE/dist/lib</i>. This will
-    ease classpath formation for running Grouper from locations
-    outside of <i>$GROUPER_BASE</i>.</li>
+  <li><p><tt>ant db-init</tt></p>
+    <p>This will create a Groups Registry in
+    <i>$GROUPER_BASE/dist/run/</i> directory using the default
+    HSQLDB RDBMS.</p></li>
+  <li><p><tt>ant test</tt></p>
+    <p>This will compile and run the Grouper test suite to exercise the
+    API and ensure that Grouper is properly configured.</p></li>
+  <li><p><tt>ant db</tt> [optional]</p>
+    <p>This will launch HSQLDB's GUI database manager.  From within the
+    manager you can run SQL queries against the Groups Registry.</p></li>
+  <li><p><tt>ant dist</tt> [optional]</p>
+    <p>This creates two .jar files within
+    <i>$GROUPER_BASE/dist/lib/</i>.  One file contains all of the
+    Grouper class files while the other contains all of the third
+    party .jar files used by Grouper.  This isn't required but does
+    ease <i>$CLASSPATH</i> configuration.</p></li>
 </ol>
 </p>
 <div id="subsection">
+<a name="section_2.2"/>
 <h4>2.2 Configuring Grouper</h4>
 </div>
 <p>
-Grouper 0.5.5 has only a few configuration options. The configuration
-files are in the <i>$GROUPER_BASE/conf</i> directory. That directory contains
-five files, one that should not be modified, another that can be
-modified only with care, and three that should be modified. Do not
-modify <i>Grouper.hbm.xml</i>. With care, you can modify
-<i>ehcache.xml</i> to tweak cache parameters but not to add or
-remove caches. Do modify <i>Grouper.properties</i>,
-<i>hibernate.properties</i>, and <i>log4j.properties</i> as follows.
+Grouper has only a few configuration options. The configuration
+files are located in <i>$GROUPER_BASE/conf/</i>. Most of the files
+in that directory either do not need to be modified or should not
+be modified.
 </p>
 <p>
-The <i>Grouper.properties</i> file for version 0.5.5 contains just three
-declarations. First is the <i>subjectID</i> for Grouper's superuser, by
-default <i>GrouperSystem</i>. This subject has unlimited privilege within the
-Grouper API. The other two declarations specify the classes
-implementing Grouper's Access and Naming Privilege Interfaces.
-These are defaulted to use Grouper's internal privilege
-implementation.
+The <i>hibernate.properties</i> and <i>log4j.properties</i>
+configuration files should be adjusted to reflect the location of your
+Grouper distribution.
 </p>
 <p>
-The <i>hibernate.properties</i> and <i>log4j.properties</i> must be
-changed to reflect the location of each Grouper installation. In
-<i>conf/hibernate.properties</i>, change:
+In <i>hibernate.properties</i>, change:
 <pre>
   hibernate.connection.url = jdbc:hsqldb:/FULL/PATH/TO/dist/run/grouper
 </pre>
-And in <i>conf/log4j.properties</i>, change:
+</p>
+In <i>log4j.properties</i>, change:
 <pre>
   log4j.appender.rfile.File = /FULL/PATH/TO/dist/run/grouper.log
 </pre>
 </p>
 <p>
-Other declarations in those files may also be changed to reflect
-desired logging characteristics or use of an alternate RDBMS.
+The <i>Grouper.properties</i> file contains only three variables, none
+of which require modification by default.  The first specifies the
+<i>subjectID</i> of Grouper's "root" or superuser subject.  This defaults to
+<i>GrouperSystem</i>.  This subject has unlimited privileges within the
+Grouper API.  The other two variables specify the classes
+implementing Grouper's Access and Naming Privilege Interfaces.  By
+default manages both access and naming privileges internally.
+</p>
+<p>
+The <i>Grouper.hbm.xml</i> file should <b>not</b> be changed while the
+<i>ehcache.xml</i> file should be changed only if you wish to change
+the default Hibernate cache sizes.
 </p>
 <div id="subsection">
+<a name="section_2.3"/>
 <h4>2.3 Running Grouper</h4>
 </div>
 <p>
-To run a java program using the Grouper 0.5.5 API, the java environment
+To run a java program using the Grouper 0.5.5 API, the Java environment
 must have a classpath that includes:
 <ul>
-  <li>full pathname of the Grouper.jar file produced by "ant dist"</li>
-  <li>full pathname of the Grouper-lib.jar file produced by "ant dist", and</li>
+  <li>full pathname of the <i>Grouper.jar</i> file produced by "ant dist"</li>
+  <li>full pathname of the <i>Grouper-lib.jar</i> file produced by <tt>ant dist</tt></li>
   <li>full pathname of the directory containing Grouper's configuration files.</li>
 </ul>
 </p>
 <div id="subsection">
+<a name="section_2.4"/>
 <h4>2.4 Building And Running Sample Applications</h4>
 </div>
 <p>
-Grouper 0.5.5 includes four sample programs to aid in getting started
+Grouper includes four sample programs to aid in getting started
 with a Grouper deployment.
 </p>
 <div id="subsection">
+<a name="section_2.4.1"/>
+<a name="csv2subject"/>
 <h4>2.4.1 Sample Subject Loader - csv2subject</h4>
 <div>
 <p>
-The out-of-the-box method for providing Grouper 0.5.5 with subjects,
-i.e., identifiers for people or other objects that are potential group
-members, is to load them in to the <i>grouper_subject</i> table. The subject
-loader is a very simple program for so doing. It takes a comma
-separated list of <i>subjectID</i>, <i>subjectTypeID</i> and loads them directly into
-the table. Subjects and the preferred means of dealing with them are
-discussed in sections 3.6 and 4.3 below.
+Subjects are identifiers for people, groups and other objects that may
+be members of a group.  In this release of Grouper, subjects are
+maintained in the <i>grouper_subject</i> table within the Groups
+Registry.  <i>csv2subject</i> is a simple program for populating that
+table.  Subjects and the preferred means of dealing with them are
+discussed in sections <a href="#section_3.6">3.6</a> and <a
+href="#section_4.3">4.3</a>.
 </p>
 <p>
-The <i>$GROUPER_BASE/contrib/load/csv2subject</i> directory has a
-simple subject loader and a sample csv file for loading subjects
-into a test database. To use it,
+<i>csvsubject</i> is located in <i>$GROUPER_BASE/contrib/load/csv2subject</i>.  
+This program reads in a .csv file containing <i>subjectIDs</i> and
+<i>subjectTypeIDs</i> and then inserts the subjects into the Groups
+Registry via a direct JDBC connection.  Because <i>csv2subject</i> does
+not use the Grouper API, you will need to configure the
+<i>csv2subject.properties</i> configuration file.
+</p>
+<p>A sample .csv file is also located in this directory.</p>
+<p>
+To use <i>csv2subject</i>:
 <ol>
-  <li>change to the <i>$GROUPER_BASE/contrib/load/csv2subject</i>
+  <li>Change to the <i>$GROUPER_BASE/contrib/load/csv2subject</i>
     directory</li>
-  <li>read the README file and follow its instructions.</li>
+  <li>Follow the instructions in the README file</li>
 </ol>
-<i>csv2subject</i> uses JDBC to communicate directly with the database,
-i.e.  it does not use the Grouper API. Its configuration file,
-<i>csv2subject.properties</i>, will need to be modified to work with a
-different database product (see section 4.1).
 </p>
 <div id="subsection">
+<a name="section_2.4.2"/>
+<a name="csv2group"/>
 <h4>2.4.2 Sample Group Loader - csv2group</h4>
 </div>
 <p>
-The <i>csv2group</i> program is a very simple means to add namespaces,
-groups, and members to the Groups Registry. However, it doesn't
-delete groups or memberships - that is an exercise left to each
-site's developers! To use it,
+<i>csv2group</i> is a simple program for adding namespaces, groups and
+members to the Groups Registry.  To use it:
 <ol>
-  <li>change to the <i>$GROUPER_BASE/contrib/load/csv2group</i> directory</li>
-  <li>read the README file and follow its instructions.</li>
+  <li>Change to the <i>$GROUPER_BASE/contrib/load/csv2group</i> directory</li>
+  <li>Follow the instructions in the README file</li>
 </ol>
-The <i>csv2group</i> program interacts with the Groups Registry as the
-<i>GrouperSystem</i> subject. You'll want to add the subjects in the
-<i>csv2subject/sample.csv</i> file before loading the sample groups in this
-<i>sample.csv</i> - the members of the sample groups are taken from the
-list of sample subjects.
+</p>
+<p>
+A sample .csv file that creates a number of different namespaces,
+groups and memberships is located in this directory.  To use the sample
+file you will first need to load sample subjects into the Groups
+Registry using <a href="#csv2subject">csv2subject</a>.  The sample
+subjects are located in <i>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</i>.
+</p>
 </p>
 <div id="subsection">
+<a name="section_2.4.3"/>
+<a name="groupmgr"/>
 <h4>2.4.3 Sample Group Manager - groupmgr</h4>
 </div>
 <p>
-The <i>groupmgr</i> program provides a command line interface to
-add namespaces to the Groups Registry and to add and delete groups
-and memberships. Unlike <i>csv2group</i>, you can specify which
-subject <i>groupmgr</i> should act as. To use it,
+<i>groupmgr</i> is a program that provides a command line interface for
+manipulating the Groups Registry.  It can add and delete namespaces,
+groups and memberships.  To use it:
 <ol>
-  <li>change to the <i>$GROUPER_BASE/contrib/load/groupmgr</i>
-    directory</li>
-  <li>read the README file and follow its instructions.</li>
+  <li>Change to the <i>$GROUPER_BASE/contrib/load/groupmgr</i> directory</li>
+  <li>Follow the instructions in the README file</li>
 </ol>
 </p>
 <div id="subsection">
+<a name="section_2.4.4"/>
+<a name="grouperq"/>
 <h4>2.4.4 Sample Query Tool - grouperq</h4>
 </div>
 <p>
-The <i>grouperq</i> program provides a command line interface for
-performing simple queries on the Groups Registry. It is also useful
-for "running as" a given subject as a means of verifying the subject's
-access privileges. To use it,
+<i>grouperq</i> is a program that provides a command line interface for
+performing simple queries on the Groups Registry.  To use it:
 <ol>
-  <li>change to the <i>$GROUPER_BASE/contrib/load/groupmgr</i>
-    directory</li>
-  <li>read the README file and follow its instructions.</li>
+  <li>Change to the <i>$GROUPER_BASE/contrib/load/groupmgr</i> directory</li>
+  <li>Follow the instructions in the README file</li>
 </ol>
 </p>
 </div>
 <div id="section">
+<a name="section_3"/>
 <h3>3 Using Grouper's Data And Privilege Models</he>
 </div>
 <p>
@@ -412,6 +422,7 @@ a Grouper deployment: naming, distributing management of groups, and
 choice of identifiers for members.
 </p>
 <div id="subsection">
+<a name="section_3.1"/>
 <h4>3.1 Grouper 0.5.5 Fields</h4>
 <div>
 <p>
@@ -424,7 +435,7 @@ determined by each implementation site. As shipped, Grouper 0.5.5 has
 have the following default set of list and attribute fields.
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th>Field</th>
 <th>List Or Attribute?</th>
 <th>Public Or Private?</th>
@@ -535,7 +546,7 @@ over those things.
 Grouper 0.5.5 namespaces have the following fields.
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th>Field</th>
 <th>List Or Attribute?</th>
 <th>Public Or Private?</th>
@@ -604,6 +615,7 @@ Grouper 0.5.5 namespaces have the following fields.
 <div align="center"><b>Table 2 - Fields of "naming" type</b></div>
 </p>
 <div id="subsection">
+<a name="section_3.2"/>
 <h4>3.2 Extending Grouper's Fields</h4>
 </div>
 <p>
@@ -649,6 +661,7 @@ with the <i>Group.id()</i> method instead of with the
 contexts we'll use the term <i>guid</i>.
 </p>
 <div id="subsection">
+<a name="section_3.3"/>
 <h4>3.3 Naming Elements And Examples</h4>
 </div>
 <p>
@@ -696,7 +709,7 @@ some further examples illustrating all of the naming attributes of
 several namespaces and groups.
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th span="2">namespace uofc</th>
 <tr>
   <td id="td"><i>stem</i></td>
@@ -721,7 +734,7 @@ several namespaces and groups.
 </table>
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th span="2">group uofc:exec_council</th>
 <tr>
   <td id="td"><i>guid</i></td>
@@ -750,7 +763,7 @@ several namespaces and groups.
 </table>
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th span="2">namespace uofc:bsd</th>
 <tr>
   <td id="td"><i>stem</i></td>
@@ -775,7 +788,7 @@ several namespaces and groups.
 </table>
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th span="2">group uofc:bsd:eis_staff</th>
 <tr>
   <td id="td"><i>guid</i></td>
@@ -829,6 +842,7 @@ Grouper 0.5.5's <i>base</i> type, are not exposed in the API. That
 will come with the 0.5.5 maintenance release.
 </p>
 <div id="subsection">
+<a name="section_3.4"/>
 <h4>3.4 Grouper 0.5.5 Privileges</h4>
 </div>
 <p>
@@ -838,7 +852,7 @@ what a subject can do to a namespace. These are listed in the following
 table.
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th>Privilege</th>
 <th>Interface</th>
 <th>Description</th>
@@ -949,6 +963,7 @@ Groups Registry initialization script <i>$GROUPER_BASE/sql/init.sql</i>
 to do so.
 </p>
 <div id="subsection">
+<a name="section_3.5"/>
 <h4>3.5 Using Privileges To Distribute Group Management
 Capabilities</h4>
 </div>
@@ -984,6 +999,7 @@ solve an access control problem can be found in
 <a href="http://home.uchicago.edu/~tbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp-200411/20041117-authz.ppt&gt;</a>.
 </p>
 <div id="subsection">
+<a name="section_3.6"/>
 <h4>3.6 Subject Identifiers</h4>
 </div>
 <p>
@@ -1042,13 +1058,15 @@ be translated by a provisioning connector by use of the Subject
 Interface into one that is suitable in the provisioned context.
 </p>
 <div id="section">
-<h3>Integration Tasks</h3>
+<a name="section_4"/>
+<h3>4 Integration Tasks</h3>
 </div>
 <p>
 Things you'll need to do to integrate grouper with your infrastructure
 and practices.
 </p>
 <div id="subsection">
+<a name="section_4.1"/>
 <h4>4.1 Using Your Own RDBMS</h4>
 </div>
 <p>
@@ -1089,13 +1107,15 @@ To verify that your database is functioning correctly with Grouper,
 change directory to <i>$GROUPER_BASE</i> and run "ant test".
 </p>
 <div id="subsection">
-<h4>4.1 SQL Tuning</h4>
+<a name="section_4.2"/>
+<h4>4.2 SQL Tuning</h4>
 </div>
 <p>
 To Be Done based on experiences of early adopters.
 </p>
 <div id="subsection">
-<h4>4.2 Getting Subjects Into Grouper</h4>
+<a name="section_4.3"/.
+<h4>4.3 Getting Subjects Into Grouper</h4>
 </div>
 <p>
 Section 3.6 broached issues surrounding the choice of subject
@@ -1148,7 +1168,8 @@ NOTE: The adapter class for the <i>group subjectType</i> should not
 be changed!  Else why are you bothering with Grouper?
 </p>
 <div id="subsection">
-<h4>4.3 Loaders And Provisioning Connectors</h4>
+<a name="section_4.4"/>
+<h4>4.4 Loaders And Provisioning Connectors</h4>
 <div>
 <p>
 Loaders and provisioning connectors are defined in the 
@@ -1242,7 +1263,7 @@ Each group in the Groups Registry has several <i>operational
 attributes</i> associated with it. In Grouper 0.5.5 these include:
 </p>
 <p>
-<table id="table" align="center" border="1">
+<table id="table" align="center" border="1" width="75%">
 <th>Operational Attribute</th>
 <th>Description</th>
 <tr>
@@ -1290,7 +1311,8 @@ with. The <i>GrouperGroup.createSubject()</i> and
 <i>Subject</i> objects corresponding to this <i>memberKey</i>.
 </p>
 <div id="subsection">
-<h4>4.4 Integrating Grouper With An External Privilege Management
+<a name="section_4.5"/>
+<h4>4.5 Integrating Grouper With An External Privilege Management
 System</h4>
 </div>
 <p>
