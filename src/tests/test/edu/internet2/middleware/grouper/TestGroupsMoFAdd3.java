@@ -80,7 +80,7 @@ public class TestGroupsMoFAdd3 extends TestCase {
 
   //
   // Add m0 to gA
-  // Add gA to 1
+  // Add gA to gB
   // Add gB to gC
   //
   // m0 -> gA -> gB -> gC
@@ -138,6 +138,12 @@ public class TestGroupsMoFAdd3 extends TestCase {
     Assert.assertTrue(
       "gA eff members == 0", gA.listEffVals("members").size() == 0
     );
+    Iterator iterAI = gA.listImmVals().iterator();
+    while (iterAI.hasNext()) {
+      GrouperList lv = (GrouperList) iterAI.next();
+      Assert.assertTrue("gA empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gA null via", lv.via());
+    }
 
     // Now inspect gB's resulting list values
     Assert.assertTrue(
@@ -149,6 +155,20 @@ public class TestGroupsMoFAdd3 extends TestCase {
     Assert.assertTrue(
       "gB eff members == 1", gB.listEffVals("members").size() == 1
     );
+    Iterator iterBI = gB.listImmVals().iterator();
+    while (iterBI.hasNext()) {
+      GrouperList lv = (GrouperList) iterBI.next();
+      Assert.assertTrue("gB empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gB null via", lv.via());
+    }
+    Iterator iterBE = gB.listEffVals().iterator();
+    while (iterBE.hasNext()) {
+      GrouperList lv = (GrouperList) iterBE.next();
+      Assert.assertTrue("gB chain == 1", lv.chain().size() == 1);
+      Assert.assertNotNull("gB !null via", lv.via());
+      Assert.assertEquals("gB member() == m0", m0, lv.member());
+      Assert.assertEquals("gB via() == gA", gA, lv.via());
+    }
 
     // Now inspect gC's resulting list values
     Assert.assertTrue(
@@ -160,6 +180,29 @@ public class TestGroupsMoFAdd3 extends TestCase {
     Assert.assertTrue(
       "gC eff members == 2", gC.listEffVals("members").size() == 2
     );
+    Iterator iterCI = gC.listImmVals().iterator();
+    while (iterCI.hasNext()) {
+      GrouperList lv = (GrouperList) iterCI.next();
+      Assert.assertTrue("gC empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gC null via", lv.via());
+    }
+    Iterator iterCE = gC.listEffVals().iterator();
+    while (iterCE.hasNext()) {
+      GrouperList lv = (GrouperList) iterCE.next();
+      if        (lv.chain().size() == 1) {
+        Assert.assertTrue("gC chain == 1", true);
+        Assert.assertNotNull("gC (1) !null via", lv.via());
+        Assert.assertEquals("gC (1) member() == gA", gA.toMember(), lv.member());
+        Assert.assertEquals("gC (1) via() == gB", gB, lv.via());
+      } else if (lv.chain().size() == 2) {
+        Assert.assertTrue("gC chain == 2", true);
+        Assert.assertNotNull("gC (2) !null via", lv.via());
+        Assert.assertEquals("gC (2) member() == m0", m0, lv.member());
+        Assert.assertEquals("gC (2) via() == gA", gA, lv.via());
+      } else {
+        Assert.fail("gC chain != (1,2)");
+      }
+    }
 
     s.stop();
   }

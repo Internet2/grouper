@@ -56,9 +56,9 @@ import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
 
-public class TestGroupsMoFAdd0 extends TestCase {
+public class TestGroupsMoFAdd3Reverse extends TestCase {
 
-  public TestGroupsMoFAdd0(String name) {
+  public TestGroupsMoFAdd3Reverse(String name) {
     super(name);
   }
 
@@ -79,9 +79,11 @@ public class TestGroupsMoFAdd0 extends TestCase {
   
 
   //
-  // Add m0 to g0
+  // Add gB to gC
+  // Add gA to gB
+  // Add m0 to gA
   //
-  // m0 -> g0
+  // m0 -> gA -> gB -> gC
   //
   public void testMoF() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
@@ -91,37 +93,117 @@ public class TestGroupsMoFAdd0 extends TestCase {
     GrouperStem ns0 = GrouperStem.create(
                          s, Constants.ns0s, Constants.ns0e
                        );
-    // Create g0
-    GrouperGroup g0  = GrouperGroup.create(
-                         s, Constants.g0s, Constants.g0e
+    // Create gA
+    GrouperGroup gA  = GrouperGroup.create(
+                         s, Constants.gAs, Constants.gAe
+                       );
+    // Create gB
+    GrouperGroup gB  = GrouperGroup.create(
+                         s, Constants.gBs, Constants.gBe
+                       );
+    // Create gC
+    GrouperGroup gC  = GrouperGroup.create(
+                         s, Constants.gCs, Constants.gCe
                        );
     // Load m0
     GrouperMember m0 = GrouperMember.load(
                          s, Constants.mem0I, Constants.mem0T
                        );
 
-    // Add m0 to g0's "members"
+    // Add gB to gC's "members"
     try {
-      g0.listAddVal(m0);
+      gC.listAddVal(gB.toMember());
     } catch (RuntimeException e) {
-      Assert.fail("add m0 to g0");
+      Assert.fail("add gB to gC");
+    }  
+    // Add gA to gB's "members"
+    try {
+      gB.listAddVal(gA.toMember());
+    } catch (RuntimeException e) {
+      Assert.fail("add gA to gB");
+    }
+    // Add m0 to gA's "members"
+    try {
+      gA.listAddVal(m0);
+    } catch (RuntimeException e) {
+      Assert.fail("add m0 to gA");
     }
 
-    // Now inspect g0's, resulting list values
+//Assert.fail("BOO!");
+    // Now inspect gA's resulting list values
     Assert.assertTrue(
-      "members == 1", g0.listVals("members").size() == 1
+      "gA members == 1", gA.listVals("members").size() == 1
     );
     Assert.assertTrue(
-      "imm members == 1", g0.listImmVals("members").size() == 1
+      "gA imm members == 1", gA.listImmVals("members").size() == 1
     );
     Assert.assertTrue(
-      "eff members == 0", g0.listEffVals("members").size() == 0
+      "gA eff members == 0", gA.listEffVals("members").size() == 0
     );
-    Iterator iter0I = g0.listImmVals("members").iterator();
-    while (iter0I.hasNext()) {
-      GrouperList lv = (GrouperList) iter0I.next();
-      Assert.assertTrue("empty chain", lv.chain().size() == 0);
-      Assert.assertNull("g0 null via", lv.via());
+    Iterator iterAI = gA.listImmVals().iterator();
+    while (iterAI.hasNext()) {
+      GrouperList lv = (GrouperList) iterAI.next();
+      Assert.assertTrue("gA empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gA null via", lv.via());
+    }
+
+    // Now inspect gB's resulting list values
+    Assert.assertTrue(
+      "gB members == 2", gB.listVals("members").size() == 2
+    );
+    Assert.assertTrue(
+      "gB imm members == 1", gB.listImmVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "gB eff members == 1", gB.listEffVals("members").size() == 1
+    );
+    Iterator iterBI = gB.listImmVals().iterator();
+    while (iterBI.hasNext()) {
+      GrouperList lv = (GrouperList) iterBI.next();
+      Assert.assertTrue("gB empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gB null via", lv.via());
+    }
+    Iterator iterBE = gB.listEffVals().iterator();
+    while (iterBE.hasNext()) {
+      GrouperList lv = (GrouperList) iterBE.next();
+      Assert.assertTrue("gB chain == 1", lv.chain().size() == 1);
+      Assert.assertNotNull("gB !null via", lv.via());
+      Assert.assertEquals("gB member() == m0", m0, lv.member());
+      Assert.assertEquals("gB via() == gA", gA, lv.via());
+    }
+
+    // Now inspect gC's resulting list values
+    Assert.assertTrue(
+      "gC members == 3", gC.listVals("members").size() == 3
+    );
+    Assert.assertTrue(
+      "gC imm members == 1", gC.listImmVals("members").size() == 1
+    );
+    Assert.assertTrue(
+      "gC eff members == 2", gC.listEffVals("members").size() == 2
+    );
+    Iterator iterCI = gC.listImmVals().iterator();
+    while (iterCI.hasNext()) {
+      GrouperList lv = (GrouperList) iterCI.next();
+      Assert.assertTrue("gC empty chain", lv.chain().size() == 0);
+      Assert.assertNull("gC null via", lv.via());
+    }
+    Iterator iterCE = gC.listEffVals().iterator();
+    while (iterCE.hasNext()) {
+      GrouperList lv = (GrouperList) iterCE.next();
+      if        (lv.chain().size() == 1) {
+        Assert.assertTrue("gC chain == 1", true);
+        Assert.assertNotNull("gC (1) !null via", lv.via());
+        Assert.assertEquals("gC (1) member() == gA", gA.toMember(), lv.member());
+        Assert.assertEquals("gC (1) via() == gB", gB, lv.via());
+      } else if (lv.chain().size() == 2) {
+        Assert.assertTrue("gC chain == 2", true);
+        Assert.assertNotNull("gC (2) !null via", lv.via());
+        Assert.assertEquals("gC (2) member() == m0", m0, lv.member());
+        Assert.assertEquals("gC (2) via() == gA", gA, lv.via());
+      } else {
+        Assert.fail("gC chain (1,2) != " + lv.chain().size());
+      }
     }
 
     s.stop();

@@ -141,6 +141,7 @@ public class TestGroupsMoFAdd1 extends TestCase {
     while (iter0I.hasNext()) {
       GrouperList lv = (GrouperList) iter0I.next();
       Assert.assertTrue("g0 empty chain", lv.chain().size() == 0);
+      Assert.assertNull("g0 null via", lv.via());
     }
 
     // Now inspect g1's, resulting list values
@@ -157,6 +158,7 @@ public class TestGroupsMoFAdd1 extends TestCase {
     while (iter1I.hasNext()) {
       GrouperList lv = (GrouperList) iter1I.next();
       Assert.assertTrue("g1 empty chain", lv.chain().size() == 0);
+      Assert.assertNull("g1 null via", lv.via());
     }
 
     s.stop();

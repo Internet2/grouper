@@ -98,6 +98,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsMoFChain1.class);
     suite.addTestSuite(TestGroupsMoFAdd2.class);
     suite.addTestSuite(TestGroupsMoFAdd3.class);
+    suite.addTestSuite(TestGroupsMoFAdd3Reverse.class);
     suite.addTestSuite(TestGroupsMoFAdd4.class);
     suite.addTestSuite(TestGroupsMoFAdd5.class);
     suite.addTestSuite(TestGroupsMoFAdd6.class);

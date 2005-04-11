@@ -121,6 +121,7 @@ public class TestGroupsMoFChain0 extends TestCase {
     while (iter0I.hasNext()) {
       GrouperList lv = (GrouperList) iter0I.next();
       Assert.assertTrue("empty chain", lv.chain().size() == 0);
+      Assert.assertNull("null via", lv.via());
     }
 
     s1.stop();
