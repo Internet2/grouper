@@ -1,75 +1,64 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta http-equiv="content-type"
- content="text/html; charset=ISO-8859-1">
-  <title>Grouper phase 1 specs - draft 04</title>
-  <meta name="author" content="Tom Barton &amp; blair christensen">
+  <title>Grouper Phase 1 Specifications - Draft 05</title>
+  <style>
+<!--
+#section { }
+#subsection { }
+#table {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+#td {
+  padding: 3px;
+}
+#title {
+}
+#toc {
+}
+-->
+  </style>
 </head>
 <body>
-<p class="MsoNormal"><span class="title">draft-internet2-mace-dir-grouper-phase1-specs-04.html</span><br>
-<st1:date year="2004" day="24" month="2"><span class="title">3 May
-2004</span></st1:date><br>
-<span class="title">Tom
-Barton &amp; blair christensen, editors<br>
-The </span><st1:place><st1:placetype><span class="title">University</span></st1:placetype><span
- class="title"> of </span><st1:placename><span class="title">Chicago</span></st1:placename></st1:place><br>
-<span class="title">Comments to: <span style="color: windowtext;">tbarton@uchicago.edu
-or blair@uchicago.edu</span><br>
-</span></p>
-<br>
-<span style="font-weight: bold; font-style: italic;"><span
- style="font-style: italic;"><span style="font-weight: bold;"><big><big><span
- style="font-weight: bold;"><big>Grouper Phase 1 Specifications</big> <br>
-</span></big></big></span></span></span><span
- style="font-style: italic;"><span style="font-style: italic;"><big><big><small><br>
-<big><span style="font-weight: bold;">Table of Contents<br>
-</span></big></small></big></big></span></span><span
- style="font-style: italic;"><span style="font-style: italic;"><big><big><small><big><span
- style="font-weight: bold;"><small><small><small><span
- style="font-style: italic;"><span style="font-weight: bold;"></span></span></small></small></small></span></big></small></big></big></span></span><br>
-<a href="#heading_Intro"><small><big><big><big><small>1.
-Introduction to Grouper phase 1</small></big></big></big></small></a><br>
-<a href="#heading_2_Comp"><small><big><big><big><small>2.
-Components &amp; architecture</small></big></big></big></small></a><br>
-<a href="#heading_3_data"><small><big><big><big><small>3. Groups
-Registry data model</small></big></big></big></small></a><br>
-<a href="#heading_4_membership"><big>4.
-Representing membership</big></a><br>
-<a href="#heading_5_privs"><small><big><big><big><small>5.
-Grouper API naming and access privileges</small></big></big></big></small></a><br>
-<a href="#heading_6_baseType"><big>6.
-Definition
-of the "base" group type</big></a><br>
-<a href="#heading_7_security"><big>7.
-Grouper
-security</big></a><br>
-<a href="#heading_8_defaultInts"><big>8. Default implementation of
-the Naming &amp; Access Interfaces</big></a><br>
-<a href="#heading_9_classes"><big>9.
-Grouper API
-classes and methods</big></a><br>
-<a href="#heading_10_logging"><big>10.
-Logging specifications</big></a><br>
-<a href="#heading_11_membersTable"><big>11.
-Members table maintenance program</big></a><br>
-<a href="#heading_12_config"><big>12. Configurable
-options</big></a><br>
-<a href="#heading_13_DBdetails"><big>13.
-Database
-creation script details</big></a><br>
-<a href="#heading_14_refs"><small><big><big><big><small>14.
-References</small></big></big></big></small></a><br>
-<a href="#heading_15_acks"><big>15. Acknowledgments</big></a><br>
-<br>
-<br>
-<span style="font-style: italic;"><span style="font-style: italic;"><big><big><small></small></big></big></span></span>
-<h4><big><span style="font-style: italic;"><span
- style="font-style: italic;"><big><big><small><span
- style="font-style: italic;"><span style="font-weight: bold;"><a
- name="heading_Intro"></a>1.
-Introduction to Grouper phase 1</span></span></small></big></big></span></span></big></h4>
-<big><big><small><small>Grouper v1 will be produced in three phases, as
+<div id="summary">
+draft-internet2-mace-dir-grouper-phase1-specs-05.html<br />
+11 April 2005<br />
+Tom Barton &amp; blair christensen, editors<br />
+The University of Chicago<br />
+Comments to: tbarton@uchicago.edu or blair@uchicago.edu
+</div>
+<div id="title">
+<h2>Grouper Phase 1 Specifications</h2>
+</div>
+<div id="toc">
+<h3>Table of Contents</h3
+<ol>
+  <li><a href="#heading_Intro">Introduction to Grouper phase 1</a></li>
+  <li><a href="#heading_2_Comp">Components &amp; architecture</a></li>
+  <li><a href="#heading_3_data">Groups Registry data model</a></li>
+  <li><a href="#heading_4_membership">Representing membership</a></li>
+  <li><a href="#heading_5_privs">Grouper API naming and access privileges</a></li>
+  <li><a href="#heading_6_baseType">Definition of the "base" group type</a></li>
+  <li><a href="#heading_7_security">Grouper security</a></li>
+  <li><a href="#heading_8_defaultInts">Default implementation of the
+    Naming &amp; Access Interfaces</a></li>
+  <li><a href="#heading_9_classes">Grouper API classes and
+    methods</a></li>
+  <li><a href="#heading_10_logging">Logging specifications</a></li>
+  <li><a href="#heading_11_membersTable">Members table maintenance
+    program</a></li>
+  <li><a href="#heading_12_config">Configurable options</a></li>
+  <li><a href="#heading_13_DBdetails">Database creation script
+    details</a></li>
+  <li><a href="#heading_14_refs">References</a></li>
+  <li><a href="#heading_15_acks">Acknowledgments</a></li>
+</ol>
+</div>
+
+<h4>
+<a name="heading_Intro"></a>1.
+Introduction to Grouper phase 1</h4>
+Grouper v1 will be produced in three phases, as
 described in [1]. This document defines the phase 1 functional
 specification in some detail. We'll start with a brief review of
 Grouper's architecture - its major components and how those fit into an
@@ -115,12 +104,9 @@ used to determine when a group has become "stale".<br>
 <br>
 This version of the phase 1 specification does not address the
 graphical user interface.<br>
-</small></small></big></big>
-<h4><big><span style="font-style: italic;"><span
- style="font-style: italic;"><big><big><small><span
- style="font-style: italic;"><span style="font-weight: bold;"><a
- name="heading_2_Comp"></a>2.
-Components &amp; architecture</span></span></small></big></big></span></span></big></h4>
+
+<h4> <a name="heading_2_Comp"></a>2.
+Components &amp; architecture</h4>
 <a href="#Figure_1">Figure 1</a> below labels the main components of
 Grouper v1 and shows
 them in relation to the rest of an illustrative site's identity
@@ -137,8 +123,8 @@ operations of a site's applications and services.<br>
 <div style="text-align: center;"><img src="gag6.gif" title=""
  alt="Grouper v1 components" style="width: 591px; height: 338px;"><br>
 <br>
-<span style="font-weight: bold;">Figure 1: Grouper v1 components
-(shaded) and articulating elements.</span> <br>
+Figure 1: Grouper v1 components
+(shaded) and articulating elements. <br>
 <div style="text-align: left;"><br>
 The shaded elements will be delivered as part of Grouper v1 (although
 it is expected that sites will use their favorite relational database
@@ -171,12 +157,10 @@ referential integrity between different representations of the same
 group. <br>
 </div>
 </div>
-<h4><big><span style="font-style: italic;"><span
- style="font-style: italic;"><big><big><small><span
- style="font-style: italic;"><span style="font-weight: bold;"><a
- name="heading_3_data"></a>3. Groups
+<h4>
+<a name="heading_3_data"></a>3. Groups
 Registry data model<br>
-</span></span></small></big></big></span></span></big></h4>
+</h4>
 <div style="text-align: center;">
 <div style="text-align: left;">This section serves to orient the reader
 to the underlying data model. Some of the details of this structure
@@ -206,18 +190,17 @@ each row pertains to. Likewise, the "groupField" column in the
 grouper_metadata table identifies which field each row
 refers to. More will be said about representation of
 membership below.<br>
-<span style="color: rgb(0, 0, 153);"><br>
-<span style="color: rgb(0, 0, 0);">Most externally exposed management
+<br />
+Most externally exposed management
 functions refer to a group by its name rather than by its groupID
 value. The name is a field stored in the grouper_metadata table. Group
 names are meant to be
 something like a common name - a readable and perhaps semantically
 meaningful string of characters that is unique among other group names.
-</span></span><span style="color: rgb(0, 0, 153);"><span
- style="color: rgb(0, 0, 0);">Much more is said below about conventions
-for names of groups. </span></span><span style="color: rgb(0, 0, 153);"><br>
+Much more is said below about conventions
+for names of groups.<br />
 <br>
-</span>The grouper_schema table identifies the set of group types that
+The grouper_schema table identifies the set of group types that
 each
 group has. The set of group types available in the system is expressed
 in three tables: grouper_types, grouper_fields, and grouper_typeDefs.
@@ -232,9 +215,9 @@ extend these tables to support additional types of groups if they wish.<br>
 <img src="groupsRegERD3-5.gif" title="" alt="groups registry ERD v3.5"
  style="width: 657px; height: 566px;"><br>
 <br>
-<span style="font-weight: bold;">Figure 2: Groups Registry Entity
+Figure 2: Groups Registry Entity
 Relationship Diagram. Grayed out tables not under discussion in phase 1.<br>
-</span>
+
 <div style="text-align: left;"><br>
 The grouper_members table is present to support the default
 implementation of the Subject Interface. Group members that are
@@ -256,12 +239,8 @@ tables are speculative support for functional requirements in Grouper
 phases 2 and 3 and can be ignored for now.<br>
 </div>
 </div>
-<h4><big><span style="font-weight: bold; font-style: italic;"><big><a
- name="heading_4_membership"></a>4.
-Representing membership<br>
-</big></span></big></h4>
-<big><span style="font-weight: bold; font-style: italic;">
-</span></big>Group members are
+<h4><a name="heading_4_membership"></a>4.  Representing membership<br></h4>
+Group members are
 identified either by
 memberIDs that are assigned outside of Grouper or by Grouper-issued
 groupIDs. Separate
@@ -287,8 +266,8 @@ and "B".<br>
 <div style="text-align: center;"><img src="digraph.gif" title=""
  alt="subgroup digraph" style="height: 193px; width: 229px;"><br>
 <br>
-<span style="font-weight: bold;">Figure 3: A digraph illustrating
-membership.</span><br>
+Figure 3: A digraph illustrating
+membership.<br>
 </div>
 <br>
 One can follow links around the digraph - each such walk is called a
@@ -340,13 +319,13 @@ representing an effective membership in the membership table whose
 "isImmediate" column is FALSE is removed
 when the last group in the via set for that membership is removed.<br>
 <br>
-<span style="color: rgb(0, 0, 153);">[ The data model in <a
+[ The data model in <a
  href="#Figure_2">Figure 2</a>
 represents via sets in the grouper_via
 table, but it might prove expedient to represent one as a string
 listing
 the groupIDs in the via set in a "via" column in the grouper_membership
-table - we're still thinking about which way to do it. ]</span><br>
+table - we're still thinking about which way to do it. ]<br>
 <br>
 With a flattened grouper_membership table and with via sets associated
 with each effective membership, two purposes are served. First, there
@@ -359,12 +338,10 @@ effective membership is established, and so avoid having to search
 through the
 subgraph of subgroups of a group if they intend to remove that
 membership.<br>
-<h4><big><span style="font-style: italic;"><span
- style="font-style: italic;"><big><big><small><span
- style="font-style: italic;"><span style="font-weight: bold;"><a
- name="heading_5_privs"></a>5.
+<h4>
+<a name="heading_5_privs"></a>5.
 Grouper API naming and access privileges<br>
-</span></span></small></big></big></span></span></big></h4>
+</h4>
 <p>Each subject that exercises the Grouper API is constrained in what
 it can do with the Groups Registry by the privilege(s) it has with
 respect to each group. These privileges are divided into two classes:
@@ -473,8 +450,8 @@ membership of the group.<br>
     </tr>
   </tbody>
 </table>
-<div style="text-align: center;"><span style="font-weight: bold;">Table
-1: Grouper Naming &amp; Access Privileges</span><br>
+<div style="text-align: center;">Table
+1: Grouper Naming &amp; Access Privileges<br>
 </div>
 <p>Thus, UPDATERs administer membership of a group,
 including management of membership information, delegation of
@@ -529,24 +506,19 @@ another person STEM privilege for the subordinate stem
 <p>The API enforces uniqueness of group names across the Groups
 Registry as well as uniqueness of all stems of group names. <br>
 </p>
-<p><span style="color: rgb(51, 51, 255);"><span
- style="color: rgb(0, 0, 0);">The following characters are deemed
+<p>The following characters are deemed
 illegal for use in names of groups, unless chosen as the stem hierarchy
-delimiter: </span></span>"/", "\", "|", "?", "*", ";", ",". Stems and
+delimiter: "/", "\", "|", "?", "*", ";", ",". Stems and
 descriptors may not contain the stem delimiter character.<br>
 </p>
-<p><span style="color: rgb(0, 0, 0);">Grouper's default implementation
+<p>Grouper's default implementation
 of the Naming and Access Interfaces is described
 further below,
 as well as how each privilege is mapped to field-level information
-about each group. </span><br>
+about each group. <br>
 </p>
-<p><span style="color: rgb(0, 0, 153);"> </span></p>
-<h4><big><span style="font-weight: bold; font-style: italic;"><span
- style="font-style: italic;"><span style="font-weight: bold;"><big><a
- name="heading_6_baseType"></a>6.
-Definition
-of the "base" group type</big></span></span></span></big></h4>
+<p></p>
+<h4><a name="heading_6_baseType"></a>6.  Definition of the "base" group type</h4>
 All groups in the Groups Registry have a base type. The
 essential fields of groups of base type are:<br>
 <a name="Table_2"></a><br>
@@ -554,11 +526,11 @@ essential fields of groups of base type are:<br>
  style="text-align: left; width: 100%;">
   <tbody>
     <tr>
-      <td style="vertical-align: top; font-weight: bold;">groupField<br>
+      <td style="vertical-align: top; ;">groupField<br>
       </td>
-      <td style="vertical-align: top; font-weight: bold;">security class<br>
+      <td style="vertical-align: top; ;">security class<br>
       </td>
-      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      <td style="vertical-align: top; ;">Description<br>
       </td>
     </tr>
     <tr>
@@ -585,8 +557,8 @@ groupIDs), those who "belong" to this group.</td>
     </tr>
   </tbody>
 </table>
-<div style="text-align: center;"><span style="font-weight: bold;">Table
-2: Fields for base type</span><br>
+<div style="text-align: center;">Table
+2: Fields for base type<br>
 </div>
 <br>
 In addition, to support Grouper's default implementation of the Access
@@ -598,10 +570,10 @@ group type:<br>
  style="text-align: left; width: 100%;">
   <tbody>
     <tr>
-      <td style="vertical-align: top; font-weight: bold;">groupField<br>
+      <td style="vertical-align: top; ;">groupField<br>
       </td>
-      <td style="vertical-align: top; font-weight: bold;">security class</td>
-      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      <td style="vertical-align: top; ;">security class</td>
+      <td style="vertical-align: top; ;">Description<br>
       </td>
     </tr>
     <tr>
@@ -656,9 +628,9 @@ groupIDs) with OPTOUT privilege for this group. An empty list means
     </tr>
   </tbody>
 </table>
-<div style="text-align: center;"><span style="font-weight: bold;">Table
+<div style="text-align: center;">Table
 3: Additional base type fields that list privileges for the default
-Access Interface</span><br>
+Access Interface<br>
 </div>
 <br>
 The members, viewers, readers, updaters, deleters, optins, and
@@ -679,10 +651,10 @@ contain a mix of memberIDs
 and groupIDs. Appearance of a groupID in any of these lists means that
 all effective members of that group are to be counted as having the
 privilege conveyed by being in that list. <br>
-<h4><span style="font-style: italic;"><span style="font-weight: bold;"><big><big><a
+<h4><a
  name="heading_7_security"></a>7.
 Grouper
-security</big></big></span></span></h4>
+security</h4>
 <p>There is a fundamental issue of what identifiers are
 used for
 subjects
@@ -726,9 +698,9 @@ site.<br>
 <table border="1" style="width: 100%;" cellpadding="2" cellspacing="2">
   <tbody>
     <tr>
-      <td style="font-weight: bold;">groupField </td>
-      <td style="font-weight: bold;">readPriv </td>
-      <td style="font-weight: bold;">writePriv </td>
+      <td>groupField </td>
+      <td>readPriv </td>
+      <td>writePriv </td>
     </tr>
     <tr>
       <td style="vertical-align: top;">name<br>
@@ -784,16 +756,16 @@ site.<br>
     </tr>
   </tbody>
 </table>
-<div style="text-align: center;"><span style="font-weight: bold;">Table
-4: Field level access mapping</span><br>
+<div style="text-align: center;">Table
+4: Field level access mapping<br>
 </div>
 <p>This arrangement enables the security model to be declared for new
 fields that may be
 a part of a new group type. </p>
-<h4><big><big style="font-style: italic;"><a
+<h4><big><a
  name="heading_8_defaultInts"></a>8. Default implementation of
 the Naming &amp; Access Interfaces<br>
-</big></big></h4>
+</h4>
 Not surprisingly, Grouper's default implementation of these interfaces
 will leverage Grouper's core competency: groups will be used to aid in
 naming and access management.<br>
@@ -860,11 +832,10 @@ CREATE and STEM privileges for all name stems, and ADMIN privilege to
 all groups - the API will not actually query the Naming or Access
 Interfaces to
 determine the privileges of this distinguished subject.</p>
-<h4><big><span style="font-weight: bold; font-style: italic;"><big><a
- name="heading_9_classes"></a>9.
+<h4><a name="heading_9_classes"></a>9.
 Grouper API
-classes and methods</big></span></big></h4>
-<h4><big><span style="font-weight: bold; font-style: italic;"><big></big></span></big></h4>
+classes and methods</h4>
+<h4></h4>
 <p>Most API operations act as a set of interactions among java objects
 of
 three classes: GrouperGroup, GrouperMember, and GrouperSession. Each
@@ -905,9 +876,9 @@ javadoc.<br>
  style="text-align: left; width: 100%;">
   <tbody>
     <tr>
-      <td style="vertical-align: top; font-weight: bold;">Class<br>
+      <td style="vertical-align: top; ;">Class<br>
       </td>
-      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      <td style="vertical-align: top; ;">Description<br>
       </td>
     </tr>
     <tr>
@@ -1006,17 +977,17 @@ grouper_fields table</td>
     </tr>
   </tbody>
 </table>
-<div style="text-align: center;"><span style="font-weight: bold;">Table
+<div style="text-align: center;">Table
 5: Grouper phase 1 classes<br>
 <br>
-</span></div>
+</div>
 <table cellpadding="2" cellspacing="2" border="1"
  style="text-align: left; width: 100%;">
   <tbody>
     <tr>
-      <td style="vertical-align: top; font-weight: bold;">Interface<br>
+      <td style="vertical-align: top; ;">Interface<br>
       </td>
-      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      <td style="vertical-align: top; ;">Description<br>
       </td>
     </tr>
     <tr>
@@ -1045,29 +1016,26 @@ Interface, which provides a translation service between "memberIDs" and
     </tr>
   </tbody>
 </table>
-<div style="text-align: center;"><span style="font-weight: bold;">Table
-6: Grouper phase 1 interfaces</span><br>
+<div style="text-align: center;">Table
+6: Grouper phase 1 interfaces<br>
 </div>
-<p><font class="FrameItemFont" style="color: rgb(0, 0, 153);"><span
- style="color: rgb(0, 0, 0);"><span style="font-weight: bold;">Grouper</span>.
+<p><font class="FrameItemFont" style="color: rgb(0, 0, 153);">Grouper.
 Each API instance has a single Grouper object. This object is used to
 construct GrouperSession objects for each new subject having an API
 session. It also provides methods to enable API clients to read
 elements of the configuration file and the logical structure of the
 Groups Registry as expressed in the grouper_types, grouper_typeDefs,
 and grouper_fields tables.<br>
-</span></font></p>
-<p><font class="FrameItemFont" style="color: rgb(0, 0, 153);"><span
- style="color: rgb(0, 0, 0);"><span style="font-weight: bold;">GrouperSession</span>.
+</font></p>
+<p><font class="FrameItemFont" style="color: rgb(0, 0, 153);">GrouperSession.
 A GrouperSession object is constructed at the start of each API client
 session. A subject using the session must be specified - this subject's
 naming and access privileges constrain what the API will do during this
 API session. A JDBC connection to the Grouper Registry is opened for
 each session. The session object provides methods to grant, revoke, and
 review naming &amp; access privileges of any subject. <br>
-</span></font></p>
-<p><font class="FrameItemFont" style="color: rgb(0, 0, 153);"><span
- style="color: rgb(0, 0, 0);"><span style="font-weight: bold;">GrouperGroup</span>.
+</font></p>
+<p><font class="FrameItemFont" style="color: rgb(0, 0, 153);">GrouperGroup.
 To work with a
 group, a GrouperGroup object must be constructed that references a
 GrouperSession. The access privileges to this group that are assigned
@@ -1078,22 +1046,22 @@ those privileges in terms of field-level access the session's subject
 enjoys with respect to this group. Methods provide read/write access to
 all group fields, to determine immediate or effective membership of the
 group, and to create or destroy the group.<br>
-</span></font></p>
-<font class="FrameItemFont"><span style="font-weight: bold;">GrouperMember</span>.
+</font></p>
+<font class="FrameItemFont">GrouperMember.
 This represents an object that can be either an individual subject or a
 group. Its methods provide means of listing the object's immediate and
 effective memberships, the object's <a href="#via_set">via set</a>,
 and whether it represents a group or an individual subject.<br>
 <br>
-<span style="font-weight: bold;">whoAmI method</span>. Several classes
+whoAmI method. Several classes
 implement a whoAmI method that returns an identifier for the object
 that can be used in other Grouper API methods. This helps to maintain
 the distinction between Grouper's internal groupID identifier and the
 group name and helps to enable API clients to specify groups by
 reference to their names.<br>
 <br>
-<span style="font-weight: bold;">addValue, removeValue, and
-getMembership polymorphism</span>. Together with getMetadata(), these
+addValue, removeValue, and
+getMembership polymorphism. Together with getMetadata(), these
 methods provide comprehensive read/write access to a group's fields.
 The simplest form refers to the "members" field by default,
 anticipating that the largest number of API operations will be to
@@ -1104,7 +1072,7 @@ to list its members or applied to a member object to list its
 memberships. It can also be invoked in a form specifying that only
 immediate memberships should be listed.<br>
 <br>
-</font><font class="FrameItemFont"><span style="font-weight: bold;">GrouperAccess</span>.
+</font><font class="FrameItemFont">GrouperAccess.
 This interface specifies methods for granting and revoking an access
 privilege to a group for a subject, and several forms of determining
 existing access privileges. By its use of GrouperMember objects, the
@@ -1112,7 +1080,7 @@ interface supports assignment of access privileges to groups as well as
 to
 individual subjects. <br>
 <br>
-</font><font class="FrameItemFont"><span style="font-weight: bold;">GrouperNaming</span>.
+</font><font class="FrameItemFont">GrouperNaming.
 This interface specifies methods for granting and revoking a naming
 privilege to a stem for a subject, and several forms of determining
 existing naming privileges. By its use of GrouperMember objects, the
@@ -1120,7 +1088,7 @@ interface supports assignment of naming privileges to groups as well as
 to
 individual subjects. <br>
 <br>
-<span style="font-weight: bold;">GrouperSubject</span>. This interface
+GrouperSubject. This interface
 specifies the single, polymorphic, lookup() method, which is used to
 translate between memberIDs and an alternate means of identifying
 individual subjects. This enables a site to specify membership using a
@@ -1130,20 +1098,17 @@ identifiers for specifying membership that are unknown to most users of
 the Grouper UI. The GrouperSubject interface permits translation of a
 well-known identifier, such as a username, to its memberID equivalent. <br>
 </font>
-<p><span style="color: rgb(0, 0, 153);">Exceptions still need to be
-detailed.</span><br>
+<p>Exceptions still need to be detailed.<br>
 </p>
 <ol>
 </ol>
 <ol>
 </ol>
-<h4><big><span style="font-weight: bold; font-style: italic;"><big><a
- name="heading_10_logging"></a>10.
-Logging specifications</big></span></big></h4>
+<h4><a name="heading_10_logging"></a>10.  Logging specifications</h4>
 <p>TBD<br>
-<span style="color: rgb(0, 0, 153);">Thoughts from a mace-dir-groups
-conf call on the subject:</span><br style="color: rgb(0, 0, 153);">
-<span style="color: rgb(0, 0, 153);"></span></p>
+Thoughts from a mace-dir-groups
+conf call on the subject:<br style="color: rgb(0, 0, 153);">
+</p>
 <ol>
 </ol>
 <ul>
@@ -1157,24 +1122,20 @@ sessions, with different log level</li>
 logging and audit logging</li>
   <li style="color: rgb(0, 0, 153);">"sensitive" groups -
 differential logging detail depending on the group being managed.</li>
-  <li><span style="color: rgb(0, 0, 153);"><span
- style="color: rgb(0, 0, 153);">how much can we rely on
-logging on the underlying database?</span><br>
-    </span></li>
+  <li>how much can we rely on
+logging on the underlying database?<br>
+    </li>
 </ul>
 <ol>
 </ol>
-<h4><big><big><span style="font-weight: bold; font-style: italic;"><a
- name="heading_11_membersTable"></a>11.
-Members table maintenance program</span></big></big><br>
+<h4><a name="heading_11_membersTable"></a>11.
+Members table maintenance program<br>
 </h4>
 <p>TBD<br>
 </p>
-<h4><big><span style="font-weight: bold; font-style: italic;"><big><a
- name="heading_12_config"></a>12. </big></span></big><big><span
- style="font-weight: bold; font-style: italic;"><big>Configurable
+<h4><a name="heading_12_config"></a>12. Configurable
 options<br>
-</big></span></big></h4>
+</h4>
 Under construction. These are just reminders for us to not forget to
 detail later on.<br>
 <ul>
@@ -1187,10 +1148,10 @@ detail later on.<br>
   <li>empty viewers list default semantics: "nobody" or "everyone"</li>
   <li>empty readers list default semantics: "nobody" or "everyone"</li>
 </ul>
-<h4><big><span style="font-weight: bold; font-style: italic;"><big><a
+<h4><a
  name="heading_13_DBdetails"></a>13.
 Database
-creation script details</big></span></big></h4>
+creation script details</h4>
 Under construction. These are just reminders for us to not forget to
 detail later on.<br>
 <ul>
@@ -1198,20 +1159,16 @@ detail later on.<br>
   <li>principal for members table maintenance program</li>
   <li>specify column width &amp; syntax, indices, linkages</li>
 </ul>
-<h4><big><span style="font-style: italic;"><span
- style="font-style: italic;"><big><big><small><span
- style="font-style: italic;"><span style="font-weight: bold;"><a
- name="heading_14_refs"></a>14.
-References</span></span></small></big></big></span></span></big></h4>
+<h4><a name="heading_14_refs"></a>14.
+References</h4>
 <p>[1] "Grouper Roadmap", Tom Barton, editor<br>
 http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-03.html<br>
 </p>
 <p>[2] "Group Tools Architecture", Tom Barton, editor<br>
-http://middleware.internet2.edu/dir/groups/docs/draft-barton-grouptools-arch-02.html<span
- style="font-weight: bold;"><br>
-</span></p>
-<h4 style="font-style: italic;"><big><big><a name="heading_15_acks"></a>15.
-Acknowledgments</big></big></h4>
+http://middleware.internet2.edu/dir/groups/docs/draft-barton-grouptools-arch-02.html<br>
+</p>
+<h4><a name="heading_15_acks"></a>15.
+Acknowledgments</h4>
 Thanks are due to the participants in the Internet2/MACE Directories
 working group, who support and substantially
 contribute to this effort.<br>
@@ -1221,7 +1178,5 @@ University of Chicago, Internet2, and the NSF Middleware Initiative
 (Cooperative Agreement No. ANI-0123937).<br>
 <br>
 <p></p>
-<span style="color: rgb(0, 0, 153);">
-</span>
 </body>
 </html>
