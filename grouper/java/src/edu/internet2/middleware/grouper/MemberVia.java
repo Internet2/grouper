@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.14 2005-04-12 17:50:23 blair Exp $
+ * @version $Id: MemberVia.java,v 1.15 2005-04-12 21:39:05 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -83,12 +83,15 @@ public class MemberVia implements Serializable {
    * CONSTRUCTORS
    */
 
+  /**
+   * Null-argument constructor for Hibernate.
+   */
   public MemberVia() { 
     // Nothing 
   }
 
   protected MemberVia(GrouperList gl) {
-    // TODO Try to load?  If not, save chainKey setting for later.
+    // TODO Include an assertion prohibiting MV objects are eff mships?
     this.gl       = gl;
     this.listKey  = gl.key();
   }
