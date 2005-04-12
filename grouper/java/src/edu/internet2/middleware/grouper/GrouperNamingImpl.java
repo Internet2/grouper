@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.59 2005-03-29 18:10:40 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.60 2005-04-12 21:44:28 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -230,7 +230,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       } else {
         GrouperMember m = GrouperMember.load(s, s.subject());
         rv = GrouperList.exists(
-               s, new GrouperList(g, m, (String) privMap.get(priv))
+               s, new GrouperList(s, g, m, (String) privMap.get(priv))
              );
       }
     } else {
@@ -279,7 +279,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     boolean rv = false;
     if (this.can(priv) == true) {
       rv = GrouperList.exists(
-             s, new GrouperList(g, m, (String) privMap.get(priv))
+             s, new GrouperList(s, g, m, (String) privMap.get(priv))
            );
     } else {
       // TODO I should probably throw an exception

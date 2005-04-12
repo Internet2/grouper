@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.55 2005-04-11 01:39:15 blair Exp $
+ * @version $Id: GrouperList.java,v 1.56 2005-04-12 21:44:28 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -126,6 +126,17 @@ public class GrouperList implements Serializable {
     this.groupField = list;
     this.via        = null;
     GrouperList.validate(this);
+  }
+
+  /*
+   * Create a new {@link GrouperList} object.
+   */
+  protected GrouperList(
+              GrouperSession s, Group g, GrouperMember m, String list
+            ) 
+  {
+    this(g, m, list);
+    this.load(s);
   }
 
   /*

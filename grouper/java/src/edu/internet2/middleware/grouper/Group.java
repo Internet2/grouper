@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.20 2005-04-12 15:00:38 blair Exp $
+ * @version $Id: Group.java,v 1.21 2005-04-12 21:44:28 blair Exp $
  */
 abstract public class Group {
 
@@ -498,9 +498,7 @@ abstract public class Group {
                  )
   {
     if (Group.subjectCanModListVal(s, g, list)) {
-      GrouperList gl = new GrouperList(g, m, list);
-      gl.load(s);
-      GrouperList.validate(gl);
+      GrouperList gl = new GrouperList(s, g, m, list);
       if (GrouperList.exists(s, gl)) {
         throw new RuntimeException("List value already exists");
       }
@@ -529,9 +527,7 @@ abstract public class Group {
                  )
   {
     if (Group.subjectCanModListVal(s, g, list)) {
-      GrouperList gl = new GrouperList(g, m, list);
-      gl.load(s);
-      GrouperList.validate(gl);
+      GrouperList gl = new GrouperList(s, g, m, list);
       if (!GrouperList.exists(s, gl)) {
         throw new RuntimeException("List value does not exist");
       }
