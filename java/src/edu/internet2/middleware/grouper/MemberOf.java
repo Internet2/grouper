@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.14 2005-04-12 17:50:23 blair Exp $
+ * @version $Id: MemberOf.java,v 1.15 2005-04-12 21:41:55 blair Exp $
  */
 public class MemberOf {
 
@@ -179,9 +179,19 @@ public class MemberOf {
 
       // TODO Is this correct?  More tests needed.
       chain.addAll( gl.chain() );   // Add the chain leading to gl
-      if (glM.member().typeID().equals("group")) {
-        chain.add( new MemberVia(glM) );  // Add g's mship
+      // Add g's mship.  If immediate, the values in glM are fine.  If
+      // eff, we want the immediate mship that causes the eff mship.
+      Group group = glM.group();
+      if (glM.via() != null) {
+        group = glM.via();
       }
+      chain.add( 
+        new MemberVia(
+          new GrouperList(
+            this.s, group, glM.member(), glM.groupField()
+          )
+        )
+      );
       chain.addAll( glM.chain() );  // Add the chain leading to g's mship
         
       // Add m to where g is a member
