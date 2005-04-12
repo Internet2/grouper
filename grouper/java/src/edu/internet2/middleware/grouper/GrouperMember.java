@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.74 2005-04-11 01:40:15 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.75 2005-04-12 15:00:38 blair Exp $
  */
 public class GrouperMember {
 
@@ -292,7 +292,7 @@ public class GrouperMember {
   /**
    * Retrieve {@link Group} object for this * {@link GrouperMember}.
    * </p>
-   * @return {@link GrouperObject} object
+   * @return {@link Group} object
    */
   public Group toGroup() {
     GrouperSession.validate(this.s);
