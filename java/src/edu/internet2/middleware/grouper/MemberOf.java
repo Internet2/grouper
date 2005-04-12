@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.13 2005-04-12 15:00:38 blair Exp $
+ * @version $Id: MemberOf.java,v 1.14 2005-04-12 17:50:23 blair Exp $
  */
 public class MemberOf {
 
@@ -220,23 +220,21 @@ public class MemberOf {
       GrouperList lv = (GrouperList) valIter.next();
       String  chainKey  = null;
       int     idx       = 0;
-      chainKey = MemberVia.findKey(s, lv.key(), lv.chain());
-      if (chainKey == null) {
-        if (cache.containsKey(lv.key())) {
-          chainKey = (String) cache.get(lv.key());
-          cache.put(lv.key(), chainKey);
-        } else {
-          chainKey = new GrouperUUID().toString();
-        }
-        Iterator chains = lv.chain().iterator();
-        while (chains.hasNext()) {
-          MemberVia mv = (MemberVia) chains.next();
-          mv.key(chainKey);
-          mv.idx(idx);
-          mv.save(Grouper.dbSess());
-          idx++;
-        } 
-      }
+      /*
+       * FIXME Chain reuse is *not* working so why even pretend at this
+       *       point.  This really needs to be fixed.  Whether I can
+       *       get it fixed before 0.5.5 is another matter, however.
+       *       [grouperzilla#329]
+       */
+      chainKey = new GrouperUUID().toString();
+      Iterator chains = lv.chain().iterator();
+      while (chains.hasNext()) {
+        MemberVia mv = (MemberVia) chains.next();
+        mv.key(chainKey);
+        mv.idx(idx);
+        mv.save(Grouper.dbSess());
+        idx++;
+      } 
       lv.chainKey(chainKey);
       chainedVals.add( lv );
     }
