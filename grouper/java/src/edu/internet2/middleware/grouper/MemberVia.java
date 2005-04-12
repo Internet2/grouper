@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.13 2005-04-11 01:49:20 blair Exp $
+ * @version $Id: MemberVia.java,v 1.14 2005-04-12 17:50:23 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -169,15 +169,13 @@ public class MemberVia implements Serializable {
   /*
    * If a chain exists, find and return its chainKey.
    */
-  protected static String findKey(
-                            GrouperSession s, String listKey, List chain
-                          ) 
-  {
+  protected static String findKey(GrouperSession s, List chain) {
+    MemberVia mv = (MemberVia) chain.get(0);
     String key = _compare(  // Compare
              chain,         // this chain
              _filterByLength( 
                chain.size(), // with other chains of the appropriate length
-              _findChains(s, listKey) // that start with this listKey
+              _findChains(s, mv.listKey()) // that start with this listKey
              )
            );
     return key;
@@ -331,7 +329,7 @@ public class MemberVia implements Serializable {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           MemberVia mv = (MemberVia) iter.next();
-          chains.add( load(s, mv.getChainKey()) );
+          chains.add( MemberVia.load(s, mv.getChainKey()) );
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
