@@ -69,7 +69,7 @@ Registry within an HSQLDB database. The user interface, aging tasks,
 and some substantial elements of API functionality are slated for
 future release according to the following table.
 </p>
-<table id="table" align="center" border="1" width="75%">
+<table id="table" align="center" border="1" width="60%">
 <th>Version</th>
 <th>Description</th>
 <tr>
@@ -160,7 +160,7 @@ The top-level directory of the unpacked Grouper 0.5.5 distribution
 contains the following directories and files:
 </p>
 <p>
-<table id="table" align="center" border="0" width="75%">
+<table id="table" align="center" border="0" width="60%">
 <tr>
   <td id="td"><i>conf/</i></td>
   <td id="td">&nbsp;</td>
@@ -408,7 +408,7 @@ performing simple queries on the Groups Registry.  To use it:
 </div>
 <div id="section">
 <a name="section_3"/>
-<h3>3 Using Grouper's Data And Privilege Models</he>
+<h3>3 Using Grouper's Data And Privilege Models</h3>
 </div>
 <p>
 Grouper works by managing two principal types of objects: groups and
@@ -423,45 +423,43 @@ choice of identifiers for members.
 </p>
 <div id="subsection">
 <a name="section_3.1"/>
-<h4>3.1 Grouper 0.5.5 Fields</h4>
+<h4>3.1 Grouper Fields</h4>
 <div>
 <p>
-In Grouper parlance, each group has a set of <i>fields</i>, and each field can
-either be a list or an attribute. In Grouper 0.5.5, a <i>list</i> is a
-multivalued set of subjects and an <i>attribute</i> is a single-valued string.
-Each subject has a single <i>subjectType</i>, the full set of which is
-determined by each implementation site. As shipped, Grouper 0.5.5 has
-<i>subjectTypes</i> of <i>person</i> and <i>group</i> and its groups
-have the following default set of list and attribute fields.
+In Grouper parlance, each group has a set of <i>fields</i> and each field can
+either be a list or an attribute.  A <i>list</i> is a multivalued
+set of subjects and an <i>attribute</i> is a single-valued string.
+Each subject has a single <i>subjectType</i>, the full set of which
+is determined by each implementation site.  Grouper provides
+<i>person</i> and <i>group</i> <i>subjectTypes</i> by default.
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
+Groups have the following set of attributes:
+</p>
+<p>
+<a name="table_1"/>
+<table id="table" align="center" border="1" width="60%">
 <th>Field</th>
-<th>List Or Attribute?</th>
 <th>Public Or Private?</th>
 <th>Semantics</th>
 <tr>
   <td id="td">guid</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">system-assigned, read-only, globally unique identifier
-    for the group that is never reassigned or revoked</td>
+    for the group that is never reassigned</td>
 </tr>
 <tr>
   <td id="td">stem</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">the namespace in which the group is named</td>
 </tr>
 <tr>
   <td id="td">extension</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">relative name of the group within its namespace</td>
 </tr>
 <tr>
   <td id="td">name</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">system-maintained, read-only string representation
     of the logical ordered pair of (stem, extension), used to facilitate
@@ -469,14 +467,12 @@ have the following default set of list and attribute fields.
 </tr>
 <tr>
   <td id="td">displayExtension</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">alternative string for representing the extension
     attribute</td>
 </tr>
 <tr>
   <td id="td">displayName</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">system-maintained, read-only string representation
     of the logical ordered pair of (displayName of stem, displayExtension),
@@ -484,95 +480,92 @@ have the following default set of list and attribute fields.
 </tr>
 <tr>
   <td id="td">description</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">semantics defined by implementation site</td>
 </tr>
+</table>
+<div align="center"><b>Table 1 - Attributes Of <i>base</i> Type</b></div>
+</p>
+<p>
+Groups have the following set of lists:
+</p>
+<p>
+<a name="table_2"/>
+<table id="table" align="center" border="1" width="60%">
 <tr>
   <td id="td">members</td>
-  <td id="td">list</td>
   <td id="td">public</td>
   <td id="td">subjects belonging to this group</td>
 </tr>
 <tr>
   <td id="td">viewers</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with VIEW privilege for this group</td>
 </tr>
 <tr>
   <td id="td">readers</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with READ privilege for this group</td>
 </tr>
 <tr>
   <td id="td">updaters</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with UPDATE privilege for this group</td>
 </tr>
 <tr>
   <td id="td">admins</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with ADMIN privilege for this group</td>
 </tr>
 <tr>
   <td id="td">optins</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with OPTIN privilege for this group</td>
 </tr>
 <tr>
   <td id="td">optouts</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with OPTOUT privilege for this group</td>
 </tr>
 </table>
-<div align="center"><b>Table 1 - Fields of "base" type</b></div>
+<div align="center"><b>Table 2 - Lists Of <i>base</i> Type</b></div>
 </p>
 <p>
-Fields listed as "private" in this table are maintained for use by the
-API while "public" ones are maintained for use by calling programs, and
-the <i>viewers</i> through <i>optouts</i> lists are used only if
-Grouper's default privilege implementation is used (see section
-3.4). So, a group is a list of members, a description, and a set
-of naming elements, together with privileges that subjects have
-over those things.
+Fields listed as "private" are maintained for use by the API while
+"public" ones are maintained for use by calling programs.  The 
+<i>viewers</i> through <i>optouts</i> lists are used only if using the
+default Grouper Access Privilege implementation (see <a
+href="#section_3.4">section 3.4</a>).  Thus, a group is a list of
+members, a description, a set of naming elements and the privileges
+that subjects have over it.
 </p>
 <p>
-Grouper 0.5.5 namespaces have the following fields.
+Namespaces have the following set of attributes:
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
+<a name="table_3"/>
+<table id="table" align="center" border="1" width="60%">
 <th>Field</th>
-<th>List Or Attribute?</th>
 <th>Public Or Private?</th>
 <th>Semantics</th>
 <tr>
   <td id="td">guid</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">system-assigned, read-only, globally unique identifier
-    for the namespace that is never reassigned or revoked</td>
+    for the namespace that is never reassigned</td>
 </tr>
 <tr>
   <td id="td">stem</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">the namespace to which this one is subordinate</td>
 </tr>
 <tr>
   <td id="td">extension</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">relative name of the namespace within its parent namespace</td>
 </tr>
 <tr>
   <td id="td">name</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">system-maintained, read-only string representation
     of the logical ordered pair of (stem, extension), used to facilitate
@@ -580,14 +573,12 @@ Grouper 0.5.5 namespaces have the following fields.
 </tr>
 <tr>
   <td id="td">displayExtension</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">alternative string for representing the extension
     attribute</td>
 </tr>
 <tr>
   <td id="td">displayName</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">system-maintained, read-only string representation
     of the logical ordered pair of (displayName of stem, displayExtension),
@@ -595,24 +586,33 @@ Grouper 0.5.5 namespaces have the following fields.
 </tr>
 <tr>
   <td id="td">description</td>
-  <td id="td">attribute</td>
   <td id="td">public</td>
   <td id="td">semantics defined by implementation site</td>
 </tr>
+</table>
+<div align="center"><b>Table 3 - Attributes Of <i>naming</i> Type</b></div>
+</p>
+<p>
+Namespaces have the following set of lists:
+</p>
+<p>
+<a name="table_4"/>
+<table id="table" align="center" border="1" width="60%">
+<th>Field</th>
+<th>Public Or Private?</th>
+<th>Semantics</th>
 <tr>
   <td id="td">creators</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with CREATE privilege for this namespace</td>
 </tr>
 <tr>
   <td id="td">stemmers</td>
-  <td id="td">list</td>
   <td id="td">private</td>
   <td id="td">subjects with STEM privilege for this namespace</td>
 </tr>
 </table>
-<div align="center"><b>Table 2 - Fields of "naming" type</b></div>
+<div align="center"><b>Table 4 - Lists Of <i>naming</i> Type</b></div>
 </p>
 <div id="subsection">
 <a name="section_3.2"/>
@@ -623,38 +623,40 @@ To support some of the
 <a href="http://middleware.internet2.edu/dir/docs/draft-internet2-mace-dir-sage-scenarios-00.html">use cases</a>
 identified by MACE-Dir-Groups working group members, Grouper was
 designed from the start to enable implementation sites to extend the
-set of attributes and lists available to associate with some groups.
+set of attributes and lists available to be associated with groups.
 This was done by declaring attributes, lists, and their properties in
 tables within the Groups Registry rather than having them represented
 as static schematic elements of that database. Sets of attributes and
 lists are packaged into group types, and, in a future release of
 Grouper, each group can be assigned to any number of types. This is
 similar to how schemas for LDAP directories are managed and extended:
-LDAP attributes are packaged into objectclasses, and each LDAP entry
-can have a set of objectclasses associated with it, allowing different
-entries to serve different purposes. However, since in Grouper 0.5.5 a
-group can have only a single type, each site using extended types will
-need to ensure that each extended type includes all of the naming
-related base fields, <i>members</i>, and all of the privilege lists unless the
-site is using an access privilege interface implementation different
-from Grouper's default.
+LDAP attributes are packaged into object classes, and each LDAP entry
+can have a set of object classes associated with it, allowing different
+entries to serve different purposes. However, as this release of
+Grouper only allows groups to have a single type, each site using
+extended types will need to ensure that each extended type includes
+all of the naming related base fields, <i>members</i>, and all of
+the privilege lists unless the site is using an access privilege
+interface implementation different from Grouper's default.
 </p>
 <p>
-Grouper 0.5.5 ships with two group types. All groups are of the
-<i>base</i> type - its structure is given in Table 1. Namespaces are modeled
-internally to Grouper as groups of <i>naming</i> type. Its structure is
-given in Table 2.
+Grouper ships with two group types. All groups are of the
+<i>base</i> type - its structure is shown in <a href="#table_1">Table
+1</a> and <a href="#table_2">Table 2</a>. Namespaces are modeled
+internally to Grouper as groups of <i>naming</i> type.  Namespace
+structure is shown in <a href="#table_3"/>Table 3</a> and 
+<a href="#table_4">Table 4</a>.
 </p>
 <p>
 Although the API provides no support for managing group types, a
 site may alter or learn by example from the Groups Registry
-initialization script <i>$GROUPER_BASE/sql/init.sql</i> to populate the
-<i>grouper_type</i>, <i>grouper_typedef</i>, and <i>grouper_field</i>
-tables to determine the set of attributes, lists, and group types
+initialization script in <i>$GROUPER_BASE/sql/init.sql</i> to populate the
+<i>grouper_type</i>, <i>grouper_typeDef</i>, and <i>grouper_field</i>
+tables to determine the set of attributes, lists and group types
 they want in their Grouper deployment.
 </p>
 <p>
-Note: the <i>guid</i> attribute is an operational attribute. It is stored in
+<b>Note:</b> the <i>guid</i> attribute is an operational attribute. It is stored in
 the database as the <i>grouper_group:groupID</i> column and exposed in the API
 with the <i>Group.id()</i> method instead of with the
 <i>Group.attribute()</i> method. In presentation and documentation
@@ -665,54 +667,50 @@ contexts we'll use the term <i>guid</i>.
 <h4>3.3 Naming Elements And Examples</h4>
 </div>
 <p>
-Table 1 and Table 2 show that groups and namespaces have the same
-naming attributes with the same semantics. Groups and namespaces are
-created and named within namespaces, and namespaces can be arranged in
-a flat or hierarchical style, as desired by each implementation site.
+Tables <a href="#table_1">1</a>, <a href="#table_2">2</a>, 
+<a href="#table_3">3</a> and <a href="#table_4">4</a> show that
+groups and namespaces have the same naming attributes with the same
+semantics. Groups and namespaces are created and named within
+namespaces, and namespaces can be arranged in a flat or hierarchical
+style, as desired by each implementation site.
 </p>
 <p>
 Since a group must be named within a namespace, it is necessary to
-create a namespace before any groups can be created. In Grouper 0.5.5
-namespaces are modeled as groups of naming type, so namespaces and
-groups are created in a similar manner, using the
-<i>GrouperGroup.create()</i> method. Groups are created using a
-form of the create method that defaults to creating groups of the
-default, base, type. Namespaces are created using a form of the
-create method in which a non-default type is explicitly declared.
-For example, the following code fragment creates a top-level namespace
-named "uofc" and then creates a group named "exec_council" within
-the "uofc" namespace.
+create a namespace before any groups can be created. Namespaces are
+currently modeled internally as groups of <i>naming</i> type.  The
+following code example demonstrates the creation of a namespace and a
+group within that namespace:
 <pre>
-  String stem = Grouper.NS_ROOT;
-  String extn = "uofc";
-  GrouperGroup ns = GrouperGroup.create(s, stem, extn, Grouper.NS_TYPE);
+  String      stem  = Grouper.NS_ROOT;
+  String      extn  = "uofc";
+  GrouperStem ns    = GrouperStem.create(s, stem, extn);
 
-  String stem = "uofc";
-  String extn = "exec_council";
-  GrouperGroup g = GrouperGroup.create(s, stem, extn);
+  String      stem  = "uofc";
+  String      extn  = "exec_council";
+  GrouperGroup g    = GrouperGroup.create(s, stem, extn);
 </pre>
 </p>
 <p>
 A <i>hierarchy delimiter</i> is used in string representations of the names of
-groups and namespaces. The delimiter is a ":" character in Grouper
-0.5.5, but in the next release it will be a configurable choice
-within a constrained set of characters. Continuing the example
-above, the <i>name</i> of the "exec_council" group within the "uofc"
-namespace is "uofc:exec_council".
+groups and namespaces. The delimiter is a ":" and this character can
+not be used as part of the extension for either namespaces or groups.
+A future release of Grouper will make the delimiter configurable.
+Continuing the above example, the <i>name</i> of the "exec_council"
+group within the "uofc" namespace is "uofc:exec_council".
 </p>
 <p>
 Each newly created group or namespace contributes just one new element,
-the <i>extension</i>, to its accumulative name.  <i>displayName</i>s groups and
-namespaces are likewise accumulative - that's why the <i>name</i> and
-<i>displayName</i> attributes are system maintained and read-only. Here are
-some further examples illustrating all of the naming attributes of
-several namespaces and groups.
+the <i>extension</i>, to its accumulative name.  The <i>displayName</i>
+of groups and namespaces is likewise accumulative - that's why the
+<i>name</i> and <i>displayName</i> attributes are system maintained
+and read-only. Here are some further examples illustrating all of
+the naming attributes of several namespaces and groups.
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
-<th span="2">namespace uofc</th>
+<table id="table" align="center" border="1" width="60%">
+<th colspan="2">namespace uofc</th>
 <tr>
-  <td id="td"><i>stem</i></td>
+  <td id="td" width="25%"><i>stem</i></td>
   <td id="td">&nbsp;</td>
 </tr>
 <tr>
@@ -734,10 +732,10 @@ several namespaces and groups.
 </table>
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
-<th span="2">group uofc:exec_council</th>
+<table id="table" align="center" border="1" width="60%">
+<th colspan="2">group uofc:exec_council</th>
 <tr>
-  <td id="td"><i>guid</i></td>
+  <td id="td" width="25%"><i>guid</i></td>
   <td id="td">258a158b-3f40-43d4-a4b2-c97398c6ad19</td>
 </tr>
 <tr>
@@ -746,7 +744,7 @@ several namespaces and groups.
 </tr>
 <tr>
   <td id="td"><i>extension</i></td>
-  <td id="td">exec_councel</td>
+  <td id="td">exec_council</td>
 </tr>
 <tr>
   <td id="td"><i>displayExtension</i></td>
@@ -763,10 +761,10 @@ several namespaces and groups.
 </table>
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
-<th span="2">namespace uofc:bsd</th>
+<table id="table" align="center" border="1" width="60%">
+<th colspan="2">namespace uofc:bsd</th>
 <tr>
-  <td id="td"><i>stem</i></td>
+  <td id="td" width="25"><i>stem</i></td>
   <td id="td">uofc</td>
 </tr>
 <tr>
@@ -788,10 +786,10 @@ several namespaces and groups.
 </table>
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
-<th span="2">group uofc:bsd:eis_staff</th>
+<table id="table" align="center" border="1" width="60%">
+<th colspan="2">group uofc:bsd:eis_staff</th>
 <tr>
-  <td id="td"><i>guid</i></td>
+  <td id="td" width="25%"><i>guid</i></td>
   <td id="td">82a303fa-cb6b-4330-b085-46a1974b0a79</td>
 </tr>
 <tr>
@@ -825,7 +823,7 @@ would be a good idea for implementation sites to establish conventions
 for the assignment of naming attributes. An example of such is 
 <a href="http://techag.uchicago.edu/idm-wg/attrValueBNF.txt">here</a>
 (note that it was created before Grouper's design encompassed
-<i>displayName</i>s, and at that time the term <i>descriptor</i>
+<i>displayNames</i> and at that time the term <i>descriptor</i>
 was used where we now say <i>extension</i>).
 </p>
 <p>
@@ -837,80 +835,80 @@ gives a different impression than seeing it in the context of
 in the design of Grouper's privilege model, introduced next.
 </p>
 <p>
-Note that <i>displayExtension</i> and <i>displayName</i>, although declared in
-Grouper 0.5.5's <i>base</i> type, are not exposed in the API. That
-will come with the 0.5.5 maintenance release.
+<b>Note:</b> Although <i>displayExtension</i> and <i>displayName</i> are declared in
+Grouper's <i>base</i> type, they are not yet exposed via the API.
+These will be introduced in a future API release.
 </p>
 <div id="subsection">
 <a name="section_3.4"/>
-<h4>3.4 Grouper 0.5.5 Privileges</h4>
+<h4>3.4 Grouper Privileges</h4>
 </div>
 <p>
 There are two categories of privileges in Grouper. Access privileges
 determine what a subject can do to a group. Naming privileges determine
-what a subject can do to a namespace. These are listed in the following
-table.
+what a subject can do to a namespace.  The access and naming privileges
+are listed in the following tables.
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
+<a name="table_5"/>
+<table id="table" align="center" border="1" width="60%">
 <th>Privilege</th>
-<th>Interface</th>
 <th>Description</th>
 <tr>
   <td id="td"><i>VIEW</i></td>
-  <td id="td">access</td>
   <td id="td">Can see the group and can refer to it, e.g., to make
     it a subgroup of another group.</td>
 </tr>
 <tr>
   <td id="td"><i>READ</i></td>
-  <td id="td">access</td>
   <td id="td">Can read all "public" fields of the group. Implies
     <i>VIEW</i>.</td>
 </tr>
 <tr>
   <td id="td"><i>UPDATE</i></td>
-  <td id="td">access</td>
   <td id="td">Can update the group's members list and can grant and
-    revoke <i>OPTIN</i> and <i>OPTOUT</i> privilege for this group.
+    revoke <i>OPTIN</i> and <i>OPTOUT</i> privileges for this group.
     Implies <i>READ</i>.</td>
 </tr>
 <tr>
   <td id="td"><i>ADMIN</i></td>
-  <td id="td">access</td>
   <td id="td">Can modify all group fields, can grant and revoke all
-    access privileges, can rename the group, and can delete the
+    access privileges, can rename the group and can delete the
     group.</td>
 </tr>
 <tr>
   <td id="td"><i>OPTIN</i></td>
-  <td id="td"><i>access</i></td>
   <td id="td">Can add oneself to the members list of the group. Implies
     <i>VIEW</i>.</td>
 </tr>
 <tr>
   <td id="td"><i>OPTOUT</i></td>
-  <td id="td">access</td>
   <td id="td">Can remove oneself from the members list of the group.
     Implies <i>VIEW</i>.</td>
 </tr>
+</table>
+<div align="center"><b>Table 5 - Access Privileges</b></div>
+</p>
+<p>
+<a name="table_6"/>
+<table id="table" align="center" border="1" width="60%">
+<th>Privilege</th>
+<th>Description</th>
 <tr>
   <td id="td"><i>CREATE</i></td>
-  <td id="td">naming</td>
   <td id="td">Can create a group in the namespace.</td>
 </tr>
 <tr>
   <td id="td"><i>STEM</i></td>
-  <td id="td">naming</td>
   <td id="td">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
-    privilege for the namespace and can create a subordinate
-    namespace.</td>
+    privilege for the namespace, can create a subordinate namespace and
+    can delete the namespace.</td>
 </tr>
 </table>
-<div align="center"><b>Table 3 - Privileges</b></div>
+<div align="center"><b>Table 6 - Naming Privileges</b></div>
 </p>
 <p>
-Grouper filters group loads and search hits based on a subject's
+Grouper filters group loads and search results based on a subject's
 <i>VIEW</i> and <i>READ</i> privileges for each matched group. Subjects
 lacking <i>VIEW</i> privilege to a group will not have that group's
 existence revealed to them by the Grouper API. Subjects with
@@ -925,14 +923,14 @@ privilege, a subject with <i>STEM</i> privilege can assign themselves
 <i>CREATE</i> privilege.
 </p>
 <p>
-<b>Caveat: Some of the above privilege characteristics will be fully
-implemented only in the next release, a maintenance release to be
-called Grouper 0.5.5.</b>
+<b>Note:</b> Only the <i>ADMIN</i>, <i>CREATE</i>, <i>STEM</i> and
+<i>UPDATE</i> privileges are currently implemented.  The remaining
+privileges will be implemented in the 0.6 release cycle.
 </p>
 <p>
 Top-level namespaces, i.e., those for which the stem attribute is the
-constant <i>Grouper.NS_ROOT</i>, can only be created by the
-<i>GrouperSystem</i> distinguished subject in Grouper 0.5.5.
+constant <i>Grouper.NS_ROOT</i>, can currently only be created by the
+<i>GrouperSystem</i> subject.
 </p>
 <p>
 The Grouper API presents and itself uses abstracted interfaces,
@@ -941,19 +939,20 @@ naming privileges. This design permits implementation sites to replace
 Grouper's default implementation of either or both of these
 interfaces with ones of their own devise, in case the site has or will
 have privilege management capabilities with which they wish to
-integrate management of Grouper privileges (see section 4.5).
+integrate management of Grouper privileges (see 
+<a href="#section_4.5">section 4.5</a>).
 </p>
 <p>
 The privilege interfaces permit privileges to be assigned to subjects
 of any type, including groups. An implementation of the privilege
 interfaces that relies on Grouper to resolve subjects that are groups
-can take advantage of Grouper's subgroup, compound group, and aging
+can take advantage of Grouper's subgroup, compound group and aging
 capabilities to enrich privilege management. In particular,
 Grouper's default privilege implementation uses group management to
 support inheritance and aging of privileges.
 </p>
 <p>
-Although it is not possible to extend Grouper's privilege model,
+Although it is not currently possible to extend Grouper's privilege model,
 sites that extend the set of attributes and lists in their deployment
 can declare which privileges are needed to read and to write each
 attribute and list. These declarations are in the <i>grouper_field</i>
@@ -970,7 +969,7 @@ Capabilities</h4>
 <p>
 One of the leading reasons why there is interest in Grouper is that
 many sites recognize a need to involve many sources of authority in
-managing resource access, distribution lists, and application
+managing resource access, distribution lists and application
 customization - the types of needs which groups help to satisfy.
 Grouper's privilege model supports five ways to distribute
 management of groups.
@@ -1006,8 +1005,8 @@ solve an access control problem can be found in
 Most often the members of your groups will be people and other groups.
 But they might also be of any other type (applications or computers,
 for example) for which you now or eventually will manage identities.
-Grouper 0.5.5 supports a site-defined set of <i>subjectTypes</i> (see section
-4.3 below).
+Grouper supports a site-defined set of <i>subjectTypes</i> (see 
+<a href="#section_4.3">section 4.3</a> below).
 </p>
 <p>
 Identifiers and their management can get complicated. They can be
@@ -1034,128 +1033,118 @@ opt-in to a list or manage a group?
 </p>
 <p>
 Grouper accommodates subject identifier issues in two ways. First, it
-maintains guids for every subject and group in the deployment. These
-are never exposed by the API, but are associated with externally
-supplied subject identifiers in the <i>grouper_member</i> table.
-This approach allows the identifier associated with a given subject
-to be changed without any need to change actual memberships (although
-the supporting GrouperMember method is only slated for inclusion
-in the 0.5.5 release).
+maintains guids for every subject and group within the Groups
+Registry.  These are never exposed by the API, but are associated
+with externally supplied subject identifiers in the <i>grouper_member</i>
+table.  This approach allows the identifier associated with a given
+subject to be changed without any need to change actual memberships
+(although the supporting <i>GrouperMember</i> method is not yet
+available via the Grouper API).
 </p>
 <p>
-Second, by release 0.6, the Grouper API will incorporate an identifier
-lookup and translation service called the Subject Interface being
-co-developed by the Grouper and Signet projects. The Subject Interface
-is used to lookup subjects that are presented with an identifier in one
-namespace and obtain identifiers in other namespaces for that subject.
-That means that it can translate a username into a registryID and
-vice-versa, for example. So, when a user authenticates to an
-application using the Grouper API, that application can use the Subject
-Interface to fetch an identifier for that person chosen by the site for
-use in memberships. Similarly, when a membership in the Groups Registry
-is to be expressed elsewhere, the identifier used for group members can
-be translated by a provisioning connector by use of the Subject
-Interface into one that is suitable in the provisioned context.
+Second, during the 0.6 release cycle, the Grouper API will incorporate
+an identifier lookup and translation service called the Subject
+Interface being co-developed by the Grouper and Signet projects.
+The Subject Interface is used to lookup subjects that are presented
+with an identifier in one namespace and obtain identifiers in other
+namespaces for that subject.  That means that it can translate a
+username into a registryID and vice-versa, for example. So, when a
+user authenticates to an application using the Grouper API, that
+application can use the Subject Interface to fetch an identifier
+for that person chosen by the site for use in memberships. Similarly,
+when a membership in the Groups Registry is to be expressed elsewhere,
+the identifier used for group members can be translated by a
+provisioning connector by use of the Subject Interface into one
+that is suitable in the provisioned context.
 </p>
 <div id="section">
 <a name="section_4"/>
 <h3>4 Integration Tasks</h3>
 </div>
 <p>
-Things you'll need to do to integrate grouper with your infrastructure
-and practices.
+This section is intended to demonstrate how to integrate Grouper with
+your existing infrastructure and practices.  Unfortunately, because of
+where Grouper is in its development process, practical integration
+remains sparse.
 </p>
 <div id="subsection">
 <a name="section_4.1"/>
 <h4>4.1 Using Your Own RDBMS</h4>
 </div>
 <p>
-Grouper 0.5.5 ships with the HSQLDB relational database and Hibernate
-(<a href="http://www.hibernate.org/">&lt;http://www.hibernate.org/&gt;</a>) 
-for object persistence. Hibernate uses JDBC to coonnect to an RDBMS,
-so it should not be difficult to make Grouper use any of a variety
-of common RDBMS systems.
+Grouper uses Hibernate (<a href="http://www.hibernate.org/">&lt;http://www.hibernate.org/&gt;</a>) 
+for object persistence.  As Hibernate uses JDBC to speak to a RDBMS, it
+should not be difficult to configure Grouper to work with your
+preferred database backend.  As Grouper is currently only being tested
+against HSQLDB (its default database) and Oracle, it may be that it
+will not work out of the box with other databases.  Better database
+testing and integration is intended as Grouper matures.
 </p>
+<p><font color="red">XXX with.oracle</font></p>
+<p><font color="red">XXX db-init</font></p>
 <p>
-To use an alternate database you'll need to
+To use an alternate database you will need to:
 <ol>
-  <li>amend Grouper's Hibernate configuration file to connect to
-    your RDBMS, and</li>
-  <li>arrange an alternative database initialization process.</li>
+  <li>Modify Grouper's Hibernate configuration file</li>
+    (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
+    your RDMBS</li>
+  <li>Arrange an alternative database initialization process</li>
 </ol>
 </p>
-<p>
-The Hibernate configuration is in
-<i>$GROUPER_BASE/conf/hibernate.properties</i>. Several of its
-declarations will need to be modified. We intend to add subsections
-at this point in the Implementation Guide detailing how various
-databases have been connected with Grouper based on the experiences
-of early adopters.
-</p>
-<p>
-The "db-init" ant target in <i>$GROUPER_BASE/build.xml</i> creates and
-initializes the database relying on SQL scripts located in the
-<i>$GROUPER_BASE/sql/</i> directory. Although these are believed and intended
-to be vanilla SQL92 and if so ought to work for other relational
-databases, this has not been verified as yet. Some modification may be
-required. And the "db-init" ant target itself is specific to HSQLDB.
-You will need to use an alternative method to initialize a different
-RDBMS.
-</p>
-<p>
-To verify that your database is functioning correctly with Grouper,
-change directory to <i>$GROUPER_BASE</i> and run "ant test".
-</p>
+<p><font color="red">XXX testing with our databases</font></p>
 <div id="subsection">
 <a name="section_4.2"/>
 <h4>4.2 SQL Tuning</h4>
 </div>
 <p>
-To Be Done based on experiences of early adopters.
+As development progresses, general performance tuning and RDBMS-specific
+suggestions will be made available.
 </p>
 <div id="subsection">
 <a name="section_4.3"/.
 <h4>4.3 Getting Subjects Into Grouper</h4>
 </div>
 <p>
-Section 3.6 broached issues surrounding the choice of subject
-identifiers for use with Grouper. Having made a choice, this section
-tells you how to get those identifiers integrated with Grouper. You
-may want to stare at the 
+<a href="#section_3.6">Section 3.6</a> broached issues surrounding
+the choice of subject identifiers for use with Grouper. Having made
+a choice, this section tells you how to get those identifiers
+integrated with Grouper. You may want to stare at the
 <a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD4.4.gif">Groups Registry ERD</a> 
 while reading this section.
 </p>
 <p>
 The <i>grouper_subjectType</i> table is used to declare what
 <i>subjectTypes</i> are in a Grouper deployment, and, for each type,
-the name of the adapterClass that will be called to lookup and load
-objects of each type. Grouper 0.5.5 installs with this table defaulted
+the name of the adapter class that will be called to lookup and load
+objects of each type. Grouper installs with this table defaulted
 to support two subject types: <i>person</i> and <i>group</i>. The
 default <i>person</i> adapter class, called
-<i>SubjectTypeAdapterPersonImpl</i>, provides sites with a bootstrap to
-getting subjects into Grouper 0.5.5. It just looks in the
-<i>grouper_subject</i> table to qualify that the <i>subjectID</i>
-supplied to the Grouper API is valid. So all you've got to do initially
-is populate the <i>grouper_subject</i> table with all of the
-<i>subjectIDs</i> encompassed by your Grouper deployment, which is what
-the <i>csv2subject</i> contributed program does (see section 2.4.1).
+<i>SubjectTypeAdapterPersonImpl</i>, provides sites with a bootstrap
+mechanism for getting subjects into the Groups Registry.  It just
+looks in the <i>grouper_subject</i> table to qualify that the
+<i>subjectID</i> supplied to the Grouper API is valid.  Using 
+<i><a href="#csv2subject">csv2subject</a></i>, you can populate the the
+<i>grouper_subject</i> table with all of the <i>subjectIDs</i>
+encompassed by your Grouper deployment.
 </p>
 <p>
 A better means of integrating your person type <i>subjectIDs</i> with Grouper
-0.5.5 is to supply your own adapter class for the <i>person
-subjectType</i>. This class will need to validate and create subject objects given a
-<i>subjectID</i>. So, for example, it might hit your LDAP directory or your
-Person Registry directly to validate that a <i>subjectID</i> is in fact one
-that is valid for a group management operation. This would remove the
-need to maintain the <i>grouper_subject</i> table - its sole purpose in
-the Groups Registry is to bootstrap subjects into Grouper.
+is to supply your own adapter class for the <i>person subjectType</i>.
+This class will need to validate and create subject objects given a
+<i>subjectID</i>.  For example, you might write an adapter class that
+hit your LDAP directory or your Person Registry directly to validate
+that a <i>subjectID</i> is in fact one that is valid for a group
+management operation. This would remove the need to maintain the
+<i>grouper_subject</i> table - its sole purpose in the Groups
+Registry is to bootstrap subjects into Grouper.
 </p>
 <p>
-With implementation of the Subject Interface, anticipated for Grouper
-0.6, a richer set of subject data obtained from your identity
-management operation is made available to implement identifier
-translation capabilities as described in section 3.6 and subject search
-capabilities in support of the Grouper UI. The default adapter class for
+With implementation of the Subject Interface, anticipated to be
+included in the Grouper 0.6 release cycle, a richer set of subject
+data obtained from your identity management operation will be made
+available to implement identifier translation capabilities as
+described in <a href="#section_3.6">section 3.6</a> and subject
+search capabilities in support of the Grouper UI. The default adapter class for
 the <i>person subjectType</i> in Grouper 0.6 will support these identifier
 search and translation capabilities by reliance on the
 <i>grouper_subjectAttribute</i> table. That will allow you to bootstrap your
@@ -1164,7 +1153,7 @@ supply your own <i>person subjectType</i> adapter class with the requisite
 functionality.
 </p>
 <p>
-NOTE: The adapter class for the <i>group subjectType</i> should not
+<b>Note:</b> The adapter class for the <i>group subjectType</i> should not
 be changed!  Else why are you bothering with Grouper?
 </p>
 <div id="subsection">
@@ -1182,12 +1171,13 @@ extract information from the Groups Registry and represent it in
 other databases, directories, etc.
 </p>
 <p>
-As this is the initial release, there is as yet no contributed code
+As this is an early release, there is as yet no contributed code
 that has been used to get real data into or out of Grouper, although
-the contributed applications discussed in section 2.4 above could be
-used as a starting point for developing them. So this section will
-merely identify some of Grouper's capabilities relative to loaders
-and provisioning connectors.
+the contributed applications discussed in 
+<a href="#section_2.4">section 2.4</a> above could be used as a
+starting point for developing them. So this section will merely
+identify some of Grouper's capabilities relative to loaders and
+provisioning connectors.
 </p>
 <p>
 All interactions with the Grouper API are conducted within a session
@@ -1210,7 +1200,7 @@ as Grouper <i>subjectIDs</i>.
 </p>
 <p>
 The <i>GrouperQuery</i> class encapsulates the search filters implemented in
-Grouper 0.5.5 for selecting groups. These include
+Grouper for selecting groups. These include
 <ul>
   <li>specifying a time before which the group was modified</li>
   <li>specifying a time after which the group was modified</li>
@@ -1229,19 +1219,20 @@ See <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mac
 for details.
 </p>
 <p>
-Grouper 0.5.5 has no way to limit the number of objects returned by a
-search. That too is planned for a subsequent release.
+Grouper currently has no way to limit the number of objects returned by a
+search.  Search result limits will be added in a future release.
 </p>
 <p>
 <i>GrouperQuery.query()</i> and the <i>GrouperGroup</i> and
-<i>GrouperMember</i> <i>list*</i> methods for listing immediate and effective memberships return lists of
-<i>GrouperList</i> objects. The <i>GrouperList.group()</i> and
-<i>GrouperList.member()</i> methods convert <i>GrouperList</i> objects
-into <i>GrouperGroup</i> or <i>GrouperMember</i> objects, respectively.
+<i>GrouperMember</i> <i>list*</i> methods for listing immediate and
+effective memberships return lists of <i>GrouperList</i> objects.
+The <i>GrouperList.group()</i> and <i>GrouperList.member()</i>
+methods convert <i>GrouperList</i> objects into <i>GrouperGroup</i>
+or <i>GrouperMember</i> objects, respectively.
 </p>
 <p>
 In the case of a list value that is a <i>GrouperMember</i> object representing
-an effective membership, the <i>via</i> group for that membership is returned
+an effective membership, the <i>via group</i> for that membership is returned
 by the <i>GrouperList.via()</i> method. A <i>via group</i> is a
 group in which a member has an immediate membership that qualifies
 it for effective membership by virtue of a subgroup or compound
@@ -1260,10 +1251,11 @@ away.
 </p>
 <p>
 Each group in the Groups Registry has several <i>operational
-attributes</i> associated with it. In Grouper 0.5.5 these include:
+attributes</i> associated with it.  These include:
 </p>
 <p>
-<table id="table" align="center" border="1" width="75%">
+<a name="table_7"/>
+<table id="table" align="center" border="1" width="60%">
 <th>Operational Attribute</th>
 <th>Description</th>
 <tr>
@@ -1293,15 +1285,15 @@ attributes</i> associated with it. In Grouper 0.5.5 these include:
   <td id="td">undefined in Grouper 0.5.5</td>
 </tr>
 </table>
-<div align="center"><b>Table 4 - Operational Attributes For
+<div align="center"><b>Table 7 - Operational Attributes For
 Groups</b></div>
 </p>
 <p>
 The <i>modifyTime</i> and <i>modifySubject</i> are updated with
-each change to any of the group's fields. A change in effective
+each change to any of the group's fields.  A change in effective
 membership or effective privilege is not reflected in the values
-of these operational attributes. Such a capability has been requested
-for a future version of Grouper.
+of these operational attributes.  A request has been made to include
+that ability in a future release of Grouper.
 </p>
 <p>
 The <i>memberKey</i> referred to in this table is an internal globally unique
@@ -1316,7 +1308,7 @@ with. The <i>GrouperGroup.createSubject()</i> and
 System</h4>
 </div>
 <p>
-To be addressed with Grouper 0.6.
+This will be addressed in a later release cycle.
 </p>
 </body>
 </html>
