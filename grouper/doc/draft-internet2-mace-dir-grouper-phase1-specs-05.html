@@ -33,49 +33,54 @@ Comments to: tbarton@uchicago.edu or blair@uchicago.edu
 <div id="toc">
 <h3>Table of Contents</h3
 <ol>
-  <li><a href="#heading_Intro">Introduction to Grouper phase 1</a></li>
-  <li><a href="#heading_2_Comp">Components &amp; architecture</a></li>
-  <li><a href="#heading_3_data">Groups Registry data model</a></li>
-  <li><a href="#heading_4_membership">Representing membership</a></li>
-  <li><a href="#heading_5_privs">Grouper API naming and access privileges</a></li>
-  <li><a href="#heading_6_baseType">Definition of the "base" group type</a></li>
-  <li><a href="#heading_7_security">Grouper security</a></li>
-  <li><a href="#heading_8_defaultInts">Default implementation of the
-    Naming &amp; Access Interfaces</a></li>
-  <li><a href="#heading_9_classes">Grouper API classes and
-    methods</a></li>
-  <li><a href="#heading_10_logging">Logging specifications</a></li>
-  <li><a href="#heading_11_membersTable">Members table maintenance
-    program</a></li>
-  <li><a href="#heading_12_config">Configurable options</a></li>
-  <li><a href="#heading_13_DBdetails">Database creation script
-    details</a></li>
+  <li><a href="#heading_Intro">Introduction to Grouper Phase 1</a></li>
+  <li><a href="#heading_2_Comp">Components And Architecture</a></li>
+  <li><a href="#heading_3_data">Groups Registry Data Model</a></li>
+  <li><a href="#heading_4_membership">Representing Membership</a></li>
+  <li><a href="#heading_5_privs">Grouper API Naming And Access Privileges</a></li>
+  <li><a href="#heading_6_baseType">Definition Of The "base" Group Type</a></li>
+  <li><a href="#heading_7_security">Grouper Security</a></li>
+  <li><a href="#heading_8_defaultInts">Default Implementation Of The
+    Naming And Access Interfaces</a></li>
+  <li><a href="#heading_9_classes">Grouper API Classes And
+    Methods</a></li>
+  <li><a href="#heading_10_logging">Logging Specifications</a></li>
+  <li><a href="#heading_11_membersTable">Members Table Maintenance
+    Program</a></li>
+  <li><a href="#heading_12_config">Configurable Options</a></li>
+  <li><a href="#heading_13_DBdetails">Database Creation Script
+    Details</a></li>
   <li><a href="#heading_14_refs">References</a></li>
   <li><a href="#heading_15_acks">Acknowledgments</a></li>
 </ol>
 </div>
-
-<h4>
-<a name="heading_Intro"></a>1.
-Introduction to Grouper phase 1</h4>
+<div id="body">
+<div id="section">
+<a name="section_1"/>
+<a name="heading_Intro"/>
+<h4>1. Introduction To Grouper Phase 1</h4>
+</div>
+<p>
 Grouper v1 will be produced in three phases, as
-described in [1]. This document defines the phase 1 functional
-specification in some detail. We'll start with a brief review of
-Grouper's architecture - its major components and how those fit into an
-implementation site's infrastructure - and then introduce the
-underlying data model, the roles &amp; privileges internal to Grouper,
-define its "base group type", how its security is structured, and
-continue on to elaborate the classes and methods of the Groups API java
-implementation. The specification will conclude with several sections
-of miscellany.<br>
-<br>
+described in <a href="#note_1">[1]</a>. This document defines the
+phase 1 functional specification.  We'll start with a brief review
+of Grouper's architecture - its major components and how those fit
+into an implementation site's infrastructure - and then introduce
+the underlying data model, the roles and privileges internal to
+Grouper, define its "base group type", how its security is structured,
+and continue on to elaborate the classes and methods of the Groups
+API java implementation. The specification will conclude with several
+sections of miscellany.
+</p>
+<p>
 Phase 1 implements basic groups management capabilities - creation,
 update, and removal of groups from the Groups Registry, subgroups,
 export and limited querying capabilities, a graphical user interface
 for manual groups management, and logging. It will also include sample
 batch programs for loading data into and extracting data out of the
-Groups Registry.<br>
-<br>
+Groups Registry.
+</p>
+<p>
 Three internal functions of Grouper phase 1 are abstracted to enable
 sites to provide local alternatives to the default implementation.
 These are the Access and Naming Interfaces, which informs the
@@ -86,8 +91,9 @@ member objects and an alternate form of identifying the same real world
 subjects. For example, a member identifier might consist of a long,
 opaque string of hex digits that persistently identifies its real world
 subject, while more familiar usernames are used by people and systems
-external to Grouper to identify group members.<br>
-<br>
+external to Grouper to identify group members.
+</p>
+<p>
 At points it may be wise to look ahead towards phases 2 and 3, to be
 sure that phase 1 design choices don't make it too hard to meet
 functional requirements of these phases. Phase 2 adds support for
@@ -98,15 +104,19 @@ to integrate with Signet, the privilege management system being
 developed for Internet2/MACE by Stanford University that is a
 derivative of their Authority Manager. Phase 3 adds support for aging
 of groups and of group memberships, and includes abstraction of a
-fourth function internal to Grouper, the Last Activity Interface, which
-is
-used to determine when a group has become "stale".<br>
-<br>
-This version of the phase 1 specification does not address the
-graphical user interface.<br>
-
-<h4> <a name="heading_2_Comp"></a>2.
-Components &amp; architecture</h4>
+fourth function internal to Grouper, the Last Activity Interface, which is
+used to determine when a group has become "stale".
+</p>
+<p>
+This document does not address the Grouper graphical user interface.
+</p>
+<div id="section">
+<h4> <a name="heading_2_Comp">
+<a name="section_2"/>
+<a name="heading_2_Comp"/>
+<h4>2. Components And Architecture</h4>
+</div>
+<p>
 <a href="#Figure_1">Figure 1</a> below labels the main components of
 Grouper v1 and shows
 them in relation to the rest of an illustrative site's identity
@@ -212,12 +222,12 @@ identifying "base" as the sole type being managed by Grouper. Sites can
 extend these tables to support additional types of groups if they wish.<br>
 <a name="Figure_2"></a><br>
 </div>
-<img src="groupsRegERD3-5.gif" title="" alt="groups registry ERD v3.5"
- style="width: 657px; height: 566px;"><br>
-<br>
-Figure 2: Groups Registry Entity
-Relationship Diagram. Grayed out tables not under discussion in phase 1.<br>
-
+<p>
+<font color="red">TODO insert updated erd</font>
+<a name="figure_2"/>
+<div align="center"><b>Figure 2 - Groups Registry Entity Relationship
+Diagram.  Greyed-out tables are not currently under discussion.</b></div>
+</p>
 <div style="text-align: left;"><br>
 The grouper_members table is present to support the default
 implementation of the Subject Interface. Group members that are
@@ -338,22 +348,29 @@ effective membership is established, and so avoid having to search
 through the
 subgraph of subgroups of a group if they intend to remove that
 membership.<br>
-<h4>
-<a name="heading_5_privs"></a>5.
-Grouper API naming and access privileges<br>
-</h4>
-<p>Each subject that exercises the Grouper API is constrained in what
-it can do with the Groups Registry by the privilege(s) it has with
+<div id="section">
+<a name="section_5"/>
+<a name="heading_5_privs"/>
+<h4>5. Grouper API Naming And Access Privileges</h4>
+</div>
+<p>
+Each subject that exercises the Grouper API is constrained in what
+it can do within the Groups Registry by the privileges that it has with
+respect to each group and namespace.  Privileges are divided into two
+classes: those bearing on the creation of new groups and 
+granted by the privilege(s) it has with
 respect to each group. These privileges are divided into two classes:
 those bearing on the creation of new groups, and those constraining
 what can be done to an existing group. The Naming Interface provides
 management of group naming rights and the Access Interface provides
-management of access privileges to existing groups.<br>
+management of access privileges to existing groups.
 </p>
-A list of Grouper privileges and
-their definitions follows. Some of the definitions refer to a "security
-class". This is a bit of metadata about each of a group's fields that
-is specified with each field declaration further below. <br>
+<p>
+A list of Grouper privileges and their definitions follows. Some
+of the definitions refer to a "security class". This is a bit of
+metadata about each of a group's fields that is specified with each
+field declaration further below.
+</p>
 <a name="Table_1"></a><br>
 <table style="text-align: left; width: 100%;" border="1" cellspacing="2"
  cellpadding="2">
@@ -762,10 +779,11 @@ site.<br>
 <p>This arrangement enables the security model to be declared for new
 fields that may be
 a part of a new group type. </p>
-<h4><big><a
- name="heading_8_defaultInts"></a>8. Default implementation of
-the Naming &amp; Access Interfaces<br>
-</h4>
+<div id="section">
+<a name="section_8"/>
+<a name="heading_8_defaultInts"/>
+<h4>8. Default Implementation Of The Naming And Access Interfaces</h4>
+</div>
 Not surprisingly, Grouper's default implementation of these interfaces
 will leverage Grouper's core competency: groups will be used to aid in
 naming and access management.<br>
@@ -1159,24 +1177,36 @@ detail later on.<br>
   <li>principal for members table maintenance program</li>
   <li>specify column width &amp; syntax, indices, linkages</li>
 </ul>
-<h4><a name="heading_14_refs"></a>14.
-References</h4>
-<p>[1] "Grouper Roadmap", Tom Barton, editor<br>
-http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-03.html<br>
+<div id="section">
+<a name="section_14"/>
+<a name="heading_14_refs"/>
+<h4>14. References</h4>
+</div>
+<p>
+<ol>
+  <a name="note_1"/>
+  <li>"Grouper Roadmap", Tom Barton, editor <br />
+    <a href="http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-03.html">&lt;http://home.uchicago.edu/~tbarton/draft-barton-grouper-roadmap-03.html&gt;</a></li>
+  <a name="note_2"/>
+  <li>"Group Tools Architecture", Tom Barton, editor<br />
+    <a href="http://middleware.internet2.edu/dir/groups/docs/draft-barton-grouptools-arch-02.html">&lt;http://middleware.internet2.edu/dir/groups/docs/draft-barton-grouptools-arch-02.html&gt;</a></li> </p>
+</ol>
 </p>
-<p>[2] "Group Tools Architecture", Tom Barton, editor<br>
-http://middleware.internet2.edu/dir/groups/docs/draft-barton-grouptools-arch-02.html<br>
-</p>
-<h4><a name="heading_15_acks"></a>15.
-Acknowledgments</h4>
+<div id="section">
+<a name="section_15"/>
+<a name="heading_15_acks"/>
+<h4>15. Acknowledgments</h4>
+</div>
+<p>
 Thanks are due to the participants in the Internet2/MACE Directories
-working group, who support and substantially
-contribute to this effort.<br>
-<br>
+working group, who support and substantially contribute to this
+effort.
+</p>
+<p>
 Development of this document was supported with funding from the
 University of Chicago, Internet2, and the NSF Middleware Initiative
-(Cooperative Agreement No. ANI-0123937).<br>
-<br>
-<p></p>
+(Cooperative Agreement No. ANI-0123937).
+</p>
+</div>
 </body>
 </html>
