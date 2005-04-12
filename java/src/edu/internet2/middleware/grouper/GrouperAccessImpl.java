@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.64 2005-03-29 18:10:40 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.65 2005-04-12 21:44:28 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -229,7 +229,7 @@ public class GrouperAccessImpl implements GrouperAccess {
       } else {
         GrouperMember m  = GrouperMember.load(s, s.subject());
         rv = GrouperList.exists(
-               s, new GrouperList(g, m, (String) privMap.get(priv))
+               s, new GrouperList(s, g, m, (String) privMap.get(priv))
              );
       }
     } else {
@@ -278,7 +278,7 @@ public class GrouperAccessImpl implements GrouperAccess {
     boolean rv = false;
     if (this.can(priv) == true) {
       rv = GrouperList.exists(
-             s, new GrouperList(g, m, (String) privMap.get(priv))
+             s, new GrouperList(s, g, m, (String) privMap.get(priv))
            );
     } else {
       // TODO I should probably throw an exception
