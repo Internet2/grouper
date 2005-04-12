@@ -64,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.89 2005-03-29 16:14:26 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.90 2005-04-12 15:00:38 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -126,7 +126,7 @@ public class GrouperSession implements Serializable {
   /**
    * Start a {@link Grouper} session.
    * <p />
-   * @param   s   I2MI {@link Subject} to act as for the duration
+   * @param   subj  I2MI {@link Subject} to act as for the duration
    *   of this session.
    * @return  {@link GrouperSession} object if session started.
    */

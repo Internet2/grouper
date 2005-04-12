@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.12 2005-04-11 02:01:49 blair Exp $
+ * @version $Id: MemberOf.java,v 1.13 2005-04-12 15:00:38 blair Exp $
  */
 public class MemberOf {
 
@@ -79,7 +79,6 @@ public class MemberOf {
    * Create a new {@link MemberOf} object.
    * <p />
    * @param   s Operate within this {@link GrouperSession}.
-   * @return  new {@link MemberOf} object.
    */
   public MemberOf(GrouperSession s) {
     GrouperSession.validate(s);

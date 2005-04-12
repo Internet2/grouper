@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.19 2005-04-08 17:31:01 blair Exp $
+ * @version $Id: Group.java,v 1.20 2005-04-12 15:00:38 blair Exp $
  */
 abstract public class Group {
 
@@ -125,7 +125,7 @@ abstract public class Group {
    * Delete a group.
    * <p />
    * @param s   Delete group within this session.
-   * @param ns  Delete this group.
+   * @param g   Delete this group.
    */
   public static void delete(GrouperSession s, GrouperGroup g) {
     Group.delete(s, (Group) g);
