@@ -63,15 +63,9 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.206 2005-04-13 18:07:10 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.207 2005-04-13 18:15:11 blair Exp $
  */
 public class GrouperGroup extends Group {
-
-  /*
-   * PROTECTED INSTANCE VARIABLES
-   */
-  protected GrouperSession  s;
-
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -87,6 +81,7 @@ public class GrouperGroup extends Group {
   private String          modifyTime;
   private String          modifySubject;
   private String          modifySource;
+  private GrouperSession  s;
   private String          type;
 
 
