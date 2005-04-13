@@ -113,6 +113,7 @@ public class TestAll extends TestCase {
     // TODO TestMixedMoF
     // TODO TestMixedMoFAdd
     // TODO TestMixedMoFDel
+    suite.addTestSuite(TestMembersIsMember.class);
     // TODO Flesh out
     suite.addTestSuite(TestNamingPrivs.class);
     // TODO TestNamingPrivsGrant
