@@ -233,6 +233,13 @@
       viaKey      is null 
   ]]></query>
 
+  <query name="GrouperList.as.key.by.group.and.member.and.list"><![CDATA[
+    select l.listKey from GrouperList l where
+      l.groupKey    = ? and
+      l.memberKey   = ? and
+      l.groupField  = ?
+  ]]></query>
+
   <query name="GrouperList.by.group.and.list.and.is.eff"><![CDATA[
     from GrouperList          where
       groupKey    = ?         and

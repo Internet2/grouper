@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.77 2005-04-13 17:13:37 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.78 2005-04-13 17:45:17 blair Exp $
  */
 public class GrouperMember {
 
@@ -209,6 +209,48 @@ public class GrouperMember {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Check whether this member belongs to a specific group.
+   * <p />
+   * @param   g   Check membership in this {@link Group}
+   * @return  boolean true if is a member
+   */
+  public boolean isMember(Group g) {
+    return this.isMember(g, Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Check whether this member belongs to a specific group.
+   * <p />
+   * @param   g     Check membership in this {@link Group}
+   * @param   list  Check memberhship in this list.
+   * @return  boolean true if is a member
+   */
+  public boolean isMember(Group g, String list) {
+    String  qry = "GrouperList.as.key.by.group.and.member.and.list";
+    boolean rv  = false;
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, g.key()); 
+      q.setString(1, this.key());
+      q.setString(2, list);
+      try {
+        if (q.list().size() == 1) {
+          rv = true;
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return rv;
+  }
 
   /**
    * Retrieve group memberships of the default list type for this member.
