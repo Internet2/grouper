@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.21 2005-04-12 21:44:28 blair Exp $
+ * @version $Id: Group.java,v 1.22 2005-04-13 18:07:09 blair Exp $
  */
 abstract public class Group {
 
@@ -487,6 +487,37 @@ abstract public class Group {
       s.dbSess().txRollback();
       throw new RuntimeException("Error modifying attribute: " + e);
     }
+  }
+
+  /*
+   * Check for a list membership.
+   */
+  protected boolean hasMember(
+                      GrouperSession s, GrouperMember m, String list
+                    ) 
+  {
+    String  qry = "GrouperList.as.key.by.group.and.member.and.list";
+    boolean rv  = false;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key());
+      q.setString(1, m.key());
+      q.setString(2, list);
+      try {
+        if (q.list().size() == 1) {
+          rv = true;
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return rv;
   }
 
   /*
