@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.32 2005-04-08 17:31:01 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.33 2005-04-13 18:07:10 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -310,6 +310,27 @@ public class GrouperStem extends Group {
                 );
     }
     return vals;
+  }
+
+  /**
+   * Check whether a group has a specific member.
+   * <p />
+   * @param   m   Check whether m is a member of this group.
+   * @return  boolean true if it is a member
+   */
+  public boolean hasMember(GrouperMember m) {
+    return this.hasMember(m, Grouper.DEF_LIST_TYPE);
+  }
+
+  /**
+   * Check whether a group has a specific member.
+   * <p />
+   * @param   m     Check whether m is a member of this group.
+   * @param   list  check membership in this list.
+   * @return  boolean true if it is a member
+   */
+  public boolean hasMember(GrouperMember m, String list) {
+    return this.hasMember(this.s, m, list);
   }
 
   /**
