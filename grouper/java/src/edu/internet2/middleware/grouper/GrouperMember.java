@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.78 2005-04-13 17:45:17 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.79 2005-04-13 17:52:57 blair Exp $
  */
 public class GrouperMember {
 
@@ -214,7 +214,7 @@ public class GrouperMember {
    * Check whether this member belongs to a specific group.
    * <p />
    * @param   g   Check membership in this {@link Group}
-   * @return  boolean true if is a member
+   * @return  boolean true if it is a member
    */
   public boolean isMember(Group g) {
     return this.isMember(g, Grouper.DEF_LIST_TYPE);
@@ -225,7 +225,7 @@ public class GrouperMember {
    * <p />
    * @param   g     Check membership in this {@link Group}
    * @param   list  Check memberhship in this list.
-   * @return  boolean true if is a member
+   * @return  boolean true if it is a member
    */
   public boolean isMember(Group g, String list) {
     String  qry = "GrouperList.as.key.by.group.and.member.and.list";
