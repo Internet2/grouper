@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.76 2005-04-13 16:57:58 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.77 2005-04-13 17:13:37 blair Exp $
  */
 public class GrouperMember {
 
@@ -226,32 +226,8 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(String list) {
-    String  qry   = "GrouperList.by.member.and.list";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s); 
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
+    String  qry = "GrouperList.by.member.and.list";
+    return this.queryListVals(qry, list);
   }
 
   /**
@@ -272,32 +248,8 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(String list) {
-    String  qry   = "GrouperList.by.member.and.list.and.is.eff";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
+    String  qry = "GrouperList.by.member.and.list.and.is.eff";
+    return this.queryListVals(qry, list);
   }
 
   /**
@@ -318,32 +270,8 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals(String list) {
-    String  qry   = "GrouperList.by.member.and.list.and.is.imm";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.key());
-      q.setString(1, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
+    String  qry = "GrouperList.by.member.and.list.and.is.imm";
+    return this.queryListVals(qry, list);
   }
 
   /**
@@ -531,6 +459,30 @@ public class GrouperMember {
   /*
    * PRIVATE INSTANCE MTHODS
    */
+
+  /*
+   * Perform a list query against the groups registry.
+   */
+  private List queryListVals(String qry, String list) {
+    List vals = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key());
+      q.setString(1, list);
+      try {
+        vals.addAll( GrouperList.load(this.s, q.list()) );
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
 
 
   /*
