@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.56 2005-04-12 21:44:28 blair Exp $
+ * @version $Id: GrouperList.java,v 1.57 2005-04-13 17:12:59 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -221,31 +221,18 @@ public class GrouperList implements Serializable {
     return rv;
   }
 
-  protected void load(GrouperSession s) {
-    GrouperSession.validate(s);
-    if (this.g == null) {
-      if (this.groupKey == null) {
-        throw new RuntimeException("Unable to load group as key is null");
-      }
-      this.g = Group.loadByKey(s, this.groupKey);
+  /*
+   * Properly load a list of GrouperList objects.
+   */
+  protected static List load(GrouperSession s, List vals) {
+    List loaded = new ArrayList();
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      GrouperList gl = (GrouperList) iter.next();
+      gl.load(s);
+      loaded.add(gl);
     }
-    if (this.m == null) {
-      if (this.memberKey == null) {
-        throw new RuntimeException("Unable to load member as key is null");
-      }
-      this.m = GrouperMember.loadByKey(s, this.memberKey);
-    }
-    if (this.via == null) {
-      if (this.viaKey != null) {
-        this.via = Group.loadByKey(s, this.viaKey);
-      }
-    }
-    if (this.chainKey != null) {
-      if (this.elements.size() == 0) {
-        this.elements = MemberVia.load(s, this.chainKey);
-      }
-    }
-    GrouperList.validate(this);
+    return loaded;
   }
 
   /*
@@ -480,6 +467,36 @@ public class GrouperList implements Serializable {
       this.setListKey( new GrouperUUID().toString());
     }
     return this.getListKey();
+  }
+
+  /*
+   * Properly load a GrouperList object.
+   */
+  protected void load(GrouperSession s) {
+    GrouperSession.validate(s);
+    if (this.g == null) {
+      if (this.groupKey == null) {
+        throw new RuntimeException("Unable to load group as key is null");
+      }
+      this.g = Group.loadByKey(s, this.groupKey);
+    }
+    if (this.m == null) {
+      if (this.memberKey == null) {
+        throw new RuntimeException("Unable to load member as key is null");
+      }
+      this.m = GrouperMember.loadByKey(s, this.memberKey);
+    }
+    if (this.via == null) {
+      if (this.viaKey != null) {
+        this.via = Group.loadByKey(s, this.viaKey);
+      }
+    }
+    if (this.chainKey != null) {
+      if (this.elements.size() == 0) {
+        this.elements = MemberVia.load(s, this.chainKey);
+      }
+    }
+    GrouperList.validate(this);
   }
 
   /*
