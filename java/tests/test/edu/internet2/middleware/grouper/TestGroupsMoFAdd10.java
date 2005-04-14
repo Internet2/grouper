@@ -77,18 +77,83 @@ public class TestGroupsMoFAdd10 extends TestCase {
    * TESTS
    */
   
-
-  //
-  // Add m0 to gA
-  // Add gA to gB
-  // Add gB to gC
-  // Add gC to gD
   //
   // m0 -> gA -> gB 
   //       ^     |
   //       |     v
   //       \---- gC
   //
+  /*
+   * Add m0 to gA
+   * m0 -> gA
+   */
+  /*
+   * Add gA to gB
+   * gA -> gB
+   * m0 -> gA -> gB
+   *    => gA -> gB
+   */
+  /*
+   * Add gB to gC
+   * gB -> gC
+   * ---
+   * ---
+   * gA -> gB -> gC
+   *    => gB -> gC
+   * m0 -> gA -> gB -> gC
+   *    => gA -> gB
+   *    => gB -> gC
+   * ---
+   */
+  /*  
+   * Add gC to gA
+   * gC -> gA
+   * ---
+   * gC -> gA -> gB
+   *    => gA -> gB
+   * gC -> gA -> gB -> gC
+   *    => gA -> gB
+   *    => gB -> gC
+   * ---
+   * gB -> gC -> gA
+   *    => gC -> gA
+   * gA -> gB -> gC -> gA
+   *    => gB -> gC
+   *    => gC -> gA
+   * m0 -> gA -> gB -> gC -> gA
+   *    => gA -> gB
+   *    => gB -> gC
+   *    => gC -> gA
+   * ---
+   * gB -> gC -> gA -> gB
+   *    => gC -> gA
+   *    => gA -> gB
+   * gB -> gC -> gA -> gB -> gC
+   *    => gC -> gA
+   *    => gA -> gB
+   *    => gB -> gC
+   * gA -> gB -> gC -> gA -> gB
+   *    => gC -> gA
+   *    => gA -> gB
+   *    => gB -> gC
+   * gA -> gB -> gC -> gA -> gB -> gC
+   *    => gB -> gC
+   *    => gC -> gA
+   *    => gA -> gB
+   *    => gB -> gC
+   * m0 -> gA -> gB -> gC -> gA -> gB
+   *    => gA -> gB
+   *    => gB -> gC
+   *    => gC -> gA
+   *    => gA -> gB
+   * m0 -> gA -> gB -> gC -> gA -> gB -> gC
+   *    => gA -> gB
+   *    => gB -> gC
+   *    => gC -> gA
+   *    => gA -> gB
+   *    => gB -> gC
+   */
+
   public void testMoF() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
@@ -139,6 +204,19 @@ public class TestGroupsMoFAdd10 extends TestCase {
     }
 
     // Now inspect gA's, resulting list values
+    /*
+     * m0 -> gA
+     * gC -> gA
+     * gB -> gC -> gA
+     *    => gC -> gA
+     * gA -> gB -> gC -> gA
+     *    => gB -> gC
+     *    => gC -> gA
+     * m0 -> gA -> gB -> gC -> gA
+     *    => gA -> gB 
+     *    => gB -> gC
+     *    => gC -> gA
+     */
     Assert.assertTrue(
       "gA members == 5", gA.listVals("members").size() == 5
     );
@@ -153,15 +231,129 @@ public class TestGroupsMoFAdd10 extends TestCase {
       GrouperList lv = (GrouperList) iterAI.next();
       Assert.assertTrue("gA empty chain", lv.chain().size() == 0);
       Assert.assertNull("gA null via", lv.via());
+      if        (lv.member().equals(m0)) {
+        Assert.assertTrue("gA imm == m0", true);
+      } else if (lv.member().equals(gC.toMember())) {
+        Assert.assertTrue("gA imm == gC", true);
+      } else {
+        Assert.fail("gA imm != (m0, gC)");
+      }
     }
     Iterator iterAE = gA.listEffVals("members").iterator();
     while (iterAE.hasNext()) {
       GrouperList lv = (GrouperList) iterAE.next();
-      Assert.assertTrue("gA !empty chain", lv.chain().size() > 0);
-      Assert.assertNotNull("gA !null via", lv.via());
+      if        (lv.member().equals(m0)) {
+        Assert.assertTrue("gA eff == m0", true);
+        Assert.assertTrue(
+          "m0 -> gA m == m0", lv.member().equals(m0)
+        );
+        Assert.assertTrue(
+          "m0 -> gA v == gA", lv.via().equals(gA)
+        );
+        Assert.assertTrue(
+          "m0 -> gA chain == 1", lv.chain().size() == 3
+        );
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "m0 -> gA via[0] g == gB", 
+          mv0.toList(s).group().equals(gB)
+        );
+        Assert.assertTrue(
+          "m0 -> gA via[0] m == gA", 
+          mv0.toList(s).member().equals(gA.toMember())
+        );
+        MemberVia mv1 = (MemberVia) lv.chain().get(1);
+        Assert.assertTrue(
+          "m0 -> gA via[1] g == gC", 
+          mv1.toList(s).group().equals(gC)
+        );
+        Assert.assertTrue(
+          "m0 -> gA via[1] m == gB", 
+          mv1.toList(s).member().equals(gB.toMember())
+        );
+        MemberVia mv2 = (MemberVia) lv.chain().get(2);
+        Assert.assertTrue(
+          "m0 -> gA via[2] g == gA", 
+          mv2.toList(s).group().equals(gA)
+        );
+        Assert.assertTrue(
+          "m0 -> gA via[2] m == gC", 
+          mv2.toList(s).member().equals(gC.toMember())
+        );
+      } else if (lv.member().equals(gA.toMember())) {
+        Assert.assertTrue("gA eff == gA", true);
+        Assert.assertTrue(
+          "gA -> gA m == gA", lv.member().equals(gA.toMember())
+        );
+        Assert.assertTrue(
+          "gA -> gA v == gB", lv.via().equals(gB)
+        );
+        Assert.assertTrue(
+          "gA -> gA chain == 1", lv.chain().size() == 2
+        );
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "gA -> gA via[0] g == gC",
+          mv0.toList(s).group().equals(gC)
+        );
+        Assert.assertTrue(
+          "gA -> gA via[0] m == gB",
+          mv0.toList(s).member().toGroup().equals(gB)
+        );
+        MemberVia mv1 = (MemberVia) lv.chain().get(1);
+        Assert.assertTrue(
+          "gA -> gA via[1] g == gA",
+          mv1.toList(s).group().equals(gA)
+        );
+        Assert.assertTrue(
+          "gA -> gA via[1] m == gC",
+          mv1.toList(s).member().toGroup().equals(gC)
+        );
+      } else if (lv.member().equals(gB.toMember())) {
+        Assert.assertTrue("gA eff == gB", true);
+        Assert.assertTrue(
+          "gB -> gA m == gB", lv.member().equals(gB.toMember())
+        );
+        Assert.assertTrue(
+          "gB -> gA v == gC", lv.via().equals(gC)
+        );
+        Assert.assertTrue(
+          "gB -> gA chain == 1", lv.chain().size() == 1
+        );
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "gB -> gA via[0] g == gA",
+          mv0.toList(s).group().equals(gA)
+        );
+        Assert.assertTrue(
+          "gB -> gA via[0] m == gC",
+          mv0.toList(s).member().toGroup().equals(gC)
+        );
+      } else {
+        Assert.fail("gA eff != (m0, gA, gB)");
+      }
     }
 
     // Now inspect gB's, resulting list values
+    /*
+     * gA -> gB
+     * m0 -> gA -> gB
+     *    => gA -> gB
+     * gC -> gA -> gB
+     *    => gA -> gB
+     * gB -> gC -> gA -> gB
+     *    => gC -> gA
+     *    => gA -> gB
+     * gA -> gB -> gC -> gA -> gB
+     *    => gB -> gC
+     *    => gC -> gA
+     *    => gA -> gB
+     * m0 -> gA -> gB -> gC -> gA -> gB
+     *    => gA -> gB
+     *    => gB -> gC
+     *    => gC -> gA
+     *    => gA -> gB
+     */
     Assert.assertTrue(
       "gB members == 6", gB.listVals("members").size() == 6
     );
@@ -176,15 +368,170 @@ public class TestGroupsMoFAdd10 extends TestCase {
       GrouperList lv = (GrouperList) iterBI.next();
       Assert.assertTrue("gB empty chain", lv.chain().size() == 0);
       Assert.assertNull("gB null via", lv.via());
+      Assert.assertTrue(
+        "gB imm == gA", lv.member().equals(gA.toMember())
+      );
     }
     Iterator iterBE = gB.listEffVals("members").iterator();
     while (iterBE.hasNext()) {
       GrouperList lv = (GrouperList) iterBE.next();
-      Assert.assertTrue("gB !empty chain", lv.chain().size() > 0);
-      Assert.assertNotNull("gB !null via", lv.via());
+      if        (lv.member().equals(m0)) {
+        Assert.assertTrue("gB eff == m0", true);
+        if        (lv.chain().size() == 1) {
+          Assert.assertTrue("m0 -> gB chain == 1", true);
+          MemberVia mv0 = (MemberVia) lv.chain().get(0);
+          Assert.assertTrue(
+            "m0 -> gB via[0] g == gB",
+            mv0.toList(s).group().equals(gB)
+          );
+          Assert.assertTrue(
+            "m0 -> gB via[0] m == gA",
+            mv0.toList(s).member().toGroup().equals(gA)
+          );
+        } else if (lv.chain().size() == 4) {
+          Assert.assertTrue("m0 -> gB chain == 4", true);
+          MemberVia mv0 = (MemberVia) lv.chain().get(0);
+          Assert.assertTrue(
+            "m0 -> gB via[0] g == gB",
+            mv0.toList(s).group().equals(gB)
+          );
+          Assert.assertTrue(
+            "m0 -> gB via[0] m == gA",
+            mv0.toList(s).member().toGroup().equals(gA)
+          );
+          MemberVia mv1 = (MemberVia) lv.chain().get(1);
+          Assert.assertTrue(
+            "m0 -> gB via[1] g == gC",
+            mv1.toList(s).group().equals(gC)
+          );
+          Assert.assertTrue(
+            "m0 -> gB via[1] m == gB",
+            mv1.toList(s).member().toGroup().equals(gB)
+          );
+          MemberVia mv2 = (MemberVia) lv.chain().get(2);
+          Assert.assertTrue(
+            "m0 -> gB via[2] g == gA",
+            mv2.toList(s).group().equals(gA)
+          );
+          Assert.assertTrue(
+            "m0 -> gB via[2] m == gC",
+            mv2.toList(s).member().toGroup().equals(gC)
+          );
+          MemberVia mv3 = (MemberVia) lv.chain().get(3);
+          Assert.assertTrue(
+            "m0 -> gB via[3] g == gB",
+            mv3.toList(s).group().equals(gB)
+          );
+          Assert.assertTrue(
+            "m0 -> gB via[3] m == gA",
+            mv3.toList(s).member().toGroup().equals(gA)
+          );
+        } else {
+          Assert.fail("m0 -> gB chain != (1,4)");
+        }
+      } else if (lv.member().equals(gA.toMember())) {
+        Assert.assertTrue("gB eff == gA", true);
+        Assert.assertTrue(
+          "gB gC via == gB", lv.via().equals(gB)
+        );
+        Assert.assertTrue("gA -> gB chain == 3", lv.chain().size() == 3);
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "gA -> gB via[0] g = gC",
+          mv0.toList(s).group().equals(gC)
+        );
+        Assert.assertTrue(
+          "gA -> gB via[0] m = gB",
+          mv0.toList(s).member().equals(gB.toMember())
+        );
+        MemberVia mv1 = (MemberVia) lv.chain().get(1);
+        Assert.assertTrue(
+          "gA -> gB via[1] g = gA",
+          mv1.toList(s).group().equals(gA)
+        );
+        Assert.assertTrue(
+          "gA -> gB via[1] m = gC",
+          mv1.toList(s).member().equals(gC.toMember())
+        );
+        MemberVia mv2 = (MemberVia) lv.chain().get(2);
+        Assert.assertTrue(
+          "gA -> gB via[2] g = gC",
+          mv2.toList(s).group().equals(gB)
+        );
+        Assert.assertTrue(
+          "gA -> gB via[2] m = gB",
+          mv2.toList(s).member().equals(gA.toMember())
+        );
+      } else if (lv.member().equals(gB.toMember())) {
+        Assert.assertTrue("gB eff == gB", true);
+        Assert.assertTrue(
+          "gB -> gB via == gC", lv.via().equals(gC)
+        );
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "gB -> gB via[0] g == gA",
+          mv0.toList(s).group().equals(gA)
+        );
+        Assert.assertTrue(
+          "gB -> gB via[0] m == gC",
+          mv0.toList(s).member().equals(gC.toMember())
+        );
+        MemberVia mv1 = (MemberVia) lv.chain().get(1);
+        Assert.assertTrue(
+          "gB -> gB via[1] g == gB",
+          mv1.toList(s).group().equals(gB)
+        );
+        Assert.assertTrue(
+          "gB -> gB via[1] m == gA",
+          mv1.toList(s).member().equals(gA.toMember())
+        );
+      } else if (lv.member().equals(gC.toMember())) {
+        Assert.assertTrue("gB eff == gC", true);
+        Assert.assertTrue(
+          "gB gC via == gA", lv.via().equals(gA)
+        );
+        Assert.assertTrue("gB chain == 1", lv.chain().size() == 1);
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "gc -> gB via[1] g == gB", 
+          mv0.toList(s).group().equals(gB)
+        );
+        Assert.assertTrue(
+          "gC -> gB via[1] m == gA", 
+          mv0.toList(s).member().equals(gA.toMember())
+        );
+      } else {
+        Assert.fail("gB eff != (m0, gA, gB, gC)");
+      }
     }
 
     // Now inspect gC's, resulting list values
+    /*
+     * gB -> gC
+     * gA -> gB -> gC
+     *    => gB -> gC
+     * m0 -> gA -> gB -> gC
+     *    => gA -> gB
+     *    => gB -> gC
+     * gC -> gA -> gB -> gC
+     *    => gA -> gB
+     *    => gB -> gC
+     * gB -> gC -> gA -> gB -> gC
+     *    => gC -> gA
+     *    => gA -> gB
+     *    => gB -> gC
+     * gA -> gB -> gC -> gA -> gB -> gC
+     *    => gB -> gC
+     *    => gC -> gA
+     *    => gA -> gB
+     *    => gB -> gC
+     * m0 -> gA -> gB -> gC -> gA -> gB -> gC
+     *    => gA -> gB
+     *    => gB -> gC
+     *    => gC -> gA
+     *    => gA -> gB
+     *    => gB -> gC
+     */
     Assert.assertTrue(
       "gC members == 7", gC.listVals("members").size() == 7
     );
@@ -203,8 +550,77 @@ public class TestGroupsMoFAdd10 extends TestCase {
     Iterator iterCE = gC.listEffVals("members").iterator();
     while (iterCE.hasNext()) {
       GrouperList lv = (GrouperList) iterCE.next();
-      Assert.assertTrue("gC !empty chain", lv.chain().size() > 0);
       Assert.assertNotNull("gC !null via", lv.via());
+      if        (lv.member().equals(m0)) {
+        Assert.assertTrue(
+          "m0 -> gc via == gA", lv.via().equals(gA)
+        );
+        Assert.assertTrue("gC eff == m0", true);
+        if        (lv.chain().size() == 2) {
+          Assert.assertTrue("m0 -> gC chain == 2", true);
+        } else if (lv.chain().size() == 5) {
+          Assert.assertTrue("m0 -> gC chain == 5", true);
+        } else {
+          Assert.fail("m0 -> gC chain != (2,5)");
+        }
+      } else if (lv.member().equals(gA.toMember())) {
+        Assert.assertTrue("gC eff == gA", true);
+        Assert.assertTrue(
+          "gA -> gC via == gB", lv.via().equals(gB)
+        );
+        if        (lv.chain().size() == 1) {
+          Assert.assertTrue("gA -> gC chain == 1", true);
+        } else if (lv.chain().size() == 4) {
+          Assert.assertTrue("gA -> gC chain == 4", true);
+        } else {
+          Assert.fail("gA -> gC chain != (1,4)");
+        }
+      } else if (lv.member().equals(gB.toMember())) {
+        Assert.assertTrue("gC eff == gB", true);
+        Assert.assertTrue(
+          "gB -> gC via == gC", lv.via().equals(gC)
+        );
+        Assert.assertTrue(
+          "gB -> gC chain == 3", lv.chain().size() == 3
+        );
+        MemberVia mv0 = (MemberVia) lv.chain().get(0);
+        Assert.assertTrue(
+          "gB -> gC via[0] g == gA",
+          mv0.toList(s).group().equals(gA)
+        );
+        Assert.assertTrue(
+          "gB -> gC via[0] m == gC",
+          mv0.toList(s).member().equals(gC.toMember())
+        );
+        MemberVia mv1 = (MemberVia) lv.chain().get(1);
+        Assert.assertTrue(
+          "gB -> gC via[1] g == gB",
+          mv1.toList(s).group().equals(gB)
+        );
+        Assert.assertTrue(
+          "gB -> gC via[1] m == gA",
+          mv1.toList(s).member().equals(gA.toMember())
+        );
+        MemberVia mv2 = (MemberVia) lv.chain().get(2);
+        Assert.assertTrue(
+          "gB -> gC via[2] g == gC",
+          mv2.toList(s).group().equals(gC)
+        );
+        Assert.assertTrue(
+          "gB -> gC via[2] m == gB",
+          mv2.toList(s).member().equals(gB.toMember())
+        );
+      } else if (lv.member().equals(gC.toMember())) {
+        Assert.assertTrue("gC eff == gC", true);
+        Assert.assertTrue(
+          "gC -> gC via == gA", lv.via().equals(gA)
+        );
+        Assert.assertTrue(
+          "gC -> gC chain == 2", lv.chain().size() == 2
+        );
+      } else {
+        Assert.fail("gC eff != (m0, gA, gB, gC)");
+      }
     }
 
     s.stop();
