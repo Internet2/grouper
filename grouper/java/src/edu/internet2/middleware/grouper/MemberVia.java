@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.15 2005-04-12 21:39:05 blair Exp $
+ * @version $Id: MemberVia.java,v 1.16 2005-04-14 19:37:13 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -90,8 +90,7 @@ public class MemberVia implements Serializable {
     // Nothing 
   }
 
-  protected MemberVia(GrouperList gl) {
-    // TODO Include an assertion prohibiting MV objects are eff mships?
+  private MemberVia(GrouperList gl) {
     this.gl       = gl;
     this.listKey  = gl.key();
   }
@@ -168,6 +167,18 @@ public class MemberVia implements Serializable {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  /*
+   * Validate, create and return a MemberVia object.
+   */
+  protected static MemberVia create(GrouperList gl) {
+    if (gl.via() != null) {
+      throw new RuntimeException(
+        "Via membership cannot be effective: " + gl
+      );
+    }
+    return new MemberVia(gl);
+  }
 
   /*
    * If a chain exists, find and return its chainKey.
