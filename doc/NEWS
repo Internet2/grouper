@@ -1,22 +1,24 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.32 2005-03-09 05:41:42 blair Exp $
+$Id: NEWS,v 1.33 2005-04-14 01:47:55 blair Exp $
 
 ---
 
-## Version 0.5.1-cvs
+## Version 0.5.5-cvs
 
 ### Changes
 * New: Use Ant's SQL task to to create, initialize and reset
   HSQLDB database (#287)
 * New: GrouperSession objects serializable (#296)
-* New: Hibernate's ODMG interface .jar 
+* New: hasMember() and isMember() methods (#328)
 * New: GrouperField objects now have public instance methods 
   for getting information about the field.
 * New: `via_element' and `via_path' database tables.
+* New: Hibernate's ODMG interface .jar 
 * Updated: Hibernate .jar from 2.1.7c to 2.1.8
 * Updated: HSQLDB .jar from 1.7.1 to 1.7.2.11
+* Updated: csv2group 
 * Fixed: Removed calls to system.exit() (#179) 
   (David Langenberg, The University Of Chicago)
 * Fixed: sessionID generation bug (#278)
