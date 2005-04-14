@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.10 2005-03-07 06:06:15 acohen Exp $
-  $Date: 2005-03-07 06:06:15 $
+  $Id: functions.jsp,v 1.11 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -47,6 +47,8 @@
         functionDescriptionElement.firstChild.nodeValue=functionHelpText;
       }
   </script>
+  
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -93,7 +95,7 @@
 %>
 
     <form name="form1" method="post" action="OrgBrowse.do">
-      <jsp:include page="header.jsp" flush="true" />    
+      <tiles:insert page="/tiles/header.jsp" flush="true" />
         <div id="Navbar">
           <span class="logout">
             <a href="NotYetImplemented.do">
@@ -220,7 +222,7 @@
          	</div>	<!-- section -->
 					
        	</div><!-- Content -->
-				<jsp:include page="footer.jsp" flush="true" />
+        <tiles:insert page="/tiles/footer.jsp" flush="true" />
         <div id="Sidebar">
           <div class="helpbox">
           	<h2>Help</h2>

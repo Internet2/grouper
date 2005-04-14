@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.13 2005-03-25 02:46:27 acohen Exp $
-  $Date: 2005-03-25 02:46:27 $
+  $Id: confirm.jsp,v 1.14 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -21,6 +21,8 @@
   </head>
 
   <body>
+  
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -89,7 +91,7 @@
 
     <form name="form1" action="">
     
-      <jsp:include page="header.jsp" flush="true" />
+      <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Navbar">
         <span class="logout">
           <a href="NotYetImplemented.do">
@@ -234,9 +236,9 @@
            </div>
            <!-- section -->
 
-         </div> <!-- Content -->                    
-          <jsp:include page="footer.jsp" flush="true" /> 
-				 <div id="Sidebar">
+         </div> <!-- Content -->    
+         <tiles:insert page="/tiles/footer.jsp" flush="true" />
+         <div id="Sidebar">
           <div class="findperson">
             <h2>
               Find a person

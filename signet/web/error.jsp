@@ -1,6 +1,6 @@
 <!--
-  $Id: error.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: error.jsp,v 1.4 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -20,20 +20,13 @@
     </script>
   </head>
   <body>
+  
+    <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
   <%@ page import="org.apache.struts.Globals" %>
   <%@ taglib uri="/tags/struts-bean" prefix="bean" %>
   <%@ taglib uri="/tags/struts-logic" prefix="logic" %>
-
-      <div id="Header">  
-        <div id="Logo">
-          <img src="images/KITN.gif" width="216" height="60" alt="logo" />
-        </div> <!-- Logo -->
-
-        <div id="Signet">
-          <img src="images/signet.gif" width="49" height="60" alt="Signet" />
-        </div> <!-- Signet -->
-      </div> <!-- Header -->
+  <tiles:insert page="/tiles/header.jsp" flush="true" /> 
       
       <div id="Navbar">
         <span class="logout">
@@ -62,7 +55,7 @@
             <a href="Start.do">
             <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Return to home page
             </a>
-          <jsp:include page="footer.jsp" flush="true" />
+          <tiles:insert page="/tiles/footer.jsp" flush="true" />
         </div> <!-- Content -->
         
         <div id="Sidebar">

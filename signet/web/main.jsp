@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.22 2005-04-07 20:30:15 acohen Exp $
-  $Date: 2005-04-07 20:30:15 $
+  $Id: main.jsp,v 1.23 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -20,6 +20,8 @@
 </head>
 
 <body>
+
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -51,7 +53,7 @@
 %>
 
   <form name="form1" method="post" action="">
-    <jsp:include page="header.jsp" flush="true" />
+    <tiles:insert page="/tiles/header.jsp" flush="true" />
   <div id="Navbar">
     <span class="logout">
       <a href="NotYetImplemented.do">
@@ -207,7 +209,7 @@
           </table>
       </div> <!-- tablecontent -->
     </div> <!-- Content -->
-    <jsp:include page="footer.jsp" flush="true" />
+    <tiles:insert page="/tiles/footer.jsp" flush="true" />
     <div id="Sidebar">
 			<div class="findperson"> 
         <h2>

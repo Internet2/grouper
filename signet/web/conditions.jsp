@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.13 2005-04-05 23:11:38 acohen Exp $
-  $Date: 2005-04-05 23:11:38 $
+  $Id: conditions.jsp,v 1.14 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -152,7 +152,7 @@
 %>
 
     <form name="form1" action="Confirm.do">
-		<jsp:include page="header.jsp" flush="true" />
+      <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Navbar">
         <span class="logout">
           <a href="NotYetImplemented.do">
@@ -300,7 +300,7 @@
               </p>
             </div> <!-- section -->
         </div> <!--Content -->
-	      <jsp:include page="footer.jsp" flush="true" />
+       <tiles:insert page="/tiles/footer.jsp" flush="true" />
 				      
         <div id="Sidebar">
           <div class="helpbox">

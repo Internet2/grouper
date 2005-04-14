@@ -1,6 +1,6 @@
 <!--
-  $Id: org.jsp,v 1.4 2005-02-25 23:13:06 acohen Exp $
-  $Date: 2005-02-25 23:13:06 $
+  $Id: org.jsp,v 1.5 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -21,6 +21,8 @@
   </head>
 
   <body>
+  
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -75,14 +77,7 @@
 %>
 
     <form name="form1" action="">
-      <div id="Header">
-        <div id="Logo">
-          <img src="images/organisation-logo.jpg" width="80" height="60" alt="logo" />
-        </div>
-        <div id="Signet">
-					<img src="images/signet.gif" alt="Signet" height="60" width="49">
-        </div>
-      </div>
+      <tiles:insert page="/tiles/header.jsp" flush="true" /> 
       <div id="Navbar">
         <span class="logout">
           <a href="NotYetImplemented.do">
@@ -230,7 +225,7 @@
         <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Cancel and return to Wendy Jones's view
       </a>
     </p>
-	<jsp:include page="footer.jsp" flush="true" />	
+    <tiles:insert page="/tiles/footer.jsp" flush="true" />
   </div>	<!-- end Content -->
   <div id="Sidebar">
     <div class="box2">

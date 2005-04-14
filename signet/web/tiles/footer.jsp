@@ -1,11 +1,12 @@
 <!--
-  $Id: footer.jsp,v 1.3 2005-02-08 21:43:41 jvine Exp $
-  $Date: 2005-02-08 21:43:41 $
+  $Id: footer.jsp,v 1.1 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
   see doc/license.txt in this distribution.
 -->
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <DIV id="Footer">
   <P>&copy; 2005 Internet2, Stanford University - All rights reserved.<BR /> 

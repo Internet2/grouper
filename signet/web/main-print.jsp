@@ -1,6 +1,6 @@
 <!--
-  $Id: main-print.jsp,v 1.11 2005-02-25 22:07:57 jvine Exp $
-  $Date: 2005-02-25 22:07:57 $
+  $Id: main-print.jsp,v 1.12 2005-04-14 00:11:25 acohen Exp $
+  $Date: 2005-04-14 00:11:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -21,6 +21,8 @@
   </head>
 
   <body>
+  
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -52,7 +54,7 @@
 %>
 
     <form name="form1" method="post" action="">
-      <jsp:include page="header.jsp" flush="true" />
+      <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Layout"> 
        <a href="Start.do"><img src="images/icon_arrow_left.gif" class="icon" />return</a>
        <h1>
@@ -142,7 +144,7 @@
 %>
             
         </table>
-        <jsp:include page="footer.jsp" flush="true" />	
+        <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div>
     </form>
   </body>
