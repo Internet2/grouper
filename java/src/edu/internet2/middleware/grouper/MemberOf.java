@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.16 2005-04-14 19:38:27 blair Exp $
+ * @version $Id: MemberOf.java,v 1.17 2005-04-14 19:49:05 blair Exp $
  */
 public class MemberOf {
 
@@ -184,7 +184,7 @@ public class MemberOf {
       // TODO Is this correct?  More tests needed.
       chain.addAll( gl.chain() );   // Add the chain leading to gl
       if (!gl.equals(orig)) {
-        chain.add( new MemberVia(orig) );
+        chain.add( MemberVia.create(orig) );
       }
       // Add g's mship.  If immediate, the values in glM are fine.  If
       // eff, we want the immediate mship that causes the eff mship.
