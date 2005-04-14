@@ -4,96 +4,68 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.63 2005-03-29 17:32:02 blair Exp $
+$Id: API,v 1.64 2005-04-14 02:45:36 blair Exp $
 
 ---
 
-## Interfaces
+# Interfaces
 
-### GrouperAccess
-
-#### Instance Methods
+## GrouperAccess
 
 * boolean             can(privilege)
-* boolean             grant(session, group, member, privilege)
-* List                has(session, group)
-* List                has(session, group, member)
-* boolean             has(session, group, member, privilege)
-* boolean             has(session, group, privilege)
-* List                has(session, member, privilege)
+* boolean             grant(session, Group, GrouperMember, privilege)
+* List                has(session, Group)
+* List                has(session, GrouperMember, privilege)
+* List                has(session, Group, GrouperMember)
+* boolean             has(session, Group, GrouperMember, privilege)
+* boolean             has(session, Group, privilege)
 * List                has(session, privilege)
-* boolean             revoke(session, group, member, privilege)
-* boolean             revoke(session, group, privilege)
-* List                whoHas(session, group, privilege)
-
-### GrouperNaming
-
-#### Instance Methods
-
-* boolean             can(privilege)
-* boolean             grant(session, group, member, privilege)
-* List                has(session, group)
-* List                has(session, group, member)
-* boolean             has(session, group, member, privilege)
-* boolean             has(session, group, privilege)
-* List                has(session, member, privilege)
-* List                has(session, privilege)
-* boolean             revoke(session, group, member, privilege)
-* boolean             revoke(session, group, privilege)
-* List                whoHas(session, group, privilege)
+* boolean             revoke(session, Group, GrouperMember, privilege)
+* boolean             revoke(session, Group, privilege)
+* List                whoHas(session, Group, privilege)
 
 ---
 
-## Exceptions
+## GrouperNaming
 
-### GrouperException
+* boolean             can(privilege)
+* boolean             grant(session, Group, GrouperMember, privilege)
+* List                has(session, Group)
+* List                has(session, GrouperMember, privilege)
+* List                has(session, Group, GrouperMember)
+* boolean             has(session, Group, GrouperMember, privilege)
+* boolean             has(session, Group, privilege)
+* List                has(session, privilege)
+* boolean             revoke(session, Group, GrouperMember, privilege)
+* boolean             revoke(session, Group, privilege)
+* List                whoHas(session, Group, privilege)
 
 ---
 
-## Classes
+# Classes
 
-### Grouper
+## Grouper
 
-#### Class Methods
+* String              static config(parameter)
+* boolean             static groupField(groupType, groupField)
+* List                static groupFields()
+* boolean             static groupType(groupType)
+* List                static groupTypeDefs()
+* List                static groupTypes()
+* boolean             static hasSubjectType(subjectTypeID)
+* SubjectType         static subjectType(subjectTypeID)
+* List                static subjectTypes()
 
-* String              config(parameter)
-* boolean             groupField(groupType, groupField)
-* List                groupFields()
-* boolean             groupType(groupType)
-* List                groupTypeDefs()
-* List                groupTypes()
-* boolean             hasSubjectType(subjectTypeID)
-* SubjectType         subjectType(subjectTypeID)
-* List                subjectTypes()
+---
 
-### GrouperAccessImpl
-
-#### Instance Methods
-
-* boolean             can(privilege)
-* boolean             grant(session, group, member, privilege)
-* List                has(session, group)
-* List                has(session, group, member)
-* boolean             has(session, group, member, privilege)
-* boolean             has(session, group, privilege)
-* List                has(session, member, privilege)
-* List                has(session, privilege)
-* boolean             revoke(session, group, member, privilege)
-* boolean             revoke(session, group, privilege)
-* List                whoHas(session, group, privilege)
-
-### GrouperAttribute
-
-#### Instance Methods
+## GrouperAttribute
 
 * String              field()
 * String              value()
 
 ---
 
-### GrouperField
-
-#### Instance Methods
+## GrouperField
 
 * String              field()
 * boolean             isList()
@@ -102,97 +74,75 @@ $Id: API,v 1.63 2005-03-29 17:32:02 blair Exp $
 
 ---
 
-### GrouperGroup
-
-#### Class Methods
-
-* GrouperGroup        create(session, stem, extension)
-* GrouperGroup        create(session, stem, extension, groupType)
-* boolean             delete(session, group)
-* String              groupName(stem, extension)
-* GrouperGroup        load(session, stem, extension)
-* GrouperGroup        load(session, stem, extension, groupType)
-* Group               loadByID(session, groupID)
-* Group               loadByName(session, name)
-* Group               loadByName(session, name, groupType)
-
-#### Instance Methods
+## GrouperGroup
 
 * GrouperAttribute    attribute(attribute)
-* boolean             attribute(attribute, value)
+* void                attribute(attribute, value)
 * Map                 attributes()
+* GrouperGroup        static create(session, stem, extension)
+* GrouperGroup        static create(session, stem, extension, groupType)
 * String              createSource()
-* String              createSubject()
+* Subject             createSubject()
 * Date                createTime()
+* void                static delete(session, Group)
+* String              static groupName(stem, extension)
+* boolean             hasMember(GrouperMember)
+* boolean             hasMember(GrouperMember, list)
 * String              id()
-* boolean             listAddVal(member)
-* boolean             listAddVal(member, listType)
-* boolean             listDelVal(member)
-* boolean             listDelVal(member, listType)
+* boolean             listAddVal(GrouperMember)
+* boolean             listAddVal(GrouperMember, list)
+* boolean             listDelVal(GrouperMember)
+* boolean             listDelVal(GrouperMember, list)
 * List                listEffVals()
-* List                listEffVals(listType)
+* List                listEffVals(list)
 * List                listImmVals()
-* List                listImmVals(listType)
+* List                listImmVals(list)
 * List                listVals()
-* List                listVals(listType)
+* List                listVals(list)
+* GrouperGroup        static load(session, stem, extension)
+* GrouperGroup        static load(session, stem, extension, groupType)
+* Group               static loadByID(session, groupID)
+* Group               static loadByName(session, name)
+* Group               static loadByName(session, name, groupType)
 * String              modifySource()
 * Subject             modifySubject()
 * Date                modifyTime()
-* String              name()
 * GrouperMember       toMember()
 * String              type()
 
 ---
 
-### GrouperList
+## GrouperList
 
-#### Instance Methods
-
-* GrouperGroup        group()
+* List                chain()
+* Group               group()
 * String              groupField()
 * GrouperMember       member()
-* GrouperGroup        via()
+* Group               via()
 
-### GrouperMember
+---
 
-#### Class Methods
+## GrouperMember
 
-* GrouperMember       load(session, subjectID, subjectTypeID)
-* GrouperMember       load(session, subject)
-* GrouperMember       load(session, memberID)
-
-#### Instance Methods
-
+* boolean             isMember(Group)
+* boolean             isMember(Group, list)
 * List                listEffVals()
-* List                listEffVals()
-* List                listImmVals(listType)
-* List                listImmVals(listType)
+* List                listEffVals(list)
+* List                listImmVals()
+* List                listImmVals(list)
 * List                listVals()
-* List                listVals(listType)
+* List                listVals(list)
+* GrouperMember       static load(session, memberID)
+* GrouperMember       static load(session, subjectID, subjectTypeID)
+* GrouperMember       static load(subject)
 * String              memberID()
 * String              subjectID()
-* GrouperGroup        toGroup()
+* Group               toGroup()
 * String              typeID()
 
-### GrouperNamingImpl
+---
 
-#### Instance Methods
-
-* boolean             can(privilege)
-* boolean             grant(session, group, member, privilege)
-* List                has(session, group)
-* List                has(session, group, member)
-* boolean             has(session, group, member, privilege)
-* boolean             has(session, group, privilege)
-* List                has(session, member, privilege)
-* List                has(session, privilege)
-* boolean             revoke(session, group, member, privilege)
-* boolean             revoke(session, group, privilege)
-* List                whoHas(session, group, privilege)
-
-### GrouperQuery
-
-#### Instance Methods
+## GrouperQuery
 
 * void                clear()
 * boolean             clear(filter)
@@ -204,51 +154,67 @@ $Id: API,v 1.63 2005-03-29 17:32:02 blair Exp $
 * boolean             modifiedBefore(date)
 * List                query()
 
-### GrouperSchema
+---
 
-#### Instance Methods
+## GrouperSchema
 
 * String              type()
 
-### GrouperSession
+---
 
-#### Class Methods
-
-* GrouperSession      start(subject)
-
-#### Instance Methods
+## GrouperSession
 
 * GrouperAccess       access()
-* void                stop()
 * GrouperNaming       naming()
+* GrouperSession      static start(subject)
+* boolean             stop()
 * Subject             subject()
 
 ---
 
-### GrouperStem
+## GrouperStem
 
-#### Class Methods
-
-* Group               loadByID(session, groupID)
-* Group               loadByName(session, name)
-
-#### Instance Methods
-
+* GrouperAttribute    attribute(attribute)
+* void                attribute(attribute, value)
+* Map                 attributes()
+* GrouperGroup        static create(session, stem, extension)
+* String              createSource()
+* Subject             createSubject()
+* Date                createTime()
+* void                static delete(session, Group)
+* String              static groupName(stem, extension)
 * List                groups()
-* List                stems()
-
+* boolean             hasMember(GrouperMember)
+* boolean             hasMember(GrouperMember, list)
+* String              id()
+* boolean             listAddVal(GrouperMember)
+* boolean             listAddVal(GrouperMember, list)
+* boolean             listDelVal(GrouperMember)
+* boolean             listDelVal(GrouperMember, list)
+* List                listEffVals()
+* List                listEffVals(list)
+* List                listImmVals()
+* List                listImmVals(list)
+* List                listVals()
+* List                listVals(list)
+* GrouperGroup        static load(session, stem, extension)
+* Group               static loadByID(session, groupID)
+* Group               static loadByName(session, name)
+* String              modifySource()
+* Subject             modifySubject()
+* Date                modifyTime()
+* GrouperMember       toMember()
+* String              type()
 ---
 
-### GrouperSubject
-
-#### Class Methods
+## GrouperSubject
 
 * Subject             load(subjectID)
 * Subject             load(subjectID, subjectTypeID)
 
-### GrouperSubjectAttribute
+---
 
-#### Instance Methods
+## GrouperSubjectAttribute
 
 * String              name()
 * String              searchValue()
@@ -257,87 +223,20 @@ $Id: API,v 1.63 2005-03-29 17:32:02 blair Exp $
 
 ---
 
-### GrouperTypeDef
-
-#### Instance Methods
+## GrouperTypeDef
 
 * String              field();
 * String              type();
 
 ---
 
-### GrouperUUID
+## MemberOf
 
-#### Class Methods
-
-* GrouperUUID         GrouperUUID()
-
-#### Instance Methods
-
-* String              toString()
+* List                memberOf(GrouperList)
 
 ---
 
-### MemberOf
+## MemberVia
 
-### Class Methods
-
-* MemberOf            MemberOf(GrouperSession)
-
-### Instance Methods
-
-* List                memberOf(group, member, list)
-
-### SubjectImpl
-
-#### Instance Methods
-
-* void                addAttribute(attribute, value )
-* String[]            getAttributeArray(attribute)
-* String              getDescription()
-* String              getId()
-* String              getName()
-* SubjectType         getSubjectType()
-
-### SubjectTypeAdapterGroupImpl
-
-#### Instance Methods
-
-* void                destroy()
-* Subject             getSubject(subjectType, subjectID)
-* Subject             getSubjectByDisplayId(subjectType, displayID)
-* Subject[]           getSubjects(subjectType)
-* void                init()
-* boolean             isModifiable()
-* Subject             newSubject(subjectType, subjectID, name, description, displayID)
-* Subject             quickSearch(searchValue)
-* Subject[]           searchByIdentifier(subjectType, subjectID)
-
-### SubjectTypeAdapterPersonImpl
-
-#### Instance Methods
-
-* void                destroy()
-* Subject             getSubject(subjectType, subjectID)
-* Subject             getSubjectByDisplayId(subjectType, displayID)
-* Subject[]           getSubjects(subjectType)
-* void                init()
-* boolean             isModifiable()
-* Subject             newSubject(subjectType, subjectID, name, description, displayID)
-* Subject             quickSearch(searchValue)
-* Subject[]           searchByIdentifier(subjectType, subjectID)
-
-### SubjectTypeImpl
-
-#### Instance Methods
-
-* SubjectTypeAdapter  getAdapter()
-* String              getId()
-* String              getName()
-
-
-
-
-
-
+* GrouperList         toList(session)
 
