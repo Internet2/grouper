@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.7 2005-03-01 20:42:49 acohen Exp $
-  $Date: 2005-03-01 20:42:49 $
+  $Id: Common.java,v 1.8 2005-04-14 17:50:01 acohen Exp $
+  $Date: 2005-04-14 17:50:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -10,8 +10,11 @@ package edu.internet2.middleware.signet.ui;
 
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +25,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
+import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 
 public class Common
@@ -116,5 +120,32 @@ public class Common
     }
     
     return strBuf.toString();
+  }
+  
+  
+
+  // This is a shameful little hack to temporarily simulate person-quicksearch
+  // until it's implemented in the upcoming new version of the Subject interface:
+  public static SortedSet filterSearchResults
+  	(Set privilegedSubjects, String searchString)
+  {
+    SortedSet resultSet = new TreeSet();
+    Iterator privilegedSubjectsIterator = privilegedSubjects.iterator();
+    while (privilegedSubjectsIterator.hasNext())
+    {
+      PrivilegedSubject pSubject
+      	= (PrivilegedSubject)(privilegedSubjectsIterator.next());
+    
+      if ((searchString == null)
+          || (searchString.equals(""))
+          || (pSubject.getName().toUpperCase().indexOf
+               (searchString.toUpperCase())
+               	 != -1))
+      {
+        resultSet.add(pSubject);
+      }
+    }
+    
+    return resultSet;
   }
 }

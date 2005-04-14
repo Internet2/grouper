@@ -1,6 +1,6 @@
 /*--
-  $Id: Subject.java,v 1.2 2005-01-21 20:30:47 acohen Exp $
-  $Date: 2005-01-21 20:30:47 $
+  $Id: Subject.java,v 1.3 2005-04-14 17:50:01 acohen Exp $
+  $Date: 2005-04-14 17:50:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -58,11 +58,8 @@ public interface Subject
    * 		Keep in mind that this will sometimes be the name of a person,
    * 		and sometimes the name of an application program or other
    * 		enterprise entity.
-	 * @throws SubjectNotFoundException
-	 * @throws ObjectNotFoundException
-	 * @throws ObjectNotFoundException
 	 */
-	public String getName() throws ObjectNotFoundException;
+	public String getName();
 
 	/**
 	 * 

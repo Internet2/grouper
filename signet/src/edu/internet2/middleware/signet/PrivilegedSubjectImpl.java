@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.9 2005-04-06 23:14:22 acohen Exp $
- $Date: 2005-04-06 23:14:22 $
+ $Id: PrivilegedSubjectImpl.java,v 1.10 2005-04-14 17:50:01 acohen Exp $
+ $Date: 2005-04-14 17:50:01 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -719,9 +719,20 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   /**
    * @return the Name of the Subject which underlies this PrivilegedSubject.
    */
-  public String getName() throws ObjectNotFoundException
+  public String getName()
   {
-    return this.getSubject().getName();
+    String name = null;
+    
+    try
+    {
+      name = this.getSubject().getName();
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      throw new SignetRuntimeException(onfe);
+    }
+    
+    return name;
   }
 
   /**
@@ -980,16 +991,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     String thisName = null;
     String otherName = null;
 
-    try
-    {
-      thisName = this.getName();
-      otherName = ((PrivilegedSubject) o).getName();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      // Well, we can't say they match, that's for sure.
-      return -1;
-    }
+    thisName = this.getName();
+    otherName = ((PrivilegedSubject) o).getName();
 
     return thisName.compareToIgnoreCase(otherName);
   }
