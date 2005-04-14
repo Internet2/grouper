@@ -61,9 +61,13 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.15 2005-04-12 21:41:55 blair Exp $
+ * @version $Id: MemberOf.java,v 1.16 2005-04-14 19:38:27 blair Exp $
  */
 public class MemberOf {
+
+  /*
+   * TODO This is all un(der)documented magic and madness.
+   */
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -111,7 +115,7 @@ public class MemberOf {
     List isMem = m.listVals( gl.groupField() );
 
     // Add m to groups where g is a member
-    effs.addAll( this._addWhereIsMem(gl, isMem) );
+    effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
 
     // If m is a group...
     if (gl.member().typeID().equals("group")) {
@@ -147,8 +151,8 @@ public class MemberOf {
       List chain = new ArrayList();
 
       // TODO Is this correct?  More tests needed.
-      chain.addAll( glM.chain() );    // Add the chain leading to m
-      chain.add( new MemberVia(gl) ); // Add gl
+      chain.addAll( glM.chain() );        // Add the chain leading to m
+      chain.add( MemberVia.create(gl) );  // Add gl
 
       // Add m's members to g
       vals.add(
@@ -158,7 +162,7 @@ public class MemberOf {
         );
 
       // And now add to where g is a member
-      vals.addAll( this._addWhereIsMem(glM, isMem) );
+      vals.addAll( this._addWhereIsMem(glM, gl, isMem) );
     }
 
     return vals;
@@ -168,7 +172,7 @@ public class MemberOf {
    * Add m to where g is a member.
    * @return List of {@link GrouperList} objects.
    */
-  private List _addWhereIsMem(GrouperList gl, List isMem) {
+  private List _addWhereIsMem(GrouperList gl, GrouperList orig, List isMem) {
     List vals = new ArrayList();
 
     Iterator iter = isMem.iterator();
@@ -179,6 +183,9 @@ public class MemberOf {
 
       // TODO Is this correct?  More tests needed.
       chain.addAll( gl.chain() );   // Add the chain leading to gl
+      if (!gl.equals(orig)) {
+        chain.add( new MemberVia(orig) );
+      }
       // Add g's mship.  If immediate, the values in glM are fine.  If
       // eff, we want the immediate mship that causes the eff mship.
       Group group = glM.group();
@@ -186,9 +193,9 @@ public class MemberOf {
         group = glM.via();
       }
       chain.add( 
-        new MemberVia(
+        MemberVia.create(
           new GrouperList(
-            this.s, group, glM.member(), glM.groupField()
+            this.s, group, glM.member(), gl.groupField()
           )
         )
       );
