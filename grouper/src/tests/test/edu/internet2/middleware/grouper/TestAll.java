@@ -107,6 +107,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsMoFAdd8.class);
     suite.addTestSuite(TestGroupsMoFAdd9.class);
     suite.addTestSuite(TestGroupsMoFAdd10.class);
+    suite.addTestSuite(TestGroupsMoFAdd10Reverse.class);
     suite.addTestSuite(TestGroupsMoFDel0.class);
     suite.addTestSuite(TestGroupsMoFDel1.class);
     // TODO TestMixedMoF
