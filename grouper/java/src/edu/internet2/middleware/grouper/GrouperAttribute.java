@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.29 2005-03-29 20:40:58 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.30 2005-04-15 14:59:34 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -93,7 +93,7 @@ public class GrouperAttribute implements Serializable {
    */
   protected GrouperAttribute(String key, String field, String value) {
     this.groupKey         = key;
-    this.groupField       = field.toLowerCase();
+    this.groupField       = field; 
     this.groupFieldValue  = value;
   }
 

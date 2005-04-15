@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.35 2005-04-15 05:56:04 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.36 2005-04-15 14:59:34 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -223,7 +223,7 @@ public class GrouperStem extends Group {
    * @return  A {@link GrouperAttribute} object.
    */
   public GrouperAttribute attribute(String attribute) {
-    return (GrouperAttribute) this.attributes.get(attribute.toLowerCase());
+    return (GrouperAttribute) this.attributes.get(attribute);
   }
 
   /**
