@@ -5,9 +5,12 @@ Welcome to _Grouper_.
 
 This file is intended to give you a brief overview of how this
 directory tree is structured and how to get started with compiling,
-testing, and running Grouper.
+testing and running Grouper.
 
-$Id: README,v 1.25 2005-02-07 03:03:25 blair Exp $
+For more detailed information see:
+  _doc/grouper-0.5.5-impl-guide-01.html_
+
+$Id: README,v 1.26 2005-04-15 17:43:11 blair Exp $
 
 ---
 
@@ -21,15 +24,25 @@ See _doc/LAYOUT_ for more information.
 
     % ant build
 
+Build Grouper from source.
+
+---
+
+## Initializing Database
+
+    % ant db-init
+
+This initializes the Groups Registry with Grouper's default tables and
+schema.
+
 ---
 
 ## Testing
 
     % ant test
 
-Running this command will create a HSQLDB database, initialize the
-Grouper schema, add some test subjects and then run the Grouper test
-suite.
+This adds some test subjects to the Groups Registry and then runs the
+Grouper test suite.
 
 ---
 
@@ -38,7 +51,8 @@ suite.
   % ant dist
 
 This will build _Grouper.jar_ and _Grouper-lib.jar_ files in the
-_dist/lib_ directory.  
+_dist/lib_ directory.  The latter is a rollup .jar of all the third
+party .jar files that Grouper relies upon.
 
 --
 
