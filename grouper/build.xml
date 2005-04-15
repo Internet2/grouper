@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.52 2005-04-15 15:51:51 blair Exp $ -->
+<!-- $Id: build.xml,v 1.53 2005-04-15 18:27:31 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -81,6 +81,8 @@
       access="public"
       author="true"/>
   </target>
+
+  <target name="javadoc" depends="html"/>
 
   <target name="html-internal" depends="init" description="generate internal api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
