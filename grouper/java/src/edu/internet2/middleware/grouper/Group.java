@@ -63,12 +63,18 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.24 2005-04-15 14:59:34 blair Exp $
+ * @version $Id: Group.java,v 1.25 2005-04-15 19:14:08 blair Exp $
  */
 abstract public class Group {
 
   /*
    * ABSTRACT METHODS 
+   */
+
+  /**
+   * Return group type.
+   * <p />
+   * @return  String  group type.
    */
   abstract public    String           type();
 

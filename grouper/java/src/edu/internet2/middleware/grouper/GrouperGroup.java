@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.209 2005-04-15 14:59:34 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.210 2005-04-15 19:14:08 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -510,7 +510,7 @@ public class GrouperGroup extends Group {
     return m;
   }
 
-  /*
+  /**
    * Retrieve group type.
    * <p />
    * @return String group type.
