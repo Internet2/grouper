@@ -38,12 +38,12 @@ enhancement of this document by their experiences.
 </p>
 <p>
 Along with obtaining Grouper 0.5.5 (see the MACE-Dir-Groups website
-<a href="http://middleware.internet2.edu/dir/groups">&lt;http://middleware.internet2.edu/dir/groups/&gt;</a>
+<a href="http://middleware.internet2.edu/dir/groups/grouper/">&lt;http://middleware.internet2.edu/dir/groups/grouper/&gt;</a>
 for instructions), adopters should join the grouper-users at internet2
 dot edu and possibly the grouper-dev at internet2 dot edu mailing lists
 for collective self-help with implementation and to discuss ideas
 for further development of Grouper.  Instructions for joining these
-lists are also on the MACE-Dir-Groups website.
+lists are also on the Grouper website.
 </p>
 <div id="section">
 <a name="section_1"/>
@@ -70,8 +70,13 @@ and some substantial elements of API functionality are slated for
 future release according to the following table.
 </p>
 <table id="table" align="center" border="1" width="60%">
-<th>Version</th>
-<th>Description</th>
+<thead>
+<tr>
+  <th>Version</th>
+  <th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td">0.5</td>
   <td id="td">Initial API release providing a subset of the Phase 1
@@ -103,6 +108,7 @@ future release according to the following table.
   <td id="td">1.0</td>
   <td id="td">UI supporting Phase 3 Specification</td>
 </tr>
+</tbody>
 </table>
 </div>
 <p>
@@ -114,7 +120,7 @@ with existing identifier namespaces and extend existing identity
 management practices.  <a href="#section_4">Section 4</a> describes, on
 a functional level, how Grouper may be made to articulate with an
 existing infrastructure.
-</p
+</p>
 <p>
 In addition to this Implementation Guide, the Grouper 0.5.5 distribution
 contains javadoc and other germinal guides for developers (i.e., good
@@ -137,7 +143,7 @@ Grouper installation is working properly.
 contains an Entity Relationship Diagram for an early form of the
 Groups Registry schema. An ERD of the schema deployed in Grouper
 0.5.5 can be found
-<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD4.4.gif">here</a>.
+<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.5.jpg">here</a>.
 </p>
 <div id="subsection">
 <a name="section_1.1"/>
@@ -161,11 +167,14 @@ contains the following directories and files:
 </p>
 <p>
 <table id="table" align="center" border="0" width="60%">
+<thead>
 <tr>
   <td id="td"><i>conf/</i></td>
   <td id="td">&nbsp;</td>
   <td id="td">Configuration files for Grouper and third party components</td>
 </tr>
+</thead>
+<tbody>
 <tr>
   <td id="td"><i>contrib/</i></td>
   <td id="td">&nbsp;</td>
@@ -198,7 +207,7 @@ contains the following directories and files:
 </tr>
 <tr>
   <td id="td">&nbsp;</td>
-  <td id="td"><i>tests/</i>
+  <td id="td"><i>tests/</i></td>
   <td id="td">Grouper test suite source code</td>
 </tr>
 <tr>
@@ -217,6 +226,7 @@ contains the following directories and files:
   <td id="td">&nbsp;</td>
   <td id="td">Ant configuration file</td>
 </tr>
+</tbody>
 </table>
 </p>
 <p>
@@ -282,11 +292,13 @@ Grouper distribution.
 </p>
 <p>
 In <i>hibernate.properties</i>, change:
-<pre>
+</p>
+</pre>
   hibernate.connection.url = jdbc:hsqldb:/FULL/PATH/TO/dist/run/grouper
 </pre>
-</p>
+<p>
 In <i>log4j.properties</i>, change:
+</p>
 <pre>
   log4j.appender.rfile.File = /FULL/PATH/TO/dist/run/grouper.log
 </pre>
@@ -337,8 +349,8 @@ be members of a group.  In this release of Grouper, subjects are
 maintained in the <i>grouper_subject</i> table within the Groups
 Registry.  <i>csv2subject</i> is a simple program for populating that
 table.  Subjects and the preferred means of dealing with them are
-discussed in sections <a href="#section_3.6">3.6</a> and <a
-href="#section_4.3">4.3</a>.
+discussed in sections <a href="#section_3.6">3.6</a> and 
+<a href="#section_4.3">4.3</a>.
 </p>
 <p>
 <i>csvsubject</i> is located in <i>$GROUPER_BASE/contrib/load/csv2subject</i>.  
@@ -439,9 +451,14 @@ Groups have the following set of attributes:
 <p>
 <a name="table_1"/>
 <table id="table" align="center" border="1" width="60%">
-<th>Field</th>
-<th>Public Or Private?</th>
-<th>Semantics</th>
+<thead>
+<tr>
+  <th>Field</th>
+  <th>Public Or Private?</th>
+  <th>Semantics</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td">guid</td>
   <td id="td">public</td>
@@ -483,6 +500,7 @@ Groups have the following set of attributes:
   <td id="td">public</td>
   <td id="td">semantics defined by implementation site</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 1 - Attributes Of <i>base</i> Type</b></div>
 </p>
@@ -492,11 +510,14 @@ Groups have the following set of lists:
 <p>
 <a name="table_2"/>
 <table id="table" align="center" border="1" width="60%">
+<thead>
 <tr>
   <td id="td">members</td>
   <td id="td">public</td>
   <td id="td">subjects belonging to this group</td>
 </tr>
+</thead>
+<tbody>
 <tr>
   <td id="td">viewers</td>
   <td id="td">private</td>
@@ -527,6 +548,7 @@ Groups have the following set of lists:
   <td id="td">private</td>
   <td id="td">subjects with OPTOUT privilege for this group</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 2 - Lists Of <i>base</i> Type</b></div>
 </p>
@@ -545,9 +567,14 @@ Namespaces have the following set of attributes:
 <p>
 <a name="table_3"/>
 <table id="table" align="center" border="1" width="60%">
-<th>Field</th>
-<th>Public Or Private?</th>
-<th>Semantics</th>
+<thead>
+<tr>
+  <th>Field</th>
+  <th>Public Or Private?</th>
+  <th>Semantics</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td">guid</td>
   <td id="td">public</td>
@@ -589,6 +616,7 @@ Namespaces have the following set of attributes:
   <td id="td">public</td>
   <td id="td">semantics defined by implementation site</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 3 - Attributes Of <i>naming</i> Type</b></div>
 </p>
@@ -598,9 +626,14 @@ Namespaces have the following set of lists:
 <p>
 <a name="table_4"/>
 <table id="table" align="center" border="1" width="60%">
-<th>Field</th>
-<th>Public Or Private?</th>
-<th>Semantics</th>
+<thead>
+<tr>
+  <th>Field</th>
+  <th>Public Or Private?</th>
+  <th>Semantics</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td">creators</td>
   <td id="td">private</td>
@@ -611,6 +644,7 @@ Namespaces have the following set of lists:
   <td id="td">private</td>
   <td id="td">subjects with STEM privilege for this namespace</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 4 - Lists Of <i>naming</i> Type</b></div>
 </p>
@@ -644,7 +678,7 @@ Grouper ships with two group types. All groups are of the
 <i>base</i> type - its structure is shown in <a href="#table_1">Table
 1</a> and <a href="#table_2">Table 2</a>. Namespaces are modeled
 internally to Grouper as groups of <i>naming</i> type.  Namespace
-structure is shown in <a href="#table_3"/>Table 3</a> and 
+structure is shown in <a href="#table_3">Table 3</a> and 
 <a href="#table_4">Table 4</a>.
 </p>
 <p>
@@ -680,6 +714,7 @@ create a namespace before any groups can be created. Namespaces are
 currently modeled internally as groups of <i>naming</i> type.  The
 following code example demonstrates the creation of a namespace and a
 group within that namespace:
+</p>
 <pre>
   String      stem  = Grouper.NS_ROOT;
   String      extn  = "uofc";
@@ -689,7 +724,6 @@ group within that namespace:
   String      extn  = "exec_council";
   GrouperGroup g    = GrouperGroup.create(s, stem, extn);
 </pre>
-</p>
 <p>
 A <i>hierarchy delimiter</i> is used in string representations of the names of
 groups and namespaces. The delimiter is a ":" and this character can
@@ -708,7 +742,12 @@ the naming attributes of several namespaces and groups.
 </p>
 <p>
 <table id="table" align="center" border="1" width="60%">
-<th colspan="2">namespace uofc</th>
+<thead>
+<tr>
+  <th colspan="2">namespace uofc</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td" width="25%"><i>stem</i></td>
   <td id="td">&nbsp;</td>
@@ -729,11 +768,17 @@ the naming attributes of several namespaces and groups.
   <td id="td"><i>displayName</i></td>
   <td id="td">University Of Chicago</td>
 </tr>
+</tbody>
 </table>
 </p>
 <p>
 <table id="table" align="center" border="1" width="60%">
-<th colspan="2">group uofc:exec_council</th>
+<thead>
+<tr>
+  <th colspan="2">group uofc:exec_council</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td" width="25%"><i>guid</i></td>
   <td id="td">258a158b-3f40-43d4-a4b2-c97398c6ad19</td>
@@ -758,11 +803,17 @@ the naming attributes of several namespaces and groups.
   <td id="td"><i>displayName</i></td>
   <td id="td">University Of Chicago:Executive Council</td>
 </tr>
+</tbody>
 </table>
 </p>
 <p>
 <table id="table" align="center" border="1" width="60%">
-<th colspan="2">namespace uofc:bsd</th>
+<thead>
+<tr>
+  <th colspan="2">namespace uofc:bsd</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td" width="25"><i>stem</i></td>
   <td id="td">uofc</td>
@@ -787,7 +838,12 @@ the naming attributes of several namespaces and groups.
 </p>
 <p>
 <table id="table" align="center" border="1" width="60%">
-<th colspan="2">group uofc:bsd:eis_staff</th>
+<thead>
+<tr>
+  <th colspan="2">group uofc:bsd:eis_staff</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td" width="25%"><i>guid</i></td>
   <td id="td">82a303fa-cb6b-4330-b085-46a1974b0a79</td>
@@ -813,6 +869,7 @@ the naming attributes of several namespaces and groups.
   <td id="td">University Of Chicago:Biological Sciences Division:Enterprise
     Information Systems staff</td>
 </tr>
+</tbody>
 </table>
 </p>
 <p>
@@ -852,8 +909,13 @@ are listed in the following tables.
 <p>
 <a name="table_5"/>
 <table id="table" align="center" border="1" width="60%">
-<th>Privilege</th>
-<th>Description</th>
+<thead>
+<tr>
+  <th>Privilege</th>
+  <th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td"><i>VIEW</i></td>
   <td id="td">Can see the group and can refer to it, e.g., to make
@@ -886,14 +948,20 @@ are listed in the following tables.
   <td id="td">Can remove oneself from the members list of the group.
     Implies <i>VIEW</i>.</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 5 - Access Privileges</b></div>
 </p>
 <p>
 <a name="table_6"/>
 <table id="table" align="center" border="1" width="60%">
-<th>Privilege</th>
-<th>Description</th>
+<thead>
+<tr>
+  <th>Privilege</th>
+  <th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td"><i>CREATE</i></td>
   <td id="td">Can create a group in the namespace.</td>
@@ -904,6 +972,7 @@ are listed in the following tables.
     privilege for the namespace, can create a subordinate namespace and
     can delete the namespace.</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 6 - Naming Privileges</b></div>
 </p>
@@ -995,7 +1064,7 @@ management of groups.
 <p>
 An example of an actual scenario for delegation of group management to
 solve an access control problem can be found in
-<a href="http://home.uchicago.edu/~tbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp-200411/20041117-authz.ppt&gt;</a>.
+<a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt</a>.
 </p>
 <div id="subsection">
 <a name="section_3.6"/>
@@ -1072,7 +1141,8 @@ remains sparse.
 <h4>4.1 Using Your Own RDBMS</h4>
 </div>
 <p>
-Grouper uses Hibernate (<a href="http://www.hibernate.org/">&lt;http://www.hibernate.org/&gt;</a>) 
+Grouper uses Hibernate 
+(<a href="http://www.hibernate.org/">&lt;http://www.hibernate.org/&gt;</a>) 
 for object persistence.  As Hibernate uses JDBC to speak to a RDBMS, it
 should not be difficult to configure Grouper to work with your
 preferred database backend.  As Grouper is currently only being tested
@@ -1087,7 +1157,7 @@ To use an alternate database you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file</li>
     (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
-    your RDMBS</li>
+    your RDBMS</li>
   <li>Arrange an alternative database initialization process</li>
 </ol>
 </p>
@@ -1162,7 +1232,7 @@ be changed!  Else why are you bothering with Grouper?
 <div>
 <p>
 Loaders and provisioning connectors are defined in the 
-<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components & architecture section</a>
+<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components &amp; architecture section</a>
 in <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>. 
 Loaders are automation process that use the Grouper API to load and
 maintain the Groups Registry from other sources, and provisioning
@@ -1215,7 +1285,7 @@ Grouper for selecting groups. These include
 These filters can be combined to constrain a single search. A search is
 executed using the selected filters by the <i>GrouperQuery.query()</i> method.
 Further search capabilities are slated for later releases of Grouper.
-See <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-search-00.html">Grouper API Search & Browse Capabilities</a>
+See <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-search-00.html">Grouper API Search &amp; Browse Capabilities</a>
 for details.
 </p>
 <p>
@@ -1256,8 +1326,13 @@ attributes</i> associated with it.  These include:
 <p>
 <a name="table_7"/>
 <table id="table" align="center" border="1" width="60%">
-<th>Operational Attribute</th>
-<th>Description</th>
+<thead>
+<tr>
+  <th>Operational Attribute</th>
+  <th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td id="td"><i>createTime</i></td>
   <td id="td">time at which the group was created</td>
@@ -1284,6 +1359,7 @@ attributes</i> associated with it.  These include:
   <td id="td"><i>modifySource</i></td>
   <td id="td">undefined in Grouper 0.5.5</td>
 </tr>
+</tbody>
 </table>
 <div align="center"><b>Table 7 - Operational Attributes For
 Groups</b></div>
