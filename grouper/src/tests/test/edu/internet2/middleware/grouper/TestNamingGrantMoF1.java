@@ -56,9 +56,9 @@ import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
 
-public class TestAccessGrantMoF1 extends TestCase {
+public class TestNamingGrantMoF1 extends TestCase {
 
-  public TestAccessGrantMoF1(String name) {
+  public TestNamingGrantMoF1(String name) {
     super(name);
   }
 
@@ -78,13 +78,6 @@ public class TestAccessGrantMoF1 extends TestCase {
    */
   
 
-  //
-  // Add m0 to g0
-  // Add m0 to g1
-  //
-  // m0 -> g0
-  //  \--> g1
-  //
   public void testMoF() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
@@ -99,16 +92,6 @@ public class TestAccessGrantMoF1 extends TestCase {
                          s, Constants.ns1s, Constants.ns1e
                        );
     Assert.assertNotNull("ns0 !null", ns0);
-    // Create g0
-    GrouperGroup g0  = GrouperGroup.create(
-                         s, Constants.g0s, Constants.g0e
-                       );
-    Assert.assertNotNull("g0 !null", g0);
-    // Create g1
-    GrouperGroup g1  = GrouperGroup.create(
-                         s, Constants.g1s, Constants.g1e
-                       );
-    Assert.assertNotNull("g1 !null", g1);
     // Load m0
     GrouperMember m0 = GrouperMember.load(
                          s, Constants.mem0I, Constants.mem0T
@@ -121,146 +104,146 @@ public class TestAccessGrantMoF1 extends TestCase {
     Assert.assertNotNull("m0 !null", m0);
 
 
-    // Grant m0 ADMIN on g0
+    // Grant m0 STEM on ns0
     Assert.assertTrue(
-      "grant m0 ADMIN on g0", 
-      s.access().grant(s, g0, m0, Grouper.PRIV_ADMIN)
+      "grant m0 STEM on ns0", 
+      s.naming().grant(s, ns0, m0, Grouper.PRIV_STEM)
     );
-    // Grant m0 ADMIN on g1
+    // Grant m0 STEM on ns1
     Assert.assertTrue(
-      "grant m0 ADMIN on g1", 
-      s.access().grant(s, g1, m0, Grouper.PRIV_ADMIN)
+      "grant m0 STEM on ns1", 
+      s.naming().grant(s, ns1, m0, Grouper.PRIV_STEM)
     );
 
     // Assert privileges
     Assert.assertTrue(
-      "g0 has == 0 privs on g0", 
-      s.access().has(s, g0, g0.toMember()).size() == 0
+      "ns0 has == 0 privs on ns0", 
+      s.naming().has(s, ns0, ns0.toMember()).size() == 0
     );
     Assert.assertFalse( 
-      "g0 !ADMIN on g0",
-      s.access().has(s, g0, g0.toMember(), Grouper.PRIV_ADMIN)
+      "ns0 !STEM on ns0",
+      s.naming().has(s, ns0, ns0.toMember(), Grouper.PRIV_STEM)
     );
     Assert.assertFalse( 
-      "g0 !UPDATE on g0",
-      s.access().has(s, g0, g0.toMember(), Grouper.PRIV_UPDATE)
+      "ns0 !CREATE on ns0",
+      s.naming().has(s, ns0, ns0.toMember(), Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "g1 has == 0 privs on g0", 
-      s.access().has(s, g0, g1.toMember()).size() == 0
+      "ns1 has == 0 privs on ns0", 
+      s.naming().has(s, ns0, ns1.toMember()).size() == 0
     );
     Assert.assertFalse( 
-      "g1 !ADMIN on g0",
-      s.access().has(s, g0, g1.toMember(), Grouper.PRIV_ADMIN)
+      "ns1 !STEM on ns0",
+      s.naming().has(s, ns0, ns1.toMember(), Grouper.PRIV_STEM)
     );
     Assert.assertFalse( 
-      "g1 !UPDATE on g0",
-      s.access().has(s, g0, g1.toMember(), Grouper.PRIV_UPDATE)
+      "ns1 !CREATE on ns0",
+      s.naming().has(s, ns0, ns1.toMember(), Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "root has == 6 privs on g0", 
-      s.access().has(s, g0).size() == 6
+      "root has == 2 privs on ns0", 
+      s.naming().has(s, ns0).size() == 2
     );
     Assert.assertTrue(
-      "root ADMIN on g0",
-      s.access().has(s, g0, Grouper.PRIV_ADMIN)
+      "root STEM on ns0",
+      s.naming().has(s, ns0, Grouper.PRIV_STEM)
     );
     Assert.assertTrue(
-      "root UPDATE on g0",
-      s.access().has(s, g0, Grouper.PRIV_UPDATE)
+      "root CREATE on ns0",
+      s.naming().has(s, ns0, Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "m0 has == 1 privs on g0", 
-      s.access().has(s, g0, m0).size() == 1
+      "m0 has == 1 privs on ns0", 
+      s.naming().has(s, ns0, m0).size() == 1
     );
     Assert.assertTrue(
-      "m0 ADMIN on g0", 
-      s.access().has(s, g0, m0, Grouper.PRIV_ADMIN)
+      "m0 STEM on ns0", 
+      s.naming().has(s, ns0, m0, Grouper.PRIV_STEM)
     );
     Assert.assertFalse(
-      "m0 !UPDATE on g0", 
-      s.access().has(s, g0, m0, Grouper.PRIV_UPDATE)
+      "m0 !CREATE on ns0", 
+      s.naming().has(s, ns0, m0, Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "m1 has == 0 privs on g0", 
-      s.access().has(s, g0, m1).size() == 0
+      "m1 has == 0 privs on ns0", 
+      s.naming().has(s, ns0, m1).size() == 0
     );
     Assert.assertFalse(
-      "m1 !ADMIN on g0", 
-      s.access().has(s, g0, m1, Grouper.PRIV_ADMIN)
+      "m1 !STEM on ns0", 
+      s.naming().has(s, ns0, m1, Grouper.PRIV_STEM)
     );
     Assert.assertFalse( 
-      "m1 !UPDATE on g0",
-      s.access().has(s, g0, m1, Grouper.PRIV_UPDATE)
+      "m1 !CREATE on ns0",
+      s.naming().has(s, ns0, m1, Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "g0 has == 0 privs on g1", 
-      s.access().has(s, g1, g0.toMember()).size() == 0
+      "ns0 has == 0 privs on ns1", 
+      s.naming().has(s, ns1, ns0.toMember()).size() == 0
     );
     Assert.assertFalse( 
-      "g0 !ADMIN on g1",
-      s.access().has(s, g1, g0.toMember(), Grouper.PRIV_ADMIN)
+      "ns0 !STEM on ns1",
+      s.naming().has(s, ns1, ns0.toMember(), Grouper.PRIV_STEM)
     );
     Assert.assertFalse( 
-      "g0 !UPDATE on g1",
-      s.access().has(s, g1, g0.toMember(), Grouper.PRIV_UPDATE)
+      "ns0 !CREATE on ns1",
+      s.naming().has(s, ns1, ns0.toMember(), Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "g1 has == 0 privs on g1", 
-      s.access().has(s, g1, g1.toMember()).size() == 0
+      "ns1 has == 0 privs on ns1", 
+      s.naming().has(s, ns1, ns1.toMember()).size() == 0
     );
     Assert.assertFalse( 
-      "g1 !ADMIN on g1",
-      s.access().has(s, g1, g1.toMember(), Grouper.PRIV_ADMIN)
+      "ns1 !STEM on ns1",
+      s.naming().has(s, ns1, ns1.toMember(), Grouper.PRIV_STEM)
     );
     Assert.assertFalse( 
-      "g1 !UPDATE on g1",
-      s.access().has(s, g1, g1.toMember(), Grouper.PRIV_UPDATE)
+      "ns1 !CREATE on ns1",
+      s.naming().has(s, ns1, ns1.toMember(), Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "root has == 6 privs on g1", 
-      s.access().has(s, g1).size() == 6
+      "root has == 2 privs on ns1", 
+      s.naming().has(s, ns1).size() == 2
     );
     Assert.assertTrue(
-      "root ADMIN on g1",
-      s.access().has(s, g1, Grouper.PRIV_ADMIN)
+      "root STEM on ns1",
+      s.naming().has(s, ns1, Grouper.PRIV_STEM)
     );
     Assert.assertTrue(
-      "root UPDATE on g1",
-      s.access().has(s, g1, Grouper.PRIV_UPDATE)
+      "root CREATE on ns1",
+      s.naming().has(s, ns1, Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "m0 has == 1 privs on g1", 
-      s.access().has(s, g1, m0).size() == 1
+      "m0 has == 1 privs on ns1", 
+      s.naming().has(s, ns1, m0).size() == 1
     );
     Assert.assertTrue(
-      "m0 ADMIN on g1", 
-      s.access().has(s, g1, m0, Grouper.PRIV_ADMIN)
+      "m0 STEM on ns1", 
+      s.naming().has(s, ns1, m0, Grouper.PRIV_STEM)
     );
     Assert.assertFalse(
-      "m0 !UPDATE on g1", 
-      s.access().has(s, g1, m0, Grouper.PRIV_UPDATE)
+      "m0 !CREATE on ns1", 
+      s.naming().has(s, ns1, m0, Grouper.PRIV_CREATE)
     );
 
     Assert.assertTrue(
-      "m1 has == 0 privs on g1", 
-      s.access().has(s, g1, m1).size() == 0
+      "m1 has == 0 privs on ns1", 
+      s.naming().has(s, ns1, m1).size() == 0
     );
     Assert.assertFalse(
-      "m1 !ADMIN on g1", 
-      s.access().has(s, g1, m1, Grouper.PRIV_ADMIN)
+      "m1 !STEM on ns1", 
+      s.naming().has(s, ns1, m1, Grouper.PRIV_STEM)
     );
     Assert.assertFalse( 
-      "m1 !UPDATE on g1",
-      s.access().has(s, g1, m1, Grouper.PRIV_UPDATE)
+      "m1 !CREATE on ns1",
+      s.naming().has(s, ns1, m1, Grouper.PRIV_CREATE)
     );
 
     s.stop();

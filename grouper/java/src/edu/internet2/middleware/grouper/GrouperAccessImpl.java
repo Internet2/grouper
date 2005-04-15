@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.65 2005-04-12 21:44:28 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.66 2005-04-15 05:29:32 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -221,22 +221,8 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperSession s, Group g, String priv) {
-    GrouperAccessImpl._init();
-    boolean rv = false;
-    if (this.can(priv) == true) {
-      if (this._isRoot(s)) {
-        rv = true;
-      } else {
-        GrouperMember m  = GrouperMember.load(s, s.subject());
-        rv = GrouperList.exists(
-               s, new GrouperList(s, g, m, (String) privMap.get(priv))
-             );
-      }
-    } else {
-      // TODO I should probably throw an exception
-      rv = false;
-    }
-    return rv;
+    GrouperMember m = GrouperMember.load(s, s.subject());
+    return this.has(s, g, m, priv);
   }
 
   /**
@@ -277,12 +263,17 @@ public class GrouperAccessImpl implements GrouperAccess {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      rv = GrouperList.exists(
-             s, new GrouperList(s, g, m, (String) privMap.get(priv))
-           );
-    } else {
-      // TODO I should probably throw an exception
-      rv = false;
+      if (this._isRoot(m)) {
+        rv = true;
+      } else {
+        if        (g instanceof GrouperGroup) {
+          rv = ( (GrouperGroup) g).hasMember(m, (String) privMap.get(priv));
+        } else if (g instanceof GrouperStem) {
+          rv = ( (GrouperStem) g).hasMember(m, (String) privMap.get(priv));
+        } else {
+          throw new RuntimeException("Unknown group class: " + g);
+        }
+      }
     }
     return rv;
   }
@@ -394,12 +385,12 @@ public class GrouperAccessImpl implements GrouperAccess {
        *      group fields information?
        */
       privMap = new HashMap();
-      privMap.put("ADMIN", "admins");
-      privMap.put("OPTIN", "optins");
-      privMap.put("OPTOUT", "optouts");
-      privMap.put("READ", "readers");
-      privMap.put("UPDATE", "updaters");
-      privMap.put("VIEW", "viewers");
+      privMap.put(Grouper.PRIV_ADMIN,   "admins");
+      privMap.put(Grouper.PRIV_OPTIN,   "optins");
+      privMap.put(Grouper.PRIV_OPTOUT,  "optouts");
+      privMap.put(Grouper.PRIV_READ,    "readers");
+      privMap.put(Grouper.PRIV_UPDATE,  "updaters");
+      privMap.put(Grouper.PRIV_VIEW,    "viewers");
       initialized = true;
     }
   }
@@ -409,13 +400,23 @@ public class GrouperAccessImpl implements GrouperAccess {
    * PRIVATE INSTANCE METHODS
    */
 
-  /* (!javadoc)
-   * Grouper's root-like account effectively has all privs
+  /*
+   * Is this the root account?
+   */
+  private boolean _isRoot(GrouperMember m) {
+    boolean rv = false;
+    if (m.subjectID().equals(this.root)) {
+      rv = true; 
+    }
+    return rv;
+  }
+
+  /* 
+   * Is this the root account?
    */
   private boolean _isRoot(GrouperSession s) {
     boolean rv = false;
     if (s.subject().getId().equals(this.root)) {
-      // This subject can do *everything*
       rv = true;
     }
     return rv;

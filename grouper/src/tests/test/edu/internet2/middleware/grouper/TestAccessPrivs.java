@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.36 2005-03-25 20:04:46 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.37 2005-04-15 05:29:32 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -93,7 +93,7 @@ public class TestAccessPrivs extends TestCase {
 
     // Assert current privs
     List privs = s.access().has(s, ns0);
-    Assert.assertTrue("privs == 0 " + privs.size(), privs.size() == 0);
+    Assert.assertTrue("privs == 6 " + privs.size(), privs.size() == 6);
     // Because we are connected as root, everything will return true
     Assert.assertTrue(
       "has ADMIN",  s.access().has(s, ns0, Grouper.PRIV_ADMIN)
@@ -133,7 +133,7 @@ public class TestAccessPrivs extends TestCase {
 
     // Assert current privs
     List privs = s.access().has(s, g0);
-    Assert.assertTrue("privs == 1", privs.size() == 1);
+    Assert.assertTrue("privs == 6", privs.size() == 6);
     // Because we are connected as root, everything will return true
     Assert.assertTrue(
       "has ADMIN",  s.access().has(s, g0, Grouper.PRIV_ADMIN)
