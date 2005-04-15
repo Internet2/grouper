@@ -148,6 +148,7 @@ Groups Registry schema. An ERD of the schema deployed in Grouper
 <div id="subsection">
 <a name="section_1.1"/>
 <h3>1.1 Typographical Conventions</h3>
+</div>
 <p>
 The following typographical conventions are used throughout this
 document:
@@ -161,6 +162,7 @@ document:
 <div id="section">
 <a name="section_2"/>
 <h3>2. Building Grouper 0.5.5</h3>
+</div>
 <p>
 The top-level directory of the unpacked Grouper 0.5.5 distribution
 contains the following directories and files:
@@ -293,7 +295,7 @@ Grouper distribution.
 <p>
 In <i>hibernate.properties</i>, change:
 </p>
-</pre>
+<pre>
   hibernate.connection.url = jdbc:hsqldb:/FULL/PATH/TO/dist/run/grouper
 </pre>
 <p>
@@ -302,7 +304,6 @@ In <i>log4j.properties</i>, change:
 <pre>
   log4j.appender.rfile.File = /FULL/PATH/TO/dist/run/grouper.log
 </pre>
-</p>
 <p>
 The <i>Grouper.properties</i> file contains only three variables, none
 of which require modification by default.  The first specifies the
@@ -342,7 +343,7 @@ with a Grouper deployment.
 <a name="section_2.4.1"/>
 <a name="csv2subject"/>
 <h4>2.4.1 Sample Subject Loader - csv2subject</h4>
-<div>
+</div>
 <p>
 Subjects are identifiers for people, groups and other objects that may
 be members of a group.  In this release of Grouper, subjects are
@@ -389,7 +390,6 @@ file you will first need to load sample subjects into the Groups
 Registry using <a href="#csv2subject">csv2subject</a>.  The sample
 subjects are located in <i>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</i>.
 </p>
-</p>
 <div id="subsection">
 <a name="section_2.4.3"/>
 <a name="groupmgr"/>
@@ -417,7 +417,6 @@ performing simple queries on the Groups Registry.  To use it:
   <li>Follow the instructions in the README file</li>
 </ol>
 </p>
-</div>
 <div id="section">
 <a name="section_3"/>
 <h3>3 Using Grouper's Data And Privilege Models</h3>
@@ -436,7 +435,7 @@ choice of identifiers for members.
 <div id="subsection">
 <a name="section_3.1"/>
 <h4>3.1 Grouper Fields</h4>
-<div>
+</div>
 <p>
 In Grouper parlance, each group has a set of <i>fields</i> and each field can
 either be a list or an attribute.  A <i>list</i> is a multivalued
@@ -834,6 +833,7 @@ the naming attributes of several namespaces and groups.
   <td id="td"><i>displayName</i></td>
   <td id="td">University Of Chicago:Biological Sciences Division</td>
 </tr>
+</tbody>
 </table>
 </p>
 <p>
@@ -875,6 +875,7 @@ the naming attributes of several namespaces and groups.
 <p>
 <div align="center"><b>Figure 1 - Naming Examples</b></div>
 </p>
+<p>
 This set of examples illuminates at least two things. First, that it
 would be a good idea for implementation sites to establish conventions
 for the assignment of naming attributes. An example of such is 
@@ -1155,7 +1156,7 @@ testing and integration is intended as Grouper matures.
 <p>
 To use an alternate database you will need to:
 <ol>
-  <li>Modify Grouper's Hibernate configuration file</li>
+  <li>Modify Grouper's Hibernate configuration file
     (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
     your RDBMS</li>
   <li>Arrange an alternative database initialization process</li>
@@ -1229,7 +1230,7 @@ be changed!  Else why are you bothering with Grouper?
 <div id="subsection">
 <a name="section_4.4"/>
 <h4>4.4 Loaders And Provisioning Connectors</h4>
-<div>
+</div>
 <p>
 Loaders and provisioning connectors are defined in the 
 <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components &amp; architecture section</a>
