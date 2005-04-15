@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.37 2005-04-15 18:34:02 blair Exp $
+$Id: NEWS,v 1.38 2005-04-15 19:10:36 blair Exp $
 
 ---
 
@@ -14,7 +14,7 @@ Released 20050415
 * Updated: Hibernate internals completely rewritten to improve session
   and transaction handling
 * Updated: New and more thoroughly tested implementation of the
-  MemberOf algorithm.  In addition, we are now tracking the entire via
+  memberOf algorithm.  In addition, we are now tracking the entire via
   chain for effective memberships.
 * New: Improved Oracle compatibility and support
 * New: Created logical distinction between groups (GrouperGroup) and
