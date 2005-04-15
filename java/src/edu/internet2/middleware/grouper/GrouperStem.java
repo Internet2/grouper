@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.36 2005-04-15 14:59:34 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.37 2005-04-15 19:14:08 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -519,7 +519,7 @@ public class GrouperStem extends Group {
     return m;
   }
 
-  /*
+  /**
    * Retrieve stem type.
    * <p />
    * @return String stem type.
