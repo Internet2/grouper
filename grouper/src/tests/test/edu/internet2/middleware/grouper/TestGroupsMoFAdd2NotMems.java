@@ -56,9 +56,9 @@ import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
 
-public class TestGroupsMoFAdd2NotUsingMembersList extends TestCase {
+public class TestGroupsMoFAdd2NotMems extends TestCase {
 
-  public TestGroupsMoFAdd2NotUsingMembersList(String name) {
+  public TestGroupsMoFAdd2NotMems(String name) {
     super(name);
   }
 

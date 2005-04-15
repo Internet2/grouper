@@ -56,9 +56,9 @@ import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
 
-public class TestGroupsMoFAdd2ChainReuse extends TestCase {
+public class TestGroupsMoFAdd2ReChain extends TestCase {
 
-  public TestGroupsMoFAdd2ChainReuse(String name) {
+  public TestGroupsMoFAdd2ReChain(String name) {
     super(name);
   }
 
