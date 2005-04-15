@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.36 2005-04-15 18:23:54 blair Exp $
+$Id: NEWS,v 1.37 2005-04-15 18:34:02 blair Exp $
 
 ---
 
@@ -66,6 +66,7 @@ Released 20050415
 * Significant via chain duplication as reuse between list values is not
   working.
 * Via chains are not deleted when they are no longer in use.
+* Logging is not especially effective or useful.
 
 ---
 
