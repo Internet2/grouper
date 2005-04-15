@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.23 2005-04-15 05:56:04 blair Exp $
+ * @version $Id: Group.java,v 1.24 2005-04-15 14:59:34 blair Exp $
  */
 abstract public class Group {
 
@@ -478,7 +478,6 @@ abstract public class Group {
                  )
   {
     // Normalize the case
-    attribute = attribute.toLowerCase();
     if (!Grouper.groupField(g.type(), attribute)) {
       throw new RuntimeException(
                   "Attribute is not valid for this group type"
