@@ -98,8 +98,8 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsMoFAdd1.class);
     suite.addTestSuite(TestGroupsMoFChain1.class);
     suite.addTestSuite(TestGroupsMoFAdd2.class);
-    suite.addTestSuite(TestGroupsMoFAdd2NotUsingMembersList.class);
-    suite.addTestSuite(TestGroupsMoFAdd2ChainReuse.class);
+    suite.addTestSuite(TestGroupsMoFAdd2NotMems.class);
+    suite.addTestSuite(TestGroupsMoFAdd2ReChain.class);
     suite.addTestSuite(TestGroupsMoFAdd3.class);
     suite.addTestSuite(TestGroupsMoFAdd3Reverse.class);
     suite.addTestSuite(TestGroupsMoFAdd4.class);
