@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.60 2005-04-12 21:44:28 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.61 2005-04-15 05:29:32 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -118,7 +118,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Privilege to grant.
    */
   public boolean grant(
-                       GrouperSession s, GrouperStem g, 
+                       GrouperSession s, GrouperStem ns, 
                        GrouperMember m, String priv
                       ) 
   {
@@ -129,10 +129,10 @@ public class GrouperNamingImpl implements GrouperNaming {
       /*
        * FIXME I should be doing a GroupField lookup on `priv'
        */
-      if (this.has(s, g, Grouper.PRIV_STEM)) {
+      if (this.has(s, ns, Grouper.PRIV_STEM)) {
         s.dbSess().txStart();
         try {
-          g.listAddVal(m, (String) privMap.get(priv));
+          ns.listAddVal(m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
@@ -143,7 +143,7 @@ public class GrouperNamingImpl implements GrouperNaming {
         }
       }
     } 
-    Grouper.log().grant(rv, s, g, m, priv);
+    Grouper.log().grant(rv, s, ns, m, priv);
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
@@ -156,14 +156,14 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   g   List privileges on this group.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperStem g) {
+  public List has(GrouperSession s, GrouperStem ns) {
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
     GrouperMember m     = GrouperMember.load(s, s.subject());
     Iterator      iter  = privMap.keySet().iterator();
     while (iter.hasNext()) {
       String  priv  = (String) iter.next();
-      if (this.has(s, g, m, priv) == true) {
+      if (this.has(s, ns, m, priv) == true) {
         privs.add(priv);
       }
     }
@@ -198,13 +198,13 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
-  public List has(GrouperSession s, GrouperStem g, GrouperMember m) {
+  public List has(GrouperSession s, GrouperStem ns, GrouperMember m) {
     GrouperNamingImpl._init();
     List      privs = new ArrayList();
     Iterator  iter  = privMap.keySet().iterator();
     while (iter.hasNext()) {
       String  priv  = (String) iter.next();
-      if (this.has(s, g, m, priv) == true) {
+      if (this.has(s, ns, m, priv) == true) {
         privs.add(priv);
       }
     }
@@ -221,23 +221,9 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
-  public boolean has(GrouperSession s, GrouperStem g, String priv) {
-    GrouperNamingImpl._init();
-    boolean rv = false;
-    if (this.can(priv) == true) {
-      if (this._isRoot(s)) {
-        rv = true;
-      } else {
-        GrouperMember m = GrouperMember.load(s, s.subject());
-        rv = GrouperList.exists(
-               s, new GrouperList(s, g, m, (String) privMap.get(priv))
-             );
-      }
-    } else {
-      // TODO I should probably throw an exception
-      rv = false;
-    }
-    return rv;
+  public boolean has(GrouperSession s, GrouperStem ns, String priv) {
+    GrouperMember m = GrouperMember.load(s, s.subject());
+    return this.has(s, ns, m, priv);
   }
 
   /**
@@ -271,19 +257,18 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(
-                     GrouperSession s, GrouperStem g, 
+                     GrouperSession s, GrouperStem ns, 
                      GrouperMember m, String priv
                     )
   {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      rv = GrouperList.exists(
-             s, new GrouperList(s, g, m, (String) privMap.get(priv))
-           );
-    } else {
-      // TODO I should probably throw an exception
-      rv = false;
+      if (this._isRoot(m)) {
+        rv = true;
+      } else {
+        rv = ns.hasMember(m, (String) privMap.get(priv));
+      }
     }
     return rv;
   }
@@ -297,14 +282,14 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   g     Revoke privilege on this {@link GrouperStem}.
    * @param   priv  Privilege to revoke.
    */
-  public boolean revoke(GrouperSession s, GrouperStem g, String priv) {
+  public boolean revoke(GrouperSession s, GrouperStem ns, String priv) {
     GrouperNamingImpl._init();
     boolean rv = false;
-    Iterator iter = this.whoHas(s, g, priv).iterator();
+    Iterator iter = this.whoHas(s, ns, priv).iterator();
     while (iter.hasNext()) {
       GrouperMember m = (GrouperMember) iter.next();
       // TODO What if this fails for one or more members?
-      this.revoke(s, g, m, priv);
+      this.revoke(s, ns, m, priv);
     }
     rv = true; // FIXME
     // TODO Should this return a list of deleted members?
@@ -322,7 +307,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(
-                        GrouperSession s, GrouperStem g, 
+                        GrouperSession s, GrouperStem ns, 
                         GrouperMember m, String priv
                        ) 
   {
@@ -332,10 +317,10 @@ public class GrouperNamingImpl implements GrouperNaming {
       /*
        * FIXME I should be doing a GroupField lookup on `priv'
        */
-      if (this.has(s, g, Grouper.PRIV_STEM)) {
+      if (this.has(s, ns, Grouper.PRIV_STEM)) {
         s.dbSess().txStart();
         try {
-          g.listDelVal(m, (String) privMap.get(priv));
+          ns.listDelVal(m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
@@ -346,7 +331,7 @@ public class GrouperNamingImpl implements GrouperNaming {
         }
       }
     } 
-    Grouper.log().revoke(rv, s, g, m, priv);
+    Grouper.log().revoke(rv, s, ns, m, priv);
     // TODO I should probably throw an exception if invalid priv
     return rv;
   }
@@ -362,12 +347,12 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperMember} members.
    */
-  public List whoHas(GrouperSession s, GrouperStem g, String priv) {
+  public List whoHas(GrouperSession s, GrouperStem ns, String priv) {
     GrouperNamingImpl._init();
     List members = new ArrayList();
 
     if (this.can(priv) == true) {
-      Iterator iter = g.listVals( (String) privMap.get(priv)).iterator();
+      Iterator iter = ns.listVals( (String) privMap.get(priv)).iterator();
       while (iter.hasNext()) {
         GrouperList   gl  = (GrouperList) iter.next();
         gl.load(s);
@@ -407,13 +392,23 @@ public class GrouperNamingImpl implements GrouperNaming {
    * PRIVATE INSTANCE METHODS
    */
 
-  /* (!javadoc)
-   * Grouper's root-like account effectively has all privs
+  /*
+   * Is this the root account?
+   */
+  private boolean _isRoot(GrouperMember m) {
+    boolean rv = false;
+    if (m.subjectID().equals(this.root)) {
+      rv = true; 
+    }
+    return rv;
+  }
+
+  /* 
+   * Is this the root account?
    */
   private boolean _isRoot(GrouperSession s) {
     boolean rv = false;
     if (s.subject().getId().equals(this.root)) {
-      // This subject can do *everything*
       rv = true;
     }
     return rv;

@@ -117,14 +117,15 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestMembersIsMember.class);
     // TODO Flesh out
     suite.addTestSuite(TestNamingPrivs.class);
-    // TODO TestNamingPrivsGrant
+    suite.addTestSuite(TestNamingGrantMoF0.class);
+    suite.addTestSuite(TestNamingGrantMoF1.class);
+    suite.addTestSuite(TestNamingGrantMoF2.class);
     // TODO TestNamingPrivsRevoke
     // TODO Flesh out
     suite.addTestSuite(TestAccessPrivs.class);
     suite.addTestSuite(TestAccessGrantMoF0.class);
     suite.addTestSuite(TestAccessGrantMoF1.class);
     suite.addTestSuite(TestAccessGrantMoF2.class);
-    // TODO TestAccessPrivsGrant
     // TODO TestAccessPrivsRevoke
     // TODO Flesh out
     suite.addTestSuite(TestQueries.class);

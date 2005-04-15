@@ -90,7 +90,7 @@ public class TestNamingPrivs extends TestCase {
 
     // Assert current privs
     List privs = s.naming().has(s, ns0);
-    Assert.assertTrue("privs == 1", privs.size() == 1);
+    Assert.assertTrue("privs == 2", privs.size() == 2);
     // Because we are connected as root, everything will return true
     Assert.assertTrue(
       "has CREATE",  s.naming().has(s, ns0, Grouper.PRIV_CREATE) 

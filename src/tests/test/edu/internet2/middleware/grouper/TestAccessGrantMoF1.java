@@ -114,6 +114,11 @@ public class TestAccessGrantMoF1 extends TestCase {
                          s, Constants.mem0I, Constants.mem0T
                        );
     Assert.assertNotNull("m0 !null", m0);
+    // Load m1
+    GrouperMember m1 = GrouperMember.load(
+                         s, Constants.mem1I, Constants.mem1T
+                       );
+    Assert.assertNotNull("m0 !null", m0);
 
 
     // Grant m0 ADMIN on g0
@@ -127,49 +132,136 @@ public class TestAccessGrantMoF1 extends TestCase {
       s.access().grant(s, g1, m0, Grouper.PRIV_ADMIN)
     );
 
-    // TODO Use access interface to check results?
     // Assert privileges
+    Assert.assertTrue(
+      "g0 has == 0 privs on g0", 
+      s.access().has(s, g0, g0.toMember()).size() == 0
+    );
+    Assert.assertFalse( 
+      "g0 !ADMIN on g0",
+      s.access().has(s, g0, g0.toMember(), Grouper.PRIV_ADMIN)
+    );
+    Assert.assertFalse( 
+      "g0 !UPDATE on g0",
+      s.access().has(s, g0, g0.toMember(), Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "g1 has == 0 privs on g0", 
+      s.access().has(s, g0, g1.toMember()).size() == 0
+    );
+    Assert.assertFalse( 
+      "g1 !ADMIN on g0",
+      s.access().has(s, g0, g1.toMember(), Grouper.PRIV_ADMIN)
+    );
+    Assert.assertFalse( 
+      "g1 !UPDATE on g0",
+      s.access().has(s, g0, g1.toMember(), Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "root has == 6 privs on g0", 
+      s.access().has(s, g0).size() == 6
+    );
+    Assert.assertTrue(
+      "root ADMIN on g0",
+      s.access().has(s, g0, Grouper.PRIV_ADMIN)
+    );
+    Assert.assertTrue(
+      "root UPDATE on g0",
+      s.access().has(s, g0, Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "m0 has == 1 privs on g0", 
+      s.access().has(s, g0, m0).size() == 1
+    );
     Assert.assertTrue(
       "m0 ADMIN on g0", 
       s.access().has(s, g0, m0, Grouper.PRIV_ADMIN)
     );
-    // Assert privileges
+    Assert.assertFalse(
+      "m0 !UPDATE on g0", 
+      s.access().has(s, g0, m0, Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "m1 has == 0 privs on g0", 
+      s.access().has(s, g0, m1).size() == 0
+    );
+    Assert.assertFalse(
+      "m1 !ADMIN on g0", 
+      s.access().has(s, g0, m1, Grouper.PRIV_ADMIN)
+    );
+    Assert.assertFalse( 
+      "m1 !UPDATE on g0",
+      s.access().has(s, g0, m1, Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "g0 has == 0 privs on g1", 
+      s.access().has(s, g1, g0.toMember()).size() == 0
+    );
+    Assert.assertFalse( 
+      "g0 !ADMIN on g1",
+      s.access().has(s, g1, g0.toMember(), Grouper.PRIV_ADMIN)
+    );
+    Assert.assertFalse( 
+      "g0 !UPDATE on g1",
+      s.access().has(s, g1, g0.toMember(), Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "g1 has == 0 privs on g1", 
+      s.access().has(s, g1, g1.toMember()).size() == 0
+    );
+    Assert.assertFalse( 
+      "g1 !ADMIN on g1",
+      s.access().has(s, g1, g1.toMember(), Grouper.PRIV_ADMIN)
+    );
+    Assert.assertFalse( 
+      "g1 !UPDATE on g1",
+      s.access().has(s, g1, g1.toMember(), Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "root has == 6 privs on g1", 
+      s.access().has(s, g1).size() == 6
+    );
+    Assert.assertTrue(
+      "root ADMIN on g1",
+      s.access().has(s, g1, Grouper.PRIV_ADMIN)
+    );
+    Assert.assertTrue(
+      "root UPDATE on g1",
+      s.access().has(s, g1, Grouper.PRIV_UPDATE)
+    );
+
+    Assert.assertTrue(
+      "m0 has == 1 privs on g1", 
+      s.access().has(s, g1, m0).size() == 1
+    );
     Assert.assertTrue(
       "m0 ADMIN on g1", 
       s.access().has(s, g1, m0, Grouper.PRIV_ADMIN)
     );
+    Assert.assertFalse(
+      "m0 !UPDATE on g1", 
+      s.access().has(s, g1, m0, Grouper.PRIV_UPDATE)
+    );
 
-    // Now inspect g0's, resulting list values
     Assert.assertTrue(
-      "admins == 2", g0.listVals("admins").size() == 2
+      "m1 has == 0 privs on g1", 
+      s.access().has(s, g1, m1).size() == 0
     );
-    Assert.assertTrue(
-      "imm admins == 2", g0.listImmVals("admins").size() == 2
+    Assert.assertFalse(
+      "m1 !ADMIN on g1", 
+      s.access().has(s, g1, m1, Grouper.PRIV_ADMIN)
     );
-    Assert.assertTrue(
-      "eff admins == 0", g0.listEffVals("admins").size() == 0
+    Assert.assertFalse( 
+      "m1 !UPDATE on g1",
+      s.access().has(s, g1, m1, Grouper.PRIV_UPDATE)
     );
-    Iterator iter0I = g0.listImmVals("admins").iterator();
-    while (iter0I.hasNext()) {
-      GrouperList lv = (GrouperList) iter0I.next();
-      Assert.assertTrue("g0 empty chain", lv.chain().size() == 0);
-    }
-
-    // Now inspect g1's, resulting list values
-    Assert.assertTrue(
-      "admins == 2", g1.listVals("admins").size() == 2
-    );
-    Assert.assertTrue(
-      "imm admins == 2", g1.listImmVals("admins").size() == 2
-    );
-    Assert.assertTrue(
-      "eff admins == 0", g1.listEffVals("admins").size() == 0
-    );
-    Iterator iter1I = g1.listImmVals("admins").iterator();
-    while (iter1I.hasNext()) {
-      GrouperList lv = (GrouperList) iter1I.next();
-      Assert.assertTrue("g1 empty chain", lv.chain().size() == 0);
-    }
 
     s.stop();
   }
