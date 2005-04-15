@@ -1,115 +1,166 @@
-Grouper Third Party Library README
 
-TODO Add disclaimer, etc.
+# Grouper Third Party Library
 
-Contents:
+This file provides information on the third party libraries that ship
+with Grouper.
 
-  cglib-full.jar
-    "cglib is a powerful, high performance and quality Code Generation
-    Library, It is used to extend JAVA classes and implements
-    interfaces at runtime."
-    - Version:  2.0.2
-    - Source:   <http://cglib.sourceforge.net/>
-    - License:  Apache Software License, Version 1.1
+$Id: README,v 1.12 2005-04-15 13:44:13 blair Exp $
 
-  commons-cli.jar
-  "The CLI library provides a simple and easy to use API for working
-  with the command line arguments and options"
-    - Version:  1.0
-    - Source:   <http://jakarta.apache.org/commons/>
-    - License:  Apache License, Version 2.0
+---
+
+## cglib-full.jar
+
+"cglib is a powerful, high performance and quality Code Generation
+Library, It is used to extend JAVA classes and implements interfaces
+at runtime."
+
+* Version:  2.0.2
+* Source:   <http://cglib.sourceforge.net/>
+* License:  Apache Software License, Version 1.1
+
+## commons-cli.jar
+
+"The CLI library provides a simple and easy to use API for working
+with the command line arguments and options"
+
+* Version:  1.0
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
   
-  commons-collections.jar
-    "Commons-Collections provides a suite of classes that extend
-    or augment the Java Collections Framework."
-    - Version:  3.1
-    - Source:   <http://jakarta.apache.org/commons/>
-    - License:  Apache License, Version 2.0
+##  commons-collections.jar
 
-  commons-lang.jar
-    "The standard Java libraries fail to provide enough methods for
-    manipulation of its core classes. The  Lang  Component provides
-    these extra methods."
-    - Version:  2.0
-    - Source:   <http://jakarta.apache.org/commons/>
-    - License:  Apache License, Version 2.0
+"Commons-Collections provides a suite of classes that extend or
+augment the Java Collections Framework."
 
-  commons-logging.jar
-    "Commons-Logging is a wrapper around a variety of logging API
-    implementations."
-    - Version:  1.0.4
-    - Source:   <http://jakarta.apache.org/commons/>
-    - License:  Apache License, Version 2.0
+* Version:  3.1
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
 
-  dom4j.jar
-    "dom4j is an easy to use, open source library for working with
-    XML, XPath and XSLT on the Java platform using the Java Collections
-    Framework and with full support for DOM, SAX and JAXP."
-    - Version:  1.4
-    - Source:   <http://www.dom4j.org/>
-    - License:  BSD
+## commons-dbcp.jar
 
-  ehcache.jar
-    "EHCache is a pure Java, in-process cache"
-    - Version:  0.9
-    - Source:   <http://ehcache.sourceforge.net/>
-    - License:  Apache Software License, Version 1.1
+"There are several Database Connection Pools already available,
+both within Jakarta products and elsewhere. This Commons package
+provides an opportunity to coordinate the efforts required to create
+and maintain an efficient, feature-rich package under the ASF
+license."
 
-  hibernate2.jar
-    "Hibernate is a powerful, ultra-high performance object/relational
-    persistence and query service for Java."
-    - Version:  2.1.8
-    - Source:   <http://www.hibernate.org/>
-    - License:  LGPL
+* Version:  1.2.1
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
 
-  hsqldb.jar
-    "Lightweight 100% Java SQL Database Engine"
-    - Version:  1.7.2.11
-    - Source:   <http://hsqldb.sourceforge.net/>
-    - License:  Hypersonic License
+## commons-lang.jar
 
-  jta.jar
-    "JTA specifies standard Java interfaces between a transaction
-    manager and the parties involved in a distributed transaction
-    system: the resource manager, the application server, and the
-    transactional applications.
-    - Version:  1.0.1B
-    - Source:   <http://java.sun.com/products/jta/>
-    - License:  Sun Microsystems, Inc. Binary License Code Agreement
+"The standard Java libraries fail to provide enough methods for
+manipulation of its core classes. The  Lang  Component provides
+these extra methods."
 
-  jug.jar
-    "JUG is a pure java UUID generator, that can be used either as
-    a component in a bigger application, or as a standalone command
-    line tool (a la 'uuidgen')."
-    - Version:  1.1.1
-    - Source:   <http://www.doomdark.org/doomdark/proj/jug/>
-    - License:  LGPL
+* Version:  2.0
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
 
-  junit.jar
-    "JUnit is a regression testing framework"
-    - Version:  3.8.1
-    - Source:   <http://www.junit.org/>
-    - License:  Common Public License
+## commons-logging.jar
 
-  log4j.jar
-    "The Logging Services project is intended to provide cross-language
-    logging services for purposes of application debugging and
-    auditing."
-    - Version:  1.4.8
-    - Source:   <http://logging.apache.org/>
-    - License:  Apache License, Version 2.0
+"Commons-Logging is a wrapper around a variety of logging API
+implementations."
 
-  odmg.jar
-    "Hibernate provided ODMG compliant persistence manager interface."
-    - Version:  3.0 (?)
-    - Source:   <http://www.hibernate.org/>
-    - License:  LGPL (?)
+* Version:  1.0.4
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
 
-  subject.jar
-    "TODO The I2MI Subject Interface."
-    - Version:  CVS HEAD checkout on 20041101
-    - Source:   TODO
-    - License:  TODO
+## commons-pool.jar
 
-$Id: README,v 1.11 2005-02-14 00:37:50 blair Exp $
+"Pool provides an Object-pooling API"
+
+* Version:  1.2
+* Source:   <http://jakarta.apache.org/commons/>
+* License:  Apache License, Version 2.0
+
+## dom4j.jar
+
+"dom4j is an easy to use, open source library for working with XML,
+XPath and XSLT on the Java platform using the Java Collections
+Framework and with full support for DOM, SAX and JAXP."
+
+* Version:  1.4
+* Source:   <http://www.dom4j.org/>
+* License:  BSD
+
+## ehcache.jar
+
+"EHCache is a pure Java, in-process cache"
+
+* Version:  0.9
+* Source:   <http://ehcache.sourceforge.net/>
+* License:  Apache Software License, Version 1.1
+
+## hibernate2.jar
+
+"Hibernate is a powerful, ultra-high performance object/relational
+persistence and query service for Java."
+
+* Version:  2.1.8
+* Source:   <http://www.hibernate.org/>
+* License:  LGPL
+
+## hsqldb.jar
+
+"Lightweight 100% Java SQL Database Engine"
+
+* Version:  1.7.2.11
+* Source:   <http://hsqldb.sourceforge.net/>
+* License:  Hypersonic License
+
+## jta.jar
+
+"JTA specifies standard Java interfaces between a transaction manager
+and the parties involved in a distributed transaction system: the
+resource manager, the application server, and the transactional
+applications.
+
+* Version:  1.0.1B
+* Source:   <http://java.sun.com/products/jta/>
+* License:  Sun Microsystems, Inc. Binary License Code Agreement
+
+## jug.jar
+
+"JUG is a pure java UUID generator, that can be used either as a
+component in a bigger application, or as a standalone command line
+tool (a la 'uuidgen')."
+
+* Version:  1.1.1
+* Source:   <http://www.doomdark.org/doomdark/proj/jug/>
+* License:  LGPL
+
+## junit.jar
+
+"JUnit is a regression testing framework"
+
+* Version:  3.8.1
+* Source:   <http://www.junit.org/>
+* License:  Common Public License
+
+## log4j.jar
+
+"The Logging Services project is intended to provide cross-language
+logging services for purposes of application debugging and auditing."
+
+* Version:  1.4.8
+* Source:   <http://logging.apache.org/>
+* License:  Apache License, Version 2.0
+
+## odmg.jar
+
+"Hibernate provided ODMG compliant persistence manager interface."
+
+* Version:  3.0 (?)
+* Source:   <http://www.hibernate.org/>
+* License:  LGPL (?)
+
+## subject.jar
+
+"The I2MI Subject Interface."
+
+* Version:  CVS HEAD checkout on 20041101
+* Source:   TODO
+* License:  TODO
 
