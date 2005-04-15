@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.61 2005-04-15 05:29:32 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.62 2005-04-15 18:27:18 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -113,7 +113,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Grant privileges on this {@link GrouperStem}.
+   * @param   ns    Grant privileges on this {@link GrouperStem}.
    * @param   m     Grant privileges for this {@link GrouperMember}.
    * @param   priv  Privilege to grant.
    */
@@ -153,7 +153,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s   Act within this {@link GrouperSession}.
-   * @param   g   List privileges on this group.
+   * @param   ns  List privileges on this group.
    * @return  List of privileges.
    */
   public List has(GrouperSession s, GrouperStem ns) {
@@ -194,7 +194,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Return privileges for this {@link GrouperStem}.
+   * @param   ns    Return privileges for this {@link GrouperStem}.
    * @param   m     List privileges for this {@link GrouperMember}.
    * @return  List of privileges.
    */
@@ -217,7 +217,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Verify privilege for this group.
+   * @param   ns    Verify privilege for this group.
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
@@ -251,7 +251,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Verify privilege for this group.
+   * @param   ns    Verify privilege for this group.
    * @param   m     Verify privilege for this member.
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
@@ -279,7 +279,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperStem}.
+   * @param   ns    Revoke privilege on this {@link GrouperStem}.
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(GrouperSession s, GrouperStem ns, String priv) {
@@ -302,7 +302,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * <p />
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Revoke privilege on this {@link GrouperStem}.
+   * @param   ns    Revoke privilege on this {@link GrouperStem}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.
    * @param   priv  Privilege to revoke.
    */
@@ -343,7 +343,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
-   * @param   g     Query for this {@link GrouperStem}.
+   * @param   ns    Query for this {@link GrouperStem}.
    * @param   priv  Query for this privilege type.
    * @return  List of {@link GrouperMember} members.
    */
