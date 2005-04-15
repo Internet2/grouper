@@ -4,7 +4,17 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.9 2005-04-15 17:39:03 blair Exp $
+$Id: LAYOUT,v 1.10 2005-04-15 17:45:33 blair Exp $
+
+---
+
+## LICENSE
+
+Grouper licensing information.
+
+## README
+
+Grouper README.
 
 ---
 
@@ -15,6 +25,8 @@ Destination for all compiled Java classes.
 ## build.xml
 
 Ant build configuration file.
+
+---
 
 ## conf/
 
@@ -38,12 +50,16 @@ Grouper configuration file.
 
 ### conf/log4j.properties
 
-Logging configuratin file.
+Logging configuration file.
+
+---
 
 ## contrib/
 
-Contributed loaders, provisioners, and other programs for use with
+Contributed loaders, provisioners and other programs for use with
 Grouper.  See _contrib/README_ for more information.
+
+---
 
 ## dist/
 
@@ -58,6 +74,8 @@ Destination for compiled .jar files.
 ### run/
 
 HSQLDB data directory and log4j log directory.
+
+---
 
 ## doc/
 
@@ -94,6 +112,8 @@ This file.
 
 Grouper development roadmap for future releases.
 
+---
+
 ## java/
 
 ### lib/
@@ -109,13 +129,7 @@ Grouper's Java source code.
 
 Java source used for testing Grouper.
 
-## LICENSE
-
-Grouper licensing information.
-
-## README
-
-Grouper README.
+---
 
 ## sql/
 
