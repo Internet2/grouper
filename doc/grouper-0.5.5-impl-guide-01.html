@@ -3,6 +3,12 @@
   <title>Grouper 0.5.5 Implementation Guide</title>
   <style>
 <!--
+pre {
+  padding-bottom: 2%;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 2%;
+}
 #section { }
 #subsection { }
 #table {
@@ -147,7 +153,7 @@ Groups Registry schema. An ERD of the schema deployed in Grouper
 </p>
 <div id="subsection">
 <a name="section_1.1"/>
-<h3>1.1 Typographical Conventions</h3>
+<h4>1.1. Typographical Conventions</h4>
 </div>
 <p>
 The following typographical conventions are used throughout this
@@ -242,7 +248,7 @@ refer to the top level of your Grouper distribution.
 </p>
 <div id="subsection">
 <a name="section_2.1"/>
-<h4>2.1 Build Instructions</h4>
+<h4>2.1. Build Instructions</h4>
 </div>
 <p>
 <ol>
@@ -265,7 +271,11 @@ refer to the top level of your Grouper distribution.
     HSQLDB RDBMS.</p></li>
   <li><p><tt>ant test</tt></p>
     <p>This will compile and run the Grouper test suite to exercise the
-    API and ensure that Grouper is properly configured.</p></li>
+    API and ensure that Grouper is properly configured.</p>
+    <p><b>Note: Running the test suite is destructive and will
+    delete all groups and memberships.  Do not run the test
+    suite against production data.</b></p></li>
+</li>
   <li><p><tt>ant db</tt> [optional]</p>
     <p>This will launch HSQLDB's GUI database manager.  From within the
     manager you can run SQL queries against the Groups Registry.</p></li>
@@ -279,7 +289,7 @@ refer to the top level of your Grouper distribution.
 </p>
 <div id="subsection">
 <a name="section_2.2"/>
-<h4>2.2 Configuring Grouper</h4>
+<h4>2.2. Configuring Grouper</h4>
 </div>
 <p>
 Grouper has only a few configuration options. The configuration
@@ -302,7 +312,7 @@ In <i>hibernate.properties</i>, change:
 In <i>log4j.properties</i>, change:
 </p>
 <pre>
-  log4j.appender.rfile.File = /FULL/PATH/TO/dist/run/grouper.log
+  log4j.appender.rfile.File = /FULL/PATH/TO/dist/run/log
 </pre>
 <p>
 The <i>Grouper.properties</i> file contains only three variables, none
@@ -320,7 +330,7 @@ the default Hibernate cache sizes.
 </p>
 <div id="subsection">
 <a name="section_2.3"/>
-<h4>2.3 Running Grouper</h4>
+<h4>2.3. Running Grouper</h4>
 </div>
 <p>
 To run a java program using the Grouper 0.5.5 API, the Java environment
@@ -333,7 +343,7 @@ must have a classpath that includes:
 </p>
 <div id="subsection">
 <a name="section_2.4"/>
-<h4>2.4 Building And Running Sample Applications</h4>
+<h4>2.4. Building And Running Sample Applications</h4>
 </div>
 <p>
 Grouper includes four sample programs to aid in getting started
@@ -342,7 +352,7 @@ with a Grouper deployment.
 <div id="subsection">
 <a name="section_2.4.1"/>
 <a name="csv2subject"/>
-<h4>2.4.1 Sample Subject Loader - csv2subject</h4>
+<h4>2.4.1. Sample Subject Loader - csv2subject</h4>
 </div>
 <p>
 Subjects are identifiers for people, groups and other objects that may
@@ -373,7 +383,7 @@ To use <i>csv2subject</i>:
 <div id="subsection">
 <a name="section_2.4.2"/>
 <a name="csv2group"/>
-<h4>2.4.2 Sample Group Loader - csv2group</h4>
+<h4>2.4.2. Sample Group Loader - csv2group</h4>
 </div>
 <p>
 <i>csv2group</i> is a simple program for adding namespaces, groups and
@@ -393,7 +403,7 @@ subjects are located in <i>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</i>
 <div id="subsection">
 <a name="section_2.4.3"/>
 <a name="groupmgr"/>
-<h4>2.4.3 Sample Group Manager - groupmgr</h4>
+<h4>2.4.3. Sample Group Manager - groupmgr</h4>
 </div>
 <p>
 <i>groupmgr</i> is a program that provides a command line interface for
@@ -407,7 +417,7 @@ groups and memberships.  To use it:
 <div id="subsection">
 <a name="section_2.4.4"/>
 <a name="grouperq"/>
-<h4>2.4.4 Sample Query Tool - grouperq</h4>
+<h4>2.4.4. Sample Query Tool - grouperq</h4>
 </div>
 <p>
 <i>grouperq</i> is a program that provides a command line interface for
@@ -419,7 +429,7 @@ performing simple queries on the Groups Registry.  To use it:
 </p>
 <div id="section">
 <a name="section_3"/>
-<h3>3 Using Grouper's Data And Privilege Models</h3>
+<h3>3. Using Grouper's Data And Privilege Models</h3>
 </div>
 <p>
 Grouper works by managing two principal types of objects: groups and
@@ -434,7 +444,7 @@ choice of identifiers for members.
 </p>
 <div id="subsection">
 <a name="section_3.1"/>
-<h4>3.1 Grouper Fields</h4>
+<h4>3.1. Grouper Fields</h4>
 </div>
 <p>
 In Grouper parlance, each group has a set of <i>fields</i> and each field can
@@ -444,6 +454,7 @@ Each subject has a single <i>subjectType</i>, the full set of which
 is determined by each implementation site.  Grouper provides
 <i>person</i> and <i>group</i> <i>subjectTypes</i> by default.
 </p>
+<p>Field names are case sensitive.</p>
 <p>
 Groups have the following set of attributes:
 </p>
@@ -649,7 +660,7 @@ Namespaces have the following set of lists:
 </p>
 <div id="subsection">
 <a name="section_3.2"/>
-<h4>3.2 Extending Grouper's Fields</h4>
+<h4>3.2. Extending Grouper's Fields</h4>
 </div>
 <p>
 To support some of the 
@@ -697,7 +708,7 @@ contexts we'll use the term <i>guid</i>.
 </p>
 <div id="subsection">
 <a name="section_3.3"/>
-<h4>3.3 Naming Elements And Examples</h4>
+<h4>3.3. Naming Elements And Examples</h4>
 </div>
 <p>
 Tables <a href="#table_1">1</a>, <a href="#table_2">2</a>, 
@@ -899,7 +910,7 @@ These will be introduced in a future API release.
 </p>
 <div id="subsection">
 <a name="section_3.4"/>
-<h4>3.4 Grouper Privileges</h4>
+<h4>3.4. Grouper Privileges</h4>
 </div>
 <p>
 There are two categories of privileges in Grouper. Access privileges
@@ -1033,7 +1044,7 @@ to do so.
 </p>
 <div id="subsection">
 <a name="section_3.5"/>
-<h4>3.5 Using Privileges To Distribute Group Management
+<h4>3.5. Using Privileges To Distribute Group Management
 Capabilities</h4>
 </div>
 <p>
@@ -1069,7 +1080,7 @@ solve an access control problem can be found in
 </p>
 <div id="subsection">
 <a name="section_3.6"/>
-<h4>3.6 Subject Identifiers</h4>
+<h4>3.6. Subject Identifiers</h4>
 </div>
 <p>
 Most often the members of your groups will be people and other groups.
@@ -1129,7 +1140,7 @@ that is suitable in the provisioned context.
 </p>
 <div id="section">
 <a name="section_4"/>
-<h3>4 Integration Tasks</h3>
+<h3>4. Integration Tasks</h3>
 </div>
 <p>
 This section is intended to demonstrate how to integrate Grouper with
@@ -1139,7 +1150,7 @@ remains sparse.
 </p>
 <div id="subsection">
 <a name="section_4.1"/>
-<h4>4.1 Using Your Own RDBMS</h4>
+<h4>4.1. Using Your Own RDBMS</h4>
 </div>
 <p>
 Grouper uses Hibernate 
@@ -1151,21 +1162,45 @@ against HSQLDB (its default database) and Oracle, it may be that it
 will not work out of the box with other databases.  Better database
 testing and integration is intended as Grouper matures.
 </p>
-<p><font color="red">XXX with.oracle</font></p>
-<p><font color="red">XXX db-init</font></p>
+<div id="subsection">
+<a name="section_4.1.1"/>
+<h4>4.1.1 Using Oracle</h4>
+</div>
 <p>
+While Grouper uses HSQLDB by default, it does ship with preliminary
+support for using Oracle.  To use Oracle you will need to:
+<ol>
+  <li>Modify Grouper's Hibernate configuration file
+    (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
+    your RDBMS</li>
+  <li>Set <i>sql.type</i> to <i>oracle</i> in 
+    <i>$GROUPER_BASE/build.xml</i></li>
+</ol>
+</p>
+<div id="subsection">
+<a name="section_4.1.2"/>
+<h4>4.1.2 Using Other Databases</h4>
+</div>
+<p>
+While Grouper should work with other databases, it has not yet been
+tested with them nor does it provide support for them as shipped.
 To use an alternate database you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file
     (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
     your RDBMS</li>
-  <li>Arrange an alternative database initialization process</li>
+  <li>Create <i>$GROUPER_BASE/sql/schema-$YOUR_DB_TYPE.sql</i></li>
+  <li>Create <i>$GROUPER_BASE/sql/test-data-$YOUR_DB_TYPE.sql</i></li>
+  <li>Set <i>sql.type</i> to <i>$YOUR_DB_TYPE</i> in 
+    <i>$GROUPER_BASE/build.xml</i></li>
 </ol>
+If you do use an alternate database that is not natively supported by
+Grouper, please contact the grouper-dev list with your results and
+schema files.
 </p>
-<p><font color="red">XXX testing with other databases</font></p>
 <div id="subsection">
 <a name="section_4.2"/>
-<h4>4.2 SQL Tuning</h4>
+<h4>4.2. SQL Tuning</h4>
 </div>
 <p>
 As development progresses, general performance tuning and RDBMS-specific
@@ -1173,7 +1208,7 @@ suggestions will be made available.
 </p>
 <div id="subsection">
 <a name="section_4.3"/.
-<h4>4.3 Getting Subjects Into Grouper</h4>
+<h4>4.3. Getting Subjects Into Grouper</h4>
 </div>
 <p>
 <a href="#section_3.6">Section 3.6</a> broached issues surrounding
@@ -1229,7 +1264,7 @@ be changed!  Else why are you bothering with Grouper?
 </p>
 <div id="subsection">
 <a name="section_4.4"/>
-<h4>4.4 Loaders And Provisioning Connectors</h4>
+<h4>4.4. Loaders And Provisioning Connectors</h4>
 </div>
 <p>
 Loaders and provisioning connectors are defined in the 
@@ -1381,7 +1416,7 @@ with. The <i>GrouperGroup.createSubject()</i> and
 </p>
 <div id="subsection">
 <a name="section_4.5"/>
-<h4>4.5 Integrating Grouper With An External Privilege Management
+<h4>4.5. Integrating Grouper With An External Privilege Management
 System</h4>
 </div>
 <p>
