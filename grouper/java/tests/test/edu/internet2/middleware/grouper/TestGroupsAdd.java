@@ -387,5 +387,63 @@ public class TestGroupsAdd extends TestCase {
     s.stop();
   }
 
+  // null or blank group
+  public void testCreateNullOrBlankGroup() {
+    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    GrouperSession s = GrouperSession.start(subj);
+
+    // Create g0
+    try {
+      GrouperGroup g0 = GrouperGroup.create(
+                          s, null, null
+                        );
+      Assert.fail("stem == null, extn == null");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("caught double null", true);
+    }
+    try {
+      GrouperGroup g0 = GrouperGroup.create(
+                          s, null, Constants.g0e
+                        );
+      Assert.fail("stem == null");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("caught null stem", true);
+    }
+    try {
+      GrouperGroup g0 = GrouperGroup.create(
+                          s, Constants.g0s, null
+                        );
+      Assert.fail("extn == null");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("caught null extn", true);
+    }
+    try {
+      GrouperGroup g0 = GrouperGroup.create(
+                          s, "", ""
+                        );
+      Assert.fail("stem == blank, extn == blank");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("caught double blank", true);
+    }
+    try {
+      GrouperGroup g0 = GrouperGroup.create(
+                          s, "", Constants.g0e
+                        );
+      Assert.fail("stem == blank");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("caught blank stem", true);
+    }
+    try {
+      GrouperGroup g0 = GrouperGroup.create(
+                          s, Constants.g0s, ""
+                        );
+      Assert.fail("extn == blank");
+    } catch (RuntimeException e) {
+      Assert.assertTrue("caught blank extn", true);
+    }
+
+    s.stop();
+  }
+
 }
 

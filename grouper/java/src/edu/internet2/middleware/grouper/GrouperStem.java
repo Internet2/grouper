@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.34 2005-04-13 18:15:11 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.35 2005-04-15 05:56:04 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -139,6 +139,7 @@ public class GrouperStem extends Group {
                               GrouperSession s, String stem, String extn
                             )
   {
+    Group.invalidStemOrExtn(stem, extn);
     GrouperStem ns;
     if (!GrouperStem.exists(s, stem)) {
       throw new RuntimeException("Parent stem does not exist");
@@ -176,6 +177,7 @@ public class GrouperStem extends Group {
                               String stem, String extension
                             )
   {
+    Group.invalidStemOrExtn(stem, extension);
     String key = Group.findKeyByStemExtnType(s, stem, extension, Grouper.NS_TYPE);
     if (key != null) {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);

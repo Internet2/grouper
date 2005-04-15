@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.22 2005-04-13 18:07:09 blair Exp $
+ * @version $Id: Group.java,v 1.23 2005-04-15 05:56:04 blair Exp $
  */
 abstract public class Group {
 
@@ -281,6 +281,22 @@ abstract public class Group {
                 );
     }
     return key;
+  }
+
+  /*
+   * No nulls, no blanks
+   */
+  protected static void invalidStemOrExtn(String stem, String extn) {
+    if        (stem == null) {
+      throw new RuntimeException("null stem");
+    } else if (stem.equals("")) {
+      throw new RuntimeException("blank stem");
+    }
+    if        (extn == null) {
+      throw new RuntimeException("null extension");
+    } else if (extn.equals("")) {
+      throw new RuntimeException("blank extension");
+    }
   }
 
   /*
