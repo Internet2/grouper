@@ -1,57 +1,79 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.35 2005-04-15 13:44:34 blair Exp $
+$Id: NEWS,v 1.36 2005-04-15 18:23:54 blair Exp $
 
 ---
 
-## Version 0.5.5-cvs
+# Version 0.5.5
 
-### Changes
+Released 20050415
+
+## Changes
+
+* Updated: Hibernate internals completely rewritten to improve session
+  and transaction handling
+* Updated: New and more thoroughly tested implementation of the
+  MemberOf algorithm.  In addition, we are now tracking the entire via
+  chain for effective memberships.
+* New: Improved Oracle compatibility and support
+* New: Created logical distinction between groups (GrouperGroup) and
+  namespaces (GrouperStem)
+* New: GrouperGroup.hasMember() method for verifying whether a member
+  belongs to a group (#328)
+* New: GrouperMember.isMember() method for verifying whether a member
+  belongs to a group (#328)
+* New: GrouperStem.stems() method to retrieve immediate child
+  namespaces within a namespace
+* New: GrouperStem.groups() method to retrieve immediate child groups
+  within a namespace
+* New: GrouperSession objects now serializable (#296)
+* New: More detailed reporting (via exceptions) of errors caused
+  by various runtime error conditions 
+* New: Now using Commons DBCP by default for connection pooling
+* New: Now using Hibernate name queries defined as defined in
+  _conf/Grouper.hbm.xml_
 * New: Use Ant's SQL task to to create, initialize and reset
   HSQLDB database (#287)
-* New: GrouperSession objects serializable (#296)
-* New: hasMember() and isMember() methods (#328)
-* New: GrouperField objects now have public instance methods 
-  for getting information about the field.
-* New: `via_element' and `via_path' database tables.
-* New: Hibernate's ODMG interface .jar 
-* Updated: Hibernate .jar from 2.1.7c to 2.1.8
-* Updated: HSQLDB .jar from 1.7.1 to 1.7.2.11
-* Updated: csv2group 
 * Fixed: Removed calls to system.exit() (#179) 
   (David Langenberg, The University Of Chicago)
 * Fixed: sessionID generation bug (#278)
 * Fixed: Effective membership bug with circular group memberhips (#286)
-* Contributed:
-  * Updated: csv2group
-    * Support for comments in input files
-    * -c option
-    * -q option
-* Add commons-pool 1.2
-* Add commons-dbcp 1.2.1
-* Use dbcp by default for connection pooling
+* New: GrouperField objects now have public instance methods 
+  for getting information about the field
+* Fixed: Effective membership now working with lists other than
+  "members" as well as with the default Access and Naming privilege
+  interfaces
+* New: commons-dbcp 1.2.1 .jar file
+* New: commons-pool 1.2 .jar file
+* New: Hibernate's ODMG interface .jar 
+* Updated: Hibernate .jar from 2.1.7c to 2.1.8
+* Updated: HSQLDB .jar from 1.7.1 to 1.7.2.11
+* Updated csv2group to handle comments in input files and the -c and -q
+  options
 
-### Incompabilities
-* Databases created with earlier versions of HSQLDB may not work with
-  the newer unless upgraded.
-* The schema of the `grouper_list' and `grouper_session' database
-  tables have changed.
-* TODO API Changes
-  * GrouperSession as arg
-  * access() and naming()
-* Revised Hibernate session and transaction handling code
-* Revised effective membership algorithm
-* Addition of a GrouperStem class for managing and representing
-  namespaces
-* Improved compatibility with Oracle and newer versions of HSQLDB
-* Add public methods to list all groups and stems within a given stem
+## Incompabilities
+
+* Databases created with Grouper 0.5 will not work with this release.
+* Runtime access to Access and Naming privilege implementations moved
+  from _Grouper_ to _GrouperSession_.
+* Removed _GrouperSession_ argument requirement for most instance
+  method calls.
+
+
+## Known Bugs
+
+* Significant via chain duplication as reuse between list values is not
+  working.
+* Via chains are not deleted when they are no longer in use.
 
 ---
 
-## Version 0.5
+# Version 0.5
 
-### Added
+Release 200412
+
+## Changes
 
 * "Base" and "Naming" group types
 * Immediate Memberships
@@ -74,7 +96,7 @@ $Id: NEWS,v 1.35 2005-04-15 13:44:34 blair Exp $
 * Contributed: Member Loader
 * Contributed: Query Program
 
-### Known Bugs
+## Known Bugs
 
 * Grouper does not fail gracefully or even necessarily informatively
 * Insufficient data validation within code
@@ -86,7 +108,4 @@ $Id: NEWS,v 1.35 2005-04-15 13:44:34 blair Exp $
 * Insufficient documentation
 * Insufficient test coverage
 * Slow
-
-
-
 
