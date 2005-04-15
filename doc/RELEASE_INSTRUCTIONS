@@ -1,52 +1,32 @@
 
 # Grouper Release Instructions
 
-Inspired by _Parrot's_ RELEASE_INSTRUCTIONS file.
+Instructions for preparing a Grouper release.
 
-$Id: RELEASE_INSTRUCTIONS,v 1.6 2005-01-23 16:37:59 blair Exp $
-
-/**************************
- * TODO REVISE AND UPDATE *
- **************************/
+$Id: RELEASE_INSTRUCTIONS,v 1.7 2005-04-15 17:59:25 blair Exp $
 
 ---
 
 ## To Prepare For A Release:
 
-More details to follow.
-
-* Perform a fresh checkout and test harness succeeds.
-
+* Perform a fresh CVS checkout on OSX and Solaris
+* Successfully run test harness against HSQLDB on OSX
+* Successfully run test harness against HSQLDB and Oracle on Solaris
 * Review open grouperzilla tickets for this release
-
-Update _doc/NEWS_ as appropriate.
-
 * Review and update _doc/NEWS_, including version number
-
-* Prep javadoc
-
+* Tag CVS with a tag of the form _GROUPER_MAJOR_MINOR_PATCH_
+* Checkout tagged version on OSX and Solaris
+* Successfully run test harness against HSQLDB on OSX
+* Successfully run test harness against HSQLDB and Oracle on Solaris
+* Generate _CHANGES_ file
+* Prepare javadoc for inclusion in tarball
     % ant html
     % mv dist/api doc/javadoc
     % cd doc/javadoc
-    % find . -type f -name \*.html | xargs perl -i -pe 's/\$Id: RELEASE_INSTRUCTIONS,v 1.6 2005-01-23 16:37:59 blair Exp $GrouperId: /g'
-
-* Tag CVS with a tag of the form _GROUPER_MAJOR_MINOR_
-
-* Checkout tagged version
-
-* Test
-
-* Checkout tagged version (EXPORT!)
-
-* Generate _CHANGES_ file
-
-* Generate HTML versions of _Markdown_-formatted files
-
-* Generate versioned directory and tarball.
-
-* Extract tarball and confirm test harness succeeds.
-
-* TODO Sign?
-
-* TODO Notify grouper-dev?
+* Export CVS tag
+* Copy _CHANGES_ and _doc/javadoc_ into exported directory
+* Generate tarball
+* Extract tarball and confirm test harness succeeds
+* Pass tarball along to the appropriate parties
+* Notify grouper-dev
 
