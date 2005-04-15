@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.34 2005-04-15 00:11:40 blair Exp $
+$Id: NEWS,v 1.35 2005-04-15 13:44:34 blair Exp $
 
 ---
 
@@ -28,6 +28,9 @@ $Id: NEWS,v 1.34 2005-04-15 00:11:40 blair Exp $
     * Support for comments in input files
     * -c option
     * -q option
+* Add commons-pool 1.2
+* Add commons-dbcp 1.2.1
+* Use dbcp by default for connection pooling
 
 ### Incompabilities
 * Databases created with earlier versions of HSQLDB may not work with
