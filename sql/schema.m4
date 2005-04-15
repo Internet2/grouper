@@ -45,7 +45,7 @@ CREATE TABLE grouper_group (
 );
 
 _DROP_TABLE(`grouper_list')
-CREATE  TABLE grouper_list (
+CREATE TABLE grouper_list (
   listKey       _TYPE_UUID() NOT NULL PRIMARY KEY,
   groupKey      _TYPE_UUID() NOT NULL,
   groupField    _TYPE_STRING() NOT NULL,
@@ -67,7 +67,7 @@ CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
   (subjectID, subjectTypeID);
 
 _DROP_TABLE(`grouper_memberVia')
-CREATE  TABLE grouper_memberVia (
+CREATE TABLE grouper_memberVia (
   chainKey    _TYPE_UUID() NOT NULL,
   chainIdx    _TYPE_INT() NOT NULL,
   listKey     _TYPE_UUID() NOT NULL,
