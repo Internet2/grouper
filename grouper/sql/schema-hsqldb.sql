@@ -35,7 +35,7 @@ CREATE TABLE grouper_group (
 );
 
 DROP TABLE grouper_list IF EXISTS;
-CREATE  TABLE grouper_list (
+CREATE TABLE grouper_list (
   listKey       VARCHAR(64) NOT NULL PRIMARY KEY,
   groupKey      VARCHAR(64) NOT NULL,
   groupField    VARCHAR(64) NOT NULL,
@@ -57,7 +57,7 @@ CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
   (subjectID, subjectTypeID);
 
 DROP TABLE grouper_memberVia IF EXISTS;
-CREATE  TABLE grouper_memberVia (
+CREATE TABLE grouper_memberVia (
   chainKey    VARCHAR(64) NOT NULL,
   chainIdx    INTEGER NOT NULL,
   listKey     VARCHAR(64) NOT NULL,

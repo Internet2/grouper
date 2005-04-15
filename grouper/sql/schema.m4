@@ -1,10 +1,10 @@
 define(`_DROP_TABLE',dnl
-ifdef(`ORACLE', `DROP TABLE $1;', `DROP TABLE $1 IF EXISTS;')dnl
+ifdef(`hsqldb', `DROP TABLE $1 IF EXISTS;', `')dnl
 )dnl
 define(`_TYPE_INT',         `INTEGER')dnl
 define(`_TYPE_STRING',      `_TYPE_STRING_VAR(64)')dnl
 define(`_TYPE_STRING_VAR',dnl
-ifdef(`ORACLE', `VARCHAR2($1)', `VARCHAR($1)')dnl
+ifdef(`oracle', `VARCHAR2($1)', `VARCHAR($1)')dnl
 )dnl
 define(`_TYPE_TIME',        `_TYPE_STRING_VAR(16)')dnl
 define(`_TYPE_UUID',        `_TYPE_STRING_VAR(64)')dnl
