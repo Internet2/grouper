@@ -3,7 +3,7 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: RELEASE_INSTRUCTIONS,v 1.7 2005-04-15 17:59:25 blair Exp $
+$Id: RELEASE_INSTRUCTIONS,v 1.8 2005-04-15 20:41:04 blair Exp $
 
 ---
 
@@ -20,11 +20,8 @@ $Id: RELEASE_INSTRUCTIONS,v 1.7 2005-04-15 17:59:25 blair Exp $
 * Successfully run test harness against HSQLDB and Oracle on Solaris
 * Generate _CHANGES_ file
 * Prepare javadoc for inclusion in tarball
-    % ant html
-    % mv dist/api doc/javadoc
-    % cd doc/javadoc
 * Export CVS tag
-* Copy _CHANGES_ and _doc/javadoc_ into exported directory
+* Copy _CHANGES_ and _dist/api_ (as _doc/javadoc_) into exported directory
 * Generate tarball
 * Extract tarball and confirm test harness succeeds
 * Pass tarball along to the appropriate parties
