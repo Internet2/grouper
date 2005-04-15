@@ -1,5 +1,5 @@
 define(`_SHUTDOWN',dnl
-ifdef(`HSQLDB', `SHUTDOWN COMPACT;' `')dnl
+ifdef(`hsqldb', `SHUTDOWN COMPACT;' `')dnl
 )dnl
 
 -- 
