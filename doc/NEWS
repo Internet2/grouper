@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.38 2005-04-15 19:10:36 blair Exp $
+$Id: NEWS,v 1.39 2005-04-16 00:18:10 blair Exp $
 
 ---
 
@@ -31,7 +31,7 @@ Released 20050415
 * New: More detailed reporting (via exceptions) of errors caused
   by various runtime error conditions 
 * New: Now using Commons DBCP by default for connection pooling
-* New: Now using Hibernate name queries defined as defined in
+* New: Now using Hibernate named queries defined as defined in
   _conf/Grouper.hbm.xml_
 * New: Use Ant's SQL task to to create, initialize and reset
   HSQLDB database (#287)
@@ -59,7 +59,6 @@ Released 20050415
   from _Grouper_ to _GrouperSession_.
 * Removed _GrouperSession_ argument requirement for most instance
   method calls.
-
 
 ## Known Bugs
 
