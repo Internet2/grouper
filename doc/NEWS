@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.39 2005-04-16 00:18:10 blair Exp $
+$Id: NEWS,v 1.40 2005-04-16 00:21:23 blair Exp $
 
 ---
 
@@ -38,7 +38,7 @@ Released 20050415
 * Fixed: Removed calls to system.exit() (#179) 
   (David Langenberg, The University Of Chicago)
 * Fixed: sessionID generation bug (#278)
-* Fixed: Effective membership bug with circular group memberhips (#286)
+* Fixed: Effective membership bug with circular group memberships (#286)
 * New: GrouperField objects now have public instance methods 
   for getting information about the field
 * Fixed: Effective membership now working with lists other than
@@ -108,4 +108,5 @@ Release 200412
 * Insufficient documentation
 * Insufficient test coverage
 * Slow
+
 
