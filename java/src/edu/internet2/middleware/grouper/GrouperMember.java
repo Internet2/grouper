@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.81 2005-04-19 18:28:50 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.82 2005-04-19 19:29:18 blair Exp $
  */
 public class GrouperMember {
 
@@ -117,24 +117,16 @@ public class GrouperMember {
   /**
    * Retrieve a {@link GrouperMember} object.
    * <p />
+   * @param   s     Load {@link Subject} within this {@link GrouperSession} 
+   *  session.
    * @param   subj  {@link Subject} to load as {@link GrouperMember}.
    * @return {@link GrouperMember} object.
    */
-  public static GrouperMember load(Subject subj) {
-    // Attempt to load an already existing member
-    GrouperMember m = loadByIdAndType(Grouper.dbSess(), subj);
-    if (m == null) {
-      /*
-       * If the subject is valid but a matching member object does not
-       * exist, create a new one.
-       */ 
-      m = new GrouperMember(
-                subj.getId(), subj.getSubjectType().getId()
-              );
-      // Save the new member object
-      m.save(Grouper.dbSess());
-      Grouper.log().memberAdd(m, subj);
-    } 
+  public static GrouperMember load(GrouperSession s, Subject subj) { 
+    GrouperMember m = GrouperMember.load(subj);
+    if (m != null) { // TODO Bah
+      m.s = s;
+    }
     return m;
   }
 
@@ -394,13 +386,23 @@ public class GrouperMember {
   }
 
   /*
-   * Load and/or create a {@link GrouperMember} object.
+   * Load, and if necessary create, a GrouperMember
    */
-  protected static GrouperMember load(GrouperSession s, Subject subj) { 
-    GrouperMember m = GrouperMember.load(subj);
-    if (m != null) { // TODO Bah
-      m.s = s;
-    }
+  protected static GrouperMember load(Subject subj) {
+    // Attempt to load an already existing member
+    GrouperMember m = loadByIdAndType(Grouper.dbSess(), subj);
+    if (m == null) {
+      /*
+       * If the subject is valid but a matching member object does not
+       * exist, create a new one.
+       */ 
+      m = new GrouperMember(
+                subj.getId(), subj.getSubjectType().getId()
+              );
+      // Save the new member object
+      m.save(Grouper.dbSess());
+      Grouper.log().memberAdd(m, subj);
+    } 
     return m;
   }
 

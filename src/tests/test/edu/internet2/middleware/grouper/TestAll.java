@@ -132,6 +132,7 @@ public class TestAll extends TestCase {
     // TODO Flesh out
     suite.addTestSuite(TestQueries.class);
     // Bugs
+    suite.addTestSuite(TestBug348.class);
     suite.addTestSuite(TestBug349.class);
 
     return suite;

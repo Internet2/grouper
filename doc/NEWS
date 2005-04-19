@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.41 2005-04-19 18:28:50 blair Exp $
+$Id: NEWS,v 1.42 2005-04-19 19:29:18 blair Exp $
 
 ---
 
@@ -11,6 +11,8 @@ Released N/A
 
 # Changes
 
+* GrouperMember.load(session, subject) replaces
+  GrouperMember.load(subject) (#348)
 * GrouperGroup.loadByID() now returns properly casted GrouperGroup
   objects. (#349)
 * GrouperStem.loadByID() now returns properly casted GrouperStem
