@@ -66,7 +66,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.57 2005-04-13 17:12:59 blair Exp $
+ * @version $Id: GrouperList.java,v 1.58 2005-04-19 18:30:49 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -78,7 +78,6 @@ public class GrouperList implements Serializable {
   private transient List            elements = new ArrayList();
   private transient Group           g;
   private transient GrouperMember   m;
-  private transient GrouperSession  s;
   private transient Group           via;
 
   // And persistent
