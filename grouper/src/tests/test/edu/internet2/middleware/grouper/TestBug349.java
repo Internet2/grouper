@@ -53,11 +53,12 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
-public class TestStemsLoad extends TestCase {
+public class TestBug349 extends TestCase {
 
-  public TestStemsLoad(String name) {
+  public TestBug349(String name) {
     super(name);
   }
 
@@ -76,62 +77,28 @@ public class TestStemsLoad extends TestCase {
    * TESTS
    */
   
-  // Load by stem & extension
-  public void testLoadByStemAndExtn() {
+
+  /*
+   * Groups and Stems should not require casting
+   */
+  public void testBug349() {
     Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull("session !null", s);
+
     // Create ns0
     GrouperStem ns0 = GrouperStem.create(
-                        s, Constants.ns0s, Constants.ns0e
-                      );
-    
-    // Load ns0
-    GrouperStem ns = GrouperStem.load(s, Constants.ns0s, Constants.ns0e);
-    Assert.assertNotNull("ns0 !null", ns);
-    Assert.assertNotNull("ns0 type !null", ns.type());
-    Assert.assertTrue("ns0 type", ns0.type().equals(ns.type()));
+                         s, Constants.ns0s, Constants.ns0e
+                       );
+    // Create gA
+    GrouperGroup gA  = GrouperGroup.create(
+                         s, Constants.gAs, Constants.gAe
+                       );
 
-    s.stop();
-  }
-
-  // Load by id
-  public void testLoadByID() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    Assert.assertNotNull("subj !null", subj);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull("session !null", s);
-    // Create ns0
-    GrouperStem ns0 = GrouperStem.create(
-                        s, Constants.ns0s, Constants.ns0e
-                      );
-    
-    // Load ns0
+    // Load ns0 by id
     GrouperStem ns = GrouperStem.loadByID(s, ns0.id());
-    Assert.assertNotNull("ns0 !null", ns);
-    Assert.assertNotNull("ns0 type !null", ns.type());
-    Assert.assertTrue("ns0 type", ns0.type().equals(ns.type()));
 
-    s.stop();
-  }
-
-  // Load by name
-  public void testLoadByName() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    Assert.assertNotNull("subj !null", subj);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull("session !null", s);
-    // Create ns0
-    GrouperStem ns0 = GrouperStem.create(
-                        s, Constants.ns0s, Constants.ns0e
-                      );
-    
-    // Load ns0
-    GrouperStem ns = GrouperStem.loadByName(s, ns0.name());
-    Assert.assertNotNull("ns0 !null", ns);
-    Assert.assertNotNull("ns0 type !null", ns.type());
-    Assert.assertTrue("ns0 type", ns0.type().equals(ns.type()));
+    // Load gA by id
+    GrouperGroup g = GrouperGroup.loadByID(s, gA.id());
 
     s.stop();
   }

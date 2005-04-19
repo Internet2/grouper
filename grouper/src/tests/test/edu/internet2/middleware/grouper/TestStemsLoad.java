@@ -108,7 +108,7 @@ public class TestStemsLoad extends TestCase {
                       );
     
     // Load ns0
-    GrouperStem ns = (GrouperStem) GrouperStem.loadByID(s, ns0.id());
+    GrouperStem ns = GrouperStem.loadByID(s, ns0.id());
     Assert.assertNotNull("ns0 !null", ns);
     Assert.assertNotNull("ns0 type !null", ns.type());
     Assert.assertTrue("ns0 type", ns0.type().equals(ns.type()));
