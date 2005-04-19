@@ -25,7 +25,7 @@ import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.cfg.Configuration;
 
-public class SubjectManager
+public class SubjectFileLoader
 {
   private static SessionFactory sessionFactory;
   private Session               session;
@@ -55,10 +55,11 @@ public class SubjectManager
   }
     
   /**
-   *
+   * Opens a connection to the database for subsequent use in loading
+   * and deleting Subjects.
    *
    */
-  public SubjectManager()
+  public SubjectFileLoader()
   {
     try
     {
@@ -70,13 +71,28 @@ public class SubjectManager
     }
   }
   
+  
+  /**
+   * Creates a new SubjectAttribute, and stores that value in the database.
+   * This method updates the database, but does not commit any transaction.
+   * 
+   * @param subject
+   * @param name
+   * @param instance
+   * @param value
+   * @param searchValue
+   * @throws HibernateException
+   * @throws SQLException
+   */
   public void newAttribute
-    (String subjectTypeId,
-     String subjectId,
+    (Subject subject,
      String name,
      int    instance,
      String value,
-     String searchValue) throws HibernateException, SQLException
+     String searchValue)
+  throws
+    HibernateException,
+    SQLException
   {
     String insertSQL
       = "insert into SubjectAttribute"
@@ -92,8 +108,8 @@ public class SubjectManager
     PreparedStatement pStmt
       = this.session.connection().prepareStatement(insertSQL);
   
-    pStmt.setString(1, subjectTypeId);
-    pStmt.setString(2, subjectId);
+    pStmt.setString(1, subject.getSubjectType().getId());
+    pStmt.setString(2, subject.getId());
     pStmt.setString(3, name);
     pStmt.setInt(4, instance);
     pStmt.setString(5, value);
@@ -101,29 +117,14 @@ public class SubjectManager
     pStmt.setDate(7, new Date(new java.util.Date().getTime()));
     pStmt.executeUpdate();
   }
-  
-  public void newAttribute
-    (Subject   subject,
-     String    name,
-     int       instance,
-     String    value,
-     String    searchValue)
-  throws
-    HibernateException,
-    SQLException
-  {
-    newAttribute
-      (subject.getSubjectType().getId(),
-       subject.getId(),
-       name,
-       instance,
-       value,
-       searchValue);
-  }
 
-  /*
+  
+  /**
    * Deletes all Subject data and associated attributes.
-   *
+   * This method updates the database, but does not commit any transaction.
+   * 
+   * @throws HibernateException
+   * @throws SQLException
    */
   public void deleteAll()
   throws HibernateException, SQLException
@@ -145,10 +146,17 @@ public class SubjectManager
     }
   }
   
+  /**
+   * Commits the current database transaction in use by the SubjectFileLoader.
+   * 
+   * @throws HibernateException
+   * @throws SQLException
+   */
   public void commit() throws HibernateException, SQLException
   {
     this.session.connection().commit();
   }
+  
   
   private void execute(Connection conn, String sql, String verb)
   throws SQLException
@@ -233,6 +241,7 @@ public class SubjectManager
 
   /**
    * Creates a new Subject.
+   * This method updates the database, but does not commit any transaction.
    * 
    * @param subjectType
    * @param subjectId
