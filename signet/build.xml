@@ -123,7 +123,8 @@ against the database file--use when application is not running">
 
 	<!-- Generate Javadoc for the source files -->
 	<target name="javadoc">
-		<javadoc destdir="doc"
+		<javadoc packagenames="edu.internet2.middleware.signet.*"
+			destdir="doc"
 			access="public"
 			use="true"
 			notree="false"
