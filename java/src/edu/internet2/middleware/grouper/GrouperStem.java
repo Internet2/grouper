@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.38 2005-04-19 18:28:50 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.39 2005-04-19 18:35:58 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -191,7 +191,7 @@ public class GrouperStem extends Group {
    * <p />
    * @param   s           Session to load the namespace within.
    * @param   id          Namespace ID.
-   * @return  A {@link Group} object.
+   * @return  A {@link GrouperStem} object.
    */
   public static GrouperStem loadByID(GrouperSession s, String id) {
     return (GrouperStem) Group._loadByID(s, id);
