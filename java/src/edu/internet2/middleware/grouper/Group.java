@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.25 2005-04-15 19:14:08 blair Exp $
+ * @version $Id: Group.java,v 1.26 2005-04-19 18:28:50 blair Exp $
  */
 abstract public class Group {
 
@@ -308,7 +308,7 @@ abstract public class Group {
   /*
    * Load {@link Group} by id.
    */
-  protected static Group loadByID(GrouperSession s, String id) {
+  protected static Group _loadByID(GrouperSession s, String id) {
     return Group.loadByKey( s, Group.findKeyByID(s, id) );
   }
 

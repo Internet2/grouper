@@ -1,7 +1,20 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.40 2005-04-16 00:21:23 blair Exp $
+$Id: NEWS,v 1.41 2005-04-19 18:28:50 blair Exp $
+
+---
+
+# Version HEAD
+
+Released N/A
+
+# Changes
+
+* GrouperGroup.loadByID() now returns properly casted GrouperGroup
+  objects. (#349)
+* GrouperStem.loadByID() now returns properly casted GrouperStem
+  objects. (#349)
 
 ---
 

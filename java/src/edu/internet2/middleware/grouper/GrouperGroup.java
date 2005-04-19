@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.210 2005-04-15 19:14:08 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.211 2005-04-19 18:28:50 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -233,9 +233,9 @@ public class GrouperGroup extends Group {
    * @param   id          Group ID.
    * @return  A {@link Group} object.
    */
-  public static Group loadByID(GrouperSession s, String id) {
+  public static GrouperGroup loadByID(GrouperSession s, String id) {
     // TODO Should I check for NS_TYPE in returned group?
-    return Group.loadByID(s, id);
+    return (GrouperGroup) Group._loadByID(s, id);
   }
 
   /**

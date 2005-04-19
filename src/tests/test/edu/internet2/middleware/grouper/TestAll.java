@@ -131,6 +131,8 @@ public class TestAll extends TestCase {
     // TODO TestAccessPrivsRevoke
     // TODO Flesh out
     suite.addTestSuite(TestQueries.class);
+    // Bugs
+    suite.addTestSuite(TestBug349.class);
 
     return suite;
   }

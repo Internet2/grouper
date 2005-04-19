@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.80 2005-04-13 17:54:04 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.81 2005-04-19 18:28:50 blair Exp $
  */
 public class GrouperMember {
 
@@ -341,9 +341,7 @@ public class GrouperMember {
    */
   public Group toGroup() {
     GrouperSession.validate(this.s);
-    Group g = Group.loadByID(
-                       this.s, this.getSubjectID()
-                     );
+    Group g = Group._loadByID(this.s, this.getSubjectID());
     if (g == null) {
       throw new RuntimeException("Error converting member to group");
     }
@@ -358,7 +356,7 @@ public class GrouperMember {
   public String toString() {
     String subjID = this.getSubjectID();
     if (this.getSubjectTypeID().equals("group")) {
-      Group g = Group.loadByID(this.s, subjID);
+      Group g = Group._loadByID(this.s, subjID);
       subjID = g.name();
     }
     return new ToStringBuilder(this)                    .
