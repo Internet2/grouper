@@ -34,7 +34,7 @@
 	  sa
 	</property>
     <property name="hibernate.connection.password">
-    	  passwd
+	  passwd
 	</property>
 -->
 
@@ -82,9 +82,6 @@
     <mapping
       resource
         ="edu/internet2/middleware/signet/SubjectImpl.hbm.xml"/>
-    <mapping
-      resource
-        ="edu/internet2/middleware/signet/SubjectAttribute.hbm.xml"/>
     <mapping
       resource
         ="edu/internet2/middleware/signet/AssignmentImpl.hbm.xml"/>

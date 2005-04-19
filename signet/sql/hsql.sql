@@ -173,7 +173,7 @@ create table SubjectAttribute (
   instance          smallint        NOT NULL,
   value             varchar(255)    NOT NULL,
   searchValue       varchar(255)    NOT NULL,
-  modifyDateTime    smalldatetime   NOT NULL(),
+  modifyDateTime    datetime        NOT NULL,
   primary key (subjectTypeID, subjectID, name)
   )
 
