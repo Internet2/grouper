@@ -134,6 +134,8 @@ public class TestAll extends TestCase {
     // Bugs
     suite.addTestSuite(TestBug348.class);
     suite.addTestSuite(TestBug349.class);
+    suite.addTestSuite(TestBug350Access.class);
+    suite.addTestSuite(TestBug350Naming.class);
 
     return suite;
   }
