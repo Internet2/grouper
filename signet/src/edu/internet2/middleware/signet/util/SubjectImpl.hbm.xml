@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+	<class
+		name="edu.internet2.middleware.signet.SubjectImpl"
+		table="Subject">
+		
+		<id name="id" type="string" column="subjectID">
+			<generator class="assigned"/>
+		</id>
+		<timestamp name="modifyDatetime"/>
+		<many-to-one name="subjectType" column="subjectTypeID" cascade="save-update" class="edu.internet2.middleware.signet.SubjectTypeImpl" not-null="true"/>
+
+<!--
+		<map name="attributeLists" table="SubjectAttribute">
+			<key  column="subjectID" ></key> 
+			<index column="subjectID" type="string">	</index>
+			<element     type="string"></element>
+			<element type="string"></element>
+		</map>
+-->
+		
+		<property
+			name="name" type="string" not-null="true"/>
+		<property
+			name="description" type="string" not-null="false"/>
+		<property
+			name="displayId" column="displayID" type="string" not-null="false"/>
+		
+		
+<!--
+		<property
+			name="createDatetime" type="timestamp" not-null="true"/>
+		<property
+			name="createDbAccount" type="string" not-null="true"/>
+		<property
+			name="createUserID" type="string" not-null="false"/>
+		<property
+			name="createContext" type="string" not-null="false"/>
+		<property
+			name="modifyDbAccount" type="string" not-null="true"/>
+		<property
+			name="modifyUserID" type="string" not-null="false"/>
+		<property
+			name="modifyContext" type="string" not-null="false"/>
+		<property
+			name="comment" type="string" not-null="false"/>
+-->
+	</class>
+</hibernate-mapping>

@@ -84,6 +84,9 @@
         ="edu/internet2/middleware/signet/SubjectImpl.hbm.xml"/>
     <mapping
       resource
+        ="edu/internet2/middleware/signet/SubjectAttribute.hbm.xml"/>
+    <mapping
+      resource
         ="edu/internet2/middleware/signet/AssignmentImpl.hbm.xml"/>
     <mapping
       resource
