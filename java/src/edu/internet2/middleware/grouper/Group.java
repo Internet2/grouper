@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.26 2005-04-19 18:28:50 blair Exp $
+ * @version $Id: Group.java,v 1.27 2005-04-25 19:38:41 blair Exp $
  */
 abstract public class Group {
 
@@ -567,6 +567,11 @@ abstract public class Group {
         s.dbSess().txRollback();
         throw new RuntimeException("Error adding list value: " + e);
       }
+    } else {
+      throw new RuntimeException(
+        s.subject() + " does not have privileges to add " + m + 
+        " to " + g + "/" + list
+      );
     }
   }
 
@@ -593,6 +598,11 @@ abstract public class Group {
         s.dbSess().txRollback();
         throw new RuntimeException("Error deleting list value: " + e);
       }
+    } else {
+      throw new RuntimeException(
+        s.subject() + " does not have privileges to delete " + m + 
+        " to " + g + "/" + list
+      );
     }
   }
 
