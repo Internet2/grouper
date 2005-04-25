@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.66 2005-04-15 05:29:32 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.67 2005-04-25 19:41:14 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -122,6 +122,7 @@ public class GrouperAccessImpl implements GrouperAccess {
                        GrouperMember m, String priv
                       ) 
   {
+    // XXX boolean rv = rs.access().grant(rs, this, m, Grouper.PRIV_ADMIN);
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
@@ -131,7 +132,10 @@ public class GrouperAccessImpl implements GrouperAccess {
       if (this.has(s, g, Grouper.PRIV_ADMIN)) {
         s.dbSess().txStart();
         try {
-          g.listAddVal(m, (String) privMap.get(priv));
+          // We need to use the internal method in Group, not the
+          // public method in GrouperGroup, to ensure that we have
+          // sufficient privs to grant the privilege.
+          g.listAddVal(s, g, m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {

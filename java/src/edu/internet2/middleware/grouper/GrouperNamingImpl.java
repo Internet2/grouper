@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.62 2005-04-15 18:27:18 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.63 2005-04-25 19:41:14 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -132,7 +132,10 @@ public class GrouperNamingImpl implements GrouperNaming {
       if (this.has(s, ns, Grouper.PRIV_STEM)) {
         s.dbSess().txStart();
         try {
-          ns.listAddVal(m, (String) privMap.get(priv));
+          // We need to use the internal method in Group, not the
+          // public method in GrouperGroup, to ensure that we have
+          // sufficient privs to grant the privilege.
+          ns.listAddVal(s, ns, m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
