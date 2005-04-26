@@ -216,11 +216,11 @@ public class TestNamingGrantMoF2 extends TestCase {
     );
 
     Assert.assertTrue(
-      "m0 has == 1 privs on ns1", 
-      s.naming().has(s, ns1, m0).size() == 1
+      "m0 has == 0 privs on ns1", 
+      s.naming().has(s, ns1, m0).size() == 0
     );
-    Assert.assertTrue(
-      "m0 STEM on ns1", 
+    Assert.assertFalse(
+      "m0 !STEM on ns1", 
       s.naming().has(s, ns1, m0, Grouper.PRIV_STEM)
     );
     Assert.assertFalse(

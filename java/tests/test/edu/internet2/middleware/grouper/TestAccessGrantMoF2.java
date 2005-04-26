@@ -231,11 +231,11 @@ public class TestAccessGrantMoF2 extends TestCase {
     );
 
     Assert.assertTrue(
-      "m0 has == 1 privs on g1", 
-      s.access().has(s, g1, m0).size() == 1
+      "m0 has == 0 privs on g1", 
+      s.access().has(s, g1, m0).size() == 0
     );
-    Assert.assertTrue(
-      "m0 ADMIN on g1", 
+    Assert.assertFalse(
+      "m0 !ADMIN on g1", 
       s.access().has(s, g1, m0, Grouper.PRIV_ADMIN)
     );
     Assert.assertFalse(

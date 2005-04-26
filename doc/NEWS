@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.44 2005-04-26 14:25:14 blair Exp $
+$Id: NEWS,v 1.45 2005-04-26 18:01:51 blair Exp $
 
 ---
 
@@ -11,6 +11,8 @@ Released N/A
 
 # Changes
 
+* Fixed: Effective memberships for non-"members" lists (e.g. access
+  and naming privileges) were being calculated incorrectly (#350)
 * Fixed: Non-root subjects could not create stems or groups (#353)
 * Fixed: STEM, not ADMIN, needed to modify namespace attributes (#352)
 * Fixed: GrouperMember.load(session, subject) replaces
