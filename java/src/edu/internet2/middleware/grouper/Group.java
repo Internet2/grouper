@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.27 2005-04-25 19:38:41 blair Exp $
+ * @version $Id: Group.java,v 1.28 2005-04-26 14:25:14 blair Exp $
  */
 abstract public class Group {
 
@@ -797,7 +797,16 @@ abstract public class Group {
                   " is not currently allowed"
                 );
     }
-    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+    // TODO Can I remove the need for if/else clauses?
+    // Stems require STEM
+    if (this.type().equals(Grouper.NS_TYPE)) {
+      if (!s.naming().has(s, (GrouperStem) g, Grouper.PRIV_STEM)) {
+        throw new RuntimeException(
+                    "Modification requires STEM"
+                  );
+      }
+    } else if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+      // And groups require ADMIN
       throw new RuntimeException(
                   "Modification requires ADMIN"
                 );
