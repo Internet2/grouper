@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.17 2005-04-14 19:49:05 blair Exp $
+ * @version $Id: MemberOf.java,v 1.18 2005-04-26 18:01:51 blair Exp $
  */
 public class MemberOf {
 
@@ -110,9 +110,9 @@ public class MemberOf {
     // Add m to g's gl
     vals.add(gl);
 
-    // Where is g a member?
+    // Where (across all list values in the registry) is g a member?
     GrouperMember m = gl.group().toMember();
-    List isMem = m.listVals( gl.groupField() );
+    List isMem = m.listValsAll();
 
     // Add m to groups where g is a member
     effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
@@ -144,7 +144,8 @@ public class MemberOf {
     List vals = new ArrayList();
 
     Group g = gl.member().toGroup();
-    Iterator hasIter = g.listVals( gl.groupField() ).iterator();
+    // We only want "members", not other list types
+    Iterator hasIter = g.listVals().iterator();
     while (hasIter.hasNext()) {
       GrouperList glM = (GrouperList) hasIter.next();
       glM.load(this.s);
@@ -202,9 +203,10 @@ public class MemberOf {
       chain.addAll( glM.chain() );  // Add the chain leading to g's mship
         
       // Add m to where g is a member
+      // Be sure to use the list type from g's membership (glM)
       vals.add(
         new GrouperList(
-              this.s, glM.group(), gl.member(), gl.groupField(), chain
+              this.s, glM.group(), gl.member(), glM.groupField(), chain
             )
         );
     }

@@ -279,6 +279,12 @@
       viaKey      is null 
   ]]></query>
 
+  <query name="GrouperList.by.member"><![CDATA[
+    from GrouperList          where
+      groupKey    is not null and
+      memberKey   = ?         
+  ]]></query>
+
   <query name="GrouperList.by.member.and.list"><![CDATA[
     from GrouperList          where
       groupKey    is not null and

@@ -142,27 +142,19 @@ public class TestGroupsMoFAdd2NotMems extends TestCase {
 
     // Now inspect g1's, resulting list values
     Assert.assertTrue(
-      "g1 readers == 2", g1.listVals("readers").size() == 2
+      "g1 readers == 1", g1.listVals("readers").size() == 1
     );
     Assert.assertTrue(
       "g1 imm readers == 1", g1.listImmVals("readers").size() == 1
     );
     Assert.assertTrue(
-      "g1 eff readers == 1", g1.listEffVals("readers").size() == 1
+      "g1 eff readers == 0", g1.listEffVals("readers").size() == 0
     );
     Iterator iter1I = g1.listImmVals().iterator();
     while (iter1I.hasNext()) {
       GrouperList lv = (GrouperList) iter1I.next();
       Assert.assertTrue("g1 empty chain", lv.chain().size() == 0);
       Assert.assertNull("g1 null via", lv.via());
-    }
-    Iterator iter1E = g1.listEffVals().iterator();
-    while (iter1E.hasNext()) {
-      GrouperList lv = (GrouperList) iter1E.next();
-      Assert.assertTrue("g1  chain == 1", lv.chain().size() == 1);
-      Assert.assertNotNull("g1 !null via", lv.via());
-      Assert.assertEquals("g1 member() == m0", m0, lv.member());
-      Assert.assertEquals("g1 via() == g0", g0, lv.via());
     }
 
     s.stop();

@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.82 2005-04-19 19:29:18 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.83 2005-04-26 18:01:51 blair Exp $
  */
 public class GrouperMember {
 
@@ -467,6 +467,31 @@ public class GrouperMember {
     return this.getMemberKey();
   }
 
+
+  /*
+   * Retrieve group memberships for this member for <b>all</b> list
+   * types.
+   */
+  protected List listValsAll() {
+    String  qry   = "GrouperList.by.member";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, this.key());
+      try {
+        vals.addAll( GrouperList.load(this.s, q.list()) );
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Unable to get query " + qry + ": " + e
+                );
+    }
+    return vals;
+  }
 
   /*
    * Load member by id and type.
