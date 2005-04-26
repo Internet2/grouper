@@ -1,5 +1,5 @@
 /*
-SubsystemXmlDestroyer.java
+SubsystemFileLoader.java
 Created on Feb 22, 2005
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
@@ -13,9 +13,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.StringTokenizer;
+import java.io.*;
 
 import javax.naming.OperationNotSupportedException;
 
+import edu.internet2.middleware.signet.*;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectTypeAdapter;
@@ -28,7 +31,7 @@ import net.sf.hibernate.cfg.Configuration;
 public class SubjectFileLoader
 {
   private static SessionFactory sessionFactory;
-  private Session               session;
+  private        Session        session;
 
   private String[] deletionStatements
     = new String[]
@@ -270,4 +273,314 @@ public class SubjectFileLoader
 
     return subject;
   }
+
+  public static void main(String[] args) 
+    throws HibernateException, SQLException, OperationNotSupportedException
+    {
+
+    SubjectFileLoader loader = new SubjectFileLoader();
+    Signet signet = new Signet();
+
+    try {
+      if (args.length < 1) {
+          System.err.println("Usage: SubjectFileLoader <inputfile>");
+          return;
+      }
+         
+      String inputFileName = args[0];
+      BufferedReader in = new BufferedReader(new FileReader(inputFileName));
+
+      loader.processFile(signet, loader, in);
+
+      in.close();
+      loader.commit();
+
+    } catch (IOException e) {
+       e.printStackTrace();
+    } catch (ObjectNotFoundException e) {
+       e.printStackTrace();
+    }
+  }
+
+private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader in)
+  throws HibernateException, IOException, ObjectNotFoundException, OperationNotSupportedException, SQLException {
+    try {
+
+    String lineData = "";
+    String lineData2 = "";
+    String keyword = "";
+    String value = "";
+    String subjectTypeID = "";
+    String subjectID = "";
+    String subjectName = "";
+    int    lineNumber = 1;
+        
+    // Read first line, determine Source
+    if ((lineData = in.readLine()) != null) {
+      System.out.println(lineNumber + ": " + lineData);
+      StringTokenizer st = new StringTokenizer(lineData);
+
+       if (st.hasMoreTokens()) {
+          keyword = st.nextToken();
+          if (!keyword.equals("source"))
+          {
+             throw new IOException
+             ("Error in line 1: Initial keyword must be 'source'");
+          }
+       }
+
+       if (st.hasMoreTokens()) {
+          subjectTypeID = st.nextToken();
+          if (!subjectTypeID.equals("person"))
+          {
+             throw new IOException
+             ("Error in line 1: Only source of type 'person' currently allowed");
+          }
+       }
+
+       if (st.hasMoreTokens()) {
+          value = st.nextToken();
+          throw new IOException
+          ("Error in line 1: Extraneous data: " + value);
+       }
+    }
+
+    SubjectType subjectType = signet.getSubjectType(subjectTypeID);
+
+    // Not yet...
+    // removeSubjects(subjectType);
+
+    Subject subject = null;
+    String  currAttributeName = "";
+    String  prevAttributeName = "";
+    String  attributeName = "";
+    int     attributeInstance = 0;
+    
+    while ((lineData = in.readLine()) != null) {
+      lineNumber++;
+      System.out.println(lineNumber + ": " + lineData);
+
+      if (lineData.startsWith("+")) {
+         
+         // Get the subject header line
+         lineData = lineData.substring(1);
+         
+         // Get the description (required, must be next)
+         lineNumber++;
+         lineData2 = in.readLine();
+         if (lineData2 == "") {
+            throw new IOException ("No Description row found");
+         }
+         System.out.println(lineNumber + ": " + lineData2);
+        
+         subject = loader.processAddSubject(loader, subjectType, lineData, lineData2);
+
+         currAttributeName = "";
+         prevAttributeName = "";
+         attributeInstance = 1;
+
+      } else {
+
+          System.out.println("--- Instance in " + attributeInstance);
+        currAttributeName = loader.processSubjectAttribute(loader, subject, lineData, prevAttributeName, attributeInstance);
+         if (currAttributeName.equals(prevAttributeName) ) {
+            attributeInstance++;
+         } else {
+            prevAttributeName = currAttributeName;
+            attributeInstance = 2;
+         }
+
+      }
+    }
+    } catch (ObjectNotFoundException e) {
+         throw new ObjectNotFoundException(e.getMessage());
+    } catch (OperationNotSupportedException e) {
+         throw new OperationNotSupportedException(e.getMessage());
+    }
+  }
+
+  private static Subject processAddSubject(SubjectFileLoader loader, SubjectType subjectType, String lineData, String lineData2)
+    throws HibernateException, IOException, OperationNotSupportedException, SQLException
+    {
+
+    String subjectID = "";
+    String subjectName = "";
+    String subjectNormalizedName = "";
+    String subjectDescription = "";
+    String attributeName = "";
+
+    StringTokenizer st = new StringTokenizer(lineData);
+
+     if (st.hasMoreTokens()) {
+       subjectID = st.nextToken();
+     } else {
+        throw new IOException ("No Subject ID found");
+     }
+
+     if (!st.hasMoreTokens()) {
+        throw new IOException ("No Subject Name found");
+     }
+     
+     subjectName = lineData.substring(subjectID.length());
+     subjectName = subjectName.trim();
+     subjectNormalizedName = loader.normalizeString(subjectName);
+
+     // System.out.println("--- SubjectID: " + subjectID + ", SubjectName: " + subjectName);
+
+     // Line 2 must be the description
+     StringTokenizer st2 = new StringTokenizer(lineData2);
+     
+     if (st2.hasMoreTokens()) {
+       attributeName = st2.nextToken();
+     } else {
+        throw new IOException ("No Description attribute found");
+     }
+
+     if (!attributeName.equals("description")) {
+        throw new IOException ("The second line of each subject entry must be 'description'");
+     }
+
+     if (!st2.hasMoreTokens()) {
+        throw new IOException ("No Description Value found");
+     }
+     
+     subjectDescription = lineData2.substring(attributeName.length());
+     subjectDescription = subjectDescription.trim();
+
+     // System.out.println("--- Description: " + subjectDescription);
+     
+     Subject subject = loader.newSubject
+        (subjectType, subjectID, subjectName, subjectDescription, "");
+
+     loader.newAttribute
+       (subject, "name", 1, subjectName, subjectNormalizedName);
+
+     return subject;
+  }
+
+  private static String processSubjectAttribute(SubjectFileLoader loader, Subject subject, String lineData, String prevAttributeName, int attributeInstance)
+     throws HibernateException, IOException, SQLException {
+
+     String attributeName;
+     String attributeValue;
+     String attributeSearchValue;
+
+     StringTokenizer st = new StringTokenizer(lineData);
+
+     if (st.hasMoreTokens()) {
+       attributeName = st.nextToken();
+     } else {
+        throw new IOException ("No Attribute ID found");
+     }
+
+     if (!st.hasMoreTokens()) {
+        throw new IOException ("No Attribute Value found");
+     }
+     
+     attributeValue = lineData.substring(attributeName.length());
+     attributeValue = attributeValue.trim();
+     attributeSearchValue = attributeValue.toLowerCase();
+
+     if (!attributeName.equals(prevAttributeName)) {
+        attributeInstance = 1;
+     }
+
+     System.out.println("--- Prev Attribute:: " + prevAttributeName);
+     System.out.println("--- Attribute: " + attributeName + ", instance: " + attributeInstance + ", Value: " + attributeValue);
+
+     loader.newAttribute
+       (subject, attributeName, attributeInstance, attributeValue, attributeSearchValue);
+       
+     return attributeName;
+  }
+   
+  private static boolean readYesOrNo(String prompt) {
+      while (true) {
+          String response = promptedReadLine(prompt);
+          if (response.length() > 0) {
+              switch (Character.toLowerCase(response.charAt(0))) {
+              case 'y':
+                  return true;
+              case 'n':
+                  return false;
+              default:
+                  System.out.println("Please enter Y or N. ");
+              }
+          }
+      }
+  }
+  
+  private static String promptedReadLine(String prompt) {
+      try {
+          System.out.print(prompt);
+          return reader.readLine();
+      } catch (java.io.IOException e) {
+          return null;
+      }
+  }
+    
+  private static BufferedReader reader;
+  
+  static {
+      reader = new BufferedReader(new InputStreamReader(System.in));
+  }
+
+
+  private void removeSubjects(String subjectType) {
+      if (! readYesOrNo(
+          "\nYou are about to delete and replace all subjects of type "
+          + subjectType
+          + "."
+          + "\nDo you wish"
+          + " to continue (Y/N)? ")) {
+      System.exit(0);
+      }
+
+      try {
+          deleteAll();
+      }
+      catch (HibernateException he) {
+          System.out.println("-Error: unable to remove source " +
+                  subjectType);
+          System.out.println(he.getMessage());
+          System.exit(1);
+      }
+      catch (SQLException sqle) {
+         System.out.println("-Error: unable to delete subjects for source " +
+                  subjectType);
+         System.out.println(sqle.getMessage());
+         System.exit(1);
+      }
+   }
+
+    private static String normalizeString(String value) {
+    /*
+    * Normalize a value for searching.  All non-alpha-numeric are converted
+    * to a space except for apostrophes, which are elided.
+    */
+       if (value == null) {
+            return null;
+        }
+        //to lowercase
+        char[] work = value.trim().toLowerCase().toCharArray();
+        StringBuffer buf = new StringBuffer();
+
+        boolean lastCharacterIsSpace = false;
+        for (int i = 0; i < work.length; ++i) {
+            if (Character.isLetterOrDigit(work[i])) {
+                buf.append(work[i]);
+                lastCharacterIsSpace = false;
+            } else if (work[i] == '\'') {
+                continue; // elide apostrophes
+            } else if (!lastCharacterIsSpace) {
+                //change any non-alpha, non-numeric to a space.
+                buf.append(' ');
+                lastCharacterIsSpace = true;
+            }
+        }
+        //trim the leading/trailing whitespace
+        return buf.toString().trim();
+    }
+
+
 }
