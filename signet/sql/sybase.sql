@@ -142,12 +142,12 @@ create table SubjectAttribute
 (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
-name              varchar(120)    NOT NULL,
+name              varchar(32)     NOT NULL,
 instance          smallint        NOT NULL,
 value             varchar(255)    NOT NULL,
 searchValue       varchar(255)    NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID, subjectID, name)
+primary key (subjectTypeID, subjectID, name, instance)
 )
 ;
 -- Tree tables
