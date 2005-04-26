@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.43 2005-04-25 19:49:47 blair Exp $
+$Id: NEWS,v 1.44 2005-04-26 14:25:14 blair Exp $
 
 ---
 
@@ -11,13 +11,14 @@ Released N/A
 
 # Changes
 
-* Fixed: Non-root subjects could not create stems or groups. (#353)
+* Fixed: Non-root subjects could not create stems or groups (#353)
+* Fixed: STEM, not ADMIN, needed to modify namespace attributes (#352)
 * Fixed: GrouperMember.load(session, subject) replaces
   GrouperMember.load(subject) (#348)
 * Fixed: GrouperGroup.loadByID() now returns properly casted GrouperGroup
-  objects. (#349)
+  objects (#349)
 * Fixed: GrouperStem.loadByID() now returns properly casted GrouperStem
-  objects. (#349)
+  objects (#349)
 
 ---
 
