@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.11 2005-04-06 23:14:22 acohen Exp $
-$Date: 2005-04-06 23:14:22 $
+$Id: Fixtures.java,v 1.12 2005-04-27 18:34:09 acohen Exp $
+$Date: 2005-04-27 18:34:09 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -121,7 +121,7 @@ public class Fixtures
     
     this.subsystem = getOrCreateSubsystem();
     
-    this.tree = getOrCreateTree();
+    tree = this.signet.getTree(Constants.TREE_ID);
     this.subsystem.setTree(this.tree);
     
     for (int i = 0; i < Constants.MAX_CATEGORIES; i++)
@@ -374,89 +374,89 @@ public class Fixtures
     return this.subsystem;
   }
   
-  private Tree getOrCreateTree()
-  throws TreeNotFoundException
-  {
-    Tree tree;
-    
-    try
-    {
-      tree = this.signet.getTree(Constants.TREE_ID);
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      tree = signet.newTree(Constants.TREE_ID, Constants.TREE_NAME);
-      TreeNode root
-      	= signet.newTreeNode
-      			(tree, makeTreeNodeId(0, null, 0), makeTreeNodeName(0, null, 0));
-      tree.addRoot(root);
-      createDescendantTreeNodes(root, 1);
-    }
-    
-    return tree;
-  }
+//  private Tree getOrCreateTree()
+//  throws TreeNotFoundException
+//  {
+//    Tree tree;
+//    
+//    try
+//    {
+//      tree = this.signet.getTree(Constants.TREE_ID);
+//    }
+//    catch (ObjectNotFoundException onfe)
+//    {
+//      tree = signet.newTree(Constants.TREE_ID, Constants.TREE_NAME);
+//      TreeNode root
+//      	= signet.newTreeNode
+//      			(tree, makeTreeNodeId(0, null, 0), makeTreeNodeName(0, null, 0));
+//      tree.addRoot(root);
+//      createDescendantTreeNodes(root, 1);
+//    }
+//    
+//    return tree;
+//  }
 
-  private void createDescendantTreeNodes(TreeNode parent, int treeLevel)
-  throws TreeNotFoundException
-  {
-    if (treeLevel >= Constants.MAX_TREE_DEPTH)
-    {
-      return;
-    }
-    
-    for
-    	(int siblingNumber = 0;
-    	 siblingNumber < Constants.MAX_TREE_WIDTH;
-    	 siblingNumber++)
-    {
-      TreeNode node
-      	= signet.newTreeNode
-      			(parent.getTree(),
-      			 makeTreeNodeId(treeLevel, parent, siblingNumber),
-      			 makeTreeNodeName(treeLevel, parent, siblingNumber));
-      
-      parent.addChild(node);
-      
-      createDescendantTreeNodes(node, treeLevel + 1);
-    }
-  }
+//  private void createDescendantTreeNodes(TreeNode parent, int treeLevel)
+//  throws TreeNotFoundException
+//  {
+//    if (treeLevel >= Constants.MAX_TREE_DEPTH)
+//    {
+//      return;
+//    }
+//    
+//    for
+//    	(int S = 0;
+//    	 S < Constants.MAX_TREE_WIDTH;
+//    	 S++)
+//    {
+//      TreeNode node
+//      	= signet.newTreeNode
+//      			(parent.getTree(),
+//      			 makeTreeNodeId(treeLevel, parent, S),
+//      			 makeTreeNodeName(treeLevel, parent, S));
+//      
+//      parent.addChild(node);
+//      
+//      createDescendantTreeNodes(node, treeLevel + 1);
+//    }
+//  }
 
-  public String makeTreeNodeId(int level, TreeNode parent, int siblingNumber)
+  public String makeTreeNodeId(int level, TreeNode parent, int S)
   {
     return
-    	"TREENODE_LEVEL" 
+    	"L" 
       + Constants.DELIMITER
       + level
       + Constants.DELIMITER
-      + "PARENTNODEID"
+      + "PID"
       + Constants.DELIMITER
       + "["
       + (parent == null ? "NOPARENTID" : parent.getId())
       + "]"
       + Constants.DELIMITER
-      + "SIBLINGNUMBER"
+      + "S"
       + Constants.DELIMITER
-      + siblingNumber
+      + S
       + Constants.DELIMITER
       + "ID";
   }
 
-  private String makeTreeNodeName(int level, TreeNode parent, int siblingNumber)
+  private String makeTreeNodeName(int level, TreeNode parent, int S)
   {
     return
-    	"TREENODE_LEVEL"
+    	"L"
       + Constants.DELIMITER
       + level
       + Constants.DELIMITER
-      + "PARENTNODENAME"
+      + "PNAME"
       + Constants.DELIMITER
       + "["
       + (parent == null ? "NOPARENTNAME" : parent.getName())
       + "]"
       + Constants.DELIMITER
-      + "SIBLINGNUMBER"
+      + "S"
       + Constants.DELIMITER
-      + siblingNumber
+      + S
       + Constants.DELIMITER
       + "NAME";
   }

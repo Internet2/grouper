@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.3 2005-04-08 00:47:59 acohen Exp $
-$Date: 2005-04-08 00:47:59 $
+$Id: PrivilegedSubjectTest.java,v 1.4 2005-04-27 18:34:09 acohen Exp $
+$Date: 2005-04-27 18:34:09 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -117,13 +117,13 @@ public class PrivilegedSubjectTest extends TestCase
       // expects to find:
       //
       // Subject 0
-      //   TreeNode TREENODE_LEVEL_0_SIBLINGNUMBER_0_ID
+      //   TreeNode L_0_S_0_ID
       //   Function 0
       //     Permission 0
       //       Limit 0
       //         limit-value: 0
       //  Subject 1
-      //    TreeNode TREENODE_LEVEL_0_SIBLINGNUMBER_0_ID
+      //    TreeNode L_0_S_0_ID
       //    Function 1
       //      Permission 1
       //        Limit 0
@@ -131,7 +131,7 @@ public class PrivilegedSubjectTest extends TestCase
       //        Limit 1
       //          limit-value: 1
       //  Subject 2
-      //    TreeNode TREENODE_LEVEL_0_SIBLINGNUMBER_0_ID
+      //    TreeNode L_0_S_0_ID
       //    Function 2
       //      Permission 2
       //        Limit 0
