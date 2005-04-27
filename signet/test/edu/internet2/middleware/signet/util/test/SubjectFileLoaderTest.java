@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectFileLoaderTest.java,v 1.1 2005-04-19 18:20:47 acohen Exp $
-$Date: 2005-04-19 18:20:47 $
+$Id: SubjectFileLoaderTest.java,v 1.2 2005-04-27 20:10:34 acohen Exp $
+$Date: 2005-04-27 20:10:34 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,13 +10,9 @@ package edu.internet2.middleware.signet.util.test;
 
 import java.sql.SQLException;
 
-import javax.naming.OperationNotSupportedException;
-
-import net.sf.hibernate.HibernateException;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.test.Constants;
-import edu.internet2.middleware.signet.test.Fixtures;
+
 import edu.internet2.middleware.signet.util.SubjectFileLoader;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
@@ -69,7 +65,7 @@ public class SubjectFileLoaderTest extends TestCase
   public final void testNewSubject()
   throws
     ObjectNotFoundException,
-    OperationNotSupportedException
+    SQLException
   {
     SubjectType subjectType = this.signet.getSubjectType("signet");
     subjectManager.newSubject
@@ -82,7 +78,6 @@ public class SubjectFileLoaderTest extends TestCase
   
   public final void testNewAttribute()
   throws
-    HibernateException,
     SQLException,
     ObjectNotFoundException
   {

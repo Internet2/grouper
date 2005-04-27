@@ -13,15 +13,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.io.*;
-
-import javax.naming.OperationNotSupportedException;
 
 import edu.internet2.middleware.signet.*;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.SubjectTypeAdapter;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
@@ -32,6 +33,7 @@ public class SubjectFileLoader
 {
   private static SessionFactory sessionFactory;
   private        Session        session;
+  private        Connection     conn;
 
   private String[] deletionStatements
     = new String[]
@@ -39,6 +41,28 @@ public class SubjectFileLoader
           "delete from SubjectAttribute",
           "delete from Subject"
         };
+  
+  private String insertSubjectSQL
+    = "insert into Subject"
+      + "(subjectTypeID,"
+      + " subjectID,"
+      + " name,"
+      + " description,"
+      + " displayID,"
+      + " modifyDatetime)"
+      + "values (?, ?, ?, ?, ?, ?)";
+
+  private String insertAttrSQL
+    = "insert into SubjectAttribute"
+      + "(subjectTypeID,"
+      + " subjectID,"
+      + " name,"
+      + " instance,"
+      + " value,"
+      + " searchValue,"
+      + " modifyDatetime)"
+      + "values (?, ?, ?, ?, ?, ?, ?)";
+
   
   static
   /* runs at class load time */
@@ -67,6 +91,7 @@ public class SubjectFileLoader
     try
     {
       this.session = sessionFactory.openSession();
+      this.conn = session.connection();
     }
     catch (HibernateException he)
     {
@@ -84,7 +109,6 @@ public class SubjectFileLoader
    * @param instance
    * @param value
    * @param searchValue
-   * @throws HibernateException
    * @throws SQLException
    */
   public void newAttribute
@@ -94,22 +118,10 @@ public class SubjectFileLoader
      String value,
      String searchValue)
   throws
-    HibernateException,
     SQLException
   {
-    String insertSQL
-      = "insert into SubjectAttribute"
-        + "(subjectTypeID,"
-        + " subjectID,"
-        + " name,"
-        + " instance,"
-        + " value,"
-        + " searchValue,"
-        + " modifyDatetime)"
-        + "values (?, ?, ?, ?, ?, ?, ?)";
-  
     PreparedStatement pStmt
-      = this.session.connection().prepareStatement(insertSQL);
+      = this.conn.prepareStatement(insertAttrSQL);
   
     pStmt.setString(1, subject.getSubjectType().getId());
     pStmt.setString(2, subject.getId());
@@ -119,6 +131,8 @@ public class SubjectFileLoader
     pStmt.setString(6, searchValue);
     pStmt.setDate(7, new Date(new java.util.Date().getTime()));
     pStmt.executeUpdate();
+    
+    subject.addAttribute(name, value);
   }
 
   
@@ -126,14 +140,11 @@ public class SubjectFileLoader
    * Deletes all Subject data and associated attributes.
    * This method updates the database, but does not commit any transaction.
    * 
-   * @throws HibernateException
    * @throws SQLException
    */
   public void deleteAll()
-  throws HibernateException, SQLException
+  throws SQLException
   {
-    Connection conn = this.session.connection();
-      
     try
     {
       //conn.setAutoCommit(true);
@@ -152,12 +163,11 @@ public class SubjectFileLoader
   /**
    * Commits the current database transaction in use by the SubjectFileLoader.
    * 
-   * @throws HibernateException
    * @throws SQLException
    */
-  public void commit() throws HibernateException, SQLException
+  public void commit() throws SQLException
   {
-    this.session.connection().commit();
+    this.conn.commit();
   }
   
   
@@ -252,7 +262,7 @@ public class SubjectFileLoader
    * @param subjectDescription
    * @param subjectDisplayId
    * @return
-   * @throws OperationNotSupportedException
+   * @throws SQLException
    */
   public Subject newSubject
     (SubjectType subjectType,
@@ -260,11 +270,22 @@ public class SubjectFileLoader
      String subjectName,
      String subjectDescription,
      String subjectDisplayId)
-  throws OperationNotSupportedException
+  throws
+    SQLException
   {
-    SubjectTypeAdapter adapter = subjectType.getAdapter();
+    PreparedStatement pStmt
+      = this.conn.prepareStatement(insertSubjectSQL);
+  
+    pStmt.setString(1, subjectType.getId());
+    pStmt.setString(2, subjectId);
+    pStmt.setString(3, subjectName);
+    pStmt.setString(4, subjectDescription);
+    pStmt.setString(5, subjectDisplayId);
+    pStmt.setDate(6, new Date(new java.util.Date().getTime()));
+    pStmt.executeUpdate();
+    
     Subject subject
-      = adapter.newSubject
+      = new UtilSubjectImpl
           (subjectType,
            subjectId,
            subjectName,
@@ -273,9 +294,85 @@ public class SubjectFileLoader
 
     return subject;
   }
+  
+  private class UtilSubjectImpl implements Subject
+  {
+    private SubjectType type;
+    private String      id;
+    private String      name;
+    private String      description;
+    private String      displayId;
+    private Map         attributes;
+    
+    UtilSubjectImpl
+      (SubjectType type,
+       String       id,
+       String       name,
+       String       description,
+       String       displayId)
+    {
+      this.type = type;
+      this.id = id;
+      this.name = name;
+      this.description = description;
+      this.displayId = displayId;
+      this.attributes = new HashMap();
+    }
+    
+    public String getDescription()
+    {
+      return this.description;
+    }
+    
+    public String getDisplayId()
+    {
+      return this.displayId;
+    }
+    
+    public String getId()
+    {
+      return this.id;
+    }
+    
+    public String getName()
+    {
+      return this.name;
+    }
+    
+    public SubjectType getSubjectType()
+    {
+      return this.type;
+    }
+
+    public void addAttribute(String name, String value)
+    {
+      Set attr = (Set)(this.attributes.get(name));
+      
+      if (attr == null)
+      {
+        attr = new HashSet();
+        this.attributes.put(name, attr);
+      }
+      
+      attr.add(value);
+    }
+
+    public String[] getAttributeValues(String name)
+    {
+      String[] emptyStringArray = new String[0];
+      Set attr = (Set)(this.attributes.get(name));
+      
+      if (attr == null)
+      {
+        return emptyStringArray;
+      }
+
+      return (String[])(attr.toArray(emptyStringArray));
+    }
+  }
 
   public static void main(String[] args) 
-    throws HibernateException, SQLException, OperationNotSupportedException
+    throws SQLException
     {
 
     SubjectFileLoader loader = new SubjectFileLoader();
@@ -303,7 +400,7 @@ public class SubjectFileLoader
   }
 
 private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader in)
-  throws HibernateException, IOException, ObjectNotFoundException, OperationNotSupportedException, SQLException {
+  throws IOException, ObjectNotFoundException, SQLException {
     try {
 
     String lineData = "";
@@ -394,13 +491,11 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
     }
     } catch (ObjectNotFoundException e) {
          throw new ObjectNotFoundException(e.getMessage());
-    } catch (OperationNotSupportedException e) {
-         throw new OperationNotSupportedException(e.getMessage());
     }
   }
 
   private static Subject processAddSubject(SubjectFileLoader loader, SubjectType subjectType, String lineData, String lineData2)
-    throws HibernateException, IOException, OperationNotSupportedException, SQLException
+    throws IOException, SQLException
     {
 
     String subjectID = "";
@@ -459,7 +554,7 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
   }
 
   private static String processSubjectAttribute(SubjectFileLoader loader, Subject subject, String lineData, String prevAttributeName, int attributeInstance)
-     throws HibernateException, IOException, SQLException {
+     throws IOException, SQLException {
 
      String attributeName;
      String attributeValue;
@@ -538,12 +633,6 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
 
       try {
           deleteAll();
-      }
-      catch (HibernateException he) {
-          System.out.println("-Error: unable to remove source " +
-                  subjectType);
-          System.out.println(he.getMessage());
-          System.exit(1);
       }
       catch (SQLException sqle) {
          System.out.println("-Error: unable to delete subjects for source " +
