@@ -407,42 +407,60 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
     String lineData2 = "";
     String keyword = "";
     String value = "";
+    String subjectSourceID = "";
     String subjectTypeID = "";
     String subjectID = "";
     String subjectName = "";
-    int    lineNumber = 1;
-        
-    // Read first line, determine Source
-    if ((lineData = in.readLine()) != null) {
-      System.out.println(lineNumber + ": " + lineData);
-      StringTokenizer st = new StringTokenizer(lineData);
+    int    lineNumber = 0;
 
-       if (st.hasMoreTokens()) {
-          keyword = st.nextToken();
-          if (!keyword.equals("source"))
-          {
-             throw new IOException
-             ("Error in line 1: Initial keyword must be 'source'");
-          }
-       }
+    while ((lineData = in.readLine()) != null) {
+      lineNumber++;
+      // System.out.println(lineNumber + ": " + lineData);
 
-       if (st.hasMoreTokens()) {
-          subjectTypeID = st.nextToken();
-          if (!subjectTypeID.equals("person"))
-          {
-             throw new IOException
-             ("Error in line 1: Only source of type 'person' currently allowed");
-          }
-       }
-
-       if (st.hasMoreTokens()) {
-          value = st.nextToken();
-          throw new IOException
-          ("Error in line 1: Extraneous data: " + value);
-       }
+      if (lineData.startsWith("/"))
+      {
+         // skip
+      }         
+      else if (lineData.equals(""))
+      {
+         //skip
+      } 
+       
+      else {
+         System.out.println(lineNumber + ": " + lineData);
+         StringTokenizer st = new StringTokenizer(lineData);
+   
+         if (st.hasMoreTokens()) {
+            keyword = st.nextToken();
+            if (!keyword.equals("source"))
+            {
+               throw new IOException
+               ("Error in line " + lineNumber + ": Initial keyword must be 'source'");
+            }
+         }
+   
+         if (st.hasMoreTokens()) {
+            subjectSourceID = st.nextToken();
+            if (!subjectSourceID.equals("person"))
+            {
+               throw new IOException
+               ("Error in line " + lineNumber + ": Only source of type 'person' currently allowed");
+            }
+         }
+   
+         if (st.hasMoreTokens()) {
+            value = st.nextToken();
+            throw new IOException
+            ("Error in line " + lineNumber + ": Extraneous data: " + value);
+         }
+         
+         if (!subjectSourceID.equals("")) {
+            break;
+         }
+      }
     }
 
-    SubjectType subjectType = signet.getSubjectType(subjectTypeID);
+    SubjectType subjectType = signet.getSubjectType(subjectSourceID);
 
     // Not yet...
     // removeSubjects(subjectType);
@@ -457,37 +475,48 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
       lineNumber++;
       System.out.println(lineNumber + ": " + lineData);
 
-      if (lineData.startsWith("+")) {
-         
-         // Get the subject header line
-         lineData = lineData.substring(1);
-         
-         // Get the description (required, must be next)
-         lineNumber++;
-         lineData2 = in.readLine();
-         if (lineData2 == "") {
-            throw new IOException ("No Description row found");
-         }
-         System.out.println(lineNumber + ": " + lineData2);
-        
-         subject = loader.processAddSubject(loader, subjectType, lineData, lineData2);
+      if (lineData.startsWith("/"))
+      {
+         // skip
+      }         
+      else if (lineData.equals(""))
+      {
+         //skip
+      } 
+       
+      else {
 
-         currAttributeName = "";
-         prevAttributeName = "";
-         attributeInstance = 1;
-
-      } else {
-
-          System.out.println("--- Instance in " + attributeInstance);
-        currAttributeName = loader.processSubjectAttribute(loader, subject, lineData, prevAttributeName, attributeInstance);
-         if (currAttributeName.equals(prevAttributeName) ) {
-            attributeInstance++;
+         if (lineData.startsWith("+")) {
+            
+            // Get the subject header line
+            lineData = lineData.substring(1);
+            
+            // Get the description (required, must be next)
+            lineNumber++;
+            lineData2 = in.readLine();
+            if (lineData2 == "") {
+               throw new IOException ("No Description row found");
+            }
+            System.out.println(lineNumber + ": " + lineData2);
+           
+            subject = loader.processAddSubject(loader, subjectType, lineData, lineData2);
+   
+            currAttributeName = "";
+            prevAttributeName = "";
+            attributeInstance = 1;
+   
          } else {
-            prevAttributeName = currAttributeName;
-            attributeInstance = 2;
+   
+             System.out.println("--- Instance in " + attributeInstance);
+           currAttributeName = loader.processSubjectAttribute(loader, subject, lineData, prevAttributeName, attributeInstance);
+            if (currAttributeName.equals(prevAttributeName) ) {
+               attributeInstance++;
+            } else {
+               prevAttributeName = currAttributeName;
+               attributeInstance = 2;
+            }
          }
-
-      }
+       }
     }
     } catch (ObjectNotFoundException e) {
          throw new ObjectNotFoundException(e.getMessage());
