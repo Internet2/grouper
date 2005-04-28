@@ -88,7 +88,13 @@ public class TestStemsAttrsAdd extends TestCase {
                      );
     
     GrouperAttribute desc = ns.attribute("description");
-    Assert.assertNull("description null", desc);
+    Assert.assertNotNull("desc null", desc);
+    Assert.assertTrue(
+      "desc class", Constants.KLASS_NGA.equals(desc.getClass().getName()) 
+                     );
+    Assert.assertTrue(
+      "desc value", desc.value().equals("")
+    );
     Assert.assertNull("modifySource null", ns.modifySource());
     Assert.assertNull("modifySubject null", ns.modifySubject());
     Assert.assertNull("modifyTime null", ns.modifyTime());

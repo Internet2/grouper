@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.29 2005-04-28 13:34:36 blair Exp $
+ * @version $Id: Group.java,v 1.30 2005-04-28 15:53:51 blair Exp $
  */
 abstract public class Group {
 
@@ -491,7 +491,7 @@ abstract public class Group {
     this.subjectCanModAttr(s, g, attribute);
     try {
       s.dbSess().txStart();
-      if (value == null) {
+      if ( (value == null) || (value.equals("")) ) {
         // Delete
         g.attributeDel( g.attribute(attribute) );
       } else {

@@ -49,98 +49,89 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper;
 
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
 
-public class TestGroupsAttrs extends TestCase {
+import  java.util.*;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
-  public TestGroupsAttrs(String name) {
-    super(name);
-  }
 
-  protected void setUp () {
-    DB db = new DB();
-    db.emptyTables();
-    db.stop();
-  }
+/** 
+ * Class modeling a null {@link GrouperGroup} attribute.
+ * <p />
+ *
+ * @author  blair christensen.
+ * @version $Id: NullGrouperAttribute.java,v 1.1 2005-04-28 15:53:51 blair Exp $
+ */
+public class NullGrouperAttribute extends GrouperAttribute {
 
-  protected void tearDown () {
-    // Nothing -- Yet
+  /*
+   * PRIVATE INSTANCE VARIABLES
+   */
+  private String  groupKey;
+  private String  groupField;
+  private String  groupFieldValue = "";
+
+
+  /*
+   * CONSTRUCTORS
+   */
+
+  /* 
+   * Create a new and populated attribute object.
+   */
+  protected NullGrouperAttribute(String key, String field) {
+    this.groupKey   = key;
+    this.groupField = field; 
   }
 
 
   /*
-   * TESTS
+   * PUBLIC INSTANCE METHODS
    */
-  
 
-  // Group at root-level
-  public void testAttrsNS0() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
-    GrouperSession s = GrouperSession.start(subj);
-
-    // Create ns0
-    GrouperStem ns0 = GrouperStem.create(
-                         s, Constants.ns0s, Constants.ns0e
-                       );
-    // Create g0
-    GrouperGroup g0  = GrouperGroup.create(
-                         s, Constants.g0s, Constants.g0e
-                       );
-    
-    // Fetch g0
-    GrouperGroup g = GrouperGroup.load(
-                        s, Constants.g0s, Constants.g0e
-                      );
-
-    GrouperAttribute stem = g.attribute("stem");
-    Assert.assertNotNull("stem !null", stem);
-    Assert.assertTrue(
-                      "stem class", 
-                      Constants.KLASS_GA.equals(stem.getClass().getName()) 
-                     );
-    Assert.assertTrue("stem value", stem.value().equals(Constants.g0s));
-    GrouperAttribute extn = g.attribute("extension");
-    Assert.assertNotNull("extn !null", extn);
-    Assert.assertTrue(
-                      "extn class", 
-                      Constants.KLASS_GA.equals(extn.getClass().getName()) 
-                     );
-    Assert.assertTrue("extn value", extn.value().equals(Constants.g0e));
-    GrouperAttribute name = g.attribute("name");
-    Assert.assertNotNull("name !null", name);
-    Assert.assertTrue(
-                      "name class", 
-                      Constants.KLASS_GA.equals(name.getClass().getName()) 
-                     );
-    Assert.assertTrue(
-                      "name value", 
-                      name.value().equals( 
-                        GrouperGroup.groupName(
-                          Constants.g0s, Constants.g0e
-                        )
-                      )
-                     );
-    GrouperAttribute desc = g.attribute("desc");
-    Assert.assertNotNull("desc null", desc);
-    Assert.assertTrue(
-      "desc class", Constants.KLASS_NGA.equals(desc.getClass().getName()) 
-                     );
-    Assert.assertTrue(
-      "desc value", desc.value().equals("")
-    );
-    Assert.assertNull("createSource null", g.createSource());
-    Assert.assertNotNull("createSubject null", g.createSubject());
-    Assert.assertNotNull("createTime null", g.createTime());
-    Assert.assertNull("modifySource null", g.modifySource());
-    Assert.assertNull("modifySubject null", g.modifySubject());
-    Assert.assertNull("modifyTime null", g.modifyTime());
-
-    s.stop();
+  /**
+   * Retrieve this attribute's group field.
+   * <p />
+   * @return  Attribute's group field.
+   */
+  public String field() {
+    return this.groupField;
   }
+
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return new ToStringBuilder(this).
+      append("field", this.groupField).
+      append("value", this.groupFieldValue).
+      toString();
+  }
+
+  /**
+   * Retrieve this attribute's value.
+   * <p />
+   * @return  Attribute's value.
+   */
+  public String value() {
+    return this.groupFieldValue;
+  }
+
+
+  /*
+   * PROTECTED INSTANCE METHODS
+   */
+
+  /*
+   * Delete this attribute.
+   */
+  protected void delete(GrouperSession s) {
+    // Nothing
+  }
+
 
 }
 

@@ -123,7 +123,10 @@ public class TestBug352Naming extends TestCase {
       Assert.assertTrue("add description to ns11 should fail", true);
     }
     GrouperAttribute desc1 = ns11.attribute("description");
-    Assert.assertNull("ns11 description !null", desc1);
+    Assert.assertNotNull("ns11 description !null", desc1);
+    Assert.assertTrue(
+      "ns11 description value", desc1.value().equals("")
+    );
 
     // Grant STEM to !root
     GrouperMember m = GrouperMember.load(

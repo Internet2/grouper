@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.30 2005-04-15 14:59:34 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.31 2005-04-28 15:53:51 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -142,7 +142,8 @@ public class GrouperAttribute implements Serializable {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperAttribute attr = (GrouperAttribute) iter.next();
-          GrouperAttribute.delete(s, attr);
+          attr.delete(s);
+          // BDC GrouperAttribute.delete(s, attr);
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -154,19 +155,6 @@ public class GrouperAttribute implements Serializable {
                   "Unable to get query " + qry + ": " + e);
     }
                 
-  }
-
-  /*
-   * Delete a single attribute.
-   */
-  protected static void delete(GrouperSession s, GrouperAttribute attr) {
-    try {
-      s.dbSess().session().delete(attr);
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Error deleting attribute " + attr + ": " + e
-                );
-    }
   }
 
   /*
@@ -275,6 +263,23 @@ public class GrouperAttribute implements Serializable {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Delete this attribute.
+   * <p />
+   * TODO Should this become public and become the proper way of
+   * deleting an attribute?  Rather than relying upon null or ""
+   * values?
+   */
+  protected void delete(GrouperSession s) {
+    try {
+      s.dbSess().session().delete(this);
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+                  "Error deleting attribute " + this + ": " + e
+                );
+    }
+  }
 
   /*
    * Return the group key for this attribute.

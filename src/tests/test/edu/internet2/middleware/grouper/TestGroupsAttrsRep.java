@@ -92,7 +92,10 @@ public class TestGroupsAttrsRep extends TestCase {
                        );
     
     GrouperAttribute desc = g.attribute("description");
-    Assert.assertNull("description null", desc);
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
     Assert.assertNull("modifySource null", g.modifySource());
     Assert.assertNull("modifySubject null", g.modifySubject());
     Assert.assertNull("modifyTime null", g.modifyTime());

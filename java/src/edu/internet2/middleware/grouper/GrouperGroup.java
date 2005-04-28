@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.212 2005-04-19 18:35:58 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.213 2005-04-28 15:53:51 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -282,14 +282,22 @@ public class GrouperGroup extends Group {
    * @return  A {@link GrouperAttribute} object.
    */
   public GrouperAttribute attribute(String attribute) {
-    return (GrouperAttribute) this.attributes.get(attribute);
+    // TODO Throw exception if invalid attribute for this type?
+    GrouperAttribute attr = new NullGrouperAttribute(
+                                  this.getGroupKey(), attribute
+                                );
+    if (this.attributes.containsKey(attribute)) {
+      attr = (GrouperAttribute) this.attributes.get(attribute);
+    }
+    return attr;
   }
 
   /**
    * Set an attribute value.
    * <p />
-   * If <i>value</i> is <i>null</i>, the attribute will be deleted.
-   * <p /> 
+   * If <i>value</i> is <i>null</i> or <i>""</i>, the attribute
+   * will be deleted.  
+   * <p />
    * @param   attribute   Set this attribute.
    * @param   value       To this value.
    */
@@ -563,7 +571,7 @@ public class GrouperGroup extends Group {
    * Delete an attribute
    */
   protected void attributeDel(GrouperAttribute attr) {
-    GrouperAttribute.delete(this.s, attr);
+    attr.delete(this.s);
     this.attributes.remove(attr.field());
   }
 

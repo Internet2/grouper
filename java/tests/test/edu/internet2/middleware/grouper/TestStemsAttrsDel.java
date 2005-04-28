@@ -88,7 +88,10 @@ public class TestStemsAttrsDel extends TestCase {
                      );
     
     GrouperAttribute desc = ns.attribute("description");
-    Assert.assertNull("description null", desc);
+    Assert.assertNotNull("desc null", desc);
+    Assert.assertTrue(
+      "desc value", desc.value().equals("")
+    );
     Assert.assertNull("modifySource null", ns.modifySource());
     Assert.assertNull("modifySubject null", ns.modifySubject());
     Assert.assertNull("modifyTime null", ns.modifyTime());
@@ -111,10 +114,6 @@ public class TestStemsAttrsDel extends TestCase {
     GrouperAttribute setDesc = ns.attribute("description");
     Assert.assertNotNull("set description !null", setDesc);
     Assert.assertTrue(
-      "set description class", 
-      Constants.KLASS_GA.equals(setDesc.getClass().getName()) 
-    );
-    Assert.assertTrue(
       "set description value", setDesc.value().equals(text)
     );
     Assert.assertNull("modifySource null", ns.modifySource());
@@ -130,7 +129,11 @@ public class TestStemsAttrsDel extends TestCase {
     }
 
     // Check values
-    Assert.assertNull(ns.attribute("description"));
+    desc = ns.attribute("description");
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
     Assert.assertNull("modifySource null", ns.modifySource());
     Assert.assertNotNull("modifySubject !null", ns.modifySubject());
     Assert.assertNotNull("modifyTime !null", ns.modifyTime());
@@ -168,7 +171,11 @@ public class TestStemsAttrsDel extends TestCase {
                         s, Constants.ns0s, Constants.ns0e
                       );
     // Check values
-    Assert.assertNull("ns0 description null", ns.attribute("description"));
+    GrouperAttribute desc = ns0.attribute("description");
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
     Assert.assertNull("modifySource null", ns.modifySource());
     Assert.assertNotNull("modifySubject !null", ns.modifySubject());
     Assert.assertNotNull("modifyTime !null", ns.modifyTime());
@@ -208,7 +215,11 @@ public class TestStemsAttrsDel extends TestCase {
                        s, Constants.ns0s, Constants.ns0e
                      );
     // Check values
-    Assert.assertNull("ns0 description null", ns.attribute("description"));
+    GrouperAttribute desc = ns.attribute("description");
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
     Assert.assertNull("modifySource null", ns.modifySource());
     Assert.assertNotNull("modifySubject !null", ns.modifySubject());
     Assert.assertNotNull("modifyTime !null", ns.modifyTime());
