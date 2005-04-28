@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.45 2005-04-26 18:01:51 blair Exp $
+$Id: NEWS,v 1.46 2005-04-28 15:53:51 blair Exp $
 
 ---
 
@@ -15,6 +15,9 @@ Released N/A
   and naming privileges) were being calculated incorrectly (#350)
 * Fixed: Non-root subjects could not create stems or groups (#353)
 * Fixed: STEM, not ADMIN, needed to modify namespace attributes (#352)
+* Fixed: Added NullGrouperAttribute class (which extends GrouperAttribute) 
+  to handle group attributes that either do not have values or have had
+  their values deleted. (#356)
 * Fixed: GrouperMember.load(session, subject) replaces
   GrouperMember.load(subject) (#348)
 * Fixed: GrouperGroup.loadByID() now returns properly casted GrouperGroup

@@ -92,7 +92,13 @@ public class TestGroupsAttrsDel extends TestCase {
                        );
     
     GrouperAttribute desc = g.attribute("description");
-    Assert.assertNull("description null", desc);
+    Assert.assertNotNull("desc null", desc);
+    Assert.assertTrue(
+      "desc class", Constants.KLASS_NGA.equals(desc.getClass().getName()) 
+                     );
+    Assert.assertTrue(
+      "desc value", desc.value().equals("")
+    );
     Assert.assertNull("modifySource null", g.modifySource());
     Assert.assertNull("modifySubject null", g.modifySubject());
     Assert.assertNull("modifyTime null", g.modifyTime());
@@ -134,7 +140,12 @@ public class TestGroupsAttrsDel extends TestCase {
     }
 
     // Check values
-    Assert.assertNull(g.attribute("description"));
+    desc = g.attribute("description");
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
+    Assert.assertNull("modifySource null", g.modifySource());
     Assert.assertNull("modifySource null", g.modifySource());
     Assert.assertNotNull("modifySubject !null", g.modifySubject());
     Assert.assertNotNull("modifyTime !null", g.modifyTime());
@@ -176,7 +187,11 @@ public class TestGroupsAttrsDel extends TestCase {
                         s, Constants.g0s, Constants.g0e
                       );
     // Check values
-    Assert.assertNull("g0 description null", g.attribute("description"));
+    GrouperAttribute desc = g.attribute("description");
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
     Assert.assertNull("modifySource null", g.modifySource());
     Assert.assertNotNull("modifySubject !null", g.modifySubject());
     Assert.assertNotNull("modifyTime !null", g.modifyTime());
@@ -220,7 +235,11 @@ public class TestGroupsAttrsDel extends TestCase {
                         s, Constants.g0s, Constants.g0e
                       );
     // Check values
-    Assert.assertNull("g0 description null", g.attribute("description"));
+    GrouperAttribute desc = g.attribute("description");
+    Assert.assertNotNull("desc !null", desc);
+    Assert.assertTrue("desc field",
+      desc.field().equals("description")
+    );
     Assert.assertNull("modifySource null", g.modifySource());
     Assert.assertNotNull("modifySubject !null", g.modifySubject());
     Assert.assertNotNull("modifyTime !null", g.modifyTime());

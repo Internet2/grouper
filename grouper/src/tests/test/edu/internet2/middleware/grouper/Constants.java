@@ -77,6 +77,7 @@ public class Constants {
   public static final String KLASS_GT     = "edu.internet2.middleware.grouper.GrouperType";
   public static final String KLASS_GTD    = "edu.internet2.middleware.grouper.GrouperTypeDef";
   public static final String KLASS_MV     = "edu.internet2.middleware.grouper.MemberVia";
+  public static final String KLASS_NGA    = "edu.internet2.middleware.grouper.NullGrouperAttribute";
   public static final String KLASS_SI     = "edu.internet2.middleware.grouper.SubjectImpl";
   public static final String KLASS_STAGI  = "edu.internet2.middleware.grouper.SubjectTypeAdapterGroupImpl";
   public static final String KLASS_STAPI  = "edu.internet2.middleware.grouper.SubjectTypeAdapterPersonImpl";

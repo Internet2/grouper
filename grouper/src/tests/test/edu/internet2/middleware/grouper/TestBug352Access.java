@@ -123,7 +123,10 @@ public class TestBug352Access extends TestCase {
       Assert.assertTrue("add description to gAA should fail", true);
     }
     GrouperAttribute desc1 = gAA.attribute("description");
-    Assert.assertNull("gAA description !null", desc1);
+    Assert.assertNotNull("gAA description !null", desc1);
+    Assert.assertTrue(
+      "gAA description value", desc1.value().equals("")
+    );
 
     // Grant ADMIN to !root
     GrouperMember m = GrouperMember.load(
