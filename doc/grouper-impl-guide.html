@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Grouper 0.5.5 Implementation Guide</title>
+  <title>Grouper 0.5.6 Implementation Guide</title>
   <style>
 <!--
 pre {
@@ -26,15 +26,15 @@ pre {
 </head>
 <body>
 <div id="summary">
-grouper-0.5.5-impl-guide-01.html<br />
-10 April 2005
+grouper-0.5.6-impl-guide-01.html<br />
+29 April 2005
 </div>
 <div id="title">
-<h2>Grouper 0.5.5 Implementation Guide</h2>
+<h2>Grouper 0.5.6 Implementation Guide</h2>
 </div>
 <div id="body">
 <p>
-This guide will help you to build and operate Grouper 0.5.5.  As
+This guide will help you to build and operate Grouper 0.5.6.  As
 Grouper is still early in its development cycle, there is little
 practical implementation experience and thus this guide is far from a
 comprehensive treatment of the topic.  Our strategy is to bootstrap
@@ -43,7 +43,7 @@ adopters to begin using Grouper and to subsequently contribute to the
 enhancement of this document by their experiences.
 </p>
 <p>
-Along with obtaining Grouper 0.5.5 (see the MACE-Dir-Groups website
+Along with obtaining Grouper 0.5.6 (see the MACE-Dir-Groups website
 <a href="http://middleware.internet2.edu/dir/groups/grouper/">&lt;http://middleware.internet2.edu/dir/groups/grouper/&gt;</a>
 for instructions), adopters should join the grouper-users at internet2
 dot edu and possibly the grouper-dev at internet2 dot edu mailing lists
@@ -53,10 +53,10 @@ lists are also on the Grouper website.
 </p>
 <div id="section">
 <a name="section_1"/>
-<h3>1. Introduction To Grouper 0.5.5</h3>
+<h3>1. Introduction To Grouper 0.5.6</h3>
 </div>
 <p>
-Grouper 0.5.5 provides an API supporting basic groups management
+Grouper 0.5.6 provides an API supporting basic groups management
 capabilities - creation, update, and removal of groups from a Groups
 Registry; subgroups; limited querying capabilities and basic logging.
 It also includes sample programs illustrating how to load data into
@@ -69,7 +69,7 @@ depicts the major components of Grouper and their relation to
 elements of an implementation site's existing identity management
 infrastructure. Those components are an API, a relational database
 called the Groups Registry, a set of aging tasks, and one or more
-user interfaces for managing groups. Grouper 0.5.5 is comprised of
+user interfaces for managing groups. Grouper 0.5.6 is comprised of
 an alpha release of the API and procedures to create the Groups
 Registry within an HSQLDB database. The user interface, aging tasks,
 and some substantial elements of API functionality are slated for
@@ -87,10 +87,6 @@ future release according to the following table.
   <td id="td">0.5</td>
   <td id="td">Initial API release providing a subset of the Phase 1
     Specification: basic group management by automation processes</td>
-</tr>
-<tr>
-  <td id="td">0.5.5</td>
-  <td id="td">API maintenance release</td>
 </tr>
 <tr>
   <td id="td">0.6</td>
@@ -128,12 +124,12 @@ a functional level, how Grouper may be made to articulate with an
 existing infrastructure.
 </p>
 <p>
-In addition to this Implementation Guide, the Grouper 0.5.5 distribution
+In addition to this Implementation Guide, the Grouper 0.5.6 distribution
 contains javadoc and other germinal guides for developers (i.e., good
 intention outweighs substance at the moment). All of these are found in
 the <i>doc/</i> directory of the distribution, which also contains a file
-called <i>NEWS</i> that lists features in 0.5.5, those that are slated for a
-future release, and known problems with 0.5.5. If this document and the
+called <i>NEWS</i> that lists features in 0.5.6, those that are slated for a
+future release, and known problems with 0.5.6. If this document and the
 <i>NEWS</i> file appear to be in conflict on any point, the <i>NEWS</i>
 file should be considered authoritative.
 </p>
@@ -148,8 +144,8 @@ Grouper installation is working properly.
 <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>
 contains an Entity Relationship Diagram for an early form of the
 Groups Registry schema. An ERD of the schema deployed in Grouper
-0.5.5 can be found
-<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.5.jpg">here</a>.
+0.5.6 can be found
+<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.6.jpg">here</a>.
 </p>
 <div id="subsection">
 <a name="section_1.1"/>
@@ -167,10 +163,10 @@ document:
 </p>
 <div id="section">
 <a name="section_2"/>
-<h3>2. Building Grouper 0.5.5</h3>
+<h3>2. Building Grouper 0.5.6</h3>
 </div>
 <p>
-The top-level directory of the unpacked Grouper 0.5.5 distribution
+The top-level directory of the unpacked Grouper 0.5.6 distribution
 contains the following directories and files:
 </p>
 <p>
@@ -196,7 +192,7 @@ contains the following directories and files:
 <tr>
   <td id="td">&nbsp;</td>
   <td id="td"><i>javadoc/</i></td>
-  <td id="td">javadoc for the Grouper 0.5.5 API</td>
+  <td id="td">javadoc for the Grouper 0.5.6 API</td>
 </tr>
 <tr>
   <td id="td"><i>java/</i></td>
@@ -332,7 +328,7 @@ the default Hibernate cache sizes.
 <h4>2.3. Running Grouper</h4>
 </div>
 <p>
-To run a java program using the Grouper 0.5.5 API, the Java environment
+To run a java program using the Grouper 0.5.6 API, the Java environment
 must have a classpath that includes:
 <ul>
   <li>full pathname of the <i>Grouper.jar</i> file produced by "ant dist"</li>
@@ -1379,7 +1375,7 @@ attributes</i> associated with it.  These include:
 </tr>
 <tr>
   <td id="td"><i>createSource</i></td>
-  <td id="td">undefined in Grouper 0.5.5</td>
+  <td id="td">undefined in Grouper 0.5.6</td>
 </tr>
 <tr>
   <td id="td"><i>modifyTime</i></td>
@@ -1392,7 +1388,7 @@ attributes</i> associated with it.  These include:
 </tr>
 <tr>
   <td id="td"><i>modifySource</i></td>
-  <td id="td">undefined in Grouper 0.5.5</td>
+  <td id="td">undefined in Grouper 0.5.6</td>
 </tr>
 </tbody>
 </table>
