@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.22 2005-04-08 14:30:46 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.23 2005-04-29 17:52:33 blair Exp $ 
  */
 class csv2group {
 
@@ -198,7 +198,7 @@ class csv2group {
              subj.getId() + ":"              +
              subj.getSubjectType().getId()
             );
-    mem = GrouperMember.load(subj);
+    mem = GrouperMember.load(s, subj);
     _verbose("Loaded member " + mem.subjectID() + ":" + mem.typeID());
   }
 

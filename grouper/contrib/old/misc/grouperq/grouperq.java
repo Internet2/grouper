@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.15 2005-04-08 17:24:08 blair Exp $
+ * @version $Id: grouperq.java,v 1.16 2005-04-29 17:52:33 blair Exp $
  */
 class grouperq {
 
@@ -105,7 +105,7 @@ class grouperq {
              subj.getId() + ":"              +
              subj.getSubjectType().getId()
             );
-    mem = GrouperMember.load(subj);
+    mem = GrouperMember.load(s, subj);
     _verbose("Loaded member " + mem.subjectID() + ":" + mem.typeID());
   }
 

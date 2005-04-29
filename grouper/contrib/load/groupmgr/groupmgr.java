@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.10 2005-04-08 16:46:04 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.11 2005-04-29 17:52:33 blair Exp $ 
  */
 class groupmgr {
 
@@ -171,7 +171,7 @@ class groupmgr {
              subj.getId() + ":"              +
              subj.getSubjectType().getId()
             );
-    mem = GrouperMember.load(subj);
+    mem = GrouperMember.load(s, subj);
     _verbose("Loaded member " + mem.subjectID() + ":" + mem.typeID());
   }
 
