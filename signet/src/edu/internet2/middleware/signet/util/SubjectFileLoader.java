@@ -286,7 +286,7 @@ public class SubjectFileLoader
     pStmt.executeUpdate();
     
     Subject subject
-      = new UtilSubjectImpl
+      = new SubjImpl
           (subjectType,
            subjectId,
            subjectName,
@@ -296,7 +296,7 @@ public class SubjectFileLoader
     return subject;
   }
   
-  private class UtilSubjectImpl implements Subject
+  private class SubjImpl implements Subject
   {
     private SubjectType type;
     private String      id;
@@ -305,7 +305,7 @@ public class SubjectFileLoader
     private String      displayId;
     private Map         attributes;
     
-    UtilSubjectImpl
+    SubjImpl
       (SubjectType type,
        String       id,
        String       name,
