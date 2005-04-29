@@ -1,3 +1,17 @@
+/ Sample subject input file for utility SubjectFileLoader
+/
+/ The first line is a header:
+/
+/      source [source-name]
+/
+/ followed by one or more subject blocks
+/   
+/ Start of subject block: +[subjectid] [subjectname]
+/
+/ Subsequent lines in each subject block consists of pairs of
+/
+/     [attributename] [attributevalue]
+/   
 source person
 +K0000001 McRae, Lynn
 description Chair, Signet Working Group
