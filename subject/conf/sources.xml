@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sources>
+
+  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+    <id>sample1</id>
+    <name>Sample Source</name>
+    <type>person</type>
+    <init-param>
+      <param-name>maxActive</param-name>
+      <param-value>4</param-value>
+    </init-param>
+    <init-param>
+      <param-name>maxIdle</param-name>
+      <param-value>2</param-value>
+    </init-param>
+    <init-param>
+      <param-name>maxWait</param-name>
+      <param-value>5</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>com.sybase.jdbc2.jdbc.SybDriver</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUrl</param-name>
+      <param-value>jdbc:sybase:Tds:db.stanford.edu:1025/subject</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUser</param-name>
+      <param-value>user</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbPwd</param-name>
+      <param-value>pwd</param-value>
+    </init-param>
+  </source>
+
+</sources>
