@@ -31,7 +31,7 @@ Quick Start
 To populate the Signet demo application with sample data:
 (1) Update the sample shell script util/subsystemloader/run.sh to point JAVA_HOME to the location of your JDK.
 (2) Use the SubsystemXmlLoader to create the demo sample Subsystem by executing the util/subsystemloader/run.sh script with the sample demo/Subsystem.xml file, e.g., > run.sh ../../demo/data/Subsystem.xml
-(3) Modify the sql/subject.sql file with any additional local Subject identities for your site, then use that file to load the sample person data.  
+(3) Modify the demo/data/subject.txt file with any additional local Subject identities for your site, then use that file to load the sample person data.  
 (4) Execute the sql/tree.sql script to load the sample organization tree data.
 (5) Add login-names to your web server's authentication mechanism, with any passwords you like. Login names must correspond to the principal identifier (e.g., "jpoole" in the sample data) of one or more Subjects loaded above.
 (6) A special Subject, "SignetSuperSubject", will be created by the Signet UI when it is first executed.  This is a special user that has granting privileges for all functions in all subsystems.  It can be used to bootstrap initial granting privileges for the other users.   
