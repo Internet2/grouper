@@ -8,9 +8,9 @@ directory tree is structured and how to get started with compiling,
 testing and running Grouper.
 
 For more detailed information see:
-  _doc/grouper-0.5.5-impl-guide-01.html_
+  _doc/grouper-impl-guide.html_
 
-$Id: README,v 1.26 2005-04-15 17:43:11 blair Exp $
+$Id: README,v 1.27 2005-04-29 16:38:03 blair Exp $
 
 ---
 
