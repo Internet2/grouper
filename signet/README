@@ -1,9 +1,9 @@
-Signet version 0.2 - March, 2005
+Signet version 0.3 - April, 2005
 
 What's New
 ----------
 
-SubjectFileLoader utility to input a set of Subject definitions via an XML document.
+SubjectFileLoader utility to input a set of Subject definitions via a text file.
   See demo/data/subject.txt for a sample input file with comments.
 Page-headers and page-footers in the Signet GUI are now defined as Tiles, for easier site-specific customization.
 Limit-values are now taken into account when creating and revoking assignments:
