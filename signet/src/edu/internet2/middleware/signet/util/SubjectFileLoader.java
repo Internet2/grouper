@@ -465,10 +465,12 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
     // SubjectType subjectType = signet.getSubjectType(subjectSourceID);
 
     removeSubjects();
+    loader.commit();
 
     // Temporary -- add back the required SubjectType row...
     signet.beginTransaction();
     SubjectType subjectType = signet.newSubjectType("person", "Person");
+    signet.save(subjectType);
     signet.commit();
 
     Subject subject = null;
