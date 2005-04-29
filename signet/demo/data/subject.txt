@@ -1,0 +1,55 @@
+source person
++K0000001 McRae, Lynn
+description Chair, Signet Working Group
+loginid lmcrae
++K0000002 Nguyen, Minh
+description Signet Application Architect
+loginid mnguyen
++K0000003 Cohen, Andy
+description Signet, Principal Developer
+loginid acohen
++K0000004 Vine, Jennifer
+description Signet, UI Design
+loginid jvine
++K0000005 Morgan, R.L. 'Bob'
+description Washington, Wise guy
+loginid morgan
++K0000006 Barton, Tom
+description Chicago, Grouper project
+loginid tbarton
++K0000007 Hazelton, Keith
+description Wisconson, MACE-DIR
+loginid hazelton
++K0000008 Jones, Wendy
+description Stanford ITSS, Development Manager
+loginid wjones
++K0000009 Cramer, Tom
+description Stanford ITSS, Applied Strategy
+loginid tcramer
++K0000010 Klemm, John Norman
+description Stanford, KM Video Production
+loginid jklemm
++K0000011 Katz, P. "Kitty"
+description Founder, KITN Cat Network
+loginid kkatz
++K0000012 Henderson, Shelley
+description USC Special Projects Development
+loginid shelley
++K0000013 Arons, Tom
+description UC Davis, Information and Educational Technology
+loginid tgarons
++K0000014 Olshansky, Steve
+description Internet2 Middleware Flywheel
+loginid steveo
++K0000015 Wu, Albert
+description UCLA, Technology Infrastructure Group
+loginid albertwu
++K0000016 Frost, Renee
+description Internet2, Middleware and Security
+loginid rwfrost
++K0000017 Poole, Jean
+description VO Principal Investigator
+loginid demo
++K0000018 Rhys-Davies, John
+description Actor
+loginid jrdavis
