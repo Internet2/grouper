@@ -4,7 +4,7 @@
 	default="db" basedir=".">
 	
 	<!-- Version number -->
-	<property name="version" value="0.2"/>
+	<property name="version" value="0.3"/>
 	
 	<property name="zipfile" value="signet-${version}-bin.zip"/>
 	<property name="tarfile" value="signet-${version}-bin.tar"/>

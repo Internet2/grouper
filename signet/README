@@ -4,6 +4,7 @@ What's New
 ----------
 
 SubjectFileLoader utility to input a set of Subject definitions via an XML document.
+  See demo/data/subject.txt for a sample input file with comments.
 Page-headers and page-footers in the Signet GUI are now defined as Tiles, for easier site-specific customization.
 Limit-values are now taken into account when creating and revoking assignments:
   Limit-values that are not assignable in a given context are now dimmed in the GUI.
