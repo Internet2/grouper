@@ -126,7 +126,7 @@ against the database file--use when application is not running">
 
 	<!-- Generate Javadoc for the source files -->
 	<target name="javadoc">
-		<javadoc packagenames="edu.internet2.middleware.signet.*"
+		<javadoc packagenames="edu.internet2.middleware.signet, edu.internet2.middleware.signet.choice, edu.internet2.middleware.signet.tree, edu.internet2.middleware.subject"
 			destdir="${doc.dir}"
 			access="public"
 			use="true"
