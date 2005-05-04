@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.30 2005-04-28 15:53:51 blair Exp $
+ * @version $Id: Group.java,v 1.31 2005-05-04 14:27:46 blair Exp $
  */
 abstract public class Group {
 
@@ -76,6 +76,7 @@ abstract public class Group {
    * <p />
    * @return  String  group type.
    */
+  abstract public    String           id();
   abstract public    String           type();
 
   abstract protected GrouperAttribute attribute(String attribute);
