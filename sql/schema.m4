@@ -99,17 +99,6 @@ CREATE TABLE grouper_subject (
   CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
-_DROP_TABLE(`grouper_subjectAttribute')
-CREATE TABLE grouper_subjectAttribute (
-  subjectID     _TYPE_STRING() NOT NULL, 
-  subjectTypeID _TYPE_STRING() NOT NULL,
-  name          _TYPE_STRING() NOT NULL,
-  instance      _TYPE_INT(),
-  value         _TYPE_STRING() NOT NULL,
-  searchValue   _TYPE_STRING(),
-  CONSTRAINT    uniq_gsubattr_sid_stid UNIQUE (subjectID, subjectTypeID)
-);
-
 _DROP_TABLE(`grouper_subjectType')
 CREATE TABLE grouper_subjectType (
   subjectTypeID _TYPE_STRING() NOT NULL PRIMARY KEY,

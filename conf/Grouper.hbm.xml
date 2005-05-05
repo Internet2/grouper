@@ -75,17 +75,6 @@
     <property name="startTime"  type="string" not-null="true"/>
   </class>
 
-  <class name="GrouperSubjectAttribute" table="grouper_SubjectAttribute">
-    <composite-id access="field">
-      <key-property name="subjectID"     type="string" column="subjectID"/>
-      <key-property name="subjectTypeID" type="string" column="subjectTypeID"/>
-    </composite-id> 
-    <property name="name"         type="string" not-null="true"/>
-    <property name="instance"     type="integer"/>
-    <property name="value"        type="string" not-null="true"/>
-    <property name="searchValue"  type="string" not-null="true"/>
-  </class>
-
   <class name="GrouperType" table="grouper_type" mutable="false">
     <cache usage="read-only"/>
     <id name="groupType" type="string" unsaved-value="null" >

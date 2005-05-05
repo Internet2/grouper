@@ -158,13 +158,6 @@ public class TestInstantiate extends TestCase {
     );
   }
 
-  // Instantiate a GrouperSubjectAttribute instance 
-  public void testGrouperSubjectAttributeInstantiate() {
-    GrouperSubjectAttribute obj = new GrouperSubjectAttribute();
-    Assert.assertNotNull(obj);
-    Assert.assertTrue( Constants.KLASS_GSA.equals( obj.getClass().getName() ) );
-  }
-
   // Instantiate a GrouperType instance 
   public void testGrouperTypeInstantiate() {
     GrouperType obj = new GrouperType();

@@ -89,17 +89,6 @@ CREATE TABLE grouper_subject (
   CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
 );
 
-DROP TABLE grouper_subjectAttribute IF EXISTS;
-CREATE TABLE grouper_subjectAttribute (
-  subjectID     VARCHAR(64) NOT NULL, 
-  subjectTypeID VARCHAR(64) NOT NULL,
-  name          VARCHAR(64) NOT NULL,
-  instance      INTEGER,
-  value         VARCHAR(64) NOT NULL,
-  searchValue   VARCHAR(64),
-  CONSTRAINT    uniq_gsubattr_sid_stid UNIQUE (subjectID, subjectTypeID)
-);
-
 DROP TABLE grouper_subjectType IF EXISTS;
 CREATE TABLE grouper_subjectType (
   subjectTypeID VARCHAR(64) NOT NULL PRIMARY KEY,
