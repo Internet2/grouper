@@ -90,17 +90,6 @@ CREATE TABLE grouper_subject (
 );
 
 
-CREATE TABLE grouper_subjectAttribute (
-  subjectID     VARCHAR2(64) NOT NULL, 
-  subjectTypeID VARCHAR2(64) NOT NULL,
-  name          VARCHAR2(64) NOT NULL,
-  instance      INTEGER,
-  value         VARCHAR2(64) NOT NULL,
-  searchValue   VARCHAR2(64),
-  CONSTRAINT    uniq_gsubattr_sid_stid UNIQUE (subjectID, subjectTypeID)
-);
-
-
 CREATE TABLE grouper_subjectType (
   subjectTypeID VARCHAR2(64) NOT NULL PRIMARY KEY,
   name          VARCHAR2(64) NOT NULL,
