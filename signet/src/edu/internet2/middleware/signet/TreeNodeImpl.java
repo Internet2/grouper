@@ -1,6 +1,6 @@
 /*--
- $Id: TreeNodeImpl.java,v 1.4 2005-01-21 20:30:47 acohen Exp $
- $Date: 2005-01-21 20:30:47 $
+ $Id: TreeNodeImpl.java,v 1.5 2005-05-12 22:04:35 acohen Exp $
+ $Date: 2005-05-12 22:04:35 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -120,7 +120,7 @@ implements
   /**
    * @return Returns the tree.
    */
-  public Tree getTree() throws TreeNotFoundException
+  public Tree getTree()
   {
     if ((this.tree == null) && (this.treeId != null)
         && (this.getSignet() != null))
@@ -132,7 +132,7 @@ implements
       }
       catch (ObjectNotFoundException onfe)
       {
-        throw new TreeNotFoundException(onfe);
+        throw new SignetRuntimeException(onfe);
       }
     }
 
@@ -287,16 +287,9 @@ implements
 
   public String toString()
   {
-    try
-    {
-      return this.getTree().getAdapter().getClass().getName()
-          + Signet.SCOPE_PART_DELIMITER + this.getTreeId()
-          + Signet.SCOPE_PART_DELIMITER + this.getId();
-    }
-    catch (TreeNotFoundException tnfe)
-    {
-      throw new SignetRuntimeException(tnfe);
-    }
+    return this.getTree().getAdapter().getClass().getName()
+           + Signet.SCOPE_PART_DELIMITER + this.getTreeId()
+           + Signet.SCOPE_PART_DELIMITER + this.getId();
   }
 
   /**

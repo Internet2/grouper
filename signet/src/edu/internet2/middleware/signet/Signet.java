@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.17 2005-04-08 00:47:59 acohen Exp $
- $Date: 2005-04-08 00:47:59 $
+ $Id: Signet.java,v 1.18 2005-05-12 22:04:35 acohen Exp $
+ $Date: 2005-05-12 22:04:35 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -466,7 +466,9 @@ public final class Signet
   {
     try
     {
-      return (Tree) (session.load(TreeImpl.class, id));
+      TreeImpl tree = (TreeImpl)(session.load(TreeImpl.class, id));
+      tree.setSignet(this);
+      return tree;
     }
     catch (net.sf.hibernate.ObjectNotFoundException onfe)
     {
@@ -1735,7 +1737,7 @@ public final class Signet
       throw new SignetRuntimeException
          ("A "
           + adapterTargetName
-          + " reference by Signet relies upon an adapter which"
+          + " referenced by Signet relies upon an adapter which"
           + " is implemented by the class named '"
           + className
           + "'. This class cannot be found in Signet's classpath.",
@@ -1755,39 +1757,21 @@ public final class Signet
          + requiredInterface.getName()
          + "'.");
     }
-
-    Class[] noParams = new Class[0];
-    Constructor constructor;
-
+    
     try
     {
-      constructor = actualClass.getConstructor(noParams);
-    }
-    catch (NoSuchMethodException nsme)
-    {
-      throw new SignetRuntimeException
-      ("A "
-       + adapterTargetName
-       + " referenced by Signet relies upon an adapter which"
-       + " is implemented by the class named '"
-       + className
-       + "'. This class is in Signet's classpath, but it does not"
-       + " provide a public, parameterless constructor.", nsme);
-    }
-
-    try
-    {
-      adapter = constructor.newInstance(noParams);
+      adapter = actualClass.newInstance();
     }
     catch (Exception e)
     {
-      throw new SignetRuntimeException(
-          "A Tree in the Signet database uses a TreeAdapter which"
+      throw new SignetRuntimeException
+          ("A "
+           + adapterTargetName
+           + " in the Signet database relies upon an adapter which"
            + " is implemented by the class named '"
            + className
-           + "'. This class is in Signet's classpath, and it does provide"
-           + " a public, parameterless constructor, but Signet did not succeed"
-           + " in invoking that constructor.", e);
+           + "'. This class is in Signet's classpath, but Signet did not"
+           + " succeed in invoking its default constructor.", e);
     }
     
     return adapter;

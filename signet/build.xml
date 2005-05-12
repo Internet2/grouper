@@ -123,6 +123,13 @@ against the database file--use when application is not running">
 			<classpath refid="project.class.path"/>
 		</javac>
 	</target>
+	
+	<!-- Removes various generated files -->
+	<target name="clean" description="Removes various generated files">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+		<delete dir="${doc.dir}" />
+	</target>
 
 	<!-- Generate Javadoc for the source files -->
 	<target name="javadoc">
@@ -142,7 +149,7 @@ against the database file--use when application is not running">
 			classpath="classes" /> 
 	</target>
 
-	<target name="create-dist" depends="compile, javadoc">
+	<target name="create-dist" depends="clean, compile, javadoc">
 		<delete dir="${dist.dir}" />
 		<copy todir="${dist.dir}">
 			<fileset dir=".">

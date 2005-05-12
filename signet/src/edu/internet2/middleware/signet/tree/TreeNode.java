@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNode.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: TreeNode.java,v 1.3 2005-05-12 22:04:35 acohen Exp $
+$Date: 2005-05-12 22:04:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -28,7 +28,7 @@ public interface TreeNode extends Comparable
    */
   public String	getId();
   public String	getName();
-  public Tree		getTree() throws TreeNotFoundException;
+  public Tree		getTree();
   public Set		getParents();
   public Set		getChildren();
   /**

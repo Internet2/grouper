@@ -29,12 +29,40 @@ Quick Start
 (8) Note: if you are using Tomcat for authenticating users, you will need to add them to your conf/tomcat-users.xml file.  These users will need to be the same as the subject IDs of users identified as Subjects within Signet.
 
 To populate the Signet demo application with sample data:
-(1) Update the sample shell script util/subsystemloader/run.sh to point JAVA_HOME to the location of your JDK.
-(2) Use the SubsystemXmlLoader to create the demo sample Subsystem by executing the util/subsystemloader/run.sh script with the sample demo/Subsystem.xml file, e.g., > run.sh ../../demo/data/Subsystem.xml
-(3) Modify the demo/data/subject.txt file with any additional local Subject identities for your site, then use that file to load the sample person data.  
-(4) Execute the sql/tree.sql script to load the sample organization tree data.
-(5) Add login-names to your web server's authentication mechanism, with any passwords you like. Login names must correspond to the principal identifier (e.g., "jpoole" in the sample data) of one or more Subjects loaded above.
-(6) A special Subject, "SignetSuperSubject", will be created by the Signet UI when it is first executed.  This is a special user that has granting privileges for all functions in all subsystems.  It can be used to bootstrap initial granting privileges for the other users.   
+
+  (1) Load the sample Subsystem data:
+    (a) Update the sample shell script util/subsystemloader/run.sh to point
+        JAVA_HOME to the location of your JDK.
+    (b) Use the SubsystemXmlLoader to create the demo sample Subsystem by
+        executing the util/subsystemloader/run.sh script with the sample
+        demo/data/Subsystem.xml file, e.g.,
+        > run.sh ../../demo/data/Subsystem.xml
+
+  (2) Load the sample Subject data:
+    (a) Update the sample shell script util/subjectloader/run.sh to point
+        JAVA_HOME to the location of your JDK.
+    (b) Modify the demo/data/Subject.txt file with any additional local Subject
+        identities for your site.
+    (c) Use the PersonFileLoader to to load that sample person data by executing
+        the util/personloader/run.sh script with the sample demo/Subject.txt
+        file, e.g., > run.sh ../../demo/data/Subject.txt
+        
+  (3) Load the sample organization-tree data:
+    (a) Update the sample shell script util/treeloader/run.sh to point
+        JAVA_HOME to the location of your JDK.
+    (b) Use the TreeXMLLoader to create the demo sample organization-tree
+        by executing the util/treeloader/run.sh script with the sample
+        demo/Tree.xml file, e.g., > run.sh ../../demo/data/Tree.xml
+
+  (4) Add login-names to your web server's authentication mechanism, with any
+      passwords you like. Login names must correspond to the principal
+      identifier (e.g., "jpoole" in the sample data) of one or more Subjects
+      loaded above.
+
+  (5) A special Subject, "SignetSuperSubject", will be created by the Signet UI
+      when it is first executed.  This is a special user that has granting
+      privileges for all functions in all subsystems.  It can be used to
+      bootstrap initial granting privileges for the other users.   
 
 
 License

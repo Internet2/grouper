@@ -1,6 +1,6 @@
 /*--
- $Id: SubjectTypeImpl.java,v 1.3 2005-01-11 20:38:44 acohen Exp $
- $Date: 2005-01-11 20:38:44 $
+ $Id: SubjectTypeImpl.java,v 1.4 2005-05-12 22:04:35 acohen Exp $
+ $Date: 2005-05-12 22:04:35 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -115,36 +115,19 @@ class SubjectTypeImpl
           cnfe);
     }
 
-    Class[] noParams = new Class[0];
-    Constructor constructor;
-
     try
     {
-      constructor = clazz.getConstructor(noParams);
-    }
-    catch (NoSuchMethodException nsme)
-    {
-      throw new SignetRuntimeException(
-          "A PrivilegedSubject in the Signet database refers to a Subject"
-              + " whose SubjectTypeAdapter is implemented by the class named '"
-              + name
-              + "'. This class is in Signet's classpath, but it does not provide"
-              + " a default, parameterless constructor.", nsme);
-    }
-
-    try
-    {
-      this.adapter = (SubjectTypeAdapter) (constructor.newInstance(noParams));
+      this.adapter = (SubjectTypeAdapter) (clazz.newInstance());
     }
     catch (Exception e)
     {
-      throw new SignetRuntimeException(
-          "A PrivilegedSubject in the Signet database refers to a Subject"
-              + " whose SubjectTypeAdapter is implemented by the class named '"
-              + name
-              + "'. This class is in Signet's classpath, and it does provide"
-              + " a default, parameterless constructor, but Signet did not succeed"
-              + " in invoking that constructor.", e);
+      throw new SignetRuntimeException
+        ("A PrivilegedSubject in the Signet database refers to a Subject"
+         + " whose SubjectTypeAdapter is implemented by the class named '"
+         + name
+         + "'. This class is in Signet's classpath, but Signet did not"
+         + " succeed in invoking its default constructor.",
+         e);
     }
 
     if (this.adapter instanceof SubjectTypeAdapterImpl)
