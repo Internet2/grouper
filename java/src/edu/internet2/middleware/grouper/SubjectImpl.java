@@ -55,8 +55,6 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
-import  org.apache.commons.lang.builder.EqualsBuilder;
-import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
@@ -64,7 +62,7 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.19 2005-03-29 15:44:36 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.20 2005-05-17 20:30:33 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject
