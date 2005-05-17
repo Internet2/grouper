@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  java.util.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -61,7 +60,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: NullGrouperAttribute.java,v 1.1 2005-04-28 15:53:51 blair Exp $
+ * @version $Id: NullGrouperAttribute.java,v 1.2 2005-05-17 20:30:33 blair Exp $
  */
 public class NullGrouperAttribute extends GrouperAttribute {
 
