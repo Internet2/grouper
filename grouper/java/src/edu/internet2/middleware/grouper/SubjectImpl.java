@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 
@@ -62,7 +61,7 @@ import  java.io.Serializable;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectImpl.java,v 1.20 2005-05-17 20:30:33 blair Exp $
+ * @version $Id: SubjectImpl.java,v 1.21 2005-05-19 01:09:49 blair Exp $
  */
 public class SubjectImpl 
   implements Serializable,Subject

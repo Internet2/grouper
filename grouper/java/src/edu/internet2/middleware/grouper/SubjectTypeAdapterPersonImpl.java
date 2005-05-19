@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -64,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.18 2005-03-26 02:59:08 blair Exp $
+ * @version $Id: SubjectTypeAdapterPersonImpl.java,v 1.19 2005-05-19 01:09:49 blair Exp $
  */
 public class  SubjectTypeAdapterPersonImpl
 	extends     AbstractSubjectTypeAdapter

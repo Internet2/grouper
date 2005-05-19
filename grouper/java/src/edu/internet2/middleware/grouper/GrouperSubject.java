@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 
@@ -62,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.35 2005-03-29 17:41:24 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.36 2005-05-19 01:09:49 blair Exp $
  */
 public class GrouperSubject {
 

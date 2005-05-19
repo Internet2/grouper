@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -63,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.40 2005-04-28 15:53:51 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.41 2005-05-19 01:09:49 blair Exp $
  */
 public class GrouperStem extends Group {
 
