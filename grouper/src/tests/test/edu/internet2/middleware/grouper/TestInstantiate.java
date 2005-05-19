@@ -52,7 +52,6 @@
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
 

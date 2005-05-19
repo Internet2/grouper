@@ -53,7 +53,6 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
 import  junit.framework.*;
 
 public class TestNamingGrantMoF1 extends TestCase {
