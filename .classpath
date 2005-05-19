@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry output="build/grouper" kind="src" path="java/src"/>
+	<classpathentry output="build/test" kind="src" path="java/tests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="java/lib/cglib-full.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-cli.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-dbcp.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-pool.jar"/>
+	<classpathentry kind="lib" path="java/lib/dom4j.jar"/>
+	<classpathentry kind="lib" path="java/lib/ehcache.jar"/>
+	<classpathentry kind="lib" path="java/lib/hibernate2.jar"/>
+	<classpathentry kind="lib" path="java/lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="java/lib/jta.jar"/>
+	<classpathentry kind="lib" path="java/lib/jug.jar"/>
+	<classpathentry kind="lib" path="java/lib/junit.jar"/>
+	<classpathentry kind="lib" path="java/lib/log4j.jar"/>
+	<classpathentry kind="lib" path="java/lib/odmg.jar"/>
+	<classpathentry kind="lib" path="java/lib/subject.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>
