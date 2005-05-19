@@ -374,12 +374,15 @@ public class TestQueries extends TestCase {
     GrouperQuery q = new GrouperQuery(s);
     // We want created before now
     try {
+      Thread.sleep(500);
       Assert.assertTrue( q.createdBefore( new java.util.Date() ) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
     } catch (GrouperException e) {
       Assert.fail("Exception: createdBefore:NOW");
+    } catch (InterruptedException e) {
+      Assert.fail("Failed to sleep");
     }
     s.stop();
   }
@@ -454,10 +457,13 @@ public class TestQueries extends TestCase {
     GrouperQuery q = new GrouperQuery(s);
     // We want modified before now
     try {
+      Thread.sleep(500);
       Assert.assertTrue( q.modifiedBefore( new java.util.Date() ) );
       List vals = q.query();
       Assert.assertNotNull(vals);
       Assert.assertTrue( vals.size() == 1 );
+    } catch (InterruptedException e) {
+      Assert.fail("Failed to sleep");
     } catch (GrouperException e) {
       Assert.fail("Exception: modifiedBefore:NOW");
     }
