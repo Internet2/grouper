@@ -7,7 +7,6 @@
 
 
 import  java.io.*;
-import  java.lang.reflect.*;
 import  java.sql.*;
 import  java.util.*;
 import  org.apache.commons.cli.*;
@@ -20,7 +19,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.13 2005-02-07 21:07:01 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.14 2005-05-19 16:33:20 blair Exp $ 
  */
 class csv2subject {
 
@@ -239,14 +238,10 @@ class csv2subject {
   private static void _optsParse(String[] args) {
     options = new Options();
     options.addOption("d", false, "Be more verbose about SQL");
-    options.addOption(
-                      OptionBuilder.withArgName("file")
-                                   .withDescription(
-                                     "Specify input file [REQUIRED]"
-                                    )
-                                   .hasArg()
-                                   .create("f")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("file");
+    OptionBuilder.withDescription("Specify input file [REQUIRED]");
+    options.addOption( OptionBuilder.create("f") );
     options.addOption("h", false, "Print usage information");
     options.addOption("v", false, "Be more verbose");
     CommandLineParser parser = new PosixParser();

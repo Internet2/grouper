@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.16 2005-04-29 17:52:33 blair Exp $
+ * @version $Id: grouperq.java,v 1.17 2005-05-19 16:33:20 blair Exp $
  */
 class grouperq {
 
@@ -136,38 +136,27 @@ class grouperq {
    */
   private static void _optsParse(String[] args) {
     options = new Options();
-    options.addOption(
-                      OptionBuilder
-                        .withArgName("field")
-                        .withDescription("Specify group field to query on")
-                        .hasArg()
-                        .create("f")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("field");
+    OptionBuilder.withDescription("Specify group field to query on");
+    options.addOption( OptionBuilder.create("f") );
     options.addOption("h", false, "Print usage information");
-    options.addOption(
-                      OptionBuilder.withArgName("group")
-                        .withDescription(
-                          "Specify group to query on [Cannot be " +
-                          "used with '-m']"
-                         )
-                        .hasArg()
-                        .create("g")
-                     );
-    options.addOption(
-                      OptionBuilder.withArgName("member")
-                        .withDescription(
-                           "Specify member to query on [Cannot be " +
-                           "used with '-g']"
-                         )
-                        .hasArg()
-                        .create("m")
-                     );
-    options.addOption(
-                      OptionBuilder.withArgName("subject")
-                        .withDescription("Specify subject to query as")
-                        .hasArg()
-                        .create("S")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("group");
+    OptionBuilder.withDescription(
+    	  "Specify group to query on [Cannot be used with '-m']"
+    	);
+    options.addOption( OptionBuilder.create("g") );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("member");
+    OptionBuilder.withDescription(
+    	  "Specify member to query on [Cannot be used with '-g']"
+    );
+    options.addOption( OptionBuilder.create("m") );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("subject");
+    OptionBuilder.withDescription("specify subject to query as");
+    options.addOption( OptionBuilder.create("S") );
     options.addOption("v", false, "Be more verbose");
     CommandLineParser parser = new PosixParser();
     try {

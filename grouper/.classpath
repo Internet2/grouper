@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry output="build/grouper" kind="src" path="java/src"/>
+	<classpathentry output="contrib/load/csv2group" kind="src" path="contrib/load/csv2group"/>
+	<classpathentry output="contrib/load/csv2subject" kind="src" path="contrib/load/csv2subject"/>
+	<classpathentry output="contrib/load/groupmgr" kind="src" path="contrib/load/groupmgr"/>
+	<classpathentry output="contrib/misc/grouperq" kind="src" path="contrib/misc/grouperq"/>
 	<classpathentry output="build/test" kind="src" path="java/tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="java/lib/cglib-full.jar"/>
