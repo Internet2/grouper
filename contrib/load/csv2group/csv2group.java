@@ -20,7 +20,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.23 2005-04-29 17:52:33 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.24 2005-05-19 16:33:20 blair Exp $ 
  */
 class csv2group {
 
@@ -276,14 +276,10 @@ class csv2group {
   private static void _optsParse(String[] args) {
     options = new Options();
     options.addOption("c", false, "Continue on operation error");
-    options.addOption(
-                      OptionBuilder.withArgName("file")
-                                   .withDescription(
-                                     "Specify input file [REQUIRED]"
-                                    )
-                                   .hasArg()
-                                   .create("f")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("file");
+    OptionBuilder.withDescription("Specify input file [REQUIRED]");
+    options.addOption( OptionBuilder.create("f") );
     options.addOption("h", false, "Print usage information");
     options.addOption("q", false, "Be more quiet");
     options.addOption("v", false, "Be more verbose [Overrides -q]");

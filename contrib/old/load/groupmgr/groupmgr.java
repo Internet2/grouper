@@ -8,8 +8,6 @@
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
-import  java.io.*;
-import  java.util.*;
 import  org.apache.commons.cli.*;
 
 
@@ -20,7 +18,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.11 2005-04-29 17:52:33 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.12 2005-05-19 16:33:20 blair Exp $ 
  */
 class groupmgr {
 
@@ -289,34 +287,26 @@ class groupmgr {
     options = new Options();
     options.addOption("a", false, "Add Mode");
     options.addOption("d", false, "Delete Mode");
-    options.addOption(
-                      OptionBuilder.withArgName("extension")
-                        .withDescription("Specify extension to act upon")
-                        .hasArg()
-                        .create("e")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("extension");
+    OptionBuilder.withDescription("Specify extension to act upon");
+    options.addOption( OptionBuilder.create("e") );
     options.addOption("G", false, "Treat argument to -m as a group name");
     options.addOption("g", false, "Act upon a group");
     options.addOption("h", false, "Print usage information");
-    options.addOption(
-                      OptionBuilder.withArgName("member")
-                        .withDescription("Specify member to act upon")
-                        .hasArg()
-                        .create("m")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("member");
+    OptionBuilder.withDescription("Specify member to act upon");
+    options.addOption( OptionBuilder.create("m") );
     options.addOption("n", false, "Act upon a namespace");
-    options.addOption(
-                      OptionBuilder.withArgName("subject")
-                        .withDescription("Specify subject to act as")
-                        .hasArg()
-                        .create("S")
-                     );
-    options.addOption(
-                      OptionBuilder.withArgName("stem")
-                        .withDescription("Specify stem to act upon")
-                        .hasArg()
-                        .create("s")
-                     );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("subject");
+    OptionBuilder.withDescription("Specify subject to act as");
+    options.addOption( OptionBuilder.create("S") );
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("stem");
+    OptionBuilder.withDescription("Specify stem to act upon");
+    options.addOption( OptionBuilder.create("s") );
     options.addOption("v", false, "Be more verbose");
     CommandLineParser parser = new PosixParser();
     try {
