@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.io.*;
 import  java.lang.reflect.*;
@@ -64,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.90 2005-04-12 15:00:38 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.91 2005-05-19 01:09:49 blair Exp $
  */
 public class GrouperSession implements Serializable {
 

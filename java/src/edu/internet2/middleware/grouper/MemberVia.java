@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
@@ -66,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.16 2005-04-14 19:37:13 blair Exp $
+ * @version $Id: MemberVia.java,v 1.17 2005-05-19 01:09:49 blair Exp $
  */
 public class MemberVia implements Serializable {
 

@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  java.util.*;
 
 
@@ -61,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.18 2005-04-26 18:01:51 blair Exp $
+ * @version $Id: MemberOf.java,v 1.19 2005-05-19 01:09:49 blair Exp $
  */
 public class MemberOf {
 

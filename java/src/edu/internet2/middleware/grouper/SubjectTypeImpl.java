@@ -52,7 +52,6 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  java.lang.reflect.*;
 import  java.util.*;
@@ -64,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectTypeImpl.java,v 1.17 2005-03-29 16:27:10 blair Exp $
+ * @version $Id: SubjectTypeImpl.java,v 1.18 2005-05-19 01:09:49 blair Exp $
  */
 public class SubjectTypeImpl implements SubjectType {
 
