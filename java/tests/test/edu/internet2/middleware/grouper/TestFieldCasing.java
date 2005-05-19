@@ -50,14 +50,12 @@
  */
 
 /*
- * $Id: TestFieldCasing.java,v 1.1 2005-04-15 14:59:34 blair Exp $
+ * $Id: TestFieldCasing.java,v 1.2 2005-05-19 01:19:26 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
 import  junit.framework.*;
 
 
