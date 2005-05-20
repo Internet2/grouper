@@ -81,7 +81,7 @@ public class TestSessions extends TestCase {
 
   // Start a session as "member.system"
   public void testSessionStartAndStopAsMemberSystem() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -90,7 +90,7 @@ public class TestSessions extends TestCase {
 
   // Verify the subject of the current session 
   public void testSessionSubject() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -107,7 +107,7 @@ public class TestSessions extends TestCase {
 
   // Serialize a session
   public void testSessionSerialization() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);

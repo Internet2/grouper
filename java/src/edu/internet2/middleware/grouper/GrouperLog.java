@@ -64,7 +64,7 @@ import  org.apache.log4j.*;
  * will be implemented in a later release.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.15 2005-05-20 15:31:22 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.16 2005-05-20 15:46:36 blair Exp $
  */
 public class GrouperLog {
 
@@ -100,7 +100,7 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.load(
+    Subject tgt  = SubjectFactory.getSubject(
                               m.subjectID(), m.typeID()
                             );
     String pre  = "'" + s.subject().getId() + "' ";
@@ -120,7 +120,7 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.load(
+    Subject tgt  = SubjectFactory.getSubject(
                               m.subjectID(), m.typeID()
                             );
     String pre  = "'" + s.subject().getId() + "' ";
@@ -294,7 +294,7 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.load(
+    Subject tgt  = SubjectFactory.getSubject(
                               m.subjectID(), m.typeID()
                             );
     String pre  = "'" + s.subject().getId() + "' ";
@@ -312,7 +312,7 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.load(
+    Subject tgt  = SubjectFactory.getSubject(
                               m.subjectID(), m.typeID()
                             );
     String pre  = "'" + s.subject().getId() + "' ";

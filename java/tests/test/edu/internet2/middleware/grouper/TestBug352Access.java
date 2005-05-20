@@ -81,9 +81,9 @@ public class TestBug352Access extends TestCase {
    * ADMIN required for !root subjects to adjust attributes on groups
    */
   public void testBug352Access() {
-    Subject subj0 = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj0 = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s0 = GrouperSession.start(subj0);
-    Subject subj1 = SubjectFactory.load(Constants.mem0I, Constants.mem0T);
+    Subject subj1 = SubjectFactory.getSubject(Constants.mem0I, Constants.mem0T);
     GrouperSession s1 = GrouperSession.start(subj1);
 
     // Create ns0

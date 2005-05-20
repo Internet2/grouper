@@ -79,7 +79,7 @@ public class TestGroupsAttrsRep extends TestCase {
 
   // Group at root-level
   public void testCreateThenAddAndReplaceDesc() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -156,7 +156,7 @@ public class TestGroupsAttrsRep extends TestCase {
 
   // Group at root-level
   public void testReplaceThenFetchDescSameSession() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -207,7 +207,7 @@ public class TestGroupsAttrsRep extends TestCase {
 
   // Group at root-level
   public void testReplaceThenFetchDescNewSession() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

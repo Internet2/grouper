@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.13 2005-05-20 15:31:22 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.14 2005-05-20 15:46:36 blair Exp $ 
  */
 class groupmgr {
 
@@ -412,7 +412,7 @@ class groupmgr {
     }
     _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = SubjectFactory.load(subjectID, Grouper.DEF_SUBJ_TYPE);
+    subj = SubjectFactory.getSubject(subjectID, Grouper.DEF_SUBJ_TYPE);
   }
 
   /* (!javadoc)

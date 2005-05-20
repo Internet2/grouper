@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.92 2005-05-20 15:31:22 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.93 2005-05-20 15:46:36 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -305,7 +305,7 @@ public class GrouperSession implements Serializable {
     this.m = GrouperMember.load(this, this.memberID);
 
     // Restore Subject object
-    this.subject = SubjectFactory.load(m.subjectID(), m.typeID());
+    this.subject = SubjectFactory.getSubject(m.subjectID(), m.typeID());
   }
 
   // Serialize the session
