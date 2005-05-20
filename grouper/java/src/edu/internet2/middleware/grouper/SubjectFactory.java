@@ -61,7 +61,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.1 2005-05-20 15:31:22 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.2 2005-05-20 15:46:36 blair Exp $
  */
 public class SubjectFactory {
 
@@ -81,8 +81,8 @@ public class SubjectFactory {
    * @param   id      Subject ID
    * @return  A {@link SubjectFactory} object
    */
-  public static Subject load(String id) {
-    return SubjectFactory.load(id, Grouper.DEF_SUBJ_TYPE);
+  public static Subject getSubject(String id) {
+    return SubjectFactory.getSubject(id, Grouper.DEF_SUBJ_TYPE);
   }
 
   /**
@@ -92,7 +92,7 @@ public class SubjectFactory {
    * @param   typeID  Subject Type ID
    * @return  A {@link SubjectFactory} object
    */
-  public static Subject load(String id, String typeID) {
+  public static Subject getSubject(String id, String typeID) {
     Subject             subj  = null;
     SubjectType         st    = Grouper.subjectType(typeID);
     SubjectTypeAdapter  sta   = null;

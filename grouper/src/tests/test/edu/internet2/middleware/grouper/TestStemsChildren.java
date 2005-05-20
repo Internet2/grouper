@@ -79,7 +79,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS at root-level
   public void testCreateNS0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -96,7 +96,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS at root-level
   public void testFetchNS0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -120,7 +120,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS one level deep
   public void testCreateNS1() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -146,7 +146,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS one level deep
   public void testFetchNS1() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -177,7 +177,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS two levels deep
   public void testCreateNS2() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -208,7 +208,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS two levels deep
   public void testFetchNS2() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -245,7 +245,7 @@ public class TestStemsChildren extends TestCase {
 
   // NS two levels deep with groups all around
   public void testCreateNS3AndGroups() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

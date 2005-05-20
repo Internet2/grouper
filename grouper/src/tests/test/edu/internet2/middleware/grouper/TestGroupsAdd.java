@@ -79,7 +79,7 @@ public class TestGroupsAdd extends TestCase {
   
   // Confirm non-existence of group
   public void testG0DoesNotExist() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -96,7 +96,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Group at root-level
   public void testCreateG0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -129,7 +129,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Group at root-level
   public void testFetchG0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -165,7 +165,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Confirm non-existence of group
   public void testG1DoesNotExist() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -182,7 +182,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Group one level deep
   public void testCreateG1() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -219,7 +219,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Group one level deep
   public void testFetchG1() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -259,7 +259,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Confirm non-existence of group
   public void testG2DoesNotExist() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -276,7 +276,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Grouper two levels deep with missing parent stem
   public void testCreateG2WithMissingParentStem() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -303,7 +303,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Group two levels deep
   public void testCreateG2() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -344,7 +344,7 @@ public class TestGroupsAdd extends TestCase {
 
   // Group two levels deep
   public void testFetchG2() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -389,7 +389,7 @@ public class TestGroupsAdd extends TestCase {
 
   // null or blank group
   public void testCreateNullOrBlankGroup() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create g0

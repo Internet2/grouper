@@ -80,7 +80,7 @@ public class TestNamingPrivs extends TestCase {
   
 
   public void testHas0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

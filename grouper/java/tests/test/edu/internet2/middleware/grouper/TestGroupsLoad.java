@@ -78,7 +78,7 @@ public class TestGroupsLoad extends TestCase {
    */
   
   public void testLoadByStemAndExtn() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -101,7 +101,7 @@ public class TestGroupsLoad extends TestCase {
   }
 
   public void testLoadByStemAndExtnAndType() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -124,7 +124,7 @@ public class TestGroupsLoad extends TestCase {
   }
 
   public void testLoadByID() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -147,7 +147,7 @@ public class TestGroupsLoad extends TestCase {
   }
 
   public void testLoadByName() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -170,7 +170,7 @@ public class TestGroupsLoad extends TestCase {
   }
 
   public void testLoadByNameAndType() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);

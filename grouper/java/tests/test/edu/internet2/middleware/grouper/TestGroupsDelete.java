@@ -78,7 +78,7 @@ public class TestGroupsDelete extends TestCase {
   
   // Confirm non-existence of group
   public void testG0DoesNotExist() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -95,7 +95,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Group at root-level
   public void testDeleteG0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -120,7 +120,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Group at root-level
   public void testFetchG0() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -150,7 +150,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Confirm non-existence of group
   public void testG1DoesNotExist() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -167,7 +167,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Group one level deep
   public void testDeleteG1() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -196,7 +196,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Group one level deep
   public void testFetchG1() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -230,7 +230,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Confirm non-existence of group
   public void testG2DoesNotExist() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -247,7 +247,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Group two levels deep
   public void testDeleteG2() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -280,7 +280,7 @@ public class TestGroupsDelete extends TestCase {
 
   // Group two levels deep
   public void testFetchG2() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

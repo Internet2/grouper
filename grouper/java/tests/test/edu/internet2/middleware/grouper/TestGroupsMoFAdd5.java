@@ -89,7 +89,7 @@ public class TestGroupsMoFAdd5 extends TestCase {
   //        \--> gC-/
   //
   public void testMoF() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

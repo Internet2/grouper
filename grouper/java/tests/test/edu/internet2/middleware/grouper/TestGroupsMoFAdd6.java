@@ -86,7 +86,7 @@ public class TestGroupsMoFAdd6 extends TestCase {
   // m0 -> gA -> gB -> gC -> gD
   //
   public void testMoF() {
-    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
