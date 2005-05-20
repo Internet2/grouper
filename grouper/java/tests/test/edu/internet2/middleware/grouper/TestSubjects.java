@@ -81,17 +81,17 @@ public class TestSubjects extends TestCase {
   public void testSubjectInterfaceLookupFailureInvalidID() {
     String id     = "invalid id";
     String type   = Grouper.DEF_SUBJ_TYPE;
-    Subject subj  = GrouperSubject.load(id, type);
+    Subject subj  = SubjectFactory.load(id, type);
     Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupFailureInvalidType() {
-    Subject subj  = GrouperSubject.load(Constants.rootI, "bad type");
+    Subject subj  = SubjectFactory.load(Constants.rootI, "bad type");
     Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupMemberSystem() {
-    Subject subj  = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj  = SubjectFactory.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull(subj);
     Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
     Assert.assertTrue( Constants.rootI.equals( subj.getId() ) );
@@ -104,7 +104,7 @@ public class TestSubjects extends TestCase {
   public void testSubjectInterfaceLookup() {
     String id   = Constants.mem0I;
     String type = Constants.mem0T;
-    Subject subj  = GrouperSubject.load(id, type);
+    Subject subj  = SubjectFactory.load(id, type);
     Assert.assertNotNull("subj not null", subj);
     Assert.assertTrue(
                       "subj right class",  
@@ -126,7 +126,7 @@ public class TestSubjects extends TestCase {
   // begin: testLoadOneParam
 
   public void testLoadOneParam_0() {
-    Subject subj = GrouperSubject.load(Constants.rootI);
+    Subject subj = SubjectFactory.load(Constants.rootI);
     Assert.assertNotNull(subj);
     Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
     Assert.assertTrue( subj.getId().equals(Constants.rootI) );
@@ -136,7 +136,7 @@ public class TestSubjects extends TestCase {
   }
 
   public void testLoadOneParam_1() {
-    Subject subj = GrouperSubject.load(Constants.mem0I);
+    Subject subj = SubjectFactory.load(Constants.mem0I);
     Assert.assertNotNull("subj not null", subj);
     Assert.assertTrue(
                       "subj right class",  

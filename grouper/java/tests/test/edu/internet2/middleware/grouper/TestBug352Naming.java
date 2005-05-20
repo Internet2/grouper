@@ -81,9 +81,9 @@ public class TestBug352Naming extends TestCase {
    * STEM required for !root subjects to adjust attributes on stems
    */
   public void testBug352Naming() {
-    Subject subj0 = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj0 = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s0 = GrouperSession.start(subj0);
-    Subject subj1 = GrouperSubject.load(Constants.mem0I, Constants.mem0T);
+    Subject subj1 = SubjectFactory.load(Constants.mem0I, Constants.mem0T);
     GrouperSession s1 = GrouperSession.start(subj1);
 
     // Create ns0

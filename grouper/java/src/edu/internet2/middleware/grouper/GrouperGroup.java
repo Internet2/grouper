@@ -62,7 +62,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.214 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.215 2005-05-20 15:31:22 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -641,7 +641,7 @@ public class GrouperGroup extends Group {
    */
   private void grantAdminUponCreate() {
     // We need a root session
-    Subject root = GrouperSubject.load(
+    Subject root = SubjectFactory.load(
                      Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
                    );
     GrouperSession  rs  = GrouperSession.start(root);

@@ -18,7 +18,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.17 2005-05-19 16:33:20 blair Exp $
+ * @version $Id: grouperq.java,v 1.18 2005-05-20 15:31:22 blair Exp $
  */
 class grouperq {
 
@@ -365,7 +365,7 @@ class grouperq {
     }
     _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = GrouperSubject.load(subjectID, Grouper.DEF_SUBJ_TYPE);
+    subj = SubjectFactory.load(subjectID, Grouper.DEF_SUBJ_TYPE);
   }
 
   /* (!javadoc)

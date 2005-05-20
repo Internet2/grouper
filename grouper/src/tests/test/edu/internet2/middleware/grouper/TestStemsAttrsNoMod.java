@@ -79,7 +79,7 @@ public class TestStemsAttrsNoMod extends TestCase {
 
   // Try to add uneditable attributes
   public void testAddAttrs() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -117,7 +117,7 @@ public class TestStemsAttrsNoMod extends TestCase {
 
   // Try to delete uneditable attributes
   public void testDelAttrs() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

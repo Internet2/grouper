@@ -79,7 +79,7 @@ public class TestStemsDelete extends TestCase {
 
   // Confirm non-existence of stem
   public void testNS0DoesNotExist() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -98,7 +98,7 @@ public class TestStemsDelete extends TestCase {
 
   // NS at root-level
   public void testDeleteNS0() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -119,7 +119,7 @@ public class TestStemsDelete extends TestCase {
 
   // NS at root-level
   public void testFetchNS0() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -145,7 +145,7 @@ public class TestStemsDelete extends TestCase {
 
   // NS with child stem
   public void testDeleteNS0WithChildStem() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -170,7 +170,7 @@ public class TestStemsDelete extends TestCase {
 
   // NS with child group
   public void testDeleteNS0WithChildGroup() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.67 2005-04-19 19:29:18 blair Exp $
+$Id: API,v 1.68 2005-05-20 15:31:22 blair Exp $
 
 ---
 
@@ -208,22 +208,6 @@ $Id: API,v 1.67 2005-04-19 19:29:18 blair Exp $
 * String              type()
 ---
 
-## GrouperSubject
-
-* Subject             load(subjectID)
-* Subject             load(subjectID, subjectTypeID)
-
----
-
-## GrouperSubjectAttribute
-
-* String              name()
-* String              searchValue()
-* String              typeID()
-* String              value()
-
----
-
 ## GrouperTypeDef
 
 * String              field();
@@ -241,3 +225,9 @@ $Id: API,v 1.67 2005-04-19 19:29:18 blair Exp $
 
 * GrouperList         toList(session)
 
+---
+
+## SubjectFactory
+
+* Subject             load(subjectID)
+* Subject             load(subjectID, subjectTypeID)
