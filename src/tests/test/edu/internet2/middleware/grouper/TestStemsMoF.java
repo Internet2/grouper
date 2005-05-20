@@ -80,7 +80,7 @@ public class TestStemsMoF extends TestCase {
 
   // NS at root-level - all list values
   public void testMoFNS0() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -121,7 +121,7 @@ public class TestStemsMoF extends TestCase {
   }
   // NS at root-level - immediate list vals
   public void testMoFNS0Imm() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -163,7 +163,7 @@ public class TestStemsMoF extends TestCase {
 
   // NS at root-level - effective list vals
   public void testMoFNS0Eff() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

@@ -80,7 +80,7 @@ public class TestMembersIsMember extends TestCase {
   // m0 -> gA -> gB -> gC
   //
   public void testMoF() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.84 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.85 2005-05-20 15:31:22 blair Exp $
  */
 public class GrouperMember {
 
@@ -186,7 +186,7 @@ public class GrouperMember {
   {
     GrouperSession.validate(s);
     GrouperMember m     = null;
-    Subject       subj  = GrouperSubject.load(subjectID, subjectTypeID);
+    Subject       subj  = SubjectFactory.load(subjectID, subjectTypeID);
     if (subj != null) {
       m = GrouperMember.load(subj);
       if (m != null) { // TODO Bah
@@ -444,7 +444,7 @@ public class GrouperMember {
     if (key != null) {
       GrouperMember m = GrouperMember.loadByKey(s, key);
       if (m != null) {
-        subj = GrouperSubject.load(m.subjectID(), m.typeID());
+        subj = SubjectFactory.load(m.subjectID(), m.typeID());
       }
     }
     return subj;

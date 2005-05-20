@@ -81,7 +81,7 @@ public class TestBug356 extends TestCase {
   // Treat null values as null objects
   // 
   public void testBug356NullImpliesNullObject() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -116,7 +116,7 @@ public class TestBug356 extends TestCase {
   // Consider "" equivalent to null
   // 
   public void testBug356EmptyImpliesNullObject() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -151,7 +151,7 @@ public class TestBug356 extends TestCase {
   // Upgrade from a null object
   // 
   public void testBug356UpgradeFromNullObject() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -222,7 +222,7 @@ public class TestBug356 extends TestCase {
   // Downgrade to a null object
   // 
   public void testBug356DowngradeToNullObject() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

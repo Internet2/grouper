@@ -2,7 +2,7 @@
 
 A preliminary Grouper usage FAQ.
 
-$Id: FAQ,v 1.18 2005-04-15 18:04:16 blair Exp $
+$Id: FAQ,v 1.19 2005-05-20 15:31:22 blair Exp $
 
 ---
 
@@ -22,16 +22,16 @@ A: Use the `Grouper.config()` method.
 
 ### Q: How do I retrieve a a subject of type _person_?
 
-A: Use the `GrouperSubject.load()` method.
+A: Use the `SubjectFactory.load()` method.
 
-    Subject subj = GrouperSubject.load(subjID);
+    Subject subj = SubjectFactory.load(subjID);
 
 ### Q: How do I retrieve a subject of type _group_?
 
-A: Use the `GrouperSubject.load()` method.
+A: Use the `SubjectFactory.load()` method.
 
     GrouperGroup g  = GrouperGroup.load(s, stem, extn);
-    Subject subj    = GrouperSubject.load(g.id(), "group");
+    Subject subj    = SubjectFactory.load(g.id(), "group");
 
 ---
 
@@ -173,7 +173,7 @@ A: Use the `GrouperGroup.modifySubject()` method.
 
 A: Use the `GrouperMember.load()` method.
 
-    Subject       subj  = GrouperSubject.load(subjID, subjType);
+    Subject       subj  = SubjectFactory.load(subjID, subjType);
     GrouperMember m     = GrouperMember.load(subj);
 
 ## Q: How do I convert a _Subject_ id and type into a _GrouperMember_ object?

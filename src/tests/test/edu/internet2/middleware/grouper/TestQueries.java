@@ -91,7 +91,7 @@ public class TestQueries extends TestCase {
 
 
   public void testQueryInstantiate() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     GrouperQuery q = new GrouperQuery(s);
     Assert.assertNotNull(q);
@@ -103,7 +103,7 @@ public class TestQueries extends TestCase {
   // gC -> gA 
   //
   public void testQueryMemAllEffAndImm() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -170,7 +170,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryDefGroupTypeAndMemAll() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -271,7 +271,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryTypesAndMems() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
 
@@ -345,7 +345,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryCreatedBeforeNow() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create ns0
@@ -388,7 +388,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryCreatedAfterNow() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create ns0
@@ -428,7 +428,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryModifedBeforeNow() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create ns0
@@ -471,7 +471,7 @@ public class TestQueries extends TestCase {
   }
 
   public void testQueryModifiedAfterNow() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull(s);
     // Create ns0

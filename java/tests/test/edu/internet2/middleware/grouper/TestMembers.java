@@ -83,7 +83,7 @@ public class TestMembers extends TestCase {
     String id   = Constants.mem0I;
     String type = Constants.mem0T;
 
-    Subject        subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject        subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     Assert.assertNotNull("subject !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -105,7 +105,7 @@ public class TestMembers extends TestCase {
     String id   = Constants.mem0I;
     String type = Constants.mem0T;
 
-    Subject        subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject        subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     GrouperMember m     = GrouperMember.load(s, id, type);
@@ -122,7 +122,7 @@ public class TestMembers extends TestCase {
 
   // Initialize an invalid subject as a member object
   public void testCreateMemberFromInvalidSubject() {
-    Subject        subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject        subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     String        id    = "invalid id";

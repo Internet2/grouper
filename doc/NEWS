@@ -1,7 +1,15 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.47 2005-04-29 16:19:22 blair Exp $
+$Id: NEWS,v 1.48 2005-05-20 15:31:22 blair Exp $
+
+---
+
+# Version HEAD
+
+## Changes
+
+* _GrouperSubject_ class renamed to _SubjectFactory_
 
 ---
 
@@ -9,7 +17,7 @@ $Id: NEWS,v 1.47 2005-04-29 16:19:22 blair Exp $
 
 Released 20050429
 
-# Changes
+## Changes
 
 * Fixed: Effective memberships for non-"members" lists (e.g. access
   and naming privileges) were being calculated incorrectly (#350)

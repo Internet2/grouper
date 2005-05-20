@@ -83,7 +83,7 @@ public class TestAccessGrantMoF0 extends TestCase {
   // m0 -> g0
   //
   public void testMoF() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

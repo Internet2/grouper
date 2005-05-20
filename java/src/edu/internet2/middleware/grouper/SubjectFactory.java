@@ -61,9 +61,9 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.36 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.1 2005-05-20 15:31:22 blair Exp $
  */
-public class GrouperSubject {
+public class SubjectFactory {
 
   /*
    * PRIVATE CLASS VARIABLES
@@ -79,10 +79,10 @@ public class GrouperSubject {
    * Retrieve an I2MI {@link Subject} using the default subject type.
    * <p />
    * @param   id      Subject ID
-   * @return  A {@link GrouperSubject} object
+   * @return  A {@link SubjectFactory} object
    */
   public static Subject load(String id) {
-    return GrouperSubject.load(id, Grouper.DEF_SUBJ_TYPE);
+    return SubjectFactory.load(id, Grouper.DEF_SUBJ_TYPE);
   }
 
   /**
@@ -90,7 +90,7 @@ public class GrouperSubject {
    * <p />
    * @param   id      Subject ID
    * @param   typeID  Subject Type ID
-   * @return  A {@link GrouperSubject} object
+   * @return  A {@link SubjectFactory} object
    */
   public static Subject load(String id, String typeID) {
     Subject             subj  = null;

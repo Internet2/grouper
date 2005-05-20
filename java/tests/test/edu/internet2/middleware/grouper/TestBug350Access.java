@@ -84,7 +84,7 @@ public class TestBug350Access extends TestCase {
   // Make  m1 a member of g0
   //
   public void testBug350Access() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

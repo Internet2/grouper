@@ -79,7 +79,7 @@ public class TestGroupsAttrs extends TestCase {
 
   // Group at root-level
   public void testAttrsNS0() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

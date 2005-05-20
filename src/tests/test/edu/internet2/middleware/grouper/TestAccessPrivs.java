@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.37 2005-04-15 05:29:32 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.38 2005-05-20 15:31:22 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -83,7 +83,7 @@ public class TestAccessPrivs extends TestCase {
    */
   
   public void testHas0() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -119,7 +119,7 @@ public class TestAccessPrivs extends TestCase {
   }
 
   public void testHas1() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

@@ -81,7 +81,7 @@ public class TestBug349 extends TestCase {
    * Groups and Stems should not require casting
    */
   public void testBug349() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

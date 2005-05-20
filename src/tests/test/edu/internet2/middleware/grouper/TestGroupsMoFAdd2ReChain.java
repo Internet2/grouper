@@ -84,7 +84,7 @@ public class TestGroupsMoFAdd2ReChain extends TestCase {
   // Add g0 to g1
   //
   public void testMoFForward() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -209,7 +209,7 @@ public class TestGroupsMoFAdd2ReChain extends TestCase {
   // Add g0 to g1
   //
   public void testMoFReverse() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

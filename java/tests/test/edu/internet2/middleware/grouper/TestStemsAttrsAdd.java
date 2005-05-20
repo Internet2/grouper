@@ -79,7 +79,7 @@ public class TestStemsAttrsAdd extends TestCase {
 
   // Group at root-level
   public void testCreateThenAddDesc() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -132,7 +132,7 @@ public class TestStemsAttrsAdd extends TestCase {
 
   // Group at root-level
   public void testAddThenFetchDescSameSession() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -171,7 +171,7 @@ public class TestStemsAttrsAdd extends TestCase {
 
   // Group at root-level
   public void testAddThenFetchDescNewSession() {
-    Subject subj = GrouperSubject.load(Constants.rootI, Constants.rootT);
+    Subject subj = SubjectFactory.load(Constants.rootI, Constants.rootT);
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
