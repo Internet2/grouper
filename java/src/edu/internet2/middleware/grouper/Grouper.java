@@ -62,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.80 2005-05-23 13:09:20 blair Exp $
+ * @version $Id: Grouper.java,v 1.81 2005-05-23 20:41:02 blair Exp $
  */
 public class Grouper {
 
@@ -162,8 +162,6 @@ public class Grouper {
   private static List           groupTypes    = new ArrayList();  
   // Cached Grouper group typeDefs
   private static List           groupTypeDefs = new ArrayList();
-  // Cached Grouper subject types
-  private static List           subjectTypes  = new ArrayList();
   // For logging
   private static GrouperLog     log           = new GrouperLog();
 
@@ -260,58 +258,6 @@ public class Grouper {
     return groupTypes;
   }
 
-  /**
-   * Check whether an I2MI {@link Subject} type is valid.
-   * <p />
-   *
-   * @param   type  {@link Subject} type 
-   * @return  True if the type is valid.
-   */
-  public static boolean hasSubjectType(String type) {
-    boolean rv = false;
-    Grouper._init();
-    Iterator iter = Grouper.subjectTypes().iterator();
-    while (iter.hasNext()) {
-      SubjectType t = (SubjectType) iter.next();
-      if ( t.toString().equals(type) ) {
-        rv = false;
-      }
-    }
-    return rv;
-  }
-
-  /**
-   * Retrieve a I2MI {@link SubjectType}.
-   * <p />
-   *
-   * @param   type  {@link SubjectType} to return.
-   * @return  A {@link SubjectType} object.
-   */
-  public static SubjectType subjectType(String type) {
-    Grouper._init();
-    SubjectType st    = null;
-    Iterator    iter  = Grouper.subjectTypes().iterator();
-    while (iter.hasNext()) {
-      SubjectType t = (SubjectType) iter.next();
-      if ( t.getName().equals(type) ) {
-        st = t;
-        break;
-      }
-    }
-    return st;
-  }
-
-  /**
-   * Retrieve all I2MI {@link Subject} types.
-   * <p />
-   *
-   * @return List of {@link SubjectType} objects.
-   */
-  public static List subjectTypes() {
-    Grouper._init();
-    return subjectTypes;
-  }
-
 
   /*
    * PROTECTED CLASS METHODS
@@ -366,8 +312,6 @@ public class Grouper {
       groupFields   = GrouperField.all(dbSess);
       groupTypeDefs = GrouperTypeDef.all(dbSess);
       groupTypes    = GrouperType.all(dbSess);
-      // XXX What to do?
-      //subjectTypes  = SubjectTypeImpl.all(dbSess);
 
       initialized = true;
     }

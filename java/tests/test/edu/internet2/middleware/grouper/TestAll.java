@@ -66,7 +66,8 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestInstantiate.class);
     suite.addTestSuite(TestConfigAndSchema.class);
     suite.addTestSuite(TestFieldCasing.class);
-    suite.addTestSuite(TestSubjects.class);
+    //suite.addTestSuite(TestSubjects.class);
+/*
     suite.addTestSuite(TestSessions.class);
     suite.addTestSuite(TestMembers.class);
     suite.addTestSuite(TestStemsAdd.class);
@@ -140,6 +141,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestBug353Naming.class);
     suite.addTestSuite(TestBug355.class);
     suite.addTestSuite(TestBug356.class);
+*/
 
     return suite;
   }

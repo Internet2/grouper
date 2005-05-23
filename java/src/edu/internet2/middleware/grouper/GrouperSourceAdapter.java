@@ -58,137 +58,57 @@ import  java.util.*;
 
 
 /** 
- * Class for performing I2MI {@link Subject} lookups.
+ * TODO
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.4 2005-05-23 20:41:02 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.1 2005-05-23 20:41:02 blair Exp $
  */
-public class SubjectFactory {
-
-  /*
-   * PRIVATE CLASS VARIABLES
-   */
-  private static SourceManager  mgr     = null;
-  private static Set            sources = new HashSet();
-  private static Set            types   = null;  
+public class GrouperSourceAdapter 
+  extends BaseSourceAdapter
+{
 
 
   /*
-   * PUBLIC CLASS METHODS 
+   * CONSTRUCTORS
    */
 
-  /**
-   * Retrieve an I2MI {@link Subject} using the default subject type.
-   * <p />
-   * @param   id      Subject ID
-   * @return  A {@link SubjectFactory} object
-   * @throws SubjectNotFoundException
-   */
-  public static Subject getSubject(String id) 
-    throws SubjectNotFoundException 
-  {
-    return SubjectFactory.getSubject(id, Grouper.DEF_SUBJ_TYPE);
+  public GrouperSourceAdapter() {
+    super();
   }
 
-  /**
-   * Retrieve an I2MI {@link Subject}.
-   * <p />
-   * @param   id      Subject ID
-   * @param   type    Subject Type
-   * @return  A {@link SubjectFactory} object
-   * @throws SubjectNotFoundException
-   */
-  public static Subject getSubject(String id, String type) 
-    throws SubjectNotFoundException 
-  {
-  	// TODO Cache!
-    Subject subj = null;
-    SubjectFactory.init();
-    Iterator iter = sources.iterator();
-    while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
-      // FIXME Actually, I should probably gather a list.  If 
-      //       one entry found, return it.  Otherwise, throw an
-      //       exception.
-      if (sa.getSubjectTypes().contains(type)) {
-        try {
-          subj = sa.getSubject(id);
-          break;
-        } catch (SubjectNotFoundException e) {
-          /*
-            * Don't worry about not finding subjects in 
-           * particular adapters.
-           */
-          continue;
-        }
-      }
-    }
-    if (subj == null) {
-      throw new SubjectNotFoundException(
-        "Could not get " + id + "/" + type
-      );
-    }
-    return subj;
-  }
- 
-  /**
-   * @return true if subject type is known.
-   */
-  public static boolean hasType(String type) {
-    SubjectFactory.loadTypes();
-    if (types.contains(type)) {
-      return true;
-    }
-    return false;
+  public GrouperSourceAdapter(String id, String name) {
+    super(id, name);
   }
 
-  /**
-   * @return known subject types.
-   */
-  public static Set types() {
-    SubjectFactory.loadTypes();
-    return types;
-  }
- 
- 
-  /*
-   * PRIVATE CLASS METHODS
-   */
 
   /*
-   * Initialize the Subject API source manager
-   * TODO I *really* hate this method and how I use it.
+   * PUBLIC INSTANCE METHODS
    */
-  private static void init() {
-    if (mgr == null) {
-      try { 
-        mgr = new SourceManager();
-        Iterator iter = mgr.getSources().iterator();
-        while (iter.hasNext()) {
-          Source sa = (Source) iter.next();
-          sources.add(sa);
-        } 
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      } 
-    }
+
+  public void destroy() {
+    // TODO
   }
-   
-  /*
-   * Load the known subject types.
-   */ 
-  private static void loadTypes() {
-    if (types == null) {
-      types = new HashSet();
-      SubjectFactory.init();
-      Iterator iter = sources.iterator();
-      while (iter.hasNext()) {
-        Source sa = (Source) iter.next();
-        types.addAll( sa.getSubjectTypes() );
-      }
-    }
+
+  public Subject getSubject(String id) {
+    throw new RuntimeException("Not implemented");
   }
- 
+
+  public void init() {
+    // TODO
+  }
+
+  public Set search(String searchValue) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  public Set searchByIdentifier(String id) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  public Set searchByIdentifier(String id, SubjectType type) {
+    throw new RuntimeException("Not implemented");
+  }
+
 }
 
