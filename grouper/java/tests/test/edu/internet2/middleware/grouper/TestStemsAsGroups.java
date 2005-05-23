@@ -79,7 +79,13 @@ public class TestStemsAsGroups extends TestCase {
  
   // Fail to create a stem via GrouperGroup 
   public void testCreateNSViaGG() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -101,7 +107,13 @@ public class TestStemsAsGroups extends TestCase {
 
   // Fail to load a stem via GrouperGroup 
   public void testFetchNSViaGG() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -129,7 +141,13 @@ public class TestStemsAsGroups extends TestCase {
 
   // Fail to load a stem via GrouperGroup 
   public void testFetchNSViaGGByNameAndType() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);

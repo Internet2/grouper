@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  edu.internet2.middleware.subject.*;
+
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
@@ -63,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.86 2005-05-20 15:46:36 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.87 2005-05-23 13:09:20 blair Exp $
  */
 public class GrouperMember {
 
@@ -186,7 +187,13 @@ public class GrouperMember {
   {
     GrouperSession.validate(s);
     GrouperMember m     = null;
-    Subject       subj  = SubjectFactory.getSubject(subjectID, subjectTypeID);
+    Subject       subj = null;
+    try {
+      subj = SubjectFactory.getSubject(subjectID, subjectTypeID);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     if (subj != null) {
       m = GrouperMember.load(subj);
       if (m != null) { // TODO Bah
@@ -396,7 +403,7 @@ public class GrouperMember {
        * exist, create a new one.
        */ 
       m = new GrouperMember(
-                subj.getId(), subj.getSubjectType().getId()
+                subj.getId(), subj.getType().getName()
               );
       // Save the new member object
       m.save(Grouper.dbSess());
@@ -444,7 +451,12 @@ public class GrouperMember {
     if (key != null) {
       GrouperMember m = GrouperMember.loadByKey(s, key);
       if (m != null) {
-        subj = SubjectFactory.getSubject(m.subjectID(), m.typeID());
+        try {
+          subj = SubjectFactory.getSubject(m.subjectID(), m.typeID());
+        } catch (SubjectNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
     }
     return subj;
@@ -502,7 +514,7 @@ public class GrouperMember {
     try {
       Query q = dbSess.session().getNamedQuery(qry);
       q.setString(0, subj.getId());
-      q.setString(1, subj.getSubjectType().getId());
+      q.setString(1, subj.getType().getName());
       try {
         vals = q.list();
         if (vals.size() == 1) {

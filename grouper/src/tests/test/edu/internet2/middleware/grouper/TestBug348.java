@@ -81,7 +81,13 @@ public class TestBug348 extends TestCase {
    * Loaded members should have attached sessions.
    */
   public void testBug348() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -94,7 +100,13 @@ public class TestBug348 extends TestCase {
                        );
 
     // Load a subject
-    Subject subj0 = SubjectFactory.getSubject(Constants.mem0I, Constants.mem0T);
+    Subject subj0 = null;
+    try {
+      subj0 = SubjectFactory.getSubject(Constants.mem0I, Constants.mem0T);
+    } catch (SubjectNotFoundException e2) {
+      // TODO Auto-generated catch block
+      e2.printStackTrace();
+    }
     // Load subject as member
     GrouperMember m0  = GrouperMember.load(s, subj0);
     // Is m0 a member of gA?  Or rather, is an exception throw when

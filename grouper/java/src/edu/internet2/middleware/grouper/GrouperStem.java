@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  edu.internet2.middleware.subject.*;
+
 import  java.util.*;
 import  net.sf.hibernate.*;
 
@@ -62,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.43 2005-05-20 15:46:36 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.44 2005-05-23 13:09:20 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -634,9 +635,15 @@ public class GrouperStem extends Group {
    */
   private void grantStemUponCreate() {
     // We need a root session
-    Subject root = SubjectFactory.getSubject(
-                     Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                   );
+    Subject root = null;
+    try {
+      root = SubjectFactory.getSubject(
+                       Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+                     );
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession  rs  = GrouperSession.start(root);
     // Subject that is creating group
     GrouperMember   m   = GrouperMember.load(this.s.subject() );

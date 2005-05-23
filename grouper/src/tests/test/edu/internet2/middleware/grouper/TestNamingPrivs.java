@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+
 import  java.util.*;
 import  junit.framework.*;
 
@@ -80,7 +81,13 @@ public class TestNamingPrivs extends TestCase {
   
 
   public void testHas0() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

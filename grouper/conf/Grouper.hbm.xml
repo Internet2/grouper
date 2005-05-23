@@ -98,6 +98,7 @@
     </composite-id>
   </class>
 
+<!--
   <class name="SubjectImpl" table="grouper_subject">
     <id name="subjectID" type="string" unsaved-value="null" >
       <generator class="assigned"/>
@@ -115,6 +116,7 @@
     <property name="name"         type="string" not-null="true"/>
     <property name="adapterClass" type="string" not-null="true"/>
   </class>
+-->
 
   <query name="Group.by.name.and.type"><![CDATA[
     select n.groupKey from 
@@ -345,6 +347,7 @@
       listKey   = ?
   ]]></query>
 
+<!--
   <query name="SubjectImpl.by.subjectid.and.typeid"><![CDATA[
     from SubjectImpl     where
       subjectID     = ?  and
@@ -354,6 +357,7 @@
   <query name="SubjectTypeImpl.all"><![CDATA[
     from SubjectTypeImpl
   ]]></query>
+-->
 
 </hibernate-mapping>
 

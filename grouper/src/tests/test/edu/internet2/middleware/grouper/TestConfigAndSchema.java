@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.27 2005-03-29 17:32:02 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.28 2005-05-23 13:09:20 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -528,26 +528,14 @@ public class TestConfigAndSchema extends TestCase {
     SubjectType stGroup = Grouper.subjectType("group");
     Assert.assertNotNull("stGroup !null", stGroup);
     Assert.assertTrue("stGroup right class ",  Constants.KLASS_STI.equals( stGroup.getClass().getName()) );
-    Assert.assertNotNull("stGroup id !null",  stGroup.getId() );
-    Assert.assertTrue("stGroup right id",  stGroup.getId().equals( "group" ) );
     Assert.assertNotNull("stGroup name !null",  stGroup.getName() );
-    Assert.assertTrue("stGroup right name",  stGroup.getName().equals( "Group" ) );
-    SubjectTypeAdapter staGroup = stGroup.getAdapter();
-    Assert.assertNotNull("staGroup !null",  staGroup );
-    Assert.assertTrue("staGroup right class",  Constants.KLASS_STAGI.equals( staGroup.getClass().getName() ) );
-    Assert.assertNotNull("staGroup name !null", staGroup.getClass().getName() );
+    Assert.assertTrue("stGroup right name",  stGroup.getName().equals( "group" ) );
     
     SubjectType stPerson = Grouper.subjectType(Grouper.DEF_SUBJ_TYPE);
     Assert.assertNotNull("stPerson !null", stPerson);
     Assert.assertTrue("stPerson right class",  Constants.KLASS_STI.equals( stPerson.getClass().getName()) );
-    Assert.assertNotNull("stPerson id !null",  stPerson.getId() );
-    Assert.assertTrue("stPerson right id",  stPerson.getId().equals( Grouper.DEF_SUBJ_TYPE ) );
     Assert.assertNotNull("stPerson name !null", stPerson.getName() );
-    Assert.assertTrue("stPerson right name",  stPerson.getName().equals( "Person" ) );
-    SubjectTypeAdapter staPerson = stPerson.getAdapter();
-    Assert.assertNotNull("staPerson !null",  staPerson );
-    Assert.assertTrue("staPerson right class", Constants.KLASS_STAPI.equals( staPerson.getClass().getName() ) );
-    Assert.assertNotNull("staPerson name !null", staPerson.getClass().getName() );
+    Assert.assertTrue("stPerson right name",  stPerson.getName().equals( "person" ) );
   }
 
   // TODO Test boolean assertion|validity methods

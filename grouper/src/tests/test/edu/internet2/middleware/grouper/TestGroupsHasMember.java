@@ -80,7 +80,13 @@ public class TestGroupsHasMember extends TestCase {
   // m0 -> gA -> gB -> gC
   //
   public void testMoF() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

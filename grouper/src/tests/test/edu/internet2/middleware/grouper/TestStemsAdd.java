@@ -79,7 +79,13 @@ public class TestStemsAdd extends TestCase {
 
   // Confirm non-existence of stem
   public void testNS0DoesNotExist() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -96,7 +102,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS at root-level
   public void testCreateNS0() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -123,7 +135,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS at root-level
   public void testFetchNS0() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -155,7 +173,13 @@ public class TestStemsAdd extends TestCase {
 
   // Confirm non-existence of stem
   public void testNS1DoesNotExist() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -172,7 +196,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS one level deep
   public void testCreateNS1() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -204,7 +234,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS one level deep
   public void testFetchNS1() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -240,7 +276,13 @@ public class TestStemsAdd extends TestCase {
 
   // Confirm non-existence of stem
   public void testNS2DoesNotExist() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -257,7 +299,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS two levels deep with missing parent stem
   public void testCreateNS2WithMissingParentStem() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -280,7 +328,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS two levels deep
   public void testCreateNS2() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -316,7 +370,13 @@ public class TestStemsAdd extends TestCase {
 
   // NS two levels deep
   public void testFetchNS2() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -356,7 +416,13 @@ public class TestStemsAdd extends TestCase {
 
   // null or blank ns
   public void testCreateNullOrBlankNS() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

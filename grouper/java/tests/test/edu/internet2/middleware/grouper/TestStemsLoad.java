@@ -78,7 +78,13 @@ public class TestStemsLoad extends TestCase {
   
   // Load by stem & extension
   public void testLoadByStemAndExtn() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -98,7 +104,13 @@ public class TestStemsLoad extends TestCase {
 
   // Load by id
   public void testLoadByID() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
@@ -118,7 +130,13 @@ public class TestStemsLoad extends TestCase {
 
   // Load by name
   public void testLoadByName() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj !null", subj);
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);

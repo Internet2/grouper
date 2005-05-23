@@ -83,7 +83,13 @@ public class TestBug353Naming extends TestCase {
    */
   public void testBug353Naming() {
     // Create ns0
-    Subject subj0 = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj0 = null;
+    try {
+      subj0 = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s0 = GrouperSession.start(subj0);
     GrouperStem ns0  = GrouperStem.create(
                          s0, Constants.ns0s, Constants.ns0e
@@ -96,7 +102,13 @@ public class TestBug353Naming extends TestCase {
 
     
     // Create ns1 as child of ns0
-    Subject subj1 = SubjectFactory.getSubject(Constants.mem0I, Constants.mem0T);
+    Subject subj1 = null;
+    try {
+      subj1 = SubjectFactory.getSubject(Constants.mem0I, Constants.mem0T);
+    } catch (SubjectNotFoundException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     GrouperSession s1 = GrouperSession.start(subj1);
     GrouperStem ns1 = GrouperStem.create(
                          s1, Constants.ns1s, Constants.ns1e

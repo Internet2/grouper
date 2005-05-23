@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  edu.internet2.middleware.subject.*;
+
 import  java.io.*;
 import  java.lang.reflect.*;
 import  net.sf.hibernate.*;
@@ -63,7 +64,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.93 2005-05-20 15:46:36 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.94 2005-05-23 13:09:20 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -304,8 +305,13 @@ public class GrouperSession implements Serializable {
     // Restore GrouperMember object
     this.m = GrouperMember.load(this, this.memberID);
 
-    // Restore Subject object
-    this.subject = SubjectFactory.getSubject(m.subjectID(), m.typeID());
+    try {
+      // Restore Subject object
+      this.subject = SubjectFactory.getSubject(m.subjectID(), m.typeID());
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   // Serialize the session

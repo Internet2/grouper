@@ -24,5 +24,7 @@
 	<classpathentry kind="lib" path="java/lib/log4j.jar"/>
 	<classpathentry kind="lib" path="java/lib/odmg.jar"/>
 	<classpathentry kind="lib" path="java/lib/subject.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-digester.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-beanutils.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

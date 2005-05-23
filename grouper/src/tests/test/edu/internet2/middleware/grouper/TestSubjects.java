@@ -81,30 +81,54 @@ public class TestSubjects extends TestCase {
   public void testSubjectInterfaceLookupFailureInvalidID() {
     String id     = "invalid id";
     String type   = Grouper.DEF_SUBJ_TYPE;
-    Subject subj  = SubjectFactory.getSubject(id, type);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(id, type);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupFailureInvalidType() {
-    Subject subj  = SubjectFactory.getSubject(Constants.rootI, "bad type");
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, "bad type");
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupMemberSystem() {
-    Subject subj  = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull(subj);
     Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
     Assert.assertTrue( Constants.rootI.equals( subj.getId() ) );
     String name   = "Person";
-    Assert.assertNotNull( subj.getSubjectType() );
-    Assert.assertTrue( name.equals( subj.getSubjectType().getName() ) );
-    Assert.assertTrue( Constants.rootT.equals( subj.getSubjectType().getId() ) );
+    Assert.assertNotNull( subj.getType() );
+    Assert.assertTrue( name.equals( subj.getType().getName() ) );
+    Assert.assertTrue( Constants.rootT.equals( subj.getType().getName() ) );
   }
 
   public void testSubjectInterfaceLookup() {
     String id   = Constants.mem0I;
     String type = Constants.mem0T;
-    Subject subj  = SubjectFactory.getSubject(id, type);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(id, type);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj not null", subj);
     Assert.assertTrue(
                       "subj right class",  
@@ -112,44 +136,56 @@ public class TestSubjects extends TestCase {
                      );
     Assert.assertTrue("id matches",  id.equals( subj.getId() ) );
     String name   = "Person";
-    Assert.assertNotNull("subjtype not null", subj.getSubjectType() );
+    Assert.assertNotNull("subjtype not null", subj.getType() );
     Assert.assertTrue(
                       "subjtype name matches",   
-                      name.equals( subj.getSubjectType().getName() ) 
+                      name.equals( subj.getType().getName() ) 
                      );
     Assert.assertTrue(
                       "subjtype id matches",  
-                      type.equals( subj.getSubjectType().getId() ) 
+                      type.equals( subj.getType().getName() ) 
                      );
   }
 
   // begin: testLoadOneParam
 
   public void testLoadOneParam_0() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull(subj);
     Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
     Assert.assertTrue( subj.getId().equals(Constants.rootI) );
-    Assert.assertNotNull( subj.getSubjectType() );
-    Assert.assertTrue( subj.getSubjectType().getId().equals(Constants.rootT));
-    Assert.assertTrue( subj.getSubjectType().getName().equals("Person") );
+    Assert.assertNotNull( subj.getType() );
+    Assert.assertTrue( subj.getType().getName().equals(Constants.rootT));
+    Assert.assertTrue( subj.getType().getName().equals("Person") );
   }
 
   public void testLoadOneParam_1() {
-    Subject subj = SubjectFactory.getSubject(Constants.mem0I);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.mem0I);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Assert.assertNotNull("subj not null", subj);
     Assert.assertTrue(
                       "subj right class",  
                       Constants.KLASS_SI.equals( subj.getClass().getName() ) 
                      );
     Assert.assertTrue("subj id matches", subj.getId().equals(Constants.mem0I) );
-    Assert.assertNotNull("subj type not null", subj.getSubjectType() );
+    Assert.assertNotNull("subj type not null", subj.getType() );
     Assert.assertTrue(
                       "subjtype id matches",  
-                      subj.getSubjectType().getId().equals(Constants.mem0T));
+                      subj.getType().getName().equals(Constants.mem0T));
     Assert.assertTrue(
                       "subjtype name matches",
-                      subj.getSubjectType().getName().equals("Person") 
+                      subj.getType().getName().equals("Person") 
                      );
   }
 

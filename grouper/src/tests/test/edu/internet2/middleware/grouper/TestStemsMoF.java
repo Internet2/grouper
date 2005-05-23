@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+
 import  java.util.*;
 import  junit.framework.*;
 
@@ -80,7 +81,13 @@ public class TestStemsMoF extends TestCase {
 
   // NS at root-level - all list values
   public void testMoFNS0() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -121,7 +128,13 @@ public class TestStemsMoF extends TestCase {
   }
   // NS at root-level - immediate list vals
   public void testMoFNS0Imm() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -163,7 +176,13 @@ public class TestStemsMoF extends TestCase {
 
   // NS at root-level - effective list vals
   public void testMoFNS0Eff() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Grouper's subject resolver configuration
+$Id: sources.xml,v 1.1 2005-05-23 13:09:20 blair Exp $
+-->
+
+<sources>
+
+  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+    <id>sample1</id>
+    <name>Sample Source</name>
+    <type>person</type>
+    <!-- TODO Disabled for now. -->
+    <init-param>
+      <param-name>maxActive</param-name>
+      <param-value>0</param-value>
+    </init-param>
+    <init-param>
+      <param-name>maxIdle</param-name>
+      <param-value>2</param-value>
+    </init-param>
+    <init-param>
+      <param-name>maxWait</param-name>
+      <param-value>5</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>org.hsqldb.jdbcDriver</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUrl</param-name>
+      <param-value>jdbc:hsqldb:dist/run/grouper</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUser</param-name>
+      <param-value>sa</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbPwd</param-name>
+      <param-value>pwd</param-value>
+    </init-param>
+  </source>
+
+</sources>
