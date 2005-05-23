@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.68 2005-05-20 15:31:22 blair Exp $
+$Id: API,v 1.69 2005-05-23 20:41:02 blair Exp $
 
 ---
 
@@ -52,9 +52,6 @@ $Id: API,v 1.68 2005-05-20 15:31:22 blair Exp $
 * boolean             static groupType(groupType)
 * List                static groupTypeDefs()
 * List                static groupTypes()
-* boolean             static hasSubjectType(subjectTypeID)
-* SubjectType         static subjectType(subjectTypeID)
-* List                static subjectTypes()
 
 ---
 
@@ -229,5 +226,8 @@ $Id: API,v 1.68 2005-05-20 15:31:22 blair Exp $
 
 ## SubjectFactory
 
-* Subject             load(subjectID)
-* Subject             load(subjectID, subjectTypeID)
+* boolean             static hasType(type)
+* Subject             static load(subjectID)
+* Subject             static load(subjectID, subjectTypeID)
+* Set                 static types()
+

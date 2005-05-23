@@ -50,7 +50,7 @@
  */
 
 /*
- * $Id: TestConfigAndSchema.java,v 1.28 2005-05-23 13:09:20 blair Exp $
+ * $Id: TestConfigAndSchema.java,v 1.29 2005-05-23 20:41:02 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
@@ -521,21 +521,14 @@ public class TestConfigAndSchema extends TestCase {
 
   // Get cached SubjectTypes 
   public void testGetSubjectTypes() {
-    List types = Grouper.subjectTypes();
-    Assert.assertNotNull(types);
+    Set types = SubjectFactory.types();
     Assert.assertEquals("types == 2", 2, types.size());
-
-    SubjectType stGroup = Grouper.subjectType("group");
-    Assert.assertNotNull("stGroup !null", stGroup);
-    Assert.assertTrue("stGroup right class ",  Constants.KLASS_STI.equals( stGroup.getClass().getName()) );
-    Assert.assertNotNull("stGroup name !null",  stGroup.getName() );
-    Assert.assertTrue("stGroup right name",  stGroup.getName().equals( "group" ) );
-    
-    SubjectType stPerson = Grouper.subjectType(Grouper.DEF_SUBJ_TYPE);
-    Assert.assertNotNull("stPerson !null", stPerson);
-    Assert.assertTrue("stPerson right class",  Constants.KLASS_STI.equals( stPerson.getClass().getName()) );
-    Assert.assertNotNull("stPerson name !null", stPerson.getName() );
-    Assert.assertTrue("stPerson right name",  stPerson.getName().equals( "person" ) );
+    Assert.assertTrue(
+      "has type 'group'", SubjectFactory.hasType("group")
+    );
+    Assert.assertTrue(
+      "has type 'person'", SubjectFactory.hasType("person")
+    );
   }
 
   // TODO Test boolean assertion|validity methods
