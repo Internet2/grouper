@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 
@@ -61,14 +62,15 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.2 2005-05-20 15:46:36 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.3 2005-05-23 13:09:20 blair Exp $
  */
 public class SubjectFactory {
 
   /*
    * PRIVATE CLASS VARIABLES
    */
-  private static Map adapters = new HashMap();
+  private static SourceManager mgr     = null;
+  private static Set           sources = new HashSet();
 
 
   /*
@@ -80,8 +82,11 @@ public class SubjectFactory {
    * <p />
    * @param   id      Subject ID
    * @return  A {@link SubjectFactory} object
+   * @throws SubjectNotFoundException
    */
-  public static Subject getSubject(String id) {
+  public static Subject getSubject(String id) 
+    throws SubjectNotFoundException 
+  {
     return SubjectFactory.getSubject(id, Grouper.DEF_SUBJ_TYPE);
   }
 
@@ -89,34 +94,59 @@ public class SubjectFactory {
    * Retrieve an I2MI {@link Subject}.
    * <p />
    * @param   id      Subject ID
-   * @param   typeID  Subject Type ID
+   * @param   type    Subject Type
    * @return  A {@link SubjectFactory} object
+   * @throws SubjectNotFoundException
    */
-  public static Subject getSubject(String id, String typeID) {
-    Subject             subj  = null;
-    SubjectType         st    = Grouper.subjectType(typeID);
-    SubjectTypeAdapter  sta   = null;
-    if (st != null) {
-      // Attempt to use a cached adapter
-      if (adapters.containsKey(st)) {
-        sta = (SubjectTypeAdapter) adapters.get(st);
-      } 
-      // Otherwise try to grab a new instance
-      if (sta == null) {
-        sta = st.getAdapter();
-        adapters.put(st, sta);
-      }
-      // And then if we have an adapter, use it
-      if (sta != null) {
+  public static Subject getSubject(String id, String type) throws SubjectNotFoundException {
+  	// TODO Cache!
+    Subject subj = null;
+    SubjectFactory._init();
+    Iterator iter = sources.iterator();
+    while (iter.hasNext()) {
+      Source sa = (Source) iter.next();
+      // FIXME Actually, I should probably gather a list.  If 
+      //       one entry found, return it.  Otherwise, throw an
+      //       exception.
+      if (sa.getSubjectTypes().contains(type)) {
         try {
-          subj = sta.getSubject(st, id);
+          subj = sa.getSubject(id);
+          break;
         } catch (SubjectNotFoundException e) {
-          throw new RuntimeException("No adapter for type " + typeID);
+          /*
+            * Don't worry about not finding subjects in 
+           * particular adapters.
+           */
+          continue;
         }
       }
     }
+    if (subj == null) {
+      throw new SubjectNotFoundException(
+        "Could not get " + id + "/" + type
+      );
+    }
     return subj;
   }
+    
+    /*
+     * PRIVATE CLASS METHODS
+     */
 
+  private static void _init() {
+    if (mgr == null) {
+    	  try { 
+        mgr = new SourceManager();
+        Iterator iter = mgr.getSources().iterator();
+        while (iter.hasNext()) {
+          Source sa = (Source) iter.next();
+          sources.add(sa);
+        } 
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } 
+    }
+  }
+    
 }
 

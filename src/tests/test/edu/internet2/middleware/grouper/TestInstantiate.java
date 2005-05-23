@@ -181,33 +181,5 @@ public class TestInstantiate extends TestCase {
                      );
   }
 
-  // Instantiate a SubjectImpl instance 
-  public void testGrouperSubjectImplInstantiate() {
-    SubjectImpl obj = new SubjectImpl();
-    Assert.assertNotNull(obj);
-    Assert.assertTrue( Constants.KLASS_SI.equals( obj.getClass().getName() ) );
-  }
-
-  // Instantiate a SubjectTypeAdapterGroupImpl instance 
-  public void testSubjectTypeAdapterGroupImplInstantiate() {
-    SubjectTypeAdapterGroupImpl obj = new SubjectTypeAdapterGroupImpl();
-    Assert.assertNotNull(obj);
-    Assert.assertTrue( Constants.KLASS_STAGI.equals( obj.getClass().getName() ) );
-  }
-
-  // Instantiate a SubjectTypeAdapterPersonImpl instance 
-  public void testSubjectTypeAdapterPersonImplInstantiate() {
-    SubjectTypeAdapterPersonImpl obj = new SubjectTypeAdapterPersonImpl();
-    Assert.assertNotNull(obj);
-    Assert.assertTrue( Constants.KLASS_STAPI.equals( obj.getClass().getName() ) );
-  }
-
-  // Instantiate a SubjectTypeImpl instance 
-  public void testSubjectTypeImplInstantiate() {
-    SubjectTypeImpl obj = new SubjectTypeImpl();
-    Assert.assertNotNull(obj);
-    Assert.assertTrue( Constants.KLASS_STI.equals( obj.getClass().getName() ) );
-  }
-
 }
 

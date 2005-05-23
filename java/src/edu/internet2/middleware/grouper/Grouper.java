@@ -62,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.79 2005-05-17 19:17:37 blair Exp $
+ * @version $Id: Grouper.java,v 1.80 2005-05-23 13:09:20 blair Exp $
  */
 public class Grouper {
 
@@ -293,7 +293,7 @@ public class Grouper {
     Iterator    iter  = Grouper.subjectTypes().iterator();
     while (iter.hasNext()) {
       SubjectType t = (SubjectType) iter.next();
-      if ( t.getId().equals(type) ) {
+      if ( t.getName().equals(type) ) {
         st = t;
         break;
       }
@@ -366,7 +366,8 @@ public class Grouper {
       groupFields   = GrouperField.all(dbSess);
       groupTypeDefs = GrouperTypeDef.all(dbSess);
       groupTypes    = GrouperType.all(dbSess);
-      subjectTypes  = SubjectTypeImpl.all(dbSess);
+      // XXX What to do?
+      //subjectTypes  = SubjectTypeImpl.all(dbSess);
 
       initialized = true;
     }

@@ -8,6 +8,7 @@
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+
 import  org.apache.commons.cli.*;
 
 
@@ -18,7 +19,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.14 2005-05-20 15:46:36 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.15 2005-05-23 13:09:20 blair Exp $ 
  */
 class groupmgr {
 
@@ -167,7 +168,7 @@ class groupmgr {
     _verbose(
              "Started session as "           + 
              subj.getId() + ":"              +
-             subj.getSubjectType().getId()
+             subj.getType().getName()
             );
     mem = GrouperMember.load(s, subj);
     _verbose("Loaded member " + mem.subjectID() + ":" + mem.typeID());
@@ -412,7 +413,12 @@ class groupmgr {
     }
     _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = SubjectFactory.getSubject(subjectID, Grouper.DEF_SUBJ_TYPE);
+    try {
+      subj = SubjectFactory.getSubject(subjectID, Grouper.DEF_SUBJ_TYPE);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   /* (!javadoc)

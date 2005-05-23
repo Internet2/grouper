@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.12 2005-04-25 17:59:28 blair Exp $
+$Id: LAYOUT,v 1.13 2005-05-23 13:09:20 blair Exp $
 
 ---
 
@@ -51,6 +51,10 @@ Grouper configuration file.
 ### conf/log4j.properties
 
 Logging configuration file.
+
+### conf/sources.xml
+
+Subject API resolver configuration file.
 
 ---
 

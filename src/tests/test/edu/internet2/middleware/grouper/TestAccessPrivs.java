@@ -50,13 +50,14 @@
  */
 
 /*
- * $Id: TestAccessPrivs.java,v 1.39 2005-05-20 15:46:36 blair Exp $
+ * $Id: TestAccessPrivs.java,v 1.40 2005-05-23 13:09:20 blair Exp $
  */
 
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+
 import  java.util.*;
 import  junit.framework.*;
 
@@ -83,7 +84,13 @@ public class TestAccessPrivs extends TestCase {
    */
   
   public void testHas0() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0
@@ -119,7 +126,13 @@ public class TestAccessPrivs extends TestCase {
   }
 
   public void testHas1() {
-    Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    Subject subj = null;
+    try {
+      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     GrouperSession s = GrouperSession.start(subj);
 
     // Create ns0

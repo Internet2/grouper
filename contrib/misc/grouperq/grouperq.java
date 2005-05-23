@@ -8,6 +8,7 @@
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+
 import  java.util.*;
 import  org.apache.commons.cli.*;
 
@@ -18,7 +19,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.19 2005-05-20 15:46:36 blair Exp $
+ * @version $Id: grouperq.java,v 1.20 2005-05-23 13:09:20 blair Exp $
  */
 class grouperq {
 
@@ -103,7 +104,7 @@ class grouperq {
     _verbose(
              "Started session as "           + 
              subj.getId() + ":"              +
-             subj.getSubjectType().getId()
+             subj.getType().getName()
             );
     mem = GrouperMember.load(s, subj);
     _verbose("Loaded member " + mem.subjectID() + ":" + mem.typeID());
@@ -302,7 +303,7 @@ class grouperq {
         System.out.println("createSubjectID: " + createSubj.getId());
         System.out.println(
           "createSubjectTypeID: " + 
-          createSubj.getSubjectType().getId()
+          createSubj.getType().getName()
         );
         System.out.println(
           "createTime: " + Long.toString(createDate.getTime())
@@ -315,7 +316,7 @@ class grouperq {
         System.out.println("modifySubjectID: " + modifySubj.getId());
         System.out.println(
           "modifySubjectTypeID: " + 
-          modifySubj.getSubjectType().getId()
+          modifySubj.getType().getName()
         );
         System.out.println(
           "modifyTime: " + Long.toString(modifyDate.getTime())
@@ -365,7 +366,12 @@ class grouperq {
     }
     _verbose("Using default subjectTypeID (" + Grouper.DEF_SUBJ_TYPE + ")");
     _verbose("Looking up subjectID '" + subjectID + "'");
-    subj = SubjectFactory.getSubject(subjectID, Grouper.DEF_SUBJ_TYPE);
+    try {
+      subj = SubjectFactory.getSubject(subjectID, Grouper.DEF_SUBJ_TYPE);
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   /* (!javadoc)

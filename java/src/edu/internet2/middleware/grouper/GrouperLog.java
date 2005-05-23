@@ -53,6 +53,7 @@ package edu.internet2.middleware.grouper;
 
 
 import  edu.internet2.middleware.subject.*;
+
 import  org.apache.log4j.*;
 
 
@@ -64,7 +65,7 @@ import  org.apache.log4j.*;
  * will be implemented in a later release.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.16 2005-05-20 15:46:36 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.17 2005-05-23 13:09:20 blair Exp $
  */
 public class GrouperLog {
 
@@ -100,9 +101,15 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.getSubject(
-                              m.subjectID(), m.typeID()
-                            );
+    Subject tgt = null;
+    try {
+      tgt = SubjectFactory.getSubject(
+                                m.subjectID(), m.typeID()
+                              );
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + priv + "' to memberID='" + m.memberID() + 
                   "' subjectID='" + tgt.getId() + "' on '" +
@@ -120,9 +127,15 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.getSubject(
-                              m.subjectID(), m.typeID()
-                            );
+    Subject tgt = null;
+    try {
+      tgt = SubjectFactory.getSubject(
+                                m.subjectID(), m.typeID()
+                              );
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + priv + "' to memberID='" + m.memberID() + 
                   "' subjectID='" + tgt.getId() + "' on '" +
@@ -278,7 +291,7 @@ public class GrouperLog {
     } else {
       LOG_EVT.info(
         "Failed to add subjectID='" + subj.getId() + "' (" +
-        subj.getSubjectType().getId() + ")" + post
+        subj.getType().getName() + ")" + post
       );
     }
   }
@@ -294,9 +307,15 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.getSubject(
-                              m.subjectID(), m.typeID()
-                            );
+    Subject tgt = null;
+    try {
+      tgt = SubjectFactory.getSubject(
+                                m.subjectID(), m.typeID()
+                              );
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + priv + "' from memberID='" + m.memberID() + 
                   "' subjectID='" + tgt.getId() + "' on '" +
@@ -312,9 +331,15 @@ public class GrouperLog {
                    GrouperMember m, String priv
                  ) 
   {
-    Subject tgt  = SubjectFactory.getSubject(
-                              m.subjectID(), m.typeID()
-                            );
+    Subject tgt = null;
+    try {
+      tgt = SubjectFactory.getSubject(
+                                m.subjectID(), m.typeID()
+                              );
+    } catch (SubjectNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     String pre  = "'" + s.subject().getId() + "' ";
     String post = " '" + priv + "' from memberID='" + m.memberID() + 
                   "' subjectID='" + tgt.getId() + "' on '" +
