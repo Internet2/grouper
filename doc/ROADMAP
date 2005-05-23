@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.11 2005-04-15 00:11:40 blair Exp $
+$Id: ROADMAP,v 1.12 2005-05-23 14:24:13 blair Exp $
 
 ---
 
@@ -11,27 +11,29 @@ $Id: ROADMAP,v 1.11 2005-04-15 00:11:40 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
+* Improved Subject interface (#342)
 * Support for displayName and displayExtension (#270) 
 * Search by the name, extension, or displayName attributes of 
   groups [S&B#1] (#336)
 * Search by the name, extension, or displayName attributes of 
   namespaces [S&B#2] (#337)
-* Implement READ privilege (#338)
-* Implement VIEW privilege (#339)
 * Search by the name, extension, or displayName attributes of groups
   scoped to within a namespace subordinate to a given stem [S&B#7] (#340)
 * Search by the name, extension, or displayName attributes of
   namespaces scoped to within a namespaces subordinate to a given
   stem [S&B#8] (#341)
-* Improved Subject interface (#342)
-* has() (#334)
-* Improved schema validation (#267)
-* Delete groups that either have members or are members of other groups (#345)
+* Implement READ privilege (#338)
+* Implement VIEW privilege (#339)
+* Implement OPTIN privilege (#343)
+* Implement OPTOUT privilege (#344)
 
 ---
 
 # Grouper 0.6.x
 
+* has() (#334)
+* Improved schema validation (#267)
+* Delete groups that either have members or are members of other groups (#345)
 * Improved group type support (multiple types, type addition|removal,
   custom types) (#269, #271, #272)
 * Improved search and browse capabilities
@@ -55,8 +57,6 @@ $Id: ROADMAP,v 1.11 2005-04-15 00:11:40 blair Exp $
 * Ability to remove members from grouper_member table
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) (???)
-* Implement OPTIN privilege (#343)
-* Implement OPTOUT privilege (#344)
 * Improved Java Beans compliance
 
 ---
