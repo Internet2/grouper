@@ -83,20 +83,6 @@ CREATE TABLE grouper_session (
 );
 
 
-CREATE TABLE grouper_subject (
-  subjectID     VARCHAR2(64) NOT NULL PRIMARY KEY,
-  subjectTypeID VARCHAR2(64) NOT NULL,
-  CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
-);
-
-
-CREATE TABLE grouper_subjectType (
-  subjectTypeID VARCHAR2(64) NOT NULL PRIMARY KEY,
-  name          VARCHAR2(64) NOT NULL,
-  adapterClass  VARCHAR2(128) NOT NULL
-);
-
-
 CREATE TABLE grouper_typeDef (
   groupType   VARCHAR2(64) NOT NULL,
   groupField  VARCHAR2(64) NOT NULL,
@@ -106,6 +92,25 @@ CREATE TABLE grouper_typeDef (
 
 CREATE TABLE grouper_type (
   groupType   VARCHAR2(64) NOT NULL PRIMARY KEY
+);
+
+
+CREATE TABLE Subject (
+  subjectID     VARCHAR2(64) NOT NULL PRIMARY KEY,
+  subjectTypeID VARCHAR2(32) NOT NULL,
+  name          VARCHAR2(128),
+  description   VARCHAR2(255),
+  CONSTRAINT    uniq_sub_sid_stid UNIQUE (subjectID, subjectTypeID)
+);
+
+
+CREATE TABLE SubjectAttribute (
+  subjectID   VARCHAR2(64) NOT NULL,
+  name        VARCHAR2(32) NOT NULL,
+  value       VARCHAR2(255) NOT NULL,
+  searchValue VARCHAR2(255) NOT NULL,
+  PRIMARY KEY (subjectID, name, value),
+  FOREIGN KEY (subjectID) REFERENCES Subject (subjectID)
 );
 
 COMMIT;

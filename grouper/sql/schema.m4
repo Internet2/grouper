@@ -92,20 +92,6 @@ CREATE TABLE grouper_session (
   startTime  _TYPE_TIME()
 );
 
-_DROP_TABLE(`grouper_subject')
-CREATE TABLE grouper_subject (
-  subjectID     _TYPE_STRING() NOT NULL PRIMARY KEY,
-  subjectTypeID _TYPE_STRING() NOT NULL,
-  CONSTRAINT    uniq_gsub_sid_stid UNIQUE (subjectID, subjectTypeID)
-);
-
-_DROP_TABLE(`grouper_subjectType')
-CREATE TABLE grouper_subjectType (
-  subjectTypeID _TYPE_STRING() NOT NULL PRIMARY KEY,
-  name          _TYPE_STRING() NOT NULL,
-  adapterClass  _TYPE_STRING_VAR(`128') NOT NULL
-);
-
 _DROP_TABLE(`grouper_typeDef')
 CREATE TABLE grouper_typeDef (
   groupType   _TYPE_STRING() NOT NULL,
@@ -116,6 +102,25 @@ CREATE TABLE grouper_typeDef (
 _DROP_TABLE(`grouper_type')
 CREATE TABLE grouper_type (
   groupType   _TYPE_STRING() NOT NULL PRIMARY KEY
+);
+
+_DROP_TABLE(`Subject')
+CREATE TABLE Subject (
+  subjectID     _TYPE_STRING() NOT NULL PRIMARY KEY,
+  subjectTypeID _TYPE_STRING_VAR(32) NOT NULL,
+  name          _TYPE_STRING_VAR(128),
+  description   _TYPE_STRING_VAR(255),
+  CONSTRAINT    uniq_sub_sid_stid UNIQUE (subjectID, subjectTypeID)
+);
+
+_DROP_TABLE(`SubjectAttribute')
+CREATE TABLE SubjectAttribute (
+  subjectID   _TYPE_STRING() NOT NULL,
+  name        _TYPE_STRING_VAR(32) NOT NULL,
+  value       _TYPE_STRING_VAR(255) NOT NULL,
+  searchValue _TYPE_STRING_VAR(255) NOT NULL,
+  PRIMARY KEY (subjectID, name, value),
+  FOREIGN KEY (subjectID) REFERENCES Subject (subjectID)
 );
 
 COMMIT;
