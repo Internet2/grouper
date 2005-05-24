@@ -24,8 +24,6 @@ import org.apache.commons.collections.set.UnmodifiableSet;
 
 import javax.xml.stream.*;
 
-import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeAdapter;
@@ -41,13 +39,17 @@ public class TreeXMLLoader
   private static SessionFactory sessionFactory;
   private        Session        session;
   private        Connection     conn;
+  
+  private        int            treesAdded = 0;
+  private        int            treeNodesAdded = 0;
+  private        int            treeNodeRelationshipsAdded = 0;
 
-  private String[] deletionStatements
+  private String[] deletionTableNames
     = new String[]
         {
-          "delete from TreeNodeRelationship",
-          "delete from TreeNode",
-          "delete from Tree"
+          "TreeNodeRelationship",
+          "TreeNode",
+          "Tree"
         };
   
   private String insertTreeSQL
@@ -167,6 +169,7 @@ public class TreeXMLLoader
       newTreeNodeRelationship(newNode, parent);
     }
     
+    this.treeNodesAdded++;
     return newNode;
   }
   
@@ -199,6 +202,8 @@ public class TreeXMLLoader
     pStmt.executeUpdate();
 
     parent.addChild(child);
+    
+    this.treeNodeRelationshipsAdded++;
   }
 
   
@@ -215,9 +220,9 @@ public class TreeXMLLoader
     try
     {
       //conn.setAutoCommit(true);
-      for (int i = 0; i < this.deletionStatements.length; i++)
+      for (int i = 0; i < this.deletionTableNames.length; i++)
       {
-        execute(conn, this.deletionStatements[i], "deleted");
+        executeDeletion(conn, this.deletionTableNames[i]);
       }
     }
     catch (SQLException ex)
@@ -238,12 +243,16 @@ public class TreeXMLLoader
   }
   
   
-  private void execute(Connection conn, String sql, String verb)
+  private void executeDeletion(Connection conn, String tableName)
   throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(sql);
+    PreparedStatement ps = conn.prepareStatement("delete from " + tableName);
     int rows = ps.executeUpdate();
-    System.out.println("Number of rows " + verb + ": " + rows);
+    System.out.println
+      (rows
+       + (rows == 1 ? " row " : " rows ")
+       + "deleted from table "
+       + tableName);
   }
 
   /**
@@ -274,6 +283,7 @@ public class TreeXMLLoader
     
     Tree tree = new TreeImpl(id, name, adapterClassName);
 
+    this.treesAdded++;
     return tree;
   }
   
@@ -470,7 +480,11 @@ public class TreeXMLLoader
     XMLStreamException,
     SQLException
   {
+    Tree newTree = null;
+    
     removeTrees();
+    
+    System.out.println("Inserting new Tree...");
     
     System.setProperty
       ("javax.xml.stream.XMLInputFactory",
@@ -478,6 +492,9 @@ public class TreeXMLLoader
     XMLInputFactory factory = XMLInputFactory.newInstance();
     ((com.ctc.wstx.stax.WstxInputFactory)factory).configureForMaxConvenience();
     XMLStreamReader parser = factory.createXMLStreamReader(in);
+    
+    //  Get current time
+    long start = System.currentTimeMillis();
       
     while (true)
     {
@@ -492,7 +509,7 @@ public class TreeXMLLoader
       {
         if (parser.getLocalName().equals(ELEMENTNAME_SIGNETTREE))
         {
-          processSignetTree(parser, loader);
+          newTree = processSignetTree(parser, loader);
         }
         else
         {
@@ -502,6 +519,23 @@ public class TreeXMLLoader
         }
       }
     }
+    
+    //  Get elapsed time in milliseconds
+    long elapsedTimeMillis = System.currentTimeMillis()-start;
+    
+    // Get elapsed time in seconds
+    float elapsedTimeSec = elapsedTimeMillis/1000F;
+    float nodesPerSecond
+      = ((float)this.treeNodesAdded)/elapsedTimeSec;
+    
+    System.out.println
+      ("Loaded "
+       + this.treeNodesAdded
+       + " TreeNodes in "
+       + elapsedTimeSec
+       + " seconds ("
+       + nodesPerSecond
+       + " nodes per second).");
   }
   
   private Tree processSignetTree
