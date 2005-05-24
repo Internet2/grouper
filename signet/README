@@ -22,15 +22,22 @@ Quick Start
 (1) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server to create the Signet database.
 (2) Create a "signet" web application context in your servlet container.
 (3) Point the web application context to the webapp/signet directory in this distribution.
-(4) Copy your JDBC driver to the webapp/signet/WEB-INF/lib directory.
+(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib and util/lib.
 (5) Configure your database connection in two places: webapp/signet/WEB-INF/classes/hibernate.cfg.xml and util/classes/hibernate.cfg.xml. Uncomment or add a database section and set the connection parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
-(6) Set your preferred hibernate logging level in webapp/signet/WEB-INF/classes/log4j.properties and util/classes/log4j.properties.
+(6) Set your preferred hibernate logging level in two places: webapp/signet/WEB-INF/classes/log4j.properties and util/classes/log4j.properties.
 (7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/footer.jsp to point to your preferred email address.
 (8) Note: if you are using Tomcat for authenticating users, you will need to add them to your conf/tomcat-users.xml file.  These users will need to be the same as the subject IDs of users identified as Subjects within Signet.
 
 To populate the Signet demo application with sample data:
+        
+  (1) Load the sample organization-tree data:
+    (a) Update the sample shell script util/treeloader/run.sh to point
+        JAVA_HOME to the location of your JDK.
+    (b) Use the TreeXMLLoader to create the demo sample organization-tree
+        by executing the util/treeloader/run.sh script with the sample
+        demo/Tree.xml file, e.g., > run.sh ../../demo/data/Tree.xml
 
-  (1) Load the sample Subsystem data:
+  (2) Load the sample Subsystem data:
     (a) Update the sample shell script util/subsystemloader/run.sh to point
         JAVA_HOME to the location of your JDK.
     (b) Use the SubsystemXmlLoader to create the demo sample Subsystem by
@@ -38,21 +45,14 @@ To populate the Signet demo application with sample data:
         demo/data/Subsystem.xml file, e.g.,
         > run.sh ../../demo/data/Subsystem.xml
 
-  (2) Load the sample Subject data:
+  (3) Load the sample Subject data:
     (a) Update the sample shell script util/subjectloader/run.sh to point
         JAVA_HOME to the location of your JDK.
     (b) Modify the demo/data/Subject.txt file with any additional local Subject
         identities for your site.
     (c) Use the PersonFileLoader to to load that sample person data by executing
         the util/personloader/run.sh script with the sample demo/Subject.txt
-        file, e.g., > run.sh ../../demo/data/Subject.txt
-        
-  (3) Load the sample organization-tree data:
-    (a) Update the sample shell script util/treeloader/run.sh to point
-        JAVA_HOME to the location of your JDK.
-    (b) Use the TreeXMLLoader to create the demo sample organization-tree
-        by executing the util/treeloader/run.sh script with the sample
-        demo/Tree.xml file, e.g., > run.sh ../../demo/data/Tree.xml
+        file, e.g., > run.sh ../../demo/data/subject.txt
 
   (4) Add login-names to your web server's authentication mechanism, with any
       passwords you like. Login names must correspond to the principal

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -----------------------------------------------------------------------------
-# Script for command line util to load Tree XML
+# Script for command line util to load Subject definitions
 #
 # Environment Variable Prequisites
 #
@@ -24,4 +24,4 @@ done
 
 echo "Using classpath: "$CLASSPATH
 
-$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.TreeXMLLoader $1
+$JAVA_HOME/bin/java -cp $CLASSPATH edu.internet2.middleware.signet.util.SubjectFileLoader $1

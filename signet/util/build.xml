@@ -34,6 +34,7 @@
 		</copy>
 		
 		<ant dir="loader/subsystem" target="build" inheritAll="false" />
+		<ant dir="loader/subject" target="build" inheritAll="false" />
 		<ant dir="loader/tree" target="build" inheritAll="false" />
 	</target>
 
