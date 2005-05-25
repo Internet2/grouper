@@ -1,5 +1,5 @@
 -- 
--- $Id: init.sql,v 1.11 2005-05-24 19:20:59 blair Exp $
+-- $Id: init.sql,v 1.12 2005-05-25 19:08:40 blair Exp $
 -- 
 
 -- Base Grouper group type
@@ -81,8 +81,8 @@ INSERT INTO grouper_typeDef (groupType, groupField)
 INSERT INTO grouper_typeDef (groupType, groupField) 
   VALUES ('naming', 'stemmers');
 
-INSERT INTO Subject (subjectID, subjectTypeID, name)
-  VALUES ('GrouperSystem', 'person', 'Grouper Root');
+INSERT INTO Subject (subjectID, subjectTypeID, name, description)
+  VALUES ('GrouperSystem', 'person', 'Grouper Root', 'Grouper Root User');
 
 COMMIT;
 

@@ -56,9 +56,9 @@ import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
 
-public class TestSubjects extends TestCase {
+public class TestSubjectsPerson extends TestCase {
 
-  public TestSubjects(String name) {
+  public TestSubjectsPerson(String name) {
     super(name);
   }
 
@@ -79,117 +79,85 @@ public class TestSubjects extends TestCase {
   
 
   public void testSubjectInterfaceLookupFailureInvalidID() {
-    String id     = "invalid id";
-    String type   = Grouper.DEF_SUBJ_TYPE;
-    Subject subj = null;
+    String id   = "invalid id";
+    String type = Grouper.DEF_SUBJ_TYPE;
     try {
-      subj = SubjectFactory.getSubject(id, type);
+      Subject subj = SubjectFactory.getSubject(id, type);
+      Assert.fail("invalid subject retrieved");
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Assert.assertTrue("could not load invalid subject", true);
     }
-    Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupFailureInvalidType() {
-    Subject subj = null;
     try {
-      subj = SubjectFactory.getSubject(Constants.rootI, "bad type");
+      Subject subj = SubjectFactory.getSubject(Constants.rootI, "bad type");
+      Assert.fail("invalid subject type retrieved");
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Assert.assertTrue("could not load invalid subject type", true);
     }
-    Assert.assertNull(subj);
   }
 
   public void testSubjectInterfaceLookupMemberSystem() {
-    Subject subj = null;
     try {
-      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+      Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+      Assert.assertTrue("loaded subject", true);
+      Assert.assertNotNull(subj);
+      Assert.assertTrue("id", subj.getId().equals(Constants.rootI));
+      Assert.assertTrue("type", subj.getType().getName().equals(Constants.rootT));
+      Assert.assertTrue("name", subj.getName().equals("Grouper Root"));
+      // TODO Assert.assertTrue("description", subj.getDescription().equals(""));
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Assert.fail("unable to load subject");
     }
-    Assert.assertNotNull(subj);
-    Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( Constants.rootI.equals( subj.getId() ) );
-    String name   = "Person";
-    Assert.assertNotNull( subj.getType() );
-    Assert.assertTrue( name.equals( subj.getType().getName() ) );
-    Assert.assertTrue( Constants.rootT.equals( subj.getType().getName() ) );
+  }
+
+  public void testSubjectInterfaceLookupMemberSystemOneParam() {
+    try {
+      Subject subj = SubjectFactory.getSubject(Constants.rootI);
+      Assert.assertTrue("loaded subject", true);
+      Assert.assertNotNull(subj);
+      Assert.assertTrue("id", subj.getId().equals(Constants.rootI));
+      Assert.assertTrue("type", subj.getType().getName().equals(Constants.rootT));
+      Assert.assertTrue("name", subj.getName().equals("Grouper Root"));
+      // TODO Assert.assertTrue("description", subj.getDescription().equals(""));
+    } catch (SubjectNotFoundException e) {
+      Assert.fail("unable to load subject");
+    }
   }
 
   public void testSubjectInterfaceLookup() {
     String id   = Constants.mem0I;
     String type = Constants.mem0T;
-    Subject subj = null;
     try {
-      subj = SubjectFactory.getSubject(id, type);
+      Subject subj = SubjectFactory.getSubject(id, type);
+      Assert.assertTrue("loaded subject", true);
+      Assert.assertNotNull(subj);
+      Assert.assertTrue("id", subj.getId().equals(id));
+      Assert.assertTrue("type", subj.getType().getName().equals(type));
+      // TODO Assert.assertTrue("name", subj.getName().equals(???));
+      // TODO Assert.assertTrue("description", subj.getDescription().equals(""));
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Assert.fail("unable to load subject");
     }
-    Assert.assertNotNull("subj not null", subj);
-    Assert.assertTrue(
-                      "subj right class",  
-                      Constants.KLASS_SI.equals( subj.getClass().getName() ) 
-                     );
-    Assert.assertTrue("id matches",  id.equals( subj.getId() ) );
-    String name   = "Person";
-    Assert.assertNotNull("subjtype not null", subj.getType() );
-    Assert.assertTrue(
-                      "subjtype name matches",   
-                      name.equals( subj.getType().getName() ) 
-                     );
-    Assert.assertTrue(
-                      "subjtype id matches",  
-                      type.equals( subj.getType().getName() ) 
-                     );
   }
 
-  // begin: testLoadOneParam
-
-  public void testLoadOneParam_0() {
-    Subject subj = null;
+  public void testSubjectInterfaceLookupOneParam() {
+    String id   = Constants.mem0I;
+    String type = Constants.mem0T;
     try {
-      subj = SubjectFactory.getSubject(Constants.rootI);
+      Subject subj = SubjectFactory.getSubject(id);
+      Assert.assertTrue("loaded subject", true);
+      Assert.assertNotNull(subj);
+      Assert.assertTrue("id", subj.getId().equals(id));
+      Assert.assertTrue("type", subj.getType().getName().equals(type));
+      // TODO Assert.assertTrue("name", subj.getName().equals(???));
+      // TODO Assert.assertTrue("description", subj.getDescription().equals(""));
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Assert.fail("unable to load subject");
     }
-    Assert.assertNotNull(subj);
-    Assert.assertTrue( Constants.KLASS_SI.equals( subj.getClass().getName() ) );
-    Assert.assertTrue( subj.getId().equals(Constants.rootI) );
-    Assert.assertNotNull( subj.getType() );
-    Assert.assertTrue( subj.getType().getName().equals(Constants.rootT));
-    Assert.assertTrue( subj.getType().getName().equals("Person") );
   }
 
-  public void testLoadOneParam_1() {
-    Subject subj = null;
-    try {
-      subj = SubjectFactory.getSubject(Constants.mem0I);
-    } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    Assert.assertNotNull("subj not null", subj);
-    Assert.assertTrue(
-                      "subj right class",  
-                      Constants.KLASS_SI.equals( subj.getClass().getName() ) 
-                     );
-    Assert.assertTrue("subj id matches", subj.getId().equals(Constants.mem0I) );
-    Assert.assertNotNull("subj type not null", subj.getType() );
-    Assert.assertTrue(
-                      "subjtype id matches",  
-                      subj.getType().getName().equals(Constants.mem0T));
-    Assert.assertTrue(
-                      "subjtype name matches",
-                      subj.getType().getName().equals("Person") 
-                     );
-  }
-
-  // end: testLoadOneParam
-
+  // TODO Test attributes, etc.
 }
 
