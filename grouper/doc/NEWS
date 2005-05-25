@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.49 2005-05-23 20:41:02 blair Exp $
+$Id: NEWS,v 1.50 2005-05-25 19:11:00 blair Exp $
 
 ---
 
@@ -9,10 +9,16 @@ $Id: NEWS,v 1.49 2005-05-23 20:41:02 blair Exp $
 
 ## Changes
 
+* Added _Subject_ and _SubjectAttribute_ tables 
+* Removed _grouper_subjectType_ table 
 * _GrouperSubject_ class renamed to _SubjectFactory_
 * _Grouper.hasSubjectType()_ replaced by _SubjectFactory.hasType()_
 * _Grouper.subjectTypes()_ replaced by _SubjectFactory.types()_
 * Removed _Grouper.subjectType()_
+
+## Incompabilities
+
+* _grouper_subject_ table replaced by _Subject_ table
 
 ---
 
