@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.2 2005-05-23 20:41:02 blair Exp $
+$Id: sources.xml,v 1.3 2005-05-25 19:04:28 blair Exp $
 -->
 
 <sources>
@@ -38,7 +38,7 @@ $Id: sources.xml,v 1.2 2005-05-23 20:41:02 blair Exp $
     </init-param>
     <init-param>
       <param-name>dbPwd</param-name>
-      <param-value>pwd</param-value>
+      <param-value></param-value>
     </init-param>
   </source>
 
