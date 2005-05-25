@@ -66,7 +66,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestInstantiate.class);
     suite.addTestSuite(TestConfigAndSchema.class);
     suite.addTestSuite(TestFieldCasing.class);
-    //suite.addTestSuite(TestSubjects.class);
+    suite.addTestSuite(TestSubjectsPerson.class);
 /*
     suite.addTestSuite(TestSessions.class);
     suite.addTestSuite(TestMembers.class);
