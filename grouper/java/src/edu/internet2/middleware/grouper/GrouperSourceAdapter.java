@@ -55,6 +55,8 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.logging.Log;
+import  org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -62,12 +64,13 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.1 2005-05-23 20:41:02 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.2 2005-05-29 16:51:21 blair Exp $
  */
 public class GrouperSourceAdapter 
   extends BaseSourceAdapter
 {
 
+  private static Log log = LogFactory.getLog(GrouperSourceAdapter.class);
 
   /*
    * CONSTRUCTORS
@@ -75,10 +78,12 @@ public class GrouperSourceAdapter
 
   public GrouperSourceAdapter() {
     super();
+    log.debug("GrouperSourceAdapter()");
   }
 
   public GrouperSourceAdapter(String id, String name) {
     super(id, name);
+    log.debug("GrouperSourceAdapter(id=" + id + "/name=" + name +")");
   }
 
 
@@ -90,12 +95,49 @@ public class GrouperSourceAdapter
     // TODO
   }
 
-  public Subject getSubject(String id) {
-    throw new RuntimeException("Not implemented");
+  /**
+   * {@inheritDoc}
+   */
+  public Subject getSubject(String id) throws SubjectNotFoundException {
+    // FIXME Now *this* is inefficient
+    Subject subj = null;
+    try {
+      Subject root = SubjectFactory.getSubject(
+        Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+      );
+      log.debug("getSubject.subj=" + root);
+      GrouperSession s = GrouperSession.start(root); 
+      log.debug("getSubject.s=" + s);
+      // TODO Optimize further based upon presence of '-' and ':'?
+      GrouperGroup g = GrouperGroup.loadByID(s, id);
+      if (g == null) { // TODO GroupNotFoundException
+        g = GrouperGroup.loadByName(s, id);
+          if (g != null) {
+            subj = new GrouperSubject(g, this);
+          }
+      } else {
+        subj = new GrouperSubject(g, this);
+      }        
+      s.stop();
+    } catch (SubjectNotFoundException e) {
+      throw new SubjectNotFoundException(
+        "Unable to lookup subject: " + e.getMessage()
+      );
+    }
+    if (subj == null) {
+      throw new SubjectNotFoundException(
+        "Unable to lookup subject: " + id
+      );
+    }
+    return subj;
   }
 
-  public void init() {
+  /** 
+   * {@inheritDoc}
+   */
+  public void init() throws SourceUnavailableException {
     // TODO
+    log.debug("Initializing GrouperSourceAdapter");
   }
 
   public Set search(String searchValue) {

@@ -62,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.4 2005-05-23 20:41:02 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.5 2005-05-29 16:51:21 blair Exp $
  */
 public class SubjectFactory {
 
@@ -170,7 +170,7 @@ public class SubjectFactory {
           sources.add(sa);
         } 
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        throw new RuntimeException(e); // TODO ???
       } 
     }
   }
