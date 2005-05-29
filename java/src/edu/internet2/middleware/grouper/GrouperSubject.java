@@ -55,6 +55,8 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.logging.Log;
+import  org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -62,15 +64,27 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.38 2005-05-26 14:02:57 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.39 2005-05-29 16:51:21 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
   /*
    * PRIVATE INSTANCE METHODS
    */
-  private SubjectType type = null;
+  private String                id      = null;
+  private String                name    = null;
+  private GrouperSourceAdapter  adapter = null;
+  private SubjectType           type    = null;
 
+  private static Log log = LogFactory.getLog(GrouperSubject.class);
+
+  protected GrouperSubject(GrouperGroup g, GrouperSourceAdapter sa) {
+    log.debug("group=" + g + "/sa=" + sa);
+    this.id       = g.id();
+    this.name     = g.attribute("name").value();
+    this.type     = SubjectTypeEnum.valueOf("group");
+    this.adapter  = sa;
+  }
 
   /**
    * {@inheritDoc}
@@ -100,7 +114,7 @@ public class GrouperSubject implements Subject {
    * {@inheritDoc}
    */
   public String getDescription() {
-    // TODO
+    // TODO 
     return new String();
   }
 
@@ -108,16 +122,14 @@ public class GrouperSubject implements Subject {
    * {@inheritDoc}
    */
   public String getId() {
-    // TODO
-    return new String();
+    return this.id;
   }
 
   /**
    * {@inheritDoc}
    */
   public String getName() {
-    // TODO
-    return new String();
+    return this.name;
   }
 
   /**

@@ -67,13 +67,13 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestConfigAndSchema.class);
     suite.addTestSuite(TestFieldCasing.class);
     suite.addTestSuite(TestSubjectsPerson.class);
-/*
+    suite.addTestSuite(TestSubjectsGroup.class);
     suite.addTestSuite(TestSessions.class);
-    suite.addTestSuite(TestMembers.class);
+    // FIXME suite.addTestSuite(TestMembers.class);
     suite.addTestSuite(TestStemsAdd.class);
     suite.addTestSuite(TestStemsLoad.class);
     suite.addTestSuite(TestStemsChildren.class);
-    suite.addTestSuite(TestStemsDelete.class);
+    // FIXME suite.addTestSuite(TestStemsDelete.class);
     suite.addTestSuite(TestStemsAttrs.class);
     suite.addTestSuite(TestStemsAttrsAdd.class);
     suite.addTestSuite(TestStemsAttrsRep.class);
@@ -118,9 +118,9 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestMembersIsMember.class);
     // TODO Flesh out
     suite.addTestSuite(TestNamingPrivs.class);
-    suite.addTestSuite(TestNamingGrantMoF0.class);
-    suite.addTestSuite(TestNamingGrantMoF1.class);
-    suite.addTestSuite(TestNamingGrantMoF2.class);
+    // FIXME suite.addTestSuite(TestNamingGrantMoF0.class);
+    // FIXME suite.addTestSuite(TestNamingGrantMoF1.class);
+    // FIXME suite.addTestSuite(TestNamingGrantMoF2.class);
     // TODO TestNamingPrivsRevoke
     // TODO Flesh out
     suite.addTestSuite(TestAccessPrivs.class);
@@ -133,15 +133,14 @@ public class TestAll extends TestCase {
     // Bugs
     suite.addTestSuite(TestBug348.class);
     suite.addTestSuite(TestBug349.class);
-    suite.addTestSuite(TestBug350Access.class);
+    // FIXME suite.addTestSuite(TestBug350Access.class);
     suite.addTestSuite(TestBug350Naming.class);
     suite.addTestSuite(TestBug352Access.class);
-    suite.addTestSuite(TestBug352Naming.class);
-    suite.addTestSuite(TestBug353Access.class);
-    suite.addTestSuite(TestBug353Naming.class);
+    // FIXME suite.addTestSuite(TestBug352Naming.class);
+    // FIXME suite.addTestSuite(TestBug353Access.class);
+    // FIXME suite.addTestSuite(TestBug353Naming.class);
     suite.addTestSuite(TestBug355.class);
     suite.addTestSuite(TestBug356.class);
-*/
 
     return suite;
   }
