@@ -117,7 +117,7 @@ public class TestGroupsMoFDel1 extends TestCase {
                        );
     Assert.assertNotNull("g1 !null", g1);
     // Load m0
-    GrouperMember m0 = GrouperMember.load(
+    GrouperMember m0 = Common.loadMember(
                          s, Constants.mem0I, Constants.mem0T
                        );
     Assert.assertNotNull("m0 !null", m0);

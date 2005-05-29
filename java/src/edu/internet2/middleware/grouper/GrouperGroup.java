@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.217 2005-05-23 13:09:20 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.218 2005-05-29 20:34:49 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -506,11 +506,14 @@ public class GrouperGroup extends Group {
     GrouperSession.validate(this.s);
     // FIXME Make sure I set this when loading as well...
     if (this.initialized == true) {
-      m = GrouperMember.load(
-            this.s, this.getGroupID(), "group"
-          );
-      if (m == null) {
-        throw new RuntimeException("Error converting group to member");
+      try {
+        m = GrouperMember.load(
+              this.s, this.getGroupID(), "group"
+            );
+      } catch (SubjectNotFoundException e) {
+        throw new RuntimeException(
+          "Error converting group to member: " + e.getMessage()
+        );
       }
     } else {
       m = GrouperMember.create(s, this.getGroupID(), "group");

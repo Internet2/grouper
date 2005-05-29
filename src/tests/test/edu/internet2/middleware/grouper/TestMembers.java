@@ -94,7 +94,7 @@ public class TestMembers extends TestCase {
     GrouperSession s = GrouperSession.start(subj);
     Assert.assertNotNull("session !null", s);
 
-    GrouperMember m     = GrouperMember.load(s, id, type);
+    GrouperMember m     = Common.loadMember(s, id, type);
     Assert.assertNotNull(m);
     Assert.assertTrue( Constants.KLASS_GM.equals( m.getClass().getName() ) );
     Assert.assertNotNull( m.memberID() );
@@ -120,7 +120,7 @@ public class TestMembers extends TestCase {
     }
     GrouperSession s = GrouperSession.start(subj);
 
-    GrouperMember m     = GrouperMember.load(s, id, type);
+    GrouperMember m     = Common.loadMember(s, id, type);
     Assert.assertNotNull(m);
     Assert.assertTrue( Constants.KLASS_GM.equals( m.getClass().getName() ) );
     Assert.assertNotNull( m.memberID() );
@@ -134,21 +134,24 @@ public class TestMembers extends TestCase {
 
   // Initialize an invalid subject as a member object
   public void testCreateMemberFromInvalidSubject() {
-    Subject        subj = null;
     try {
-      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+      Subject subj        = SubjectFactory.getSubject(
+                              Constants.rootI, Constants.rootT
+                            );
+      GrouperSession s    = GrouperSession.start(subj);
+      String        id    = "invalid id";
+      String        type  = Grouper.DEF_SUBJ_TYPE;
+      try {
+        GrouperMember m = GrouperMember.load(s, id, type);
+        Assert.fail("member somehow returned");
+      } catch (SubjectNotFoundException e) {
+        Assert.assertTrue("no member returned", true);
+      }
+      s.stop();
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Assert.fail("unable to get root subject");
     }
-    GrouperSession s = GrouperSession.start(subj);
 
-    String        id    = "invalid id";
-    String        type  = Grouper.DEF_SUBJ_TYPE;
-    GrouperMember m     = GrouperMember.load(s, id, type);
-    Assert.assertNull(m);
-
-    s.stop();
   }
 
 

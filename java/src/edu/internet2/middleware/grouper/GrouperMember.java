@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.87 2005-05-23 13:09:20 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.88 2005-05-29 20:34:49 blair Exp $
  */
 public class GrouperMember {
 
@@ -179,26 +179,20 @@ public class GrouperMember {
    * @param   subjectID     Subject ID
    * @param   subjectTypeID Subject Type ID
    * @return  A {@link GrouperMember} object
+   * @throws  SubjectNotFoundException
    */
   public static GrouperMember load(
                                 GrouperSession s, String subjectID, 
                                 String subjectTypeID
                               ) 
+    throws SubjectNotFoundException
   {
     GrouperSession.validate(s);
-    GrouperMember m     = null;
-    Subject       subj = null;
-    try {
-      subj = SubjectFactory.getSubject(subjectID, subjectTypeID);
-    } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    if (subj != null) {
-      m = GrouperMember.load(subj);
-      if (m != null) { // TODO Bah
-        m.s = s;
-      }
+    GrouperMember m = null;
+    Subject subj = SubjectFactory.getSubject(subjectID, subjectTypeID);
+    m = GrouperMember.load(subj);
+    if (m != null) { // TODO Bah
+      m.s = s;
     }
     return m;
   }

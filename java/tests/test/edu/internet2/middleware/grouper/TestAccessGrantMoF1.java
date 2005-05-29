@@ -115,16 +115,13 @@ public class TestAccessGrantMoF1 extends TestCase {
                        );
     Assert.assertNotNull("g1 !null", g1);
     // Load m0
-    GrouperMember m0 = GrouperMember.load(
-                         s, Constants.mem0I, Constants.mem0T
-                       );
-    Assert.assertNotNull("m0 !null", m0);
+    GrouperMember m0 = Common.loadMember(
+      s, Constants.mem0I, Constants.mem0T
+    );
     // Load m1
-    GrouperMember m1 = GrouperMember.load(
-                         s, Constants.mem1I, Constants.mem1T
-                       );
-    Assert.assertNotNull("m0 !null", m0);
-
+    GrouperMember m1 = Common.loadMember(
+      s, Constants.mem1I, Constants.mem1T
+    );
 
     // Grant m0 ADMIN on g0
     Assert.assertTrue(

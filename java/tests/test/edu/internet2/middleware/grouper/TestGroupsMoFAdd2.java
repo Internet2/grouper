@@ -112,7 +112,7 @@ public class TestGroupsMoFAdd2 extends TestCase {
                          s, Constants.g1s, Constants.g1e
                        );
     // Load m0
-    GrouperMember m0 = GrouperMember.load(
+    GrouperMember m0 = Common.loadMember(
                          s, Constants.mem0I, Constants.mem0T
                        );
     // Add m0 to g0's "members"
