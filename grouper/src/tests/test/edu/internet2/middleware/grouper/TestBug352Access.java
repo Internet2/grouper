@@ -140,7 +140,7 @@ public class TestBug352Access extends TestCase {
     );
 
     // Grant ADMIN to !root
-    GrouperMember m = GrouperMember.load(
+    GrouperMember m = Common.loadMember(
                         s0, Constants.mem0I, Constants.mem0T
                       );
     Assert.assertTrue(

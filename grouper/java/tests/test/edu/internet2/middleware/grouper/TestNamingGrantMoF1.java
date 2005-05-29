@@ -98,12 +98,12 @@ public class TestNamingGrantMoF1 extends TestCase {
                        );
     Assert.assertNotNull("ns0 !null", ns0);
     // Load m0
-    GrouperMember m0 = GrouperMember.load(
+    GrouperMember m0 = Common.loadMember(
                          s, Constants.mem0I, Constants.mem0T
                        );
     Assert.assertNotNull("m0 !null", m0);
     // Load m1
-    GrouperMember m1 = GrouperMember.load(
+    GrouperMember m1 = Common.loadMember(
                          s, Constants.mem1I, Constants.mem1T
                        );
     Assert.assertNotNull("m0 !null", m0);

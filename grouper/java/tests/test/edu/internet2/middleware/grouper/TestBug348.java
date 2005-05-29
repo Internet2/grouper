@@ -108,7 +108,7 @@ public class TestBug348 extends TestCase {
       e2.printStackTrace();
     }
     // Load subject as member
-    GrouperMember m0  = GrouperMember.load(s, subj0);
+    GrouperMember m0  = Common.loadMember(s, subj0);
     // Is m0 a member of gA?  Or rather, is an exception throw when
     // checking?
     try {
@@ -119,7 +119,7 @@ public class TestBug348 extends TestCase {
     }
 
     // Now load member by subjectID and subjectTypeID
-    GrouperMember m1 = GrouperMember.load(
+    GrouperMember m1 = Common.loadMember(
                          s, Constants.mem0I, Constants.mem0T
                        );
     // Is m0 a member of gA?  Or rather, is an exception throw when
@@ -132,7 +132,7 @@ public class TestBug348 extends TestCase {
     }
 
     // Now load member by id
-    GrouperMember m2 = GrouperMember.load(s, m0.memberID());
+    GrouperMember m2 = Common.loadMember(s, m0.memberID());
     // Is m0 a member of gA?  Or rather, is an exception throw when
     // checking?
     try {

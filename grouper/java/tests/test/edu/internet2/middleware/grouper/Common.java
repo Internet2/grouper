@@ -51,111 +51,53 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
 
-public class TestMembers extends TestCase {
-
-  public TestMembers(String name) {
-    super(name);
-  }
-
-  protected void setUp () {
-    DB db = new DB();
-    db.emptyTables();
-    db.stop();
-  }
-
-  protected void tearDown () {
-    // Nothing -- Yet
-  }
+/**
+ * Sparing myself some typing.
+ */
+public class Common {
 
 
   /*
-   * TESTS
+   * PUBLIC CLASS METHODS
    */
-  
 
-  // Initialize a valid subject as a member object
-  public void testCreateMemberFromValidSubject() {
-    String id   = Constants.mem0I;
-    String type = Constants.mem0T;
-
-    Subject        subj = null;
-    try {
-      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
-    } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    Assert.assertNotNull("subject !null", subj);
-    GrouperSession s = GrouperSession.start(subj);
-    Assert.assertNotNull("session !null", s);
-
-    GrouperMember m     = Common.loadMember(s, id, type);
-    Assert.assertNotNull(m);
-    Assert.assertTrue( Constants.KLASS_GM.equals( m.getClass().getName() ) );
-    Assert.assertNotNull( m.memberID() );
-    Assert.assertNotNull( m.subjectID() );
-    Assert.assertTrue( m.subjectID().equals( id) );
-    Assert.assertNotNull( m.typeID() );
-    Assert.assertTrue( m.typeID().equals( type ) );
-
-    s.stop();
+  public static GrouperMember loadMember (
+      GrouperSession s, String id
+    )
+  {
+    GrouperMember m = GrouperMember.load(s, id);
+    return m;
   }
 
-  // Fetch an already existing member object
-  public void testFetchMemberFromValidSubject() {
-    String id   = Constants.mem0I;
-    String type = Constants.mem0T;
-
-    Subject        subj = null;
-    try {
-      subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
-    } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    GrouperSession s = GrouperSession.start(subj);
-
-    GrouperMember m     = Common.loadMember(s, id, type);
-    Assert.assertNotNull(m);
-    Assert.assertTrue( Constants.KLASS_GM.equals( m.getClass().getName() ) );
-    Assert.assertNotNull( m.memberID() );
-    Assert.assertNotNull( m.subjectID() );
-    Assert.assertTrue( m.subjectID().equals( id) );
-    Assert.assertNotNull( m.typeID() );
-    Assert.assertTrue( m.typeID().equals( type ) );
-
-    s.stop();
+  public static GrouperMember loadMember (
+      GrouperSession s, Subject subj
+    )
+  {
+    GrouperMember m = GrouperMember.load(s, subj);
+    return m;
   }
 
-  // Initialize an invalid subject as a member object
-  public void testCreateMemberFromInvalidSubject() {
+  public static GrouperMember loadMember (
+      GrouperSession s, String id, String type
+    )
+  {
     try {
-      Subject subj        = SubjectFactory.getSubject(
-                              Constants.rootI, Constants.rootT
-                            );
-      GrouperSession s    = GrouperSession.start(subj);
-      String        id    = "invalid id";
-      String        type  = Grouper.DEF_SUBJ_TYPE;
-      try {
-        GrouperMember m = GrouperMember.load(s, id, type);
-        Assert.fail("member somehow returned");
-      } catch (SubjectNotFoundException e) {
-        Assert.assertTrue("no member returned", true);
-      }
-      s.stop();
+      GrouperMember m = GrouperMember.load(s, id, type);
+      Assert.assertTrue("returned member", true);
+      return m;
     } catch (SubjectNotFoundException e) {
-      Assert.fail("unable to get root subject");
-    }
-
+      Assert.fail("failed to return member");
+      throw new RuntimeException(
+        "error loading member: " + e.getMessage()
+      );
+    }  
   }
-
-
-  // TODO Valid member, invalid subject
 
 }
 

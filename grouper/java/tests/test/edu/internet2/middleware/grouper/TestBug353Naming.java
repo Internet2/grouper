@@ -94,7 +94,7 @@ public class TestBug353Naming extends TestCase {
     GrouperStem ns0  = GrouperStem.create(
                          s0, Constants.ns0s, Constants.ns0e
                        );
-    GrouperMember m0 = GrouperMember.load(
+    GrouperMember m0 = Common.loadMember(
                          s0, Constants.mem0I, Constants.mem0T
                        );
     s0.naming().grant(s0, ns0, m0, Grouper.PRIV_STEM);
