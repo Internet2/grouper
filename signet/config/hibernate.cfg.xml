@@ -81,13 +81,7 @@
         ="edu/internet2/middleware/signet/TreeNodeImpl.hbm.xml"/>
     <mapping
       resource
-        ="edu/internet2/middleware/signet/SubjectImpl.hbm.xml"/>
-    <mapping
-      resource
         ="edu/internet2/middleware/signet/AssignmentImpl.hbm.xml"/>
-    <mapping
-      resource
-        ="edu/internet2/middleware/signet/SubjectTypeImpl.hbm.xml"/>
     <mapping
       resource
         ="edu/internet2/middleware/signet/TreeNodeRelationship.hbm.xml"/>

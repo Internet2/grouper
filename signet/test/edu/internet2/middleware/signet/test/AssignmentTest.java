@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.7 2005-04-08 00:47:59 acohen Exp $
-$Date: 2005-04-08 00:47:59 $
+$Id: AssignmentTest.java,v 1.8 2005-06-01 06:13:08 mnguyen Exp $
+$Date: 2005-06-01 06:13:08 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -88,8 +88,8 @@ public class AssignmentTest extends TestCase
 		 		 subjectIndex++)
     {
       Subject subject
-      	= signet
-      			.getSubject(fixtures.makeSubjectId(subjectIndex));
+      	= signet.getSubject(
+      			Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       Set assignmentsReceived

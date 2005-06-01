@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.18 2005-05-12 22:04:35 acohen Exp $
- $Date: 2005-05-12 22:04:35 $
+ $Id: Signet.java,v 1.19 2005-06-01 06:13:08 mnguyen Exp $
+ $Date: 2005-06-01 06:13:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -20,6 +20,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
+import java.sql.SQLException;
+
 import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.collections.list.UnmodifiableList;
@@ -32,10 +34,17 @@ import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.tree.TreeAdapter;
+
+import edu.internet2.middleware.signet.util.SubjectFileLoader;
+
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectTypeAdapter;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -54,8 +63,10 @@ public final class Signet
    * This constant denotes the default subject-type ID, as it is
    * defined and used by Signet.
    */
-  private static final String   DEFAULT_SUBJECT_TYPE_ID
-  	= "signet";
+  public static final String	DEFAULT_SUBJECT_TYPE_ID
+  	= "person";
+  public static final String	APPLICATION_SUBJECT_TYPE_ID
+  	= "application";
 
   // This constant should probably end up in some sort of
   // Tree-specific presentation class adapter, and should probably
@@ -162,6 +173,8 @@ public final class Signet
 
   private Logger                logger;
 
+  private SourceManager sourceManager;
+  
   /**
    * This constructor builds the fundamental Signet factory object. It opens a
    * Hibernate session, and stores some Signet-specific metadata in that
@@ -184,13 +197,20 @@ public final class Signet
 
     this.logger = Logger.getLogger(this.toString());
 
+    try {
+    	this.sourceManager = new SourceManager();
+    }
+    catch (Exception ex) {
+    	throw new RuntimeException("Error getting SourceManager", ex);
+    }
+    
     // The native Signet subject-type must be stored in the database.
     // Let's just make sure that it is.
-    initNativeSubjectType();
+    //initNativeSubjectType();
     
     // The SignetSuperSubject must be stored in the database.
     // Let's just make sure that it is.
-    initSignetSuperSubject();
+    //initSignetSuperSubject();
   }
 
   /**
@@ -321,27 +341,6 @@ public final class Signet
     }
 
   }
-
-  private void initNativeSubjectType()
-  {
-    // The native Signet subject-type must be stored in the database.
-    // Let's just make sure that it is.
-
-    try
-    {
-      nativeSubjectType = this.getSubjectType(Signet.DEFAULT_SUBJECT_TYPE_ID);
-    }
-    catch (edu.internet2.middleware.signet.ObjectNotFoundException onfe)
-    {
-      nativeSubjectType = new SubjectTypeImpl(this,
-          Signet.DEFAULT_SUBJECT_TYPE_ID, Signet.DEFAULT_SUBJECT_TYPE_NAME,
-          new SubjectTypeAdapterImpl(this));
-
-      this.beginTransaction();
-      this.save(nativeSubjectType);
-      this.commit();
-    }
-  }
   
   private void initSignetSuperSubject()
   {
@@ -357,15 +356,16 @@ public final class Signet
 
       try
       {
-        Subject superSubject = this.newSubject(this.nativeSubjectType,
+      	SubjectFileLoader loader = new SubjectFileLoader();
+        loader.newSubject(this.nativeSubjectType,
             Signet.SUPERSUBJECT_ID, Signet.SUPERSUBJECT_NAME,
             Signet.SUPERSUBJECT_DESCRIPTION, Signet.SUPERSUBJECT_DISPLAYID);
       }
-      catch (OperationNotSupportedException onse)
+      catch (SQLException ex)
       {
         throw new SignetRuntimeException(
             "An attempt to store the Signet superSubject in the database"
-                + " failed.", onse);
+                + " failed.", ex);
       }
     }
   }
@@ -577,54 +577,33 @@ public final class Signet
     return treeImplArray;
   }
 
+
   /**
    * Gets all PrivilegedSubjects. Should probably be changed to return a
    * type-safe Collection.
    * 
-   * @return a Set of all of the {@link PrivilegedSubjects}s accessible to
+   * @return a List of all of the {@link PrivilegedSubjects}s accessible to
    *         Signet, including those who have no privileges. Never returns null:
    *         in the case of zero {@link PrivilegedSubject}s, this method will
-   *         return an empty Set.
+   *         return an empty List.
    */
-  public Set getPrivilegedSubjects()
+  public List getPrivilegedSubjects()
   {
-    List subjectTypeList;
-    Set privilegedSubjects = new HashSet();
-
     try
     {
-      subjectTypeList = session
-          .find("from edu.internet2.middleware.signet.SubjectTypeImpl"
-              + " as subjectType");
+    	List privilegedSubjects =
+    		session.find("from edu.internet2.middleware.signet.PrivilegedSubject");
+    	return privilegedSubjects;
     }
     catch (HibernateException e)
     {
       throw new SignetRuntimeException(
-          "Error while attempting to retrieve all SubjectTypes from"
+          "Error while attempting to retrieve all PrivilegedSubject from"
               + " the database", e);
     }
 
-    Iterator subjectTypesIterator = subjectTypeList.iterator();
-    while (subjectTypesIterator.hasNext())
-    {
-      SubjectTypeImpl subjectTypeImpl = (SubjectTypeImpl) (subjectTypesIterator
-          .next());
-      subjectTypeImpl.setSignet(this);
-      SubjectTypeAdapter adapter = subjectTypeImpl.getAdapter();
-      Subject[] subjectsArray = adapter.getSubjects(subjectTypeImpl);
-
-      for (int i = 0; i < subjectsArray.length; i++)
-      {
-        PrivilegedSubjectImpl privilegedSubjectImpl = new PrivilegedSubjectImpl(
-            this, subjectsArray[i]);
-        privilegedSubjectImpl.setSignet(this);
-        privilegedSubjectImpl.setSubjectType(subjectTypeImpl);
-        privilegedSubjects.add(privilegedSubjectImpl);
-      }
-    }
-
-    return UnmodifiableSet.decorate(privilegedSubjects);
   }
+
 
   // I really want to do away with this method, having the PrivilegedSubject
   // pick up its granted Assignments via Hibernate object-mapping. I just
@@ -645,7 +624,7 @@ public final class Signet
               + " and grantorTypeID = :type");
 
       query.setString("id", grantor.getSubjectId());
-      query.setString("type", grantor.getSubjectType(this).getId());
+      query.setString("type", grantor.getSubjectTypeId());
 
       resultList = query.list();
     }
@@ -842,7 +821,7 @@ public final class Signet
               + " and granteeTypeID = :type");
 
       query.setString("id", grantee.getSubjectId());
-      query.setString("type", grantee.getSubjectType(this).getId());
+      query.setString("type", grantee.getSubjectTypeId());
 
       resultList = query.list();
     }
@@ -1095,36 +1074,6 @@ public final class Signet
     return assignmentImplArray;
   }
 
-  /**
-   * Gets all of the SubjectTypes in the Signet database.
-   * 
-   * @return a List of all of the {@link SubjectType}s in the Signet database.
-   *         Never returns null: in the case of zero {@link SubjectType}s, this
-   *         method will return an empty List.
-   */
-  public List getSubjectTypes()
-  {
-    List resultList;
-
-    try
-    {
-      resultList = session
-          .find("from edu.internet2.middleware.signet.SubjectTypeImpl"
-              + " as SubjectType");
-    }
-    catch (HibernateException e)
-    {
-      throw new SignetRuntimeException(e);
-    }
-
-    Iterator resultListIterator = resultList.iterator();
-    while (resultListIterator.hasNext())
-    {
-      ((SubjectTypeImpl) (resultListIterator.next())).setSignet(this);
-    }
-
-    return UnmodifiableList.decorate(resultList);
-  }
 
   /**
    * Creates a new Subsystem.
@@ -1242,57 +1191,6 @@ public final class Signet
     return new PrivilegedSubjectImpl(this, subject);
   }
 
-  /**
-   * Gets a single PrivilegedSubject by ID.
-   * 
-   * @param subjectId
-   * @return
-   * @throws ObjectNotFoundException
-   */
-  public PrivilegedSubject getPrivilegedSubject(String subjectId)
-      throws ObjectNotFoundException
-  {
-    return getPrivilegedSubject(Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
-  }
-
-  /**
-   * This method is for use with extremely simple authentication, which can
-   * yield a subject's display-ID, but not the user's subjectType. We will
-   * assume that the subject is one of the subject-types stored by the native
-   * Signet-subject adaptor.
-   * 
-   * Of course, since a single adaptor can serve up multiple subject-types, this
-   * method may find more than one subject for this display-ID.
-   * 
-   * @param displayId
-   * @return
-   * @throws
-   */
-  public Set getPrivilegedSubjectsByDisplayId(String displayId)
-  {
-    Set pSubjects = new HashSet();
-
-    List subjectTypes = this.getSubjectTypes();
-    Iterator subjectTypesIterator = subjectTypes.iterator();
-    while (subjectTypesIterator.hasNext())
-    {
-      SubjectType type = (SubjectType) (subjectTypesIterator.next());
-      SubjectTypeAdapter adapter = type.getAdapter();
-
-      try
-      {
-        Subject subject = adapter.getSubjectByDisplayId(type, displayId);
-        PrivilegedSubject pSubject = new PrivilegedSubjectImpl(this, subject);
-        pSubjects.add(pSubject);
-      }
-      catch (SubjectNotFoundException snfe)
-      {
-        ; // In this context, it's not an error to fail to find a Subject.
-      }
-    }
-
-    return UnmodifiableSet.decorate(pSubjects);
-  }
 
   /**
    * Gets a single PrivilegedSubject by type and ID.
@@ -1306,26 +1204,11 @@ public final class Signet
       String subjectId) throws ObjectNotFoundException
   {
     Subject subject = getSubject(subjectTypeId, subjectId);
-    PrivilegedSubject pSubject = new PrivilegedSubjectImpl(this, subject);
+    PrivilegedSubject pSubject = getPrivilegedSubject(subject);
 
     return pSubject;
   }
 
-  /**
-   * Gets a single PrivilegedSubject of Signet's default subject-type by its
-   * displayID.
-   * 
-   * @param displayId
-   * @return the PrivilegedSubject.
-   * @throws ObjectNotFoundException
-   *           if the PrivilegedSubject is not found.
-   */
-  public PrivilegedSubject getPrivilegedSubjectByDisplayId(String displayId)
-      throws ObjectNotFoundException
-  {
-    return this.getPrivilegedSubjectByDisplayId(DEFAULT_SUBJECT_TYPE_ID,
-        displayId);
-  }
 
   /**
    * Gets a single PrivilegedSubject by its type and displayID.
@@ -1339,150 +1222,34 @@ public final class Signet
   public PrivilegedSubject getPrivilegedSubjectByDisplayId(
       String subjectTypeId, String displayId) throws ObjectNotFoundException
   {
-    Subject subject = getSubjectByDisplayId(subjectTypeId, displayId);
-    PrivilegedSubject pSubject = new PrivilegedSubjectImpl(this, subject);
-
-    return pSubject;
+  	Subject subject = getSubjectByDisplayId(subjectTypeId, displayId);
+  	if (subject == null) {
+  		throw new ObjectNotFoundException("Unable to get PrivilegedSubject by display ID.");
+  	}
+  	return getPrivilegedSubject(subject);
   }
 
-  /**
-   * Creates a new PrivilegedSubject.
-   * 
-   * @param subject
-   * @return
-   */
-  public PrivilegedSubject newPrivilegedSubject(Subject subject)
-  {
-    return new PrivilegedSubjectImpl(this, subject);
-  }
 
   /**
-   * Creates a new Subject.
-   * 
-   * @param id
-   * @param name
-   * @return
-   * @throws OperationNotSupportedException
-   * @throws ObjectNotFoundException
-   */
-  public Subject newSubject(String id, String name)
-      throws ObjectNotFoundException
-  {
-    return this.newSubject(id, name, null, null);
-  }
-
-  /**
-   * Creates a new Subject.
-   * 
-   * @param id
-   * @param name
-   * @param description
-   * @param displayId
-   * @return
-   * @throws ObjectNotFoundException
-   */
-  public Subject newSubject(String id, String name, String description,
-      String displayId) throws ObjectNotFoundException
-  {
-    Subject newSubject;
-
-    try
-    {
-      newSubject = this.newSubject(Signet.DEFAULT_SUBJECT_TYPE_ID, id, name,
-          description, displayId);
-    }
-    catch (OperationNotSupportedException onse)
-    {
-      throw new SignetRuntimeException(
-          "An attempt to create a new native Signet subject has failed,"
-              + " because the Signet subject-adapter has reported that its"
-              + " collection cannot be modified. Although other subject-adapters"
-              + " may prevent subject-creation, this one should always allow it.",
-          onse);
-    }
-
-    return newSubject;
-  }
-
-  /**
-   * Creates a new Subject.
+   * Gets PrivilegedSubjects by type and display ID.
    * 
    * @param subjectTypeId
-   * @param subjectId
-   * @param subjectName
-   * @param subjectDescription
-   * @param subjectDisplayId
-   * @return
-   * @throws ObjectNotFoundException
-   * @throws OperationNotSupportedException
+   * @param displayId
+   * @return Set of PrivilegedSubjects
    */
-  Subject newSubject(String subjectTypeId, String subjectId,
-      String subjectName, String subjectDescription, String subjectDisplayId)
-      throws ObjectNotFoundException, OperationNotSupportedException
-  {
-    SubjectType subjectType = this.getSubjectType(subjectTypeId);
-    Subject subject = newSubject(subjectType, subjectId, subjectName,
-        subjectDescription, subjectDisplayId);
-
-    return subject;
+  public Set getPrivilegedSubjectsByDisplayId(String subjectTypeId, String displayId) {
+    Set pSubjects = new HashSet();
+    for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+		Set result = ((Source)iter.next()).searchByIdentifier(displayId);
+		for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
+			PrivilegedSubject pSubject =
+				getPrivilegedSubject((Subject)iter2.next());
+			pSubjects.add(pSubject);
+		}
+    }
+	return UnmodifiableSet.decorate(pSubjects);
   }
 
-  /**
-   * Creates a new Subject.
-   * 
-   * @param subjectType
-   * @param subjectId
-   * @param subjectName
-   * @param subjectDescription
-   * @param subjectDisplayId
-   * @return
-   * @throws OperationNotSupportedException
-   */
-  public Subject newSubject(SubjectType subjectType, String subjectId,
-      String subjectName, String subjectDescription, String subjectDisplayId)
-      throws OperationNotSupportedException
-  {
-    SubjectTypeAdapter adapter = subjectType.getAdapter();
-    Subject subject = adapter.newSubject(subjectType, subjectId, subjectName,
-        subjectDescription, subjectDisplayId);
-
-    if (subjectDisplayId != null)
-    {
-      subject.addAttribute(Signet.ATTR_DISPLAYID, subjectDisplayId);
-    }
-
-    return subject;
-  }
-
-  /**
-   * This method is only for use by the native Signet SubjectTypeAdapter.
-   * 
-   * @return null if the Subject is not found.
-   * @throws SignetRuntimeException
-   *           if more than one Subject is found.
-   */
-  SubjectImpl getNativeSignetSubject(SubjectType type, String id)
-      throws ObjectNotFoundException
-  {
-    SubjectImpl subjectImpl;
-
-    try
-    {
-      subjectImpl = (SubjectImpl) (session.load(SubjectImpl.class, id));
-    }
-    catch (net.sf.hibernate.ObjectNotFoundException onfe)
-    {
-      throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
-    }
-    catch (HibernateException he)
-    {
-      throw new SignetRuntimeException(he);
-    }
-
-    subjectImpl.setSubjectType(type);
-
-    return subjectImpl;
-  }
 
   /**
    * This method is only for use by the native Signet TreeAdapter.
@@ -1513,110 +1280,6 @@ public final class Signet
     return treeImpl;
   }
 
-  /**
-   * This method is only for use by the native Signet SubjectTypeAdapter.
-   * 
-   * @return A list of all native Signet subjects. Never returns null.
-   */
-  List getNativeSignetSubjects(SubjectType type)
-  {
-    Query query;
-    List resultList;
-
-    try
-    {
-      query = session
-          .createQuery("from edu.internet2.middleware.signet.SubjectImpl"
-              + " as subject" + " where subject.subjectType = :type");
-
-      query.setParameter("type", type);
-
-      resultList = query.list();
-    }
-    catch (HibernateException e)
-    {
-      throw new SignetRuntimeException(e);
-    }
-
-    Iterator subjectIterator = resultList.iterator();
-    while (subjectIterator.hasNext())
-    {
-      Subject subject = (Subject) (subjectIterator.next());
-      ((SubjectImpl) subject).setSubjectType(type);
-    }
-
-    return UnmodifiableList.decorate(resultList);
-  }
-
-  Subject getNativeSignetSubjectByDisplayId(SubjectType type, String displayId)
-  {
-    Query query;
-    List resultList;
-
-    try
-    {
-      query = session
-          .createQuery("from edu.internet2.middleware.signet.SubjectImpl"
-              + " as subject" + " where subject.displayId = :id"
-              + " and subject.subjectType = :type");
-
-      query.setString("id", displayId);
-      query.setString("type", type.getId());
-
-      resultList = query.list();
-    }
-    catch (HibernateException e)
-    {
-      throw new SignetRuntimeException(e);
-    }
-
-    if (resultList.size() < 1)
-    {
-      return null;
-    }
-
-    if (resultList.size() > 1)
-    {
-      reportMultipleRecordError("SubjectImpl", "displayID", displayId,
-          resultList.size());
-    }
-
-    // If we got this far, we must have just one result object.
-    Subject subject = (Subject) (resultList.get(0));
-    ((SubjectImpl) subject).setSubjectType(type);
-
-    return subject;
-  }
-
-  /**
-   * Gets a single SubjectType by ID.
-   * 
-   * @param subjectTypeId
-   * @return
-   * @throws ObjectNotFoundException
-   */
-  public SubjectType getSubjectType(String subjectTypeId)
-      throws ObjectNotFoundException
-  {
-    SubjectTypeImpl subjectTypeImpl;
-
-    try
-    {
-      subjectTypeImpl = (SubjectTypeImpl) (session.load(SubjectTypeImpl.class,
-          subjectTypeId));
-    }
-    catch (net.sf.hibernate.ObjectNotFoundException onfe)
-    {
-      throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
-    }
-    catch (HibernateException he)
-    {
-      throw new SignetRuntimeException(he);
-    }
-
-    subjectTypeImpl.setSignet(this);
-    return subjectTypeImpl;
-  }
 
   /**
    * Gets a single TreeNode by treeID and nodeID, using the default Signet
@@ -2036,18 +1699,6 @@ public final class Signet
   }
 
   /**
-   * Gets a single Subject by ID.
-   * 
-   * @param subjectId
-   * @return
-   * @throws ObjectNotFoundException
-   */
-  public Subject getSubject(String subjectId) throws ObjectNotFoundException
-  {
-    return this.getSubject(Signet.DEFAULT_SUBJECT_TYPE_ID, subjectId);
-  }
-
-  /**
    * Gets a single Subject by type and ID.
    * 
    * @param subjectTypeId
@@ -2058,23 +1709,19 @@ public final class Signet
   public Subject getSubject(String subjectTypeId, String subjectId)
       throws ObjectNotFoundException
   {
-    SubjectType type = this.getSubjectType(subjectTypeId);
-    SubjectTypeAdapter adapter = type.getAdapter();
     Subject subject = null;
-
-    if (adapter instanceof SubjectTypeAdapterImpl)
-    {
-      ((SubjectTypeAdapterImpl) adapter).setSignet(this);
+    for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+		try {
+			subject = ((Source)iter.next()).getSubject(subjectId);
+		}
+		catch (SubjectNotFoundException snfe) {
+			// Don't do anything since we may find the subject
+			// in other sources.
+		}
     }
-
-    try
-    {
-      subject = adapter.getSubject(type, subjectId);
-    }
-    catch (SubjectNotFoundException snfe)
-    {
-      throw new ObjectNotFoundException(snfe);
-    }
+  	if (subject == null) {
+  		throw new ObjectNotFoundException("Unable to find Subject by display ID.");
+  	}
 
     return subject;
   }
@@ -2090,19 +1737,16 @@ public final class Signet
   public Subject getSubjectByDisplayId(String subjectTypeId, String displayId)
       throws ObjectNotFoundException
   {
-    SubjectType type = this.getSubjectType(subjectTypeId);
-    SubjectTypeAdapter adapter = type.getAdapter();
     Subject subject = null;
-
-    try
-    {
-      subject = adapter.getSubjectByDisplayId(type, displayId);
+    for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+		Set result = ((Source)iter.next()).searchByIdentifier(displayId);
+		for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
+			subject = (Subject)iter2.next();
+		}
     }
-    catch (SubjectNotFoundException snfe)
-    {
-      throw new ObjectNotFoundException(snfe);
-    }
-
+  	if (subject == null) {
+  		throw new ObjectNotFoundException("Unable to find Subject by display ID.");
+  	}
     return subject;
   }
 
@@ -2115,46 +1759,6 @@ public final class Signet
         + "'" + keyVal + "'.");
   }
 
-  /**
-   * Creates a new SubjectType, using the default SubjectTypeAdapter.
-   * 
-   * @param subjectTypeId
-   * @param subjectTypeName
-   * 
-   * @return the new SubjectType
-   */
-  public SubjectType newSubjectType(String subjectTypeId, String subjectTypeName)
-  {
-    try
-    {
-      return newSubjectType(subjectTypeId, subjectTypeName, this
-          .getSubjectType(DEFAULT_SUBJECT_TYPE_ID).getAdapter());
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
-  }
-
-  /**
-   * Creates a new SubjectType.
-   * 
-   * @param subjectTypeId
-   * @param subjectTypeName
-   * @param adapter
-   * 
-   * @return the new SubjectType
-   */
-  public SubjectType newSubjectType(String subjectTypeId,
-      String subjectTypeName, SubjectTypeAdapter adapter)
-  {
-    SubjectType newSubjectType;
-
-    newSubjectType = new SubjectTypeImpl(this, subjectTypeId, subjectTypeName,
-        adapter);
-
-    return newSubjectType;
-  }
 
   /**
    * Normalizes a Subject attribute-value. Should this method be public?
@@ -2443,4 +2047,15 @@ public final class Signet
     
     return choiceSet;
   }
+  
+  /**
+   * Returns SourceAdapters which supports the argument SubjectType.
+   * @return Collection of SourceAdapters
+   */
+  public Collection getSource(String subjectTypeId)
+  {
+  	SubjectType type = SubjectTypeEnum.valueOf(subjectTypeId);
+  	return this.sourceManager.getSources(type);
+  }
+
 }

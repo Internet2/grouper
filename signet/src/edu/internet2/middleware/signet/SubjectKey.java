@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectKey.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: SubjectKey.java,v 1.3 2005-06-01 06:13:08 mnguyen Exp $
+$Date: 2005-06-01 06:13:08 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -21,8 +21,7 @@ class SubjectKey
 implements Serializable
 {
 private String 			subjectId;
-private SubjectType subjectType;
-private String			subjectTypeId;
+private SubjectType		subjectType;
 
 /**
  * 
@@ -37,14 +36,12 @@ SubjectKey(String subjectId, SubjectType subjectType)
 {
   this.subjectId = subjectId;
   this.subjectType = subjectType;
-  this.subjectTypeId = subjectType.getId();
 }
 
 SubjectKey(Subject subject)
 {
   this.subjectId = subject.getId();
-  this.subjectType = subject.getSubjectType();
-  this.subjectTypeId = this.subjectType.getId();
+  this.subjectType = subject.getType();
 }
 
 /**
@@ -67,22 +64,6 @@ void setSubjectId(String subjectId)
  */
 SubjectType getSubjectType(Signet signet)
 {
-  if ((this.subjectTypeId != null) && (this.subjectType == null))
-  {
-    try
-    {
-      this.subjectType = signet.getSubjectType(this.subjectTypeId);
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
-  }
-  
-  if (this.subjectType instanceof SubjectTypeImpl)
-  {
-    ((SubjectTypeImpl)(this.subjectType)).setSignet(signet);
-  }
   return this.subjectType;
 }
 
@@ -92,38 +73,11 @@ SubjectType getSubjectType(Signet signet)
 void setSubjectType(SubjectType subjectType)
 {
   this.subjectType = subjectType;
-  this.subjectTypeId = subjectType.getId();
 }
 
 String getSubjectTypeId()
 {
-  return this.subjectTypeId;
-}
-
-void setSubjectTypeId(String subjectTypeId)
-throws ObjectNotFoundException
-{
-  this.subjectTypeId = subjectTypeId;
-}
-
-boolean isComplete(Signet signet)
-throws ObjectNotFoundException
-{
-  if ((signet != null)
-      && (this.subjectType == null)
-      && (this.subjectTypeId != null))
-  {
-    this.subjectType = signet.getSubjectType(this.subjectTypeId);
-  }
-  
-  if ((this.subjectId != null) && (this.subjectType != null))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return this.subjectType.getName();
 }
 
 

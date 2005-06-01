@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.12 2005-04-27 18:34:09 acohen Exp $
-$Date: 2005-04-27 18:34:09 $
+$Id: Fixtures.java,v 1.13 2005-06-01 06:13:08 mnguyen Exp $
+$Date: 2005-06-01 06:13:08 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -112,12 +112,6 @@ public class Fixtures
   {
     super();
     this.signet = signet;
-    
-    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
-    {
-      Subject subject = getOrCreateSubject(i);
-      signet.save(subject);
-    }
     
     this.subsystem = getOrCreateSubsystem();
     
@@ -292,20 +286,21 @@ public class Fixtures
   private Subject getOrCreateSubject(int subjectNumber)
   throws ObjectNotFoundException
   {
-    Subject subject;
+    Subject subject = null;
     
     try
     {
-      subject = this.signet.getSubject(makeSubjectId(subjectNumber));
+      subject = this.signet.getSubject(
+      		Signet.DEFAULT_SUBJECT_TYPE_ID, makeSubjectId(subjectNumber));
     }
     catch (ObjectNotFoundException onfe)
     {
-      subject
-    	  = this.signet.newSubject
-    		  	(makeSubjectId(subjectNumber),
-    		  	 makeSubjectName(subjectNumber),
-    		  	 makeSubjectDescription(subjectNumber),
-    		  	 makeSubjectDisplayId(subjectNumber));
+      //subject
+    	  //= this.signet.newSubject
+    		  	//(makeSubjectId(subjectNumber),
+    		  	// makeSubjectName(subjectNumber),
+    		  	// makeSubjectDescription(subjectNumber),
+    		  	// makeSubjectDisplayId(subjectNumber));
     }
     
     return subject;

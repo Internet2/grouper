@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.4 2005-04-27 18:34:09 acohen Exp $
-$Date: 2005-04-27 18:34:09 $
+$Id: PrivilegedSubjectTest.java,v 1.5 2005-06-01 06:13:08 mnguyen Exp $
+$Date: 2005-06-01 06:13:08 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -84,10 +84,12 @@ public class PrivilegedSubjectTest extends TestCase
   public final void testCanEdit()
   throws ObjectNotFoundException
   {
-    Subject subject0 = signet.getSubject(fixtures.makeSubjectId(0));
+    Subject subject0 = signet.getSubject(
+    		Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
     PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
     
-    Subject subject2 = signet.getSubject(fixtures.makeSubjectId(2));
+    Subject subject2 = signet.getSubject(
+    		Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(2));
     PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
     
     Set assignmentsForSubject2
@@ -108,8 +110,8 @@ public class PrivilegedSubjectTest extends TestCase
 		 		 subjectIndex++)
     {
       Subject subject
-      	= signet
-      			.getSubject(fixtures.makeSubjectId(subjectIndex));
+      	= signet.getSubject(
+      			Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -161,8 +163,10 @@ public class PrivilegedSubjectTest extends TestCase
   {
     // We'll attempt to have subject 2 grant a privilege to subject 0.
     
-    Subject subject0 = signet.getSubject(fixtures.makeSubjectId(0));
-    Subject subject2 = signet.getSubject(fixtures.makeSubjectId(2));
+    Subject subject0 = signet.getSubject(
+    		Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
+    Subject subject2 = signet.getSubject(
+    		Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(2));
     
     PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
     PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);

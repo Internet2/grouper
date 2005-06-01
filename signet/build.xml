@@ -13,6 +13,7 @@
 	
 	<!-- Set up properties containing important project directories -->
 	<property name="source.dir" value="src"/>
+	<property name="test.dir" value="test"/>
 	<property name="build.dir" value="classes"/>
 	<property name="doc.dir" value="doc"/>
 	<property name="lib.dir" value="lib"/>
@@ -202,6 +203,12 @@ against the database file--use when application is not running">
 				<filtersfile file="config.properties" />
 			</filterset>
 		</copy>
+		<copy file="config/sources.xml"
+			todir="${webapp.build}/${webapp.name}/WEB-INF/classes">
+			<filterset>
+				<filtersfile file="config.properties" />
+			</filterset>
+		</copy>
 		<copy file="web/footer.jsp"
 			todir="${webapp.build}/${webapp.name}">
 			<filterset>
@@ -210,5 +217,43 @@ against the database file--use when application is not running">
 		</copy>
 	</target>
 
+	
+	<!-- Cleanup after the build, test, and distribution processes -->
+	<target name="clean-all" depends="clean-javadocs, clean-build, clean-dist" />
+	<target name="clean-build">
+		<delete dir="${build.dir}" />
+	</target>
+	
+	<target name="clean-dist">
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="clean-javadocs">
+		<delete dir="${javadoc.dir}" />
+	</target>
+
+	<target name="compile-tests" depends="compile">
+		<javac
+			srcdir="${test.dir}"
+			destdir="${build.dir}"
+			includes="**/*.java"
+			debug="on">
+			<classpath refid="project.class.path" />
+		</javac>
+	</target>
+	
+	<!-- Run automated tests on compiled code -->
+	<target name="test-all" depends="compile, compile-tests">
+		<junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
+			<classpath refid="project.class.path" />
+			<formatter type="plain" />
+			<batchtest todir="${test.dir}">
+				<fileset dir="${build.dir}">
+					<include name="**/*Test.class" />
+					<include name="**/*Tests.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
 </project>
 

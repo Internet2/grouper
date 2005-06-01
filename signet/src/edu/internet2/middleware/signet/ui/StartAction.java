@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.3 2005-02-08 19:20:50 acohen Exp $
-  $Date: 2005-02-08 19:20:50 $
+  $Id: StartAction.java,v 1.4 2005-06-01 06:13:08 mnguyen Exp $
+  $Date: 2005-06-01 06:13:08 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -40,6 +40,7 @@ import edu.internet2.middleware.signet.Signet;
  */
 public final class StartAction extends BaseAction
 {
+  
   // ---------------------------------------------------- Public Methods
   // See superclass for Javadoc
   public ActionForward execute
@@ -85,8 +86,13 @@ public final class StartAction extends BaseAction
       // Find the PrivilegedSubject associated with the logged-in
       // user, and stash it in the Session.
       Set userMatches
-      = signet.getPrivilegedSubjectsByDisplayId(request.getRemoteUser());
-      
+      	= signet.getPrivilegedSubjectsByDisplayId(
+      			Signet.DEFAULT_SUBJECT_TYPE_ID, request.getRemoteUser());
+      if (userMatches == null || userMatches.isEmpty()) {
+      	userMatches
+      	= signet.getPrivilegedSubjectsByDisplayId(
+      			Signet.APPLICATION_SUBJECT_TYPE_ID, request.getRemoteUser());
+      }
       if (userMatches.size() != 1)
       {
         messages.add

@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectFileLoaderTest.java,v 1.2 2005-04-27 20:10:34 acohen Exp $
-$Date: 2005-04-27 20:10:34 $
+$Id: SubjectFileLoaderTest.java,v 1.3 2005-06-01 06:13:08 mnguyen Exp $
+$Date: 2005-06-01 06:13:08 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,8 +14,10 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 
 import edu.internet2.middleware.signet.util.SubjectFileLoader;
+
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import junit.framework.TestCase;
 
 /**
@@ -67,7 +69,7 @@ public class SubjectFileLoaderTest extends TestCase
     ObjectNotFoundException,
     SQLException
   {
-    SubjectType subjectType = this.signet.getSubjectType("signet");
+    SubjectType subjectType = SubjectTypeEnum.valueOf("person");
     subjectManager.newSubject
       (subjectType,
        "testNewSubject_id",
@@ -81,7 +83,13 @@ public class SubjectFileLoaderTest extends TestCase
     SQLException,
     ObjectNotFoundException
   {
-    Subject subject = this.signet.getSubject("testNewSubject_id");
+  	SubjectType subjectType = SubjectTypeEnum.valueOf("person");
+    Subject subject = subjectManager.newSubject
+    (subjectType,
+    	       "testNewSubject_id",
+    	       "testNewSubject_name",
+    	       "testNewSubject_description",
+    	       "testNewSubject_displayId");
     subjectManager.newAttribute
       (subject,
        "testNewSubject_attrName",

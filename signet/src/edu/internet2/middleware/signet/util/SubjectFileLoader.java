@@ -21,8 +21,11 @@ import java.util.StringTokenizer;
 import java.io.*;
 
 import edu.internet2.middleware.signet.*;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
@@ -105,7 +108,7 @@ public class SubjectFileLoader
    * Creates a new SubjectAttribute, and stores that value in the database.
    * This method updates the database, but does not commit any transaction.
    * 
-   * @param subject
+   * @param Subject
    * @param name
    * @param instance
    * @param value
@@ -124,7 +127,7 @@ public class SubjectFileLoader
     PreparedStatement pStmt
       = this.conn.prepareStatement(insertAttrSQL);
   
-    pStmt.setString(1, subject.getSubjectType().getId());
+    pStmt.setString(1, subject.getType().getName());
     pStmt.setString(2, subject.getId());
     pStmt.setString(3, name);
     pStmt.setInt(4, instance);
@@ -133,7 +136,7 @@ public class SubjectFileLoader
     pStmt.setDate(7, new Date(new java.util.Date().getTime()));
     pStmt.executeUpdate();
     
-    subject.addAttribute(name, value);
+    ((SubjImpl)subject).addAttribute(name, value);
   }
 
   
@@ -277,7 +280,7 @@ public class SubjectFileLoader
     PreparedStatement pStmt
       = this.conn.prepareStatement(insertSubjectSQL);
   
-    pStmt.setString(1, subjectType.getId());
+    pStmt.setString(1, subjectType.getName());
     pStmt.setString(2, subjectId);
     pStmt.setString(3, subjectName);
     pStmt.setString(4, subjectDescription);
@@ -296,7 +299,8 @@ public class SubjectFileLoader
     return subject;
   }
   
-  private class SubjImpl implements Subject
+  public class SubjImpl
+  implements Subject
   {
     private SubjectType type;
     private String      id;
@@ -340,7 +344,7 @@ public class SubjectFileLoader
       return this.name;
     }
     
-    public SubjectType getSubjectType()
+    public SubjectType getType()
     {
       return this.type;
     }
@@ -358,18 +362,31 @@ public class SubjectFileLoader
       attr.add(value);
     }
 
-    public String[] getAttributeValues(String name)
+    public Map getAttributes() {
+    	return attributes;
+    }
+    
+    public Set getAttributeValues(String name)
     {
-      String[] emptyStringArray = new String[0];
       Set attr = (Set)(this.attributes.get(name));
       
       if (attr == null)
       {
-        return emptyStringArray;
+        return new HashSet();
       }
 
-      return (String[])(attr.toArray(emptyStringArray));
+      return (attr);
     }
+    
+	public String getAttributeValue(String name) {
+		Set values = getAttributeValues(name);
+		return ((String[])values.toArray(new String[0]))[0];
+	}
+	
+	public Source getSource() {
+		return new JDBCSourceAdapter("local", "local");
+	}
+	
   }
 
   public static void main(String[] args) 
@@ -469,7 +486,7 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
 
     // Temporary -- add back the required SubjectType row...
     signet.beginTransaction();
-    SubjectType subjectType = signet.newSubjectType("person", "Person");
+    SubjectType subjectType = SubjectTypeEnum.valueOf("person");
     signet.save(subjectType);
     signet.commit();
 

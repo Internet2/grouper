@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.9 2005-04-06 23:14:22 acohen Exp $
- $Date: 2005-04-06 23:14:22 $
+ $Id: AssignmentImpl.java,v 1.10 2005-06-01 06:13:08 mnguyen Exp $
+ $Date: 2005-06-01 06:13:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -136,7 +136,7 @@ implements Assignment, Comparable
     {
       throw new SignetAuthorityException
       ("The grantor '"
-       + grantor.getId()
+       + grantor.getSubjectId()
        + "' does not have the authority to assign the function '"
        + function.getId()
        + "' in the scope '"
@@ -344,8 +344,7 @@ implements Assignment, Comparable
   void setGrantee(PrivilegedSubject grantee)
   {
     this.grantee = grantee;
-    this.granteeId = grantee.getId();
-    this.granteeTypeId = grantee.getSubjectTypeId();
+    this.granteeId = grantee.getSubjectId();
   }
   
   /**
@@ -354,8 +353,7 @@ implements Assignment, Comparable
   void setGrantor(PrivilegedSubject grantor)
   {
     this.grantor = grantor;
-    this.grantorId = grantor.getId();
-    this.grantorTypeId = grantor.getSubjectTypeId();
+    this.grantorId = grantor.getSubjectId();
   }
   
   void setRevoker(PrivilegedSubject revoker)
@@ -548,7 +546,7 @@ implements Assignment, Comparable
     {
       throw new SignetAuthorityException
       ("The revoker '"
-          + revoker.getId()
+          + revoker.getSubjectId()
           + "' does not have the authority to revoke the function '"
           + function.getId()
           + "' in the scope '"

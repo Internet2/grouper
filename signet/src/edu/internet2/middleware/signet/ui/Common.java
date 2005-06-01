@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.8 2005-04-14 17:50:01 acohen Exp $
-  $Date: 2005-04-14 17:50:01 $
+  $Id: Common.java,v 1.9 2005-06-01 06:13:08 mnguyen Exp $
+  $Date: 2005-06-01 06:13:08 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -138,7 +138,7 @@ public class Common
     
       if ((searchString == null)
           || (searchString.equals(""))
-          || (pSubject.getName().toUpperCase().indexOf
+          || (pSubject.getSubject().getName().toUpperCase().indexOf
                (searchString.toUpperCase())
                	 != -1))
       {

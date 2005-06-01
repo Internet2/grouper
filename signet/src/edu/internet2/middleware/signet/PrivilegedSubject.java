@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.7 2005-04-05 23:11:38 acohen Exp $
- $Date: 2005-04-05 23:11:38 $
+ $Id: PrivilegedSubject.java,v 1.8 2005-06-01 06:13:08 mnguyen Exp $
+ $Date: 2005-06-01 06:13:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject}.
  */
 
-public interface PrivilegedSubject extends Subject, Comparable
+public interface PrivilegedSubject extends Comparable
 {
   /**
    * This method returns true if this PrivilegedSubject has authority to
@@ -175,11 +175,10 @@ public interface PrivilegedSubject extends Subject, Comparable
   public Set getGrantableScopes(Function function);
   
   /**
-   * Gets the ID of the SubjectType which underlies this PrivilegedSubject.
-   * @return the ID of the SubjectType which underlies this
-   *   PrivilegedSubject.
+   * Gets the Subject which underlies this PrivilegedSubject.
+   * @return the ID of the Subject which underlies this PrivilegedSubject.
    */
-  public String getSubjectTypeId();
+  public Subject getSubject();
   
   /**
    * Gets the ID of the Subject which underlies this PrivilegedSubject.

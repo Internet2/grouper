@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.10 2005-04-14 17:50:01 acohen Exp $
- $Date: 2005-04-14 17:50:01 $
+ $Id: PrivilegedSubjectImpl.java,v 1.11 2005-06-01 06:13:08 mnguyen Exp $
+ $Date: 2005-06-01 06:13:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -52,8 +52,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 {
   private Signet     signet;
 
-  private SubjectKey subjectKey;
-
+  private SubjectKey		subjectKey;
+  
   private Subject    subject;
 
   private Set        assignmentsGranted;
@@ -69,7 +69,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public PrivilegedSubjectImpl()
   {
-    this.subjectKey = new SubjectKey();
+  	this.subjectKey = new SubjectKey();
     this.assignmentsReceived = new HashSet();
     this.assignmentsGranted = new HashSet();
   }
@@ -535,8 +535,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     if (this.assignmentsGrantedNotYetFetched == true)
     {
-      if (this.subjectKey.isComplete(this.signet))
-      {
         // We have not yet fetched the assignments granted by this
         // PrivilegedSubject from the database. Let's make a copy of
         // whatever in-memory assignments we DO have, because they represent
@@ -547,14 +545,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         this.assignmentsGranted.addAll(inMemoryAssignments);
 
         this.assignmentsGrantedNotYetFetched = false;
-      }
-      else
-      {
-        throw new SignetRuntimeException(
-            "An attempt was made to fetch a set of granted Assignments via a"
-                + "PrivilegedSubject using an incomplete SubjectKey: ["
-                + this.subjectKey + "]");
-      }
     }
 
     Set resultSet = UnmodifiableSet.decorate(this.assignmentsGranted);
@@ -585,8 +575,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     if (this.assignmentsReceivedNotYetFetched == true)
     {
-      if (this.subjectKey.isComplete(this.signet))
-      {
         // We have not yet fetched the assignments received by this
         // PrivilegedSubject from the database. Let's make a copy of
         // whatever in-memory assignments we DO have, because they represent
@@ -598,14 +586,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         this.assignmentsReceived.addAll(unsavedAssignmentsReceived);
 
         this.assignmentsReceivedNotYetFetched = false;
-      }
-      else
-      {
-        throw new SignetRuntimeException(
-            "An attempt was made to fetch a set of received Assignments via a"
-                + "PrivilegedSubject using an incomplete SubjectKey: ["
-                + this.subjectKey + "]");
-      }
     }
 
     Set resultSet = UnmodifiableSet.decorate(this.assignmentsReceived);
@@ -692,7 +672,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @param name
    * @return
    */
-  public String[] getAttributeValues(String name)
+  public Set getAttributeValues(String name)
   {
     return this.subject.getAttributeValues(name);
   }
@@ -707,117 +687,22 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
   /**
    * @return
-   * @throws SubjectNotFoundException
-   * @throws ObjectNotFoundException
    */
-  public String getDisplayId() throws SubjectNotFoundException,
-      ObjectNotFoundException
+  public String getDisplayId()
   {
-    return this.getSubject().getDisplayId();
+    return this.getSubject().getAttributeValue("displayId");
   }
 
-  /**
-   * @return the Name of the Subject which underlies this PrivilegedSubject.
-   */
-  public String getName()
+  public Subject getSubject()
   {
-    String name = null;
-    
-    try
-    {
-      name = this.getSubject().getName();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
-    
-    return name;
-  }
-
-  /**
-   * @return
-   */
-  public SubjectType getSubjectType()
-  {
-    return this.subjectKey.getSubjectType(this.signet);
-  }
-
-  public void setSubjectType(SubjectType subjectType)
-  {
-    this.subjectKey.setSubjectType(subjectType);
-  }
-
-  /**
-   * @return
-   */
-  public String getSubjectTypeId()
-  {
-    return this.subjectKey.getSubjectType(this.signet).getId();
-  }
-
-  public String getSubjectId()
-  {
-    return this.subjectKey.getSubjectId();
-  }
-
-  void setSubjectTypeId(String subjectTypeId)
-  {
-    try
-    {
-      this.subjectKey.setSubjectType(this.signet.getSubjectType(subjectTypeId));
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
+    return this.subject;
   }
 
   /* (non-Javadoc)
-   * @see edu.internet2.middleware.subject.Subject#getId()
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getSubjectId()
    */
-  public String getId()
-  {
-    return this.subjectKey.getSubjectId();
-  }
-
-  public void setId(String id)
-  {
-    this.subjectKey.setSubjectId(id);
-  }
-
-  Subject getSubject() throws ObjectNotFoundException
-  {
-    if (this.subject == null)
-    {
-      if (this.subjectKey.isComplete(this.signet))
-      {
-        try
-        {
-          this.subject = this.subjectKey.getSubjectType(this.signet)
-              .getAdapter().getSubject(
-                  this.subjectKey.getSubjectType(this.signet),
-                  this.subjectKey.getSubjectId());
-        }
-        catch (SubjectNotFoundException snfe)
-        {
-          throw new ObjectNotFoundException(snfe);
-        }
-      }
-      else
-      {
-        throw new SignetRuntimeException(
-            "An attempt was made to fetch a Subject via a PrivilegedSubject"
-                + " using an incomplete SubjectKey: [" + this.subjectKey + "]");
-      }
-    }
-
-    if (this.subject instanceof SubjectImpl)
-    {
-      ((SubjectImpl) (this.subject)).setSignet(this.signet);
-    }
-
-    return this.subject;
+  public String getSubjectId() {
+  	return this.subject.getId();
   }
 
 //  public Assignment grant
@@ -885,22 +770,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     PrivilegedSubjectImpl rhs = (PrivilegedSubjectImpl) obj;
-    Subject thisSubject = null;
-    Subject rhsSubject = null;
-
-    try
-    {
-      thisSubject = this.getSubject();
-      rhsSubject = rhs.getSubject();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(
-          "Unable to fetch some part of the underlying Subject of a PrivilegedSubject",
-          onfe);
-    }
+    Subject thisSubject = this.getSubject();
+    Subject rhsSubject = rhs.getSubject();
 
     return new EqualsBuilder().append(thisSubject, rhsSubject).isEquals();
+  
   }
 
   /* (non-Javadoc)
@@ -908,46 +782,20 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public int hashCode()
   {
-    Subject thisSubject = null;
-
-    try
-    {
-      thisSubject = this.getSubject();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(
-          "Unable to fetch some part of the underlying Subject of a PrivilegedSubject",
-          onfe);
-    }
+    Subject thisSubject = this.subject;
 
     // you pick a hard-coded, randomly chosen, non-zero, odd number
     // ideally different for each class
     return new HashCodeBuilder(17, 37).append(thisSubject).toHashCode();
   }
 
-  /**
-   * @return Returns the subjectKey.
-   */
-  SubjectKey getSubjectKey()
-  {
-    return this.subjectKey;
-  }
-
-  /**
-   * @param subjectKey The subjectKey to set.
-   */
-  void setSubjectKey(SubjectKey subjectKey)
-  {
-    this.subjectKey = subjectKey;
-  }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.subject.Subject#addAttribute(java.lang.String, java.lang.String)
    */
-  public void addAttribute(String name, String value)
+  //public void addAttribute(String name, String value)
   {
-    this.subject.addAttribute(name, value);
+    //this.subject.addAttribute(name, value);
   }
 
   /* (non-Javadoc)
@@ -955,29 +803,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public String toString()
   {
-    String displayId = null;
-    String name = null;
-    String typeId = null;
-    String id = null;
-
-    try
-    {
-      displayId = this.getDisplayId();
-      name = this.getName();
-      typeId = this.getSubjectTypeId();
-      id = this.getId();
-    }
-    catch (SubjectNotFoundException snfe)
-    {
-      throw new SignetRuntimeException(
-          "Unable to fetch the underlying Subject of a PrivilegedSubject", snfe);
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(
-          "Unable to fetch some part of the underlying Subject of a PrivilegedSubject",
-          onfe);
-    }
+    String displayId = this.getDisplayId();
+    String name = this.subject.getName();
+    String typeId = this.subject.getType().getName();
+    String id = this.subject.getId();
 
     return "displayId='" + displayId + "', name='" + name + "', typeId = '"
         + typeId + "', id = '" + id + "'";
@@ -991,8 +820,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     String thisName = null;
     String otherName = null;
 
-    thisName = this.getName();
-    otherName = ((PrivilegedSubject) o).getName();
+    thisName = this.subject.getName();
+    otherName = ((PrivilegedSubject) o).getSubject().getName();
 
     return thisName.compareToIgnoreCase(otherName);
   }

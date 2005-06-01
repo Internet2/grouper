@@ -119,6 +119,8 @@ foreign key (subsystemID, functionID) references Function (subsystemID, function
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
+drop table PrivilegedSubject;
+
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
@@ -147,6 +149,14 @@ create table SubjectAttribute (
   modifyDateTime    datetime        NOT NULL,
   primary key (subjectTypeID, subjectID, name, instance)
 );
+
+create table PrivilegedSubject (
+subjectTypeID     varchar(32)     NOT NULL,
+subjectID         varchar(64)     NOT NULL,
+name              varchar(120)    NOT NULL,
+primary key (subjectTypeID, subjectID)
+)
+;
 
 -- Tree tables
 drop table TreeNodeRelationship;
