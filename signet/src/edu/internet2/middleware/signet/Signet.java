@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.19 2005-06-01 06:13:08 mnguyen Exp $
- $Date: 2005-06-01 06:13:08 $
+ $Id: Signet.java,v 1.20 2005-06-01 16:55:12 mnguyen Exp $
+ $Date: 2005-06-01 16:55:12 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1748,6 +1748,23 @@ public final class Signet
   		throw new ObjectNotFoundException("Unable to find Subject by display ID.");
   	}
     return subject;
+  }
+
+  /**
+   * Finds a set of Subjects by type and search value.
+   * 
+   * @param subjectTypeId
+   * @param searchValue
+   * @return
+   */
+  public Set findSubjects(String subjectTypeId, String searchValue)
+  {
+    Set results = new HashSet();
+    for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+		Set result = ((Source)iter.next()).search(searchValue);
+		results.addAll(result);
+    }
+    return results;
   }
 
   private void reportMultipleRecordError(String tableName, String keyName,

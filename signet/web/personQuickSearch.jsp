@@ -21,14 +21,9 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
 
-  Set privilegedSubjects
-    = signet.getPrivilegedSubjects();
-    
-  // This is a shameful little hack to temporarily simulate person-quicksearch
-  // until it's implemented in the upcoming new version of the Subject interface:
   String searchString = request.getParameter("searchString");
-  SortedSet sortSet = Common.filterSearchResults(privilegedSubjects, searchString);
-  
+  Set sortSet = signet.findSubjects(Signet.DEFAULT_SUBJECT_TYPE_ID, searchString);
+
   if (sortSet.size() <= 0)
   {
 %>
