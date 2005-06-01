@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.69 2005-05-23 20:41:02 blair Exp $
+$Id: API,v 1.70 2005-06-01 14:49:38 blair Exp $
 
 ---
 
@@ -98,7 +98,7 @@ $Id: API,v 1.69 2005-05-23 20:41:02 blair Exp $
 * List                listVals(list)
 * GrouperGroup        static load(session, stem, extension)
 * GrouperGroup        static load(session, stem, extension, groupType)
-* GrouperStem         static loadByID(session, groupID)
+* GrouperGroup        static loadByID(session, groupID)
 * Group               static loadByName(session, name)
 * Group               static loadByName(session, name, groupType)
 * String              modifySource()
@@ -194,9 +194,9 @@ $Id: API,v 1.69 2005-05-23 20:41:02 blair Exp $
 * List                listImmVals(list)
 * List                listVals()
 * List                listVals(list)
-* GrouperGroup        static load(session, stem, extension)
-* GrouperGroup        static loadByID(session, groupID)
-* Group               static loadByName(session, name)
+* GrouperStem         static load(session, stem, extension)
+* GrouperStem         static loadByID(session, groupID)
+* GrouperStem         static loadByName(session, name)
 * String              modifySource()
 * Subject             modifySubject()
 * Date                modifyTime()
