@@ -110,6 +110,7 @@ against the database file--use when application is not running">
 			<fileset dir="${config.dir}">
 				<include name="**/*.cfg.xml"/>
 				<include name="**/*.properties"/>
+				<include name="sources.xml"/>
 			</fileset>
 			<fileset dir="${source.dir}">
 				<include name="**/*.properties"/>
