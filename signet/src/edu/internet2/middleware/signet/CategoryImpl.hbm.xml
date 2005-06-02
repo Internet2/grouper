@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.CategoryImpl"
-		table="Category">
+		table="signet_category">
 
 		<id name="id" type="string" column="categoryID">
 			<generator class="assigned"/>

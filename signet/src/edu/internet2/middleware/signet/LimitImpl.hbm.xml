@@ -4,7 +4,7 @@
 <hibernate-mapping>	
 	<class
 		name="edu.internet2.middleware.signet.LimitImpl"
-		table="Limit">
+		table="signet_limit">
 
 		<composite-id
 			name="fullyQualifiedId"
@@ -21,7 +21,7 @@
 		
 		<set
 			name="permissions"
-			table="Permission_Limit"
+			table="signet_permission_limit"
 			cascade="save-update"
 			lazy="false">
 			<key>

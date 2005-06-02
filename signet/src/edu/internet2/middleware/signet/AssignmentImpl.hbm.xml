@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.AssignmentImpl"
-		table="Assignment"
+		table="signet_assignment"
 		lazy="true">
 		
 <!--
@@ -65,7 +65,7 @@
 		<set
 			name="limitValues"
 			lazy="true"
-			table="AssignmentLimitValue">
+			table="signet_assignmentLimit">
 			<key column="assignmentID"/>
 			<element
 				type="edu.internet2.middleware.signet.LimitValueCompositeUserType">

@@ -32,16 +32,16 @@ public class SubsystemDestroyer {
     private String subsystemId = null;
     
     private String[] statements = new String[] {
-    	"delete Choice from Choice, ChoiceSet where Choice.choiceSetID = ChoiceSet.choiceSetID and ChoiceSet.subsystemID = ?",
-		"delete from ChoiceSet           where subsystemID = ?",
-		"delete from Function_Permission where subsystemID = ?",
-		"delete from Permission_Limit    where subsystemID = ?",
-		"delete from Permission          where subsystemID = ?",
-		"delete from Limit               where subsystemID = ?",
-		"delete from Function            where subsystemID = ?",
-		"delete from Category            where subsystemID = ?",
-		"delete from Subsystem           where subsystemID = ?",
-		"delete from Assignment          where subsystemID = ?"
+    	"delete signet_choice from signet_choice, signet_choiceSet where signet_choice.choiceSetID = signet_choiceSet.choiceSetID and signet_choiceSet.subsystemID = ?",
+		"delete from signet_choiceSet           where subsystemID = ?",
+		"delete from signet_function_permission where subsystemID = ?",
+		"delete from signet_permission_limit    where subsystemID = ?",
+		"delete from signet_permission          where subsystemID = ?",
+		"delete from signet_limit               where subsystemID = ?",
+		"delete from signet_function            where subsystemID = ?",
+		"delete from signet_category            where subsystemID = ?",
+		"delete from signet_subsystem           where subsystemID = ?",
+		"delete from signet_assignment          where subsystemID = ?"
 	};
 	
     static

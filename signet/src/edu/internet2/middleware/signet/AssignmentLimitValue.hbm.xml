@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.AssignmentLimitValue"
-		table="AssignmentLimitValue">
+		table="signet_assignmentLimit">
 		
 		<composite-id>
 			

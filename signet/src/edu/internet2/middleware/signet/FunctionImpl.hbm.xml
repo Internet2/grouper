@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.FunctionImpl"
-		table="Function">
+		table="signet_function">
 		
 		<meta attribute="class-description">
 			@author Andy Cohen
@@ -28,7 +28,7 @@
 		
 		<set
 			name="permissions"
-			table="Function_Permission"
+			table="signet_function_permission"
 			cascade="save-update"
 			lazy="false">
 			<key>

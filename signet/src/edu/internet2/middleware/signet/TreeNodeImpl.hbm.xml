@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.TreeNodeImpl"
-		table="TreeNode">
+		table="signet_treeNode">
 		
 		<composite-id
 			name="fullyQualifiedId"

@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.ChoiceImpl"
-		table="Choice">
+		table="signet_choice">
 		
 		<composite-id
 			name="fullyQualifiedId"

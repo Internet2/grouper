@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.TreeImpl"
-		table="Tree">
+		table="signet_tree">
 		
 		<id name="id" type="string" column="treeID">
 			<generator class="assigned"/>

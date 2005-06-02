@@ -47,13 +47,13 @@ public class TreeXMLLoader
   private String[] deletionTableNames
     = new String[]
         {
-          "TreeNodeRelationship",
-          "TreeNode",
-          "Tree"
+          "signet_treeNodeRelationship",
+          "signet_treeNode",
+          "signet_tree"
         };
   
   private String insertTreeSQL
-    = "insert into Tree"
+    = "insert into signet_tree"
       + "(treeID,"
       + " name,"
       + " adapterClass,"
@@ -61,7 +61,7 @@ public class TreeXMLLoader
       + "values (?, ?, ?, ?)";
   
   private String insertTreeNodeSQL
-    = "insert into TreeNode"
+    = "insert into signet_treeNode"
       + "(treeID,"
       + " nodeID,"
       + " nodeType,"
@@ -72,7 +72,7 @@ public class TreeXMLLoader
 
 
   private String insertTreeNodeRelationshipSQL
-    = "insert into TreeNodeRelationship"
+    = "insert into signet_treeNodeRelationship"
       + "(treeID,"
       + " nodeID,"
       + " parentNodeID)"

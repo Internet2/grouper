@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.PermissionImpl"
-		table="Permission"
+		table="signet_permission"
 		lazy="true">
 		
 		<meta attribute="class-description">
@@ -17,7 +17,7 @@
 		
 		<set
 			name="functions"
-			table="Function_Permission"
+			table="signet_function_permission"
 			inverse="true"
 			cascade="save-update"
 			lazy="false">
@@ -34,7 +34,7 @@
 		
 		<set
 			name="limits"
-			table="Permission_Limit"
+			table="signet_permission_limit"
 			inverse="true"
 			cascade="save-update"
 			lazy="false">

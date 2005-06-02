@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.ChoiceSetImpl"
-		table="ChoiceSet">
+		table="signet_choiceSet">
 		
 		<id name="id" type="string" column="choiceSetID">
 			<generator class="assigned"/>

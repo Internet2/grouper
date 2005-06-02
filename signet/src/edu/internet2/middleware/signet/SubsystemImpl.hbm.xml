@@ -4,7 +4,7 @@
 <hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.SubsystemImpl"
-		table="Subsystem">
+		table="signet_subsystem">
 		
 		<meta attribute="class-description">
 			Subsystem describes a business entity within the
