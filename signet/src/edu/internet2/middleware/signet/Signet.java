@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.22 2005-06-02 21:22:50 mnguyen Exp $
- $Date: 2005-06-02 21:22:50 $
+ $Id: Signet.java,v 1.23 2005-06-02 21:44:29 mnguyen Exp $
+ $Date: 2005-06-02 21:44:29 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1194,7 +1194,6 @@ public final class Signet
    */
   public Set getPrivilegedSubjectsByDisplayId(String subjectTypeId, String displayId) {
     Set pSubjects = new HashSet();
-    System.out.println("Sources for " + subjectTypeId + " " + getSource(subjectTypeId));
     for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
 		Set result = ((Source)iter.next()).searchByIdentifier(displayId);
 		for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
