@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.20 2005-06-02 19:01:01 blair Exp $
+ * @version $Id: MemberOf.java,v 1.21 2005-06-02 19:14:34 blair Exp $
  */
 public class MemberOf {
 
@@ -113,7 +113,7 @@ public class MemberOf {
     //      exceptions?
     if (!gl.group().type().equals("naming")) {
       // Where (across all list values in the registry) is g a member?
-      GrouperMember m = gl.group().toMember();
+      GrouperMember m = ( (GrouperGroup) gl.group() ).toMember();
       List isMem = m.listValsAll();
 
       // Add m to groups where g is a member

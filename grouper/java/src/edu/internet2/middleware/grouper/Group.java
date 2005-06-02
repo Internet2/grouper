@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.32 2005-06-02 19:01:01 blair Exp $
+ * @version $Id: Group.java,v 1.33 2005-06-02 19:14:34 blair Exp $
  */
 abstract public class Group {
 
@@ -121,7 +121,6 @@ abstract public class Group {
   abstract protected void             setModifySource(String modifySource);
   abstract protected void             setModifySubject(String modifySubject);
   abstract protected void             setModifyTime(String modifyTime);
-  abstract protected GrouperMember    toMember();
 
 
   /*
