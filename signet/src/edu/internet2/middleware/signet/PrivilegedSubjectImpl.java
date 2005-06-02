@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.11 2005-06-01 06:13:08 mnguyen Exp $
- $Date: 2005-06-01 06:13:08 $
+ $Id: PrivilegedSubjectImpl.java,v 1.12 2005-06-02 14:10:06 mnguyen Exp $
+ $Date: 2005-06-02 14:10:06 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -668,33 +668,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     this.assignmentsReceived = assignmentsReceived;
   }
 
-  /**
-   * @param name
-   * @return
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getSubject()
    */
-  public Set getAttributeValues(String name)
-  {
-    return this.subject.getAttributeValues(name);
-  }
-
-  /**
-   * @return
-   */
-  public String getDescription()
-  {
-    return this.subject.getDescription();
-  }
-
-  /**
-   * @return
-   */
-  public String getDisplayId()
-  {
-    return this.getSubject().getAttributeValue("displayId");
-  }
-
-  public Subject getSubject()
-  {
+  public Subject getSubject() {
     return this.subject;
   }
 
@@ -704,6 +681,28 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public String getSubjectId() {
   	return this.subject.getId();
   }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getSubjectTypeId()
+   */
+  public String getSubjectTypeId() {
+  	return this.subject.getType().getName();
+  }
+  
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getName()
+   */
+  public String getName() {
+    return this.subject.getName();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getDescription()
+   */
+  public String getDescription() {
+    return this.subject.getDescription();
+  }
+
 
 //  public Assignment grant
 //  	(PrivilegedSubject 	grantee,
@@ -803,12 +802,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public String toString()
   {
-    String displayId = this.getDisplayId();
     String name = this.subject.getName();
     String typeId = this.subject.getType().getName();
     String id = this.subject.getId();
 
-    return "displayId='" + displayId + "', name='" + name + "', typeId = '"
+    return "name='" + name + "', typeId = '"
         + typeId + "', id = '" + id + "'";
   }
 

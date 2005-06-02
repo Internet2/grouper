@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.8 2005-06-01 06:13:08 mnguyen Exp $
- $Date: 2005-06-01 06:13:08 $
+ $Id: PrivilegedSubject.java,v 1.9 2005-06-02 14:10:06 mnguyen Exp $
+ $Date: 2005-06-02 14:10:06 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -185,6 +185,24 @@ public interface PrivilegedSubject extends Comparable
    * @return the ID of the Subject which underlies this PrivilegedSubject.
    */
   public String getSubjectId();
+ 
+  /**
+   * Gets the type ID of the Subject which underlies this PrivilegedSubject.
+   * @return the type ID of the Subject which underlies this PrivilegedSubject.
+   */
+  public String getSubjectTypeId();
+  
+  /**
+   * Gets the name of the Subject which underlies this PrivilegedSubject.
+   * @return the name of the Subject which underlies this PrivilegedSubject.
+   */
+  public String getName();
+  
+  /**
+   * Gets the description of the Subject which underlies this PrivilegedSubject.
+   * @return the description of the Subject which underlies this PrivilegedSubject.
+   */
+  public String getDescription();
   
   /**
    * This method produces a Set of those Choice values which are grantable
