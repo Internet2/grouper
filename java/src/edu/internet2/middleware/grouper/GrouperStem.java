@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.45 2005-05-29 20:34:49 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.46 2005-06-02 19:14:34 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -502,32 +502,6 @@ public class GrouperStem extends Group {
                 );
     }
     return vals;
-  }
-
-  /**
-   * Retrieve {@link GrouperMember} object for this 
-   * {@link GrouperGroup}.
-   * </p>
-   * @return {@link GrouperMember} object
-   */
-  public GrouperMember toMember() {
-    GrouperMember m = null;
-    GrouperSession.validate(this.s);
-    // FIXME Make sure I set this when loading as well...
-    if (this.initialized == true) {
-      try {
-        m = GrouperMember.load(
-              this.s, this.getGroupID(), "group"
-            );
-      } catch (SubjectNotFoundException e) {
-        throw new RuntimeException(
-          "Error converting stem to member: " + e.getMessage()
-        );
-      }
-    } else {
-      m = GrouperMember.create(s, this.getGroupID(), "group");
-    }
-    return m;
   }
 
   /**
