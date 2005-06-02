@@ -12,6 +12,9 @@
 /
 /     [attributename] [attributevalue]
 /   
+/ Note: "SignetSuperSubject" is a temporary highly-privileged
+/        user for bootstrapping privileges in the demo system
+/
 source person
 +K0000001 McRae, Lynn
 description Chair, Signet Working Group
@@ -67,3 +70,6 @@ loginid demo
 +K0000018 Rhys-Davies, John
 description Actor
 loginid jrdavis
++K0000019 User, Super
+description Signet Privilege Boostrap user
+loginid SignetSuperSubject
