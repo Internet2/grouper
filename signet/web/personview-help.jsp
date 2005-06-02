@@ -1,6 +1,6 @@
 <!--
-   $Id: personview-help.jsp,v 1.4 2005-03-01 21:07:36 acohen Exp $
-   $Date: 2005-03-01 21:07:36 $
+   $Id: personview-help.jsp,v 1.5 2005-06-02 06:26:04 jvine Exp $
+   $Date: 2005-06-02 06:26:04 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights 
 Reserved.
@@ -34,14 +34,8 @@ Reserved.
 %>
 
 	<P>
-		This page shows all the privileges of the selected type
-		(<%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%>)
-		assigned to the selected person
-		(<%=subjectName%>).
-	</P>
+		This page shows the privileges granted to
+				(<%=subjectName%>), filtered by type (<%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%>).</P>
 	<P>
-		To view other types of privilege assigned to this person, select a privilege
-		type from the &quot;assigned privilege types&quot; drop-down menu and click
-		"Show." If a privilege type is not listed, this person does not have an
-		privileges of that type.
-	</P>
+		To view another privilege type, select it from the drop-down menu and click &quot;Show.&quot; If a privilege type is not shown, this subject does not have any privileges of that type.</P>
+  <P>To grant more privileges to this subject, select the type of privilege you want to grant, and click &quot;Start.&quot; The menu of privilege types shows only those you can grant. </P>

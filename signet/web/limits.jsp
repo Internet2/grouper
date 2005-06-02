@@ -1,6 +1,6 @@
 <!--
-  $Id: limits.jsp,v 1.8 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: limits.jsp,v 1.9 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -118,30 +118,25 @@
          	<div class="section">
           	<h2>
            	New <%=currentSubsystem.getName()%> privilege
+						 		<div class="change">
+									<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
+								</div>
          		</h2>
-          	<ul class="none">
-             	<li>
+          	<span class="category">
                	<%=currentCategory.getName()%>
-               	<ul class="arrow">
-                 	<li>
+               	</span> : 
+                 	<span class="function">
                    	<%=currentFunction.getName()%>
-                 	</li>
-               	</ul>
-             	</li>
-           	</ul>
-           	<input
-                name="Button"
-                type="button"
-                class="button2"
-                onclick=(parent.location='<%=functionsHref%>')
-                value="&lt;&lt; Change privilege" />
+                 	</span>
          	</div>
 					            	
 
          	
          	<div class="section">
-         		<h2>
-           	Scope
+         		<h2>Scope
+						 		<div class="change">
+									<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
+								</div>
          		</h2>
            	<ul class="none">
               	
@@ -154,14 +149,8 @@
                  %>
               	
             </ul>
-            	
-            <input
-                name="Button"
-                type="button"
-                class="button2"
-                onclick=(parent.location='<%=orgBrowseHref%>')
-                value="&lt;&lt; Change scope" />
-         	</div>  	<!-- section -->
+          </div>  	
+         	<!-- section -->
           	
           <!--
           
@@ -373,15 +362,13 @@
       		
       <fieldset>
      		<legend>
-     		Privilege holder can:
+     		Privilege holder can
    		</legend>
-     		<blockquote>
-       		<input name="can_use" type="checkbox" value="checkbox" checked="checked" />
-       		use this privilege
+       		<input name="can_use" id="can_use" type="checkbox" value="checkbox" checked="checked" />
+       		<label for="can_use">use this privilege</label>
        		<br />
-       		<input name="can_grant" type="checkbox" value="checkbox" />
-       		grant this privilege to others
-     		</blockquote>
+       		<input name="can_grant" id="can_grant" type="checkbox" value="checkbox" />
+       		<label for="can_grant">grant this privilege to others</label>
       		</fieldset>
       		</div> <!-- section -->
 					
@@ -393,10 +380,10 @@
           value="Complete assignment" />
       		<p>
         		<a href="<%=personViewHref%>">
-         		<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+         		<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
         		</a>
       		</p>
-            		</div> <!-- section -->
+       		</div> <!-- section -->
             
 		</div> <!-- Content -->
         <tiles:insert page="/tiles/footer.jsp" flush="true" />

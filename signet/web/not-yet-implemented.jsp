@@ -1,6 +1,6 @@
 <!--
-  $Id: not-yet-implemented.jsp,v 1.5 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: not-yet-implemented.jsp,v 1.6 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -81,7 +81,7 @@
           <h1>This feature has not yet been implemented.</h1>
           <br /> 
           <a href="Start.do">
-            <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Return to home page
+            <img src="images/arrow_left.gif" alt="" />Return to home page
           </a>
           or click your browser's back button.
         </div> <!-- Content -->

@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.22 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: personview.jsp,v 1.23 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 </head>
 
-<body onLoad="javascript:initRevokeAllCheckbox();">
+<body onload="javascript:initRevokeAllCheckbox();">
   <script type="text/javascript">
     function initRevokeAllCheckbox()
     {
@@ -188,23 +188,18 @@
 		         <a
               style="float: right;"
               href="javascript:;"
-              onClick="alert('This will download the data shown in the table in an Excel-readable format.')">
+              onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
              <img
-                src="images/icon_spread.gif"
-                width="20"
-                height="20"
-                class="icon"
-                style="margin-left: 10px;" />
+                src="images/export.gif"
+                alt="" />
              Export to Excel
            </a>
            <a
               style="float: right;"
               href="PersonViewPrint.do">
              <img
-                src="images/icon_printsion.gif"
-                width="21"
-                height="20"
-                class="icon" />
+                src="images/print.gif"
+                alt="" />
              Printable version
            </a>
            <h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
@@ -215,7 +210,7 @@
   
             <option
                 selected="selected"
-                onClick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=true">
+                onclick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=true">
                (assigned privilege types)
              </option>
                 
@@ -243,7 +238,7 @@
 %>
              <option
                 value="<%=subsystem.getId()%>"
-                onClick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=false">
+                onclick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=false">
                <%=subsystem.getName()%>
              </option>
                 
@@ -264,7 +259,7 @@
        </div> <!-- tableheader -->
               
       <form
-          onSubmit
+          onsubmit
             ="return confirm
                ('Are you sure you want to revoke the'
                 + (selectCount() == 1 ? '' : (' ' + selectCount()))
@@ -282,9 +277,8 @@
              <tr class="columnhead">
                <th width="30%">
                  <img
-                    src="images/icon_down_unsel.gif"
-                    width="17"
-                    height="17" />
+                  src="images/sort_down.gif"
+                  alt="Sorted [descending]" />
                  Privilege
                </th>
                <th width="20%">
@@ -300,7 +294,7 @@
                     name="checkAll"
                     type="checkbox"
                     id="checkAll"
-                    onClick="selectAll(this.checked);"
+                    onclick="selectAll(this.checked);"
                     value="Check All" />
                </th>
              </tr>
@@ -331,9 +325,8 @@
                       width=500,
                       height=250');">
                    <img
-                     src="images/info.gif"
-                     width="20"
-                     height="20" />
+                    src="images/maglass.gif"
+										alt="More info about this assignment..." />
                  </a>
                  <%=assignment.getFunction().getCategory().getName()%>
                  : 
@@ -349,10 +342,8 @@
                    style="float: right;"
                    href="NotYetImplemented.do">
                    <img
-                     src="images/icon_arrow_right.gif"
-                       width="16"
-                       height="16"
-                       class="icon" />
+                     src="images/arrow_right.gif"
+                       alt="" />
                    edit
                  </a>
                 <%=Common.displayLimitValues(assignment)%>
@@ -367,7 +358,7 @@
                       value="<%=assignment.getNumericId()%>"
                       <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "disabled=\"true\"")%>
                       <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "title=\"" + loggedInPrivilegedSubject.editRefusalExplanation(assignment, "logged-in user") + "\"")%>
-                      onClick="selectThis(this.checked);">
+                      onclick="selectThis(this.checked);">
                  </td>
                </tr>
                   
@@ -414,7 +405,7 @@
           </h2>
           <form action="Functions.do">
             <p>
-              <select name="select" class="long">
+              <select id="select" name="select" class="long">
 
 <%
     Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
@@ -437,7 +428,7 @@
                   <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
                   value="Start &gt;&gt;" />
                 <br />
-            <span class="dropback">Select the type of privilege you want to grant, then click "Start." The list of privilege types shows only those you are authorized to grant.</span></p>
+            <label for="select">Select the type of privilege you want to grant, then click "Start."</label></p>
           </form>
         </div> <!-- grant -->
           
@@ -446,8 +437,7 @@
 %>
         <div class="findperson">
           <h2>
-            find a person
-          </h2>
+            find a Subject </h2>
           <p>
             <input
               name="words"
@@ -459,14 +449,14 @@
               maxlength="500" />
             <input
               name="searchbutton"
-              type="button"
+              type="submit"
               class="button1"
               onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
               value="Search" /> 
             <br />
-            <span class="dropback">
-              Enter a person's name, and click "Search."
-            </span>
+            <label for="words">
+              Enter a subject's name, and click "Search."
+            </label>
           </p>
           <div id="PersonSearchResults" style="display:none">
           </div> <!-- PersonSearchResults -->
@@ -479,30 +469,24 @@
             <p>
               <a href="Start.do">
                 <img
-                    src="images/icon_arrow_right.gif"
-                    width="16"
-                    height="16"
-                    class="icon" />
+                     src="images/arrow_right.gif"
+                       alt="" />
                 you have granted
               </a>
             </p>
             <p>
               <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%><%=currentSubsystem == null ? "" : ("&subsystemId=" + currentSubsystem.getId())%>">
                 <img
-                    src="images/icon_arrow_right.gif"
-                    width="16"
-                    height="16"
-                    class="icon" />
+                     src="images/arrow_right.gif"
+                       alt="" />
                 assigned to you
               </a>
             </p>
             <p>
               <a href="NotYetImplemented.do">
                 <img
-                   src="images/icon_arrow_right.gif"
-                   width="16"
-                   height="16"
-                   class="icon" />
+                     src="images/arrow_right.gif"
+                       alt="" />
                 by scope
               </a>
             </p>

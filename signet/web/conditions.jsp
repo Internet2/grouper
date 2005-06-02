@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.14 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: conditions.jsp,v 1.15 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -20,7 +20,7 @@
     </script>
   </head>
 
-  <body onLoad="javascript:selectLimitCheckbox();">
+  <body onload="javascript:selectLimitCheckbox();">
     <script type="text/javascript">
       function selectLimitCheckbox()
       {
@@ -182,27 +182,21 @@
             </div>  <!-- ViewHead -->
           
             <div class="section">
-             <h2>New <%=currentSubsystem.getName()%> privilege</h2>
-                <ul class="none">
-                <li>
-                  <%=currentCategory.getName()%>
-                  <ul class="arrow">
-                    <li>
-                      <%=currentFunction.getName()%>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-              <input
-                name="Button"
-                type="button"
-                class="button2"
-                onclick=(parent.location='<%=functionsHref%>')
-                value="&lt;&lt; Change privilege" />
-            </div> <!-- section -->
+             	<h2>New <%=currentSubsystem.getName()%> privilege
+						 		<div class="change">
+									<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
+								</div>
+							</h2>
+                <span class="category"><%=currentCategory.getName()%></span> : 
+                <span class="function"><%=currentFunction.getName()%></span>
+          </div> <!-- section -->
             
-            <div class="section">
-              <h2>Scope</h2>
+          <div class="section">
+              <h2>Scope
+								<div class="change">
+									<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
+								</div>
+							</h2>
               <ul class="none">
               
                 <%=signet.displayAncestry
@@ -214,14 +208,7 @@
                  %>
               
               </ul>
-            
-              <input
-                name="Button"
-                type="button"
-                class="button2"
-                onclick=(parent.location='<%=orgBrowseHref%>')
-                value="&lt;&lt; Change scope" />
-            </div> <!-- section -->
+          </div><!-- section -->
             
 <%
   if (currentLimits.length > 0)
@@ -274,17 +261,16 @@
                 <p>
                   Privilege holder can:
                 </p>
-                <blockquote>
                   <input
                      name="can_use"
+                     id="can_use"
                      type="checkbox"
                      value="checkbox"
                      checked="checked" />
-                  use this privilege
+                  <label for="can_use">use this privilege</label>
                   <br />
-                  <input name="can_grant" type="checkbox" value="checkbox" />
-                  grant this privilege to others
-                </blockquote>
+                  <input name="can_grant" id="can_grant" type="checkbox" value="checkbox" />
+                  <label for="can_grant">grant this privilege to others</label>
               </fieldset>
               <p>
                 <input
@@ -295,7 +281,7 @@
               </p>
               <p>
                 <a href="<%=personViewHref%>">
-                  <img src="images/icon_arrow_left.gif" width="16" height="16" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+                  <img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
                 </a>
               </p>
             </div> <!-- section -->

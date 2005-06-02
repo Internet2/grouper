@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.11 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: functions.jsp,v 1.12 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -127,12 +127,12 @@
 					<h2>
            	New <%=currentSubsystem.getName()%> privilege
          	</h2> 
-           	<p class="dropback">
-             	 Select the privilege you want to grant. Only privileges you are authorized to grant are listed.
-							</p>
+           	<p>
+             	 <label for="functionSelectList">Select the privilege you want to grant.</label>
+           	</p>
 							
                	<select
-               	    style="float: left;"
+               	  style="float: left;"
                		name="functionSelectList"
                		size="10"
                		id="functionSelectList"
@@ -192,31 +192,30 @@
   }
 %>
      
-                <div class="description" style="float: left; width: 300px;">
-                  <span style="font-weight: bold;" id="categoryName">
+                <div class="showdesc">
+                  <span class="category" id="categoryName">
                     <!-- category name gets inserted by Javascript -->
-                  </span> <!-- categoryName -->
-                  <span style="font-weight: bold;" class="keyname" id="functionName">
+                  </span> :  <!-- categoryName -->
+                  <span class="function" id="functionName">
                     <!-- function name gets inserted by Javascript -->
                   </span> <!-- functionName -->
-                  <br />
-                  <span id="functionDescription">
+                  <p class="description" id="functionDescription">
                     <!-- function description gets inserted by Javascript -->
-                  </span>
+                  </p>
                 </div>  <!-- description -->
               </div> 	<!-- section -->
 					
            <div class="section">
              	<input
                   name="continueButton"
-        		  disabled="true"
+        		  		disabled="true"
                   type="submit"
                   class="button-def"
                   value="Continue &gt;&gt;" />
            	
            	<p>
              	<a href="<%=personViewHref%>">
-               	<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
              	</a>
            	</p>
          	</div>	<!-- section -->

@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.9 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: org-browse.jsp,v 1.10 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -108,37 +108,28 @@
          	<div class="section">
          	<h2>
            	New <%=currentSubsystem.getName()%> privilege
+						 		<div class="change">
+									<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
+								</div>
          	</h2>
-           	<ul class="none">
-             	<li>
-               	<%=currentCategory.getName()%>
-               	<ul class="arrow">
-                 	<li>
-                   	<%=currentFunction.getName()%>
-                 	</li>
-               	</ul>
-             	</li>
-           	</ul>
-           	<input
-                name="Button"
-                class="button2"
-                onclick=(parent.location='<%=functionsHref%>')
-                value="&lt;&lt; Change privilege"
-                type="button">
-         	</div><!-- end section -->
+            <span class="category"><%=currentCategory.getName()%></span> : 
+            <span class="function"><%=currentFunction.getName()%></span>
+       	  </div>
+         	<!-- end section -->
 
            	<div class="section">
            	<h2>
              	Scope
          	 </h2>
  
-             	<p class="dropback">
+             	<p class="nomarg"><label for "scope">
                	Select the organization to which this privilege applies.
-             	</p>
+             	</label></p>
 
              	<select
               	name="scope"
-              	size=17
+	            	id="scope"
+              	size=20
               	onchange="javascript:document.form1.continueButton.disabled=false">
                	<%=signet.printTreeNodesInContext
                     ("<option disabled value=\"",  // ancestorPrefix

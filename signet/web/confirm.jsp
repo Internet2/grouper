@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.14 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: confirm.jsp,v 1.15 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -122,16 +122,8 @@
            
           <div class="section">
             <h2><%=currentSubsystem.getName()%> privilege granted</h2>
-            <ul class="none">
-              <li>
-                <%=currentCategory.getName()%>
-                <ul class="arrow">
-                  <li>
-                    <%=currentFunction.getName()%>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+					      <span class="category"><%=currentCategory.getName()%></span> : 
+                <span class="function"><%=currentFunction.getName()%></span>	
           </div><!-- section -->
               
           <div class="section">
@@ -220,17 +212,17 @@
            </h2>
              <p>
                <a href="<%=personViewHref%>">
-                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />View all <%=currentGranteePrivilegedSubject.getName()%>'s privileges
+                 <img src="images/arrow_right.gif" alt="" />View all <%=currentGranteePrivilegedSubject.getName()%>'s privileges
                </a>
              </p>
              <p>
                <a href="Functions.do?select=<%=currentSubsystem.getId()%>">
-                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
+                 <img src="images/arrow_right.gif" alt="" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
                </a>
              </p>
              <p>
                <a href="Start.do">
-                 <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />Return to home page
+                 <img src="images/arrow_right.gif" alt="" />Return to home page
                </a>
              </p>
            </div>
@@ -241,8 +233,7 @@
          <div id="Sidebar">
           <div class="findperson">
             <h2>
-              Find a person
-            </h2>
+              Find a subject </h2>
             <p>
               <input name="words" type="text" class="short" id="words" style="width:100px" size="15" maxlength="500" />
               <input
@@ -252,9 +243,9 @@
                 onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
                 value="Search" />
               <br />
-              <span class="dropback">
-                Enter a person's name, and click "Search."
-              </span>
+              <label for="words">
+                Enter a subject's name, and click "Search."
+              </label>
             </p>
             <div id="PersonSearchResults" style="display:none">
             </div> <!-- PersonSearchResults -->
@@ -266,14 +257,14 @@
             </h2>
             <p>
               <a href="Start.do">
-            <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />you have granted</a></p>
+            <img src="images/arrow_right.gif" alt="" />you have granted</a></p>
             <p>
               <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
-                <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />assigned to you</a>
+                <img src="images/arrow_right.gif" alt="" />assigned to you</a>
             </p>
             <p>
               <a href="NotYetImplemented.do">
-                <img src="images/icon_arrow_right.gif" width="16" height="16" class="icon" />by scope
+                <img src="images/arrow_right.gif" alt="" />by scope
               </a>
             </p>
           </div> <!-- views -->

@@ -1,6 +1,6 @@
 <!--
-  $Id: main-print.jsp,v 1.12 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: main-print.jsp,v 1.13 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -56,7 +56,7 @@
     <form name="form1" method="post" action="">
       <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Layout"> 
-       <a href="Start.do"><img src="images/icon_arrow_left.gif" class="icon" />return</a>
+       <a href="Start.do"><img src="images/arrow_left.gif" alt="" />return</a>
        <h1>
           Privileges you have granted</h1>
   	    

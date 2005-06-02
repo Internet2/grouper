@@ -1,6 +1,6 @@
 <!--
-   $Id: grant-help.jsp,v 1.3 2005-02-25 00:14:06 acohen Exp $
-   $Date: 2005-02-25 00:14:06 $
+   $Id: grant-help.jsp,v 1.4 2005-06-02 06:26:04 jvine Exp $
+   $Date: 2005-06-02 06:26:04 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights 
 Reserved.
@@ -23,14 +23,10 @@ Reserved.
 %>
 
 
-<P>You will make a series of selections, each affecting the selection(s) that follow it:</P>
-<OL>
-	<LI>the <%=currentSubsystem.getName()%> privilege to be granted</LI>
-	<LI>the organization to which this privilege applies</LI>
-	<LI>limits and conditions on this privilege</LI>
-</OL>
-<P>In each case, make your selection(s) then click Continue &gt;&gt;. </P>
-<P>To change a previous selection at any time, click the &lt;&lt; Change button in that section.</P>
-<P>To select a <I>different</I> privilege type, click CANCEL to return to the person's authority view.</P>
-<P>To exit this process without granting the privilege, click CANCEL to return to the person's authority view.</P>
-
+	<P>Granting authority takes place in a series of steps. You will select: </P>
+	<UL>
+		<LI> the privilege you want to grant </LI>
+		<LI> the scope to which the privilege applies</LI>
+		<LI> any limits attached to the privilege, such as spending amounts, populations, etc.</LI>
+  </UL>
+  <P>Only the privileges, scopes, and limits  you are authorized to grant are listed. </P>

@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.23 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: main.jsp,v 1.24 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -69,25 +69,18 @@
     <div id="Content"> 
         <div class="tableheader">
           <a
-            style="float: right;"
             href="javascript:;"
             onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
             <img
-              src="images/icon_spread.gif"
-              width="20"
-              height="20"
-              class="icon"
-              style="margin-left: 10px;" />
+              src="images/export.gif"
+              alt="" />
             Export to Excel
           </a>
           <a
-            style="float: right;"
             href="MainPrint.do">
             <img
-              src="images/icon_printsion.gif"
-              width="21"
-              height="20"
-              class="icon" />
+              src="images/print.gif"
+              alt="" />
             Printable version
           </a>
           <h2>Privileges you have granted</h2>
@@ -111,11 +104,8 @@
             <tr class="columnhead"> 
               <th>
                 <img
-                  src="images/icon_down_unsel.gif"
-                  alt="[sort by]"
-                  width="17"
-                  height="17"
-                  border="0" />
+                  src="images/sort_down.gif"
+                  alt="Sorted [descending]" />
                 Person
               </th>
               <th width="30%">
@@ -150,7 +140,7 @@
 %>
 	
             <tr>
-              <td> <!-- person -->
+              <td class="sorted"> <!-- person -->
                 <a
                   href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
                   <%=grantee.getName()%>
@@ -169,9 +159,8 @@
                          width=500,
                          height=250');">
                   <img
-                    src="images/info.gif"
-                    width="20"
-                    height="20" />
+                    src="images/maglass.gif"
+										alt="More info about this assignment..." />
                 </a>
                 <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
               </td> <!-- privilege -->
@@ -213,10 +202,9 @@
     <div id="Sidebar">
 			<div class="findperson"> 
         <h2>
-          find a person
-        </h2> 
-        <p>
-          <input
+          find a subject </h2> 
+          <p>
+          	<input
               name="words"
               type="text"
               class="short"
@@ -224,17 +212,18 @@
               style="width:100px"
               size="15"
               maxlength="500" />
-          <input
+          	<input
               name="searchbutton"
-              type="button"
+              type="submit"
               class="button1"
               onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
               value="Search" />
-          <br />
-          <span class="dropback">Enter a person's name, and click "Search."
-          </span></p>
+						<br />
+          	<label for="words">Enter a subject's name, and click "Search."
+          	</label>
+       	</p>
         <div id="PersonSearchResults" style="display:none">
-          </div> <!-- PersonSearchResults -->
+        </div> <!-- PersonSearchResults -->
       </div><!-- findperson -->		 
       <div class="views">
  		    <h2>
@@ -244,20 +233,16 @@
           <a
               href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
             <img
-                src="images/icon_arrow_right.gif"
-                width="16"
-                height="16"
-                class="icon" />
+                src="images/arrow_right.gif"
+                alt="" />
             assigned to you
           </a>
         </p>
         <p>
           <a href="NotYetImplemented.do">
             <img
-                src="images/icon_arrow_right.gif"
-                width="16"
-                height="16"
-                class="icon" />
+                src="images/arrow_right.gif"
+                alt="" />
             by scope
           </a>
         </p>

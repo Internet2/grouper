@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.9 2005-04-07 20:30:15 acohen Exp $
-  $Date: 2005-04-07 20:30:15 $
+  $Id: assignment.jsp,v 1.10 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -74,12 +74,12 @@
       </h2>
     </div>
     
-    <span class="description"><%=currentAssignment.getFunction().getHelpText()%>
- 	</span>
+    <p><%=currentAssignment.getFunction().getHelpText()%>
+ 	</p>
     <table class="invis">
     
       <tr>
-        <td class="dropback">
+        <td class="label">
           Granted to:
         </td>
         <td>
@@ -88,7 +88,7 @@
       </tr>
     
       <tr>
-        <td class="dropback">
+        <td class="label">
           Granted by:
         </td>
         <td>
@@ -97,7 +97,7 @@
       </tr>
     
       <tr>
-        <td class="dropback">
+        <td class="label">
           On:
         </td>
         <td>
@@ -106,7 +106,7 @@
       </tr>
     
       <tr>
-        <td class="dropback">
+        <td class="label">
           Scope:
         </td>
         <td>
@@ -122,7 +122,7 @@
     Limit limit = limits[limitIndex];
 %>
       <tr>
-        <td class="dropback">
+        <td class="label">
           <%=limit.getName()%>:
         </td>
         <td>
@@ -149,7 +149,7 @@
 %>
 
       <tr>
-        <td class="dropback">
+        <td class="label">
           Extensibility:
         </td>
         <td>

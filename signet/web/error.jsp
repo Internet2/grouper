@@ -1,6 +1,6 @@
 <!--
-  $Id: error.jsp,v 1.4 2005-04-14 00:11:25 acohen Exp $
-  $Date: 2005-04-14 00:11:25 $
+  $Id: error.jsp,v 1.5 2005-06-02 06:26:04 jvine Exp $
+  $Date: 2005-06-02 06:26:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -53,7 +53,7 @@
 
             <br />
             <a href="Start.do">
-            <img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />Return to home page
+            <img src="images/arrow_left.gif" alt="" />Return to home page
             </a>
           <tiles:insert page="/tiles/footer.jsp" flush="true" />
         </div> <!-- Content -->
