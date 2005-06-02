@@ -102,7 +102,7 @@ public class TestAccessGrantMoF0 extends TestCase {
                        );
     // Load m0
     GrouperMember m0 = Common.loadMember(
-      s, Constants.mem1I, Constants.mem1T
+      s, Constants.mem0I, Constants.mem0T
     );
     // Load m1
     GrouperMember m1 = Common.loadMember(
