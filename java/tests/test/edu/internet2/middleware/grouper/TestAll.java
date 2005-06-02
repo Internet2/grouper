@@ -73,7 +73,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestStemsAdd.class);
     suite.addTestSuite(TestStemsLoad.class);
     suite.addTestSuite(TestStemsChildren.class);
-    // FIXME suite.addTestSuite(TestStemsDelete.class);
+    suite.addTestSuite(TestStemsDelete.class);
     suite.addTestSuite(TestStemsAttrs.class);
     suite.addTestSuite(TestStemsAttrsAdd.class);
     suite.addTestSuite(TestStemsAttrsRep.class);

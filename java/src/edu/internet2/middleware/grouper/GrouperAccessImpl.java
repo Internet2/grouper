@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.68 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.69 2005-06-02 19:01:01 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -269,6 +269,7 @@ public class GrouperAccessImpl implements GrouperAccess {
       if (this._isRoot(m)) {
         rv = true;
       } else {
+        // FIXME Not sure...
         if        (g instanceof GrouperGroup) {
           rv = ( (GrouperGroup) g).hasMember(m, (String) privMap.get(priv));
         } else if (g instanceof GrouperStem) {
