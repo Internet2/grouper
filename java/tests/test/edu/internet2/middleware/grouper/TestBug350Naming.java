@@ -118,7 +118,6 @@ public class TestBug350Naming extends TestCase {
                        );
 
     // Grant m0 STEM on ns0
-/* FIXME FIXME FIXME
     Assert.assertTrue(
       "grant m0 STEM on ns0", 
       s.naming().grant(s, ns0, m0, Grouper.PRIV_STEM)
@@ -230,7 +229,7 @@ public class TestBug350Naming extends TestCase {
         ); 
       }
     }
-*/
+
     s.stop();
   }
 

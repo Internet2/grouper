@@ -120,7 +120,6 @@ public class TestBug350Access extends TestCase {
                        );
 
     // Grant m0 ADMIN on g0
-/* FIXME FIXME FIXME
     Assert.assertTrue(
       "grant m0 ADMIN on g0", 
       s.access().grant(s, g0, m0, Grouper.PRIV_ADMIN)
@@ -250,7 +249,6 @@ public class TestBug350Access extends TestCase {
         ); 
       }
     }
-*/
 
     s.stop();
   }
