@@ -484,11 +484,7 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
     removeSubjects();
     loader.commit();
 
-    // Temporary -- add back the required SubjectType row...
-    signet.beginTransaction();
     SubjectType subjectType = SubjectTypeEnum.valueOf("person");
-    signet.save(subjectType);
-    signet.commit();
 
     Subject subject = null;
     String  currAttributeName = "";
