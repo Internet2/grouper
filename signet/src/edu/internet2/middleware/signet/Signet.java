@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.21 2005-06-02 15:51:03 mnguyen Exp $
- $Date: 2005-06-02 15:51:03 $
+ $Id: Signet.java,v 1.22 2005-06-02 21:22:50 mnguyen Exp $
+ $Date: 2005-06-02 21:22:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -65,8 +65,6 @@ public final class Signet
    */
   public static final String	DEFAULT_SUBJECT_TYPE_ID
   	= "person";
-  public static final String	APPLICATION_SUBJECT_TYPE_ID
-  	= "application";
 
   // This constant should probably end up in some sort of
   // Tree-specific presentation class adapter, and should probably
@@ -120,12 +118,6 @@ public final class Signet
   // super-subject.
   
   private static final String   SUPERSUBJECT_ID                = "SignetSuperSubject";
-
-  private static final String   SUPERSUBJECT_NAME              = "The Signet Super-Subject";
-
-  private static final String   SUPERSUBJECT_DESCRIPTION       = "Can grant any permission to any Signet subject.";
-
-  private static final String   SUPERSUBJECT_DISPLAYID         = "SignetSuperSubject";
 
   private static SessionFactory sessionFactory;
   
@@ -201,13 +193,6 @@ public final class Signet
     	throw new RuntimeException("Error getting SourceManager", ex);
     }
     
-    // The native Signet subject-type must be stored in the database.
-    // Let's just make sure that it is.
-    //initNativeSubjectType();
-    
-    // The SignetSuperSubject must be stored in the database.
-    // Let's just make sure that it is.
-    //initSignetSuperSubject();
   }
 
   /**
@@ -339,34 +324,6 @@ public final class Signet
 
   }
   
-  private void initSignetSuperSubject()
-  {
-    try
-    {
-      Subject superSubject = this.getSubject(Signet.APPLICATION_SUBJECT_TYPE_ID,
-          Signet.SUPERSUBJECT_ID);
-    }
-    catch (ObjectNotFoundException snfe)
-    {
-      // The superSubject was not found. Let's put it into the database.
-      // TODO: This code will need to be protected by a critical section.
-
-      try
-      {
-      	SubjectFileLoader loader = new SubjectFileLoader();
-        loader.newSubject(SubjectTypeEnum.valueOf(Signet.APPLICATION_SUBJECT_TYPE_ID),
-            Signet.SUPERSUBJECT_ID, Signet.SUPERSUBJECT_NAME,
-            Signet.SUPERSUBJECT_DESCRIPTION, Signet.SUPERSUBJECT_DISPLAYID);
-        loader.commit();
-      }
-      catch (SQLException ex)
-      {
-        throw new SignetRuntimeException(
-            "An attempt to store the Signet superSubject in the database"
-                + " failed.", ex);
-      }
-    }
-  }
 
   /**
    * Begins a Signet transaction.
@@ -1237,6 +1194,7 @@ public final class Signet
    */
   public Set getPrivilegedSubjectsByDisplayId(String subjectTypeId, String displayId) {
     Set pSubjects = new HashSet();
+    System.out.println("Sources for " + subjectTypeId + " " + getSource(subjectTypeId));
     for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
 		Set result = ((Source)iter.next()).searchByIdentifier(displayId);
 		for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
@@ -1245,7 +1203,7 @@ public final class Signet
 			pSubjects.add(pSubject);
 		}
     }
-	return UnmodifiableSet.decorate(pSubjects);
+    return UnmodifiableSet.decorate(pSubjects);
   }
 
 
@@ -1688,7 +1646,7 @@ public final class Signet
 
     Subject superSubject
     	= this.getSubject
-    			(Signet.APPLICATION_SUBJECT_TYPE_ID,
+    			(Signet.DEFAULT_SUBJECT_TYPE_ID,
            Signet.SUPERSUBJECT_ID);
 
     superPSubject = new PrivilegedSubjectImpl(this, superSubject);
@@ -2064,8 +2022,8 @@ public final class Signet
   }
   
   /**
-   * Returns SourceAdapters which supports the argument SubjectType.
-   * @return Collection of SourceAdapters
+   * Returns Source adapters which supports the argument SubjectType.
+   * @return Collection of Source adapters
    */
   public Collection getSource(String subjectTypeId)
   {

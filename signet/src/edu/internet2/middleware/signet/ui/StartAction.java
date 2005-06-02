@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.4 2005-06-01 06:13:08 mnguyen Exp $
-  $Date: 2005-06-01 06:13:08 $
+  $Id: StartAction.java,v 1.5 2005-06-02 21:22:50 mnguyen Exp $
+  $Date: 2005-06-02 21:22:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -77,7 +77,6 @@ public final class StartAction extends BaseAction
       session.setAttribute("signet", signet);
     }
     
-    
 
     PrivilegedSubject currentUser
     	= (PrivilegedSubject)(session.getAttribute("loggedInPrivilegedSubject"));
@@ -88,14 +87,10 @@ public final class StartAction extends BaseAction
       Set userMatches
       	= signet.getPrivilegedSubjectsByDisplayId(
       			Signet.DEFAULT_SUBJECT_TYPE_ID, request.getRemoteUser());
-      if (userMatches == null || userMatches.isEmpty()) {
-      	userMatches
-      	= signet.getPrivilegedSubjectsByDisplayId(
-      			Signet.APPLICATION_SUBJECT_TYPE_ID, request.getRemoteUser());
-      }
+      
       if (userMatches.size() != 1)
       {
-        messages.add
+      	messages.add
         ("Found " 
             + userMatches.size()
             + " matches for logged-in user with display-ID '"
