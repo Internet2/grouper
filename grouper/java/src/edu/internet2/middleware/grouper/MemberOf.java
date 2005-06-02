@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.19 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: MemberOf.java,v 1.20 2005-06-02 19:01:01 blair Exp $
  */
 public class MemberOf {
 
@@ -109,17 +109,21 @@ public class MemberOf {
     // Add m to g's gl
     vals.add(gl);
 
-    // Where (across all list values in the registry) is g a member?
-    GrouperMember m = gl.group().toMember();
-    List isMem = m.listValsAll();
+    // TODO *sigh* Fix.  Please?  Maybe just watch for thrown
+    //      exceptions?
+    if (!gl.group().type().equals("naming")) {
+      // Where (across all list values in the registry) is g a member?
+      GrouperMember m = gl.group().toMember();
+      List isMem = m.listValsAll();
 
-    // Add m to groups where g is a member
-    effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
+      // Add m to groups where g is a member
+      effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
 
-    // If m is a group...
-    if (gl.member().typeID().equals("group")) {
-      // ...add additional list values
-      effs.addAll( this._addHasMembers(gl, isMem) );
+      // If m is a group...
+      if (gl.member().typeID().equals("group")) {
+        // ...add additional list values
+        effs.addAll( this._addHasMembers(gl, isMem) );
+      }
     }
 
     // Save the chains

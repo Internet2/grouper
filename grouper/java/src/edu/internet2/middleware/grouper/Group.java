@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.31 2005-05-04 14:27:46 blair Exp $
+ * @version $Id: Group.java,v 1.32 2005-06-02 19:01:01 blair Exp $
  */
 abstract public class Group {
 
@@ -135,17 +135,42 @@ abstract public class Group {
    * @param g   Delete this group.
    */
   public static void delete(GrouperSession s, GrouperGroup g) {
-    Group.delete(s, (Group) g);
+    // TODO Merge common code with ns version?
+    Group.subjectCanDelete(s, g);
+    try {
+      s.dbSess().txStart();
+      ( (GrouperGroup) g ).revokeAllAccessPrivs(s);
+      GrouperAttribute.delete(s, g);
+      GrouperSchema.delete(s, g);
+      s.dbSess().session().delete(g);
+      s.dbSess().txCommit();
+    } catch (HibernateException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error deleting group: " + e);
+    }
   }
 
   /**
    * Delete a stem.
+   * TODO Should this be a supported operation?
    * <p />
    * @param s   Delete namespace within this session.
    * @param ns  Delete this namespace.
    */
   public static void delete(GrouperSession s, GrouperStem ns) {
-    Group.delete(s, (Group) ns);
+    // TODO Merge common code with g version?
+    Group.subjectCanDelete(s, ns);
+    try {
+      s.dbSess().txStart();
+      ( (GrouperStem) ns ).revokeAllNamingPrivs(s);
+      GrouperAttribute.delete(s, ns);
+      GrouperSchema.delete(s, ns);
+      s.dbSess().session().delete(ns);
+      s.dbSess().txCommit();
+    } catch (HibernateException e) {
+      s.dbSess().txRollback();
+      throw new RuntimeException("Error deleting group: " + e);
+    }
   }
 
   /**
@@ -406,32 +431,10 @@ abstract public class Group {
   /*
    * Does the current subject have privs to delete the current group?
    */
-  protected static void subjectCanDelete(GrouperSession s, Group g) {
-    if (g.type().equals(Grouper.NS_TYPE)) {
-      GrouperStem ns = (GrouperStem) g;
-      // Right priv required
-      if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
-        throw new RuntimeException("Deletion requires STEM priv");
-      }
-      // Are there child stems?
-      if (ns.stems().size() > 0) {
-        throw new RuntimeException(
-                    "Cannot delete stem with child stems: " +
-                    ns.stems().size()
-                  );
-      }
-      // Are there child groups?
-      if (ns.groups().size() > 0) {
-        throw new RuntimeException(
-                    "Cannot delete stem with child groups: " +
-                    ns.groups().size()
-                  );
-      }
-    } else {
-      // Right priv required
-      if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
-        throw new RuntimeException("Deletion requires ADMIN priv");
-      }
+  protected static void subjectCanDelete(GrouperSession s, GrouperGroup g) {
+    // Right priv required
+    if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
+      throw new RuntimeException("Deletion requires ADMIN priv");
     }
     // Are there any members?
     /*
@@ -456,10 +459,34 @@ abstract public class Group {
   }
 
   /*
+   * Does the current subject have privs to delete the current stem?
+   */
+  protected static void subjectCanDelete(GrouperSession s, GrouperStem ns) {
+    // Right priv required
+    if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
+      throw new RuntimeException("Deletion requires STEM priv");
+    }
+    // Are there child stems?
+    if (ns.stems().size() > 0) {
+      throw new RuntimeException(
+        "Cannot delete stem with child stems: " + ns.stems().size()
+      );
+    }
+    // Are there child groups?
+    if (ns.groups().size() > 0) {
+      throw new RuntimeException(
+        "Cannot delete stem with child groups: " + ns.groups().size()
+      );
+    }
+  }
+
+  /*
    * Does the current subject have privs to modify the specified list?
    */
   protected static boolean subjectCanModListVal(
-                             GrouperSession s, Group g, String list) {
+                             GrouperSession s, Group g, String list
+                           ) 
+  {
     boolean rv = false;
     if (
         (s.access().has(s, g, Grouper.PRIV_UPDATE)) ||
@@ -638,6 +665,43 @@ abstract public class Group {
     return Long.toString(now.getTime());
   }
 
+  /* 
+   * Revoke all access privs attached to a group
+   */
+  protected void revokeAllAccessPrivs(GrouperSession s) {
+    /* 
+     * TODO This could be prettier, especially if/when there are custom
+     *      privs
+     */
+    if (!(
+          s.access().revoke(s, (GrouperGroup) this, Grouper.PRIV_OPTIN)   &&
+          s.access().revoke(s, (GrouperGroup) this, Grouper.PRIV_OPTOUT)  &&
+          s.access().revoke(s, (GrouperGroup) this, Grouper.PRIV_VIEW)    &&
+          s.access().revoke(s, (GrouperGroup) this, Grouper.PRIV_READ)    &&
+          s.access().revoke(s, (GrouperGroup) this, Grouper.PRIV_UPDATE)  &&
+          s.access().revoke(s, (GrouperGroup) this, Grouper.PRIV_ADMIN)
+       ))
+    {
+      throw new RuntimeException("Error revoking access privileges");
+    }
+  }
+
+  /* 
+   * Revoke all naming privs attached to a group
+   */
+  protected void revokeAllNamingPrivs(GrouperSession s) {
+    // FIXME This is ugly 
+    if (this.type().equals(Grouper.NS_TYPE)) {
+      if (!(
+            s.naming().revoke(s, (GrouperStem) this, Grouper.PRIV_STEM)    &&
+            s.naming().revoke(s, (GrouperStem) this, Grouper.PRIV_CREATE) 
+         ))
+      {       
+        throw new RuntimeException("Error revoking naming privileges");
+      }
+    }
+  }
+
   /*
    * Convert a string to a date object.
    * @return Date object.
@@ -649,30 +713,6 @@ abstract public class Group {
     } 
     return d; 
   }
-
-  /*
-   * PRIVATE CLASS METHODS
-   */
-
-  /*
-   * Delete a group.
-   */
-  private static void delete(GrouperSession s, Group g) {
-    Group.subjectCanDelete(s, (Group) g);
-    try {
-      s.dbSess().txStart();
-      g.revokeAllAccessPrivs(s);
-      g.revokeAllNamingPrivs(s);
-      GrouperAttribute.delete(s, g);
-      GrouperSchema.delete(s, g);
-      s.dbSess().session().delete(g);
-      s.dbSess().txCommit();
-    } catch (HibernateException e) {
-      s.dbSess().txRollback();
-      throw new RuntimeException("Error deleting group: " + e);
-    }
-  }
-
 
   /*
    * PRIVATE INSTANCE METHODS
@@ -739,43 +779,6 @@ abstract public class Group {
                 );
     }
     return vals;
-  }
-
-  /* 
-   * Revoke all access privs attached to a group
-   */
-  private void revokeAllAccessPrivs(GrouperSession s) {
-    /* 
-     * TODO This could be prettier, especially if/when there are custom
-     *      privs
-     */
-    if (!(
-          s.access().revoke(s, this, Grouper.PRIV_OPTIN)   &&
-          s.access().revoke(s, this, Grouper.PRIV_OPTOUT)  &&
-          s.access().revoke(s, this, Grouper.PRIV_VIEW)    &&
-          s.access().revoke(s, this, Grouper.PRIV_READ)    &&
-          s.access().revoke(s, this, Grouper.PRIV_UPDATE)  &&
-          s.access().revoke(s, this, Grouper.PRIV_ADMIN)
-       ))
-    {
-      throw new RuntimeException("Error revoking access privileges");
-    }
-  }
-
-  /* 
-   * Revoke all naming privs attached to a group
-   */
-  private void revokeAllNamingPrivs(GrouperSession s) {
-    // FIXME This is ugly 
-    if (this.type().equals(Grouper.NS_TYPE)) {
-      if (!(
-            s.naming().revoke(s, (GrouperStem) this, Grouper.PRIV_STEM)    &&
-            s.naming().revoke(s, (GrouperStem) this, Grouper.PRIV_CREATE) 
-         ))
-      {       
-        throw new RuntimeException("Error revoking naming privileges");
-      }
-    }
   }
 
   /*
