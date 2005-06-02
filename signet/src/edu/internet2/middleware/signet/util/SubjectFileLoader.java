@@ -520,15 +520,15 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
             }
             System.out.println(lineNumber + ": " + lineData2);
             
-            // Get the LoginID (required for now, must be next)
-            lineNumber++;
-            lineData3 = in.readLine();
-            if (lineData3 == "") {
-               throw new IOException ("No LoginID row found");
-            }
-            System.out.println(lineNumber + ": " + lineData3);
+  //          // Get the LoginID (required for now, must be next)
+  //          lineNumber++;
+  //          lineData3 = in.readLine();
+  //          if (lineData3 == "") {
+  //             throw new IOException ("No LoginID row found");
+  //          }
+  //          System.out.println(lineNumber + ": " + lineData3);
            
-            subject = loader.processAddSubject(loader, subjectType, lineData, lineData2, lineData3);
+            subject = loader.processAddSubject(loader, subjectType, lineData, lineData2, "loginid n/a");
    
             currAttributeName = "";
             prevAttributeName = "";
@@ -606,27 +606,29 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
      // System.out.println("--- Description: " + subjectDescription);
  
      // --------------  Line 3 must be the LoginID
-     StringTokenizer st3 = new StringTokenizer(lineData3);
-     
-     if (st3.hasMoreTokens()) {
-       attributeName = st3.nextToken();
-     } else {
-        throw new IOException ("No loginid attribute found");
-     }
-
-     if (!attributeName.equals("loginid")) {
-        throw new IOException ("The second line of each subject entry must be 'LoginID'");
-     }
-
-     if (!st3.hasMoreTokens()) {
-        throw new IOException ("No loginid Value found");
-     }
-     
-     subjectLoginID = lineData3.substring(attributeName.length());
-     subjectLoginID = subjectLoginID.trim();
-
-     // System.out.println("--- Login id: " + subjectLoginID);
+//     StringTokenizer st3 = new StringTokenizer(lineData3);
+//     
+//     if (st3.hasMoreTokens()) {
+//       attributeName = st3.nextToken();
+//     } else {
+//        throw new IOException ("No loginid attribute found");
+//     }
+//
+//     if (!attributeName.equals("loginid")) {
+//        throw new IOException ("The second line of each subject entry must be 'LoginID'");
+//     }
+//
+//     if (!st3.hasMoreTokens()) {
+//        throw new IOException ("No loginid Value found");
+//     }
+//     
+//     subjectLoginID = lineData3.substring(attributeName.length());
+//     subjectLoginID = subjectLoginID.trim();
+//
+//     // System.out.println("--- Login id: " + subjectLoginID);
     
+     subjectLoginID = "n/a";
+
      Subject subject = loader.newSubject
         (subjectType, subjectID, subjectName, subjectDescription, subjectLoginID);
 
