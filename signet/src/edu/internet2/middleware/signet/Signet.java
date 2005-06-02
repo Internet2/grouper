@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.20 2005-06-01 16:55:12 mnguyen Exp $
- $Date: 2005-06-01 16:55:12 $
+ $Id: Signet.java,v 1.21 2005-06-02 15:51:03 mnguyen Exp $
+ $Date: 2005-06-02 15:51:03 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -118,8 +118,7 @@ public final class Signet
 
   // This is the metadata that describes the pre-defined Signet
   // super-subject.
-  private static final String   DEFAULT_SUBJECT_TYPE_NAME      = "Signet native Subject type";
-
+  
   private static final String   SUPERSUBJECT_ID                = "SignetSuperSubject";
 
   private static final String   SUPERSUBJECT_NAME              = "The Signet Super-Subject";
@@ -135,8 +134,6 @@ public final class Signet
   private Session               session;
 
   private Transaction           tx;
-
-  private SubjectType           nativeSubjectType;
 
   private PrivilegedSubject     superPSubject;
 
@@ -346,7 +343,7 @@ public final class Signet
   {
     try
     {
-      Subject superSubject = this.getSubject(Signet.DEFAULT_SUBJECT_TYPE_ID,
+      Subject superSubject = this.getSubject(Signet.APPLICATION_SUBJECT_TYPE_ID,
           Signet.SUPERSUBJECT_ID);
     }
     catch (ObjectNotFoundException snfe)
@@ -357,9 +354,10 @@ public final class Signet
       try
       {
       	SubjectFileLoader loader = new SubjectFileLoader();
-        loader.newSubject(this.nativeSubjectType,
+        loader.newSubject(SubjectTypeEnum.valueOf(Signet.APPLICATION_SUBJECT_TYPE_ID),
             Signet.SUPERSUBJECT_ID, Signet.SUPERSUBJECT_NAME,
             Signet.SUPERSUBJECT_DESCRIPTION, Signet.SUPERSUBJECT_DISPLAYID);
+        loader.commit();
       }
       catch (SQLException ex)
       {
@@ -1690,7 +1688,7 @@ public final class Signet
 
     Subject superSubject
     	= this.getSubject
-    			(Signet.DEFAULT_SUBJECT_TYPE_ID,
+    			(Signet.APPLICATION_SUBJECT_TYPE_ID,
            Signet.SUPERSUBJECT_ID);
 
     superPSubject = new PrivilegedSubjectImpl(this, superSubject);
