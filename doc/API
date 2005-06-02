@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.70 2005-06-01 14:49:38 blair Exp $
+$Id: API,v 1.71 2005-06-02 17:07:11 blair Exp $
 
 ---
 
@@ -29,16 +29,16 @@ $Id: API,v 1.70 2005-06-01 14:49:38 blair Exp $
 ## GrouperNaming
 
 * boolean             can(privilege)
-* boolean             grant(session, Group, GrouperMember, privilege)
-* List                has(session, Group)
+* boolean             grant(session, GrouperStem, GrouperMember, privilege)
+* List                has(session, GrouperStem)
 * List                has(session, GrouperMember, privilege)
-* List                has(session, Group, GrouperMember)
-* boolean             has(session, Group, GrouperMember, privilege)
-* boolean             has(session, Group, privilege)
+* List                has(session, GrouperStem, GrouperMember)
+* boolean             has(session, GrouperStem, GrouperMember, privilege)
+* boolean             has(session, GrouperStem, privilege)
 * List                has(session, privilege)
-* boolean             revoke(session, Group, GrouperMember, privilege)
-* boolean             revoke(session, Group, privilege)
-* List                whoHas(session, Group, privilege)
+* boolean             revoke(session, GrouperStem, GrouperMember, privilege)
+* boolean             revoke(session, GrouperStem, privilege)
+* List                whoHas(session, GrouperStem, privilege)
 
 ---
 
