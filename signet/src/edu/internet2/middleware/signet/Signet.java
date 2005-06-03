@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.23 2005-06-02 21:44:29 mnguyen Exp $
- $Date: 2005-06-02 21:44:29 $
+ $Id: Signet.java,v 1.24 2005-06-03 06:51:09 mnguyen Exp $
+ $Date: 2005-06-03 06:51:09 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1712,14 +1712,18 @@ public final class Signet
    * @param searchValue
    * @return
    */
-  public Set findSubjects(String subjectTypeId, String searchValue)
+  public Set findPrivilegedSubjects(String subjectTypeId, String searchValue)
   {
-    Set results = new HashSet();
+  	Set pSubjects = new HashSet();
     for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
 		Set result = ((Source)iter.next()).search(searchValue);
-		results.addAll(result);
+		for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
+			PrivilegedSubject pSubject =
+				getPrivilegedSubject((Subject)iter2.next());
+			pSubjects.add(pSubject);
+		}
     }
-    return results;
+    return pSubjects;
   }
 
   private void reportMultipleRecordError(String tableName, String keyName,

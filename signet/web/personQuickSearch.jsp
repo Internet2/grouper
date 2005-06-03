@@ -22,7 +22,7 @@
          (request.getSession().getAttribute("signet"));
 
   String searchString = request.getParameter("searchString");
-  Set sortSet = signet.findSubjects(Signet.DEFAULT_SUBJECT_TYPE_ID, searchString);
+  Set sortSet = signet.findPrivilegedSubjects(Signet.DEFAULT_SUBJECT_TYPE_ID, searchString);
 
   if (sortSet.size() <= 0)
   {
@@ -47,7 +47,13 @@
         <a href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId())%>'))">
           <%=listSubject.getName()%>
 		</a><br /><!-- it's important for the br to be on the same line as the a -->
-        <span class="dropback"><%=listSubject.getDescription()%></span>
+        <span class="dropback">
+<%
+	if (listSubject.getDescription() != null) {
+		out.print(listSubject.getDescription());
+	}
+%>
+	</span>
         <br />
 <%
     }
