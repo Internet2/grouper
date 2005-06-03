@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.39 2005-05-29 16:51:21 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.40 2005-06-03 15:45:33 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -79,7 +79,7 @@ public class GrouperSubject implements Subject {
   private static Log log = LogFactory.getLog(GrouperSubject.class);
 
   protected GrouperSubject(GrouperGroup g, GrouperSourceAdapter sa) {
-    log.debug("group=" + g + "/sa=" + sa);
+    log.debug("Converting " + g + " to subject");
     this.id       = g.id();
     this.name     = g.attribute("name").value();
     this.type     = SubjectTypeEnum.valueOf("group");
