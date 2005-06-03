@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.24 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: main.jsp,v 1.25 2005-06-03 22:43:24 acohen Exp $
+  $Date: 2005-06-03 22:43:24 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -52,18 +52,22 @@
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
 
-  <form name="form1" method="post" action="">
+  <form
+    name="form1"
+    method="post"
+    action="" 
+    onSubmit="return loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value)">
     <tiles:insert page="/tiles/header.jsp" flush="true" />
-  <div id="Navbar">
-    <span class="logout">
-      <a href="NotYetImplemented.do">
-        <%= loggedInPrivilegedSubject.getName() %>: Logout
-      </a>
-    </span> <!-- logout -->
-    <span class="select">
-      Home
-    </span> <!-- select -->
-  </div> <!-- Navbar -->
+    <div id="Navbar">
+      <span class="logout">
+        <a href="NotYetImplemented.do">
+          <%= loggedInPrivilegedSubject.getName() %>: Logout
+        </a>
+      </span> <!-- logout -->
+      <span class="select">
+        Home
+      </span> <!-- select -->
+    </div> <!-- Navbar -->
   
   <div id="Layout">
     <div id="Content"> 
@@ -214,7 +218,7 @@
               maxlength="500" />
           	<input
               name="searchbutton"
-              type="submit"
+              type="button"
               class="button1"
               onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
               value="Search" />
