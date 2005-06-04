@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.12 2005-06-02 14:10:06 mnguyen Exp $
- $Date: 2005-06-02 14:10:06 $
+ $Id: PrivilegedSubjectImpl.java,v 1.13 2005-06-04 03:31:07 mnguyen Exp $
+ $Date: 2005-06-04 03:31:07 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -400,6 +400,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       // associated with it.
       if (this.equals(this.signet.getSuperPrivilegedSubject()))
       {
+System.out.println("IS super user");
         Set allSubsystems = this.signet.getSubsystems();
         Iterator allSubsystemsIterator = allSubsystems.iterator();
         while (allSubsystemsIterator.hasNext())
@@ -430,6 +431,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
           grantableSubsystems.add(candidateSubsystem);
         }
+      }
+      else
+      {
+      	System.out.println("NOT super user");
       }
     }
     catch (ObjectNotFoundException onfe)
@@ -769,11 +774,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     PrivilegedSubjectImpl rhs = (PrivilegedSubjectImpl) obj;
-    Subject thisSubject = this.getSubject();
-    Subject rhsSubject = rhs.getSubject();
 
-    return new EqualsBuilder().append(thisSubject, rhsSubject).isEquals();
-  
+    return new EqualsBuilder()
+		.append(this.getSubjectId(), rhs.getSubjectId())
+		.append(this.getSubjectTypeId(), rhs.getSubjectTypeId())
+		.isEquals();
   }
 
   /* (non-Javadoc)
@@ -785,17 +790,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     // you pick a hard-coded, randomly chosen, non-zero, odd number
     // ideally different for each class
-    return new HashCodeBuilder(17, 37).append(thisSubject).toHashCode();
+    return new HashCodeBuilder(17, 37)
+		.append(this.getSubjectId())
+		.append(this.getSubjectTypeId())
+		.toHashCode();
   }
 
-
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.subject.Subject#addAttribute(java.lang.String, java.lang.String)
-   */
-  //public void addAttribute(String name, String value)
-  {
-    //this.subject.addAttribute(name, value);
-  }
 
   /* (non-Javadoc)
    * @see java.lang.Object#toString()
