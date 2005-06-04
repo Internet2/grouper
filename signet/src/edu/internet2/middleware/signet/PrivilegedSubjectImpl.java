@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.13 2005-06-04 03:31:07 mnguyen Exp $
- $Date: 2005-06-04 03:31:07 $
+ $Id: PrivilegedSubjectImpl.java,v 1.14 2005-06-04 03:40:28 mnguyen Exp $
+ $Date: 2005-06-04 03:40:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -400,7 +400,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       // associated with it.
       if (this.equals(this.signet.getSuperPrivilegedSubject()))
       {
-System.out.println("IS super user");
         Set allSubsystems = this.signet.getSubsystems();
         Iterator allSubsystemsIterator = allSubsystems.iterator();
         while (allSubsystemsIterator.hasNext())
@@ -431,10 +430,6 @@ System.out.println("IS super user");
 
           grantableSubsystems.add(candidateSubsystem);
         }
-      }
-      else
-      {
-      	System.out.println("NOT super user");
       }
     }
     catch (ObjectNotFoundException onfe)
