@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.24 2005-06-03 06:51:09 mnguyen Exp $
- $Date: 2005-06-03 06:51:09 $
+ $Id: Signet.java,v 1.25 2005-06-05 06:00:04 mnguyen Exp $
+ $Date: 2005-06-05 06:00:04 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1675,7 +1675,7 @@ public final class Signet
 		}
     }
   	if (subject == null) {
-  		throw new ObjectNotFoundException("Unable to find Subject by display ID.");
+  		throw new ObjectNotFoundException("Unable to find Subject by subject ID.");
   	}
 
     return subject;
