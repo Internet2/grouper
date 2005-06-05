@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.14 2005-06-04 03:40:28 mnguyen Exp $
- $Date: 2005-06-04 03:40:28 $
+ $Id: PrivilegedSubjectImpl.java,v 1.15 2005-06-05 05:43:48 mnguyen Exp $
+ $Date: 2005-06-05 05:43:48 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -52,7 +52,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 {
   private Signet     signet;
 
-  private SubjectKey		subjectKey;
+  private SubjectKey	subjectKey;
   
   private Subject    subject;
 

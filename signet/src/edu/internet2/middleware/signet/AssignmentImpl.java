@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.10 2005-06-01 06:13:08 mnguyen Exp $
- $Date: 2005-06-01 06:13:08 $
+ $Id: AssignmentImpl.java,v 1.11 2005-06-05 05:43:48 mnguyen Exp $
+ $Date: 2005-06-05 05:43:48 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -345,6 +345,7 @@ implements Assignment, Comparable
   {
     this.grantee = grantee;
     this.granteeId = grantee.getSubjectId();
+    this.granteeTypeId = grantee.getSubjectTypeId();
   }
   
   /**
@@ -354,6 +355,7 @@ implements Assignment, Comparable
   {
     this.grantor = grantor;
     this.grantorId = grantor.getSubjectId();
+    this.grantorTypeId = grantor.getSubjectTypeId();
   }
   
   void setRevoker(PrivilegedSubject revoker)
