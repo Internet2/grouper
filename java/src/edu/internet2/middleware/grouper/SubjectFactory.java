@@ -55,6 +55,8 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.logging.Log;
+import  org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -62,16 +64,18 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.5 2005-05-29 16:51:21 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.6 2005-06-06 15:51:11 blair Exp $
  */
 public class SubjectFactory {
 
   /*
    * PRIVATE CLASS VARIABLES
    */
-  private static SourceManager  mgr     = null;
-  private static Set            sources = new HashSet();
+  private static List           sources = new ArrayList();
+  private static Log            log     = LogFactory.getLog(SubjectFactory.class);
   private static Set            types   = null;  
+  private static SourceManager  mgr     = null;
+  private static SubjectCache   cache   = null;
 
 
   /*
@@ -102,32 +106,46 @@ public class SubjectFactory {
   public static Subject getSubject(String id, String type) 
     throws SubjectNotFoundException 
   {
-  	// TODO Cache!
-    Subject subj = null;
     SubjectFactory.init();
-    Iterator iter = sources.iterator();
-    while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
-      // FIXME Actually, I should probably gather a list.  If 
-      //       one entry found, return it.  Otherwise, throw an
-      //       exception.
-      if (sa.getSubjectTypes().contains(type)) {
-        try {
-          subj = sa.getSubject(id);
-          break;
-        } catch (SubjectNotFoundException e) {
-          /*
-            * Don't worry about not finding subjects in 
-           * particular adapters.
-           */
-          continue;
+    boolean cached  = false;
+    Subject subj    = null;
+    try {
+      subj = cache.get(id, type);
+      cached = true;
+      log.debug("Found cached subject " + id + "/" + type);
+    } catch (SubjectNotFoundException e0) {
+      Iterator iter = sources.iterator();
+      while (iter.hasNext()) {
+        Source sa = (Source) iter.next();
+        // FIXME Actually, I should probably gather a list.  If 
+        //       one entry found, return it.  Otherwise, throw an
+        //       exception.
+        if (sa.getSubjectTypes().contains(type)) {
+          try {
+            subj = sa.getSubject(id);
+            log.debug("Found subject " + id + "/" + type + " in " + sa.getName());
+            break;
+          } catch (SubjectNotFoundException e1) {
+            /*
+              * Don't worry about not finding subjects in 
+             * particular adapters.
+             */
+            continue;
+          }
         }
       }
-    }
-    if (subj == null) {
-      throw new SubjectNotFoundException(
-        "Could not get " + id + "/" + type
-      );
+      if (subj != null) {
+        if (cached == false) {
+          cache.put(id, type, subj);
+          log.debug("Caching subject " + id + "/" + type);
+        }
+      } else {
+        // TODO Do I want a negative cache?
+        log.debug("Unable to find subject " + id + "/" + type);
+        throw new SubjectNotFoundException(
+          "Could not get " + id + "/" + type
+        );
+      }
     }
     return subj;
   }
@@ -169,6 +187,8 @@ public class SubjectFactory {
           Source sa = (Source) iter.next();
           sources.add(sa);
         } 
+        cache = new SubjectCache();
+        log.info("Subject factory initialized");
       } catch (Exception e) {
         throw new RuntimeException(e); // TODO ???
       } 
