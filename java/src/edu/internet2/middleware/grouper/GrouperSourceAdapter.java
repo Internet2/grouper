@@ -64,11 +64,15 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.3 2005-06-03 15:45:33 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.4 2005-06-06 15:49:03 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
+  /*
+   * PRIVATE CLASS VARIABLES
+   */
   private static Log log = LogFactory.getLog(GrouperSourceAdapter.class);
+
 
   /*
    * CONSTRUCTORS
