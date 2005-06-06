@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.10 2005-06-02 06:34:02 jvine Exp $
-   $Date: 2005-06-02 06:34:02 $
+   $Id: signet.css,v 1.11 2005-06-06 23:30:11 jvine Exp $
+   $Date: 2005-06-06 23:30:11 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -110,7 +110,7 @@ p.nomarg {
 	margin: 0px;
 }
 select {
-	font-size: 10px;
+	font-size: 11px;
 }
 select.long {
 	width: 170px;
@@ -133,7 +133,8 @@ td {
 	border-bottom: 1px solid #CCC;	
 }
 td.sorted {
-	background-color: #DFF7E9; 
+	background-color: #DFF7E9;
+	white-space: nowrap; 
 }
 td.date {
   white-space: nowrap;
@@ -150,8 +151,8 @@ table.invis td {
 th { 
 	text-align: left;
 	vertical-align: middle;
-	font-size: 7pt;
-	font-weight: normal;
+	font-size: 10px; 
+	font-weight: bold;
 	background-color: #60ADC1;
 	text-decoration: none;
 	color: #FFF;
@@ -179,7 +180,7 @@ th a:hover {
 	border-bottom: 2px solid #B0D5DE;
 }
 th img { /* current sort up/down indicator */
-	float: left;
+	float: right;
 }
 
 /* lists */

@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.25 2005-06-03 22:43:24 acohen Exp $
-  $Date: 2005-06-03 22:43:24 $
+  $Id: main.jsp,v 1.26 2005-06-06 23:30:11 jvine Exp $
+  $Date: 2005-06-06 23:30:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -56,7 +56,7 @@
     name="form1"
     method="post"
     action="" 
-    onSubmit="return loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value)">
+    onsubmit="return loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value)">
     <tiles:insert page="/tiles/header.jsp" flush="true" />
     <div id="Navbar">
       <span class="logout">
@@ -107,11 +107,8 @@
           <table>            
             <tr class="columnhead"> 
               <th>
-                <img
-                  src="images/sort_down.gif"
-                  alt="Sorted [descending]" />
                 Person
-              </th>
+							</th>
               <th width="30%">
                 Privilege
               </th>

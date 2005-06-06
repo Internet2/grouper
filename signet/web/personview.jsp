@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.23 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: personview.jsp,v 1.24 2005-06-06 23:30:11 jvine Exp $
+  $Date: 2005-06-06 23:30:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -276,9 +276,6 @@
            <table>
              <tr class="columnhead">
                <th width="30%">
-                 <img
-                  src="images/sort_down.gif"
-                  alt="Sorted [descending]" />
                  Privilege
                </th>
                <th width="20%">
@@ -314,7 +311,7 @@
 %>
   
              <tr>
-               <td> <!-- privilege -->
+               <td class="sorted"> <!-- privilege -->
                  <a
                    style="float: right;"
                    href="javascript:openWindow

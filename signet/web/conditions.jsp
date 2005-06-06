@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.15 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: conditions.jsp,v 1.16 2005-06-06 23:30:11 jvine Exp $
+  $Date: 2005-06-06 23:30:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -234,14 +234,12 @@
                 <p>
                   <%=currentLimits[i].getHelpText()%>
                 </p>
-                <blockquote>
                   <tiles:insert
                      page='<%="/tiles/" + currentLimits[i].getRenderer()%>'
                      flush="true">
                     <tiles:put name="limit" beanName="limitAttr" />
                     <tiles:put name="grantableChoiceSubset" beanName="grantableChoiceSubsetAttr" />
                   </tiles:insert>
-                </blockquote>
               </fieldset>
 <%
     }
@@ -256,11 +254,8 @@
 
               <fieldset>
                 <legend>
-                  Extensibility
+                  Extensibility - privilege holder can:
                 </legend>
-                <p>
-                  Privilege holder can:
-                </p>
                   <input
                      name="can_use"
                      id="can_use"
@@ -271,6 +266,7 @@
                   <br />
                   <input name="can_grant" id="can_grant" type="checkbox" value="checkbox" />
                   <label for="can_grant">grant this privilege to others</label>
+
               </fieldset>
               <p>
                 <input

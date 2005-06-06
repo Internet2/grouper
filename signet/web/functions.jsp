@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.12 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: functions.jsp,v 1.13 2005-06-06 23:30:11 jvine Exp $
+  $Date: 2005-06-06 23:30:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -195,7 +195,7 @@
                 <div class="showdesc">
                   <span class="category" id="categoryName">
                     <!-- category name gets inserted by Javascript -->
-                  </span> :  <!-- categoryName -->
+                  </span> <!-- categoryName -->
                   <span class="function" id="functionName">
                     <!-- function name gets inserted by Javascript -->
                   </span> <!-- functionName -->

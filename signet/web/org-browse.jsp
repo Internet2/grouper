@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.10 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: org-browse.jsp,v 1.11 2005-06-06 23:30:11 jvine Exp $
+  $Date: 2005-06-06 23:30:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -122,7 +122,7 @@
              	Scope
          	 </h2>
  
-             	<p class="nomarg"><label for "scope">
+             	<p><label for "scope">
                	Select the organization to which this privilege applies.
              	</label></p>
 
@@ -153,7 +153,7 @@
          
          	<p>
            	<a href="<%=personViewHref%>">
-             	<img src="images/icon_arrow_left.gif" width="16" height="16" class="icon" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+             	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
            	</a>
             	</p>
          </div> <!-- end section -->  	

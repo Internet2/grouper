@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.10 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: assignment.jsp,v 1.11 2005-06-06 23:30:11 jvine Exp $
+  $Date: 2005-06-06 23:30:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -67,12 +67,14 @@
     <div class="section">
       <h2>
       <%=currentAssignment.getFunction().getSubsystem().getName()%>
-      :
-      <%=currentAssignment.getFunction().getCategory().getName()%>
-      :
-      <%=currentAssignment.getFunction().getName()%>
       </h2>
-    </div>
+			<p>
+  	    <span class="category"><%=currentAssignment.getFunction().getCategory().getName()%> : 
+				</span>
+				<span class="function">
+					<%=currentAssignment.getFunction().getName()%>
+				</span>
+			</p>
     
     <p><%=currentAssignment.getFunction().getHelpText()%>
  	</p>
@@ -158,5 +160,7 @@
       </tr>
       
     </table>
+	    </div>
+	
   </body>
 </html>
