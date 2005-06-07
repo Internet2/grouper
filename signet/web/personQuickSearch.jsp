@@ -10,6 +10,7 @@
 <%@ page import="edu.internet2.middleware.signet.choice.Choice" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.SubjectNameComparator" %>
 
 
     <div>
@@ -22,7 +23,9 @@
          (request.getSession().getAttribute("signet"));
 
   String searchString = request.getParameter("searchString");
-  Set sortSet = signet.findPrivilegedSubjects(Signet.DEFAULT_SUBJECT_TYPE_ID, searchString);
+  Set result = signet.findPrivilegedSubjects(Signet.DEFAULT_SUBJECT_TYPE_ID, searchString);
+  Set sortSet = new TreeSet(new SubjectNameComparator());
+  sortSet.addAll(result);
 
   if (sortSet.size() <= 0)
   {
