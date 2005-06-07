@@ -55,15 +55,16 @@ To populate the Signet demo application with sample data:
         the util/personloader/run.sh script with the sample demo/Subject.txt
         file, e.g., > run.sh ../../demo/data/subject.txt
 
+    Note that a special Subject, "SignetSuperSubject", is included in
+    subject.txt, and so will be created by this invocation of the
+    PersonFileLoader.  This is a special user that has granting
+    privileges for all functions in all subsystems.  It can be used to
+    bootstrap initial granting privileges for the other users.   
+
   (4) Add login-names to your web server's authentication mechanism, with any
       passwords you like. Login names must correspond to the principal
       identifier (e.g., "jpoole" in the sample data) of one or more Subjects
       loaded above.
-
-  (5) A special Subject, "SignetSuperSubject", will be created by the Signet UI
-      when it is first executed.  This is a special user that has granting
-      privileges for all functions in all subsystems.  It can be used to
-      bootstrap initial granting privileges for the other users.   
 
 
 License
