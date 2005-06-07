@@ -206,7 +206,6 @@ drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
 drop table PrivilegedSubject;
-
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
