@@ -51,13 +51,13 @@ To populate the Signet demo application with sample data:
         JAVA_HOME to the location of your JDK.
     (b) Modify the demo/data/Subject.txt file with any additional local Subject
         identities for your site.
-    (c) Use the PersonFileLoader to to load that sample person data by executing
+    (c) Use the SubjectFileLoader to to load that sample person data by executing
         the util/personloader/run.sh script with the sample demo/Subject.txt
         file, e.g., > run.sh ../../demo/data/subject.txt
 
     Note that a special Subject, "SignetSuperSubject", is included in
     subject.txt, and so will be created by this invocation of the
-    PersonFileLoader.  This is a special user that has granting
+    SubjectFileLoader.  This is a special user that has granting
     privileges for all functions in all subsystems.  It can be used to
     bootstrap initial granting privileges for the other users.   
 
