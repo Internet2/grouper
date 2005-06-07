@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.11 2005-06-06 23:30:11 jvine Exp $
-   $Date: 2005-06-06 23:30:11 $
+   $Id: signet.css,v 1.12 2005-06-07 23:31:33 acohen Exp $
+   $Date: 2005-06-07 23:31:33 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -25,10 +25,12 @@ a {
 	text-decoration: none; 
 	color: #0049D4; 
 }
+
 a:hover {
 	text-decoration: underline; 
 	color: #0049D4; 
 }
+
 body {
 	margin: 0px;
 	padding: 0px;
@@ -38,9 +40,11 @@ body {
 	font-size: 11px; 
 	font-weight: normal;
 }
+
 caption {
 	color: #666;
 }
+
 fieldset {
 	font-size: 11px; 
 	font-weight: normal;
@@ -49,17 +53,21 @@ fieldset {
 	margin: 0px 0px 5px 0px;
 	padding: 10px;
 }
+
 fieldset input {
 	margin-left: 25px;
 }
+
 fieldset select {
 	margin-left: 25px;
 	margin-right: -20px;
 }
+
 form {
 	margin: 0px;
 	padding: 0px;
 }
+
 h1 { /* name in ViewID section */
 	margin: 0px;
 	padding: 0px;
@@ -67,6 +75,7 @@ h1 { /* name in ViewID section */
 	font-size: 16px; 
 	font-weight: bold;
 }
+
 h2 {  /* section headers on blue background */
 	color: #333;
 	font-size: 11px;
@@ -76,20 +85,25 @@ h2 {  /* section headers on blue background */
 	padding: 2px;
 	margin: 0px;
 }
+
 img {
 	border: none;
 	margin: 2px;
 }
+
 a img {
 	vertical-align: middle;
 }
+
 label {
 	color: #000;
 }
+
 legend {
 	font-size: 11px; 
 	font-weight: bold;
 }
+
 optgroup { /* unselectable group header in select menu */
 	text-decoration: none;
 	font-size: 11px;
@@ -98,32 +112,40 @@ optgroup { /* unselectable group header in select menu */
 	font-style: normal;	
 	background-color: #DDD;
 }
+
 option { /* selectable item in select menu */
 	background-color: #FFF;
 	text-decoration: none;
 	text-transform : none;
 }
+
 p {
 	margin: 0px 0px 10px 3px;
 }
+
 p.nomarg {
 	margin: 0px;
 }
+
 select {
 	font-size: 11px;
 }
+
 select.long {
 	width: 170px;
 }
+
 select.short {
 	width: 100px;
-}	
+}
+
 table {
 	border: 0px;
 	padding: 0px;
 	margin: 0px;
 	width: 100%;
 }
+
 td {
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
 	font-size: 11px; 
@@ -132,22 +154,26 @@ td {
 	vertical-align: top;
 	border-bottom: 1px solid #CCC;	
 }
+
 td.sorted {
 	background-color: #DFF7E9;
-	white-space: nowrap; 
 }
+
 td.date {
   white-space: nowrap;
 }
+
 table.invis {
 	border: none;
 	padding: 0px;
 	margin: 0px;
 	width: auto;
 }
+
 table.invis td {
 	border: none;
 }
+
 th { 
 	text-align: left;
 	vertical-align: middle;
@@ -160,6 +186,7 @@ th {
 	margin: 0px;
 	white-space: nowrap;
 }
+
 th a{ /* 3-D header for sortable columns */
 	color: #FFF;
 	text-decoration: none;
@@ -171,6 +198,7 @@ th a{ /* 3-D header for sortable columns */
 	padding: 2px;
 	margin: 0px;
 }
+
 th a:hover {
 	color: #FFF;
 	text-decoration: none;
@@ -179,6 +207,7 @@ th a:hover {
 	border-right: 2px solid #B0D5DE; /* col header hilite */
 	border-bottom: 2px solid #B0D5DE;
 }
+
 th img { /* current sort up/down indicator */
 	float: right;
 }
@@ -189,17 +218,21 @@ ol {
 	marker-offset: 4px; 
 	margin-top: 0px;
 }
+
 ul {
 	list-style-type: circle;
 	marker-offset: 4px; 
 	margin-top: 0px;
 }
+
 ul.arrow {
 	list-style-image: url(../images/arrow.gif);
 }
+
 ul.none {
 	list-style-type: none;
 }	
+
 li {
 	margin-top: 0px;
 }
@@ -209,48 +242,56 @@ li {
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	width: 100%;
+	width: 99%;
 	margin: 6px 6px 0px 6px;
 }
-			#Logo { /* placement of institution-specific logo in Header */
-				position: absolute;
-				top: 0px;
-				left: 0px;
-				height: 60px;
-			}
-			#Signet { /* placement of Signet logo in Header */
-				position: absolute;
-				top: 0px;
-				right: 12px;
-				height: 60px;
-			}
+
+#Logo { /* placement of institution-specific logo in Header */
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 60px;
+}
+
+#Signet { /* placement of Signet logo in Header */
+	position: absolute;
+	top: 0px;
+	right: 12px;
+	height: 60px;
+}
+
 #Navbar { /* navigation bar between Header and Content */
 	position: absolute;
 	top: 70px;
 	left: 0px;
-	width: 100%;
+	width: 99%;
 	padding: 2px 0px 2px 2px;
 	color: #fff;
 	background-color: #007994;
 	text-align: left;
 }
-			#Navbar a { 
-				text-decoration: none; 
-				font-style: normal;
-				color: #FFF;  
-			}
-			#Navbar a:hover { 
-				text-decoration: underline; 
-				font-style: italic;
-			}
-			.logout { /* logout link floats to left in Navbar */
-				float: right;
-				margin-right: 12px;
-			}
-			.select { /* selectable breadcrumb links on the right of Navbar */
-				font-weight: normal;
-				font-style: italic;
-			}
+
+#Navbar a { 
+	text-decoration: none; 
+	font-style: normal;
+	color: #FFF;  
+}
+
+#Navbar a:hover { 
+	text-decoration: underline; 
+	font-style: italic;
+}
+
+.logout { /* logout link floats to left in Navbar */
+	float: right;
+	margin-right: 12px;
+}
+
+.select { /* selectable breadcrumb links on the right of Navbar */
+	font-weight: normal;
+	font-style: italic;
+}
+
 #Layout { /* holds everything below the Navbar */ 
 	position: absolute;
 	top: 93px;
@@ -259,17 +300,22 @@ li {
 	padding: 0px 0px 0px 0px;
 	background-color: #FFF;
 }
+
 #Content { /* main page content, offset by the Sidebar width */
+	position:relative;
 	margin-left: 186px;
-	margin-right: 0px;
+	margin-right: 10px;
 	background-color: #fff;
 	padding: 0px;
 }
+
 #ViewHead { /* Content section header on all but Main page */
+	position:relative;
 	border: 1px solid #B0D5DE;
 	margin: 0px 0px 5px 0px;
 	padding: 3px;
 }
+
 #Sidebar { /* holds sidebar boxes fixed to one side of Content */
 	position: absolute;
 	top: 0px;
@@ -278,33 +324,43 @@ li {
 	text-align: left;
 	background-color: #fff;
 }
-			#Scope { /* scope search section in Sidebar */
-				margin-top: 10px;
-			}
-			#Scope .scroll {
-				width: 170px;
-				height: 250px;	
-			}
-			#Subject { /* subject search section in Sidebar */
-				margin-top: 10px;
-			}
-			#Subject .scroll {
-				width: 170px;
-				height: 250px;	
-			}
-			.scroll { 
-				border: 1px solid #016582;
-				margin-top: 0px;
-				overflow: auto;
-				background-color: #FFF;
-			}
+
+#Scope { /* scope search section in Sidebar */
+	position:relative;
+	margin-top: 10px;
+}
+
+#Scope .scroll {
+	position:relative;
+	width: 170px;
+	height: 250px;	
+}
+
+#Subject { /* subject search section in Sidebar */
+	position:relative;
+	margin-top: 10px;
+}
+
+#Subject .scroll {
+	position:relative;
+	width: 170px;
+	height: 250px;	
+}
+
+.scroll { 
+	border: 1px solid #016582;
+	margin-top: 0px;
+	overflow: auto;
+	background-color: #FFF;
+}
+			
 #Footer { /* below the Content section, inset by same amount */
+	position:relative;
 	clear: left;
 	margin-left: 186px;
 	margin-top: 50px;
 	color: #666;
 }
-
 
 /* SIDEBAR */
 
@@ -315,6 +371,7 @@ li {
 	padding: 0px 0px 10px 0px;
 	margin-bottom: 0px;
 }
+
 /* controls in sidebar (mostly) */
 .button1 {
 	margin: 0px 0px 0px 3px;
@@ -323,6 +380,7 @@ li {
 	font-size: 11px;
 	font-weight: normal;	
 }
+
 .button-def { /* default button - the one that will execute when user presses Enter */
 	margin: 15px 0px 15px 0px;
 	background-color: #EEE;
@@ -330,42 +388,54 @@ li {
 	font-size: 11px;
 	font-weight: bold;	
 }
+
 .text1 { /* fixed width text box in sidebar */
 	width: 100px;
 }
 
 /* VIEW PAGES */
 
+.tablecontent {
+	position:relative;
+	width: 99.9%;
+}
+
 .tableheader { /* first title bar above content table - contains links but not controls */
+	position:relative;
 	background-color: #B0D5DE;
 	padding: 3px;
 	margin: 0px;
+	width: 99.9%;
 	/* vertical-align: middle; */
 }
-		.tableheader h2 {
-			text-decoration: none;
-			color: #333;
-			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-			font-size: 11px;
-			text-transform : uppercase;
-			font-weight: bold;
-			margin: 0px;
-			display: inline;
-		}
-		.tableheader a { /* print & export links */
-			text-transform: none;
-			font-weight: normal;
-			float: right;
-			margin-left: 10px;
-			margin-top: -3px;
-		}	
-		.tableheader fieldset {
-			display: inline;
-			width: none;
-			border: none;
-			margin: 0px;
-			padding: 0px;
-		}
+
+.tableheader h2 {
+	text-decoration: none;
+	color: #333;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : uppercase;
+	font-weight: bold;
+	margin: 0px;
+	display: inline;
+}
+
+.tableheader a { /* print & export links */
+	text-transform: none;
+	font-weight: normal;
+	float: right;
+	margin-left: 10px;
+	margin-top: -3px;
+}
+
+.tableheader fieldset {
+	display: inline;
+	width: none;
+	border: none;
+	margin: 0px;
+	padding: 0px;
+}
+
 .tablecontrols { /* second title bar above content bar - contains controls for table */
 	text-decoration: none;
 	color: #333;
@@ -378,15 +448,18 @@ li {
 	white-space: nowrap;
 	vertical-align: middle;	
 }
+
 .hierarchy a { /* applies to table cells that contain a scope node - TITLE attribute of <a> tag shows on hover */
 	display: block;
 	color: #000;
 	text-decoration: none;
 }
+
 .hierarchy a:hover {
 	text-decoration: none;
 	color: #C00;	
 }
+
 .maglass { /* popup icon, placed to right of privilege */
 	float: right;
 }
@@ -396,51 +469,63 @@ li {
 .section { /* section on assignment forms, combined with H2 */
 	clear: both;
 }
-			.section h2 {
-				margin: 5px 0px;
-			}
-			.section h2 a {
-				text-transform: none;
-			}
-			.change {
-				display: inline;
-				padding-left: 20px;
-			}
+
+.section h2 {
+	margin: 5px 0px;
+}
+
+.section h2 a {
+	text-transform: none;
+}
+
+.change {
+	display: inline;
+	padding-left: 20px;
+}
+
 .showdesc { /* metadata description next to selection list */
 	float: left;
 	width: 300px;
 	z-index: 99;
 	height: 120px;
 	margin-left: 15px;
-}	
-	.category {
-		font-weight: bold;
-	}
-	.function {
-		font-weight: bold;
-		color: #C00;
-	}
-	.description {
-		font-weight: normal;
-	}
+}
+
+.category {
+	font-weight: bold;
+}
+
+.function {
+	font-weight: bold;
+	color: #C00;
+}
+
+.description {
+	font-weight: normal;
+}
 
 /* MISC */
 
 .dropback {
 	color: #666;
 }
+
 .help {
   color: #666;
 }
+
 .ident {
 	color: #666;
 }
+
 .label {
 	color: #666;
 }
+
 .status {
 	color: #CC0000;
 }
+
 .toolname { /* reference to a tool tile in the Sidebar */
 	text-transform: uppercase;
 }
