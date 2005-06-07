@@ -114,43 +114,8 @@ foreign key (subsystemID, proxyTypeID) references signet_proxyType (subsystemID,
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID)
 )
 ;
--- Subject tables
-drop table SubjectAttribute;
-drop table Subject;
-drop table SubjectType;
+-- Signet Subject tables
 drop table signet_privilegedSubject;
-create table SubjectType
-(
-subjectTypeID     varchar(32)     NOT NULL,
-name              varchar(120)    NOT NULL,
-adapterClass      varchar(255)    NOT NULL,
-modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID)
-)
-;
-create table Subject
-(
-subjectTypeID     varchar(32)     NOT NULL,
-subjectID         varchar(64)     NOT NULL,
-name              varchar(120)    NOT NULL,
-description       varchar(255)    NOT NULL,
-displayID         varchar(64)     NOT NULL,
-modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID, subjectID)
-)
-;
-create table SubjectAttribute
-(
-subjectTypeID     varchar(32)     NOT NULL,
-subjectID         varchar(64)     NOT NULL,
-name              varchar(32)     NOT NULL,
-instance          smallint        NOT NULL,
-value             varchar(255)    NOT NULL,
-searchValue       varchar(255)    NOT NULL,
-modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID, subjectID, name, instance)
-)
-;
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -252,3 +217,40 @@ value               varchar(32)         NOT NULL,
 unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
 )
 ;
+-- Subject tables (optional, for local subject tables)
+drop table SubjectAttribute;
+drop table Subject;
+drop table SubjectType;
+create table SubjectType
+(
+subjectTypeID     varchar(32)     NOT NULL,
+name              varchar(120)    NOT NULL,
+adapterClass      varchar(255)    NOT NULL,
+modifyDatetime    smalldatetime   default getdate(),
+primary key (subjectTypeID)
+)
+;
+create table Subject
+(
+subjectTypeID     varchar(32)     NOT NULL,
+subjectID         varchar(64)     NOT NULL,
+name              varchar(120)    NOT NULL,
+description       varchar(255)    NOT NULL,
+displayID         varchar(64)     NOT NULL,
+modifyDatetime    smalldatetime   default getdate(),
+primary key (subjectTypeID, subjectID)
+)
+;
+create table SubjectAttribute
+(
+subjectTypeID     varchar(32)     NOT NULL,
+subjectID         varchar(64)     NOT NULL,
+name              varchar(32)     NOT NULL,
+instance          smallint        NOT NULL,
+value             varchar(255)    NOT NULL,
+searchValue       varchar(255)    NOT NULL,
+modifyDatetime    smalldatetime   default getdate(),
+primary key (subjectTypeID, subjectID, name, instance)
+)
+;
+
