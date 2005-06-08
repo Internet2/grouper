@@ -3,18 +3,13 @@ Signet version 0.3 - April, 2005
 What's New
 ----------
 
-SubjectFileLoader utility to input a set of Subject definitions via a text file.
-  See demo/data/subject.txt for a sample input file with comments.
-Page-headers and page-footers in the Signet GUI are now defined as Tiles, for easier site-specific customization.
-Limit-values are now taken into account when creating and revoking assignments:
-  Limit-values that are not assignable in a given context are now dimmed in the GUI.
-  Assignments that are not revocable in a given context now have their "revoke"
-  checkboxes dimmed.
-Person-search in the GUI now returns only those names which match the search-string.
-  This functionality is compatible with Windows IE, Windows Firefox, Mac Safari,
-  and Mac Firefox.
+(1) This version of Signet uses the latest pre-release version of the Subject
+    API.
+    
+(2) Signet internal table names are now prefixed with "signet_" to avoid
+    reserved-word collisions with various SQL engines.
   
-
+(3) A TreeXMLLoader utility has been added to populate a local Scope tree.
 
 Quick Start
 ------------------------
