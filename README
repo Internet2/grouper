@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   _doc/grouper-impl-guide.html_
 
-$Id: README,v 1.27 2005-04-29 16:38:03 blair Exp $
+$Id: README,v 1.28 2005-06-09 17:43:12 blair Exp $
 
 ---
 
@@ -65,7 +65,7 @@ In _conf/hibernate.properties_, change:
   hibernate.connection.url
 
 In _conf/log4j.properties_, change:
-log4j.appender.rfile.File
+  log4j.appender.rfile.File
 
 ---
 
