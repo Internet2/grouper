@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.53 2005-04-15 18:27:31 blair Exp $ -->
+<!-- $Id: build.xml,v 1.54 2005-06-09 19:13:47 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -16,8 +16,6 @@
   <property name="javadoc.dest.internal"  value="${dist}/api-int"/>
   <property name="javadoc.dest.public"    value="${dist}/api"/>
   <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
-  <property name="jdbc.driver"            value="org.hsqldb.jdbcDriver"/>
-  <property name="jdbc.url"               value="jdbc:hsqldb:${dist}/run/grouper"/>
   <property name="sql.type"               value="hsqldb"/>
   <property name="sql.create"             value="sql/schema-${sql.type}.sql"/>
   <property name="sql.test-data"          value="sql/test-data-${sql.type}.sql"/>
@@ -118,15 +116,18 @@
   </target>
 
   <target name="db" depends="init" description="Launch HSQLDB UI">
+    <property file="conf/hibernate.properties"/>
     <mkdir dir="${dist}/run"/>
     <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
       <classpath refid="project.class.path"/>
       <arg value="-driver"/>
-      <arg value="${jdbc.driver}"/>
+      <arg value="${hibernate.connection.driver_class}"/>
       <arg value="-url"/>
-      <arg value="${jdbc.url}"/>
+      <arg value="${hibernate.connection.url}"/>
       <arg value="-user"/>
-      <arg value="sa"/>
+      <arg value="${hibernate.connection.username}"/>
+      <arg value="-password"/>
+      <arg value="${hibernate.connection.password}"/>
     </java>
   </target>
 
