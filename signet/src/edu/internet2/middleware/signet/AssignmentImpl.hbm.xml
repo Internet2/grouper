@@ -27,7 +27,11 @@
     	</id>
 -->
     	
+<!--		
 		<timestamp name="modifyDatetime"/>
+-->
+        <property
+			name="modifyDatetime" column="modifyDatetime" />
 		
 		<property
 			name="grantorId" column="grantorID"/>

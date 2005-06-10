@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.8 2005-06-01 06:13:08 mnguyen Exp $
-$Date: 2005-06-01 06:13:08 $
+$Id: AssignmentTest.java,v 1.9 2005-06-10 23:05:12 acohen Exp $
+$Date: 2005-06-10 23:05:12 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -22,6 +22,7 @@ import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.subject.Subject;
 
 import junit.framework.TestCase;
@@ -78,6 +79,30 @@ public class AssignmentTest extends TestCase
   {
     super(name);
   }
+  
+  public final void testRevoke()
+  throws
+    ObjectNotFoundException,
+    SignetAuthorityException
+  {
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set assignmentsReceived
+        = pSubject.getAssignmentsReceived
+            (null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
+      
+      assignment.revoke(assignment.getGrantor());
+    }
+  }
 
   public final void testGetLimitValuesArray()
   throws
@@ -94,7 +119,7 @@ public class AssignmentTest extends TestCase
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       Set assignmentsReceived
       	= pSubject.getAssignmentsReceived
-      			(null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      			(Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
       
       // Here's a picture of the Assignments which this test expects to find:
       //

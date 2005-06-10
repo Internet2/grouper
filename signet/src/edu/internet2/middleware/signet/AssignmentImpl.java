@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.11 2005-06-05 05:43:48 mnguyen Exp $
- $Date: 2005-06-05 05:43:48 $
+ $Id: AssignmentImpl.java,v 1.12 2005-06-10 23:05:12 acohen Exp $
+ $Date: 2005-06-10 23:05:12 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -146,6 +146,7 @@ implements Assignment, Comparable
     }
     
     this.checkAllLimitValues(function, limitValues);
+    this.setModifyDatetime(new Date());
   }
   
   /**
@@ -559,6 +560,7 @@ implements Assignment, Comparable
     
     this.setRevoker(revoker);
     this.setStatus(Status.INACTIVE);
+    this.setModifyDatetime(new Date());
   }
   
   /* (non-Javadoc)
