@@ -1,0 +1,46 @@
+/ Sample subject input file for utility SubjectFileLoader
+/
+/ The first line is a header:
+/
+/      source [source-name]
+/
+/ followed by one or more subject blocks
+/   
+/ Start of subject block: +[subjectid] [subjectname]
+/
+/ Subsequent lines in each subject block consists of pairs of
+/
+/     [attributename] [attributevalue]
+/   
+/ Note: "SignetSuperSubject" is a temporary highly-privileged
+/        user for bootstrapping privileges in the demo system
+/
+source person
++SUBJECT_0_ID SUBJECT_0_NAME
+description SUBJECT_0_DESCRIPTION
+loginid SUBJECT_0_DISPLAYID
+all all
++SUBJECT_1_ID SUBJECT_1_NAME
+description SUBJECT_1_DESCRIPTION
+loginid SUBJECT_1_DISPLAYID
+all all
++SUBJECT_2_ID SUBJECT_2_NAME
+description SUBJECT_2_DESCRIPTION
+loginid SUBJECT_2_DISPLAYID
+all all
++SUBJECT_3_ID SUBJECT_3_NAME
+description SUBJECT_3_DESCRIPTION
+loginid SUBJECT_3_DISPLAYID
+all all
++SUBJECT_4_ID SUBJECT_4_NAME
+description SUBJECT_4_DESCRIPTION
+loginid SUBJECT_4_DISPLAYID
+all all
++SUBJECT_5_ID SUBJECT_5_NAME
+description SUBJECT_5_DESCRIPTION
+loginid SUBJECT_5_DISPLAYID
+all all
++SignetSuperSubject Super-User, Signet
+description Signet Privilege Boostrap user
+loginid SignetSuperSubject
+all all
