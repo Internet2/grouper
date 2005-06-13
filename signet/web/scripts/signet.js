@@ -49,6 +49,14 @@ function loadXMLDoc(url)
     {
       requestObject.onreadystatechange = processReqChange;
       requestObject.open("GET", url, true);
+      
+      // This line prevents any browser from using its internal cache to satisfy
+      // this request. This sidesteps a bug in Safari (June 2005).
+      // For more information, see this URL:
+      //    http://www.bitterpill.org/logid/1117777362000
+      requestObject.setRequestHeader
+        ('If-Modified-Since', 'Wed, 15 Nov 1995 00:00:00 GMT');
+
       requestObject.send(null);
     }
   }
@@ -60,6 +68,14 @@ function loadXMLDoc(url)
     {
       requestObject.onreadystatechange = processReqChange;
       requestObject.open("GET", url, true);
+      
+      // This line prevents any browser from using its internal cache to satisfy
+      // this request. This sidesteps a bug in Safari (June 2005).
+      // For more information, see this URL:
+      //    http://www.bitterpill.org/logid/1117777362000
+      requestObject.setRequestHeader
+        ('If-Modified-Since', 'Wed, 15 Nov 1995 00:00:00 GMT');
+        
       requestObject.send();
     }
   }
@@ -78,7 +94,12 @@ function processReqChange()
     else
     {
       alert
-        ("There was a problem retrieving the data:\n" + requestObject.statusText);
+        ("There was a problem retrieving the data: requestObject="
+         + requestObject
+         + "\nrequestObject.status = "
+         + requestObject.status
+         + "\nrequestObject.statusText = "
+         + requestObject.statusText);
     }
   }
 }
