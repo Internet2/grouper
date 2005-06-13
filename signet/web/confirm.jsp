@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.15 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: confirm.jsp,v 1.16 2005-06-13 22:59:56 acohen Exp $
+  $Date: 2005-06-13 22:59:56 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -89,7 +89,11 @@
        + currentSubsystem.getId();
 %>
 
-    <form name="form1" action="">
+    <form
+      name="form1"
+      method="post"
+      action="" 
+      onsubmit ="return checkForCursorInPersonSearch()">
     
       <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Navbar">
@@ -235,13 +239,24 @@
             <h2>
               Find a subject </h2>
             <p>
-              <input name="words" type="text" class="short" id="words" style="width:100px" size="15" maxlength="500" />
+              <input
+                name="words"
+                type="text"
+                class="short"
+                id="words"
+                style="width:100px"
+                size="15"
+                maxlength="500"
+                onFocus="personSearchFieldHasFocus=true;"
+                onBlur="personSearchFieldHasFocus=false;" />
               <input
                 name="searchbutton"
                 type="button"
                 class="button1"
                 onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
-                value="Search" />
+                value="Search"
+                onFocus="personSearchButtonHasFocus=true;"
+                onBlur="personSearchButtonHasFocus=false;" />
               <br />
               <label for="words">
                 Enter a subject's name, and click "Search."
