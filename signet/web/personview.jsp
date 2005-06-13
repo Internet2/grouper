@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.24 2005-06-06 23:30:11 jvine Exp $
-  $Date: 2005-06-06 23:30:11 $
+  $Id: personview.jsp,v 1.25 2005-06-13 23:45:59 acohen Exp $
+  $Date: 2005-06-13 23:45:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -432,24 +432,34 @@
 <%
   }
 %>
+
+    <form
+      name="personSearchForm"
+      method="post"
+      action="" 
+      onsubmit ="return checkForCursorInPersonSearch()">
         <div class="findperson">
           <h2>
             find a Subject </h2>
           <p>
-            <input
-              name="words"
-              type="text"
-              class="short"
-              id="words"
-              style="width:100px"
-              size="15"
-              maxlength="500" />
-            <input
-              name="searchbutton"
-              type="submit"
-              class="button1"
-              onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
-              value="Search" /> 
+              <input
+                name="words"
+                type="text"
+                class="short"
+                id="words"
+                style="width:100px"
+                size="15"
+                maxlength="500"
+                onFocus="personSearchFieldHasFocus=true;"
+                onBlur="personSearchFieldHasFocus=false;" />
+              <input
+                name="searchbutton"
+                type="button"
+                class="button1"
+                onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
+                value="Search"
+                onFocus="personSearchButtonHasFocus=true;"
+                onBlur="personSearchButtonHasFocus=false;" />
             <br />
             <label for="words">
               Enter a subject's name, and click "Search."
@@ -457,7 +467,8 @@
           </p>
           <div id="PersonSearchResults" style="display:none">
           </div> <!-- PersonSearchResults -->
-        </div> <!-- findperson -->     
+        </div> <!-- findperson -->   
+    </form> <!-- personSearchForm -->  
             
           <div class="views">
             <h2>
