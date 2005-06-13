@@ -32,6 +32,35 @@ function CheckAll(){
 	document.checkform.row6.checked = document.checkform.allbox.checked;
 }
 
+var personSearchFieldHasFocus = false;
+var personSearchButtonHasFocus = false;
+
+// If the text-cursor is in the person-search field, this method
+// executes the person-search, and returns false. Otherwise, it returns
+// true.
+function checkForCursorInPersonSearch()
+{
+  if (cursorInPersonSearch() == true)
+  {
+    loadXMLDoc
+      ('personQuickSearch.jsp?searchString='
+       + document.getElementById('words').value);
+    return false;
+  }
+  else
+  {
+    // Let the form-submission proceed.
+    return true;
+  }
+}
+
+// Returns true if the text-cursor is in the person-search field, and false
+// otherwise.
+function cursorInPersonSearch()
+{
+  return (personSearchFieldHasFocus || personSearchButtonHasFocus);
+}
+
 var requestObject;
 
 // This code was adapted from the following web pages:
@@ -79,6 +108,10 @@ function loadXMLDoc(url)
       requestObject.send();
     }
   }
+  
+  // This return value always prevents form-submission of the calling form,
+  // thereby allowing us to just edit the existing page in place.
+  return false;
 }
 
 function processReqChange()

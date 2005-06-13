@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.26 2005-06-06 23:30:11 jvine Exp $
-  $Date: 2005-06-06 23:30:11 $
+  $Id: main.jsp,v 1.27 2005-06-13 22:16:58 acohen Exp $
+  $Date: 2005-06-13 22:16:58 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -56,7 +56,7 @@
     name="form1"
     method="post"
     action="" 
-    onsubmit="return loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value)">
+    onsubmit ="return checkForCursorInPersonSearch()">
     <tiles:insert page="/tiles/header.jsp" flush="true" />
     <div id="Navbar">
       <span class="logout">
@@ -212,14 +212,18 @@
               id="words"
               style="width:100px"
               size="15"
-              maxlength="500" />
+              maxlength="500"
+              onFocus="personSearchFieldHasFocus=true;"
+              onBlur="personSearchFieldHasFocus=false;" />
           	<input
               name="searchbutton"
               type="button"
               class="button1"
               onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
-              value="Search" />
-						<br />
+              value="Search"
+              onFocus="personSearchButtonHasFocus=true;"
+              onBlur="personSearchButtonHasFocus=false;" />
+			<br />
           	<label for="words">Enter a subject's name, and click "Search."
           	</label>
        	</p>
