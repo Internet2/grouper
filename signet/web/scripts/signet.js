@@ -70,6 +70,10 @@ var requestObject;
 
 function loadXMLDoc(url)
 {
+  // Set the cursor to an hourglass, to show we're really doing some serious
+  // computin'.
+  document.body.style.cursor = "wait";
+  
   if (window.XMLHttpRequest)
   {
     requestObject = new XMLHttpRequest();
@@ -118,6 +122,9 @@ function processReqChange()
 {
   if (requestObject.readyState == 4) // Request is complete
   {
+    // Set the cursor back from an hourglass to its normal shape.
+    document.body.style.cursor = "default";
+    
     if (requestObject.status == 200) // Status is OK
     {
       var searchResultsElement = document.getElementById('PersonSearchResults');
