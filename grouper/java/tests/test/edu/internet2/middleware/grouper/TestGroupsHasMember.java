@@ -79,7 +79,7 @@ public class TestGroupsHasMember extends TestCase {
 
   // m0 -> gA -> gB -> gC
   //
-  public void testMoF() {
+  public void testMoF0() {
     Subject subj = null;
     try {
       subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
@@ -150,6 +150,85 @@ public class TestGroupsHasMember extends TestCase {
     Assert.assertFalse("gC !hasMember gC", gC.hasMember(gC.toMember()));
 
     s.stop();
+  }
+
+  // m0 -> gA -> gB -> gC
+  // m0 -> gB -> gC
+  // grouperzilla#360
+  public void testMoF1() {
+    try {
+      Subject subj = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
+      GrouperSession s = GrouperSession.start(subj);
+      // Create ns0
+      GrouperStem ns0 = GrouperStem.create(
+        s, Constants.ns0s, Constants.ns0e
+      );
+      // Create gA
+      GrouperGroup gA  = GrouperGroup.create(
+        s, Constants.gAs, Constants.gAe
+      );
+      // Create gB
+      GrouperGroup gB  = GrouperGroup.create(
+        s, Constants.gBs, Constants.gBe
+      );
+      // Create gC
+      GrouperGroup gC  = GrouperGroup.create(
+        s, Constants.gCs, Constants.gCe
+      );
+      // Load m0
+      GrouperMember m0 = Common.loadMember(
+        s, Constants.mem0I, Constants.mem0T
+      );
+      // Load m1
+      GrouperMember m1 = Common.loadMember(
+        s, Constants.mem1I, Constants.mem1T
+      );
+      // Add m0 to gA's "members"
+      try {
+        gA.listAddVal(m0);
+      } catch (RuntimeException e) {
+        Assert.fail("add m0 to gA");
+      }
+      // Add gA to gB's "members"
+      try {
+        gB.listAddVal(gA.toMember());
+      } catch (RuntimeException e) {
+        Assert.fail("add gA to gB");
+      }
+      // Add gB to gC's "members"
+      try {
+        gC.listAddVal(gB.toMember());
+      } catch (RuntimeException e) {
+        Assert.fail("add gB to gC");
+      }  
+      // Add m0 to gB's "members"
+      try {
+        gB.listAddVal(m0);
+      } catch (RuntimeException e) {
+        Assert.fail("add m0 to gB");
+      }
+
+      // Now test for membership
+      Assert.assertTrue("gA hasMember m0",   gA.hasMember(m0));
+      Assert.assertFalse("gA !hasMember m1", gA.hasMember(m1));
+      Assert.assertFalse("gA !hasMember gA", gA.hasMember(gA.toMember()));
+      Assert.assertFalse("gA !hasMember gB", gA.hasMember(gB.toMember()));
+      Assert.assertFalse("gA !hasMember gC", gA.hasMember(gC.toMember()));
+      Assert.assertTrue("gB hasMember m0",   gB.hasMember(m0));
+      Assert.assertFalse("gB !hasMember m1", gB.hasMember(m1));
+      Assert.assertTrue("gB hasMember gA",   gB.hasMember(gA.toMember()));
+      Assert.assertFalse("gB !hasMember gB", gB.hasMember(gB.toMember()));
+      Assert.assertFalse("gB !hasMember gC", gB.hasMember(gC.toMember()));
+      Assert.assertTrue("gC hasMember m0",   gC.hasMember(m0));
+      Assert.assertFalse("gC !hasMember m1", gC.hasMember(m1));
+      Assert.assertTrue("gC hasMember gA",   gC.hasMember(gA.toMember()));
+      Assert.assertTrue("gC hasMember gB",   gC.hasMember(gB.toMember()));
+      Assert.assertFalse("gC !hasMember gC", gC.hasMember(gC.toMember()));
+
+      s.stop();
+    } catch (SubjectNotFoundException e1) {
+      Assert.fail("unable to get subject");
+    }
   }
 
 }

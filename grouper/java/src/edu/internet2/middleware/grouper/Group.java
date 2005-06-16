@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.33 2005-06-02 19:14:34 blair Exp $
+ * @version $Id: Group.java,v 1.34 2005-06-16 13:24:19 blair Exp $
  */
 abstract public class Group {
 
@@ -551,7 +551,8 @@ abstract public class Group {
       q.setString(1, m.key());
       q.setString(2, list);
       try {
-        if (q.list().size() == 1) {
+        // Account for both immediate and effective mships
+        if (q.list().size() >= 1) {
           rv = true;
         }
       } catch (HibernateException e) {
