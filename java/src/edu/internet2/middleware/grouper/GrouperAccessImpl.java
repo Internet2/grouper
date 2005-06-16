@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.69 2005-06-02 19:01:01 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.70 2005-06-16 15:48:23 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -294,7 +294,7 @@ public class GrouperAccessImpl implements GrouperAccess {
   public boolean revoke(GrouperSession s, Group g, String priv) {
     GrouperAccessImpl._init();
     boolean rv = false;
-    Iterator iter = this.whoHas(s, g, priv).iterator();
+    Iterator iter = this.whoImmHas(s, g, priv).iterator();
     while (iter.hasNext()) {
       GrouperMember m = (GrouperMember) iter.next();
       this.revoke(s, g, m, priv);
@@ -424,6 +424,29 @@ public class GrouperAccessImpl implements GrouperAccess {
       rv = true;
     }
     return rv;
+  }
+
+  /*
+   * Immediate list members who have the specified privilege on the
+   * specified group.
+   */
+  private List whoImmHas(GrouperSession s, Group g, String priv) {
+    GrouperAccessImpl._init();
+    List members = new ArrayList();
+    
+    if (this.can(priv) == true) {
+      Iterator iter = g.listImmVals( (String) privMap.get(priv)).iterator();
+      while (iter.hasNext()) {
+        GrouperList   gl  = (GrouperList) iter.next();
+        gl.load(s);
+        GrouperMember m   = gl.member();
+        if (m != null) {
+          members.add(m);
+        }
+      } 
+    } // TODO Exception if invalid priv?
+
+    return members;
   }
 
 }
