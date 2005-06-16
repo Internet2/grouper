@@ -241,7 +241,7 @@ grantOnly           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
-history_datetime    smalldatetime       NOT NULL,
+historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       default getdate(),
 unique clustered (assignmentID)
 )

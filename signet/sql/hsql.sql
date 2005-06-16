@@ -225,7 +225,7 @@ grantOnly           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
-history_datetime    datetime            NOT NULL;
+historyDatetime     datetime            NOT NULL;
 modifyDatetime      datetime            NOT NULL,
 unique (assignmentID)
 );
