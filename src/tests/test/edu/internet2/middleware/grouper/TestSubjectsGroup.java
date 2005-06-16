@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
 
@@ -163,6 +164,62 @@ public class TestSubjectsGroup extends TestCase {
     } catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to load invalid subject", true);
     }
+  }
+
+  // By _name_
+  // TODO Multipe returns
+  public void testSubjectInterfaceSearchByIDByName() {
+    Set vals = SubjectFactory.searchByIdentifier("root:group a", "group");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _name_, no type
+  public void testSubjectInterfaceSearchByIDByNameNoType() {
+    Set vals = SubjectFactory.searchByIdentifier("root:group a");
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+  }
+
+  // TODO By _displayName_
+  // TODO No type
+  // TODO Multipe returns
+/*
+  public void testSubjectInterfaceSearchByIDByDisplayName() {
+    Set vals = SubjectFactory.searchByIdentifier("root:group a", "group");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+*/
+
+  // By _guid_
+  public void testSubjectInterfaceSearchByIDByID() {
+    Set vals = SubjectFactory.searchByIdentifier(gAid, "group");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _guid_, no type
+  public void testSubjectInterfaceSearchByIDByIDNoType() {
+    Set vals = SubjectFactory.searchByIdentifier(gAid);
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
   }
 
   // TODO Test attributes, etc.
