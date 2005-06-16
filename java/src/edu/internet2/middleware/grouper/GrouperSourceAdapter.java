@@ -55,6 +55,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.logging.Log;
 import  org.apache.commons.logging.LogFactory;
 
@@ -64,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.4 2005-06-06 15:49:03 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.5 2005-06-16 02:38:25 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -75,13 +76,25 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
 
   /*
+   * PRIVATE INSTANCE VARIABLES
+   */
+  private GrouperSession s = null;
+
+
+  /*
    * CONSTRUCTORS
    */
 
+  /**
+   * Allocates new GrouperSourceAdapter.
+   */
   public GrouperSourceAdapter() {
     super();
   }
 
+  /**
+   * Allocates new GrouperSourceAdapter.
+   */
   public GrouperSourceAdapter(String id, String name) {
     super(id, name);
   }
@@ -91,8 +104,15 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * PUBLIC INSTANCE METHODS
    */
 
+  /**
+   * {@inheritDoc}
+   */
   public void destroy() {
     // TODO What destruction should I be doing?
+    if (this.s != null) {
+      log.info("Stopping GrouperSession");
+      this.s.stop();
+    }
     log.info("Destroying GrouperSourceAdapter");
   }
 
@@ -100,30 +120,17 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * {@inheritDoc}
    */
   public Subject getSubject(String id) throws SubjectNotFoundException {
-    // FIXME Now *this* is inefficient
     Subject subj = null;
-    try {
-      Subject root = SubjectFactory.getSubject(
-        Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-      );
-      GrouperSession s = GrouperSession.start(root); 
-      // TODO Optimize further based upon presence of '-' and ':'?
-      GrouperGroup g = GrouperGroup.loadByID(s, id);
-      if (g == null) { // TODO GroupNotFoundException
-        g = GrouperGroup.loadByName(s, id);
-          if (g != null) {
-            subj = new GrouperSubject(g, this);
-          }
-      } else {
-        subj = new GrouperSubject(g, this);
-      }        
-      s.stop();
-    } catch (SubjectNotFoundException e) {
-      log.debug("Unable to find subject: " + id + ": " + e.getMessage());
-      throw new SubjectNotFoundException(
-        "Unable to find subject: " + id + ": " + e.getMessage()
-      );
-    }
+    // TODO Optimize further based upon presence of '-' and ':'?
+    GrouperGroup g = GrouperGroup.loadByID(this.getSession(), id);
+    if (g == null) { // TODO GroupNotFoundException
+      g = GrouperGroup.loadByName(s, id);
+        if (g != null) {
+          subj = new GrouperSubject(g, this);
+        }
+    } else {
+      subj = new GrouperSubject(g, this);
+    }        
     if (subj == null) {
       log.debug("Unable to find subject: " + id);
       throw new SubjectNotFoundException("Unable to find subject: " + id);
@@ -140,6 +147,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     log.info("Initializing GrouperSourceAdapter");
   }
 
+  // TODO stem, extn, name, displayName, displayExtn?
   public Set search(String searchValue) {
     log.warn("GrouperSourceAdapter.search() not implemented");
     throw new RuntimeException(
@@ -147,18 +155,84 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     );
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Set searchByIdentifier(String id) {
-    log.warn("GrouperSourceAdapter.searchByIdentifier() not implemented");
-    throw new RuntimeException(
-      "GrouperSourceAdapter.searchByIdentifier() not implemented"
-    );
+    return this.searchByIdentifier(id, SubjectTypeEnum.valueOf("group"));
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  // TODO what to do about type?
+  // TODO ideally this query could be moved to GrouperQuery
   public Set searchByIdentifier(String id, SubjectType type) {
-    log.warn("GrouperSourceAdapter.searchByIdentifier() not implemented");
-    throw new RuntimeException(
-      "GrouperSourceAdapter.searchByIdentifier() not implemented"
-    );
+    String  qry   = "Group.subject.search.by.id";
+    Set     vals  = new HashSet();
+    try {
+      Query q = this.getSession().dbSess().session().getNamedQuery(qry);
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(0, "%" + id + "%"); // name
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(1, "%" + id + "%"); // displayName
+      q.setString(2, id);             // guid
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(this.getSession(), key);
+          Subject subj = new GrouperSubject(g, this);
+          vals.add(subj);
+          log.debug("searchByIdentifier found: " + g + "/" + subj);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+                    "Error retrieving results for " + qry + ": " + e
+                  );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e
+      );
+    } catch (SubjectNotFoundException e) {
+      throw new RuntimeException(
+        "Unable to perform query " + qry + ": " + e.getMessage()
+      );
+    }
+    log.debug("searchByIdentifier results: " + vals.size());
+    return vals;
+  }
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Return root GrouperSession.  Creates session if necessary.
+   */
+  private GrouperSession getSession() throws SubjectNotFoundException {
+    // TODO Should I check to see that it is connected?
+    if (this.s == null) {
+      try {
+        Subject root = SubjectFactory.getSubject(
+          Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+        );
+        this.s = GrouperSession.start(root);
+      } catch (SubjectNotFoundException e) {
+        log.debug(
+          "Unable to create root subject for querying: " + e.getMessage()
+        );
+        throw new SubjectNotFoundException(
+          "Unable to create root subject for querying: " + e.getMessage()
+        );
+      }
+      log.info("Created root session");
+    } else {
+      log.debug("Reusing existing root session");
+    }
+    return this.s;
   }
 
 }
