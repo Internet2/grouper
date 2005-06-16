@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.6 2005-06-06 15:51:11 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.7 2005-06-16 02:33:26 blair Exp $
  */
 public class SubjectFactory {
 
@@ -96,11 +96,11 @@ public class SubjectFactory {
   }
 
   /**
-   * Retrieve an I2MI {@link Subject}.
+   * Gets a subject by its ID.
    * <p />
-   * @param   id      Subject ID
-   * @param   type    Subject Type
-   * @return  A {@link SubjectFactory} object
+   * @param   id      subject identifier
+   * @param   type    subject type
+   * @return  a {@link Subject}
    * @throws SubjectNotFoundException
    */
   public static Subject getSubject(String id, String type) 
@@ -159,6 +159,40 @@ public class SubjectFactory {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Search by ID and SubjectType.
+   * <p />
+   * @param id    subject identifer
+   * @return Set of found subjects.
+   */
+  public static Set searchByIdentifier(String id) {
+    return SubjectFactory.searchByIdentifier(id, Grouper.DEF_SUBJ_TYPE);
+  }
+
+  /**
+   * Search by ID and SubjectType.
+   * <p />
+   * @param id    subject identifer
+   * @param type  subject type
+   * @return Set of found subjects.
+   */
+  // TODO Cache?
+  public static Set searchByIdentifier(String id, String type) {
+    SubjectFactory.init();
+    Set vals = new HashSet();
+    Iterator iter = sources.iterator();
+    while (iter.hasNext()) {
+      Source sa = (Source) iter.next();
+      if (sa.getSubjectTypes().contains(type)) {
+        Set s = sa.searchByIdentifier( id, SubjectTypeEnum.valueOf(type) );
+        if (s != null) { // TODO This _should not_ be necessary
+          vals.addAll(s);
+        }
+      }
+    }
+    return vals;
   }
 
   /**
