@@ -166,6 +166,180 @@ public class TestSubjectsGroup extends TestCase {
     }
   }
 
+  // By _stem_
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByStem() {
+    Set vals = SubjectFactory.search("root");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _stem_, partial
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByStemPartial() {
+    Set vals = SubjectFactory.search("oo");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _stem_, no results
+  public void testSubjectInterfaceSearchByStemNil() {
+    Set vals = SubjectFactory.search("rOOt");
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+  }
+
+  // By _extension_
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByExtn() {
+    Set vals = SubjectFactory.search("group a");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _extension, partial
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByExtnPartial() {
+    Set vals = SubjectFactory.search("a");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _extension, no results
+  public void testSubjectInterfaceSearchByExtnNil() {
+    Set vals = SubjectFactory.search("group A");
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+  }
+
+/*
+  // TODO By _displayExtension_
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByDisplayExtn() {
+    Set vals = SubjectFactory.search("root");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // TODO By _displayExtension_, partial
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByDisplayExtnPartial() {
+    Set vals = SubjectFactory.search("oo");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // TODO By _displayExtension_, no results
+  public void testSubjectInterfaceSearchByDisplayExtnNil() {
+    Set vals = SubjectFactory.search("root root");
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+  }
+*/
+
+  // By _name_
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByName() {
+    Set vals = SubjectFactory.search("root:group a");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _name_, partial
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByNamePartial() {
+    Set vals = SubjectFactory.search("root:group");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // By _name_, no results
+  public void testSubjectInterfaceSearchByNameNil() {
+    Set vals = SubjectFactory.search("r00t:group A");
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+  }
+
+/*
+  // TODO By _displayName_
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByDisplayName() {
+    Set vals = SubjectFactory.search("root");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // TODO By _displayName_, partial
+  // TODO Multiple returns
+  public void testSubjectInterfaceSearchByDisplayNamePartial() {
+    Set vals = SubjectFactory.search("oo");
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
+    Iterator iter = vals.iterator();
+    while (iter.hasNext()) {
+      Subject subj = (Subject) iter.next();
+      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("type", subj.getType().getName().equals("group"));
+      Assert.assertTrue("name", subj.getName().equals("root:group a"));
+    }
+  }
+
+  // TODO By _displayName_, no results
+  public void testSubjectInterfaceSearchByDisplayNameNil() {
+    Set vals = SubjectFactory.search("root root");
+    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+  }
+*/
+
   // By _name_
   // TODO Multipe returns
   public void testSubjectInterfaceSearchByIDByName() {
