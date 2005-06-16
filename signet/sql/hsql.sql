@@ -168,11 +168,14 @@ primary key (choiceSetID, value),
 foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 );
 -- Assignment tables
-drop table signet_assignment;
 drop table signet_assignmentLimit;
+drop table signet_assignment;
+drop table signet_assignmentLimit_history;
+drop table signet_assignment_history;
 create table signet_assignment
 (
 assignmentID        identity            NOT NULL,
+instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
@@ -195,6 +198,41 @@ unique (assignmentID)
 create table signet_assignmentLimit
 (
 assignmentID        numeric(12,0)       NOT NULL,
+instanceNumber      int                 NOT NULL,
+limitSubsystemID    varchar(64)         NOT NULL,
+limitType           varchar(32)         NOT NULL,
+limitTypeID         varchar(64)         NOT NULL,
+value               varchar(32)         NOT NULL,
+unique (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
+);
+create table signet_assignment_history
+(
+assignmentID        identity            NOT NULL,
+instanceNumber      int                 NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+functionID          varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+proxyTypeID         varchar(64)         NULL,
+proxyID             varchar(64)         NULL,
+scopeID             varchar(64)         NULL,
+scopeNodeID         varchar(64)         NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       datetime            NOT NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+history_datetime    datetime            NOT NULL;
+modifyDatetime      datetime            NOT NULL,
+unique (assignmentID)
+);
+create table signet_assignmentLimit_history
+(
+assignmentID        numeric(12,0)       NOT NULL,
+instanceNumber      int                 NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
