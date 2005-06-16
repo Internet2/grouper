@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.8 2005-04-08 16:46:04 blair Exp $
+$Id: README,v 1.9 2005-06-16 17:43:55 blair Exp $
 
 ---
 
@@ -22,29 +22,29 @@ $Id: README,v 1.8 2005-04-08 16:46:04 blair Exp $
 
 Add a top-level namespace _test_:
 
-    % java -a -n -s Grouper.NS_ROOT -e test
+    % java groupmgr -a -n -s Grouper.NS_ROOT -e test
 
 Add a group within _test_:
 
-    % java -a -g -s test -e foo
+    % java groupmgr -a -g -s test -e foo
 
 Remove a group within _test_:
 
-    % java -d -g -s test -e bar
+    % java groupmgr -d -g -s test -e bar
 
 Add a member:
 
-    % java -a -m johndoe -s -test -e foo 
+    % java groupmgr -a -m johndoe -s -test -e foo 
 
 Add a group as a member:
 
-    % java -a -G -m test:baz -s -test -e foo 
+    % java groupmgr -a -G -m test:baz -s -test -e foo 
 
 Delete a member
 
-    % java -d -m johndoe -s -test -e foo 
+    % java groupmgr -d -m johndoe -s -test -e foo 
 
 Delete a group as a member:
 
-    % java -d -G -m test:baz -s -test -e foo 
+    % java groupmgr -d -G -m test:baz -s -test -e foo 
 
