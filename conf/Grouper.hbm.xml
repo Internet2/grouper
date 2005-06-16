@@ -98,26 +98,6 @@
     </composite-id>
   </class>
 
-<!--
-  <class name="SubjectImpl" table="grouper_subject">
-    <id name="subjectID" type="string" unsaved-value="null" >
-      <generator class="assigned"/>
-    </id>
-    <property name="subjectTypeID">
-      <column name="subjectTypeID" sql-type="char(255)" not-null="true"/>
-    </property>
-  </class>
-
-  <class name="SubjectTypeImpl" table="grouper_subjectType" mutable="false">
-    <cache usage="read-only"/>
-    <id name="subjectTypeID" type="string" unsaved-value="null">
-      <generator class="assigned"/>
-    </id>
-    <property name="name"         type="string" not-null="true"/>
-    <property name="adapterClass" type="string" not-null="true"/>
-  </class>
--->
-
   <query name="Group.by.name.and.type"><![CDATA[
     select n.groupKey from 
       GrouperAttribute n, GrouperSchema schema where
@@ -199,6 +179,28 @@
 
   <query name="Group.by.modified.before"><![CDATA[
     from Group where modifyTime < ?
+  ]]></query>
+
+  <query name="Group.subject.search.by.id"><![CDATA[
+    select distinct g.groupKey from
+      Group g, GrouperAttribute a, GrouperSchema s where
+        (
+          (
+            a.groupField      =     'name' and
+            a.groupFieldValue like  ?
+          ) or
+          (
+            a.groupField      =     'displayname' and
+            a.groupFieldValue like  ?
+          ) or
+          (
+            g.groupID = ?
+          )
+        ) 
+        and
+        g.groupKey  =   a.groupKey  and
+        g.groupKey  =   s.groupKey  and
+        s.groupType !=  'naming'    
   ]]></query>
 
   <query name="GrouperList.by.group.and.list"><![CDATA[
@@ -346,18 +348,6 @@
       chainIdx  = 0 and
       listKey   = ?
   ]]></query>
-
-<!--
-  <query name="SubjectImpl.by.subjectid.and.typeid"><![CDATA[
-    from SubjectImpl     where
-      subjectID     = ?  and
-      subjectTypeID = ?
-  ]]></query>
-
-  <query name="SubjectTypeImpl.all"><![CDATA[
-    from SubjectTypeImpl
-  ]]></query>
--->
 
 </hibernate-mapping>
 
