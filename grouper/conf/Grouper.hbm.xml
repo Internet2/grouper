@@ -181,6 +181,37 @@
     from Group where modifyTime < ?
   ]]></query>
 
+  <query name="Group.subject.search"><![CDATA[
+    select distinct g.groupKey from
+      Group g, GrouperAttribute a, GrouperSchema s where
+        (
+          (
+            a.groupField      =     'stem' and
+            a.groupFieldValue like  ?
+          ) or
+          (
+            a.groupField      =     'extension' and
+            a.groupFieldValue like  ?
+          ) or
+          (
+            a.groupField      =     'displayextension' and
+            a.groupFieldValue like  ?
+          ) or
+          (
+            a.groupField      =     'name' and
+            a.groupFieldValue like  ?
+          ) or
+          (
+            a.groupField      =     'displayname' and
+            a.groupFieldValue like  ?
+          )
+        ) 
+        and
+        g.groupKey  =   a.groupKey  and
+        g.groupKey  =   s.groupKey  and
+        s.groupType !=  'naming'    
+  ]]></query>
+
   <query name="Group.subject.search.by.id"><![CDATA[
     select distinct g.groupKey from
       Group g, GrouperAttribute a, GrouperSchema s where

@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.7 2005-06-16 02:33:26 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.8 2005-06-16 03:46:29 blair Exp $
  */
 public class SubjectFactory {
 
@@ -159,6 +159,27 @@ public class SubjectFactory {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Unstructured search for Subjects.
+   * <p />
+   * @param searchValue Source adapter specific query string.
+   * @return  Set of found subjects.
+   */
+  // TODO cache?
+  public static Set search(String searchValue) {
+    SubjectFactory.init();
+    Set vals = new HashSet();
+    Iterator iter = sources.iterator();
+    while (iter.hasNext()) {
+      Source sa = (Source) iter.next();
+      Set s = sa.search(searchValue);
+      if (s != null) {  // TODO This _should not_ be necessary
+        vals.addAll(s); // TODO Does search() have the same flaw?
+      }
+    }
+    return vals;
   }
 
   /**

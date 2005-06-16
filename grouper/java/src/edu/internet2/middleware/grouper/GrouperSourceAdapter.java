@@ -65,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.5 2005-06-16 02:38:25 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.6 2005-06-16 03:46:29 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -147,12 +147,53 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     log.info("Initializing GrouperSourceAdapter");
   }
 
-  // TODO stem, extn, name, displayName, displayExtn?
+  /**
+   * {@inheritDoc}
+   */
+  // TODO Is this the right search?
+  // TODO document search
+  // TODO ideally this query could be moved to GrouperQuery
+  // TODO There is overlap in code between this and sBID
   public Set search(String searchValue) {
-    log.warn("GrouperSourceAdapter.search() not implemented");
-    throw new RuntimeException(
-      "GrouperSourceAdapter.search() not implemented"
-    );
+    String  qry   = "Group.subject.search";
+    Set     vals  = new HashSet();
+    try {
+      Query q = this.getSession().dbSess().session().getNamedQuery(qry);
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(0, "%" + searchValue + "%"); // _stem_
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(1, "%" + searchValue + "%"); // _extension_
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(2, "%" + searchValue + "%"); // _displayextension_
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(3, "%" + searchValue + "%"); // _name_
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(4, "%" + searchValue + "%"); // _displayname_
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(this.getSession(), key);
+          Subject subj = new GrouperSubject(g, this);
+          vals.add(subj);
+          log.debug("search found: " + g + "/" + subj);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    } catch (SubjectNotFoundException e) {
+      throw new RuntimeException(
+        "Unable to perform query " + qry + ": " + e.getMessage()
+      );
+    }
+    log.debug("search results: " + vals.size());
+    return vals;
   }
 
   /**
@@ -167,6 +208,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   // TODO what to do about type?
   // TODO ideally this query could be moved to GrouperQuery
+  // TODO document search
   public Set searchByIdentifier(String id, SubjectType type) {
     String  qry   = "Group.subject.search.by.id";
     Set     vals  = new HashSet();
@@ -188,12 +230,12 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-        "Unable to get query " + qry + ": " + e
+        "Unable to get query " + qry + ": " + e.getMessage()
       );
     } catch (SubjectNotFoundException e) {
       throw new RuntimeException(
