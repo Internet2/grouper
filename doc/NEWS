@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.51 2005-06-02 19:36:41 blair Exp $
+$Id: NEWS,v 1.52 2005-06-16 13:24:19 blair Exp $
 
 ---
 
@@ -9,6 +9,8 @@ $Id: NEWS,v 1.51 2005-06-02 19:36:41 blair Exp $
 
 ## Changes
 
+* Fixed: _hasMember()_ would return incorrect results when a member was
+  both immediate and effective (#361)
 * Stems can no longer be members or subjects
 * Added _Subject_ and _SubjectAttribute_ tables 
 * Removed _grouper_subjectType_ table 
