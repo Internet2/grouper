@@ -53,6 +53,8 @@ package edu.internet2.middleware.grouper;
 
 
 import  java.util.*;
+import  org.apache.commons.logging.Log;
+import  org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -60,9 +62,15 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.21 2005-06-02 19:14:34 blair Exp $
+ * @version $Id: MemberOf.java,v 1.22 2005-06-16 15:44:34 blair Exp $
  */
 public class MemberOf {
+
+  /*
+   * PRIVATE CLASS VARIABLES
+   */
+  private static Log log = LogFactory.getLog(MemberVia.class);
+
 
   /*
    * TODO This is all un(der)documented magic and madness.
@@ -105,30 +113,34 @@ public class MemberOf {
 
     // Ensure that the grouper list is properly loaded
     gl.load(this.s); // TODO Argh!
+    log.debug("memberOf calculation for " + gl);
 
     // Add m to g's gl
     vals.add(gl);
+    log.debug("mship: " + gl);
 
+    List isMem = new ArrayList();
     // TODO *sigh* Fix.  Please?  Maybe just watch for thrown
     //      exceptions?
     if (!gl.group().type().equals("naming")) {
       // Where (across all list values in the registry) is g a member?
       GrouperMember m = ( (GrouperGroup) gl.group() ).toMember();
-      List isMem = m.listValsAll();
+      isMem = m.listValsAll();
 
       // Add m to groups where g is a member
       effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
+    }
 
-      // If m is a group...
-      if (gl.member().typeID().equals("group")) {
-        // ...add additional list values
-        effs.addAll( this._addHasMembers(gl, isMem) );
-      }
+    // If m is a group...
+    if (gl.member().typeID().equals("group")) {
+      // ...add additional list values
+      effs.addAll( this._addHasMembers(gl, isMem) );
     }
 
     // Save the chains
     vals.addAll( this._saveChains(effs) );
 
+    log.debug("vals: " + vals.size());
     return vals;
   }
 
@@ -147,11 +159,13 @@ public class MemberOf {
     List vals = new ArrayList();
 
     Group g = gl.member().toGroup();
+    log.debug("looking for members of " + g);
     // We only want "members", not other list types
     Iterator hasIter = g.listVals().iterator();
     while (hasIter.hasNext()) {
       GrouperList glM = (GrouperList) hasIter.next();
       glM.load(this.s);
+      log.debug("hasMember: " + glM);
       List chain = new ArrayList();
 
       // TODO Is this correct?  More tests needed.
@@ -159,11 +173,11 @@ public class MemberOf {
       chain.add( MemberVia.create(gl) );  // Add gl
 
       // Add m's members to g
-      vals.add(
-        new GrouperList(
-              this.s, gl.group(), glM.member(), gl.groupField(), chain
-            )
-        );
+      GrouperList lv = new GrouperList(
+        this.s, gl.group(), glM.member(), gl.groupField(), chain
+      );
+      vals.add(lv);
+      log.debug("mship/hasMember: " + lv);
 
       // And now add to where g is a member
       vals.addAll( this._addWhereIsMem(glM, gl, isMem) );
@@ -183,6 +197,7 @@ public class MemberOf {
     while (iter.hasNext()) {
       GrouperList glM = (GrouperList) iter.next();
       glM.load(this.s);
+      log.debug("isMember: " + glM);
       List chain = new ArrayList();
 
       // TODO Is this correct?  More tests needed.
@@ -207,11 +222,11 @@ public class MemberOf {
         
       // Add m to where g is a member
       // Be sure to use the list type from g's membership (glM)
-      vals.add(
-        new GrouperList(
-              this.s, glM.group(), gl.member(), glM.groupField(), chain
-            )
-        );
+      GrouperList lv = new GrouperList(
+        this.s, glM.group(), gl.member(), glM.groupField(), chain
+      );
+      vals.add(lv);
+      log.debug("mship/whereIsMem: " + lv);    
     }
 
     return vals;
