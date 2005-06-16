@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.13 2005-06-16 16:53:49 blair Exp $
+$Id: ROADMAP,v 1.14 2005-06-16 17:58:39 blair Exp $
 
 ---
 
@@ -26,6 +26,7 @@ $Id: ROADMAP,v 1.13 2005-06-16 16:53:49 blair Exp $
 * Implement VIEW privilege (#339)
 * Implement OPTIN privilege (#343)
 * Implement OPTOUT privilege (#344)
+* Add Postgres support (#169)
 
 ---
 
