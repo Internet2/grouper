@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.64 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.65 2005-06-16 15:48:23 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -287,7 +287,7 @@ public class GrouperNamingImpl implements GrouperNaming {
   public boolean revoke(GrouperSession s, GrouperStem ns, String priv) {
     GrouperNamingImpl._init();
     boolean rv = false;
-    Iterator iter = this.whoHas(s, ns, priv).iterator();
+    Iterator iter = this.whoImmHas(s, ns, priv).iterator();
     while (iter.hasNext()) {
       GrouperMember m = (GrouperMember) iter.next();
       // TODO What if this fails for one or more members?
@@ -414,6 +414,29 @@ public class GrouperNamingImpl implements GrouperNaming {
       rv = true;
     }
     return rv;
+  }
+
+  /*
+   * Immediate list members who have the specified privilege on the
+   * specified group.
+   */
+  private List whoImmHas(GrouperSession s, Group g, String priv) {
+    GrouperNamingImpl._init();
+    List members = new ArrayList();
+    
+    if (this.can(priv) == true) {
+      Iterator iter = g.listImmVals( (String) privMap.get(priv)).iterator();
+      while (iter.hasNext()) {
+        GrouperList   gl  = (GrouperList) iter.next();
+        gl.load(s);
+        GrouperMember m   = gl.member();
+        if (m != null) {
+          members.add(m);
+        }
+      } 
+    } // TODO Exception if invalid priv?
+
+    return members;
   }
 
 }

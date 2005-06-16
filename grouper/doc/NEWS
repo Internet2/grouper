@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.52 2005-06-16 13:24:19 blair Exp $
+$Id: NEWS,v 1.53 2005-06-16 15:48:23 blair Exp $
 
 ---
 
@@ -9,8 +9,11 @@ $Id: NEWS,v 1.52 2005-06-16 13:24:19 blair Exp $
 
 ## Changes
 
+* Fixed: Default privilege implementations would attempt to revoke
+  effective list values under select circumstances which would cause an
+  exception to be thrown. (#361)
 * Fixed: _hasMember()_ would return incorrect results when a member was
-  both immediate and effective (#361)
+  both immediate and effective (#360)
 * Stems can no longer be members or subjects
 * Added _Subject_ and _SubjectAttribute_ tables 
 * Removed _grouper_subjectType_ table 
