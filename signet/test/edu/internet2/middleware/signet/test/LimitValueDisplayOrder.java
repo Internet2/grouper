@@ -1,15 +1,18 @@
 /*--
-$Id: LimitValueDisplayOrder.java,v 1.1 2005-03-07 18:55:43 acohen Exp $
-$Date: 2005-03-07 18:55:43 $
+$Id: LimitValueDisplayOrder.java,v 1.1 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
-package edu.internet2.middleware.signet;
+package edu.internet2.middleware.signet.test;
 
 import java.util.Comparator;
 
+import edu.internet2.middleware.signet.LimitValue;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 

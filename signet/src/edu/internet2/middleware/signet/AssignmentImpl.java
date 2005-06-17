@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.12 2005-06-10 23:05:12 acohen Exp $
- $Date: 2005-06-10 23:05:12 $
+ $Id: AssignmentImpl.java,v 1.13 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.sf.hibernate.HibernateException;
@@ -21,9 +20,7 @@ import net.sf.hibernate.Query;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 import edu.internet2.middleware.subject.Subject;
 
 /* These are the columns in the Assignment database table:
@@ -77,9 +74,15 @@ implements Assignment, Comparable
   private boolean						grantable;
   private boolean						grantOnly;
   private Date							effectiveDate;
+  private Date              actualStartDatetime = null;
+  private Date              expirationDate      = null;
+  private Date              actualEndDatetime   = null;
   
   private boolean						limitValuesAlreadyFetched = false;
   boolean										hasUnsavedLimitValues = false;
+
+
+
   
   /**
    * Hibernate requires the presence of a default constructor.
@@ -98,7 +101,9 @@ implements Assignment, Comparable
      Function						function,
      Set								limitValues,
      boolean						canGrant,
-     boolean						grantOnly)
+     boolean						grantOnly,
+     Date               effectiveDate,
+     Date               expirationDate)
   throws
   	SignetAuthorityException
   {
@@ -128,9 +133,9 @@ implements Assignment, Comparable
     this.function = (FunctionImpl)function;
     this.grantable = canGrant;
     this.grantOnly = grantOnly;
-    
-    // By default, this assignment is active, starting now.
-    this.effectiveDate = new Date();
+
+    this.effectiveDate = effectiveDate;
+    this.expirationDate = expirationDate;
     
     if (! this.grantor.canEdit(this))
     {
@@ -203,12 +208,6 @@ implements Assignment, Comparable
     
     // If we got this far, we found no match.
     return false;
-  }
-  
-  public LimitValue[] getLimitValuesArray()
-  {
-    LimitValue limitValuesArray[] = new LimitValue[0];
-    return (LimitValue[])(this.getLimitValues().toArray(limitValuesArray));
   }
   
   /* (non-Javadoc)
@@ -314,15 +313,6 @@ implements Assignment, Comparable
     return this.revoker;
   }
   
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getProxy()
-   */
-  public PrivilegedSubject getProxy()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
   /**
    * @param function The function to set.
    */
@@ -385,9 +375,15 @@ implements Assignment, Comparable
    * 
    * @return the unique identifier of this Assignment.
    */
-  public Integer getNumericId()
+  public Integer getId()
   {
     return this.id;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setId(Integer id)
+  {
+    this.id = id;
   }
   
   /* (non-Javadoc)
@@ -464,25 +460,8 @@ implements Assignment, Comparable
       return comparisonResult;
     }
     
-    Subsystem thisSubsystem = null;
-    Subsystem otherSubsystem = null;
-    try
-    {
-      thisSubsystem = this.getFunction().getSubsystem();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      // thisSubsystem retains its initial NULL value.
-    }
-    
-    try
-    {
-      otherSubsystem = other.getFunction().getSubsystem();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      // otherSubsystem retains its initial NULL value.
-    }
+    Subsystem thisSubsystem = this.getFunction().getSubsystem();
+    Subsystem otherSubsystem = other.getFunction().getSubsystem();
     
     if (thisSubsystem == otherSubsystem)
     {
@@ -532,8 +511,8 @@ implements Assignment, Comparable
     // This last clause is here to distinguish two Assignments which are 
     // otherwise identical twins:
     
-    Integer thisId = this.getNumericId();
-    Integer otherId = other.getNumericId();
+    Integer thisId = this.getId();
+    Integer otherId = other.getId();
     comparisonResult = thisId.compareTo(otherId);
     
     return comparisonResult;
@@ -571,7 +550,7 @@ implements Assignment, Comparable
     return this.effectiveDate;
   }
   
-  void setEffectiveDate(Date date)
+  public void setEffectiveDate(Date date)
   {
     this.effectiveDate = date;
   }
@@ -579,7 +558,7 @@ implements Assignment, Comparable
   /**
    * @return Returns the limitValues.
    */
-  Set getLimitValues()
+  public Set getLimitValues()
   {
     Set unsavedLimitValues;
     
@@ -611,18 +590,48 @@ implements Assignment, Comparable
   /**
    * @param limitValues The limitValues to set.
    */
-  void setLimitValues(Set limitValues)
+  public void setLimitValues(Set limitValues)
   {
     this.limitValues = limitValues;
   }
 
   /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getLimitValuesInDisplayOrder()
+   * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()
    */
-  public LimitValue[] getLimitValuesInDisplayOrder()
+  public Date getActualStartDatetime()
   {
-    LimitValue[] limitValues = this.getLimitValuesArray();
-    Arrays.sort(limitValues, new LimitValueDisplayOrder());
-    return limitValues;
+    return this.actualStartDatetime;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getExpirationDate()
+   */
+  public Date getExpirationDate()
+  {
+    return this.expirationDate;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#setExpirationDate(java.util.Date)
+   */
+  public void setExpirationDate(Date expirationDate)
+  {
+    this.expirationDate = expirationDate;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getActualEndDatetime()
+   */
+  public Date getActualEndDatetime()
+  {
+    return this.actualEndDatetime;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#findDuplicates()
+   */
+  public Set findDuplicates()
+  {
+    return this.getSignet().findDuplicates(this);
   }
 }

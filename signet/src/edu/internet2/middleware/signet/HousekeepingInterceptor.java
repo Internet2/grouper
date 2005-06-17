@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.8 2005-03-08 18:49:55 acohen Exp $
- $Date: 2005-03-08 18:49:55 $
+ $Id: HousekeepingInterceptor.java,v 1.9 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -187,7 +187,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
                */
               AssignmentLimitValue alv
               	= new AssignmentLimitValue
-           					(assignment.getNumericId().intValue(),
+           					(assignment.getId().intValue(),
            					 assignment.getFunction().getSubsystem().getId(),
            			     limitValue.getLimit().getId(),
            			     limitValue.getValue());

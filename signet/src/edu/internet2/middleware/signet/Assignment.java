@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.7 2005-03-01 20:42:49 acohen Exp $
-$Date: 2005-03-01 20:42:49 $
+$Id: Assignment.java,v 1.8 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,8 +9,11 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.Set;
 
-import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.Function;
+import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Status;
 
 /**
 * 
@@ -39,21 +42,8 @@ import edu.internet2.middleware.signet.choice.Choice;
 * and with limits equal to or more restrictive than his own, to another 
 * Subject.
 * <p>
-* For our September release, the following Assignment-related entities
-* will be implemented:
-* <ul>
-* 		<li>Assignment</li>
-* 		<li>PrivilegedSubject</li>
-* 		<li>TreeNode</li>
-* 		<li>Function</li>
-* </ul>
-*
-* The following Subsystem-related entities will appear in subsequent
-* releases:
-* <ul>
-* 		<li>LimitChoice</li>
-* 		<li>Condition</li>
-* </ul>
+* An existing Assignment may be modified. To save the modified Assignment,
+* call Assignment.save().
 * 
 * @see Function
 * @see Scope
@@ -62,152 +52,193 @@ import edu.internet2.middleware.signet.choice.Choice;
 
 public interface Assignment
 {
-/**
- * Gets the unique identifier of this Assignment.
- * 
- * @return the unique identifier of this Assignment.
- */
-public Integer getNumericId();
+  /**
+   * Gets the unique identifier of this Assignment.
+   * 
+   * @return the unique identifier of this Assignment.
+   */
+  public Integer getId();
 
-/**
- * Gets the {@link PrivilegedSubject}
- * 		 who is the grantee of this Assignment.
- * 
- * @return the {@link PrivilegedSubject}
- * 		 who is the grantee of this Assignment.
- */
-public PrivilegedSubject getGrantee();
+  /**
+   * Gets the {@link PrivilegedSubject}
+   * who is the grantee of this Assignment.
+   * 
+   * @return the {@link PrivilegedSubject}
+   * who is the grantee of this Assignment.
+   */
+  public PrivilegedSubject getGrantee();
 
-/**
- * Gets the {@link PrivilegedSubject} 
- * 		who is the grantor of this Assignment.
- * 
- * @return the {@link PrivilegedSubject} 
- * 		who is the grantor of this Assignment.
- */
-public PrivilegedSubject getGrantor();
+  /**
+   * Gets the {@link PrivilegedSubject} 
+   * who is the grantor of this Assignment.
+   * 
+   * @return the {@link PrivilegedSubject} 
+   * who is the grantor of this Assignment.
+   */
+  public PrivilegedSubject getGrantor();
 
 
-/**
- * Gets the {@link PrivilegedSubject} 
- * 		who is the revoker of this Assignment, if this Assignment has been
- *    revoked.
- * 
- * @return the {@link PrivilegedSubject} 
- * 		who is the grantor of this Assignment.
- */
-public PrivilegedSubject getRevoker();
+  /**
+   * Gets the {@link PrivilegedSubject} 
+   * who is the revoker of this Assignment, if this Assignment has been
+   * revoked.
+   * 
+   * @return the {@link PrivilegedSubject} 
+   * who is the grantor of this Assignment.
+   */
+  public PrivilegedSubject getRevoker();
 
-/**
- * Gets the scope (usually an organization) of this Assignment.
- * 
- * @return the scope (usually an organization) of this Assignment.
- */
-public edu.internet2.middleware.signet.tree.TreeNode getScope();
+  /**
+   * Gets the scope (usually an organization) of this Assignment.
+   * 
+   * @return the scope (usually an organization) of this Assignment.
+   */
+  public edu.internet2.middleware.signet.tree.TreeNode getScope();
 
-/**
- * Gets the Function which is the subject of this Assignment.
- * 
- * @return the Function which is the subject of this Assignment.
- */
-public Function getFunction();
+  /**
+   * Gets the Function which is the subject of this Assignment.
+   * 
+   * @return the Function which is the subject of this Assignment.
+   */
+  public Function getFunction();
 
-/**
- * Gets the effective date of this Assignment.
- * 
- * @return the effective date of this Assignment.
- */
-public Date getEffectiveDate();
+  /**
+   * Gets the effective date of this Assignment. This is the date on which
+   * this Assignment is scheduled to change from Status value PENDING to
+   * Status value ACTIVE.
+   * 
+   * @return the scheduled effective-date of this Assignment.
+   */
+  public Date getEffectiveDate();
+  
+  /**
+   * Changes the effective date of an existing Assignment. To save this change
+   * to the database, call Assignment.save().
+   * 
+   * @param effectiveDate the date on which this Assignment should be scheduled
+   * to change from Status value PENDING to Status value ACTIVE.
+   */
+  public void setEffectiveDate(Date effectiveDate);
+  
+  /**
+   * Gets the date and time when this Assignment actually changed from Status
+   * value PENDING to Status value ACTIVE. If that change has not yet occurred,
+   * then this method will return null.
+   * 
+   * @return the actual date and time this Assignment became active.
+   */
+  public Date getActualStartDatetime();
+  
+  /**
+   * Gets the expiration date of this Assignment. This is the date on which
+   * this Assignment is scheduled to change from Status value ACTIVE to Status
+   * value INACTIVE.
+   * 
+   * @return the scheduled expiration-date of this Assignment.
+   */
+  public Date getExpirationDate();
+  
+  /**
+   * Changes the expiration date of an existing Assignment. To save this change
+   * to the database, call Assignment.save().
+   * 
+   * @param expirationDate the date on which this Assignment should be scheduled
+   * to change from Status value ACTIVE to Status value INACTIVE.
+   */
+  public void setExpirationDate(Date expirationDate);
+  
+  /**
+   * Gets the date and time when this Assignment actually changed from Status
+   * value ACTIVE to Status value INACTIVE. If that change has not yet occurred,
+   * this this method will return null.
+   * 
+   * @return the actual date and time this Assignment became inactive.
+   */
+  public Date getActualEndDatetime();
 
-/**
- * Indicates whether or not this assignment can be granted to others
- * by its current grantee.
- * 
- * @return true if this assignment can be granted to others
- * by its current grantee.
- */
-public boolean isGrantable();
+  /**
+   * Indicates whether or not this assignment can be granted to others
+   * by its current grantee.
+   * 
+   * @return true if this assignment can be granted to others
+   * by its current grantee.
+   */
+  public boolean isGrantable();
+  
+  /**
+   * Changes the grantability of an existing Assignment. To save this change
+   * to the database, call Assignment.save().
+   *
+   * @param isGrantable true if this Assignment should be grantable to others
+   * by its current grantee, and false otherwise.
+   */
+  public void setGrantable(boolean isGrantable);
 
-/**
- * Indicates whether or not this assignment can be used directly
- * by its current grantee, or can only be granted to others.
- * 
- * @return true if this assignment can only be granted to others
- * by its current grantee, and not used directly by its current grantee.
- */
-public boolean isGrantOnly();
+  /**
+   * Indicates whether or not this assignment can be used directly
+   * by its current grantee, or can only be granted to others.
+   * 
+   * @return true if this assignment can only be granted to others
+   * by its current grantee, and not used directly by its current grantee.
+   */
+  public boolean isGrantOnly();
+  
+  /**
+   * Changes the direct usability of an existing Assignment. To save this change
+   * to the database, call Assignment.save();
+   * 
+   * @param isGrantOnly true if this Assignment should only be granted to others
+   * (and not directly used) by its current grantee, and false otherwise.
+   */
+  public void setGrantOnly(boolean grantOnly);
 
-/**
- * Gets the Status of this Assignment.
- * 
- * @return the Status of this Assignment.
- */
-public Status getStatus();
+  /**
+   * Gets the Status of this Assignment. An Assignment may have Status of
+   * ACTIVE, INACTIVE, or PENDING.
+   * 
+   * @return the Status of this Assignment.
+   */
+  public Status getStatus();
 
-/**
- * Revokes this Assignment from its current grantee.
- * 
- * @throws SignetAuthorityException
- * 
- */
-public void revoke(PrivilegedSubject revoker)
-throws SignetAuthorityException;
+  /**
+   * Gets the Limits and Limit-values applied to this Assignment.
+   * 
+   * @return a set of LimitValue objects, which represents all of the Limits
+   * (constraints) applied to this Assignment, along with the values of those
+   * Limits.
+   */
+  public Set getLimitValues();
+  
+  /**
+   * Changes the Limit-values applied to an existing Assignment. To save this
+   * change in the database, call Assignment.save().
+   * 
+   * @param limitValues the complete Set of LimitValues that should be
+   * associated with this Assignment.
+   *
+   */
+  public void setLimitValues(Set limitValues);
 
-/**
- * Gets the Limits and Limit-values applied to this Assignment.
- * 
- * @return an array of Limits (constraints) applied to this Assignment,
- * along with the values of those Limits.
- */
-public LimitValue[] getLimitValuesArray();
-
-/**
- * Returns all of the Limits and Limit-values applied to this Assignment, in
- * display order.
- * @return all of the Limits and Limit-values applied to this Assignment, in
- * display order.
- */
-public LimitValue[] getLimitValuesInDisplayOrder();
-
-///**
-// * @return the PrivilegedSubject who is the proxy that created/modified this 
-// * 		assignment.
-// */
-//PrivilegedSubject getProxy();
-//
-///**
-// * @return all Permissions associated with the Function
-// * 		at the time this Assignment is created/modified.
-// */
-//Permission[] getPermissions();
-//
-//
-///**
-// * @return an array of Prerequisites applied to this assignment.  Note 
-// * that nothing is implied about whether the prerequisites have been 
-// * satisfied or not.
-// */
-//Prerequisite[] getPrerequisites();
-//
-///**
-// * @param delegatable whether the grantee of this assignment can 
-// * delegate this privilege to others.
-// */
-//void setDelegatable(boolean delegatable);
-//
-///**
-// * @param limit
-// * @param values
-// * 
-// * This method can be used the set the values of a particular limit for 
-// * this assignment, just as the overloaded version can be used for the 
-// * same purpose.
-// */
-//void setLimitValues(Limit limit, LimitChoice[] values);
-//
-///**
-// * @param proxy the proxy who created/modified an assignment.
-// */
-//public void setProxy(PrivilegedSubject proxy);
-
+  /**
+   * Revokes the specified Assignment from its current grantee. Note that in the
+   * case of duplicate or overlapping Assignments, the grantee may still retain
+   * a given Privilege even after the revocation of a single Assignment that
+   * grants that Privilege.
+   * 
+   * @throws SignetAuthorityException
+   * 
+   * @see Signet.getMatchingAssignments()
+   * 
+   */
+  public void revoke(PrivilegedSubject revoker)
+  throws SignetAuthorityException;
+  
+  /**
+   * Finds all pending and active Assignments in the database which are
+   * duplicates of this Assignment. Duplicate Assignments are those which
+   * have the same grantee, function, scope, and limit-values.
+   * 
+   * @return a Set of duplicate Assignments, or an empty Set if none are found.
+   */
+  public Set findDuplicates();
 }

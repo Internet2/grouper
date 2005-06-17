@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceTest.java,v 1.6 2005-03-07 18:55:44 acohen Exp $
-$Date: 2005-03-07 18:55:44 $
+$Id: ChoiceTest.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -84,8 +84,8 @@ public class ChoiceTest extends TestCase
       for (int i = 0; i < choiceSetIndex; i++)
       {      
         Choice choice
-        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(i));
-        assertEquals(fixtures.makeChoiceValue(i), choice.getValue());
+        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(-1, i));
+        assertEquals(fixtures.makeChoiceValue(-1, i), choice.getValue());
       }
     }
   }
@@ -109,7 +109,7 @@ public class ChoiceTest extends TestCase
       for (int i = 0; i < choiceSetIndex; i++)
       {      
         Choice choice
-        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(i));
+        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(-1, i));
         assertEquals
         	(fixtures.makeChoiceDisplayValue(i),
         	 choice.getDisplayValue());
@@ -136,7 +136,7 @@ public class ChoiceTest extends TestCase
       for (int i = 0; i < choiceSetIndex; i++)
       {      
         Choice choice
-        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(i));
+        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(-1, i));
         assertEquals
         	(fixtures.makeChoiceDisplayOrder(i),
         	 choice.getDisplayOrder());
@@ -163,7 +163,7 @@ public class ChoiceTest extends TestCase
       for (int i = 0; i < choiceSetIndex; i++)
       {      
         Choice choice
-        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(i));
+        	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(-1, i));
         assertEquals
         	(fixtures.makeChoiceRank(i, choiceSetIndex),
         	 choice.getRank());
@@ -191,7 +191,7 @@ public class ChoiceTest extends TestCase
      for (int i = 0; i < choiceSetIndex; i++)
      {      
        Choice choice
-       	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(i));
+       	= choiceSet.getChoiceByValue(fixtures.makeChoiceValue(-1, i));
        assertEquals(choiceSet, choice.getChoiceSet());
      }
    }

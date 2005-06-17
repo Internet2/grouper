@@ -1,6 +1,6 @@
 /*--
-$Id: Category.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Category.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -23,6 +23,14 @@ public interface Category
 extends SubsystemPart, Name, Comparable
 {
   /**
+   * Gets the ID of this entity.
+   * 
+   * @return Returns a short mnemonic id which will appear in XML
+   *    documents and other documents used by analysts.
+   */
+  public String getId();
+  
+  /**
    * Gets the functions associated with this Category.
    * 
    * @return Returns the functions associated with this Category.
@@ -42,5 +50,4 @@ extends SubsystemPart, Name, Comparable
    * @return the Subsystem associated with this Category.
    */
   public Subsystem getSubsystem();
-
 }

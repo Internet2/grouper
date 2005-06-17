@@ -1,12 +1,14 @@
 /*--
-$Id: Constants.java,v 1.5 2005-03-03 18:29:00 acohen Exp $
-$Date: 2005-03-03 18:29:00 $
+$Id: Constants.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
+
+import java.util.Date;
 
 /**
  * @author acohen
@@ -27,6 +29,8 @@ public class Constants
   public static final String TREE_ID		= "testTreeId";
   public static final String TREE_NAME 	= "testTreeName";
   
+  public static final String CHANGED_SUFFIX = "_CHANGED";
+  
   public static final int MAX_CHOICE_SETS = 3;
   public static final int MAX_LIMITS			= 3;
   public static final int MAX_PERMISSIONS = 3;
@@ -37,6 +41,11 @@ public class Constants
   public static final int MAX_TREE_WIDTH 	= 3;
   
   public static final String DELIMITER = "_";
+  
+  public static final Date ASSIGNMENT_EFFECTIVE_DATE
+    = new Date(60, 7, 18);
+  public static final Date ASSIGNMENT_EXPIRATION_DATE
+    = new Date(86, 5, 31);
 
 //  static final String EMPTY_CHOICE_SET_ID
 //  	= "This is the ID of an empty ChoiceSet";

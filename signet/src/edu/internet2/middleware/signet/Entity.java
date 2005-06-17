@@ -1,6 +1,6 @@
 /*--
-$Id: Entity.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: Entity.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -17,14 +17,6 @@ import java.util.Date;
 */
 interface Entity
 {
-  /**
-   * Gets the ID of this entity.
-   * 
-   * @return Returns a short mnemonic id which will appear in XML
-   * 		documents and other documents used by analysts.
-   */
-  public String getId();
-
   /**
    * Sets the Status of this entity.
    * 

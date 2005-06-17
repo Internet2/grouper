@@ -1,6 +1,6 @@
 /*--
-  $Id: ConfirmAction.java,v 1.2 2005-02-23 17:21:30 acohen Exp $
-  $Date: 2005-02-23 17:21:30 $
+  $Id: ConfirmAction.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
+  $Date: 2005-06-17 23:24:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -9,6 +9,7 @@
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
@@ -120,7 +121,14 @@ public final class ConfirmAction extends BaseAction
     
     Assignment assignment
       = grantor.grant
-          (grantee, scope, function, limitValues, canGrant, grantOnly);
+          (grantee,
+           scope,
+           function,
+           limitValues,
+           canGrant,
+           grantOnly,
+           new Date(), // effective immediately
+           null);      // no expiration date
     
     signet.beginTransaction();
     signet.save(assignment);

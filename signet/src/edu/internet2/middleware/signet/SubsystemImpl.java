@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.8 2005-02-14 02:33:28 acohen Exp $
- $Date: 2005-02-14 02:33:28 $
+ $Id: SubsystemImpl.java,v 1.9 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -535,5 +535,16 @@ class SubsystemImpl
     }
     
     return permission;
+  }
+  
+  public String getId()
+  {
+    return super.getStringId();
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setId(String id)
+  {
+    super.setStringId(id);
   }
 }

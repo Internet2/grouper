@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemPart.java,v 1.2 2004-12-24 04:15:46 acohen Exp $
-$Date: 2004-12-24 04:15:46 $
+$Id: SubsystemPart.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -21,8 +21,7 @@ interface SubsystemPart extends Entity
   * 
   * @return Returns the subsystem.
   */
- public Subsystem getSubsystem()
- throws ObjectNotFoundException;
+ public Subsystem getSubsystem();
  
  /**
   * Sets the subsystem associated with this entity.

@@ -1,6 +1,6 @@
 /*--
- $Id: Permission.java,v 1.5 2005-03-03 18:29:00 acohen Exp $
- $Date: 2005-03-03 18:29:00 $
+ $Id: Permission.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -19,6 +19,14 @@ import edu.internet2.middleware.subject.Subject;
 public interface Permission
 extends SubsystemPart
 {  
+  /**
+   * Gets the ID of this entity.
+   * 
+   * @return Returns a short mnemonic id which will appear in XML
+   *    documents and other documents used by analysts.
+   */
+  public String getId();
+  
   /**
    * Gets the Functions associated with this Permission.
    * 

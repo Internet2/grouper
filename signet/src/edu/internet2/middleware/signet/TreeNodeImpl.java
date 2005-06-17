@@ -1,6 +1,6 @@
 /*--
- $Id: TreeNodeImpl.java,v 1.5 2005-05-12 22:04:35 acohen Exp $
- $Date: 2005-05-12 22:04:35 $
+ $Id: TreeNodeImpl.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -346,5 +346,16 @@ implements
     {
       this.tree = (TreeImpl) (this.getSignet().getTree(tnfqId.getTreeId()));
     }
+  }
+  
+  public String getId()
+  {
+    return super.getStringId();
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setId(String id)
+  {
+    super.setStringId(id);
   }
 }

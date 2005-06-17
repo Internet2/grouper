@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.6 2005-02-14 02:33:28 acohen Exp $
-$Date: 2005-02-14 02:33:28 $
+$Id: Subsystem.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -44,6 +44,14 @@ import edu.internet2.middleware.signet.tree.Tree;
 public interface Subsystem
 extends HelpText, Entity, Name, Comparable
 {
+  /**
+   * Gets the ID of this entity.
+   * 
+   * @return Returns a short mnemonic id which will appear in XML
+   *    documents and other documents used by analysts.
+   */
+  public String getId();
+  
   /**
    * Gets the Categories currently associated with this Subsystem.
    * 

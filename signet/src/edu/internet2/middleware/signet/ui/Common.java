@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.9 2005-06-01 06:13:08 mnguyen Exp $
-  $Date: 2005-06-01 06:13:08 $
+  $Id: Common.java,v 1.10 2005-06-17 23:24:28 acohen Exp $
+  $Date: 2005-06-17 23:24:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@
 */
 package edu.internet2.middleware.signet.ui;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +28,8 @@ import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 public class Common
 {
@@ -82,6 +85,31 @@ public class Common
     
     return out.toString();
   }
+  
+  private static LimitValue[] getLimitValuesArray(Assignment assignment)
+  {
+    LimitValue limitValuesArray[] = new LimitValue[0];
+
+    return
+      (LimitValue[])(assignment.getLimitValues().toArray(limitValuesArray));
+  }
+
+  private static LimitValue[] getLimitValuesInDisplayOrder
+    (Assignment assignment)
+  {
+    LimitValue[] limitValues = getLimitValuesArray(assignment);
+    Arrays.sort(limitValues, new LimitValueDisplayOrder());
+    return limitValues;
+  }
+  
+  private static Choice[] getChoicesInDisplayOrder(ChoiceSet choiceSet)
+  {
+    Choice[] choiceArray = new Choice[0];
+    choiceArray = (Choice[])(choiceSet.getChoices().toArray(choiceArray));
+    
+    Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
+    return choiceArray;
+  }
 
   /**
    * Formats limit-values like this:
@@ -98,7 +126,7 @@ public class Common
     StringBuffer strBuf = new StringBuffer();
 
     Limit[] limits = assignment.getFunction().getLimitsArray();
-    LimitValue[] limitValues = assignment.getLimitValuesInDisplayOrder();
+    LimitValue[] limitValues = getLimitValuesInDisplayOrder(assignment);
     for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
     {
       Limit limit = limits[limitIndex];

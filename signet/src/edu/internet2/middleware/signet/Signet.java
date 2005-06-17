@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.25 2005-06-05 06:00:04 mnguyen Exp $
- $Date: 2005-06-05 06:00:04 $
+ $Id: Signet.java,v 1.26 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -599,6 +599,69 @@ public final class Signet
 
     return resultSet;
   }
+  
+  
+  Set findDuplicates(Assignment assignment)
+  {
+    Query query;
+    List resultList;
+
+    try
+    {
+      query = session
+          .createQuery
+            ("from edu.internet2.middleware.signet.AssignmentImpl"
+             + " as assignment"
+             + " where granteeID = :granteeId"
+             + " and granteeTypeID = :granteeTypeId"
+             + " and functionID = :functionId"
+             + " and subsystemID = :subsystemId"
+             + " and scopeID = :scopeId"
+             + " and scopeNodeID = :scopeNodeId"
+             + " and assignmentID != :assignmentId");
+
+      query.setString
+        ("granteeId", assignment.getGrantee().getSubjectId());
+      query.setString
+        ("granteeTypeId", assignment.getGrantee().getSubjectTypeId());
+      query.setString
+        ("functionId", assignment.getFunction().getId());
+      query.setString
+        ("subsystemId", assignment.getFunction().getSubsystem().getId());
+      query.setString
+        ("scopeId", assignment.getScope().getTree().getId());
+      query.setString
+        ("scopeNodeId", assignment.getScope().getId());
+      query.setInteger
+        ("assignmentId", assignment.getId().intValue());
+
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
+
+    Set resultSet = new HashSet(resultList);
+
+    Iterator resultSetIterator = resultSet.iterator();
+    while (resultSetIterator.hasNext())
+    {
+      Assignment matchedAssignment = (Assignment) (resultSetIterator.next());
+      ((AssignmentImpl) matchedAssignment).setSignet(this);
+      
+      // Now, let's trim this set of Assignments down further, keeping only
+      // those Assignments whose LimitValues actually match.
+      
+      if (!(assignment.getLimitValues()
+            .equals(matchedAssignment.getLimitValues())))
+      {
+        resultSet.remove(matchedAssignment);
+      }
+    }
+
+    return resultSet;
+  }
 
   // I really want to do away with this method, having the
   // Tree pick up its parent-child relationships via Hibernate
@@ -689,7 +752,7 @@ public final class Signet
     
     // If this Assignment has not yet been persisted, then let's not waste time
     // looking for it (or its LimitValues) in the database.
-    if (assignment.getNumericId() == null)
+    if (assignment.getId() == null)
     {
       // Just return an empty Set.
       return new HashSet();
@@ -704,7 +767,7 @@ public final class Signet
                + " as assignmentLimitValue"
                + " where assignmentID = :assignmentId");
 
-      Integer assignmentNumericId = assignment.getNumericId();
+      Integer assignmentNumericId = assignment.getId();
       int id = assignmentNumericId.intValue();
       query.setInteger("assignmentId", id);
 

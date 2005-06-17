@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.1 2005-04-08 00:47:59 acohen Exp $
-$Date: 2005-04-08 00:47:59 $
+$Id: Common.java,v 1.2 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,8 +8,12 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+
+import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.LimitValue;
 
 import junit.framework.TestCase;
 
@@ -33,5 +37,21 @@ public class Common extends TestCase
     }
     
     return obj;
+  }
+  
+  static LimitValue[] getLimitValuesArray(Assignment assignment)
+  {
+    LimitValue limitValuesArray[] = new LimitValue[0];
+
+    return
+      (LimitValue[])(assignment.getLimitValues().toArray(limitValuesArray));
+  }
+
+  static LimitValue[] getLimitValuesInDisplayOrder
+    (Assignment assignment)
+  {
+    LimitValue[] limitValues = getLimitValuesArray(assignment);
+    Arrays.sort(limitValues, new LimitValueDisplayOrder());
+    return limitValues;
   }
 }

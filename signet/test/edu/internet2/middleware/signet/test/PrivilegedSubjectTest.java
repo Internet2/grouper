@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.5 2005-06-01 06:13:08 mnguyen Exp $
-$Date: 2005-06-01 06:13:08 $
+$Id: PrivilegedSubjectTest.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,15 +8,13 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
-import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
@@ -176,11 +174,7 @@ public class PrivilegedSubjectTest extends TestCase
     			(Common.getSingleSetMember
     			  (pSubject2.getAssignmentsReceived
     			    (null, null, null)));
-    Set oldLimitValues = new HashSet();
-    for (int i = 0; i < oldAssignment.getLimitValuesArray().length; i++)
-    {
-      oldLimitValues.add(oldAssignment.getLimitValuesArray()[i]);
-    }
+    Set oldLimitValues = oldAssignment.getLimitValues();
     
     Assignment newAssignment
     	= pSubject2.grant
@@ -189,7 +183,9 @@ public class PrivilegedSubjectTest extends TestCase
     			 oldAssignment.getFunction(),
     			 oldLimitValues,
     			 false,
-    			 false);
+    			 false,
+           new Date(),  // effective immediately
+           null);       // no expiration date
     
     assertNotNull(newAssignment);
   }

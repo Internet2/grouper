@@ -10,7 +10,7 @@
 <!--
 		NOTE: The following ID declaration must be used on HSQL.
 -->
-		<id name="numericId" type="int" column="assignmentID">
+		<id name="id" type="int" column="assignmentID">
 			<generator class="native"/>
 		</id>
 

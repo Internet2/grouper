@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.6 2005-03-01 20:42:49 acohen Exp $
-$Date: 2005-03-01 20:42:49 $
+$Id: ChoiceSet.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -44,14 +44,6 @@ public interface ChoiceSet
 	 * Returns all of the Choices contained by this ChoiceSet.
 	 */
 	public Set getChoices();
-	
-	/**
-	 * Returns all of the Choices contained by this ChoiceSet, in display
-	 * order.
-	 * @return all of the Choices contained by this ChoiceSet, in display
-	 * order.
-	 */
-	public Choice[] getChoicesInDisplayOrder();
 	
 	/**
 	 * Retrieves the Choice in a ChoiceSet with the specified value.

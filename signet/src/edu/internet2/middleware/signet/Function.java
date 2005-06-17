@@ -1,6 +1,6 @@
 /*--
-$Id: Function.java,v 1.4 2005-02-15 00:31:20 acohen Exp $
-$Date: 2005-02-15 00:31:20 $
+$Id: Function.java,v 1.5 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -20,6 +20,14 @@ import edu.internet2.middleware.subject.Subject;
 public interface Function
 extends SubsystemPart, HelpText, Name, Comparable
 {
+  /**
+   * Gets the ID of this entity.
+   * 
+   * @return Returns a short mnemonic id which will appear in XML
+   *    documents and other documents used by analysts.
+   */
+  public String getId();
+  
   /**
    * Gets the Category associated with this Function.
    * 

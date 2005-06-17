@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.13 2005-06-01 06:13:08 mnguyen Exp $
-$Date: 2005-06-01 06:13:08 $
+$Id: Fixtures.java,v 1.14 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,14 +8,18 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.OperationNotSupportedException;
+
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
@@ -102,16 +106,26 @@ public class Fixtures
    *     grantor: SuperPrivilegedSubject
    *     grantee: Subject 2
    *     Function 2
+   * @throws HibernateException
+   * @throws SQLException
+   * @throws ClassNotFoundException
    */
   public Fixtures(Signet signet)
   throws
   	OperationNotSupportedException,
-  	TreeNotFoundException,
   	SignetAuthorityException,
-  	ObjectNotFoundException
+  	ObjectNotFoundException,
+    HibernateException,
+    ClassNotFoundException,
+    SQLException
   {
     super();
     this.signet = signet;
+    
+    // Let's start with a clean slate of Assignments. This will help us
+    // to more reliably predict the number of duplicate Assignments later,
+    // while testing Assignment.findDuplicates().
+    deleteAssignments();
     
     this.subsystem = getOrCreateSubsystem();
     
@@ -176,6 +190,45 @@ public class Fixtures
     this.signet.save(assignment);
   }
   
+  private void deleteAssignments()
+  throws
+    HibernateException,
+    ClassNotFoundException,
+    SQLException
+  {
+    // There's currently no API for deleting Assignments (June 2005),
+    // so we'll just do it via straight SQL.
+    
+    Configuration cfg = new Configuration();
+
+    // Read the "hibernate.cfg.xml" file. It is expected to be in a root
+    // directory of the classpath.
+    cfg.configure();
+    String dbUsername
+      = cfg.getProperty("hibernate.connection.username");
+    String dbPassword
+      = cfg.getProperty("hibernate.connection.password");
+    String dbUrl
+      = cfg.getProperty("hibernate.connection.url");
+    String jdbcDriverName
+      = cfg.getProperty("hibernate.connection.driver_class");
+    
+    Class.forName(jdbcDriverName);
+    java.sql.Connection conn
+      = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+    Statement stmt = conn.createStatement();
+    stmt.executeUpdate
+      ("DELETE FROM signet_assignment WHERE subsystemID='"
+       + Constants.SUBSYSTEM_ID
+       + "'");
+    stmt.executeUpdate
+      ("DELETE FROM signet_assignmentLimit WHERE limitSubsystemID='"
+          + Constants.SUBSYSTEM_ID
+          + "'");
+    conn.commit();
+    conn.close();
+  }
+  
   private Assignment getOrCreateAssignment
     (int   subjectNumber,
      int   functionNumber,
@@ -197,7 +250,7 @@ public class Fixtures
     {
       Limit limit = limitsInDisplayOrder[i];
       int limitChoiceNumber = limitValueNumbers[i];
-      String value = makeChoiceValue(limitChoiceNumber);
+      String value = makeChoiceValue(subjectNumber, limitChoiceNumber);
       LimitValue limitValue = new LimitValue(limit, value);
       limitValues.add(limitValue);
     }
@@ -216,7 +269,7 @@ public class Fixtures
       	= (Assignment)(assignmentsReceivedIterator.next());
       
       if (assignmentReceived.getScope().equals(rootNode)
-          && (assignmentReceived.getLimitValuesArray().length
+          && (assignmentReceived.getLimitValues().size()
               == limitValues.size()))
       {
         return assignmentReceived;
@@ -232,7 +285,9 @@ public class Fixtures
     	     function,
     	     limitValues,
     	     true,    // canGrant
-    	     false);  // grantOnly
+    	     false,   // grantOnly
+           Constants.ASSIGNMENT_EFFECTIVE_DATE,
+           Constants.ASSIGNMENT_EXPIRATION_DATE);
     
     return assignment;
   }
@@ -255,6 +310,15 @@ public class Fixtures
        assignmentNumber, // functionNumber,
        limitChoiceNumbers);
   }
+  
+  private static Choice[] getChoicesInDisplayOrder(ChoiceSet choiceSet)
+  {
+    Choice[] choiceArray = new Choice[0];
+    choiceArray = (Choice[])(choiceSet.getChoices().toArray(choiceArray));
+    
+    Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
+    return choiceArray;
+  }
 
   /**
    * Gets the Nth choice-value of the Nth limit for the specified function.
@@ -271,7 +335,7 @@ public class Fixtures
   throws ObjectNotFoundException
   {
     Limit limit = function.getLimitsArray()[limitAndValueNumber];
-    Choice[] choices = limit.getChoiceSet().getChoicesInDisplayOrder();
+    Choice[] choices = getChoicesInDisplayOrder(limit.getChoiceSet());
     Choice choice = choices[limitAndValueNumber];
     
     LimitValue limitValue = new LimitValue(limit, choice.getValue());
@@ -481,7 +545,7 @@ public class Fixtures
         // ChoiceSet 0 has choice 0, choiceSet 1 has choices 0 and 1, and so on.
         Choice choice
         	= choiceSet.addChoice
-        			(makeChoiceValue(i),
+        			(makeChoiceValue(-1, i),
         			 makeChoiceDisplayValue(i),
   	  			   makeChoiceDisplayOrder(i),
   	  			   makeChoiceRank(i, choiceSetNumber));
@@ -690,8 +754,14 @@ public class Fixtures
     return permission;
   }
   
-  public String makeChoiceValue(int choiceNumber)
+  public String makeChoiceValue(int subjectNumber, int choiceNumber)
   {
+    if (subjectNumber == 0)
+    {
+      // Subject0 always has zero-valued Choice-values.
+      choiceNumber = 0;
+    }
+    
     return "CHOICE" + Constants.DELIMITER + choiceNumber + Constants.DELIMITER + "VALUE";
   }
   
@@ -779,8 +849,26 @@ public class Fixtures
     return root;
   }
   
-  public int expectedLimitValuesCount(int subjectNumber)
+  public int expectedLimitValuesCount(int subjectNumber, Function function)
   {
-    return subjectNumber + 1;
+    int expected;
+    
+    if (subjectNumber == 0)
+    {
+      if (function.getId().equals(makeFunctionId(0)))
+      {
+        expected = 1;
+      }
+      else
+      {
+        expected = 3;
+      }
+    }
+    else
+    {
+      expected = subjectNumber + 1;
+    }
+    
+    return expected;
   }
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.15 2005-06-05 05:43:48 mnguyen Exp $
- $Date: 2005-06-05 05:43:48 $
+ $Id: PrivilegedSubjectImpl.java,v 1.16 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,7 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -23,7 +24,6 @@ import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectType;
 
 /**
  *  An object of this class describes the privileges possessed by a Subject
@@ -159,10 +159,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         // This scope is indeed one that we can grant this Function in.
         // Now, let's see whether or not we're allowed to work with all of the
         // Limit-values in this particular Assignment.
-        LimitValue[] limitValues = anAssignment.getLimitValuesArray();
-        for (int i = 0; i < limitValues.length; i++)
+        Set limitValues = anAssignment.getLimitValues();
+        Iterator limitValuesIterator = limitValues.iterator();
+        while (limitValuesIterator.hasNext())
         {
-          Limit limit = limitValues[i].getLimit();
+          LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+          Limit limit = limitValue.getLimit();
           Choice choice = null;
           
           try
@@ -171,7 +173,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
             	= limit
             			.getChoiceSet()
             				.getChoiceByValue
-            					(limitValues[i].getValue());
+            					(limitValue.getValue());
           }
           catch (Exception e)
           {
@@ -251,10 +253,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
         // This scope is indeed one that we can grant this Function in.
         // Now, let's see whether or not we're allowed to work all of the
         // Limit-values in this particular Assignment.
-        LimitValue[] limitValues = refusedAssignment.getLimitValuesArray();
-        for (int i = 0; i < limitValues.length; i++)
+        Set limitValues = refusedAssignment.getLimitValues();
+        Iterator limitValuesIterator = limitValues.iterator();
+        while (limitValuesIterator.hasNext())
         {
-          Limit limit = limitValues[i].getLimit();
+          LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+          Limit limit = limitValue.getLimit();
           Choice choice = null;
           
           try
@@ -263,7 +267,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
             	= limit
             			.getChoiceSet()
             				.getChoiceByValue
-            					(limitValues[i].getValue());
+            					(limitValue.getValue());
           }
           catch (Exception e)
           {
@@ -729,7 +733,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
      Function 					function,
      Set								limitValues,
      boolean 						canGrant,
-     boolean 						grantOnly)
+     boolean 						grantOnly,
+     Date               effectiveDate,
+     Date               expirationDate)
   throws
   	SignetAuthorityException
   {
@@ -750,7 +756,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     			 function,
     			 limitValues,
     			 canGrant,
-    			 grantOnly);
+    			 grantOnly,
+           effectiveDate,
+           expirationDate);
 
     this.addAssignmentGranted(newAssignment);
     ((PrivilegedSubjectImpl) grantee).addAssignmentReceived(newAssignment);
@@ -781,8 +789,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public int hashCode()
   {
-    Subject thisSubject = this.subject;
-
     // you pick a hard-coded, randomly chosen, non-zero, odd number
     // ideally different for each class
     return new HashCodeBuilder(17, 37)
@@ -877,19 +883,23 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       if (assignmentReceived.getScope().equals(scope)
           || assignmentReceived.getScope().isAncestorOf(scope))
       {
-        LimitValue[] limitValuesReceived
-          = assignmentReceived.getLimitValuesArray();
+        Set limitValuesReceived
+          = assignmentReceived.getLimitValues();
 
-        for (int i = 0; i < limitValuesReceived.length; i++)
+        Iterator limitValuesReceivedIterator = limitValuesReceived.iterator();
+        while (limitValuesReceivedIterator.hasNext())
         {
-          if (limitValuesReceived[i].getLimit().equals(limit))
+          LimitValue limitValue
+            = (LimitValue)(limitValuesReceivedIterator.next());
+          
+          if (limitValue.getLimit().equals(limit))
           {
             try
             {
               receivedLimitChoices.add
                 (limit.getChoiceSet()
                   .getChoiceByValue
-                    (limitValuesReceived[i].getValue()));
+                    (limitValue.getValue()));
             }
             catch (ChoiceNotFoundException cnfe)
             {

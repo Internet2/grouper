@@ -1,12 +1,12 @@
 /*--
-$Id: ChoiceDisplayOrderComparator.java,v 1.1 2005-03-01 20:42:49 acohen Exp $
-$Date: 2005-03-01 20:42:49 $
+$Id: ChoiceDisplayOrderComparator.java,v 1.1 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
-package edu.internet2.middleware.signet;
+package edu.internet2.middleware.signet.test;
 
 import java.util.Comparator;
 

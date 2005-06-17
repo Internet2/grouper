@@ -1,6 +1,6 @@
 /*--
- $Id: EntityImpl.java,v 1.4 2005-02-09 22:00:35 acohen Exp $
- $Date: 2005-02-09 22:00:35 $
+ $Id: EntityImpl.java,v 1.5 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -95,7 +95,7 @@ abstract class EntityImpl implements Entity, Name
    * @return Returns a short mnemonic id which will appear in XML
    * 		documents and other documents used by analysts.
    */
-  public String getId()
+  public String getStringId()
   {
     return id;
   }
@@ -103,7 +103,7 @@ abstract class EntityImpl implements Entity, Name
   /**
    * @param id The id to set.
    */
-  final void setId(String id)
+  final void setStringId(String id)
   {
     if ((this.id != null) && !(this.id.equals(id)))
     {
@@ -306,7 +306,7 @@ abstract class EntityImpl implements Entity, Name
     return 
     	new 
     		ToStringBuilder(this)
-    			.append("id", getId())
+    			.append("id", getStringId())
     				.append("status", getStatus())
     				.append("createDatetime", getCreateDatetime())
     				.append("modifyDatetime", getModifyDatetime())

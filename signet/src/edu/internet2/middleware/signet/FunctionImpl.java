@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.6 2005-03-03 18:29:00 acohen Exp $
-$Date: 2005-03-03 18:29:00 $
+$Id: FunctionImpl.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
+$Date: 2005-06-17 23:24:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -217,13 +217,19 @@ implements Function
    * @see edu.internet2.middleware.signet.SubsystemPart#getSubsystem()
    */
   public Subsystem getSubsystem()
-  throws ObjectNotFoundException
   {
     if ((this.subsystem == null)
         && (this.subsystemId != null)
         && (this.getSignet() != null))
     {
-      this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
+      try
+      {
+        this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
     }
     
     return this.subsystem;
@@ -376,5 +382,16 @@ implements Function
     }
 
     return functionLimits;
+  }
+  
+  public String getId()
+  {
+    return super.getStringId();
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setId(String id)
+  {
+    super.setStringId(id);
   }
 }

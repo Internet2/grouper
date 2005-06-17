@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.9 2005-06-02 14:10:06 mnguyen Exp $
- $Date: 2005-06-02 14:10:06 $
+ $Id: PrivilegedSubject.java,v 1.10 2005-06-17 23:24:28 acohen Exp $
+ $Date: 2005-06-17 23:24:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -8,7 +8,7 @@
  */
 package edu.internet2.middleware.signet;
 
-import java.util.Map;
+import java.util.Date;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -80,6 +80,8 @@ public interface PrivilegedSubject extends Comparable
    * @param limitValues
    * @param canGrant
    * @param grantOnly
+   * @param effectiveDate
+   * @param expirationDate
    * 
    * @return the resulting Assignment
    * 
@@ -91,7 +93,9 @@ public interface PrivilegedSubject extends Comparable
    Function 					function,
    Set								limitValues,
    boolean 						canGrant,
-   boolean 						grantOnly)
+   boolean 						grantOnly,
+   Date               effectiveDate,
+   Date               expirationDate)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException;
