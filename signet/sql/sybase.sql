@@ -1,3 +1,8 @@
+-- This is the Sybase DDL for the Signet database
+-- Author Lynn Mcrae, Stanford University 
+-- modified
+--    6/20/2005 - add assignment expirationDate
+--
 -- Subsystem tables
 drop table signet_proxyType_function;
 drop table signet_permission_limit;
@@ -8,6 +13,7 @@ drop table signet_permission;
 drop table signet_proxyType;
 drop table signet_limit;
 drop table signet_subsystem;
+--
 create table signet_subsystem
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -116,6 +122,7 @@ foreign key (subsystemID, functionID) references signet_function (subsystemID, f
 ;
 -- Signet Subject tables
 drop table signet_privilegedSubject;
+--
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -127,6 +134,7 @@ primary key (subjectTypeID, subjectID)
 drop table signet_treeNodeRelationship;
 drop table signet_treeNode;
 drop table signet_tree;
+--
 create table signet_tree
 (
 treeID              varchar(64)         NOT NULL,
@@ -160,6 +168,7 @@ foreign key (treeID) references signet_tree (treeID)
 -- ChoiceSet tables
 drop table signet_choice;
 drop table signet_choiceSet;
+--
 create table signet_choiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -186,6 +195,7 @@ drop table signet_assignmentLimit;
 drop table signet_assignment;
 drop table signet_assignmentLimit_history;
 drop table signet_assignment_history;
+--
 create table signet_assignment
 (
 assignmentID        numeric(12,0)       IDENTITY,
@@ -204,6 +214,7 @@ scopeNodeID         varchar(64)         NULL,
 canGrant            bit                 NOT NULL,
 grantOnly           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
+expirationDate      smalldatetime       NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      smalldatetime       default getdate(),
@@ -239,6 +250,7 @@ scopeNodeID         varchar(64)         NULL,
 canGrant            bit                 NOT NULL,
 grantOnly           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
+expirationDate      smalldatetime       NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 historyDatetime     smalldatetime       NOT NULL,
@@ -261,6 +273,7 @@ unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
+--
 create table SubjectType
 (
 subjectTypeID     varchar(32)     NOT NULL,
