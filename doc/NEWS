@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.53 2005-06-16 15:48:23 blair Exp $
+$Id: NEWS,v 1.54 2005-06-20 20:09:43 blair Exp $
 
 ---
 
@@ -9,10 +9,12 @@ $Id: NEWS,v 1.53 2005-06-16 15:48:23 blair Exp $
 
 ## Changes
 
-* Fixed: Default privilege implementations would attempt to revoke
+* UPDATE: Grouper now uses version 0.1 draft 1 of the _Subject_ API
+  specification
+* FIX: Default privilege implementations would attempt to revoke
   effective list values under select circumstances which would cause an
   exception to be thrown. (#361)
-* Fixed: _hasMember()_ would return incorrect results when a member was
+* FIX: _hasMember()_ would return incorrect results when a member was
   both immediate and effective (#360)
 * Stems can no longer be members or subjects
 * Added _Subject_ and _SubjectAttribute_ tables 
@@ -21,10 +23,6 @@ $Id: NEWS,v 1.53 2005-06-16 15:48:23 blair Exp $
 * _Grouper.hasSubjectType()_ replaced by _SubjectFactory.hasType()_
 * _Grouper.subjectTypes()_ replaced by _SubjectFactory.types()_
 * Removed _Grouper.subjectType()_
-
-## Incompabilities
-
-* _grouper_subject_ table replaced by _Subject_ table
 
 ---
 
