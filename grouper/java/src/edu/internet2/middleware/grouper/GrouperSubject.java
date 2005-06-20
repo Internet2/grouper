@@ -60,11 +60,11 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * TODO
+ * {@link Grouper} {@link Subject} implementation.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.41 2005-06-06 15:49:03 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.42 2005-06-20 20:09:43 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -77,9 +77,11 @@ public class GrouperSubject implements Subject {
   /*
    * PRIVATE INSTANCE METHODS
    */
+  private GrouperSourceAdapter  adapter = null;
+  private Map                   attrs   = null; 
+  private GrouperGroup          g       = null;
   private String                id      = null;
   private String                name    = null;
-  private GrouperSourceAdapter  adapter = null;
   private SubjectType           type    = null;
 
 
@@ -88,6 +90,7 @@ public class GrouperSubject implements Subject {
    */
   protected GrouperSubject(GrouperGroup g, GrouperSourceAdapter sa) {
     log.debug("Converting " + g + " to subject");
+    this.g        = g;
     this.id       = g.id();
     this.name     = g.attribute("name").value();
     this.type     = SubjectTypeEnum.valueOf("group");
@@ -99,15 +102,22 @@ public class GrouperSubject implements Subject {
    * {@inheritDoc}
    */
   public Map getAttributes() {
-    // TODO
-    return new HashMap();
+    this.loadAttributes();
+    return this.attrs;
   }
 
   /**
    * {@inheritDoc}
    */
   public String getAttributeValue(String name) {
-    // TODO
+    this.loadAttributes();
+    if (this.attrs.containsKey(name)) {
+      // TODO Should I confirm that there is only one value?
+      Iterator iter = ( (Set) this.attrs.get(name) ).iterator();
+      while (iter.hasNext()) {
+        return (String) iter.next();
+      }
+    } 
     return new String();
   }
 
@@ -115,7 +125,10 @@ public class GrouperSubject implements Subject {
    * {@inheritDoc}
    */
   public Set getAttributeValues(String name) {
-    // TODO
+    this.loadAttributes();
+    if (this.attrs.containsKey(name)) {
+      return (Set) this.attrs.get(name);
+    }
     return new HashSet();
   }
 
@@ -123,8 +136,7 @@ public class GrouperSubject implements Subject {
    * {@inheritDoc}
    */
   public String getDescription() {
-    // TODO 
-    return new String();
+    return this.getAttributeValue("description");
   }
 
   /**
@@ -148,5 +160,28 @@ public class GrouperSubject implements Subject {
     return this.type;
   }
 
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Load group attributes and convert them to a more appropriate
+   * format.  Although, frankly, the internal format I'm using *does*
+   * irk me a fair amount.
+   */
+  private void loadAttributes() {
+    if (this.attrs == null) {
+      Map   gattrs  = g.attributes();
+      attrs         = new HashMap(); 
+      Iterator iter = gattrs.keySet().iterator();
+      while (iter.hasNext()) {
+        GrouperAttribute ga = (GrouperAttribute) gattrs.get( iter.next());
+        Set vals = new HashSet();
+        vals.add( ga.value() );
+        attrs.put( ga.field(), vals );
+      }
+    }
+  }
 }
 

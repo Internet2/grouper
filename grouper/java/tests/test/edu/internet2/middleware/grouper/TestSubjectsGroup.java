@@ -89,6 +89,7 @@ public class TestSubjectsGroup extends TestCase {
         s, Constants.gAs, Constants.gAe
       );
       gAid = gA.id();
+      gA.attribute("description", "this is group a");
       s.stop();
     } catch (SubjectNotFoundException e) {
       Assert.fail("unable to load subject");
@@ -396,6 +397,118 @@ public class TestSubjectsGroup extends TestCase {
     Assert.assertTrue("vals.size()==0", vals.size() == 0);
   }
 
-  // TODO Test attributes, etc.
+  public void testGetAttributes() {
+    try {
+      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Assert.assertTrue("loaded subject", true);
+      Map attrs = subj.getAttributes();
+      Assert.assertTrue("attrs=3", attrs.size() == 4);
+      List keys = new ArrayList( attrs.keySet() );
+      Collections.sort(keys);
+      Assert.assertTrue("[0]=description", keys.get(0).equals("description"));
+      Set vals = new HashSet();
+      vals.add("this is group a");
+      Assert.assertTrue(
+        "[0] vals", attrs.get( keys.get(0)).equals(vals)
+      );
+      Assert.assertTrue("[1]=extension", keys.get(1).equals("extension"));
+      vals = new HashSet();
+      vals.add("group a");
+      Assert.assertTrue(
+        "[1] vals", attrs.get( keys.get(1)).equals(vals)
+      );
+      Assert.assertTrue("[2]=name", keys.get(2).equals("name"));
+      vals = new HashSet();
+      vals.add("root:group a");
+      Assert.assertTrue(
+        "[2] vals", attrs.get( keys.get(2)).equals(vals)
+      );
+      Assert.assertTrue("[3]=stem", keys.get(3).equals("stem"));
+      vals = new HashSet();
+      vals.add("root");
+      Assert.assertTrue(
+        "[3] vals", attrs.get( keys.get(3)).equals(vals)
+      );
+    } catch (SubjectNotFoundException e) {
+      Assert.fail("unable to load subject");
+    }
+  }
+
+  public void testGetAttributeValue() {
+    try {
+      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Assert.assertTrue("loaded subject", true);
+      String attr = "description";
+      String val  = "this is group a";
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+      attr  = "extension";
+      val   = "group a";
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+      attr  = "name";
+      val   = "root:group a";
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+      attr  = "stem";
+      val   = "root";
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+      attr  = "invalid";
+      val   = new String();
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+    } catch (SubjectNotFoundException e) {
+      Assert.fail("unable to load subject");
+    }
+  }
+
+  public void testGetAttributeValues() {
+    try {
+      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Assert.assertTrue("loaded subject", true);
+      String  attr = "description";
+      Set     vals  = new HashSet();
+      vals.add("this is group a");
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+      attr  = "extension";
+      vals  = new HashSet();
+      vals.add("group a");
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+      attr  = "name";
+      vals  = new HashSet();
+      vals.add("root:group a");
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+      attr  = "stem";
+      vals  = new HashSet();
+      vals.add("root");
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+      attr  = "invalid";
+      vals  = new HashSet();
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+    } catch (SubjectNotFoundException e) {
+      Assert.fail("unable to load subject");
+    }
+  }
+
+  public void testGetDescription() {
+    try {
+      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Assert.assertTrue("loaded subject", true);
+      Assert.assertNotNull("description", subj.getDescription());
+      Assert.assertTrue(
+        "description value", subj.getDescription().equals("this is group a")
+      );
+    } catch (SubjectNotFoundException e) {
+      Assert.fail("unable to load subject");
+    }
+  }
+
+  // TODO Test with null description
 }
 
