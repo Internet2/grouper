@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.1 2005-04-29 09:14:11 mnguyen Exp $
-$Date: 2005-04-29 09:14:11 $
+$Id: SourceManager.java,v 1.2 2005-06-20 14:49:52 mnguyen Exp $
+$Date: 2005-06-20 14:49:52 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.xml.sax.SAXException;
 
@@ -22,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 
 
@@ -37,17 +39,32 @@ public class SourceManager {
 	private static final String CONFIG_FILE = "/sources.xml";
 	
 	private static Log log = LogFactory.getLog(SourceManager.class);
+	
+	private static SourceManager manager;
 	private Map sourceMap = new HashMap();
-
+	private Map source2TypeMap = new HashMap();
+	
 	/**
 	 * Default constructor.
 	 * @throws Exception
 	 */
-	public SourceManager()
+	private SourceManager()
 		throws Exception {
 		init();
 	}
 
+	/**
+	 * Returns the singleton instance of SourceManager.
+	 *
+	 */
+	public static SourceManager getInstance() 
+		throws Exception {
+		if (manager == null) {
+			manager = new SourceManager();
+		}
+		return manager;
+	}
+	
 	/**
 	 * Gets Source for the argument source ID.
 	 * @param sourceId
@@ -69,6 +86,15 @@ public class SourceManager {
 	 */
 	public Collection getSources() {
 		return this.sourceMap.values();
+	}
+	
+	/**
+	 * Returns a Collection of Sources that
+	 * supports the argument SubjectType.
+	 * @return Collection
+	 */
+	public Collection getSources(SubjectType type) {
+		return (Collection)this.source2TypeMap.get(type);
 	}
 	
 	/**
@@ -96,6 +122,15 @@ public class SourceManager {
 		try {
 			source.init();
 			this.sourceMap.put(source.getId(), source);
+			for (Iterator it = source.getSubjectTypes().iterator(); it.hasNext(); ) {
+				SubjectType type = (SubjectType)it.next();
+				Set sources = (Set)this.source2TypeMap.get(type);
+				if (sources == null) {
+					sources = new HashSet();
+					this.source2TypeMap.put(type, sources);
+				}
+				sources.add(source);
+			}
 		}
 		catch (SourceUnavailableException ex) {
 			log.error("Unable to init Source: " + source.getId(), ex);
@@ -136,21 +171,13 @@ public class SourceManager {
 	 */
 	public static void main(String[] args) {
 		try {
-			SourceManager mgr = new SourceManager();
+			SourceManager mgr = SourceManager.getInstance();
 			for (Iterator iter = mgr.getSources().iterator(); iter.hasNext();) {
 				BaseSourceAdapter source = (BaseSourceAdapter)iter.next();
 				log.debug("Source init params: "
 						+ "id = " + source.getId()
 						+ ", params = " + source.getInitParams());
-				source.init();
-				
-				java.util.Set result =
-					source.search(args[0]);
-				log.debug("Search result: ");
-				for (Iterator it = result.iterator(); it.hasNext();) {
-					Subject subject = (edu.internet2.middleware.subject.Subject)it.next();
-					log.debug("-> " + subject.getName());
-				}
+				source.init();				
 			}
 		
 		} catch (Exception ex) {

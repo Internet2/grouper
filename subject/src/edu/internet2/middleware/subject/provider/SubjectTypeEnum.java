@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectTypeEnum.java,v 1.1 2005-04-29 09:14:11 mnguyen Exp $
-$Date: 2005-04-29 09:14:11 $
+$Id: SubjectTypeEnum.java,v 1.2 2005-06-20 14:49:52 mnguyen Exp $
+$Date: 2005-06-20 14:49:52 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -25,12 +25,12 @@ public class SubjectTypeEnum extends SubjectType {
 	
 	public static final SubjectTypeEnum PERSON = new SubjectTypeEnum("person");
 	public static final SubjectTypeEnum GROUP = new SubjectTypeEnum("group");
-	public static final SubjectTypeEnum ORG = new SubjectTypeEnum("organization");
+	public static final SubjectTypeEnum APPLICATION = new SubjectTypeEnum("application");
 	
 	static {
 		PRIVATE_VALUES.add(PERSON);
 		PRIVATE_VALUES.add(GROUP);
-		PRIVATE_VALUES.add(ORG);
+		PRIVATE_VALUES.add(APPLICATION);
 	}
 	
 	/**
@@ -65,7 +65,7 @@ public class SubjectTypeEnum extends SubjectType {
 	 * Factory method for returning instance of datatype from the
 	 * pool of valid objects.
 	 */
-	public static SubjectTypeEnum valueOf(String value) {
+	public static SubjectType valueOf(String value) {
 		if (value == null) {
 			return null;
 		}
@@ -75,7 +75,6 @@ public class SubjectTypeEnum extends SubjectType {
 				return validValue;
 			}
 		}
-
 		throw new IllegalArgumentException("Unrecognized SubjectType '"
                 + value + "', expecting one of " + PRIVATE_VALUES);
     }

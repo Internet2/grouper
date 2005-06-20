@@ -44,4 +44,9 @@ public interface Subject {
 	 */
 	public java.util.Map getAttributes();
 
+	/**
+	 * Returns the Source of this Subject.
+	 */
+	public Source getSource();
+
 }

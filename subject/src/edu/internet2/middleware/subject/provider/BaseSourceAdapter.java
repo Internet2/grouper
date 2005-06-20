@@ -1,6 +1,6 @@
 /*--
-$Id: BaseSourceAdapter.java,v 1.1 2005-04-29 09:14:11 mnguyen Exp $
-$Date: 2005-04-29 09:14:11 $
+$Id: BaseSourceAdapter.java,v 1.2 2005-06-20 14:49:52 mnguyen Exp $
+$Date: 2005-06-20 14:49:52 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -18,7 +18,6 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectType;
 
 
 /**
@@ -83,21 +82,60 @@ public abstract class BaseSourceAdapter
 	public Set getSubjectTypes() {
 		return types;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addSubjectType(String type) {
-		this.types.add(type);
-	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setSubjectTypes(Set types) {
-		this.types = types;
+	public abstract Subject getSubject(String id)
+		throws SubjectNotFoundException;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public abstract Subject getSubjectByIdentifier(String id)
+		throws SubjectNotFoundException;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public abstract Set search(String searchValue);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public abstract void init()
+		throws SourceUnavailableException;
+
+	/**
+	 * Compares this source against the specified source.
+	 * Returns true if the IDs of both sources are equal.
+	 */
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (other instanceof BaseSourceAdapter) {
+			return this.getId().equals(
+				((BaseSourceAdapter)other).getId());
+	    }
+		return false;
 	}
 
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		return "BaseSourceAdapter".hashCode() + this.getId().hashCode();
+	}
+	
+	/**
+	 * (non-javadoc)
+	 * @param type
+	 */
+	public void addSubjectType(String type) {
+		this.types.add(SubjectTypeEnum.valueOf(type));
+	}
+	
 	/**
 	 * (non-javadoc)
 	 * @param name
@@ -112,7 +150,7 @@ public abstract class BaseSourceAdapter
 	 * @param name
 	 * @return param
 	 */
-	public String getInitParam(String name) {
+	protected String getInitParam(String name) {
 		return this.params.getProperty(name);
 	}
 	
@@ -120,40 +158,8 @@ public abstract class BaseSourceAdapter
 	 * (non-javadoc)
 	 * @return params
 	 */
-	public Properties getInitParams() {
+	protected Properties getInitParams() {
 		return this.params;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract Subject getSubject(String id)
-		throws SubjectNotFoundException;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract Set search(String searchValue);
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract Set searchByIdentifier(String id);
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract Set searchByIdentifier(String id, SubjectType type);
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract void init()
-		throws SourceUnavailableException;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract void destroy();
 
 }

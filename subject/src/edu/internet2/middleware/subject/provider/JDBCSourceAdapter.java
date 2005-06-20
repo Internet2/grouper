@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.1 2005-04-29 09:14:11 mnguyen Exp $
-$Date: 2005-04-29 09:14:11 $
+$Id: JDBCSourceAdapter.java,v 1.2 2005-06-20 14:49:52 mnguyen Exp $
+$Date: 2005-06-20 14:49:52 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -47,17 +47,16 @@ import edu.internet2.middleware.subject.SubjectType;
  * (<br>
  * subjectID         varchar(64)     NOT NULL,<br>
  * subjectTypeID     varchar(32)     NOT NULL,<br>
- * name              varchar(120)    NOT NULL,<br>
- * description       varchar(255)    NOT NULL<br>
+ * name              varchar(255)    NOT NULL,<br>
  * primary key (subjectID)<br>
  * )<br>
  * <p>
  * table SubjectAttribute<br>
  * (<br>
  * subjectID         varchar(64)     NOT NULL,<br>
- * name              varchar(32)     NOT NULL,<br>
+ * name              varchar(255)     NOT NULL,<br>
  * value             varchar(255)    NOT NULL,<br>
- * searchValue       varchar(255)    NOT NULL,<br>
+ * searchValue       varchar(255)    NULL,<br>
  * primary key (subjectID, name, value),<br>
  * foreign key (subjectID) references Subject (subjectID)<br>
  * )<br>
@@ -69,20 +68,28 @@ public class JDBCSourceAdapter
 	private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
 	
 	private static final String SEARCH_SUBJ_SQL =
-		"SELECT DISTINCT Subject.subjectID, Subject.name, Subject.subjectTypeID FROM Subject, SubjectAttribute" +
+		"SELECT DISTINCT Subject.subjectID, Subject.name, Subject.subjectTypeID" +
+			" FROM Subject, SubjectAttribute" +
 			" WHERE Subject.subjectID = SubjectAttribute.subjectID" +
 			" AND (SubjectAttribute.searchValue = ?" +
 			" OR SubjectAttribute.searchValue LIKE ?)";
 	
 	private static final String SEARCH_SUBJ_BY_ID_SQL =
-		"SELECT subjectID, name, subjectTypeID FROM Subject WHERE subjectID LIKE ?";
+		"SELECT DISTINCT Subject.subjectID, Subject.name, Subject.subjectTypeID" +
+			" FROM Subject, SubjectAttribute" +
+			" WHERE Subject.subjectID = SubjectAttribute.subjectID" +
+			" AND SubjectAttribute.name = 'loginid'" +
+			" AND SubjectAttribute.value = ?";
 	
-	private static final String GET_SUBJECT_SQL =
-		"SELECT subjectID, name, subjectTypeID FROM Subject WHERE subjectID = ?";
+	private static final String LOAD_SUBJECT_SQL =
+		"SELECT subjectID, name, subjectTypeID" +
+			" FROM Subject" +
+			" WHERE subjectID = ?";
 	
-	private static final String GET_ATTRIBUTES_SQL =
-		"SELECT DISTINCT name, value FROM SubjectAttribute" +
-		" WHERE subjectID = ?";
+	private static final String LOAD_ATTRIBUTES_SQL =
+		"SELECT DISTINCT name, value" +
+			" FROM SubjectAttribute" +
+			" WHERE subjectID = ?";
 
 	private DataSource dataSource;
 	
@@ -108,9 +115,11 @@ public class JDBCSourceAdapter
 	public Subject getSubject(String id)
 		throws SubjectNotFoundException {
 		Subject subject = null;
+		Connection conn = null;
+		PreparedStatement stmt = null;
 		try {
-			Connection conn = this.dataSource.getConnection();
-			PreparedStatement stmt = conn.prepareStatement(GET_SUBJECT_SQL);
+			conn = this.dataSource.getConnection();
+			stmt = conn.prepareStatement(LOAD_SUBJECT_SQL);
 			stmt.setString(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -122,6 +131,10 @@ public class JDBCSourceAdapter
 		catch (SQLException ex) {
 			log.debug("SQLException occurred: " + ex.getMessage(), ex);
 		}
+		finally {
+			closeStatement(stmt);
+			closeConnection(conn);
+		}
 		if (subject == null) {
 			throw new SubjectNotFoundException("Subject " + id + " not found.");
 		}
@@ -131,15 +144,51 @@ public class JDBCSourceAdapter
 	/**
 	 * {@inheritDoc}
 	 */
+	public Subject getSubjectByIdentifier(String id)
+		throws SubjectNotFoundException {
+		Subject subject = null;
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		try {
+			conn = this.dataSource.getConnection();
+			stmt = conn.prepareStatement(SEARCH_SUBJ_BY_ID_SQL);
+			stmt.setString(1, id);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				String subjectId = rs.getString("subjectID");
+				String name = rs.getString("name");
+				SubjectType type = SubjectTypeEnum.valueOf(rs.getString("subjectTypeID"));
+				subject = new JDBCSubject(subjectId, name, type, this);
+			}
+		}
+		catch (SQLException ex) {
+			log.debug("SQLException occurred: " + ex.getMessage(), ex);
+		}
+		finally {
+			closeStatement(stmt);
+			closeConnection(conn);
+		}
+		if (subject == null) {
+			throw new SubjectNotFoundException("Subject " + id + " not found.");
+		}
+		return subject;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Set search(String searchValue) {
 		Set result = new HashSet();
+		Connection conn = null;
+		PreparedStatement stmt = null;
 		try {
-			Connection conn = this.dataSource.getConnection();
-			PreparedStatement stmt = conn.prepareStatement(SEARCH_SUBJ_SQL);
+			conn = this.dataSource.getConnection();
+			stmt = conn.prepareStatement(SEARCH_SUBJ_SQL);
 			stmt.setString(1, normalizeString(searchValue));
 			stmt.setString(2, normalizeName(searchValue));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
+				String id = rs.getString("subjectID");
 				String name = rs.getString("name");
 				SubjectType type = SubjectTypeEnum.valueOf(rs.getString("subjectTypeID"));
 				Subject subject = new JDBCSubject(id, name, type, this);
@@ -149,39 +198,13 @@ public class JDBCSourceAdapter
 		catch (SQLException ex) {
 			log.debug("SQLException occurred: " + ex.getMessage(), ex);
 		}
-		return result;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Set searchByIdentifier(String id) {
-		Set result = new HashSet();
-		try {
-			Connection conn = this.dataSource.getConnection();
-			PreparedStatement stmt = conn.prepareStatement(SEARCH_SUBJ_BY_ID_SQL);
-			stmt.setString(1, "%" + id + "%");
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				String name = rs.getString("name");
-				SubjectType type = SubjectTypeEnum.valueOf(rs.getString("subjectTypeID"));
-				Subject subject = new JDBCSubject(id, name, type, this);
-				result.add(subject);
-			}
-		}
-		catch (SQLException ex) {
-			log.debug("SQLException occurred: " + ex.getMessage(), ex);
+		finally {
+			closeStatement(stmt);
+			closeConnection(conn);
 		}
 		return result;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Set searchByIdentifier(String id, SubjectType type) {
-		return null;
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -197,11 +220,6 @@ public class JDBCSourceAdapter
 	    		"Unable to init JDBC source", ex);
 	    }
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void destroy() {}
 
 	/** 
 	 * Loads the the JDBC driver.
@@ -253,13 +271,15 @@ public class JDBCSourceAdapter
 		}
 
 		try {
+			boolean readOnly =
+				"true".equals(props.getProperty("readOnly", "true"));
 			// StackKeyedObjectPoolFactory supports PreparedStatement pooling. 
 			poolConnFactory = new PoolableConnectionFactory(
     				connFactory,
     				objectPool,
     				new StackKeyedObjectPoolFactory(),
     				null,
-    				true,
+    				readOnly,
 					true);
 		} catch (Exception ex) {
 			log.error(
@@ -352,10 +372,12 @@ public class JDBCSourceAdapter
 	 */
 	protected Map loadAttributes(JDBCSubject subject) {
 		Map attributes = new HashMap();
+		Connection conn = null;
+		PreparedStatement stmt = null;
 		try {
-			Connection conn = this.dataSource.getConnection();
-			PreparedStatement stmt = conn.prepareStatement(GET_ATTRIBUTES_SQL);
-			stmt.setString(1, id);
+			conn = this.dataSource.getConnection();
+			stmt = conn.prepareStatement(LOAD_ATTRIBUTES_SQL);
+			stmt.setString(1, subject.getId());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String name = rs.getString("name");
@@ -372,6 +394,32 @@ public class JDBCSourceAdapter
 		catch (SQLException ex) {
 			log.debug("SQLException occurred: " + ex.getMessage(), ex);
 		}
+		finally {
+			closeStatement(stmt);
+			closeConnection(conn);
+		}
 		return attributes;
+	}
+	
+	private void closeConnection(Connection conn) {
+		if (conn != null) {
+			try {
+				conn.close();
+			}
+			catch (SQLException ex) {
+				log.info("Error while closing JDBC Connection.");
+			}
+		}
+	}
+	
+	private void closeStatement(PreparedStatement stmt) {
+		if (stmt != null) {
+			try {
+				stmt.close();
+			}
+			catch (SQLException ex) {
+				log.info("Error while closing JDBC Statement.");
+			}
+		}
 	}
 }

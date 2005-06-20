@@ -2,6 +2,7 @@
 package edu.internet2.middleware.subject.provider;
 
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
+
 import junit.framework.TestCase;
 
 /**
@@ -34,7 +35,7 @@ public class NormalizeNameTests extends TestCase{
 		assertEquals(
 			"test1 normalizeName() returned unexpected result",
 			"nguyen %",
-			JDBCSourceAdapter.normalizeName("nguyen")			);
+			JDBCSourceAdapter.normalizeName("nguyen"));
 	}
 	
 	/**

@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSubject.java,v 1.1 2005-04-29 09:14:11 mnguyen Exp $
-$Date: 2005-04-29 09:14:11 $
+$Id: JDBCSubject.java,v 1.2 2005-06-20 14:49:52 mnguyen Exp $
+$Date: 2005-06-20 14:49:52 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 
@@ -74,7 +75,7 @@ public class JDBCSubject
 	 * {@inheritDoc}
 	 */
 	public String getDescription() {
-		return (String)this.attributes.get(DESC_ATTRIBUTE);
+		return getAttributeValue(DESC_ATTRIBUTE);
 	}
 
 	/**
@@ -84,7 +85,13 @@ public class JDBCSubject
 		if (attributes == null) {
 			this.adapter.loadAttributes(this);
 		}
-		return (String)this.attributes.get(name);
+		Set values = (Set)this.attributes.get(name);
+		if (values != null) {
+			return ((String[])values.toArray(new String[0]))[0];
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -107,6 +114,13 @@ public class JDBCSubject
 		return attributes;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Source getSource() {
+		return this.adapter;
+	}
+	
 	protected void setAttributes(Map attributes) {
 		this.attributes = attributes;
 	}
