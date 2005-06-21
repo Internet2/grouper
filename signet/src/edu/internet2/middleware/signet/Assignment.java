@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.8 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Assignment.java,v 1.9 2005-06-21 02:34:17 acohen Exp $
+$Date: 2005-06-21 02:34:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,6 +14,7 @@ import java.util.Set;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.SignetAuthorityException;
 
 /**
 * 
@@ -80,13 +81,12 @@ public interface Assignment
 
   /**
    * Gets the {@link PrivilegedSubject} 
-   * who is the revoker of this Assignment, if this Assignment has been
-   * revoked.
+   * who has taken the most recent action on this Assignment.
    * 
    * @return the {@link PrivilegedSubject} 
-   * who is the grantor of this Assignment.
+   * who is the most recent action of this Assignment.
    */
-  public PrivilegedSubject getRevoker();
+  public PrivilegedSubject getLastActor();
 
   /**
    * Gets the scope (usually an organization) of this Assignment.
@@ -115,10 +115,15 @@ public interface Assignment
    * Changes the effective date of an existing Assignment. To save this change
    * to the database, call Assignment.save().
    * 
+   * @param actor the PrivilegedSubject who is responsible for this change.
+   * 
    * @param effectiveDate the date on which this Assignment should be scheduled
    * to change from Status value PENDING to Status value ACTIVE.
+   * 
+   * @throws SignetAuthorityException
    */
-  public void setEffectiveDate(Date effectiveDate);
+  public void setEffectiveDate(PrivilegedSubject actor, Date effectiveDate)
+  throws SignetAuthorityException;
   
   /**
    * Gets the date and time when this Assignment actually changed from Status
@@ -142,10 +147,15 @@ public interface Assignment
    * Changes the expiration date of an existing Assignment. To save this change
    * to the database, call Assignment.save().
    * 
+   * @param actor the PrivilegedSubject who is responsible for this change.
+   * 
    * @param expirationDate the date on which this Assignment should be scheduled
    * to change from Status value ACTIVE to Status value INACTIVE.
+   * 
+   * @throws SignetAuthorityException
    */
-  public void setExpirationDate(Date expirationDate);
+  public void setExpirationDate(PrivilegedSubject actor, Date expirationDate)
+  throws SignetAuthorityException;
   
   /**
    * Gets the date and time when this Assignment actually changed from Status
@@ -168,11 +178,16 @@ public interface Assignment
   /**
    * Changes the grantability of an existing Assignment. To save this change
    * to the database, call Assignment.save().
+   * 
+   * @param actor the PrivilegedSubject who is responsible for this change.
    *
    * @param isGrantable true if this Assignment should be grantable to others
    * by its current grantee, and false otherwise.
+   * 
+   * @throws SignetAuthorityException
    */
-  public void setGrantable(boolean isGrantable);
+  public void setGrantable(PrivilegedSubject actor, boolean isGrantable)
+  throws SignetAuthorityException;
 
   /**
    * Indicates whether or not this assignment can be used directly
@@ -187,10 +202,15 @@ public interface Assignment
    * Changes the direct usability of an existing Assignment. To save this change
    * to the database, call Assignment.save();
    * 
+   * @param actor the PrivilegedSubject who is responsible for this change.
+   * 
    * @param isGrantOnly true if this Assignment should only be granted to others
    * (and not directly used) by its current grantee, and false otherwise.
+   * 
+   * @throws SignetAuthorityException
    */
-  public void setGrantOnly(boolean grantOnly);
+  public void setGrantOnly(PrivilegedSubject actor, boolean grantOnly)
+  throws SignetAuthorityException;
 
   /**
    * Gets the Status of this Assignment. An Assignment may have Status of
@@ -213,11 +233,16 @@ public interface Assignment
    * Changes the Limit-values applied to an existing Assignment. To save this
    * change in the database, call Assignment.save().
    * 
+   * @param actor the PrivilegedSubject who is responsible for this change.
+   * 
    * @param limitValues the complete Set of LimitValues that should be
    * associated with this Assignment.
+   * 
+   * @throws SignetAuthorityException
    *
    */
-  public void setLimitValues(Set limitValues);
+  public void setLimitValues(PrivilegedSubject actor, Set limitValues)
+  throws SignetAuthorityException;
 
   /**
    * Revokes the specified Assignment from its current grantee. Note that in the

@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.10 2005-06-17 23:24:28 acohen Exp $
-  $Date: 2005-06-17 23:24:28 $
+  $Id: Common.java,v 1.11 2005-06-21 02:34:17 acohen Exp $
+  $Date: 2005-06-21 02:34:17 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -94,7 +94,7 @@ public class Common
       (LimitValue[])(assignment.getLimitValues().toArray(limitValuesArray));
   }
 
-  private static LimitValue[] getLimitValuesInDisplayOrder
+  public static LimitValue[] getLimitValuesInDisplayOrder
     (Assignment assignment)
   {
     LimitValue[] limitValues = getLimitValuesArray(assignment);
@@ -102,7 +102,7 @@ public class Common
     return limitValues;
   }
   
-  private static Choice[] getChoicesInDisplayOrder(ChoiceSet choiceSet)
+  public static Choice[] getChoicesInDisplayOrder(ChoiceSet choiceSet)
   {
     Choice[] choiceArray = new Choice[0];
     choiceArray = (Choice[])(choiceSet.getChoices().toArray(choiceArray));

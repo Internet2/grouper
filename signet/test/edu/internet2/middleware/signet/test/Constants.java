@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Constants.java,v 1.7 2005-06-21 02:34:17 acohen Exp $
+$Date: 2005-06-21 02:34:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -46,11 +46,12 @@ public class Constants
     = new Date(60, 7, 18);
   public static final Date ASSIGNMENT_EXPIRATION_DATE
     = new Date(86, 5, 31);
-
-//  static final String EMPTY_CHOICE_SET_ID
-//  	= "This is the ID of an empty ChoiceSet";
-//  static final String SINGLE_CHOICE_SET_ID
-//  	= "This is the ID of a single-member ChoiceSet";
-//  static final String TRIPLE_CHOICE_SET_ID
-//	= "This is the ID of a three-member ChoiceSet";
+  public static final Date ASSIGNMENT_EFFECTIVE_DATE_ALTERED
+    = new Date(61, 0, 12);
+  public static final Date ASSIGNMENT_EXPIRATION_DATE_ALTERED
+    = new Date(86, 10, 25);
+  public static final int     WEEKS_DIFFERENCE = 21;
+  
+  public static final boolean ASSIGNMENT_ISGRANTABLE  = true;
+  public static final boolean ASSIGNMENT_ISGRANTONLY = false;
 }

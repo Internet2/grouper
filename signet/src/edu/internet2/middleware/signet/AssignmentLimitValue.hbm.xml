@@ -37,6 +37,10 @@
 				type="string">
 				<column name="value"></column>
 			</key-property> 
+			
+			<key-property
+				name="instanceNumber">
+			</key-property>
 
 		</composite-id>
 	</class>

@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.10 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: AssignmentTest.java,v 1.11 2005-06-21 02:34:17 acohen Exp $
+$Date: 2005-06-21 02:34:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -243,6 +244,7 @@ public class AssignmentTest extends TestCase
 
   public final void testSetLimitValues()
   throws
+    SignetAuthorityException,
     ObjectNotFoundException
   {
     for (int subjectIndex = 0;
@@ -280,7 +282,8 @@ public class AssignmentTest extends TestCase
         }
         
         // Update the Assignment with the altered LimitValues.
-        assignment.setLimitValues(newLimitValues);
+        assignment.setLimitValues
+          (signet.getSuperPrivilegedSubject(), newLimitValues);
         signet.save(assignment);
       }
       
@@ -318,7 +321,252 @@ public class AssignmentTest extends TestCase
         }
         
         // Update the Assignment with the restored original LimitValues.
-        assignment.setLimitValues(originalLimitValues);
+        assignment.setLimitValues
+          (signet.getSuperPrivilegedSubject(), originalLimitValues);
+        signet.save(assignment);
+      }
+    }
+  }
+
+  public final void testSetEffectiveDate()
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {    
+    Calendar calendar = Calendar.getInstance();
+    
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject(
+            Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set assignmentsReceived
+        = pSubject.getAssignmentsReceived
+            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+
+      // Alter every single effectiveDate for every received Assignment.
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+
+        Date originalEffectiveDate = assignment.getEffectiveDate();
+        
+        assertEquals
+          (Constants.ASSIGNMENT_EFFECTIVE_DATE, originalEffectiveDate);
+        
+        calendar.setTime(originalEffectiveDate);
+        calendar.add(Calendar.WEEK_OF_YEAR, Constants.WEEKS_DIFFERENCE);
+        Date newEffectiveDate = calendar.getTime();
+        
+        // Update the Assignment with the altered effectiveDate.
+        assignment.setEffectiveDate
+          (signet.getSuperPrivilegedSubject(), newEffectiveDate);
+        signet.save(assignment);
+      }
+      
+      // Examine every single altered EffectiveDate for every received
+      // Assignment, and set them back to their original values.
+      assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        
+        Date alteredEffectiveDate = assignment.getEffectiveDate();
+        
+        assertEquals
+          (Constants.ASSIGNMENT_EFFECTIVE_DATE_ALTERED, alteredEffectiveDate);
+        
+        calendar.setTime(alteredEffectiveDate);
+        calendar.add(Calendar.WEEK_OF_YEAR, -Constants.WEEKS_DIFFERENCE);
+        Date originalEffectiveDate = calendar.getTime();
+        
+        // Update the Assignment with the restored original effectiveDate.
+        assignment.setEffectiveDate
+          (signet.getSuperPrivilegedSubject(), originalEffectiveDate);
+        signet.save(assignment);
+      }
+    }
+  }
+
+  public final void testSetExpirationDate()
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {    
+    Calendar calendar = Calendar.getInstance();
+    
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set assignmentsReceived
+        = pSubject.getAssignmentsReceived
+            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+
+      // Alter every single expirationDate for every received Assignment.
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+
+        Date originalExpirationDate = assignment.getExpirationDate();
+        
+        assertEquals
+          (Constants.ASSIGNMENT_EXPIRATION_DATE, originalExpirationDate);
+        
+        calendar.setTime(originalExpirationDate);
+        calendar.add(Calendar.WEEK_OF_YEAR, Constants.WEEKS_DIFFERENCE);
+        Date newExpirationDate = calendar.getTime();
+        
+        // Update the Assignment with the altered expirationDate.
+        assignment.setExpirationDate
+          (signet.getSuperPrivilegedSubject(), newExpirationDate);
+        signet.save(assignment);
+      }
+      
+      // Examine every single altered expirationDate for every received
+      // Assignment, and set them back to their original values.
+      assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        
+        Date alteredExpirationDate = assignment.getExpirationDate();
+        
+        assertEquals
+          (Constants.ASSIGNMENT_EXPIRATION_DATE_ALTERED, alteredExpirationDate);
+        
+        calendar.setTime(alteredExpirationDate);
+        calendar.add(Calendar.WEEK_OF_YEAR, -Constants.WEEKS_DIFFERENCE);
+        Date originalExpirationDate = calendar.getTime();
+        
+        // Update the Assignment with the restored original expirationDate.
+        assignment.setExpirationDate
+          (signet.getSuperPrivilegedSubject(), originalExpirationDate);
+        signet.save(assignment);
+      }
+    }
+  }
+
+  public final void testSetGrantable()
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  { 
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set assignmentsReceived
+        = pSubject.getAssignmentsReceived
+            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+
+      // Alter every single "isGrantable" flag for every received Assignment.
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+
+        boolean originalIsGrantable = assignment.isGrantable();
+        assertEquals(Constants.ASSIGNMENT_ISGRANTABLE, originalIsGrantable);
+        
+        // Update the Assignment with the altered isGrantable flag.
+        assignment.setGrantable
+          (signet.getSuperPrivilegedSubject(), !originalIsGrantable);
+        signet.save(assignment);
+      }
+      
+      // Examine every single altered "isGrantable" flag for every received
+      // Assignment, and set them back to their original values.
+      assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        
+        boolean alteredisGrantable = assignment.isGrantable();
+        assertEquals(!Constants.ASSIGNMENT_ISGRANTABLE, alteredisGrantable);
+        
+        // Update the Assignment with the restored original "isGrantable" flag.
+        assignment.setGrantable
+          (signet.getSuperPrivilegedSubject(), Constants.ASSIGNMENT_ISGRANTABLE);
+        signet.save(assignment);
+      }
+    }
+  }
+
+  public final void testSetGrantOnly()
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  { 
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set assignmentsReceived
+        = pSubject.getAssignmentsReceived
+            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+
+      // Alter every single "isGrantOnly" flag for every received Assignment.
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+
+        boolean originalIsGrantOnly = assignment.isGrantOnly();
+        assertEquals(Constants.ASSIGNMENT_ISGRANTONLY, originalIsGrantOnly);
+        
+        // Update the Assignment with the altered isGrantOnly flag.
+        assignment.setGrantOnly
+          (signet.getSuperPrivilegedSubject(), !originalIsGrantOnly);
+        signet.save(assignment);
+      }
+      
+      // Examine every single altered "isGrantOnly" flag for every received
+      // Assignment, and set them back to their original values.
+      assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        
+        boolean alteredisGrantOnly = assignment.isGrantOnly();
+        assertEquals(!Constants.ASSIGNMENT_ISGRANTONLY, alteredisGrantOnly);
+        
+        // Update the Assignment with the restored original "isGrantOnly" flag.
+        assignment.setGrantOnly
+          (signet.getSuperPrivilegedSubject(),
+           Constants.ASSIGNMENT_ISGRANTONLY);
         signet.save(assignment);
       }
     }

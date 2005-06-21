@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentLimitValue.java,v 1.3 2005-02-25 18:42:02 acohen Exp $
-$Date: 2005-02-25 18:42:02 $
+$Id: AssignmentLimitValue.java,v 1.4 2005-06-21 02:34:17 acohen Exp $
+$Date: 2005-06-21 02:34:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -29,6 +29,7 @@ implements Serializable
   private String  limitSubsystemId;
   private String 	limitId;
   private String 	value;
+  private int     instanceNumber = 0;
   
   AssignmentLimitValue
   	(int assignmentId,
@@ -140,5 +141,17 @@ implements Serializable
   		.append(this.limitId)
   		.append(this.value)
       .toHashCode();
+  }
+  
+  // This method exists only for use by Hibernate.
+  private int getInstanceNumber()
+  {
+    return this.instanceNumber;
+  }
+
+  // This method exists only for use by Hibernate.
+  private void setInstanceNumber(int instanceNumber)
+  {
+    this.instanceNumber = instanceNumber;
   }
 }

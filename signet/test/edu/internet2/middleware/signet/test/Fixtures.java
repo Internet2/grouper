@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.14 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Fixtures.java,v 1.15 2005-06-21 02:34:17 acohen Exp $
+$Date: 2005-06-21 02:34:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -284,8 +284,8 @@ public class Fixtures
     	     rootNode,
     	     function,
     	     limitValues,
-    	     true,    // canGrant
-    	     false,   // grantOnly
+    	     Constants.ASSIGNMENT_ISGRANTABLE,
+    	     Constants.ASSIGNMENT_ISGRANTONLY,
            Constants.ASSIGNMENT_EFFECTIVE_DATE,
            Constants.ASSIGNMENT_EXPIRATION_DATE);
     

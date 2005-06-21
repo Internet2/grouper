@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.27 2005-06-13 22:16:58 acohen Exp $
-  $Date: 2005-06-13 22:16:58 $
+  $Id: main.jsp,v 1.28 2005-06-21 02:34:17 acohen Exp $
+  $Date: 2005-06-21 02:34:17 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -153,7 +153,7 @@
                   style="float: right;"
                   href
                     ="javascript:openWindow
-                        ('Assignment.do?assignmentId=<%=assignment.getNumericId()%>',
+                        ('Assignment.do?assignmentId=<%=assignment.getId()%>',
                          'popup',
                          'scrollbars=yes,
                          resizable=yes,

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.13 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: AssignmentImpl.java,v 1.14 2005-06-21 02:34:17 acohen Exp $
+ $Date: 2005-06-21 02:34:17 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -77,6 +77,7 @@ implements Assignment, Comparable
   private Date              actualStartDatetime = null;
   private Date              expirationDate      = null;
   private Date              actualEndDatetime   = null;
+  private int               instanceNumber      = 0;
   
   private boolean						limitValuesAlreadyFetched = false;
   boolean										hasUnsavedLimitValues = false;
@@ -302,7 +303,7 @@ implements Assignment, Comparable
     return this.grantor;
   }
   
-  public PrivilegedSubject getRevoker()
+  public PrivilegedSubject getLastActor()
   {
     if (this.getSignet() != null)
     {
@@ -421,24 +422,36 @@ implements Assignment, Comparable
   {
     return this.grantable;
   }
-  /**
-   * @param grantable The grantable to set.
-   */
-  public void setGrantable(boolean grantable)
+
+  public void setGrantable(PrivilegedSubject actor, boolean grantable)
+  throws SignetAuthorityException
+  {
+    checkEditAuthority(actor);
+    
+    this.grantable = grantable;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setGrantable(boolean grantable)
   {
     this.grantable = grantable;
   }
-  /**
-   * @return Returns the grantOnly.
-   */
+
   public boolean isGrantOnly()
   {
     return this.grantOnly;
   }
-  /**
-   * @param grantOnly The grantOnly to set.
-   */
-  public void setGrantOnly(boolean grantOnly)
+
+  public void setGrantOnly(PrivilegedSubject actor, boolean grantOnly)
+  throws SignetAuthorityException
+  {
+    checkEditAuthority(actor);
+    
+    this.grantOnly = grantOnly;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setGrantOnly(boolean grantOnly)
   {
     this.grantOnly = grantOnly;
   }
@@ -550,7 +563,33 @@ implements Assignment, Comparable
     return this.effectiveDate;
   }
   
-  public void setEffectiveDate(Date date)
+  private void checkEditAuthority(PrivilegedSubject actor)
+  throws SignetAuthorityException
+  {
+    if (!actor.canEdit(this))
+    {
+      throw new SignetAuthorityException
+        ("The Subject '"
+         + actor.getSubjectId()
+         + "' does not have the authority to edit the function '"
+         + function.getId()
+         + "' in the scope '"
+         + scope.getId()
+         + "'. "
+         + revoker.editRefusalExplanation(this, "actor"));
+    }
+  }
+  
+  public void setEffectiveDate(PrivilegedSubject actor, Date date)
+  throws SignetAuthorityException
+  {
+    checkEditAuthority(actor);
+    
+    this.effectiveDate = date;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setEffectiveDate(Date date)
   {
     this.effectiveDate = date;
   }
@@ -587,11 +626,12 @@ implements Assignment, Comparable
     return this.limitValues;
   }
 
-  /**
-   * @param limitValues The limitValues to set.
-   */
-  public void setLimitValues(Set limitValues)
+  
+  public void setLimitValues(PrivilegedSubject actor, Set limitValues)
+  throws SignetAuthorityException
   {
+    checkEditAuthority(actor);
+    
     this.limitValues = limitValues;
   }
 
@@ -614,8 +654,11 @@ implements Assignment, Comparable
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#setExpirationDate(java.util.Date)
    */
-  public void setExpirationDate(Date expirationDate)
+  public void setExpirationDate(PrivilegedSubject actor, Date expirationDate)
+  throws SignetAuthorityException
   {
+    checkEditAuthority(actor);
+    
     this.expirationDate = expirationDate;
   }
 
@@ -633,5 +676,23 @@ implements Assignment, Comparable
   public Set findDuplicates()
   {
     return this.getSignet().findDuplicates(this);
+  }
+  
+  // This method is only for use by Hibernate.
+  private int getInstanceNumber()
+  {
+    return this.instanceNumber;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setInstanceNumber(int instanceNumber)
+  {
+    this.instanceNumber = instanceNumber;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setExpirationDate(Date expirationDate)
+  {
+    this.expirationDate = expirationDate;
   }
 }

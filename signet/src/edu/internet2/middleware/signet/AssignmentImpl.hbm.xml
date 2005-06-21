@@ -96,6 +96,13 @@
 			name="effectiveDate"
 			type="timestamp"
 			not-null="true"/>
+		<property
+			name="expirationDate"
+			type="timestamp"
+			not-null="false"/>
+		<property
+			name="instanceNumber"
+			not-null="true"/>
 
 	</class>
 </hibernate-mapping>
