@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.14 2005-06-16 17:58:39 blair Exp $
+$Id: ROADMAP,v 1.15 2005-06-22 21:33:42 blair Exp $
 
 ---
 
@@ -11,7 +11,6 @@ $Id: ROADMAP,v 1.14 2005-06-16 17:58:39 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Improved Subject interface (#342)
 * Support for displayName and displayExtension (#270) 
 * Search by the name, extension, or displayName attributes of 
   groups [S&B#1] (#336)

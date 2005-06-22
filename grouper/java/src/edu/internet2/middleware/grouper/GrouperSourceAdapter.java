@@ -65,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.6 2005-06-16 03:46:29 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.7 2005-06-22 21:33:42 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -107,18 +107,6 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /**
    * {@inheritDoc}
    */
-  public void destroy() {
-    // TODO What destruction should I be doing?
-    if (this.s != null) {
-      log.info("Stopping GrouperSession");
-      this.s.stop();
-    }
-    log.info("Destroying GrouperSourceAdapter");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public Subject getSubject(String id) throws SubjectNotFoundException {
     Subject subj = null;
     // TODO Optimize further based upon presence of '-' and ':'?
@@ -137,6 +125,17 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     }
     log.debug("Found subject: " + id + ": " + subj);
     return subj;
+  }
+
+  /**
+   * This method is currently just an alias for 
+   * {@link #getSubject(String) getSubject} method.
+   */
+  public Subject getSubjectByIdentifier(String id) 
+    throws SubjectNotFoundException 
+  {
+    // FIXME Move _loadByName_ from _getSubject()_ to here?
+    return this.getSubject(id);
   }
 
   /** 
@@ -193,56 +192,6 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       );
     }
     log.debug("search results: " + vals.size());
-    return vals;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Set searchByIdentifier(String id) {
-    return this.searchByIdentifier(id, SubjectTypeEnum.valueOf("group"));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  // TODO what to do about type?
-  // TODO ideally this query could be moved to GrouperQuery
-  // TODO document search
-  public Set searchByIdentifier(String id, SubjectType type) {
-    String  qry   = "Group.subject.search.by.id";
-    Set     vals  = new HashSet();
-    try {
-      Query q = this.getSession().dbSess().session().getNamedQuery(qry);
-      // TODO Move _%_ to _Grouper.hbm.xml_
-      q.setString(0, "%" + id + "%"); // name
-      // TODO Move _%_ to _Grouper.hbm.xml_
-      q.setString(1, "%" + id + "%"); // displayName
-      q.setString(2, id);             // guid
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          String key = (String) iter.next();
-          GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(this.getSession(), key);
-          Subject subj = new GrouperSubject(g, this);
-          vals.add(subj);
-          log.debug("searchByIdentifier found: " + g + "/" + subj);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-          "Error retrieving results for " + qry + ": " + e.getMessage()
-        );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-        "Unable to get query " + qry + ": " + e.getMessage()
-      );
-    } catch (SubjectNotFoundException e) {
-      throw new RuntimeException(
-        "Unable to perform query " + qry + ": " + e.getMessage()
-      );
-    }
-    log.debug("searchByIdentifier results: " + vals.size());
     return vals;
   }
 
