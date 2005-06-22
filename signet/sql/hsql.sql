@@ -218,7 +218,7 @@ expirationDate      datetime            NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      datetime            NOT NULL,
-unique (assignmentID)
+unique (assignmentID, instanceNumber)
 )
 ;
 create table signet_assignmentLimit
@@ -255,7 +255,7 @@ revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 historyDatetime     datetime            NOT NULL;
 modifyDatetime      datetime            NOT NULL,
-unique (assignmentID)
+unique (assignmentID, instanceNumber)
 )
 ;
 create table signet_assignmentLimit_history

@@ -218,7 +218,7 @@ expirationDate      smalldatetime       NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      smalldatetime       default getdate(),
-unique clustered (assignmentID)
+unique clustered (assignmentID, instanceNumber)
 )
 ;
 create table signet_assignmentLimit
@@ -234,7 +234,7 @@ unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
 ;
 create table signet_assignment_history
 (
-assignmentID        numeric(12,0)       IDENTITY,
+assignmentID        numeric(12,0)       NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
@@ -255,7 +255,7 @@ revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       default getdate(),
-unique clustered (assignmentID)
+unique clustered (assignmentID, instanceNumber)
 )
 ;
 create table signet_assignmentLimit_history

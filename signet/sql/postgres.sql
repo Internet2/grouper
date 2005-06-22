@@ -258,7 +258,7 @@ revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      timestamp           NOT NULL,
 
-primary key (assignmentID)
+primary key (assignmentID, instanceNumber)
 );
 
 
@@ -299,7 +299,7 @@ revokerID           varchar(64)         NULL,
 historyDatetime     timestamp           NOT NULL;
 modifyDatetime      timestamp           NOT NULL,
 
-primary key (assignmentID)
+primary key (assignmentID, instanceNumber)
 );
 
 
