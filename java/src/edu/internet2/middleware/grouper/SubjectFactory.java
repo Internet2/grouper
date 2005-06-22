@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.8 2005-06-16 03:46:29 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.9 2005-06-22 21:33:42 blair Exp $
  */
 public class SubjectFactory {
 
@@ -73,7 +73,7 @@ public class SubjectFactory {
    */
   private static List           sources = new ArrayList();
   private static Log            log     = LogFactory.getLog(SubjectFactory.class);
-  private static Set            types   = null;  
+  private static Map            types   = null;  
   private static SourceManager  mgr     = null;
   private static SubjectCache   cache   = null;
 
@@ -83,7 +83,7 @@ public class SubjectFactory {
    */
 
   /**
-   * Retrieve an I2MI {@link Subject} using the default subject type.
+   * Gets a subject by its id and using hte default subject type.
    * <p />
    * @param   id      Subject ID
    * @return  A {@link SubjectFactory} object
@@ -114,20 +114,21 @@ public class SubjectFactory {
       cached = true;
       log.debug("Found cached subject " + id + "/" + type);
     } catch (SubjectNotFoundException e0) {
-      Iterator iter = sources.iterator();
-      while (iter.hasNext()) {
-        Source sa = (Source) iter.next();
-        // FIXME Actually, I should probably gather a list.  If 
-        //       one entry found, return it.  Otherwise, throw an
-        //       exception.
-        if (sa.getSubjectTypes().contains(type)) {
+      if (types.containsKey(type)) {
+        Iterator iter = mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator();
+        while (iter.hasNext()) {
+          Source sa = (Source) iter.next();
+          // FIXME Actually, I should probably gather a list.  If 
+          //       one entry found, return it.  Otherwise, throw an
+          //       exception.
           try {
             subj = sa.getSubject(id);
             log.debug("Found subject " + id + "/" + type + " in " + sa.getName());
             break;
           } catch (SubjectNotFoundException e1) {
+            log.debug("Did not find subject " + id + "/" + type + " in " + sa.getName());
             /*
-              * Don't worry about not finding subjects in 
+             * Don't worry about not finding subjects in 
              * particular adapters.
              */
             continue;
@@ -151,11 +152,71 @@ public class SubjectFactory {
   }
  
   /**
+   * Gets a Subject by other well-known identifiers, aside from the
+   * subject ID, e.g. login ID.
+   * <p />
+   * @param   id  identifier
+   * @return  a {@link Subject}
+   * @throws  SubjectNotFoundException
+   */
+  public static Subject getSubjectByIdentifier(String id) 
+    throws SubjectNotFoundException
+  {
+    return SubjectFactory.getSubjectByIdentifier(id, Grouper.DEF_SUBJ_TYPE);
+  }
+
+  /**
+   * Gets a Subject by other well-known identifiers, aside from the
+   * subject ID, e.g. login ID.
+   * <p />
+   * @param   id    identifier
+   * @param   type  subject type
+   * @return  a {@link Subject}
+   * @throws  SubjectNotFoundException
+   */
+  public static Subject getSubjectByIdentifier(String id, String type) 
+    throws SubjectNotFoundException
+  {
+    // TODO Cache
+    // TODO A lot of duplication with _getSubject()_
+    SubjectFactory.init();
+    Subject subj = null;
+    if (types.containsKey(type)) {
+      Iterator iter = mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator();
+      while (iter.hasNext()) {
+        Source sa = (Source) iter.next();
+        // FIXME Actually, I should probably gather a list.  If 
+        //       one entry found, return it.  Otherwise, throw an
+        //       exception.
+        try {
+          subj = sa.getSubjectByIdentifier(id);
+          log.debug("Found subject " + id + "/" + type + " in " + sa.getName());
+          break;
+        } catch (SubjectNotFoundException e1) {
+          log.debug("Did not find subject " + id + "/" + type + " in " + sa.getName());
+          /*
+           * Don't worry about not finding subjects in 
+           * particular adapters.
+           */
+          continue;
+        }
+      }
+    }
+    if (subj == null) {
+      log.debug("Unable to find subject " + id + "/" + type);
+      throw new SubjectNotFoundException(
+        "Could not get " + id + "/" + type
+      );
+    }
+    return subj;
+  }
+
+  /**
    * @return true if subject type is known.
    */
   public static boolean hasType(String type) {
     SubjectFactory.loadTypes();
-    if (types.contains(type)) {
+    if (types.containsKey(type)) {
       return true;
     }
     return false;
@@ -183,45 +244,11 @@ public class SubjectFactory {
   }
 
   /**
-   * Search by ID and SubjectType.
-   * <p />
-   * @param id    subject identifer
-   * @return Set of found subjects.
-   */
-  public static Set searchByIdentifier(String id) {
-    return SubjectFactory.searchByIdentifier(id, Grouper.DEF_SUBJ_TYPE);
-  }
-
-  /**
-   * Search by ID and SubjectType.
-   * <p />
-   * @param id    subject identifer
-   * @param type  subject type
-   * @return Set of found subjects.
-   */
-  // TODO Cache?
-  public static Set searchByIdentifier(String id, String type) {
-    SubjectFactory.init();
-    Set vals = new HashSet();
-    Iterator iter = sources.iterator();
-    while (iter.hasNext()) {
-      Source sa = (Source) iter.next();
-      if (sa.getSubjectTypes().contains(type)) {
-        Set s = sa.searchByIdentifier( id, SubjectTypeEnum.valueOf(type) );
-        if (s != null) { // TODO This _should not_ be necessary
-          vals.addAll(s);
-        }
-      }
-    }
-    return vals;
-  }
-
-  /**
    * @return known subject types.
    */
   public static Set types() {
     SubjectFactory.loadTypes();
-    return types;
+    return new HashSet( types.values() );
   }
  
  
@@ -235,12 +262,15 @@ public class SubjectFactory {
    */
   private static void init() {
     if (mgr == null) {
+      log.debug("Initializing source manager");
       try { 
-        mgr = new SourceManager();
+        mgr = SourceManager.getInstance();
+        log.debug("Initialized source manager: " + mgr);
         Iterator iter = mgr.getSources().iterator();
         while (iter.hasNext()) {
           Source sa = (Source) iter.next();
           sources.add(sa);
+          log.debug("Added source: " + sa);
         } 
         cache = new SubjectCache();
         log.info("Subject factory initialized");
@@ -255,12 +285,19 @@ public class SubjectFactory {
    */ 
   private static void loadTypes() {
     if (types == null) {
-      types = new HashSet();
+      log.debug("Loading types");
+      types = new HashMap();
       SubjectFactory.init();
       Iterator iter = sources.iterator();
       while (iter.hasNext()) {
         Source sa = (Source) iter.next();
-        types.addAll( sa.getSubjectTypes() );
+        log.debug("Loading types from " + sa);
+        Iterator typeIter = sa.getSubjectTypes().iterator();
+        while (typeIter.hasNext()) {
+          SubjectType type = (SubjectType) typeIter.next();
+          types.put( type.getName(), type );
+          log.debug("Loaded type " + type.getName());
+        }
       }
     }
   }

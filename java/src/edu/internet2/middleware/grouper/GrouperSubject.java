@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.42 2005-06-20 20:09:43 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.43 2005-06-22 21:33:42 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -151,6 +151,13 @@ public class GrouperSubject implements Subject {
    */
   public String getName() {
     return this.name;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Source getSource() {
+    return this.adapter;
   }
 
   /**
