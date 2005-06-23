@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
 
 
@@ -100,6 +101,8 @@ public class TestMembers extends TestCase {
     Assert.assertNotNull( m.memberID() );
     Assert.assertNotNull( m.subjectID() );
     Assert.assertTrue( m.subjectID().equals( id) );
+    Assert.assertNotNull(m.source());
+    Assert.assertTrue(m.source().equals(JDBCSourceAdapter.class.getName()));
     Assert.assertNotNull( m.typeID() );
     Assert.assertTrue( m.typeID().equals( type ) );
 
@@ -126,6 +129,8 @@ public class TestMembers extends TestCase {
     Assert.assertNotNull( m.memberID() );
     Assert.assertNotNull( m.subjectID() );
     Assert.assertTrue( m.subjectID().equals( id) );
+    Assert.assertNotNull(m.source());
+    Assert.assertTrue(m.source().equals(JDBCSourceAdapter.class.getName()));
     Assert.assertNotNull( m.typeID() );
     Assert.assertTrue( m.typeID().equals( type ) );
 
@@ -154,8 +159,8 @@ public class TestMembers extends TestCase {
 
   }
 
-
   // TODO Valid member, invalid subject
+  // FIXME Groups as members
 
 }
 

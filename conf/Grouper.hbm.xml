@@ -57,6 +57,7 @@
     </id>
     <property name="memberID"       type="string"/>
     <property name="subjectID"      type="string"/>
+    <property name="subjectSource"  type="string"/>
     <property name="subjectTypeID"  type="string"/>
   </class>
 

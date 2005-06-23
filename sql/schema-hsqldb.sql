@@ -51,10 +51,11 @@ CREATE TABLE grouper_member (
   memberKey     VARCHAR(64) NOT NULL PRIMARY KEY,
   memberID      VARCHAR(64) NOT NULL,
   subjectID     VARCHAR(64) NOT NULL,
+  subjectSource VARCHAR(64) NOT NULL,
   subjectTypeID VARCHAR(64) NOT NULL
 );
-CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
-  (subjectID, subjectTypeID);
+CREATE UNIQUE INDEX idx_gm_sid_ss_stid ON grouper_member
+  (subjectID, subjectSource, subjectTypeID);
 
 DROP TABLE grouper_memberVia IF EXISTS;
 CREATE TABLE grouper_memberVia (
