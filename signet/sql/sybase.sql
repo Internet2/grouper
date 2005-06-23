@@ -218,7 +218,7 @@ expirationDate      smalldatetime       NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      smalldatetime       default getdate(),
-unique clustered (assignmentID, instanceNumber)
+primary key (assignmentID)
 )
 ;
 create table signet_assignmentLimit
@@ -229,7 +229,8 @@ limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
+primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
+foreign key (assignmentID) references signet_assignment (assignmentID)
 )
 ;
 create table signet_assignment_history
@@ -255,7 +256,7 @@ revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       default getdate(),
-unique clustered (assignmentID, instanceNumber)
+primary key (assignmentID, instanceNumber)
 )
 ;
 create table signet_assignmentLimit_history
@@ -266,7 +267,8 @@ limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-unique clustered (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
+primary key (assignmentID, instanceNumber, limitSubsystemID, limitType, limitTypeID, value)
+foreign key (assignmentID, instanceNumber) references signet_assignment (assignmentID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)
@@ -292,6 +294,7 @@ description       varchar(255)    NOT NULL,
 displayID         varchar(64)     NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
 primary key (subjectTypeID, subjectID)
+foreign key (subjectTypeID) references SubjectType (subjectTypeID)
 )
 ;
 create table SubjectAttribute
@@ -304,6 +307,7 @@ value             varchar(255)    NOT NULL,
 searchValue       varchar(255)    NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
 primary key (subjectTypeID, subjectID, name, instance)
+foreign key (subjectTypeID, subjectID) references Subject (subjectTypeID, subjectID)
 )
 ;
 

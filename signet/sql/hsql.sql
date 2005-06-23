@@ -234,7 +234,8 @@ unique (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
 ;
 create table signet_assignment_history
 (
-assignmentID        identity            NOT NULL,
+historyID           identity            NOT NULL,
+assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
@@ -260,7 +261,8 @@ unique (assignmentID, instanceNumber)
 ;
 create table signet_assignmentLimit_history
 (
-assignmentID        numeric(12,0)       NOT NULL,
+historyID           identity            NOT NULL,
+assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,

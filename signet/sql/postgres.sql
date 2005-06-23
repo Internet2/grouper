@@ -237,8 +237,8 @@ create sequence assignmentSerial START 1;
 
 create table signet_assignment
 (
-assignmentID        numeric(12,0)       DEFAULT nextval('assignmentSerial'),
-instanceNumber      int                 NOT NULL,
+assignmentID        integer             DEFAULT nextval('assignmentSerial'),
+instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
@@ -264,7 +264,7 @@ primary key (assignmentID, instanceNumber)
 
 create table signet_assignmentLimit
 (
-assignmentID        numeric(12,0)       NOT NULL,
+assignmentID        integer             NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
@@ -277,8 +277,9 @@ foreign key (assignmentID) references signet_assignment (assignmentID)
 
 create table signet_assignment_history
 (
-assignmentID        numeric(12,0)       NOT NULL,
-instanceNumber      int                 NOT NULL,
+historyID           integer             DEFAULT nextval('assignmentSerial'),
+assignmentID        integer             NOT NULL,
+instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
@@ -305,13 +306,14 @@ primary key (assignmentID, instanceNumber)
 
 create table signet_assignmentLimit_history
 (
-assignmentID        numeric(12,0)       NOT NULL,
+historyID           int                 NOT NULL,
+assignmentID        int                 NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
 primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
-foreign key (assignmentID) references signet_assignment (assignmentID)
+foreign key (assignmentID, instanceNumber) references signet_assignment (assignmentID, instanceNumber)
 );
 
 
