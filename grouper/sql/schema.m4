@@ -61,10 +61,11 @@ CREATE TABLE grouper_member (
   memberKey     _TYPE_UUID() NOT NULL PRIMARY KEY,
   memberID      _TYPE_UUID() NOT NULL,
   subjectID     _TYPE_STRING() NOT NULL,
+  subjectSource _TYPE_STRING() NOT NULL,
   subjectTypeID _TYPE_STRING() NOT NULL
 );
-CREATE UNIQUE INDEX idx_gm_sid_stid ON grouper_member
-  (subjectID, subjectTypeID);
+CREATE UNIQUE INDEX idx_gm_sid_ss_stid ON grouper_member
+  (subjectID, subjectSource, subjectTypeID);
 
 _DROP_TABLE(`grouper_memberVia')
 CREATE TABLE grouper_memberVia (

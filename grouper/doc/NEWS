@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.55 2005-06-22 21:33:42 blair Exp $
+$Id: NEWS,v 1.56 2005-06-23 18:31:38 blair Exp $
 
 ---
 
@@ -11,6 +11,8 @@ $Id: NEWS,v 1.55 2005-06-22 21:33:42 blair Exp $
 
 * UPDATE: Grouper now uses version 0.1 draft 2 of the _Subject_ API
   specification
+* NEW: Added _GrouperMember.source()_.  
+* UPDATE: _grouper_member_ table now includes a _subjectSource_ column
 * FIX: Default privilege implementations would attempt to revoke
   effective list values under select circumstances which would cause an
   exception to be thrown. (#361)

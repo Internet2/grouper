@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.88 2005-05-29 20:34:49 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.89 2005-06-23 18:31:38 blair Exp $
  */
 public class GrouperMember {
 
@@ -75,6 +75,7 @@ public class GrouperMember {
   private String          memberKey;
   private GrouperSession  s;
   private String          subjectID;
+  private String          subjectSource;
   private String          subjectTypeID;
 
 
@@ -92,20 +93,28 @@ public class GrouperMember {
   /* 
    * Create a member with assigned id and type.
    */
-  protected GrouperMember(String subjectID, String subjectTypeID) {
+  protected GrouperMember(
+    String subjectID, String subjectSource, String subjectTypeID
+  ) 
+  {
     // Give it a public UUID
     this.setMemberID(  new GrouperUUID().toString() );
     // Give it a private UUID
     this.setMemberKey( new GrouperUUID().toString() );
     this.subjectID      = subjectID;
+    this.subjectSource  = subjectSource;
     this.subjectTypeID  = subjectTypeID;
   }
 
   /*
    * Create member with assigned session, id and type.
    */
-  private GrouperMember(GrouperSession s, String subjectID, String subjectTypeID) {
-    this(subjectID, subjectTypeID);
+  private GrouperMember(
+    GrouperSession s, String subjectID, String subjectSource, 
+    String subjectTypeID
+  ) 
+  {
+    this(subjectID, subjectSource, subjectTypeID);
     this.s = s;
   }
 
@@ -318,6 +327,15 @@ public class GrouperMember {
   }
 
   /**
+   * Retrieves the class name of this subject's source.
+   * <p />
+   * @return  Class name of this source's subject.
+   */
+  public String source() {
+    return this.getSubjectSource();
+  }
+
+  /**
    * Retrieve member's I2MI {@link Subject} id.
    * <p />
    * @return  Subject ID of member.
@@ -354,6 +372,7 @@ public class GrouperMember {
     return new ToStringBuilder(this)                    .
       append("memberID"     , this.getMemberID()      ) .
       append("subjectID"    , subjID                  ) .
+      append("subjectSource", this.getSubjectSource() ) .
       append("subjectTypeID", this.getSubjectTypeID() ) .
       toString();
   }
@@ -380,7 +399,12 @@ public class GrouperMember {
                                    String subjectTypeID
                                  ) 
   {
-    GrouperMember m = new GrouperMember(s, subjectID, subjectTypeID);
+    // FIXME How *very* unpleasant!
+    //       We are assuming this is only used for groups.  Is that
+    //       true?
+    GrouperMember m = new GrouperMember(
+      s, subjectID, GrouperSourceAdapter.class.getName(), subjectTypeID
+    );
     m.save(s.dbSess());
     return m;
   }
@@ -397,8 +421,10 @@ public class GrouperMember {
        * exist, create a new one.
        */ 
       m = new GrouperMember(
-                subj.getId(), subj.getType().getName()
-              );
+        subj.getId(), 
+        subj.getSource().getClass().getName(), 
+        subj.getType().getName()
+      );
       // Save the new member object
       m.save(Grouper.dbSess());
       Grouper.log().memberAdd(m, subj);
@@ -583,6 +609,14 @@ public class GrouperMember {
 
   private void setMemberKey(String key) {
     this.memberKey = key;
+  }
+
+  private String getSubjectSource() {
+    return this.subjectSource;
+  }
+
+  private void setSubjectSource(String subjectSource) {
+    this.subjectSource = subjectSource;
   }
 
   private String getSubjectTypeID() {
