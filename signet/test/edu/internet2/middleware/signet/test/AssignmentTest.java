@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.11 2005-06-21 02:34:17 acohen Exp $
-$Date: 2005-06-21 02:34:17 $
+$Id: AssignmentTest.java,v 1.12 2005-06-23 23:39:18 acohen Exp $
+$Date: 2005-06-23 23:39:18 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,11 +16,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.Function;
-import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
@@ -105,6 +102,7 @@ public class AssignmentTest extends TestCase
       Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
       
       assignment.revoke(assignment.getGrantor());
+      assignment.save();
     }
   }
   
@@ -150,7 +148,7 @@ public class AssignmentTest extends TestCase
                    assignmentReceived.isGrantOnly(),
                    new Date(),  // EffectiveDate and expirationDate are not
                    new Date()); // considered when finding duplicates.
-        signet.save(duplicateAssignment);
+        duplicateAssignment.save();
         
         // At this point, there shoule be exactly one duplicate Assignment.
         assertEquals(1, assignmentReceived.findDuplicates().size());
@@ -284,7 +282,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered LimitValues.
         assignment.setLimitValues
           (signet.getSuperPrivilegedSubject(), newLimitValues);
-        signet.save(assignment);
+        assignment.save();
       }
       
       // Examine every single altered LimitValue for every received Assignment,
@@ -323,7 +321,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the restored original LimitValues.
         assignment.setLimitValues
           (signet.getSuperPrivilegedSubject(), originalLimitValues);
-        signet.save(assignment);
+        assignment.save();
       }
     }
   }
@@ -367,7 +365,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered effectiveDate.
         assignment.setEffectiveDate
           (signet.getSuperPrivilegedSubject(), newEffectiveDate);
-        signet.save(assignment);
+        assignment.save();
       }
       
       // Examine every single altered EffectiveDate for every received
@@ -390,7 +388,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the restored original effectiveDate.
         assignment.setEffectiveDate
           (signet.getSuperPrivilegedSubject(), originalEffectiveDate);
-        signet.save(assignment);
+        assignment.save();
       }
     }
   }
@@ -435,7 +433,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered expirationDate.
         assignment.setExpirationDate
           (signet.getSuperPrivilegedSubject(), newExpirationDate);
-        signet.save(assignment);
+        assignment.save();
       }
       
       // Examine every single altered expirationDate for every received
@@ -458,7 +456,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the restored original expirationDate.
         assignment.setExpirationDate
           (signet.getSuperPrivilegedSubject(), originalExpirationDate);
-        signet.save(assignment);
+        assignment.save();
       }
     }
   }
@@ -495,7 +493,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered isGrantable flag.
         assignment.setGrantable
           (signet.getSuperPrivilegedSubject(), !originalIsGrantable);
-        signet.save(assignment);
+        assignment.save();
       }
       
       // Examine every single altered "isGrantable" flag for every received
@@ -512,7 +510,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the restored original "isGrantable" flag.
         assignment.setGrantable
           (signet.getSuperPrivilegedSubject(), Constants.ASSIGNMENT_ISGRANTABLE);
-        signet.save(assignment);
+        assignment.save();
       }
     }
   }
@@ -549,7 +547,7 @@ public class AssignmentTest extends TestCase
         // Update the Assignment with the altered isGrantOnly flag.
         assignment.setGrantOnly
           (signet.getSuperPrivilegedSubject(), !originalIsGrantOnly);
-        signet.save(assignment);
+        assignment.save();
       }
       
       // Examine every single altered "isGrantOnly" flag for every received
@@ -567,7 +565,7 @@ public class AssignmentTest extends TestCase
         assignment.setGrantOnly
           (signet.getSuperPrivilegedSubject(),
            Constants.ASSIGNMENT_ISGRANTONLY);
-        signet.save(assignment);
+        assignment.save();
       }
     }
   }

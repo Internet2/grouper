@@ -1,6 +1,6 @@
 /*--
- $Id: Signet.java,v 1.26 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: Signet.java,v 1.27 2005-06-23 23:39:18 acohen Exp $
+ $Date: 2005-06-23 23:39:18 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -351,7 +351,7 @@ public final class Signet
    * 
    * @param o
    */
-  public final void save(Object o)
+  final void save(Object o)
   {
     try
     {
@@ -2096,5 +2096,4 @@ public final class Signet
   	SubjectType type = SubjectTypeEnum.valueOf(subjectTypeId);
   	return this.sourceManager.getSources(type);
   }
-
 }

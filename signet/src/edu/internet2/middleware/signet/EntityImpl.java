@@ -1,6 +1,6 @@
 /*--
- $Id: EntityImpl.java,v 1.5 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: EntityImpl.java,v 1.6 2005-06-23 23:39:18 acohen Exp $
+ $Date: 2005-06-23 23:39:18 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,8 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -333,5 +335,10 @@ abstract class EntityImpl implements Entity, Name
     {
       this.signet = signet;
     }
+  }
+  
+  public void save()
+  {    
+    this.getSignet().save(this);
   }
 }

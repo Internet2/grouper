@@ -1,6 +1,6 @@
 /*--
-$Id: Entity.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Entity.java,v 1.4 2005-06-23 23:39:18 acohen Exp $
+$Date: 2005-06-23 23:39:18 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -37,4 +37,11 @@ interface Entity
    * @return Returns the date and time this entity was first created.
    */
   public Date getCreateDatetime();
+  
+  /**
+   * Saves the current state of this Signet entity, and any Signet entities
+   * that it refers to.
+   *
+   */
+  public void save();
 }

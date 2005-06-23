@@ -1,6 +1,6 @@
 /*--
-  $Id: ConfirmAction.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
-  $Date: 2005-06-17 23:24:28 $
+  $Id: ConfirmAction.java,v 1.4 2005-06-23 23:39:18 acohen Exp $
+  $Date: 2005-06-23 23:39:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -131,7 +131,7 @@ public final class ConfirmAction extends BaseAction
            null);      // no expiration date
     
     signet.beginTransaction();
-    signet.save(assignment);
+    assignment.save();
     signet.commit();
     
     session.setAttribute("currentAssignment", assignment);

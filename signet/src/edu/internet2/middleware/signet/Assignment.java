@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.9 2005-06-21 02:34:17 acohen Exp $
-$Date: 2005-06-21 02:34:17 $
+$Id: Assignment.java,v 1.10 2005-06-23 23:39:18 acohen Exp $
+$Date: 2005-06-23 23:39:18 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -81,12 +81,14 @@ public interface Assignment
 
   /**
    * Gets the {@link PrivilegedSubject} 
-   * who has taken the most recent action on this Assignment.
+   * who revoked this Assignment, or NULL if this Assignment has not yet been
+   * revoked.
    * 
    * @return the {@link PrivilegedSubject} 
-   * who is the most recent action of this Assignment.
+   * who revoked this Assignment, or NULL if this Assignment has not yet been
+   * revoked.
    */
-  public PrivilegedSubject getLastActor();
+  public PrivilegedSubject getRevoker();
 
   /**
    * Gets the scope (usually an organization) of this Assignment.
@@ -126,15 +128,6 @@ public interface Assignment
   throws SignetAuthorityException;
   
   /**
-   * Gets the date and time when this Assignment actually changed from Status
-   * value PENDING to Status value ACTIVE. If that change has not yet occurred,
-   * then this method will return null.
-   * 
-   * @return the actual date and time this Assignment became active.
-   */
-  public Date getActualStartDatetime();
-  
-  /**
    * Gets the expiration date of this Assignment. This is the date on which
    * this Assignment is scheduled to change from Status value ACTIVE to Status
    * value INACTIVE.
@@ -156,15 +149,6 @@ public interface Assignment
    */
   public void setExpirationDate(PrivilegedSubject actor, Date expirationDate)
   throws SignetAuthorityException;
-  
-  /**
-   * Gets the date and time when this Assignment actually changed from Status
-   * value ACTIVE to Status value INACTIVE. If that change has not yet occurred,
-   * this this method will return null.
-   * 
-   * @return the actual date and time this Assignment became inactive.
-   */
-  public Date getActualEndDatetime();
 
   /**
    * Indicates whether or not this assignment can be granted to others
@@ -266,4 +250,10 @@ public interface Assignment
    * @return a Set of duplicate Assignments, or an empty Set if none are found.
    */
   public Set findDuplicates();
+  
+  /**
+   * Persists the current state of this Assignment.
+   *
+   */
+  public void save();
 }

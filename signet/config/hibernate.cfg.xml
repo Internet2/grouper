@@ -97,5 +97,8 @@
 	<mapping
       resource
         ="edu/internet2/middleware/signet/AssignmentLimitValue.hbm.xml"/>
+	<mapping
+      resource
+        ="edu/internet2/middleware/signet/AssignmentHistory.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>

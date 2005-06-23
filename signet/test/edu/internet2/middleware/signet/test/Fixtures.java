@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.15 2005-06-21 02:34:17 acohen Exp $
-$Date: 2005-06-21 02:34:17 $
+$Id: Fixtures.java,v 1.16 2005-06-23 23:39:18 acohen Exp $
+$Date: 2005-06-23 23:39:18 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -169,12 +169,12 @@ public class Fixtures
       }
     }
     
-    signet.save(this.subsystem);
+    this.subsystem.save();
     
     for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
     {
       Assignment assignment = getOrCreateAssignment(i);
-      this.signet.save(assignment);
+      assignment.save();
     }
     
     // This is intended to create an Assignment for Subject 0 that can
@@ -187,7 +187,7 @@ public class Fixtures
     			(0,  // subject-number
     			 2,  // function-number
     			 limitChoiceNumbers);
-    this.signet.save(assignment);
+    assignment.save();
   }
   
   private void deleteAssignments()
@@ -219,6 +219,10 @@ public class Fixtures
     Statement stmt = conn.createStatement();
     stmt.executeUpdate
       ("DELETE FROM signet_assignment WHERE subsystemID='"
+       + Constants.SUBSYSTEM_ID
+       + "'");
+    stmt.executeUpdate
+      ("DELETE FROM signet_assignment_history WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
        + "'");
     stmt.executeUpdate

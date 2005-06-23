@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.4 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: ChoiceSetImpl.java,v 1.5 2005-06-23 23:39:18 acohen Exp $
+$Date: 2005-06-23 23:39:18 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -282,5 +282,13 @@ class ChoiceSetImpl implements ChoiceSet
     return new EqualsBuilder()
                     .append(this.getId(), rhs.getId())
                     .isEquals();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.choice.ChoiceSet#save()
+   */
+  public void save()
+  {
+    this.signet.save(this);
   }
 }

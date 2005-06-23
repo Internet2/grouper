@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.14 2005-06-21 02:34:17 acohen Exp $
- $Date: 2005-06-21 02:34:17 $
+ $Id: AssignmentImpl.java,v 1.15 2005-06-23 23:39:18 acohen Exp $
+ $Date: 2005-06-23 23:39:18 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -8,49 +8,16 @@
  */
 package edu.internet2.middleware.signet;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 
-/* These are the columns in the Assignment database table:
- * 
- * assignmentID
- * status
- * subsystemID
- * functionID
- * grantorTypeID
- * grantorID
- * granteeTypeID
- * granteeID
- * proxyTypeID
- * proxyID
- * scopeNodeID
- * grantOnly
- * canGrant
- * effectiveDate
- * revokerTypeID
- * revokerID
- * createDatetime
- * createDbAccount
- * createUserID
- * createContext
- * modifyDatetime
- * modifyDbAccount
- * modifyUserID
- * modifyContext
- * comment
- */
 class AssignmentImpl
 extends EntityImpl
 implements Assignment, Comparable
@@ -60,12 +27,12 @@ implements Assignment, Comparable
   private Integer						id;
   
   private PrivilegedSubject	grantor;
-  private String						grantorId;
-  private String						grantorTypeId;
+  private   String						grantorId;
+  private   String						grantorTypeId;
   
   private PrivilegedSubject	grantee;
-  private String						granteeId;
-  private String						granteeTypeId;
+  private   String						granteeId;
+  private   String						granteeTypeId;
   
   private PrivilegedSubject revoker;
   private TreeNode					scope;
@@ -74,14 +41,13 @@ implements Assignment, Comparable
   private boolean						grantable;
   private boolean						grantOnly;
   private Date							effectiveDate;
-  private Date              actualStartDatetime = null;
   private Date              expirationDate      = null;
-  private Date              actualEndDatetime   = null;
   private int               instanceNumber      = 0;
   
-  private boolean						limitValuesAlreadyFetched = false;
-  boolean										hasUnsavedLimitValues = false;
-
+  private boolean limitValuesAlreadyFetched = false;
+  boolean					hasUnsavedLimitValues = false;
+  boolean         needsInitialHistoryRecord = false;
+  Set             historyRecords = new HashSet();
 
 
   
@@ -153,6 +119,10 @@ implements Assignment, Comparable
     
     this.checkAllLimitValues(function, limitValues);
     this.setModifyDatetime(new Date());
+
+    // The history-record for this new Assignment will be generated
+    // after this Assignment gets its ID, which happens at save-time.
+    this.needsInitialHistoryRecord = true;
   }
   
   /**
@@ -303,9 +273,9 @@ implements Assignment, Comparable
     return this.grantor;
   }
   
-  public PrivilegedSubject getLastActor()
+  public PrivilegedSubject getRevoker()
   {
-    if (this.getSignet() != null)
+    if ((this.getSignet() != null) && (this.revoker != null))
     {
       ((PrivilegedSubjectImpl)(this.revoker))
       	.setSignet(this.getSignet());
@@ -429,6 +399,19 @@ implements Assignment, Comparable
     checkEditAuthority(actor);
     
     this.grantable = grantable;
+    this.setGrantor(actor);
+    
+    recordHistory();
+  }
+  
+  private void recordHistory()
+  {
+    this.setModifyDatetime(new Date());
+    this.instanceNumber++;
+    
+    AssignmentHistory assignmentHistory = new AssignmentHistory(this);
+    this.historyRecords.add(assignmentHistory);
+    // this.getSignet().save(assignmentHistory);
   }
   
   // This method is only for use by Hibernate.
@@ -448,9 +431,12 @@ implements Assignment, Comparable
     checkEditAuthority(actor);
     
     this.grantOnly = grantOnly;
+    this.grantor = actor;
+    
+    recordHistory();
   }
-  
-  // This method is only for use by Hibernate.
+
+
   private void setGrantOnly(boolean grantOnly)
   {
     this.grantOnly = grantOnly;
@@ -540,7 +526,7 @@ implements Assignment, Comparable
     if (!revoker.canEdit(this))
     {
       throw new SignetAuthorityException
-      ("The revoker '"
+      ("The Subject '"
           + revoker.getSubjectId()
           + "' does not have the authority to revoke the function '"
           + function.getId()
@@ -549,10 +535,11 @@ implements Assignment, Comparable
           + "'. "
           + revoker.editRefusalExplanation(this, "revoker"));
     }
-    
+
     this.setRevoker(revoker);
     this.setStatus(Status.INACTIVE);
-    this.setModifyDatetime(new Date());
+    
+    recordHistory();
   }
   
   /* (non-Javadoc)
@@ -586,9 +573,11 @@ implements Assignment, Comparable
     checkEditAuthority(actor);
     
     this.effectiveDate = date;
+    this.setGrantor(actor);
+    recordHistory();
   }
-  
-  // This method is only for use by Hibernate.
+
+
   private void setEffectiveDate(Date date)
   {
     this.effectiveDate = date;
@@ -632,15 +621,15 @@ implements Assignment, Comparable
   {
     checkEditAuthority(actor);
     
-    this.limitValues = limitValues;
+    this.setLimitValues(limitValues);
+    this.setGrantor(actor);
+    
+    recordHistory();
   }
-
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()
-   */
-  public Date getActualStartDatetime()
+  
+  private void setLimitValues(Set limitValues)
   {
-    return this.actualStartDatetime;
+    this.limitValues = limitValues;
   }
 
   /* (non-Javadoc)
@@ -660,14 +649,10 @@ implements Assignment, Comparable
     checkEditAuthority(actor);
     
     this.expirationDate = expirationDate;
-  }
-
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getActualEndDatetime()
-   */
-  public Date getActualEndDatetime()
-  {
-    return this.actualEndDatetime;
+    this.setGrantor(actor);
+    this.setModifyDatetime(new Date());
+    
+    recordHistory();
   }
 
   /* (non-Javadoc)
@@ -678,19 +663,17 @@ implements Assignment, Comparable
     return this.getSignet().findDuplicates(this);
   }
   
-  // This method is only for use by Hibernate.
-  private int getInstanceNumber()
+  int getInstanceNumber()
   {
     return this.instanceNumber;
   }
   
-  // This method is only for use by Hibernate.
   private void setInstanceNumber(int instanceNumber)
   {
     this.instanceNumber = instanceNumber;
   }
-  
-  // This method is only for use by Hibernate.
+
+
   private void setExpirationDate(Date expirationDate)
   {
     this.expirationDate = expirationDate;

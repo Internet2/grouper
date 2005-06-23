@@ -134,7 +134,7 @@ public class SubsystemXmlLoader {
         Subsystem subsystem = signet.newSubsystem(subsystemId, subsystemName, subsystemHelpText,
                 Status.ACTIVE);
         subsystem.setTree(tempTree);
-        signet.save(subsystem);
+        subsystem.save();
 
         try {
             processChoiceSet(signet, subsystem, rootElem);
@@ -165,7 +165,7 @@ public class SubsystemXmlLoader {
             System.out.println("- - - Id = " + choicesetId);
 
             ChoiceSet choiceset = signet.newChoiceSet(subsystem, choicesetId);
-            signet.save(choiceset);
+            choiceset.save();
             this.choiceSetMap.put(choicesetId, choiceset);
 
             Element choicesetChoice = choicesetElem.getChild("Choice");
@@ -274,7 +274,7 @@ public class SubsystemXmlLoader {
                limitHelpText,
                Status.ACTIVE,
                rendererId);
-        signet.save(limit);
+        limit.save();
         this.limitMap.put(limitId, limit);
         
         limitNumber++;
@@ -320,7 +320,7 @@ public class SubsystemXmlLoader {
                 String permissionPrereqId = permissionPrereqElem.getTextTrim();
                 System.out.println("- - - PermissionPrerequisite = " + permissionPrereqId);
             }
-            signet.save(permission);
+            permission.save();
             this.permissionMap.put(permissionId, permission);
         }
     }
@@ -343,7 +343,7 @@ public class SubsystemXmlLoader {
 
             Category category = signet.newCategory(subsystem, categoryId, categoryName,
                     Status.ACTIVE);
-            signet.save(category);
+            category.save();
             this.categoryMap.put(categoryId, category);
         }
     }
@@ -381,7 +381,7 @@ public class SubsystemXmlLoader {
 
             Function function = signet.newFunction(functionCategory, functionId, functionName,
                     Status.ACTIVE, functionHelpText);
-            signet.save(function);
+            function.save();
 
             List functionPermissions = functionElem.getChildren("FunctionPermission");
             Iterator functionPermissionIter = functionPermissions.iterator();

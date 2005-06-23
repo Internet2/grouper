@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.9 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: HousekeepingInterceptor.java,v 1.10 2005-06-23 23:39:18 acohen Exp $
+ $Date: 2005-06-23 23:39:18 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -11,6 +11,7 @@ package edu.internet2.middleware.signet;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -144,6 +145,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
   public void postFlush(Iterator entities) throws CallbackException
   {
     Transaction tx;
+    Session     tempSession;
     
     while (entities.hasNext())
     {
@@ -153,13 +155,12 @@ class HousekeepingInterceptor implements Interceptor, Serializable
       {
         AssignmentImpl assignment = (AssignmentImpl)entity;
         
-        if (assignment.hasUnsavedLimitValues)
+        if (assignment.hasUnsavedLimitValues
+            || assignment.needsInitialHistoryRecord
+            || assignment.historyRecords.size() != 0)
         {
-          Set limitValues = assignment.getLimitValues();
-          Iterator limitValuesIterator = limitValues.iterator();
-          Session tempSession
-          	= this.sessionFactory.openSession(this.connection);
-        
+          tempSession = this.sessionFactory.openSession(this.connection);
+          
           try
           {
             tx = tempSession.beginTransaction();
@@ -169,48 +170,94 @@ class HousekeepingInterceptor implements Interceptor, Serializable
             throw new CallbackException(he);
           }
         
-          while (limitValuesIterator.hasNext())
+          if (assignment.hasUnsavedLimitValues)
           {
-            LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+            Set limitValues = assignment.getLimitValues();
+            Iterator limitValuesIterator = limitValues.iterator();
+        
+            while (limitValuesIterator.hasNext())
+            {
+              LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
 
+              try
+              {
+                /**
+                 * Note that the AssignmentLimitValue constructor takes a
+                 * Subsystem ID. That Subsystem ID is actually the ID of the
+                 * Subsystem that's associated with this particlar Limit in case
+                 * (someday in the future) that Limit comes from another
+                 * Subsystem, or the shared "signet" subsystem.
+                 * 
+                 * For now, the subsystemID of the assignment can be safely
+                 * placed there.
+                 */
+                AssignmentLimitValue alv
+              	  = new AssignmentLimitValue
+           					  (assignment.getId().intValue(),
+           					   assignment.getFunction().getSubsystem().getId(),
+           					   limitValue.getLimit().getId(),
+           					   limitValue.getValue());
+
+                tempSession.save(alv);
+              }
+              catch (Exception e)
+              {
+                throw new CallbackException(e);
+              }
+              
+              assignment.hasUnsavedLimitValues = false;
+            }
+          }
+          
+          if (assignment.needsInitialHistoryRecord)
+          {
+            AssignmentHistory initialHistoryRecord
+              = new AssignmentHistory(assignment);
+            
             try
             {
-              /**
-               * Note that the AssignmentLimitValue constructor takes a
-               * Subsystem ID. That Subsystem ID is actually the ID of the
-               * Subsystem that's associated with this particlar Limit in case
-               * (someday in the future) that Limit comes from another
-               * Subsystem, or the shared "signet" subsystem.
-               * 
-               * For now, the subsystemID of the assignment can be safely
-               * placed there.
-               */
-              AssignmentLimitValue alv
-              	= new AssignmentLimitValue
-           					(assignment.getId().intValue(),
-           					 assignment.getFunction().getSubsystem().getId(),
-           			     limitValue.getLimit().getId(),
-           			     limitValue.getValue());
-
-              tempSession.save(alv);
+              tempSession.save(initialHistoryRecord);
             }
             catch (Exception e)
             {
               throw new CallbackException(e);
             }
+            
+            assignment.needsInitialHistoryRecord = false;
+          }
+          
+          if (assignment.historyRecords.size() != 0)
+          {
+            Iterator historyRecordsIterator
+              = assignment.historyRecords.iterator();
+            while (historyRecordsIterator.hasNext())
+            {
+              AssignmentHistory assignmentHistory
+                = (AssignmentHistory)(historyRecordsIterator.next());
+              
+              try
+              {
+                tempSession.save(assignmentHistory);
+              }
+              catch (Exception e)
+              {
+                throw new CallbackException(e);
+              }
+            }
+            
+            assignment.historyRecords = new HashSet();
           }
         
           try
           {
             tx.commit();
+            tempSession.flush();
             tempSession.close();
           }
           catch (HibernateException he)
           {
             throw new CallbackException(he);
           }
-          
-          assignment.hasUnsavedLimitValues = false;
         }
       }
     }

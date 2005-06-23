@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.8 2005-04-05 23:11:38 acohen Exp $
-$Date: 2005-04-05 23:11:38 $
+$Id: Limit.java,v 1.9 2005-06-23 23:39:18 acohen Exp $
+$Date: 2005-06-23 23:39:18 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -85,4 +85,9 @@ public interface Limit
 	 * @return the SelectionType of this Limit.
 	 */
 	public SelectionType getSelectionType();
+
+  /**
+   * Persists the current state of this Limit.
+   */
+  public void save();
 }

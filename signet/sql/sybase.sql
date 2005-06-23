@@ -235,6 +235,7 @@ foreign key (assignmentID) references signet_assignment (assignmentID)
 ;
 create table signet_assignment_history
 (
+historyID           numeric(12,0)       IDENTITY,
 assignmentID        numeric(12,0)       NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
