@@ -294,8 +294,8 @@ name              varchar(120)    NOT NULL,
 description       varchar(255)    NOT NULL,
 displayID         varchar(64)     NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID, subjectID),
-foreign key (subjectTypeID) references SubjectType (subjectTypeID)
+primary key (subjectTypeID, subjectID)
+--foreign key (subjectTypeID) references SubjectType (subjectTypeID)
 )
 ;
 create table SubjectAttribute
