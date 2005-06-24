@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.5 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: ChoiceSetImpl.java,v 1.6 2005-06-24 01:32:23 acohen Exp $
+$Date: 2005-06-24 01:32:23 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -71,6 +71,7 @@ class ChoiceSetImpl implements ChoiceSet
     this.subsystem = subsystem;
     this.setChoiceSetAdapter(choiceSetAdapter);
     this.choices = new HashSet();
+    this.signet = signet;
     
     ((SubsystemImpl)subsystem).add(this);
   }

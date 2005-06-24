@@ -268,8 +268,8 @@ limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-primary key (assignmentID, instanceNumber, limitSubsystemID, limitType, limitTypeID, value)
-foreign key (assignmentID, instanceNumber) references signet_assignment (assignmentID, instanceNumber)
+primary key (assignmentID, instanceNumber, limitSubsystemID, limitType, limitTypeID, value),
+foreign key (assignmentID, instanceNumber) references signet_assignment_history (assignmentID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)
@@ -294,7 +294,7 @@ name              varchar(120)    NOT NULL,
 description       varchar(255)    NOT NULL,
 displayID         varchar(64)     NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID, subjectID)
+primary key (subjectTypeID, subjectID),
 foreign key (subjectTypeID) references SubjectType (subjectTypeID)
 )
 ;
@@ -307,7 +307,7 @@ instance          smallint        NOT NULL,
 value             varchar(255)    NOT NULL,
 searchValue       varchar(255)    NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
-primary key (subjectTypeID, subjectID, name, instance)
+primary key (subjectTypeID, subjectID, name, instance),
 foreign key (subjectTypeID, subjectID) references Subject (subjectTypeID, subjectID)
 )
 ;
