@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.11 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: LimitImpl.java,v 1.12 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -172,16 +172,22 @@ final class LimitImpl implements Limit
   }
 
   public ChoiceSet getChoiceSet()
-  throws ObjectNotFoundException
   {
     if ((this.choiceSet == null)
         && (this.choiceSetId != null)
         && (this.getSignet() != null))
     {
+      try
+      {
       this.choiceSet
       	= this.getSignet()
       			.getSubsystem(this.subsystemId)
       				.getChoiceSet(this.choiceSetId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
     }
 
     return this.choiceSet;

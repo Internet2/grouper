@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.15 2005-06-23 23:39:18 acohen Exp $
- $Date: 2005-06-23 23:39:18 $
+ $Id: AssignmentImpl.java,v 1.16 2005-06-28 19:41:57 acohen Exp $
+ $Date: 2005-06-28 19:41:57 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -42,7 +42,7 @@ implements Assignment, Comparable
   private boolean						grantOnly;
   private Date							effectiveDate;
   private Date              expirationDate      = null;
-  private int               instanceNumber      = 0;
+  private int               instanceNumber;
   
   private boolean limitValuesAlreadyFetched = false;
   boolean					hasUnsavedLimitValues = false;

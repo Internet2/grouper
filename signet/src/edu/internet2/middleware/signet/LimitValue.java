@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.6 2005-04-05 23:11:38 acohen Exp $
-$Date: 2005-04-05 23:11:38 $
+$Id: LimitValue.java,v 1.7 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -94,10 +94,6 @@ public class LimitValue
       						.getDisplayValue();
     }
     catch (ChoiceNotFoundException e)
-    {
-      displayValue = this.value + " (display-value not available)";
-    }
-    catch (ObjectNotFoundException e)
     {
       displayValue = this.value + " (display-value not available)";
     }

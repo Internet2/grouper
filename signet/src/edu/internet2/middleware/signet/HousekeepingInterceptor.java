@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.10 2005-06-23 23:39:18 acohen Exp $
- $Date: 2005-06-23 23:39:18 $
+ $Id: HousekeepingInterceptor.java,v 1.11 2005-06-28 19:41:57 acohen Exp $
+ $Date: 2005-06-28 19:41:57 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -217,6 +217,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
             try
             {
               tempSession.save(initialHistoryRecord);
+              recordLimitValuesHistory(tempSession, initialHistoryRecord);
             }
             catch (Exception e)
             {
@@ -238,6 +239,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
               try
               {
                 tempSession.save(assignmentHistory);
+                recordLimitValuesHistory(tempSession, assignmentHistory);
               }
               catch (Exception e)
               {
@@ -260,6 +262,22 @@ class HousekeepingInterceptor implements Interceptor, Serializable
           }
         }
       }
+    }
+  }
+  
+  private void recordLimitValuesHistory
+    (Session            session,
+     AssignmentHistory  assignmentHistory)
+  throws HibernateException
+  {
+    Iterator limitValuesIterator
+      = assignmentHistory.getLimitValues().iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+      LimitValueHistory limitValueHistory
+        = new LimitValueHistory(assignmentHistory, limitValue);
+      session.save(limitValueHistory);
     }
   }
   

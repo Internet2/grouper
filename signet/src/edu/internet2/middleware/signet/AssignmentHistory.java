@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentHistory.java,v 1.1 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: AssignmentHistory.java,v 1.2 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -298,5 +298,15 @@ class AssignmentHistory
   void setRevokerTypeId(String revokerTypeId)
   {
     this.revokerTypeId = revokerTypeId;
+  }
+  
+  public String toString()
+  {
+    return
+      "[assignmentId="
+      + this.getAssignmentId()
+      + ", instanceNumber="
+      + this.getInstanceNumber()
+      + "]";
   }
 }

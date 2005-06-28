@@ -100,5 +100,8 @@
 	<mapping
       resource
         ="edu/internet2/middleware/signet/AssignmentHistory.hbm.xml"/>
+	<mapping
+      resource
+        ="edu/internet2/middleware/signet/LimitValueHistory.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>

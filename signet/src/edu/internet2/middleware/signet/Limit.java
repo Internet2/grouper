@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.9 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: Limit.java,v 1.10 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -38,9 +38,8 @@ public interface Limit
 	 * Get the ChoiceSet associated with this Limit.
 	 * 
 	 * @return the ChoiceSet associated with this Limit.
-	 * @throws ObjectNotFoundException
 	 */
-	public ChoiceSet getChoiceSet() throws ObjectNotFoundException;
+	public ChoiceSet getChoiceSet();
 	
 	/**
 	 * Get the name of this Limit.

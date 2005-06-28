@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.16 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: Fixtures.java,v 1.17 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -218,7 +218,7 @@ public class Fixtures
       = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
     Statement stmt = conn.createStatement();
     stmt.executeUpdate
-      ("DELETE FROM signet_assignment WHERE subsystemID='"
+      ("DELETE FROM signet_assignmentLimit_history WHERE limitSubsystemID='"
        + Constants.SUBSYSTEM_ID
        + "'");
     stmt.executeUpdate
@@ -227,8 +227,12 @@ public class Fixtures
        + "'");
     stmt.executeUpdate
       ("DELETE FROM signet_assignmentLimit WHERE limitSubsystemID='"
-          + Constants.SUBSYSTEM_ID
-          + "'");
+       + Constants.SUBSYSTEM_ID
+       + "'");
+    stmt.executeUpdate
+      ("DELETE FROM signet_assignment WHERE subsystemID='"
+       + Constants.SUBSYSTEM_ID
+       + "'");
     conn.commit();
     conn.close();
   }

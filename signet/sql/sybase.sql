@@ -262,14 +262,30 @@ primary key (assignmentID, instanceNumber)
 ;
 create table signet_assignmentLimit_history
 (
+historyID			numeric(12,0)		IDENTITY,
 assignmentID        numeric(12,0)       NOT NULL,
 instanceNumber      int                 NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
+-- limitType is so far unused, but will eventually indicate whether this
+-- Limit is a Tree or a ChoiceSet. For the moment, only a ChoiceSet is
+-- possible.
 limitType           varchar(32)         NOT NULL,
+-- limitTypeId is the ID of the ChoiceSet or Tree whose values/nodes are the
+-- domain of limit values, and this ID is unique only within its limitType.
+-- That is, it's possible to have a Limit of limitType "Tree" with id "foo",
+-- and another Limit of limitType "ChoiceSet" with id "foo".
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-primary key (assignmentID, instanceNumber, limitSubsystemID, limitType, limitTypeID, value),
-foreign key (assignmentID, instanceNumber) references signet_assignment_history (assignmentID, instanceNumber)
+primary key(historyID),
+--  (historyID,
+--   assignmentID,
+--   instanceNumber,
+--   limitSubsystemID,
+--   limitType,
+--   limitTypeID,
+--   value),
+foreign key(assignmentID, instanceNumber)
+  references signet_assignment_history(assignmentID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)

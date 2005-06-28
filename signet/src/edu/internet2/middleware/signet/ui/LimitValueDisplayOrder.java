@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValueDisplayOrder.java,v 1.1 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: LimitValueDisplayOrder.java,v 1.2 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -60,10 +60,6 @@ class LimitValueDisplayOrder implements Comparator
       catch (ChoiceNotFoundException cnfe)
       {
         throw new SignetRuntimeException(cnfe);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
       }
       
       Comparator choiceComparator = new ChoiceDisplayOrderComparator();

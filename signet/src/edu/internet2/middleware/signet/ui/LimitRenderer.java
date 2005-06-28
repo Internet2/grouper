@@ -1,6 +1,6 @@
 /*--
-$Id: LimitRenderer.java,v 1.6 2005-03-03 18:29:00 acohen Exp $
-$Date: 2005-03-03 18:29:00 $
+$Id: LimitRenderer.java,v 1.7 2005-06-28 19:41:57 acohen Exp $
+$Date: 2005-06-28 19:41:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -46,15 +46,7 @@ public class LimitRenderer
     	= (limit.getRenderer().equals("multipleChoiceCheckboxes.jsp"));
     String limitName = makeLimitValueParamName(limit, isMultiSelect);
     
-    ChoiceSet choiceSet;
-    try
-    {
-      choiceSet = limit.getChoiceSet();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
+    ChoiceSet choiceSet = limit.getChoiceSet();
 
     Set choices = choiceSet.getChoices();
     boolean isFirstChoice = true;

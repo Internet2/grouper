@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.16 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: PrivilegedSubjectImpl.java,v 1.17 2005-06-28 19:41:57 acohen Exp $
+ $Date: 2005-06-28 19:41:57 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -905,10 +905,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
             {
               throw new SignetRuntimeException(cnfe);
             }
-            catch (ObjectNotFoundException onfe)
-            {
-              throw new SignetRuntimeException(onfe);
-            }
           }
         }
       }
@@ -922,15 +918,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     // or lesser rank than the greatest value that was granted to us.
     
     Set grantableChoices = new HashSet();
-    Set allChoices;
-    try
-    {
-      allChoices = limit.getChoiceSet().getChoices();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
+    Set allChoices = limit.getChoiceSet().getChoices();
     
     Iterator allChoicesIterator = allChoices.iterator();
     while (allChoicesIterator.hasNext())
