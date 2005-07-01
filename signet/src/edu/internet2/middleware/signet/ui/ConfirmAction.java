@@ -1,6 +1,6 @@
 /*--
-  $Id: ConfirmAction.java,v 1.4 2005-06-23 23:39:18 acohen Exp $
-  $Date: 2005-06-23 23:39:18 $
+  $Id: ConfirmAction.java,v 1.5 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -87,6 +87,12 @@ public final class ConfirmAction extends BaseAction
     	    (session.getAttribute("currentGranteePrivilegedSubject"));
     TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
     Function function = (Function)(session.getAttribute("currentFunction"));
+    
+    // currentAssignment is present in the session only if we are editing
+    // an existing Assignment. Otherwise, we're attempting to create a new one.
+    Assignment assignment
+      = (Assignment)(session.getAttribute("currentAssignment"));
+    
     Signet signet = (Signet)(session.getAttribute("signet"));
     
     if (signet == null)
@@ -119,16 +125,27 @@ public final class ConfirmAction extends BaseAction
     }
     Set limitValues = LimitRenderer.getAllLimitValues(signet, request);
     
-    Assignment assignment
-      = grantor.grant
-          (grantee,
-           scope,
-           function,
-           limitValues,
-           canGrant,
-           grantOnly,
-           new Date(), // effective immediately
-           null);      // no expiration date
+    if (assignment != null)
+    {
+      // We're editing an existing Assignment.
+      assignment.setLimitValues(grantor, limitValues);
+      assignment.setGrantable(grantor, canGrant);
+      assignment.setGrantOnly(grantor, grantOnly);
+    }
+    else
+    {
+      // We're creating a new Assignment.
+      assignment
+        = grantor.grant
+            (grantee,
+             scope,
+             function,
+             limitValues,
+             canGrant,
+             grantOnly,
+             new Date(), // effective immediately
+             null);      // no expiration date
+    }
     
     signet.beginTransaction();
     assignment.save();

@@ -1,6 +1,6 @@
 /*--
-  $Id: ConditionsAction.java,v 1.1 2005-02-03 00:49:42 acohen Exp $
-  $Date: 2005-02-03 00:49:42 $
+  $Id: ConditionsAction.java,v 1.2 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -23,6 +23,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
+import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
@@ -70,11 +71,8 @@ public final class ConditionsAction extends BaseAction
       request.setAttribute(Constants.ERROR_KEY,messages);
       return findFailure(mapping);
     }
-        
-    // Find the Scope specified by the "scope" parameter, and
-    // stash it in the Session.
-    HttpSession session = request.getSession(); 
-    String currentScopeString = request.getParameter("scope");
+    
+    HttpSession session = request.getSession();
     Signet signet = (Signet)(session.getAttribute("signet"));
     
     if (signet == null)
@@ -82,8 +80,32 @@ public final class ConditionsAction extends BaseAction
       return (mapping.findForward("notInitialized"));
     }
     
-    TreeNode currentScope = signet.getTreeNode(currentScopeString);
-    session.setAttribute("currentScope", currentScope);
+    // If we've received a "scope" parameter, then it means we're attempting
+    // to create a new Assignment. If we receive an "assignmentID" parameter
+    // instead, then it means we're editing an existing Assignment. In either
+    // case, we'll stash the received parameter in the Session.
+    
+    if (request.getParameter("scope") != null)
+    {
+      TreeNode currentScope = signet.getTreeNode(request.getParameter("scope"));
+      session.setAttribute("currentScope", currentScope);
+    }
+    else
+    {
+      Assignment assignment
+        = signet.getAssignment
+            (Integer.parseInt
+              (request.getParameter
+                ("assignmentId")));
+      session.setAttribute("currentAssignment", assignment);
+      
+      session.setAttribute
+        ("currentCategory", assignment.getFunction().getCategory());
+      session.setAttribute
+        ("currentFunction", assignment.getFunction());
+      session.setAttribute
+        ("currentScope", assignment.getScope());
+    }
 
     // Forward to our success page
     return findSuccess(mapping);

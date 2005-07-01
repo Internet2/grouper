@@ -1,6 +1,6 @@
 /*--
-  $Id: FunctionsAction.java,v 1.2 2005-02-01 19:48:20 acohen Exp $
-  $Date: 2005-02-01 19:48:20 $
+  $Id: FunctionsAction.java,v 1.3 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,6 +79,11 @@ public final class FunctionsAction extends BaseAction
       
     currentSubsystem = signet.getSubsystem(currentSubsystemId);
     session.setAttribute("currentSubsystem", currentSubsystem);
+    
+    // We're creating a new Assignment, not editing an existing one. Let's
+    // make that clear by clearing out any "currentAssignment" attribute from
+    // the session.
+    session.setAttribute("currentAssignment", null);
 
     // Forward to our success page
     return findSuccess(mapping);

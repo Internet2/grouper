@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.28 2005-06-21 02:34:17 acohen Exp $
-  $Date: 2005-06-21 02:34:17 $
+  $Id: main.jsp,v 1.29 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -171,6 +171,14 @@
               </td> <!-- scope -->
               
               <td> <!-- limits -->
+                 <a
+                   style="float: right;"
+                   href="Conditions.do?assignmentId=<%=assignment.getId()%>">
+                   <img
+                     src="images/arrow_right.gif"
+                       alt="" />
+                   edit
+                 </a>
                 <%=Common.displayLimitValues(assignment)%>
               </td> <!-- limits -->
               

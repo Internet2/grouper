@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.16 2005-06-06 23:30:11 jvine Exp $
-  $Date: 2005-06-06 23:30:11 $
+  $Id: conditions.jsp,v 1.17 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -89,6 +89,7 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="java.util.HashSet" %>
 
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
@@ -108,47 +109,73 @@
   PrivilegedSubject loggedInPrivilegedSubject
      = (PrivilegedSubject)
          (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+         
+  PrivilegedSubject currentGranteePrivilegedSubject;
+  Subsystem			currentSubsystem;
+  Category			currentCategory;
+  Function			currentFunction;
+  TreeNode			currentScope;
+         
+  // If the session contains a "currentAssignment" attribute, then we're
+  // editing an existing Assignment. Otherwise, we're attempting to create a
+  // new one.
+  Assignment currentAssignment
+    = (Assignment)(request.getSession().getAttribute("currentAssignment"));
    
-   PrivilegedSubject currentGranteePrivilegedSubject
-     = (PrivilegedSubject)
-         (request.getSession().getAttribute("currentGranteePrivilegedSubject"));
+  if (currentAssignment != null)
+  {
+    currentGranteePrivilegedSubject = currentAssignment.getGrantee();
+    currentFunction = currentAssignment.getFunction();
+    currentSubsystem = currentFunction.getSubsystem();
+    currentCategory = currentFunction.getCategory();
+    currentScope = currentAssignment.getScope();
+  }
+  else
+  {
+    currentGranteePrivilegedSubject
+      = (PrivilegedSubject)
+          (request
+             .getSession()
+               .getAttribute
+                 ("currentGranteePrivilegedSubject"));
          
-   Subsystem currentSubsystem
-     = (Subsystem)
-         (request.getSession().getAttribute("currentSubsystem"));
+    currentSubsystem
+      = (Subsystem)
+          (request.getSession().getAttribute("currentSubsystem"));
          
-   Category currentCategory
-     = (Category)
-         (request.getSession().getAttribute("currentCategory"));
+    currentCategory
+      = (Category)
+          (request.getSession().getAttribute("currentCategory"));
          
-   Function currentFunction
-     = (Function)
-         (request.getSession().getAttribute("currentFunction"));
+    currentFunction
+      = (Function)
+          (request.getSession().getAttribute("currentFunction"));
          
-   TreeNode currentScope
-     = (TreeNode)
-         (request.getSession().getAttribute("currentScope"));
+    currentScope
+      = (TreeNode)
+          (request.getSession().getAttribute("currentScope"));
+  }
          
-   Limit[] currentLimits = currentFunction.getLimitsArray();
+  Limit[] currentLimits = currentFunction.getLimitsArray();
          
-   DateFormat dateFormat = DateFormat.getDateInstance();
+  DateFormat dateFormat = DateFormat.getDateInstance();
    
-   String personViewHref
-     = "PersonView.do?granteeSubjectTypeId="
-       + currentGranteePrivilegedSubject.getSubjectTypeId()
-       + "&granteeSubjectId="
-       + currentGranteePrivilegedSubject.getSubjectId()
-       + "&subsystemId="
-       + currentSubsystem.getId();
+  String personViewHref
+    = "PersonView.do?granteeSubjectTypeId="
+      + currentGranteePrivilegedSubject.getSubjectTypeId()
+      + "&granteeSubjectId="
+      + currentGranteePrivilegedSubject.getSubjectId()
+      + "&subsystemId="
+      + currentSubsystem.getId();
 
        
-   String functionsHref
-     = "Functions.do?select="
-       + currentSubsystem.getId();
+  String functionsHref
+    = "Functions.do?select="
+      + currentSubsystem.getId();
        
-   String orgBrowseHref
+  String orgBrowseHref
    	= "OrgBrowse.do?functionSelectList="
-   		+ currentFunction.getId();
+      + currentFunction.getId();
 %>
 
     <form name="form1" action="Confirm.do">
@@ -167,14 +194,39 @@
           <a href="<%=personViewHref%>"> 
             <%=currentGranteePrivilegedSubject.getName()%>
           </a>
+<% if (currentAssignment == null)
+   {
+%>
           &gt; Grant new privilege
+<%
+   }
+   else
+   {
+%>
+          &gt; Edit privilege
+<%
+   }
+%>
+          
         </span> <!-- select -->
       </div>  <!-- Navbar -->
       
       <div id="Layout">
         <div id="Content">
           <div id="ViewHead">
+<% if (currentAssignment == null)
+   {
+%>
             Granting new privilege to
+<%
+   }
+   else
+   {
+%>
+            Editing privilege for
+<%
+   }
+%>
             <h1>
               <%=currentGranteePrivilegedSubject.getName()%>
        	    </h1>
@@ -183,9 +235,15 @@
           
             <div class="section">
              	<h2>New <%=currentSubsystem.getName()%> privilege
+<% if (currentAssignment == null)
+   {
+%>
 						 		<div class="change">
 									<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
 								</div>
+<%
+   }
+%>
 							</h2>
                 <span class="category"><%=currentCategory.getName()%></span> : 
                 <span class="function"><%=currentFunction.getName()%></span>
@@ -193,9 +251,15 @@
             
           <div class="section">
               <h2>Scope
+<% if (currentAssignment == null)
+   {
+%>
 								<div class="change">
 									<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
 								</div>
+<%
+   }
+%>
 							</h2>
               <ul class="none">
               
@@ -225,6 +289,17 @@
         ("grantableChoiceSubsetAttr",
          loggedInPrivilegedSubject.getGrantableChoices
            (currentFunction, currentScope, currentLimits[i]));
+           
+      if (currentAssignment != null)
+      {
+        request.setAttribute
+          ("assignmentLimitValuesAttr", currentAssignment.getLimitValues());
+      }
+      else
+      {
+        request.setAttribute
+          ("assignmentLimitValuesAttr", new HashSet());
+      }
 %>
               
               <fieldset>
@@ -239,6 +314,7 @@
                      flush="true">
                     <tiles:put name="limit" beanName="limitAttr" />
                     <tiles:put name="grantableChoiceSubset" beanName="grantableChoiceSubsetAttr" />
+                    <tiles:put name="assignmentLimitValues" beanName="assignmentLimitValuesAttr" />
                   </tiles:insert>
               </fieldset>
 <%
@@ -273,7 +349,7 @@
                    name="completeAssignmentButton"
                    type="submit"
                    class="button-def"
-                   value="Complete assignment" />
+                   value="<%=(currentAssignment==null?"Complete assignment":"Save changes")%>" />
               </p>
               <p>
                 <a href="<%=personViewHref%>">

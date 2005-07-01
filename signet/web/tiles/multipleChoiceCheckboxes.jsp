@@ -10,6 +10,7 @@
 
 <tiles:useAttribute name="limit" classname="edu.internet2.middleware.signet.Limit" />
 <tiles:useAttribute name="grantableChoiceSubset" classname="java.util.Set" />
+<tiles:useAttribute name="assignmentLimitValues" classname="java.util.Set" />
 
 <%
 String limitValueParamName = LimitRenderer.makeLimitValueParamName(limit, true);
@@ -30,7 +31,17 @@ for (int i = 0; i < choices.length; i ++)
      type="checkbox"
      value="<%=choice.getValue()%>"
      <%=(grantableChoiceSubset.contains(choice) ? "enabled=true" : "disabled=true")%>"
-     onClick="selectLimitCheckbox();" />
+     onClick="selectLimitCheckbox();"
+<%
+  if ((assignmentLimitValues.size() > 0)
+      && Common.isSelected(limit, choice, assignmentLimitValues))
+  {
+%>
+    checked="checked"
+<%
+  }
+%>
+  />
 
   <label for="<%=limitValueParamName%>">
     <%=choice.getDisplayValue()%>

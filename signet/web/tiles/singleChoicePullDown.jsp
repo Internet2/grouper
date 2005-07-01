@@ -10,6 +10,7 @@
 
 <tiles:useAttribute name="limit" classname="edu.internet2.middleware.signet.Limit" />
 <tiles:useAttribute name="grantableChoiceSubset" classname="java.util.Set" />
+<tiles:useAttribute name="assignmentLimitValues" classname="java.util.Set" />
 
 <%
 String limitParamName = LimitRenderer.makeLimitValueParamName(limit, false);
@@ -31,7 +32,7 @@ for (int i = 0; i < choices.length; i ++)
   }
 %>
 
- <option <%=((choice.equals(defaultChoice)) ? " selected" : "")%>
+ <option <%=(Common.isSelected(limit, choice, assignmentLimitValues, defaultChoice) ? " selected" : "")%>
    value=<%=choice.getValue()%>
    name=foo
    <%=(grantableChoiceSubset.contains(choice) == false) ? "disabled>" : ">"%>

@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.26 2005-06-21 02:34:17 acohen Exp $
-  $Date: 2005-06-21 02:34:17 $
+  $Id: personview.jsp,v 1.27 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -337,7 +337,7 @@
                <td> <!-- limits -->
                  <a
                    style="float: right;"
-                   href="NotYetImplemented.do">
+                   href="Conditions.do?assignmentId=<%=assignment.getId()%>">
                    <img
                      src="images/arrow_right.gif"
                        alt="" />

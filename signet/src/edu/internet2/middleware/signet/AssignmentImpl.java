@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.16 2005-06-28 19:41:57 acohen Exp $
- $Date: 2005-06-28 19:41:57 $
+ $Id: AssignmentImpl.java,v 1.17 2005-07-01 23:06:52 acohen Exp $
+ $Date: 2005-07-01 23:06:52 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -563,7 +563,7 @@ implements Assignment, Comparable
          + "' in the scope '"
          + scope.getId()
          + "'. "
-         + revoker.editRefusalExplanation(this, "actor"));
+         + actor.editRefusalExplanation(this, "actor"));
     }
   }
   

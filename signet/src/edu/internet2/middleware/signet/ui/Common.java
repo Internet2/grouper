@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.11 2005-06-21 02:34:17 acohen Exp $
-  $Date: 2005-06-21 02:34:17 $
+  $Id: Common.java,v 1.12 2005-07-01 23:06:52 acohen Exp $
+  $Date: 2005-07-01 23:06:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -175,5 +175,51 @@ public class Common
     }
     
     return resultSet;
+  }
+  
+  public static boolean isSelected
+    (Limit  limit,
+     Choice choice,
+     Set    assignmentLimitValues)
+  {
+    return isSelected(limit, choice, assignmentLimitValues, null);
+  }
+  
+  public static boolean isSelected
+    (Limit  limit,
+     Choice choice,
+     Set    assignmentLimitValues,
+     Choice defaultChoice)
+  {
+    boolean limitPreSelected = false;
+    
+    Iterator assignmentLimitValuesIterator = assignmentLimitValues.iterator();
+    while (assignmentLimitValuesIterator.hasNext())
+    {
+      LimitValue limitValue
+        = (LimitValue)(assignmentLimitValuesIterator.next());
+      if (limitValue.getLimit().equals(limit))
+      {
+        limitPreSelected = true;
+        if (choice.getValue().equals(limitValue.getValue()))
+        {
+          // This particular Limit-value should appear as pre-selected,
+          // because it's already part of the specified Assignment-Limit-values.
+          return true;
+        }
+      }
+    }
+    
+    // If we've gotten this far, then this Limit-value should not appear as
+    // pre-selected, UNLESS it's the default, and this Limit does not appear
+    // in the Set of pre-selected AssignmentLimitValues.
+    if (choice.equals(defaultChoice) && (limitPreSelected == false))
+    {
+      return true;
+    }
+    
+    // If we've gotten this far, this Limit-value should not appear as
+    // pre-selected.
+    return false;
   }
 }
