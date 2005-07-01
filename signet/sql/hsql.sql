@@ -1,7 +1,4 @@
 -- This is the HSQL DDL for the Signet database
--- Author Andy Cohen, Stanford University 
--- modified
---    6/20/2005 - add assignment expirationDate
 --
 -- Subsystem tables
 drop table signet_proxyType_function;
@@ -13,7 +10,26 @@ drop table signet_permission;
 drop table signet_proxyType;
 drop table signet_limit;
 drop table signet_subsystem;
+-- Signet Subject tables
+drop table signet_privilegedSubject;
+-- Tree tables
+drop table signet_treeNodeRelationship;
+drop table signet_treeNode;
+drop table signet_tree;
+-- ChoiceSet tables
+drop table signet_choice;
+drop table signet_choiceSet;
+-- Assignment tables
+drop table signet_assignmentLimit;
+drop table signet_assignment;
+drop table signet_assignmentLimit_history;
+drop table signet_assignment_history;
+-- Subject tables (optional, for local subject tables)
+drop table SubjectAttribute;
+drop table Subject;
+drop table SubjectType;
 --
+-- Subsystem tables
 create table signet_subsystem
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -121,8 +137,6 @@ foreign key (subsystemID, functionID) references signet_function (subsystemID, f
 )
 ;
 -- Signet Subject tables
-drop table signet_privilegedSubject;
---
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -131,10 +145,6 @@ primary key (subjectTypeID, subjectID)
 )
 ;
 -- Tree tables
-drop table signet_treeNodeRelationship;
-drop table signet_treeNode;
-drop table signet_tree;
---
 create table signet_tree
 (
 treeID              varchar(64)         NOT NULL,
@@ -166,9 +176,6 @@ foreign key (treeID) references signet_tree (treeID)
 )
 ;
 -- ChoiceSet tables
-drop table signet_choice;
-drop table signet_choiceSet;
---
 create table signet_choiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -191,14 +198,9 @@ foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 )
 ;
 -- Assignment tables
-drop table signet_assignmentLimit;
-drop table signet_assignment;
-drop table signet_assignmentLimit_history;
-drop table signet_assignment_history;
---
 create table signet_assignment
 (
-assignmentID        identity            NOT NULL,
+assignmentID        int                 NOT NULL IDENTITY,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
@@ -218,23 +220,24 @@ expirationDate      datetime            NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      datetime            NOT NULL,
-unique (assignmentID, instanceNumber)
+primary key (assignmentID)
 )
 ;
 create table signet_assignmentLimit
 (
-assignmentID        numeric(12,0)       NOT NULL,
+assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-unique (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
+primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
+foreign key (assignmentID) references signet_assignment (assignmentID)
 )
 ;
 create table signet_assignment_history
 (
-historyID           identity            NOT NULL,
+historyID           int                 NOT NULL IDENTITY,
 assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -254,28 +257,35 @@ effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
 revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
-historyDatetime     datetime            NOT NULL;
+historyDatetime     datetime            NOT NULL,
 modifyDatetime      datetime            NOT NULL,
 unique (assignmentID, instanceNumber)
 )
 ;
+--
+--     
 create table signet_assignmentLimit_history
 (
-historyID           identity            NOT NULL,
+historyID           int                 NOT NULL IDENTITY,
 assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 limitSubsystemID    varchar(64)         NOT NULL,
+-- limitType is so far unused, but will eventually indicate whether this
+-- Limit is a Tree or a ChoiceSet. For the moment, only a ChoiceSet is
+-- possible.
 limitType           varchar(32)         NOT NULL,
+-- limitTypeId is the ID of the ChoiceSet or Tree whose values/nodes are the
+-- domain of limit values, and this ID is unique only within its limitType.
+-- That is, it's possible to have a Limit of limitType "Tree" with id "foo",
+-- and another Limit of limitType "ChoiceSet" with id "foo".
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-unique (assignmentID, limitSubsystemID, limitType, limitTypeID, value)
+primary key(historyID),
+foreign key(assignmentID, instanceNumber)
+  references signet_assignment_history(assignmentID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)
-drop table SubjectAttribute;
-drop table Subject;
-drop table SubjectType;
---
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
@@ -302,6 +312,8 @@ create table SubjectAttribute (
   value             varchar(255)    NOT NULL,
   searchValue       varchar(255)    NOT NULL,
   modifyDateTime    datetime        NOT NULL,
-  primary key (subjectTypeID, subjectID, name, instance)
+  primary key (subjectTypeID, subjectID, name, instance),
+  foreign key (subjectTypeID, subjectID)
+    references Subject (subjectTypeID, subjectID)
 )
 ;

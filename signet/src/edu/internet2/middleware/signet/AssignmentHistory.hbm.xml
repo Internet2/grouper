@@ -90,6 +90,9 @@
 		<property
 			name="historyDatetime"
 			not-null="true"/>
+        <property
+			name="modifyDatetime"
+			column="modifyDatetime" />
 
 	</class>
 </hibernate-mapping>

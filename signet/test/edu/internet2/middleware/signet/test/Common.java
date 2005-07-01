@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.2 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Common.java,v 1.3 2005-07-01 01:51:33 acohen Exp $
+$Date: 2005-07-01 01:51:33 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -24,7 +24,7 @@ import junit.framework.TestCase;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class Common extends TestCase
-{  
+{
   public static Object getSingleSetMember(Set set)
   {
     assertEquals(1, set.size());

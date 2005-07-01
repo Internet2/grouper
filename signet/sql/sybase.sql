@@ -13,7 +13,26 @@ drop table signet_permission;
 drop table signet_proxyType;
 drop table signet_limit;
 drop table signet_subsystem;
+-- Signet Subject tables
+drop table signet_privilegedSubject;
+-- Tree tables
+drop table signet_treeNodeRelationship;
+drop table signet_treeNode;
+drop table signet_tree;
+-- ChoiceSet tables
+drop table signet_choice;
+drop table signet_choiceSet;
+-- Assignment tables
+drop table signet_assignmentLimit;
+drop table signet_assignment;
+drop table signet_assignmentLimit_history;
+drop table signet_assignment_history;
+-- Subject tables (optional, for local subject tables)
+drop table SubjectAttribute;
+drop table Subject;
+drop table SubjectType;
 --
+-- Subsystem tables
 create table signet_subsystem
 (
 subsystemID         varchar(64)         NOT NULL,
@@ -121,8 +140,6 @@ foreign key (subsystemID, functionID) references signet_function (subsystemID, f
 )
 ;
 -- Signet Subject tables
-drop table signet_privilegedSubject;
---
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -131,10 +148,6 @@ primary key (subjectTypeID, subjectID)
 )
 ;
 -- Tree tables
-drop table signet_treeNodeRelationship;
-drop table signet_treeNode;
-drop table signet_tree;
---
 create table signet_tree
 (
 treeID              varchar(64)         NOT NULL,
@@ -166,9 +179,6 @@ foreign key (treeID) references signet_tree (treeID)
 )
 ;
 -- ChoiceSet tables
-drop table signet_choice;
-drop table signet_choiceSet;
---
 create table signet_choiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -191,11 +201,6 @@ foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 )
 ;
 -- Assignment tables
-drop table signet_assignmentLimit;
-drop table signet_assignment;
-drop table signet_assignmentLimit_history;
-drop table signet_assignment_history;
---
 create table signet_assignment
 (
 assignmentID        numeric(12,0)       IDENTITY,
@@ -260,6 +265,8 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (assignmentID, instanceNumber)
 )
 ;
+--
+--     
 create table signet_assignmentLimit_history
 (
 historyID			numeric(12,0)		IDENTITY,
@@ -277,24 +284,12 @@ limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
 primary key(historyID),
---  (historyID,
---   assignmentID,
---   instanceNumber,
---   limitSubsystemID,
---   limitType,
---   limitTypeID,
---   value),
 foreign key(assignmentID, instanceNumber)
   references signet_assignment_history(assignmentID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)
-drop table SubjectAttribute;
-drop table Subject;
-drop table SubjectType;
---
-create table SubjectType
-(
+create table SubjectType (
 subjectTypeID     varchar(32)     NOT NULL,
 name              varchar(120)    NOT NULL,
 adapterClass      varchar(255)    NOT NULL,

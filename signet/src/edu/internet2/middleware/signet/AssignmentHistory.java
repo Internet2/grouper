@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentHistory.java,v 1.2 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: AssignmentHistory.java,v 1.3 2005-07-01 01:51:33 acohen Exp $
+$Date: 2005-07-01 01:51:33 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -51,6 +51,9 @@ class AssignmentHistory
   private Date              expirationDate;
   private Status            status;
   private int               instanceNumber;
+  
+  /* The date and time this record was created. */
+  private Date  modifyDatetime = new Date();
   
   /**
    * Hibernate requires the presence of a default constructor.
@@ -308,5 +311,17 @@ class AssignmentHistory
       + ", instanceNumber="
       + this.getInstanceNumber()
       + "]";
+  }
+  
+  // This method is only for use by Hibernate.
+  private Date getModifyDatetime()
+  {
+    return this.modifyDatetime;
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setModifyDatetime(Date modifyDatetime)
+  {
+    this.modifyDatetime = modifyDatetime;
   }
 }
