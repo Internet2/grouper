@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.17 2005-07-01 23:06:52 acohen Exp $
-  $Date: 2005-07-01 23:06:52 $
+  $Id: conditions.jsp,v 1.18 2005-07-05 17:03:27 acohen Exp $
+  $Date: 2005-07-05 17:03:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -337,10 +337,37 @@
                      id="can_use"
                      type="checkbox"
                      value="checkbox"
-                     checked="checked" />
+                     <%=(currentAssignment==null
+                         /* We're not editing an existing Assignment, so
+                          * check this box as a default value.
+                          */
+                         ? "checked=\"checked\""
+                         /* We are editing an existing Assignment, so get
+                          * this box's status from the Assignment.
+                          */
+                         : (currentAssignment.isGrantOnly()
+                              ? ""
+                              : "checked=\"checked\""))%>
+                  />
                   <label for="can_use">use this privilege</label>
                   <br />
-                  <input name="can_grant" id="can_grant" type="checkbox" value="checkbox" />
+                  <input
+                     name="can_grant"
+                     id="can_grant"
+                     type="checkbox"
+                     value="checkbox"
+                     <%=(currentAssignment==null
+                         /* We're not editing an existing Assignment, so
+                          * un-check this box as a default value.
+                          */
+                         ? ""
+                         /* We are editing an existing Assignment, so get
+                          * this box's status from the Assignment.
+                          */
+                         : (currentAssignment.isGrantable()
+                              ? "checked=\"checked\""
+                              : ""))%>
+                  />
                   <label for="can_grant">grant this privilege to others</label>
 
               </fieldset>

@@ -1,6 +1,6 @@
 /*--
-  $Id: ConditionsAction.java,v 1.2 2005-07-01 23:06:52 acohen Exp $
-  $Date: 2005-07-01 23:06:52 $
+  $Id: ConditionsAction.java,v 1.3 2005-07-05 17:03:27 acohen Exp $
+  $Date: 2005-07-05 17:03:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -98,7 +98,11 @@ public final class ConditionsAction extends BaseAction
               (request.getParameter
                 ("assignmentId")));
       session.setAttribute("currentAssignment", assignment);
-      
+
+      session.setAttribute
+        ("currentGranteePrivilegedSubject", assignment.getGrantee());
+      session.setAttribute
+        ("currentSubsystem", assignment.getFunction().getSubsystem());
       session.setAttribute
         ("currentCategory", assignment.getFunction().getCategory());
       session.setAttribute
