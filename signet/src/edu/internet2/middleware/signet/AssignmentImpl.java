@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.17 2005-07-01 23:06:52 acohen Exp $
- $Date: 2005-07-01 23:06:52 $
+ $Id: AssignmentImpl.java,v 1.18 2005-07-06 22:48:25 acohen Exp $
+ $Date: 2005-07-06 22:48:25 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -13,6 +13,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -47,7 +52,6 @@ implements Assignment, Comparable
   private boolean limitValuesAlreadyFetched = false;
   boolean					hasUnsavedLimitValues = false;
   boolean         needsInitialHistoryRecord = false;
-  Set             historyRecords = new HashSet();
 
 
   
@@ -119,10 +123,6 @@ implements Assignment, Comparable
     
     this.checkAllLimitValues(function, limitValues);
     this.setModifyDatetime(new Date());
-
-    // The history-record for this new Assignment will be generated
-    // after this Assignment gets its ID, which happens at save-time.
-    this.needsInitialHistoryRecord = true;
   }
   
   /**
@@ -400,18 +400,6 @@ implements Assignment, Comparable
     
     this.grantable = grantable;
     this.setGrantor(actor);
-    
-    recordHistory();
-  }
-  
-  private void recordHistory()
-  {
-    this.setModifyDatetime(new Date());
-    this.instanceNumber++;
-    
-    AssignmentHistory assignmentHistory = new AssignmentHistory(this);
-    this.historyRecords.add(assignmentHistory);
-    // this.getSignet().save(assignmentHistory);
   }
   
   // This method is only for use by Hibernate.
@@ -432,8 +420,6 @@ implements Assignment, Comparable
     
     this.grantOnly = grantOnly;
     this.grantor = actor;
-    
-    recordHistory();
   }
 
 
@@ -538,8 +524,6 @@ implements Assignment, Comparable
 
     this.setRevoker(revoker);
     this.setStatus(Status.INACTIVE);
-    
-    recordHistory();
   }
   
   /* (non-Javadoc)
@@ -574,7 +558,6 @@ implements Assignment, Comparable
     
     this.effectiveDate = date;
     this.setGrantor(actor);
-    recordHistory();
   }
 
 
@@ -623,8 +606,6 @@ implements Assignment, Comparable
     
     this.setLimitValues(limitValues);
     this.setGrantor(actor);
-    
-    recordHistory();
   }
   
   private void setLimitValues(Set limitValues)
@@ -651,8 +632,6 @@ implements Assignment, Comparable
     this.expirationDate = expirationDate;
     this.setGrantor(actor);
     this.setModifyDatetime(new Date());
-    
-    recordHistory();
   }
 
   /* (non-Javadoc)
@@ -677,5 +656,106 @@ implements Assignment, Comparable
   private void setExpirationDate(Date expirationDate)
   {
     this.expirationDate = expirationDate;
+  }
+  
+  void incrementInstanceNumber()
+  {
+    this.instanceNumber++;
+  }
+
+  public boolean equals(Object obj)
+  {
+    if ( !(obj instanceof AssignmentImpl) )
+    {
+      return false;
+    }
+    
+    AssignmentImpl rhs = (AssignmentImpl) obj;
+    return new EqualsBuilder()
+      .append(this.id, rhs.id)
+      .isEquals();
+  }
+  
+  public int hashCode()
+  {
+    // you pick a hard-coded, randomly chosen, non-zero, odd number
+    // ideally different for each class
+    return new HashCodeBuilder(17, 37)
+      .append(this.id)
+      .toHashCode();
+  }
+  
+  boolean needsInitialHistoryRecord()
+  {
+    return this.needsInitialHistoryRecord;
+  }
+  
+  void needsInitialHistoryRecord(boolean needsInitialHistoryRecord)
+  {
+    this.needsInitialHistoryRecord = needsInitialHistoryRecord;
+  }
+  
+  void recordLimitValuesHistory
+    (Session         session)
+  throws HibernateException
+  {
+    Iterator limitValuesIterator
+      = this.getLimitValues().iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+      LimitValueHistory limitValueHistory
+        = new LimitValueHistory(this, limitValue);
+      
+      if (session != null)
+      {
+        session.save(limitValueHistory);
+      }
+      else
+      {
+        this.getSignet().save(limitValueHistory);
+      }
+    }
+  }
+  
+  public void save()
+  {
+    this.setModifyDatetime(new Date());
+      
+    if (this.getId() != null)
+    {
+      // This isn't the first time we've saved this Assignment.
+      // We'll increment the instance-number accordingly, and save
+      // its history-record right now (just after we save the Assignment
+      // record itself, so as to avoid hitting any referential-integrity
+      // problems in the database).
+      this.incrementInstanceNumber();
+        
+      AssignmentHistory historyRecord
+        = new AssignmentHistory(this);
+
+      this.getSignet().save(this);
+      this.getSignet().save(historyRecord);
+        
+      try
+      {
+        this.recordLimitValuesHistory(null);
+      }
+      catch (HibernateException e)
+      {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    else
+    {
+      // We can't construct the Assignment's initial history-record yet,
+      // because we don't yet know the ID of the assignment. We'll set a
+      // flag that will cause us to construct and save that history-record
+      // later, in the postFlush() method of the Hibernate Interceptor.
+      this.needsInitialHistoryRecord(true);
+    }
+    
+    this.getSignet().save(this);
   }
 }

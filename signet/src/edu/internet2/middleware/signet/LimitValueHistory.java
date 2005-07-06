@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValueHistory.java,v 1.1 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: LimitValueHistory.java,v 1.2 2005-07-06 22:48:25 acohen Exp $
+$Date: 2005-07-06 22:48:25 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -48,16 +48,12 @@ class LimitValueHistory
   }
   
   LimitValueHistory
-    (AssignmentHistory  assignmentHistory,
-     LimitValue         limitValue)
+    (AssignmentImpl  assignmentImpl,
+     LimitValue      limitValue)
   {
-    // Most information is just copied from the Assignment object to the
-    // AssignmentHistory object.
-//    this.setHistoryId(assignmentHistory.getHistoryId());
-    this.setAssignmentId(assignmentHistory.getAssignmentId());
-    this.setInstanceNumber(assignmentHistory.getInstanceNumber());
-    this.setSubsystem(assignmentHistory.getFunction().getSubsystem());
-//    this.limit = limitValue.getLimit();
+    this.setAssignmentId(assignmentImpl.getId());
+    this.setInstanceNumber(assignmentImpl.getInstanceNumber());
+    this.setSubsystem(assignmentImpl.getFunction().getSubsystem());
     this.choiceSetId = limitValue.getLimit().getChoiceSet().getId();
     this.value = limitValue.getValue();
   }

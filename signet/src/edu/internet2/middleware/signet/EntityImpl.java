@@ -1,6 +1,6 @@
 /*--
- $Id: EntityImpl.java,v 1.6 2005-06-23 23:39:18 acohen Exp $
- $Date: 2005-06-23 23:39:18 $
+ $Id: EntityImpl.java,v 1.7 2005-07-06 22:48:25 acohen Exp $
+ $Date: 2005-07-06 22:48:25 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -338,7 +338,8 @@ abstract class EntityImpl implements Entity, Name
   }
   
   public void save()
-  {    
+  {
+    this.setModifyDatetime(new Date());
     this.getSignet().save(this);
   }
 }
