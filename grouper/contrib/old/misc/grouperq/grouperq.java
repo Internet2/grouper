@@ -19,7 +19,7 @@ import  org.apache.commons.cli.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: grouperq.java,v 1.20 2005-05-23 13:09:20 blair Exp $
+ * @version $Id: grouperq.java,v 1.21 2005-07-07 03:08:28 blair Exp $
  */
 class grouperq {
 
@@ -223,12 +223,17 @@ class grouperq {
     // FIXME I should really have a command-line type option
     // First try looking up the member as DEF_SUBJ_TYPE
     if (querySubjectID != null) {
-      memQueryOn = GrouperMember.load(
-                     s, querySubjectID, Grouper.DEF_SUBJ_TYPE
-                   );
-      // If that doesn't resolve, attempt to look up the member as a
-      // group
-      if (memQueryOn == null) {
+      try {
+        memQueryOn = GrouperMember.load(
+          s, querySubjectID, Grouper.DEF_SUBJ_TYPE
+        );
+        _verbose(
+          "Retrieved member '" + querySubjectID + "' as type '" + 
+          Grouper.DEF_SUBJ_TYPE + "'"
+        );
+      } catch (SubjectNotFoundException e) {
+        // If that doesn't resolve, attempt to look up the member as a
+        // group
         GrouperGroup g = GrouperGroup.loadByName(s, querySubjectID);
         if (g != null) {
           memQueryOn = g.toMember();
@@ -236,14 +241,15 @@ class grouperq {
             _verbose("Retrieved member '" + querySubjectID + "' as type 'group'");
           }
         }
-      } else {
-        _verbose("Retrieved member '" + querySubjectID + "' as type '" + 
-                 Grouper.DEF_SUBJ_TYPE + "'");
       }
     } else {
-      memQueryOn = GrouperMember.load(
-                     s, subjectID, Grouper.DEF_SUBJ_TYPE
-                   );
+      try {
+        memQueryOn = GrouperMember.load(
+          s, subjectID, Grouper.DEF_SUBJ_TYPE
+        );
+      } catch (SubjectNotFoundException e) {
+        throw new RuntimeException(e.getMessage());
+      }
     }
   }
 

@@ -19,7 +19,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.14 2005-05-19 16:33:20 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.15 2005-07-07 03:08:28 blair Exp $ 
  */
 class csv2subject {
 
@@ -28,7 +28,7 @@ class csv2subject {
    */
   private static final String CF    = "csv2subject.properties";
   private static final String NAME  = "csv2subject";
-  private static final String TABLE = "grouper_subject";
+  private static final String TABLE = "Subject";
 
 
   /*
