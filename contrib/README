@@ -1,7 +1,7 @@
 
 # Grouper Contributed Code
 
-$Id: README,v 1.14 2005-04-08 17:24:08 blair Exp $
+$Id: README,v 1.15 2005-07-07 03:08:28 blair Exp $
 
 ---
 
@@ -15,7 +15,7 @@ Program to load groups and memberships from a CSV file into the
 registry using the _Grouper_ API.
 
 * Contributed by _The University Of Chicago_ on 20041203.
-* Last updated on 20050408.
+* Last updated on 20050706.
 * See load/csv2group/README for more information.
 
 ### load/cvs2subject
@@ -32,7 +32,7 @@ CSV file.
 Program to add and delete groups, memberships, and attributes.
 
 * Contributed by _The University Of Chicago_ on 20041207.
-* Last updated on 20050408.
+* Last updated on 20050706.
 * See load/groupmgr/README for more information.
 
 -- 
@@ -52,6 +52,6 @@ Demonstration program for querying the group registry using the
 _Grouper_ API.
 
 * Contributed by _The University Of Chicago_ on 20041130.
-* Last updated on 20050408.
+* Last updated on 20050706.
 * See misc/grouperq/README for more information.
 

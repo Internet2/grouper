@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.9 2005-06-22 21:33:42 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.10 2005-07-07 03:08:28 blair Exp $
  */
 public class SubjectFactory {
 
@@ -109,6 +109,7 @@ public class SubjectFactory {
     SubjectFactory.init();
     boolean cached  = false;
     Subject subj    = null;
+    log.debug("Getting subject " + id + "/" + type);
     try {
       subj = cache.get(id, type);
       cached = true;
@@ -134,6 +135,8 @@ public class SubjectFactory {
             continue;
           }
         }
+      } else {
+        log.debug("No adapters for type " + type);
       }
       if (subj != null) {
         if (cached == false) {
@@ -215,7 +218,6 @@ public class SubjectFactory {
    * @return true if subject type is known.
    */
   public static boolean hasType(String type) {
-    SubjectFactory.loadTypes();
     if (types.containsKey(type)) {
       return true;
     }
@@ -247,7 +249,6 @@ public class SubjectFactory {
    * @return known subject types.
    */
   public static Set types() {
-    SubjectFactory.loadTypes();
     return new HashSet( types.values() );
   }
  
@@ -273,6 +274,7 @@ public class SubjectFactory {
           log.debug("Added source: " + sa);
         } 
         cache = new SubjectCache();
+        SubjectFactory.loadTypes(); 
         log.info("Subject factory initialized");
       } catch (Exception e) {
         throw new RuntimeException(e); // TODO ???

@@ -19,7 +19,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: groupmgr.java,v 1.15 2005-05-23 13:09:20 blair Exp $ 
+ * @version $Id: groupmgr.java,v 1.16 2005-07-07 03:08:28 blair Exp $ 
  */
 class groupmgr {
 
@@ -201,9 +201,9 @@ class groupmgr {
         sid   = member;
         stid  = Grouper.DEF_SUBJ_TYPE;
       }
-      // Load the member
-      m = GrouperMember.load(s, sid, stid);
-      if (m != null) {
+      try {
+        // Load the member
+        m = GrouperMember.load(s, sid, stid);
         // Load the group
         GrouperGroup g = GrouperGroup.load(s, stem, extn);
         if (g != null) {
@@ -212,9 +212,11 @@ class groupmgr {
             rv = true;
             _verbose("Added `" + member + "' to `" + g.name() + "'");
           } catch (RuntimeException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
           }
         }
+      } catch (SubjectNotFoundException e) {
+        throw new RuntimeException(e.getMessage());
       }
     }
     if (rv != true) {
@@ -246,9 +248,9 @@ class groupmgr {
         sid   = member;
         stid  = Grouper.DEF_SUBJ_TYPE;
       }
-      // Load the member
-      m = GrouperMember.load(s, sid, stid);
-      if (m != null) {
+      try {
+        // Load the member
+        m = GrouperMember.load(s, sid, stid);
         // Load the group
         GrouperGroup g = GrouperGroup.load(s, stem, extn);
         if (g != null) {
@@ -257,9 +259,11 @@ class groupmgr {
             rv = true;
             _verbose("Deleted `" + member + "' from `" + g.name() + "'");
           } catch (RuntimeException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
           }
         }
+      } catch (SubjectNotFoundException e) {
+        throw new RuntimeException(e.getMessage());
       }
     }
     if (rv != true) {

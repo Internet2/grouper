@@ -21,7 +21,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2group.java,v 1.27 2005-05-23 13:09:20 blair Exp $ 
+ * @version $Id: csv2group.java,v 1.28 2005-07-07 03:08:28 blair Exp $ 
  */
 class csv2group {
 
@@ -242,17 +242,22 @@ class csv2group {
     // Load the group
     GrouperGroup g = GrouperGroup.load(s, stem, extn);
     if (g != null) {
-      // Load the member
-      GrouperMember m = GrouperMember.load(s, sid, stid);
-      if (m != null) {
-        try {
-          g.listAddVal(m);
-          rv = true;
-          _report("Added member: " + name + " to " + g.name());
-        } catch (RuntimeException e) {
-          System.err.println(e);
-          rv = false;
+      try {
+        // Load the member
+        GrouperMember m = GrouperMember.load(s, sid, stid);
+        if (m != null) {
+          try {
+            g.listAddVal(m);
+            rv = true;
+            _report("Added member: " + name + " to " + g.name());
+          } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+            rv = false;
+          }
         }
+      } catch (SubjectNotFoundException e) {
+        System.err.println(e.getMessage());
+        rv = false;
       }
     }
     if (rv != true) {
@@ -380,8 +385,8 @@ class csv2group {
     try {
       subj = SubjectFactory.getSubject(subjectID, Grouper.DEF_SUBJ_TYPE);
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      System.err.println(e.getMessage());
+      System.exit(1);
     }
   }
 
