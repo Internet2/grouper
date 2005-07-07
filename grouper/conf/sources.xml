@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.4 2005-05-29 16:51:21 blair Exp $
+$Id: sources.xml,v 1.5 2005-07-07 03:25:57 blair Exp $
 -->
 
 <sources>
@@ -17,10 +17,9 @@ $Id: sources.xml,v 1.4 2005-05-29 16:51:21 blair Exp $
     <id>personJDBCAdapter</id>
     <name>Person JDBC Adapter</name>
     <type>person</type>
-    <!-- TODO Disabled for now. -->
     <init-param>
       <param-name>maxActive</param-name>
-      <param-value>0</param-value>
+      <param-value>4</param-value>
     </init-param>
     <init-param>
       <param-name>maxIdle</param-name>
