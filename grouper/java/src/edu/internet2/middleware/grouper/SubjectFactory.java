@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.10 2005-07-07 03:08:28 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.11 2005-07-07 03:14:03 blair Exp $
  */
 public class SubjectFactory {
 
@@ -218,6 +218,7 @@ public class SubjectFactory {
    * @return true if subject type is known.
    */
   public static boolean hasType(String type) {
+    SubjectFactory.init();
     if (types.containsKey(type)) {
       return true;
     }
@@ -249,6 +250,7 @@ public class SubjectFactory {
    * @return known subject types.
    */
   public static Set types() {
+    SubjectFactory.init();
     return new HashSet( types.values() );
   }
  
