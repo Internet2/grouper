@@ -79,6 +79,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestStemsAttrsRep.class);
     suite.addTestSuite(TestStemsAttrsDel.class);
     suite.addTestSuite(TestStemsAttrsNoMod.class);
+    suite.addTestSuite(TestStemsDisplayExtn.class);
     suite.addTestSuite(TestStemsAsGroups.class);
     suite.addTestSuite(TestStemsMoF.class);
     // TODO TestStemsMoFAdd
@@ -91,6 +92,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestGroupsAttrsRep.class);
     suite.addTestSuite(TestGroupsAttrsDel.class);
     suite.addTestSuite(TestGroupsAttrsNoMod.class);
+    suite.addTestSuite(TestGroupsDisplayExtn.class);
     suite.addTestSuite(TestGroupsMoF.class);
     suite.addTestSuite(TestGroupsMoFAdd0.class);
     suite.addTestSuite(TestGroupsMoFChain0.class);

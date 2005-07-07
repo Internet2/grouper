@@ -52,6 +52,7 @@
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
 
 
 public class Constants {
@@ -120,6 +121,61 @@ public class Constants {
   public static final String  gCe = "group c";
   public static final String  gDs = GrouperGroup.groupName(ns0s, ns0e);
   public static final String  gDe = "group d";
+
+  /*
+   * PROTECTED CLASS VARIABLES
+   */
+  protected static GrouperStem  ns0, ns1, ns2;
+  protected static GrouperGroup gA, gB, gC, gD;
+
+
+  /*
+   * PROTECTED CLASS METHODS
+   */
+
+  protected static void createGroups() {
+    Constants.createGroups( Constants.createSession() );
+  }
+
+  protected static void createGroups(GrouperSession s) {
+    Constants.createStems(s);
+    gA = GrouperGroup.create(s, Constants.gAs, Constants.gAe);
+    gA.attribute("description", "this is group a");
+    gB = GrouperGroup.create(s, Constants.gBs, Constants.gBe);
+    gB.attribute("description", "this is group b");
+    gC = GrouperGroup.create(s, Constants.gCs, Constants.gCe);
+    gC.attribute("description", "this is group c");
+    gD = GrouperGroup.create(s, Constants.gDs, Constants.gDe);
+    gD.attribute("description", "this is group d");
+  }
+
+  protected static GrouperSession createSession() {
+    try {
+      return GrouperSession.start(
+        SubjectFactory.getSubject(
+          Constants.rootI, Constants.rootT
+        )
+      ); 
+    } catch (SubjectNotFoundException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  protected static void createStems() {
+    Constants.createStems( Constants.createSession() );
+  }
+
+  protected static void createStems(GrouperSession s) {
+    ns0 = GrouperStem.create(
+      s, Constants.ns0s, Constants.ns0e
+    );
+    ns1 = GrouperStem.create(
+      s, Constants.ns1s, Constants.ns1e
+    );
+    ns2 = GrouperStem.create(
+      s, Constants.ns2s, Constants.ns2e
+    );
+  }
 
 }
 
