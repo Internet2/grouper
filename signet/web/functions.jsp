@@ -1,6 +1,6 @@
 <!--
-  $Id: functions.jsp,v 1.13 2005-06-06 23:30:11 jvine Exp $
-  $Date: 2005-06-06 23:30:11 $
+  $Id: functions.jsp,v 1.14 2005-07-07 20:59:21 jvine Exp $
+  $Date: 2005-07-07 20:59:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -123,14 +123,37 @@
 						<%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
 					</div> <!-- ViewHead -->
          
-         	<div class="section">
+         <div class="section">
+				 		<h2>New assignment details</h2>
+							<table>
+              	<tr>
+              		<th width="15%" class="label" scope="row">Granted to:</td>
+              		<td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<td width="10%">&nbsp;</td>
+             		</tr>
+              	<tr>
+              		<th class="label" scope="row">Type:</td>
+              		<td><%=currentSubsystem.getName()%></td>
+              		<td>
+										<a href="<%=personViewHref%>">
+		               	<img src="images/arrow_left.gif" alt="" />change
+    			         	</a>
+									</td>
+             		</tr>								
+							</table>						
+				 </div>
+				 
+				 	<div class="section">
 					<h2>
-           	New <%=currentSubsystem.getName()%> privilege
+           	Select privilege
          	</h2> 
-           	<p>
-             	 <label for="functionSelectList">Select the privilege you want to grant.</label>
-           	</p>
-							
+					
+						<fieldset>
+							<legend><%=currentSubsystem.getName()%> privileges you are authorized to grant</legend>
+							<p><label for "scope">
+								Select a privilege, then click Continue.
+							</label></p>
+
                	<select
                	  style="float: left;"
                		name="functionSelectList"
@@ -203,7 +226,8 @@
                     <!-- function description gets inserted by Javascript -->
                   </p>
                 </div>  <!-- description -->
-              </div> 	<!-- section -->
+						</fieldset>		
+          </div> 	<!-- section -->
 					
            <div class="section">
              	<input
@@ -221,13 +245,13 @@
          	</div>	<!-- section -->
 					
        	</div><!-- Content -->
-        <tiles:insert page="/tiles/footer.jsp" flush="true" />
         <div id="Sidebar">
           <div class="helpbox">
           	<h2>Help</h2>
           	<jsp:include page="grant-help.jsp" flush="true" />          
 					</div>  <!-- end helpbox -->
         </div> <!-- Sidebar -->
+        <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->
     </form>
   </body>

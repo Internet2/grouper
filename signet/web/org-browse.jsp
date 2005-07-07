@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.11 2005-06-06 23:30:11 jvine Exp $
-  $Date: 2005-06-06 23:30:11 $
+  $Id: org-browse.jsp,v 1.12 2005-07-07 20:59:21 jvine Exp $
+  $Date: 2005-07-07 20:59:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -106,22 +106,41 @@
          	</div> <!-- ViewHead -->
 
          	<div class="section">
-         	<h2>
-           	New <%=currentSubsystem.getName()%> privilege
-						 		<div class="change">
-									<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
-								</div>
-         	</h2>
-            <span class="category"><%=currentCategory.getName()%></span> : 
-            <span class="function"><%=currentFunction.getName()%></span>
-       	  </div>
-         	<!-- end section -->
-
+				 		<h2>New assignment details</h2>
+							<table>
+              	<tr>
+              		<th width="15%" class="label" scope="row">Granted to:</td>
+              		<td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<td width="10%">&nbsp;</td>
+             		</tr>
+              	<tr>
+              		<th class="label" scope="row">Type:</td>
+              		<td><%=currentSubsystem.getName()%></td>
+              		<td>
+										<a href="<%=personViewHref%>">
+		               	<img src="images/arrow_left.gif" alt="" />change
+    			         	</a>
+									</td>
+             		</tr>								
+              	<tr>
+              		<th class="label" scope="row">Function:</td>
+              		<td>
+										<span class="category"><%=currentCategory.getName()%></span> : 
+				            <span class="function"><%=currentFunction.getName()%></span>
+									</td>
+              		<td>
+										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
+									</td>
+             		</tr>								
+							</table>						
+				 </div>
+				 
            	<div class="section">
            	<h2>
-             	Scope
+             	Select scope
          	 </h2>
- 
+						<fieldset>
+						<legend>Scopes in which you are authorized to grant</legend>
              	<p><label for "scope">
                	Select the organization to which this privilege applies.
              	</label></p>
@@ -141,7 +160,8 @@
                      "</option>\n",                // suffix
                      loggedInPrivilegedSubject.getGrantableScopes(currentFunction))%>
              	</select>
-              	</div>	<!-- end section -->
+						</fieldset>	
+         	</div>	<!-- end section -->
 	
           <div class="section">
       	<input
@@ -158,13 +178,13 @@
             	</p>
          </div> <!-- end section -->  	
        	</div><!-- end Content -->	
-        <tiles:insert page="/tiles/footer.jsp" flush="true" />
         <div id="Sidebar">     
           <div class="helpbox">
           	<h2>Help</h2>
           	<jsp:include page="grant-help.jsp" flush="true" />          
 					</div>  <!-- end helpbox -->
         </div> <!-- end Sidebar -->
+        <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div>	<!-- end Layout -->
     </form>
   </body>

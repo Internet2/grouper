@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.27 2005-07-01 23:06:52 acohen Exp $
-  $Date: 2005-07-01 23:06:52 $
+  $Id: personview.jsp,v 1.28 2005-07-07 20:59:21 jvine Exp $
+  $Date: 2005-07-07 20:59:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -403,6 +403,7 @@
           <form action="Functions.do">
             <p>
               <select id="select" name="select" class="long">
+							<option value="">select privilege type</option>
 
 <%
     Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
@@ -450,16 +451,16 @@
                 style="width:100px"
                 size="15"
                 maxlength="500"
-                onFocus="personSearchFieldHasFocus=true;"
-                onBlur="personSearchFieldHasFocus=false;" />
+                onfocus="personSearchFieldHasFocus=true;"
+                onblur="personSearchFieldHasFocus=false;" />
               <input
                 name="searchbutton"
                 type="button"
                 class="button1"
                 onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
                 value="Search"
-                onFocus="personSearchButtonHasFocus=true;"
-                onBlur="personSearchButtonHasFocus=false;" />
+                onfocus="personSearchButtonHasFocus=true;"
+                onblur="personSearchButtonHasFocus=false;" />
             <br />
             <label for="words">
               Enter a subject's name, and click "Search."

@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.12 2005-06-07 23:31:33 acohen Exp $
-   $Date: 2005-06-07 23:31:33 $
+   $Id: signet.css,v 1.13 2005-07-07 20:59:21 jvine Exp $
+   $Date: 2005-07-07 20:59:21 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -48,9 +48,9 @@ caption {
 fieldset {
 	font-size: 11px; 
 	font-weight: normal;
-	width: 100%;
+	width: auto;
+	margin: 5px 20px 5px 20px;
 	border: 1px solid #DDD;
-	margin: 0px 0px 5px 0px;
 	padding: 10px;
 }
 
@@ -146,6 +146,11 @@ table {
 	width: 100%;
 }
 
+.section table {
+  margin: 0px 20px;
+	width:auto;
+}
+
 td {
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
 	font-size: 11px; 
@@ -185,6 +190,20 @@ th {
 	padding: 0px;
 	margin: 0px;
 	white-space: nowrap;
+}
+
+th.label {
+	text-align: left;
+	vertical-align: top;
+	font-size: 11px; 
+	font-weight: normal;
+	background-color: #FFF;
+	text-decoration: none;
+	color: #666;
+	padding: 0px;
+	margin: 0px;
+	white-space: nowrap;
+	border-bottom: 1px solid #CCC;	
 }
 
 th a{ /* 3-D header for sortable columns */
@@ -506,8 +525,14 @@ li {
 
 /* MISC */
 
+.alert {
+	color: #CC0000;
+}
+
 .dropback {
 	color: #666;
+	text-transform: none;
+	font-weight: normal;
 }
 
 .help {
@@ -524,6 +549,8 @@ li {
 
 .status {
 	color: #CC0000;
+	font-weight: normal;
+	text-transform: none;
 }
 
 .toolname { /* reference to a tool tile in the Sidebar */

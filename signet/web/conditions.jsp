@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.18 2005-07-05 17:03:27 acohen Exp $
-  $Date: 2005-07-05 17:03:27 $
+  $Id: conditions.jsp,v 1.19 2005-07-07 20:59:21 jvine Exp $
+  $Date: 2005-07-07 20:59:21 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -232,54 +232,73 @@
        	    </h1>
        	    <span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
             </div>  <!-- ViewHead -->
-          
-            <div class="section">
-             	<h2>New <%=currentSubsystem.getName()%> privilege
+
+         	<div class="section">
+				 		<h2>New assignment details</h2>
+							<table>
+              	<tr>
+              		<th width="15%" class="label" scope="row">Granted to:</td>
+              		<td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<td width="10%">&nbsp;</td>
+             		</tr>
+              	<tr>
+              		<th class="label" scope="row">Type:</td>
+              		<td><%=currentSubsystem.getName()%></td>
+              		<td>
+										<a href="<%=personViewHref%>">
+		               	<img src="images/arrow_left.gif" alt="" />change
+    			         	</a>
+									</td>
+             		</tr>								
+              	<tr>
+              		<th class="label" scope="row">Function:</td>
+              		<td>
+										<span class="category"><%=currentCategory.getName()%></span> : 
+				            <span class="function"><%=currentFunction.getName()%></span>
+									</td>
+              		<td>
 <% if (currentAssignment == null)
    {
 %>
-						 		<div class="change">
-									<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
-								</div>
+										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
 <%
    }
-%>
-							</h2>
-                <span class="category"><%=currentCategory.getName()%></span> : 
-                <span class="function"><%=currentFunction.getName()%></span>
-          </div> <!-- section -->
-            
-          <div class="section">
-              <h2>Scope
+%>									</td>
+             		</tr>			
+								<tr>
+              		<th class="label" scope="row">Scope:</td>
+              		<td>
+										<ul class="none">
+											<%=signet.displayAncestry
+													(currentScope,
+													 "<ul class=\"arrow\">\n",  // childSeparatorPrefix
+													 "\n<li>\n",                // levelPrefix
+													 "\n</li>\n",               // levelSuffix
+													 "\n</ul>")                 // childSeparatorSuffix
+											 %>
+										</ul>									
+									</td>
+              		<td>
 <% if (currentAssignment == null)
    {
 %>
-								<div class="change">
-									<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
-								</div>
+											<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
 <%
    }
-%>
-							</h2>
-              <ul class="none">
-              
-                <%=signet.displayAncestry
-                    (currentScope,
-                     "<ul class=\"arrow\">\n",  // childSeparatorPrefix
-                     "\n<li>\n",                // levelPrefix
-                     "\n</li>\n",               // levelSuffix
-                     "\n</ul>")                 // childSeparatorSuffix
-                 %>
-              
-              </ul>
-          </div><!-- section -->
+%>									
+									</td>
+								</tr>					
+							</table>						
+				 </div>
+
+         
             
 <%
   if (currentLimits.length > 0)
   {
 %>
             <div class="section">
-              <h2> Limits</h2>
+              <h2>Select limits</h2>
            
 <%
     for (int i = 0; i < currentLimits.length; i++)
@@ -326,7 +345,7 @@
 %>
 		 
             <div class="section">
-              <h2> Conditions</h2>
+              <h2>Set conditions</h2>
 
               <fieldset>
                 <legend>
@@ -385,7 +404,6 @@
               </p>
             </div> <!-- section -->
         </div> <!--Content -->
-       <tiles:insert page="/tiles/footer.jsp" flush="true" />
 				      
         <div id="Sidebar">
           <div class="helpbox">
@@ -393,6 +411,7 @@
 			  		<jsp:include page="grant-help.jsp" flush="true" />          
 					</div> <!-- Helpbox -->
         </div> <!-- Sidebar -->
+       <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->
     </form>
   </body>
