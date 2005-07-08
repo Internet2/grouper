@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.7 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: LimitValue.java,v 1.8 2005-07-08 21:54:57 acohen Exp $
+$Date: 2005-07-08 21:54:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.Comparator;
 import java.util.HashSet;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -22,6 +23,8 @@ import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
  */
 public class LimitValue
 {
+  private static Comparator displayOrderComparator;
+  
   private Limit		limit;
   private String	value;
   
@@ -135,5 +138,15 @@ public class LimitValue
   public String toString()
   {
     return "[" + this.limit + " : " + this.value + "]";
+  }
+  
+  static public Comparator getDisplayOrderComparator()
+  {
+    if (displayOrderComparator == null)
+    {
+      displayOrderComparator = new LimitValueDisplayOrder();
+    }
+    
+    return displayOrderComparator;
   }
 }

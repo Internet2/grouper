@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.5 2005-04-05 23:11:38 acohen Exp $
-$Date: 2005-04-05 23:11:38 $
+$Id: ChoiceImpl.java,v 1.6 2005-07-08 21:54:57 acohen Exp $
+$Date: 2005-07-08 21:54:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,8 +16,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
-import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 
 /**
  * @author acohen

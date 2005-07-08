@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.18 2005-07-08 02:07:38 acohen Exp $
-$Date: 2005-07-08 02:07:38 $
+$Id: Fixtures.java,v 1.19 2005-07-08 21:54:57 acohen Exp $
+$Date: 2005-07-08 21:54:57 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,7 +11,6 @@ package edu.internet2.middleware.signet.test;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -317,37 +316,6 @@ public class Fixtures
     	(assignmentNumber, // subjectNumber
        assignmentNumber, // functionNumber,
        limitChoiceNumbers);
-  }
-  
-  private static Choice[] getChoicesInDisplayOrder(ChoiceSet choiceSet)
-  {
-    Choice[] choiceArray = new Choice[0];
-    choiceArray = (Choice[])(choiceSet.getChoices().toArray(choiceArray));
-    
-    Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
-    return choiceArray;
-  }
-
-  /**
-   * Gets the Nth choice-value of the Nth limit for the specified function.
-   * The ordering is determined by the display-order.
-   * 
-   * @param function
-   * @param limitAndValueNumber
-   * @return
-   * @throws ObjectNotFoundException
-   */
-  private LimitValue getLimitValue
-  	(Function function,
-  	 int			limitAndValueNumber)
-  throws ObjectNotFoundException
-  {
-    Limit limit = function.getLimitsArray()[limitAndValueNumber];
-    Choice[] choices = getChoicesInDisplayOrder(limit.getChoiceSet());
-    Choice choice = choices[limitAndValueNumber];
-    
-    LimitValue limitValue = new LimitValue(limit, choice.getValue());
-    return limitValue;
   }
 
   /**

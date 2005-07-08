@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.12 2005-07-01 23:06:52 acohen Exp $
-  $Date: 2005-07-01 23:06:52 $
+  $Id: Common.java,v 1.13 2005-07-08 21:54:57 acohen Exp $
+  $Date: 2005-07-08 21:54:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -10,11 +10,9 @@ package edu.internet2.middleware.signet.ui;
 
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,8 +25,8 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.PrivilegedSubject;
-import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.choice.ChoiceDisplayOrderComparator;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 public class Common
@@ -98,7 +96,7 @@ public class Common
     (Assignment assignment)
   {
     LimitValue[] limitValues = getLimitValuesArray(assignment);
-    Arrays.sort(limitValues, new LimitValueDisplayOrder());
+    Arrays.sort(limitValues, LimitValue.getDisplayOrderComparator());
     return limitValues;
   }
   
@@ -107,7 +105,10 @@ public class Common
     Choice[] choiceArray = new Choice[0];
     choiceArray = (Choice[])(choiceSet.getChoices().toArray(choiceArray));
     
-    Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
+    if (choiceArray.length > 0)
+    {
+      Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
+    }
     return choiceArray;
   }
 
