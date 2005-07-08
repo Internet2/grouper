@@ -1,6 +1,17 @@
 -- This is the HSQL DDL for the Signet database
 --
 -- Subsystem tables
+<<<<<<< hsql.sql
+drop table signet_proxyType_function if exists;
+drop table signet_permission_limit if exists;
+drop table signet_function_permission if exists;
+drop table signet_category if exists;
+drop table signet_function if exists;
+drop table signet_permission if exists;
+drop table signet_proxyType if exists;
+drop table signet_limit if exists;
+drop table signet_subsystem if exists;
+=======
 drop table signet_proxyType_function;
 drop table signet_permission_limit;
 drop table signet_function_permission;
@@ -28,6 +39,7 @@ drop table signet_assignment_history;
 drop table SubjectAttribute;
 drop table Subject;
 drop table SubjectType;
+>>>>>>> 1.15
 --
 -- Subsystem tables
 create table signet_subsystem
@@ -137,6 +149,11 @@ foreign key (subsystemID, functionID) references signet_function (subsystemID, f
 )
 ;
 -- Signet Subject tables
+<<<<<<< hsql.sql
+drop table signet_privilegedSubject if exists;
+--
+=======
+>>>>>>> 1.15
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -145,6 +162,13 @@ primary key (subjectTypeID, subjectID)
 )
 ;
 -- Tree tables
+<<<<<<< hsql.sql
+drop table signet_treeNodeRelationship if exists;
+drop table signet_treeNode if exists;
+drop table signet_tree if exists;
+--
+=======
+>>>>>>> 1.15
 create table signet_tree
 (
 treeID              varchar(64)         NOT NULL,
@@ -176,6 +200,12 @@ foreign key (treeID) references signet_tree (treeID)
 )
 ;
 -- ChoiceSet tables
+<<<<<<< hsql.sql
+drop table signet_choice if exists;
+drop table signet_choiceSet if exists;
+--
+=======
+>>>>>>> 1.15
 create table signet_choiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -198,6 +228,14 @@ foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 )
 ;
 -- Assignment tables
+<<<<<<< hsql.sql
+drop table signet_assignmentLimit if exists;
+drop table signet_assignment if exists;
+drop table signet_assignmentLimit_history if exists;
+drop table signet_assignment_history if exists;
+--
+=======
+>>>>>>> 1.15
 create table signet_assignment
 (
 assignmentID        int                 NOT NULL IDENTITY,
@@ -286,6 +324,13 @@ foreign key(assignmentID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)
+<<<<<<< hsql.sql
+drop table SubjectAttribute if exists;
+drop table Subject if exists;
+drop table SubjectType if exists;
+--
+=======
+>>>>>>> 1.15
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
