@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.11 2005-06-06 23:30:11 jvine Exp $
-  $Date: 2005-06-06 23:30:11 $
+  $Id: assignment.jsp,v 1.12 2005-07-08 01:03:02 jvine Exp $
+  $Date: 2005-07-08 01:03:02 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -65,19 +65,9 @@
   DateFormat dateFormat = DateFormat.getDateInstance();
 %>
     <div class="section">
-      <h2>
-      <%=currentAssignment.getFunction().getSubsystem().getName()%>
+      <h2>Assignment details
       </h2>
-			<p>
-  	    <span class="category"><%=currentAssignment.getFunction().getCategory().getName()%> : 
-				</span>
-				<span class="function">
-					<%=currentAssignment.getFunction().getName()%>
-				</span>
-			</p>
-    
-    <p><%=currentAssignment.getFunction().getHelpText()%>
- 	</p>
+			
     <table class="invis">
     
       <tr>
@@ -89,24 +79,27 @@
         </td>
       </tr>
     
-      <tr>
-        <td class="label">
-          Granted by:
-        </td>
-        <td>
-          <%=grantor.getName()%>
-        </td>
-      </tr>
+    
     
       <tr>
-        <td class="label">
-          On:
-        </td>
-        <td>
-          <%=dateFormat.format(currentAssignment.getEffectiveDate())%>
-        </td>
-      </tr>
-    
+      	<td class="label">Category:</td>
+      	<td>&nbsp;</td>
+     	</tr>
+      <tr>
+      	<td class="label">Privilege:</td>
+      	<td>
+					<p>
+							<span class="category"><%=currentAssignment.getFunction().getCategory().getName()%> : 
+							</span>
+							<span class="function">
+								<%=currentAssignment.getFunction().getName()%>
+							</span>
+					</p>
+					
+					<p><%=currentAssignment.getFunction().getHelpText()%>
+					</p>
+				</td>
+     	</tr>
       <tr>
         <td class="label">
           Scope:
@@ -158,9 +151,22 @@
           <%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
         </td>
       </tr>
+      <tr>
+      	<td class="label"> Granted on: </td>
+      	<td><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
+     	</tr>
+
+  <tr>
+        <td class="label">
+          Granted by:
+        </td>
+        <td>
+          <%=grantor.getName()%>
+        </td>
+      </tr>
       
     </table>
-	    </div>
+  </div>
 	
   </body>
 </html>
