@@ -1,7 +1,6 @@
 -- This is the HSQL DDL for the Signet database
 --
 -- Subsystem tables
-<<<<<<< hsql.sql
 drop table signet_proxyType_function if exists;
 drop table signet_permission_limit if exists;
 drop table signet_function_permission if exists;
@@ -11,38 +10,27 @@ drop table signet_permission if exists;
 drop table signet_proxyType if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
-=======
-drop table signet_proxyType_function;
-drop table signet_permission_limit;
-drop table signet_function_permission;
-drop table signet_category;
-drop table signet_function;
-drop table signet_permission;
-drop table signet_proxyType;
-drop table signet_limit;
-drop table signet_subsystem;
 -- Signet Subject tables
-drop table signet_privilegedSubject;
+drop table signet_privilegedSubject if exists;
 -- Tree tables
-drop table signet_treeNodeRelationship;
-drop table signet_treeNode;
-drop table signet_tree;
+drop table signet_treeNodeRelationship if exists;
+drop table signet_treeNode if exists;
+drop table signet_tree if exists;
 -- ChoiceSet tables
-drop table signet_choice;
-drop table signet_choiceSet;
+drop table signet_choice if exists;
+drop table signet_choiceSet if exists;
 -- Assignment tables
-drop table signet_assignmentLimit;
-drop table signet_assignment;
-drop table signet_assignmentLimit_history;
-drop table signet_assignment_history;
+drop table signet_assignmentLimit if exists;
+drop table signet_assignment if exists;
+drop table signet_assignmentLimit_history if exists;
+drop table signet_assignment_history if exists;
 -- Subject tables (optional, for local subject tables)
-drop table SubjectAttribute;
-drop table Subject;
-drop table SubjectType;
->>>>>>> 1.15
+drop table SubjectAttribute if exists;
+drop table Subject if exists;
+drop table SubjectType if exists;
 --
 -- Subsystem tables
-create table signet_subsystem
+-- create table signet_subsystem
 (
 subsystemID         varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -148,12 +136,9 @@ foreign key (subsystemID, proxyTypeID) references signet_proxyType (subsystemID,
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID)
 )
 ;
--- Signet Subject tables
-<<<<<<< hsql.sql
-drop table signet_privilegedSubject if exists;
 --
-=======
->>>>>>> 1.15
+-- Signet Subject tables
+--
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -161,14 +146,9 @@ name              varchar(120)    NOT NULL,
 primary key (subjectTypeID, subjectID)
 )
 ;
--- Tree tables
-<<<<<<< hsql.sql
-drop table signet_treeNodeRelationship if exists;
-drop table signet_treeNode if exists;
-drop table signet_tree if exists;
 --
-=======
->>>>>>> 1.15
+-- Tree tables
+--
 create table signet_tree
 (
 treeID              varchar(64)         NOT NULL,
@@ -199,13 +179,9 @@ primary key (treeID, nodeID, parentNodeID),
 foreign key (treeID) references signet_tree (treeID)
 )
 ;
--- ChoiceSet tables
-<<<<<<< hsql.sql
-drop table signet_choice if exists;
-drop table signet_choiceSet if exists;
 --
-=======
->>>>>>> 1.15
+-- ChoiceSet tables
+--
 create table signet_choiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -227,15 +203,9 @@ primary key (choiceSetID, value),
 foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 )
 ;
--- Assignment tables
-<<<<<<< hsql.sql
-drop table signet_assignmentLimit if exists;
-drop table signet_assignment if exists;
-drop table signet_assignmentLimit_history if exists;
-drop table signet_assignment_history if exists;
 --
-=======
->>>>>>> 1.15
+-- Assignment tables
+--
 create table signet_assignment
 (
 assignmentID        int                 NOT NULL IDENTITY,
@@ -300,8 +270,6 @@ modifyDatetime      datetime            NOT NULL,
 unique (assignmentID, instanceNumber)
 )
 ;
---
---     
 create table signet_assignmentLimit_history
 (
 historyID           int                 NOT NULL IDENTITY,
@@ -323,14 +291,9 @@ foreign key(assignmentID, instanceNumber)
   references signet_assignment_history(assignmentID, instanceNumber)
 )
 ;
--- Subject tables (optional, for local subject tables)
-<<<<<<< hsql.sql
-drop table SubjectAttribute if exists;
-drop table Subject if exists;
-drop table SubjectType if exists;
 --
-=======
->>>>>>> 1.15
+-- Subject tables (optional, for local subject tables)
+--
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
