@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: PrivilegedSubjectTest.java,v 1.7 2005-07-08 03:48:58 acohen Exp $
+$Date: 2005-07-08 03:48:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,6 +16,7 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
@@ -188,6 +189,47 @@ public class PrivilegedSubjectTest extends TestCase
            null);       // no expiration date
     
     assertNotNull(newAssignment);
+  }
+
+  public final void testGetPrivileges()
+  throws
+    ObjectNotFoundException
+  {
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject(
+            Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set privileges = pSubject.getPrivileges();
+      
+      // Here's a picture of the Assignments which this test expects to find:
+      //
+      // Subject 0
+      //   Function 0
+      //     Permission 0
+      //   Function 2
+      //     Permission 2
+      //  Subject 1
+      //    Function 1
+      //      Permission 1
+      //  Subject 2
+      //    Function 2
+      //      Permission 2
+      
+      // subject 0 should have 2 Privileges. All others should have just 1.
+      if (subjectIndex == 0)
+      {
+        assertEquals(2, privileges.size());
+      }
+      else
+      {
+        assertEquals(1, privileges.size());
+      }
+    }
   }
   
   private int limitNumber(String limitName)
