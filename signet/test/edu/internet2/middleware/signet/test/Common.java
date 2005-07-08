@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.3 2005-07-01 01:51:33 acohen Exp $
-$Date: 2005-07-01 01:51:33 $
+$Id: Common.java,v 1.4 2005-07-08 02:07:38 acohen Exp $
+$Date: 2005-07-08 02:07:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,6 +14,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.LimitValue;
+import edu.internet2.middleware.signet.Privilege;
 
 import junit.framework.TestCase;
 
@@ -51,6 +52,16 @@ public class Common extends TestCase
     (Assignment assignment)
   {
     LimitValue[] limitValues = getLimitValuesArray(assignment);
+    Arrays.sort(limitValues, new LimitValueDisplayOrder());
+    return limitValues;
+  }
+
+  static LimitValue[] getLimitValuesInDisplayOrder
+    (Privilege privilege)
+  {
+    LimitValue[] limitValues = new LimitValue[0];
+    limitValues
+      = (LimitValue[])(privilege.getLimitValues().toArray(limitValues));
     Arrays.sort(limitValues, new LimitValueDisplayOrder());
     return limitValues;
   }

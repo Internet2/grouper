@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.17 2005-06-28 19:41:57 acohen Exp $
- $Date: 2005-06-28 19:41:57 $
+ $Id: PrivilegedSubjectImpl.java,v 1.18 2005-07-08 02:07:38 acohen Exp $
+ $Date: 2005-07-08 02:07:38 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -572,7 +572,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public Set getAssignmentsReceived
     (Status status, Subsystem subsystem, Function function)
-  throws ObjectNotFoundException
   {
     // I really want to handle this purely through Hibernate
     // mappings, but I haven't figured out how yet.
@@ -622,7 +621,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   private Set filterAssignments(Set all, Subsystem subsystem)
-      throws ObjectNotFoundException
   {
     if (subsystem == null)
     {
@@ -864,16 +862,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Set receivedLimitChoices = new HashSet();
 
     Iterator assignmentsReceivedIterator;
-    try
-    {
-      assignmentsReceivedIterator = this.getAssignmentsReceived
-        (Status.ACTIVE, function.getSubsystem(), function)
-         .iterator();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
+
+    assignmentsReceivedIterator = this.getAssignmentsReceived
+      (Status.ACTIVE, function.getSubsystem(), function)
+       .iterator();
     
     while (assignmentsReceivedIterator.hasNext())
     {
@@ -973,5 +965,24 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     // If we've gotten this far, then we must not have exceeded any of the
     // Choices in the Set.
     return true;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#getPrivileges()
+   */
+  public Set getPrivileges()
+  {
+    Set privileges = new HashSet();
+    
+    Set assignments = this.getAssignmentsReceived(Status.ACTIVE, null, null);
+    Iterator assignmentsIterator = assignments.iterator();
+    while (assignmentsIterator.hasNext())
+    {
+      Assignment assignment = (Assignment)(assignmentsIterator.next());
+      Set assignmentPrivileges = PrivilegeImpl.getPrivileges(assignment);
+      privileges.addAll(assignmentPrivileges);
+    }
+    
+    return privileges;
   }
 }

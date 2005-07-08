@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.10 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: PrivilegedSubject.java,v 1.11 2005-07-08 02:07:38 acohen Exp $
+ $Date: 2005-07-08 02:07:38 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -112,11 +112,9 @@ public interface PrivilegedSubject extends Comparable
    * returns all Assignments regardless of Function.
    * @return all the Assignments which have been received by this
    * PrivilegedSubject.
-   * @throws ObjectNotFoundException
    */
   public Set getAssignmentsReceived
-    (Status status, Subsystem subsystem, Function function)
-  throws ObjectNotFoundException;
+    (Status status, Subsystem subsystem, Function function);
   
   /**
    * Gets all the Assignments which have been granted by this
@@ -262,14 +260,15 @@ public interface PrivilegedSubject extends Comparable
    by ProxyType.
    */
   //public PrivilegedSubject[] canProxyFor(ProxyType type);
+
   
-  /*
-   This method returns all of the active, exercisable privileges held by this
-   Subject.
-   
-   @see Privilege
+  /**
+   * Gets all the Privileges which are currently held by this
+   * PrivilegedSubject.
+   * 
+   * @return all the Privileges currently held by this PrivilegedSubject which
+   * are related to the specified Subsystem.
    */
-  //public Privilege[] getPrivileges();
-  
+  public Set getPrivileges();
 }
 

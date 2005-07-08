@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.17 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: Fixtures.java,v 1.18 2005-07-08 02:07:38 acohen Exp $
+$Date: 2005-07-08 02:07:38 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -864,6 +864,29 @@ public class Fixtures
     if (subjectNumber == 0)
     {
       if (function.getId().equals(makeFunctionId(0)))
+      {
+        expected = 1;
+      }
+      else
+      {
+        expected = 3;
+      }
+    }
+    else
+    {
+      expected = subjectNumber + 1;
+    }
+    
+    return expected;
+  }
+  
+  public int expectedLimitValuesCount(int subjectNumber, Permission permission)
+  {
+    int expected;
+    
+    if (subjectNumber == 0)
+    {
+      if (permission.getId().equals(makePermissionId(0)))
       {
         expected = 1;
       }
