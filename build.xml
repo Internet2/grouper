@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.54 2005-06-09 19:13:47 blair Exp $ -->
+<!-- $Id: build.xml,v 1.55 2005-07-09 20:51:00 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -93,8 +93,7 @@
       author="true"/>
   </target>
 
-  <target name="test" depends="test-run">
-  </target>
+  <target name="test" depends="test-run"/>
 
   <target name="test-build" depends="build">
     <javac srcdir="${src.test}" destdir="${build.test}">
