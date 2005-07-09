@@ -90,7 +90,7 @@ public class TestStemsDisplayExtn extends TestCase {
     );
     Assert.assertTrue(
       attr + " right value",
-      Constants.ns0.attribute(attr).value().equals("")
+      Constants.ns0.attribute(attr).value().equals(Constants.ns0e)
     );
   }
 
@@ -107,6 +107,7 @@ public class TestStemsDisplayExtn extends TestCase {
     );
   }
 
+/*
   public void testDelDisplayExtn() {
     Assert.assertNotNull("session != null", s);
     Constants.ns0.attribute(attr, val);
@@ -125,9 +126,10 @@ public class TestStemsDisplayExtn extends TestCase {
     );
     Assert.assertTrue(
       attr + " right value (unset)",
-      Constants.ns0.attribute(attr).value().equals("")
+      Constants.ns0.attribute(attr).value().equals(Constants.ns0e)
     );
   }
+*/
 
 }
 

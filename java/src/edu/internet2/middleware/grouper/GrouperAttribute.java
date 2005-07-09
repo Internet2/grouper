@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.31 2005-04-28 15:53:51 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.32 2005-07-09 04:51:08 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -175,8 +175,8 @@ public class GrouperAttribute implements Serializable {
             s.dbSess().session().save(attr);   
           } catch (HibernateException e) {
             throw new RuntimeException(
-                        "Error saving attribute " + attr + ": " + e
-                      );
+              "Error saving attribute " + attr + ": " + e.getMessage()
+            );
           }
         } else if (vals.size() == 1) {
           // Attribute already exists.  Check to see if the value has
@@ -187,21 +187,20 @@ public class GrouperAttribute implements Serializable {
               s.dbSess().session().update(attr);
             } catch (HibernateException e) {
               throw new RuntimeException(
-                          "Error updating attribute " + attr + ": " + e
-                        );
+                "Error updating attribute " + attr + ": " + 
+                e.getMessage()
+              );
             }
           } else {
           }
         } 
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+      throw new RuntimeException(e.getMessage());
     }
   }
 
@@ -313,7 +312,10 @@ public class GrouperAttribute implements Serializable {
     return this.groupFieldValue;
   }
 
-  private void setGroupFieldValue(String groupFieldValue) {
+  /*
+   * Life is just easier this way.
+   */
+  protected void setGroupFieldValue(String groupFieldValue) {
     this.groupFieldValue = groupFieldValue;
   }
 

@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.218 2005-05-29 20:34:49 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.219 2005-07-09 04:51:08 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -118,6 +118,17 @@ public class GrouperGroup extends Group {
     this.attributeAdd(
       new GrouperAttribute(
         this.getGroupKey(), "name", Group.groupName(stem, extn)
+      )
+    );
+    this.attributeAdd(
+      new GrouperAttribute(
+        this.getGroupKey(), "displayExtension", extn
+      )
+    );
+    // TODO Is this right?
+    this.attributeAdd(
+      new GrouperAttribute(
+        this.getGroupKey(), "displayName", Group.displayName(stem, extn)
       )
     );
 

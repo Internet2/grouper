@@ -126,7 +126,7 @@ public class Constants {
    * PROTECTED CLASS VARIABLES
    */
   protected static GrouperStem  ns0, ns1, ns2;
-  protected static GrouperGroup gA, gB, gC, gD;
+  protected static GrouperGroup g0, g1, g2, gA, gB, gC, gD;
 
 
   /*
@@ -139,6 +139,12 @@ public class Constants {
 
   protected static void createGroups(GrouperSession s) {
     Constants.createStems(s);
+    g0 = GrouperGroup.create(s, Constants.g0s, Constants.g0e);
+    g0.attribute("description", "this is group 0");
+    g1 = GrouperGroup.create(s, Constants.g1s, Constants.g1e);
+    g1.attribute("description", "this is group 1");
+    g2 = GrouperGroup.create(s, Constants.g2s, Constants.g2e);
+    g2.attribute("description", "this is group 2");
     gA = GrouperGroup.create(s, Constants.gAs, Constants.gAe);
     gA.attribute("description", "this is group a");
     gB = GrouperGroup.create(s, Constants.gBs, Constants.gBe);

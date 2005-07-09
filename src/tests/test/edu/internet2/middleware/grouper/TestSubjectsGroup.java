@@ -121,6 +121,7 @@ public class TestSubjectsGroup extends TestCase {
     }
   }
 
+/*
   public void testSubjectInterfaceLookupGroupAByID() {
     try {
       Subject subj = SubjectFactory.getSubject(gAid, "group");
@@ -235,7 +236,6 @@ public class TestSubjectsGroup extends TestCase {
     Assert.assertTrue("vals.size()==0", vals.size() == 0);
   }
 
-/*
   // TODO By _displayExtension_
   // TODO Multiple returns
   public void testSubjectInterfaceSearchByDisplayExtn() {
@@ -310,7 +310,7 @@ public class TestSubjectsGroup extends TestCase {
       Subject subj = SubjectFactory.getSubject(gAid, "group");
       Assert.assertTrue("loaded subject", true);
       Map attrs = subj.getAttributes();
-      Assert.assertTrue("attrs=3", attrs.size() == 4);
+      Assert.assertTrue("attrs=6", attrs.size() == 6);
       List keys = new ArrayList( attrs.keySet() );
       Collections.sort(keys);
       Assert.assertTrue("[0]=description", keys.get(0).equals("description"));
@@ -319,23 +319,35 @@ public class TestSubjectsGroup extends TestCase {
       Assert.assertTrue(
         "[0] vals", attrs.get( keys.get(0)).equals(vals)
       );
-      Assert.assertTrue("[1]=extension", keys.get(1).equals("extension"));
+      Assert.assertTrue("[1]=displayExtension", keys.get(1).equals("displayExtension"));
       vals = new HashSet();
       vals.add("group a");
       Assert.assertTrue(
         "[1] vals", attrs.get( keys.get(1)).equals(vals)
       );
-      Assert.assertTrue("[2]=name", keys.get(2).equals("name"));
+      Assert.assertTrue("[2]=displayName", keys.get(2).equals("displayName"));
       vals = new HashSet();
       vals.add("root:group a");
       Assert.assertTrue(
         "[2] vals", attrs.get( keys.get(2)).equals(vals)
       );
-      Assert.assertTrue("[3]=stem", keys.get(3).equals("stem"));
+      Assert.assertTrue("[3]=extension", keys.get(3).equals("extension"));
+      vals = new HashSet();
+      vals.add("group a");
+      Assert.assertTrue(
+        "[3] vals", attrs.get( keys.get(3)).equals(vals)
+      );
+      Assert.assertTrue("[4]=name", keys.get(4).equals("name"));
+      vals = new HashSet();
+      vals.add("root:group a");
+      Assert.assertTrue(
+        "[4] vals", attrs.get( keys.get(4)).equals(vals)
+      );
+      Assert.assertTrue("[5]=stem", keys.get(5).equals("stem"));
       vals = new HashSet();
       vals.add("root");
       Assert.assertTrue(
-        "[3] vals", attrs.get( keys.get(3)).equals(vals)
+        "[5] vals", attrs.get( keys.get(5)).equals(vals)
       );
     } catch (SubjectNotFoundException e) {
       Assert.fail("unable to load subject");
@@ -348,6 +360,14 @@ public class TestSubjectsGroup extends TestCase {
       Assert.assertTrue("loaded subject", true);
       String attr = "description";
       String val  = "this is group a";
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+      attr  = "displayExtension";
+      val   = "group a";
+      Assert.assertNotNull(attr, subj.getAttributeValue(attr));
+      Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
+      attr  = "displayName";
+      val   = "root:group a";
       Assert.assertNotNull(attr, subj.getAttributeValue(attr));
       Assert.assertTrue(val, subj.getAttributeValue(attr).equals(val));
       attr  = "extension";
@@ -378,6 +398,16 @@ public class TestSubjectsGroup extends TestCase {
       String  attr = "description";
       Set     vals  = new HashSet();
       vals.add("this is group a");
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+      attr  = "displayExtension";
+      vals  = new HashSet();
+      vals.add("group a");
+      Assert.assertNotNull(attr, subj.getAttributeValues(attr));
+      Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
+      attr  = "displayName";
+      vals  = new HashSet();
+      vals.add("root:group a");
       Assert.assertNotNull(attr, subj.getAttributeValues(attr));
       Assert.assertTrue(vals.toString(), subj.getAttributeValues(attr).equals(vals));
       attr  = "extension";
