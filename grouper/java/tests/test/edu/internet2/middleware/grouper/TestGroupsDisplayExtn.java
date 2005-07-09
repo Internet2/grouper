@@ -90,7 +90,7 @@ public class TestGroupsDisplayExtn extends TestCase {
     );
     Assert.assertTrue(
       attr + " right value",
-      Constants.gA.attribute(attr).value().equals("")
+      Constants.gA.attribute(attr).value().equals(Constants.gAe)
     );
   }
 
@@ -125,7 +125,7 @@ public class TestGroupsDisplayExtn extends TestCase {
     );
     Assert.assertTrue(
       attr + " right value (unset)",
-      Constants.gA.attribute(attr).value().equals("")
+      Constants.gA.attribute(attr).value().equals(Constants.gAe)
     );
   }
 

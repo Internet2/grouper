@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.34 2005-06-16 13:24:19 blair Exp $
+ * @version $Id: Group.java,v 1.35 2005-07-09 04:51:08 blair Exp $
  */
 abstract public class Group {
 
@@ -506,33 +506,80 @@ abstract public class Group {
    * Set an attribute value
    */ 
   protected void attribute(
-                   GrouperSession s, Group g, 
-                   String attribute, String value
-                 )
+    GrouperSession s, Group g, String attribute, String value
+  )
   {
     if (!Grouper.groupField(g.type(), attribute)) {
       throw new RuntimeException(
-                  "Attribute is not valid for this group type"
-                );
+        "Attribute is not valid for this group type"
+      );
     }
     this.subjectCanModAttr(s, g, attribute);
     try {
       s.dbSess().txStart();
       if ( (value == null) || (value.equals("")) ) {
-        // Delete
-        g.attributeDel( g.attribute(attribute) );
+        // Delete 
+        if (!attribute.equals("displayExtension")) { 
+          g.attributeDel( g.attribute(attribute) );
+        } else {
+          // Reset - _displayExtension_ should always have a value
+          value = g.attribute("extension").value();
+          GrouperAttribute attr = g.attribute(attribute);
+          attr.setGroupFieldValue(value);
+          g.attributeAdd(attr);
+        }
       } else {
         // Add-Or-Update
-        GrouperAttribute attr = new GrouperAttribute(
-                                      g.key(), attribute, value
-                                    );
+        GrouperAttribute attr = g.attribute(attribute);
+        // TODO Isn't this sort of defeating the purpose?
+        if (attr instanceof NullGrouperAttribute) {
+          attr = new GrouperAttribute(
+            g.key(), attribute, value
+          );
+        } else {
+          attr.setGroupFieldValue(value);
+        }
         g.attributeAdd(attr);
       }
+      updateDisplayedAttributes(s, g, attribute, value);
       g.setModified();
       s.dbSess().txCommit();
     } catch (RuntimeException e) {
       s.dbSess().txRollback();
-      throw new RuntimeException("Error modifying attribute: " + e);
+      throw new RuntimeException(
+        "Error modifying attribute: " + e.getMessage()
+      );
+    }
+  }
+
+  /*
+   * Generate a _displayName_ from a given stem and extn
+   * TODO I'm not pleased about this
+   */
+  protected static String displayName(String stem, String extn) {
+    if (stem.equals(Grouper.NS_ROOT)) {
+      return extn;
+    } else {
+      return stem + Grouper.HIER_DELIM + extn;
+    }
+  }
+
+  /*
+   * Generate a _displayName_ from a given group and extn
+   * TODO I'm not pleased about this
+   */
+  protected static String displayName(
+    GrouperSession s, Group g, String extn
+  )
+  {
+    String stem = g.attribute("stem").value();
+    if (stem.equals(Grouper.NS_ROOT)) {
+      return extn;
+    } else {
+      Group p = Group.loadByNameAndType(s, stem, Grouper.NS_TYPE);
+      return p.attribute("displayName").value()  +
+             Grouper.HIER_DELIM                  +
+             extn;
     }
   }
 
@@ -813,6 +860,53 @@ abstract public class Group {
       throw new RuntimeException(
                   "Modification requires ADMIN"
                 );
+    }
+  }
+
+  /*
+   * Update _displayExtension_ and _displayName_ as appropriate,
+   * including recursively if necessary.
+   */
+  private void updateDisplayedAttributes(
+    GrouperSession s, Group g, String attr, String extn
+  ) 
+  {
+    GrouperAttribute dn = g.attribute("displayName");
+    // Update this group
+    if (attr.equals("displayExtension")) {
+      dn.setGroupFieldValue( Group.displayName(s, g, extn) );
+      g.attributeAdd(dn);
+    }
+    // And update children if a stem
+    if (
+        (g.type().equals(Grouper.NS_TYPE)) &&
+        (
+          (attr.equals("displayExtension")) ||
+          (attr.equals("displayName"))
+        )
+       )
+    {
+      Iterator groups = ( (GrouperStem) g ).groups().iterator();
+      while (groups.hasNext()) {
+        GrouperGroup cg = (GrouperGroup) groups.next();
+        cg.attribute(
+          "displayName", 
+          Group.displayName(
+            dn.value(), cg.attribute("displayExtension").value()
+          )
+        );
+      }
+      Iterator stems = ( (GrouperStem) g ).stems().iterator();
+      while (stems.hasNext()) {
+        GrouperStem cs = (GrouperStem) stems.next();
+        cs.attribute(
+          "displayName", 
+          Group.displayName(
+            dn.value(), cs.attribute("displayExtension").value()
+          )
+        );
+      }
+      
     }
   }
 
