@@ -187,10 +187,11 @@ found
 The following typographical conventions are used throughout this
 document:
 <ul>
-  <li>When defining terms or referring to file, class, method and table
+  <li>When defining terms or referring to class, method and table
     names <i>italics</i> will be used.</li>
-  <li>All forms of system-level text and any commands that you must
-    run are set in a <tt>fixed-space font</tt>.</li>
+  <li>All forms of system-level text, commands that you must
+    run and file and directory names are set in a <tt>fixed-space
+    font</tt>.</li>
 </ul>
 </p>
 <div id="section">
@@ -205,61 +206,50 @@ the following directories and files:
 <table id="table" align="center" border="0" width="60%">
 <thead>
 <tr>
-  <td id="td"><i>conf/</i></td>
-  <td id="td">&nbsp;</td>
+  <td id="td" width="25%"><tt>conf/</tt></td>
   <td id="td">Configuration files for Grouper and third party components</td>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td id="td"><i>contrib/</i></td>
-  <td id="td">&nbsp;</td>
+  <td id="td"><tt>contrib/</tt></td>
   <td id="td">Contributed software</td>
 </tr>
 <tr>
-  <td id="td"><i>doc/</i></td>
-  <td id="td">&nbsp;</td>
+  <td id="td"><tt>doc/</tt></td>
   <td id="td">Grouper documentation</td>
 </tr>
 <tr>
-  <td id="td">&nbsp;</td>
-  <td id="td"><i>javadoc/</i></td>
+  <td id="td"><tt>doc/javadoc/</tt></td>
   <td id="td">javadoc for the Grouper API</td>
 </tr>
 <tr>
-  <td id="td"><i>java/</i></td>
-  <td id="td">&nbsp;</td>
-  <td id="td">&nbsp;</td>
+  <td id="td"><tt>java/</tt></td>
+  <td id="td">Java source and compiled code</td>
 </tr>
 <tr>
-  <td id="td">&nbsp;</td>
-  <td id="td"><i>lib/</i></td>
+  <td id="td"><tt>java/lib/</tt></td>
   <td id="td">Third party .jar files required by Grouper</td>
 </tr>
 <tr>
-  <td id="td">&nbsp;</td>
-  <td id="td"><i>src/</i></td>
+  <td id="td"><tt>java/src/</tt></td>
   <td id="td">Grouper source code</td>
 </tr>
 <tr>
-  <td id="td">&nbsp;</td>
-  <td id="td"><i>tests/</i></td>
+  <td id="td"><tt>java/tests/</tt></td>
   <td id="td">Grouper test suite source code</td>
 </tr>
 <tr>
-  <td id="td"><i>sql/</i></td>
-  <td id="td">&nbsp;</td>
+  <td id="td"><tt>sql/</tt></td>
   <td id="td">SQL scripts for creating, initializing and testing the
     Groups Registry</td>
 </tr>
 <tr>
-  <td id="td"><i>LICENSE</i></td>
-  <td id="td">&nbsp;</td>
+  <td id="td"><tt>LICENSE</tt></td>
   <td id="td">License under which Grouper may be used</td>
 </tr>
 <tr>
-  <td id="td"><i>build.xml</i></td>
-  <td id="td">&nbsp;</td>
+  <td id="td"><tt>build.xml</tt></td>
   <td id="td">Ant configuration file</td>
 </tr>
 </tbody>
@@ -287,15 +277,15 @@ refer to the top level of your Grouper distribution.
     <p>Ant may be downloaded from <a href="http://ant.apache.org/">&lt;http://ant.apache.org&gt;</a>.</p>
     <p>Directions for installing Ant are in the unpacked distribution
     at <i>docs/manual/install.html#installing</i>. You may need to
-    copy <i>tools.jar</i> from <i>$JAVA_HOME/lib</i> to
-    <i>$ANT_HOME/lib</i> to get ant working properly.</p></li>
-  <li>Change directory to <i>$GROUPER_BASE</i>.</li>
+    copy <i>tools.jar</i> from <tt>$JAVA_HOME/lib</tt> to
+    <tt>$ANT_HOME/lib</tt> to get ant working properly.</p></li>
+  <li>Change directory to <tt>$GROUPER_BASE</tt>.</li>
   <li><p><tt>ant build</tt></p>
     <p>This will compile Grouper and place the class files under
-    the <i>$GROUPER_BASE/build</i> directory.</p></li>
+    the <tt>$GROUPER_BASE/build</tt> directory.</p></li>
   <li><p><tt>ant db-init</tt></p>
     <p>This will create a Groups Registry in
-    <i>$GROUPER_BASE/dist/run/</i> directory using the default
+    <tt$GROUPER_BASE/dist/run/</tt> directory using the default
     HSQLDB RDBMS.</p></li>
   <li><p><tt>ant test</tt></p>
     <p>This will compile and run the Grouper test suite to exercise the
@@ -308,7 +298,7 @@ refer to the top level of your Grouper distribution.
     manager you can run SQL queries against the Groups Registry.</p></li>
   <li><p><tt>ant dist</tt> [optional]</p>
     <p>This creates two .jar files within
-    <i>$GROUPER_BASE/dist/lib/</i>.  One file contains all of the
+    <tt>$GROUPER_BASE/dist/lib/</tt>.  One file contains all of the
     Grouper class files while the other contains all of the third
     party .jar files used by Grouper.  This isn't required but does
     ease <i>$CLASSPATH</i> configuration.</p></li>
@@ -320,7 +310,7 @@ refer to the top level of your Grouper distribution.
 </div>
 <p>
 Grouper has only a few configuration options. The configuration
-files are located in <i>$GROUPER_BASE/conf/</i>. Most of the files
+files are located in <tt>$GROUPER_BASE/conf/</tt>. Most of the files
 in that directory either do not need to be modified or should not
 be modified.
 </p>
@@ -363,9 +353,12 @@ the default Hibernate cache sizes.
 To run a java program using the Grouper API, the Java environment
 must have a classpath that includes:
 <ul>
-  <li>full pathname of the <i>Grouper.jar</i> file produced by "ant dist"</li>
-  <li>full pathname of the <i>Grouper-lib.jar</i> file produced by <tt>ant dist</tt></li>
-  <li>full pathname of the directory containing Grouper's configuration files.</li>
+  <li>full pathname of the <i>Grouper.jar</i> file produced by <tt>ant
+    dist</tt></li>
+  <li>full pathname of the <i>Grouper-lib.jar</i> file produced by
+    <tt>ant dist</tt></li>
+  <li>full pathname of the directory containing Grouper's configuration
+    files.</li>
 </ul>
 </p>
 <div id="subsection">
@@ -391,7 +384,7 @@ discussed in sections <a href="#section_3.6">3.6</a> and
 <a href="#section_4.3">4.3</a>.
 </p>
 <p>
-<i>csvsubject</i> is located in <i>$GROUPER_BASE/contrib/load/csv2subject</i>.  
+<i>csvsubject</i> is located in <tt>$GROUPER_BASE/contrib/load/csv2subject</tt>.  
 This program reads in a .csv file containing <i>subjectIDs</i> and
 <i>subjectTypeIDs</i> and then inserts the subjects into the Groups
 Registry via a direct JDBC connection.  Because <i>csv2subject</i> does
@@ -402,7 +395,7 @@ not use the Grouper API, you will need to configure the
 <p>
 To use <i>csv2subject</i>:
 <ol>
-  <li>Change to the <i>$GROUPER_BASE/contrib/load/csv2subject</i>
+  <li>Change to the <tt>$GROUPER_BASE/contrib/load/csv2subject</tt>
     directory</li>
   <li>Follow the instructions in the README file</li>
 </ol>
@@ -416,7 +409,7 @@ To use <i>csv2subject</i>:
 <i>csv2group</i> is a simple program for adding namespaces, groups and
 members to the Groups Registry.  To use it:
 <ol>
-  <li>Change to the <i>$GROUPER_BASE/contrib/load/csv2group</i> directory</li>
+  <li>Change to the <tt>$GROUPER_BASE/contrib/load/csv2group</tt> directory</li>
   <li>Follow the instructions in the README file</li>
 </ol>
 </p>
@@ -425,7 +418,7 @@ A sample .csv file that creates a number of different namespaces,
 groups and memberships is located in this directory.  To use the sample
 file you will first need to load sample subjects into the Groups
 Registry using <a href="#csv2subject">csv2subject</a>.  The sample
-subjects are located in <i>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</i>.
+subjects are located in <tt>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</tt>.
 </p>
 <div id="subsection">
 <a name="section_2.4.3"/>
@@ -437,7 +430,7 @@ subjects are located in <i>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</i>
 manipulating the Groups Registry.  It can add and delete namespaces,
 groups and memberships.  To use it:
 <ol>
-  <li>Change to the <i>$GROUPER_BASE/contrib/load/groupmgr</i> directory</li>
+  <li>Change to the <tt>$GROUPER_BASE/contrib/load/groupmgr</tt> directory</li>
   <li>Follow the instructions in the README file</li>
 </ol>
 </p>
@@ -450,7 +443,7 @@ groups and memberships.  To use it:
 <i>grouperq</i> is a program that provides a command line interface for
 performing simple queries on the Groups Registry.  To use it:
 <ol>
-  <li>Change to the <i>$GROUPER_BASE/contrib/load/groupmgr</i> directory</li>
+  <li>Change to the <tt>$GROUPER_BASE/contrib/load/groupmgr</tt> directory</li>
   <li>Follow the instructions in the README file</li>
 </ol>
 </p>
@@ -721,7 +714,7 @@ structure is shown in <a href="#table_3">Table 3</a> and
 <p>
 Although the API provides no support for managing group types, a
 site may alter or learn by example from the Groups Registry
-initialization script in <i>$GROUPER_BASE/sql/init.sql</i> to populate the
+initialization script in <tt>$GROUPER_BASE/sql/init.sql</tt> to populate the
 <i>grouper_type</i>, <i>grouper_typeDef</i>, and <i>grouper_field</i>
 tables to determine the set of attributes, lists and group types
 they want in their Grouper deployment.
@@ -1066,7 +1059,7 @@ can declare which privileges are needed to read and to write each
 attribute and list. These declarations are in the <i>grouper_field</i>
 table.  Although the API provides no support for managing extended
 fields or their security, sites may alter or learn by example from the
-Groups Registry initialization script <i>$GROUPER_BASE/sql/init.sql</i>
+Groups Registry initialization script <tt>$GROUPER_BASE/sql/init.sql</tt>
 to do so.
 </p>
 <div id="subsection">
@@ -1202,14 +1195,14 @@ configuration is required.
 <p>
 PostgreSQL is a supported Grouper backend and should only require small
 configuration changes to use.  Grouper also includes a PostgreSQL
-JDBC driver; see <i>$GROUPER_BASE/java/lib/README</i> for version
+JDBC driver; see <tt>$GROUPER_BASE/java/lib/README</tt> for version
 information.  to use PostgreSQL you will need to:
 <ol>
   <li>Uncomment the PostgreSQL section of 
-    (<i>$GROUPER_BASE/conf/hibernate.properties</i>) and modify as
+    (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) and modify as
     appropriate.</li>
   <li>Set <i>sql.type</i> to <i>postgres</i> in 
-    <i>$GROUPER_BASE/build.xml</i></li>
+    <tt>$GROUPER_BASE/build.xml</tt></li>
 </ol>
 </p>
 
@@ -1223,10 +1216,10 @@ configuration changes to use.  An Oracle JDBC driver is not currently
 distributed with Grouper.  To use Oracle you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file
-    (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
+    (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) to connect to
     your RDBMS</li>
   <li>Set <i>sql.type</i> to <i>oracle</i> in 
-    <i>$GROUPER_BASE/build.xml</i></li>
+    <tt>$GROUPER_BASE/build.xml</tt></li>
 </ol>
 </p>
 <div id="subsection">
@@ -1239,12 +1232,12 @@ tested with them nor does it provide support for them as shipped.
 To use an alternate database you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file
-    (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
+    (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) to connect to
     your RDBMS</li>
-  <li>Create <i>$GROUPER_BASE/sql/schema-$YOUR_DB_TYPE.sql</i></li>
-  <li>Create <i>$GROUPER_BASE/sql/test-data-$YOUR_DB_TYPE.sql</i></li>
+  <li>Create <tt>$GROUPER_BASE/sql/schema-$YOUR_DB_TYPE.sql</tt></li>
+  <li>Create <tt>$GROUPER_BASE/sql/test-data-$YOUR_DB_TYPE.sql</tt></li>
   <li>Set <i>sql.type</i> to <i>$YOUR_DB_TYPE</i> in 
-    <i>$GROUPER_BASE/build.xml</i></li>
+    <tt>$GROUPER_BASE/build.xml</tt></li>
 </ol>
 If you do use an alternate database that is not natively supported by
 Grouper, please contact the grouper-dev list with your results and
