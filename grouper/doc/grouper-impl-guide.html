@@ -1184,18 +1184,43 @@ Grouper uses Hibernate
 (<a href="http://www.hibernate.org/">&lt;http://www.hibernate.org/&gt;</a>) 
 for object persistence.  As Hibernate uses JDBC to speak to a RDBMS, it
 should not be difficult to configure Grouper to work with your
-preferred database backend.  As Grouper is currently only being tested
-against HSQLDB (its default database) and Oracle, it may be that it
-will not work out of the box with other databases.  Better database
-testing and integration is intended as Grouper matures.
+preferred database backend.  Grouper is currently being tested against
+and should work with HSQLDB (the default), PostgreSQL and Oracle.
 </p>
 <div id="subsection">
 <a name="section_4.1.1"/>
-<h4>4.1.1 Using Oracle</h4>
+<h4>4.1.1 Using HSQLDB</h4>
 </div>
 <p>
-While Grouper uses HSQLDB by default, it does ship with preliminary
-support for using Oracle.  To use Oracle you will need to:
+Grouper uses HSQLDB as its default RDBMS and no additional
+configuration is required.
+</p>
+<div id="subsection">
+<a name="section_4.1.2"/>
+<h4>4.1.2 Using PostgreSQL</h4>
+</div>
+<p>
+PostgreSQL is a supported Grouper backend and should only require small
+configuration changes to use.  Grouper also includes a PostgreSQL
+JDBC driver; see <i>$GROUPER_BASE/java/lib/README</i> for version
+information.  to use PostgreSQL you will need to:
+<ol>
+  <li>Uncomment the PostgreSQL section of 
+    (<i>$GROUPER_BASE/conf/hibernate.properties</i>) and modify as
+    appropriate.</li>
+  <li>Set <i>sql.type</i> to <i>postgres</i> in 
+    <i>$GROUPER_BASE/build.xml</i></li>
+</ol>
+</p>
+
+<div>
+<a name="section_4.1.3"/>
+<h4>4.1.3 Using Oracle</h4>
+</div>
+<p>
+Oracle is a supported Grouper backend and should only require small
+configuration changes to use.  An Oracle JDBC driver is not currently
+distributed with Grouper.  To use Oracle you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file
     (<i>$GROUPER_BASE/conf/hibernate.properties</i>) to connect to
@@ -1205,8 +1230,8 @@ support for using Oracle.  To use Oracle you will need to:
 </ol>
 </p>
 <div id="subsection">
-<a name="section_4.1.2"/>
-<h4>4.1.2 Using Other Databases</h4>
+<a name="section_4.1.4"/>
+<h4>4.1.4 Using Other Databases</h4>
 </div>
 <p>
 While Grouper should work with other databases, it has not yet been

@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.5 2005-07-07 03:25:57 blair Exp $
+$Id: sources.xml,v 1.6 2005-07-09 20:51:00 blair Exp $
 -->
 
 <sources>
@@ -29,6 +29,8 @@ $Id: sources.xml,v 1.5 2005-07-07 03:25:57 blair Exp $
       <param-name>maxWait</param-name>
       <param-value>5</param-value>
     </init-param>
+
+    <!-- HSQLDB -->
     <init-param>
       <param-name>dbDriver</param-name>
       <param-value>org.hsqldb.jdbcDriver</param-value>
@@ -45,6 +47,27 @@ $Id: sources.xml,v 1.5 2005-07-07 03:25:57 blair Exp $
       <param-name>dbPwd</param-name>
       <param-value></param-value>
     </init-param>
+
+    <!-- PostgreSQL -->
+<!--
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>org.postgresql.Driver</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUrl</param-name>
+      <param-value>jdbc:postgresql:grouper</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbUser</param-name>
+      <param-value></param-value>
+    </init-param>
+    <init-param>
+      <param-name>dbPwd</param-name>
+      <param-value></param-value>
+    </init-param>
+-->
+
   </source>
 
 </sources>
