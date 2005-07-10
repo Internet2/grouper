@@ -62,19 +62,21 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.23 2005-03-29 21:40:12 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.24 2005-07-10 19:03:46 blair Exp $
  */
 public class GrouperQuery {
 
   /*
    * PRIVATE CONSTANTS
    */
-  private static final String KEY_CA = "createdAfter";
-  private static final String KEY_CB = "createdBefore";
-  private static final String KEY_GT = "groupType";
-  private static final String KEY_MT = "membershipType";
-  private static final String KEY_MA = "modifiedAfter";
-  private static final String KEY_MB = "modifiedBefore";
+  private static final String KEY_CA  = "createdAfter";
+  private static final String KEY_CB  = "createdBefore";
+  private static final String KEY_GN  = "group";
+  private static final String KEY_GT  = "groupType";
+  private static final String KEY_MT  = "membershipType";
+  private static final String KEY_MA  = "modifiedAfter";
+  private static final String KEY_MB  = "modifiedBefore";
+  private static final String KEY_NSN = "namespace";
 
 
   /*
@@ -157,6 +159,35 @@ public class GrouperQuery {
     }
     this.candidates.put(KEY_CB, vals);
     return rv; 
+  }
+
+  /**
+   * Set "group" name filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.group(name)) {
+   *   List results = q.query();
+   * }
+   * </pre>
+   * @param   name  String to match against <i>name</i>,
+   *   <i>extension</i> and <i>displayName</i>.
+   * @return  True if one or more matches found.
+   * @throws  {@link GrouperException} - but why?
+   */
+  public boolean group(String name) throws GrouperException {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_GN);
+    // Find all groups fuzzily matching this name
+    vals = GrouperQuery._iterGroup(
+      this.s, this._queryName(name, GrouperGroup.class)
+    );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_GN, vals);
+    return rv;
   }
 
   /**
@@ -262,6 +293,35 @@ public class GrouperQuery {
     }
     this.candidates.put(KEY_MB, vals);
     return rv; 
+  }
+
+  /**
+   * Set "namespace" name filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.stem(name)) {
+   *   List results = q.query();
+   * }
+   * </pre>
+   * @param   name  String to match against <i>name</i>,
+   *   <i>extension</i> and <i>displayName</i>.
+   * @return  True if one or more matches found.
+   * @throws  {@link GrouperException} - but why?
+   */
+  public boolean namespace(String name) throws GrouperException {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_NSN);
+    // Find all groups fuzzily matching this name
+    vals = GrouperQuery._iterGroup(
+      this.s, this._queryName(name, GrouperStem.class)
+    );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_NSN, vals);
+    return rv;
   }
 
   /**
@@ -563,6 +623,42 @@ public class GrouperQuery {
     return vals;
   }
   
+  /*
+   * @return List of groups or stems fuzzily matching the given name.
+   */
+  private List _queryName(String name, Class klass) {
+    String  qry   = "Group.by.name.fuzzy";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(0, "%" + name + "%"); // name
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(1, "%" + name + "%"); // displayName
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(2, "%" + name + "%"); // displayExtension
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          Group g = Group.loadByKey(this.s, key);
+          if (g.getClass().equals(klass)) {
+            vals.add(g);
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
   /* (!javadoc)
    * Iterate through a list of groups, find list values for group, and
    * add list values to a List that will be returned.
@@ -585,7 +681,6 @@ public class GrouperQuery {
         }
       }
     }
-
     return vals;
   }
 
