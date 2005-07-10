@@ -125,8 +125,9 @@ public class Constants {
   /*
    * PROTECTED CLASS VARIABLES
    */
-  protected static GrouperStem  ns0, ns1, ns2;
-  protected static GrouperGroup g0, g1, g2, gA, gB, gC, gD;
+  protected static GrouperStem    ns0, ns1, ns2;
+  protected static GrouperGroup   g0, g1, g2, gA, gB, gC, gD;
+  protected static GrouperMember  m1, m2;
 
 
   /*
@@ -155,6 +156,18 @@ public class Constants {
     gD.attribute("description", "this is group d");
   }
 
+  protected static void createMembers(GrouperSession s) {
+    m1 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
+    m2 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
+    g0.listAddVal(m1);
+    g1.listAddVal(m2);
+    g2.listAddVal(m1);
+    gA.listAddVal(m2);
+    gB.listAddVal(m1);
+    gC.listAddVal(m2);
+    gD.listAddVal(m1);
+  }
+    
   protected static GrouperSession createSession() {
     try {
       return GrouperSession.start(

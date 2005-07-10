@@ -108,6 +108,25 @@
         n.groupKey        = schema.groupKey
   ]]></query>
 
+  <query name="Group.by.name.fuzzy"><![CDATA[
+    select distinct a.groupKey 
+      from GrouperAttribute a, Group g where
+      (
+        (
+          a.groupField = 'name' and
+          a.groupFieldValue like ?
+        ) or
+        (
+          a.groupField = 'displayName' and
+          a.groupFieldValue like ?
+        ) or
+        (
+          a.groupField = 'displayExtension' and
+          a.groupFieldValue like ?
+        )
+      ) 
+  ]]></query>
+
   <query name="Group.key.by.stem.and.extn.and.type"><![CDATA[
     select s.groupKey from 
       GrouperAttribute s, GrouperAttribute e, GrouperSchema schema where
