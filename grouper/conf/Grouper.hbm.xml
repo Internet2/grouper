@@ -193,6 +193,19 @@
         s.groupKey = schema.groupKey
   ]]></query>
 
+<!-- 
+TODO For some reason I'm not convinced this query is correct.  
+-->
+  <query name="Group.key.all.children"><![CDATA[
+    select distinct a.groupKey from
+      GrouperAttribute a, GrouperSchema s where
+        a.groupField        =     'stem'      and
+        (
+          a.groupFieldValue =     ?           or
+          a.groupFieldValue like  ?
+        )                                     
+  ]]></query>
+
   <query name="Group.by.modified.after"><![CDATA[
     from Group where modifyTime > ?
   ]]></query>

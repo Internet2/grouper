@@ -62,13 +62,14 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.25 2005-07-10 19:04:42 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.26 2005-07-10 20:19:28 blair Exp $
  */
 public class GrouperQuery {
 
   /*
    * PRIVATE CONSTANTS
    */
+  private static final String KEY_BNS = "base";
   private static final String KEY_CA  = "createdAfter";
   private static final String KEY_CB  = "createdBefore";
   private static final String KEY_GN  = "group";
@@ -101,6 +102,40 @@ public class GrouperQuery {
   /*
    * PUBLIC INSTANCE METHODS
    */
+
+  /**
+   * Set "base" scope filter.
+   * <p />
+   * Restricts results to children subordinate to the given namespace.
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (
+   *     q.createdAfter(yesterday) &&
+   *     q.base(namespace)
+   *    )
+   * {
+   *   List results = q.query();
+   * }
+   * </pre>
+   * @param   namespace Filter results by presence within this
+   *   namespace.
+   * @return  True if one or more matches found.
+   * @throws  {@link GrouperException} - but why?
+   */
+  public boolean base(String namespace) throws GrouperException {
+    boolean rv    = false;
+    List    vals  = new ArrayList();
+    this.candidates.remove(KEY_BNS);
+    // Find all groups fuzzily matching this name
+    vals = GrouperQuery._iterGroup(
+      this.s, this._queryBase(namespace)
+    );
+    if ( (vals != null) && (vals.size() > 0) ) {
+      rv = true;
+    }
+    this.candidates.put(KEY_BNS, vals);
+    return rv;
+  }
 
   /**
    * Clear all query filters.
@@ -623,6 +658,37 @@ public class GrouperQuery {
     return vals;
   }
   
+  /*
+   * @return List of children of a given namespace
+   */
+  private List _queryBase(String namespace) {
+    String  qry   = "Group.key.all.children";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, namespace);
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(1, namespace + ":%");
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          Group g = Group.loadByKey(this.s, key);
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
   /*
    * @return List of groups or stems fuzzily matching the given name.
    */

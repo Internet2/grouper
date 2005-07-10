@@ -63,7 +63,6 @@ public class TestAll extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
-/*
     suite.addTestSuite(TestInstantiate.class);
     suite.addTestSuite(TestConfigAndSchema.class);
     suite.addTestSuite(TestFieldCasing.class);
@@ -135,11 +134,10 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestAccessGrantMoF2.class);
     suite.addTestSuite(TestAccessRevoke0.class);
     suite.addTestSuite(TestAccessRevoke1.class);
-*/
     // TODO Flesh out
     suite.addTestSuite(TestQueries.class);
     suite.addTestSuite(TestQueryName.class);
-/*
+    suite.addTestSuite(TestQueryBase.class);
     // Bugs
     suite.addTestSuite(TestBug348.class);
     suite.addTestSuite(TestBug349.class);
@@ -151,7 +149,6 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestBug353Naming.class);
     suite.addTestSuite(TestBug355.class);
     suite.addTestSuite(TestBug356.class);
-*/
 
     return suite;
   }
