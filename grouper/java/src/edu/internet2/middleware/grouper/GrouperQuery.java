@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.24 2005-07-10 19:03:46 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.25 2005-07-10 19:04:42 blair Exp $
  */
 public class GrouperQuery {
 
@@ -642,6 +642,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           String key = (String) iter.next();
           Group g = Group.loadByKey(this.s, key);
+          // TODO Why can't I query on the _classType_ field above?
           if (g.getClass().equals(klass)) {
             vals.add(g);
           }
