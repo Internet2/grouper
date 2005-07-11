@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.17 2005-07-09 20:51:00 blair Exp $
+$Id: ROADMAP,v 1.18 2005-07-11 19:22:00 blair Exp $
 
 ---
 
@@ -11,15 +11,6 @@ $Id: ROADMAP,v 1.17 2005-07-09 20:51:00 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Search by the name, extension, or displayName attributes of 
-  groups [S&B#1] (#336)
-* Search by the name, extension, or displayName attributes of 
-  namespaces [S&B#2] (#337)
-* Search by the name, extension, or displayName attributes of groups
-  scoped to within a namespace subordinate to a given stem [S&B#7] (#340)
-* Search by the name, extension, or displayName attributes of
-  namespaces scoped to within a namespaces subordinate to a given
-  stem [S&B#8] (#341)
 * Implement READ privilege (#338)
 * Implement VIEW privilege (#339)
 * Implement OPTIN privilege (#343)

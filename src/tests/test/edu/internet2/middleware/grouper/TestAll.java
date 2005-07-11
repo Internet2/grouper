@@ -134,10 +134,16 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestAccessGrantMoF2.class);
     suite.addTestSuite(TestAccessRevoke0.class);
     suite.addTestSuite(TestAccessRevoke1.class);
-    // TODO Flesh out
-    suite.addTestSuite(TestQueries.class);
-    suite.addTestSuite(TestQueryName.class);
     suite.addTestSuite(TestQueryBase.class);
+    suite.addTestSuite(TestQueryCreatedAfter.class);
+    suite.addTestSuite(TestQueryCreatedBefore.class);
+    suite.addTestSuite(TestQueryGroup.class);
+    suite.addTestSuite(TestQueryGroupType.class);
+    suite.addTestSuite(TestQueryMembershipType.class);
+    suite.addTestSuite(TestQueryModifiedAfter.class);
+    suite.addTestSuite(TestQueryModifiedBefore.class);
+    suite.addTestSuite(TestQueryNamespace.class);
+    suite.addTestSuite(TestQueryCombination.class);
     // Bugs
     suite.addTestSuite(TestBug348.class);
     suite.addTestSuite(TestBug349.class);

@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.60 2005-07-10 20:19:28 blair Exp $
+$Id: NEWS,v 1.61 2005-07-11 19:22:00 blair Exp $
 
 ---
 
@@ -13,6 +13,10 @@ $Id: NEWS,v 1.60 2005-07-10 20:19:28 blair Exp $
   specification
 * NEW: _GrouperQuery_ now has _base(), _group()_ and _namespace()_
   filter methods
+* NEW: _GrouperQuery_ now has _getGroups()_, _getListValues()_,
+  _getMembers()_ and _getStems()_ methods, replacing the _query()_
+  method
+* REMOVED: _GrouperQuery.query()_ method
 * NEW: PostgreSQL now a supported backend (#169)
   (Simon McLeish, London School of Economics)
 * NEW: _displayName_ is now automatically populated and maintained (#270)
@@ -25,7 +29,7 @@ $Id: NEWS,v 1.60 2005-07-10 20:19:28 blair Exp $
   both immediate and effective (#360)
 * Stems can no longer be members or subjects
 * Added _Subject_ and _SubjectAttribute_ tables 
-* Removed _grouper_subjectType_ table 
+* REMOVED: _grouper_subjectType_ table 
 * _GrouperSubject_ class renamed to _SubjectFactory_
 * _Grouper.hasSubjectType()_ replaced by _SubjectFactory.hasType()_
 * _Grouper.subjectTypes()_ replaced by _SubjectFactory.types()_

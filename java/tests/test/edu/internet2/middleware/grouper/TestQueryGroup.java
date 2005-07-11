@@ -58,12 +58,12 @@ import  java.util.*;
 import  junit.framework.*;
 
 
-public class TestQueryBase extends TestCase {
+public class TestQueryGroup extends TestCase {
 
   private GrouperSession  s;
   private GrouperQuery    q;
 
-  public TestQueryBase(String name) {
+  public TestQueryGroup(String name) {
     super(name);
   }
 
@@ -85,147 +85,148 @@ public class TestQueryBase extends TestCase {
    * TESTS
    */
 
-  public void testQueryInvalidBaseNoMembers() {
+  public void testQueryInvalidGroupNoMembers() {
     Assert.assertNotNull(q);
     Assert.assertFalse(
-      "base: nothing", q.base("this:base:does:not:exist")
+      "group: nothing", q.group("this:base:does:not:exist")
     );
     Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=0", q.getGroups().size() == 0
+      "group: groups=0", q.getGroups().size() == 0
     );
     Assert.assertTrue(
-      "base: listValues=0", q.getListValues().size() == 0
+      "group: listValues=0", q.getListValues().size() == 0
     );
     Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
+      "group: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidBaseNoMembers() {
+  public void testQueryValidGroupNoMembers() {
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "base: something", q.base("root")
+      "group: something", q.group("root")
     );
     Assert.assertTrue(
-      "base: stems=2", q.getStems().size() == 2
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=7", q.getGroups().size() == 7
+      "group: groups=7", q.getGroups().size() == 7
     );
     // Admins && Stemmers
     Assert.assertTrue(
-      "base: listValues=9", q.getListValues().size() == 9
+      "group: listValues=7", q.getListValues().size() == 7
     );
     Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
+      "group: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryInvalidBaseMembers() {
+  public void testQueryInvalidGroupMembers() {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
-      "base: nothing", q.base("this:base:does:not:exist")
+      "group: nothing", q.group("this:base:does:not:exist")
     );
     Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=0", q.getGroups().size() == 0
+      "group: groups=0", q.getGroups().size() == 0
     );
     Assert.assertTrue(
-      "base: listValues=0", q.getListValues().size() == 0
+      "group: listValues=0", q.getListValues().size() == 0
     );
     Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
+      "group: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidBaseMembers() {
+  public void testQueryValidGroupMembers() {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "base: something", q.base("root")
+      "group: something", q.group("root")
     );
     Assert.assertTrue(
-      "base: stems=2", q.getStems().size() == 2
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=7", q.getGroups().size() == 7
+      "group: groups=7", q.getGroups().size() == 7
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "base: listValues=16", q.getListValues().size() == 16
+      "group: listValues=14", q.getListValues().size() == 14
     );
     Assert.assertTrue(
-      "base: members=2", q.getMembers().size() == 2
+      "group: members=2", q.getMembers().size() == 2
     );
   }
 
-  public void testQueryValidBaseMembersFuzzy() {
+  public void testQueryValidGroupMembersFuzzy() {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
-    Assert.assertFalse(
-      "base: something", q.base("roo")
+    Assert.assertTrue(
+      "group: something", q.group("roo")
     );
     Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=0", q.getGroups().size() == 0
+      "group: groups=7", q.getGroups().size() == 7
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "base: listValues=0", q.getListValues().size() == 0
+      "group: listValues=14", q.getListValues().size() == 14
     );
     Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
+      "group: members=2", q.getMembers().size() == 2
     );
   }
 
-  public void testQueryValidBaseMembersDeeper() {
+  public void testQueryValidGroupMembersDeeper() {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "base: something", q.base("root:a stem")
+      "group: something", q.group("root:a stem")
     );
     Assert.assertTrue(
-      "base: stems=1", q.getStems().size() == 1
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=2", q.getGroups().size() == 2
+      "group: groups=2", q.getGroups().size() == 2
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "base: listValues=5", q.getListValues().size() == 5
+      "group: listValues=4", q.getListValues().size() == 4
     );
     Assert.assertTrue(
-      "base: members=2", q.getMembers().size() == 2
+      "group: members=2", q.getMembers().size() == 2
     );
   }
 
-  public void testQueryValidBaseMembersEvenDeeper() {
+  public void testQueryValidGroupMembersEvenDeeper() {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "base: something", q.base("root:a stem:another stem")
+      "group: something", q.group("root:a stem:another stem")
     );
     Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
+      "group: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=1", q.getGroups().size() == 1
+      "group: groups=1", q.getGroups().size() == 1
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "base: listValues=2", q.getListValues().size() == 2
+      "group: listValues=2", q.getListValues().size() == 2
     );
     Assert.assertTrue(
-      "base: members=1", q.getMembers().size() == 1
+      "group: members=1", q.getMembers().size() == 1
     );
   }
 
 }
+

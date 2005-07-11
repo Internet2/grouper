@@ -58,12 +58,12 @@ import  java.util.*;
 import  junit.framework.*;
 
 
-public class TestQueryBase extends TestCase {
+public class TestQueryModifiedBefore extends TestCase {
 
   private GrouperSession  s;
   private GrouperQuery    q;
 
-  public TestQueryBase(String name) {
+  public TestQueryModifiedBefore(String name) {
     super(name);
   }
 
@@ -85,147 +85,45 @@ public class TestQueryBase extends TestCase {
    * TESTS
    */
 
-  public void testQueryInvalidBaseNoMembers() {
+  public void testQueryModifiedBeforeNow() {
+    Constants.createMembers(s);
     Assert.assertNotNull(q);
-    Assert.assertFalse(
-      "base: nothing", q.base("this:base:does:not:exist")
+    Assert.assertTrue(
+      "modifiedBefore: something", q.modifiedBefore( new java.util.Date() )
     );
     Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
+      "modifiedBefore: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=0", q.getGroups().size() == 0
+      "modifiedBefore: groups=7", q.getGroups().size() == 7
     );
     Assert.assertTrue(
-      "base: listValues=0", q.getListValues().size() == 0
+      "modifiedBefore: listValues=14", q.getListValues().size() == 14
     );
     Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
+      "modifiedBefore: members=2", q.getMembers().size() == 2
     );
   }
 
-  public void testQueryValidBaseNoMembers() {
-    Assert.assertNotNull(q);
-    Assert.assertTrue(
-      "base: something", q.base("root")
-    );
-    Assert.assertTrue(
-      "base: stems=2", q.getStems().size() == 2
-    );
-    Assert.assertTrue(
-      "base: groups=7", q.getGroups().size() == 7
-    );
-    // Admins && Stemmers
-    Assert.assertTrue(
-      "base: listValues=9", q.getListValues().size() == 9
-    );
-    Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
-    );
-  }
-
-  public void testQueryInvalidBaseMembers() {
+  public void testQueryModifiedBeforeEpoch() {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
-      "base: nothing", q.base("this:base:does:not:exist")
+      "modifiedBefore: nothing", q.modifiedBefore( new java.util.Date(0) )
     );
     Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
+      "modifiedBefore: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "base: groups=0", q.getGroups().size() == 0
+      "modifiedBefore: groups=0", q.getGroups().size() == 0
     );
     Assert.assertTrue(
-      "base: listValues=0", q.getListValues().size() == 0
+      "modifiedBefore: listValues=0", q.getListValues().size() == 0 
     );
     Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
-    );
-  }
-
-  public void testQueryValidBaseMembers() {
-    Constants.createMembers(s);
-    Assert.assertNotNull(q);
-    Assert.assertTrue(
-      "base: something", q.base("root")
-    );
-    Assert.assertTrue(
-      "base: stems=2", q.getStems().size() == 2
-    );
-    Assert.assertTrue(
-      "base: groups=7", q.getGroups().size() == 7
-    );
-    // Admins && Stemmers && Members
-    Assert.assertTrue(
-      "base: listValues=16", q.getListValues().size() == 16
-    );
-    Assert.assertTrue(
-      "base: members=2", q.getMembers().size() == 2
-    );
-  }
-
-  public void testQueryValidBaseMembersFuzzy() {
-    Constants.createMembers(s);
-    Assert.assertNotNull(q);
-    Assert.assertFalse(
-      "base: something", q.base("roo")
-    );
-    Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
-    );
-    Assert.assertTrue(
-      "base: groups=0", q.getGroups().size() == 0
-    );
-    // Admins && Stemmers && Members
-    Assert.assertTrue(
-      "base: listValues=0", q.getListValues().size() == 0
-    );
-    Assert.assertTrue(
-      "base: members=0", q.getMembers().size() == 0
-    );
-  }
-
-  public void testQueryValidBaseMembersDeeper() {
-    Constants.createMembers(s);
-    Assert.assertNotNull(q);
-    Assert.assertTrue(
-      "base: something", q.base("root:a stem")
-    );
-    Assert.assertTrue(
-      "base: stems=1", q.getStems().size() == 1
-    );
-    Assert.assertTrue(
-      "base: groups=2", q.getGroups().size() == 2
-    );
-    // Admins && Stemmers && Members
-    Assert.assertTrue(
-      "base: listValues=5", q.getListValues().size() == 5
-    );
-    Assert.assertTrue(
-      "base: members=2", q.getMembers().size() == 2
-    );
-  }
-
-  public void testQueryValidBaseMembersEvenDeeper() {
-    Constants.createMembers(s);
-    Assert.assertNotNull(q);
-    Assert.assertTrue(
-      "base: something", q.base("root:a stem:another stem")
-    );
-    Assert.assertTrue(
-      "base: stems=0", q.getStems().size() == 0
-    );
-    Assert.assertTrue(
-      "base: groups=1", q.getGroups().size() == 1
-    );
-    // Admins && Stemmers && Members
-    Assert.assertTrue(
-      "base: listValues=2", q.getListValues().size() == 2
-    );
-    Assert.assertTrue(
-      "base: members=1", q.getMembers().size() == 1
+      "modifiedBefore: members=0", q.getMembers().size() == 0
     );
   }
 
 }
+
