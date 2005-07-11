@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.26 2005-07-10 20:19:28 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.27 2005-07-11 19:22:00 blair Exp $
  */
 public class GrouperQuery {
 
@@ -109,31 +109,19 @@ public class GrouperQuery {
    * Restricts results to children subordinate to the given namespace.
    * <pre>
    * GrouperQuery q = new GrouperQuery(s);
-   * if (
-   *     q.createdAfter(yesterday) &&
-   *     q.base(namespace)
-   *    )
-   * {
-   *   List results = q.query();
+   * if (q.base(namespace)) {
+   *   List results = q.getMembers();
    * }
    * </pre>
    * @param   namespace Filter results by presence within this
    *   namespace.
    * @return  True if one or more matches found.
-   * @throws  {@link GrouperException} - but why?
    */
-  public boolean base(String namespace) throws GrouperException {
+  public boolean base(String namespace) {
     boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_BNS);
-    // Find all groups fuzzily matching this name
-    vals = GrouperQuery._iterGroup(
-      this.s, this._queryBase(namespace)
-    );
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
+    List    vals  = this._queryBase(namespace);
     this.candidates.put(KEY_BNS, vals);
+    if (vals.size() > 0) { rv = true; }
     return rv;
   }
 
@@ -146,6 +134,9 @@ public class GrouperQuery {
 
   /**
    * Clear the specified query filter.
+   * <p />
+   * @param   filter  The name of the filter to clear.
+   * @return  True if filter results were cleared.
    */
   public boolean clear(String filter) {
     boolean rv = false;
@@ -157,232 +148,276 @@ public class GrouperQuery {
   }
 
   /**
-   * Set group <i>createTime</i> filter.
+   * Set "createdAfter" group and stem creation filter.
    * <p />
-   *
-   * @param   date  Query for groups created after this {@link Date}.
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.createdAfter(date)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   date  Filter results by groups and stems created after
+   *   this date.
    * @return  True if one or more matches found.
    */
-  public boolean createdAfter(Date date) throws GrouperException {
+  public boolean createdAfter(Date date) {
     boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_CA);
-    // Find all groups created after this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedAfter(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
+    // TODO Genericize date queries
+    List    vals  = this._queryGroupCreatedAfter(date);
     this.candidates.put(KEY_CA, vals);
+    if (vals.size() > 0) { rv = true; }
     return rv; 
   }
 
   /**
-   * Set group <i>createTime</i> filter.
+   * Set "createdBefore" group and stem creation filter.
    * <p />
-   *
-   * @param   date  Query for groups created before this {@link Date}.
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.createdBefore(date)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   date  Filter results by groups and stems created after
+   *   this date.
    * @return  True if one or more matches found.
    */
-  public boolean createdBefore(Date date) throws GrouperException {
+  public boolean createdBefore(Date date) {
     boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_CB);
-    // Find all groups created before this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupCreatedBefore(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
+    // TODO Genericize date queries
+    List    vals  = this._queryGroupCreatedBefore(date);
     this.candidates.put(KEY_CB, vals);
-    return rv; 
+    if (vals.size() > 0) { rv = true; }
+    return rv;
   }
 
   /**
-   * Set "group" name filter.
+   * Return group query results.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQUery(s);
+   * if (q.base(namespace) and q.createdAfter(yesterday)) {
+   *   List results = q.getGroups();
+   * }
+   * </pre>
+   * @return  List of {@link GrouperGroup} objects.
+   */
+  public List getGroups() {
+    List      vals  = new ArrayList();
+    Iterator  iter  = this.candidates.keySet().iterator();
+    while (iter.hasNext()) {
+      List cands = (List) this.candidates.get( iter.next() );
+      cands = this.convertToGroups(cands);
+      vals = this._candidateSelect(vals, cands);
+      if (vals.size() == 0) { break; }
+    }
+    return vals;
+  }
+
+  /**
+   * Return list value query results.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQUery(s);
+   * if (q.base(namespace) and q.createdAfter(yesterday)) {
+   *   List results = q.getListValues();
+   * }
+   * </pre>
+   * @return  List of {@link GrouperList} objects.
+   */
+  public List getListValues() {
+    List      vals    = new ArrayList();
+    Iterator  iter    = this.candidates.keySet().iterator();
+    while (iter.hasNext()) {
+      List cands = (List) this.candidates.get( iter.next() );
+      cands = this.convertToListValues(cands);
+      vals = this._candidateSelect(vals, cands);
+      if (vals.size() == 0) { break; }
+    }
+    return vals;
+  }
+
+  /**
+   * Return member query results.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQUery(s);
+   * if (q.base(namespace) and q.createdAfter(yesterday)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @return  List of {@link GrouperMember} objects.
+   */
+  public List getMembers() {
+    return this.convertListValuesToMembers( this.getListValues() );
+  }
+
+  /**
+   * Return stem query results.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQUery(s);
+   * if (q.base(namespace) and q.createdAfter(yesterday)) {
+   *   List results = q.getStems();
+   * }
+   * </pre>
+   * @return  List of {@link GrouperStem} objects.
+   */
+  public List getStems() {
+    List      vals  = new ArrayList();
+    Iterator  iter  = this.candidates.keySet().iterator();
+    while (iter.hasNext()) {
+      List cands = (List) this.candidates.get( iter.next() );
+      cands = this.convertToStems(cands);
+      vals = this._candidateSelect(vals, cands);
+      if (vals.size() == 0) { break; }
+    }
+    return vals;
+  }
+
+  /**
+   * Set "group" filter.
    * <p />
    * <pre>
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.group(name)) {
-   *   List results = q.query();
+   *   List results = q.getMembers();
    * }
    * </pre>
-   * @param   name  String to match against <i>name</i>,
-   *   <i>extension</i> and <i>displayName</i>.
+   * @param   namespace Filter results by groups with matching name,
+   *   displayName or displayExtension attributes.
    * @return  True if one or more matches found.
-   * @throws  {@link GrouperException} - but why?
    */
-  public boolean group(String name) throws GrouperException {
+  public boolean group(String name) {
     boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_GN);
-    // Find all groups fuzzily matching this name
-    vals = GrouperQuery._iterGroup(
-      this.s, this._queryName(name, GrouperGroup.class)
-    );
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
+    List    vals  = this._queryName(name, GrouperGroup.class);
     this.candidates.put(KEY_GN, vals);
+    if (vals.size() > 0) { rv = true; }
     return rv;
   }
 
   /**
-   * Set group <i>groupType</i> filter.
-   * <p />
-   * @param   type  Type of {@link Group} to query on.
-   * @return  True if one or more matches found.
-   */
-  public boolean groupType(String type) throws GrouperException {
-    // TODO How do I unset?  `null'?
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-
-    this.candidates.remove(KEY_GT);
-    // Find all groups of matching type
-    List      groups  = this._queryByGroupType(type);
-    // Find all list values for matching groups
-    Iterator  iter    = groups.iterator();
-    while (iter.hasNext()) {
-      Group g = (Group) iter.next();
-      // FIXME Wlll g.s be defined?
-      Iterator lvIter = g.listVals(Grouper.DEF_LIST_TYPE).iterator();
-      while (lvIter.hasNext()) {
-        GrouperList gl = (GrouperList) lvIter.next();
-        gl.load(this.s);
-        vals.add(gl);
-      }
-    }
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_GT, vals);
-
-    return rv; 
-  }
-
-  /**
-   * Set <i>membershipType</i> query filter.
-   * <p />
-   * @param   type  Type of membership to query on.  Valid options are
-   *   <i>Grouper.MEM_ALL</i>, <i>Grouper.MEM_EFF</i>, and
-  *    <i>Grouper.MEM_IMM</i>.
-   * @return  True if one or more matches found.
-   */
-  public boolean membershipType(String type) throws GrouperException {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_MT);
-    if        (type.equals(Grouper.MEM_ALL)) {
-      // Query for both effective + immediate memberships
-      vals = this._queryMembershipTypeAll(Grouper.DEF_LIST_TYPE);
-    } else if (type.equals(Grouper.MEM_EFF)) {
-      // Query for effective memberships
-      vals = this._queryMembershipTypeEff(Grouper.DEF_LIST_TYPE);
-    } else if (type.equals(Grouper.MEM_IMM)) {
-      // Query for immediate memberships
-      vals = this._queryMembershipTypeImm(Grouper.DEF_LIST_TYPE);
-    } else {
-      throw new GrouperException("Unknown membership type: " + type);
-    } 
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_MT, vals);
-    return rv; 
-  }
-
-  /**
-   * Set group <i>modifyTime</i> filter.
-   * <p />
-   *
-   * @param   date  Query for groups modified after this {@link Date}.
-   * @return  True if one or more matches found.
-   */
-  public boolean modifiedAfter(Date date) throws GrouperException {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_MA);
-    // Find all groups modified after this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedAfter(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_MA, vals);
-    return rv; 
-  }
-
-  /**
-   * Set group <i>modifyTime</i> filter.
-   * <p />
-   *
-   * @param   date  Query for groups modifed before this {@link Date}.
-   * @return  True if one or more matches found.
-   */
-  public boolean modifiedBefore(Date date) throws GrouperException {
-    boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_MB);
-    // Find all groups modified before this date
-    vals = GrouperQuery._iterGroup(this.s, this._groupModifiedBefore(date));
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_MB, vals);
-    return rv; 
-  }
-
-  /**
-   * Set "namespace" name filter.
+   * Set "groupType" filter.
    * <p />
    * <pre>
    * GrouperQuery q = new GrouperQuery(s);
-   * if (q.stem(name)) {
-   *   List results = q.query();
+   * if (q.groupType(type)) {
+   *   List results = q.getMembers();
    * }
    * </pre>
-   * @param   name  String to match against <i>name</i>,
-   *   <i>extension</i> and <i>displayName</i>.
+   * @param   type  Filter results by groups of this type.
    * @return  True if one or more matches found.
-   * @throws  {@link GrouperException} - but why?
    */
-  public boolean namespace(String name) throws GrouperException {
+  public boolean groupType(String type) {
+    // TODO How do I unset?  `null'?
     boolean rv    = false;
-    List    vals  = new ArrayList();
-    this.candidates.remove(KEY_NSN);
-    // Find all groups fuzzily matching this name
-    vals = GrouperQuery._iterGroup(
-      this.s, this._queryName(name, GrouperStem.class)
-    );
-    if ( (vals != null) && (vals.size() > 0) ) {
-      rv = true;
-    }
-    this.candidates.put(KEY_NSN, vals);
+    List    vals  = this._queryGroupType(type);
+    this.candidates.put(KEY_GT, vals);
+    if (vals.size() > 0) { rv = true; }
     return rv;
   }
 
   /**
-   * Retrieve query filter results.
-   * <p />
-   * @return  List of {@link GrouperList} objects.
+   * Set "membershipType" filter.
+   * <p/>
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.membershipType(Grouper.MEM_ALL)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   type  Type of membership to query on.  Valid options are
+   *   <i>Grouper.MEM_ALL</i>, <i>Grouper.MEM_EFF</i>, and
+   *    <i>Grouper.MEM_IMM</i>.
+   * @return  True if one or more matches found.
    */
-  public List query() {
-    // TODO I suspect this approach may need optimizing
+  public boolean membershipType(String type) {
+    boolean rv    = false;
     List    vals  = new ArrayList();
-    /*
-     * TODO Ideally I would sort the candidate lists by size in an
-     *      attempt to optimize the candidate selection.  Or I would
-     *      just replace this with something entirely better, no?
-     */
-    Iterator  iter = this.candidates.keySet().iterator();
-    while (iter.hasNext()) {
-      List cands = (List) this.candidates.get( iter.next() );
-      vals = this._candidateSelect(vals, cands);       
-      // We have already failed to find anything
-      if (vals.size() == 0) {
-        break;
-      }
-    }
-    // TODO Filter candidates through privilege interfaces
-    return vals;
+    if        (type.equals(Grouper.MEM_ALL)) {
+      // Query for both effective + immediate memberships
+      vals = this._queryMembershipType(
+        "GrouperList.by.list"
+      );
+    } else if (type.equals(Grouper.MEM_EFF)) {
+      // Query for effective memberships
+      vals = this._queryMembershipType(
+        "GrouperList.by.list.and.is.eff"
+      );
+    } else if (type.equals(Grouper.MEM_IMM)) {
+      // Query for immediate memberships
+      vals = this._queryMembershipType(
+        "GrouperList.by.list.and.is.imm"
+      );
+    } 
+    this.candidates.put(KEY_MT, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv; 
+  }
+
+  /**
+   * Set "modifiedAfter" group and stem creation filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.modifiedAfter(date)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   date  Filter results by groups and stems modified after
+   *   this date.
+   * @return  True if one or more matches found.
+   */
+  public boolean modifiedAfter(Date date) {
+    boolean rv    = false;
+    // TODO Genericize date queries
+    List    vals  = this._queryGroupModifiedAfter(date);
+    this.candidates.put(KEY_MA, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
+   * Set "modifiedBefore" group and stem creation filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.modifiedBefore(date)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   date  Filter results by groups and stems modified before
+   *   this date.
+   * @return  True if one or more matches found.
+   */
+  public boolean modifiedBefore(Date date) {
+    boolean rv    = false;
+    // TODO Genericize date queries
+    List    vals  = this._queryGroupModifiedBefore(date);
+    this.candidates.put(KEY_MB, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv; 
+  }
+
+  /**
+   * Set "namespace" filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.namespace(name)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   namespace Filter results by stems with matching name,
+   *   displayName or displayExtension attributes.
+   * @return  True if one or more matches found.
+   */
+  public boolean namespace(String name) {
+    boolean rv    = false;
+    List    vals  = this._queryName(name, GrouperStem.class);
+    this.candidates.put(KEY_NSN, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
   }
 
   /**
@@ -397,275 +432,135 @@ public class GrouperQuery {
 
   /*
    * PRIVATE INSTANCE METHODS
-   */
-
-  /* (!javadoc)
-   * Perform query candidate selection.
-   */
-  private List _candidateSelect(List vals, List candidates) {
-    List      selected  = new ArrayList();
-    Iterator  iter      = candidates.iterator();
-    if (candidates.size() > 0) {
-      while (iter.hasNext()) {
-        /*
-         * TODO This assumes I'll only be dealing with GrouperList
-         *      objects.  Is that a safe assumption?
-         */
-        GrouperList gl = (GrouperList) iter.next();
-        if        (vals.size() == 0)  {
-          selected.add(gl);
-        } else if (vals.size() > 0)   {
-          if (vals.contains(gl)) {
-            selected.add(gl);
-          }
-        }
-      }
-    }
-    return selected;
-  }
-
-  /*
-   * @return List of groups created after a specified date.
-   */
-  private List _groupCreatedAfter(java.util.Date d) {
-    String  qry   = "Group.by.created.after";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        // TODO Is this necessary?  Or even accurate?
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
-        }
-      } catch (HibernateException e) {
+   */ 
+ 
+  private List convertToGroups(List candidates) {
+    List      vals  = new ArrayList();
+    Iterator  iter  = candidates.iterator();
+    while (iter.hasNext()) {
+      Object obj = (Object) iter.next();
+      if (obj instanceof GrouperGroup) {
+        vals.add( (GrouperGroup) obj );
+      } else if (obj instanceof GrouperList) {
+        vals.addAll(
+          this.convertListValueToGroup( (GrouperList) obj) 
+        );
+      } else if (obj instanceof GrouperStem) {
+        // Skip; no conversion
+      } else {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Unknown conversion: " + obj.getClass().getName() + 
+          " to " + GrouperGroup.class.getName()
+        );
       }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
     }
     return vals;
   }
 
-  /*
-   * @return List of groups created before a specified date.
-   */
-  private List _groupCreatedBefore(java.util.Date d) {
-    String  qry   = "Group.by.created.before";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        // TODO Is this necessary?  Or even accurate?
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
-        }
-      } catch (HibernateException e) {
+  private List convertToListValues(List candidates) {
+    List      vals  = new ArrayList();
+    Iterator  iter  = candidates.iterator();
+    while (iter.hasNext()) {
+      Object obj = (Object) iter.next();
+      if (obj instanceof GrouperList) {
+        vals.add( (GrouperList) obj );
+      } else if (obj instanceof Group) {
+        vals.addAll( 
+          this.convertGroupToListValues( (Group) obj )
+        );
+      } else {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Unknown conversion: " + obj.getClass().getName() + 
+          " to " + GrouperList.class.getName()
+        );
       }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
     }
     return vals;
   }
 
-  /*
-   * @return List of groups modified after a specified date.
-   */
-  private List _groupModifiedAfter(java.util.Date d) {
-    String  qry   = "Group.by.modified.after";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
-      try {
-        // TODO Is this necessary?  Or even accurate?
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
-        }
-      } catch (HibernateException e) {
+  private List convertToStems(List candidates) {
+    List      vals  = new ArrayList();
+    Iterator  iter  = candidates.iterator();
+    while (iter.hasNext()) {
+      Object obj = (Object) iter.next();
+      if (obj instanceof GrouperStem) {
+        vals.add( (GrouperStem) obj );
+      } else if (obj instanceof GrouperGroup) {
+        // Skip; no conversion
+      } else if (obj instanceof GrouperList) {
+        vals.addAll(
+          this.convertListValueToStem( (GrouperList) obj) 
+        );
+      } else {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Unknown conversion: " + obj.getClass().getName() + 
+          " to " + GrouperStem.class.getName()
+        );
       }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
     }
     return vals;
   }
 
-  /*
-   * @return List of groups modified before a specified date.
-   */
-  private List _groupModifiedBefore(java.util.Date d) {
-    String  qry   = "Group.by.modified.before";
+  private List convertGroupToListValues(Group g) {
+    String  qry   = "GrouperList.by.group";
     List    vals  = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, Long.toString(d.getTime()));
+      q.setString(0, g.key());
       try {
-        // TODO Is this necessary?  Or even accurate?
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  // TODO Bleh
-  private List _queryByGroupType(String type) {
-    String  qry   = "GrouperSchema.by.type";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, type);
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          GrouperSchema gs = (GrouperSchema) iter.next();
-          // TODO What a hack
-          Group g = Group.loadByKey(this.s, gs.key());
-          if (g != null) {
-            vals.add(g);
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error getting results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
-    }
-    return vals;
-  }
-
-  private List _queryMembershipTypeAll(String list) {
-    String  qry   = "GrouperList.by.list";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, list);
-      try {
-        // TODO Argh!
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
+          gl.load(s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return vals;
   }
 
-  private List _queryMembershipTypeEff(String list) {
-    String  qry   = "GrouperList.by.list.and.is.eff";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+  private List convertListValueToGroup(GrouperList lv) {
+    List vals = new ArrayList();
+    if (!lv.group().type().equals(Grouper.NS_TYPE)) {
+      vals.add( (GrouperGroup) lv.group() );
     }
     return vals;
   }
 
-  private List _queryMembershipTypeImm(String list) {
-    String  qry   = "GrouperList.by.list.and.is.imm";
-    List    vals  = new ArrayList();
-    try {
-      Query q = this.s.dbSess().session().getNamedQuery(qry);  
-      q.setString(0, list);
-      try {
-        // TODO Argh!
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          // Make the returned items into proper objects
-          GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
-          vals.add(gl);
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+  private List convertListValueToStem(GrouperList lv) {
+    List vals = new ArrayList();
+    if (lv.group().type().equals(Grouper.NS_TYPE)) {
+      vals.add( (GrouperStem) lv.group() );
     }
     return vals;
   }
-  
-  /*
-   * @return List of children of a given namespace
-   */
+
+  private List convertListValuesToMembers(List listVals) {
+    Set       vals  = new HashSet();
+    Iterator  iter  = listVals.iterator();
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+      if (lv.groupField().equals(Grouper.DEF_LIST_TYPE)) {
+        vals.add( lv.member() );
+      }
+    }
+    return new ArrayList(vals);
+  }
+
   private List _queryBase(String namespace) {
     String  qry   = "Group.key.all.children";
     List    vals  = new ArrayList();
     try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
       q.setString(0, namespace);
       // TODO Move _%_ to _Grouper.hbm.xml_
       q.setString(1, namespace + ":%");
@@ -689,9 +584,254 @@ public class GrouperQuery {
     return vals;
   }
 
-  /*
-   * @return List of groups or stems fuzzily matching the given name.
-   */
+  private List _queryGroupCreatedAfter(java.util.Date d) {
+    String  qry   = "Group.by.created.after";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryGroupCreatedBefore(java.util.Date d) {
+    String  qry   = "Group.by.created.before";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryGroupModifiedAfter(java.util.Date d) {
+    String  qry   = "Group.by.modified.after";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryGroupModifiedBefore(java.util.Date d) {
+    String  qry   = "Group.by.modified.before";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Long.toString(d.getTime()));
+      try {
+        // TODO Is this necessary?  Or even accurate?
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          Group g = (Group) iter.next();
+          g = Group.loadByKey(this.s, g.key());
+          vals.add(g);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryGroupType(String type) {
+    String  qry   = "GrouperSchema.by.type";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, type);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          GrouperSchema gs = (GrouperSchema) iter.next();
+          // TODO What a hack
+          Group g = Group.loadByKey(this.s, gs.key());
+          if (g != null) {
+            vals.add(g);
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error getting results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryMembershipType(String qry) {
+    List vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, Grouper.DEF_LIST_TYPE);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryMembershipTypeAll(String list) {
+    String  qry   = "GrouperList.by.list";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryMembershipTypeEff(String list) {
+    String  qry   = "GrouperList.by.list.and.is.eff";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  private List _queryMembershipTypeImm(String list) {
+    String  qry   = "GrouperList.by.list.and.is.imm";
+    List    vals  = new ArrayList();
+    try {
+      Query q = this.s.dbSess().session().getNamedQuery(qry);  
+      q.setString(0, list);
+      try {
+        // TODO Argh!
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          // Make the returned items into proper objects
+          GrouperList gl = (GrouperList) iter.next();
+          gl.load(this.s);
+          vals.add(gl);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
   private List _queryName(String name, Class klass) {
     String  qry   = "Group.by.name.fuzzy";
     List    vals  = new ArrayList();
@@ -726,30 +866,23 @@ public class GrouperQuery {
     return vals;
   }
 
-  /* (!javadoc)
-   * Iterate through a list of groups, find list values for group, and
-   * add list values to a List that will be returned.
-   */
-  private static List _iterGroup(GrouperSession s, List groups) {
-    List vals = new ArrayList();
-
-    if (groups != null) {
-      Iterator iter = groups.iterator();
+  private List _candidateSelect(List vals, List candidates) {
+    List      selected  = new ArrayList();
+    Iterator  iter      = candidates.iterator();
+    if (candidates.size() > 0) {
       while (iter.hasNext()) {
-        Group g = (Group) iter.next();
-        // FIXME Wlll g.s be defined?
-        Iterator lvIter = g.listVals(Grouper.DEF_LIST_TYPE).iterator();
-        while (lvIter.hasNext()) {
-          GrouperList gl = (GrouperList) lvIter.next();
-          if (gl != null) {
-            gl.load(s);
-            vals.add(gl);
+        // TODO Will this cause casting problems?
+        Object obj = iter.next();
+        if        (vals.size() == 0)  {
+          selected.add(obj);
+        } else if (vals.size() > 0)   {
+          if (vals.contains(obj)) {
+            selected.add(obj);
           }
         }
       }
     }
-    return vals;
+    return selected;
   }
-
 }
 

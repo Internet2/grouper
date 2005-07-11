@@ -158,7 +158,7 @@ public class Constants {
 
   protected static void createMembers(GrouperSession s) {
     m1 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
-    m2 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
+    m2 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
     g0.listAddVal(m1);
     g1.listAddVal(m2);
     g2.listAddVal(m1);

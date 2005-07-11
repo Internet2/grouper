@@ -267,6 +267,10 @@ TODO For some reason I'm not convinced this query is correct.
         s.groupType !=  'naming'    
   ]]></query>
 
+  <query name="GrouperList.by.group"><![CDATA[
+      from GrouperList where groupKey = ?
+  ]]></query>
+
   <query name="GrouperList.by.group.and.list"><![CDATA[
     from GrouperList          where
       groupKey    = ?         and
