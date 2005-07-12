@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.19 2005-07-07 20:59:21 jvine Exp $
-  $Date: 2005-07-07 20:59:21 $
+  $Id: conditions.jsp,v 1.20 2005-07-12 23:13:26 acohen Exp $
+  $Date: 2005-07-12 23:13:26 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -99,7 +99,9 @@
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Limit" %>
+
 <%@ page import="edu.internet2.middleware.signet.ui.LimitRenderer" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 
 <% 
   Signet signet
@@ -155,8 +157,9 @@
       = (TreeNode)
           (request.getSession().getAttribute("currentScope"));
   }
-         
-  Limit[] currentLimits = currentFunction.getLimitsArray();
+
+  Limit[] currentLimits
+  	= Common.getLimitsInDisplayOrder(currentFunction.getLimits());
          
   DateFormat dateFormat = DateFormat.getDateInstance();
    

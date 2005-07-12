@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: FunctionImpl.java,v 1.8 2005-07-12 23:13:26 acohen Exp $
+$Date: 2005-07-12 23:13:26 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -334,30 +334,30 @@ implements Function
     return thisName.compareToIgnoreCase(otherName);
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Function#getLimitsArray()
-   */
-  public Limit[] getLimitsArray()
-  {
-    Comparator displayOrderComparator
-    	= new Comparator()
-    	    {
-            public int compare(Object o1, Object o2)
-            {
-              return
-              	((Limit)o1).getDisplayOrder() - ((Limit)o2).getDisplayOrder();
-            }
-    	    };
-
-    Set limits = this.getLimits();
-    Limit[] limitArray = new Limit[0];
-    limitArray = (Limit[])(limits.toArray(limitArray));
-    	    
-    Arrays.sort(limitArray, displayOrderComparator);
-    return limitArray;
-  }
+//  /* (non-Javadoc)
+//   * @see edu.internet2.middleware.signet.Function#getLimitsArray()
+//   */
+//  public Limit[] getLimitsArray()
+//  {
+//    Comparator displayOrderComparator
+//    	= new Comparator()
+//    	    {
+//            public int compare(Object o1, Object o2)
+//            {
+//              return
+//              	((Limit)o1).getDisplayOrder() - ((Limit)o2).getDisplayOrder();
+//            }
+//    	    };
+//
+//    Set limits = this.getLimits();
+//    Limit[] limitArray = new Limit[0];
+//    limitArray = (Limit[])(limits.toArray(limitArray));
+//    	    
+//    Arrays.sort(limitArray, displayOrderComparator);
+//    return limitArray;
+//  }
   
-  private Set getLimits()
+  public Set getLimits()
   {
     Set functionLimits = new HashSet();
     Set permissions = this.getPermissions();

@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.5 2005-07-08 21:54:57 acohen Exp $
-$Date: 2005-07-08 21:54:57 $
+$Id: Common.java,v 1.6 2005-07-12 23:13:26 acohen Exp $
+$Date: 2005-07-12 23:13:26 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitDisplayOrderComparator;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Privilege;
 
@@ -65,5 +67,18 @@ public class Common extends TestCase
       = (LimitValue[])(privilege.getLimitValues().toArray(limitValues));
     Arrays.sort(limitValues, LimitValue.getDisplayOrderComparator());
     return limitValues;
+  }
+  
+  static Limit[] getLimitsInDisplayOrder(Set limits)
+  {
+    Limit[] limitsArray = new Limit[0];
+    limitsArray = (Limit[])(limits.toArray(limitsArray));
+    
+    if (limitsArray.length > 0)
+    {
+      Arrays.sort(limitsArray, new LimitDisplayOrderComparator());
+    }
+    
+    return limitsArray;
   }
 }

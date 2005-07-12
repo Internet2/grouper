@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.12 2005-07-08 01:03:02 jvine Exp $
-  $Date: 2005-07-08 01:03:02 $
+  $Id: assignment.jsp,v 1.13 2005-07-12 23:13:26 acohen Exp $
+  $Date: 2005-07-12 23:13:26 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -110,8 +110,10 @@
       </tr>
 
 <%
-  Limit[] limits = currentAssignment.getFunction().getLimitsArray();
-  LimitValue[] limitValues = currentAssignment.getLimitValuesInDisplayOrder();
+  Limit[] limits
+  	= Common.getLimitsInDisplayOrder
+        (currentAssignment.getFunction().getLimits());
+  LimitValue[] limitValues = Common.getLimitValuesInDisplayOrder(currentAssignment);
   for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
   {
     Limit limit = limits[limitIndex];

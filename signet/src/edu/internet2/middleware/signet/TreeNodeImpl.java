@@ -1,6 +1,6 @@
 /*--
- $Id: TreeNodeImpl.java,v 1.6 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: TreeNodeImpl.java,v 1.7 2005-07-12 23:13:26 acohen Exp $
+ $Date: 2005-07-12 23:13:26 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -17,7 +17,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.signet.tree.TreeNotFoundException;
 
 class TreeNodeImpl
 extends
@@ -70,14 +69,7 @@ implements
   {
     if (parentsAlreadyFetched == false)
     {
-      try
-      {
-        this.parents = this.getSignet().getParents(this);
-      }
-      catch (TreeNotFoundException tnfe)
-      {
-        throw new SignetRuntimeException(tnfe);
-      }
+      this.parents = this.getSignet().getParents(this);
       parentsAlreadyFetched = true;
     }
 
@@ -102,14 +94,7 @@ implements
   {
     if (childrenAlreadyFetched == false)
     {
-      try
-      {
-        this.children = this.getSignet().getChildren(this);
-      }
-      catch (TreeNotFoundException tnfe)
-      {
-        throw new SignetRuntimeException(tnfe);
-      }
+      this.children = this.getSignet().getChildren(this);
       childrenAlreadyFetched = true;
     }
 
@@ -194,23 +179,10 @@ implements
   {
     this.children.add(childNode);
     ((TreeNodeImpl) childNode).parents.add(this);
-
-    try
-    {
-      saveRelationship(childNode, this);
-    }
-    catch (TreeNotFoundException tnfe)
-    {
-      // I decided to throw a runtime exception here instead of a
-      // an ObjectNotFoundException, because the caller is not
-      // knowingly trying to fetch anything, and has no reasonable
-      // way to handle this error.
-      throw new SignetRuntimeException(tnfe);
-    }
+    saveRelationship(childNode, this);
   }
 
   private void saveRelationship(TreeNode childNode, TreeNode parentNode)
-      throws TreeNotFoundException
   {
     TreeNodeRelationship tnr = new TreeNodeRelationship(childNode.getTree()
         .getId(), childNode.getId(), parentNode.getId());

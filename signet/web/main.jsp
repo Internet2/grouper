@@ -1,6 +1,6 @@
 <!--
-  $Id: main.jsp,v 1.29 2005-07-01 23:06:52 acohen Exp $
-  $Date: 2005-07-01 23:06:52 $
+  $Id: main.jsp,v 1.30 2005-07-12 23:13:26 acohen Exp $
+  $Date: 2005-07-12 23:13:26 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -149,20 +149,7 @@
               </td> <!-- person -->
               
               <td> <!-- privilege -->
-                <a
-                  style="float: right;"
-                  href
-                    ="javascript:openWindow
-                        ('Assignment.do?assignmentId=<%=assignment.getId()%>',
-                         'popup',
-                         'scrollbars=yes,
-                         resizable=yes,
-                         width=500,
-                         height=250');">
-                  <img
-                    src="images/maglass.gif"
-										alt="More info about this assignment..." />
-                </a>
+                <%=Common.assignmentPopupIcon(assignment)%>
                 <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
               </td> <!-- privilege -->
               
@@ -183,11 +170,7 @@
               </td> <!-- limits -->
               
               <td> <!-- status -->
-<%=
-  assignment.getStatus().getName()
-  + (assignment.isGrantOnly()==false?", can use":"")
-  + (assignment.isGrantable()?", can grant":"")
-%>
+                <%=Common.displayStatus(assignment)%>
               </td> <!-- status -->
               <td class="date">
 <%=

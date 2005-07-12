@@ -1,12 +1,14 @@
 /*--
-$Id: Function.java,v 1.5 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Function.java,v 1.6 2005-07-12 23:13:26 acohen Exp $
+$Date: 2005-07-12 23:13:26 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
+
+import java.util.Set;
 
 import edu.internet2.middleware.subject.Subject;
 
@@ -44,9 +46,9 @@ extends SubsystemPart, HelpText, Name, Comparable
   
   /**
    * Gets the Limits associated with this Function's Permissions.
-   * @return Returns the limits, in ascending order of Limit.getDisplayOrder().
+   * @return Returns the Set of Limits.
    */
-  public Limit[] getLimitsArray();
+  public Set getLimits();
 
   /**
    * Sets the Category associated with this Function.

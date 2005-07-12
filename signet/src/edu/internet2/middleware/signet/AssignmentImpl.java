@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.18 2005-07-06 22:48:25 acohen Exp $
- $Date: 2005-07-06 22:48:25 $
+ $Id: AssignmentImpl.java,v 1.19 2005-07-12 23:13:26 acohen Exp $
+ $Date: 2005-07-12 23:13:26 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -138,10 +138,12 @@ implements Assignment, Comparable
   	 Set			limitValues)
   throws IllegalArgumentException
   {
-    Limit limits[] = function.getLimitsArray();
-    for (int i = 0; i < limits.length; i++)
+    Set limits = function.getLimits();
+    Iterator limitsIterator = limits.iterator();
+    while (limitsIterator.hasNext())
     {
-      Limit limit = limits[i];
+      Limit limit = (Limit)(limitsIterator.next());
+      
       if (!(limitValueExists(limit, limitValues)))
       {
         throw new IllegalArgumentException
@@ -206,42 +208,50 @@ implements Assignment, Comparable
     
     return this.grantee;
   }
-  
+
+  // This method is for use only by Hibernate.
   private void setGranteeId(String id)
   {
     this.granteeId = id;
   }
-  
+
+  // This method is for use only by Hibernate.
   private String getGranteeId()
   {
     return this.granteeId;
   }
-  
+
+  // This method is for use only by Hibernate.
   private String getGranteeTypeId()
   {
     return this.granteeTypeId;
   }
-  
+
+  // This method is for use only by Hibernate.
   private void setGranteeTypeId(String typeId)
   {
     this.granteeTypeId = typeId;
   }
-  
+
+  // This method is for use only by Hibernate.
   private void setGrantorId(String id)
   {
     this.grantorId = id;
   }
-  
+
+  // This method is for use only by Hibernate.
   private String getGrantorId()
   {
     return this.grantorId;
   }
-  
+
+  // This method is for use only by Hibernate.
   private String getGrantorTypeId()
   {
     return this.grantorTypeId;
   }
-  
+
+  // This method is for use only by Hibernate.
   private void setGrantorTypeId(String typeId)
   {
     this.grantorTypeId = typeId;
@@ -423,6 +433,7 @@ implements Assignment, Comparable
   }
 
 
+  // This method is for use only by Hibernate.
   private void setGrantOnly(boolean grantOnly)
   {
     this.grantOnly = grantOnly;
@@ -561,6 +572,7 @@ implements Assignment, Comparable
   }
 
 
+  // This method is for use only by Hibernate.
   private void setEffectiveDate(Date date)
   {
     this.effectiveDate = date;
@@ -647,12 +659,14 @@ implements Assignment, Comparable
     return this.instanceNumber;
   }
   
+  // This method is for use only by Hibernate.
   private void setInstanceNumber(int instanceNumber)
   {
     this.instanceNumber = instanceNumber;
   }
 
 
+  // This method is for use only by Hibernate.
   private void setExpirationDate(Date expirationDate)
   {
     this.expirationDate = expirationDate;
@@ -741,10 +755,9 @@ implements Assignment, Comparable
       {
         this.recordLimitValuesHistory(null);
       }
-      catch (HibernateException e)
+      catch (HibernateException he)
       {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new SignetRuntimeException(he);
       }
     }
     else

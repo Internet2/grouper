@@ -58,7 +58,7 @@ To populate the Signet demo application with sample data:
 
   (4) Add login-names to your web server's authentication mechanism, with any
       passwords you like. Login names must correspond to the principal
-      identifier (e.g., "jpoole" in the sample data) of one or more Subjects
+      identifier (e.g., "demo" in the sample data) of one or more Subjects
       loaded above.
 
 

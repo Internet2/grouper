@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.19 2005-07-08 21:54:57 acohen Exp $
-$Date: 2005-07-08 21:54:57 $
+$Id: Fixtures.java,v 1.20 2005-07-12 23:13:26 acohen Exp $
+$Date: 2005-07-12 23:13:26 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,6 +11,7 @@ package edu.internet2.middleware.signet.test;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -24,6 +25,7 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitDisplayOrderComparator;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
@@ -250,7 +252,8 @@ public class Fixtures
     Subject subject = getOrCreateSubject(subjectNumber);
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
     Function function = getOrCreateFunction(functionNumber);
-    Limit[] limitsInDisplayOrder = function.getLimitsArray();
+    Limit[] limitsInDisplayOrder
+      = Common.getLimitsInDisplayOrder(function.getLimits());
     
     Set limitValues = new HashSet();
     for (int i = 0; i < limitValueNumbers.length; i++)

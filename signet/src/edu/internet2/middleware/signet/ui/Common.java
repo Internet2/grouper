@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.13 2005-07-08 21:54:57 acohen Exp $
-  $Date: 2005-07-08 21:54:57 $
+  $Id: Common.java,v 1.14 2005-07-12 23:13:26 acohen Exp $
+  $Date: 2005-07-12 23:13:26 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitDisplayOrderComparator;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.choice.Choice;
@@ -84,20 +85,38 @@ public class Common
     return out.toString();
   }
   
-  private static LimitValue[] getLimitValuesArray(Assignment assignment)
+  private static LimitValue[] getLimitValuesArray(Set limitValues)
   {
     LimitValue limitValuesArray[] = new LimitValue[0];
-
+    
     return
-      (LimitValue[])(assignment.getLimitValues().toArray(limitValuesArray));
+      (LimitValue[])(limitValues.toArray(limitValuesArray));
+  }
+  
+  public static LimitValue[] getLimitValuesInDisplayOrder(Set limitValues)
+  {
+    LimitValue[] limitValuesArray = getLimitValuesArray(limitValues);
+    Arrays.sort(limitValuesArray, LimitValue.getDisplayOrderComparator());
+    return limitValuesArray;
   }
 
   public static LimitValue[] getLimitValuesInDisplayOrder
     (Assignment assignment)
   {
-    LimitValue[] limitValues = getLimitValuesArray(assignment);
-    Arrays.sort(limitValues, LimitValue.getDisplayOrderComparator());
-    return limitValues;
+    return getLimitValuesInDisplayOrder(assignment.getLimitValues());
+  }
+  
+  public static Limit[] getLimitsInDisplayOrder(Set limits)
+  {
+    Limit[] limitsArray = new Limit[0];
+    limitsArray = (Limit[])(limits.toArray(limitsArray));
+    
+    if (limitsArray.length > 0)
+    {
+      Arrays.sort(limitsArray, new LimitDisplayOrderComparator());
+    }
+    
+    return limitsArray;
   }
   
   public static Choice[] getChoicesInDisplayOrder(ChoiceSet choiceSet)
@@ -110,6 +129,41 @@ public class Common
       Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
     }
     return choiceArray;
+  }
+  
+  public static String displayLimitValues
+    (Set limits,
+     Set limitValues)
+  {
+    StringBuffer strBuf = new StringBuffer();
+    
+    LimitValue[] limitValuesSortedArray
+      = getLimitValuesInDisplayOrder(limitValues);
+    Limit[] limitsSortedArray = getLimitsInDisplayOrder(limits);
+
+    for (int limitIndex = 0;
+         limitIndex < limitsSortedArray.length;
+         limitIndex++)
+    {
+      Limit limit = limitsSortedArray[limitIndex];
+      strBuf.append((limitIndex > 0) ? "\n<br />\n" : "");
+      strBuf.append("<span class=\"label\">" + limit.getName() + ":</span> ");
+
+      int limitValuesPrinted = 0;
+      for (int limitValueIndex = 0;
+           limitValueIndex < limitValuesSortedArray.length;
+           limitValueIndex++)
+      {
+        LimitValue limitValue = limitValuesSortedArray[limitValueIndex];
+        if (limitValue.getLimit().equals(limit))
+        {
+          strBuf.append((limitValuesPrinted++ > 0) ? ", " : "");
+          strBuf.append(limitValue.getDisplayValue());
+        }
+      }
+    }
+    
+    return strBuf.toString();
   }
 
   /**
@@ -124,31 +178,49 @@ public class Common
    */
   public static String displayLimitValues(Assignment assignment)
   {
-    StringBuffer strBuf = new StringBuffer();
-
-    Limit[] limits = assignment.getFunction().getLimitsArray();
-    LimitValue[] limitValues = getLimitValuesInDisplayOrder(assignment);
-    for (int limitIndex = 0; limitIndex < limits.length; limitIndex++)
+    Set limits = assignment.getFunction().getLimits();
+    Set limitValues = assignment.getLimitValues();
+    
+    return displayLimitValues(limits, limitValues);
+  }
+  
+  public static String displayStatus(Assignment assignment)
+  {
+    StringBuffer statusStr = new StringBuffer();
+    
+    // An Assignment with no ID has not yet been persisted. An Assignment
+    // that has not yet been persisted has no Status yet. That is, it's not
+    // active, it's not pending, it's not nuthin' yet.
+    boolean hasStatus = !(assignment.getId() == null);
+    boolean canUse = !(assignment.isGrantOnly());
+    boolean canGrant = assignment.isGrantable();
+    
+    if (hasStatus)
     {
-      Limit limit = limits[limitIndex];
-      strBuf.append((limitIndex > 0) ? "\n<br />\n" : "");
-      strBuf.append("<span class=\"label\">" + limit.getName() + ":</span> ");
-
-      int limitValuesPrinted = 0;
-      for (int limitValueIndex = 0;
-           limitValueIndex < limitValues.length;
-           limitValueIndex++)
-      {
-        LimitValue limitValue = limitValues[limitValueIndex];
-        if (limitValue.getLimit().equals(limit))
-        {
-          strBuf.append((limitValuesPrinted++ > 0) ? ", " : "");
-          strBuf.append(limitValue.getDisplayValue());
-        }
-      }
+      statusStr.append(assignment.getStatus().getName());
     }
     
-    return strBuf.toString();
+    if (hasStatus && canUse)
+    {
+      statusStr.append(", ");
+    }
+    
+    if (canUse)
+    {
+      statusStr.append("can use");
+    }
+    
+    if ((hasStatus || canUse) && canGrant)
+    {
+      statusStr.append(", ");
+    }
+    
+    if (canGrant)
+    {
+      statusStr.append("can grant");
+    }
+
+    return statusStr.toString();
   }
   
   
@@ -222,5 +294,67 @@ public class Common
     // If we've gotten this far, this Limit-value should not appear as
     // pre-selected.
     return false;
+  }
+  
+  public static String revokeBox
+    (PrivilegedSubject  revoker,
+     Assignment         assignment,
+     UnusableStyle      unusableStyle)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    if (revoker.canEdit(assignment))
+    {
+      outStr.append("<td align=\"center\" >\n");
+      outStr.append("  <input\n");
+      outStr.append("    name=\"revoke\"\n");
+      outStr.append("    type=\"checkbox\"\n");
+      outStr.append("    id=\"" + assignment.getId() + "\"\n");
+      outStr.append("    value=\"" + assignment.getId() + "\"\n");
+      outStr.append("    onclick=\"selectThis(this.checked);\" />\n");
+      outStr.append("</td>");
+    }
+    else if (unusableStyle == UnusableStyle.TEXTMSG)
+    {
+      outStr.append("<td align=\"center\" class=\"status\" >\n");
+      outStr.append("  You are not authorized to revoke this assignment.\n");
+      outStr.append("</td>");
+    }
+    else // show the checkbox dimmed.
+    {
+      outStr.append("<td align=\"center\" >\n");
+      outStr.append("  <input\n");
+      outStr.append("    name=\"revoke\"\n");
+      outStr.append("    type=\"checkbox\"\n");
+      outStr.append("    id=\"" + assignment.getId() + "\"\n");
+      outStr.append("    value=\"" + assignment.getId() + "\"\n");
+      outStr.append("    disabled=\"true\"");
+      outStr.append("    title=\"" + revoker.editRefusalExplanation(assignment, "logged-in user") + "\"/>");
+      outStr.append("</td>");
+    }
+    
+    return outStr.toString();
+  }
+  
+  public static String assignmentPopupIcon(Assignment assignment)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    outStr.append("<a\n");
+    outStr.append("  style=\"float: right;\"\n");
+    outStr.append("  href\n");
+    outStr.append("    =\"javascript:openWindow\n");
+    outStr.append("        ('Assignment.do?assignmentId=" + assignment.getId() + "',\n");
+    outStr.append("         'popup',\n");
+    outStr.append("         'scrollbars=yes,\n");
+    outStr.append("          resizable=yes,\n");
+    outStr.append("          width=500,\n");
+    outStr.append("          height=250');\">\n");
+    outStr.append("  <img\n");
+    outStr.append("   src=\"images/maglass.gif\"\n");
+    outStr.append("   alt=\"More info about this assignment...\" />\n");
+    outStr.append("</a>");
+  
+    return outStr.toString();
   }
 }

@@ -103,6 +103,7 @@
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
           <forward name="success" path="/confirm.jsp" />
+          <forward name="duplicateAssignments" path="/duplicateAssignments.jsp" />
       </action>
 
       <!-- Signet assignment-details page -->
@@ -119,6 +120,16 @@
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
           <forward name="success" path="/personview.jsp" />
+      </action>
+
+      <!-- Signet assignment-revocation-and-grant action
+		   (for resolving duplicate Assignments)
+       -->
+      <action    path="/RevokeAndGrant"
+                 type="edu.internet2.middleware.signet.ui.RevokeAndGrantAction">
+          <forward name="notInitialized" path="/Start.do" />
+          <forward name="failure" path="/error.jsp" />
+          <forward name="success" path="/confirm.jsp" />
       </action>
 
       <!-- Signet not-yet-implemented page -->

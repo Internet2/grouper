@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.28 2005-07-07 20:59:21 jvine Exp $
-  $Date: 2005-07-07 20:59:21 $
+  $Id: personview.jsp,v 1.29 2005-07-12 23:13:26 acohen Exp $
+  $Date: 2005-07-12 23:13:26 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -135,6 +135,7 @@
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
 <% 
   Signet signet
@@ -347,16 +348,7 @@
                </td> <!-- limits -->
                
                  <td>&nbsp;</td>
-                 <td align="center" >
-                   <input
-                      name="revoke"
-                      type="checkbox"
-                      id="<%=assignment.getId()%>"
-                      value="<%=assignment.getId()%>"
-                      <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "disabled=\"true\"")%>
-                      <%=(loggedInPrivilegedSubject.canEdit(assignment) ? "" : "title=\"" + loggedInPrivilegedSubject.editRefusalExplanation(assignment, "logged-in user") + "\"")%>
-                      onclick="selectThis(this.checked);">
-                 </td>
+                 <%=Common.revokeBox(loggedInPrivilegedSubject, assignment, UnusableStyle.DIM)%>
                </tr>
                   
 <%
