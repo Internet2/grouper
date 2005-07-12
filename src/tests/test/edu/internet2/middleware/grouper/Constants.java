@@ -167,13 +167,15 @@ public class Constants {
     gC.listAddVal(m2);
     gD.listAddVal(m1);
   }
-    
+  
   protected static GrouperSession createSession() {
+    return Constants.createSession(Constants.rootI, Constants.rootT);
+  }
+
+  protected static GrouperSession createSession(String id, String type) {
     try {
       return GrouperSession.start(
-        SubjectFactory.getSubject(
-          Constants.rootI, Constants.rootT
-        )
+        SubjectFactory.getSubject(id, type)
       ); 
     } catch (SubjectNotFoundException e) {
       throw new RuntimeException(e.getMessage());
