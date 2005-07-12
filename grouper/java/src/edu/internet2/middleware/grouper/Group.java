@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.35 2005-07-09 04:51:08 blair Exp $
+ * @version $Id: Group.java,v 1.36 2005-07-12 00:01:40 blair Exp $
  */
 abstract public class Group {
 
@@ -347,7 +347,9 @@ abstract public class Group {
         g = (Group) s.dbSess().session().get(Group.class, key);
         g.load(s); // TODO Remove explicit calls in GG and GS?
       } catch (HibernateException e) {
-        throw new RuntimeException("Error loading group: " + e);
+        throw new RuntimeException(
+          "Error loading group: " + e.getMessage()
+        );
       }
     }
     return g;
