@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.70 2005-06-16 15:48:23 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.71 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -259,9 +259,8 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(
-                     GrouperSession s, Group g, 
-                     GrouperMember m, String priv
-                    )
+    GrouperSession s, Group g, GrouperMember m, String priv
+  )
   {
     GrouperAccessImpl._init();
     boolean rv = false;
@@ -358,19 +357,18 @@ public class GrouperAccessImpl implements GrouperAccess {
   public List whoHas(GrouperSession s, Group g, String priv) {
     GrouperAccessImpl._init();
     List members = new ArrayList();
-    
+  
     if (this.can(priv) == true) {
       Iterator iter = g.listVals( (String) privMap.get(priv)).iterator();
       while (iter.hasNext()) {
         GrouperList   gl  = (GrouperList) iter.next();
-        gl.load(s);
+        gl.setSession(s);
         GrouperMember m   = gl.member();
         if (m != null) {
           members.add(m);
         }
       } 
     } // TODO Exception if invalid priv?
-
     return members;
   }
 
@@ -438,7 +436,7 @@ public class GrouperAccessImpl implements GrouperAccess {
       Iterator iter = g.listImmVals( (String) privMap.get(priv)).iterator();
       while (iter.hasNext()) {
         GrouperList   gl  = (GrouperList) iter.next();
-        gl.load(s);
+        gl.setSession(s);
         GrouperMember m   = gl.member();
         if (m != null) {
           members.add(m);

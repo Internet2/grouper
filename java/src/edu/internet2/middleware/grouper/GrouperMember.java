@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.89 2005-06-23 18:31:38 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.90 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperMember {
 
@@ -351,11 +351,16 @@ public class GrouperMember {
    */
   public Group toGroup() {
     GrouperSession.validate(this.s);
-    Group g = Group._loadByID(this.s, this.getSubjectID());
-    if (g == null) {
+    try {
+      Group g = Group._loadByID(this.s, this.getSubjectID());
+      if (g == null) {
+        throw new RuntimeException("Error converting member to group");
+      }
+      return g;
+    } catch (InsufficientPrivilegeException e) {
+      // Could this actually fail?
       throw new RuntimeException("Error converting member to group");
-    }
-    return g;
+    } 
   }
 
   /**
@@ -366,8 +371,13 @@ public class GrouperMember {
   public String toString() {
     String subjID = this.getSubjectID();
     if (this.getSubjectTypeID().equals("group")) {
-      Group g = Group._loadByID(this.s, subjID);
-      subjID = g.name();
+      try {
+        Group g = Group._loadByID(this.s, subjID);
+        subjID = g.name();
+      } catch (InsufficientPrivilegeException e) {
+        // Ignore.  We just don't get quite as pretty of a
+        // representation.
+      }
     }
     return new ToStringBuilder(this)                    .
       append("memberID"     , this.getMemberID()      ) .

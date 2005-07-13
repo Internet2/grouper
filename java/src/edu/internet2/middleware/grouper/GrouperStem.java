@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.47 2005-07-09 04:51:08 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.48 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -159,19 +159,28 @@ public class GrouperStem extends Group {
       throw new RuntimeException("Stem already exists");
     }
     Group.subjectCanCreateAtRoot(s, stem);
-    Group.subjectCanCreateStem(s, stem);
     try {
-      s.dbSess().txStart();
-      ns = new GrouperStem(s, stem, extn);
-      s.dbSess().session().save(ns);
-      ns.grantStemUponCreate(); 
-      ns.initialized = true;
-      s.dbSess().txCommit();
-      Grouper.log().stemAdd(s, ns, Group.groupName(stem, extn), ns.type());
-    } catch (HibernateException e) {
-      s.dbSess().txRollback();
-      throw new RuntimeException("Error saving stem: " + e);
-    } 
+      Group.subjectCanCreateStem(s, stem);
+      try {
+        s.dbSess().txStart();
+        ns = new GrouperStem(s, stem, extn);
+        s.dbSess().session().save(ns);
+        ns.grantStemUponCreate(); 
+        ns.initialized = true;
+        s.dbSess().txCommit();
+        Grouper.log().stemAdd(s, ns, Group.groupName(stem, extn), ns.type());
+      } catch (HibernateException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException(
+          "Error saving stem: " + e.getMessage()
+        );
+      } 
+    } catch (InsufficientPrivilegeException e) {
+      // TODO Is this the right message?
+      throw new RuntimeException(
+        "Error creating stem: " + e.getMessage()
+      );
+    }
     return ns;
   }
 
@@ -184,15 +193,18 @@ public class GrouperStem extends Group {
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperStem load(
-                              GrouperSession s, 
-                              String stem, String extension
-                            )
+    GrouperSession s, String stem, String extension
+  )
   {
     Group.invalidStemOrExtn(stem, extension);
     String key = Group.findKeyByStemExtnType(s, stem, extension, Grouper.NS_TYPE);
     if (key != null) {
-      GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
-      return ns;
+      try {
+        GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
+        return ns;
+      } catch (InsufficientPrivilegeException e) {
+        return null; // FIXME HATE!!!
+      }
     }
     return null; 
   }
@@ -205,7 +217,11 @@ public class GrouperStem extends Group {
    * @return  A {@link GrouperStem} object.
    */
   public static GrouperStem loadByID(GrouperSession s, String id) {
-    return (GrouperStem) Group._loadByID(s, id);
+    try {
+      return (GrouperStem) Group._loadByID(s, id);
+    } catch (InsufficientPrivilegeException e) {
+      return null; // FIXME HATE!!!
+    }
   }
 
   /**
@@ -216,10 +232,14 @@ public class GrouperStem extends Group {
    * @return  A {@link GrouperStem} object.
    */
   public static GrouperStem loadByName(
-                              GrouperSession s, String name
-                            )
+    GrouperSession s, String name
+  )
   {
-    return (GrouperStem) Group.loadByNameAndType(s, name, Grouper.NS_TYPE);
+    try {
+      return (GrouperStem) Group.loadByNameAndType(s, name, Grouper.NS_TYPE);
+    } catch (InsufficientPrivilegeException e) {
+      return null; // FIXME HATE!!!
+    }
   }
 
 
@@ -310,20 +330,23 @@ public class GrouperStem extends Group {
       try {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          String key = (String) iter.next();
-          GrouperGroup s = (GrouperGroup) Group.loadByKey(this.s, key);
-          vals.add(s);
+          try {
+            String key = (String) iter.next();
+            GrouperGroup s = (GrouperGroup) Group.loadByKey(this.s, key);
+            vals.add(s);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + 
-                    qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return vals;
   }
@@ -412,7 +435,15 @@ public class GrouperStem extends Group {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(String list) {
-    return this.listVals(this.s, this, list);
+    List      vals  = new ArrayList();
+    Iterator iter   = this.listVals(this.s, this, list).iterator();
+    while (iter.hasNext()) {
+      // Attach the current session to each list value
+      GrouperList lv = (GrouperList) iter.next();
+      lv.setSession(this.s);
+      vals.add(lv);      
+    }
+    return vals;
   }
 
   /**
@@ -497,20 +528,23 @@ public class GrouperStem extends Group {
       try {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          String key = (String) iter.next();
-          GrouperStem s = (GrouperStem) Group.loadByKey(this.s, key);
-          vals.add(s);
+          try {
+            String key = (String) iter.next();
+            GrouperStem s = (GrouperStem) Group.loadByKey(this.s, key);
+            vals.add(s);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + 
-                    qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return vals;
   }
@@ -609,7 +643,9 @@ public class GrouperStem extends Group {
     try {
       this.s.dbSess().session().update(this);
     } catch (HibernateException e) {
-      throw new RuntimeException("Error updating group: " + e);
+      throw new RuntimeException(
+        "Error updating group: " + e.getMessage()
+      );
     }
   }
 
@@ -626,11 +662,10 @@ public class GrouperStem extends Group {
     Subject root = null;
     try {
       root = SubjectFactory.getSubject(
-                       Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                     );
+        Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+      );
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new RuntimeException(e.getMessage());
     }
     GrouperSession  rs  = GrouperSession.start(root);
     // Subject that is creating group

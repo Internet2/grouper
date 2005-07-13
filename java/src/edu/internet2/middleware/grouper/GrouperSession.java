@@ -55,8 +55,10 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 
 import  java.io.*;
+import  java.util.*;
 import  java.lang.reflect.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
@@ -64,7 +66,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.94 2005-05-23 13:09:20 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.95 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -73,6 +75,7 @@ public class GrouperSession implements Serializable {
    */
 
   // Member & Subject that this session is running under
+  private transient Map             canCache = new HashMap();
   private transient GrouperMember   m; 
   private transient Subject         subject;
 
@@ -203,6 +206,17 @@ public class GrouperSession implements Serializable {
     return (Subject) this.subject;
   }
 
+  /**
+   * Return a string representation of this object.
+   * <p />
+   * @return String representation of this object.
+   */
+  public String toString() {
+    return new ToStringBuilder(this)    .
+      append("subject", this.subject()) .
+      toString();
+  }
+
 
   /*
    * PROTECTED CLASS METHODS
@@ -221,6 +235,67 @@ public class GrouperSession implements Serializable {
   /*
    * PROTECTED INSTANCE METHODS
    */
+
+  /*
+   * Can the subject VIEW?
+   * @throws {@link InsufficientPrivilegeException}
+   * TODO GrouperSession.getRootSession();
+   * TODO Should I use canREAD, et. al.?  Would that buy me additional
+   *      caching for free?
+   */
+  protected void canVIEW(Group g) 
+    throws InsufficientPrivilegeException
+  {
+    boolean can     = false;
+    // TODO I can't say I'm enamored of how I'm doing this...
+    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_VIEW);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      GrouperSession rs;
+      try {
+      rs = GrouperSession.start(
+        SubjectFactory.getSubject(
+          Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+        )
+      ); 
+      } catch (Exception e) {
+        throw new RuntimeException(
+          "Unable to create root session: " + e.getMessage()
+        );
+      }
+      if        (rs.access().has(this, g, Grouper.PRIV_VIEW)) {
+        // TODO log
+        can = true; 
+      } else if (rs.access().has(this, g, Grouper.PRIV_READ)) {
+        // TODO log
+        can = true; 
+      } else if (rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+        // TODO log
+        can = true; 
+      } else if (rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        // TODO log
+        can = true; 
+      } else if (rs.access().has(this, g, Grouper.PRIV_OPTIN)) {
+        // TODO log
+        can = true; 
+      } else if (rs.access().has(this, g, Grouper.PRIV_OPTOUT)) {
+        // TODO log
+        can = true; 
+      } else if ( (rs.access().whoHas(rs, g, Grouper.PRIV_VIEW).size()==0) ) {
+        // TODO I do this as root to avoid permission problems
+        // TODO log
+        can = true; 
+      } 
+      rs.stop();
+      // Update cache
+      this.setCachedCan(g.key(), Grouper.PRIV_VIEW, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
 
   /*
    * Return the database session.
@@ -292,6 +367,20 @@ public class GrouperSession implements Serializable {
     }
   }
 
+  // Attempt to retrieve a cached privilege lookup
+  private Map getCachedCan(String key, String priv) {
+    Map cached = new HashMap();
+    boolean rv = false;
+    if (this.canCache.containsKey(key)) {
+      Map g = (Map) this.canCache.get(key);
+      if (g.containsKey(priv)) {
+        cached.put( new String("cached"), new Boolean(true)     );
+        cached.put( new String("can"),    (Boolean) g.get(priv) );
+      }
+    }
+    return cached;
+  }
+
   // Deserialize the session
   private void readObject(ObjectInputStream ois)
                  throws ClassNotFoundException, IOException 
@@ -312,6 +401,16 @@ public class GrouperSession implements Serializable {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  // Cache a privilege lookup
+  private void setCachedCan(String key, String priv, boolean can) {
+    Map g = new HashMap();
+    if (this.canCache.containsKey(key)) {
+      g = (Map) this.canCache.get(key);
+    }
+    g.put( new String(priv), new Boolean(can) );
+    this.canCache.put( (String) key, g );
   }
 
   // Serialize the session

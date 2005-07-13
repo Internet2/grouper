@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.59 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: GrouperList.java,v 1.60 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -77,6 +77,7 @@ public class GrouperList implements Serializable {
   private transient List            elements = new ArrayList();
   private transient Group           g;
   private transient GrouperMember   m;
+  private transient GrouperSession  s;
   private transient Group           via;
 
   // And persistent
@@ -130,20 +131,19 @@ public class GrouperList implements Serializable {
    * Create a new {@link GrouperList} object.
    */
   protected GrouperList(
-              GrouperSession s, Group g, GrouperMember m, String list
-            ) 
+    GrouperSession s, Group g, GrouperMember m, String list
+  ) 
   {
     this(g, m, list);
-    this.load(s);
   }
 
   /*
    * Create a new {@link GrouperList} object for an effective mship.
    */
   protected GrouperList(
-              GrouperSession s, Group g, GrouperMember m, 
-              String list, List chain
-            ) 
+    GrouperSession s, Group g, GrouperMember m, 
+    String list, List chain
+  ) 
   {
     this(g, m, list);
     // TODO Is this right?
@@ -189,8 +189,8 @@ public class GrouperList implements Serializable {
         qry = qryImm;
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Unable to get query " + qryImm + ": " + e
-                  );
+          "Unable to get query " + qryImm + ": " + e.getMessage()
+        );
       }
     } else {
       try {
@@ -198,8 +198,8 @@ public class GrouperList implements Serializable {
         qry = qryEff;
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Unable to get query " + qryEff + ": " + e
-                  );
+          "Unable to get query " + qryEff + ": " + e.getMessage()
+        );
       }
     } 
     q.setString(0, gl.group().key());
@@ -227,7 +227,7 @@ public class GrouperList implements Serializable {
     Iterator iter = vals.iterator();
     while (iter.hasNext()) {
       GrouperList gl = (GrouperList) iter.next();
-      gl.load(s);
+      gl.setSession(s);
       loaded.add(gl);
     }
     return loaded;
@@ -271,7 +271,9 @@ public class GrouperList implements Serializable {
         q.setString(1, gl.member().key());
         q.setString(2, gl.groupField());
       } catch (HibernateException e) {
-        throw new RuntimeException("Unable to create query: " + e);
+        throw new RuntimeException(
+          "Unable to create query: " + e.getMessage()
+        );
       }
     }
 
@@ -283,8 +285,8 @@ public class GrouperList implements Serializable {
           s.dbSess().session().delete(del);
         } catch (HibernateException e) {
           throw new RuntimeException(
-                      "Error deleting list value: " + e
-                    );
+            "Error deleting list value: " + e.getMessage()
+          );
         }
       } else {
 /* TODO Later, later...
@@ -295,8 +297,8 @@ public class GrouperList implements Serializable {
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Error finding values: " + e
-                );
+        "Error finding values: " + e.getMessage()
+      );
     }
 
   }
@@ -312,7 +314,9 @@ public class GrouperList implements Serializable {
     try {
       s.dbSess().session().save(gl);
     } catch (HibernateException e) {
-      throw new RuntimeException("Error saving list value: " + e);
+      throw new RuntimeException(
+        "Error saving list value: " + e.getMessage()
+      );
     }
   }
 
@@ -355,7 +359,7 @@ public class GrouperList implements Serializable {
    * @return  List of {@link MemberVia} objects.
    */
   public List chain() {
-    return this.elements;
+    return this.getElements();
   }
 
   /**
@@ -375,7 +379,7 @@ public class GrouperList implements Serializable {
    * @return  A {@link Group} object.
    */
   public Group group() {
-    return this.g;
+    return this.getGroup();
   }
 
   /**
@@ -404,7 +408,7 @@ public class GrouperList implements Serializable {
    * @return  A {@link GrouperMember} object.
    */
   public GrouperMember member() {
-    return this.m;
+    return this.getMember();
   }
 
   /**
@@ -413,7 +417,7 @@ public class GrouperList implements Serializable {
    * @return String representation of this object.
    */
   public String toString() {
-    String via    = ""; 
+    String via = ""; 
     if (this.via() != null) {
       via = this.via().name();
     }
@@ -433,7 +437,7 @@ public class GrouperList implements Serializable {
    * @return  A {@link Group} object.
    */
   public Group via() {
-    return this.via;
+    return this.getVia();
   }
 
 
@@ -468,36 +472,6 @@ public class GrouperList implements Serializable {
   }
 
   /*
-   * Properly load a GrouperList object.
-   */
-  protected void load(GrouperSession s) {
-    GrouperSession.validate(s);
-    if (this.g == null) {
-      if (this.groupKey == null) {
-        throw new RuntimeException("Unable to load group as key is null");
-      }
-      this.g = Group.loadByKey(s, this.groupKey);
-    }
-    if (this.m == null) {
-      if (this.memberKey == null) {
-        throw new RuntimeException("Unable to load member as key is null");
-      }
-      this.m = GrouperMember.loadByKey(s, this.memberKey);
-    }
-    if (this.via == null) {
-      if (this.viaKey != null) {
-        this.via = Group.loadByKey(s, this.viaKey);
-      }
-    }
-    if (this.chainKey != null) {
-      if (this.elements.size() == 0) {
-        this.elements = MemberVia.load(s, this.chainKey);
-      }
-    }
-    GrouperList.validate(this);
-  }
-
-  /*
    * @return This object's memberKey.
    */
   protected String memberKey() {
@@ -505,10 +479,102 @@ public class GrouperList implements Serializable {
   }
 
   /*
+   * Properly load a GrouperList object.
+   */
+  protected void setSession(GrouperSession s) {
+    this.s = s;
+  }
+
+  /*
    * @return This object's viaKey.
    */
   protected String viaKey() {
     return this.viaKey;
+  }
+
+
+
+  /*
+   * PRIVATE INSTANCE METHODS
+   */
+
+  /*
+   * Return a list of elements
+   */
+  private List getElements() {
+    if (this.chainKey != null) {
+      if (this.elements.size() == 0) {
+        this.elements = MemberVia.load(s, this.chainKey);
+      }
+    }
+    return this.elements;
+  }
+
+  /*
+   * Return a {@link Group} object, loading first if necessary
+   */
+  private Group getGroup() {
+    if (this.g == null) {
+      if (this.groupKey == null) {
+        throw new RuntimeException("Unable to load group as key is null");
+      } 
+      try {
+        this.g = Group.loadByKey(
+          this.getSession(), this.groupKey()
+        );
+      } catch (InsufficientPrivilegeException e) {
+        // FIXME What is the correct behavior here?
+        //       Do I need a NullGroup object to return?
+        //       But, for now, bail!
+        throw new RuntimeException("Could not retrieve group");
+      }
+    }
+    return this.g;
+  }
+
+  /*
+   * Return a {@link GrouperMember} object, loading first if necessary
+   */
+  private GrouperMember getMember() {
+    if (this.m == null) {
+      if (this.memberKey == null) {
+        throw new RuntimeException("Unable to load member as key is null");
+      }
+      // TODO Could session possibly not be valid?
+      this.m = GrouperMember.loadByKey(
+        this.getSession(), this.memberKey()
+      );
+    }
+    return this.m;
+  }
+
+  /*
+   * Return session
+   */
+  private GrouperSession getSession() {
+    // TODO Is this possibly not set?
+    return this.s;
+  }
+
+  /*
+   * Return a {@link Group} object, loading first if necessary
+   */
+  private Group getVia() {
+    if (this.via == null) {
+      if (this.viaKey != null) {
+        try {
+          this.via = Group.loadByKey(
+            this.getSession(), this.viaKey()
+          );
+        } catch (InsufficientPrivilegeException e) {
+          // FIXME What is the correct behavior here?
+          //       Do I need a NullGroup object to return?
+          //       But, for now, bail!
+          throw new RuntimeException("Could not retrieve via group");
+        }
+      }
+    }
+    return this.via;
   }
 
 

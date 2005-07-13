@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.27 2005-07-11 19:22:00 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.28 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperQuery {
 
@@ -512,7 +512,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
+          gl.setSession(s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
@@ -567,9 +567,13 @@ public class GrouperQuery {
       try {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          String key = (String) iter.next();
-          Group g = Group.loadByKey(this.s, key);
-          vals.add(g);
+          try {
+            String key = (String) iter.next();
+            Group g = Group.loadByKey(this.s, key);
+            vals.add(g);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -594,9 +598,13 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
+          try {
+            Group g = (Group) iter.next();
+            g = Group.loadByKey(this.s, g.key());
+            vals.add(g);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -621,9 +629,13 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
+          try {
+            Group g = (Group) iter.next();
+            g = Group.loadByKey(this.s, g.key());
+            vals.add(g);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -648,9 +660,13 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
+          try {
+            Group g = (Group) iter.next();
+            g = Group.loadByKey(this.s, g.key());
+            vals.add(g);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -675,9 +691,13 @@ public class GrouperQuery {
         // TODO Is this necessary?  Or even accurate?
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          Group g = (Group) iter.next();
-          g = Group.loadByKey(this.s, g.key());
-          vals.add(g);
+          try {
+            Group g = (Group) iter.next();
+            g = Group.loadByKey(this.s, g.key());
+            vals.add(g);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
@@ -702,10 +722,11 @@ public class GrouperQuery {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperSchema gs = (GrouperSchema) iter.next();
-          // TODO What a hack
-          Group g = Group.loadByKey(this.s, gs.key());
-          if (g != null) {
+          try {
+            Group g = Group.loadByKey(this.s, gs.key());
             vals.add(g);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
           }
         }
       } catch (HibernateException e) {
@@ -732,7 +753,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
+          gl.setSession(this.s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
@@ -760,7 +781,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
+          gl.setSession(this.s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
@@ -788,7 +809,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
+          gl.setSession(this.s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
@@ -816,7 +837,7 @@ public class GrouperQuery {
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(this.s);
+          gl.setSession(this.s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
@@ -847,10 +868,14 @@ public class GrouperQuery {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           String key = (String) iter.next();
-          Group g = Group.loadByKey(this.s, key);
-          // TODO Why can't I query on the _classType_ field above?
-          if (g.getClass().equals(klass)) {
-            vals.add(g);
+          try {
+            Group g = Group.loadByKey(this.s, key);
+            // TODO Why can't I query on the _classType_ field above?
+            if (g.getClass().equals(klass)) {
+              vals.add(g);
+            }
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
           }
         }
       } catch (HibernateException e) {

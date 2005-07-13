@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.65 2005-06-16 15:48:23 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.66 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -117,9 +117,9 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Privilege to grant.
    */
   public boolean grant(
-                       GrouperSession s, GrouperStem ns, 
-                       GrouperMember m, String priv
-                      ) 
+    GrouperSession s, GrouperStem ns, 
+    GrouperMember m, String priv
+  ) 
   {
     GrouperSession.validate(s);
     GrouperNamingImpl._init();
@@ -357,7 +357,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       Iterator iter = ns.listVals( (String) privMap.get(priv)).iterator();
       while (iter.hasNext()) {
         GrouperList   gl  = (GrouperList) iter.next();
-        gl.load(s);
+        gl.setSession(s);
         GrouperMember m   = gl.member();
         if (m != null) {
           members.add(m);
@@ -428,7 +428,7 @@ public class GrouperNamingImpl implements GrouperNaming {
       Iterator iter = g.listImmVals( (String) privMap.get(priv)).iterator();
       while (iter.hasNext()) {
         GrouperList   gl  = (GrouperList) iter.next();
-        gl.load(s);
+        gl.setSession(s);
         GrouperMember m   = gl.member();
         if (m != null) {
           members.add(m);

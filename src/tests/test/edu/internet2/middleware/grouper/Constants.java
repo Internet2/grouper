@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  junit.framework.*;
 
 
 public class Constants {
@@ -60,7 +61,7 @@ public class Constants {
   /*
    * PUBLIC CLASS CONSTANTS
    */
-  // TODO Move to within Grouper itself?
+  // TODO Why am I using these static definitions?
   public static final String KLASS_GAI    = "edu.internet2.middleware.grouper.GrouperAccessImpl";
   public static final String KLASS_GA     = "edu.internet2.middleware.grouper.GrouperAttribute";
   public static final String KLASS_GE     = "edu.internet2.middleware.grouper.GrouperException";
@@ -127,45 +128,54 @@ public class Constants {
    */
   protected static GrouperStem    ns0, ns1, ns2;
   protected static GrouperGroup   g0, g1, g2, gA, gB, gC, gD;
-  protected static GrouperMember  m1, m2;
+  protected static GrouperMember  m0, m1;
 
 
   /*
    * PROTECTED CLASS METHODS
    */
 
+  // TODO Move to a more appropriately name class
+
   protected static void createGroups() {
     Constants.createGroups( Constants.createSession() );
   }
 
+  protected static GrouperGroup createGroup(
+    GrouperSession s, String stem, String extn
+  )
+  {
+    return GrouperGroup.create(s, stem, extn);
+  }
+
   protected static void createGroups(GrouperSession s) {
     Constants.createStems(s);
-    g0 = GrouperGroup.create(s, Constants.g0s, Constants.g0e);
+    g0 = Constants.createGroup(s, Constants.g0s, Constants.g0e);
     g0.attribute("description", "this is group 0");
-    g1 = GrouperGroup.create(s, Constants.g1s, Constants.g1e);
+    g1 = Constants.createGroup(s, Constants.g1s, Constants.g1e);
     g1.attribute("description", "this is group 1");
-    g2 = GrouperGroup.create(s, Constants.g2s, Constants.g2e);
+    g2 = Constants.createGroup(s, Constants.g2s, Constants.g2e);
     g2.attribute("description", "this is group 2");
-    gA = GrouperGroup.create(s, Constants.gAs, Constants.gAe);
+    gA = Constants.createGroup(s, Constants.gAs, Constants.gAe);
     gA.attribute("description", "this is group a");
-    gB = GrouperGroup.create(s, Constants.gBs, Constants.gBe);
+    gB = Constants.createGroup(s, Constants.gBs, Constants.gBe);
     gB.attribute("description", "this is group b");
-    gC = GrouperGroup.create(s, Constants.gCs, Constants.gCe);
+    gC = Constants.createGroup(s, Constants.gCs, Constants.gCe);
     gC.attribute("description", "this is group c");
-    gD = GrouperGroup.create(s, Constants.gDs, Constants.gDe);
+    gD = Constants.createGroup(s, Constants.gDs, Constants.gDe);
     gD.attribute("description", "this is group d");
   }
 
   protected static void createMembers(GrouperSession s) {
-    m1 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
-    m2 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
-    g0.listAddVal(m1);
-    g1.listAddVal(m2);
-    g2.listAddVal(m1);
-    gA.listAddVal(m2);
-    gB.listAddVal(m1);
-    gC.listAddVal(m2);
-    gD.listAddVal(m1);
+    m0 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
+    m1 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
+    g0.listAddVal(m0);
+    g1.listAddVal(m1);
+    g2.listAddVal(m0);
+    gA.listAddVal(m1);
+    gB.listAddVal(m0);
+    gC.listAddVal(m1);
+    gD.listAddVal(m0);
   }
   
   protected static GrouperSession createSession() {
@@ -196,6 +206,26 @@ public class Constants {
     ns2 = GrouperStem.create(
       s, Constants.ns2s, Constants.ns2e
     );
+  }
+
+  protected static void grantPriv(
+    String stem, String extn, GrouperMember m, String priv
+  )
+  {
+    GrouperSession  rs  = Constants.createSession();
+    GrouperGroup    g   = Constants.loadGroup(rs, stem, extn);
+    Assert.assertTrue(
+      "grant " + priv + " to " + m + " on " + g,  
+      rs.access().grant(rs, g, m, priv)
+    );
+    rs.stop();
+  }
+
+  protected static GrouperGroup loadGroup(
+    GrouperSession s, String stem, String extn
+  )
+  {
+    return GrouperGroup.load(s, stem, extn);
   }
 
 }
