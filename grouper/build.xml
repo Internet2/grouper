@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.56 2005-07-10 03:22:39 blair Exp $ -->
+<!-- $Id: build.xml,v 1.57 2005-07-13 20:03:25 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -19,6 +19,10 @@
   <property name="sql.type"               value="hsqldb"/>
   <property name="sql.create"             value="sql/schema-${sql.type}.sql"/>
   <property name="sql.test-data"          value="sql/test-data-${sql.type}.sql"/>
+  <property name="impl.url" 
+    value="http://middleware.internet2.edu/dir/groups/grouper/"/>
+  <property name="impl.vendor"            value="Internet2"/>
+  <property name="impl.version"           value="0.6"/>
 
   <target name="init">
     <tstamp />
@@ -47,7 +51,15 @@
 
   <target name="dist" depends="build" description="generate the distribution" >
     <mkdir dir="${dist}/lib" />
-    <jar jarfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}" />
+    <jar destfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Implementation-Vendor" value="${impl.vendor}" />
+        <attribute name="Implementation-Title" value="${app.name}" />
+        <attribute name="Implementation-Version" value="${impl.version}" />
+        <attribute name="Implementation-URL" value="${impl.url}" />
+    </manifest>
+    </jar>
     <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
     <!-- This bothers me for some reason -->
     <unzip dest="${build.lib}">
