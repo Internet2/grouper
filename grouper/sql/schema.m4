@@ -1,6 +1,7 @@
 define(`_DROP_TABLE',dnl
 ifdef(`hsqldb', `DROP TABLE $1 IF EXISTS;', `')dnl
 )dnl
+define(`_TYPE_FIELD_VAL',   `_TYPE_STRING_VAR(1024)')dnl
 define(`_TYPE_INT',         `INTEGER')dnl
 define(`_TYPE_STRING',      `_TYPE_STRING_VAR(64)')dnl
 define(`_TYPE_STRING_VAR',dnl
@@ -17,7 +18,7 @@ _DROP_TABLE(`grouper_attribute')
 CREATE TABLE grouper_attribute (
   groupKey        _TYPE_UUID() NOT NULL,
   groupField      _TYPE_STRING() NOT NULL,
-  groupFieldValue _TYPE_STRING(),
+  groupFieldValue _TYPE_FIELD_VAL(),
   CONSTRAINT      uniq_ga_gk_gf UNIQUE (groupKey, groupField)
 );
 
