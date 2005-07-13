@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.12 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: LimitImpl.java,v 1.13 2005-07-13 23:28:42 acohen Exp $
+$Date: 2005-07-13 23:28:42 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -434,5 +434,15 @@ final class LimitImpl implements Limit
   public void save()
   {
     this.signet.save(this);
+  }
+
+
+  /* (non-Javadoc)
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o)
+  {
+    return
+      (this.getDisplayOrder() - ((Limit)o).getDisplayOrder());
   }
 }

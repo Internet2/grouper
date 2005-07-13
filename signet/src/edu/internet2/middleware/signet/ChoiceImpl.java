@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.6 2005-07-08 21:54:57 acohen Exp $
-$Date: 2005-07-08 21:54:57 $
+$Id: ChoiceImpl.java,v 1.7 2005-07-13 23:28:42 acohen Exp $
+$Date: 2005-07-13 23:28:42 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -290,5 +290,15 @@ class ChoiceImpl implements Choice
       + ", displayOrder='"
       + this.displayOrder
       + "']";
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o)
+  {
+    Choice choice = (Choice)o;
+
+    return (this.getDisplayOrder() - choice.getDisplayOrder());
   }
 }

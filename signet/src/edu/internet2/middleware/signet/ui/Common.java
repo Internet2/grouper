@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.14 2005-07-12 23:13:26 acohen Exp $
-  $Date: 2005-07-12 23:13:26 $
+  $Id: Common.java,v 1.15 2005-07-13 23:28:42 acohen Exp $
+  $Date: 2005-07-13 23:28:42 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -23,11 +23,9 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Limit;
-import edu.internet2.middleware.signet.LimitDisplayOrderComparator;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.choice.Choice;
-import edu.internet2.middleware.signet.choice.ChoiceDisplayOrderComparator;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 public class Common
@@ -96,7 +94,7 @@ public class Common
   public static LimitValue[] getLimitValuesInDisplayOrder(Set limitValues)
   {
     LimitValue[] limitValuesArray = getLimitValuesArray(limitValues);
-    Arrays.sort(limitValuesArray, LimitValue.getDisplayOrderComparator());
+    Arrays.sort(limitValuesArray);
     return limitValuesArray;
   }
 
@@ -113,7 +111,7 @@ public class Common
     
     if (limitsArray.length > 0)
     {
-      Arrays.sort(limitsArray, new LimitDisplayOrderComparator());
+      Arrays.sort(limitsArray);
     }
     
     return limitsArray;
@@ -126,7 +124,7 @@ public class Common
     
     if (choiceArray.length > 0)
     {
-      Arrays.sort(choiceArray, new ChoiceDisplayOrderComparator());
+      Arrays.sort(choiceArray);
     }
     return choiceArray;
   }

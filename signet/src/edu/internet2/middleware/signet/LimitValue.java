@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.8 2005-07-08 21:54:57 acohen Exp $
-$Date: 2005-07-08 21:54:57 $
+$Id: LimitValue.java,v 1.9 2005-07-13 23:28:42 acohen Exp $
+$Date: 2005-07-13 23:28:42 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,6 +14,7 @@ import java.util.HashSet;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
 
@@ -22,6 +23,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSetNotFound;
  * values.
  */
 public class LimitValue
+implements Comparable
 {
   private static Comparator displayOrderComparator;
   
@@ -139,14 +141,45 @@ public class LimitValue
   {
     return "[" + this.limit + " : " + this.value + "]";
   }
-  
-  static public Comparator getDisplayOrderComparator()
-  {
-    if (displayOrderComparator == null)
-    {
-      displayOrderComparator = new LimitValueDisplayOrder();
-    }
+
+  /* (non-Javadoc)
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o) {
+    LimitValue limitValue = (LimitValue)o;
     
-    return displayOrderComparator;
+    int comparison
+      = this.getLimit().getDisplayOrder()
+        - limitValue.getLimit().getDisplayOrder();
+    
+    if (comparison == 0)
+    {
+      Choice choice0;
+      Choice choice1;
+      
+      try
+      {
+        choice0
+          = this
+              .getLimit()
+                .getChoiceSet()
+                  .getChoiceByValue
+                    (this.getValue());
+        choice1
+          = limitValue
+            .getLimit()
+              .getChoiceSet()
+                .getChoiceByValue
+                  (limitValue.getValue());
+      }
+      catch (ChoiceNotFoundException cnfe)
+      {
+        throw new SignetRuntimeException(cnfe);
+      }
+      
+      comparison = choice0.compareTo(choice1);
+    }
+
+    return comparison;
   }
 }

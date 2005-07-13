@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.10 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: Limit.java,v 1.11 2005-07-13 23:28:42 acohen Exp $
+$Date: 2005-07-13 23:28:42 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -18,6 +18,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 */
 
 public interface Limit
+extends Comparable
 {
 	/**
 	 * Get the ID of this Limit.

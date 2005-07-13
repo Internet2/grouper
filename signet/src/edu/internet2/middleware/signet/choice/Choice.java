@@ -1,6 +1,6 @@
 /*--
-$Id: Choice.java,v 1.6 2005-07-08 21:54:57 acohen Exp $
-$Date: 2005-07-08 21:54:57 $
+$Id: Choice.java,v 1.7 2005-07-13 23:28:42 acohen Exp $
+$Date: 2005-07-13 23:28:42 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,7 @@ package edu.internet2.middleware.signet.choice;
  * Represents a single possible choice within a ChoiceSet.
  */
 public interface Choice
+extends Comparable
 {
 	/**
 	 * Returns the enclosing ChoiceSet of this Choice.
