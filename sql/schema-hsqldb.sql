@@ -7,7 +7,7 @@ DROP TABLE grouper_attribute IF EXISTS;
 CREATE TABLE grouper_attribute (
   groupKey        VARCHAR(64) NOT NULL,
   groupField      VARCHAR(64) NOT NULL,
-  groupFieldValue VARCHAR(64),
+  groupFieldValue VARCHAR(1024),
   CONSTRAINT      uniq_ga_gk_gf UNIQUE (groupKey, groupField)
 );
 
