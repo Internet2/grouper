@@ -65,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.8 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.9 2005-07-13 19:41:17 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -110,9 +110,13 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   public Subject getSubject(String id) throws SubjectNotFoundException {
     Subject subj = null;
     // TODO Optimize further based upon presence of '-' and ':'?
-    GrouperGroup g = GrouperGroup.loadByID(this.getSession(), id);
+    GrouperGroup g = GrouperGroup.loadByID(
+      GrouperSession.getRootSession(), id
+    );
     if (g == null) { // TODO GroupNotFoundException
-      g = GrouperGroup.loadByName(s, id);
+      g = GrouperGroup.loadByName(
+        GrouperSession.getRootSession(), id
+      );
         if (g != null) {
           subj = new GrouperSubject(g, this);
         }
@@ -157,7 +161,8 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     String  qry   = "Group.subject.search";
     Set     vals  = new HashSet();
     try {
-      Query q = this.getSession().dbSess().session().getNamedQuery(qry);
+      Query q = GrouperSession.getRootSession().
+                  dbSess().session().getNamedQuery(qry);
       // TODO Move _%_ to _Grouper.hbm.xml_
       q.setString(0, "%" + searchValue + "%"); // _stem_
       // TODO Move _%_ to _Grouper.hbm.xml_
@@ -173,7 +178,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
         while (iter.hasNext()) {
           try {
             String key = (String) iter.next();
-            GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(this.getSession(), key);
+            GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(
+              GrouperSession.getRootSession(), key
+            );
             Subject subj = new GrouperSubject(g, this);
             vals.add(subj);
             log.debug("search found: " + g + "/" + subj);
@@ -190,44 +197,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       throw new RuntimeException(
         "Unable to get query " + qry + ": " + e.getMessage()
       );
-    } catch (SubjectNotFoundException e) {
-      throw new RuntimeException(
-        "Unable to perform query " + qry + ": " + e.getMessage()
-      );
     }
     log.debug("search results: " + vals.size());
     return vals;
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-
-  /*
-   * Return root GrouperSession.  Creates session if necessary.
-   */
-  private GrouperSession getSession() throws SubjectNotFoundException {
-    // TODO Should I check to see that it is connected?
-    if (this.s == null) {
-      try {
-        Subject root = SubjectFactory.getSubject(
-          Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-        );
-        this.s = GrouperSession.start(root);
-      } catch (SubjectNotFoundException e) {
-        log.debug(
-          "Unable to create root subject for querying: " + e.getMessage()
-        );
-        throw new SubjectNotFoundException(
-          "Unable to create root subject for querying: " + e.getMessage()
-        );
-      }
-      log.info("Created root session");
-    } else {
-      log.debug("Reusing existing root session");
-    }
-    return this.s;
   }
 
 }
