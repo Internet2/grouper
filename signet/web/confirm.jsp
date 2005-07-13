@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.19 2005-07-12 23:13:26 acohen Exp $
-  $Date: 2005-07-12 23:13:26 $
+  $Id: confirm.jsp,v 1.20 2005-07-13 20:20:13 jvine Exp $
+  $Date: 2005-07-13 20:20:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -139,11 +139,9 @@
              		</tr>								
               	<tr>
               		<th class="label" scope="row">Function:</td>
-              		<td>
-										<span class="category"><%=currentCategory.getName()%></span> : 
-				            <span class="function"><%=currentFunction.getName()%></span>
-									</td>
-             		</tr>
+              		<td class="invis"><p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
+              		  	<p><%=currentAssignment.getFunction().getHelpText()%></p></td>
+              	</tr>
               	<tr>
               		<th class="label" scope="row">Scope:                
               		<td><ul class="none">

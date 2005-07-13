@@ -1,6 +1,6 @@
 <!--
-  $Id: duplicateAssignments.jsp,v 1.1 2005-07-12 23:13:26 acohen Exp $
-  $Date: 2005-07-12 23:13:26 $
+  $Id: duplicateAssignments.jsp,v 1.2 2005-07-13 20:20:13 jvine Exp $
+  $Date: 2005-07-13 20:20:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -102,7 +102,7 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-        Privileges assigned to
+        Granting new privilege to
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
        	</h1>
@@ -225,11 +225,11 @@
       	<div class="helpbox">
       		<h2>help</h2>
       		<div class="actionbox">
-      			<P>This assignment has been determined to be very similar to one or more existing assignments.</P>
-<P>The subject's actual privilege will be the highest of any specified limits or conditions. If your intent is to decrease the limits or conditions of this privilege, you should replace any assignments with higher limits.</P>
-<P>Your own limits and conditions may prevent you from replacing an assignment with higher limits and conditions. </P>
+      			<p>This assignment has been determined to be very similar to one or more existing assignments.</p>
+<p>The subject's actual privilege will be the highest of any specified limits or conditions. If your intent is to decrease the limits or conditions of this privilege, you should replace any assignments with higher limits.</p>
+<p>Your own limits and conditions may prevent you from replacing an assignment with higher limits and conditions. </p>
 
-<P>You can find out who originally granted the privilege by clicking on the ... icon. </P>
+<p>You can find out who originally granted the privilege by clicking on the ... icon. </p>
 
      			</div>
      		</div>

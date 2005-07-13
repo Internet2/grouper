@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.29 2005-07-12 23:13:26 acohen Exp $
-  $Date: 2005-07-12 23:13:26 $
+  $Id: personview.jsp,v 1.30 2005-07-13 20:20:13 jvine Exp $
+  $Date: 2005-07-13 20:20:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -313,19 +313,7 @@
   
              <tr>
                <td class="sorted"> <!-- privilege -->
-                 <a
-                   style="float: right;"
-                   href="javascript:openWindow
-                     ('Assignment.do?assignmentId=<%=assignment.getId()%>',
-                      'popup',
-                      'scrollbars=yes,
-                      resizable=yes,
-                      width=500,
-                      height=250');">
-                   <img
-                    src="images/maglass.gif"
-										alt="More info about this assignment..." />
-                 </a>
+                 <%=Common.assignmentPopupIcon(assignment)%>
                  <%=assignment.getFunction().getCategory().getName()%>
                  : 
                  <%=assignment.getFunction().getName()%>
