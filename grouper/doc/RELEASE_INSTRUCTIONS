@@ -3,7 +3,7 @@
 
 Instructions for preparing a Grouper release.
 
-$Id: RELEASE_INSTRUCTIONS,v 1.11 2005-04-29 17:52:33 blair Exp $
+$Id: RELEASE_INSTRUCTIONS,v 1.12 2005-07-13 21:14:38 blair Exp $
 
 ---
 
@@ -17,6 +17,7 @@ $Id: RELEASE_INSTRUCTIONS,v 1.11 2005-04-29 17:52:33 blair Exp $
 * Review and update _doc/NEWS_, including version number
 * Review and update _doc/grouper-impl-guide.html_, including version
   number and date
+* Update _impl.version_ in _build.xml_
 * Tag CVS with a tag of the form _GROUPER_MAJOR_MINOR_PATCH_
 * Checkout tagged version on OSX and Solaris
 * Successfully run test harness against HSQLDB on OSX
