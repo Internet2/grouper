@@ -59,6 +59,8 @@ import  java.util.*;
 import  java.lang.reflect.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
+import  org.apache.commons.logging.Log;
+import  org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -66,9 +68,15 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.95 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.96 2005-07-13 19:41:17 blair Exp $
  */
 public class GrouperSession implements Serializable {
+
+  /*
+   * PRIVATE CLASS VARIABLES
+   */
+  private static GrouperSession rs;
+  private static Log            log = LogFactory.getLog(GrouperSession.class);
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -151,8 +159,8 @@ public class GrouperSession implements Serializable {
       s.setStartTime( Long.toString(now.getTime()) );
       s.save();
       s.dbSess.txCommit();
-      Grouper.log().sessionStart(s);
     }
+    log.info("Started session for " + subj);
     return s;
   }
 
@@ -185,6 +193,7 @@ public class GrouperSession implements Serializable {
    * @return  True if session stopped.
    */
   public boolean stop() { 
+    log.info("Stopping session: " + this);
     boolean rv = false;
     if (this.sessionID != null) {
       // Remove from the grouper_session table
@@ -193,7 +202,6 @@ public class GrouperSession implements Serializable {
       this.dbSess.txCommit();
     }
     this.dbSess.stop();
-    Grouper.log().sessionStop(this);
     return rv;
   }
 
@@ -213,6 +221,7 @@ public class GrouperSession implements Serializable {
    */
   public String toString() {
     return new ToStringBuilder(this)    .
+      append("session", this.sessionID) .
       append("subject", this.subject()) .
       toString();
   }
@@ -221,6 +230,32 @@ public class GrouperSession implements Serializable {
   /*
    * PROTECTED CLASS METHODS
    */
+
+  /*
+   * Retrieve a shared root session
+   */
+  protected static GrouperSession getRootSession() {
+    if ( (rs != null) && (rs instanceof GrouperSession) ) {
+      // TODO In an ideal world I would also check to confirm that the 
+      //      session was still valid and reconnect if not.
+      log.debug("Reusing root session: " + rs);
+      return rs;
+    } 
+    try {
+      rs = GrouperSession.start(
+        SubjectFactory.getSubject(
+          Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
+        )
+      );
+      log.debug("Creating root session: " + rs);
+      return rs;
+    } catch (SubjectNotFoundException e) {
+      log.debug("Failed to create root session: " + e.getMessage());
+      throw new RuntimeException(
+        "Unable to start internal root session: " + e.getMessage()
+      );
+    }
+  }
 
   /*
    * Simple object validation.
@@ -239,7 +274,6 @@ public class GrouperSession implements Serializable {
   /*
    * Can the subject VIEW?
    * @throws {@link InsufficientPrivilegeException}
-   * TODO GrouperSession.getRootSession();
    * TODO Should I use canREAD, et. al.?  Would that buy me additional
    *      caching for free?
    */
@@ -247,47 +281,39 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     boolean can     = false;
+    log.debug("Checking VIEW for " + this + " on " + g);
     // TODO I can't say I'm enamored of how I'm doing this...
     Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_VIEW);
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
     } else {
-      GrouperSession rs;
-      try {
-      rs = GrouperSession.start(
-        SubjectFactory.getSubject(
-          Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-        )
-      ); 
-      } catch (Exception e) {
-        throw new RuntimeException(
-          "Unable to create root session: " + e.getMessage()
-        );
-      }
-      if        (rs.access().has(this, g, Grouper.PRIV_VIEW)) {
-        // TODO log
+      GrouperSession rs = GrouperSession.getRootSession(); 
+      if        (this.rs.access().has(this, g, Grouper.PRIV_VIEW)) {
+        log.info(this + " has VIEW on " + g + ": VIEW");
         can = true; 
-      } else if (rs.access().has(this, g, Grouper.PRIV_READ)) {
-        // TODO log
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_READ)) {
+        log.info(this + " has VIEW on " + g + ": READ");
         can = true; 
-      } else if (rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
-        // TODO log
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+        log.info(this + " has VIEW on " + g + ": UPDATE");
         can = true; 
-      } else if (rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
-        // TODO log
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        log.info(this + " has VIEW on " + g + ": ADMIN");
         can = true; 
-      } else if (rs.access().has(this, g, Grouper.PRIV_OPTIN)) {
-        // TODO log
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_OPTIN)) {
+        log.info(this + " has VIEW on " + g + ": OPTIN");
         can = true; 
-      } else if (rs.access().has(this, g, Grouper.PRIV_OPTOUT)) {
-        // TODO log
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_OPTOUT)) {
+        log.info(this + " has VIEW on " + g + ": OPTOUT");
         can = true; 
-      } else if ( (rs.access().whoHas(rs, g, Grouper.PRIV_VIEW).size()==0) ) {
+      } else if ( 
+        (this.rs.access().whoHas(this.rs, g, Grouper.PRIV_VIEW).size()==0) 
+      ) 
+      {
         // TODO I do this as root to avoid permission problems
-        // TODO log
+        log.info(this + " has VIEW on " + g + ": Default VIEW");
         can = true; 
       } 
-      rs.stop();
       // Update cache
       this.setCachedCan(g.key(), Grouper.PRIV_VIEW, can);
     }
@@ -363,7 +389,9 @@ public class GrouperSession implements Serializable {
     try {
       this.dbSess.session().delete(this);
     } catch (HibernateException e) {
-      throw new RuntimeException("Error deleting sessin: " + e);
+      throw new RuntimeException(
+        "Error deleting session: " + e.getMessage()
+      );
     }
   }
 
@@ -374,6 +402,7 @@ public class GrouperSession implements Serializable {
     if (this.canCache.containsKey(key)) {
       Map g = (Map) this.canCache.get(key);
       if (g.containsKey(priv)) {
+        log.debug("Cached VIEW privilege: " + g.get(priv));
         cached.put( new String("cached"), new Boolean(true)     );
         cached.put( new String("can"),    (Boolean) g.get(priv) );
       }
@@ -398,9 +427,13 @@ public class GrouperSession implements Serializable {
       // Restore Subject object
       this.subject = SubjectFactory.getSubject(m.subjectID(), m.typeID());
     } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new RuntimeException(
+        "Error restoring subject during deserialization: " +
+        e.getMessage()
+      );
     }
+
+    log.info("Deserialized: " + this);
   }
 
   // Cache a privilege lookup
@@ -411,10 +444,13 @@ public class GrouperSession implements Serializable {
     }
     g.put( new String(priv), new Boolean(can) );
     this.canCache.put( (String) key, g );
+    log.debug("Caching " + priv + " privilege: " + can);
   }
 
   // Serialize the session
   private void writeObject(ObjectOutputStream oos) throws IOException {
+    log.info("Serialized: " + this);
+
     // Stop the Hibernate session
     this.dbSess.stop();
 
@@ -429,7 +465,9 @@ public class GrouperSession implements Serializable {
     try {
       this.dbSess.session().save(this);
     } catch (HibernateException e) {
-      throw new RuntimeException("Error saving session: " + e);
+      throw new RuntimeException(
+        "Error saving session: " + e.getMessage()
+      );
     }
   }
 

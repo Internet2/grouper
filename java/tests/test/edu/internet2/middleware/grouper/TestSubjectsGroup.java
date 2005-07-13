@@ -121,7 +121,6 @@ public class TestSubjectsGroup extends TestCase {
     }
   }
 
-/*
   public void testSubjectInterfaceLookupGroupAByID() {
     try {
       Subject subj = SubjectFactory.getSubject(gAid, "group");
@@ -269,7 +268,6 @@ public class TestSubjectsGroup extends TestCase {
     Set vals = SubjectFactory.search("root root");
     Assert.assertTrue("vals.size()==0", vals.size() == 0);
   }
-*/
 
   // By _name_
   // TODO Multiple returns

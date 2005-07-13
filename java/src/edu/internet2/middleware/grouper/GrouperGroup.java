@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.220 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.221 2005-07-13 19:41:17 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -273,8 +273,8 @@ public class GrouperGroup extends Group {
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup loadByName(
-                               GrouperSession s, String name
-                             )
+    GrouperSession s, String name
+  )
   {
     return GrouperGroup.loadByName(s, name, Grouper.DEF_GROUP_TYPE);
   }
@@ -288,8 +288,8 @@ public class GrouperGroup extends Group {
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup loadByName(
-                               GrouperSession s, String name, String type
-                             )
+    GrouperSession s, String name, String type
+  )
   {
     if (type.equals(Grouper.NS_TYPE)) {
       throw new RuntimeException("Use GrouperStem for namespaces");
@@ -684,20 +684,10 @@ public class GrouperGroup extends Group {
    */
   private void grantAdminUponCreate() {
     // We need a root session
-    Subject root = null;
-    try {
-      root = SubjectFactory.getSubject(
-                       Grouper.config("member.system"), Grouper.DEF_SUBJ_TYPE
-                     );
-    } catch (SubjectNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    GrouperSession  rs  = GrouperSession.start(root);
+    GrouperSession  rs  = GrouperSession.getRootSession();
     // Subject that is creating group
     GrouperMember   m   = GrouperMember.load(this.s.subject() );
     boolean rv = rs.access().grant(rs, this, m, Grouper.PRIV_ADMIN);
-    rs.stop();
     if (!rv) {
       throw new RuntimeException("Error granting ADMIN to " + m);  
     } 
