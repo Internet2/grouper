@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.36 2005-07-12 00:01:40 blair Exp $
+ * @version $Id: Group.java,v 1.37 2005-07-13 18:33:38 blair Exp $
  */
 abstract public class Group {
 
@@ -245,13 +245,13 @@ abstract public class Group {
         key = (String) q.uniqueResult();
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving result for " + qry + ": " + e
-                  );
+          "Error retrieving result for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return key;
   }
@@ -260,8 +260,8 @@ abstract public class Group {
    * Find and return the group key for (name, type).
    */
   protected static String findKeyByNameAndType(
-                            GrouperSession s, String name, String type
-                          )
+    GrouperSession s, String name, String type
+  )
   {
     String qry = "Group.by.name.and.type";
     String key = null;
@@ -273,13 +273,13 @@ abstract public class Group {
         key = (String) q.uniqueResult();
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving result for " + qry + ": " + e
-                  );
+          "Error retrieving result for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return key;
   }
@@ -288,9 +288,8 @@ abstract public class Group {
    * Find and return the group key for (stem, extn, type).
    */
   protected static String findKeyByStemExtnType(
-                            GrouperSession s, String stem, 
-                            String extn, String type
-                          ) 
+    GrouperSession s, String stem, String extn, String type
+  ) 
   {
     String qry = "Group.key.by.stem.and.extn.and.type";
     String key = null;
@@ -303,13 +302,13 @@ abstract public class Group {
         key = (String) q.uniqueResult();
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving result for " + qry + ": " + e
-                  );
+          "Error retrieving result for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return key;
   }
@@ -332,35 +331,45 @@ abstract public class Group {
 
   /*
    * Load {@link Group} by id.
+   * @throws {@link InsufficientPrivilegeException}
    */
-  protected static Group _loadByID(GrouperSession s, String id) {
+  protected static Group _loadByID(GrouperSession s, String id) 
+    throws InsufficientPrivilegeException
+  {
     return Group.loadByKey( s, Group.findKeyByID(s, id) );
   }
 
   /*
    * Load {@link Group} by key.
+   * @throws {@link InsufficientPrivilegeException}
    */
-  protected static Group loadByKey(GrouperSession s, String key) {
+  protected static Group loadByKey(GrouperSession s, String key) 
+    throws InsufficientPrivilegeException
+  {
     Group g = null;
     if (key != null) {
       try {
         g = (Group) s.dbSess().session().get(Group.class, key);
         g.load(s); // TODO Remove explicit calls in GG and GS?
+        s.canVIEW(g);
       } catch (HibernateException e) {
         throw new RuntimeException(
           "Error loading group: " + e.getMessage()
         );
       }
     }
+    // FIXME Don't return null!
     return g;
   }
 
   /*
    * Load {@link Group} by name and type.
+   * @throws {@link InsufficientPrivilegeException}
    */
   protected static Group loadByNameAndType(
-                           GrouperSession s, String name, String type
-                         )
+    GrouperSession s, String name, String type
+  )
+    throws InsufficientPrivilegeException
   {
     return Group.loadByKey(s, Group.findKeyByNameAndType(s, name, type));
   }
@@ -377,8 +386,8 @@ abstract public class Group {
       // Only member.system can do so in this release
       if (!s.subject().getId().equals(Grouper.config("member.system"))) {
         throw new RuntimeException(
-                    "This subject cannot create at root-level"
-                  );
+          "This subject cannot create at root-level"
+        );
       }
     }
   }
@@ -386,10 +395,12 @@ abstract public class Group {
   /*
    * Does the current subject have privs to create a group beneath this
    * stem?
+   * @throws {@link InsufficientPrivilegeException}
    */
   protected static void subjectCanCreateGroup(
-                          GrouperSession s, String stem
-                        )
+    GrouperSession s, String stem
+  )
+    throws InsufficientPrivilegeException
   {
     // Load stem for priv checking
     String key = Group.findKeyByNameAndType(s, stem, Grouper.NS_TYPE);
@@ -409,10 +420,12 @@ abstract public class Group {
   /*
    * Does the current subject have privs to create a stem beneath this
    * stem?
+   * @throws {@link InsufficientPrivilegeException}
    */
   protected static void subjectCanCreateStem(
-                          GrouperSession s, String stem
-                        )
+    GrouperSession s, String stem
+  )
+    throws InsufficientPrivilegeException
   {
     // Load stem for priv checking
     String key = Group.findKeyByNameAndType(s, stem, Grouper.NS_TYPE);
@@ -574,23 +587,29 @@ abstract public class Group {
     GrouperSession s, Group g, String extn
   )
   {
-    String stem = g.attribute("stem").value();
+    String  dn    = new String();
+    String  stem  = g.attribute("stem").value();
     if (stem.equals(Grouper.NS_ROOT)) {
-      return extn;
+      dn = extn;
     } else {
-      Group p = Group.loadByNameAndType(s, stem, Grouper.NS_TYPE);
-      return p.attribute("displayName").value()  +
+      try {
+        Group p = Group.loadByNameAndType(s, stem, Grouper.NS_TYPE);
+        dn = p.attribute("displayName").value()  +
              Grouper.HIER_DELIM                  +
              extn;
+      } catch (InsufficientPrivilegeException e) {
+        // TODO Ignore?
+      }
     }
+    return dn;
   }
 
   /*
    * Check for a list membership.
    */
   protected boolean hasMember(
-                      GrouperSession s, GrouperMember m, String list
-                    ) 
+    GrouperSession s, GrouperMember m, String list
+  ) 
   {
     String  qry = "GrouperList.as.key.by.group.and.member.and.list";
     boolean rv  = false;
@@ -606,13 +625,13 @@ abstract public class Group {
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return rv;
   }
@@ -655,9 +674,8 @@ abstract public class Group {
    * Delete a list value.
    */
   protected void listDelVal(
-                   GrouperSession s, Group g,
-                   GrouperMember m, String list
-                 )
+    GrouperSession s, Group g, GrouperMember m, String list
+  )
   {
     if (Group.subjectCanModListVal(s, g, list)) {
       GrouperList gl = new GrouperList(s, g, m, list);
@@ -777,7 +795,6 @@ abstract public class Group {
     // Now add the list values
     while (iter.hasNext()) {
       GrouperList lv = (GrouperList) iter.next();
-      lv.load(s);
       GrouperList.save(s, lv);
     }
   }
@@ -792,7 +809,6 @@ abstract public class Group {
     // Now add the list values
     while (iter.hasNext()) {
       GrouperList lv = (GrouperList) iter.next();
-      lv.load(s);
       GrouperList.delete(s, lv);
     }
   }
@@ -801,8 +817,8 @@ abstract public class Group {
    * Return list values for specified query.
    */
   private List queryListVals(
-                 GrouperSession s, String qry, String key, String list
-               ) 
+    GrouperSession s, String qry, String key, String list
+  ) 
   {
     List vals = new ArrayList();
     try {
@@ -814,18 +830,17 @@ abstract public class Group {
         while (iter.hasNext()) {
           // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
-          gl.load(s);
           vals.add(gl);
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return vals;
   }
@@ -834,8 +849,8 @@ abstract public class Group {
    * Can the current subject modify attributes?
    */
   private void subjectCanModAttr(
-                 GrouperSession s, Group g, String attribute
-               )
+    GrouperSession s, Group g, String attribute
+  )
   {
     if ((
           (attribute.equals("displayname")) ||

@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.219 2005-07-09 04:51:08 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.220 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -181,19 +181,28 @@ public class GrouperGroup extends Group {
       throw new RuntimeException("Group already exists");
     }
     Group.subjectCanCreateAtRoot(s, stem);
-    Group.subjectCanCreateGroup(s, stem);
     try {
-      s.dbSess().txStart();
-      g = new GrouperGroup(s, stem, extn, type);
-      s.dbSess().session().save(g);
-      g.grantAdminUponCreate();
-      g.initialized = true;
-      s.dbSess().txCommit();
-      Grouper.log().groupAdd(s, g, Group.groupName(stem, extn), g.type());
-    } catch (HibernateException e) {
-      s.dbSess().txRollback();
-      throw new RuntimeException("Error saving stem: " + e);
-    } 
+      Group.subjectCanCreateGroup(s, stem);
+      try {
+        s.dbSess().txStart();
+        g = new GrouperGroup(s, stem, extn, type);
+        s.dbSess().session().save(g);
+        g.grantAdminUponCreate();
+        g.initialized = true;
+        s.dbSess().txCommit();
+        Grouper.log().groupAdd(s, g, Group.groupName(stem, extn), g.type());
+      } catch (HibernateException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException(
+          "Error saving group: " + e.getMessage()
+        );
+      } 
+    } catch (InsufficientPrivilegeException e) {
+      // TODO Is this the right message?
+      throw new RuntimeException(
+        "Error creating group: " + e.getMessage()
+      );
+    }
     return g;
   }
 
@@ -206,8 +215,8 @@ public class GrouperGroup extends Group {
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
-                               GrouperSession s, String stem, String extn
-                             )
+    GrouperSession s, String stem, String extn
+  )
   {
     return GrouperGroup.load(s, stem, extn, Grouper.DEF_GROUP_TYPE);
   }
@@ -222,9 +231,8 @@ public class GrouperGroup extends Group {
    * @return  A {@link GrouperGroup} object.
    */
   public static GrouperGroup load(
-                               GrouperSession s, String stem, 
-                               String extn, String type
-                             )
+    GrouperSession s, String stem, String extn, String type
+  )
   {
     Group.invalidStemOrExtn(stem, extn);
     if (type.equals(Grouper.NS_TYPE)) {
@@ -232,9 +240,13 @@ public class GrouperGroup extends Group {
     }
     String key = Group.findKeyByStemExtnType(s, stem, extn, type);
     if (key != null) {
-      return (GrouperGroup) Group.loadByKey(s, key);
+      try {
+        return (GrouperGroup) Group.loadByKey(s, key);
+      } catch (InsufficientPrivilegeException e) {
+        // TODO ignore - for now
+      }
     }
-    return null; 
+    return null; // FIXME HATE!!!
   }
 
   /**
@@ -246,7 +258,11 @@ public class GrouperGroup extends Group {
    */
   public static GrouperGroup loadByID(GrouperSession s, String id) {
     // TODO Should I check for NS_TYPE in returned group?
-    return (GrouperGroup) Group._loadByID(s, id);
+    try {
+      return (GrouperGroup) Group._loadByID(s, id);
+    } catch (InsufficientPrivilegeException e) {
+      return null; // FIXME HATE!!!
+    }
   }
 
   /**
@@ -278,7 +294,11 @@ public class GrouperGroup extends Group {
     if (type.equals(Grouper.NS_TYPE)) {
       throw new RuntimeException("Use GrouperStem for namespaces");
     }
-    return (GrouperGroup) Group.loadByNameAndType(s, name, type);
+    try {
+      return (GrouperGroup) Group.loadByNameAndType(s, name, type);
+    } catch (InsufficientPrivilegeException e) {
+      return null; // FIXME HATE!!!
+    }
   }
 
 
@@ -437,7 +457,15 @@ public class GrouperGroup extends Group {
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals(String list) {
-    return this.listVals(this.s, this, list);
+    List      vals  = new ArrayList();
+    Iterator iter   = this.listVals(this.s, this, list).iterator();
+    while (iter.hasNext()) {
+      // Attach the current session to each list value
+      GrouperList lv = (GrouperList) iter.next();
+      lv.setSession(this.s);
+      vals.add(lv);      
+    }
+    return vals;
   }
 
   /**

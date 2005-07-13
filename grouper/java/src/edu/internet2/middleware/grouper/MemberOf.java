@@ -62,7 +62,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.22 2005-06-16 15:44:34 blair Exp $
+ * @version $Id: MemberOf.java,v 1.23 2005-07-13 18:33:38 blair Exp $
  */
 public class MemberOf {
 
@@ -112,7 +112,7 @@ public class MemberOf {
     List effs = new ArrayList(); // TODO What am I trying to accomplish?
 
     // Ensure that the grouper list is properly loaded
-    gl.load(this.s); // TODO Argh!
+    gl.setSession(this.s);  // TODO Is this needed here?
     log.debug("memberOf calculation for " + gl);
 
     // Add m to g's gl
@@ -164,7 +164,7 @@ public class MemberOf {
     Iterator hasIter = g.listVals().iterator();
     while (hasIter.hasNext()) {
       GrouperList glM = (GrouperList) hasIter.next();
-      glM.load(this.s);
+      glM.setSession(this.s);  // TODO Is this needed here?
       log.debug("hasMember: " + glM);
       List chain = new ArrayList();
 
@@ -196,7 +196,7 @@ public class MemberOf {
     Iterator iter = isMem.iterator();
     while (iter.hasNext()) {
       GrouperList glM = (GrouperList) iter.next();
-      glM.load(this.s);
+      glM.setSession(this.s);  // TODO Is this needed here?
       log.debug("isMember: " + glM);
       List chain = new ArrayList();
 

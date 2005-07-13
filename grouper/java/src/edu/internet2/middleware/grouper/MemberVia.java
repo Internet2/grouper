@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.17 2005-05-19 01:09:49 blair Exp $
+ * @version $Id: MemberVia.java,v 1.18 2005-07-13 18:33:38 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -137,7 +137,7 @@ public class MemberVia implements Serializable {
                              GrouperList.class, this.getListKey()
                          );
         if (gl != null) {
-          gl.load(s);
+          gl.setSession(s); // TODO Is this needed here?
           this.gl = gl;
         }
       } catch (HibernateException e) {

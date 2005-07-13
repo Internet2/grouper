@@ -125,15 +125,15 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestNamingGrantMoF0.class);
     suite.addTestSuite(TestNamingGrantMoF1.class);
     suite.addTestSuite(TestNamingGrantMoF2.class);
-    //suite.addTestSuite(TestNamingRevoke0.class);
+    suite.addTestSuite(TestNamingRevoke0.class);
     suite.addTestSuite(TestNamingRevoke1.class);
-    // TODO Flesh out
     suite.addTestSuite(TestAccessPrivs.class);
     suite.addTestSuite(TestAccessGrantMoF0.class);
     suite.addTestSuite(TestAccessGrantMoF1.class);
     suite.addTestSuite(TestAccessGrantMoF2.class);
     suite.addTestSuite(TestAccessRevoke0.class);
     suite.addTestSuite(TestAccessRevoke1.class);
+    suite.addTestSuite(TestAccessVIEW.class);
     suite.addTestSuite(TestQueryBase.class);
     suite.addTestSuite(TestQueryCreatedAfter.class);
     suite.addTestSuite(TestQueryCreatedBefore.class);

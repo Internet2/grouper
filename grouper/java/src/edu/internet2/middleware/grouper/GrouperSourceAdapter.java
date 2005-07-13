@@ -65,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.7 2005-06-22 21:33:42 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.8 2005-07-13 18:33:38 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -171,11 +171,15 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       try {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          String key = (String) iter.next();
-          GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(this.getSession(), key);
-          Subject subj = new GrouperSubject(g, this);
-          vals.add(subj);
-          log.debug("search found: " + g + "/" + subj);
+          try {
+            String key = (String) iter.next();
+            GrouperGroup g = (GrouperGroup) GrouperGroup.loadByKey(this.getSession(), key);
+            Subject subj = new GrouperSubject(g, this);
+            vals.add(subj);
+            log.debug("search found: " + g + "/" + subj);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
