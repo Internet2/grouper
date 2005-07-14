@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.32 2005-07-09 04:51:08 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.33 2005-07-14 17:05:13 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -115,17 +115,22 @@ public class GrouperAttribute implements Serializable {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
           GrouperAttribute attr = (GrouperAttribute) iter.next();
-          attributes.put(attr.field(), attr);
+          try {
+            s.checkFieldAccess(g, attr.field());
+            attributes.put(attr.field(), attr);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
         }
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+           "Error retrieving results for " + qry + ": " + e.getMessage()
+         );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
     return attributes;
   }

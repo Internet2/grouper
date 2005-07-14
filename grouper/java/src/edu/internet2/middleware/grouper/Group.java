@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.37 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: Group.java,v 1.38 2005-07-14 17:05:13 blair Exp $
  */
 abstract public class Group {
 
@@ -828,8 +828,8 @@ abstract public class Group {
       try {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {
-          // Make the returned items into proper objects
           GrouperList gl = (GrouperList) iter.next();
+          gl.setSession(s); // TODO Remove elsewhere?
           vals.add(gl);
         }
       } catch (HibernateException e) {

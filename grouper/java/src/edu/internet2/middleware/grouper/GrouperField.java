@@ -54,6 +54,8 @@ package edu.internet2.middleware.grouper;
 
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.logging.Log;
+import  org.apache.commons.logging.LogFactory;
 
 
 /** 
@@ -61,9 +63,18 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.22 2005-03-29 17:32:02 blair Exp $
+ * @version $Id: GrouperField.java,v 1.23 2005-07-14 17:05:13 blair Exp $
  */
 public class GrouperField implements Comparable {
+
+  /*
+   * PRIVATE CLASS VARIABLES
+   */
+  private static Log  log   = LogFactory.getLog(GrouperField.class);
+  private static List valL  = new ArrayList();
+  private static Map  valM  = new HashMap();
+
+
 
   /*
    * PRIVATE INSTANCE VARIABLES
@@ -163,24 +174,52 @@ public class GrouperField implements Comparable {
   /*
    * @return List of all group fields
    */
+  // TODO Make public and remove from G?
   protected static List all(DbSess dbSess) {
+    if ( (valL != null) && (valL.size() > 0) ) {
+      log.debug("Returning all cached fields");
+      return valL;
+    }
+    log.info("Building cached field list");
     String  qry   = "GrouperField.all";
-    List    vals  = new ArrayList();
     try {
       Query q = dbSess.session().getNamedQuery(qry);
       try {
-        vals = q.list();
+        valL = q.list();
       } catch (HibernateException e) {
         throw new RuntimeException(
-                    "Error retrieving results for " + qry + ": " + e
-                  );
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
       }
     } catch (HibernateException e) {
       throw new RuntimeException(
-                  "Unable to get query " + qry + ": " + e
-                );
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
     }
-    return vals;
+    log.debug("Returning all fields");
+    return valL;
+  }
+
+  /*
+   * @return {@link GrouperField} object
+   */
+  // TODO Make public?
+  protected static GrouperField field(String field) {
+    if ( (valM != null) && (valM.size() > 0) ) {
+      log.debug("Returning cached field " + field);
+      return (GrouperField) valM.get(field);
+    }
+    log.info("Building cached field map");
+    List      vals  = GrouperField.all(
+      GrouperSession.getRootSession().dbSess()
+    );
+    Iterator  iter  = vals.iterator();
+    while (iter.hasNext()) {
+      GrouperField f = (GrouperField) iter.next();
+      valM.put( f.field(), f );
+    }
+    log.debug("Returning field " + field); 
+    return (GrouperField) valM.get(field); 
   }
 
 
