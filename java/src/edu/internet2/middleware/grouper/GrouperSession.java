@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.98 2005-07-14 17:05:13 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.99 2005-07-14 20:26:47 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -363,30 +363,24 @@ public class GrouperSession implements Serializable {
    * Dispatch field level access checking to the appropriate method
    * @throws {@link InsufficientPrivilegeException}
    */
-  protected void checkFieldAccess(Group g, String field)
+  protected void canReadField(Group g, String field)
     throws InsufficientPrivilegeException
   {
-    if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_VIEW)) {
-      this.canVIEW(g);
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_READ)) {
-      this.canREAD(g);
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_UPDATE)) {
-      // FIXME Ignore until _canUPDATE()_ implemented
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_ADMIN)) {
-      // FIXME Ignore until _canADMIN()_ implemented
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_OPTIN)) {
-      // FIXME Ignore until _canOPTIN()_ implemented
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_OPTOUT)) {
-      // FIXME Ignore until _canOPTOUT()_ implemented
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_CREATE)) {
-      // FIXME Ignore until _canCREATE()_ implemented
-    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_STEM)) {
-      // FIXME Ignore until _canSTEM()_ implemented
-    } else {
-      throw new RuntimeException(
-        "Unable to check field access for " + field
-      );
-    }
+    this.canFieldDispatch(
+      g, field, GrouperField.field(field).readPriv()
+    );
+  }
+
+  /*
+   * Dispatch field level access checking to the appropriate method
+   * @throws {@link InsufficientPrivilegeException}
+   */
+  protected void canWriteField(Group g, String field)
+    throws InsufficientPrivilegeException
+  {
+    this.canFieldDispatch(
+      g, field, GrouperField.field(field).writePriv()
+    );
   }
 
   /*
@@ -435,6 +429,33 @@ public class GrouperSession implements Serializable {
   /*
    * PRIVATE INSTANCE METHODS
    */
+
+  // Dispatch priv checking to appropriate method
+  private void canFieldDispatch(Group g, String field, String priv) 
+    throws InsufficientPrivilegeException
+  {
+    if        (priv.equals(Grouper.PRIV_VIEW)) {
+      this.canVIEW(g);
+    } else if (priv.equals(Grouper.PRIV_READ)) {
+      this.canREAD(g);
+    } else if (priv.equals(Grouper.PRIV_UPDATE)) {
+      // FIXME Ignore until _canUPDATE()_ implemented
+    } else if (priv.equals(Grouper.PRIV_ADMIN)) {
+      // FIXME Ignore until _canADMIN()_ implemented
+    } else if (priv.equals(Grouper.PRIV_OPTIN)) {
+      // FIXME Ignore until _canOPTIN()_ implemented
+    } else if (priv.equals(Grouper.PRIV_OPTOUT)) {
+      // FIXME Ignore until _canOPTOUT()_ implemented
+    } else if (priv.equals(Grouper.PRIV_CREATE)) {
+      // FIXME Ignore until _canCREATE()_ implemented
+    } else if (priv.equals(Grouper.PRIV_STEM)) {
+      // FIXME Ignore until _canSTEM()_ implemented
+    } else {
+      throw new RuntimeException(
+        "Unable to check field access for " + field + "/" + priv
+      );
+    }
+  }
 
   /*
    * Create and attach privilege interfaces to session.
