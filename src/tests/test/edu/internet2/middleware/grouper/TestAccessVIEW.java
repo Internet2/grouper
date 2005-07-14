@@ -217,4 +217,209 @@ public class TestAccessVIEW extends TestCase {
     Assert.assertNotNull("gD !null", g);
   }
 
+  public void testViewDisplayExtensionAsNonRootAndEmptyVIEW() {
+    String attr = "displayExtension";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+    
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+ 
+    g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
+    Assert.assertNotNull("g1", g);
+    Assert.assertTrue(
+      "g1 "+attr, !g.attribute(attr).value().equals("")
+    );
+  }
+
+  public void testViewDisplayExtensionAsNonRootAndNonEmptyVIEW() {
+    //Constants.createMembers(s);
+    String attr = "displayExtension";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+   
+    // Member 
+    Constants.grantPriv(
+      s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
+    );
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+
+    // !Member 
+    Constants.grantPriv(
+      s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
+    );
+    Assert.assertNull(
+      "g1", Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e)
+    );
+  }
+
+  public void testViewExtensionAsNonRootAndEmptyVIEW() {
+    String attr = "extension";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+    
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+ 
+    g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
+    Assert.assertNotNull("g1", g);
+    Assert.assertTrue(
+      "g1 "+attr, !g.attribute(attr).value().equals("")
+    );
+  }
+
+  public void testViewExtensionAsNonRootAndNonEmptyVIEW() {
+    //Constants.createMembers(s);
+    String attr = "extension";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+   
+    // Member 
+    Constants.grantPriv(
+      s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
+    );
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+
+    // !Member 
+    Constants.grantPriv(
+      s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
+    );
+    Assert.assertNull(
+      "g1", Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e)
+    );
+  }
+
+  public void testViewNameNonRootAndEmptyVIEW() {
+    String attr = "name";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+    
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+ 
+    g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
+    Assert.assertNotNull("g1", g);
+    Assert.assertTrue(
+      "g1 "+attr, !g.attribute(attr).value().equals("")
+    );
+  }
+
+  public void testViewNameAsNonRootAndNonEmptyVIEW() {
+    //Constants.createMembers(s);
+    String attr = "name";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+   
+    // Member 
+    Constants.grantPriv(
+      s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
+    );
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+
+    // !Member 
+    Constants.grantPriv(
+      s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
+    );
+    Assert.assertNull(
+      "g1", Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e)
+    );
+  }
+
+  public void testViewStemAsNonRootAndEmptyVIEW() {
+    String attr = "stem";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+    
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+ 
+    g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
+    Assert.assertNotNull("g1", g);
+    Assert.assertTrue(
+      "g1 "+attr, !g.attribute(attr).value().equals("")
+    );
+  }
+
+  public void testViewStemAsNonRootAndNonEmptyVIEW() {
+    //Constants.createMembers(s);
+    String attr = "stem";
+
+    GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
+    Assert.assertNotNull("ns0", ns);
+    Assert.assertTrue(
+      "ns0 "+attr, !ns.attribute(attr).value().equals("")
+    );
+   
+    // Member 
+    Constants.grantPriv(
+      s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
+    );
+    GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
+    Assert.assertNotNull("g0", g);
+    Assert.assertTrue(
+      "g0 "+attr, !g.attribute(attr).value().equals("")
+    );
+
+    // !Member 
+    Constants.grantPriv(
+      s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
+    );
+    Assert.assertNull(
+      "g1", Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e)
+    );
+  }
+
 }
+
