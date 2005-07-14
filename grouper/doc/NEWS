@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.63 2005-07-13 21:09:35 blair Exp $
+$Id: NEWS,v 1.64 2005-07-14 17:08:18 blair Exp $
 
 ---
 
@@ -10,6 +10,7 @@ $Id: NEWS,v 1.63 2005-07-13 21:09:35 blair Exp $
 ## Changes
 
 * NEW: VIEW Access privilege (#339)
+* NEW: READ Access privilege (#338)
 * NEW: _GrouperQuery_ now has _base(), _group()_ and _namespace()_
   filter methods
 * NEW: _GrouperQuery_ now has _getGroups()_, _getListValues()_,

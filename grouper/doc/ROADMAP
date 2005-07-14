@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.21 2005-07-13 20:09:06 blair Exp $
+$Id: ROADMAP,v 1.22 2005-07-14 17:08:18 blair Exp $
 
 ---
 
@@ -11,7 +11,6 @@ $Id: ROADMAP,v 1.21 2005-07-13 20:09:06 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Implement READ privilege (#338)
 * Implement OPTIN privilege (#343)
 * Implement OPTOUT privilege (#344)
 * List children of Grouper.NS_ROOT (#395)
