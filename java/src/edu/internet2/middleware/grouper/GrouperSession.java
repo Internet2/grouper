@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.97 2005-07-14 03:05:42 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.98 2005-07-14 17:05:13 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -291,9 +291,16 @@ public class GrouperSession implements Serializable {
       } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has READ on " + g + ": ADMIN");
         can = true; 
+      } else if ( 
+        (this.rs.access().whoHas(this.rs, g, Grouper.PRIV_READ).size()==0) 
+      ) 
+      {
+        // TODO I do this as root to avoid permission problems
+        log.info(this + " has READ on " + g + ": Default READ");
+        can = true; 
       } 
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_VIEW, can);
+      this.setCachedCan(g.key(), Grouper.PRIV_READ, can);
     }
     if (!can) {
       // TODO What is an appropriate message to return?
@@ -349,6 +356,36 @@ public class GrouperSession implements Serializable {
     if (!can) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
+    }
+  }
+
+  /*
+   * Dispatch field level access checking to the appropriate method
+   * @throws {@link InsufficientPrivilegeException}
+   */
+  protected void checkFieldAccess(Group g, String field)
+    throws InsufficientPrivilegeException
+  {
+    if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_VIEW)) {
+      this.canVIEW(g);
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_READ)) {
+      this.canREAD(g);
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_UPDATE)) {
+      // FIXME Ignore until _canUPDATE()_ implemented
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_ADMIN)) {
+      // FIXME Ignore until _canADMIN()_ implemented
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_OPTIN)) {
+      // FIXME Ignore until _canOPTIN()_ implemented
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_OPTOUT)) {
+      // FIXME Ignore until _canOPTOUT()_ implemented
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_CREATE)) {
+      // FIXME Ignore until _canCREATE()_ implemented
+    } else if ( GrouperField.field(field).readPriv().equals(Grouper.PRIV_STEM)) {
+      // FIXME Ignore until _canSTEM()_ implemented
+    } else {
+      throw new RuntimeException(
+        "Unable to check field access for " + field
+      );
     }
   }
 

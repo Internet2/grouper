@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.50 2005-07-14 03:05:42 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.51 2005-07-14 17:05:13 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -443,10 +443,15 @@ public class GrouperStem extends Group {
     List      vals  = new ArrayList();
     Iterator iter   = this.listVals(this.s, this, list).iterator();
     while (iter.hasNext()) {
-      // Attach the current session to each list value
-      GrouperList lv = (GrouperList) iter.next();
-      lv.setSession(this.s);
-      vals.add(lv);      
+      try {
+        // Attach the current session to each list value
+        GrouperList lv = (GrouperList) iter.next();
+        lv.setSession(this.s); // TODO Necessary?
+        this.s.checkFieldAccess(this, list); 
+        vals.add(lv);      
+      } catch (InsufficientPrivilegeException e) {
+        // Ignore
+      }
     }
     return vals;
   }
