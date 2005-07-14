@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegesXML.java,v 1.1 2005-07-14 17:05:43 lmcrae Exp $
-$Date: 2005-07-14 17:05:43 $
+$Id: PrivilegesXML.java,v 1.2 2005-07-14 18:18:44 lmcrae Exp $
+$Date: 2005-07-14 18:18:44 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -20,18 +20,19 @@ public class PrivilegesXML
    * Default constructor.
    *
    */
-   public PrivilegesXML() throws Exception {
-       // this.logger = Logger.getLogger(this.toString());
+   public PrivilegesXML(PrivilegedSubject privSubject, OutputStream outStream) throws Exception {
+ 
+      // this.logger = Logger.getLogger(this.toString());
+
+      // Create the XML file
+      PrivilegesXML processor = new PrivilegesXML();
+      processor.processXML(privSubject, outStream);
    }
 
    private void processXML(PrivilegedSubject privSubject, OutputStream outStream)
       throws Exception {
    
       // ================== Produce document =================
-    
-//    OutputStream out = new FileOutputStream("privileges.xml");
-//    OutputStream out = new ByteArrayOutputStream();
-   
       //
       // Get an output factory
       //
