@@ -89,19 +89,19 @@ public class TestQueryCreatedBefore extends TestCase {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "g: something", q.createdBefore( new java.util.Date() )
+      "createdBefore: something", q.createdBefore( new java.util.Date() )
     );
     Assert.assertTrue(
-      "base0: stems=3", q.getStems().size() == 3
+      "createdBefore: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
-      "g: groups=7", q.getGroups().size() == 7
+      "createdBefore: groups=7", q.getGroups().size() == 7
     );
     Assert.assertTrue(
-      "g: listValues=17", q.getListValues().size() == 17 
+      "createdBefore: listValues=17", q.getListValues().size() == 17 
     );
     Assert.assertTrue(
-      "g: members=2", q.getMembers().size() == 2
+      "createdBefore: members=2", q.getMembers().size() == 2
     );
   }
 
@@ -109,19 +109,19 @@ public class TestQueryCreatedBefore extends TestCase {
     Constants.createMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
-      "g: something", q.createdBefore( new java.util.Date(0) )
+      "createdBefore: something", q.createdBefore( new java.util.Date(0) )
     );
     Assert.assertTrue(
-      "base0: stems=0", q.getStems().size() == 0
+      "createdBefore: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "g: groups=0", q.getGroups().size() == 0
+      "createdBefore: groups=0", q.getGroups().size() == 0
     );
     Assert.assertTrue(
-      "g: listValues=0", q.getListValues().size() == 0 
+      "createdBefore: listValues=0", q.getListValues().size() == 0 
     );
     Assert.assertTrue(
-      "g: members=0", q.getMembers().size() == 0
+      "createdBefore: members=0", q.getMembers().size() == 0
     );
   }
 

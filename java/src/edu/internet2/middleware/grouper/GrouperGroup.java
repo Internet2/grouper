@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.221 2005-07-13 19:41:17 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.222 2005-07-14 03:05:42 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -400,7 +400,12 @@ public class GrouperGroup extends Group {
    * @return Public id.
    */
   public String id() {
-    return this.getGroupID();
+    try {
+      this.s.canREAD(this);
+      return this.getGroupID();
+    } catch (InsufficientPrivilegeException e) {
+      return new String();
+    }
   }
 
   /**

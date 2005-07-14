@@ -112,7 +112,7 @@ public class TestQueryCreatedAfter extends TestCase {
       "createdAfter: something", q.createdAfter( new java.util.Date(0) )
     );
     Assert.assertTrue(
-      "base0: stems=3", q.getStems().size() == 3
+      "createdAfter: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
       "createdAfter: groups=7", q.getGroups().size() == 7

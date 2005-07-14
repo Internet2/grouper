@@ -200,24 +200,33 @@ public class Constants {
     ns0 = GrouperStem.create(
       s, Constants.ns0s, Constants.ns0e
     );
+    ns0.attribute("description", "this is stem 0");
     ns1 = GrouperStem.create(
       s, Constants.ns1s, Constants.ns1e
     );
+    ns1.attribute("description", "this is stem 1");
     ns2 = GrouperStem.create(
       s, Constants.ns2s, Constants.ns2e
     );
+    ns2.attribute("description", "this is stem 2");
   }
 
+  protected static void grantPriv(
+    GrouperSession s, GrouperGroup g, GrouperMember m, String priv
+  )
+  {
+    Assert.assertTrue(
+      "grant " + priv + " to " + m + " on " + g,  
+      s.access().grant(s, g, m, priv)
+    );
+  }
   protected static void grantPriv(
     String stem, String extn, GrouperMember m, String priv
   )
   {
     GrouperSession  rs  = Constants.createSession();
     GrouperGroup    g   = Constants.loadGroup(rs, stem, extn);
-    Assert.assertTrue(
-      "grant " + priv + " to " + m + " on " + g,  
-      rs.access().grant(rs, g, m, priv)
-    );
+    Constants.grantPriv(rs, g, m, priv);
     rs.stop();
   }
 
@@ -226,6 +235,13 @@ public class Constants {
   )
   {
     return GrouperGroup.load(s, stem, extn);
+  }
+
+  protected static GrouperStem loadStem(
+    GrouperSession s, String stem, String extn
+  )
+  {
+    return GrouperStem.load(s, stem, extn);
   }
 
 }
