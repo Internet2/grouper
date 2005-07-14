@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.33 2005-07-14 17:05:13 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.34 2005-07-14 20:26:47 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -116,7 +116,7 @@ public class GrouperAttribute implements Serializable {
         while (iter.hasNext()) {
           GrouperAttribute attr = (GrouperAttribute) iter.next();
           try {
-            s.checkFieldAccess(g, attr.field());
+            s.canReadField(g, attr.field());
             attributes.put(attr.field(), attr);
           } catch (InsufficientPrivilegeException e) {
             // Ignore

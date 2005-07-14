@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.223 2005-07-14 17:05:13 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.224 2005-07-14 20:26:47 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -469,7 +469,7 @@ public class GrouperGroup extends Group {
         // Attach the current session to each list value
         GrouperList lv = (GrouperList) iter.next();
         lv.setSession(this.s); // TODO Necessary?
-        this.s.checkFieldAccess(this, list); 
+        this.s.canReadField(this, list);
         vals.add(lv);      
       } catch (InsufficientPrivilegeException e) {
         // Ignore
