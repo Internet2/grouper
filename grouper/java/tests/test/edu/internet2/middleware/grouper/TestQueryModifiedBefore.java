@@ -92,13 +92,13 @@ public class TestQueryModifiedBefore extends TestCase {
       "modifiedBefore: something", q.modifiedBefore( new java.util.Date() )
     );
     Assert.assertTrue(
-      "modifiedBefore: stems=0", q.getStems().size() == 0
+      "modifiedBefore: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
       "modifiedBefore: groups=7", q.getGroups().size() == 7
     );
     Assert.assertTrue(
-      "modifiedBefore: listValues=14", q.getListValues().size() == 14
+      "modifiedBefore: listValues=17", q.getListValues().size() == 17
     );
     Assert.assertTrue(
       "modifiedBefore: members=2", q.getMembers().size() == 2

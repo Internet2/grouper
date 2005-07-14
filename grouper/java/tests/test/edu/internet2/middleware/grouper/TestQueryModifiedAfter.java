@@ -112,13 +112,13 @@ public class TestQueryModifiedAfter extends TestCase {
       "modifiedAfter: something", q.modifiedAfter( new java.util.Date(0) )
     );
     Assert.assertTrue(
-      "base0: stems=0", q.getStems().size() == 0
+      "modifiedAfter: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
       "modifiedAfter: groups=7", q.getGroups().size() == 7
     );
     Assert.assertTrue(
-      "modifiedAfter: listValues=14", q.getListValues().size() == 14 
+      "modifiedAfter: listValues=17", q.getListValues().size() == 17 
     );
     Assert.assertTrue(
       "modifiedAfter: members=2", q.getMembers().size() == 2

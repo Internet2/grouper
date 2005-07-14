@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.96 2005-07-13 19:41:17 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.97 2005-07-14 03:05:42 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -272,6 +272,36 @@ public class GrouperSession implements Serializable {
    */
 
   /*
+   * Can the subject READ?
+   * @throws {@link InsufficientPrivilegeException}
+   */
+  protected void canREAD(Group g) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking READ for " + this + " on " + g);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_READ);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      GrouperSession rs = GrouperSession.getRootSession(); 
+      if        (this.rs.access().has(this, g, Grouper.PRIV_READ)) {
+        log.info(this + " has READ on " + g + ": READ");
+        can = true; 
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        log.info(this + " has READ on " + g + ": ADMIN");
+        can = true; 
+      } 
+      // Update cache
+      this.setCachedCan(g.key(), Grouper.PRIV_VIEW, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  /*
    * Can the subject VIEW?
    * @throws {@link InsufficientPrivilegeException}
    * TODO Should I use canREAD, et. al.?  Would that buy me additional
@@ -280,9 +310,8 @@ public class GrouperSession implements Serializable {
   protected void canVIEW(Group g) 
     throws InsufficientPrivilegeException
   {
-    boolean can     = false;
     log.debug("Checking VIEW for " + this + " on " + g);
-    // TODO I can't say I'm enamored of how I'm doing this...
+    boolean can     = false;
     Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_VIEW);
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
@@ -396,6 +425,7 @@ public class GrouperSession implements Serializable {
   }
 
   // Attempt to retrieve a cached privilege lookup
+  // TODO I'm not exactly enamored of this
   private Map getCachedCan(String key, String priv) {
     Map cached = new HashMap();
     boolean rv = false;
