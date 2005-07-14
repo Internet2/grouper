@@ -110,19 +110,19 @@
 
   <query name="Group.by.name.fuzzy"><![CDATA[
     select distinct a.groupKey 
-      from GrouperAttribute a, Group g where
+      from GrouperAttribute a where
       (
         (
           a.groupField = 'name' and
-          a.groupFieldValue like ?
+          lower(a.groupFieldValue) like lower(?)
         ) or
         (
           a.groupField = 'displayName' and
-          a.groupFieldValue like ?
+          lower(a.groupFieldValue) like lower(?)
         ) or
         (
           a.groupField = 'displayExtension' and
-          a.groupFieldValue like ?
+          lower(a.groupFieldValue) like lower(?)
         )
       ) 
   ]]></query>
