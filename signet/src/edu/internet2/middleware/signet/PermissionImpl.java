@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: PermissionImpl.java,v 1.8 2005-07-14 00:13:34 acohen Exp $
+ $Date: 2005-07-14 00:13:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -13,6 +13,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.subject.Subject;
 
@@ -182,5 +185,29 @@ implements Permission
   private void setId(String id)
   {
     super.setStringId(id);
+  }
+
+  public boolean equals(Object obj)
+  {
+    if ( !(obj instanceof PermissionImpl) )
+    {
+      return false;
+    }
+    
+    PermissionImpl rhs = (PermissionImpl) obj;
+    return new EqualsBuilder()
+      .append(this.getFunctions(), rhs.getFunctions())
+      .append(this.getLimits(), rhs.getLimits())
+      .isEquals();
+  }
+  
+  public int hashCode()
+  {
+    // you pick a hard-coded, randomly chosen, non-zero, odd number
+    // ideally different for each class
+    return new HashCodeBuilder(17, 37)
+      .append(this.functions)
+      .append(this.limits)
+      .toHashCode();
   }
 }

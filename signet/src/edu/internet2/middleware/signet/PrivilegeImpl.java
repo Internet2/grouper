@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeImpl.java,v 1.1 2005-07-08 02:07:38 acohen Exp $
-$Date: 2005-07-08 02:07:38 $
+$Id: PrivilegeImpl.java,v 1.2 2005-07-14 00:13:34 acohen Exp $
+$Date: 2005-07-14 00:13:34 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.collections.set.UnmodifiableSet;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * @author Andy Cohen
@@ -114,5 +116,29 @@ public class PrivilegeImpl implements Privilege
   public Set getLimitValues()
   {
     return  UnmodifiableSet.decorate(this.limitValues);
+  }
+
+  public boolean equals(Object obj)
+  {
+    if ( !(obj instanceof PrivilegeImpl) )
+    {
+      return false;
+    }
+    
+    PrivilegeImpl rhs = (PrivilegeImpl) obj;
+    return new EqualsBuilder()
+      .append(this.getPermission(), rhs.getPermission())
+      .append(this.getLimitValues(), rhs.getLimitValues())
+      .isEquals();
+  }
+  
+  public int hashCode()
+  {
+    // you pick a hard-coded, randomly chosen, non-zero, odd number
+    // ideally different for each class
+    return new HashCodeBuilder(17, 37)
+      .append(this.permission)
+      .append(this.limitValues)
+      .toHashCode();
   }
 }

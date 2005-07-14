@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeTest.java,v 1.2 2005-07-08 03:03:58 acohen Exp $
-$Date: 2005-07-08 03:03:58 $
+$Id: PrivilegeTest.java,v 1.3 2005-07-14 00:13:34 acohen Exp $
+$Date: 2005-07-14 00:13:34 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -73,6 +73,75 @@ public class PrivilegeTest extends TestCase
   public PrivilegeTest(String name)
   {
     super(name);
+  }
+  
+  public final void testEquals()
+  throws ObjectNotFoundException
+  {
+    // Here's a picture of the Assignments which this test expects to find:
+    //
+    // Subject 0
+    //   Function 0
+    //     Permission 0
+    //       Limit 0
+    //         limit-value: 0
+    //    Function 2
+    //      Permission 2
+    //        Limit 0
+    //          limit-value: 0
+    //        Limit 1
+    //          limit-value: 0
+    //        Limit 2
+    //          limit-value: 0
+    //  Subject 1
+    //    Function 1
+    //      Permission 1
+    //        Limit 0
+    //          limit-value: 0
+    //        Limit 1
+    //          limit-value: 1
+    //  Subject 2
+    //    Function 2
+    //      Permission 2
+    //        Limit 0
+    //          limit-value: 0
+    //        Limit 1
+    //          limit-value: 1
+    //        Limit 2
+    //          limit-value: 2
+    
+    Subject subject0
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
+    
+    Subject subject1
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(1));
+    
+    Subject subject2
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(2));
+
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    
+    Set privileges0 = pSubject0.getPrivileges();
+    Set privileges1 = pSubject1.getPrivileges();
+    Set privileges2 = pSubject2.getPrivileges();
+    
+    assertEquals(privileges0, privileges0);
+    assertEquals(privileges1, privileges1);
+    assertEquals(privileges2, privileges2);
+    
+    assertFalse(privileges0.equals(privileges1));
+    assertFalse(privileges0.equals(privileges2));
+    
+    assertFalse(privileges1.equals(privileges0));
+    assertFalse(privileges1.equals(privileges2));
+
+    assertFalse(privileges2.equals(privileges0));
+    assertFalse(privileges2.equals(privileges1));
   }
 
   public final void testGetLimitValues()
