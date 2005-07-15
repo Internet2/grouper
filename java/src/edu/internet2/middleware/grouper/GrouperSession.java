@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.99 2005-07-14 20:26:47 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.100 2005-07-15 04:13:25 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -176,6 +176,20 @@ public class GrouperSession implements Serializable {
    */
   public GrouperAccess access() {
     return this.access;
+  }
+
+  /**
+   * Return this session's {@link Subject} as a {@link GrouperMember}
+   * object.
+   * <p/>
+   * <pre>
+   * GrouperSession s = GrouperSession.start(subject);
+   * GrouperMember  m = s.getMember();
+   * </pre>
+   * @return  {@link GrouperMember} object.
+   */
+  public GrouperMember getMember() {
+    return this.m;
   }
 
   /**
@@ -301,6 +315,90 @@ public class GrouperSession implements Serializable {
       } 
       // Update cache
       this.setCachedCan(g.key(), Grouper.PRIV_READ, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  protected void canOPTIN(Group g) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking OPTIN for " + this + " on " + g);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_OPTIN);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      GrouperSession rs = GrouperSession.getRootSession(); 
+      if        (this.rs.access().has(this, g, Grouper.PRIV_OPTIN)) {
+        log.info(this + " has OPTIN on " + g + ": OPTIN");
+        can = true; 
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+        log.info(this + " has OPTIN on " + g + ": UPDATE");
+        can = true; 
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        log.info(this + " has OPTIN on " + g + ": ADMIN");
+        can = true; 
+      } 
+      // Update cache
+      this.setCachedCan(g.key(), Grouper.PRIV_OPTIN, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  protected void canOPTOUT(Group g) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking OPTOUT for " + this + " on " + g);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_OPTOUT);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      GrouperSession rs = GrouperSession.getRootSession(); 
+      if        (this.rs.access().has(this, g, Grouper.PRIV_OPTOUT)) {
+        log.info(this + " has OPTOUT on " + g + ": OPTOUT");
+        can = true; 
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+        log.info(this + " has OPTOUT on " + g + ": UPDATE");
+        can = true; 
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        log.info(this + " has OPTOUT on " + g + ": ADMIN");
+        can = true; 
+      } 
+      // Update cache
+      this.setCachedCan(g.key(), Grouper.PRIV_OPTOUT, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  protected void canUPDATE(Group g) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking UPDATE for " + this + " on " + g);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_UPDATE);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      GrouperSession rs = GrouperSession.getRootSession(); 
+      if        (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+        log.info(this + " has UPDATE on " + g + ": UPDATE");
+        can = true; 
+      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        log.info(this + " has UPDATE on " + g + ": ADMIN");
+        can = true; 
+      } 
+      // Update cache
+      this.setCachedCan(g.key(), Grouper.PRIV_UPDATE, can);
     }
     if (!can) {
       // TODO What is an appropriate message to return?
@@ -439,13 +537,13 @@ public class GrouperSession implements Serializable {
     } else if (priv.equals(Grouper.PRIV_READ)) {
       this.canREAD(g);
     } else if (priv.equals(Grouper.PRIV_UPDATE)) {
-      // FIXME Ignore until _canUPDATE()_ implemented
+      this.canUPDATE(g);
     } else if (priv.equals(Grouper.PRIV_ADMIN)) {
       // FIXME Ignore until _canADMIN()_ implemented
     } else if (priv.equals(Grouper.PRIV_OPTIN)) {
-      // FIXME Ignore until _canOPTIN()_ implemented
+      this.canOPTIN(g);
     } else if (priv.equals(Grouper.PRIV_OPTOUT)) {
-      // FIXME Ignore until _canOPTOUT()_ implemented
+      this.canOPTOUT(g);
     } else if (priv.equals(Grouper.PRIV_CREATE)) {
       // FIXME Ignore until _canCREATE()_ implemented
     } else if (priv.equals(Grouper.PRIV_STEM)) {

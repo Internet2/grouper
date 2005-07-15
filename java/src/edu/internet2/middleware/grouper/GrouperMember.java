@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.90 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.91 2005-07-15 04:13:25 blair Exp $
  */
 public class GrouperMember {
 
@@ -490,6 +490,15 @@ public class GrouperMember {
       }
     }
     return subj;
+  }
+
+  /*
+   * Simple object validation.
+   */
+  protected static void validate(GrouperMember m) {
+    if (m == null) {
+      throw new RuntimeException("member is null");
+    }
   }
 
 

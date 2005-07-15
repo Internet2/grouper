@@ -128,7 +128,7 @@ public class Constants {
    */
   protected static GrouperStem    ns0, ns1, ns2;
   protected static GrouperGroup   g0, g1, g2, gA, gB, gC, gD;
-  protected static GrouperMember  m0, m1;
+  protected static GrouperMember  mr, m0, m1;
 
 
   /*
@@ -167,6 +167,7 @@ public class Constants {
   }
 
   protected static void createMembers(GrouperSession s) {
+    mr = Common.loadMember(s, Constants.rootI, Constants.rootT);
     m0 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
     m1 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
     g0.listAddVal(m0);

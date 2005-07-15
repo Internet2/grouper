@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.38 2005-07-14 17:05:13 blair Exp $
+ * @version $Id: Group.java,v 1.39 2005-07-15 04:13:25 blair Exp $
  */
 abstract public class Group {
 
@@ -495,21 +495,12 @@ abstract public class Group {
   }
 
   /*
-   * Does the current subject have privs to modify the specified list?
+   * Simple object validation.
    */
-  protected static boolean subjectCanModListVal(
-                             GrouperSession s, Group g, String list
-                           ) 
-  {
-    boolean rv = false;
-    if (
-        (s.access().has(s, g, Grouper.PRIV_UPDATE)) ||
-        (s.access().has(s, g, Grouper.PRIV_ADMIN))
-       )
-    {
-      rv = true;
+  protected static void validate(Group g) {
+    if (g == null) {
+      throw new RuntimeException("group is null");
     }
-    return rv;
   }
 
 
@@ -640,11 +631,18 @@ abstract public class Group {
    * Add a list value
    */
   protected void listAddVal(
-                   GrouperSession s, Group g, 
-                   GrouperMember m, String list
-                 )
+    GrouperSession s, Group g, GrouperMember m, String list
+  )
   {
-    if (Group.subjectCanModListVal(s, g, list)) {
+    GrouperSession.validate(s);
+    Group.validate(g);
+    GrouperMember.validate(m);
+    try {
+      if (m.memberID().equals(s.getMember().memberID())) {
+        s.canOPTIN(g);  
+      } else {
+        s.canUPDATE(g);
+      }
       GrouperList gl = new GrouperList(s, g, m, list);
       if (GrouperList.exists(s, gl)) {
         throw new RuntimeException("List value already exists");
@@ -662,9 +660,9 @@ abstract public class Group {
         s.dbSess().txRollback();
         throw new RuntimeException("Error adding list value: " + e);
       }
-    } else {
+    } catch (InsufficientPrivilegeException e) {
       throw new RuntimeException(
-        s.subject() + " does not have privileges to add " + m + 
+        s.subject() + " does not have privilege to add " + m + 
         " to " + g + "/" + list
       );
     }
@@ -677,7 +675,15 @@ abstract public class Group {
     GrouperSession s, Group g, GrouperMember m, String list
   )
   {
-    if (Group.subjectCanModListVal(s, g, list)) {
+    GrouperSession.validate(s);
+    Group.validate(g);
+    GrouperMember.validate(m);
+    try {
+      if (m.equals(s.getMember())) {
+        s.canOPTOUT(g);  
+      } else {
+        s.canUPDATE(g);
+      }
       GrouperList gl = new GrouperList(s, g, m, list);
       if (!GrouperList.exists(s, gl)) {
         throw new RuntimeException("List value does not exist");
@@ -692,7 +698,7 @@ abstract public class Group {
         s.dbSess().txRollback();
         throw new RuntimeException("Error deleting list value: " + e);
       }
-    } else {
+    } catch (InsufficientPrivilegeException e) {
       throw new RuntimeException(
         s.subject() + " does not have privileges to delete " + m + 
         " to " + g + "/" + list
