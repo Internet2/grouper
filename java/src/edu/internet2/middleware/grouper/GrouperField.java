@@ -63,7 +63,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.23 2005-07-14 17:05:13 blair Exp $
+ * @version $Id: GrouperField.java,v 1.24 2005-07-15 17:19:10 blair Exp $
  */
 public class GrouperField implements Comparable {
 
@@ -206,8 +206,10 @@ public class GrouperField implements Comparable {
   // TODO Make public?
   protected static GrouperField field(String field) {
     if ( (valM != null) && (valM.size() > 0) ) {
-      log.debug("Returning cached field " + field);
-      return (GrouperField) valM.get(field);
+      if (valM.containsKey(field)) {
+        log.debug("Returning cached field " + field);
+        return (GrouperField) valM.get(field);
+      }
     }
     log.info("Building cached field map");
     List      vals  = GrouperField.all(
@@ -218,8 +220,11 @@ public class GrouperField implements Comparable {
       GrouperField f = (GrouperField) iter.next();
       valM.put( f.field(), f );
     }
-    log.debug("Returning field " + field); 
-    return (GrouperField) valM.get(field); 
+    if (valM.containsKey(field)) {
+      log.debug("Returning field " + field); 
+      return (GrouperField) valM.get(field); 
+    }
+    throw new RuntimeException("Field '" + field + "' is unknown");
   }
 
 
