@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.io.*;
 
-import edu.internet2.middleware.signet.*;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
@@ -183,79 +182,6 @@ public class SubjectFileLoader
     System.out.println("Number of rows " + verb + ": " + rows);
   }
   
-  // HERE BEGINS CODE MOVED FROM SIGNET.JAVA
-
-//  /**
-//   * Creates a new Subject.
-//   * 
-//   * @param id
-//   * @param name
-//   * @return
-//   * @throws OperationNotSupportedException
-//   * @throws ObjectNotFoundException
-//   */
-//  public Subject newSubject(String id, String name)
-//      throws ObjectNotFoundException
-//  {
-//    return this.newSubject(id, name, null, null);
-//  }
-//
-//  /**
-//   * Creates a new Subject.
-//   * 
-//   * @param id
-//   * @param name
-//   * @param description
-//   * @param displayId
-//   * @return
-//   * @throws ObjectNotFoundException
-//   */
-//  public Subject newSubject(String id, String name, String description,
-//      String displayId) throws ObjectNotFoundException
-//  {
-//    Subject newSubject;
-//
-//    try
-//    {
-//      newSubject = this.newSubject(Signet.DEFAULT_SUBJECT_TYPE_ID, id, name,
-//          description, displayId);
-//    }
-//    catch (OperationNotSupportedException onse)
-//    {
-//      throw new SignetRuntimeException(
-//          "An attempt to create a new native Signet subject has failed,"
-//              + " because the Signet subject-adapter has reported that its"
-//              + " collection cannot be modified. Although other subject-adapters"
-//              + " may prevent subject-creation, this one should always allow it.",
-//          onse);
-//    }
-//
-//    return newSubject;
-//  }
-
-//  /**
-//   * Creates a new Subject.
-//   * 
-//   * @param subjectTypeId
-//   * @param subjectId
-//   * @param subjectName
-//   * @param subjectDescription
-//   * @param subjectDisplayId
-//   * @return
-//   * @throws ObjectNotFoundException
-//   * @throws OperationNotSupportedException
-//   */
-//  Subject newSubject(String subjectTypeId, String subjectId,
-//      String subjectName, String subjectDescription, String subjectDisplayId)
-//      throws ObjectNotFoundException, OperationNotSupportedException
-//  {
-//    SubjectType subjectType = this.getSubjectType(subjectTypeId);
-//    Subject subject = newSubject(subjectType, subjectId, subjectName,
-//        subjectDescription, subjectDisplayId);
-//
-//    return subject;
-//  }
-
   /**
    * Creates a new Subject.
    * This method updates the database, but does not commit any transaction.
@@ -394,7 +320,6 @@ public class SubjectFileLoader
     {
 
     SubjectFileLoader loader = new SubjectFileLoader();
-    Signet signet = new Signet();
 
     try {
       if (args.length < 1) {
@@ -404,21 +329,18 @@ public class SubjectFileLoader
          
       String inputFileName = args[0];
       BufferedReader in = new BufferedReader(new FileReader(inputFileName));
-
-      loader.processFile(signet, loader, in);
+      loader.processFile(loader, in);
 
       in.close();
       loader.commit();
 
     } catch (IOException e) {
        e.printStackTrace();
-    } catch (ObjectNotFoundException e) {
-       e.printStackTrace();
     }
   }
 
-private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader in)
-  throws IOException, ObjectNotFoundException, SQLException {
+private void processFile(SubjectFileLoader loader, BufferedReader in)
+  throws IOException, SQLException {
     try {
 
     String lineData = "";
@@ -427,10 +349,14 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
     String keyword = "";
     String value = "";
     String subjectSourceID = "";
-    String subjectTypeID = "";
     String subjectID = "";
     String subjectName = "";
     int    lineNumber = 0;
+
+   /**
+    * Find the initial "source" line
+    * -- should be the first non-command, non-blank line in the input file
+    */
 
     while ((lineData = in.readLine()) != null) {
       lineNumber++;
@@ -460,11 +386,6 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
    
          if (st.hasMoreTokens()) {
             subjectSourceID = st.nextToken();
-            if (!subjectSourceID.equals("person"))
-            {
-               throw new IOException
-               ("Error in line " + lineNumber + ": Only source of type 'person' currently allowed");
-            }
          }
    
          if (st.hasMoreTokens()) {
@@ -479,18 +400,18 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
       }
     }
 
-    // SubjectType subjectType = signet.getSubjectType(subjectSourceID);
-
     removeSubjects();
     loader.commit();
-
-    SubjectType subjectType = SubjectTypeEnum.valueOf("person");
 
     Subject subject = null;
     String  currAttributeName = "";
     String  prevAttributeName = "";
     String  attributeName = "";
     int     attributeInstance = 0;
+
+   /**
+    * --- Start processing the individual subject entries
+    */
     
     while ((lineData = in.readLine()) != null) {
       lineNumber++;
@@ -512,23 +433,7 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
             // Get the subject header line
             lineData = lineData.substring(1);
             
-            // Get the description (required, must be next)
-            lineNumber++;
-            lineData2 = in.readLine();
-            if (lineData2 == "") {
-               throw new IOException ("No Description row found");
-            }
-            System.out.println(lineNumber + ": " + lineData2);
-            
-  //          // Get the LoginID (required for now, must be next)
-  //          lineNumber++;
-  //          lineData3 = in.readLine();
-  //          if (lineData3 == "") {
-  //             throw new IOException ("No LoginID row found");
-  //          }
-  //          System.out.println(lineNumber + ": " + lineData3);
-           
-            subject = loader.processAddSubject(loader, subjectType, lineData, lineData2, "loginid n/a");
+            subject = loader.processAddSubject(loader, lineData);
    
             currAttributeName = "";
             prevAttributeName = "";
@@ -549,93 +454,53 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
     } catch (Exception e) {
         System.err.println("Exception caught: " + e.getMessage());
     }
-//    } catch (ObjectNotFoundException e) {
-//         throw new ObjectNotFoundException(e.getMessage());
-//    }
   }
 
-  private static Subject processAddSubject(SubjectFileLoader loader, SubjectType subjectType, String lineData, String lineData2, String lineData3)
+  private static Subject processAddSubject(SubjectFileLoader loader, String lineData)
     throws IOException, SQLException
     {
 
     String subjectID = "";
     String subjectName = "";
+    String inputSubjectType = "";
     String subjectNormalizedName = "";
-    String subjectDescription = "";
-    String subjectLoginID = "";
     String attributeName = "";
 
     StringTokenizer st = new StringTokenizer(lineData);
 
-     if (st.hasMoreTokens()) {
-       subjectID = st.nextToken();
-     } else {
-        throw new IOException ("No Subject ID found");
-     }
+    if (st.hasMoreTokens()) {
+      inputSubjectType = st.nextToken();
+    } else {
+       throw new IOException ("No Subject Type found");
+    }
 
-     if (!st.hasMoreTokens()) {
-        throw new IOException ("No Subject Name found");
-     }
+    lineData = lineData.substring(inputSubjectType.length()+1);
+
+    SubjectType subjectType = SubjectTypeEnum.valueOf(inputSubjectType);
+
+    if (st.hasMoreTokens()) {
+      subjectID = st.nextToken();
+    } else {
+       throw new IOException ("No Subject ID found");
+    }
+
+    if (!st.hasMoreTokens()) {
+       throw new IOException ("No Subject Name found");
+    }
      
-     subjectName = lineData.substring(subjectID.length());
-     subjectName = subjectName.trim();
-     subjectNormalizedName = loader.normalizeString(subjectName);
+    subjectName = lineData.substring(subjectID.length()+1);
+    subjectName = subjectName.trim();
+    subjectNormalizedName = loader.normalizeString(subjectName);
 
-     // System.out.println("--- SubjectID: " + subjectID + ", SubjectName: " + subjectName);
+    // System.out.println("--- SubjectID: " + subjectID + ", SubjectName: " + subjectName);
 
-     // --------------  Line 2 must be the description
-     StringTokenizer st2 = new StringTokenizer(lineData2);
-     
-     if (st2.hasMoreTokens()) {
-       attributeName = st2.nextToken();
-     } else {
-        throw new IOException ("No Description attribute found");
-     }
+    Subject subject = loader.newSubject
+       (subjectType, subjectID, subjectName, "n/a", "n/a");
 
-     if (!attributeName.equals("description")) {
-        throw new IOException ("The second line of each subject entry must be 'description'");
-     }
+    loader.newAttribute
+      (subject, "name", 1, subjectName, subjectNormalizedName);
 
-     if (!st2.hasMoreTokens()) {
-        throw new IOException ("No Description Value found");
-     }
-     
-     subjectDescription = lineData2.substring(attributeName.length());
-     subjectDescription = subjectDescription.trim();
-
-     // System.out.println("--- Description: " + subjectDescription);
- 
-     // --------------  Line 3 must be the LoginID
-//     StringTokenizer st3 = new StringTokenizer(lineData3);
-//     
-//     if (st3.hasMoreTokens()) {
-//       attributeName = st3.nextToken();
-//     } else {
-//        throw new IOException ("No loginid attribute found");
-//     }
-//
-//     if (!attributeName.equals("loginid")) {
-//        throw new IOException ("The second line of each subject entry must be 'LoginID'");
-//     }
-//
-//     if (!st3.hasMoreTokens()) {
-//        throw new IOException ("No loginid Value found");
-//     }
-//     
-//     subjectLoginID = lineData3.substring(attributeName.length());
-//     subjectLoginID = subjectLoginID.trim();
-//
-//     // System.out.println("--- Login id: " + subjectLoginID);
-    
-     subjectLoginID = "n/a";
-
-     Subject subject = loader.newSubject
-        (subjectType, subjectID, subjectName, subjectDescription, subjectLoginID);
-
-     loader.newAttribute
-       (subject, "name", 1, subjectName, subjectNormalizedName);
-
-     return subject;
+    return subject;
   }
 
   private static String processSubjectAttribute(SubjectFileLoader loader, Subject subject, String lineData, String prevAttributeName, int attributeInstance)
@@ -707,7 +572,7 @@ private void processFile(Signet signet, SubjectFileLoader loader, BufferedReader
 
   private void removeSubjects() {
       if (! readYesOrNo(
-          "\nYou are about to delete and replace all subjects of type person."
+          "\nYou are about to delete and replace all subjects in the Signet Subject table."
           + "\nDo you wish"
           + " to continue (Y/N)? ")) {
       System.exit(0);
