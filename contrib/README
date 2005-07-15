@@ -1,7 +1,7 @@
 
 # Grouper Contributed Code
 
-$Id: README,v 1.15 2005-07-07 03:08:28 blair Exp $
+$Id: README,v 1.16 2005-07-15 15:04:20 blair Exp $
 
 ---
 
@@ -24,7 +24,7 @@ Program to populate _grouper_subject_ table with I2MI Subjects from a
 CSV file.
 
 * Contributed by _The University Of Chicago_ on 20040702.
-* Last updated on 20041203.
+* Last updated on 20050715.
 * See load/csv2subject/README for more information.
 
 ### load/groupmgr

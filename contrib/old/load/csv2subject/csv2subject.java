@@ -19,14 +19,14 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.15 2005-07-07 03:08:28 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.16 2005-07-15 15:04:20 blair Exp $ 
  */
 class csv2subject {
 
   /*
    * PRIVATE CONSTANTS
    */
-  private static final String CF    = "csv2subject.properties";
+  private static final String CF    = "hibernate.properties";
   private static final String NAME  = "csv2subject";
   private static final String TABLE = "Subject";
 
@@ -35,13 +35,17 @@ class csv2subject {
    * PRIVATE CLASS VARIABLES
    */
   private static CommandLine  cmd;
-  private static Properties   conf    = new Properties();
+  private static Properties   conf          = new Properties();
   private static Connection   conn;
-  private static boolean      debug   = false;
-  private static Map          newSubs = new HashMap();
+  private static boolean      debug         = false;
+  private static String       jdbcDriver    = new String();
+  private static String       jdbcURL       = new String();
+  private static String       jdbcUsername  = new String();
+  private static String       jdbcPassword  = new String();
+  private static Map          newSubs       = new HashMap();
   private static Options      options;
   private static String       path;
-  private static boolean      verbose = false;
+  private static boolean      verbose       = false;
 
 
 
@@ -68,22 +72,26 @@ class csv2subject {
    * @return Boolean true if succesful.
    */
   private static void _cfRead() {
-    try {
-      FileInputStream in = new FileInputStream(CF);
-      try { 
-        conf.load(in);
-      } catch (IOException ie) { 
-        System.err.println("Unable to read '" + CF + "'");
-        System.exit(1);
-      }
+    InputStream in = csv2subject.class
+                                .getResourceAsStream("/" + CF);
+    try { 
+      conf.load(in);
+    } catch (IOException ie) { 
+      System.err.println("Unable to read '" + CF + "'");
+      System.exit(1);
+    }
     } catch (FileNotFoundException fe) {
       System.err.println("Could not find '" + CF + "'");
       System.exit(1);
     }
-    _verbose("driver    " + conf.get("jdbc.driver"));
-    _verbose("url       " + conf.get("jdbc.url"));
-    _verbose("username  " + conf.get("jdbc.username"));
-    _verbose("password  " + conf.get("jdbc.password"));
+    jdbcDriver    = (String) conf.get("hibernate.connection.driver_class");
+    jdbcURL       = (String) conf.get("hibernate.connection.url");
+    jdbcUsername  = (String) conf.get("hibernate.connection.username");
+    jdbcPassword  = (String) conf.get("hibernate.connection.password");
+    _verbose("driver    " + jdbcDriver);
+    _verbose("url       " + jdbcURL);
+    _verbose("username  " + jdbcUsername);
+    _verbose("password  " + jdbcPassword);
   }
 
   /* (!javadoc)
@@ -168,32 +176,26 @@ class csv2subject {
    */
   private static void _jdbcConnect() {
     try {
-      Class.forName( (String) conf.get("jdbc.driver") ).newInstance();
+      Class.forName(jdbcDriver).newInstance();
       try {
         conn = DriverManager.getConnection(
-                 (String) conf.get("jdbc.url"),
-                 (String) conf.get("jdbc.username"),
-                 (String) conf.get("jdbc.password")
-               );
-        _verbose("Connected to " + conf.get("jdbc.url"));
+          jdbcURL, jdbcUsername, jdbcPassword
+        );
+        _verbose("Connected to " + jdbcURL);
       } catch (SQLException se) {
         System.err.println("Unable to connect: " + se);
         System.exit(1);
       }
     } catch(ClassNotFoundException ce) {
-      System.err.println(
-        "Unable to find class '" + conf.get("jdbc.driver") + "'"
-      );
+      System.err.println("Unable to find class '" + jdbcDriver + "'");
       System.exit(1);
     } catch(InstantiationException ie) {
       System.err.println(
-        "Unable to instantiate class '" + conf.get("jdbc.driver") + "'"
+        "Unable to instantiate class '" + jdbcDriver + "'"
       );
       System.exit(1);
     } catch(IllegalAccessException iae) {
-      System.err.println(
-        "Unable to access class '" + conf.get("jdbc.driver") + "'"
-      );
+      System.err.println("Unable to access class '" + jdbcDriver + "'");
       System.exit(1);
     }
   }
