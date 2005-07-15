@@ -27,7 +27,7 @@ pre {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-07-15 15:04:20 $
+$Date: 2005-07-15 15:10:43 $
 </div>
 <div id="title">
 <h2>Grouper Implementation Guide</h2>
@@ -1200,7 +1200,10 @@ JDBC driver; see <tt>$GROUPER_BASE/java/lib/README</tt> for version
 information.  to use PostgreSQL you will need to:
 <ol>
   <li>Uncomment the PostgreSQL section of 
-    (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) and modify as
+    <tt>$GROUPER_BASE/conf/hibernate.properties</tt> and modify as
+    appropriate.</li>
+  <li>Uncomment the PostgreSQL section of 
+    <tt>$GROUPER_BASE/conf/sources.xml</tt> and modify as
     appropriate.</li>
   <li>Set <i>sql.type</i> to <i>postgres</i> in 
     <tt>$GROUPER_BASE/build.xml</tt></li>
@@ -1216,9 +1219,12 @@ Oracle is a supported Grouper backend and should only require small
 configuration changes to use.  An Oracle JDBC driver is not currently
 distributed with Grouper.  To use Oracle you will need to:
 <ol>
-  <li>Modify Grouper's Hibernate configuration file
-    (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) to connect to
-    your RDBMS</li>
+  <li>Uncomment the Oracle section of 
+    <tt>$GROUPER_BASE/conf/hibernate.properties</tt> and modify as
+    appropriate.</li>
+  <li>Uncomment the Oracle section of 
+    <tt>$GROUPER_BASE/conf/sources.xml</tt> and modify as
+    appropriate.</li>
   <li>Set <i>sql.type</i> to <i>oracle</i> in 
     <tt>$GROUPER_BASE/build.xml</tt></li>
 </ol>
@@ -1234,6 +1240,9 @@ To use an alternate database you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file
     (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) to connect to
+    your RDBMS</li>
+  <li>Modify Grouper's Subject API configuration file
+    (<tt>$GROUPER_BASE/conf/sources.xml</tt>) to connect to
     your RDBMS</li>
   <li>Create <tt>$GROUPER_BASE/sql/schema-$YOUR_DB_TYPE.sql</tt></li>
   <li>Create <tt>$GROUPER_BASE/sql/test-data-$YOUR_DB_TYPE.sql</tt></li>
