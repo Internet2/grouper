@@ -40,7 +40,7 @@ public interface Source {
 
 	/**
 	 * Gets a Subject by other well-known identifiers, aside
-	 * from the subject ID, e.g. login ID.
+	 * from the subject ID, for example, login ID.
 	 */
 	public Subject getSubjectByIdentifier(String id)
 		throws SubjectNotFoundException;

@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.2 2005-06-20 14:49:52 mnguyen Exp $
-$Date: 2005-06-20 14:49:52 $
+$Id: JDBCSourceAdapter.java,v 1.3 2005-07-15 06:38:17 mnguyen Exp $
+$Date: 2005-07-15 06:38:17 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -72,7 +72,8 @@ public class JDBCSourceAdapter
 			" FROM Subject, SubjectAttribute" +
 			" WHERE Subject.subjectID = SubjectAttribute.subjectID" +
 			" AND (SubjectAttribute.searchValue = ?" +
-			" OR SubjectAttribute.searchValue LIKE ?)";
+			" OR (Subject.subjectTypeID <> 'person' AND SubjectAttribute.searchValue LIKE ?)" +
+			" OR (Subject.subjectTypeID = 'person' AND SubjectAttribute.searchValue LIKE ?))";
 	
 	private static final String SEARCH_SUBJ_BY_ID_SQL =
 		"SELECT DISTINCT Subject.subjectID, Subject.name, Subject.subjectTypeID" +
@@ -184,8 +185,10 @@ public class JDBCSourceAdapter
 		try {
 			conn = this.dataSource.getConnection();
 			stmt = conn.prepareStatement(SEARCH_SUBJ_SQL);
-			stmt.setString(1, normalizeString(searchValue));
-			stmt.setString(2, normalizeName(searchValue));
+			String normalizeValue = normalizeString(searchValue);
+			stmt.setString(1, normalizeValue);
+			stmt.setString(2, "%" + normalizeValue + "%");
+			stmt.setString(3, normalizeName(searchValue));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String id = rs.getString("subjectID");
