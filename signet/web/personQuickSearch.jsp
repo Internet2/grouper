@@ -23,7 +23,7 @@
          (request.getSession().getAttribute("signet"));
 
   String searchString = request.getParameter("searchString");
-  Set result = signet.findPrivilegedSubjects(Signet.DEFAULT_SUBJECT_TYPE_ID, searchString);
+  Set result = signet.findPrivilegedSubjects(searchString);
   Set sortSet = new TreeSet(new SubjectNameComparator());
   sortSet.addAll(result);
 

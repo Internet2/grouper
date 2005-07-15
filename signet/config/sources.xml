@@ -6,7 +6,7 @@
     <id>local</id>
     <name>Local Subject Source</name>
     <type>person</type>
-    <type>application</type>
+    <type>group</type>
     <init-param>
       <param-name>maxActive</param-name>
       <param-value>4</param-value>

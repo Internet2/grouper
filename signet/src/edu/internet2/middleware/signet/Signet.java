@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.28 2005-07-12 23:13:26 acohen Exp $
-$Date: 2005-07-12 23:13:26 $
+$Id: Signet.java,v 1.29 2005-07-15 06:43:49 mnguyen Exp $
+$Date: 2005-07-15 06:43:49 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -177,7 +177,7 @@ public final class Signet
    this.logger = Logger.getLogger(this.toString());
 
    try {
-    this.sourceManager = new SourceManager();
+    this.sourceManager = SourceManager.getInstance();
    }
    catch (Exception ex) {
     throw new RuntimeException("Error getting SourceManager", ex);
@@ -1249,12 +1249,13 @@ public final class Signet
  public Set getPrivilegedSubjectsByDisplayId(String subjectTypeId, String displayId) {
    Set pSubjects = new HashSet();
    for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
-    Set result = ((Source)iter.next()).searchByIdentifier(displayId);
-    for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
-      PrivilegedSubject pSubject =
-        getPrivilegedSubject((Subject)iter2.next());
-      pSubjects.add(pSubject);
+    try {
+    	Subject result = ((Source)iter.next()).getSubjectByIdentifier(displayId);
+    	PrivilegedSubject pSubject =
+    		getPrivilegedSubject(result);
+    	pSubjects.add(pSubject);
     }
+    catch (SubjectNotFoundException snfe) { }
    }
    return UnmodifiableSet.decorate(pSubjects);
  }
@@ -1746,9 +1747,12 @@ public final class Signet
  {
    Subject subject = null;
    for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
-    Set result = ((Source)iter.next()).searchByIdentifier(displayId);
-    for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
-      subject = (Subject)iter2.next();
+   	try {
+    	subject = ((Source)iter.next()).getSubjectByIdentifier(displayId);
+    }
+    catch (SubjectNotFoundException snfe) {
+        // Don't do anything since we may find the subject
+        // in other sources.
     }
    }
   if (subject == null) {
@@ -1757,6 +1761,26 @@ public final class Signet
    return subject;
  }
 
+ /**
+  * Finds a set of Subjects which matches the argument search value.
+  * 
+  * @param searchValue
+  * @return
+  */
+ public Set findPrivilegedSubjects(String searchValue)
+ {
+  Set pSubjects = new HashSet();
+   for (Iterator iter = sourceManager.getSources().iterator(); iter.hasNext(); ) {
+    Set result = ((Source)iter.next()).search(searchValue);
+    for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
+      PrivilegedSubject pSubject =
+        getPrivilegedSubject((Subject)iter2.next());
+      pSubjects.add(pSubject);
+    }
+   }
+   return pSubjects;
+ }
+ 
  /**
   * Finds a set of Subjects by type and search value.
   * 
