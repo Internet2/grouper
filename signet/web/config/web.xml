@@ -10,6 +10,22 @@
 		Signet Privilege Management User Interface
 	</description>
 
+	<!--  PrivilegesXML Servlet Configuration -->
+	<servlet>
+		<servlet-name>privilegesXMLServlet</servlet-name>
+		<servlet-class>edu.internet2.middleware.signet.ui.PrivilegesXMLServlet</servlet-class>
+
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>/WEB-INF/struts-config.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+        <servlet-name>privilegesXMLServlet</servlet-name>
+        <url-pattern>/privilegesXML/*</url-pattern>
+    </servlet-mapping>
+
 	<!--  Action Servlet Configuration -->
 	<servlet>
 		<servlet-name>action</servlet-name>

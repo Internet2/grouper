@@ -132,6 +132,15 @@
           <forward name="success" path="/confirm.jsp" />
       </action>
 
+      <!-- Signet page for display of raw Privileges XML
+       -->
+      <action    path="/PrivilegesXML"
+                 type="edu.internet2.middleware.signet.ui.PrivilegesXMLAction">
+          <forward name="notInitialized" path="/Start.do" />
+          <forward name="failure" path="/error.jsp" />
+          <forward name="success" path="/privilegesXML" />
+      </action>
+
       <!-- Signet not-yet-implemented page -->
       <action    path="/NotYetImplemented"
                  type="edu.internet2.middleware.signet.ui.NotYetImplementedAction">

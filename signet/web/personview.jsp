@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.30 2005-07-13 20:20:13 jvine Exp $
-  $Date: 2005-07-13 20:20:13 $
+  $Id: personview.jsp,v 1.31 2005-07-15 22:31:34 acohen Exp $
+  $Date: 2005-07-15 22:31:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -367,7 +367,19 @@
              </table>
          </div> <!-- tablecontent -->
        </form> <!-- checkform -->
+              <a href="PrivilegesXML.do">
+                <img
+                     src="images/arrow_right.gif"
+                       alt="" />
+                View XML
+              </a>
      </div><!-- Content -->
+              <a href="Start.do">
+                <img
+                     src="images/arrow_right.gif"
+                       alt="" />
+                View XML
+              </a>
      <tiles:insert page="/tiles/footer.jsp" flush="true" />
       <div id="Sidebar">
         
