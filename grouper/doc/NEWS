@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.64 2005-07-14 17:08:18 blair Exp $
+$Id: NEWS,v 1.65 2005-07-15 04:13:25 blair Exp $
 
 ---
 
@@ -11,24 +11,29 @@ $Id: NEWS,v 1.64 2005-07-14 17:08:18 blair Exp $
 
 * NEW: VIEW Access privilege (#339)
 * NEW: READ Access privilege (#338)
-* NEW: _GrouperQuery_ now has _base(), _group()_ and _namespace()_
-  filter methods
-* NEW: _GrouperQuery_ now has _getGroups()_, _getListValues()_,
-  _getMembers()_ and _getStems()_ methods, replacing the _query()_
-  method
+* NEW: OPTIN Access privilege (#343)
+* NEW: OPTOUT Access privilege (#344)
+* NEW: _GrouperQuery.base()_ filter method
+* NEW: _GrouperQuery.group()_ filter method
+* NEW: _GrouperQuery.namespace()_ filter method
+* NEW: _GrouperQuery.getGroups()_ method
+* NEW: _GrouperQuery.getListValues()_ method
+* NEW: _GrouperQuery.getMembers()_ method
+* NEW: _GrouperQuery.getStems()_ method
+* NEW: _GrouperMember.getMember()_ method
+* NEW: _GrouperMember.source()_ method
 * NEW: PostgreSQL now a supported backend (#169)
   (Simon McLeish, London School of Economics)
 * NEW: _displayName_ is now automatically populated and maintained (#270)
-* NEW: Added _GrouperMember.source()_.  
 * NEW: _Subject_ and _SubjectAttribute_ tables 
 
 * UPDATE: Grouper now uses version 0.1 draft 2 of the _Subject_ API
   specification
+* UPDATE: _Grouper.hasSubjectType()_ method replaced by _SubjectFactory.hasType()_
+* UPDATE: _Grouper.subjectTypes()_ method replaced by _SubjectFactory.types()_
+* UPDATE: _GrouperSubject_ class renamed to _SubjectFactory_
 * UPDATE: _grouper_attribute.groupFieldValue_ column size increased to 1024
 * UPDATE: _grouper_member_ table now includes a _subjectSource_ column
-* UPDATE: _GrouperSubject_ class renamed to _SubjectFactory_
-* UPDATE: _Grouper.hasSubjectType()_ replaced by _SubjectFactory.hasType()_
-* UPDATE: _Grouper.subjectTypes()_ replaced by _SubjectFactory.types()_
 
 * FIX: Default privilege implementations would attempt to revoke
   effective list values under select circumstances which would cause an
@@ -38,7 +43,7 @@ $Id: NEWS,v 1.64 2005-07-14 17:08:18 blair Exp $
 
 * REMOVED: Stems can no longer be members or subjects
 * REMOVED: _GrouperQuery.query()_ method
-* REMOVED: _Grouper.subjectType()_
+* REMOVED: _Grouper.subjectType()_ method
 * REMOVED: _grouper_subjectType_ table 
 
 ---
