@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.100 2005-07-15 04:13:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.101 2005-07-15 18:06:00 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -160,7 +160,11 @@ public class GrouperSession implements Serializable {
       s.save();
       s.dbSess.txCommit();
     }
-    log.info("Started session for " + subj);
+    log.info(
+      "Started session " + s.getSessionID() + " for " +
+      s.subject().getId() + "/" + s.subject().getType().getName() +
+      "/" + s.subject().getSource()
+    );
     return s;
   }
 
