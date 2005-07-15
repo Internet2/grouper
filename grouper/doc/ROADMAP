@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.25 2005-07-15 15:04:20 blair Exp $
+$Id: ROADMAP,v 1.26 2005-07-15 15:10:43 blair Exp $
 
 ---
 
@@ -11,7 +11,6 @@ $Id: ROADMAP,v 1.25 2005-07-15 15:04:20 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Commit Grouper/Oracle configs to CVS
 * Reimplement ADMIN (#399)
 * Reimplement UPDATE (#400)
 * Reimplement CREATE (#401)
@@ -36,7 +35,6 @@ $Id: ROADMAP,v 1.25 2005-07-15 15:04:20 blair Exp $
 * Document Subject API in impl guide (#379)
 * Document empty VIEW and READ behavior (#398)
 * Document that UPDATE implies OPTIN and OPTOUT
-* Document Grouper/Oracle usage
 * Document dE's default value and ongoing maintenance
 
 
@@ -120,4 +118,5 @@ $Id: ROADMAP,v 1.25 2005-07-15 15:04:20 blair Exp $
 * Ability to rename groups (#262) 
 * Search by arbitrary attribute
 * Search limits
+
 

@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.6 2005-07-09 20:51:00 blair Exp $
+$Id: sources.xml,v 1.7 2005-07-15 15:10:43 blair Exp $
 -->
 
 <sources>
@@ -39,14 +39,6 @@ $Id: sources.xml,v 1.6 2005-07-09 20:51:00 blair Exp $
       <param-name>dbUrl</param-name>
       <param-value>jdbc:hsqldb:dist/run/grouper</param-value>
     </init-param>
-    <init-param>
-      <param-name>dbUser</param-name>
-      <param-value>sa</param-value>
-    </init-param>
-    <init-param>
-      <param-name>dbPwd</param-name>
-      <param-value></param-value>
-    </init-param>
 
     <!-- PostgreSQL -->
 <!--
@@ -56,17 +48,30 @@ $Id: sources.xml,v 1.6 2005-07-09 20:51:00 blair Exp $
     </init-param>
     <init-param>
       <param-name>dbUrl</param-name>
-      <param-value>jdbc:postgresql:grouper</param-value>
+      <param-value>jdbc:postgresql:...</param-value>
+    </init-param>
+-->
+
+    <!-- Oracle -->
+<!--
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>oracle.jdbc.driver.OracleDriver</param-value>
     </init-param>
     <init-param>
+      <param-name>dbUrl</param-name>
+      <param-value>jdbc:oracle:...</param-value>
+    </init-param>
+-->
+
+    <init-param>
       <param-name>dbUser</param-name>
-      <param-value></param-value>
+      <param-value>sa</param-value>
     </init-param>
     <init-param>
       <param-name>dbPwd</param-name>
       <param-value></param-value>
     </init-param>
--->
 
   </source>
 
