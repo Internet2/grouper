@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.39 2005-07-15 04:13:25 blair Exp $
+ * @version $Id: Group.java,v 1.40 2005-07-15 13:58:34 blair Exp $
  */
 abstract public class Group {
 
@@ -641,7 +641,7 @@ abstract public class Group {
       if (m.memberID().equals(s.getMember().memberID())) {
         s.canOPTIN(g);  
       } else {
-        s.canUPDATE(g);
+        s.canWriteField(g, list);
       }
       GrouperList gl = new GrouperList(s, g, m, list);
       if (GrouperList.exists(s, gl)) {
@@ -682,7 +682,7 @@ abstract public class Group {
       if (m.equals(s.getMember())) {
         s.canOPTOUT(g);  
       } else {
-        s.canUPDATE(g);
+        s.canWriteField(g, list);
       }
       GrouperList gl = new GrouperList(s, g, m, list);
       if (!GrouperList.exists(s, gl)) {
