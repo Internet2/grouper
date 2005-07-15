@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.22 2005-07-14 17:08:18 blair Exp $
+$Id: ROADMAP,v 1.23 2005-07-15 04:02:15 blair Exp $
 
 ---
 
@@ -11,10 +11,44 @@ $Id: ROADMAP,v 1.22 2005-07-14 17:08:18 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Implement OPTIN privilege (#343)
-* Implement OPTOUT privilege (#344)
+* Commit Grouper/Oracle configs to CVS
+* Teach _cvs2subject_ to use _conf/hibernate.properties_
+* Reimplement ADMIN (#399)
+* Reimplement UPDATE (#400)
+* Reimplement CREATE (#401)
+* Reimplement STEM (#402)
+* Add _GrouperQuery.groupAttribute()_ filter
+* Test creating groups|stems whose parent(s) have a modified de|dn
+* Test VIEW with a via group that can't be seen
+
+
+* Merge _GrouperField.all()_ and _GrouperField.field()_
+* Move _Grouper.fields()_ to _GrouperField.fields()_
+* Make _GrouperField.field()_ public
+* Split _getSubject()_ and _getSubjectByIdentifier()_ (#381)
+* Add group&scope and stem&scope to _GrouperQuery_ (#403)
+* Add _getName()_, _getStem()_, _getExtension(), _getDisplayName()_, 
+  _getDisplayExtension()_ and _getMembers()_ convenience methods
 * List children of Grouper.NS_ROOT (#395)
 * Default to Grouper.NS_ROOT when creating new stems (#396)
+
+
+* Document Subject API in impl guide (#379)
+* Document empty VIEW and READ behavior (#398)
+* Document that UPDATE implies OPTIN and OPTOUT
+* Document Grouper/Oracle usage
+* Document dE's default value and ongoing maintenance
+
+
+* Switch to commons logging everywhere
+* Custom Subject source to provide ALL behavior
+* Throw _GroupNotFoundException_
+* Throw _StemNotFoundException_
+* Throw _MemberNotFoundException_
+* Fuzzy search performance (#391)
+* Move constants (but to where?)
+* Index analysis
+* Make empty VIEW and READ behavior configurable (#397)
 
 ---
 
