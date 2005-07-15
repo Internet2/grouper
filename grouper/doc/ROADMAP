@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.23 2005-07-15 04:02:15 blair Exp $
+$Id: ROADMAP,v 1.24 2005-07-15 13:14:40 blair Exp $
 
 ---
 
@@ -31,6 +31,7 @@ $Id: ROADMAP,v 1.23 2005-07-15 04:02:15 blair Exp $
   _getDisplayExtension()_ and _getMembers()_ convenience methods
 * List children of Grouper.NS_ROOT (#395)
 * Default to Grouper.NS_ROOT when creating new stems (#396)
+* Add _PrivilegeCache_ class 
 
 
 * Document Subject API in impl guide (#379)
