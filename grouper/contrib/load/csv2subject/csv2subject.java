@@ -19,7 +19,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.16 2005-07-15 15:04:20 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.17 2005-07-16 14:12:11 blair Exp $ 
  */
 class csv2subject {
 
@@ -78,10 +78,6 @@ class csv2subject {
       conf.load(in);
     } catch (IOException ie) { 
       System.err.println("Unable to read '" + CF + "'");
-      System.exit(1);
-    }
-    } catch (FileNotFoundException fe) {
-      System.err.println("Could not find '" + CF + "'");
       System.exit(1);
     }
     jdbcDriver    = (String) conf.get("hibernate.connection.driver_class");
