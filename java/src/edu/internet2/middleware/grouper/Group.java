@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.40 2005-07-15 13:58:34 blair Exp $
+ * @version $Id: Group.java,v 1.41 2005-07-17 14:47:49 blair Exp $
  */
 abstract public class Group {
 
@@ -340,6 +340,14 @@ abstract public class Group {
   }
 
   /*
+   * Return appropriate list keys for a given (group) key and list
+   */
+  protected static List listValsKeys(GrouperSession s, String key, String list) {
+    String  qry  = "GrouperList.as.key.by.group.and.list";
+    return Group.queryListValsKeys(s, qry, key, list);
+  }
+
+  /*
    * Load {@link Group} by key.
    * @throws {@link InsufficientPrivilegeException}
    */
@@ -350,16 +358,19 @@ abstract public class Group {
     if (key != null) {
       try {
         g = (Group) s.dbSess().session().get(Group.class, key);
-        g.load(s); // TODO Remove explicit calls in GG and GS?
+        g.load(s); 
+        // TODO Can a group be loaded anywhere else?
+        Group.validate(g);
         s.canVIEW(g);
+      } catch (GrouperException e) {
+        return null; // TODO *sigh*
       } catch (HibernateException e) {
         throw new RuntimeException(
           "Error loading group: " + e.getMessage()
         );
       }
     }
-    // FIXME Don't return null!
-    return g;
+    return g; // FIXME Don't return null!
   }
 
   /*
@@ -497,9 +508,19 @@ abstract public class Group {
   /*
    * Simple object validation.
    */
-  protected static void validate(Group g) {
+  protected static void validate(Group g) 
+    throws GrouperException
+  {
+    // TODO GrouperException isn't right
     if (g == null) {
-      throw new RuntimeException("group is null");
+      throw new GrouperException("group is null");
+    }
+    if ( (g.getGroupID() == null) || (g.getGroupID().equals("")) ) {
+      // By pass access checks by using the get* version
+      throw new GrouperException("group has no id");
+    }
+    if ( (g.type() == null) || g.type().equals("") ) {
+      throw new GrouperException("group has no type");
     }
   }
 
@@ -635,7 +656,6 @@ abstract public class Group {
   )
   {
     GrouperSession.validate(s);
-    Group.validate(g);
     GrouperMember.validate(m);
     try {
       if (m.memberID().equals(s.getMember().memberID())) {
@@ -676,7 +696,6 @@ abstract public class Group {
   )
   {
     GrouperSession.validate(s);
-    Group.validate(g);
     GrouperMember.validate(m);
     try {
       if (m.equals(s.getMember())) {
@@ -787,6 +806,43 @@ abstract public class Group {
     return d; 
   }
 
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Run a named list value query and return the relevant list keys
+   */
+  private static List queryListValsKeys(
+    GrouperSession s, String qry, String key, String list
+  ) 
+  {
+    List vals = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);
+      q.setString(1, list);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String lk = (String) iter.next();
+          vals.add(lk);
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+
   /*
    * PRIVATE INSTANCE METHODS
    */
@@ -821,6 +877,7 @@ abstract public class Group {
 
   /*
    * Return list values for specified query.
+   * TODO Start using _Group.queryListValsKeys_?
    */
   private List queryListVals(
     GrouperSession s, String qry, String key, String list
