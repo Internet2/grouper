@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.52 2005-07-14 20:26:47 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.53 2005-07-17 15:01:13 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -639,7 +639,7 @@ public class GrouperStem extends Group {
    */
   protected void setCreated() {
     this.setCreateTime( this.now() );
-    GrouperMember m = GrouperMember.load(s, s.subject());
+    GrouperMember m = this.s.getMember();
     this.setCreateSubject(m.key());
   }
 
@@ -648,8 +648,8 @@ public class GrouperStem extends Group {
    */
   protected void setModified() {
     this.setModifyTime( this.now() );
-    GrouperMember mem = GrouperMember.load(this.s, this.s.subject());
-    this.setModifySubject( mem.key() );
+    GrouperMember m = this.s.getMember();
+    this.setModifySubject(m.key());
     try {
       this.s.dbSess().session().update(this);
     } catch (HibernateException e) {
@@ -671,7 +671,7 @@ public class GrouperStem extends Group {
     // We need a root session
     GrouperSession  rs  = GrouperSession.getRootSession();
     // Subject that is creating group
-    GrouperMember   m   = GrouperMember.load(this.s.subject() );
+    GrouperMember   m   = this.s.getMember();
     boolean rv = rs.naming().grant(rs, this, m, Grouper.PRIV_STEM);
     if (!rv) {
       throw new RuntimeException("Error granting STEM to " + m);  
