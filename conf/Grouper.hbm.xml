@@ -271,13 +271,6 @@ TODO For some reason I'm not convinced this query is correct.
       from GrouperList where groupKey = ?
   ]]></query>
 
-  <query name="GrouperList.by.group.and.list"><![CDATA[
-    from GrouperList          where
-      groupKey    = ?         and
-      memberKey   is not null and
-      groupField  = ?
-  ]]></query>
-
   <query name="GrouperList.by.group.and.member.and.list.and.is.eff"><![CDATA[
     from GrouperList          where
       groupKey    = ?         and
@@ -293,12 +286,24 @@ TODO For some reason I'm not convinced this query is correct.
       groupField  = ?         and
       viaKey      is null 
   ]]></query>
-
   <query name="GrouperList.as.key.by.group.and.member.and.list"><![CDATA[
     select l.listKey from GrouperList l where
       l.groupKey    = ? and
       l.memberKey   = ? and
       l.groupField  = ?
+  ]]></query>
+
+  <query name="GrouperList.by.group.and.list"><![CDATA[
+    from GrouperList          where
+      groupKey    = ?         and
+      memberKey   is not null and
+      groupField  = ?
+  ]]></query>
+  <query name="GrouperList.as.key.by.group.and.list"><![CDATA[
+    select l.listKey from GrouperList l where
+      groupKey    = ?                   and
+      memberKey   is not null           and
+      groupField  = ?
   ]]></query>
 
   <query name="GrouperList.by.group.and.list.and.is.eff"><![CDATA[
