@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.101 2005-07-15 18:06:00 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.102 2005-07-17 14:48:50 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -251,6 +251,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Retrieve a shared root session
+   * TODO Should I have a pool of root sessions?
    */
   protected static GrouperSession getRootSession() {
     if ( (rs != null) && (rs instanceof GrouperSession) ) {
@@ -290,6 +291,32 @@ public class GrouperSession implements Serializable {
    */
 
   /*
+   * Can the subject ADMIN?
+   * @throws {@link InsufficientPrivilegeException}
+   */
+  protected void canADMIN(Group g) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking ADMIN for " + this + " on " + g);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_ADMIN);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
+        log.info(this + " has ADMIN on " + g + ": ADMIN");
+        can = true; 
+      }
+      // Update cache
+      this.setCachedCan(g.key(), Grouper.PRIV_ADMIN, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  /*
    * Can the subject READ?
    * @throws {@link InsufficientPrivilegeException}
    */
@@ -302,18 +329,25 @@ public class GrouperSession implements Serializable {
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
     } else {
-      GrouperSession rs = GrouperSession.getRootSession(); 
-      if        (this.rs.access().has(this, g, Grouper.PRIV_READ)) {
+      if        (this.access().has(this, g, Grouper.PRIV_READ)) {
         log.info(this + " has READ on " + g + ": READ");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has READ on " + g + ": ADMIN");
         can = true; 
       } else if ( 
-        (this.rs.access().whoHas(this.rs, g, Grouper.PRIV_READ).size()==0) 
+        (
+          this.access().whoHas(
+            GrouperSession.getRootSession(), g, Grouper.PRIV_READ
+          ).size() == 0
+        )
       ) 
       {
-        // TODO I do this as root to avoid permission problems
+        /*
+         * TODO Check who has this priv as root so that the subject's 
+         * own privs don't get in the way.  And, yes, this is a hack 
+         * that will be going away soon enough.
+         */
         log.info(this + " has READ on " + g + ": Default READ");
         can = true; 
       } 
@@ -335,14 +369,13 @@ public class GrouperSession implements Serializable {
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
     } else {
-      GrouperSession rs = GrouperSession.getRootSession(); 
-      if        (this.rs.access().has(this, g, Grouper.PRIV_OPTIN)) {
+      if        (this.access().has(this, g, Grouper.PRIV_OPTIN)) {
         log.info(this + " has OPTIN on " + g + ": OPTIN");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has OPTIN on " + g + ": UPDATE");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has OPTIN on " + g + ": ADMIN");
         can = true; 
       } 
@@ -364,14 +397,13 @@ public class GrouperSession implements Serializable {
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
     } else {
-      GrouperSession rs = GrouperSession.getRootSession(); 
-      if        (this.rs.access().has(this, g, Grouper.PRIV_OPTOUT)) {
+      if        (this.access().has(this, g, Grouper.PRIV_OPTOUT)) {
         log.info(this + " has OPTOUT on " + g + ": OPTOUT");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has OPTOUT on " + g + ": UPDATE");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has OPTOUT on " + g + ": ADMIN");
         can = true; 
       } 
@@ -393,11 +425,10 @@ public class GrouperSession implements Serializable {
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
     } else {
-      GrouperSession rs = GrouperSession.getRootSession(); 
-      if        (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+      if        (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has UPDATE on " + g + ": UPDATE");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has UPDATE on " + g + ": ADMIN");
         can = true; 
       } 
@@ -425,30 +456,37 @@ public class GrouperSession implements Serializable {
     if (cached.containsKey("cached")) {
       can = ( (Boolean) cached.get("can") ).booleanValue();
     } else {
-      GrouperSession rs = GrouperSession.getRootSession(); 
-      if        (this.rs.access().has(this, g, Grouper.PRIV_VIEW)) {
+      if        (this.access().has(this, g, Grouper.PRIV_VIEW)) {
         log.info(this + " has VIEW on " + g + ": VIEW");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_READ)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_READ)) {
         log.info(this + " has VIEW on " + g + ": READ");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_UPDATE)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has VIEW on " + g + ": UPDATE");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_ADMIN)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has VIEW on " + g + ": ADMIN");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_OPTIN)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_OPTIN)) {
         log.info(this + " has VIEW on " + g + ": OPTIN");
         can = true; 
-      } else if (this.rs.access().has(this, g, Grouper.PRIV_OPTOUT)) {
+      } else if (this.access().has(this, g, Grouper.PRIV_OPTOUT)) {
         log.info(this + " has VIEW on " + g + ": OPTOUT");
         can = true; 
       } else if ( 
-        (this.rs.access().whoHas(this.rs, g, Grouper.PRIV_VIEW).size()==0) 
+        (
+          this.access().whoHas(
+            GrouperSession.getRootSession(), g, Grouper.PRIV_VIEW
+          ).size() == 0
+        )
       ) 
       {
-        // TODO I do this as root to avoid permission problems
+        /*
+         * TODO Check who has this priv as root so that the subject's 
+         * own privs don't get in the way.  And, yes, this is a hack 
+         * that will be going away soon enough.
+         */
         log.info(this + " has VIEW on " + g + ": Default VIEW");
         can = true; 
       } 
@@ -543,7 +581,7 @@ public class GrouperSession implements Serializable {
     } else if (priv.equals(Grouper.PRIV_UPDATE)) {
       this.canUPDATE(g);
     } else if (priv.equals(Grouper.PRIV_ADMIN)) {
-      // FIXME Ignore until _canADMIN()_ implemented
+      this.canADMIN(g);
     } else if (priv.equals(Grouper.PRIV_OPTIN)) {
       this.canOPTIN(g);
     } else if (priv.equals(Grouper.PRIV_OPTOUT)) {
