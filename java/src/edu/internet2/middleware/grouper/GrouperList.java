@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.60 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperList.java,v 1.61 2005-07-17 14:35:55 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -232,6 +232,25 @@ public class GrouperList implements Serializable {
     }
     return loaded;
   }
+
+  /*
+   * Perform a minimal load and session attachment
+   * TODO Do I want to unify on this approach?
+   */
+  protected static GrouperList loadByKey(GrouperSession s, String key) {
+    try {
+      GrouperList lv = (GrouperList) s.dbSess().session().get(
+        GrouperList.class, key
+      );
+      lv.setSession(s);
+      return lv;
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Error loading list value: " + e.getMessage()
+      );
+    }
+  }
+
 
   /*
    * Delete a {@link GrouperList} object from the groups registry.
