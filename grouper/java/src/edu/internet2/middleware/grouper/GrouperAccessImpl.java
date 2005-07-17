@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.74 2005-07-17 15:01:13 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.75 2005-07-17 16:56:23 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -117,34 +117,31 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   priv  Privilege to grant.
    */
   public boolean grant(
-                       GrouperSession s, Group g, 
-                       GrouperMember m, String priv
-                      ) 
+    GrouperSession s, Group g, GrouperMember m, String priv
+  ) 
   {
-    // XXX boolean rv = rs.access().grant(rs, this, m, Grouper.PRIV_ADMIN);
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-        s.dbSess().txStart();
+      try {
+        s.canWriteField(g, (String) privMap.get(priv));
         try {
-          // We need to use the internal method in Group, not the
-          // public method in GrouperGroup, to ensure that we have
-          // sufficient privs to grant the privilege.
+          s.dbSess().txStart();
+          // Go straight to the source in order to use the passed in
+          // session
           g.listAddVal(s, g, m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
           s.dbSess().txRollback();
           throw new RuntimeException(
-                      "Error granting privilege: " + e
-                    );
+            "Error granting privilege: " + e.getMessage()
+          );
         }
+      } catch (InsufficientPrivilegeException e) {
+        // Ignore
       }
-    } 
+    }
     Grouper.log().grant(rv, s, g, m, priv);
     // TODO I should probably throw an exception if invalid priv
     return rv;
@@ -325,30 +322,31 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(
-                        GrouperSession s, Group g, 
-                        GrouperMember m, String priv
-                       ) 
+    GrouperSession s, Group g, GrouperMember m, String priv
+  ) 
   {
     GrouperAccessImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, g, Grouper.PRIV_ADMIN)) {
-        s.dbSess().txStart();
+      try {
+        s.canWriteField(g, (String) privMap.get(priv));
         try {
-          g.listDelVal(m, (String) privMap.get(priv));
+          s.dbSess().txStart();
+          // Go straight to the source in order to use the passed in
+          // session
+          g.listDelVal(s, g, m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
           s.dbSess().txRollback();
           throw new RuntimeException(
-                      "Error revoking privilege: " + e
-                    );
+            "Error revoking privilege: " + e.getMessage()
+          );
         }
+      } catch (InsufficientPrivilegeException e) {
+        // Ignore
       }
-    } 
+    }
     Grouper.log().revoke(rv, s, g, m, priv);
     // TODO I should probably throw an exception if invalid priv
     return rv;
