@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.71 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.72 2005-07-17 14:38:39 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -159,6 +159,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  List of privileges.
    */
   public List has(GrouperSession s, Group g) {
+    // TODO Should this run as root so that the user isn't restricted?
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     GrouperMember m     = GrouperMember.load(s, s.subject());
@@ -181,6 +182,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * @return  List of {@link Group} groups.
    */
   public List has(GrouperSession s, String priv) {
+    // TODO Should this run as root so that the user isn't restricted?
     GrouperAccessImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
@@ -217,15 +219,24 @@ public class GrouperAccessImpl implements GrouperAccess {
    * Verify whether current subject has the specified privilege on the
    * specified group.
    * <p />
-   *
+   * <pre>
+   * GrouperSession s = GrouperSession.start(subject);
+   * if (s.access().has(s, group, Grouper.PRIV_OPTIN)) {
+   *   // the current subject can optin to this group
+   * }
+   * s.stop();
+   * </pre>
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Verify privilege for this group.
    * @param   priv  Verify this privilege.
    * @return  True if subject has this privilege on the group.
    */
   public boolean has(GrouperSession s, Group g, String priv) {
-    GrouperMember m = GrouperMember.load(s, s.subject());
-    return this.has(s, g, m, priv);
+    // Check privilege as root to ensure subjects own privs don't get
+    // in the way
+    return this.has(
+      GrouperSession.getRootSession(), g, s.getMember(), priv
+    );
   }
 
   /**
@@ -347,8 +358,10 @@ public class GrouperAccessImpl implements GrouperAccess {
    * List members who have the specified privilege on the 
    * specified group.
    * <p />
-   * See implementations for more information.
-   *
+   * <pre>
+   * GrouperSession s = GrouperSession.start(subject);
+   * List admins  = s.access().whoHas(s, group, Grouper.PRIV_ADMIN);  
+   * </pre>
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Query for this {@link Group}.
    * @param   priv  Query for this privilege type.
@@ -357,18 +370,37 @@ public class GrouperAccessImpl implements GrouperAccess {
   public List whoHas(GrouperSession s, Group g, String priv) {
     GrouperAccessImpl._init();
     List members = new ArrayList();
-  
+
     if (this.can(priv) == true) {
-      Iterator iter = g.listVals( (String) privMap.get(priv)).iterator();
-      while (iter.hasNext()) {
-        GrouperList   gl  = (GrouperList) iter.next();
-        gl.setSession(s);
-        GrouperMember m   = gl.member();
-        if (m != null) {
-          members.add(m);
+      /*
+       * Verify (as root) that this subject has privileges to see this
+       * list.  One of the reasons why we need to do this is that an
+       * empty list could possibly be interpreted in two very different
+       * ways (no members | no privilege to see the members) until we
+       * add in the special _ALL_ subject and dispense with the fuzzy
+       * magic of empty lists for _VIEW_ and _READ_ privileges.
+       */
+      if (
+        this.has(
+          GrouperSession.getRootSession(), g, s.getMember(), priv
+        )
+      )
+      {
+        // And now retrieve the appropriate list keys, instantiate
+        // them, and convert into their member objects.
+        Iterator iter = Group.listValsKeys(
+          s, g.key(), (String) privMap.get(priv)
+        ).iterator();
+        while (iter.hasNext()) {
+          String        key = (String) iter.next();
+          GrouperList   lv  = GrouperList.loadByKey(s, key);
+          GrouperMember m   = lv.member();
+          if (m != null) {
+            members.add(m);
+          }
         }
-      } 
-    } // TODO Exception if invalid priv?
+      }
+    }
     return members;
   }
 
