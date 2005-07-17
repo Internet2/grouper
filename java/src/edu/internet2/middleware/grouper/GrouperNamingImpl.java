@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.69 2005-07-17 15:01:13 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.70 2005-07-17 16:56:23 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -117,33 +117,34 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Privilege to grant.
    */
   public boolean grant(
-    GrouperSession s, GrouperStem ns, 
-    GrouperMember m, String priv
+    GrouperSession s, GrouperStem ns, GrouperMember m, String priv
   ) 
   {
     GrouperSession.validate(s);
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, ns, Grouper.PRIV_STEM)) {
-        s.dbSess().txStart();
+      //try {
+       if (this.has(s, ns, Grouper.PRIV_STEM)) {
+        // TODO Switch when I have canCREATE() and canSTEM() in place
+        //s.canWriteField(ns, (String) privMap.get(priv));
         try {
-          // We need to use the internal method in Group, not the
-          // public method in GrouperGroup, to ensure that we have
-          // sufficient privs to grant the privilege.
+          s.dbSess().txStart();
+          // Go straight to the source in order to use the passed in
+          // session
           ns.listAddVal(s, ns, m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
           s.dbSess().txRollback();
           throw new RuntimeException(
-                      "Error granting privilege: " + e
-                    );
+            "Error granting privilege: " + e.getMessage()
+          );
         }
       }
+      //} catch (InsufficientPrivilegeException e) {
+        // Ignore
+      //}
     } 
     Grouper.log().grant(rv, s, ns, m, priv);
     // TODO I should probably throw an exception if invalid priv
@@ -320,29 +321,33 @@ public class GrouperNamingImpl implements GrouperNaming {
    * @param   priv  Privilege to revoke.
    */
   public boolean revoke(
-                        GrouperSession s, GrouperStem ns, 
-                        GrouperMember m, String priv
-                       ) 
+    GrouperSession s, GrouperStem ns, GrouperMember m, String priv
+  ) 
   {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      /*
-       * FIXME I should be doing a GroupField lookup on `priv'
-       */
-      if (this.has(s, ns, Grouper.PRIV_STEM)) {
-        s.dbSess().txStart();
+      //try {
+        // TODO Switch when I have canCREATE() and canSTEM() in place
+        if (this.has(s, ns, Grouper.PRIV_STEM)) {
+        //s.canWriteField(ns, (String) privMap.get(priv));
         try {
-          ns.listDelVal(m, (String) privMap.get(priv));
+          s.dbSess().txStart();
+          // Go straight to the source in order to use the passed in
+          // session
+          ns.listDelVal(s, ns, m, (String) privMap.get(priv));
           s.dbSess().txCommit();
           rv = true;
         } catch (RuntimeException e) {
           s.dbSess().txRollback();
           throw new RuntimeException(
-                      "Error revoking privilege: " + e
-                    );
+            "Error revoking privilege: " + e.getMessage()
+          );
         }
       }
+      //} catch (InsufficientPrivilegeException e) {
+        // Ignore
+      //}
     } 
     Grouper.log().revoke(rv, s, ns, m, priv);
     // TODO I should probably throw an exception if invalid priv
