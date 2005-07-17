@@ -166,10 +166,8 @@ public class Constants {
     gD.attribute("description", "this is group d");
   }
 
-  protected static void createMembers(GrouperSession s) {
-    mr = Common.loadMember(s, Constants.rootI, Constants.rootT);
-    m0 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
-    m1 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
+  protected static void addMembers(GrouperSession s) {
+    Constants.createMembers(s);
     g0.listAddVal(m0);
     g1.listAddVal(m1);
     g2.listAddVal(m0);
@@ -177,6 +175,12 @@ public class Constants {
     gB.listAddVal(m0);
     gC.listAddVal(m1);
     gD.listAddVal(m0);
+  }
+
+  protected static void createMembers(GrouperSession s) {
+    mr = Common.loadMember(s, Constants.rootI, Constants.rootT);
+    m0 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
+    m1 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
   }
   
   protected static GrouperSession createSession() {

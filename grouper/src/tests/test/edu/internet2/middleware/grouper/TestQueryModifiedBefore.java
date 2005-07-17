@@ -86,7 +86,7 @@ public class TestQueryModifiedBefore extends TestCase {
    */
 
   public void testQueryModifiedBeforeNow() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "modifiedBefore: something", q.modifiedBefore( new java.util.Date() )
@@ -106,7 +106,7 @@ public class TestQueryModifiedBefore extends TestCase {
   }
 
   public void testQueryModifiedBeforeEpoch() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "modifiedBefore: nothing", q.modifiedBefore( new java.util.Date(0) )

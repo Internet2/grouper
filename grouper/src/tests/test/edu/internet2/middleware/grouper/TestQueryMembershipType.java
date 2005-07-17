@@ -86,7 +86,7 @@ public class TestQueryMembershipType extends TestCase {
    */
 
   public void testQueryMembershipTypeAll() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "membershipType: something", q.membershipType(Grouper.MEM_ALL)
@@ -106,7 +106,7 @@ public class TestQueryMembershipType extends TestCase {
   }
 
   public void testQueryMembershipTypeImm() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "membershipType: something", q.membershipType(Grouper.MEM_IMM)
@@ -126,7 +126,7 @@ public class TestQueryMembershipType extends TestCase {
   }
 
   public void testQueryMembershipTypeEff() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "membershipType: nothing", q.membershipType(Grouper.MEM_EFF)

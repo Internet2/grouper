@@ -86,7 +86,7 @@ public class TestQueryGroupType extends TestCase {
    */
 
   public void testQueryBaseType() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "groupType: something", q.groupType(Grouper.DEF_GROUP_TYPE)
@@ -106,7 +106,7 @@ public class TestQueryGroupType extends TestCase {
   }
 
   public void testQueryNamingType() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "groupType: something", q.groupType(Grouper.NS_TYPE)

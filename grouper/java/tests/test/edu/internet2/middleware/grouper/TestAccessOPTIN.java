@@ -94,7 +94,7 @@ public class TestAccessOPTIN extends TestCase {
    */
 
   public void testOptinAsRootWithoutOPTIN() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     try {
       Constants.g0.listAddVal(Constants.mr);
       Assert.assertTrue("optin", true);
@@ -106,7 +106,7 @@ public class TestAccessOPTIN extends TestCase {
   }
 
   public void testOptinAsRootWithOPTIN() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Constants.grantPriv(
       s, Constants.g0, Constants.mr, Grouper.PRIV_OPTIN
     );

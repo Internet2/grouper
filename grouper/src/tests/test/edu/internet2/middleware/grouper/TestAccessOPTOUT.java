@@ -131,7 +131,7 @@ public class TestAccessOPTOUT extends TestCase {
   }
 
   public void testOptoutAsNonRootWithoutOPTOUT() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
 
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
     // Should not be able to remove other members
@@ -154,7 +154,7 @@ public class TestAccessOPTOUT extends TestCase {
   }
 
   public void testOptoutAsNonRootWithOPTOUT() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Constants.grantPriv(
       s, Constants.g0, Constants.m0, Grouper.PRIV_OPTOUT
     );

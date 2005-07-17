@@ -86,7 +86,7 @@ public class TestQueryCreatedBefore extends TestCase {
    */
 
   public void testQueryCreatedBeforeNow() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "createdBefore: something", q.createdBefore( new java.util.Date() )
@@ -106,7 +106,7 @@ public class TestQueryCreatedBefore extends TestCase {
   }
 
   public void testQueryCreatedBeforeEpoch() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "createdBefore: something", q.createdBefore( new java.util.Date(0) )
