@@ -2,7 +2,7 @@
 
 A preliminary Grouper usage FAQ.
 
-$Id: FAQ,v 1.20 2005-05-20 15:46:36 blair Exp $
+$Id: FAQ,v 1.21 2005-07-17 15:01:13 blair Exp $
 
 ---
 
@@ -41,7 +41,9 @@ A: Use the `SubjectFactory.getSubject()` method.
 
 A: Use the `GrouperSession.start()` method.
 
-    GrouperSession s = GrouperSession.start(subj);
+    GrouperSession  s = GrouperSession.start(
+      SubjectFactory.getSubject(id, type)
+    );
 
 ### Q: How do I stop a session?
 
@@ -175,6 +177,15 @@ A: Use the `GrouperMember.load()` method.
 
     Subject       subj  = SubjectFactory.getSubject(subjID, subjType);
     GrouperMember m     = GrouperMember.load(subj);
+
+### Q: How do I convert a session's _Subject_ into a member?
+
+A: Use the GrouperSession.getMember()` method.
+
+    GrouperSession  s = GrouperSession.start(
+      SubjectFactory.getSubject(id, type)
+    );
+    GrouperMember   m = s.getMember();
 
 ## Q: How do I convert a _Subject_ id and type into a _GrouperMember_ object?
 

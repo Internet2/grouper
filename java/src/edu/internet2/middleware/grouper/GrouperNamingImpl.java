@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.68 2005-07-17 14:45:31 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.69 2005-07-17 15:01:13 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -162,7 +162,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     // TODO Should this run as root so that the user isn't restricted?
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
-    GrouperMember m     = GrouperMember.load(s, s.subject());
+    GrouperMember m     = s.getMember();
     Iterator      iter  = privMap.keySet().iterator();
     while (iter.hasNext()) {
       String  priv  = (String) iter.next();
@@ -186,7 +186,7 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     List          privs = new ArrayList();
     if (this.can(priv) == true) {
-      GrouperMember m     = GrouperMember.load(s, s.subject()); 
+      GrouperMember m = s.getMember();
       privs = m.listVals( (String) privMap.get(priv) );
     } 
     // TODO Throw exception if invalid priv?
