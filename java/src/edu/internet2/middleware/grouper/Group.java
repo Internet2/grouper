@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.41 2005-07-17 14:47:49 blair Exp $
+ * @version $Id: Group.java,v 1.42 2005-07-17 21:55:40 blair Exp $
  */
 abstract public class Group {
 
@@ -418,11 +418,12 @@ abstract public class Group {
     if (key != null) {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
       if (ns != null) { // TODO Flail if null?
-        // If a naming group, does subject have STEM on stem?
-        if (!s.naming().has(s, ns, Grouper.PRIV_CREATE)) {
+        try {
+          s.canCREATE(ns);
+        } catch (InsufficientPrivilegeException e) {
           throw new RuntimeException(
-                      "Subject does not have CREATE on " + stem
-                    );
+            "Subject does not have CREATE on " + stem
+          );
         }
       }
     }
@@ -444,11 +445,20 @@ abstract public class Group {
       GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
       if (ns != null) { // TODO Flail if null?
         // If a naming group, does subject have STEM on stem?
+        try {
+          s.canSTEM(ns);
+        } catch (InsufficientPrivilegeException e) {
+          throw new RuntimeException(
+            "Subject does not have STEM on " + stem
+          );
+        }
+/*
         if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
           throw new RuntimeException(
                       "Subject does not have STEM on " + stem
                     );
         }
+*/
       }
     }
   }
@@ -488,9 +498,16 @@ abstract public class Group {
    */
   protected static void subjectCanDelete(GrouperSession s, GrouperStem ns) {
     // Right priv required
+    try {
+      s.canSTEM(ns);
+    } catch (InsufficientPrivilegeException e) {
+      throw new RuntimeException("Deletion requires STEM priv");
+    }
+/*
     if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
       throw new RuntimeException("Deletion requires STEM priv");
     }
+*/
     // Are there child stems?
     if (ns.stems().size() > 0) {
       throw new RuntimeException(
@@ -916,30 +933,37 @@ abstract public class Group {
   )
   {
     if ((
-          (attribute.equals("displayname")) ||
+          // TODO No longer needed?
+          // (attribute.equals("displayname")) ||
           (attribute.equals("name"))        ||
           (attribute.equals("stem"))        ||
           (attribute.equals("extension"))
        ))
     {
       throw new RuntimeException(
-                  "Modification of " + attribute + 
-                  " is not currently allowed"
-                );
+        "Modification of " + attribute + " is not currently allowed"
+      );
     }
-    // TODO Can I remove the need for if/else clauses?
-    // Stems require STEM
     if (this.type().equals(Grouper.NS_TYPE)) {
-      if (!s.naming().has(s, (GrouperStem) g, Grouper.PRIV_STEM)) {
-        throw new RuntimeException(
-                    "Modification requires STEM"
-                  );
+      // Stems require STEM...
+      try {
+        s.canSTEM( (GrouperStem) g );
+      } catch (InsufficientPrivilegeException eCS) {
+        try {
+          // Or maybe something else?
+          // TODO We now delve into deep and not necessarly accurate
+          // hackery
+          s.canWriteField(g, attribute);
+        } catch (InsufficientPrivilegeException eCWF) {
+          throw new RuntimeException("Modification not permitted");
+        }
       }
-    } else if (!s.access().has(s, g, Grouper.PRIV_ADMIN)) {
-      // And groups require ADMIN
-      throw new RuntimeException(
-                  "Modification requires ADMIN"
-                );
+    } else {
+      try {
+        s.canWriteField(g, attribute);
+      } catch (InsufficientPrivilegeException e) {
+        throw new RuntimeException("Modification not permitted");
+      }
     }
   }
 
@@ -968,13 +992,16 @@ abstract public class Group {
     {
       Iterator groups = ( (GrouperStem) g ).groups().iterator();
       while (groups.hasNext()) {
-        GrouperGroup cg = (GrouperGroup) groups.next();
-        cg.attribute(
-          "displayName", 
+        GrouperGroup      cg = (GrouperGroup) groups.next();
+        // Attempt to evade access controls
+        String            an = "displayName";
+        GrouperAttribute  ao = cg.attribute(an);
+        ao.setGroupFieldValue(
           Group.displayName(
             dn.value(), cg.attribute("displayExtension").value()
           )
         );
+        cg.attributeAdd(ao);
       }
       Iterator stems = ( (GrouperStem) g ).stems().iterator();
       while (stems.hasNext()) {

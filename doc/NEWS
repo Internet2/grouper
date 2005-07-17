@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.67 2005-07-17 16:56:23 blair Exp $
+$Id: NEWS,v 1.68 2005-07-17 21:55:40 blair Exp $
 
 ---
 
@@ -29,7 +29,10 @@ $Id: NEWS,v 1.67 2005-07-17 16:56:23 blair Exp $
 
 * UPDATE: Grouper now uses version 0.1 draft 2 of the _Subject_ API
   specification
-* UPDATED: Reimplement UPDATE Access privilege (#400)
+* UPDATED: Reimplemented UPDATE Access privilege (#400)
+* UPDATED: Reimplemented ADMIN Access privilege (#399)
+* UPDATED: Reimplemented CREATE Naming privilege (#401)
+* UPDATED: Reimplemented STEM Naming privilege (#402)
 * UPDATE: _Grouper.hasSubjectType()_ method replaced by _SubjectFactory.hasType()_
 * UPDATE: _Grouper.subjectTypes()_ method replaced by _SubjectFactory.types()_
 * UPDATE: _GrouperSubject_ class renamed to _SubjectFactory_

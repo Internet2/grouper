@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.102 2005-07-17 14:48:50 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.103 2005-07-17 21:55:40 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -317,6 +317,35 @@ public class GrouperSession implements Serializable {
   }
 
   /*
+   * Can the subject CREATE?
+   * @throws {@link InsufficientPrivilegeException}
+   */
+  protected void canCREATE(GrouperStem ns) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking CREATE for " + this + " on " + ns);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(ns.key(), Grouper.PRIV_CREATE);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      if        (this.naming().has(this, ns, Grouper.PRIV_CREATE)) {
+        log.info(this + " has CREATE on " + ns + ": CREATE");
+        can = true; 
+      } else if (this.naming().has(this, ns, Grouper.PRIV_CREATE)) {
+        log.info(this + " has CREATE on " + ns + ": STEM");
+        can = true; 
+      } 
+      // Update cache
+      this.setCachedCan(ns.key(), Grouper.PRIV_CREATE, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  /*
    * Can the subject READ?
    * @throws {@link InsufficientPrivilegeException}
    */
@@ -409,6 +438,32 @@ public class GrouperSession implements Serializable {
       } 
       // Update cache
       this.setCachedCan(g.key(), Grouper.PRIV_OPTOUT, can);
+    }
+    if (!can) {
+      // TODO What is an appropriate message to return?
+      throw new InsufficientPrivilegeException();
+    }
+  }
+
+  /*
+   * Can the subject STEM?
+   * @throws {@link InsufficientPrivilegeException}
+   */
+  protected void canSTEM(GrouperStem ns) 
+    throws InsufficientPrivilegeException
+  {
+    log.debug("Checking STEM for " + this + " on " + ns);
+    boolean can     = false;
+    Map     cached  = this.getCachedCan(ns.key(), Grouper.PRIV_STEM);
+    if (cached.containsKey("cached")) {
+      can = ( (Boolean) cached.get("can") ).booleanValue();
+    } else {
+      if (this.naming().has(this, ns, Grouper.PRIV_STEM)) {
+        log.info(this + " has STEM on " + ns + ": STEM");
+        can = true; 
+      } 
+      // Update cache
+      this.setCachedCan(ns.key(), Grouper.PRIV_STEM, can);
     }
     if (!can) {
       // TODO What is an appropriate message to return?
@@ -587,9 +642,11 @@ public class GrouperSession implements Serializable {
     } else if (priv.equals(Grouper.PRIV_OPTOUT)) {
       this.canOPTOUT(g);
     } else if (priv.equals(Grouper.PRIV_CREATE)) {
-      // FIXME Ignore until _canCREATE()_ implemented
+      this.canCREATE( (GrouperStem) g );
     } else if (priv.equals(Grouper.PRIV_STEM)) {
-      // FIXME Ignore until _canSTEM()_ implemented
+      this.canSTEM( (GrouperStem) g );
+    } else if (priv.equals("SYSTEM")) {
+      throw new RuntimeException(field + " is system maintained");
     } else {
       throw new RuntimeException(
         "Unable to check field access for " + field + "/" + priv

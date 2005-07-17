@@ -117,7 +117,7 @@ public class TestAccessOPTOUT extends TestCase {
     } catch (RuntimeException e) {
       Assert.fail("!listAddVal");
     }
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_OPTOUT
     );
     try {
@@ -155,7 +155,7 @@ public class TestAccessOPTOUT extends TestCase {
 
   public void testOptoutAsNonRootWithOPTOUT() {
     Constants.addMembers(s);
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.m0, Grouper.PRIV_OPTOUT
     );
 

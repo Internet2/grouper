@@ -62,6 +62,7 @@ public class TestAll extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+
     suite.addTestSuite(TestInstantiate.class);
     suite.addTestSuite(TestConfigAndSchema.class);
     suite.addTestSuite(TestFieldCasing.class);
@@ -126,8 +127,8 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestNamingGrantMoF2.class);
     suite.addTestSuite(TestNamingRevoke0.class);
     suite.addTestSuite(TestNamingRevoke1.class);
-    // FIXME suite.addTestSuite(TestNamingCREATE.class);
-    // FIXME suite.addTestSuite(TestNamingStem.class);
+    suite.addTestSuite(TestNamingCREATE.class);
+    // FIXME suite.addTestSuite(TestNamingSTEM.class);
     suite.addTestSuite(TestAccessPrivs.class);
     suite.addTestSuite(TestAccessGrantMoF0.class);
     suite.addTestSuite(TestAccessGrantMoF1.class);

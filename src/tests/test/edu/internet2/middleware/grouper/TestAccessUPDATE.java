@@ -140,7 +140,7 @@ public class TestAccessUPDATE extends TestCase {
   } 
 
   public void testAddAndDelMembersAsNonRootAndUPDATE() {
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.m0, Grouper.PRIV_UPDATE
     );
     GrouperGroup g = Constants.loadGroup(
@@ -194,7 +194,7 @@ public class TestAccessUPDATE extends TestCase {
   }
 
   public void testGrantAndRevokeOptinAsNonRootAndUPDATE() {
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.m0, Grouper.PRIV_UPDATE
     );
     GrouperGroup g = Constants.loadGroup(
@@ -238,7 +238,7 @@ public class TestAccessUPDATE extends TestCase {
   }
 
   public void testGrantAndRevokeOptoutAsNonRootAndUPDATE() {
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.m0, Grouper.PRIV_UPDATE
     );
     GrouperGroup g = Constants.loadGroup(

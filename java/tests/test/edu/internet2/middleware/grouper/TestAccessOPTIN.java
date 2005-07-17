@@ -107,7 +107,7 @@ public class TestAccessOPTIN extends TestCase {
 
   public void testOptinAsRootWithOPTIN() {
     Constants.addMembers(s);
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.mr, Grouper.PRIV_OPTIN
     );
     try {
@@ -147,7 +147,7 @@ public class TestAccessOPTIN extends TestCase {
   public void testOptinAsNonRootWithOPTIN() {
     GrouperMember mr = Common.loadMember(s, Constants.rootI, Constants.rootT);
     GrouperMember m0 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, m0, Grouper.PRIV_OPTIN
     );
 

@@ -53,11 +53,17 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+
+import  java.util.*;
 import  junit.framework.*;
 
-public class TestBug352Access extends TestCase {
 
-  public TestBug352Access(String name) {
+public class TestNamingCREATE extends TestCase {
+
+  private GrouperSession  s, nrs0, nrs1;
+  private GrouperQuery    q;
+
+  public TestNamingCREATE(String name) {
     super(name);
   }
 
@@ -65,110 +71,49 @@ public class TestBug352Access extends TestCase {
     DB db = new DB();
     db.emptyTables();
     db.stop();
+    s = Constants.createSession();
+    Assert.assertNotNull("s", s);
+    nrs0 = Constants.createSession(Constants.mem0I, Constants.mem0T);
+    Assert.assertNotNull("nrs0", nrs0);
+    nrs1 = Constants.createSession(Constants.mem1I, Constants.mem1T);
+    Assert.assertNotNull("nrs1", nrs1);
+    Constants.createGroups(s);
+    Constants.createMembers(s);
+    q = new GrouperQuery(s);
+    Assert.assertNotNull("q", q);
   }
 
   protected void tearDown () {
-    // Nothing -- Yet
+    s.stop();
+    nrs0.stop();
+    nrs1.stop();
   }
 
 
   /*
    * TESTS
    */
-  
 
-  /*
-   * ADMIN required for !root subjects to adjust attributes on groups
-   */
-  public void testBug352Access() {
-    Subject subj0 = null;
-    try {
-      subj0 = SubjectFactory.getSubject(Constants.rootI, Constants.rootT);
-    } catch (SubjectNotFoundException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-    GrouperSession s0 = GrouperSession.start(subj0);
-    Subject subj1 = null;
-    try {
-      subj1 = SubjectFactory.getSubject(Constants.mem0I, Constants.mem0T);
-    } catch (SubjectNotFoundException e2) {
-      // TODO Auto-generated catch block
-      e2.printStackTrace();
-    }
-    GrouperSession s1 = GrouperSession.start(subj1);
+  public void testCreateGroupAsRoot() {
+    GrouperGroup g = GrouperGroup.create(s, "root", "test group");
+    Assert.assertNotNull("g", g);
+  }
 
-    // Create ns0
-    GrouperStem ns0 = GrouperStem.create(
-                         s0, Constants.ns0s, Constants.ns0e
-                       );
-    // Create gA
-    GrouperGroup gA  = GrouperGroup.create(
-                         s0, Constants.gAs, Constants.gAe
-                       );
-    // Load gA as subj1
-    GrouperGroup gAA = GrouperGroup.load(
-                         s1, Constants.gAs, Constants.gAe
-                       );
-
-    // Set description as root
-    String text0 = "test description";
+  public void testCreateGroupAsNonRootAndNoCREATE() {
     try {
-      gA.attribute("description", text0);
-      Assert.assertTrue("add description to gA", true);
+      GrouperGroup g = GrouperGroup.create(nrs0, "root", "test group");
+      Assert.fail("g");
     } catch (RuntimeException e) {
-      Assert.fail("add description to gA failed");
+      Assert.assertTrue("g", true);
     }
-    GrouperAttribute desc0 = gA.attribute("description");
-    Assert.assertNotNull("gA description !null", desc0);
-    Assert.assertTrue(
-      "gA description value", desc0.value().equals(text0)
+  }
+
+  public void testCreateGroupAsNonRootAndCREATE() {
+    Constants.grantNamingPriv(
+      s, Constants.ns0, Constants.m0, Grouper.PRIV_CREATE
     );
-
-    // Fail to set description as !root
-    String text1 = "a longer test description";
-    try {
-      gAA.attribute("description", text1);
-      Assert.fail("add description to gAA should have failed");
-    } catch (RuntimeException e) {
-      Assert.assertTrue("add description to gAA should fail", true);
-    }
-    GrouperAttribute desc1 = gAA.attribute("description");
-    Assert.assertNotNull("gAA description !null", desc1);
-    Assert.assertTrue(
-      "gAA description value", desc1.value().equals("")
-    );
-
-    // Grant ADMIN to !root
-    GrouperMember m = Common.loadMember(
-                        s0, Constants.mem0I, Constants.mem0T
-                      );
-    Assert.assertTrue(
-      "grant ADMIN to m on gAA",
-      s0.access().grant(s0, gAA, m, Grouper.PRIV_ADMIN)
-    );
-
-    // Set description as !root
-    /*
-     * FIXME Uncertainty.  The subject now has the privilege, however,
-     * the subject also has a cache setting from the earlier failed
-     * check saying that it cannot.  What do do?  Do we need a means of
-     * (selectively?) flushing the cache?  I'm not sure.
-     */
-    try {
-      gAA.attribute("description", text1);
-      Assert.fail("add desc should have failed due to cached priv");
-      GrouperAttribute desc2 = gAA.attribute("description");
-      Assert.assertNotNull("gAA description !null", desc2);
-      Assert.assertTrue(
-        "gAA description value", desc2.value().equals(text1)
-      );
-    } catch (RuntimeException e) {
-      Assert.assertTrue("add desc failed due to cached priv", true);
-    }
-
-    s0.stop();
-    s1.stop();
+    GrouperGroup g = GrouperGroup.create(nrs0, "root", "test group");
+    Assert.assertNotNull("g", g);
   }
 
 }

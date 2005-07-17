@@ -216,7 +216,7 @@ public class Constants {
     ns2.attribute("description", "this is stem 2");
   }
 
-  protected static void grantPriv(
+  protected static void grantAccessPriv(
     GrouperSession s, GrouperGroup g, GrouperMember m, String priv
   )
   {
@@ -225,13 +225,31 @@ public class Constants {
       s.access().grant(s, g, m, priv)
     );
   }
-  protected static void grantPriv(
+  protected static void grantAccessPriv(
     String stem, String extn, GrouperMember m, String priv
   )
   {
     GrouperSession  rs  = Constants.createSession();
     GrouperGroup    g   = Constants.loadGroup(rs, stem, extn);
-    Constants.grantPriv(rs, g, m, priv);
+    Constants.grantAccessPriv(rs, g, m, priv);
+    rs.stop();
+  }
+  protected static void grantNamingPriv(
+    GrouperSession s, GrouperStem ns, GrouperMember m, String priv
+  )
+  {
+    Assert.assertTrue(
+      "grant " + priv + " to " + m + " on " + ns,  
+      s.naming().grant(s, ns, m, priv)
+    );
+  }
+  protected static void grantNamingPriv(
+    String stem, String extn, GrouperMember m, String priv
+  )
+  {
+    GrouperSession  rs  = Constants.createSession();
+    GrouperStem     ns  = Constants.loadStem(rs, stem, extn);
+    Constants.grantNamingPriv(rs, ns, m, priv);
     rs.stop();
   }
 
