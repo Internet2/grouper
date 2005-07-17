@@ -282,7 +282,7 @@ public class TestAccessREAD extends TestCase {
     Assert.assertTrue("ns0 priv", !ns.id().equals(""));
 
     // Member
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_READ
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -290,7 +290,7 @@ public class TestAccessREAD extends TestCase {
     Assert.assertTrue("g0 priv", !g.id().equals(""));
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_READ
     );
     g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
@@ -314,7 +314,7 @@ public class TestAccessREAD extends TestCase {
     Constants.addMembers(s);
 
     // Member
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_READ
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -322,7 +322,7 @@ public class TestAccessREAD extends TestCase {
     Assert.assertTrue("g0 priv", g.listVals().size() > 0);
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_READ
     );
     g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
@@ -363,7 +363,7 @@ public class TestAccessREAD extends TestCase {
     );
    
     // Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_READ
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -373,7 +373,7 @@ public class TestAccessREAD extends TestCase {
     );
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_READ
     );
     g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);

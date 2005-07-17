@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.27 2005-07-17 16:56:23 blair Exp $
+$Id: ROADMAP,v 1.28 2005-07-17 21:55:40 blair Exp $
 
 ---
 
@@ -11,9 +11,6 @@ $Id: ROADMAP,v 1.27 2005-07-17 16:56:23 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Reimplement ADMIN (#399)
-* Reimplement CREATE (#401)
-* Reimplement STEM (#402)
 * Add _GrouperQuery.groupAttribute()_ filter
 * Test creating groups|stems whose parent(s) have a modified de|dn
 * Test VIEW with a via group that can't be seen
@@ -39,6 +36,10 @@ $Id: ROADMAP,v 1.27 2005-07-17 16:56:23 blair Exp $
 
 * Switch to commons logging everywhere
 * Custom Subject source to provide ALL behavior
+* Add ADMIN tests
+* Add STEM tests
+* Verify that adjustment of _displayName_ is not affected by access
+  controls
 * Throw _GroupNotFoundException_
 * Throw _StemNotFoundException_
 * Throw _MemberNotFoundException_

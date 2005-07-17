@@ -128,93 +128,93 @@ public class TestAccessVIEW extends TestCase {
   }
 
   public void testViewAsNonRootWithExplicitViewersAndNoGrantedPriv() {
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW
     );
     GrouperGroup g = Constants.loadGroup(nrs1, Constants.g0s, Constants.g0e);
     Assert.assertNull("g0 null", g);
 
-    Constants.grantPriv(Constants.g1s, Constants.g1e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g1s, Constants.g1e, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs1, Constants.g1s, Constants.g1e);
     Assert.assertNull("g1 null", g);
 
-    Constants.grantPriv(Constants.g2s, Constants.g2e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g2s, Constants.g2e, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs1, Constants.g2s, Constants.g2e);
     Assert.assertNull("g2 null", g);
 
-    Constants.grantPriv(Constants.gAs, Constants.gAe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gAs, Constants.gAe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs1, Constants.gAs, Constants.gAe);
     Assert.assertNull("gA null", g);
 
-    Constants.grantPriv(Constants.gBs, Constants.gBe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gBs, Constants.gBe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs1, Constants.gBs, Constants.gBe);
     Assert.assertNull("gB null", g);
 
-    Constants.grantPriv(Constants.gCs, Constants.gCe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gCs, Constants.gCe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs1, Constants.gCs, Constants.gCe);
     Assert.assertNull("gC null", g);
 
-    Constants.grantPriv(Constants.gDs, Constants.gDe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gDs, Constants.gDe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs1, Constants.gDs, Constants.gDe);
     Assert.assertNull("gD null", g);
   }
 
   public void testViewAsNonRootWithExplicitViewersAndNoGrantedPrivButRoot() {
-    Constants.grantPriv(Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW);
     GrouperGroup g = Constants.loadGroup(s, Constants.g0s, Constants.g0e);
     Assert.assertNotNull("g0 !null", g);
 
-    Constants.grantPriv(Constants.g1s, Constants.g1e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g1s, Constants.g1e, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(s, Constants.g1s, Constants.g1e);
     Assert.assertNotNull("g1 !null", g);
 
-    Constants.grantPriv(Constants.g2s, Constants.g2e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g2s, Constants.g2e, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(s, Constants.g2s, Constants.g2e);
     Assert.assertNotNull("g2 !null", g);
 
-    Constants.grantPriv(Constants.gAs, Constants.gAe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gAs, Constants.gAe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(s, Constants.gAs, Constants.gAe);
     Assert.assertNotNull("gA !null", g);
 
-    Constants.grantPriv(Constants.gBs, Constants.gBe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gBs, Constants.gBe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(s, Constants.gBs, Constants.gBe);
     Assert.assertNotNull("gB !null", g);
 
-    Constants.grantPriv(Constants.gCs, Constants.gCe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gCs, Constants.gCe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(s, Constants.gCs, Constants.gCe);
     Assert.assertNotNull("gC !null", g);
 
-    Constants.grantPriv(Constants.gDs, Constants.gDe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gDs, Constants.gDe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(s, Constants.gDs, Constants.gDe);
     Assert.assertNotNull("gD !null", g);
   }
 
   public void testViewAsNonRootWithExplicitViewersAndGrantedPriv() {
-    Constants.grantPriv(Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW);
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
     Assert.assertNotNull("g0 !null", g);
 
-    Constants.grantPriv(Constants.g1s, Constants.g1e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g1s, Constants.g1e, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs0, Constants.g1s, Constants.g1e);
     Assert.assertNotNull("g1 !null", g);
 
-    Constants.grantPriv(Constants.g2s, Constants.g2e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.g2s, Constants.g2e, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs0, Constants.g2s, Constants.g2e);
     Assert.assertNotNull("g2 !null", g);
 
-    Constants.grantPriv(Constants.gAs, Constants.gAe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gAs, Constants.gAe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs0, Constants.gAs, Constants.gAe);
     Assert.assertNotNull("gA !null", g);
 
-    Constants.grantPriv(Constants.gBs, Constants.gBe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gBs, Constants.gBe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs0, Constants.gBs, Constants.gBe);
     Assert.assertNotNull("gB !null", g);
 
-    Constants.grantPriv(Constants.gCs, Constants.gCe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gCs, Constants.gCe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs0, Constants.gCs, Constants.gCe);
     Assert.assertNotNull("gC !null", g);
 
-    Constants.grantPriv(Constants.gDs, Constants.gDe, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantAccessPriv(Constants.gDs, Constants.gDe, Constants.m0, Grouper.PRIV_VIEW);
     g = Constants.loadGroup(nrs0, Constants.gDs, Constants.gDe);
     Assert.assertNotNull("gD !null", g);
   }
@@ -252,7 +252,7 @@ public class TestAccessVIEW extends TestCase {
     );
    
     // Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -262,7 +262,7 @@ public class TestAccessVIEW extends TestCase {
     );
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
     );
     Assert.assertNull(
@@ -303,7 +303,7 @@ public class TestAccessVIEW extends TestCase {
     );
    
     // Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -313,7 +313,7 @@ public class TestAccessVIEW extends TestCase {
     );
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
     );
     Assert.assertNull(
@@ -354,7 +354,7 @@ public class TestAccessVIEW extends TestCase {
     );
    
     // Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -364,7 +364,7 @@ public class TestAccessVIEW extends TestCase {
     );
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
     );
     Assert.assertNull(
@@ -405,7 +405,7 @@ public class TestAccessVIEW extends TestCase {
     );
    
     // Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g0, Constants.g0.toMember(), Grouper.PRIV_VIEW
     );
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
@@ -415,7 +415,7 @@ public class TestAccessVIEW extends TestCase {
     );
 
     // !Member 
-    Constants.grantPriv(
+    Constants.grantAccessPriv(
       s, Constants.g1, Constants.g1.toMember(), Grouper.PRIV_VIEW
     );
     Assert.assertNull(

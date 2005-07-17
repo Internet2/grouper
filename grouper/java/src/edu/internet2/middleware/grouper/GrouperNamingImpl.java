@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.70 2005-07-17 16:56:23 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.71 2005-07-17 21:55:40 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -124,10 +124,8 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      //try {
-       if (this.has(s, ns, Grouper.PRIV_STEM)) {
-        // TODO Switch when I have canCREATE() and canSTEM() in place
-        //s.canWriteField(ns, (String) privMap.get(priv));
+      try {
+        s.canWriteField(ns, (String) privMap.get(priv));
         try {
           s.dbSess().txStart();
           // Go straight to the source in order to use the passed in
@@ -141,10 +139,9 @@ public class GrouperNamingImpl implements GrouperNaming {
             "Error granting privilege: " + e.getMessage()
           );
         }
-      }
-      //} catch (InsufficientPrivilegeException e) {
+      } catch (InsufficientPrivilegeException e) {
         // Ignore
-      //}
+      }
     } 
     Grouper.log().grant(rv, s, ns, m, priv);
     // TODO I should probably throw an exception if invalid priv
@@ -327,10 +324,8 @@ public class GrouperNamingImpl implements GrouperNaming {
     GrouperNamingImpl._init();
     boolean rv = false;
     if (this.can(priv) == true) {
-      //try {
-        // TODO Switch when I have canCREATE() and canSTEM() in place
-        if (this.has(s, ns, Grouper.PRIV_STEM)) {
-        //s.canWriteField(ns, (String) privMap.get(priv));
+      try {
+        s.canWriteField(ns, (String) privMap.get(priv));
         try {
           s.dbSess().txStart();
           // Go straight to the source in order to use the passed in
@@ -344,10 +339,9 @@ public class GrouperNamingImpl implements GrouperNaming {
             "Error revoking privilege: " + e.getMessage()
           );
         }
-      }
-      //} catch (InsufficientPrivilegeException e) {
+      } catch (InsufficientPrivilegeException e) {
         // Ignore
-      //}
+      }
     } 
     Grouper.log().revoke(rv, s, ns, m, priv);
     // TODO I should probably throw an exception if invalid priv
