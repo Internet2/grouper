@@ -107,7 +107,7 @@ public class TestAccessREAD extends TestCase {
   }
 
   public void testReadMembersAsRoot() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertTrue("g0", Constants.g0.listVals().size() > 0);
     Assert.assertTrue("g1", Constants.g1.listVals().size() > 0);
     Assert.assertTrue("g2", Constants.g2.listVals().size() > 0);
@@ -276,7 +276,7 @@ public class TestAccessREAD extends TestCase {
   }
 
   public void testReadGUIDAsNonRootAndNonEmptyREAD() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
     Assert.assertNotNull("ns0", ns);
     Assert.assertTrue("ns0 priv", !ns.id().equals(""));
@@ -299,7 +299,7 @@ public class TestAccessREAD extends TestCase {
   }
 
   public void testReadMembersAsNonRootAndEmptyREAD() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
 
     GrouperGroup g = Constants.loadGroup(nrs0, Constants.g0s, Constants.g0e);
     Assert.assertNotNull("g0", g);
@@ -311,7 +311,7 @@ public class TestAccessREAD extends TestCase {
   }
 
   public void testReadMembersAsNonRootAndNonEmptyREAD() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
 
     // Member
     Constants.grantPriv(
@@ -353,7 +353,7 @@ public class TestAccessREAD extends TestCase {
   }
 
   public void testReadDescriptionAsNonRootAndNonEmptyREAD() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     String attr = "description";
 
     GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);

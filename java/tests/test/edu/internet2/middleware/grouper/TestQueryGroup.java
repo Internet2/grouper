@@ -125,7 +125,7 @@ public class TestQueryGroup extends TestCase {
   }
 
   public void testQueryInvalidGroupMembers() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "group: nothing", q.group("this:base:does:not:exist")
@@ -145,7 +145,7 @@ public class TestQueryGroup extends TestCase {
   }
 
   public void testQueryValidGroupMembers() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "group: something", q.group("root")
@@ -166,7 +166,7 @@ public class TestQueryGroup extends TestCase {
   }
 
   public void testQueryValidGroupMembersFuzzy() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "group: something", q.group("roo")
@@ -187,7 +187,7 @@ public class TestQueryGroup extends TestCase {
   }
 
   public void testQueryValidGroupMembersDeeper() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "group: something", q.group("root:a stem")
@@ -208,7 +208,7 @@ public class TestQueryGroup extends TestCase {
   }
 
   public void testQueryValidGroupMembersEvenDeeper() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "group: something", q.group("root:a stem:another stem")

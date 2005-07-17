@@ -126,7 +126,7 @@ public class TestQueryNamespace extends TestCase {
   }
 
   public void testQueryInvalidNamespaceMembers() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "namespace: nothing", q.namespace("this:namespace:does:not:exist")
@@ -146,7 +146,7 @@ public class TestQueryNamespace extends TestCase {
   }
 
   public void testQueryValidNamespaceMembers() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "namespace: something", q.namespace("root")
@@ -168,7 +168,7 @@ public class TestQueryNamespace extends TestCase {
   }
 
   public void testQueryValidNamespaceMembersFuzzy() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "namespace: something", q.namespace("roo")
@@ -190,7 +190,7 @@ public class TestQueryNamespace extends TestCase {
   }
 
   public void testQueryValidNamespaceMembersDeeper() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "namespace: something", q.namespace("root:a stem")
@@ -211,7 +211,7 @@ public class TestQueryNamespace extends TestCase {
   }
 
   public void testQueryValidNamespaceMembersEvenDeeper() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "namespace: something", q.namespace("root:a stem:another stem")

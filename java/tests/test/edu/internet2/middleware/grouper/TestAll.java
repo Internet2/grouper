@@ -137,7 +137,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestAccessRevoke1.class);
     suite.addTestSuite(TestAccessVIEW.class);
     suite.addTestSuite(TestAccessREAD.class);
-    // FIXME suite.addTestSuite(TestAccessUPDATE.class);
+    // suite.addTestSuite(TestAccessUPDATE.class);
     // FIXME suite.addTestSuite(TestAccessADMIN.class);
     suite.addTestSuite(TestAccessOPTIN.class);
     suite.addTestSuite(TestAccessOPTOUT.class);

@@ -86,7 +86,7 @@ public class TestQueryCombination extends TestCase {
    */
 
   public void testQueryComboBaseAndNamespace() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     // base() filter
     Assert.assertTrue(

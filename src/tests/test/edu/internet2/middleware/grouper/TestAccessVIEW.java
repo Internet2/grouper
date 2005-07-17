@@ -78,7 +78,7 @@ public class TestAccessVIEW extends TestCase {
     nrs1 = Constants.createSession(Constants.mem1I, Constants.mem1T);
     Assert.assertNotNull("nrs1 !null", nrs1);
     Constants.createGroups(s);
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     q = new GrouperQuery(s);
     Assert.assertNotNull("q !null", q);
   }
@@ -242,7 +242,7 @@ public class TestAccessVIEW extends TestCase {
   }
 
   public void testViewDisplayExtensionAsNonRootAndNonEmptyVIEW() {
-    //Constants.createMembers(s);
+    //Constants.addMembers(s);
     String attr = "displayExtension";
 
     GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
@@ -293,7 +293,7 @@ public class TestAccessVIEW extends TestCase {
   }
 
   public void testViewExtensionAsNonRootAndNonEmptyVIEW() {
-    //Constants.createMembers(s);
+    //Constants.addMembers(s);
     String attr = "extension";
 
     GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
@@ -344,7 +344,7 @@ public class TestAccessVIEW extends TestCase {
   }
 
   public void testViewNameAsNonRootAndNonEmptyVIEW() {
-    //Constants.createMembers(s);
+    //Constants.addMembers(s);
     String attr = "name";
 
     GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);
@@ -395,7 +395,7 @@ public class TestAccessVIEW extends TestCase {
   }
 
   public void testViewStemAsNonRootAndNonEmptyVIEW() {
-    //Constants.createMembers(s);
+    //Constants.addMembers(s);
     String attr = "stem";
 
     GrouperStem ns = Constants.loadStem(nrs0, Constants.ns0s, Constants.ns0e);

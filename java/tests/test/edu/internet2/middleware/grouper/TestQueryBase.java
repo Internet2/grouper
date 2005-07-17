@@ -125,7 +125,7 @@ public class TestQueryBase extends TestCase {
   }
 
   public void testQueryInvalidBaseMembers() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "base: nothing", q.base("this:base:does:not:exist")
@@ -145,7 +145,7 @@ public class TestQueryBase extends TestCase {
   }
 
   public void testQueryValidBaseMembers() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "base: something", q.base("root")
@@ -166,7 +166,7 @@ public class TestQueryBase extends TestCase {
   }
 
   public void testQueryValidBaseMembersFuzzy() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "base: something", q.base("roo")
@@ -187,7 +187,7 @@ public class TestQueryBase extends TestCase {
   }
 
   public void testQueryValidBaseMembersDeeper() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "base: something", q.base("root:a stem")
@@ -208,7 +208,7 @@ public class TestQueryBase extends TestCase {
   }
 
   public void testQueryValidBaseMembersEvenDeeper() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "base: something", q.base("root:a stem:another stem")

@@ -86,7 +86,7 @@ public class TestQueryModifiedAfter extends TestCase {
    */
 
   public void testQueryModifiedAfterNow() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
       "modifiedAfter: nothing", q.modifiedAfter( new java.util.Date() )
@@ -106,7 +106,7 @@ public class TestQueryModifiedAfter extends TestCase {
   }
 
   public void testQueryModifiedAfterEpoch() {
-    Constants.createMembers(s);
+    Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
       "modifiedAfter: something", q.modifiedAfter( new java.util.Date(0) )
