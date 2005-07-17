@@ -128,7 +128,9 @@ public class TestAccessVIEW extends TestCase {
   }
 
   public void testViewAsNonRootWithExplicitViewersAndNoGrantedPriv() {
-    Constants.grantPriv(Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW);
+    Constants.grantPriv(
+      Constants.g0s, Constants.g0e, Constants.m0, Grouper.PRIV_VIEW
+    );
     GrouperGroup g = Constants.loadGroup(nrs1, Constants.g0s, Constants.g0e);
     Assert.assertNull("g0 null", g);
 
