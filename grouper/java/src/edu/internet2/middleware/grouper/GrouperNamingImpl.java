@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.67 2005-07-17 14:38:39 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.68 2005-07-17 14:45:31 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -369,19 +369,14 @@ public class GrouperNamingImpl implements GrouperNaming {
 
     if (this.can(priv) == true) {
       /*
-       * Verify (as root) that this subject has privileges to see this
-       * list.  One of the reasons why we need to do this is that an
-       * empty list could possibly be interpreted in two very different
-       * ways (no members | no privilege to see the members) until we
-       * add in the special _ALL_ subject and dispense with the fuzzy
-       * magic of empty lists for _VIEW_ and _READ_ privileges.
+       * Verify that this subject has privileges to see this ist.
+       * One of the reasons why we need to do this is that an empty
+       * list could possibly be interpreted in two very different
+       * ways (no members | no privilege to see the members) until
+       * we add in the special _ALL_ subject and dispense with the
+       * fuzzy magic of empty lists for _VIEW_ and _READ_ privileges.
        */
-      if (
-        this.has(
-          GrouperSession.getRootSession(), ns, s.getMember(), priv
-        )
-      )
-      {
+      if (this.has(s, ns, priv)) {
         // And now retrieve the appropriate list keys, instantiate
         // them, and convert into their member objects.
         Iterator iter = Group.listValsKeys(
