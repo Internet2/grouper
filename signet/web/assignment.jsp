@@ -1,6 +1,6 @@
 <!--
-  $Id: assignment.jsp,v 1.15 2005-07-15 23:36:28 jvine Exp $
-  $Date: 2005-07-15 23:36:28 $
+  $Id: assignment.jsp,v 1.16 2005-07-18 18:16:06 acohen Exp $
+  $Date: 2005-07-18 18:16:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -82,12 +82,12 @@
     
       <tr>
       	<td class="label">Type:</td>
-      	<td><%=currentFunction().getSubsystem().getName()%></td>
+      	<td><%=currentAssignment.getFunction().getSubsystem().getName()%></td>
      	</tr>
       <tr>
       	<td class="label">Privilege:</td>
-      	<td><p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
-      	    <p><%=currentFunction().getHelpText()%></p></td>
+      	<td><p><span class="category"><%=currentAssignment.getFunction().getCategory().getName()%></span> : <span class="function"><%=currentAssignment.getFunction().getName()%></span></p>
+      	    <p><%=currentAssignment.getFunction().getHelpText()%></p></td>
       </tr>
       <tr>
         <td class="label">

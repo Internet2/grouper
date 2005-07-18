@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.31 2005-07-15 22:31:34 acohen Exp $
-  $Date: 2005-07-15 22:31:34 $
+  $Id: personview.jsp,v 1.32 2005-07-18 18:16:06 acohen Exp $
+  $Date: 2005-07-18 18:16:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -324,15 +324,8 @@
                </td> <!-- scope -->
                
                <td> <!-- limits -->
-                 <a
-                   style="float: right;"
-                   href="Conditions.do?assignmentId=<%=assignment.getId()%>">
-                   <img
-                     src="images/arrow_right.gif"
-                       alt="" />
-                   edit
-                 </a>
-                <%=Common.displayLimitValues(assignment)%>
+                 <%=Common.editLink(loggedInPrivilegedSubject, assignment)%>
+                 <%=Common.displayLimitValues(assignment)%>
                </td> <!-- limits -->
                
                  <td>&nbsp;</td>

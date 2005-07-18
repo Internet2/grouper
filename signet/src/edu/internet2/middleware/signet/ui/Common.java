@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.15 2005-07-13 23:28:42 acohen Exp $
-  $Date: 2005-07-13 23:28:42 $
+  $Id: Common.java,v 1.16 2005-07-18 18:16:06 acohen Exp $
+  $Date: 2005-07-18 18:16:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -292,6 +292,27 @@ public class Common
     // If we've gotten this far, this Limit-value should not appear as
     // pre-selected.
     return false;
+  }
+  
+  public static String editLink
+    (PrivilegedSubject  editor,
+     Assignment         assignment)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    if (editor.canEdit(assignment))
+    {
+      outStr.append("<a\n");
+      outStr.append("  style=\"float: right;\"\n");
+      outStr.append("  href=\"Conditions.do?assignmentId=" + assignment.getId() + "\">\n");
+      outStr.append("  <img\n");
+      outStr.append("    src=\"images/arrow_right.gif\"\n");
+      outStr.append("      alt=\"\" />\n");
+      outStr.append("  edit\n");
+      outStr.append("</a>");
+    }
+    
+    return outStr.toString();
   }
   
   public static String revokeBox
