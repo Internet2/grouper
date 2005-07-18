@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.28 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.29 2005-07-18 17:48:49 blair Exp $
  */
 public class GrouperQuery {
 
@@ -72,12 +72,14 @@ public class GrouperQuery {
   private static final String KEY_BNS = "base";
   private static final String KEY_CA  = "createdAfter";
   private static final String KEY_CB  = "createdBefore";
+  private static final String KEY_GA  = "groupAttr";
   private static final String KEY_GN  = "group";
   private static final String KEY_GT  = "groupType";
   private static final String KEY_MT  = "membershipType";
   private static final String KEY_MA  = "modifiedAfter";
   private static final String KEY_MB  = "modifiedBefore";
-  private static final String KEY_NSN = "namespace";
+  private static final String KEY_SA  = "stemAttr";
+  private static final String KEY_SN  = "stem";
 
 
   /*
@@ -297,6 +299,27 @@ public class GrouperQuery {
   }
 
   /**
+   * Set "groupAttr" filter.
+   * <p/>
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (g.groupAttr("description", "this is a generic description")) {
+   *   List results = q.getGroups();
+   * }
+   * </pre>
+   * @param   attribute Name of attribute to query on.
+   * @param   value     Value of attribute to query on.
+   * @return  True if one or more matches found.
+   */
+  public boolean groupAttr(String attribute, String value) {
+    boolean rv    = false;
+    List    vals  = this._queryAttribute(attribute, value, GrouperGroup.class);
+    this.candidates.put(KEY_GA, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
    * Set "groupType" filter.
    * <p />
    * <pre>
@@ -400,22 +423,43 @@ public class GrouperQuery {
   }
 
   /**
-   * Set "namespace" filter.
+   * Set "stem" filter.
    * <p />
    * <pre>
    * GrouperQuery q = new GrouperQuery(s);
-   * if (q.namespace(name)) {
+   * if (q.stem(name)) {
    *   List results = q.getMembers();
    * }
    * </pre>
-   * @param   namespace Filter results by stems with matching name,
+   * @param   name  Filter results by stems with matching name,
    *   displayName or displayExtension attributes.
    * @return  True if one or more matches found.
    */
-  public boolean namespace(String name) {
+  public boolean stem(String name) {
     boolean rv    = false;
     List    vals  = this._queryName(name, GrouperStem.class);
-    this.candidates.put(KEY_NSN, vals);
+    this.candidates.put(KEY_SN, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
+   * Set "stemAttr" filter.
+   * <p/>
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (g.stemAttr("description", "this is a generic description")) {
+   *   List results = q.getStems();
+   * }
+   * </pre>
+   * @param   attribute Name of attribute to query on.
+   * @param   value     Value of attribute to query on.
+   * @return  True if one or more matches found.
+   */
+  public boolean stemAttr(String attribute, String value) {
+    boolean rv    = false;
+    List    vals  = this._queryAttribute(attribute, value, GrouperStem.class);
+    this.candidates.put(KEY_SA, vals);
     if (vals.size() > 0) { rv = true; }
     return rv;
   }
@@ -554,6 +598,41 @@ public class GrouperQuery {
       }
     }
     return new ArrayList(vals);
+  }
+
+  private List _queryAttribute(String name, String value, Class klass) {
+    String  qry   = "Group.as.key.by.attribute.fuzzy";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, name); // attribute
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(1, "%" + value + "%"); // value
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          try {
+            Group g = Group.loadByKey(this.s, key);
+            // TODO Why can't I query on the _classType_ field above?
+            if (g.getClass().equals(klass)) {
+              vals.add(g);
+            }
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
   }
 
   private List _queryBase(String namespace) {

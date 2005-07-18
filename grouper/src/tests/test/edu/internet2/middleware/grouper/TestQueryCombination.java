@@ -105,22 +105,22 @@ public class TestQueryCombination extends TestCase {
     Assert.assertTrue(
       "base: members=2", q.getMembers().size() == 2
     );
-    // namespace() filter
+    // stem() filter
     Assert.assertTrue(
-      "namespace: something", q.namespace("another")
+      "stem: something", q.stem("another")
     );
     Assert.assertTrue(
-      "namespace: stems=1", q.getStems().size() == 1
+      "stem: stems=1", q.getStems().size() == 1
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     // Admins && Stemmers
     Assert.assertTrue(
-      "namespace: listValues=1", q.getListValues().size() == 1
+      "stem: listValues=1", q.getListValues().size() == 1
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
