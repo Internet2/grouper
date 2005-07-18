@@ -63,16 +63,17 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.24 2005-07-15 17:19:10 blair Exp $
+ * @version $Id: GrouperField.java,v 1.25 2005-07-18 19:09:05 blair Exp $
  */
 public class GrouperField implements Comparable {
 
   /*
    * PRIVATE CLASS VARIABLES
    */
-  private static Log  log   = LogFactory.getLog(GrouperField.class);
-  private static List valL  = new ArrayList();
-  private static Map  valM  = new HashMap();
+  private static boolean  initialized = false;
+  private static Log      log         = LogFactory.getLog(GrouperField.class);
+  private static List     valL        = new ArrayList();
+  private static Map      valM        = new HashMap();
 
 
 
@@ -172,59 +173,68 @@ public class GrouperField implements Comparable {
    */
 
   /*
+   * Don't even get me started on the discrepancy between _all()_ and
+   * _field()_.
    * @return List of all group fields
    */
-  // TODO Make public and remove from G?
   protected static List all(DbSess dbSess) {
-    if ( (valL != null) && (valL.size() > 0) ) {
-      log.debug("Returning all cached fields");
-      return valL;
-    }
-    log.info("Building cached field list");
-    String  qry   = "GrouperField.all";
-    try {
-      Query q = dbSess.session().getNamedQuery(qry);
-      try {
-        valL = q.list();
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-          "Error retrieving results for " + qry + ": " + e.getMessage()
-        );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-        "Unable to get query " + qry + ": " + e.getMessage()
-      );
-    }
+    GrouperField.getFields(dbSess);
     log.debug("Returning all fields");
     return valL;
   }
 
   /*
+   * Don't even get me started on the discrepancy between _all()_ and
+   * _field()_.
    * @return {@link GrouperField} object
+   * TODO Make public?
    */
-  // TODO Make public?
   protected static GrouperField field(String field) {
-    if ( (valM != null) && (valM.size() > 0) ) {
-      if (valM.containsKey(field)) {
-        log.debug("Returning cached field " + field);
-        return (GrouperField) valM.get(field);
-      }
-    }
-    log.info("Building cached field map");
-    List      vals  = GrouperField.all(
-      GrouperSession.getRootSession().dbSess()
-    );
-    Iterator  iter  = vals.iterator();
-    while (iter.hasNext()) {
-      GrouperField f = (GrouperField) iter.next();
-      valM.put( f.field(), f );
+    if (initialized == false) {
+      GrouperField.getFields(GrouperSession.getRootSession().dbSess());
     }
     if (valM.containsKey(field)) {
       log.debug("Returning field " + field); 
       return (GrouperField) valM.get(field); 
     }
+    log.debug("Unknown field: " + field);
     throw new RuntimeException("Field '" + field + "' is unknown");
+  }
+
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Cache all group fields in List and Map stashes
+   */
+  private static void getFields(DbSess dbSess) {
+    if (initialized == false) {
+      log.info("Building cached field list");
+      String  qry   = "GrouperField.all";
+      try {
+        Query q = dbSess.session().getNamedQuery(qry);
+        try {
+          Iterator iter = q.list().iterator();
+          while (iter.hasNext()) {
+            GrouperField f = (GrouperField) iter.next();
+            valL.add(f);  // So I don't have to bother casting later
+            valM.put( f.field(), f );
+            log.info("Cached field " + f);
+          }
+        } catch (HibernateException e) {
+          throw new RuntimeException(
+            "Error retrieving results for " + qry + ": " + e.getMessage()
+          );
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Unable to get query " + qry + ": " + e.getMessage()
+        );
+      }
+      initialized = true;
+    }
   }
 
 
