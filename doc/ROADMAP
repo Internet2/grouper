@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.29 2005-07-18 15:36:43 blair Exp $
+$Id: ROADMAP,v 1.30 2005-07-18 17:48:49 blair Exp $
 
 ---
 
@@ -11,7 +11,6 @@ $Id: ROADMAP,v 1.29 2005-07-18 15:36:43 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Add _GrouperQuery.groupAttribute()_ filter
 * Test creating groups|stems whose parent(s) have a modified de|dn
 * Test VIEW with a via group that can't be seen
 
@@ -120,6 +119,7 @@ $Id: ROADMAP,v 1.29 2005-07-18 15:36:43 blair Exp $
 * Ability to rename groups (#262) 
 * Search by arbitrary attribute
 * Search limits
+
 
 
 

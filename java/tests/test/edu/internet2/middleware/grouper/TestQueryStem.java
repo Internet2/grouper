@@ -58,12 +58,12 @@ import  java.util.*;
 import  junit.framework.*;
 
 
-public class TestQueryNamespace extends TestCase {
+public class TestQueryStem extends TestCase {
 
   private GrouperSession  s;
   private GrouperQuery    q;
 
-  public TestQueryNamespace(String name) {
+  public TestQueryStem(String name) {
     super(name);
   }
 
@@ -85,149 +85,149 @@ public class TestQueryNamespace extends TestCase {
    * TESTS
    */
 
-  public void testQueryInvalidNamespaceNoMembers() {
+  public void testQueryInvalidStemNoMembers() {
     Assert.assertNotNull(q);
     Assert.assertFalse(
-      "namespace: nothing", q.namespace("this:namespace:does:not:exist")
+      "stem: nothing", q.stem("this:namespace:does:not:exist")
     );
     Assert.assertTrue(
-      "namespace: stems=0", q.getStems().size() == 0
+      "stem: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     Assert.assertTrue(
-      "namespace: listValues=0", q.getListValues().size() == 0
+      "stem: listValues=0", q.getListValues().size() == 0
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidNamespaceNoMembers() {
+  public void testQueryValidStemNoMembers() {
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "namespace: something", q.namespace("root")
+      "stem: something", q.stem("root")
     );
     // This catches _root_ as well
     Assert.assertTrue(
-      "namespace: stems=3", q.getStems().size() == 3
+      "stem: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     // Admins && Stemmers
     Assert.assertTrue(
-      "namespace: listValues=3", q.getListValues().size() == 3
+      "stem: listValues=3", q.getListValues().size() == 3
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryInvalidNamespaceMembers() {
+  public void testQueryInvalidStemMembers() {
     Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertFalse(
-      "namespace: nothing", q.namespace("this:namespace:does:not:exist")
+      "stem: nothing", q.stem("this:namespace:does:not:exist")
     );
     Assert.assertTrue(
-      "namespace: stems=0", q.getStems().size() == 0
+      "stem: stems=0", q.getStems().size() == 0
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     Assert.assertTrue(
-      "namespace: listValues=0", q.getListValues().size() == 0
+      "stem: listValues=0", q.getListValues().size() == 0
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidNamespaceMembers() {
+  public void testQueryValidStemMembers() {
     Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "namespace: something", q.namespace("root")
+      "stem: something", q.stem("root")
     );
     // This catches _root_ as well
     Assert.assertTrue(
-      "namespace: stems=3", q.getStems().size() == 3
+      "stem: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "namespace: listValues=3", q.getListValues().size() == 3
+      "stem: listValues=3", q.getListValues().size() == 3
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidNamespaceMembersFuzzy() {
+  public void testQueryValidStemMembersFuzzy() {
     Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "namespace: something", q.namespace("roo")
+      "stem: something", q.stem("roo")
     );
     // This catches _root_ as well
     Assert.assertTrue(
-      "namespace: stems=3", q.getStems().size() == 3
+      "stem: stems=3", q.getStems().size() == 3
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "namespace: listValues=3", q.getListValues().size() == 3
+      "stem: listValues=3", q.getListValues().size() == 3
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidNamespaceMembersDeeper() {
+  public void testQueryValidStemMembersDeeper() {
     Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "namespace: something", q.namespace("root:a stem")
+      "stem: something", q.stem("root:a stem")
     );
     Assert.assertTrue(
-      "namespace: stems=2", q.getStems().size() == 2
+      "stem: stems=2", q.getStems().size() == 2
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "namespace: listValues=2", q.getListValues().size() == 2
+      "stem: listValues=2", q.getListValues().size() == 2
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
-  public void testQueryValidNamespaceMembersEvenDeeper() {
+  public void testQueryValidStemMembersEvenDeeper() {
     Constants.addMembers(s);
     Assert.assertNotNull(q);
     Assert.assertTrue(
-      "namespace: something", q.namespace("root:a stem:another stem")
+      "stem: something", q.stem("root:a stem:another stem")
     );
     Assert.assertTrue(
-      "namespace: stems=1", q.getStems().size() == 1
+      "stem: stems=1", q.getStems().size() == 1
     );
     Assert.assertTrue(
-      "namespace: groups=0", q.getGroups().size() == 0
+      "stem: groups=0", q.getGroups().size() == 0
     );
     // Admins && Stemmers && Members
     Assert.assertTrue(
-      "namespace: listValues=1", q.getListValues().size() == 1
+      "stem: listValues=1", q.getListValues().size() == 1
     );
     Assert.assertTrue(
-      "namespace: members=0", q.getMembers().size() == 0
+      "stem: members=0", q.getMembers().size() == 0
     );
   }
 
