@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.30 2005-07-18 17:48:49 blair Exp $
+$Id: ROADMAP,v 1.31 2005-07-18 19:09:05 blair Exp $
 
 ---
 
@@ -15,9 +15,6 @@ $Id: ROADMAP,v 1.30 2005-07-18 17:48:49 blair Exp $
 * Test VIEW with a via group that can't be seen
 
 
-* Merge _GrouperField.all()_ and _GrouperField.field()_
-* Move _Grouper.fields()_ to _GrouperField.fields()_
-* Make _GrouperField.field()_ public
 * Split _getSubject()_ and _getSubjectByIdentifier()_ (#381)
 * Add group&scope and stem&scope to _GrouperQuery_ (#403)
 * Add _getName()_, _getStem()_, _getExtension(), _getDisplayName()_, 
