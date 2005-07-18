@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.28 2005-07-17 21:55:40 blair Exp $
+$Id: ROADMAP,v 1.29 2005-07-18 15:36:43 blair Exp $
 
 ---
 
@@ -32,6 +32,8 @@ $Id: ROADMAP,v 1.28 2005-07-17 21:55:40 blair Exp $
 * Document empty VIEW and READ behavior (#398)
 * Document that UPDATE implies OPTIN and OPTOUT
 * Document dE's default value and ongoing maintenance
+* Update (or purge (or migrate)) _docs/FAQ_
+* Review and document named queries
 
 
 * Switch to commons logging everywhere
@@ -118,5 +120,6 @@ $Id: ROADMAP,v 1.28 2005-07-17 21:55:40 blair Exp $
 * Ability to rename groups (#262) 
 * Search by arbitrary attribute
 * Search limits
+
 
 
