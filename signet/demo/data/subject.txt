@@ -4,9 +4,10 @@
 /
 /      source [source-name]
 /
-/ followed by one or more subject blocks
+/ It is currently ignored but will relate to loading multiple sources.
+/ It is followed by one or more subject blocks
 /   
-/ Start of subject block: +[subjectid] [subjectname]
+/ Start of subject block: +[subjecttype] [subjectid] [subjectname]
 /
 / Subsequent lines in each subject block consists of pairs of
 /
@@ -15,92 +16,95 @@
 / Note: "SignetSuperSubject" is a temporary highly-privileged
 /        user for bootstrapping privileges in the demo system
 /
-source person
-+K0000001 McRae, Lynn
+source demo
++person K0000001 McRae, Lynn
 description Chair, Signet Working Group
 loginid lmcrae
 all all
-+K0000002 Nguyen, Minh
++person K0000002 Nguyen, Minh
 description Signet Application Architect
 loginid mnguyen
 all all
-+K0000003 Cohen, Andy
++person K0000003 Cohen, Andy
 description Signet, Principal Developer
 loginid acohen
 all all
-+K0000004 Vine, Jennifer
++person K0000004 Vine, Jennifer
 description Signet, UI Design
 loginid jvine
 all all
-+K0000005 Morgan, R.L. 'Bob'
++person K0000005 Morgan, R.L. 'Bob'
 description Washington, Wise guy
 loginid morgan
 all all
-+K0000006 Barton, Tom
++person K0000006 Barton, Tom
 description Chicago, Grouper project
 loginid tbarton
 all all
-+K0000007 Hazelton, Keith
++person K0000007 Hazelton, Keith
 description Wisconson, MACE-DIR
 loginid hazelton
 all all
-+K0000008 Jones, Wendy
++person K0000008 Jones, Wendy
 description Stanford ITSS, Development Manager
 loginid wjones
 all all
-+K0000009 Cramer, Tom
-description Stanford ITSS, Applied Strategy
++person K0000009 Cramer, Tom
+description Stanford Libraries, Digital Services
 loginid tcramer
 all all
-+K0000010 Klemm, John Norman
++person K0000010 Klemm, John Norman
 description Stanford, KM Video Production
 loginid jklemm
 all all
-+K0000011 Katz, P. "Kitty"
++person K0000011 Katz, P. "Kitty"
 description Founder, KITN Cat Network
 loginid kkatz
 all all
-+K0000012 Henderson, Shelley
++person K0000012 Henderson, Shelley
 description USC Special Projects Development
 loginid shelley
 all all
-+K0000013 Arons, Tom
++person K0000013 Arons, Tom
 description UC Davis, Information and Educational Technology
 loginid tgarons
 all all
-+K0000014 Olshansky, Steve
++person K0000014 Olshansky, Steve
 description Internet2 Middleware Flywheel
 loginid steveo
 all all
-+K0000015 Wu, Albert
++person K0000015 Wu, Albert
 description UCLA, Technology Infrastructure Group
 loginid albertwu
 all all
-+K0000016 Frost, Renee
++person K0000016 Frost, Renee
 description Internet2, Middleware and Security
 loginid rwfrost
 all all
-+K0000017 Poole, Jean
++person K0000017 Poole, Jean
 description VO Principal Investigator
 loginid demo
 all all
-+K0000018 Rhys-Davies, John
++person K0000018 Rhys-Davies, John
 description Actor
 loginid jrdavis
 all all
-+K0000019 Cohen, Leonard Norman
++person K0000019 Cohen, Leonard Norman
 description Poet, Songwriter
 loginid lcohen
 all all
-+K0000020 Cohen, Herman
++person K0000020 Cohen, Herman
 description Producer, writer
 loginid hcohen
 all all
-+K0000021 Cohen, Myron
++person K0000021 Cohen, Myron
 description Comedian
 loginid mcohen
 all all
-+SignetSuperSubject Super-User, Signet
++person SignetSuperSubject Super-User, Signet
 description Signet Privilege Boostrap user
 loginid SignetSuperSubject
+all all
++group GangOfFour Gang of Four
+description Signet's Gang of Four
 all all
