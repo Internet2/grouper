@@ -110,9 +110,9 @@
 
   <query name="Group.as.key.by.attribute.fuzzy"><![CDATA[
     select distinct a.groupKey 
-      from GrouperAttribute a           where
-      a.groupField      =     ?         and
-      a.groupFieldValue like  lower(?)
+      from GrouperAttribute a                   where
+      a.groupField              =     ?         and
+      lower(a.groupFieldValue)  like  lower(?)
   ]]></query>
 
   <query name="Group.by.name.fuzzy"><![CDATA[
