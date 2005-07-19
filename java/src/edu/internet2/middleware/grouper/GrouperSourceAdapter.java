@@ -65,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.9 2005-07-13 19:41:17 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.10 2005-07-19 15:33:31 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -105,41 +105,65 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
 
   /**
-   * {@inheritDoc}
+   * Gets a {@link GrouperGroup} subject by its GUID.
+   * <p />
+   * <pre>
+   * try {
+   *   Subject subj = SubjectFactory.getSubject(guid, "group");
+   *   System.out.println("Found subject: " + subj);
+   * } catch (SubjectNotFoundException e) {
+   *   System.err.println("subject not found: " + e.getMessage());
+   * }
+   * </pre>
+   * @param   id  Group GUID
+   * @returns A {@link Subject}
+   * @throws  {@link SubjectNotFoundException}
    */
-  public Subject getSubject(String id) throws SubjectNotFoundException {
-    Subject subj = null;
-    // TODO Optimize further based upon presence of '-' and ':'?
+  public Subject getSubject(String id) 
+    throws SubjectNotFoundException 
+  {
     GrouperGroup g = GrouperGroup.loadByID(
       GrouperSession.getRootSession(), id
     );
-    if (g == null) { // TODO GroupNotFoundException
-      g = GrouperGroup.loadByName(
-        GrouperSession.getRootSession(), id
-      );
-        if (g != null) {
-          subj = new GrouperSubject(g, this);
-        }
-    } else {
-      subj = new GrouperSubject(g, this);
-    }        
-    if (subj == null) {
-      log.debug("Unable to find subject: " + id);
-      throw new SubjectNotFoundException("Unable to find subject: " + id);
+    if (g != null) { // TODO GroupNotFoundException
+      Subject subj = new GrouperSubject(g, this); 
+      log.debug("Found subject: " + id + ": " + subj);
+      return subj;
     }
-    log.debug("Found subject: " + id + ": " + subj);
-    return subj;
+    String msg = "Unable to find subject: " + id;
+    log.debug(msg);
+    throw new SubjectNotFoundException(msg);
   }
 
   /**
-   * This method is currently just an alias for 
-   * {@link #getSubject(String) getSubject} method.
+   * Gets a {@link GrouperGroup} subject by its name.
+   * <p />
+   * <pre>
+   * try {
+   *   Subject subj = SubjectFactory.getSubjectByIdentifier(name, "group");
+   *   System.out.println("Found subject: " + subj);
+   * } catch (SubjectNotFoundException e) {
+   *   System.err.println("subject not found: " + e.getMessage());
+   * }
+   * </pre>
+   * @param   name  Group name
+   * @returns A {@link Subject}
+   * @throws  {@link SubjectNotFoundException}
    */
-  public Subject getSubjectByIdentifier(String id) 
+  public Subject getSubjectByIdentifier(String name) 
     throws SubjectNotFoundException 
   {
-    // FIXME Move _loadByName_ from _getSubject()_ to here?
-    return this.getSubject(id);
+    GrouperGroup g = GrouperGroup.loadByName(
+      GrouperSession.getRootSession(), name
+    );
+    if (g != null) { // TODO GroupNotFoundException
+      Subject subj = new GrouperSubject(g, this); 
+      log.debug("Found subject: " + name + ": " + subj);
+      return subj;
+    }
+    String msg = "Unable to find subject: " + name;
+    log.debug(msg);
+    throw new SubjectNotFoundException(msg);
   }
 
   /** 

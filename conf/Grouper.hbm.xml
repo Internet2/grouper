@@ -226,24 +226,24 @@ TODO For some reason I'm not convinced this query is correct.
       Group g, GrouperAttribute a, GrouperSchema s where
         (
           (
-            a.groupField      =     'stem' and
-            a.groupFieldValue like  ?
+            a.groupField              =   'stem'              and
+            lower(a.groupFieldValue) like lower(?)
           ) or
           (
-            a.groupField      =     'extension' and
-            a.groupFieldValue like  ?
+            a.groupField              =   'extension'         and
+            lower(a.groupFieldValue) like lower(?)
           ) or
           (
-            a.groupField      =     'displayextension' and
-            a.groupFieldValue like  ?
+            a.groupField              =   'displayExtension'  and
+            lower(a.groupFieldValue) like lower(?)
           ) or
           (
-            a.groupField      =     'name' and
-            a.groupFieldValue like  ?
+            a.groupField              =   'name'              and
+            lower(a.groupFieldValue) like lower(?)
           ) or
           (
-            a.groupField      =     'displayname' and
-            a.groupFieldValue like  ?
+            a.groupField              =   'displayName'       and
+            lower(a.groupFieldValue) like lower(?)
           )
         ) 
         and
