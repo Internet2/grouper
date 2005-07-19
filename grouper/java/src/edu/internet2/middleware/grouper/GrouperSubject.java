@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.43 2005-06-22 21:33:42 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.44 2005-07-19 15:33:31 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -90,6 +90,7 @@ public class GrouperSubject implements Subject {
    */
   protected GrouperSubject(GrouperGroup g, GrouperSourceAdapter sa) {
     log.debug("Converting " + g + " to subject");
+    // TODO Is it a problem that g was loaded by root?
     this.g        = g;
     this.id       = g.id();
     this.name     = g.attribute("name").value();

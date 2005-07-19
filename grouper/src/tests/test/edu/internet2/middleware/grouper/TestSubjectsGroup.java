@@ -59,7 +59,7 @@ import  junit.framework.*;
 
 public class TestSubjectsGroup extends TestCase {
 
-  private static String gAid = null;
+  private static GrouperSession s     = null;
 
   public TestSubjectsGroup(String name) {
     super(name);
@@ -69,37 +69,23 @@ public class TestSubjectsGroup extends TestCase {
     DB db = new DB();
     db.emptyTables();
     db.stop();
-    createGroups();
+    s = Constants.createSession();
+    Assert.assertNotNull("s !null", s);
+    Constants.createGroups(s);
   }
 
   protected void tearDown () {
-    // Nothing -- Yet
+    s.stop();
   }
 
-  private static void createGroups() {
-    try {
-      Subject subj = SubjectFactory.getSubject(
-        Constants.rootI, Constants.rootT
-      );
-      GrouperSession s = GrouperSession.start(subj);
-      GrouperStem ns = GrouperStem.create(
-        s, Constants.ns0s, Constants.ns0e
-      );
-      GrouperGroup gA = GrouperGroup.create(
-        s, Constants.gAs, Constants.gAe
-      );
-      gAid = gA.id();
-      gA.attribute("description", "this is group a");
-      s.stop();
-    } catch (SubjectNotFoundException e) {
-      Assert.fail("unable to load subject");
-    }
-  }
 
   /*
    * TESTS
    */
-  
+
+  /*
+   * TODO I need to rework this entire set of tests
+   */  
 
   public void testSubjectInterfaceLookupFailureInvalidID() {
     String id   = "invalid id";
@@ -123,10 +109,12 @@ public class TestSubjectsGroup extends TestCase {
 
   public void testSubjectInterfaceLookupGroupAByID() {
     try {
-      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Subject subj = SubjectFactory.getSubject(
+        Constants.gA.id(), "group"
+      );
       Assert.assertTrue("loaded subject", true);
       Assert.assertNotNull(subj);
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("id", Constants.gA.id().equals(subj.getId()));
       Assert.assertTrue("type", subj.getType().getName().equals("group"));
       Assert.assertTrue("name", subj.getName().equals("root:group a"));
       // TODO Assert.assertTrue("description", subj.getDescription().equals(""));
@@ -137,7 +125,7 @@ public class TestSubjectsGroup extends TestCase {
 
   public void testSubjectInterfaceLookupGroupAByIDNoType() {
     try {
-      Subject subj = SubjectFactory.getSubject(gAid);
+      Subject subj = SubjectFactory.getSubject(Constants.gA.id());
       Assert.fail("loaded invalid subject");
     } catch (SubjectNotFoundException e) {
       Assert.assertTrue("failed to load invalid subject", true);
@@ -147,14 +135,23 @@ public class TestSubjectsGroup extends TestCase {
   public void testSubjectInterfaceLookupGroupAByName() {
     try {
       Subject subj = SubjectFactory.getSubject("root:group a", "group");
-      Assert.assertTrue("loaded subject", true);
+      Assert.fail("!unable to load by name");
+    } catch (SubjectNotFoundException e) {
+      Assert.assertTrue("unable to to load by name", true);
+    }
+  }
+
+  public void testSubjectInterfaceLookupGroupAByNameWithGSID() {
+    try {
+      Subject subj = SubjectFactory.getSubjectByIdentifier("root:group a", "group");
+      Assert.assertTrue("loaded by name", true);
       Assert.assertNotNull(subj);
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("id", Constants.gA.id().equals(subj.getId()));
       Assert.assertTrue("type", subj.getType().getName().equals("group"));
       Assert.assertTrue("name", subj.getName().equals("root:group a"));
       // TODO Assert.assertTrue("description", subj.getDescription().equals(""));
     } catch (SubjectNotFoundException e) {
-      Assert.fail("unable to load subject");
+      Assert.fail("!loaded by name: " + e.getMessage());
     }
   }
 
@@ -167,37 +164,30 @@ public class TestSubjectsGroup extends TestCase {
     }
   }
 
-  // By _stem_
-  // TODO Multiple returns
+  // By _stem_ - one
   public void testSubjectInterfaceSearchByStem() {
-    Set vals = SubjectFactory.search("root");
+    Set vals = SubjectFactory.search("root:a stem:another stem");
     Assert.assertTrue("vals.size()==1", vals.size() == 1);
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
-      Assert.assertTrue("type", subj.getType().getName().equals("group"));
-      Assert.assertTrue("name", subj.getName().equals("root:group a"));
-    }
+    // TODO Assert return vals
+  }
+
+  // By _stem_ - multiple
+  public void testSubjectInterfaceSearchByStemMultiple() {
+    Set vals = SubjectFactory.search("root");
+    Assert.assertTrue("vals.size()==7", vals.size() == 7);
+    // TODO Assert return vals
   }
 
   // By _stem_, partial
-  // TODO Multiple returns
   public void testSubjectInterfaceSearchByStemPartial() {
     Set vals = SubjectFactory.search("oo");
-    Assert.assertTrue("vals.size()==1", vals.size() == 1);
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
-      Assert.assertTrue("type", subj.getType().getName().equals("group"));
-      Assert.assertTrue("name", subj.getName().equals("root:group a"));
-    }
+    Assert.assertTrue("vals.size()==7", vals.size() == 7);
+    // TODO Assert return vals
   }
 
   // By _stem_, no results
   public void testSubjectInterfaceSearchByStemNil() {
-    Set vals = SubjectFactory.search("rOOt");
+    Set vals = SubjectFactory.search("r00t");
     Assert.assertTrue("vals.size()==0", vals.size() == 0);
   }
 
@@ -209,7 +199,7 @@ public class TestSubjectsGroup extends TestCase {
     Iterator iter = vals.iterator();
     while (iter.hasNext()) {
       Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("id", Constants.gA.id().equals(subj.getId()));
       Assert.assertTrue("type", subj.getType().getName().equals("group"));
       Assert.assertTrue("name", subj.getName().equals("root:group a"));
     }
@@ -219,48 +209,30 @@ public class TestSubjectsGroup extends TestCase {
   // TODO Multiple returns
   public void testSubjectInterfaceSearchByExtnPartial() {
     Set vals = SubjectFactory.search("a");
-    Assert.assertTrue("vals.size()==1", vals.size() == 1);
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
-      Assert.assertTrue("type", subj.getType().getName().equals("group"));
-      Assert.assertTrue("name", subj.getName().equals("root:group a"));
-    }
+    Assert.assertTrue("vals.size()==3", vals.size() == 3);
+    // TODO Assert vals
   }
 
-  // By _extension, no results
-  public void testSubjectInterfaceSearchByExtnNil() {
+  // By _extension, one result due to case insensitivity
+  public void testSubjectInterfaceSearchByExtnCaseInsensitive() {
     Set vals = SubjectFactory.search("group A");
-    Assert.assertTrue("vals.size()==0", vals.size() == 0);
+    Assert.assertTrue("vals.size()==1", vals.size() == 1);
   }
 
   // TODO By _displayExtension_
   // TODO Multiple returns
   public void testSubjectInterfaceSearchByDisplayExtn() {
-    Set vals = SubjectFactory.search("root");
+    Set vals = SubjectFactory.search("root group");
     Assert.assertTrue("vals.size()==1", vals.size() == 1);
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
-      Assert.assertTrue("type", subj.getType().getName().equals("group"));
-      Assert.assertTrue("name", subj.getName().equals("root:group a"));
-    }
+    // TODO Assert vals
   }
 
   // TODO By _displayExtension_, partial
   // TODO Multiple returns
   public void testSubjectInterfaceSearchByDisplayExtnPartial() {
-    Set vals = SubjectFactory.search("oo");
-    Assert.assertTrue("vals.size()==1", vals.size() == 1);
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
-      Assert.assertTrue("type", subj.getType().getName().equals("group"));
-      Assert.assertTrue("name", subj.getName().equals("root:group a"));
-    }
+    Set vals = SubjectFactory.search("a");
+    Assert.assertTrue("vals.size()==3", vals.size() == 3);
+    // TODO Assert vals
   }
 
   // TODO By _displayExtension_, no results
@@ -277,24 +249,17 @@ public class TestSubjectsGroup extends TestCase {
     Iterator iter = vals.iterator();
     while (iter.hasNext()) {
       Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
+      Assert.assertTrue("id", Constants.gA.id().equals(subj.getId()));
       Assert.assertTrue("type", subj.getType().getName().equals("group"));
       Assert.assertTrue("name", subj.getName().equals("root:group a"));
     }
   }
 
   // By _name_, partial
-  // TODO Multiple returns
   public void testSubjectInterfaceSearchByNamePartial() {
     Set vals = SubjectFactory.search("root:group");
-    Assert.assertTrue("vals.size()==1", vals.size() == 1);
-    Iterator iter = vals.iterator();
-    while (iter.hasNext()) {
-      Subject subj = (Subject) iter.next();
-      Assert.assertTrue("id", gAid.equals(subj.getId()));
-      Assert.assertTrue("type", subj.getType().getName().equals("group"));
-      Assert.assertTrue("name", subj.getName().equals("root:group a"));
-    }
+    Assert.assertTrue("vals.size()==4", vals.size() == 4);
+    // TODO Assert vals
   }
 
   // By _name_, no results
@@ -305,7 +270,9 @@ public class TestSubjectsGroup extends TestCase {
 
   public void testGetAttributes() {
     try {
-      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Subject subj = SubjectFactory.getSubject(
+        Constants.gA.id(), "group"
+      );
       Assert.assertTrue("loaded subject", true);
       Map attrs = subj.getAttributes();
       Assert.assertTrue("attrs=6", attrs.size() == 6);
@@ -354,7 +321,9 @@ public class TestSubjectsGroup extends TestCase {
 
   public void testGetAttributeValue() {
     try {
-      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Subject subj = SubjectFactory.getSubject(
+        Constants.gA.id(), "group"
+      );
       Assert.assertTrue("loaded subject", true);
       String attr = "description";
       String val  = "this is group a";
@@ -391,7 +360,9 @@ public class TestSubjectsGroup extends TestCase {
 
   public void testGetAttributeValues() {
     try {
-      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Subject subj = SubjectFactory.getSubject(
+        Constants.gA.id(), "group"
+      );
       Assert.assertTrue("loaded subject", true);
       String  attr = "description";
       Set     vals  = new HashSet();
@@ -434,7 +405,9 @@ public class TestSubjectsGroup extends TestCase {
 
   public void testGetDescription() {
     try {
-      Subject subj = SubjectFactory.getSubject(gAid, "group");
+      Subject subj = SubjectFactory.getSubject(
+        Constants.gA.id(), "group"
+      );
       Assert.assertTrue("loaded subject", true);
       Assert.assertNotNull("description", subj.getDescription());
       Assert.assertTrue(
