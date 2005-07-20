@@ -145,13 +145,17 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestQueryCreatedAfter.class);
     suite.addTestSuite(TestQueryCreatedBefore.class);
     suite.addTestSuite(TestQueryGroup.class);
+    suite.addTestSuite(TestQueryGroupBase.class);
     suite.addTestSuite(TestQueryGroupAttr.class);
+    suite.addTestSuite(TestQueryGroupAttrBase.class);
     suite.addTestSuite(TestQueryGroupType.class);
     suite.addTestSuite(TestQueryMembershipType.class);
     suite.addTestSuite(TestQueryModifiedAfter.class);
     suite.addTestSuite(TestQueryModifiedBefore.class);
     suite.addTestSuite(TestQueryStem.class);
+    suite.addTestSuite(TestQueryStemBase.class);
     suite.addTestSuite(TestQueryStemAttr.class);
+    suite.addTestSuite(TestQueryStemAttrBase.class);
     suite.addTestSuite(TestQueryCombination.class);
     // Bugs
     suite.addTestSuite(TestBug348.class);

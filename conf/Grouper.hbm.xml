@@ -108,30 +108,52 @@
         n.groupKey        = schema.groupKey
   ]]></query>
 
-  <query name="Group.as.key.by.attribute.fuzzy"><![CDATA[
-    select distinct a.groupKey 
-      from GrouperAttribute a                   where
-      a.groupField              =     ?         and
-      lower(a.groupFieldValue)  like  lower(?)
+  <!--
+    Find groups or stems with the matching attribute within the
+    given namespace
+  -->
+  <query name="Group.as.key.by.scope.and.attribute.fuzzy"><![CDATA[
+    select distinct g.groupKey
+      from GrouperAttribute s, GrouperAttribute g where
+      (
+        s.groupField              =     'stem'    and
+        s.groupFieldValue         like  ?
+      )
+      and
+      (
+        g.groupField              =     ?         and
+        lower(g.groupFieldValue)  like  lower(?)
+      )
+      and s.groupKey = g.groupKey
   ]]></query>
 
-  <query name="Group.by.name.fuzzy"><![CDATA[
-    select distinct a.groupKey 
-      from GrouperAttribute a where
+  <!--
+    Find groups or stems with the matching "name" within the given
+    namespace
+  -->
+  <query name="Group.as.key.by.scope.and.name.fuzzy"><![CDATA[
+    select distinct g.groupKey 
+      from GrouperAttribute s, GrouperAttribute g where
+      (
+        s.groupField                =     'stem'              and
+        s.groupFieldValue           like  ?
+      )
+      and 
       (
         (
-          a.groupField = 'name' and
-          lower(a.groupFieldValue) like lower(?)
+          g.groupField              =     'name'              and
+          lower(g.groupFieldValue)  like  lower(?)
         ) or
         (
-          a.groupField = 'displayName' and
-          lower(a.groupFieldValue) like lower(?)
+          g.groupField              =     'displayName'       and
+          lower(g.groupFieldValue)  like  lower(?)
         ) or
         (
-          a.groupField = 'displayExtension' and
-          lower(a.groupFieldValue) like lower(?)
+          g.groupField              =     'displayExtension'  and
+          lower(g.groupFieldValue)  like  lower(?)
         )
-      ) 
+      )
+      and s.groupKey = g.groupKey
   ]]></query>
 
   <query name="Group.key.by.stem.and.extn.and.type"><![CDATA[

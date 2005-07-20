@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.29 2005-07-18 17:48:49 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.30 2005-07-20 19:50:53 blair Exp $
  */
 public class GrouperQuery {
 
@@ -73,13 +73,17 @@ public class GrouperQuery {
   private static final String KEY_CA  = "createdAfter";
   private static final String KEY_CB  = "createdBefore";
   private static final String KEY_GA  = "groupAttr";
+  private static final String KEY_GAB = "groupAttrBase";
   private static final String KEY_GN  = "group";
+  private static final String KEY_GNB = "groupBase";
   private static final String KEY_GT  = "groupType";
   private static final String KEY_MT  = "membershipType";
   private static final String KEY_MA  = "modifiedAfter";
   private static final String KEY_MB  = "modifiedBefore";
   private static final String KEY_SA  = "stemAttr";
+  private static final String KEY_SAB = "stemAttrBase";
   private static final String KEY_SN  = "stem";
+  private static final String KEY_SNB = "stemBase";
 
 
   /*
@@ -286,14 +290,40 @@ public class GrouperQuery {
    *   List results = q.getMembers();
    * }
    * </pre>
-   * @param   namespace Filter results by groups with matching name,
+   * @param   name  Filter results by groups with matching name,
    *   displayName or displayExtension attributes.
    * @return  True if one or more matches found.
    */
   public boolean group(String name) {
     boolean rv    = false;
-    List    vals  = this._queryName(name, GrouperGroup.class);
+    List    vals  = this._queryScopedName(
+      Grouper.NS_ROOT, name, GrouperGroup.class
+    );
     this.candidates.put(KEY_GN, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
+   * Set "groupBase" filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.group(namespace, name)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   namespace Restrict results to within this namepace.
+   * @param   name      Filter results by groups with matching name,
+   *   displayName or displayExtension attributes.
+   * @return  True if one or more matches found.
+   */
+  public boolean group(String namespace, String name) {
+    boolean rv    = false;
+    List    vals  = this._queryScopedName(
+      namespace, name, GrouperGroup.class
+    );
+    this.candidates.put(KEY_GNB, vals);
     if (vals.size() > 0) { rv = true; }
     return rv;
   }
@@ -313,8 +343,43 @@ public class GrouperQuery {
    */
   public boolean groupAttr(String attribute, String value) {
     boolean rv    = false;
-    List    vals  = this._queryAttribute(attribute, value, GrouperGroup.class);
+    //List    vals  = this._queryAttribute(attribute, value, GrouperGroup.class);
+    List    vals  = this._queryScopedAttribute(
+      Grouper.NS_ROOT, attribute, value, GrouperGroup.class
+    );
     this.candidates.put(KEY_GA, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
+   * Set "groupAttrBase" filter.
+   * <p/>
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (
+   *   g.groupAttr(
+   *     namespace, "description", "this is a generic description"
+   *   )
+   * ) 
+   * {
+   *   List results = q.getGroups();
+   * }
+   * </pre>
+   * @param   namespace Restrict results to within this namepace.
+   * @param   attribute Name of attribute to query on.
+   * @param   value     Value of attribute to query on.
+   * @return  True if one or more matches found.
+   */
+  public boolean groupAttr(
+    String namespace, String attribute, String value
+  ) 
+  {
+    boolean rv    = false;
+    List    vals  = this._queryScopedAttribute(
+      namespace, attribute, value, GrouperGroup.class
+    );
+    this.candidates.put(KEY_GAB, vals);
     if (vals.size() > 0) { rv = true; }
     return rv;
   }
@@ -437,8 +502,34 @@ public class GrouperQuery {
    */
   public boolean stem(String name) {
     boolean rv    = false;
-    List    vals  = this._queryName(name, GrouperStem.class);
+    List    vals  = this._queryScopedName(
+      Grouper.NS_ROOT, name, GrouperStem.class
+    );
     this.candidates.put(KEY_SN, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
+   * Set "stemBase" filter.
+   * <p />
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (q.stem(namespace, name)) {
+   *   List results = q.getMembers();
+   * }
+   * </pre>
+   * @param   namespace Restrict results to within this namepace.
+   * @param   name      Filter results by stems with matching name,
+   *   displayName or displayExtension attributes.
+   * @return  True if one or more matches found.
+   */
+  public boolean stem(String namespace, String name) {
+    boolean rv    = false;
+    List    vals  = this._queryScopedName(
+      namespace, name, GrouperStem.class
+    );
+    this.candidates.put(KEY_SNB, vals);
     if (vals.size() > 0) { rv = true; }
     return rv;
   }
@@ -458,8 +549,42 @@ public class GrouperQuery {
    */
   public boolean stemAttr(String attribute, String value) {
     boolean rv    = false;
-    List    vals  = this._queryAttribute(attribute, value, GrouperStem.class);
+    List    vals  = this._queryScopedAttribute(
+      Grouper.NS_ROOT, attribute, value, GrouperStem.class
+    );
     this.candidates.put(KEY_SA, vals);
+    if (vals.size() > 0) { rv = true; }
+    return rv;
+  }
+
+  /**
+   * Set "stemAttr" filter.
+   * <p/>
+   * <pre>
+   * GrouperQuery q = new GrouperQuery(s);
+   * if (
+   *   g.stemAttr(
+   *     namespace, "description", "this is a generic description"
+   *   )
+   * ) 
+   * {
+   *   List results = q.getStems();
+   * }
+   * </pre>
+   * @param   namespace Restrict results to within this namepace.
+   * @param   attribute Name of attribute to query on.
+   * @param   value     Value of attribute to query on.
+   * @return  True if one or more matches found.
+   */
+  public boolean stemAttr(
+    String namespace, String attribute, String value
+  ) 
+  {
+    boolean rv    = false;
+    List    vals  = this._queryScopedAttribute(
+      namespace, attribute, value, GrouperStem.class
+    );
+    this.candidates.put(KEY_SAB, vals);
     if (vals.size() > 0) { rv = true; }
     return rv;
   }
@@ -598,41 +723,6 @@ public class GrouperQuery {
       }
     }
     return new ArrayList(vals);
-  }
-
-  private List _queryAttribute(String name, String value, Class klass) {
-    String  qry   = "Group.as.key.by.attribute.fuzzy";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, name); // attribute
-      // TODO Move _%_ to _Grouper.hbm.xml_
-      q.setString(1, "%" + value + "%"); // value
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          String key = (String) iter.next();
-          try {
-            Group g = Group.loadByKey(this.s, key);
-            // TODO Why can't I query on the _classType_ field above?
-            if (g.getClass().equals(klass)) {
-              vals.add(g);
-            }
-          } catch (InsufficientPrivilegeException e) {
-            // Ignore
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-          "Error retrieving results for " + qry + ": " + e.getMessage()
-        );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-        "Unable to get query " + qry + ": " + e.getMessage()
-      );
-    }
-    return vals;
   }
 
   private List _queryBase(String namespace) {
@@ -932,17 +1022,73 @@ public class GrouperQuery {
     return vals;
   }
 
-  private List _queryName(String name, Class klass) {
-    String  qry   = "Group.by.name.fuzzy";
+  /*
+   * Find groups or stems by attribute within an optional namespace
+   */
+  private List _queryScopedAttribute(
+    String namespace, String name, String value, Class klass
+  ) 
+  {
+    String  qry   = "Group.as.key.by.scope.and.attribute.fuzzy";
     List    vals  = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
+      // Set appropriate namespace condition
+      if (namespace.equals(Grouper.NS_ROOT)) {
+        q.setString(0, "%");              // namespace
+      } else {
+        q.setString(0, namespace + "%");  // namespace
+      }
+      q.setString(1, name); // attribute
       // TODO Move _%_ to _Grouper.hbm.xml_
-      q.setString(0, "%" + name + "%"); // name
+      q.setString(2, "%" + value + "%"); // value
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          String key = (String) iter.next();
+          try {
+            Group g = Group.loadByKey(this.s, key);
+            // TODO Why can't I query on the _classType_ field above?
+            if (g.getClass().equals(klass)) {
+              vals.add(g);
+            }
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  /*
+   * Find groups or stems by "name" within an optional namespace
+   */
+  private List _queryScopedName(String namespace, String name, Class klass) {
+    String  qry   = "Group.as.key.by.scope.and.name.fuzzy";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      // Set appropriate namespace condition
+      if (namespace.equals(Grouper.NS_ROOT)) {
+        q.setString(0, "%");              // namespace
+      } else {
+        q.setString(0, namespace + "%");  // namespace
+      }
       // TODO Move _%_ to _Grouper.hbm.xml_
-      q.setString(1, "%" + name + "%"); // displayName
+      q.setString(1, "%" + name + "%"); // name
       // TODO Move _%_ to _Grouper.hbm.xml_
-      q.setString(2, "%" + name + "%"); // displayExtension
+      q.setString(2, "%" + name + "%"); // displayName
+      // TODO Move _%_ to _Grouper.hbm.xml_
+      q.setString(3, "%" + name + "%"); // displayExtension
       try {
         Iterator iter = q.list().iterator();
         while (iter.hasNext()) {

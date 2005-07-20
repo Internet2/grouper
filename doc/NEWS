@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.69 2005-07-18 17:48:49 blair Exp $
+$Id: NEWS,v 1.70 2005-07-20 19:50:53 blair Exp $
 
 ---
 
@@ -15,9 +15,13 @@ $Id: NEWS,v 1.69 2005-07-18 17:48:49 blair Exp $
 * NEW: OPTOUT Access privilege (#344)
 * NEW: _GrouperQuery.base()_ filter method
 * NEW: _GrouperQuery.group()_ filter method
+* NEW: _GrouperQuery.group()_ scoped filter method (#403)
 * NEW: _GrouperQuery.groupAttr()_ filter method
+* NEW: _GrouperQuery.groupAttr()_ scoped filter method (#403)
 * NEW: _GrouperQuery.stem()_ filter method
+* NEW: _GrouperQuery.stem()_ scoped filter method (#403)
 * NEW: _GrouperQuery.stemAttr()_ filter method
+* NEW: _GrouperQuery.stemAttr()_ scoped filter method (#403)
 * NEW: _GrouperQuery.getGroups()_ method
 * NEW: _GrouperQuery.getListValues()_ method
 * NEW: _GrouperQuery.getMembers()_ method
