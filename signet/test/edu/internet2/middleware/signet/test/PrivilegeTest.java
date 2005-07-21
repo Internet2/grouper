@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeTest.java,v 1.3 2005-07-14 00:13:34 acohen Exp $
-$Date: 2005-07-14 00:13:34 $
+$Id: PrivilegeTest.java,v 1.4 2005-07-21 22:48:06 acohen Exp $
+$Date: 2005-07-21 22:48:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,7 +9,9 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.test;
 
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
@@ -227,6 +229,33 @@ public class PrivilegeTest extends TestCase
       }
     }
   }
+  
+  public final void testSorting()
+  throws ObjectNotFoundException
+  {
+    // Subject 0 has two Privileges, which are enough to do a little
+    // sort-testing.
+    Subject subject0
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
+    
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    Set privileges = pSubject0.getPrivileges();
+    
+    assertTrue
+      ("Subject 0 us expected to have more than one Privilege.",
+       privileges.size() > 1);
+    
+    SortedSet sortedPrivileges = new TreeSet(privileges);
+    
+    // Based on the sort algorithm, I'd expect the Privilege that's based
+    // on Permission 0 to be the first in the sorted set.
+    
+    Privilege firstPrivilege = (Privilege)(sortedPrivileges.first());
+    assertEquals
+      (firstPrivilege.getPermission().getId(),
+       fixtures.makePermissionId(0));
+  }
 
   public final void testGetPermission()
   throws
@@ -237,8 +266,9 @@ public class PrivilegeTest extends TestCase
          subjectIndex++)
     {
       Subject subject
-        = signet.getSubject(
-            Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       Set privileges = pSubject.getPrivileges();

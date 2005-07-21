@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeImpl.java,v 1.2 2005-07-14 00:13:34 acohen Exp $
-$Date: 2005-07-14 00:13:34 $
+$Id: PrivilegeImpl.java,v 1.3 2005-07-21 22:48:06 acohen Exp $
+$Date: 2005-07-21 22:48:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.collections.set.UnmodifiableSet;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -22,7 +23,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PrivilegeImpl implements Privilege
+public class PrivilegeImpl
+implements
+  Privilege,
+  Comparable
 {
   Permission permission;
   Set        limitValues;
@@ -140,5 +144,15 @@ public class PrivilegeImpl implements Privilege
       .append(this.permission)
       .append(this.limitValues)
       .toHashCode();
+  }
+  
+  public int compareTo(Object o)
+  {
+    PrivilegeImpl rhs = (PrivilegeImpl) o;
+    return new CompareToBuilder()
+      // .appendSuper(super.compareTo(o)
+      .append(this.permission, rhs.permission)
+      .append(this.limitValues, rhs.limitValues)
+      .toComparison();
   }
 }

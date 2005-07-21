@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.9 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: LimitValue.java,v 1.10 2005-07-21 22:48:06 acohen Exp $
+$Date: 2005-07-21 22:48:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,6 +11,7 @@ package edu.internet2.middleware.signet;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -141,45 +142,32 @@ implements Comparable
   {
     return "[" + this.limit + " : " + this.value + "]";
   }
-
-  /* (non-Javadoc)
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(Object o) {
-    LimitValue limitValue = (LimitValue)o;
+  
+  public int compareTo(Object o)
+  {
+    LimitValue rhs = (LimitValue) o;
+    Limit thisLimit = this.getLimit();
+    Limit rhsLimit = rhs.getLimit();
     
-    int comparison
-      = this.getLimit().getDisplayOrder()
-        - limitValue.getLimit().getDisplayOrder();
+    Choice thisChoice;
+    Choice rhsChoice;
     
-    if (comparison == 0)
+    try
     {
-      Choice choice0;
-      Choice choice1;
-      
-      try
-      {
-        choice0
-          = this
-              .getLimit()
-                .getChoiceSet()
-                  .getChoiceByValue
-                    (this.getValue());
-        choice1
-          = limitValue
-            .getLimit()
-              .getChoiceSet()
-                .getChoiceByValue
-                  (limitValue.getValue());
-      }
-      catch (ChoiceNotFoundException cnfe)
-      {
-        throw new SignetRuntimeException(cnfe);
-      }
-      
-      comparison = choice0.compareTo(choice1);
+      thisChoice
+        = thisLimit.getChoiceSet().getChoiceByValue(this.getValue());
+      rhsChoice
+        = rhsLimit.getChoiceSet().getChoiceByValue(rhs.getValue());
     }
-
-    return comparison;
+    catch (ChoiceNotFoundException cnfe)
+    {
+      throw new SignetRuntimeException(cnfe);
+    }
+    
+    return new CompareToBuilder()
+      // .appendSuper(super.compareTo(o)
+      .append(thisLimit, rhsLimit)
+      .append(thisChoice, rhsChoice)
+      .toComparison();
   }
 }
