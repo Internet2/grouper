@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.23 2005-07-15 23:36:32 jvine Exp $
-  $Date: 2005-07-15 23:36:32 $
+  $Id: conditions.jsp,v 1.24 2005-07-21 07:41:00 acohen Exp $
+  $Date: 2005-07-21 07:41:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -278,7 +278,7 @@
               	<tr>
               		<th class="label" scope="row">Function:</td>
               		<td><p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
-              		    <p><%=currentFunction().getHelpText()%></p></td>
+              		    <p><%=currentFunction.getHelpText()%></p></td>
            		  <% if (currentAssignment == null)
    {
 %>

@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.8 2005-07-14 00:13:34 acohen Exp $
- $Date: 2005-07-14 00:13:34 $
+ $Id: PermissionImpl.java,v 1.9 2005-07-21 07:40:59 acohen Exp $
+ $Date: 2005-07-21 07:40:59 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -30,6 +30,9 @@ class PermissionImpl
 extends EntityImpl
 implements Permission
 {
+  // This field is a simple synthetic key for this record in the database.
+  private Integer     key;
+
   private Subsystem	subsystem;
   private Set				functions;
   private Set				limits;
@@ -196,8 +199,7 @@ implements Permission
     
     PermissionImpl rhs = (PermissionImpl) obj;
     return new EqualsBuilder()
-      .append(this.getFunctions(), rhs.getFunctions())
-      .append(this.getLimits(), rhs.getLimits())
+      .append(this.getId(), rhs.getId())
       .isEquals();
   }
   
@@ -206,8 +208,23 @@ implements Permission
     // you pick a hard-coded, randomly chosen, non-zero, odd number
     // ideally different for each class
     return new HashCodeBuilder(17, 37)
-      .append(this.functions)
-      .append(this.limits)
+      .append(this.getId())
       .toHashCode();
+  }
+  
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private Integer getKey()
+  {
+    return this.key;
+  }
+
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private void setKey(Integer key)
+  {
+    this.key = key;
   }
 }

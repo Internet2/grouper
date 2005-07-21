@@ -7,12 +7,10 @@
 		table="signet_permission"
 		lazy="true">
 		
-		<meta attribute="class-description">
-			@author Andy Cohen
-		</meta>
-		<id name="id" type="string" column="permissionID">
-			<generator class="assigned"/>
+		<id name="key" type="int" column="permissionKey">
+			<generator class="native"/>
 		</id>
+		
 		<timestamp name="modifyDatetime"/>
 		
 		<set
@@ -22,7 +20,7 @@
 			cascade="save-update"
 			lazy="false">
 			
-			<key column="permissionID"/>
+			<key column="permissionKey"/>
 			
 			<many-to-many
 				class="edu.internet2.middleware.signet.FunctionImpl">
@@ -39,13 +37,11 @@
 			cascade="save-update"
 			lazy="false">
 			
-			<key column="permissionID"/>
+			<key column="permissionKey"/>
 			
 			<many-to-many
 				class="edu.internet2.middleware.signet.LimitImpl">
-			
-				<column name="limitID"/>
-				<column name="subsystemID"/>
+				<column name="limitKey"/>
 			</many-to-many>
 		</set>
 		
@@ -54,6 +50,10 @@
 			column="subsystemID"
 			class="edu.internet2.middleware.signet.SubsystemImpl"
 			not-null="true"/>
+		
+		<property
+			name="id"
+			column="permissionID"/>
 		
 		<property
 			name="status"

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.13 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: LimitImpl.java,v 1.14 2005-07-21 07:40:59 acohen Exp $
+$Date: 2005-07-21 07:40:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -25,6 +25,9 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 final class LimitImpl implements Limit
 {
+  // This field is a simple synthetic key for this record in the database.
+  private Integer     key;
+
   private Signet			signet;
   private Subsystem		subsystem;
   private String			subsystemId;
@@ -134,13 +137,19 @@ final class LimitImpl implements Limit
    * @see edu.internet2.middleware.signet.SubsystemPart#getSubsystem()
    */
   public Subsystem getSubsystem()
-  throws ObjectNotFoundException
   {
     if ((this.subsystem == null)
         && (this.subsystemId != null)
         && (this.getSignet() != null))
     {
-      this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
+      try
+      {
+        this.subsystem = this.getSignet().getSubsystem(this.subsystemId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
     }
     
     return this.subsystem;
@@ -172,17 +181,17 @@ final class LimitImpl implements Limit
   }
 
   public ChoiceSet getChoiceSet()
-  {
+  {    
     if ((this.choiceSet == null)
         && (this.choiceSetId != null)
         && (this.getSignet() != null))
     {
       try
       {
-      this.choiceSet
-      	= this.getSignet()
-      			.getSubsystem(this.subsystemId)
-      				.getChoiceSet(this.choiceSetId);
+        this.choiceSet
+          = this.getSignet()
+      			  .getSubsystem(this.subsystemId)
+      			    .getChoiceSet(this.choiceSetId);
       }
       catch (ObjectNotFoundException onfe)
       {
@@ -215,31 +224,6 @@ final class LimitImpl implements Limit
       	= this.getSignet()
       			.getSubsystem(this.subsystemId)
       				.getChoiceSet(choiceSetId);
-    }
-  }
-
-
-  /* This method exists only for use by Hibernate.
-   */
-  public LimitFullyQualifiedId getFullyQualifiedId()
-  {
-    return new LimitFullyQualifiedId
-    	(this.getSubsystemId(), this.getId());
-  }
-  
-  /*
-   * This method exists only for use by Hibernate.
-   */
-  void setFullyQualifiedId(LimitFullyQualifiedId lfqId)
-  throws ObjectNotFoundException
-  {
-    this.subsystemId = lfqId.getSubsystemId();
-    this.setId(lfqId.getLimitId());
-    
-    if (this.getSignet() != null)
-    {
-      this.subsystem
-      	= this.getSignet().getSubsystem(lfqId.getSubsystemId());
     }
   }
   
@@ -444,5 +428,21 @@ final class LimitImpl implements Limit
   {
     return
       (this.getDisplayOrder() - ((Limit)o).getDisplayOrder());
+  }
+  
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private Integer getKey()
+  {
+    return this.key;
+  }
+
+  /* This method is for use only by Hibernate.
+   * 
+   */
+  private void setKey(Integer key)
+  {
+    this.key = key;
   }
 }

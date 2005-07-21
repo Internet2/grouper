@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.29 2005-07-15 06:43:49 mnguyen Exp $
-$Date: 2005-07-15 06:43:49 $
+$Id: Signet.java,v 1.30 2005-07-21 07:40:59 acohen Exp $
+$Date: 2005-07-21 07:40:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,10 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -734,81 +738,6 @@ public final class Signet
    }
 
    return children;
- }
- 
- Set getLimitValues(Assignment assignment)
- {
-   Query query;
-   List resultList;
-   
-   // If this Assignment has not yet been persisted, then let's not waste time
-   // looking for it (or its LimitValues) in the database.
-   if (assignment.getId() == null)
-   {
-     // Just return an empty Set.
-     return new HashSet();
-   }
-
-   try
-   {
-     query
-      = session
-          .createQuery
-            ("from edu.internet2.middleware.signet.AssignmentLimitValue"
-              + " as assignmentLimitValue"
-              + " where assignmentID = :assignmentId");
-
-     Integer assignmentNumericId = assignment.getId();
-     int id = assignmentNumericId.intValue();
-     query.setInteger("assignmentId", id);
-
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
-
-   Set resultSet = new HashSet(resultList);
-   Set limitValues = new HashSet();
-
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     AssignmentLimitValue alv
-      = (AssignmentLimitValue) (resultSetIterator.next());
-     Limit limit = null;
-     
-     Query singleLimitQuery;
-     List singleLimitResultList;
-
-     try
-     {
-       singleLimitQuery = session
-           .createQuery("from edu.internet2.middleware.signet.LimitImpl"
-               + " as limit" + " where limitID = :id");
-
-       singleLimitQuery.setString("id", alv.getLimitId());
-
-       singleLimitResultList = singleLimitQuery.list();
-     }
-     catch (HibernateException e)
-     {
-       throw new SignetRuntimeException(e);
-     }
-
-     Set singleLimitResultSet = new HashSet(singleLimitResultList);
-
-     Iterator singleLimitResultSetIterator = singleLimitResultSet.iterator();
-     while (singleLimitResultSetIterator.hasNext())
-     {
-       limit = (Limit)(singleLimitResultSetIterator.next());
-     }
-     
-     limitValues.add(new LimitValue(limit, alv.getValue()));
-   }
-
-   return limitValues;
  }
 
  // I really want to do away with this method, having the PrivilegedSubject
@@ -1647,34 +1576,6 @@ public final class Signet
    subsystemImpl.setSignet(this);
    return subsystemImpl;
  }
-
- ///**
- // * Gets a single Function by ID.
- // *
- // * @param string
- // * @return
- // */
- //public Function getFunction(String id)
- //throws ObjectNotFoundException
- //{
- //  FunctionImpl function;
- //  
- //  try
- //  {
- //    function = (FunctionImpl)(session.load(FunctionImpl.class, id));
- //  }
- //  catch (net.sf.hibernate.ObjectNotFoundException onfe)
- //  {
- //    throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
- //  }
- //  catch (HibernateException he)
- //  {
- //    throw new SignetRuntimeException(he);
- //  }
- //  
- //  function.setSignet(this);
- //  return function;
- //}
 
  /**
   * Gets the Signet super-privileged Subject, creating it if it does not

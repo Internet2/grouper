@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.19 2005-07-12 23:13:26 acohen Exp $
- $Date: 2005-07-12 23:13:26 $
+ $Id: AssignmentImpl.java,v 1.20 2005-07-21 07:40:59 acohen Exp $
+ $Date: 2005-07-21 07:40:59 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -18,7 +18,6 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
@@ -27,6 +26,8 @@ class AssignmentImpl
 extends EntityImpl
 implements Assignment, Comparable
 {
+  static final int MIN_INSTANCE_NUMBER = 0;
+
   // AssignmentImpl is unusual among Signet entities in that it
   // has a numeric, not alphanumeric ID.
   private Integer						id;
@@ -49,9 +50,8 @@ implements Assignment, Comparable
   private Date              expirationDate      = null;
   private int               instanceNumber;
   
-  private boolean limitValuesAlreadyFetched = false;
-  boolean					hasUnsavedLimitValues = false;
   boolean         needsInitialHistoryRecord = false;
+
 
 
   
@@ -79,8 +79,6 @@ implements Assignment, Comparable
   	SignetAuthorityException
   {
     super(signet, null, null, Status.ACTIVE);
-    
-    this.hasUnsavedLimitValues = true;
     
     if (function == null)
     {
@@ -386,14 +384,7 @@ implements Assignment, Comparable
    */
   public String toString()
   {
-    return 
-    new 
-    ToStringBuilder(this)
-    .append("id", getId())
-    .append("status", getStatus())
-    .append("createDatetime", getCreateDatetime())
-    .append("modifyDatetime", getModifyDatetime())
-    .toString();
+    return "[id=" + getId() + ",instance=" + getInstanceNumber() + ",needsInitialHistoryRecord=" + needsInitialHistoryRecord() + "]";
   }
   /**
    * @return Returns the grantable.
@@ -583,20 +574,6 @@ implements Assignment, Comparable
    */
   public Set getLimitValues()
   {
-    Set unsavedLimitValues;
-    
-    if (limitValuesAlreadyFetched == false)
-    {
-      // Let's make sure we don't throw out any associated but not-yet-saved
-      // LimitValues.
-      unsavedLimitValues = this.limitValues;
-      this.limitValues = this.getSignet().getLimitValues(this);
-
-      limitValuesAlreadyFetched = true;
-
-      this.limitValues.addAll(unsavedLimitValues);
-    }
-    
     // Let's make sure all of these LimitValues have their Signet members
     // set.
     Iterator limitValuesIterator = this.limitValues.iterator();

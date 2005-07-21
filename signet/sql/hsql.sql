@@ -1,15 +1,5 @@
 -- This is the HSQL DDL for the Signet database
 --
--- Subsystem tables
-drop table signet_proxyType_function if exists;
-drop table signet_permission_limit if exists;
-drop table signet_function_permission if exists;
-drop table signet_category if exists;
-drop table signet_function if exists;
-drop table signet_permission if exists;
-drop table signet_proxyType if exists;
-drop table signet_limit if exists;
-drop table signet_subsystem if exists;
 -- Signet Subject tables
 drop table signet_privilegedSubject if exists;
 -- Tree tables
@@ -24,13 +14,23 @@ drop table signet_assignmentLimit if exists;
 drop table signet_assignment if exists;
 drop table signet_assignmentLimit_history if exists;
 drop table signet_assignment_history if exists;
+-- Subsystem tables
+drop table signet_proxyType_function if exists;
+drop table signet_permission_limit if exists;
+drop table signet_function_permission if exists;
+drop table signet_category if exists;
+drop table signet_function if exists;
+drop table signet_permission if exists;
+drop table signet_proxyType if exists;
+drop table signet_limit if exists;
+drop table signet_subsystem if exists;
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute if exists;
 drop table Subject if exists;
 drop table SubjectType if exists;
 --
 -- Subsystem tables
--- create table signet_subsystem
+create table signet_subsystem
 (
 subsystemID         varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -67,11 +67,13 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_permission
 (
+permissionKey		int                 NOT NULL IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (subsystemID, permissionID),
+primary key (permissionKey),
+unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
@@ -89,6 +91,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_limit
 (
+limitKey			int                 NOT NULL IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -101,7 +104,8 @@ valueType           varchar(32)         NOT NULL,
 displayOrder        smallint            NOT NULL,
 renderer            varchar(255)        NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (subsystemID, limitID),
+primary key (limitKey),
+unique (subsystemID, limitID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
@@ -109,21 +113,20 @@ create table signet_function_permission
 (
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-permissionID        varchar(64)         NOT NULL,
-primary key (subsystemID, functionID, permissionID),
+permissionKey       numeric(12,0)       NOT NULL,
+primary key (subsystemID, functionID, permissionKey),
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
-foreign key (subsystemID, permissionID) references signet_permission (subsystemID, permissionID)
+foreign key (permissionKey) references signet_permission (permissionKey)
 )
 ;
 create table signet_permission_limit
 (
-subsystemID         varchar(64)         NOT NULL,
-permissionID        varchar(64)         NOT NULL,
-limitID             varchar(64)         NOT NULL,
+permissionKey       numeric(12,0)       NOT NULL,
+limitKey            numeric(12,0)       NOT NULL,
 defaultLimitValueValue  varchar(64)     NULL,
-primary key (subsystemID, permissionID, limitID),
-foreign key (subsystemID, permissionID) references signet_permission (subsystemID, permissionID),
-foreign key (subsystemID, limitID) references signet_limit (subsystemID, limitID)
+primary key (permissionKey, limitKey),
+foreign key (permissionKey) references signet_permission (permissionKey),
+foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 create table signet_proxyType_function
@@ -234,13 +237,11 @@ primary key (assignmentID)
 create table signet_assignmentLimit
 (
 assignmentID        int                 NOT NULL,
-instanceNumber      int                 NOT NULL,
-limitSubsystemID    varchar(64)         NOT NULL,
-limitType           varchar(32)         NOT NULL,
-limitTypeID         varchar(64)         NOT NULL,
+limitKey    		int                 NOT NULL,
 value               varchar(32)         NOT NULL,
-primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
-foreign key (assignmentID) references signet_assignment (assignmentID)
+unique (assignmentID, limitKey, value),
+foreign key (assignmentID) references signet_assignment (assignmentID),
+foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 create table signet_assignment_history
@@ -298,7 +299,7 @@ create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
   name              varchar(120)    NOT NULL,
   adapterClass      varchar(255)    NOT NULL,
-  modifyDateTime    datetime        NOT NULL,
+  modifyDatetime    datetime        NOT NULL,
   primary key (subjectTypeID)
 )
 ;
@@ -308,7 +309,7 @@ create table Subject (
   name              varchar(120)    NOT NULL,
   description       varchar(255)    NOT NULL,
   displayId         varchar(64)     NOT NULL,
-  modifyDateTime    datetime        NOT NULL,
+  modifyDatetime    datetime        NOT NULL,
   primary key (subjectTypeID, subjectID)
 )
 ;
@@ -319,7 +320,7 @@ create table SubjectAttribute (
   instance          smallint        NOT NULL,
   value             varchar(255)    NOT NULL,
   searchValue       varchar(255)    NOT NULL,
-  modifyDateTime    datetime        NOT NULL,
+  modifyDatetime    datetime        NOT NULL,
   primary key (subjectTypeID, subjectID, name, instance),
   foreign key (subjectTypeID, subjectID)
     references Subject (subjectTypeID, subjectID)

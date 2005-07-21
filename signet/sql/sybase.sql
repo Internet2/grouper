@@ -3,16 +3,6 @@
 -- modified
 --    6/20/2005 - add assignment expirationDate
 --
--- Subsystem tables
-drop table signet_proxyType_function;
-drop table signet_permission_limit;
-drop table signet_function_permission;
-drop table signet_category;
-drop table signet_function;
-drop table signet_permission;
-drop table signet_proxyType;
-drop table signet_limit;
-drop table signet_subsystem;
 -- Signet Subject tables
 drop table signet_privilegedSubject;
 -- Tree tables
@@ -27,6 +17,16 @@ drop table signet_assignmentLimit;
 drop table signet_assignment;
 drop table signet_assignmentLimit_history;
 drop table signet_assignment_history;
+-- Subsystem tables
+drop table signet_proxyType_function;
+drop table signet_permission_limit;
+drop table signet_function_permission;
+drop table signet_category;
+drop table signet_function;
+drop table signet_permission;
+drop table signet_proxyType;
+drop table signet_limit;
+drop table signet_subsystem;
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute;
 drop table Subject;
@@ -70,11 +70,13 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_permission
 (
+permissionKey		numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
 modifyDatetime      smalldatetime       default getdate(),
-primary key (subsystemID, permissionID),
+primary key (permissionKey),
+unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
@@ -92,6 +94,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 ;
 create table signet_limit
 (
+limitKey			numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -104,7 +107,8 @@ valueType           varchar(32)         NOT NULL,
 displayOrder        smallint            NOT NULL,
 renderer            varchar(255)        NOT NULL,
 modifyDatetime      smalldatetime       default getdate(),
-primary key (subsystemID, limitID),
+primary key (limitKey),
+unique (subsystemID, limitID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
@@ -112,21 +116,20 @@ create table signet_function_permission
 (
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-permissionID        varchar(64)         NOT NULL,
-primary key (subsystemID, functionID, permissionID),
+permissionKey       numeric(12,0)       NOT NULL,
+primary key (subsystemID, functionID, permissionKey),
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
-foreign key (subsystemID, permissionID) references signet_permission (subsystemID, permissionID)
+foreign key (permissionKey) references signet_permission (permissionKey)
 )
 ;
 create table signet_permission_limit
 (
-subsystemID         varchar(64)         NOT NULL,
-permissionID        varchar(64)         NOT NULL,
-limitID             varchar(64)         NOT NULL,
+permissionKey       numeric(12,0)       NOT NULL,
+limitKey            numeric(12,0)       NOT NULL,
 defaultLimitValueValue  varchar(64)     NULL,
-primary key (subsystemID, permissionID, limitID),
-foreign key (subsystemID, permissionID) references signet_permission (subsystemID, permissionID),
-foreign key (subsystemID, limitID) references signet_limit (subsystemID, limitID)
+primary key (permissionKey, limitKey),
+foreign key (permissionKey) references signet_permission (permissionKey),
+foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 create table signet_proxyType_function
@@ -229,13 +232,11 @@ primary key (assignmentID)
 create table signet_assignmentLimit
 (
 assignmentID        numeric(12,0)       NOT NULL,
-instanceNumber      int                 NOT NULL,
-limitSubsystemID    varchar(64)         NOT NULL,
-limitType           varchar(32)         NOT NULL,
-limitTypeID         varchar(64)         NOT NULL,
+limitKey    		numeric(12,0)       NOT NULL,
 value               varchar(32)         NOT NULL,
-primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
-foreign key (assignmentID) references signet_assignment (assignmentID)
+unique (assignmentID, limitKey, value),
+foreign key (assignmentID) references signet_assignment (assignmentID),
+foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
 create table signet_assignment_history
@@ -306,7 +307,6 @@ description       varchar(255)    NOT NULL,
 displayID         varchar(64)     NOT NULL,
 modifyDatetime    smalldatetime   default getdate(),
 primary key (subjectTypeID, subjectID)
---foreign key (subjectTypeID) references SubjectType (subjectTypeID)
 )
 ;
 create table SubjectAttribute

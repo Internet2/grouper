@@ -5,17 +5,10 @@
 	<class
 		name="edu.internet2.middleware.signet.LimitImpl"
 		table="signet_limit">
-
-		<composite-id
-			name="fullyQualifiedId"
-			class="edu.internet2.middleware.signet.LimitFullyQualifiedId">
-			<key-property
-				name="limitId"
-				column="limitID" />
-			<key-property
-				name="subsystemId"
-				column="subsystemID" />
-		</composite-id>
+		
+		<id name="key" type="int" column="limitKey">
+			<generator class="native"/>
+		</id>
 
 		<timestamp name="modifyDatetime"/>
 		
@@ -25,13 +18,20 @@
 			cascade="save-update"
 			lazy="false">
 			<key>
-				 <column name="limitID"/>
-				 <column name="subsystemID"/>
+				 <column name="limitKey"/>
 			</key>
 			<many-to-many
 				class="edu.internet2.middleware.signet.PermissionImpl"
-				column="permissionID"/>
+				column="permissionKey"/>
 		</set>
+		
+		<property
+			name="id"
+			column="limitID"/>
+			
+		<property
+			name="subsystemId"
+			column="subsystemID"/>
 			
 		<property
 			name="status"

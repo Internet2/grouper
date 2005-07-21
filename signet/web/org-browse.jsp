@@ -1,6 +1,6 @@
 <!--
-  $Id: org-browse.jsp,v 1.15 2005-07-15 23:36:35 jvine Exp $
-  $Date: 2005-07-15 23:36:35 $
+  $Id: org-browse.jsp,v 1.16 2005-07-21 07:41:00 acohen Exp $
+  $Date: 2005-07-21 07:41:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -126,7 +126,7 @@
               		<th class="label" scope="row">Function:</td>
               		<td>
 						<p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
-						<p><%=currentFunction().getHelpText()%></p>
+						<p><%=currentFunction.getHelpText()%></p>
 					</td>
               		<td>
 										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" alt="" />change</a>

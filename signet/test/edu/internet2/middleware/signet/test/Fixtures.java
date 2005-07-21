@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.21 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: Fixtures.java,v 1.22 2005-07-21 07:40:59 acohen Exp $
+$Date: 2005-07-21 07:40:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -225,9 +225,13 @@ public class Fixtures
        + Constants.SUBSYSTEM_ID
        + "'");
     stmt.executeUpdate
-      ("DELETE FROM signet_assignmentLimit WHERE limitSubsystemID='"
+      ("DELETE FROM"
+       + "   signet_assignmentLimit"
+       + " WHERE"
+       + "   assignmentID IN"
+       + "    (SELECT assignmentID FROM signet_assignment WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
-       + "'");
+       + "')");
     stmt.executeUpdate
       ("DELETE FROM signet_assignment WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID

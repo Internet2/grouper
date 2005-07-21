@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.12 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: AssignmentTest.java,v 1.13 2005-07-21 07:40:59 acohen Exp $
+$Date: 2005-07-21 07:40:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -135,7 +135,12 @@ public class AssignmentTest extends TestCase
         // At this point, there should be no duplicate Assignments.
         assertEquals(0, assignmentReceived.findDuplicates().size());
         
-        // Let's make a duplicate.
+        // Let's make a duplicate. We need to copy the original Assignment's
+        // LimitValues to a new Set, because having two persistable entities
+        // pointing to the same persistable Set confuses our database
+        // persistence layer.
+        Set duplicateLimitValues = new HashSet();
+        duplicateLimitValues.addAll(assignmentReceived.getLimitValues());
         Assignment duplicateAssignment
           = assignmentReceived
               .getGrantor()
@@ -143,7 +148,7 @@ public class AssignmentTest extends TestCase
                   (assignmentReceived.getGrantee(),
                    assignmentReceived.getScope(),
                    assignmentReceived.getFunction(),
-                   assignmentReceived.getLimitValues(),
+                   duplicateLimitValues,
                    assignmentReceived.isGrantable(),
                    assignmentReceived.isGrantOnly(),
                    new Date(),  // EffectiveDate and expirationDate are not

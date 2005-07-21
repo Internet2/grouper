@@ -1,6 +1,6 @@
 /*--
-$Id: LimitRenderer.java,v 1.7 2005-06-28 19:41:57 acohen Exp $
-$Date: 2005-06-28 19:41:57 $
+$Id: LimitRenderer.java,v 1.8 2005-07-21 07:41:00 acohen Exp $
+$Date: 2005-07-21 07:41:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -116,21 +116,14 @@ public class LimitRenderer
   	 boolean 	isMultiSelect)
   throws SignetRuntimeException
   {
-    try
-    {
-      return
-      	(isMultiSelect
-      	    ? MULTISELECT_LIMIT_VALUE_PARAMETER_PREFIX
-      	    : SINGLESELECT_LIMIT_VALUE_PARAMETER_PREFIX)
-      	+ DELIMITER
-      	+ limit.getSubsystem().getId()
-      	+ DELIMITER
-      	+ limit.getId();
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      throw new SignetRuntimeException(onfe);
-    }
+    return
+      (isMultiSelect
+    	  ? MULTISELECT_LIMIT_VALUE_PARAMETER_PREFIX
+      	: SINGLESELECT_LIMIT_VALUE_PARAMETER_PREFIX)
+     	 + DELIMITER
+       + limit.getSubsystem().getId()
+       + DELIMITER
+       + limit.getId();
   }
   
   public static Limit getLimitByParamName

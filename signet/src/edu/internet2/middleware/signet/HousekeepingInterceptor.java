@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.12 2005-07-06 22:48:25 acohen Exp $
- $Date: 2005-07-06 22:48:25 $
+ $Id: HousekeepingInterceptor.java,v 1.13 2005-07-21 07:40:59 acohen Exp $
+ $Date: 2005-07-21 07:40:59 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -156,48 +156,6 @@ class HousekeepingInterceptor implements Interceptor, Serializable
     return tx;
   }
   
-  private void saveLimitValues
-    (Session        session,
-     AssignmentImpl assignmentImpl)
-  throws CallbackException
-  { 
-    Set limitValues = assignmentImpl.getLimitValues();
-    Iterator limitValuesIterator = limitValues.iterator();
-  
-    while (limitValuesIterator.hasNext())
-    {
-      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
-
-      try
-      {
-        /**
-         * Note that the AssignmentLimitValue constructor takes a
-         * Subsystem ID. That Subsystem ID is actually the ID of the
-         * Subsystem that's associated with this particlar Limit in case
-         * (someday in the future) that Limit comes from another
-         * Subsystem, or the shared "signet" subsystem.
-         * 
-         * For now, the subsystemID of the assignment can be safely
-         * placed there.
-         */
-        AssignmentLimitValue alv
-          = new AssignmentLimitValue
-              (assignmentImpl.getId().intValue(),
-               assignmentImpl.getFunction().getSubsystem().getId(),
-               limitValue.getLimit().getId(),
-               limitValue.getValue());
-
-        session.save(alv);
-      }
-      catch (Exception e)
-      {
-        throw new CallbackException(e);
-      }
-     
-      assignmentImpl.hasUnsavedLimitValues = false;
-    }
-  }
-  
   private void saveInitialHistoryRecord
     (Session        session,
      AssignmentImpl assignmentImpl)
@@ -222,7 +180,8 @@ class HousekeepingInterceptor implements Interceptor, Serializable
   /* (non-Javadoc)
    * @see net.sf.hibernate.Interceptor#postFlush(java.util.Iterator)
    */
-  public void postFlush(Iterator entities) throws CallbackException
+  public void postFlush(Iterator entities)
+  throws CallbackException
   {
     Session     tempSession;
     Transaction tx;
@@ -237,11 +196,6 @@ class HousekeepingInterceptor implements Interceptor, Serializable
 
         tempSession = this.sessionFactory.openSession(this.connection);
         tx = startXact(tempSession);
-        
-        if (assignment.hasUnsavedLimitValues)
-        {
-          saveLimitValues(tempSession, assignment);
-        }
 
         if (assignment.needsInitialHistoryRecord())
         {

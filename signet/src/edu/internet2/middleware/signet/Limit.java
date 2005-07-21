@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.11 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: Limit.java,v 1.12 2005-07-21 07:41:00 acohen Exp $
+$Date: 2005-07-21 07:41:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -33,7 +33,7 @@ extends Comparable
 	 * @return the associated Subsystem.
 	 * @throws ObjectNotFoundException
 	 */
-  public Subsystem getSubsystem() throws ObjectNotFoundException;
+  public Subsystem getSubsystem();
 	
 	/**
 	 * Get the ChoiceSet associated with this Limit.
