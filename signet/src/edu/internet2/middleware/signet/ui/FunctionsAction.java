@@ -1,6 +1,6 @@
 /*--
-  $Id: FunctionsAction.java,v 1.3 2005-07-01 23:06:52 acohen Exp $
-  $Date: 2005-07-01 23:06:52 $
+  $Id: FunctionsAction.java,v 1.4 2005-07-22 16:41:02 acohen Exp $
+  $Date: 2005-07-22 16:41:02 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -64,11 +64,11 @@ public final class FunctionsAction extends BaseAction
       return findFailure(mapping);
     }
         
-    // Find the Subsystem specified by the "select" parameter, and
+    // Find the Subsystem specified by the "grantableSubsystems" parameter, and
     // stash it in the Session.
     HttpSession session = request.getSession(); 
     Subsystem currentSubsystem =null;   
-    String currentSubsystemId = request.getParameter("select");
+    String currentSubsystemId = request.getParameter("grantableSubsystems");
     
     Signet signet = (Signet)(session.getAttribute("signet"));
       

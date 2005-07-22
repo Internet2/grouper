@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.33 2005-07-22 00:41:54 acohen Exp $
-  $Date: 2005-07-22 00:41:54 $
+  $Id: personview.jsp,v 1.34 2005-07-22 16:41:02 acohen Exp $
+  $Date: 2005-07-22 16:41:02 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -421,7 +421,7 @@
                 class="long" 
                 onChange="setStartButtonStatus()">
                 
-                <option value="">
+                <option value="prompt">
                   select privilege type
                 </option>
 
