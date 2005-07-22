@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.32 2005-07-18 18:16:06 acohen Exp $
-  $Date: 2005-07-18 18:16:06 $
+  $Id: personview.jsp,v 1.33 2005-07-22 00:41:54 acohen Exp $
+  $Date: 2005-07-22 00:41:54 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,8 +19,36 @@
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 </head>
 
-<body onload="javascript:initRevokeAllCheckbox();">
+<body onload="javascript:initControls();">
   <script type="text/javascript">
+    function initControls()
+    {
+      setStartButtonStatus();
+      initRevokeAllCheckbox();
+    }
+    
+    function setStartButtonStatus()
+    {
+      // The first entry in the list of grantable Subsystems is always
+      // a place-holder that reads "select privilege type", to prompt the
+      // user to go ahead and pick a Subsystem.
+      //
+      // As long as that first entry is selected, the "start" button, which
+      // initiates the privilege-granting process, should be dimmed.
+      
+      var theGrantableSubsystemList = document.grantForm.grantableSubsystems;
+      var theGrantButton = document.grantForm.grantButton;
+      
+      if (theGrantableSubsystemList.selectedIndex < 1)
+      {
+        theGrantButton.disabled = true;
+      }
+      else
+      {
+        theGrantButton.disabled = false;
+      }
+    }
+    
     function initRevokeAllCheckbox()
     {
       // If there are no revocable Assignments on this page, then it makes
@@ -385,10 +413,17 @@
           <h2>
             Grant to <%=currentGranteePrivilegedSubject.getName()%>
           </h2>
-          <form action="Functions.do">
+          <form name="grantForm" id="grantForm" action="Functions.do">
             <p>
-              <select id="select" name="select" class="long">
-							<option value="">select privilege type</option>
+              <select
+                id="grantableSubsystems"
+                name="grantableSubsystems"
+                class="long" 
+                onChange="setStartButtonStatus()">
+                
+                <option value="">
+                  select privilege type
+                </option>
 
 <%
     Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
@@ -396,9 +431,9 @@
     {
       Subsystem subsystem = (Subsystem)(grantableSubsystemsIterator.next());
 %>
-                  <option value="<%=subsystem.getId()%>">
-                    <%=subsystem.getName()%>
-                  </option>
+                <option value="<%=subsystem.getId()%>">
+                  <%=subsystem.getName()%>
+                </option>
 <%
     }
 %>
@@ -406,13 +441,14 @@
        
               <input
                   type="submit"
-                  name="Button"
+                  name="grantButton"
+                  id="grantButton"
                   class="button1"
                   <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
                   value="Start &gt;&gt;" />
                 <br />
             <label for="select">Select the type of privilege you want to grant, then click "Start."</label></p>
-          </form>
+          </form> <!-- grantForm -->
         </div> <!-- grant -->
           
 <%
