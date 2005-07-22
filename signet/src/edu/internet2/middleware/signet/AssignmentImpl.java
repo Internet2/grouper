@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.20 2005-07-21 07:40:59 acohen Exp $
- $Date: 2005-07-21 07:40:59 $
+ $Id: AssignmentImpl.java,v 1.21 2005-07-22 23:57:31 acohen Exp $
+ $Date: 2005-07-22 23:57:31 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -26,7 +26,7 @@ class AssignmentImpl
 extends EntityImpl
 implements Assignment, Comparable
 {
-  static final int MIN_INSTANCE_NUMBER = 0;
+  static final int MIN_INSTANCE_NUMBER = 1;
 
   // AssignmentImpl is unusual among Signet entities in that it
   // has a numeric, not alphanumeric ID.
@@ -47,8 +47,8 @@ implements Assignment, Comparable
   private boolean						grantable;
   private boolean						grantOnly;
   private Date							effectiveDate;
-  private Date              expirationDate      = null;
-  private int               instanceNumber;
+  private Date              expirationDate = null;
+  private int               instanceNumber = MIN_INSTANCE_NUMBER;
   
   boolean         needsInitialHistoryRecord = false;
 
