@@ -1,6 +1,6 @@
 <!--
-  $Id: personview-print.jsp,v 1.9 2005-06-02 06:26:04 jvine Exp $
-  $Date: 2005-06-02 06:26:04 $
+  $Id: personview-print.jsp,v 1.10 2005-07-22 23:21:01 acohen Exp $
+  $Date: 2005-07-22 23:21:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -68,7 +68,7 @@
       <div id="Layout"> 
       <a href="PersonView.do"><img src="images/arrow_left.gif" alt="" />return</a>
         <h1>
-          <%=currentSubsystem.getName()%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
+          <%=(currentSubsystem == null ? "" : currentSubsystem.getName())%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
         </h1>
           <%=currentGranteePrivilegedSubject.getDescription()%>
         
