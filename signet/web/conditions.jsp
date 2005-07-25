@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.24 2005-07-21 07:41:00 acohen Exp $
-  $Date: 2005-07-21 07:41:00 $
+  $Id: conditions.jsp,v 1.25 2005-07-25 22:49:43 jvine Exp $
+  $Date: 2005-07-25 22:49:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -268,7 +268,7 @@
 <% if (currentAssignment == null)
    {
 %>
-              		<td>
+              		<td style="white-space: nowrap;">
 														<a href="<%=personViewHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
 					</td>
 <%
@@ -282,7 +282,7 @@
            		  <% if (currentAssignment == null)
    {
 %>
-              		<td>
+              		<td style="white-space: nowrap;">
 										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" />change</a>
  				  	</td>
 <%
@@ -292,20 +292,18 @@
 			    <tr>
               		<th class="label" scope="row">Scope:</td>
               		<td>
-										<ul class="none">
 											<%=signet.displayAncestry
 													(currentScope,
-													 "<ul class=\"arrow\">\n",  // childSeparatorPrefix
-													 "\n<li>\n",                // levelPrefix
-													 "\n</li>\n",               // levelSuffix
-													 "\n</ul>")                 // childSeparatorSuffix
+													 "",  // childSeparatorPrefix
+													 " : ",                // levelPrefix
+													 "",               // levelSuffix
+													 "")                 // childSeparatorSuffix
 											 %>
-										</ul>									
 				  </td>
 <% if (currentAssignment == null)
    {
 %>
-              		<td>
+              		<td style="white-space: nowrap;">
 											<a href="<%=orgBrowseHref%>"><img src="images/arrow_left.gif" />change</a>
 				  </td>
 <%
