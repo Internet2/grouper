@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.30 2005-07-21 07:40:59 acohen Exp $
-$Date: 2005-07-21 07:40:59 $
+$Id: Signet.java,v 1.31 2005-07-25 17:16:15 acohen Exp $
+$Date: 2005-07-25 17:16:15 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -1559,6 +1559,18 @@ public final class Signet
  throws ObjectNotFoundException
  {
    SubsystemImpl subsystemImpl;
+   
+   if (id == null)
+   {
+     throw new IllegalArgumentException
+       ("Subsystem IDs must be non-null.");
+   }
+   
+   if (id.length() == 0)
+   {
+     throw new IllegalArgumentException
+       ("Zero-length Subsystem IDs are not allowed.");
+   }
 
    try
    {
@@ -1566,7 +1578,9 @@ public final class Signet
    }
    catch (net.sf.hibernate.ObjectNotFoundException onfe)
    {
-     throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+     throw new edu.internet2.middleware.signet.ObjectNotFoundException
+       ("Unable to retrieve Subsystem with ID '" + id + "'.",
+        onfe);
    }
    catch (HibernateException he)
    {

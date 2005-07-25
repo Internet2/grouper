@@ -113,7 +113,7 @@ create table signet_function_permission
 (
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-permissionKey       numeric(12,0)       NOT NULL,
+permissionKey       int                 NOT NULL,
 primary key (subsystemID, functionID, permissionKey),
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
 foreign key (permissionKey) references signet_permission (permissionKey)
@@ -121,8 +121,8 @@ foreign key (permissionKey) references signet_permission (permissionKey)
 ;
 create table signet_permission_limit
 (
-permissionKey       numeric(12,0)       NOT NULL,
-limitKey            numeric(12,0)       NOT NULL,
+permissionKey       int                 NOT NULL,
+limitKey            int                 NOT NULL,
 defaultLimitValueValue  varchar(64)     NULL,
 primary key (permissionKey, limitKey),
 foreign key (permissionKey) references signet_permission (permissionKey),

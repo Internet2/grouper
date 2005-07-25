@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.20 2005-07-13 20:20:13 jvine Exp $
-  $Date: 2005-07-13 20:20:13 $
+  $Id: confirm.jsp,v 1.21 2005-07-25 17:16:15 acohen Exp $
+  $Date: 2005-07-25 17:16:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -228,7 +228,7 @@
                </a>
              </p>
              <p>
-               <a href="Functions.do?select=<%=currentSubsystem.getId()%>">
+               <a href="Functions.do?grantableSubsystems=<%=currentSubsystem.getId()%>">
                  <img src="images/arrow_right.gif" alt="" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
                </a>
              </p>
