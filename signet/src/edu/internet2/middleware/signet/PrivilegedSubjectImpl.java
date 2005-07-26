@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.18 2005-07-08 02:07:38 acohen Exp $
- $Date: 2005-07-08 02:07:38 $
+ $Id: PrivilegedSubjectImpl.java,v 1.19 2005-07-26 18:00:48 acohen Exp $
+ $Date: 2005-07-26 18:00:48 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -680,15 +680,35 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.PrivilegedSubject#getSubjectId()
    */
-  public String getSubjectId() {
-  	return this.subject.getId();
+  public String getSubjectId()
+  {
+    String subjectId;
+    
+    if (this.subject == null)
+    {
+      subjectId = null;
+    }
+    else
+    {
+      subjectId = this.subject.getId();
+    }
+    
+  	return subjectId;
   }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.PrivilegedSubject#getSubjectTypeId()
    */
-  public String getSubjectTypeId() {
-  	return this.subject.getType().getName();
+  public String getSubjectTypeId()
+  {
+    if (this.subject == null)
+    {
+      return null;
+    }
+    else
+    {
+  	  return this.subject.getType().getName();
+    }
   }
   
   /* (non-Javadoc)

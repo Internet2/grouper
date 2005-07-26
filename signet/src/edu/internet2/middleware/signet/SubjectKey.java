@@ -1,6 +1,6 @@
 /*--
-$Id: SubjectKey.java,v 1.3 2005-06-01 06:13:08 mnguyen Exp $
-$Date: 2005-06-01 06:13:08 $
+$Id: SubjectKey.java,v 1.4 2005-07-26 18:00:48 acohen Exp $
+$Date: 2005-07-26 18:00:48 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -40,8 +40,16 @@ SubjectKey(String subjectId, SubjectType subjectType)
 
 SubjectKey(Subject subject)
 {
-  this.subjectId = subject.getId();
-  this.subjectType = subject.getType();
+  if (subject == null)
+  {
+    this.subjectId = null;
+    this.subjectType = null;
+  }
+  else
+  {
+    this.subjectId = subject.getId();
+    this.subjectType = subject.getType();
+  }
 }
 
 /**

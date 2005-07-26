@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.21 2005-07-22 23:57:31 acohen Exp $
- $Date: 2005-07-22 23:57:31 $
+ $Id: AssignmentImpl.java,v 1.22 2005-07-26 18:00:48 acohen Exp $
+ $Date: 2005-07-26 18:00:48 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -41,6 +41,9 @@ implements Assignment, Comparable
   private   String						granteeTypeId;
   
   private PrivilegedSubject revoker;
+  private String            revokerId;
+  private String            revokerTypeId;
+  
   private TreeNode					scope;
   private FunctionImpl			function;
   private Set								limitValues;
@@ -254,6 +257,30 @@ implements Assignment, Comparable
   {
     this.grantorTypeId = typeId;
   }
+
+  // This method is for use only by Hibernate.
+  private void setRevokerId(String id)
+  {
+    this.revokerId = id;
+  }
+
+  // This method is for use only by Hibernate.
+  private String getRevokerId()
+  {
+    return this.revokerId;
+  }
+
+  // This method is for use only by Hibernate.
+  private String getRevokerTypeId()
+  {
+    return this.revokerTypeId;
+  }
+
+  // This method is for use only by Hibernate.
+  private void setRevokerTypeId(String typeId)
+  {
+    this.revokerTypeId = typeId;
+  }
   
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getGrantor()
@@ -283,10 +310,23 @@ implements Assignment, Comparable
   
   public PrivilegedSubject getRevoker()
   {
-    if ((this.getSignet() != null) && (this.revoker != null))
+    if (this.revoker == null)
     {
-      ((PrivilegedSubjectImpl)(this.revoker))
-      	.setSignet(this.getSignet());
+      Subject subject;
+      
+      try
+      {
+        subject
+          = this.getSignet().getSubject
+              (this.revokerTypeId, this.revokerId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
+      
+      this.revoker
+      = new PrivilegedSubjectImpl(this.getSignet(), subject);
     }
     
     return this.revoker;
@@ -331,6 +371,8 @@ implements Assignment, Comparable
   void setRevoker(PrivilegedSubject revoker)
   {
     this.revoker = revoker;
+    this.revokerId = revoker.getSubjectId();
+    this.revokerTypeId = revoker.getSubjectTypeId();
   }
   
   /* (non-Javadoc)
@@ -744,8 +786,7 @@ implements Assignment, Comparable
       // flag that will cause us to construct and save that history-record
       // later, in the postFlush() method of the Hibernate Interceptor.
       this.needsInitialHistoryRecord(true);
+      this.getSignet().save(this);
     }
-    
-    this.getSignet().save(this);
   }
 }

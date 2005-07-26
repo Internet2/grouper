@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAction.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: RevokeAction.java,v 1.2 2005-07-26 18:00:48 acohen Exp $
+  $Date: 2005-07-26 18:00:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -93,6 +93,7 @@ public final class RevokeAction extends BaseAction
       Assignment assignment
       	= signet.getAssignment(Integer.parseInt(assignmentIDs[i]));
       assignment.revoke(loggedInPrivilegedSubject);
+      assignment.save();
     }
     
     signet.commit();

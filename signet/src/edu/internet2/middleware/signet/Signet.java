@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.31 2005-07-25 17:16:15 acohen Exp $
-$Date: 2005-07-25 17:16:15 $
+$Id: Signet.java,v 1.32 2005-07-26 18:00:48 acohen Exp $
+$Date: 2005-07-26 18:00:48 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -1177,7 +1177,7 @@ public final class Signet
   */
  public Set getPrivilegedSubjectsByDisplayId(String subjectTypeId, String displayId) {
    Set pSubjects = new HashSet();
-   for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+   for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); ) {
     try {
     	Subject result = ((Source)iter.next()).getSubjectByIdentifier(displayId);
     	PrivilegedSubject pSubject =
@@ -1621,30 +1621,46 @@ public final class Signet
    return superPSubject;
  }
 
- /**
-  * Gets a single Subject by type and ID.
-  * 
-  * @param subjectTypeId
-  * @param subjectId
-  * @return
-  * @throws ObjectNotFoundException
-  */
- public Subject getSubject(String subjectTypeId, String subjectId)
-     throws ObjectNotFoundException
- {
-   Subject subject = null;
-   for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
-    try {
-      subject = ((Source)iter.next()).getSubject(subjectId);
+  /**
+   * Gets a single Subject by type and ID.
+   * 
+   * @param subjectTypeId
+   * @param subjectId
+   * @return
+   * @throws ObjectNotFoundException
+   */
+  public Subject getSubject(String subjectTypeId, String subjectId)
+  throws ObjectNotFoundException
+  {
+    // Here's a special case: A null subjectTypeId and subjectId will yield
+    // a null Subject.
+    if ((subjectTypeId == null) && (subjectId == null))
+    {
+      return null;
     }
-    catch (SubjectNotFoundException snfe) {
-      // Don't do anything since we may find the subject
-      // in other sources.
+    
+    Subject subject = null;
+    for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); )
+    {
+      try
+      {
+        subject = ((Source)iter.next()).getSubject(subjectId);
+      }
+      catch (SubjectNotFoundException snfe)
+      {
+        // Don't do anything since we may find the subject
+        // in other sources.
+      }
     }
-   }
-  if (subject == null) {
-    throw new ObjectNotFoundException("Unable to find Subject by subject ID.");
-  }
+    if (subject == null)
+    {
+      throw new ObjectNotFoundException
+        ("Unable to find Subject by subject ID '"
+         + subjectId
+         + "' and subject type ID '"
+         + subjectTypeId
+         + "'.");
+    }
 
    return subject;
  }
@@ -1661,7 +1677,7 @@ public final class Signet
      throws ObjectNotFoundException
  {
    Subject subject = null;
-   for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+   for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); ) {
    	try {
     	subject = ((Source)iter.next()).getSubjectByIdentifier(displayId);
     }
@@ -1706,7 +1722,7 @@ public final class Signet
  public Set findPrivilegedSubjects(String subjectTypeId, String searchValue)
  {
   Set pSubjects = new HashSet();
-   for (Iterator iter = getSource(subjectTypeId).iterator(); iter.hasNext(); ) {
+   for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); ) {
     Set result = ((Source)iter.next()).search(searchValue);
     for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
       PrivilegedSubject pSubject =
@@ -1990,9 +2006,18 @@ public final class Signet
   * Returns Source adapters which supports the argument SubjectType.
   * @return Collection of Source adapters
   */
- public Collection getSource(String subjectTypeId)
+ public Collection getSources(String subjectTypeId)
  {
   SubjectType type = SubjectTypeEnum.valueOf(subjectTypeId);
-  return this.sourceManager.getSources(type);
+  Collection sources = this.sourceManager.getSources(type);
+  
+  // Sometimes, SourceManaget.getSources() returns null. We want to avoid
+  // doing that.
+  if (sources == null)
+  {
+    sources = new HashSet();
+  }
+  
+  return sources;
  }
 }

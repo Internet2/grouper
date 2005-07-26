@@ -37,10 +37,16 @@
 			name="grantorId" column="grantorID"/>
 		<property
 			name="grantorTypeId" column="grantorTypeID"/>
+			
 		<property
 			name="granteeId" column="granteeID" />
 		<property
 			name="granteeTypeId" column="granteeTypeID" />
+			
+		<property
+			name="revokerId" column="revokerID" />
+		<property
+			name="revokerTypeId" column="revokerTypeID" />
 		
 		<many-to-one
 			name="function"

@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAndGrantAction.java,v 1.1 2005-07-12 23:13:26 acohen Exp $
-  $Date: 2005-07-12 23:13:26 $
+  $Id: RevokeAndGrantAction.java,v 1.2 2005-07-26 18:00:47 acohen Exp $
+  $Date: 2005-07-26 18:00:47 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -95,6 +95,7 @@ public final class RevokeAndGrantAction extends BaseAction
       Assignment assignmentToRevoke
       	= signet.getAssignment(Integer.parseInt(assignmentIDs[i]));
       assignmentToRevoke.revoke(loggedInPrivilegedSubject);
+      assignmentToRevoke.save();
     }
     
     // Now, save the not-yet-persisted Assignment.
