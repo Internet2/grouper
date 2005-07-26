@@ -1,6 +1,6 @@
 <!--
-  $Id: confirm.jsp,v 1.22 2005-07-25 22:49:47 jvine Exp $
-  $Date: 2005-07-25 22:49:47 $
+  $Id: confirm.jsp,v 1.23 2005-07-26 23:24:15 acohen Exp $
+  $Date: 2005-07-26 23:24:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -90,12 +90,6 @@
      = "Functions.do?select="
        + currentSubsystem.getId();
 %>
-
-    <form
-      name="form1"
-      method="post"
-      action="" 
-      onsubmit ="return checkForCursorInPersonSearch()">
     
       <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Navbar">
@@ -138,7 +132,7 @@
               		<td><%=currentSubsystem.getName()%></td>
              		</tr>								
               	<tr>
-              		<th class="label" scope="row">Function:</td>
+              		<th class="label" scope="row">Privilege:</td>
               		<td class="invis"><p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
               		  	<p><%=currentAssignment.getFunction().getHelpText()%></p></td>
               	</tr>
@@ -147,10 +141,10 @@
               		<td>
               <%=signet.displayAncestry
                     (currentScope,
-                     "",  // childSeparatorPrefix
-                     " : ",                // levelPrefix
-                     "",               // levelSuffix
-                     "")                 // childSeparatorSuffix
+                     " : ",  // childSeparatorPrefix
+                     "",     // levelPrefix
+                     "",     // levelSuffix
+                     "")     // childSeparatorSuffix
                  %>
 								</td>
 
@@ -233,7 +227,13 @@
 
         </div> <!-- Content -->    
          <div id="Sidebar">
-          <div class="findperson">
+
+    <form
+      name="personSearchForm"
+      method="post"
+      action="" 
+      onsubmit ="return checkForCursorInPersonSearch()">
+        <div class="findperson">
             <h2>
               Find a subject </h2>
             <p>
@@ -249,9 +249,8 @@
                 onblur="personSearchFieldHasFocus=false;" />
               <input
                 name="searchbutton"
-                type="button"
+                type="submit"
                 class="button1"
-                onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
                 value="Search"
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />
@@ -263,6 +262,7 @@
             <div id="PersonSearchResults" style="display:none">
             </div> <!-- PersonSearchResults -->
           </div> <!-- findperson -->
+    </form> <!-- personSearchForm -->  
 
           <div class="views">
             <h2>
@@ -289,6 +289,5 @@
          </div> <!-- Sidebar -->
          <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->
-    </form>
   </body>
 </html>

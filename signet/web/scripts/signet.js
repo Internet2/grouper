@@ -45,20 +45,21 @@ function checkForCursorInPersonSearch()
     loadXMLDoc
       ('personQuickSearch.jsp?searchString='
        + document.getElementById('words').value);
-    return false;
   }
-  else
-  {
-    // Let the form-submission proceed.
-    return true;
-  }
+  
+  // Don't allow the form-submission, this form exists only for the Ajax work
+  // above.
+  return false;
 }
 
-// Returns true if the text-cursor is in the person-search field, and false
-// otherwise.
+// Returns true if the text-cursor is in the person-search field (and there's
+// something in that field to search for), and false otherwise.
 function cursorInPersonSearch()
 {
-  return (personSearchFieldHasFocus || personSearchButtonHasFocus);
+  returnVal = (personSearchFieldHasFocus || personSearchButtonHasFocus)
+           && (document.personSearchForm.words.value.length > 0);
+
+  return (returnVal);
 }
 
 var requestObject;

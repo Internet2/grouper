@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.34 2005-07-22 16:41:02 acohen Exp $
-  $Date: 2005-07-22 16:41:02 $
+  $Id: personview.jsp,v 1.35 2005-07-26 23:24:15 acohen Exp $
+  $Date: 2005-07-26 23:24:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -476,9 +476,8 @@
                 onblur="personSearchFieldHasFocus=false;" />
               <input
                 name="searchbutton"
-                type="button"
+                type="submit"
                 class="button1"
-                onclick="javascript:loadXMLDoc('personQuickSearch.jsp?searchString=' + document.getElementById('words').value);"
                 value="Search"
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />

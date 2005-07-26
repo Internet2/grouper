@@ -1,6 +1,6 @@
 <!--
-  $Id: conditions.jsp,v 1.25 2005-07-25 22:49:43 jvine Exp $
-  $Date: 2005-07-25 22:49:43 $
+  $Id: conditions.jsp,v 1.26 2005-07-26 23:24:15 acohen Exp $
+  $Date: 2005-07-26 23:24:15 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -276,7 +276,7 @@
 %>									
          		</tr>								
               	<tr>
-              		<th class="label" scope="row">Function:</td>
+              		<th class="label" scope="row">Privilege:</td>
               		<td><p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
               		    <p><%=currentFunction.getHelpText()%></p></td>
            		  <% if (currentAssignment == null)
@@ -294,8 +294,8 @@
               		<td>
 											<%=signet.displayAncestry
 													(currentScope,
-													 "",  // childSeparatorPrefix
-													 " : ",                // levelPrefix
+													 " : ",  // childSeparatorPrefix
+													 "",                // levelPrefix
 													 "",               // levelSuffix
 													 "")                 // childSeparatorSuffix
 											 %>
