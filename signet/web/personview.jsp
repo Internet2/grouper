@@ -1,6 +1,6 @@
 <!--
-  $Id: personview.jsp,v 1.35 2005-07-26 23:24:15 acohen Exp $
-  $Date: 2005-07-26 23:24:15 $
+  $Id: personview.jsp,v 1.36 2005-07-27 17:09:32 acohen Exp $
+  $Date: 2005-07-27 17:09:32 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -479,6 +479,7 @@
                 type="submit"
                 class="button1"
                 value="Search"
+                onclick="personSearchButtonHasFocus=true;"
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />
             <br />
