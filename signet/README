@@ -22,8 +22,9 @@ Quick Start
 (3) Point the web application context to the webapp/signet directory in this
     distribution.
 
-(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib and
-    util/lib.
+(4) If you are using some database other than the default HSQL database supplied
+    with this Signet distribution, copy your JDBC driver to two directories:
+    webapp/signet/WEB-INF/lib and util/lib.
 
 (5) Configure your database connection in two places:
     webapp/signet/WEB-INF/classes/hibernate.cfg.xml and
