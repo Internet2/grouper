@@ -1,6 +1,6 @@
 /*--
-  $Id: FunctionsAction.java,v 1.4 2005-07-22 16:41:02 acohen Exp $
-  $Date: 2005-07-22 16:41:02 $
+  $Id: FunctionsAction.java,v 1.5 2005-07-27 15:03:14 acohen Exp $
+  $Date: 2005-07-27 15:03:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -63,22 +63,41 @@ public final class FunctionsAction extends BaseAction
       request.setAttribute(Constants.ERROR_KEY,messages);
       return findFailure(mapping);
     }
-        
-    // Find the Subsystem specified by the "grantableSubsystems" parameter, and
-    // stash it in the Session.
-    HttpSession session = request.getSession(); 
-    Subsystem currentSubsystem =null;   
-    String currentSubsystemId = request.getParameter("grantableSubsystems");
     
+    // First, check to see if we have a Signet instance or not. If we don't,
+    // we'll need to redirect this session to the Signet start page.
+    HttpSession session = request.getSession(); 
     Signet signet = (Signet)(session.getAttribute("signet"));
-      
+    
     if (signet == null)
     {
       return (mapping.findForward("notInitialized"));
     }
+    
+    // There are two ways we could have gotten to this action servlet: From the
+    // "choose Subsystem" page (in which case we should now have an HTTP
+    // parameter which describes the Subsystem of interest), or via some "go
+    // back and change your Function selection" link (in which case we should
+    // now have a Subsystem stored as an HTTP Session parameter).
+    
+    Subsystem currentSubsystem
+      = (Subsystem)(session.getAttribute("currentSubsystem"));
+    if (currentSubsystem == null)
+    {        
+      // Find the Subsystem specified by the "grantableSubsystems" parameter,
+      // and stash it in the Session.
+      String currentSubsystemId = request.getParameter("grantableSubsystems");
       
-    currentSubsystem = signet.getSubsystem(currentSubsystemId);
-    session.setAttribute("currentSubsystem", currentSubsystem);
+      if (currentSubsystemId == null)
+      {
+        // We don't have a Subsystem either via a Session attribute or via an
+        // HTTP parameter. Let's send this user back to square one.
+        return (mapping.findForward("notInitialized"));
+      }
+      
+      currentSubsystem = signet.getSubsystem(currentSubsystemId);
+      session.setAttribute("currentSubsystem", currentSubsystem);
+    }
     
     // We're creating a new Assignment, not editing an existing one. Let's
     // make that clear by clearing out any "currentAssignment" attribute from
