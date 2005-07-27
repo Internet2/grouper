@@ -158,6 +158,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestQueryStemAttrBase.class);
     suite.addTestSuite(TestQueryCombination.class);
     // Bugs
+    // TODO Merge these back into location-appropriate test classes?
     suite.addTestSuite(TestBug348.class);
     suite.addTestSuite(TestBug349.class);
     suite.addTestSuite(TestBug350Access.class);
@@ -168,6 +169,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestBug353Naming.class);
     suite.addTestSuite(TestBug355.class);
     suite.addTestSuite(TestBug356.class);
+    suite.addTestSuite(TestBug405.class);
 
     return suite;
   }

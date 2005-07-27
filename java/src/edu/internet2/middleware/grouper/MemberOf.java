@@ -62,7 +62,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.23 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: MemberOf.java,v 1.24 2005-07-27 03:33:50 blair Exp $
  */
 public class MemberOf {
 
@@ -125,7 +125,21 @@ public class MemberOf {
     if (!gl.group().type().equals("naming")) {
       // Where (across all list values in the registry) is g a member?
       GrouperMember m = ( (GrouperGroup) gl.group() ).toMember();
-      isMem = m.listValsAll();
+
+      if (gl.groupField().equals(Grouper.DEF_LIST_TYPE)) {
+        /* 
+         * If we are adding to a "members" list, we'll want to find
+         * _all_ list types where _gl.group()_ is a member in order to
+         * add _m_ to those lists.
+         */
+        isMem = m.listValsAll();
+      } else {
+        /*
+         * Otherwise, if we are adding to a non-"members" list, we are
+         * only concerned the content's of _m_'s "members" list.
+         */
+        isMem = m.listVals();
+      }
 
       // Add m to groups where g is a member
       effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
