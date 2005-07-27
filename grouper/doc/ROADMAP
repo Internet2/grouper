@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.35 2005-07-27 15:08:42 blair Exp $
+$Id: ROADMAP,v 1.36 2005-07-27 15:29:40 blair Exp $
 
 ---
 
@@ -11,37 +11,45 @@ $Id: ROADMAP,v 1.35 2005-07-27 15:08:42 blair Exp $
 
 "initial UI release, supporting Phase 1 functionality"
 
-* Test creating groups|stems whose parent(s) have a modified de|dn
-* Test VIEW with a via group that can't be seen
+## Bugs
+* Access Privilege Pollution (#405)
 
-
+## Features
 * Add _getName()_, _getStem()_, _getExtension(), _getDisplayName()_, 
   _getDisplayExtension()_ and _getMembers()_ convenience methods
 * List children of Grouper.NS_ROOT (#395)
 * Default to Grouper.NS_ROOT when creating new stems (#396)
+
+## Internals
 * Add _PrivilegeCache_ class 
+* Switch to commons logging everywhere
+* Review and document named queries
 
+## Testing
+* Test creating groups|stems whose parent(s) have a modified
+  _displayName_ or _displayExtension_
+* Test VIEW with a via group that can't be seen
+* Test adjustment of _displayName_ when access controls may interfere
+  on downstream stems and groups
+* Add ADMIN tests
+* Add STEM tests
 
+## Documentation
 * Document Subject API in impl guide (#379)
 * Document empty VIEW and READ behavior (#398)
 * Document that UPDATE implies OPTIN and OPTOUT
-* Document dE's default value and ongoing maintenance
+* Document _displayExtension_'s default value and ongoing maintenance
 * Update (or purge (or migrate)) _docs/FAQ_
-* Review and document named queries
 
-* Access Privilege Pollution (#405)
-* Switch to commons logging everywhere
-* Custom Subject source to provide ALL behavior
-* Add ADMIN tests
-* Add STEM tests
-* Verify that adjustment of _displayName_ is not affected by access
-  controls
+## Perhaps
+* Custom _Subject_ source to provide ALL behavior
+* Fuzzy search performance (#391)
+* Custom _Subject_ source to provide _GrouperSystem_?
+* Index analysis
 * Throw _GroupNotFoundException_
 * Throw _StemNotFoundException_
 * Throw _MemberNotFoundException_
-* Fuzzy search performance (#391)
 * Move constants (but to where?)
-* Index analysis
 * Make empty VIEW and READ behavior configurable (#397)
 
 ---
