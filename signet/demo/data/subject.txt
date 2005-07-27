@@ -13,8 +13,11 @@
 /
 /     [attributename] [attributevalue]
 /   
-/ Note: "SignetSuperSubject" is a temporary highly-privileged
-/        user for bootstrapping privileges in the demo system
+/ Note: "SignetSuperSubject" is a temporary highly-privileged user for
+/        bootstrapping privileges in the demo system.
+/   
+/ Note: The attribute named "all" with a value of "all" in each person is for
+/       the demo system, to allow a search on "all" to fetch all subhjects.
 /
 source demo
 +person K0000001 McRae, Lynn
@@ -107,4 +110,7 @@ loginid SignetSuperSubject
 all all
 +group GangOfFour Gang of Four
 description Signet's Gang of Four
+all all
++group imternet2:signet:wg Signet Working Group
+description Signet's Working Group members
 all all
