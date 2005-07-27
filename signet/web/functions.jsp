@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.15 2005-07-27 18:31:53 jvine Exp $
-  $Date: 2005-07-27 18:31:53 $
+  $Id: functions.jsp,v 1.16 2005-07-27 22:39:07 jvine Exp $
+  $Date: 2005-07-27 22:39:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -226,6 +226,7 @@
                     <!-- function description gets inserted by Javascript -->
                   </p>
                 </div>  <!-- description -->
+				<div class="clear">&nbsp;</div><!--fix/hack for Safari display bug -->
 						</fieldset>		
           </div> 	<!-- section -->
 					

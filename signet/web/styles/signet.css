@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.15 2005-07-25 21:56:43 jvine Exp $
-   $Date: 2005-07-25 21:56:43 $
+   $Id: signet.css,v 1.16 2005-07-27 22:39:12 jvine Exp $
+   $Date: 2005-07-27 22:39:12 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -531,6 +531,16 @@ li {
 
 .alert {
 	color: #CC0000;
+}
+
+.clear {  /* hack to make various things work right */
+	clear: both;
+	display: block;
+	visibility: hidden;
+	height: 0px;
+	line-height: 0px;
+	margin: 0px;
+	padding: 0px;
 }
 
 .dropback {
