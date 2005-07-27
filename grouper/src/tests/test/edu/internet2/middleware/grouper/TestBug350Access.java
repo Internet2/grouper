@@ -141,10 +141,10 @@ public class TestBug350Access extends TestCase {
 
     // g0
     Assert.assertTrue(
-      "g0 members == 0", g0.listVals("members").size() == 1
+      "g0 members == 1", g0.listVals("members").size() == 1
     ); 
     Assert.assertTrue(
-      "g0 imm members == 0", g0.listImmVals("members").size() == 1
+      "g0 imm members == 1", g0.listImmVals("members").size() == 1
     ); 
     Assert.assertTrue(
       "g0 eff members == 0", g0.listEffVals("members").size() == 0
