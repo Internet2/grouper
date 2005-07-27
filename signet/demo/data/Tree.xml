@@ -57,7 +57,7 @@
          <Type>division</Type>
          <Name>Information Technology</Name>
          <Organization>  <Id>NETWORKING</Id>  <Type>office</Type>        <Name>Networking</Name> </Organization>
-         <Organization>  <Id>COMM</Id>        <Type>office</Type>        <Name>Commnications</Name> </Organization>
+         <Organization>  <Id>COMM</Id>        <Type>office</Type>        <Name>Communications</Name> </Organization>
          <Organization>  <Id>ACADCOMP</Id>    <Type>office</Type>        <Name>Academic Computing</Name> </Organization>
          <Organization>  <Id>ADMINCOMP</Id>   <Type>office</Type>        <Name>Administrative Computing</Name> </Organization>
          <Organization>  <Id>DEVELOPMENT</Id> <Type>office</Type>        <Name>Development</Name> </Organization>
