@@ -29,7 +29,8 @@ Quick Start
 (5) Configure your database connection in two places:
     webapp/signet/WEB-INF/classes/hibernate.cfg.xml and
     util/classes/hibernate.cfg.xml. Uncomment or add a database section
-    and set the connection parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
+    and set the connection parameters (hibernate.connection.url,
+    hibernate.connection.username, hibernate.connection.password).
 
 (6) Set your preferred hibernate logging level in two places:
     webapp/signet/WEB-INF/classes/log4j.properties and
