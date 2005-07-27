@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.34 2005-07-20 19:50:53 blair Exp $
+$Id: ROADMAP,v 1.35 2005-07-27 15:08:42 blair Exp $
 
 ---
 
@@ -31,7 +31,6 @@ $Id: ROADMAP,v 1.34 2005-07-20 19:50:53 blair Exp $
 
 * Access Privilege Pollution (#405)
 * Switch to commons logging everywhere
-* Eliminate duplicate logging bug
 * Custom Subject source to provide ALL behavior
 * Add ADMIN tests
 * Add STEM tests
