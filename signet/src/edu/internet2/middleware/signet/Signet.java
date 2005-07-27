@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.32 2005-07-26 18:00:48 acohen Exp $
-$Date: 2005-07-26 18:00:48 $
+$Id: Signet.java,v 1.33 2005-07-27 23:14:30 acohen Exp $
+$Date: 2005-07-27 23:14:30 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -1215,6 +1215,7 @@ public final class Signet
    }
 
    treeImpl.setAdapter(new TreeAdapterImpl(this));
+   treeImpl.setSignet(this);
 
    return treeImpl;
  }
@@ -1267,7 +1268,7 @@ public final class Signet
  }
 
  /**
-  * Gets a single TreNode identified by a scope-string. The format of that
+  * Gets a single TreeNode identified by a scope-string. The format of that
   * scopeString is currently subject to change. and will be documented after it
   * is finalized.
   * 

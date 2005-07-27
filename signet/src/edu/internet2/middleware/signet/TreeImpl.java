@@ -1,6 +1,6 @@
 /*--
- $Id: TreeImpl.java,v 1.5 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: TreeImpl.java,v 1.6 2005-07-27 23:14:30 acohen Exp $
+ $Date: 2005-07-27 23:14:30 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -147,6 +147,7 @@ class TreeImpl extends EntityImpl implements Tree
       rootCandidate.setSignet(this.getSignet());
       if (rootCandidate.getParents().size() == 0)
       {
+        rootCandidate.setSignet(this.getSignet());
         roots.add(rootCandidate);
       }
     }
@@ -192,6 +193,13 @@ class TreeImpl extends EntityImpl implements Tree
     {
       this.nodes = new HashSet();
     }
+    
+    Iterator nodesIterator = nodes.iterator();
+    while (nodesIterator.hasNext())
+    {
+      TreeNodeImpl node = (TreeNodeImpl)(nodesIterator.next());
+      node.setSignet(this.getSignet());
+    }
 
     return this.nodes;
     // return UnmodifiableSet.decorate(nodes);
@@ -219,6 +227,7 @@ class TreeImpl extends EntityImpl implements Tree
       String candidateId = candidate.getId();
       if (candidateId.equals(nodeId))
       {
+        ((TreeNodeImpl)candidate).setSignet(this.getSignet());
         return candidate;
       }
     }
