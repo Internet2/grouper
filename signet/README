@@ -14,15 +14,36 @@ What's New
 Quick Start
 ------------------------
 
-(1) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server to create the Signet database.
+(1) Execute the DDL (sql/hsql.sql or sql/sybase.sql) on your database server to
+    create the Signet database.
+
 (2) Create a "signet" web application context in your servlet container.
-(3) Point the web application context to the webapp/signet directory in this distribution.
-(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib and util/lib.
-(5) Configure your database connection in two places: webapp/signet/WEB-INF/classes/hibernate.cfg.xml and util/classes/hibernate.cfg.xml. Uncomment or add a database section and set the connection parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
-(6) Set your preferred hibernate logging level in two places: webapp/signet/WEB-INF/classes/log4j.properties and util/classes/log4j.properties.
-(7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp to point to your preferred email address.
-(8) Configure your subject sources: webapp/signet/WEB-INF/classes/sources.xml. If you are using the local subject adapter, set the database connection parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
-(9) Note: if you are using Tomcat for authenticating users, you will need to add them to your conf/tomcat-users.xml file.  These users will need to be the same as the subject IDs of users identified as Subjects within Signet.
+
+(3) Point the web application context to the webapp/signet directory in this
+    distribution.
+
+(4) Copy your JDBC driver to two directories: webapp/signet/WEB-INF/lib and
+    util/lib.
+
+(5) Configure your database connection in two places:
+    webapp/signet/WEB-INF/classes/hibernate.cfg.xml and
+    util/classes/hibernate.cfg.xml. Uncomment or add a database section
+    and set the connection parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
+
+(6) Set your preferred hibernate logging level in two places:
+    webapp/signet/WEB-INF/classes/log4j.properties and
+    util/classes/log4j.properties.
+
+(7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
+    to point to your preferred email address.
+
+(8) Configure your subject sources: webapp/signet/WEB-INF/classes/sources.xml.
+    If you are using the local subject adapter, set the database connection
+    parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
+
+(9) Note: if you are using Tomcat for authenticating users, you will need to add
+    them to your conf/tomcat-users.xml file.  These users will need to be the
+    same as the subject IDs of users identified as Subjects within Signet.
 
 To populate the Signet demo application with sample data:
         
