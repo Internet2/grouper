@@ -3,13 +3,36 @@ Signet version 0.5 - July, 2005
 What's New
 ----------
 
-(1) This version of Signet uses the latest pre-release version of the Subject
-    API.
-    
-(2) Signet internal table names are now prefixed with "signet_" to avoid
-    reserved-word collisions with various SQL engines.
-  
-(3) A TreeXMLLoader utility has been added to populate a local Scope tree.
+(1)  Basic assignment editing is now enabled.
+
+     - You can edit an assignment if you have equal or greater privileges than
+       those represented by the assignment -- if you could have made the assignment,
+       you can edit the assignment.  
+     - Assignment editing does a simple of "duplicate assignment" check, adding a
+       page in the flow letting the user know that the same assignment already
+       exists and offering a chance to revoke the predecessor.
+     - New and changed assignments are now recorded in the signet_assignment_history
+       table, allowing for time-based reconstruction of assignments and privileges.
+     - Currently limits are editable, but not scope.
+
+(2) The first version of the Privileges XML document is available.   A "View XML"
+    link is available in the signet-demo UI which will display a person's Privileges
+    document.  It depends on your browser's ability to do a nice rendering of XML.
+
+(3) A revised LocalSubjectAdapter and SubjectFileLoader supports "group" subject
+    types in addition to "person".  This isn't a connection to an external Groups
+    source or anything fancy, but rather a local representation of a group as a
+    subject to demonstrate the notion that Signet will assign to anything
+    delivered to it via the Subject API.
+
+(4) Some UI formatting/consistency cleanups. The most visible item is improvements
+    to the assignment series of screens, where preceding steps are summarize more
+    compactly at the top of the screen as you go along, and in a style consistent
+    with the final summary confirmation.
+
+    One problem remains from the last release -- showing lists with disabled
+    (non-selectable) items in Mac/Safari simply doesn't work.  This limits the
+    UI's ability to enable only appropriate scope items during an assignment.
 
 Quick Start
 ------------------------
