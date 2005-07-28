@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.70 2005-07-20 19:50:53 blair Exp $
+$Id: NEWS,v 1.71 2005-07-28 15:44:40 blair Exp $
 
 ---
 
@@ -45,6 +45,7 @@ $Id: NEWS,v 1.70 2005-07-20 19:50:53 blair Exp $
 * UPDATE: _grouper_attribute.groupFieldValue_ column size increased to 1024
 * UPDATE: _grouper_member_ table now includes a _subjectSource_ column
 
+* FIX: Privilege and effective membership pollution bug (#405)
 * FIX: Default privilege implementations would attempt to revoke
   effective list values under select circumstances which would cause an
   exception to be thrown. (#361)
