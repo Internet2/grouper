@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.54 2005-07-28 17:23:27 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.55 2005-07-28 19:12:47 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -139,74 +139,79 @@ public class GrouperStem extends Group {
    */
 
   /**
-   * Create a namespace..
+   * Create a root namespace.
    * <p />
+   * <pre>
+   * GrouperStem rootNS = GrouperStem.create(s, extn);
+   * </pre>
    * @param   s     Session to create the namespace within.
-   * @param   stem  Stem to create the namespace within.
    * @param   extn  Extension to assign to the namespace.
-   * @return  A {@link GrouperGroup} object.
+   * @return  A {@link GrouperStem} object.
    */ 
-  public static GrouperStem create(
-                              GrouperSession s, String stem, String extn
-                            )
-  {
-    Group.invalidStemOrExtn(stem, extn);
-    GrouperStem ns;
-    if (!GrouperStem.exists(s, stem)) {
-      throw new RuntimeException("Parent stem does not exist");
-    }
-    if (GrouperStem.exists(s, Group.groupName(stem, extn))) {
-      throw new RuntimeException("Stem already exists");
-    }
-    Group.subjectCanCreateAtRoot(s, stem);
-    try {
-      Group.subjectCanCreateStem(s, stem);
-      try {
-        s.dbSess().txStart();
-        ns = new GrouperStem(s, stem, extn);
-        s.dbSess().session().save(ns);
-        ns.grantStemUponCreate(); 
-        ns.initialized = true;
-        s.dbSess().txCommit();
-        Grouper.log().stemAdd(s, ns, Group.groupName(stem, extn), ns.type());
-      } catch (HibernateException e) {
-        s.dbSess().txRollback();
-        throw new RuntimeException(
-          "Error saving stem: " + e.getMessage()
-        );
-      } 
-    } catch (InsufficientPrivilegeException e) {
-      // TODO Is this the right message?
-      throw new RuntimeException(
-        "Error creating stem: " + e.getMessage()
-      );
-    }
-    return ns;
+  public static GrouperStem create(GrouperSession s, String extn) {
+    return GrouperStem._create(s, Grouper.NS_ROOT, extn);
   }
 
   /**
-   * Retrieve a group by stem and extension.
+   * Create a namespace.
    * <p />
-   * @param   s           Session to load the group within.
-   * @param   stem        Stem of the group to load.
-   * @param   extension   Extension of the group to load.
-   * @return  A {@link GrouperGroup} object.
-   */
-  public static GrouperStem load(
-    GrouperSession s, String stem, String extension
+   * <pre>
+   * GrouperStem ns = GrouperStem.create(s, stem, extn);
+   * </pre>
+   * @param   s     Session to create the namespace within.
+   * @param   stem  Stem to create the namespace within.
+   * @param   extn  Extension to assign to the namespace.
+   * @return  A {@link GrouperStem} object.
+   */ 
+  public static GrouperStem create(
+    GrouperSession s, String stem, String extn
   )
   {
-    Group.invalidStemOrExtn(stem, extension);
-    String key = Group.findKeyByStemExtnType(s, stem, extension, Grouper.NS_TYPE);
-    if (key != null) {
-      try {
-        GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
-        return ns;
-      } catch (InsufficientPrivilegeException e) {
-        return null; // FIXME HATE!!!
-      }
-    }
-    return null; 
+    return GrouperStem._create(s, stem, extn);
+  }
+
+  /**
+   * Retrieve list of all root namespaces within this groups registry.
+   * <p />
+   * <pre>
+   * List roots = GrouperStem.getRootStems(s);
+   * </pre>
+   * @return  List of {@link GrouperStem} objects.
+   */
+  public static List getRootStems(GrouperSession s) {
+    return GrouperStem.getStems(s, Grouper.NS_ROOT);
+  }
+
+  /**
+   * Retrieve a root stem by extension.
+   * <p />
+   * <pre>
+   * GrouperStem rootNS = GrouperStem.load(s, extension);
+   * </pre>
+   * @param   s     Session to load the stem within.
+   * @param   extn  Extension of the stem to load.
+   * @return  A {@link GrouperStem} object.
+   */
+  public static GrouperStem load(GrouperSession s, String extn) {
+    return GrouperStem._load(s, Grouper.NS_ROOT, extn);
+  }
+
+  /**
+   * Retrieve a stem by stem and extension.
+   * <p />
+   * <pre>
+   * GrouperStem ns = GrouperStem.load(s, stem, extension);
+   * </pre>
+   * @param   s     Session to load the stem within.
+   * @param   stem  Stem of the stem to load.
+   * @param   extn  Extension of the stem to load.
+   * @return  A {@link GrouperStem} object.
+   */
+  public static GrouperStem load(
+    GrouperSession s, String stem, String extn
+  )
+  {
+    return GrouperStem._load(s, stem, extn);
   }
 
   /**
@@ -604,37 +609,13 @@ public class GrouperStem extends Group {
    * Retrieve list of namespaces that are <b>immediate</b> children
    * of this stem.
    * <p />
+   * <pre>
+   * List stems = s.stems();
+   * </pre>
    * @return  List of {@link GrouperStem} objects.
    */
   public List stems() {
-    // TODO Shares a lot of common code with groups()
-    String  qry   = "Group.key.child.stem.of.stem";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.name());
-      try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          try {
-            String key = (String) iter.next();
-            GrouperStem s = (GrouperStem) Group.loadByKey(this.s, key);
-            vals.add(s);
-          } catch (InsufficientPrivilegeException e) {
-            // Ignore
-          }
-        }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-          "Error retrieving results for " + qry + ": " + e.getMessage()
-        );
-      }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-        "Unable to get query " + qry + ": " + e.getMessage()
-      );
-    }
-    return vals;
+    return GrouperStem.getStems(this.s, this.name());
   }
 
   /**
@@ -645,6 +626,7 @@ public class GrouperStem extends Group {
   public String type() {
     return this.type;
   }
+
 
   /*
    * PROTECTED CLASS METHODS
@@ -695,15 +677,13 @@ public class GrouperStem extends Group {
 
   /*
    * Return namespace key.
-   * <p />
-   * @return Group key of the {@link GrouperGroup}
    */
   protected String key() {
     return this.getGroupKey();
   }
 
   /*
-   * Flesh out the group a bit.
+   * Flesh out the stem a bit.
    */
   protected void load(GrouperSession s) {
     this.s = s; 
@@ -735,6 +715,106 @@ public class GrouperStem extends Group {
         "Error updating group: " + e.getMessage()
       );
     }
+  }
+
+
+  /*
+   * PRIVATE CLASS METHODS
+   */
+
+  /*
+   * Create a stem
+   */
+  private static GrouperStem _create(
+    GrouperSession s, String stem, String extn
+  )
+  {
+    Group.invalidStemOrExtn(stem, extn);
+    GrouperStem ns;
+    if (!GrouperStem.exists(s, stem)) {
+      throw new RuntimeException("Parent stem does not exist");
+    }
+    if (GrouperStem.exists(s, Group.groupName(stem, extn))) {
+      throw new RuntimeException("Stem already exists");
+    }
+    Group.subjectCanCreateAtRoot(s, stem);
+    try {
+      Group.subjectCanCreateStem(s, stem);
+      try {
+        s.dbSess().txStart();
+        ns = new GrouperStem(s, stem, extn);
+        s.dbSess().session().save(ns);
+        ns.grantStemUponCreate(); 
+        ns.initialized = true;
+        s.dbSess().txCommit();
+        Grouper.log().stemAdd(s, ns, Group.groupName(stem, extn), ns.type());
+      } catch (HibernateException e) {
+        s.dbSess().txRollback();
+        throw new RuntimeException(
+          "Error saving stem: " + e.getMessage()
+        );
+      } 
+    } catch (InsufficientPrivilegeException e) {
+      // TODO Is this the right message?
+      throw new RuntimeException(
+        "Error creating stem: " + e.getMessage()
+      );
+    }
+    return ns;
+  }
+
+  /*
+   * Find immediate child stems within a given namespace
+   */
+  private static List getStems(GrouperSession s, String stem) {
+    // TODO Shares a lot of common code with groups()
+    String  qry   = "Group.key.child.stem.of.stem";
+    List    vals  = new ArrayList();
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, stem);
+      try {
+        Iterator iter = q.list().iterator();
+        while (iter.hasNext()) {
+          try {
+            String key = (String) iter.next();
+            GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
+            vals.add(ns);
+          } catch (InsufficientPrivilegeException e) {
+            // Ignore
+          }
+        }
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return vals;
+  }
+
+  /*
+   * Load the specified stem
+   */
+  private static GrouperStem _load(
+    GrouperSession s, String stem, String extn
+  )
+  {
+    Group.invalidStemOrExtn(stem, extn);
+    String key = Group.findKeyByStemExtnType(s, stem, extn, Grouper.NS_TYPE);
+    if (key != null) {
+      try {
+        GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
+        return ns;
+      } catch (InsufficientPrivilegeException e) {
+        return null; // FIXME HATE!!!
+      }
+    }
+    return null; 
   }
 
 

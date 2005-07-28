@@ -154,5 +154,21 @@ public class TestStemsLoad extends TestCase {
     s.stop();
   }
 
+  public void testLoadAtRootWithNoStemArg() {
+    GrouperSession s = Constants.createSession();
+    Assert.assertNotNull("s", s);
+    Constants.createStems(s);
+    GrouperStem ns0 = GrouperStem.load(s, Constants.ns0e);
+    Assert.assertTrue("load ns0", true);
+    Assert.assertNotNull("ns0", ns0);
+    Assert.assertTrue(
+      "ns0 stem", ns0.getStem().equals(Constants.ns0s)
+    );
+    Assert.assertTrue(
+      "ns0 extn", ns0.getExtension().equals(Constants.ns0e)
+    );
+    s.stop();
+  } 
+
 }
 

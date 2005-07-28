@@ -478,5 +478,24 @@ public class TestStemsAdd extends TestCase {
     s.stop();
   }
 
+  public void testCreateAtRootWithNoStemArg() {
+    GrouperSession s = Constants.createSession();
+    Assert.assertNotNull("s", s);
+    try {
+      GrouperStem ns0 = GrouperStem.create(s, Constants.ns0e);
+      Assert.assertTrue("create ns0", true);
+      Assert.assertNotNull("ns0", ns0);
+      Assert.assertTrue(
+        "ns0 stem", ns0.getStem().equals(Constants.ns0s)
+      );
+      Assert.assertTrue(
+        "ns0 extn", ns0.getExtension().equals(Constants.ns0e)
+      );
+    } catch (Exception e) {
+      Assert.fail("create ns0: " + e.getMessage());
+    }
+    s.stop();
+  } 
+
 }
 
