@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.84 2005-07-28 17:23:27 blair Exp $
+$Id: API,v 1.85 2005-07-28 17:33:26 blair Exp $
 
 ---
 
@@ -194,7 +194,7 @@ $Id: API,v 1.84 2005-07-28 17:23:27 blair Exp $
 * GrouperAttribute    attribute(attribute)
 * void                attribute(attribute, value)
 * Map                 attributes()
-* GrouperGroup        static create(session, stem, extension)
+* GrouperStem         static create(session, stem, extension)
 * String              createSource()
 * Subject             createSubject()
 * Date                createTime()
