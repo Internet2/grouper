@@ -80,10 +80,11 @@ primary key (subsystemID, functionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
+create sequence permissionSerial START 1;
 
 create table signet_permission
 (
-permissionKey		int                 NOT NULL IDENTITY,  ???
+permissionKey		int                 DEFAULT nextval('permissionSerial'),
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -107,10 +108,11 @@ primary key (subsystemID, proxyTypeID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
+create sequence limitSerial START 1;
 
 create table signet_limit
 (
-limitKey			int                 NOT NULL IDENTITY, ???
+limitKey			int                 DEFAULT nextval('limitSerial'),
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
