@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.3 2005-07-27 18:31:45 jvine Exp $
-  $Date: 2005-07-27 18:31:45 $
+  $Id: duplicateAssignments.jsp,v 1.4 2005-07-28 05:55:52 acohen Exp $
+  $Date: 2005-07-28 05:55:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -208,7 +208,8 @@
 
     <br />
     
-    <a href="personview.html">
+    
+    <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
       CANCEL this assignment and return to Lynn McRae's view
     </a>
