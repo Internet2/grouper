@@ -62,7 +62,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.24 2005-07-27 03:33:50 blair Exp $
+ * @version $Id: MemberOf.java,v 1.25 2005-07-28 03:14:37 blair Exp $
  */
 public class MemberOf {
 
@@ -120,29 +120,24 @@ public class MemberOf {
     log.debug("mship: " + gl);
 
     List isMem = new ArrayList();
-    // TODO *sigh* Fix.  Please?  Maybe just watch for thrown
-    //      exceptions?
-    if (!gl.group().type().equals("naming")) {
-      // Where (across all list values in the registry) is g a member?
-      GrouperMember m = ( (GrouperGroup) gl.group() ).toMember();
 
-      if (gl.groupField().equals(Grouper.DEF_LIST_TYPE)) {
-        /* 
-         * If we are adding to a "members" list, we'll want to find
-         * _all_ list types where _gl.group()_ is a member in order to
-         * add _m_ to those lists.
-         */
+    /*
+     * We only need to propagate this new membership out to
+     * everywhere _g_ is a member if we are adding to _g_'s "members"
+     * list.  Thus, if we are adding _m_ to _g_'s "members" list, _m_
+     * should be added *everywhere* _g_ is a member, across all list
+     * types.  However, if we are adding _m_ to _g_'s "admins" list,
+     * we do not need to add _m_ to any of the other lists that _g_
+     * belongs to within the registry.
+     */
+    if (gl.groupField().equals(Grouper.DEF_LIST_TYPE)) {
+      // TODO This seems fragile.
+      if (!gl.group().type().equals("naming")) {
+        // Add _m_ to all lists where _g_ is a member
+        GrouperMember m = ( (GrouperGroup) gl.group() ).toMember();
         isMem = m.listValsAll();
-      } else {
-        /*
-         * Otherwise, if we are adding to a non-"members" list, we are
-         * only concerned the content's of _m_'s "members" list.
-         */
-        isMem = m.listVals();
+        effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
       }
-
-      // Add m to groups where g is a member
-      effs.addAll( this._addWhereIsMem(gl, gl, isMem) );
     }
 
     // If m is a group...
