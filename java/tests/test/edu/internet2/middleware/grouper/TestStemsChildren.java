@@ -53,6 +53,7 @@ package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
+import  java.util.*;
 import  junit.framework.*;
 
 public class TestStemsChildren extends TestCase {
@@ -336,6 +337,35 @@ public class TestStemsChildren extends TestCase {
 
     s.stop();
   }
+
+  public void testGetNoRootStems() {
+    GrouperSession s = Constants.createSession();
+    Assert.assertNotNull("s", s);
+    List stems = GrouperStem.getRootStems(s);
+    Assert.assertTrue("no stems", stems.size() == 0);
+    s.stop();
+  }
+
+  public void testGetRootStems() {
+    GrouperSession s = Constants.createSession();
+    Assert.assertNotNull("s", s);
+    Constants.createStems(s);
+    List stems = GrouperStem.getRootStems(s);
+    Assert.assertTrue("1 stems", stems.size() == 1);
+    GrouperStem ns = (GrouperStem) stems.get(0);
+    Assert.assertNotNull("ns", ns);
+    Assert.assertTrue(
+      "ns instanceof GrouperStem",
+      ns instanceof GrouperStem
+    );
+    Assert.assertTrue(
+      "ns stem", ns.getStem().equals(Constants.ns0s)
+    );
+    Assert.assertTrue(
+      "ns extn", ns.getExtension().equals(Constants.ns0e)
+    );
+    s.stop();
+  } 
 
 }
 
