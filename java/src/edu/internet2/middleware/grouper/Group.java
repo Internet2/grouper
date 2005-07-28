@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.42 2005-07-17 21:55:40 blair Exp $
+ * @version $Id: Group.java,v 1.43 2005-07-28 17:23:27 blair Exp $
  */
 abstract public class Group {
 
@@ -71,56 +71,57 @@ abstract public class Group {
    * ABSTRACT METHODS 
    */
 
-  /**
-   * Return group type.
-   * <p />
-   * @return  String  group type.
-   */
-  abstract public    String           id();
-  abstract public    String           type();
+  abstract public     String            getDisplayExtension();
+  abstract public     String            getDisplayName();
+  abstract public     String            getExtension();
+  abstract public     List              getMembers();
+  abstract public     String            getName();
+  abstract public     String            getStem();
+  abstract public     String            id();
+  abstract public     String            type();
 
-  abstract protected GrouperAttribute attribute(String attribute);
-  abstract protected void             attribute(String attribute, String value);
-  abstract protected void             attributeAdd(GrouperAttribute attr);
-  abstract protected void             attributeDel(GrouperAttribute attr);
-  abstract protected String           createSource();
-  abstract protected Subject          createSubject();
-  abstract protected Date             createTime();
-  abstract protected String           getCreateSource();
-  abstract protected String           getCreateSubject();
-  abstract protected String           getCreateTime();
-  abstract protected String           getGroupComment();
-  abstract protected String           getGroupID();
-  abstract protected String           getGroupKey();
-  abstract protected String           getModifySource();
-  abstract protected String           getModifySubject();
-  abstract protected String           getModifyTime();
-  abstract protected boolean          initialized();
-  abstract protected String           key();
-  abstract protected void             listAddVal(GrouperMember m);
-  abstract protected void             listAddVal(GrouperMember m, String list);
-  abstract protected void             listDelVal(GrouperMember m);
-  abstract protected void             listDelVal(GrouperMember m, String list);
-  abstract protected List             listVals();
-  abstract protected List             listVals(String list);
-  abstract protected List             listEffVals();
-  abstract protected List             listEffVals(String list);
-  abstract protected List             listImmVals();
-  abstract protected List             listImmVals(String list);
-  abstract protected void             load(GrouperSession s);
-  abstract protected String           modifySource();
-  abstract protected Subject          modifySubject();
-  abstract protected Date             modifyTime();
-  abstract protected void             setCreateSource(String createSource);
-  abstract protected void             setCreateSubject(String createSubject);
-  abstract protected void             setCreateTime(String createTime);
-  abstract protected void             setGroupComment(String comment);
-  abstract protected void             setGroupID(String id);
-  abstract protected void             setGroupKey(String key);
-  abstract protected void             setModified();
-  abstract protected void             setModifySource(String modifySource);
-  abstract protected void             setModifySubject(String modifySubject);
-  abstract protected void             setModifyTime(String modifyTime);
+  abstract protected  GrouperAttribute  attribute(String attribute);
+  abstract protected  void              attribute(String attribute, String value);
+  abstract protected  void              attributeAdd(GrouperAttribute attr);
+  abstract protected  void              attributeDel(GrouperAttribute attr);
+  abstract protected  String            createSource();
+  abstract protected  Subject           createSubject();
+  abstract protected  Date              createTime();
+  abstract protected  String            getCreateSource();
+  abstract protected  String            getCreateSubject();
+  abstract protected  String            getCreateTime();
+  abstract protected  String            getGroupComment();
+  abstract protected  String            getGroupID();
+  abstract protected  String            getGroupKey();
+  abstract protected  String            getModifySource();
+  abstract protected  String            getModifySubject();
+  abstract protected  String            getModifyTime();
+  abstract protected  boolean           initialized();
+  abstract protected  String            key();
+  abstract protected  void              listAddVal(GrouperMember m);
+  abstract protected  void              listAddVal(GrouperMember m, String list);
+  abstract protected  void              listDelVal(GrouperMember m);
+  abstract protected  void              listDelVal(GrouperMember m, String list);
+  abstract protected  List              listVals();
+  abstract protected  List              listVals(String list);
+  abstract protected  List              listEffVals();
+  abstract protected  List              listEffVals(String list);
+  abstract protected  List              listImmVals();
+  abstract protected  List              listImmVals(String list);
+  abstract protected  void              load(GrouperSession s);
+  abstract protected  String            modifySource();
+  abstract protected  Subject           modifySubject();
+  abstract protected  Date              modifyTime();
+  abstract protected  void              setCreateSource(String createSource);
+  abstract protected  void              setCreateSubject(String createSubject);
+  abstract protected  void              setCreateTime(String createTime);
+  abstract protected  void              setGroupComment(String comment);
+  abstract protected  void              setGroupID(String id);
+  abstract protected  void              setGroupKey(String key);
+  abstract protected  void              setModified();
+  abstract protected  void              setModifySource(String modifySource);
+  abstract protected  void              setModifySubject(String modifySubject);
+  abstract protected  void              setModifyTime(String modifyTime);
 
 
   /*

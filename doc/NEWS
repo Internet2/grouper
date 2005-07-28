@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.71 2005-07-28 15:44:40 blair Exp $
+$Id: NEWS,v 1.72 2005-07-28 17:23:27 blair Exp $
 
 ---
 
@@ -13,6 +13,14 @@ $Id: NEWS,v 1.71 2005-07-28 15:44:40 blair Exp $
 * NEW: READ Access privilege (#338)
 * NEW: OPTIN Access privilege (#343)
 * NEW: OPTOUT Access privilege (#344)
+* NEW: _GrouperGroup.getDisplayExtension()_ method
+* NEW: _GrouperGroup.getDisplayName()_ method
+* NEW: _GrouperGroup.getExtension()_ method
+* NEW: _GrouperGroup.getMembers()_ method
+* NEW: _GrouperGroup.getName()_ method
+* NEW: _GrouperGroup.getStem()_ method
+* NEW: _GrouperMember.getMember()_ method
+* NEW: _GrouperMember.source()_ method
 * NEW: _GrouperQuery.base()_ filter method
 * NEW: _GrouperQuery.group()_ filter method
 * NEW: _GrouperQuery.group()_ scoped filter method (#403)
@@ -26,8 +34,12 @@ $Id: NEWS,v 1.71 2005-07-28 15:44:40 blair Exp $
 * NEW: _GrouperQuery.getListValues()_ method
 * NEW: _GrouperQuery.getMembers()_ method
 * NEW: _GrouperQuery.getStems()_ method
-* NEW: _GrouperMember.getMember()_ method
-* NEW: _GrouperMember.source()_ method
+* NEW: _GrouperStem.getDisplayExtension()_ method
+* NEW: _GrouperStem.getDisplayName()_ method
+* NEW: _GrouperStem.getExtension()_ method
+* NEW: _GrouperStem.getMembers()_ method
+* NEW: _GrouperStem.getName()_ method
+* NEW: _GrouperStem.getStem()_ method
 * NEW: PostgreSQL now a supported backend (#169)
   (Simon McLeish, London School of Economics)
 * NEW: _displayName_ is now automatically populated and maintained (#270)
