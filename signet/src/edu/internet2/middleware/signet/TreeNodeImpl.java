@@ -1,6 +1,6 @@
 /*--
- $Id: TreeNodeImpl.java,v 1.7 2005-07-12 23:13:26 acohen Exp $
- $Date: 2005-07-12 23:13:26 $
+ $Id: TreeNodeImpl.java,v 1.8 2005-07-28 03:26:17 acohen Exp $
+ $Date: 2005-07-28 03:26:17 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -189,7 +189,7 @@ implements
 
     this.getSignet().save(tnr);
   }
-
+  
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.tree.TreeNode#isAncestorOf(edu.internet2.middleware.signet.tree.TreeNode)
    */
@@ -208,7 +208,7 @@ implements
               + " is the descendant of some other node.");
     }
 
-    if (this.children.contains(possibleDescendant))
+    if (this.getChildren().contains(possibleDescendant))
     {
       foundDescendant = true;
     }

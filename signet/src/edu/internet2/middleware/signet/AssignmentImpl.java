@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.22 2005-07-26 18:00:48 acohen Exp $
- $Date: 2005-07-26 18:00:48 $
+ $Id: AssignmentImpl.java,v 1.23 2005-07-28 03:26:17 acohen Exp $
+ $Date: 2005-07-28 03:26:17 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -426,7 +426,7 @@ implements Assignment, Comparable
    */
   public String toString()
   {
-    return "[id=" + getId() + ",instance=" + getInstanceNumber() + ",needsInitialHistoryRecord=" + needsInitialHistoryRecord() + "]";
+    return "[id=" + getId() + ",instance=" + getInstanceNumber() + ",scope=" + getScope() + "]";
   }
   /**
    * @return Returns the grantable.

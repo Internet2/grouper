@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.19 2005-07-26 18:00:48 acohen Exp $
- $Date: 2005-07-26 18:00:48 $
+ $Id: PrivilegedSubjectImpl.java,v 1.20 2005-07-28 03:26:17 acohen Exp $
+ $Date: 2005-07-28 03:26:17 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -115,6 +115,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public boolean canEdit(Assignment anAssignment)
   {
+    boolean sufficientScopeFound = false;
+    
     // First, check to see if this subject and the grantee are the same.
     // No one, not even the SignetSuperSubject, is allowed to grant
     // privileges to herself.
@@ -156,6 +158,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       if (grantableScope.equals(anAssignment.getScope())
           || grantableScope.isAncestorOf(anAssignment.getScope()))
       {
+        sufficientScopeFound = true;
+        
         // This scope is indeed one that we can grant this Function in.
         // Now, let's see whether or not we're allowed to work with all of the
         // Limit-values in this particular Assignment.
@@ -192,10 +196,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       }
     }
     
-    if (grantableScopes.size() == 0)
+    if (sufficientScopeFound == false)
     {
-      // We have no grantable Scopes at all, so there's no way we can edit
-      // any Assignments.
+      // None of our grantable Scopes were high and mighty enough to edit
+      // this Assignment.
       return false;
     }
 
@@ -825,8 +829,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     String typeId = this.subject.getType().getName();
     String id = this.subject.getId();
 
-    return "name='" + name + "', typeId = '"
-        + typeId + "', id = '" + id + "'";
+    return "[name='" + name + "',typeId ='" + typeId + "',id ='" + id + "']";
   }
 
   /* (non-Javadoc)
