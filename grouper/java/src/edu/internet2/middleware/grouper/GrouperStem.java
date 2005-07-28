@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.53 2005-07-17 15:01:13 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.54 2005-07-28 17:23:27 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -349,6 +349,84 @@ public class GrouperStem extends Group {
       );
     }
     return vals;
+  }
+
+  /**
+   * Return <i>displayExtension</i> value.
+   * <p />
+   * <pre>
+   * String extn = g.getDisplayExtension();
+   * </pre>
+   * @return  <i>displayExtension</i> value
+   */
+  public String getDisplayExtension() {
+    return ( (GrouperAttribute) this.attribute("displayExtension") ).value();
+  }
+
+  /**
+   * Return <i>displayName</i> value.
+   * <p />
+   * <pre>
+   * String name = g.getDisplayName();
+   * </pre>
+   * @return  <i>displayName</i> value
+   */
+  public String getDisplayName() {
+    return ( (GrouperAttribute) this.attribute("displayName") ).value();
+  }
+
+  /**
+   * Return <i>extension</i> value.
+   * <p />
+   * <pre>
+   * String extn = g.getExtension();
+   * </pre>
+   * @return  <i>extension</i> value
+   */
+  public String getExtension() {
+    return ( (GrouperAttribute) this.attribute("extension") ).value();
+  }
+
+  /**
+   * Return stem's members.
+   * <p />
+   * <pre>
+   * List members = g.getMembers();
+   * </pre>
+   * @return  List of {@link GrouperMember} objects.
+   */
+  public List getMembers() {
+    List      vals  = new ArrayList();
+    Iterator  iter  = this.listVals().iterator();
+    while (iter.hasNext()) {
+      GrouperList lv = (GrouperList) iter.next();
+      vals.add(lv.member());
+    }
+    return vals;
+  }
+
+  /**
+   * Return <i>name</i> value.
+   * <p />
+   * <pre>
+   * String name = g.getName();
+   * </pre>
+   * @return  <i>name</i> value
+   */
+  public String getName() {
+    return ( (GrouperAttribute) this.attribute("name") ).value();
+  }
+
+  /**
+   * Return <i>stem</i> value.
+   * <p />
+   * <pre>
+   * String stem = g.getStem();
+   * </pre>
+   * @return  <i>stem</i> value
+   */
+  public String getStem() {
+    return ( (GrouperAttribute) this.attribute("stem") ).value();
   }
 
   /**

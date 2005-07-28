@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.37 2005-07-28 15:44:40 blair Exp $
+$Id: ROADMAP,v 1.38 2005-07-28 17:23:27 blair Exp $
 
 ---
 
@@ -14,8 +14,6 @@ $Id: ROADMAP,v 1.37 2005-07-28 15:44:40 blair Exp $
 ## Bugs
 
 ## Features
-* Add _getName()_, _getStem()_, _getExtension(), _getDisplayName()_, 
-  _getDisplayExtension()_ and _getMembers()_ convenience methods
 * List children of Grouper.NS_ROOT (#395)
 * Default to Grouper.NS_ROOT when creating new stems (#396)
 
