@@ -93,6 +93,12 @@ public class Constants {
   public static final String mem0T  = Grouper.DEF_SUBJ_TYPE;
   public static final String mem1I  = "member 1";
   public static final String mem1T  = Grouper.DEF_SUBJ_TYPE;
+  public static final String mem2I  = "member 2";
+  public static final String mem2T  = Grouper.DEF_SUBJ_TYPE;
+  public static final String mem3I  = "member 3";
+  public static final String mem3T  = Grouper.DEF_SUBJ_TYPE;
+  public static final String mem4I  = "member 4";
+  public static final String mem4T  = Grouper.DEF_SUBJ_TYPE;
 
 
   /*
@@ -128,7 +134,7 @@ public class Constants {
    */
   protected static GrouperStem    ns0, ns1, ns2;
   protected static GrouperGroup   g0, g1, g2, gA, gB, gC, gD;
-  protected static GrouperMember  mr, m0, m1;
+  protected static GrouperMember  mr, m0, m1, m2, m3, m4;
 
 
   /*
@@ -181,6 +187,9 @@ public class Constants {
     mr = Common.loadMember(s, Constants.rootI, Constants.rootT);
     m0 = Common.loadMember(s, Constants.mem0I, Constants.mem0T);
     m1 = Common.loadMember(s, Constants.mem1I, Constants.mem1T);
+    m2 = Common.loadMember(s, Constants.mem2I, Constants.mem2T);
+    m3 = Common.loadMember(s, Constants.mem3I, Constants.mem3T);
+    m4 = Common.loadMember(s, Constants.mem4I, Constants.mem4T);
   }
   
   protected static GrouperSession createSession() {
