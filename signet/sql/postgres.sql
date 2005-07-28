@@ -91,6 +91,7 @@ status              varchar(16)         NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
 
 primary key (permissionKey),
+unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
@@ -127,6 +128,7 @@ renderer            varchar(255)        NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
 
 primary key (limitKey),
+unique (subsystemID, limitID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
