@@ -3,8 +3,26 @@
 -- modified
 --    6/20/2005 - tablename prefixes; assignment history tables; assignment expirationDate
 
--- Subsystem tables
+-- Signet Subject tables
+drop table signet_privilegedSubject;
 
+-- Tree tables
+drop table signet_treeNodeRelationship;
+drop table signet_treeNode;
+drop table signet_tree;
+
+-- ChoiceSet tables
+drop table signet_choice;
+drop table signet_choiceSet;
+
+-- Assignment tables
+drop table signet_assignment cascade;
+drop table signet_assignmentLimit;
+drop table signet_assignment_history cascade;
+drop table signet_assignmentLimit_history;
+drop sequence assignmentSerial;
+
+-- Subsystem tables
 drop table signet_proxyType_function cascade;
 drop table signet-permission_limit cascade; 
 drop table signet_function_permission cascade;
@@ -14,6 +32,13 @@ drop table signet_permission cascade;
 drop table signet_proxyType cascade;
 drop table signet_limit cascade;
 drop table signet_subsystem cascade;
+
+-- Subject tables (optional, for local subject tables)
+drop table SubjectAttribute;
+drop table Subject;
+drop table SubjectType;
+
+-- Subsystem tables
 
 create table signet_subsystem
 (
@@ -58,12 +83,13 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 
 create table signet_permission
 (
+permissionKey		int                 NOT NULL IDENTITY,  ???
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
 
-primary key (subsystemID, permissionID),
+primary key (permissionKey),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
@@ -84,6 +110,7 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 
 create table signet_limit
 (
+limitKey			int                 NOT NULL IDENTITY, ???
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -97,7 +124,7 @@ displayOrder        smallint            NOT NULL,
 renderer            varchar(255)        NOT NULL,
 modifyDatetime      timestamp           NOT NULL,
 
-primary key (subsystemID, limitID),
+primary key (limitKey),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
@@ -106,24 +133,23 @@ create table signet_function_permission
 (
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-permissionID        varchar(64)         NOT NULL,
+permissionKey       int                 NOT NULL,
 
-primary key (subsystemID, functionID, permissionID),
+primary key (subsystemID, functionID, permissionKey),
 foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID),
-foreign key (subsystemID, permissionID) references signet_permission (subsystemID, permissionID)
+foreign key (subsystemID, permissionKey) references signet_permission (subsystemID, permissionKey)
 );
 
 
 create table signet_permission_limit
 (
-subsystemID         varchar(64)         NOT NULL,
-permissionID        varchar(64)         NOT NULL,
-limitID             varchar(64)         NOT NULL,
-defaultLimitValueValue  varchar(64)    NULL,
+permissionKey       int                 NOT NULL,
+limitKey            int                 NOT NULL,
+defaultLimitValueValue  varchar(64)     NULL,
 
-primary key (subsystemID, permissionID, limitID),
-foreign key (subsystemID, permissionID) references signet_permission (subsystemID, permissionID),
-foreign key (subsystemID, limitID) references signet_limit (subsystemID, limitID)
+primary key (permissionKey, limitKey),
+foreign key (permissionKey) references signet_permission (permissionKey),
+foreign key (limitKey) references signet_limit (limitKey)
 );
 
 
@@ -140,8 +166,7 @@ foreign key (subsystemID, functionID) references signet_function (subsystemID, f
 
 
 -- Signet Subject tables
-drop table signet_privilegedSubject;
---
+
 create table signet_privilegedSubject (
 subjectTypeID     varchar(32)     NOT NULL,
 subjectID         varchar(64)     NOT NULL,
@@ -152,11 +177,6 @@ primary key (subjectTypeID, subjectID)
 
 
 -- Tree tables
-
-drop table signet_treeNodeRelationship;
-drop table signet_treeNode;
-drop table signet_tree;
-
 
 create table signet_tree
 (
@@ -196,9 +216,6 @@ foreign key (treeID) references signet_tree (treeID)
 
 -- ChoiceSet tables
 
-drop table signet_choice;
-drop table signet_choiceSet;
-
 create table signet_choiceSet
 (
 choiceSetID         varchar(64)         NOT NULL,
@@ -226,13 +243,6 @@ foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 
 -- Assignment tables
 
-drop table signet_assignment cascade;
-drop table signet_assignmentLimit;
-
-drop table signet_assignment_history cascade;
-drop table signet_assignmentLimit_history;
-
-drop sequence assignmentSerial;
 create sequence assignmentSerial START 1;
 
 create table signet_assignment
@@ -265,12 +275,11 @@ primary key (assignmentID, instanceNumber)
 create table signet_assignmentLimit
 (
 assignmentID        integer             NOT NULL,
-limitSubsystemID    varchar(64)         NOT NULL,
-limitType           varchar(32)         NOT NULL,
-limitTypeID         varchar(64)         NOT NULL,
+limitKey    		int                 NOT NULL,
 value               varchar(32)         NOT NULL,
-primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
+primary key (assignmentID, limitKey, value),
 foreign key (assignmentID) references signet_assignment (assignmentID)
+foreign key (limitKey) references signet_limit (limitKey)
 );
 
 
@@ -312,17 +321,12 @@ limitSubsystemID    varchar(64)         NOT NULL,
 limitType           varchar(32)         NOT NULL,
 limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
-primary key (assignmentID, limitSubsystemID, limitType, limitTypeID, value),
+primary key (historyID),
 foreign key (assignmentID, instanceNumber) references signet_assignment (assignmentID, instanceNumber)
 );
 
 
 -- Subject tables (optional, for local subject tables)
-
-drop table SubjectAttribute;
-drop table Subject;
-drop table SubjectType;
-
 
 create table SubjectType (
   subjectTypeID     varchar(32)     NOT NULL,
