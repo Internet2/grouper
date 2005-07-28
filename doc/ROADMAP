@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.36 2005-07-27 15:29:40 blair Exp $
+$Id: ROADMAP,v 1.37 2005-07-28 15:44:40 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.36 2005-07-27 15:29:40 blair Exp $
 "initial UI release, supporting Phase 1 functionality"
 
 ## Bugs
-* Access Privilege Pollution (#405)
 
 ## Features
 * Add _getName()_, _getStem()_, _getExtension(), _getDisplayName()_, 
