@@ -1,4 +1,4 @@
-Signet version 0.4 - June, 2005
+Signet version 0.5 - July, 2005
 
 What's New
 ----------
@@ -40,8 +40,9 @@ Quick Start
     to point to your preferred email address.
 
 (8) Configure your subject sources: webapp/signet/WEB-INF/classes/sources.xml.
-    If you are using the local subject adapter, set the database connection
-    parameters (@DB_URL@, @DB_USERNAME@, @DB_PASSWORD@).
+    If you are using the local subject adapter, add or uncomment a database
+    section, and set the database connection parameters (@DB_URL@,
+    @DB_USERNAME@, @DB_PASSWORD@).
 
 (9) Note: if you are using Tomcat for authenticating users, you will need to add
     them to your conf/tomcat-users.xml file.  These users will need to be the

@@ -19,10 +19,23 @@
       <param-name>maxWait</param-name>
       <param-value>5</param-value>
     </init-param>
+	
+    <!-- Local connection properties for HypersonicSQL -->
+<!--
+    <init-param>
+      <param-name>dbDriver</param-name>
+      <param-value>org.hsqldb.jdbcDriver</param-value>
+    </init-param>
+-->
+	
+    <!-- Connection properties for Sybase -->
+<!--
     <init-param>
       <param-name>dbDriver</param-name>
       <param-value>com.sybase.jdbc2.jdbc.SybDriver</param-value>
     </init-param>
+-->
+
     <init-param>
       <param-name>dbUrl</param-name>
       <param-value>@DB_URL@</param-value>
