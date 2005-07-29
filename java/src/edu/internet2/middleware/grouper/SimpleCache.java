@@ -62,29 +62,34 @@ import  org.apache.commons.logging.LogFactory;
 /** 
  * {@link Subject} Lookup Cache.
  * <p />
+ * TODO Ideally this class would just become a passthrough for an
+ * ehcache cache<br />
+ * TODO Until then, however, do I need a TTL?<br />
+ * TODO And a flush?<br />
+ * TODO And condense the multiple key levels into one?
  *
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.1 2005-06-06 15:48:22 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.1 2005-07-29 01:53:50 blair Exp $
  */
-public class SubjectCache {
+public class SimpleCache {
 
   /*
    * PRIVATE CLASS VARIABLES
    */
-  private static Log log = LogFactory.getLog(SubjectCache.class);
+  private static Log log = LogFactory.getLog(SimpleCache.class);
 
 
   /* 
    * PRIVATE INSTANCE VARIABLES
    */
-  private Map subjects;
+  private Map cache;
 
 
   /*
    * CONSTRUCTORS
    */
-  protected SubjectCache() {
-    this.subjects = new HashMap();
+  protected SimpleCache() {
+    this.cache = new HashMap();
   }
 
 
@@ -93,37 +98,39 @@ public class SubjectCache {
    */
 
   /*
-   * Get subject from cache
+   * Get value from cache
    */
-  protected Subject get(String id, String type) 
-    throws SubjectNotFoundException
+  protected Object get(String key, String subkey) 
+    throws CacheNotFoundException
   {
-    String key = this.genKey(id, type);
-    if (this.subjects.containsKey(key)) {
-      Subject subject = (Subject) subjects.get(key);
-      log.debug("Got subject " + id + "/" + type + " from cache");
-      return subject;
-    } 
-    // TODO Should I really be using SNFE for this?
-    throw new SubjectNotFoundException(id + "/" + type + " is not cached");
+    boolean cached  = false;
+    Object  o       = null;
+    if (this.cache.containsKey(key)) {
+      Map m = (Map) this.cache.get(key);
+      if (m.containsKey(subkey)) {
+        log.debug("Cached: " + key + "/" + subkey + "/" + m.get(subkey));
+        cached  = true;
+        o       = m.get(subkey);
+      }
+    }
+    if (!cached) {
+      log.debug("Not cached: " + key + "/" + subkey);
+      throw new CacheNotFoundException("Not cached: " + key + "/" + subkey);
+    }
+    return o;
   }
 
   /*
-   * Put subject in cache
+   * Put value in cache
    */
-  protected void put(String id, String type, Subject subject) {
-    String key = this.genKey(id, type);
-    this.subjects.put(key, subject);
-    log.debug("Put subject " + id + "/" + type + " in cache");
-  }
-
-
-  /*
-   * PRIVATE INSTANCE METHODS
-   */
-  private String genKey(String id, String type) {
-    // TODO What are the odds of a collision?  Should I be concerned?
-    return id + ":" + type;
+  protected void put(String key, String subkey, Object o) {
+    Map m = new HashMap();
+    if (this.cache.containsKey(key)) {
+      m = (Map) this.cache.get(key);
+    }
+    m.put( (String) subkey, o );
+    this.cache.put( (String) key, m );
+    log.debug("Caching: " + key + "/" + subkey + "/" + o);
   }
 
 }

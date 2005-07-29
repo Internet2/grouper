@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.39 2005-07-28 19:12:47 blair Exp $
+$Id: ROADMAP,v 1.40 2005-07-29 01:53:50 blair Exp $
 
 ---
 
@@ -16,7 +16,6 @@ $Id: ROADMAP,v 1.39 2005-07-28 19:12:47 blair Exp $
 ## Features
 
 ## Internals
-* Add _PrivilegeCache_ class 
 * Switch to commons logging everywhere
 * Review and document named queries
 
