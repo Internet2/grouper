@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.103 2005-07-17 21:55:40 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.104 2005-07-29 01:53:50 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -83,7 +83,7 @@ public class GrouperSession implements Serializable {
    */
 
   // Member & Subject that this session is running under
-  private transient Map             canCache = new HashMap();
+  private transient SimpleCache     cache = new SimpleCache();
   private transient GrouperMember   m; 
   private transient Subject         subject;
 
@@ -298,19 +298,18 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking ADMIN for " + this + " on " + g);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_ADMIN);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(g.key(), Grouper.PRIV_ADMIN);
+    } catch (CacheNotFoundException e) {
       if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has ADMIN on " + g + ": ADMIN");
-        can = true; 
+        can = new Boolean(true);
       }
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_ADMIN, can);
+      this.cache.put(g.key(), Grouper.PRIV_ADMIN, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -324,22 +323,21 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking CREATE for " + this + " on " + ns);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(ns.key(), Grouper.PRIV_CREATE);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(ns.key(), Grouper.PRIV_CREATE);
+    } catch (CacheNotFoundException e) {
       if        (this.naming().has(this, ns, Grouper.PRIV_CREATE)) {
         log.info(this + " has CREATE on " + ns + ": CREATE");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.naming().has(this, ns, Grouper.PRIV_CREATE)) {
         log.info(this + " has CREATE on " + ns + ": STEM");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(ns.key(), Grouper.PRIV_CREATE, can);
+      this.cache.put(ns.key(), Grouper.PRIV_CREATE, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -353,17 +351,16 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking READ for " + this + " on " + g);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_READ);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(g.key(), Grouper.PRIV_READ);
+    } catch (CacheNotFoundException e) {
       if        (this.access().has(this, g, Grouper.PRIV_READ)) {
         log.info(this + " has READ on " + g + ": READ");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has READ on " + g + ": ADMIN");
-        can = true; 
+        can = new Boolean(true); 
       } else if ( 
         (
           this.access().whoHas(
@@ -378,12 +375,12 @@ public class GrouperSession implements Serializable {
          * that will be going away soon enough.
          */
         log.info(this + " has READ on " + g + ": Default READ");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_READ, can);
+      this.cache.put(g.key(), Grouper.PRIV_READ, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -393,25 +390,24 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking OPTIN for " + this + " on " + g);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_OPTIN);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(g.key(), Grouper.PRIV_OPTIN);
+    } catch (CacheNotFoundException e) {
       if        (this.access().has(this, g, Grouper.PRIV_OPTIN)) {
         log.info(this + " has OPTIN on " + g + ": OPTIN");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has OPTIN on " + g + ": UPDATE");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has OPTIN on " + g + ": ADMIN");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_OPTIN, can);
+      this.cache.put(g.key(), Grouper.PRIV_OPTIN, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -421,25 +417,24 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking OPTOUT for " + this + " on " + g);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_OPTOUT);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(g.key(), Grouper.PRIV_OPTOUT);
+    } catch (CacheNotFoundException e) {
       if        (this.access().has(this, g, Grouper.PRIV_OPTOUT)) {
         log.info(this + " has OPTOUT on " + g + ": OPTOUT");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has OPTOUT on " + g + ": UPDATE");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has OPTOUT on " + g + ": ADMIN");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_OPTOUT, can);
+      this.cache.put(g.key(), Grouper.PRIV_OPTOUT, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -453,19 +448,18 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking STEM for " + this + " on " + ns);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(ns.key(), Grouper.PRIV_STEM);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(ns.key(), Grouper.PRIV_STEM);
+    } catch (CacheNotFoundException e) {
       if (this.naming().has(this, ns, Grouper.PRIV_STEM)) {
         log.info(this + " has STEM on " + ns + ": STEM");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(ns.key(), Grouper.PRIV_STEM, can);
+      this.cache.put(ns.key(), Grouper.PRIV_STEM, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -475,22 +469,21 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking UPDATE for " + this + " on " + g);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_UPDATE);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(g.key(), Grouper.PRIV_UPDATE);
+    } catch (CacheNotFoundException e) {
       if        (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has UPDATE on " + g + ": UPDATE");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has UPDATE on " + g + ": ADMIN");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_UPDATE, can);
+      this.cache.put(g.key(), Grouper.PRIV_CREATE, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -506,29 +499,28 @@ public class GrouperSession implements Serializable {
     throws InsufficientPrivilegeException
   {
     log.debug("Checking VIEW for " + this + " on " + g);
-    boolean can     = false;
-    Map     cached  = this.getCachedCan(g.key(), Grouper.PRIV_VIEW);
-    if (cached.containsKey("cached")) {
-      can = ( (Boolean) cached.get("can") ).booleanValue();
-    } else {
+    Boolean can = new Boolean(false);
+    try {
+      can = (Boolean) this.cache.get(g.key(), Grouper.PRIV_VIEW);
+    } catch (CacheNotFoundException e) {
       if        (this.access().has(this, g, Grouper.PRIV_VIEW)) {
         log.info(this + " has VIEW on " + g + ": VIEW");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_READ)) {
         log.info(this + " has VIEW on " + g + ": READ");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_UPDATE)) {
         log.info(this + " has VIEW on " + g + ": UPDATE");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_ADMIN)) {
         log.info(this + " has VIEW on " + g + ": ADMIN");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_OPTIN)) {
         log.info(this + " has VIEW on " + g + ": OPTIN");
-        can = true; 
+        can = new Boolean(true); 
       } else if (this.access().has(this, g, Grouper.PRIV_OPTOUT)) {
         log.info(this + " has VIEW on " + g + ": OPTOUT");
-        can = true; 
+        can = new Boolean(true); 
       } else if ( 
         (
           this.access().whoHas(
@@ -543,12 +535,12 @@ public class GrouperSession implements Serializable {
          * that will be going away soon enough.
          */
         log.info(this + " has VIEW on " + g + ": Default VIEW");
-        can = true; 
+        can = new Boolean(true); 
       } 
       // Update cache
-      this.setCachedCan(g.key(), Grouper.PRIV_VIEW, can);
+      this.cache.put(g.key(), Grouper.PRIV_VIEW, (Object) can);
     }
-    if (!can) {
+    if (!can.booleanValue()) {
       // TODO What is an appropriate message to return?
       throw new InsufficientPrivilegeException();
     }
@@ -679,22 +671,6 @@ public class GrouperSession implements Serializable {
     }
   }
 
-  // Attempt to retrieve a cached privilege lookup
-  // TODO I'm not exactly enamored of this
-  private Map getCachedCan(String key, String priv) {
-    Map cached = new HashMap();
-    boolean rv = false;
-    if (this.canCache.containsKey(key)) {
-      Map g = (Map) this.canCache.get(key);
-      if (g.containsKey(priv)) {
-        log.debug("Cached VIEW privilege: " + g.get(priv));
-        cached.put( new String("cached"), new Boolean(true)     );
-        cached.put( new String("can"),    (Boolean) g.get(priv) );
-      }
-    }
-    return cached;
-  }
-
   // Deserialize the session
   private void readObject(ObjectInputStream ois)
                  throws ClassNotFoundException, IOException 
@@ -719,17 +695,6 @@ public class GrouperSession implements Serializable {
     }
 
     log.info("Deserialized: " + this);
-  }
-
-  // Cache a privilege lookup
-  private void setCachedCan(String key, String priv, boolean can) {
-    Map g = new HashMap();
-    if (this.canCache.containsKey(key)) {
-      g = (Map) this.canCache.get(key);
-    }
-    g.put( new String(priv), new Boolean(can) );
-    this.canCache.put( (String) key, g );
-    log.debug("Caching " + priv + " privilege: " + can);
   }
 
   // Serialize the session

@@ -64,18 +64,18 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.11 2005-07-07 03:14:03 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.12 2005-07-29 01:53:50 blair Exp $
  */
 public class SubjectFactory {
 
   /*
    * PRIVATE CLASS VARIABLES
    */
-  private static List           sources = new ArrayList();
+  private static SimpleCache    cache   = null;
   private static Log            log     = LogFactory.getLog(SubjectFactory.class);
-  private static Map            types   = null;  
   private static SourceManager  mgr     = null;
-  private static SubjectCache   cache   = null;
+  private static List           sources = new ArrayList();
+  private static Map            types   = null;  
 
 
   /*
@@ -111,10 +111,10 @@ public class SubjectFactory {
     Subject subj    = null;
     log.debug("Getting subject " + id + "/" + type);
     try {
-      subj = cache.get(id, type);
+      subj = (Subject) cache.get(id, type);
       cached = true;
       log.debug("Found cached subject " + id + "/" + type);
-    } catch (SubjectNotFoundException e0) {
+    } catch (CacheNotFoundException e) {
       if (types.containsKey(type)) {
         Iterator iter = mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator();
         while (iter.hasNext()) {
@@ -140,7 +140,7 @@ public class SubjectFactory {
       }
       if (subj != null) {
         if (cached == false) {
-          cache.put(id, type, subj);
+          cache.put(id, type, (Object) subj);
           log.debug("Caching subject " + id + "/" + type);
         }
       } else {
@@ -275,7 +275,8 @@ public class SubjectFactory {
           sources.add(sa);
           log.debug("Added source: " + sa);
         } 
-        cache = new SubjectCache();
+        log.info("Initializing cache");
+        cache = new SimpleCache();
         SubjectFactory.loadTypes(); 
         log.info("Subject factory initialized");
       } catch (Exception e) {
