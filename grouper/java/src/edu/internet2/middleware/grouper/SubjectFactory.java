@@ -64,18 +64,19 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.12 2005-07-29 01:53:50 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.13 2005-07-29 02:42:28 blair Exp $
  */
 public class SubjectFactory {
 
   /*
    * PRIVATE CLASS VARIABLES
    */
-  private static SimpleCache    cache   = null;
-  private static Log            log     = LogFactory.getLog(SubjectFactory.class);
-  private static SourceManager  mgr     = null;
-  private static List           sources = new ArrayList();
-  private static Map            types   = null;  
+  private static SimpleCache    cacheGS   = null;
+  private static SimpleCache    cacheGSID = null;
+  private static Log            log       = LogFactory.getLog(SubjectFactory.class);
+  private static SourceManager  mgr       = null;
+  private static List           sources   = new ArrayList();
+  private static Map            types     = null;  
 
 
   /*
@@ -110,12 +111,12 @@ public class SubjectFactory {
     boolean cached  = false;
     Subject subj    = null;
     log.debug("Getting subject " + id + "/" + type);
-    try {
-      subj = (Subject) cache.get(id, type);
-      cached = true;
-      log.debug("Found cached subject " + id + "/" + type);
-    } catch (CacheNotFoundException e) {
-      if (types.containsKey(type)) {
+    if (types.containsKey(type)) {
+      try {
+        subj = (Subject) cacheGS.get(id, type);
+        cached = true;
+        log.debug("Found cached subject " + id + "/" + type);
+      } catch (CacheNotFoundException e) {
         Iterator iter = mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator();
         while (iter.hasNext()) {
           Source sa = (Source) iter.next();
@@ -135,21 +136,21 @@ public class SubjectFactory {
             continue;
           }
         }
-      } else {
-        log.debug("No adapters for type " + type);
       }
-      if (subj != null) {
-        if (cached == false) {
-          cache.put(id, type, (Object) subj);
-          log.debug("Caching subject " + id + "/" + type);
-        }
-      } else {
-        // TODO Do I want a negative cache?
-        log.debug("Unable to find subject " + id + "/" + type);
-        throw new SubjectNotFoundException(
-          "Could not get " + id + "/" + type
-        );
+    } else {
+      log.debug("Unknown subject type: " + type);
+    }
+    if (subj != null) {
+      if (cached == false) {
+        cacheGS.put(id, type, (Object) subj);
+        log.debug("Caching subject " + id + "/" + type);
       }
+    } else {
+      // TODO Do I want a negative cache?
+      log.debug("Unable to find subject " + id + "/" + type);
+      throw new SubjectNotFoundException(
+        "Could not get " + id + "/" + type
+      );
     }
     return subj;
   }
@@ -180,32 +181,46 @@ public class SubjectFactory {
   public static Subject getSubjectByIdentifier(String id, String type) 
     throws SubjectNotFoundException
   {
-    // TODO Cache
     // TODO A lot of duplication with _getSubject()_
     SubjectFactory.init();
-    Subject subj = null;
+    boolean cached  = false;
+    Subject subj    = null;
     if (types.containsKey(type)) {
-      Iterator iter = mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator();
-      while (iter.hasNext()) {
-        Source sa = (Source) iter.next();
-        // FIXME Actually, I should probably gather a list.  If 
-        //       one entry found, return it.  Otherwise, throw an
-        //       exception.
-        try {
-          subj = sa.getSubjectByIdentifier(id);
-          log.debug("Found subject " + id + "/" + type + " in " + sa.getName());
-          break;
-        } catch (SubjectNotFoundException e1) {
-          log.debug("Did not find subject " + id + "/" + type + " in " + sa.getName());
-          /*
-           * Don't worry about not finding subjects in 
-           * particular adapters.
-           */
-          continue;
+      try {
+        subj = (Subject) cacheGSID.get(id, type);
+        cached = true;
+        log.debug("Found cached subject " + id + "/" + type);
+      } catch (CacheNotFoundException e) {
+        Iterator iter = mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator();
+        while (iter.hasNext()) {
+          Source sa = (Source) iter.next();
+          // FIXME Actually, I should probably gather a list.  If 
+          //       one entry found, return it.  Otherwise, throw an
+          //       exception.
+          try {
+            subj = sa.getSubjectByIdentifier(id);
+            log.debug("Found subject " + id + "/" + type + " in " + sa.getName());
+            break;
+          } catch (SubjectNotFoundException e1) {
+            log.debug("Did not find subject " + id + "/" + type + " in " + sa.getName());
+            /*
+             * Don't worry about not finding subjects in 
+             * particular adapters.
+             */
+            continue;
+          }
         }
       }
+    } else {
+      log.info("Unknown subject type: " + type);
     }
-    if (subj == null) {
+    if (subj != null) {
+      if (cached == false) {
+        cacheGSID.put(id, type, (Object) subj);
+        log.debug("Caching subject " + id + "/" + type);
+      }
+    } else {
+      // TODO Do I want a negative cache?
       log.debug("Unable to find subject " + id + "/" + type);
       throw new SubjectNotFoundException(
         "Could not get " + id + "/" + type
@@ -275,8 +290,9 @@ public class SubjectFactory {
           sources.add(sa);
           log.debug("Added source: " + sa);
         } 
-        log.info("Initializing cache");
-        cache = new SimpleCache();
+        log.info("Initializing caches");
+        cacheGS   = new SimpleCache();
+        cacheGSID = new SimpleCache();
         SubjectFactory.loadTypes(); 
         log.info("Subject factory initialized");
       } catch (Exception e) {
