@@ -55,6 +55,7 @@ import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 
 import  java.io.*;
+import  java.util.*;
 import  junit.framework.*;
 
 
@@ -116,6 +117,23 @@ public class TestSessions extends TestCase {
                         ) 
                      );
     s.stop();
+  }
+
+  // Verify that the session's member object has a session
+  public void testSessioMemberHasSession() {
+    GrouperSession  s = Constants.createSession();
+    Assert.assertNotNull("s", s);
+    GrouperMember   m = s.getMember();
+    Assert.assertNotNull("m", m);
+    try {
+      List stemmer = s.naming().has(s, Grouper.PRIV_STEM);
+      Assert.assertTrue("internal member has session", true);
+      Assert.assertTrue("stemmer=0", stemmer.size() == 0);
+    } catch (NullPointerException e) {
+      Assert.fail("internal member has no session");
+    } finally {
+      s.stop();
+    }
   }
 
   // Serialize a session

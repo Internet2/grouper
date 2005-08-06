@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.104 2005-07-29 01:53:50 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.105 2005-08-06 23:05:44 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -122,9 +122,9 @@ public class GrouperSession implements Serializable {
     this.createInterfaces();
     this.dbSess   = new DbSess(); 
     this.subject  = subj;
-    this.m        = GrouperMember.load(subj);
+    this.m        = GrouperMember.load(this, subj);
     if (m == null) {
-      throw new RuntimeException("Unable to load member object");
+      throw new RuntimeException("Unable to load member: " + subj);
     }
     this.memberID = m.memberID();
   }
