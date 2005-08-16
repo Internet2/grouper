@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.9 2005-06-17 23:24:28 acohen Exp $
- $Date: 2005-06-17 23:24:28 $
+ $Id: SubsystemImpl.java,v 1.10 2005-08-16 16:41:08 acohen Exp $
+ $Date: 2005-08-16 16:41:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -546,5 +546,14 @@ class SubsystemImpl
   private void setId(String id)
   {
     super.setStringId(id);
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Entity#inactivate()
+   */
+  public void inactivate()
+  {
+    throw new UnsupportedOperationException
+      ("This method is not yet implemented");
   }
 }

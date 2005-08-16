@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.10 2005-07-21 22:48:06 acohen Exp $
- $Date: 2005-07-21 22:48:06 $
+ $Id: PermissionImpl.java,v 1.11 2005-08-16 16:41:08 acohen Exp $
+ $Date: 2005-08-16 16:41:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -238,5 +238,14 @@ implements
       // .appendSuper(super.compareTo(o)
       .append(this.getId(), rhs.getId())
       .toComparison();
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Entity#inactivate()
+   */
+  public void inactivate()
+  {
+    throw new UnsupportedOperationException
+      ("This method is not yet implemented");
   }
 }
