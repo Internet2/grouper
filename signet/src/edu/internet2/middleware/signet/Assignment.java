@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.10 2005-06-23 23:39:18 acohen Exp $
-$Date: 2005-06-23 23:39:18 $
+$Id: Assignment.java,v 1.11 2005-08-16 01:26:31 acohen Exp $
+$Date: 2005-08-16 01:26:31 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -19,35 +19,38 @@ import edu.internet2.middleware.signet.SignetAuthorityException;
 /**
 * 
 * An Assignment represents some authority which has been granted to a 
-* Subject (often a Person).  The granularity of an assignment is always 
-* Function; that is, a Function is the smallest unit of authority which 
-* can be assigned.  An assignment always has an organizational scope 
-* associated with it, and a condition Organization associated with it.  
+* {@link PrivilegedSubject} (often a person).  The granularity of an Assignment
+* is always {@link Function}; that is, a <code>Function</code> is the smallest unit
+* of authority which can be assigned.  An Assignment always has an
+* organizational scope associated with it, and in the future, will also have a
+* condition organization associated with it.  
 * <p>
-* The scope Organization represents the highest level in the
-* organizational hierarchy at which the subject can exercise the Function; 
-* the condition Organization is an organization to which the Subject must 
-* belong for the authority to be active.  For example, an assignment can 
-* be interpreted to mean:
+* The organizational scope represents the highest level in the
+* organizational hierarchy at which the <code>PrivilegedSubject</code> can
+* exercise the <code>Function</code>; 
+* the condition organization, when it is introduced, will be an organization to
+* which the <code>PrivilegedSubject</code> must belong for the authority to be
+* active. For example, an Assignment can be interpreted to mean:
 * <p>
-* "(Subject) can perform (Function) in (Scope) as long as (Subject)
+* "(<code>PrivilegedSubject</code>) can perform (<code>Function</code>) in
+* (organizational scope) as long as (<code>PrivilegedSubject</code>)
 * belongs to (condition organization)".
 * <p>
-* In addition, there can be limits (constraints) on the assignment.  An 
-* array of applicable limit names can be retrieved using the getLimitIds()
-* method; getLimitValues(String limitId) returns the limits applicable
-* to this assignment.
+* In addition, there can be {@link Limit}s (constraints) on the assignment.
+* <code>getLimitValues</code> returns the <code>Limit</code>s applicable to this
+* assignment, along with the values of those <code>Limit</code>s.
 * <p>
-* Also, an assignment may or may not be delegatable.  If the assignment is
-* delegatable, then the Subject may assign this function, with this scope,
-* and with limits equal to or more restrictive than his own, to another 
-* Subject.
+* Also, an Assignment may or may not be grantable.  If the Assignment is
+* grantable, then the <code>PrivilegedSubject</code> may assign this
+* <code>Function</code>, with scope equal to or more restrictive than his own,
+* and with <code>Limit</code>-values equal to or more restrictive than his own,
+* to another <code>PrivilegedSubject</code>.
 * <p>
 * An existing Assignment may be modified. To save the modified Assignment,
 * call Assignment.save().
 * 
+* @see PrivilegedSubject
 * @see Function
-* @see Scope
 * 
 */
 
@@ -61,32 +64,32 @@ public interface Assignment
   public Integer getId();
 
   /**
-   * Gets the {@link PrivilegedSubject}
+   * Gets the <code>PrivilegedSubject</code>
    * who is the grantee of this Assignment.
    * 
-   * @return the {@link PrivilegedSubject}
+   * @return the <code>PrivilegedSubject</code>
    * who is the grantee of this Assignment.
    */
   public PrivilegedSubject getGrantee();
 
   /**
-   * Gets the {@link PrivilegedSubject} 
+   * Gets the <code>PrivilegedSubject</code> 
    * who is the grantor of this Assignment.
    * 
-   * @return the {@link PrivilegedSubject} 
+   * @return the <code>PrivilegedSubject</code> 
    * who is the grantor of this Assignment.
    */
   public PrivilegedSubject getGrantor();
 
 
   /**
-   * Gets the {@link PrivilegedSubject} 
-   * who revoked this Assignment, or NULL if this Assignment has not yet been
-   * revoked.
+   * Gets the <code>PrivilegedSubject</code> 
+   * who revoked this Assignment, or <code>null</code> if this Assignment has
+   * not yet been revoked.
    * 
-   * @return the {@link PrivilegedSubject} 
-   * who revoked this Assignment, or NULL if this Assignment has not yet been
-   * revoked.
+   * @return the <code>PrivilegedSubject</code> 
+   * who revoked this Assignment, or <code>null</code> if this Assignment has
+   * not yet been revoked.
    */
   public PrivilegedSubject getRevoker();
 
@@ -98,16 +101,16 @@ public interface Assignment
   public edu.internet2.middleware.signet.tree.TreeNode getScope();
 
   /**
-   * Gets the Function which is the subject of this Assignment.
+   * Gets the <code>Function</code> which is the subject of this Assignment.
    * 
-   * @return the Function which is the subject of this Assignment.
+   * @return the <code>Function</code> which is the subject of this Assignment.
    */
   public Function getFunction();
 
   /**
    * Gets the effective date of this Assignment. This is the date on which
-   * this Assignment is scheduled to change from Status value PENDING to
-   * Status value ACTIVE.
+   * this Assignment is scheduled to change from {@link Status} value PENDING to
+   * <code>Status</code> value ACTIVE.
    * 
    * @return the scheduled effective-date of this Assignment.
    */
@@ -117,10 +120,12 @@ public interface Assignment
    * Changes the effective date of an existing Assignment. To save this change
    * to the database, call Assignment.save().
    * 
-   * @param actor the PrivilegedSubject who is responsible for this change.
+   * @param actor the <code>PrivilegedSubject</code> who is responsible for
+   * this change.
    * 
    * @param effectiveDate the date on which this Assignment should be scheduled
-   * to change from Status value PENDING to Status value ACTIVE.
+   * to change from {@link Status} value PENDING to <code>Status</code> value
+   * ACTIVE.
    * 
    * @throws SignetAuthorityException
    */
@@ -128,9 +133,19 @@ public interface Assignment
   throws SignetAuthorityException;
   
   /**
+   * Gets the date and time when this Assignment actually changed from
+   * {@link Status} value PENDING to <code>Status</code> value ACTIVE. If that
+   * change has not yet occurred, then this method will return
+   * <code>null</code>.
+   * 
+   * @return the actual date and time this Assignment became active.
+   */
+  public Date getActualStartDatetime();
+  
+  /**
    * Gets the expiration date of this Assignment. This is the date on which
-   * this Assignment is scheduled to change from Status value ACTIVE to Status
-   * value INACTIVE.
+   * this Assignment is scheduled to change from {@link Status} value ACTIVE
+   * to <code>Status</code> value INACTIVE.
    * 
    * @return the scheduled expiration-date of this Assignment.
    */
@@ -138,105 +153,121 @@ public interface Assignment
   
   /**
    * Changes the expiration date of an existing Assignment. To save this change
-   * to the database, call Assignment.save().
+   * to the database, call <code>Assignment.save()</code>.
    * 
-   * @param actor the PrivilegedSubject who is responsible for this change.
+   * @param editor the PrivilegedSubject who is responsible for this change.
    * 
    * @param expirationDate the date on which this Assignment should be scheduled
-   * to change from Status value ACTIVE to Status value INACTIVE.
+   * to change from {@link Status} value ACTIVE to <code>Status</code> value
+   * INACTIVE.
    * 
    * @throws SignetAuthorityException
    */
-  public void setExpirationDate(PrivilegedSubject actor, Date expirationDate)
+  public void setExpirationDate(PrivilegedSubject editor, Date expirationDate)
   throws SignetAuthorityException;
+  
+  /**
+   * Gets the date and time when this Assignment actually changed from
+   * {@link Status} value ACTIVE to <code>Status</code> value INACTIVE. If that
+   * change has not yet occurred, this this method will return
+   * <code>null</code>.
+   * 
+   * @return the actual date and time this Assignment became inactive.
+   */
+  public Date getActualEndDatetime();
 
   /**
-   * Indicates whether or not this assignment can be granted to others
+   * Indicates whether or not this Assignment can be granted to others
    * by its current grantee.
    * 
-   * @return true if this assignment can be granted to others
+   * @return <code>true</code> if this Assignment can be granted to others
    * by its current grantee.
    */
   public boolean isGrantable();
   
   /**
    * Changes the grantability of an existing Assignment. To save this change
-   * to the database, call Assignment.save().
+   * to the database, call <code>Assignment.save()</code>.
    * 
-   * @param actor the PrivilegedSubject who is responsible for this change.
+   * @param editor the <code>PrivilegedSubject</code> who is responsible for
+   * this change.
    *
-   * @param isGrantable true if this Assignment should be grantable to others
-   * by its current grantee, and false otherwise.
+   * @param isGrantable <code>true</code> if this Assignment should be grantable
+   * to others by its current grantee, and <code>false</code> otherwise.
    * 
    * @throws SignetAuthorityException
    */
-  public void setGrantable(PrivilegedSubject actor, boolean isGrantable)
+  public void setGrantable(PrivilegedSubject editor, boolean isGrantable)
   throws SignetAuthorityException;
 
   /**
-   * Indicates whether or not this assignment can be used directly
+   * Indicates whether or not this Assignment can be used directly
    * by its current grantee, or can only be granted to others.
    * 
-   * @return true if this assignment can only be granted to others
+   * @return <code>true</code> if this Assignment can only be granted to others
    * by its current grantee, and not used directly by its current grantee.
    */
   public boolean isGrantOnly();
   
   /**
    * Changes the direct usability of an existing Assignment. To save this change
-   * to the database, call Assignment.save();
+   * to the database, call <code>Assignment.save()</code>;
    * 
-   * @param actor the PrivilegedSubject who is responsible for this change.
+   * @param editor the <code>PrivilegedSubject</code> who is responsible for
+   * this change.
    * 
-   * @param isGrantOnly true if this Assignment should only be granted to others
-   * (and not directly used) by its current grantee, and false otherwise.
+   * @param isGrantOnly <code>true</code> if this Assignment should only be
+   * granted to others (and not directly used) by its current grantee, and
+   * <code>false</code> otherwise.
    * 
    * @throws SignetAuthorityException
    */
-  public void setGrantOnly(PrivilegedSubject actor, boolean grantOnly)
+  public void setGrantOnly(PrivilegedSubject editor, boolean isGrantOnly)
   throws SignetAuthorityException;
 
   /**
-   * Gets the Status of this Assignment. An Assignment may have Status of
-   * ACTIVE, INACTIVE, or PENDING.
+   * Gets the <code>Status</code> of this Assignment. An Assignment may have
+   * <code>Status</code> of ACTIVE, INACTIVE, or PENDING.
    * 
-   * @return the Status of this Assignment.
+   * @return the <code>Status</code> of this Assignment.
    */
   public Status getStatus();
 
   /**
-   * Gets the Limits and Limit-values applied to this Assignment.
+   * Gets the {@link Limit}s and <code>Limit</code>-values applied to this
+   * Assignment.
    * 
-   * @return a set of LimitValue objects, which represents all of the Limits
-   * (constraints) applied to this Assignment, along with the values of those
-   * Limits.
+   * @return a set of {@link LimitValue} objects, which represents all of the
+   * <code>Limit</code>s (constraints) applied to this Assignment, along with
+   * the values of those <code>Limit</code>s.
    */
   public Set getLimitValues();
   
   /**
-   * Changes the Limit-values applied to an existing Assignment. To save this
-   * change in the database, call Assignment.save().
+   * Changes the {@link Limit}-values applied to an existing Assignment. To save
+   * this change in the database, call Assignment.save().
    * 
-   * @param actor the PrivilegedSubject who is responsible for this change.
+   * @param editor the <code>PrivilegedSubject</code> who is responsible for
+   * this change.
    * 
-   * @param limitValues the complete Set of LimitValues that should be
+   * @param limitValues the complete Set of {@link LimitValue}s that should be
    * associated with this Assignment.
    * 
    * @throws SignetAuthorityException
    *
    */
-  public void setLimitValues(PrivilegedSubject actor, Set limitValues)
+  public void setLimitValues(PrivilegedSubject editor, Set limitValues)
   throws SignetAuthorityException;
 
   /**
    * Revokes the specified Assignment from its current grantee. Note that in the
    * case of duplicate or overlapping Assignments, the grantee may still retain
-   * a given Privilege even after the revocation of a single Assignment that
-   * grants that Privilege.
+   * a given {@link Privilege} even after the revocation of a single
+   * Assignment that grants that <code>Privilege</code>.
    * 
    * @throws SignetAuthorityException
    * 
-   * @see Signet.getMatchingAssignments()
+   * @see #findDuplicates()
    * 
    */
   public void revoke(PrivilegedSubject revoker)

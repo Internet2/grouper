@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.23 2005-07-28 03:26:17 acohen Exp $
- $Date: 2005-07-28 03:26:17 $
+ $Id: AssignmentImpl.java,v 1.24 2005-08-16 01:26:31 acohen Exp $
+ $Date: 2005-08-16 01:26:31 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -788,5 +788,23 @@ implements Assignment, Comparable
       this.needsInitialHistoryRecord(true);
       this.getSignet().save(this);
     }
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()
+   */
+  public Date getActualStartDatetime()
+  {
+    throw new UnsupportedOperationException
+      ("This method is not yet implemented.");
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getActualEndDatetime()
+   */
+  public Date getActualEndDatetime()
+  {
+    throw new UnsupportedOperationException
+      ("This method is not yet implemented.");
   }
 }
