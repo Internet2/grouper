@@ -1,12 +1,15 @@
 /*--
-$Id: FunctionTest.java,v 1.4 2005-07-12 23:13:26 acohen Exp $
-$Date: 2005-07-12 23:13:26 $
+$Id: FunctionTest.java,v 1.5 2005-08-16 20:51:03 acohen Exp $
+$Date: 2005-08-16 20:51:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
+
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -107,7 +110,7 @@ public class FunctionTest extends TestCase
     }
   }
 
-  public final void testGetPermissionsArray()
+  public final void testGetPermissions()
   throws
   	ObjectNotFoundException
   {
@@ -123,14 +126,18 @@ public class FunctionTest extends TestCase
 
       // Function 0 contains Permission 0, Function 1 Permission Limit 1,
       // and so forth.
-      Permission[] permissions = function.getPermissionsArray();
-      assertEquals(permissions.length, 1);
+      Set permissions = function.getPermissions();
+      assertEquals(permissions.size(), 1);
+      Permission permission = null;
+      Iterator permissionsIterator = permissions.iterator();
+      while (permissionsIterator.hasNext())
+      {
+        permission = (Permission)(permissionsIterator.next());
+      }
+      
       assertEquals
-      	(signet
-      	 	.getSubsystem(Constants.SUBSYSTEM_ID)
-      	 		.getFunction(fixtures.makeFunctionId(functionIndex))
-      	 		  .getPermissionsArray()[0],
-      	 permissions[0]);
+        (fixtures.makePermissionId(functionIndex),
+         permission.getId());
     }
   }
 }

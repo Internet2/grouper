@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.9 2005-08-16 16:41:08 acohen Exp $
-$Date: 2005-08-16 16:41:08 $
+$Id: FunctionImpl.java,v 1.10 2005-08-16 20:51:03 acohen Exp $
+$Date: 2005-08-16 20:51:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,23 +8,13 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-import org.apache.commons.collections.list.LazyList;
-import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -45,7 +35,6 @@ implements Function
   private Category  category;
   private Set		  	permissions;
   private String 		helpText;
-  private boolean		permissionsNotYetFetched = true;
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -108,16 +97,6 @@ implements Function
   }
 
   /**
-   * @return Returns the permissions.
-   */
-  public Permission[] getPermissionsArray()
-  {
-    Permission[] permissionsArray = new Permission[0];
-    
-    return (Permission[])(this.getPermissions().toArray(permissionsArray));
-  }
-
-  /**
    * @param permissions The Permissions to associate with this Function.
    */
   public void setPermissionsArray(Permission[] permissions)
@@ -138,34 +117,8 @@ implements Function
     this.permissions = permissions;
   }
 
-  // This method exists only for use by Hibernate.
-  //
-  // I really want to do away with this method, having the Function
-  // pick up its associated Permissions via Hibernate object-mapping. I just
-  // haven't figured out how to do that yet.
-  Set getPermissions()
-  {
-//    if (this.getSignet() == null)
-//    {
-//      return this.permissions;
-//    }
-//    else if (this.permissionsNotYetFetched == true)
-//    {
-//      // We have not yet fetched the Permissions associated with this
-//      // Subsystem from the database. Let's make a copy of
-//      // whatever in-memory Permissions we DO have, because they
-//      // represent defined-but-not-necessarily-yet-persisted
-//      // Permissions.
-//      Set unsavedPermissions = this.permissions;
-//
-//      this.permissions
-//      	= this.getSignet().getPermissionsByFunction(this);
-//
-//      this.permissions.addAll(unsavedPermissions);
-//
-//      this.permissionsNotYetFetched = false;
-//    }
-    
+  public Set getPermissions()
+  {    
     return this.permissions;
   }
 

@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeImpl.java,v 1.3 2005-07-21 22:48:06 acohen Exp $
-$Date: 2005-07-21 22:48:06 $
+$Id: PrivilegeImpl.java,v 1.4 2005-08-16 20:51:03 acohen Exp $
+$Date: 2005-08-16 20:51:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -49,14 +49,16 @@ implements
   {
     Set privileges = new HashSet();
     
-    Permission[] assignmentPermissions
-      = assignment.getFunction().getPermissionsArray();
+    Set assignmentPermissions
+      = assignment.getFunction().getPermissions();
     
     Set assignmentLimitValues = assignment.getLimitValues();
     
-    for (int i = 0; i < assignmentPermissions.length; i++)
+    Iterator assignmentPermissionsIterator = assignmentPermissions.iterator();
+    while (assignmentPermissionsIterator.hasNext())
     {
-      Permission permission = assignmentPermissions[i];
+      Permission permission
+        = (Permission)(assignmentPermissionsIterator.next());
       
       Limit[] permissionLimits = permission.getLimitsArray();      
       Set permissionLimitValues

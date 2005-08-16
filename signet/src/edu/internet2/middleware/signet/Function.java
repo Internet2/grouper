@@ -1,6 +1,6 @@
 /*--
-$Id: Function.java,v 1.6 2005-07-12 23:13:26 acohen Exp $
-$Date: 2005-07-12 23:13:26 $
+$Id: Function.java,v 1.7 2005-08-16 20:51:03 acohen Exp $
+$Date: 2005-08-16 20:51:03 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -31,42 +31,29 @@ extends SubsystemPart, HelpText, Name, Comparable
   public String getId();
   
   /**
-   * Gets the Category associated with this Function.
+   * Gets the <code>Category</code> associated with this Function.
    * 
    * @return Returns the category.
    */
   public Category getCategory();
 
   /**
-   * Gets the Permissions associated with this Function.
+   * Gets the {@link Permission}s associated with this Function.
    * 
    * @return Returns the permissions.
    */
-  public Permission[] getPermissionsArray();
+  public Set getPermissions();
   
   /**
-   * Gets the Limits associated with this Function's Permissions.
-   * @return Returns the Set of Limits.
+   * Gets the {@link Limit}s associated with this Function's
+   * {@link Permission}s.
+   * @return Returns the Set of <code>Limit</code>s.
    */
   public Set getLimits();
-
-  /**
-   * Sets the Category associated with this Function.
-   * 
-   * @param category The category to set.
-   */
-  void setCategory(Category Category);
   
   /**
-   * Sets the Permissions associated with this Function.
-   * 
-   * @param permissions The permissions to set.
-   */
-  void setPermissionsArray(Permission[] permissions);
-  
-  /**
-   * Adds a permission to the set of Permissions associated with this
-   * Function.
+   * Adds a <code>Permission</code> to the set of <code>Permission</code>s
+   * associated with this Function.
    * 
    * @param permission
    */
