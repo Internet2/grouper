@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.16 2005-07-18 18:16:06 acohen Exp $
-  $Date: 2005-07-18 18:16:06 $
+  $Id: Common.java,v 1.17 2005-08-18 23:37:34 acohen Exp $
+  $Date: 2005-08-18 23:37:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -8,7 +8,11 @@
 */
 package edu.internet2.middleware.signet.ui;
 
+import java.text.SimpleDateFormat;
+
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,6 +34,9 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 public class Common
 {
+  private static final String daySuffix   = "_day";
+  private static final String monthSuffix = "_month";
+  private static final String yearSuffix  = "_year";
   /**
    * @param log
    * @param request
@@ -375,5 +382,130 @@ public class Common
     outStr.append("</a>");
   
     return outStr.toString();
+  }
+  
+  public static String dateSelection(String nameRoot, Date date)
+  {
+    Calendar calDate;
+    int dayNumber   = -1;
+    int monthNumber = -1;
+    int yearNumber  = -1;
+    Calendar calCurrentDate = Calendar.getInstance();
+    calCurrentDate.setTime(new Date());
+    int currentYear = calCurrentDate.get(Calendar.YEAR);
+    
+    if (date != null)
+    {
+      calDate = Calendar.getInstance();
+      calDate.setTime(date);
+      dayNumber = calDate.get(Calendar.DAY_OF_MONTH);
+      monthNumber = calDate.get(Calendar.MONTH) + 1;
+      yearNumber = calDate.get(Calendar.YEAR);
+    }
+    
+    StringBuffer outStr = new StringBuffer();
+    
+    outStr.append("<select name=\"" + nameRoot + daySuffix + "\">\n");
+    outStr.append("  <option value=\"none\"></option>\n");
+    
+    for (int i = 1; i <= 31; i++)
+    {
+      outStr.append
+        ("  <option" + (i == dayNumber ? " selected=\"selected\"" : "") + ">"
+            + i
+            + "</option>\n");
+    }
+    
+    outStr.append("</select>\n");
+    
+    outStr.append("<select name=\"" + nameRoot + monthSuffix + "\">\n");
+    outStr.append("  <option value=\"none\"></option>\n");
+    
+    SimpleDateFormat dateFormat = new SimpleDateFormat();
+    dateFormat.applyPattern("MMMMM");
+    
+    for (int i = 1; i <= 12; i++)
+    {
+      Calendar monthValue = Calendar.getInstance();
+      monthValue.set(Calendar.MONTH, i-1);
+      Date monthDate = monthValue.getTime();
+      String monthName = dateFormat.format(monthDate).toString();
+      outStr.append
+        ("  <option"
+            + (i == monthNumber ? " selected=\"selected\"" : "")
+            + " label=\"" + monthName + "\""
+            + " value=\"" + i + "\""
+            + ">"
+            + monthName
+            + "</option>\n");
+    }
+    
+    outStr.append("</select>\n");
+    
+    outStr.append("<select name=\"" + nameRoot + yearSuffix + "\">\n");
+    outStr.append("  <option value=\"none\"></option>\n");
+    
+    for (int i = (yearNumber == -1 ? currentYear : yearNumber);
+         i < ((yearNumber == -1 ? currentYear : yearNumber) + 4);
+         i++)
+    {
+      outStr.append
+        ("  <option" + (i == yearNumber ? " selected=\"selected\"" : "") + ">"
+            + i
+            + "</option>\n");
+    }
+    
+    outStr.append("</select>\n");
+    
+    return outStr.toString();
+  }
+  
+  private static boolean paramIsPresent(String paramVal)
+  {
+    return
+      ((paramVal != null)
+       && (paramVal.length() > 0)
+       && (!paramVal.equalsIgnoreCase("none")));
+  }
+  
+  private static boolean allDatePartsPresent
+    (String day,
+     String month,
+     String year)
+  {
+    return
+      (paramIsPresent(day) && paramIsPresent(month) && paramIsPresent(year));
+  }
+  
+  static public Date getDateParam
+    (HttpServletRequest request,
+     String             nameRoot)
+  {
+    Date date = null;
+    
+    // In this first version of this method, we'll just interpret
+    // any incomplete date as a NULL date.
+    String dayStr = request.getParameter(nameRoot + daySuffix);
+    String monthStr = request.getParameter(nameRoot + monthSuffix);
+    String yearStr = request.getParameter(nameRoot + yearSuffix);
+    
+    if (allDatePartsPresent(dayStr, monthStr, yearStr))
+    {
+      // dayNumber is between 1 and 31.
+      int dayNumber
+        = Integer.parseInt(request.getParameter(nameRoot + daySuffix));
+      // dayNumber is between 1 and 12.
+      int monthNumber
+        = Integer.parseInt(request.getParameter(nameRoot + monthSuffix));
+      int yearNumber
+        = Integer.parseInt(request.getParameter(nameRoot + yearSuffix));
+      
+      Calendar calendar = Calendar.getInstance();
+      calendar.clear();
+      calendar.set(yearNumber, monthNumber-1, dayNumber);
+      date = calendar.getTime();
+    }
+    
+    return date;
   }
 }

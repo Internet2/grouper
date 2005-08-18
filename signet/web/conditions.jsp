@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.27 2005-07-27 18:31:35 jvine Exp $
-  $Date: 2005-07-27 18:31:35 $
+  $Id: conditions.jsp,v 1.28 2005-08-18 23:37:34 acohen Exp $
+  $Date: 2005-08-18 23:37:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -90,6 +90,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.HashSet" %>
+<%@ page import="java.util.Date" %>
 
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
@@ -392,6 +393,36 @@
 <%
    }
 %>
+              <fieldset>
+              
+                <legend>
+                  Effective date
+                </legend>
+                
+                <%=Common.dateSelection
+                    ("effectiveDate",
+                     currentAssignment == null
+                       ? new Date()
+                       : currentAssignment.getEffectiveDate())%>
+                  
+              </fieldset>
+
+              <fieldset>
+              
+                <legend>
+                  Duration
+                </legend>
+                
+                until:
+                
+                <%=Common.dateSelection
+                    ("expirationDate",
+                     currentAssignment == null
+                       ? null
+                       : currentAssignment.getExpirationDate())%>
+                
+              </fieldset>
+
               <fieldset>
                 <legend>
                   Extensibility: privilege holder can...

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.25 2005-08-16 16:41:08 acohen Exp $
- $Date: 2005-08-16 16:41:08 $
+ $Id: AssignmentImpl.java,v 1.26 2005-08-18 23:37:34 acohen Exp $
+ $Date: 2005-08-18 23:37:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -67,6 +67,48 @@ implements Assignment, Comparable
     this.limitValues = new HashSet(0);
   }
   
+  private Status determineStatus
+    (Date effectiveDate,
+     Date expirationDate)
+  {
+    Date today = new Date();
+    Status status;
+    
+    if ((effectiveDate != null) && (today.compareTo(effectiveDate) < 0))
+    {
+      // effectiveDate has not yet arrived.
+      status = Status.PENDING;
+    }
+    else if ((expirationDate != null) && (today.compareTo(expirationDate) > 0))
+    {
+      // expirationDate has already passed.
+      status = Status.INACTIVE;
+    }
+    else
+    {
+      status = Status.ACTIVE;
+    }
+    
+    return status;
+  }
+  
+  private boolean datesInWrongOrder
+    (Date effectiveDate,
+     Date expirationDate)
+  {
+    boolean result = false;
+    
+    if ((effectiveDate != null) && (expirationDate != null))
+    {
+      if (effectiveDate.compareTo(expirationDate) >= 0)
+      {
+        return true;
+      }
+    }
+    
+    return result;
+  }
+  
   public AssignmentImpl
   	(Signet							signet,
      PrivilegedSubject	grantor, 
@@ -80,8 +122,8 @@ implements Assignment, Comparable
      Date               expirationDate)
   throws
   	SignetAuthorityException
-  {
-    super(signet, null, null, Status.ACTIVE);
+  {    
+    super(signet, null, null, null);
     
     if (function == null)
     {
@@ -92,8 +134,8 @@ implements Assignment, Comparable
     if ((canGrant == false) && (grantOnly == true))
     {
       throw new IllegalArgumentException
-      ("It is illegal to create a new Assignment with both its canGrant"
-          + " and grantOnly attributes set true.");
+        ("It is illegal to create a new Assignment with both its canGrant"
+         + " and grantOnly attributes set true.");
     }
     
     this.limitValues = limitValues;
@@ -105,6 +147,17 @@ implements Assignment, Comparable
     this.function = (FunctionImpl)function;
     this.grantable = canGrant;
     this.grantOnly = grantOnly;
+    
+    if (datesInWrongOrder(effectiveDate, expirationDate))
+    {
+      throw new IllegalArgumentException
+        ("An Assignment's expiration-date must be later than its"
+         + " effective-date. The requested expiration-date '"
+         + expirationDate
+         + "' is not later than the requested effective-date '"
+         + effectiveDate
+         + "'.");
+    }
 
     this.effectiveDate = effectiveDate;
     this.expirationDate = expirationDate;
@@ -123,6 +176,7 @@ implements Assignment, Comparable
     }
     
     this.checkAllLimitValues(function, limitValues);
+    this.setStatus(determineStatus(effectiveDate, expirationDate));
     this.setModifyDatetime(new Date());
   }
   

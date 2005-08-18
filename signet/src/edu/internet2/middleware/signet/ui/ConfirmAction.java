@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.6 2005-07-12 23:13:26 acohen Exp $
-$Date: 2005-07-12 23:13:26 $
+$Id: ConfirmAction.java,v 1.7 2005-08-18 23:37:34 acohen Exp $
+$Date: 2005-08-18 23:37:34 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -100,6 +100,9 @@ throws Exception
   String canUseString = request.getParameter("can_use");
   String canGrantString = request.getParameter("can_grant");
 
+  Date effectiveDate = Common.getDateParam(request, "effectiveDate");
+  Date expirationDate = Common.getDateParam(request, "expirationDate");
+
   if (paramIsPresent(canUseString))
   {
     grantOnly = false;
@@ -125,6 +128,8 @@ throws Exception
     assignment.setLimitValues(grantor, limitValues);
     assignment.setGrantable(grantor, canGrant);
     assignment.setGrantOnly(grantor, grantOnly);
+    assignment.setEffectiveDate(grantor, effectiveDate);
+    assignment.setEffectiveDate(grantor, expirationDate);
   }
   else
   {
@@ -137,8 +142,8 @@ throws Exception
            limitValues,
            canGrant,
            grantOnly,
-           new Date(), // effective immediately
-           null);      // no expiration date
+           effectiveDate,
+           expirationDate);
   }
   
   // Let's see whether or not the Assignment we want to save has any
