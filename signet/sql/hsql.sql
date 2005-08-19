@@ -15,13 +15,11 @@ drop table signet_assignment if exists;
 drop table signet_assignmentLimit_history if exists;
 drop table signet_assignment_history if exists;
 -- Subsystem tables
-drop table signet_proxyType_function if exists;
 drop table signet_permission_limit if exists;
 drop table signet_function_permission if exists;
 drop table signet_category if exists;
 drop table signet_function if exists;
 drop table signet_permission if exists;
-drop table signet_proxyType if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
 -- Subject tables (optional, for local subject tables)
@@ -77,18 +75,6 @@ unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
-create table signet_proxyType
-(
-subsystemID         varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NOT NULL,
-status              varchar(16)         NOT NULL,
-name                varchar(120)        NOT NULL,
-helpText            varchar(2000)       NULL,
-modifyDatetime      datetime            NOT NULL,
-primary key (subsystemID, proxyTypeID),
-foreign key (subsystemID) references signet_subsystem (subsystemID)
-)
-;
 create table signet_limit
 (
 limitKey			int                 NOT NULL IDENTITY,
@@ -127,16 +113,6 @@ defaultLimitValueValue  varchar(64)     NULL,
 primary key (permissionKey, limitKey),
 foreign key (permissionKey) references signet_permission (permissionKey),
 foreign key (limitKey) references signet_limit (limitKey)
-)
-;
-create table signet_proxyType_function
-(
-subsystemID         varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
-primary key (subsystemID, proxyTypeID, functionID),
-foreign key (subsystemID, proxyTypeID) references signet_proxyType (subsystemID, proxyTypeID),
-foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID)
 )
 ;
 --
@@ -290,6 +266,53 @@ value               varchar(32)         NOT NULL,
 primary key(historyID),
 foreign key(assignmentID, instanceNumber)
   references signet_assignment_history(assignmentID, instanceNumber)
+)
+;
+create table signet_proxy
+(
+proxyID             int                 NOT NULL IDENTITY,
+instanceNumber      int                 NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       datetime            NOT NULL,
+expirationDate      datetime            NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+modifyDatetime      datetime            NOT NULL,
+primary key (proxyID)
+)
+;
+create table signet_proxy_history
+(
+historyID           int                 NOT NULL IDENTITY,
+proxyID             int                 NOT NULL,
+instanceNumber      int                 NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+functionID          varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+proxyTypeID         varchar(64)         NULL,
+proxyID             varchar(64)         NULL,
+scopeID             varchar(64)         NULL,
+scopeNodeID         varchar(64)         NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       datetime            NOT NULL,
+expirationDate      datetime            NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+historyDatetime     datetime            NOT NULL,
+modifyDatetime      datetime            NOT NULL,
+unique (proxyID, instanceNumber)
 )
 ;
 --

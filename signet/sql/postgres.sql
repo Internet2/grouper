@@ -23,13 +23,11 @@ drop table signet_assignmentLimit_history;
 drop sequence assignmentSerial;
 
 -- Subsystem tables
-drop table signet_proxyType_function cascade;
 drop table signet-permission_limit cascade; 
 drop table signet_function_permission cascade;
 drop table signet_category cascade;
 drop table signet_function cascade;
 drop table signet_permission cascade;
-drop table signet_proxyType cascade;
 drop table signet_limit cascade;
 drop table signet_subsystem cascade;
 
@@ -96,19 +94,6 @@ foreign key (subsystemID) references signet_subsystem (subsystemID)
 );
 
 
-create table signet_proxyType
-(
-subsystemID         varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NOT NULL,
-status              varchar(16)         NOT NULL,
-name                varchar(120)        NOT NULL,
-helpText            text                NULL,
-modifyDatetime      timestamp           NOT NULL,
-
-primary key (subsystemID, proxyTypeID),
-foreign key (subsystemID) references signet_subsystem (subsystemID)
-);
-
 create sequence limitSerial START 1;
 
 create table signet_limit
@@ -154,18 +139,6 @@ defaultLimitValueValue  varchar(64)     NULL,
 primary key (permissionKey, limitKey),
 foreign key (permissionKey) references signet_permission (permissionKey),
 foreign key (limitKey) references signet_limit (limitKey)
-);
-
-
-create table signet_proxyType_function
-(
-subsystemID         varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
-
-primary key (subsystemID, proxyTypeID, functionID),
-foreign key (subsystemID, proxyTypeID) references signet_proxyType (subsystemID, proxyTypeID),
-foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID)
 );
 
 
@@ -272,7 +245,7 @@ revokerTypeID       varchar(32)         NULL,
 revokerID           varchar(64)         NULL,
 modifyDatetime      timestamp           NOT NULL,
 
-primary key (assignmentID, instanceNumber)
+primary key (assignmentID)
 );
 
 
@@ -287,10 +260,11 @@ foreign key (limitKey) references signet_limit (limitKey)
 );
 
 
+create sequence assignmentHistorySerial START 1;
 
 create table signet_assignment_history
 (
-historyID           integer             DEFAULT nextval('assignmentSerial'),
+historyID           integer             DEFAULT nextval('assignmentHistorySerial'),
 assignmentID        integer             NOT NULL,
 instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -327,6 +301,54 @@ limitTypeID         varchar(64)         NOT NULL,
 value               varchar(32)         NOT NULL,
 primary key (historyID),
 foreign key (assignmentID, instanceNumber) references signet_assignment (assignmentID, instanceNumber)
+);
+
+create sequence proxySerial START 1;
+
+create table signet_proxy
+(
+proxyID             integer             DEFAULT nextval('proxySerial'),
+instanceNumber      integer             NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       timestamp           NOT NULL,
+expirationDate      timestamp           NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+modifyDatetime      timestamp           NOT NULL,
+
+primary key (proxyID)
+);
+
+create sequence proxyHistorySerial START 1;
+
+create table signet_proxy_history
+(
+historyID           integer             DEFAULT nextval('proxyHistoySerial'),
+proxyID             integer             NOT NULL,
+instanceNumber      integer             NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       timestamp           NOT NULL,
+expirationDate      timestamp           NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+historyDatetime     timestamp           NOT NULL;
+modifyDatetime      timestamp           NOT NULL,
+
+primary key (proxyID, instanceNumber)
 );
 
 

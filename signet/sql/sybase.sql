@@ -13,18 +13,18 @@ drop table signet_tree;
 drop table signet_choice;
 drop table signet_choiceSet;
 -- Assignment tables
-drop table signet_assignmentLimit;
-drop table signet_assignment;
 drop table signet_assignmentLimit_history;
 drop table signet_assignment_history;
+drop table signet_assignmentLimit;
+drop table signet_assignment;
+drop table signet_proxy_history;
+drop table signet_proxy;
 -- Subsystem tables
-drop table signet_proxyType_function;
 drop table signet_permission_limit;
 drop table signet_function_permission;
 drop table signet_category;
 drop table signet_function;
 drop table signet_permission;
-drop table signet_proxyType;
 drop table signet_limit;
 drop table signet_subsystem;
 -- Subject tables (optional, for local subject tables)
@@ -80,18 +80,6 @@ unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
-create table signet_proxyType
-(
-subsystemID         varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NOT NULL,
-status              varchar(16)         NOT NULL,
-name                varchar(120)        NOT NULL,
-helpText            text                NULL,
-modifyDatetime      smalldatetime       default getdate(),
-primary key (subsystemID, proxyTypeID),
-foreign key (subsystemID) references signet_subsystem (subsystemID)
-)
-;
 create table signet_limit
 (
 limitKey			numeric(12,0)       IDENTITY,
@@ -130,16 +118,6 @@ defaultLimitValueValue  varchar(64)     NULL,
 primary key (permissionKey, limitKey),
 foreign key (permissionKey) references signet_permission (permissionKey),
 foreign key (limitKey) references signet_limit (limitKey)
-)
-;
-create table signet_proxyType_function
-(
-subsystemID         varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NOT NULL,
-functionID          varchar(64)         NOT NULL,
-primary key (subsystemID, proxyTypeID, functionID),
-foreign key (subsystemID, proxyTypeID) references signet_proxyType (subsystemID, proxyTypeID),
-foreign key (subsystemID, functionID) references signet_function (subsystemID, functionID)
 )
 ;
 -- Signet Subject tables
@@ -266,8 +244,6 @@ modifyDatetime      smalldatetime       default getdate(),
 primary key (assignmentID, instanceNumber)
 )
 ;
---
---     
 create table signet_assignmentLimit_history
 (
 historyID			numeric(12,0)		IDENTITY,
@@ -287,6 +263,48 @@ value               varchar(32)         NOT NULL,
 primary key(historyID),
 foreign key(assignmentID, instanceNumber)
   references signet_assignment_history(assignmentID, instanceNumber)
+)
+;
+create table signet_proxy
+(
+proxyID             numeric(12,0)       IDENTITY,
+instanceNumber      int                 NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       smalldatetime       NOT NULL,
+expirationDate      smalldatetime       NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+modifyDatetime      smalldatetime       default getdate(),
+primary key (proxyID)
+)
+;
+create table signet_proxy_history
+(
+historyID           numeric(12,0)       IDENTITY,
+proxyID             numeric(12,0)       NOT NULL,
+instanceNumber      int                 NOT NULL,
+status              varchar(16)         NOT NULL,
+subsystemID         varchar(64)         NOT NULL,
+grantorTypeID       varchar(32)         NOT NULL,
+grantorID           varchar(64)         NOT NULL,
+granteeTypeID       varchar(32)         NOT NULL,
+granteeID           varchar(64)         NOT NULL,
+canGrant            bit                 NOT NULL,
+grantOnly           bit                 NOT NULL,
+effectiveDate       smalldatetime       NOT NULL,
+expirationDate      smalldatetime       NULL,
+revokerTypeID       varchar(32)         NULL,
+revokerID           varchar(64)         NULL,
+historyDatetime     smalldatetime       NOT NULL,
+modifyDatetime      smalldatetime       default getdate(),
+primary key (proxyID, instanceNumber)
 )
 ;
 -- Subject tables (optional, for local subject tables)
