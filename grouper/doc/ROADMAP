@@ -3,15 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.40 2005-07-29 01:53:50 blair Exp $
+$Id: ROADMAP,v 1.41 2005-08-22 18:57:53 blair Exp $
 
 ---
 
 # Grouper 0.6
 
 "initial UI release, supporting Phase 1 functionality"
-
-## Bugs
 
 ## Features
 
