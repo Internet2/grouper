@@ -1,0 +1,76 @@
+<project name="local" default="help" basedir=".">
+	<!-- Builds XmlLoader and allows you to run it -->
+	<property file="build.properties"/>
+	<property file="../../build.properties"/>
+	<target name="build">
+		<fail unless="grouper.folder">grouper.folder must be set</fail>
+		<echo message="Working with grouper.folder=${grouper.folder}"/>
+		<mkdir dir="bin"/>
+		<path id="contrib.class.path">
+			<fileset dir="${grouper.folder}/dist/lib">
+				<include name="**/*.jar"/>
+			</fileset>
+		</path>
+		<javac srcdir="java/src" destdir="bin" classpathref="contrib.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<!-- make site specific jar files available to webapp -->
+		<copy toDir="bin" overwrite="true">
+			<fileset dir="${grouper.folder}/conf"/>
+		</copy>
+	</target>
+	<target name="load" depends="build">
+		<antcall target="-load-with-xml"/>
+		<antcall target="-load-ask-xml"/>
+	</target>
+	<target name="-load-with-xml" if="load.xml">
+		<available property="xml.available" file="${load.xml}"/>
+		<fail unless="xml.available" message="The file [${load.xml}] does not exist"/>
+		<echo message="Loading ${load.xml}"/>
+		<path id="contrib.class.path">
+			<!-- Add any site specific jar files to class path -->
+			<fileset dir="${grouper.folder}/dist/lib">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="../../java/lib">
+				<include name="**/*.jar"/>
+			</fileset>
+			<pathelement path="bin"/>
+		</path>
+		<java classname="uk.ac.bris.is.grouper.quickstart.XmlLoader" classpathref="contrib.class.path">
+			<arg value="${load.xml}"/>
+		</java>
+	</target>
+	<target name="-load-ask-xml" unless="load.xml">
+		<input addproperty="load.xml" message="Enter Xml filename to load:"/>
+		<antcall target="-load-with-xml">
+			<param name="load.xml" value="${load.xml}"/>
+		</antcall>
+	</target>
+	<target name="help">
+		<echo>The 'html' target generates Javadoc for XmlLoader.
+		
+The 'run' target attemps to load an Xml file 
+(see API documentation for format) defined by 
+the property load.xml. This property can be
+set on the command line, in a build.properties file in this
+directory, or in the main grouper-ui build.properties file. 
+If none is specified you will be prompted to enter a file name.
+			  
+The grouper.folder property must be set - can be set as for load.xml
+except you won't be prompted for a value.  The Grouper and Subject
+databases defined in grouper.folder/conf must be available for 
+connections.
+			  </echo>
+	</target>
+	
+	<target name="html" depends="build">
+		<javadoc 
+			 destdir="doc"                
+			 classpath="bin"    
+			 access="public"     
+		  > 
+			<packageset dir="java/src" defaultexcludes="yes">
+			  <include name="*/**"/>
+			  </packageset>
+		   </javadoc> 
+	</target>
+</project>

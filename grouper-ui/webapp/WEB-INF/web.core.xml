@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!DOCTYPE web-app PUBLIC 
+          "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+          "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+<filter>
+  	<filter-name>Login check</filter-name>
+  	<filter-class>edu.internet2.middleware.grouper.ui.LoginCheckFilter</filter-class>
+  	<init-param>    
+  		<param-name>failureUrl</param-name>    
+  		<param-value>/</param-value>  
+  	</init-param>
+	 	<init-param>    
+  	<param-name>ignore</param-name>    
+  		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:</param-value>  
+  	</init-param>
+  </filter>
+ 
+  <filter-mapping>
+  	<filter-name>Login check</filter-name>
+  	<url-pattern>*.do</url-pattern>
+  </filter-mapping>
+<listener>
+  	<listener-class>edu.internet2.middleware.grouper.ui.GrouperSessionAttributeListener</listener-class>
+</listener>
+  <servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  <error-page> 
+  <error-code>401</error-code> 
+  <location>/401.do</location> 
+</error-page>
+<error-page> 
+  <exception-type>java.lang.Exception</exception-type> 
+  <location>/error.do</location> 
+</error-page>
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-html.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-html-el.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-bean.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-bean-el.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-logic.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-logic-el.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>/WEB-INF/struts-tiles.tld</taglib-uri>
+    <taglib-location>/WEB-INF/struts-tiles-el.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/xml</taglib-uri>
+    <taglib-location>/WEB-INF/x.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+    <taglib-location>/WEB-INF/c.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://jakarta.apache.org/taglibs/request-1.0</taglib-uri>
+    <taglib-location>/WEB-INF/taglibs-request.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://jakarta.apache.org/taglibs/datetime-1.0</taglib-uri>
+    <taglib-location>/WEB-INF/taglibs-datetime.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/fmt</taglib-uri>
+    <taglib-location>/WEB-INF/fmt.tld</taglib-location>
+  </taglib>
+    <taglib>
+    <taglib-uri>http://middleware.internet2.edu/dir/groups/grouper</taglib-uri>
+    <taglib-location>/WEB-INF/grouper-el.tld</taglib-location>
+  </taglib>
+  
+   <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Tomcat login</web-resource-name>
+      <url-pattern>/login.do</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+       <!-- NOTE:  This role is not present in the default users file -->
+       <role-name>grouper_user</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Grouper Application</realm-name>
+  </login-config>
+
+  <!-- Security roles referenced by this web application -->
+  <security-role>
+    <description>
+      The role that is required to log in to the Manager Application
+    </description>
+    <role-name>grouper_user</role-name>
+  </security-role>
+</web-app>

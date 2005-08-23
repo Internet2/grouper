@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+                           "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<taglib>
+    <tlibversion>1.0</tlibversion>
+    <jspversion>1.1</jspversion>
+    <shortname>grouper</shortname>
+    <uri>http://middleware.internet2.edu/dir/groups/grouper</uri>
+    <info>Grouper tag library</info>
+
+    <tag>
+        <name>recordTile</name>
+        <tagclass>edu.internet2.middleware.grouper.ui.ELTileRecorderTag</tagclass>
+        <info>registers with UIThreadLocal that a tile was loaded</info>
+        <attribute>
+            <name>view</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>type</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+         <attribute>
+            <name>key</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>tile</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+    </tag>
+</taglib>

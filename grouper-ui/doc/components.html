@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Grouper UI Components</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+
+<body>
+<h1>Grouper UI Components</h1>
+<h2>Overview</h2>
+<p><img src="build.png" width="573" height="447" /> </p>
+<h3>Custom components</h3>
+<p><strong>grouper</strong></p>
+<blockquote>
+  <p>The Grouper API distribution includes the binary files for the Subject API 
+    implementation which includes a JDBC provider and an LDAP provider.</p>
+</blockquote>
+<p><strong>grouper-ui</strong> </p>
+<blockquote>
+  <p>Source code for the Grouper UI is maintained as a separate module in the 
+    Internet2 Middleware CVS repository.</p>
+</blockquote>
+<p><strong>custom-grouper-ui</strong><em> (optional)</em></p>
+<blockquote>
+  <p>Sites implementing Grouper will generally want to re-brand (and perhaps heavily 
+    customise) the native Grouper UI (see <a href="customising-grouper-ui.html">Customising 
+    the Grouper UI</a>).</p>
+</blockquote>
+<p> <strong>custom subject provider</strong> <em>(optional)</em></p>
+<blockquote>
+  <p>Depending on the identity management / person repository(s) in use, a site 
+    may also need to implement a custom <a href="api/edu/internet2/middleware/subject/Source.html">Subject 
+    provider</a>.</p>
+</blockquote>
+<h3>Build product</h3>
+<p>The Grouper UI build script compiles and combines the custom components in 
+  order to create a single web application build product. This step is responsible 
+  for ensuring that all required libraries (JAR files) and configuration files 
+  are available on the web application class path i.e. in the <em>lib</em> or 
+  <em>classes</em> directories. </p>
+<h3>Application sever</h3>
+<p>Once built, the web application is then deployed to an application server. 
+  Currently, only Tomcat has been tested.</p>
+<p>The Grouper UI does not require any container specific configuration to work.</p>
+<h3>Databases</h3>
+<p>Grouper requires a relational database. The default is HSQLDB, however, in 
+  principle, any database for which there is a JDBC driver and which is supported 
+  by <a href="http://www.hibernate.org">Hibernate</a> can be used. </p>
+<p>The Subject API can be configured to work with multiple sources. JDBC and LDAP 
+  providers are provided with the Subject API distribution, however, sites can 
+  implement their own providers.</p>
+<p>Each time the Grouper UI is built, the sources.xml and hibernate.properties 
+  file are copied from grouper/conf to the web application classes directory. 
+  Database components can, through these files, be configured to be on the same 
+  machine or separate machines.</p>
+<h2>The QuickStart distribution</h2>
+<p>The default QuickStart configuration uses the same HSQLDB database as a Grouper 
+  repository and as a source for the JDBC provider - the only source configured. 
+  In addition, Tomcat and the HSQLDB database run on the same machine.</p>
+</body>
+</html>

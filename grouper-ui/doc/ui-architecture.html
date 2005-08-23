@@ -1,0 +1,967 @@
+<html >
+<head>
+ <title>Grouper UI Architecture</title>
+</head>
+<body>
+ <h1>Grouper UI Architecture</h1>
+
+<div class="toc">
+<ul>
+  <li><a href="#L45110">1. Introduction</a></li>
+  <li><a href="#L45157">2. The architecture and how it matches the
+    requirements</a>
+    <ul>
+      <li><a href="#L45161">2.1. Core technology</a></li>
+      <li><a href="#L45185">2.2. Framework</a></li>
+      <li><a href="#L45199">2.3. Internationalization</a></li>
+      <li><a href="#L45215">2.4. Extensibility</a></li>
+      <li><a href="#L45219">2.5. Separation of core Grouper UI code from
+        site-specific code</a></li>
+      <li><a href="#L45238">2.6. Accessibility</a></li>
+    </ul>
+  </li>
+  <li><a href="#L45245">3. Implementation details</a>
+    <ul>
+      <li><a href="#L45249">3.1. Grouper UI out of the box</a></li>
+      <li><a href="#L45467">3.2. Grouper UI tailored for the University of
+        Bristol (UoB)</a></li>
+      <li><a href="#L45708">3.3. Supporting an additional language</a></li>
+      <li><a href="#L45732">3.4. Overloading in ResourceBundles</a>
+        <ul>
+          <li><a href="#L45735">3.4.1. How it works</a></li>
+          <li><a href="#L45777">3.4.2. Multiple UIs one instance</a></li>
+          <li><a href="#L45825">3.4.3. Chaining ResourceBundles</a></li>
+        </ul>
+      </li>
+      <li><a href="#L45856">3.5. Overloading Struts config elements</a></li>
+      <li><a href="#L45868">3.6. Additional hooks to extend the Grouper
+      UI</a></li>
+      <li><a href="#L45875">3.7. Page composition using Tiles</a></li>
+      <li><a href="#L3528">3.8. Content composition using Tiles</a></li>
+      <li><a href="#L5919">3.9. Dynamic tiles</a></li>
+      <li><a href="#L7231">3.10. JSP Tag libraries</a></li>
+    </ul>
+  </li>
+</ul>
+</div>
+
+<h2 id="L45110">1. Introduction</h2>
+
+<p>This document describes the proposed architecture for the Grouper UI. The
+architecture aims to satisfy the following general requirements:</p>
+<ol>
+  <li><strong>Core technology</strong>
+    <p>Java-based web application to complement the Grouper API which is also
+    Java-based</p>
+  </li>
+  <li><strong>Web application framework</strong>
+    <p>Use of established and well-documented framework not tied to
+    particular platform</p>
+  </li>
+  <li><strong>Internationalization</strong>
+    <p>Designed to facilitate sites who wish to use a language other than
+    english and in such a way that an institution can offer more than one
+    language</p>
+  </li>
+  <li><strong>Extensibility</strong>
+    <p>Institutions will likely want to tailor the UI to reflect local
+    business rules and available meta data</p>
+  </li>
+  <li><strong>Separation of core Grouper UI code from site-specific
+    code</strong>
+    <p>Separation is important to ensure that local changes do not require
+    modification of Grouper sources thus making upgrades much easier</p>
+  </li>
+  <li><strong>Accessibility</strong>
+    <p>Content must be accessible through use of DOM /CSS layouts rather than
+    table layouts</p>
+  </li>
+</ol>
+
+<h2 id="L45157">2. The architecture and how it matches the requirements</h2>
+
+<p>Where relevant links are provided to some of the concepts and their
+justifications</p>
+
+<h3 id="L45161">2.1. Core technology</h3>
+
+<p>The Grouper UI will use the standard Servlet API (Version 2.3) which
+includes <a href="http://java.sun.com/products/jsp/index.jsp">Java Server
+Pages</a> (JSP). The servlet API is supported by many J2EE application
+servers, e.g. <a
+href="http://www.bea.com/framework.jsp?CNT=index.htm&amp;FP=/content/products/server">BEA
+Weblogic</a>, <a href="http://www-306.ibm.com/software/websphere/">IBM
+WebSphere</a> and <a
+href="http://java.sun.com/j2ee/1.4/download.html#sdk">Sun Java System
+Application Server</a>, as well as some open source application servers
+(which may not provide complete J2EE support) such as <a
+href="http://www.caucho.com">Resin</a> and <a
+href="http://jakarta.apache.org/tomcat/tomcat-4.1-doc/index.html">Apache
+Tomcat</a>.</p>
+
+<p>The UI will be developed using J2SE 1.4 and Tomcat 4.1.x. Given the
+widespread support for the Servlet API it is expected that the UI
+distribution will work with any compliant application server, however, we
+will depend on early adopters to feedback any issues.</p>
+
+<h3 id="L45185">2.2. Framework</h3>
+
+<p><a href="http://struts.apache.org">Apache Struts</a> has been chosen as
+the web application framework due to its wide acceptance and use in this
+arena. It is an implementation of the <a
+href="http://java.sun.com/blueprints/patterns/MVC.html">Model-View-Controller</a>
+(MVC) design pattern which encourages separation of business logic from the
+presentation layer. This document will also show how the Struts framework can
+help satisfy other requirements indicated in the Introduction.</p>
+
+<p>Struts supports a templating engine called <a
+href="http://struts.apache.org/userGuide/dev_tiles.html">Tiles</a> which
+allows common UI elements to be defined once and re-used as often as
+needed.</p>
+
+<h3 id="L45199">2.3. Internationalization</h3>
+
+<p>Struts supports <a
+href="http://www.unicode.org/iuc/iuc15/ta4/slides.pdf">internationalization</a>
+through the use of <a
+href="http://struts.apache.org/userGuide/building_view.html">message
+resources</a> and <a
+href="http://www.lifl.fr/~dumoulin/tiles/tilesAdvancedFeatures.pdf">locale
+specific tiles</a> (page 48). Since Struts was developed the <a
+href="http://java.sun.com/products/jsp/jstl/">Java Standard Tag Library</a>
+(JSTL) has been released and this offers an alternative way of specifying
+message resource. The JSTL method will be adopted for this project.</p>
+
+<h3 id="L45215">2.4. Extensibility</h3>
+
+<p>Struts is configured through XML descriptors. By adding configuration
+elements to the XML descriptor, new actions can be created, or existing ones
+modified. The use of Tiles offers a great deal of freedom to redefine
+individual templates as deemed necessary.</p>
+
+<h3 id="L45219">2.5. Separation of core Grouper UI code from site-specific
+code</h3>
+
+<p>Struts supports multiple configuration files. If two configuration
+elements with the same name are loaded the one loaded last is used. This
+allows new configuration elements to be added and existing ones to be
+overriden without actually modifying the Struts configuration file supplied
+in the Grouper UI distribution.</p>
+
+<p>The same is true of Tiles definition descriptors.</p>
+
+<p>Text for each additional language is contained in a separate properties
+file. Java <a
+href="http://java.sun.com/j2se/1.4.2/docs/api/java/util/ResourceBundle.html">ResourceBundles</a>
+automatically look in the correct file based on the currently specified
+locale.</p>
+
+<p>The Grouper UI will include a <a
+href="http://www.w3.org/Style/CSS/">cascading style sheet</a> (CSS) file
+which governs the visual appearance of the UI. We will provide a way of
+importing additional site-specified CSS files which can add additional style
+definitions or override existing definitions.</p>
+
+<h3 id="L45238">2.6. Accessibility</h3>
+
+<p>The Grouper UI will be tested for <a
+href="http://www.w3.org/WAI/WCAG1AA-Conformance">compliance</a>.</p>
+
+<h2 id="L45245">3. Implementation details</h2>
+
+<p>This section will discuss important features of the directory structure
+and configuration files used by the default Grouper UI distribution, and how
+institutions can tailor the UI to meet their own requirements. It focusses on
+the deployed directory structure. A working knowledge of Struts* will aid
+understanding.</p>
+
+<p>*A few minor changes to some Struts source code has been required to make
+everything work as described below.</p>
+
+<h3 id="L45249">3.1. Grouper UI out of the box</h3>
+
+<table border="1">
+  <caption></caption>
+  <tbody>
+    <tr>
+      <td>grouper</td>
+      <td></td>
+      <td></td>
+      <td>The web application document root.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>grouper</td>
+      <td></td>
+      <td>Grouper specific stylesheets</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>images</td>
+      <td>Grouper specific images</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>i2mi</td>
+      <td></td>
+      <td>Internet 2 specific stylesheets</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>images</td>
+      <td>Internet 2 specific images</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>WEB-INF</td>
+      <td></td>
+      <td>Web application data which cannot be accessed directly by a web
+        browser. Includes the web.xml descriptor which defines the web
+        application. The Struts ActionServlet is configured here.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>classes</td>
+      <td>Java classes and resources placed here are available to the web
+        application through its classloader. Grouper UI code will go here</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>jsp</td>
+      <td>Java Server Pages placed here cannot be referenced directly from a
+        web browser / client, however, they can be acessed by servlets within
+        this web application. For consistency all pages are processed by the
+        Struts ActionServlet.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>lib</td>
+      <td>.jar files placed here are available to the web application through
+        its classloader. Jar files for the Struts framework and the Grouper
+        API would go here</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The Struts ActionServlet is configured in the web.xml file thus:</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;servlet&gt;
+    &lt;servlet-name&gt;<span style="color: #000000">action</span>&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;<span style="color: #000000">org.apache.struts.action.ActionServlet</span>&lt;/servlet-class&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;<span style="color: #FF0000">config</span>&lt;/param-name&gt;
+      &lt;param-value&gt;<span style="color: #FF0000">/WEB-INF/struts-config.xml</span>&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;2&lt;/load-on-startup&gt;
+  &lt;/servlet&gt;
+  &lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;<span style="color: #FF0000">action</span>&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;<span style="color: #FF0000">*.do</span>&lt;/url-pattern&gt;
+  &lt;/servlet-mapping&gt;</pre>
+</div>
+
+<p>The <code>&lt;servlet-mapping&gt;</code> element causes any url ending in
+<span style="color: #FF0000">.d</span><span style="color: #FF0000">o</span>
+to be served by the Struts ActionServlet.</p>
+
+<p>Note the <code><span style="color: #FF0000">config</span></code>
+parameter. The ActionServlet initialization is driven by this file.</p>
+
+<p>In order to use Tiles with Struts, Struts must be configured to load the
+Tiles plugin. In the struts-config.xml file:</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;plug-in className="org.apache.struts.tiles.TilesPlugin"&gt;
+    &lt;set-property property="moduleAware" value="true"/&gt;
+    &lt;set-property property="definitions-debug" value="0"/&gt;
+    &lt;set-property property="definitions-parser-details" value="0"/&gt;
+    &lt;set-property property="definitions-parser-validate" value="false"/&gt;
+    &lt;set-property property="<span style="color: #FF0000">definitions-config</span>" value="<span style="color: #FF0000">/WEB-INF/tiles-def.xml</span>"/&gt;
+&lt;/plug-in&gt;</pre>
+</div>
+
+<p>The Tiles plugin initialization is driven by <span
+style="color: #FF0000"><code>/WEB-INF/tiles-def.xml</code></span>.</p>
+
+<p>All display text for the Grouper UI should be defined in a Java
+ResourceBundle. At its simplest a ResourceBundle may map to a single
+properties file e.g.</p>
+
+<p><code>ResourceBundle bundle =
+ResourceBundle.getBundle("/resources/grouper/nav",locale);</code></p>
+
+<p>could be satisified by a single file, nav.properties, in the
+WEB-INF/classes/resources/grouper.</p>
+
+<p>The file contents would be something like:</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>groups.my=My Groups
+groups.manage=Manage Groups
+groups.create=Create Groups
+groups.join=Join Groups
+
+groups.edit.name=Name
+groups.edit.description=Description
+groups.edit.type=Type</pre>
+</div>
+
+<p>and text would be rendered in JSP pages by code such as:</p>
+
+<p><code>&lt;fmt:message bundle="${nav}" key="groups.my"/&gt;</code></p>
+
+<p>or</p>
+
+<p><code>&lt;html:submit property="submit.save"
+value="${navMap['stems.action.save']}"/&gt;</code></p>
+
+<p>This assumes that nav and navMap have been made available as JSTL
+variables. The Grouper UI code is responsible for setting them up in each
+users' session.</p>
+
+<p>In this case, no matter what the locale, each user would get the same
+text, the default Grouper UI text, however, as discussed in the next section
+it is relatively straightforward to provide a new language, or even a
+variation on the default language e.g. British english as opposed to US
+english.</p>
+
+<h3 id="L45467">3.2. Grouper UI tailored for the University of Bristol
+(UoB)</h3>
+
+<table border="1">
+  <tbody>
+    <tr>
+      <td>GroupsManager</td>
+      <td></td>
+      <td></td>
+      <td>The web application document root. Note that we can name the web
+        application as we see fit</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>grouper</td>
+      <td></td>
+      <td>Grouper specific stylesheets / JavaScript</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>images</td>
+      <td>Grouper specific images</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>i2mi</td>
+      <td></td>
+      <td>Internet 2 specific stylesheets / JavaScript</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>images</td>
+      <td>Internet 2 specific images</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>uob</td>
+      <td></td>
+      <td>UoB specific stylesheets / JavaScript</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>images</td>
+      <td>UoB specific images</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>WEB-INF</td>
+      <td></td>
+      <td>The Struts ActionServlet configuration must be modified.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>classes</td>
+      <td>Additional resources / Java classes required by UoB copied here</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>jsp</td>
+      <td>Additional JSP files placed here - probably in a uob
+      subdirectory</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>lib</td>
+      <td>Any additional JAR files required by UoB code placed here</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The Struts ActionServlet is configured in the web.xml file thus:</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;servlet&gt;
+    &lt;servlet-name&gt;action&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.apache.struts.action.ActionServlet&lt;/servlet-class&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;<span style="color: #FF0000">config</span>&lt;/param-name&gt;
+      &lt;param-value&gt;<span style="color: #FF0000">/WEB-INF/struts-config_uob.xml,/WEB-INF/struts-config.xml,/WEB-INF/struts-config_uob.xml</span>&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;<span style="color: #FF0000">config/i2mi</span>&lt;/param-name&gt;
+      &lt;param-value&gt;<span style="color: #FF0000">/WEB-INF/struts-config.xml</span>&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;2&lt;/load-on-startup&gt;
+&lt;/servlet&gt;</pre>
+</div>
+
+<p>Note the <code><span style="color: #FF0000">confi</span></code><span
+style="color: #FF0000"><code>g</code></span><code
+style="color: #FF0000">/i2mi</code><span style="color: #FF0000"><span
+style="color: #000000">parameter. This is only necessary IF you want to be
+able to run the unmodified Grouper UI at the same time as your modified
+version. This may be useful during development. In this instance i2mi
+represents a Struts module. We always use a module, however, we used the
+default module previously.</span></span></p>
+
+<p>The <code><span style="color: #FF0000">config</span></code> element now
+takes advantage of Struts' ability to load more than one config file. Ignore
+the first <code><span
+style="color: #FF0000">/WEB-INF/struts-config_uob.xml</span></code> and focus
+on <code><span
+style="color: #FF0000">/WEB-INF/struts-config.xml,/WEB-INF/struts-config_uob.xml</span></code>.
+Here we inherit all of Grouper's Struts configuration, loading any additional
+/ replacement configuration we need. We might add some additional Struts
+actions, modify a form bean etc.</p>
+
+<p>The <span
+style="color: #FF0000"><code>/WEB-INF/struts-config_uob.xml</code></span><code>file
+has a modified plug-in section:</code></p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;plug-in className="org.apache.struts.tiles.TilesPlugin"&gt;
+    &lt;set-property property="moduleAware" value="true"/&gt;
+    &lt;set-property property="definitions-debug" value="0"/&gt;
+    &lt;set-property property="definitions-parser-details" value="0"/&gt;
+    &lt;set-property property="definitions-parser-validate" value="false"/&gt;
+    &lt;set-property property="<span style="color: #FF0000">definitions-config</span>" value="<span style="color: #FF0000">/WEB-INF/tiles-def.xml,/WEB-INF/tiles-def_uob.xml</span>"/&gt;
+&lt;/plug-in&gt;</pre>
+</div>
+
+<p>Again, all the Grouper Tiles configuration is inherited, whilst additional
+/ replacement tiles can be loaded.</p>
+
+<p>The reason for the additional <code><span
+style="color: #FF0000">/WEB-INF/struts-config_uob.xml</span></code> in the
+<code><span style="color: #FF0000">config</span></code> parameter above is
+that although Struts can load multiple configuration files, the first
+instance of a particular plugin wins. Without the additional <code><span
+style="color: #FF0000">/WEB-INF/struts-config_uob.xml</span></code> the Tiles
+plugin configured for Grouper alone would be loaded.</p>
+
+<p>It is possible that although the default language for Grouper is english,
+that UoB would like to reword / rebrand parts pf the Grouper UI. We have
+already seen how text is stored in <code><span
+style="color: #FF0000">/WEB-INF/classes/resources/grouper/nav.properties</span></code>.
+By adding a <span
+style="color: #FF0000"><code>/WEB-INF/classes/resources/uob/nav.properties</code></span>
+file we can configure the web application to first look at the UoB bundle. If
+it fails to find a particular key it will default to the Grouper bundle.*</p>
+
+<p>In the same way that readable text is rendered on a page based upon
+looking up a key and obtaining a value, it is also possible to define urls
+for images and style sheets in a ResourceBundle e.g. <code><span
+style="color: #FF0000">/WEB-INF/classes/resources/grouper/media.properties</span></code>:</p>
+
+<p></p>
+<pre>image.organisation-logo=grouper/images/organisation-logo.jpg
+image.grouper-logo=grouper/images/grouper.jpg</pre>
+
+<p><code><span
+style="color: #FF0000">/WEB-INF/classes/resources/uob/media.properties</span></code>
+might include:</p>
+
+<p></p>
+<pre>image.organisation-logo=uob/images/banner.logo.gif
+css.additional=uob/uob.css</pre>
+
+<p>*see <a href="#L1221">3.4</a>. for a discussion of the alternative
+approaches to overloading properties for locales and application
+components.</p>
+
+<h3 id="L45708">3.3. Supporting an additional language</h3>
+
+<p>Let's say that Bristol had a requirement to have a Spanish language
+verison of the Grouper UI. The following list explains how this might be
+achieved:</p>
+<ol>
+  <li>copy /WEB-INF/classes/resources/uob/nav.properties to
+    /WEB-INF/classes/resources/uob/nav_es.properties and replace the english
+    text with Spanish text - leaving the keys alone</li>
+  <li>copy /WEB-INF/classes/resources/uob/media.properties to
+    /WEB-INF/classes/resources/uob/media_es.properties and replace the paths
+    to any images which include english text to paths to new images which
+    incorporate spanish text - leaving the keys alone</li>
+  <li>create a file /WEB-INF/tiles-def_uob_es.xml and add any definitions
+    required.</li>
+  <li>provide the means to select a language*</li>
+</ol>
+
+<p>* If a user's browser is configured with a locale it might automatically
+be selected, however, it may be necessary to incorporate a selection means on
+the initial page of the site - this might be driven from a configuration
+option for the Grouper UI e.g.</p>
+
+<p><code>known.locales=en,es</code></p>
+
+<p>Java <a
+href="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Locale.html">Locale</a>
+objects can, in principle, return an appropriate display name for a locale</p>
+
+<h3 id="L45732"><a id="L1221">3.4. Overloading in ResourceBundles</a></h3>
+
+<h4 id="L45735">3.4.1. How it works</h4>
+
+<p>A ResourceBundle is created based on a specific Locale. A Java Locale can
+be made up from 3 components:</p>
+<ol>
+  <li>Language code</li>
+  <li>Country code</li>
+  <li>Variant</li>
+</ol>
+
+<p>A Locale's string representation would be: language_country_variant. All
+the properties files associated with a ResourceBundle for a given Locale can
+be calculated by starting with the base name and adding _ followed by the
+Locale string. e.g.</p>
+
+<p><code>nav_en_GB</code> -&gt; british english. If a key is not found here
+check <code>nav_en</code>. If a key is not found here check
+<code>nav.</code></p>
+
+<p>In our scenario <code>nav</code> provides the default Grouper UI text. A
+US university could add / replace key values by creating a
+<code>nav_en_US</code> properties file where as Bristol would go with
+<code>nav_en_GB</code>.</p>
+
+<p>If Bristol also wanted to provide for a local dialect - 'west country'
+they could create a file nav_en_GB_WestCountry.properties.</p>
+
+<p>At this point it isn't possible to extend the naming system. The
+java.util.Locale documentation discusses multiple variants, however, the
+actual code does not deal with them.</p>
+
+<p>Now consider a release of the Grouper UI which is provided with a
+'contributed' nav_en_GB.properties file. Bristol might still want to make
+changes to the contributed text and could do so by having a bristol variant
+e.g. nav_en_GB_Bristol, however, it would then not be possible to have a
+'south west' variant.</p>
+
+<h4 id="L45777">3.4.2. Multiple UIs one instance</h4>
+
+<p>Consider a scenario where an institution wants to offer different versions
+of the UI i.e. a student interface and a staff interface, or a read-only
+Portal interface where XML is output rather than XHTML.</p>
+
+<p>Also consider a service provider of a Grouper UI wanting to offer a
+central but customizable service e.g. a regional consortium who would provide
+UI services to Bath University, University of the West of England, Bristol
+University, Exeter university and Plymouth University.</p>
+
+<p>Each variation could be run as a separately configured web application. An
+alternative would be for one instance to support multiple views. In Struts
+terms this would mean a separate module for each variation.</p>
+
+<p>In principle, each variation can be considered a Locale variant e.g. at
+Bristol we could use:</p>
+<ul>
+  <li>nav_en_GB</li>
+  <li>nav_en_GB_student</li>
+  <li>nav_en_GB_staff</li>
+  <li>nav_en_GB_portal</li>
+</ul>
+
+<p>By choosing the correct Locale appropriate text can be presented.</p>
+
+<p>In the consortium example:</p>
+<ul>
+  <li>nav_en_GB</li>
+  <li>nav_en_GB_bu</li>
+  <li>nav_en_GB_uwe</li>
+  <li>nav_en_GB_uob</li>
+  <li>nav_en_GB_exu</li>
+  <li>nav_en_GB_plym</li>
+</ul>
+
+<p>However, there is a limit to the hierarchy. nav_en_GB_uob_staff is not
+possible.</p>
+
+<h4 id="L45825">3.4.3. Chaining ResourceBundles</h4>
+
+<p>An alternative is to chain ResourceBundles i.e. look for a resource in an
+institution first. e.g. nav_uob If not found look for a resource in the
+supplied Grouper ResourceBundle e.g. nav. Several ResourceBundles could be
+chained if necessary.</p>
+
+<p>Chaining may lead to other problems e.g. if the Grouper UI was supplied
+with a contributed nav_es.properties, Bristol could still could overload this
+by having a nav_uob_es.properties, however, consider a key
+grouper.audit-trail:</p>
+<ul>
+  <li>nav -&gt; audit trail</li>
+  <li>nav_es-&gt;sendero auditoría</li>
+  <li>nav_uob_en_GB-&gt;log</li>
+  <li>nav_uob_es -&gt; {no key/value}</li>
+</ul>
+
+<p>If the Locale was set to <code>es</code>, grouper.audit-trail would return
+<code>log</code>. Therefore, any keys overriden in nav_uob_en_GB would need
+to be overriden in nav_uob_es as well.</p>
+
+<p>An alternative would be to copy nav_es to nav_uob_es and then override
+anything using nav_uob_es_ES (or other South American country codes!)</p>
+
+<h3 id="L45856">3.5. Overloading Struts config elements</h3>
+
+<p>When loading multiple Struts config files, the latter of two elements
+identified by the same name wins, however, in some cases it may be useful to
+extend rather than replace a config element. One example would be <a
+href="http://struts.apache.org/userGuide/building_controller.html#action_form_classes">ActionForms</a>.
+The Grouper UI would provide an HTML form and a matching Struts ActionForm
+which would deal with known group types, however, institutions may define
+their own group types with attributes not known to the base Grouper UI code.
+An institution wishing to alter the ActionForm definition would, ideally,
+only specify the additional fields necessary rather than copy the definition
+and modify it.</p>
+
+<p>This type of inheritance may be achieved by modifying the institutional
+Struts config file at build time. A system will be devised to make this
+automatic.</p>
+
+<p>Struts <a
+href="http://struts.apache.org/api/org/apache/struts/action/Action.html">Actions</a>
+normally define a limited set of <a
+href="http://struts.apache.org/api/org/apache/struts/action/ActionForward.html">ActionForwards</a>
+- destinations, one of which is chosen based on the Action logic. An
+institution may want to change the normal page flow by redefining a forward,
+or by providing extra logic to determine which ActionForward should be
+chosen.</p>
+
+<p>Redefinition of an existing ActionForward could be achieved automatically
+at build time.</p>
+
+<p>Providing extra logic could be achieved by various means e.g. redefine the
+Action class called to be a subclass of the Grouper UI supplied Action class,
+and call super.execute(...)</p>
+
+<h3 id="L45868">3.6. Additional hooks to extend the Grouper UI</h3>
+
+<p>Let's say that every time a group was created through the Grouper UI,
+Bristol wanted to immediately set up a shared mail folder for that group.
+This might be achieved by subclassing a Struts CreateGroupAction, however, a
+better way would probably be to register listeners for particular events.</p>
+
+<p><strong>We would need to decide if the UI code or the Grouper API is the
+appropriate place to register listeners for API calls which modify the
+underlying repository.</strong></p>
+
+<h3 id="L45875">3.7. Page composition using Tiles</h3>
+
+<p>The actual page template for the Grouper UI has not yet been determined.
+The following discussion describes an approach to defining page layouts. Not
+all of the page areas defined in the following diagram may be used by the
+Grouper UI, however, individual institutions will be free to tailor the
+layout to meet their needs.</p>
+
+<div
+style="position:relative;width:50%;background-color:ffcccc;text-align:center">
+
+<div style="background-color:6666ff">
+init (code executed on every page)</div>
+
+<div style="background-color:ff6666">
+head (appears between &lt;head&gt;&lt;/head&gt;)</div>
+
+<div>
+header</div>
+
+<div style="background-color:666666">
+subheader</div>
+
+<div style="position:relative;background-color:ccffcc">
+
+<div
+style="position:relative;float:left;width:10%;background-color:ff0000;clear:none;height:auto">
+left</div>
+
+<div style="position:relative;float:left;width:80%;background-color:00ff00">
+
+<div style="position:relative;clear:right;background-color:66ff66">
+message</div>
+
+<div style="position:relative;clear:left">
+content</div>
+</div>
+
+<div
+style="position:relative;float:right;width:10%;background-color:ff0000;height:auto">
+right</div>
+
+<div
+style="position:relative;clear:both;display:block;background-color:cccccc">
+footer</div>
+</div>
+</div>
+
+<p>Such a page can be represented using a Tiles definition</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;definition name="BaseDef" path="/WEB-INF/jsp/template.jsp"&gt;
+    &lt;put name="header"    type="definition" value="headerDef"/&gt;
+    &lt;put name="footer"    type="definition" value="footerDef"/&gt;
+    &lt;put name="subheader" type="definition" value="subheaderDef"/&gt;
+    &lt;put name="content"   type="definition" value="/WEB-INF/jsp/empty.jsp"/&gt;
+    &lt;put name="left"      type="definition" value="leftDef"/&gt;
+    &lt;put name="right"     type="definition" value="rightDef"/&gt;
+    &lt;put name="head"      type="definition" value="headDef"/&gt;
+    &lt;put name="message"   type="definition" value="messageDef"/&gt;
+    &lt;put name="init" type="definition" value="initDef"/&gt;
+&lt;/definition&gt;</pre>
+</div>
+
+<p>Each <code>xxxDef</code> is a reference to another definition where,
+typically, the <code>path</code> will be defined as a specific JSP file.</p>
+
+<p>Other page definitions can extend the <code>BaseDef</code> e.g.</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;definition extends="BaseDef" name="EditGroupDef"&gt;
+    &lt;put name="content" type="page" value="/WEB-INF/jsp/EditGroup.jsp"/&gt;
+&lt;/definition&gt;</pre>
+</div>
+
+<p>This page has exactly the same layout as the <code>BaseDef</code>,
+however, the <code>content</code> attribute has been overridden. Any number
+of attributes could be overridden e.g.</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;definition extends="BaseDef" name="EditGroupDef"&gt;
+    &lt;put name="content" type="page" value="/WEB-INF/jsp/EditGroup.jsp"/&gt;
+    &lt;put name="left"    type="page" value="/WEB-INF/jsp/EditGroupLeft.jsp"/&gt;
+&lt;/definition&gt;</pre>
+</div>
+
+<p>In the distributed Grouper UI it is likely that areas such as
+<code>header</code> and <code>footer</code> will be static, whilst
+<code>subheader</code>, <code>left</code> and <code>right</code> will be
+dynamically generated based on context. Each actual page displayed to a user
+will override <code>content</code>. Institutions are free to compose pages as
+they see fit.</p>
+
+<p>BaseDef is implemented through /WEB-INF/jsp/template.jsp:</p>
+
+<div style="background-color:cccccc">
+<p></p>
+<pre>&lt;%@include file="/WEB-INF/jsp/include.jsp"%&gt;
+
+<span style="color: #FF0000">&lt;tiles:insert attribute="init" /&gt;</span>
+&lt;html:html locale="true"&gt;
+&lt;head&gt;
+    <span style="color: #FF0000">&lt;tiles:insert attribute="head"/&gt;</span>
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="Header"&gt;
+        <span style="color: #FF0000">&lt;tiles:insert attribute="header" /&gt;</span>
+    &lt;/div&gt;
+    &lt;div id="Navbar"&gt;
+        <span style="color: #FF0000">&lt;tiles:insert attribute='subheader'/&gt;</span>
+    &lt;/div&gt;
+    
+        &lt;div id="Sidebar"&gt;
+            <span style="color: #FF0000">&lt;tiles:insert attribute="left" /&gt;</span>
+        &lt;/div&gt;
+        &lt;div id="ContentSpace"&gt;
+            &lt;div id="TitleBox"&gt;
+               <span style="color: #FF0000">&lt;tiles:insert attribute="title" /&gt;</span>
+            &lt;/div&gt;
+            &lt;c:if test="${!empty message}"&gt;
+                &lt;div id="Message"&gt;
+                    <span style="color: #FF0000">&lt;tiles:insert attribute="message" /</span>&gt;
+                &lt;/div&gt;
+            &lt;/c:if&gt;
+            &lt;!--content--&gt;
+            &lt;div id="Content"&gt;
+                <span style="color: #FF0000">&lt;tiles:insert attribute='content' /&gt;</span>
+            &lt;/div&gt;
+            &lt;!--/content--&gt;
+        &lt;/div&gt;
+        &lt;div id="Right"&gt;
+            <span style="color: #FF0000">&lt;tiles:insert attribute="right" /</span>&gt;
+        &lt;/div&gt;
+        &lt;div id="Footer"&gt;
+            <span style="color: #FF0000">&lt;tiles:insert attribute="footer" /&gt;</span>
+        &lt;/div&gt;
+     
+&lt;/body&gt;
+&lt;/html:html&gt;</pre>
+</div>
+
+<p>The initial <code>include</code> holds common Java import statements and
+taglib references - needed for <code>tiles</code> and <code>html</code> tags,
+amongst others, to be handled correctly.</p>
+
+<p>Each <code>tiles:insert</code> tag is replaced by the result of loading
+the relevant Tiles definition indicated by the <code>attribute</code> e.g.
+<code>header</code> is replaced by <code>headerDef</code> which is defined as
+having a path of <code>/WEB-INF/jsp/header.jsp</code></p>
+
+<p>It is entirely possible to have several different templates. It is also
+straightforward to override the definition of <code>BaseDef</code> such that
+a JSP file other than template.jsp acts as the common page template. This is
+a very powerful approach since changing a few files can completely alter how
+pages are composed.</p>
+
+<p>Of course, if existing page elements are rearrannged it is likely that CSS
+definitions will also need to be overridden.</p>
+
+<h3 id="L3528">3.8. Content composition using Tiles</h3>
+
+<p>The previous section dealt with the structural composition of a page from
+a coarse-grained perspective. It is also inevitable that institutions will
+want to customize what happens in the content area e.g. when browsing groups,
+rather than just display the displayExtension, other custom attributes may be
+shown.</p>
+
+<p>The same approach as the last section can be applied, if a content area is
+composed of several tiles. Taking the Manage Groups page as an example:</p>
+
+<table border="0">
+  <caption></caption>
+  <tbody>
+    <tr>
+      <td><img alt="ManageGroups Image" src="managegroups.png"></td>
+      <td>In the <a href="http://portal.bris.ac.uk/GroupsManager">demo
+        app</a> the content is generated from ManageGroups.jsp. Box 0 is a
+        tile (browseStems.jsp). The rest of the content is not yet broken
+        down further, but boxes 1 through 6 show how further tiles could be
+        used to assemble the content.
+        <ol>
+          <li>Bread crumb trail showing where you are in the hierarchy</li>
+          <li>The child stems and groups for the current location in the
+            hierarchy (not actually used in the example below)</li>
+          <li>A tile which displays a stem</li>
+          <li>A tile which displays a group</li>
+          <li>A tile for displaying a Search groups form.</li>
+          <li>A tile for showing what actions are available for the current
+            stem</li>
+        </ol>
+
+        <p>All of these tiles could be re-used elsewhere. In addition they
+        can be parameterized in exactly the same way as BaseDef in the
+        previous section. e.g.</p>
+
+        <div style="background-color:cccccc">
+        <p></p>
+        <pre>&lt;definition name="browseStemsDef" 
+            path="/WEB-INF/jsp/browseStems.jsp"
+            controllerUrl="/prepareStems.do"&gt;
+    &lt;put name="breadcrumb" type="page" value="breadcrumb.jsp"/&gt;
+    &lt;put name="childStem" type="page" value="childStem.jsp"/&gt;
+    &lt;put name="childGroup" type="page" value="childGroup.jsp"/&gt;
+&lt;/definition&gt;</pre>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Note the controllerUrl. This is a Struts action which is responsible for
+making the relevant data structures available to the tile.</p>
+
+<p>The tile would be inserted into the content thus:</p>
+
+<p><code>&lt;tiles:insert definition="browseStemsDef"/&gt;</code></p>
+
+<p>or</p>
+
+<p></p>
+<pre>&lt;tiles:insert definition="browseStemsDef"
+              controllerUrl="/uobPrepareStems.do"&gt;
+    &lt;put name="childGroup" type="page" value="uobChildGroup.jsp
+&lt;/tiles:insert&gt;</pre>
+
+<p>In the former case all the defaults are used from the definition, whereas
+in the latter, controllerUrl and the childGroup definitions are
+overloaded.</p>
+
+<h3 id="L5919">3.9. Dynamic tiles</h3>
+
+<p>Given that sites may define their own attributes for custom groups and for
+Subjects, as well as new Subject types, and given that depending on context
+it may be desirable to show a different <em>view</em> of an object, a
+flexible approach has been adopted for rendering objects. In essence, the
+Grouper UI can determine, at run time, the appropriate Tile to display based
+upon the type (and possibly subtype) of an object, and a named <em>view</em>.
+If a named view for an object has not been configured in an appropriate Java
+properties file, then a default view will be selected. The core Grouper UI
+will only configure a minimal set of default views for the object types and
+subtypes it knows about, however, institutions will be free to configure
+additional tiles to suit their needs.</p>
+
+<p>A generic dynamic tile has been defined thus:</p>
+
+<div style="background-color:cccccc">
+<p><code>&lt;definition controllerUrl="/getDynamicTileName.do"
+name="dynamicTileDef" path="/WEB-INF/jsp/dynamicTile.jsp"/&gt;</code></p>
+</div>
+
+<p>The controllerUrl is responsible for determining the actual tile to load
+based on attributes assigned to the dynamic tile.</p>
+
+<div style="background-color:cccccc">
+<pre>&lt;tiles:insert definition="dynamicTileDef" flush="false"&gt;
+  &lt;tiles:put name="viewObject" beanName="subject"/&gt;<br>  &lt;tiles:put name="view" value="groupMember"/&gt;<br>&lt;/tiles:insert&gt;</pre>
+</div>
+
+<p>In this example a Subject is being rendered as a member of a group. The
+default view for all subject types is to display the <em>description</em>
+attribute of the Subject, however, it may be desirable to visually
+differentiate different Subject types and provide links appropriate to that
+Subject type. The dynamic tile approach provides this level of extensibility.
+Moreover, the implementation of the code which resolves an object and a view
+to a tile is pluggable i.e. can be extended or replaced completely, so that
+new object types / algorithms can be added to the Grouper UI.</p>
+
+<h3 id="L7231">3.10. JSP Tag libraries</h3>
+
+<p>Where possible the Java Standard Tag Library will be used in templates
+rather than scriptlets. Other open source tag libraries available from the <a
+href="http://jakarta.apache.org/taglibs/index.html">Apache Jakarta site</a>
+may be used. In addition, it is possible that we may write some custom tag
+libraries that work with Grouper objects.</p>
+
+<p>It will be possible for institutions to configure and use additional tag
+libraries of their choice.</p>
+
+<p></p>
+</div>
+</body>
+</html>
