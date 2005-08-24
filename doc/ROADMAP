@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.41 2005-08-22 18:57:53 blair Exp $
+$Id: ROADMAP,v 1.42 2005-08-24 19:19:54 blair Exp $
 
 ---
 
@@ -18,8 +18,6 @@ $Id: ROADMAP,v 1.41 2005-08-22 18:57:53 blair Exp $
 * Review and document named queries
 
 ## Testing
-* Test creating groups|stems whose parent(s) have a modified
-  _displayName_ or _displayExtension_
 * Test VIEW with a via group that can't be seen
 * Test adjustment of _displayName_ when access controls may interfere
   on downstream stems and groups

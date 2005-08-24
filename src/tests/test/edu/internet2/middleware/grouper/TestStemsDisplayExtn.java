@@ -107,7 +107,6 @@ public class TestStemsDisplayExtn extends TestCase {
     );
   }
 
-/*
   public void testDelDisplayExtn() {
     Assert.assertNotNull("session != null", s);
     Constants.ns0.attribute(attr, val);
@@ -129,7 +128,6 @@ public class TestStemsDisplayExtn extends TestCase {
       Constants.ns0.attribute(attr).value().equals(Constants.ns0e)
     );
   }
-*/
 
 }
 

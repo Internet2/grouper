@@ -91,7 +91,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.g0.attribute(attrE).value().equals(Constants.g0e)
+      Constants.g0.getDisplayExtension().equals(Constants.g0e)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -99,8 +99,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.g0.attribute(attrN).value().equals(
-        Constants.g0.attribute("name").value()
+      Constants.g0.getDisplayName().equals(
+        Constants.g0.getName()
       )
     );
   }
@@ -114,7 +114,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.g0.attribute(attrE).value().equals(valE)
+      Constants.g0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -122,7 +122,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.g0.attribute(attrN).value().equals(
+      Constants.g0.getDisplayName().equals(
         "root:displayed extension"
       )
     );
@@ -137,7 +137,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.g0.attribute(attrE).value().equals(valE)
+      Constants.g0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -145,7 +145,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.g0.attribute(attrN).value().equals(
+      Constants.g0.getDisplayName().equals(
         "root:displayed extension"
       )
     );
@@ -156,7 +156,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value/reset",
-      Constants.g0.attribute(attrE).value().equals(Constants.g0e)
+      Constants.g0.getDisplayExtension().equals(Constants.g0e)
     );
     Assert.assertNotNull(
       attrN + " != null/reset",
@@ -164,8 +164,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value/reset",
-      Constants.g0.attribute(attrN).value().equals(
-        Constants.g0.attribute("name").value()
+      Constants.g0.getDisplayName().equals(
+        Constants.g0.getName()
       )
     );
   }
@@ -180,7 +180,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -188,7 +188,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Child
     Assert.assertNotNull(
@@ -197,8 +197,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (g0)",
-      Constants.g0.attribute(attrE).value().equals(
-        Constants.g0.attribute("extension").value()
+      Constants.g0.getDisplayExtension().equals(
+        Constants.g0.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -207,7 +207,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (g0)",
-      Constants.g0.attribute(attrN).value().equals(
+      Constants.g0.getDisplayName().equals(
         "displayed extension:root group"
       )
     );
@@ -223,7 +223,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -231,7 +231,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Child
     Assert.assertNotNull(
@@ -240,8 +240,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (g0)",
-      Constants.g0.attribute(attrE).value().equals(
-        Constants.g0.attribute("extension").value()
+      Constants.g0.getDisplayExtension().equals(
+        Constants.g0.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -250,7 +250,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (g0)",
-      Constants.g0.attribute(attrN).value().equals(
+      Constants.g0.getDisplayName().equals(
         "displayed extension:root group"
       )
     );
@@ -263,7 +263,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrE).value().equals(Constants.ns0e)
+      Constants.ns0.getDisplayExtension().equals(Constants.ns0e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0/reset)",
@@ -271,8 +271,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrN).value().equals(
-        Constants.ns0.attribute("name").value()
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
       )
     );
     // Child
@@ -282,7 +282,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (g0/reset)",
-      Constants.g0.attribute(attrE).value().equals(Constants.g0e)
+      Constants.g0.getDisplayExtension().equals(Constants.g0e)
     );
     Assert.assertNotNull(
       attrN + " != null (g0/reset)",
@@ -290,7 +290,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (g0/reset)",
-      Constants.g0.attribute(attrN).value().equals(
+      Constants.g0.getDisplayName().equals(
         "root:root group"
       )
     );
@@ -306,7 +306,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -314,7 +314,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Parent
     Assert.assertNotNull(
@@ -323,8 +323,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1)",
-      Constants.ns1.attribute(attrE).value().equals(
-        Constants.ns1.attribute("extension").value()
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -333,7 +333,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "displayed extension:a stem"
       )
     );
@@ -344,8 +344,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (g1)",
-      Constants.g1.attribute(attrE).value().equals(
-        Constants.g1.attribute("extension").value()
+      Constants.g1.getDisplayExtension().equals(
+        Constants.g1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -354,7 +354,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (g1)",
-      Constants.g1.attribute(attrN).value().equals(
+      Constants.g1.getDisplayName().equals(
         "displayed extension:a stem:a group"
       )
     );
@@ -370,7 +370,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -378,7 +378,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Parent
     Assert.assertNotNull(
@@ -387,8 +387,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1)",
-      Constants.ns1.attribute(attrE).value().equals(
-        Constants.ns1.attribute("extension").value()
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -397,7 +397,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "displayed extension:a stem"
       )
     );
@@ -408,8 +408,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (g1)",
-      Constants.g1.attribute(attrE).value().equals(
-        Constants.g1.attribute("extension").value()
+      Constants.g1.getDisplayExtension().equals(
+        Constants.g1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -418,7 +418,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (g1)",
-      Constants.g1.attribute(attrN).value().equals(
+      Constants.g1.getDisplayName().equals(
         "displayed extension:a stem:a group"
       )
     );
@@ -431,7 +431,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrE).value().equals(Constants.ns0e)
+      Constants.ns0.getDisplayExtension().equals(Constants.ns0e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0/reset)",
@@ -439,8 +439,8 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrN).value().equals(
-        Constants.ns0.attribute("name").value()
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
       )
     );
     // Parent
@@ -450,7 +450,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1/reset)",
-      Constants.ns1.attribute(attrE).value().equals(Constants.ns1e)
+      Constants.ns1.getDisplayExtension().equals(Constants.ns1e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns1/reset)",
@@ -458,7 +458,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1/reset)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "root:a stem"
       )
     );
@@ -469,7 +469,7 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (g1/reset)",
-      Constants.g1.attribute(attrE).value().equals(Constants.g1e)
+      Constants.g1.getDisplayExtension().equals(Constants.g1e)
     );
     Assert.assertNotNull(
       attrN + " != null (g1/reset)",
@@ -477,10 +477,67 @@ public class TestGroupsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (g1/reset)",
-      Constants.g1.attribute(attrN).value().equals(
+      Constants.g1.getDisplayName().equals(
         "root:a stem:a group"
       )
     );
+  }
+
+  public void testCreateGroupWithinStemThatHasCustomDisplayExtn() {
+    Assert.assertNotNull("session != null", s);
+    // Parent
+    Assert.assertNotNull(
+      attrE + " != null (ns1)",
+      Constants.ns1.attribute(attrE)
+    );
+    Assert.assertTrue(
+      attrE + " right value (ns1)",
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
+      )
+    );
+    Assert.assertNotNull(
+      attrN + " != null (ns1)",
+      Constants.ns1.attribute(attrN)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns1)",
+      Constants.ns1.getDisplayName().equals(
+        Constants.ns1.getName()
+      )
+    );
+    // Now give ns1 a new _displayExtension_
+    String newDE = "parent stem";
+    Constants.ns1.attribute(attrE, newDE);
+    // And test the resulting values
+    Assert.assertTrue(
+      attrE + " right value (ns1/new)",
+      Constants.ns1.getDisplayExtension().equals(newDE)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns1/new)",
+      Constants.ns1.getDisplayName().equals(
+        Constants.ns0.getName() + ":" + newDE
+      )
+    );
+    // Now create a group beneath ns1 and confirm that is has a proper
+    // _displayName_ and _displayExtension_
+    GrouperGroup gE = GrouperGroup.create(
+      s, Constants.gEs, Constants.gEe
+    );      
+    Assert.assertNotNull("gE", gE);
+    // Now test the values of various attributes
+    Assert.assertTrue(
+      attrE + " right value (gE)",
+      gE.getDisplayExtension().equals(Constants.gEe)
+    );
+    Assert.assertTrue(
+      attrN + " right value (gE)",
+      gE.getDisplayName().equals(
+        Constants.ns1.getDisplayName() + ":" + Constants.gEe
+      )
+    );
+
   }
 
 }

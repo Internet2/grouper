@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.43 2005-07-28 17:23:27 blair Exp $
+ * @version $Id: Group.java,v 1.44 2005-08-24 19:19:54 blair Exp $
  */
 abstract public class Group {
 
@@ -212,7 +212,7 @@ abstract public class Group {
    * @return  Name of group.
    */
   public String name() {
-    return this.attribute("name").value();
+    return this.getName();
   }
 
   /**
@@ -221,11 +221,11 @@ abstract public class Group {
    * @return String representation of this object.
    */
   public String toString() {
-    return new ToStringBuilder(this)                            .
-      append("type"     , this.type()                         ) .
-      append("id"       , this.getGroupID()                   ) .
-      append("stem"     , this.attribute("stem").value()      ) .
-      append("extension", this.attribute("extension").value() ) .
+    return new ToStringBuilder(this)            .
+      append("type"     , this.type()         ) .
+      append("id"       , this.getGroupID()   ) .
+      append("stem"     , this.getStem()      ) .
+      append("extension", this.getExtension() ) .
       toString();
   }
 
@@ -453,13 +453,6 @@ abstract public class Group {
             "Subject does not have STEM on " + stem
           );
         }
-/*
-        if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
-          throw new RuntimeException(
-                      "Subject does not have STEM on " + stem
-                    );
-        }
-*/
       }
     }
   }
@@ -504,11 +497,6 @@ abstract public class Group {
     } catch (InsufficientPrivilegeException e) {
       throw new RuntimeException("Deletion requires STEM priv");
     }
-/*
-    if (!s.naming().has(s, ns, Grouper.PRIV_STEM)) {
-      throw new RuntimeException("Deletion requires STEM priv");
-    }
-*/
     // Are there child stems?
     if (ns.stems().size() > 0) {
       throw new RuntimeException(
@@ -568,7 +556,7 @@ abstract public class Group {
           g.attributeDel( g.attribute(attribute) );
         } else {
           // Reset - _displayExtension_ should always have a value
-          value = g.attribute("extension").value();
+          value = g.getExtension();
           GrouperAttribute attr = g.attribute(attribute);
           attr.setGroupFieldValue(value);
           g.attributeAdd(attr);
@@ -597,41 +585,44 @@ abstract public class Group {
     }
   }
 
-  /*
-   * Generate a _displayName_ from a given stem and extn
-   * TODO I'm not pleased about this
-   */
-  protected static String displayName(String stem, String extn) {
-    if (stem.equals(Grouper.NS_ROOT)) {
-      return extn;
-    } else {
-      return stem + Grouper.HIER_DELIM + extn;
-    }
+  // Get a group or stem's _displayName_
+  protected static String getDisplayName(String stem, String extn) {
+    return Group.getDisplayName( GrouperSession.getRootSession(), stem, extn );
   }
 
-  /*
-   * Generate a _displayName_ from a given group and extn
-   * TODO I'm not pleased about this
-   */
-  protected static String displayName(
-    GrouperSession s, Group g, String extn
+  // Get a group or stem's _displayName_
+  // TODO Is there a reason I can't just use the root session?
+  protected static String getDisplayName(
+    GrouperSession s, String stem, String extn
   )
   {
-    String  dn    = new String();
-    String  stem  = g.attribute("stem").value();
+    String  displayName       = new String();
+    String  qry               = "GrouperAttribute.string.value.by.key";
+    String  parentName        = stem;
+    String  parentDisplayName = stem;
     if (stem.equals(Grouper.NS_ROOT)) {
-      dn = extn;
-    } else {
-      try {
-        Group p = Group.loadByNameAndType(s, stem, Grouper.NS_TYPE);
-        dn = p.attribute("displayName").value()  +
-             Grouper.HIER_DELIM                  +
-             extn;
-      } catch (InsufficientPrivilegeException e) {
-        // TODO Ignore?
-      }
+      return extn;
     }
-    return dn;
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, parentName);     // name we are searching for
+      q.setString(1, "displayName");  // attr we want
+      try {
+        if (q.list().size() == 1) {
+          parentDisplayName =(String) q.list().get(0);
+        }
+        displayName = parentDisplayName + Grouper.HIER_DELIM + extn;
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+    return displayName;
   }
 
   /*
@@ -979,7 +970,7 @@ abstract public class Group {
     GrouperAttribute dn = g.attribute("displayName");
     // Update this group
     if (attr.equals("displayExtension")) {
-      dn.setGroupFieldValue( Group.displayName(s, g, extn) );
+      dn.setGroupFieldValue( Group.getDisplayName(s, g.getStem(), extn) );
       g.attributeAdd(dn);
     }
     // And update children if a stem
@@ -998,9 +989,7 @@ abstract public class Group {
         String            an = "displayName";
         GrouperAttribute  ao = cg.attribute(an);
         ao.setGroupFieldValue(
-          Group.displayName(
-            dn.value(), cg.attribute("displayExtension").value()
-          )
+          Group.getDisplayName( dn.value(), cg.getDisplayExtension() )
         );
         cg.attributeAdd(ao);
       }
@@ -1009,9 +998,7 @@ abstract public class Group {
         GrouperStem cs = (GrouperStem) stems.next();
         cs.attribute(
           "displayName", 
-          Group.displayName(
-            dn.value(), cs.attribute("displayExtension").value()
-          )
+          Group.getDisplayName( dn.value(), cs.getDisplayExtension() )
         );
       }
       
