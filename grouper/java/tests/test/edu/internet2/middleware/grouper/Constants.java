@@ -110,6 +110,8 @@ public class Constants {
   public static final String  ns1e  = "a stem";
   public static final String  ns2s  = GrouperGroup.groupName(ns1s, ns1e);
   public static final String  ns2e  = "another stem";
+  public static final String  ns3s  = GrouperGroup.groupName(ns2s, ns2e);
+  public static final String  ns3e  = "yet another stem";
 
   /*
    * PUBLIC GROUP CONSTANTS
@@ -128,12 +130,14 @@ public class Constants {
   public static final String  gCe = "group c";
   public static final String  gDs = GrouperGroup.groupName(ns0s, ns0e);
   public static final String  gDe = "group d";
+  public static final String  gEs = GrouperGroup.groupName(ns1s, ns1e);
+  public static final String  gEe = "group e";
 
   /*
    * PROTECTED CLASS VARIABLES
    */
-  protected static GrouperStem    ns0, ns1, ns2;
-  protected static GrouperGroup   g0, g1, g2, gA, gB, gC, gD;
+  protected static GrouperStem    ns0, ns1, ns2, ns3;
+  protected static GrouperGroup   g0, g1, g2, gA, gB, gC, gD, gE;
   protected static GrouperMember  mr, m0, m1, m2, m3, m4;
 
 

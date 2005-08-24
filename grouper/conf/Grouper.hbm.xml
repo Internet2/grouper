@@ -168,6 +168,19 @@
         s.groupKey        = schema.groupKey
   ]]></query>
 
+  <!--
+    Return string value of a group or stem attribute.
+  -->
+  <query name="GrouperAttribute.string.value.by.key"><![CDATA[
+    select b.groupFieldValue 
+      from GrouperAttribute a, GrouperAttribute b 
+      where
+        a.groupField      = 'name'      and
+        a.groupFieldValue = ?           and
+        b.groupField      = ?           and
+        a.groupKey        = b.groupKey
+  ]]></query>
+
   <query name="GrouperAttribute.by.key"><![CDATA[
     from GrouperAttribute where groupKey = ?
   ]]></query>

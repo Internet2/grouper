@@ -91,7 +91,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.ns0.attribute(attrE).value().equals(Constants.ns0e)
+      Constants.ns0.getDisplayExtension().equals(Constants.ns0e)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -99,8 +99,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.ns0.attribute(attrN).value().equals(
-        Constants.ns0.attribute("name").value()
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
       )
     );
   }
@@ -114,7 +114,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -122,7 +122,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
   }
 
@@ -135,7 +135,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -143,7 +143,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     Constants.ns0.attribute(attrE, null);
     Assert.assertNotNull(
@@ -152,7 +152,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value",
-      Constants.ns0.attribute(attrE).value().equals(Constants.ns0e)
+      Constants.ns0.getDisplayExtension().equals(Constants.ns0e)
     );
     Assert.assertNotNull(
       attrN + " != null",
@@ -160,8 +160,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value",
-      Constants.ns0.attribute(attrN).value().equals(
-        Constants.ns0.attribute("name").value()
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
       )
     );
   }
@@ -176,7 +176,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -184,7 +184,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Child
     Assert.assertNotNull(
@@ -193,8 +193,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1)",
-      Constants.ns1.attribute(attrE).value().equals(
-        Constants.ns1.attribute("extension").value()
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -203,7 +203,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "displayed extension:a stem"
       )
     );
@@ -219,7 +219,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -227,7 +227,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Child
     Assert.assertNotNull(
@@ -236,8 +236,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1)",
-      Constants.ns1.attribute(attrE).value().equals(
-        Constants.ns1.attribute("extension").value()
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -246,7 +246,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "displayed extension:a stem"
       )
     );
@@ -259,7 +259,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrE).value().equals(Constants.ns0e)
+      Constants.ns0.getDisplayExtension().equals(Constants.ns0e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0/reset)",
@@ -267,8 +267,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrN).value().equals(
-        Constants.ns0.attribute("name").value()
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
       )
     );
     // Child
@@ -278,7 +278,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1/reset)",
-      Constants.ns1.attribute(attrE).value().equals(Constants.ns1e)
+      Constants.ns1.getDisplayExtension().equals(Constants.ns1e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns1/reset)",
@@ -286,7 +286,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1/reset)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "root:a stem"
       )
     );
@@ -302,7 +302,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -310,7 +310,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Parent
     Assert.assertNotNull(
@@ -319,8 +319,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1)",
-      Constants.ns1.attribute(attrE).value().equals(
-        Constants.ns1.attribute("extension").value()
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -329,7 +329,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "displayed extension:a stem"
       )
     );
@@ -340,8 +340,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns2)",
-      Constants.ns2.attribute(attrE).value().equals(
-        Constants.ns2.attribute("extension").value()
+      Constants.ns2.getDisplayExtension().equals(
+        Constants.ns2.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -350,7 +350,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns2)",
-      Constants.ns2.attribute(attrN).value().equals(
+      Constants.ns2.getDisplayName().equals(
         "displayed extension:a stem:another stem"
       )
     );
@@ -366,7 +366,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0)",
-      Constants.ns0.attribute(attrE).value().equals(valE)
+      Constants.ns0.getDisplayExtension().equals(valE)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0)",
@@ -374,7 +374,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0)",
-      Constants.ns0.attribute(attrN).value().equals(valE)
+      Constants.ns0.getDisplayName().equals(valE)
     );
     // Parent
     Assert.assertNotNull(
@@ -383,8 +383,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1)",
-      Constants.ns1.attribute(attrE).value().equals(
-        Constants.ns1.attribute("extension").value()
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -393,7 +393,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "displayed extension:a stem"
       )
     );
@@ -404,8 +404,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns2)",
-      Constants.ns2.attribute(attrE).value().equals(
-        Constants.ns2.attribute("extension").value()
+      Constants.ns2.getDisplayExtension().equals(
+        Constants.ns2.getExtension()
       )
     );
     Assert.assertNotNull(
@@ -414,7 +414,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1)",
-      Constants.ns2.attribute(attrN).value().equals(
+      Constants.ns2.getDisplayName().equals(
         "displayed extension:a stem:another stem"
       )
     );
@@ -427,7 +427,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrE).value().equals(Constants.ns0e)
+      Constants.ns0.getDisplayExtension().equals(Constants.ns0e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns0/reset)",
@@ -435,8 +435,8 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns0/reset)",
-      Constants.ns0.attribute(attrN).value().equals(
-        Constants.ns0.attribute("name").value()
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
       )
     );
     // Parent
@@ -446,7 +446,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns1/reset)",
-      Constants.ns1.attribute(attrE).value().equals(Constants.ns1e)
+      Constants.ns1.getDisplayExtension().equals(Constants.ns1e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns1/reset)",
@@ -454,7 +454,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1/reset)",
-      Constants.ns1.attribute(attrN).value().equals(
+      Constants.ns1.getDisplayName().equals(
         "root:a stem"
       )
     );
@@ -465,7 +465,7 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrE + " right value (ns2/reset)",
-      Constants.ns2.attribute(attrE).value().equals(Constants.ns2e)
+      Constants.ns2.getDisplayExtension().equals(Constants.ns2e)
     );
     Assert.assertNotNull(
       attrN + " != null (ns2/reset)",
@@ -473,10 +473,67 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns2/reset)",
-      Constants.ns2.attribute(attrN).value().equals(
+      Constants.ns2.getDisplayName().equals(
         "root:a stem:another stem"
       )
     );
+  }
+
+  public void testCreateStemWithinStemThatHasCustomDisplayExtn() {
+    Assert.assertNotNull("session != null", s);
+    // Parent
+    Assert.assertNotNull(
+      attrE + " != null (ns1)",
+      Constants.ns2.attribute(attrE)
+    );
+    Assert.assertTrue(
+      attrE + " right value (ns1)",
+      Constants.ns2.getDisplayExtension().equals(
+        Constants.ns2.getExtension()
+      )
+    );
+    Assert.assertNotNull(
+      attrN + " != null (ns2)",
+      Constants.ns2.attribute(attrN)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns2)",
+      Constants.ns2.getDisplayName().equals(
+        Constants.ns2.getName()
+      )
+    );
+    // Now give ns2 a new _displayExtension_
+    String newDE = "parent stem";
+    Constants.ns2.attribute(attrE, newDE);
+    // And test the resulting values
+    Assert.assertTrue(
+      attrE + " right value (ns2)",
+      Constants.ns2.getDisplayExtension().equals(newDE)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns2)",
+      Constants.ns2.getDisplayName().equals(
+        Constants.ns1.getName() + ":" + newDE
+      )
+    );
+    // Now create a stem beneath ns2 and confirm that is has a proper
+    // _displayName_ and _displayExtension_
+    GrouperStem ns3 = GrouperStem.create(
+      s, Constants.ns3s, Constants.ns3e
+    );      
+    Assert.assertNotNull("ns3", ns3);
+    // Now test the values of various attributes
+    Assert.assertTrue(
+      attrE + " right value (ns3)",
+      ns3.getDisplayExtension().equals(Constants.ns3e)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns3)",
+      ns3.getDisplayName().equals(
+        Constants.ns2.getDisplayName() + ":" + Constants.ns3e
+      )
+    );
+
   }
 
 }
