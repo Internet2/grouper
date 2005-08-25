@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.44 2005-08-24 19:19:54 blair Exp $
+ * @version $Id: Group.java,v 1.45 2005-08-25 02:38:49 blair Exp $
  */
 abstract public class Group {
 
@@ -667,11 +667,19 @@ abstract public class Group {
     GrouperSession.validate(s);
     GrouperMember.validate(m);
     try {
-      if (m.memberID().equals(s.getMember().memberID())) {
-        s.canOPTIN(g);  
-      } else {
+
+      // Test to see if the current subject can write to the specified
+      // list.  If not, see if they have OPTIN privileges.
+      try {
         s.canWriteField(g, list);
+      } catch (InsufficientPrivilegeException e) {
+        if (m.memberID().equals(s.getMember().memberID())) {
+          s.canOPTIN(g);
+        } else {
+          throw new InsufficientPrivilegeException(e.getMessage());
+        }
       }
+
       GrouperList gl = new GrouperList(s, g, m, list);
       if (GrouperList.exists(s, gl)) {
         throw new RuntimeException("List value already exists");
@@ -707,11 +715,19 @@ abstract public class Group {
     GrouperSession.validate(s);
     GrouperMember.validate(m);
     try {
-      if (m.equals(s.getMember())) {
-        s.canOPTOUT(g);  
-      } else {
+
+      // Test to see if the current subject can write to the specified
+      // list.  If not, see if they have OPTOUT privileges.
+      try {
         s.canWriteField(g, list);
+      } catch (InsufficientPrivilegeException e) {
+        if (m.memberID().equals(s.getMember().memberID())) {
+          s.canOPTOUT(g);
+        } else {
+          throw new InsufficientPrivilegeException(e.getMessage());
+        }
       }
+
       GrouperList gl = new GrouperList(s, g, m, list);
       if (!GrouperList.exists(s, gl)) {
         throw new RuntimeException("List value does not exist");
