@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.45 2005-08-25 02:38:49 blair Exp $
+ * @version $Id: Group.java,v 1.46 2005-08-25 20:08:36 blair Exp $
  */
 abstract public class Group {
 
@@ -574,7 +574,9 @@ abstract public class Group {
         }
         g.attributeAdd(attr);
       }
+
       updateDisplayedAttributes(s, g, attribute, value);
+
       g.setModified();
       s.dbSess().txCommit();
     } catch (RuntimeException e) {
@@ -989,6 +991,7 @@ abstract public class Group {
       dn.setGroupFieldValue( Group.getDisplayName(s, g.getStem(), extn) );
       g.attributeAdd(dn);
     }
+
     // And update children if a stem
     if (
         (g.type().equals(Grouper.NS_TYPE)) &&
@@ -998,26 +1001,46 @@ abstract public class Group {
         )
        )
     {
-      Iterator groups = ( (GrouperStem) g ).groups().iterator();
-      while (groups.hasNext()) {
-        GrouperGroup      cg = (GrouperGroup) groups.next();
-        // Attempt to evade access controls
-        String            an = "displayName";
-        GrouperAttribute  ao = cg.attribute(an);
-        ao.setGroupFieldValue(
-          Group.getDisplayName( dn.value(), cg.getDisplayExtension() )
+      // Update any potential children as root to avoid access
+      // restrictions
+      // FIXME Of course, the combination of doing this in a separate
+      // session and how we currently maintain|load|attach attributes
+      // to groups and stems means that children that are modified
+      // *and* already loaded in the parent session context won't
+      // display the changed values unless a reload (or _refresh()_ when 
+      // I make that public) occurs.  
+      try {
+        GrouperStem parent = (GrouperStem) GrouperStem.loadByKey(
+          GrouperSession.getRootSession(), g.key()
         );
-        cg.attributeAdd(ao);
-      }
-      Iterator stems = ( (GrouperStem) g ).stems().iterator();
-      while (stems.hasNext()) {
-        GrouperStem cs = (GrouperStem) stems.next();
-        cs.attribute(
-          "displayName", 
-          Group.getDisplayName( dn.value(), cs.getDisplayExtension() )
+
+        // Child groups
+        Iterator groups = parent.groups().iterator();
+        while (groups.hasNext()) {
+          GrouperGroup      cg = (GrouperGroup) groups.next();
+          // Attempt to evade access controls
+          GrouperAttribute  gn = cg.attribute("displayName");
+          gn.setGroupFieldValue(
+            Group.getDisplayName( dn.value(), cg.getDisplayExtension() )
+          );
+          cg.attributeAdd(gn);
+        }
+
+        // Child stems.  This will recurse.
+        Iterator stems = parent.stems().iterator();
+        while (stems.hasNext()) {
+          GrouperStem cs = (GrouperStem) stems.next();
+          cs.attribute(
+            "displayName",
+            Group.getDisplayName( dn.value(), cs.getDisplayExtension())
+          );
+        }
+
+      } catch (InsufficientPrivilegeException e) {
+        throw new RuntimeException(
+          "Error updating child displayName: " + e.getMessage()
         );
       }
-      
     }
   }
 

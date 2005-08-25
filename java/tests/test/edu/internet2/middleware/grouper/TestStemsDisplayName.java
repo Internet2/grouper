@@ -72,6 +72,7 @@ public class TestStemsDisplayName extends TestCase {
     db.stop();
     s = Constants.createSession();
     Constants.createStems(s);
+    Constants.createMembers(s);
   }
 
   protected void tearDown () {
@@ -186,7 +187,9 @@ public class TestStemsDisplayName extends TestCase {
       attrN + " right value (ns0)",
       Constants.ns0.getDisplayName().equals(valE)
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1)",
       Constants.ns1.attribute(attrE)
@@ -229,7 +232,9 @@ public class TestStemsDisplayName extends TestCase {
       attrN + " right value (ns0)",
       Constants.ns0.getDisplayName().equals(valE)
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1)",
       Constants.ns1.attribute(attrE)
@@ -271,7 +276,9 @@ public class TestStemsDisplayName extends TestCase {
         Constants.ns0.getName()
       )
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1/reset)",
       Constants.ns1.attribute(attrE)
@@ -312,7 +319,9 @@ public class TestStemsDisplayName extends TestCase {
       attrN + " right value (ns0)",
       Constants.ns0.getDisplayName().equals(valE)
     );
-    // Parent
+    // Parent - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1)",
       Constants.ns1.attribute(attrE)
@@ -333,7 +342,9 @@ public class TestStemsDisplayName extends TestCase {
         "displayed extension:a stem"
       )
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns2 = Constants.loadStem(s, Constants.ns2s, Constants.ns2e);
     Assert.assertNotNull(
       attrE + " != null (ns2)",
       Constants.ns2.attribute(attrE)
@@ -376,7 +387,9 @@ public class TestStemsDisplayName extends TestCase {
       attrN + " right value (ns0)",
       Constants.ns0.getDisplayName().equals(valE)
     );
-    // Parent
+    // Parent - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1)",
       Constants.ns1.attribute(attrE)
@@ -397,7 +410,9 @@ public class TestStemsDisplayName extends TestCase {
         "displayed extension:a stem"
       )
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns2 = Constants.loadStem(s, Constants.ns2s, Constants.ns2e);
     Assert.assertNotNull(
       attrE + " != null (ns2)",
       Constants.ns2.attribute(attrE)
@@ -413,7 +428,7 @@ public class TestStemsDisplayName extends TestCase {
       Constants.ns2.attribute(attrN)
     );
     Assert.assertTrue(
-      attrN + " right value (ns1)",
+      attrN + " right value (ns2)",
       Constants.ns2.getDisplayName().equals(
         "displayed extension:a stem:another stem"
       )
@@ -440,6 +455,8 @@ public class TestStemsDisplayName extends TestCase {
       )
     );
     // Parent
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1/reset)",
       Constants.ns1.attribute(attrE)
@@ -459,6 +476,8 @@ public class TestStemsDisplayName extends TestCase {
       )
     );
     // Child
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns2 = Constants.loadStem(s, Constants.ns2s, Constants.ns2e);
     Assert.assertNotNull(
       attrE + " != null (ns2/reset)",
       Constants.ns2.attribute(attrE)
@@ -531,6 +550,124 @@ public class TestStemsDisplayName extends TestCase {
       attrN + " right value (ns3)",
       ns3.getDisplayName().equals(
         Constants.ns2.getDisplayName() + ":" + Constants.ns3e
+      )
+    );
+  }
+
+  public void testSetDisplayExtnOnParentWithoutSTEM() {
+    // create ns0
+    // create ns1
+    // give m0 STEM on ns0
+    // change ns0 displayExtn
+    // what happens to ns1?
+
+    // Parent
+    Assert.assertNotNull(
+      attrE + " != null (ns0)",
+      Constants.ns0.attribute(attrE)
+    );
+    Assert.assertTrue(
+      attrE + " right value (ns0)",
+      Constants.ns0.getDisplayExtension().equals(
+        Constants.ns0.getExtension()
+      )
+    );
+    Assert.assertNotNull(
+      attrN + " != null (ns0)",
+      Constants.ns0.attribute(attrN)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns0)",
+      Constants.ns0.getDisplayName().equals(
+        Constants.ns0.getName()
+      )
+    );
+    // Child
+    Assert.assertNotNull(
+      attrE + " != null (ns1)",
+      Constants.ns1.attribute(attrE)
+    );
+    Assert.assertTrue(
+      attrE + " right value (ns1)",
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
+      )
+    );
+    Assert.assertNotNull(
+      attrN + " != null (ns1)",
+      Constants.ns1.attribute(attrN)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns1)",
+      Constants.ns1.getDisplayName().equals(
+        Constants.ns1.getName()
+      )
+    );
+    // root: grant ns0/m0/STEM
+    Constants.grantNamingPriv(
+      s, Constants.ns0, Constants.m0, Grouper.PRIV_STEM
+    );
+    // m0: set displayName "test" ns0
+    GrouperSession nrs = Constants.createSession(
+      Constants.mem0I, Constants.mem0T
+    );
+    Assert.assertNotNull("nrs ! null", nrs);
+    Constants.ns0 = Constants.loadStem(
+      nrs, Constants.ns0s, Constants.ns0e
+    );
+    Assert.assertNotNull("nrs: ns0nr", Constants.ns0);
+    Constants.ns1 = Constants.loadStem(
+      nrs, Constants.ns1s, Constants.ns1e
+    );
+    Assert.assertNotNull("nrs: ns1nr", Constants.ns1);
+    String newDE = "test";
+    try {
+      Constants.ns0.attribute(attrE, newDE);
+      Assert.assertTrue("nrs: set ns1/displayExtension/test", true);
+    } catch (Exception e) {
+      Assert.fail("nrs: set ns1/displayExtension/test");
+    }
+    
+    // Parent 
+    Assert.assertNotNull(
+      attrE + " != null (ns0/post)",
+      Constants.ns0.attribute(attrE)
+    );
+    Assert.assertTrue(
+      attrE + " right value (ns0/post)",
+      Constants.ns0.getDisplayExtension().equals(newDE)
+    );
+    Assert.assertNotNull(
+      attrN + " != null (ns0/post)",
+      Constants.ns0.attribute(attrN)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns0/post)",
+      Constants.ns0.getDisplayName().equals(newDE)
+    );
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
+    //Constants.ns1.refresh();
+    Assert.assertNotNull(
+      attrE + " != null (ns1/post)",
+      Constants.ns1.attribute(attrE)
+    );
+    Assert.assertTrue(
+      attrE + " right value (ns1/post)",
+      Constants.ns1.getDisplayExtension().equals(
+        Constants.ns1.getExtension()
+      )
+    );
+    Assert.assertNotNull(
+      attrN + " != null (ns1/post)",
+      Constants.ns1.attribute(attrN)
+    );
+    Assert.assertTrue(
+      attrN + " right value (ns1/post)",
+      Constants.ns1.getDisplayName().equals(
+        Constants.ns0.getDisplayName() 
+          + ":" + Constants.ns1.getDisplayExtension()
       )
     );
 
