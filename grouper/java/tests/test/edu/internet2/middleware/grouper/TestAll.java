@@ -172,6 +172,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestBug355.class);
     suite.addTestSuite(TestBug356.class);
     suite.addTestSuite(TestBug405.class);
+    suite.addTestSuite(TestBug426.class);
 
     return suite;
   }

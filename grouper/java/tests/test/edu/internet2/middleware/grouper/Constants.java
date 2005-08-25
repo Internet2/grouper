@@ -147,8 +147,8 @@ public class Constants {
 
   // TODO Move to a more appropriately name class
 
-  protected static void createGroups() {
-    Constants.createGroups( Constants.createSession() );
+  protected static void createGroups() { 
+    Constants.createGroups( Constants.createSession() ); 
   }
 
   protected static GrouperGroup createGroup(

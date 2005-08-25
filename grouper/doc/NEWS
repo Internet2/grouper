@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.75 2005-08-22 18:57:53 blair Exp $
+$Id: NEWS,v 1.76 2005-08-25 02:38:49 blair Exp $
 
 ---
 
@@ -60,6 +60,9 @@ $Id: NEWS,v 1.75 2005-08-22 18:57:53 blair Exp $
 * UPDATE: _grouper_attribute.groupFieldValue_ column size increased to 1024
 * UPDATE: _grouper_member_ table now includes a _subjectSource_ column
 
+* FIX: Error granting privileges to and revoking privileges from self (#426)
+* FIX: _displayName_ of parent stems not consulted when creating new
+  groups and stems.
 * FIX: VIEW, not READ, is needed to access a group or stem GUID. (#411)
 * FIX: The subject that created a session did not have a properly
   initialized member object (#413)
