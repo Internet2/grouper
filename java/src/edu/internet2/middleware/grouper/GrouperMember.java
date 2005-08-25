@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.91 2005-07-15 04:13:25 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.92 2005-08-25 15:59:13 blair Exp $
  */
 public class GrouperMember {
 
@@ -291,7 +291,7 @@ public class GrouperMember {
    * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals(String list) {
-    String  qry = "GrouperList.by.member.and.list.and.is.eff";
+    String qry = "GrouperList.by.member.and.list.and.is.eff";
     return this.queryListVals(qry, list);
   }
 

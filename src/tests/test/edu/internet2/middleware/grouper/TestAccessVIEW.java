@@ -467,5 +467,101 @@ public class TestAccessVIEW extends TestCase {
     Assert.assertNull("g1 = null", g);
   }
 
+  public void testViewViaGroupThatCannotBeViewed() {
+    // setup
+    // root: add g0/m0
+
+    // root: add g1/g0
+    try {
+      Constants.g1.listAddVal(Constants.g0.toMember());
+      Assert.assertTrue("root: add g1/g0", true);
+    } catch (Exception e) {
+      Assert.fail("root: add g1/g0");
+    }
+    // Assert memberships
+    Assert.assertTrue(
+      "root: g0 hasMember m0", Constants.g0.hasMember(Constants.m0)
+    );
+    Assert.assertTrue(
+      "root: g1 hasMember g0", Constants.g1.hasMember(Constants.g0.toMember())
+    );
+    Assert.assertTrue(
+      "root: g1 hasMember m0", Constants.g1.hasMember(Constants.m0)
+    );
+    // root: grant g1/root/VIEW
+    Assert.assertTrue(
+      "root: grant g1/root/VIEW",
+      s.access().grant(
+        s, Constants.g1, Constants.mr, Grouper.PRIV_VIEW
+      )
+    );
+    // Assert privileges
+    Assert.assertTrue(
+      "root: has g1/root/VIEW",
+      s.access().has(
+        s, Constants.g1, Constants.mr, Grouper.PRIV_VIEW
+      )
+    );
+    Assert.assertFalse(
+      "root: ! has g1/g0/VIEW",
+      s.access().has(
+        s, Constants.g1, Constants.g0.toMember(), Grouper.PRIV_VIEW
+      )
+    );
+    Assert.assertFalse(
+      "root: ! has g1/m0/VIEW",
+      s.access().has(
+        s, Constants.g1, Constants.m0, Grouper.PRIV_VIEW
+      )
+    );
+    // Assert memberships as root
+    Assert.assertTrue(
+      "root: isMember g0", Constants.m0.isMember(Constants.g0)
+    );
+    Assert.assertTrue(
+      "root: isMember g1", Constants.m0.isMember(Constants.g1)
+    );
+    // Assert memberships as m0
+    GrouperGroup g0 = Constants.loadGroup(
+      nrs0, Constants.g0s, Constants.g0e
+    );
+    Assert.assertNotNull("m0: g0", g0);
+    GrouperGroup g1 = Constants.loadGroup(
+      nrs0, Constants.g1s, Constants.g1e
+    );
+    Assert.assertNull("m0: ! g1", g1);
+    try {
+      GrouperMember m0 = GrouperMember.load(
+        nrs0, Constants.mem0I, Constants.mem0T
+      );
+      Assert.assertNotNull("m0", m0);
+      List effs = m0.listEffVals();
+      Assert.assertTrue("m0: 1 effs", effs.size() == 1);
+      GrouperList eff0 = (GrouperList) effs.get(0);
+      try {
+        GrouperGroup eff0g = (GrouperGroup) eff0.group();
+        Assert.fail("m0: ! eff0g");
+      } catch (RuntimeException e) {
+        Assert.assertTrue("m0: ! eff0g", true);
+      }
+      try {
+        GrouperGroup eff0v = (GrouperGroup) eff0.via();
+        Assert.assertTrue(
+          "m0: eff0v name",
+          eff0v.getName().equals(Constants.g0.getName())
+        );
+      } catch (RuntimeException e) {
+        Assert.fail("m0: eff0v");
+      }
+      String list = eff0.groupField();
+      Assert.assertNotNull("m0: list ! null");
+      Assert.assertTrue(
+        "m0: list", list.equals(Grouper.DEF_LIST_TYPE)
+      );
+    } catch (SubjectNotFoundException e) {
+      Assert.fail("! m0");
+    }
+  }
+
 }
 
