@@ -190,7 +190,9 @@ public class TestGroupsDisplayName extends TestCase {
       attrN + " right value (ns0)",
       Constants.ns0.getDisplayName().equals(valE)
     );
-    // Child
+    // Child 
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.g0 = Constants.loadGroup(s, Constants.g0s, Constants.g0e);
     Assert.assertNotNull(
       attrE + " != null (g0)",
       Constants.g0.attribute(attrE)
@@ -234,6 +236,8 @@ public class TestGroupsDisplayName extends TestCase {
       Constants.ns0.getDisplayName().equals(valE)
     );
     // Child
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.g0 = Constants.loadGroup(s, Constants.g0s, Constants.g0e);
     Assert.assertNotNull(
       attrE + " != null (g0)",
       Constants.g0.attribute(attrE)
@@ -276,6 +280,8 @@ public class TestGroupsDisplayName extends TestCase {
       )
     );
     // Child
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.g0 = Constants.loadGroup(s, Constants.g0s, Constants.g0e);
     Assert.assertNotNull(
       attrE + " != null (g0/reset)",
       Constants.g0.attribute(attrE)
@@ -317,6 +323,8 @@ public class TestGroupsDisplayName extends TestCase {
       Constants.ns0.getDisplayName().equals(valE)
     );
     // Parent
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1)",
       Constants.ns1.attribute(attrE)
@@ -337,7 +345,9 @@ public class TestGroupsDisplayName extends TestCase {
         "displayed extension:a stem"
       )
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.g1 = Constants.loadGroup(s, Constants.g1s, Constants.g1e);
     Assert.assertNotNull(
       attrE + " != null (g1)",
       Constants.g1.attribute(attrE)
@@ -355,7 +365,9 @@ public class TestGroupsDisplayName extends TestCase {
     Assert.assertTrue(
       attrN + " right value (g1)",
       Constants.g1.getDisplayName().equals(
-        "displayed extension:a stem:a group"
+        Constants.ns1.getDisplayName() + ":" 
+        + Constants.g1.getDisplayExtension()
+      //  "displayed extension:a stem:a group"
       )
     );
   }
@@ -381,6 +393,8 @@ public class TestGroupsDisplayName extends TestCase {
       Constants.ns0.getDisplayName().equals(valE)
     );
     // Parent
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1)",
       Constants.ns1.attribute(attrE)
@@ -401,7 +415,9 @@ public class TestGroupsDisplayName extends TestCase {
         "displayed extension:a stem"
       )
     );
-    // Child
+    // Child - reloaded
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.g1 = Constants.loadGroup(s, Constants.g1s, Constants.g1e);
     Assert.assertNotNull(
       attrE + " != null (g1)",
       Constants.g1.attribute(attrE)
@@ -419,7 +435,8 @@ public class TestGroupsDisplayName extends TestCase {
     Assert.assertTrue(
       attrN + " right value (g1)",
       Constants.g1.getDisplayName().equals(
-        "displayed extension:a stem:a group"
+        Constants.ns1.getDisplayName() + ":" 
+        + Constants.g1.getDisplayExtension()
       )
     );
 
@@ -444,6 +461,8 @@ public class TestGroupsDisplayName extends TestCase {
       )
     );
     // Parent
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1/reset)",
       Constants.ns1.attribute(attrE)
@@ -463,6 +482,8 @@ public class TestGroupsDisplayName extends TestCase {
       )
     );
     // Child
+    // FIXME Once I make _refresh()_ public I can switch
+    Constants.g1 = Constants.loadGroup(s, Constants.g1s, Constants.g1e);
     Assert.assertNotNull(
       attrE + " != null (g1/reset)",
       Constants.g1.attribute(attrE)
