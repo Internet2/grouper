@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.20 2005-07-28 03:26:17 acohen Exp $
- $Date: 2005-07-28 03:26:17 $
+ $Id: PrivilegedSubjectImpl.java,v 1.21 2005-08-25 20:31:35 acohen Exp $
+ $Date: 2005-08-25 20:31:35 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -57,12 +57,16 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   private Subject    subject;
 
   private Set        assignmentsGranted;
-
   private boolean    assignmentsGrantedNotYetFetched  = true;
 
   private Set        assignmentsReceived;
-
   private boolean    assignmentsReceivedNotYetFetched = true;
+
+  private Set        proxiesGranted;
+  private boolean    proxiesGrantedNotYetFetched  = true;
+
+  private Set        proxiesReceived;
+  private boolean    proxiesReceivedNotYetFetched = true;
 
   /* Hibernate requires every persistent class to have a default
    * constructor.
@@ -81,22 +85,29 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     this.subjectKey = new SubjectKey(subject);
     this.assignmentsReceived = new HashSet();
     this.assignmentsGranted = new HashSet();
+    this.proxiesReceived = new HashSet();
+    this.proxiesGranted = new HashSet();
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.PrivilegedSubject#addAssignmentGranted(edu.internet2.middleware.signet.Assignment)
-   */
+
   void addAssignmentGranted(Assignment assignment)
   {
     this.assignmentsGranted.add(assignment);
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.PrivilegedSubject#addAssignmentReceived(edu.internet2.middleware.signet.Assignment)
-   */
   void addAssignmentReceived(Assignment assignment)
   {
     this.assignmentsReceived.add(assignment);
+  }
+  
+  void addProxyGranted(Proxy proxy)
+  {
+    this.proxiesGranted.add(proxy);
+  }
+
+  void addProxyReceived(Proxy proxy)
+  {
+    this.proxiesReceived.add(proxy);
   }
 
   /**
@@ -113,16 +124,16 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * granting abilities, then this Assignment is not editable by this
    * PrivilegedSubject.
    */
-  public boolean canEdit(Assignment anAssignment)
+  public Decision canEdit(Grantable grantableInstance)
   {
     boolean sufficientScopeFound = false;
     
     // First, check to see if this subject and the grantee are the same.
     // No one, not even the SignetSuperSubject, is allowed to grant
     // privileges to herself.
-    if (this.equals(anAssignment.getGrantee()))
+    if (this.equals(grantableInstance.getGrantee()))
     {
-      return false;
+      return new DecisionImpl(false, Reason.SELF, null);
     }
 
     // Next, , check to see if this subject is the Signet superSubject.
@@ -141,71 +152,76 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     if (this.equals(superPSubject))
     {
-      return true;
+      return new DecisionImpl(true, null, null);
     }
     
-    // Next, let's see whether or not this Assignment is in a Scope that we can
-    // grant this particular Function in, and if so, whether or not this
-    // Assignment has any Limit-values that exceed the ones we're allowed to
-    // work with in this particular combination of Scope and Function.
-
-    Set grantableScopes = getGrantableScopes(anAssignment.getFunction());
-
-    Iterator grantableScopesIterator = grantableScopes.iterator();
-    while (grantableScopesIterator.hasNext())
+    if (grantableInstance instanceof Assignment)
     {
-      TreeNode grantableScope = (TreeNode) (grantableScopesIterator.next());
-      if (grantableScope.equals(anAssignment.getScope())
-          || grantableScope.isAncestorOf(anAssignment.getScope()))
+      Assignment anAssignment = (Assignment)grantableInstance;
+      
+      // Next, let's see whether or not this Assignment is in a Scope that we can
+      // grant this particular Function in, and if so, whether or not this
+      // Assignment has any Limit-values that exceed the ones we're allowed to
+      // work with in this particular combination of Scope and Function.
+
+      Set grantableScopes = getGrantableScopes(anAssignment.getFunction());
+
+      Iterator grantableScopesIterator = grantableScopes.iterator();
+      while (grantableScopesIterator.hasNext())
       {
-        sufficientScopeFound = true;
-        
-        // This scope is indeed one that we can grant this Function in.
-        // Now, let's see whether or not we're allowed to work with all of the
-        // Limit-values in this particular Assignment.
-        Set limitValues = anAssignment.getLimitValues();
-        Iterator limitValuesIterator = limitValues.iterator();
-        while (limitValuesIterator.hasNext())
+        TreeNode grantableScope = (TreeNode) (grantableScopesIterator.next());
+        if (grantableScope.equals(anAssignment.getScope())
+            || grantableScope.isAncestorOf(anAssignment.getScope()))
         {
-          LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
-          Limit limit = limitValue.getLimit();
-          Choice choice = null;
-          
-          try
+          sufficientScopeFound = true;
+        
+          // This scope is indeed one that we can grant this Function in.
+          // Now, let's see whether or not we're allowed to work with all of the
+          // Limit-values in this particular Assignment.
+          Set limitValues = anAssignment.getLimitValues();
+          Iterator limitValuesIterator = limitValues.iterator();
+          while (limitValuesIterator.hasNext())
           {
-            choice
-            	= limit
-            			.getChoiceSet()
-            				.getChoiceByValue
-            					(limitValue.getValue());
+            LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+            Limit limit = limitValue.getLimit();
+            Choice choice = null;
+          
+            try
+            {
+              choice
+              	= limit
+              			.getChoiceSet()
+              				.getChoiceByValue
+              					(limitValue.getValue());
+            }
+            catch (Exception e)
+            {
+              throw new SignetRuntimeException(e);
+            }
+          
+            Set grantableChoices
+            	= this.getGrantableChoices
+            			(anAssignment.getFunction(), anAssignment.getScope(), limit);
+            
+            if (grantableChoices.contains(choice) == false)
+            {
+              return new DecisionImpl(false, Reason.LIMIT, limit);
+            } 
           }
-          catch (Exception e)
-          {
-            throw new SignetRuntimeException(e);
-          }
-          
-          Set grantableChoices
-          	= this.getGrantableChoices
-          			(anAssignment.getFunction(), anAssignment.getScope(), limit);
-          
-          if (grantableChoices.contains(choice) == false)
-          {
-            return false;
-          } 
         }
       }
-    }
     
-    if (sufficientScopeFound == false)
-    {
-      // None of our grantable Scopes were high and mighty enough to edit
-      // this Assignment.
-      return false;
+      if (sufficientScopeFound == false)
+      {
+        // None of our grantable Scopes were high and mighty enough to edit
+        // this Assignment.
+        return new DecisionImpl(false, Reason.SCOPE, null);
+      }
     }
 
-    // If we've gotten this far, the Assignment must be editable by this
+    // If we've gotten this far, the Grantable object must be editable by this
     // PrivilegedSubject.
-    return true;
+    return new DecisionImpl(true, null, null);
   }
 
   public String editRefusalExplanation
@@ -322,7 +338,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   private Collection getGrantableAssignments(Subsystem subsystem)
-      throws ObjectNotFoundException
   {
     Collection assignments = new HashSet();
 
@@ -331,7 +346,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       Assignment assignment = (Assignment) (iterator.next());
 
-      if (assignment.isGrantable()
+      if (assignment.canGrant()
           && assignment.getFunction().getSubsystem().equals(subsystem))
       {
         assignments.add(assignment);
@@ -342,7 +357,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   private Set getGrantableAssignments(Function function)
-      throws ObjectNotFoundException
   {
     Set assignments = new HashSet();
 
@@ -351,7 +365,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       Assignment assignment = (Assignment) (iterator.next());
 
-      if (assignment.isGrantable() && assignment.getFunction().equals(function))
+      if (assignment.canGrant() && assignment.getFunction().equals(function))
       {
         assignments.add(assignment);
       }
@@ -361,7 +375,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   public Set getGrantableFunctions(Category category)
-      throws ObjectNotFoundException
   {
     try
     {
@@ -386,7 +399,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       Function candidateFunction = assignment.getFunction();
       Category candidateCategory = candidateFunction.getCategory();
 
-      if (assignment.isGrantable() && candidateCategory.equals(category))
+      if (assignment.canGrant() && candidateCategory.equals(category))
       {
         functions.add(candidateFunction);
       }
@@ -395,7 +408,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return UnmodifiableSet.decorate(functions);
   }
 
-  public Set getGrantableSubsystems() throws ObjectNotFoundException
+  public Set getGrantableSubsystems()
   {
     Set grantableSubsystems = new HashSet();
 
@@ -455,7 +468,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       Function candidateFunction = assignment.getFunction();
       Subsystem candidateSubsystem = candidateFunction.getSubsystem();
 
-      if (assignment.isGrantable())
+      if (assignment.canGrant())
       {
         grantableSubsystems.add(candidateSubsystem);
       }
@@ -503,7 +516,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
 
   public Set getGrantableCategories(Subsystem subsystem)
-      throws ObjectNotFoundException
   {
     try
     {
@@ -535,11 +547,15 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @return Returns the assignmentsGranted.
    * @throws ObjectNotFoundException
    */
-  public Set getAssignmentsGranted(Status status, Subsystem subsystem)
-      throws ObjectNotFoundException
+  public Set getAssignmentsGranted
+    (Status             status,
+     Subsystem          subsystem,
+     PrivilegedSubject  grantee)
   {
     // I really want to handle this purely through Hibernate mappings, but
-    // I haven't figured out how yet.
+    // I haven't figured out how yet. When we switch to a persistent
+    // PrivilegedSubject with its own synthetic, simple ID, this code will
+    // be simplified considerably.
 
     if (this.assignmentsGrantedNotYetFetched == true)
     {
@@ -558,6 +574,39 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Set resultSet = UnmodifiableSet.decorate(this.assignmentsGranted);
     resultSet = filterAssignments(resultSet, status);
     resultSet = filterAssignments(resultSet, subsystem);
+    resultSet = filterAssignmentsByGrantee(resultSet, grantee);
+
+    return resultSet;
+  }
+  
+  public Set getProxiesGranted
+    (Status             status,
+     Subsystem          subsystem,
+     PrivilegedSubject  grantee)
+  {
+    // I really want to handle this purely through Hibernate mappings, but
+    // I haven't figured out how yet. When we switch to a persistent
+    // PrivilegedSubject with its own synthetic, simple ID, this code will
+    // be simplified considerably.
+
+    if (this.proxiesGrantedNotYetFetched == true)
+    {
+        // We have not yet fetched the Proxies granted by this
+        // PrivilegedSubject from the database. Let's make a copy of
+        // whatever in-memory Proxies we DO have, because they represent
+        // granted-but-not-necessarily-yet-persisted Proxies.
+        Set inMemoryProxies = this.proxiesGranted;
+        this.proxiesGranted = this.signet
+            .getProxiesByGrantor(this.subjectKey);
+        this.proxiesGranted.addAll(inMemoryProxies);
+
+        this.proxiesGrantedNotYetFetched = false;
+    }
+
+    Set resultSet = UnmodifiableSet.decorate(this.proxiesGranted);
+    resultSet = filterProxies(resultSet, status);
+    resultSet = filterProxies(resultSet, subsystem);
+    resultSet = filterProxiesByGrantee(resultSet, grantee);
 
     return resultSet;
   }
@@ -603,6 +652,37 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return resultSet;
   }
 
+  public Set getProxiesReceived
+    (Status status, Subsystem subsystem, PrivilegedSubject grantor)
+  {
+    // I really want to handle this purely through Hibernate
+    // mappings, but I haven't figured out how yet. This method will be
+    // considerably simplified when the PrivilegedSubject table, which will
+    // use a simple synthetic key, is re-instated.
+
+    if (this.proxiesReceivedNotYetFetched == true)
+    {
+        // We have not yet fetched the proxies received by this
+        // PrivilegedSubject from the database. Let's make a copy of
+        // whatever in-memory proxies we DO have, because they represent
+        // received-but-not-necessarily-yet-persisted proxies.
+        Set unsavedProxiesReceived = this.proxiesReceived;
+
+        this.proxiesReceived
+          = this.signet.getProxiesByGrantee(this.subjectKey);
+        this.proxiesReceived.addAll(unsavedProxiesReceived);
+
+        this.proxiesReceivedNotYetFetched = false;
+    }
+
+    Set resultSet = UnmodifiableSet.decorate(this.proxiesReceived);
+    resultSet = filterProxies(resultSet, status);
+    resultSet = filterProxies(resultSet, subsystem);
+    resultSet = filterProxiesByGrantor(resultSet, grantor);
+
+    return resultSet;
+  }
+
   private Set filterAssignments(Set all, Status status)
   {
     if (status == null)
@@ -624,6 +704,119 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
 
+  private Set filterProxies(Set all, Status status)
+  {
+    if (status == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy) (iterator.next());
+      if (candidate.getStatus().equals(status))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+  
+  private Set filterAssignmentsByGrantee
+    (Set                all,
+     PrivilegedSubject  grantee)
+  {
+    if (grantee == null)
+    {
+      return all;
+    }
+    
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment)(iterator.next());
+      if (candidate.getGrantee().equals(grantee))
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+  
+  private Set filterAssignmentsByGrantor
+    (Set                all,
+     PrivilegedSubject  grantor)
+  {
+    if (grantor == null)
+    {
+      return all;
+    }
+    
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment)(iterator.next());
+      if (candidate.getGrantor().equals(grantor))
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+  
+  private Set filterProxiesByGrantee
+    (Set                all,
+     PrivilegedSubject  grantee)
+  {
+    if (grantee == null)
+    {
+      return all;
+    }
+    
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(iterator.next());
+      if (candidate.getGrantee().equals(grantee))
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+  
+  private Set filterProxiesByGrantor
+    (Set                all,
+     PrivilegedSubject  grantor)
+  {
+    if (grantor == null)
+    {
+      return all;
+    }
+    
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(iterator.next());
+      if (candidate.getGrantor().equals(grantor))
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+
   private Set filterAssignments(Set all, Subsystem subsystem)
   {
     if (subsystem == null)
@@ -637,6 +830,27 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       Assignment candidate = (Assignment) (iterator.next());
       if (candidate.getFunction().getSubsystem().equals(subsystem))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  private Set filterProxies(Set all, Subsystem subsystem)
+  {
+    if (subsystem == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy) (iterator.next());
+      if (candidate.getSubsystem().equals(subsystem))
       {
         subset.add(candidate);
       }
@@ -709,10 +923,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       return null;
     }
-    else
-    {
-  	  return this.subject.getType().getName();
-    }
+
+  	return this.subject.getType().getName();
   }
   
   /* (non-Javadoc)
@@ -729,33 +941,13 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return this.subject.getDescription();
   }
 
-
-//  public Assignment grant
-//  	(PrivilegedSubject 	grantee,
-//  	 TreeNode 					scope,
-//     Function 					function,
-//     boolean 						canGrant,
-//     boolean 						grantOnly)
-//  throws
-//  	SignetAuthorityException,
-//  	ObjectNotFoundException
-//  {
-//    return this.grant
-//    	(grantee,
-//    	 scope,
-//    	 function,
-//    	 new HashSet(0),
-//    	 canGrant,
-//    	 grantOnly);
-//  }
-
   public Assignment grant
   	(PrivilegedSubject 	grantee,
   	 TreeNode 					scope,
      Function 					function,
      Set								limitValues,
+     boolean            canUse,
      boolean 						canGrant,
-     boolean 						grantOnly,
      Date               effectiveDate,
      Date               expirationDate)
   throws
@@ -777,8 +969,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     			 scope,
     			 function,
     			 limitValues,
+           canUse,
     			 canGrant,
-    			 grantOnly,
            effectiveDate,
            expirationDate);
 
@@ -1007,5 +1199,48 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
     
     return privileges;
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.PrivilegedSubject#grantProxy(edu.internet2.middleware.signet.PrivilegedSubject, edu.internet2.middleware.signet.Subsystem, java.util.Date, java.util.Date)
+   */
+  public Proxy grantProxy
+    (PrivilegedSubject  grantee,
+     Subsystem          subsystem,
+     boolean            canUse,
+     boolean            canExtend,
+     Date               effectiveDate,
+     Date               expirationDate)
+  throws SignetAuthorityException
+  {
+    if (grantee == null)
+    {
+      throw new IllegalArgumentException
+        ("It's illegal to grant a Proxy to a NULL grantee.");
+    }
+    
+    if (subsystem == null)
+    {
+      throw new IllegalArgumentException
+        ("It's illegal to grant a Proxy on a NULL Subsystem.");
+    }
+
+    Proxy newProxy = null;
+
+    newProxy
+      = new ProxyImpl
+          (this.signet,
+           this,
+           grantee,
+           subsystem,
+           canUse,
+           canExtend,
+           effectiveDate,
+           expirationDate);
+
+    this.addProxyGranted(newProxy);
+    ((PrivilegedSubjectImpl) grantee).addProxyReceived(newProxy);
+
+    return newProxy;
   }
 }

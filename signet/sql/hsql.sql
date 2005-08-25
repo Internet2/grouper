@@ -22,6 +22,8 @@ drop table signet_function if exists;
 drop table signet_permission if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
+drop table signet_proxy if exists;
+drop table signet_proxy_history if exists;
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute if exists;
 drop table Subject if exists;
@@ -279,7 +281,6 @@ grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,
 granteeID           varchar(64)         NOT NULL,
 proxyTypeID         varchar(64)         NULL,
-proxyID             varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
@@ -302,9 +303,6 @@ grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,
 granteeID           varchar(64)         NOT NULL,
 proxyTypeID         varchar(64)         NULL,
-proxyID             varchar(64)         NULL,
-proxyTypeID         varchar(64)         NULL,
-proxyID             varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,

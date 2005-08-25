@@ -30,6 +30,8 @@ drop table signet_function cascade;
 drop table signet_permission cascade;
 drop table signet_limit cascade;
 drop table signet_subsystem cascade;
+drop table signet_proxy cascade;
+drop table signet_proxy_history cascade;
 
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute;

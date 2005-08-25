@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.28 2005-08-18 23:37:34 acohen Exp $
-  $Date: 2005-08-18 23:37:34 $
+  $Id: conditions.jsp,v 1.29 2005-08-25 20:31:35 acohen Exp $
+  $Date: 2005-08-25 20:31:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -440,9 +440,9 @@
                          /* We are editing an existing Assignment, so get
                           * this box's status from the Assignment.
                           */
-                         : (currentAssignment.isGrantOnly()
-                              ? ""
-                              : "checked=\"checked\""))%>
+                         : (currentAssignment.canUse()
+                              ? "checked=\"checked\""
+                              : ""))%>
                   />
                   <label for="can_use">use this privilege</label>
                   <br />
@@ -459,7 +459,7 @@
                          /* We are editing an existing Assignment, so get
                           * this box's status from the Assignment.
                           */
-                         : (currentAssignment.isGrantable()
+                         : (currentAssignment.canGrant()
                               ? "checked=\"checked\""
                               : ""))%>
                   />

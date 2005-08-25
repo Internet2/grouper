@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.36 2005-08-19 00:17:35 acohen Exp $
-  $Date: 2005-08-19 00:17:35 $
+  $Id: main.jsp,v 1.37 2005-08-25 20:31:35 acohen Exp $
+  $Date: 2005-08-25 20:31:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -124,7 +124,7 @@
 <%
   Set assignmentSet
     = new TreeSet
-        (loggedInPrivilegedSubject.getAssignmentsGranted(null, null));
+        (loggedInPrivilegedSubject.getAssignmentsGranted(null, null, null));
   Iterator assignmentIterator = assignmentSet.iterator();
   while (assignmentIterator.hasNext())
   {

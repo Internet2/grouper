@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.33 2005-07-27 23:14:30 acohen Exp $
-$Date: 2005-07-27 23:14:30 $
+$Id: Signet.java,v 1.34 2005-08-25 20:31:35 acohen Exp $
+$Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -556,7 +556,9 @@ public final class Signet
 
  // I really want to do away with this method, having the PrivilegedSubject
  // pick up its granted Assignments via Hibernate object-mapping. I just
- // haven't figured out how to do that yet.
+ // haven't figured out how to do that yet. This method will be greatly
+ // simplified when we re-introduce the PrivilegedSubject table, which will
+ // use a simple synthetic key.
  //
  // I do, however, like this notion of returning an UnmodifiableSet instead of
  // an Array.
@@ -589,6 +591,80 @@ public final class Signet
    {
      Assignment assignment = (Assignment) (resultSetIterator.next());
      ((AssignmentImpl) assignment).setSignet(this);
+   }
+
+   return resultSet;
+ }
+
+
+ // This method will be greatly simplified when we re-introduce the
+ // PrivilegedSubject table, which will use a simple synthetic key.
+ Set getProxiesByGrantor(SubjectKey grantor)
+ {
+   Query query;
+   List resultList;
+
+   try
+   {
+     query = session
+         .createQuery("from edu.internet2.middleware.signet.ProxyImpl"
+             + " as proxy" + " where grantorID = :id"
+             + " and grantorTypeID = :type");
+
+     query.setString("id", grantor.getSubjectId());
+     query.setString("type", grantor.getSubjectTypeId());
+
+     resultList = query.list();
+   }
+   catch (HibernateException e)
+   {
+     throw new SignetRuntimeException(e);
+   }
+
+   Set resultSet = new HashSet(resultList);
+
+   Iterator resultSetIterator = resultSet.iterator();
+   while (resultSetIterator.hasNext())
+   {
+     Proxy proxy = (Proxy) (resultSetIterator.next());
+     ((ProxyImpl) proxy).setSignet(this);
+   }
+
+   return resultSet;
+ }
+
+
+ // This method will be greatly simplified when we re-introduce the
+ // PrivilegedSubject table, which will use a simple synthetic key.
+ Set getProxiesByGrantee(SubjectKey grantee)
+ {
+   Query query;
+   List resultList;
+
+   try
+   {
+     query = session
+         .createQuery("from edu.internet2.middleware.signet.ProxyImpl"
+             + " as proxy" + " where granteeID = :id"
+             + " and granteeTypeID = :type");
+
+     query.setString("id", grantee.getSubjectId());
+     query.setString("type", grantee.getSubjectTypeId());
+
+     resultList = query.list();
+   }
+   catch (HibernateException e)
+   {
+     throw new SignetRuntimeException(e);
+   }
+
+   Set resultSet = new HashSet(resultList);
+
+   Iterator resultSetIterator = resultSet.iterator();
+   while (resultSetIterator.hasNext())
+   {
+     Proxy proxy = (Proxy) (resultSetIterator.next());
+     ((ProxyImpl) proxy).setSignet(this);
    }
 
    return resultSet;
@@ -653,6 +729,52 @@ public final class Signet
      {
        resultSet.remove(matchedAssignment);
      }
+   }
+
+   return resultSet;
+ }
+ 
+ 
+ Set findDuplicates(Proxy proxy)
+ {
+   Query query;
+   List resultList;
+
+   try
+   {
+     query = session
+         .createQuery
+           ("from edu.internet2.middleware.signet.ProxyImpl"
+            + " as proxy"
+            + " where granteeID = :granteeId"
+            + " and granteeTypeID = :granteeTypeId"
+            + " and subsystemID = :subsystemId"
+            + " and proxyID != :proxyId");
+
+     query.setString
+       ("granteeId", proxy.getGrantee().getSubjectId());
+     query.setString
+       ("granteeTypeId", proxy.getGrantee().getSubjectTypeId());
+     query.setString
+       ("subsystemId", proxy.getSubsystem().getId());
+     query.setInteger
+       ("proxyId",
+        (proxy.getId() == null ? -1 : proxy.getId().intValue()));
+
+     resultList = query.list();
+   }
+   catch (HibernateException e)
+   {
+     throw new SignetRuntimeException(e);
+   }
+
+   Set resultSet = new HashSet(resultList);
+
+   Iterator resultSetIterator = resultSet.iterator();
+   while (resultSetIterator.hasNext())
+   {
+     Proxy matchedProxy = (Proxy) (resultSetIterator.next());
+     ((ProxyImpl) matchedProxy).setSignet(this);
    }
 
    return resultSet;

@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.7 2005-06-21 02:34:17 acohen Exp $
-$Date: 2005-06-21 02:34:17 $
+$Id: Constants.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
+$Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -42,16 +42,18 @@ public class Constants
   
   public static final String DELIMITER = "_";
   
-  public static final Date ASSIGNMENT_EFFECTIVE_DATE
-    = new Date(60, 7, 18);
-  public static final Date ASSIGNMENT_EXPIRATION_DATE
-    = new Date(86, 5, 31);
-  public static final Date ASSIGNMENT_EFFECTIVE_DATE_ALTERED
-    = new Date(61, 0, 12);
-  public static final Date ASSIGNMENT_EXPIRATION_DATE_ALTERED
-    = new Date(86, 10, 25);
-  public static final int     WEEKS_DIFFERENCE = 21;
+  public static final Date YESTERDAY
+    = Common.getDate(-1);
+  public static final Date TOMORROW
+    = Common.getDate(1);
+  public static final Date DAY_BEFORE_YESTERDAY
+    = Common.getDate(-2);
+  public static final Date DAY_AFTER_TOMORROW
+    = Common.getDate(2);
+
+  public static final boolean ASSIGNMENT_CANUSE = true;
+  public static final boolean ASSIGNMENT_CANGRANT  = true;
   
-  public static final boolean ASSIGNMENT_ISGRANTABLE  = true;
-  public static final boolean ASSIGNMENT_ISGRANTONLY = false;
+  public static final boolean PROXY_CANUSE  = true;
+  public static final boolean PROXY_CANEXTEND = true;
 }

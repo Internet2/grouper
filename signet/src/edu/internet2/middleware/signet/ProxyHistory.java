@@ -1,5 +1,5 @@
 /*--
-$Id: AssignmentHistory.java,v 1.4 2005-08-25 20:31:35 acohen Exp $
+$Id: ProxyHistory.java,v 1.1 2005-08-25 20:31:35 acohen Exp $
 $Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
@@ -9,14 +9,6 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author Andy Cohen
@@ -24,12 +16,12 @@ import edu.internet2.middleware.subject.Subject;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-class AssignmentHistory
+class ProxyHistory
 {
-  // AssignmentHistory is unusual among Signet entities in that it
-  // (along with AssignmentImpl) has a numeric, not alphanumeric ID.
+  // ProxyHistory is unusual among Signet entities in that it
+  // (along with ProxyImpl) has a numeric, not alphanumeric ID.
   protected Integer historyId;
-  protected Integer assignmentId;
+  protected Integer proxyId;
   private Date historyDatetime = new Date();
 
   private   String            grantorId;
@@ -42,10 +34,8 @@ class AssignmentHistory
   private String            revokerId;
   private String            revokerTypeId;
   
-  private TreeNode          scope;
-  private Function          function;
-  private Set               limitValues;
-  private boolean           canGrant;
+  private Subsystem         subsystem;
+  private boolean           canExtend;
   private boolean           canUse;
   private Date              effectiveDate;
   private Date              expirationDate;
@@ -58,40 +48,38 @@ class AssignmentHistory
   /**
    * Hibernate requires the presence of a default constructor.
    */
-  public AssignmentHistory()
+  public ProxyHistory()
   {
     super();
   }
   
-  AssignmentHistory(AssignmentImpl assignment)
+  ProxyHistory(ProxyImpl proxy)
   {
     // Most information is just copied from the Assignment object to the
     // AssignmentHistory object.
-    this.setAssignmentId(assignment.getId());
-    this.setGrantor(assignment.getGrantor());
-    this.setGrantee(assignment.getGrantee());    
-    this.setRevoker(assignment.getRevoker());
-    this.setScope(assignment.getScope());
-    this.setFunction(assignment.getFunction());
-    this.setLimitValues(assignment.getLimitValues());
-    this.setCanGrant(assignment.canGrant());
-    this.setCanUse(assignment.canUse());
-    this.setEffectiveDate(assignment.getEffectiveDate());
-    this.setExpirationDate(assignment.getExpirationDate());
-    this.setStatus(assignment.getStatus());
-    this.setInstanceNumber(assignment.getInstanceNumber());
+    this.setProxyId(proxy.getId());
+    this.setGrantor(proxy.getGrantor());
+    this.setGrantee(proxy.getGrantee());    
+    this.setRevoker(proxy.getRevoker());
+    this.setSubsystem(proxy.getSubsystem());
+    this.setCanExtend(proxy.canExtend());
+    this.setCanUse(proxy.canUse());
+    this.setEffectiveDate(proxy.getEffectiveDate());
+    this.setExpirationDate(proxy.getExpirationDate());
+    this.setStatus(proxy.getStatus());
+    this.setInstanceNumber(proxy.getInstanceNumber());
     
     this.historyDatetime = new Date();
   }
   
   // This method exists only for use by Hibernate.
-  private Date getHistoryDatetime()
+  Date getHistoryDatetime()
   {
     return this.historyDatetime;
   }
   
   // This method exists only for use by Hibernate.
-  private void setHistoryDatetime(Date historyDatetime)
+  void setHistoryDatetime(Date historyDatetime)
   {
     this.historyDatetime = historyDatetime;
   }
@@ -105,19 +93,19 @@ class AssignmentHistory
     return this.historyId;
   }
   
-  Integer getAssignmentId()
+  Integer getProxyId()
   {
-    return this.assignmentId;
+    return this.proxyId;
   }
   
   // This method is only for use by Hibernate.
-  protected void setAssignmentId(Integer id)
+  protected void setProxyId(Integer id)
   {
-    this.assignmentId = id;
+    this.proxyId = id;
   }
   
   // This method is only for use by Hibernate.
-  private void setHistoryId(Integer historyId)
+  protected void setHistoryId(Integer historyId)
   {
     this.historyId = historyId;
   }
@@ -151,16 +139,6 @@ class AssignmentHistory
     }
   }
   
-  TreeNode getScope()
-  {
-    return this.scope;
-  }
-  
-  void setScope(TreeNode scope)
-  {
-    this.scope = scope;
-  }
-  
   Date getEffectiveDate()
   {
     return this.effectiveDate;
@@ -181,30 +159,24 @@ class AssignmentHistory
     this.expirationDate = expirationDate;
   }
   
-  Function getFunction()
+  Subsystem getSubsystem()
   {
-    return this.function;
+    return this.subsystem;
   }
   
-  void setFunction(Function function)
+  void setSubsystem(Subsystem subsystem)
   {
-    this.function = function;
+    this.subsystem = subsystem;
   }
   
-  boolean canGrant()
+  boolean canExtend()
   {
-    return this.canGrant;
+    return this.canExtend;
   }
   
-  // This method is only for use by Hibernate.
-  protected boolean getCanGrant()
+  void setCanExtend(boolean canExtend)
   {
-    return this.canGrant;
-  }
-  
-  void setCanGrant(boolean canGrant)
-  {
-    this.canGrant = canGrant;
+    this.canExtend = canExtend;
   }
   
   boolean canUse()
@@ -212,27 +184,9 @@ class AssignmentHistory
     return this.canUse;
   }
   
-  // This method is only for use by Hibernate.
-  protected boolean getCanUse()
-  {
-    return this.canUse;
-  }
-  
   void setCanUse(boolean canUse)
   {
     this.canUse = canUse;
-  }
-  
-  Set getLimitValues()
-  {
-    return this.limitValues;
-  }
-  
-  void setLimitValues(Set limitValues)
-  {
-    // Let's make our own local copy of this Set, to remember its state right
-    // now, when the history is being recorded.
-    this.limitValues = new HashSet(limitValues);
   }
   
   Status getStatus()
@@ -318,21 +272,21 @@ class AssignmentHistory
   public String toString()
   {
     return
-      "[assignmentId="
-      + this.getAssignmentId()
+      "[proxyId="
+      + this.getProxyId()
       + ", instanceNumber="
       + this.getInstanceNumber()
       + "]";
   }
   
   // This method is only for use by Hibernate.
-  private Date getModifyDatetime()
+  protected Date getModifyDatetime()
   {
     return this.modifyDatetime;
   }
   
   // This method is only for use by Hibernate.
-  private void setModifyDatetime(Date modifyDatetime)
+  protected void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
   }

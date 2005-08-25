@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.25 2005-07-27 18:31:40 jvine Exp $
-  $Date: 2005-07-27 18:31:40 $
+  $Id: confirm.jsp,v 1.26 2005-08-25 20:31:35 acohen Exp $
+  $Date: 2005-08-25 20:31:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -194,9 +194,9 @@
                   Privilege holder can:
                 </td>
                 <td>
-                  <%=(currentAssignment.isGrantOnly() ? "" : "use this privilege")%>
+                  <%=(currentAssignment.canUse() ? "use this privilege" : "")%>
                   <br />
-                  <%=(currentAssignment.isGrantable() ? "grant this privilege to others" : "")%>
+                  <%=(currentAssignment.canGrant() ? "grant this privilege to others" : "")%>
                 </td>
               </tr>
 

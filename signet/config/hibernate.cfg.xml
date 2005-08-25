@@ -84,6 +84,9 @@
         ="edu/internet2/middleware/signet/AssignmentImpl.hbm.xml"/>
     <mapping
       resource
+        ="edu/internet2/middleware/signet/ProxyImpl.hbm.xml"/>
+    <mapping
+      resource
         ="edu/internet2/middleware/signet/TreeNodeRelationship.hbm.xml"/>
     <mapping
       resource

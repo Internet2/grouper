@@ -71,12 +71,11 @@
 			type="edu.internet2.middleware.signet.StatusType"
 			not-null="true"/>
 		<property
-			name="grantable"
-			column="canGrant"
+			name="canGrant"
 			type="boolean"
 			not-null="true"/>
 		<property
-			name="grantOnly"
+			name="canUse"
 			type="boolean"
 			not-null="true"/>
 		<property

@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.22 2005-07-21 07:40:59 acohen Exp $
-$Date: 2005-07-21 07:40:59 $
+$Id: Fixtures.java,v 1.23 2005-08-25 20:31:35 acohen Exp $
+$Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -28,6 +28,7 @@ import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
@@ -124,7 +125,7 @@ public class Fixtures
     // Let's start with a clean slate of Assignments. This will help us
     // to more reliably predict the number of duplicate Assignments later,
     // while testing Assignment.findDuplicates().
-    deleteAssignments();
+    deleteAssignmentsAndProxies();
     
     this.subsystem = getOrCreateSubsystem();
     
@@ -176,6 +177,16 @@ public class Fixtures
       assignment.save();
     }
     
+    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+    {
+      // Each Subject grants a Proxy to the next Subject, except that the
+      // last Subject grants a Proxy to the first Subject.
+      int grantorNumber = i;
+      int granteeNumber = (i == (Constants.MAX_SUBJECTS-1) ? 0 : i+1);
+      Proxy proxy = getOrCreateProxy(grantorNumber, granteeNumber);
+      proxy.save();
+    }
+    
     // This is intended to create an Assignment for Subject 0 that can
     // be edited by Subject 2, but does not allow Subject 0 to edit the
     // similar (but using different Limit-values) Assignment held by
@@ -189,7 +200,7 @@ public class Fixtures
     assignment.save();
   }
   
-  private void deleteAssignments()
+  private void deleteAssignmentsAndProxies()
   throws
     HibernateException,
     ClassNotFoundException,
@@ -236,8 +247,62 @@ public class Fixtures
       ("DELETE FROM signet_assignment WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
        + "'");
+    stmt.executeUpdate
+      ("DELETE FROM signet_proxy_history WHERE subsystemID='"
+       + Constants.SUBSYSTEM_ID
+       + "'");
+    stmt.executeUpdate
+    ("DELETE FROM signet_proxy WHERE subsystemID='"
+     + Constants.SUBSYSTEM_ID
+     + "'");
     conn.commit();
     conn.close();
+  }
+  
+  private Proxy getOrCreateProxy
+    (int grantorSubjectNumber,
+     int granteeSubjectNumber)
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {
+    PrivilegedSubject grantor
+      = signet.getPrivilegedSubject
+          (getOrCreateSubject
+            (grantorSubjectNumber));
+    PrivilegedSubject grantee
+      = signet.getPrivilegedSubject
+          (getOrCreateSubject
+            (granteeSubjectNumber));
+    
+    // Before granting this new Proxy, let's see if it already exists
+    // in the database.
+    
+    Set proxiesReceived
+      = grantee.getProxiesReceived
+          (Status.ACTIVE, this.subsystem, grantor);
+    
+    Iterator proxiesReceivedIterator = proxiesReceived.iterator();
+    while (proxiesReceivedIterator.hasNext())
+    {
+      Proxy proxyReceived
+        = (Proxy)(proxiesReceivedIterator.next());
+
+      return proxyReceived;
+    }
+    
+    // If we've gotten this far, we must not have this Proxy yet.
+    
+    Proxy proxy
+      = grantor.grantProxy
+          (grantee,
+           this.subsystem,
+           Constants.PROXY_CANUSE,
+           Constants.PROXY_CANEXTEND,
+           Constants.YESTERDAY,
+           Constants.TOMORROW);
+    
+    return proxy;
   }
   
   private Assignment getOrCreateAssignment
@@ -296,10 +361,10 @@ public class Fixtures
     	     rootNode,
     	     function,
     	     limitValues,
-    	     Constants.ASSIGNMENT_ISGRANTABLE,
-    	     Constants.ASSIGNMENT_ISGRANTONLY,
-           Constants.ASSIGNMENT_EFFECTIVE_DATE,
-           Constants.ASSIGNMENT_EXPIRATION_DATE);
+    	     Constants.ASSIGNMENT_CANUSE,
+    	     Constants.ASSIGNMENT_CANGRANT,
+           Constants.YESTERDAY,
+           Constants.TOMORROW);
     
     return assignment;
   }
@@ -329,7 +394,6 @@ public class Fixtures
    * @throws ObjectNotFoundException
    */
   private Subject getOrCreateSubject(int subjectNumber)
-  throws ObjectNotFoundException
   {
     Subject subject = null;
     
@@ -396,7 +460,6 @@ public class Fixtures
   }
 
   private Subsystem getOrCreateSubsystem()
-  throws ObjectNotFoundException
   {
     try
     {

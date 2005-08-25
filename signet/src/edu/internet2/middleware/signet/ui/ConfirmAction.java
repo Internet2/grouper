@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.7 2005-08-18 23:37:34 acohen Exp $
-$Date: 2005-08-18 23:37:34 $
+$Id: ConfirmAction.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
+$Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -70,7 +70,7 @@ throws Exception
   }
 
   HttpSession session = request.getSession(); 
-  boolean grantOnly;
+  boolean canUse;
   boolean canGrant;
 
   PrivilegedSubject grantor
@@ -105,11 +105,11 @@ throws Exception
 
   if (paramIsPresent(canUseString))
   {
-    grantOnly = false;
+    canUse = true;
   }
   else
   {
-    grantOnly = true;
+    canUse = false;
   }
   
   if (paramIsPresent(canGrantString))
@@ -126,8 +126,8 @@ throws Exception
   {
     // We're editing an existing Assignment.
     assignment.setLimitValues(grantor, limitValues);
-    assignment.setGrantable(grantor, canGrant);
-    assignment.setGrantOnly(grantor, grantOnly);
+    assignment.setCanGrant(grantor, canGrant);
+    assignment.setCanUse(grantor, canUse);
     assignment.setEffectiveDate(grantor, effectiveDate);
     assignment.setEffectiveDate(grantor, expirationDate);
   }
@@ -140,8 +140,8 @@ throws Exception
            scope,
            function,
            limitValues,
+           canUse,
            canGrant,
-           grantOnly,
            effectiveDate,
            expirationDate);
   }

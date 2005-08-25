@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.7 2005-07-13 23:28:42 acohen Exp $
-$Date: 2005-07-13 23:28:42 $
+$Id: Common.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
+$Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,8 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.test;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -79,5 +81,12 @@ public class Common extends TestCase
     }
     
     return limitsArray;
+  }
+  
+  static Date getDate(int daysOffset)
+  {
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.DATE, daysOffset);
+    return calendar.getTime();
   }
 }

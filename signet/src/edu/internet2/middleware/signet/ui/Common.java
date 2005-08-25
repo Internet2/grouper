@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.17 2005-08-18 23:37:34 acohen Exp $
-  $Date: 2005-08-18 23:37:34 $
+  $Id: Common.java,v 1.18 2005-08-25 20:31:35 acohen Exp $
+  $Date: 2005-08-25 20:31:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.Decision;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.PrivilegedSubject;
@@ -197,8 +198,8 @@ public class Common
     // that has not yet been persisted has no Status yet. That is, it's not
     // active, it's not pending, it's not nuthin' yet.
     boolean hasStatus = !(assignment.getId() == null);
-    boolean canUse = !(assignment.isGrantOnly());
-    boolean canGrant = assignment.isGrantable();
+    boolean canUse = assignment.canUse();
+    boolean canGrant = assignment.canGrant();
     
     if (hasStatus)
     {
@@ -307,7 +308,8 @@ public class Common
   {
     StringBuffer outStr = new StringBuffer();
     
-    if (editor.canEdit(assignment))
+    Decision decision = editor.canEdit(assignment);
+    if (decision.getAnswer() == true)
     {
       outStr.append("<a\n");
       outStr.append("  style=\"float: right;\"\n");
@@ -329,7 +331,8 @@ public class Common
   {
     StringBuffer outStr = new StringBuffer();
     
-    if (revoker.canEdit(assignment))
+    Decision decision = revoker.canEdit(assignment);
+    if (decision.getAnswer() == true)
     {
       outStr.append("<td align=\"center\" >\n");
       outStr.append("  <input\n");
@@ -354,8 +357,9 @@ public class Common
       outStr.append("    type=\"checkbox\"\n");
       outStr.append("    id=\"" + assignment.getId() + "\"\n");
       outStr.append("    value=\"" + assignment.getId() + "\"\n");
-      outStr.append("    disabled=\"true\"");
-      outStr.append("    title=\"" + revoker.editRefusalExplanation(assignment, "logged-in user") + "\"/>");
+      outStr.append("    disabled=\"true\"\n");
+//      outStr.append("    title=\"" + revoker.editRefusalExplanation(assignment, "logged-in user") + "\"");
+      outStr.append("/>");
       outStr.append("</td>");
     }
     

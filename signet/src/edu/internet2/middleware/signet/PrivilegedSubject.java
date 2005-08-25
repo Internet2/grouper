@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.11 2005-07-08 02:07:38 acohen Exp $
- $Date: 2005-07-08 02:07:38 $
+ $Id: PrivilegedSubject.java,v 1.12 2005-08-25 20:31:35 acohen Exp $
+ $Date: 2005-08-25 20:31:35 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -22,54 +22,53 @@ import edu.internet2.middleware.subject.Subject;
 public interface PrivilegedSubject extends Comparable
 {
   /**
-   * This method returns true if this PrivilegedSubject has authority to
-   * edit the argument Assignment.  Generally, if the Assignment's
-   * SignetSubject matches this SignetSubject, then canEdit would return
-   * false, since in most situations it does not make sense to attempt to
-   * extend or modify your own authority.
+   * This method returns a <code>Decision</code> object that describes whether
+   * or not this PrivilegedSubject has authority to edit the argument
+   * <code>Grantable</code> object (either a {@link Proxy} or an
+   * {@link Assignment}), and if not, why not.
+   * 
+   * Generally, if the <code>Grantable</code> object's
+   * grantee matches this PrivilegedSubject, then <code>canEdit()</code> would
+   * return a negatuve <code>Decision</code>, since in most situations it does
+   * not make sense to attempt to extend or modify your own authority.
    */
-  public boolean canEdit(Assignment anAssignment);
+  public Decision canEdit(Grantable grantableInstance);
   
   /**
-   * This method produces a human-readable String which describes the reason,
-   * if any, why this PrivilegedSubject is prevented from editing the
-   * specified Assignment.
+   * Creates a Proxy relationship by delegating privileges to a
+   * <code>PrivilegedSubject</code>.
    * 
-   * @param anAssignment
-   * @param actor A description of the current PrivilegedSubject in the
-   * 	context, used to make the generated explanation more readable. For
-   * example, sometimes this PrivilegedSubject will be
-   * attempting to act as a "grantor", sometimes as a "revoker".
-   * @return A human-readable String.
+   * @param grantee
+   * 
+   * @param subsystem The <code>Subsystem</code> in which the grantee will be
+   *        allowed to act in the name of this PrivilegedSubject. Note that
+   *        it is legal to grant a <code>Proxy</code> in any
+   *        <code>Subsystem</code>, regardless of whether or not the grantor
+   *        currently has any privileges in that <code>Subsystem</code>.
+   *
+   * @param canUse When <code>true</true>, means that the grantee, when acting
+   *        as a Proxy for this grantor, can use this Proxy to directly
+   *        grant {@link Assignment}s to other <code>PrivilegedSubject</code>s.
+   *
+   * @param canExtend When <code>true</code>, means that this grantee, when
+   *        acting as a Proxy for this grantor, can grant the grantor's Proxy
+   *        to some third <code>PrivilegedSubject</code>. Someday, we may
+   *        add some mechanism to limit the length of these Proxy-chains.
+   *
+   * @param effectiveDate
+   * @param expirationDate
+   * 
+   * @return the new Proxy object which describes the Proxy relationship.
+   * @throws SignetAuthorityException
    */
-  public String editRefusalExplanation
-    (Assignment anAssignment, String actor);
-  
-//  /**
-//   * @deprecated This function is superseded by the newer version, which
-//   * includes a "limitValues" parameter.
-//   * 
-//   * Creates an Assignment by granting a Function to a PrivilegedSubject.
-//   * 
-//   * @param grantee
-//   * @param scope
-//   * @param function
-//   * @param canGrant
-//   * @param grantOnly
-//   * 
-//   * @return the resulting Assignment
-//   * 
-//   * @throws SignetAuthorityException, ObjectNotFoundException
-//   */
-//  public Assignment grant
-//  (PrivilegedSubject 	grantee,
-//   TreeNode 					scope,
-//   Function 					function,
-//   boolean 						canGrant,
-//   boolean 						grantOnly)
-//  throws
-//  	SignetAuthorityException,
-//  	ObjectNotFoundException;
+  public Proxy grantProxy
+   (PrivilegedSubject grantee,
+    Subsystem         subsystem,
+    boolean           canUse,
+    boolean           canExtend,
+    Date              effectiveDate,
+    Date              expirationDate)
+  throws SignetAuthorityException;
   
   /**
    * Creates an Assignment by granting a Function to a PrivilegedSubject.
@@ -78,8 +77,8 @@ public interface PrivilegedSubject extends Comparable
    * @param scope
    * @param function
    * @param limitValues
-   * @param canGrant
    * @param grantOnly
+   * @param canGrant
    * @param effectiveDate
    * @param expirationDate
    * 
@@ -92,13 +91,57 @@ public interface PrivilegedSubject extends Comparable
    TreeNode 					scope,
    Function 					function,
    Set								limitValues,
+   boolean            canUse,
    boolean 						canGrant,
-   boolean 						grantOnly,
    Date               effectiveDate,
    Date               expirationDate)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException;
+  
+  /**
+   * Gets all the {@link Proxy}s which have been received by this
+   * <code>PrivilegedSubject</code>.
+   * 
+   * @param status The <code>Status</code> value to filter the result by. A
+   * <code>null</code> value returns all <code>Proxy</code>s regardless of
+   * <code>Status</code>.
+   * 
+   * @param subsystem The <code>Subsystem</code> values to filter the result by.
+   * A <code>null</code> value returns all <code>Proxy</code>s regardless of
+   * <code>Subsystem</code>.
+   * 
+   * @param grantor The <code>PrivilegedSubject</code> value to filter the
+   * result by. A <code>null</code> value returns all <code>Proxy</code>s
+   * regardless of grantor.
+   * 
+   * @return all the {@link Proxy}s which have been received by this
+   * <code>PrivilegedSubject</code>.
+   */
+  public Set getProxiesReceived
+    (Status status, Subsystem subsystem, PrivilegedSubject grantor);
+  
+  /**
+   * Gets all the {@link Proxy}s which have been granted by this
+   * <code>PrivilegedSubject</code>.
+   * 
+   * @param status The <code>Status</code> value to filter the result by. A
+   * <code>null</code> value returns all <code>Proxy</code>s regardless of
+   * <code>Status</code>.
+   * 
+   * @param subsystem The <code>Subsystem</code> values to filter the result by.
+   * A <code>null</code> value returns all <code>Proxy</code>s regardless of
+   * <code>Subsystem</code>.
+   * 
+   * @param grantee The grantee <code>PrivilegedSubject</code> to filter the
+   * result by. A <code>null</code> value returns all <code>Proxy</code>s
+   * regardless of grantee.
+   * 
+   * @return all the {@link Proxy}s which have been granted by this
+   * <code>PrivilegedSubject</code>.
+   */
+  public Set getProxiesGranted
+    (Status status, Subsystem subsystem, PrivilegedSubject grantee);
   
   /**
    * Gets all the Assignments which have been received by this
@@ -117,15 +160,26 @@ public interface PrivilegedSubject extends Comparable
     (Status status, Subsystem subsystem, Function function);
   
   /**
-   * Gets all the Assignments which have been granted by this
-   * PrivilegedSubject.
-   * @param status
-   * @param subsystem
-   * @return all the Assignments which have been granted by this
-   * PrivilegedSubject.
-   * @throws ObjectNotFoundException
+   * Gets all the {@link Assignment}s which have been granted by this
+   * <code>PrivilegedSubject</code>.
+   * 
+   * @param status The <code>Status</code> value to filter the result by. A
+   * <code>null</code> value returns all <code>Assignments</code>s regardless
+   * of <code>Status</code>.
+   * 
+   * @param subsystem The <code>Subsystem</code> values to filter the result by.
+   * A <code>null</code> value returns all <code>Assignments</code>s regardless of
+   * <code>Subsystem</code>.
+   * 
+   * @param grantee The grantee <code>PrivilegedSubject</code> to filter the
+   * result by. A <code>null</code> value returns all <code>Assignments</code>s
+   * regardless of grantee.
+   * 
+   * @return all the {@link Proxy}s which have been granted by this
+   * <code>PrivilegedSubject</code>.
    */
-  public Set getAssignmentsGranted(Status status, Subsystem subsystem)
+  public Set getAssignmentsGranted
+    (Status status, Subsystem subsystem, PrivilegedSubject grantee)
   throws ObjectNotFoundException;
   
   /**

@@ -27,6 +27,8 @@ drop table signet_function;
 drop table signet_permission;
 drop table signet_limit;
 drop table signet_subsystem;
+drop table signet_proxy;
+drop table signet_proxy_history;
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute;
 drop table Subject;

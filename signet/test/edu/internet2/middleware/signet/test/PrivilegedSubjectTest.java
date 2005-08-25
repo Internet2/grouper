@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.7 2005-07-08 03:48:58 acohen Exp $
-$Date: 2005-07-08 03:48:58 $
+$Id: PrivilegedSubjectTest.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
+$Date: 2005-08-25 20:31:35 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,22 +16,17 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 import junit.framework.TestCase;
 
-/**
- * @author Andy Cohen
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class PrivilegedSubjectTest extends TestCase
 {
 
@@ -97,7 +92,7 @@ public class PrivilegedSubjectTest extends TestCase
     Assignment assignmentForSubject2
     	= (Assignment)(Common.getSingleSetMember(assignmentsForSubject2));
     
-    assertFalse(pSubject0.canEdit(assignmentForSubject2));
+    assertFalse(pSubject0.canEdit(assignmentForSubject2).getAnswer());
   }
 
   public final void testGetGrantableChoices()
@@ -183,12 +178,114 @@ public class PrivilegedSubjectTest extends TestCase
     			 oldAssignment.getScope(),
     			 oldAssignment.getFunction(),
     			 oldLimitValues,
-    			 false,
-    			 false,
+    			 false, // canUse
+    			 true, // canGrant
            new Date(),  // effective immediately
            null);       // no expiration date
     
     assertNotNull(newAssignment);
+  }
+  
+  public final void testGrantProxy()
+  throws
+    ObjectNotFoundException,
+    SignetAuthorityException
+  {
+    // We'll attempt to have subject 2 grant a proxy to subject 0.
+    
+    Subject subject0 = signet.getSubject(
+        Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
+    Subject subject2 = signet.getSubject(
+        Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(2));
+    
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    
+    Subsystem subsystem0 = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    
+    Proxy newProxy
+      = pSubject2.grantProxy
+          (pSubject0,
+           subsystem0,
+           Constants.PROXY_CANUSE,
+           Constants.PROXY_CANEXTEND,
+           Constants.YESTERDAY,
+           null);       // no expiration date
+    
+    assertNotNull(newProxy);
+  }
+  
+  public final void testGetProxiesGranted()
+  throws
+    ObjectNotFoundException
+  {
+    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+    {
+      // Each Subject has granted a Proxy to the next Subject, except that the
+      // last Subject has granted a Proxy to the first Subject.
+      int grantorNumber = i;
+      int granteeNumber = (i == (Constants.MAX_SUBJECTS-1) ? 0 : i+1);
+      
+      PrivilegedSubject grantor
+        = signet.getPrivilegedSubject
+            (signet.getSubject
+              (Signet.DEFAULT_SUBJECT_TYPE_ID,
+               fixtures.makeSubjectId(grantorNumber)));
+      
+      PrivilegedSubject grantee
+        = signet.getPrivilegedSubject
+            (signet.getSubject
+              (Signet.DEFAULT_SUBJECT_TYPE_ID,
+               fixtures.makeSubjectId(granteeNumber)));
+      
+      Set proxiesGranted = grantor.getProxiesGranted(Status.ACTIVE, null, null);
+      assertEquals(1, proxiesGranted.size());
+      
+      Proxy proxyGranted = (Proxy)(Common.getSingleSetMember(proxiesGranted));
+      assertEquals(Status.ACTIVE, proxyGranted.getStatus());
+      assertEquals(Constants.YESTERDAY, proxyGranted.getEffectiveDate());
+      assertEquals(Constants.TOMORROW, proxyGranted.getExpirationDate());
+      assertEquals(grantor, proxyGranted.getGrantor());
+      assertEquals(grantee, proxyGranted.getGrantee());
+      assertNull(proxyGranted.getRevoker());
+    }
+  }
+  
+  public final void testGetProxiesReceived()
+  throws
+    ObjectNotFoundException
+  {
+    for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
+    {
+      // Each Subject has granted a Proxy to the next Subject, except that the
+      // last Subject has granted a Proxy to the first Subject.
+      int grantorNumber = i;
+      int granteeNumber = (i == (Constants.MAX_SUBJECTS-1) ? 0 : i+1);
+      
+      PrivilegedSubject grantor
+        = signet.getPrivilegedSubject
+            (signet.getSubject
+              (Signet.DEFAULT_SUBJECT_TYPE_ID,
+               fixtures.makeSubjectId(grantorNumber)));
+      
+      PrivilegedSubject grantee
+        = signet.getPrivilegedSubject
+            (signet.getSubject
+              (Signet.DEFAULT_SUBJECT_TYPE_ID,
+               fixtures.makeSubjectId(granteeNumber)));
+      
+      Set proxiesReceived
+        = grantee.getProxiesReceived(Status.ACTIVE, null, null);
+      assertEquals(1, proxiesReceived.size());
+      
+      Proxy proxyReceived = (Proxy)(Common.getSingleSetMember(proxiesReceived));
+      assertEquals(Status.ACTIVE, proxyReceived.getStatus());
+      assertEquals(Constants.YESTERDAY, proxyReceived.getEffectiveDate());
+      assertEquals(Constants.TOMORROW, proxyReceived.getExpirationDate());
+      assertEquals(grantor, proxyReceived.getGrantor());
+      assertEquals(grantee, proxyReceived.getGrantee());
+      assertNull(proxyReceived.getRevoker());
+    }
   }
 
   public final void testGetPrivileges()
