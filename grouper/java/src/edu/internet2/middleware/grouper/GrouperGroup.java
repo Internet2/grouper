@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.228 2005-08-24 19:19:54 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.229 2005-08-25 20:09:49 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -736,6 +736,22 @@ public class GrouperGroup extends Group {
       throw new RuntimeException("Unable to attach type to group");
     }
     this.initialized  = true;
+  }
+
+  /*
+   * Refresh instantiated object
+   * TODO I think this should go public once we are not in a code
+   * freeze
+   */
+  protected void refresh() {
+    try {
+      this.s.dbSess().session().refresh(this);
+      this.load(this.s);
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to refresh group: " + e.getMessage()
+      );
+    }
   }
 
   /*
