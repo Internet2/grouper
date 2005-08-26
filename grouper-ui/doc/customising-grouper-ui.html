@@ -252,10 +252,10 @@ used.</p>
   page, the <em>/callLogin</em> action is requested. This forwards the user to 
   the<em> /easyLogin </em>action which displays the template named <em>EasyLoginFormDef, 
   </em>which is a simple form allowing a username to be entered. The custom UI 
-  also defines a Filter <em>EasyLoginFilter</em> which is called prior to <em>LoginCheckFilter</em>. 
+  also defines a Filter <em>EasyLoginFilter</em> which is called prior to <em><a href="api/edu/internet2/middleware/grouper/ui/LoginCheckFilter.html">LoginCheckFilter</a></em>. 
   If it <em>sees</em> a request parameter called username, it attempts to load 
-  a Subject (through <em>Subject.getSubjectByIdentifier</em>). If successful, 
-  it stores the username in the HttpSession and calls the next Filter in sequence 
+  a Subject (through <em>Source.getSubjectByIdentifier</em>). If successful, it 
+  stores the username in the HttpSession and calls the next Filter in sequence 
   with a modified <em>HttpServletRequest</em>, which responds to getRemoteUser() 
   by returning the stored username.</p>
 

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Grouper UI Development Environment </title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+
+<body>
+<h1>Grouper UI Development Environment </h1>
+<h2>Introduction</h2>
+<p>There are many ways to set up a development environment using a variety of 
+  open source and commercial tools and application servers. The environment described 
+  here is the one used to develop the Grouper UI, however, you are free to use 
+  whatever setup works best for you.</p>
+<p>I am an active developer so the directory layout and build scripts I use are 
+  designed to facilitate development as well as final deployment. I normally use 
+  Eclipse as a Java IDE and so some choices I have made are biassed to <em>cope</em> 
+  with the way Eclipse works. </p>
+<h2>Directory structure</h2>
+<p>In order to verify the extensibility of the UI, I have developed the Grouper 
+  UI and a custom (University of Bristol) version in parallel, using the same 
+  environment. A minimal implementation only requires a Grouper API installation 
+  in addition to a Grouper UI installation, however, any real world implementation 
+  will have site specific components as well:</p>
+<table width="75%" border="1">
+  <tr bgcolor="#CCCCCC"> 
+    <td colspan="2"><strong>Grouper UI development at the University of Bristol</strong></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td width="17%"><strong>Component</strong></td>
+    <td width="83%"><strong>Description</strong></td>
+  </tr>
+  <tr> 
+    <td>grouper</td>
+    <td>The Grouper API</td>
+  </tr>
+  <tr> 
+    <td>grouper-ui</td>
+    <td>The Grouper UI</td>
+  </tr>
+  <tr> 
+    <td>uob-grouper-ui</td>
+    <td>Bristol customisations to the Grouper UI</td>
+  </tr>
+  <tr> 
+    <td>i2mi-subject</td>
+    <td><p>Bristol implementation of the Subject interface.</p>
+      <p>Sites may be able to use a generic source adapter provided with The Subject 
+        interface distribution e.g. an LDAP adapter</p></td>
+  </tr>
+</table>
+<p>grouper and grouper-ui are separate modules in the I2MI CVS repository.</p>
+<p>uob-grouper-ui and i2mi-subject are separate modules in the CVS repository 
+  at Bristol.</p>
+<p>I have all the CVS checkout directories as subdirectories at the same level 
+  (to help Eclipse), though this is not an absolute requirement i.e.</p>
+<pre>GrouperComplete
+   grouper
+   grouper-ui*
+   uob-grouper-ui*
+   i2mi-subject</pre>
+<p>*Both directories contain a subdirectory <em>webapp</em> which itself has a 
+  directory structure that is consistent with a web application (see <a href="ui-architecture.html">Architecture 
+  document).</a>.</p>
+<p>During development I may need to debug source code from any of the projects. 
+  I may also want to make code changes in the appropriate CVS checkout areas*. 
+  In my ideal development environment I would be able to edit any source files 
+  and instantly see changes in the web application. A typical build script for 
+  a web application might create the web application directory structure in a 
+  new <em>build</em> directory and then either copy or make into a WAR (web application 
+  archive file), and then deploy to a Servlet container e.g. Tomcat. Using this 
+  approach every change requires a build and potential restart of the web application. 
+  Admittedly Eclipse will allow an ant script to be called when source files are 
+  modified, however, this can be overkill for a simple change to a JSP. </p>
+<p>*I could edit JSP and other files in the <em>build</em> or <em>deploy </em>directory, 
+  however, I would then need to copy the changes back to CVS - something I may 
+  well forget to do. </p>
+<h2>Setting up Eclipse</h2>
+<p>In Eclipse I create one <em>project</em> and pull in the<em> java/src</em> 
+  and <em>lib</em> directories from each of the 4 projects listed above. I can 
+  then set a single output directory where compiled Java classes are placed whenever 
+  I save a Java source file. JSP and other <em>content</em> files are trickier 
+  since they are saved <em>in situ</em> and not compiled to a separate destination. 
+  Normally I will be working on <em>either</em> the core Grouper UI <em>or</em> 
+  on Bristol customisations . In the Grouper UI <em>build.properties</em> file 
+  I can elect to have the <em>webapp</em> directory of grouper-ui <em>or</em> 
+  uob-grouper-ui be the web application root (configured in Tomcat)*. I manually 
+  configure Eclipse to compile Java classes to the appropriate <em>webapp/WEB-INF/classes 
+  </em>directory.</p>
+<p>*Actually, any directory can be configured to be the web application root - 
+  I always choose either of the ones indicated when developing.</p>
+<p>Any changes I make to the <em>local</em> JSPs are immediately picked up by 
+  Tomcat, however, I would need to run an ant script to obtain changes from the 
+  other project i.e. <em>uob-grouper-ui</em> to <em>grouper-ui.</em> Most sites 
+  which are not involved in the development of the Grouper UI should set <em>&lt;institution&gt;-grouper-ui/webapp</em> 
+  to be their web application root. If working with <em>Tomcat</em> and the build.properties 
+  <em>deploy</em> properties are set, the build script will automatically install 
+  your webapp on Tomcat such that Tomcat reads files from your <em>work area</em>.</p>
+<p>A disadvantage of this approach is that it <em>pollutes</em> the CVS checkout 
+  area for one module with those from another, and I may be tempted to edit a 
+  file in the wrong location (though hopefully they are in different subdirectories). 
+  Assuming that site-specific changes are always in distinct subdirectories then 
+  on Unix it may well be possible to set up symbolic links from grouper-ui to, 
+  say, uob-grouper-ui.</p>
+<p>Some changes e.g. adding new JAR files, modifying resources, changing Struts 
+  / tiles configuration files will always require a build and a web application 
+  restart. </p>
+<h3>The Ant script</h3>
+<p>The following targets are available:</p>
+<pre>
+
+
+   &gt;ant help
+   Buildfile: build.xml</pre>
+<pre>	help:
+   [echo] Please ensure you have read the documentation -
+   [echo] and created a build.properties file based on the template provided</pre>
+<pre> 	[echo] The following targets are available - type the appropriate name:</pre>
+<pre>   [echo] 1) default
+   [echo] Simply builds, without cleaning, to the default.webapp.folder
+   [echo] 2) nice
+   [echo] Attempts to stop the Tomcat webapp before building.
+   [echo] Attempts to start the webappp afterwards
+   [echo] 3) clean
+   [echo] Always removes the webapp.class.folder. May remove the
+   [echo] webapp.folder if webapp.folder.cleanable=true
+   [echo] On Windows this may fail as Windows tends to lock files
+   [echo] 4) niceclean
+   [echo] Combination of nice and clean
+   [echo] 5) dist
+   [echo] Cleans and then builds to subfolder of dist.home
+   [echo] 6) war
+   [echo] Does dist and then makes a WAR file
+   [echo] 7) resources
+   [echo] Does not compile Java classes but 'refreshes' resources in
+   [echo] webapp.class.folder
+   [echo] 8) help
+   [echo] Displays this menu
+   [echo] 9) endhelp
+   [echo] Subsequent invocation of ant with no target will run
+   [echo] 'default' rather than help
+   [echo] 10) starthelp
+   [echo] Subsequent invocation of ant with no target will run 'help'
+   [echo] 11) html
+   [echo] Generate Javadoc - you must have done a 'default' build previously
+   [echo] 12) exit
+   [echo] Exit this menu without executing another target</pre>
+<pre> [input] Make your choice (default)&gt;</pre>
+<p>The <em>nice</em> targets will only work if you are using Tomcat and have configured 
+  the deploy properties in build.properties, and have installed <font face="Courier New, Courier, mono">catalina-ant.jar</font> 
+  with Ant. </p>
+<p>See <a href="customising-grouper-ui.html#Customisin2"">Customising the Grouper 
+  UI:Customising the build process</a> for details on how to customise the build 
+  process. </p>
+</body>
+</html>
