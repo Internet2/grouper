@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: Common.java,v 1.9 2005-08-26 19:50:24 acohen Exp $
+$Date: 2005-08-26 19:50:24 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -39,6 +39,18 @@ public class Common extends TestCase
     {
       obj = setIterator.next();
     }
+    
+    return obj;
+  }
+  
+  public static Object getFirstSetMember(Set set)
+  {
+    assertTrue(0 < set.size());
+
+    Object obj = null;
+    Iterator setIterator = set.iterator();
+    setIterator.hasNext();
+    obj = setIterator.next();
     
     return obj;
   }

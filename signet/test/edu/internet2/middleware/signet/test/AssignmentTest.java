@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.14 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: AssignmentTest.java,v 1.15 2005-08-26 19:50:24 acohen Exp $
+$Date: 2005-08-26 19:50:24 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -138,7 +138,8 @@ public class AssignmentTest extends TestCase
           = assignmentReceived
               .getGrantor()
                 .grant
-                  (assignmentReceived.getGrantee(),
+                  (null,  // actingAs
+                   assignmentReceived.getGrantee(),
                    assignmentReceived.getScope(),
                    assignmentReceived.getFunction(),
                    duplicateLimitValues,

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.27 2005-08-25 20:31:35 acohen Exp $
- $Date: 2005-08-25 20:31:35 $
+ $Id: AssignmentImpl.java,v 1.28 2005-08-26 19:50:24 acohen Exp $
+ $Date: 2005-08-26 19:50:24 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -40,7 +40,8 @@ implements Assignment
   
   public AssignmentImpl
   	(Signet							signet,
-     PrivilegedSubject	grantor, 
+     PrivilegedSubject	grantor,
+     Proxy              actingAs,
      PrivilegedSubject 	grantee,
      TreeNode						scope,
      Function						function,
@@ -54,7 +55,8 @@ implements Assignment
   {
     super
       (signet,
-       grantor, 
+       grantor,
+       actingAs,
        grantee,
        effectiveDate,
        expirationDate);
@@ -63,6 +65,21 @@ implements Assignment
     {
       throw new IllegalArgumentException
       	("It's illegal to grant an Assignment for a NULL Function.");
+    }
+    
+    if ((actingAs != null) && (actingAs.getSubsystem() != null))
+    {
+      if (!actingAs.getSubsystem().equals(function.getSubsystem()))
+      {
+        throw new IllegalArgumentException
+          ("When exercising a Proxy to grant an Assignment,"
+           + " the Subsystem of the Proxy must match the Subsystem of the"
+           + " Function being assigned."
+           + " '" + actingAs.getSubsystem().getName() + "',"
+           + " the Subsystem of the Proxy, does not match"
+           + " '" + function.getSubsystem().getName() + "',"
+           + " the Subsystem of the Function.");
+      }
     }
     
     if ((canGrant == false) && (canUse == false))

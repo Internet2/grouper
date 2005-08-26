@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.21 2005-08-25 20:31:35 acohen Exp $
- $Date: 2005-08-25 20:31:35 $
+ $Id: PrivilegedSubjectImpl.java,v 1.22 2005-08-26 19:50:24 acohen Exp $
+ $Date: 2005-08-26 19:50:24 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -940,37 +940,31 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public String getDescription() {
     return this.subject.getDescription();
   }
-
+  
   public Assignment grant
-  	(PrivilegedSubject 	grantee,
-  	 TreeNode 					scope,
-     Function 					function,
-     Set								limitValues,
-     boolean            canUse,
-     boolean 						canGrant,
-     Date               effectiveDate,
-     Date               expirationDate)
+    (Proxy             actingAs,
+     PrivilegedSubject grantee,
+     TreeNode          scope,
+     Function          function,
+     Set               limitValues,
+     boolean           canUse,
+     boolean           canGrant,
+     Date              effectiveDate,
+     Date              expirationDate)
   throws
-  	SignetAuthorityException
+    SignetAuthorityException
   {
-    if (function == null)
-    {
-      throw new IllegalArgumentException
-      	("It's illegal to grant an Assignment on a NULL Function.");
-    }
-
-    Assignment newAssignment = null;
-
-    newAssignment
-    	= new AssignmentImpl
-    			(this.signet,
-    			 this,
-    			 grantee,
-    			 scope,
-    			 function,
-    			 limitValues,
+    Assignment newAssignment
+      = new AssignmentImpl
+          (this.signet,
+           this,
+           actingAs,
+           grantee,
+           scope,
+           function,
+           limitValues,
            canUse,
-    			 canGrant,
+           canGrant,
            effectiveDate,
            expirationDate);
 
@@ -1205,7 +1199,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @see edu.internet2.middleware.signet.PrivilegedSubject#grantProxy(edu.internet2.middleware.signet.PrivilegedSubject, edu.internet2.middleware.signet.Subsystem, java.util.Date, java.util.Date)
    */
   public Proxy grantProxy
-    (PrivilegedSubject  grantee,
+    (Proxy              actingAs,
+     PrivilegedSubject  grantee,
      Subsystem          subsystem,
      boolean            canUse,
      boolean            canExtend,
@@ -1231,6 +1226,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       = new ProxyImpl
           (this.signet,
            this,
+           actingAs,
            grantee,
            subsystem,
            canUse,

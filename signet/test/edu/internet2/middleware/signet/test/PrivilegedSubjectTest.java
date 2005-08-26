@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: PrivilegedSubjectTest.java,v 1.9 2005-08-26 19:50:24 acohen Exp $
+$Date: 2005-08-26 19:50:24 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -150,6 +150,58 @@ public class PrivilegedSubjectTest extends TestCase
     }
   }
   
+  public final void testGrantActingAs()
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {
+    // We'll attempt to have subject 1 grant a privilege to subject 2, while
+    // "acting as" subject 0.
+    
+    Subject subject0
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           fixtures.makeSubjectId(0));
+    Subject subject1
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           fixtures.makeSubjectId(1));
+    Subject subject2
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           fixtures.makeSubjectId(2));
+    
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+    
+    Assignment oldAssignment
+      = (Assignment)
+          (Common.getFirstSetMember
+            (pSubject0.getAssignmentsReceived
+              (null, null, null)));
+    Set oldLimitValues = oldAssignment.getLimitValues();
+
+    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Set proxies
+      = pSubject1.getProxiesReceived(Status.ACTIVE, subsystem, pSubject0);
+    Proxy proxy = (Proxy)(Common.getSingleSetMember(proxies));
+    
+    Assignment newAssignment
+      = pSubject1.grant
+          (proxy,     // actingAs
+           pSubject2, // grantee
+           oldAssignment.getScope(),
+           oldAssignment.getFunction(),
+           oldLimitValues,
+           false, // canUse
+           true, // canGrant
+           new Date(),  // effective immediately
+           null);       // no expiration date
+    
+    assertNotNull(newAssignment);
+  }
+  
   public final void testGrant()
   throws
   	SignetAuthorityException,
@@ -174,7 +226,8 @@ public class PrivilegedSubjectTest extends TestCase
     
     Assignment newAssignment
     	= pSubject2.grant
-    			(pSubject0,
+    			(null, // actingAs
+           pSubject0,
     			 oldAssignment.getScope(),
     			 oldAssignment.getFunction(),
     			 oldLimitValues,
@@ -205,7 +258,8 @@ public class PrivilegedSubjectTest extends TestCase
     
     Proxy newProxy
       = pSubject2.grantProxy
-          (pSubject0,
+          (null,  // actingAs
+           pSubject0,
            subsystem0,
            Constants.PROXY_CANUSE,
            Constants.PROXY_CANEXTEND,

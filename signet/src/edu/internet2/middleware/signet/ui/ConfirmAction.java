@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: ConfirmAction.java,v 1.9 2005-08-26 19:50:24 acohen Exp $
+$Date: 2005-08-26 19:50:24 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -136,7 +136,8 @@ throws Exception
     // We're creating a new Assignment.
     assignment
       = grantor.grant
-          (grantee,
+          (null,  // actingAs
+           grantee,
            scope,
            function,
            limitValues,

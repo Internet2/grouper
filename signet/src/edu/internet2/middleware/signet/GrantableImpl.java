@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.1 2005-08-25 20:31:35 acohen Exp $
- $Date: 2005-08-25 20:31:35 $
+ $Id: GrantableImpl.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
+ $Date: 2005-08-26 19:50:24 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -25,9 +25,24 @@ implements Grantable
   // has a numeric, not alphanumeric ID.
   private Integer						id;
   
+  // If this Grantable instance was granted directly by a PrivilegedSubject,
+  // then this is that PrivilegedSubject.
+  //
+  // If this Grantable instance was granted via a Proxy, then this is the
+  // PrivilegedSubject who originally granted that Proxy.
   private PrivilegedSubject	grantor;
   private String						grantorId;
   private String						grantorTypeId;
+  
+  // If this Grantable instance was granted directly by a PrivilegedSubject,
+  // then this is null.
+  //
+  // If this Grantable instance was granted via a Proxy, then this is the
+  // PrivilegedSubject who acting on behalf of the PrivilegedSubject who
+  // originally granted that Proxy.
+  private PrivilegedSubject proxy;
+  private String            proxyId;
+  private String            proxyTypeId;
   
   private PrivilegedSubject	grantee;
   private String						granteeId;
@@ -98,7 +113,8 @@ implements Grantable
   
   public GrantableImpl
   	(Signet							signet,
-     PrivilegedSubject	grantor, 
+     PrivilegedSubject	grantor,
+     Proxy              actingAs,
      PrivilegedSubject 	grantee,
      Date               effectiveDate,
      Date               expirationDate)
@@ -107,7 +123,16 @@ implements Grantable
   {    
     super(signet, null, null, null);
 
-    this.setGrantor(grantor);
+    if (actingAs == null)
+    {
+      this.setGrantor(grantor);
+    }
+    else
+    {
+      this.setGrantor(actingAs.getGrantor());
+      this.setProxy(grantor);
+    }
+    
     this.setGrantee(grantee);
     
     if (datesInWrongOrder(effectiveDate, expirationDate))
@@ -302,6 +327,13 @@ implements Grantable
     this.revoker = revoker;
     this.revokerId = revoker.getSubjectId();
     this.revokerTypeId = revoker.getSubjectTypeId();
+  }
+  
+  void setProxy(PrivilegedSubject proxy)
+  {
+    this.proxy = proxy;
+    this.proxyId = proxy.getSubjectId();
+    this.proxyTypeId = proxy.getSubjectTypeId();
   }
 
   /**

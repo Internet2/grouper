@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.12 2005-08-25 20:31:35 acohen Exp $
- $Date: 2005-08-25 20:31:35 $
+ $Id: PrivilegedSubject.java,v 1.13 2005-08-26 19:50:24 acohen Exp $
+ $Date: 2005-08-26 19:50:24 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -38,6 +38,8 @@ public interface PrivilegedSubject extends Comparable
    * Creates a Proxy relationship by delegating privileges to a
    * <code>PrivilegedSubject</code>.
    * 
+   * @param actingAs
+   * 
    * @param grantee
    * 
    * @param subsystem The <code>Subsystem</code> in which the grantee will be
@@ -62,7 +64,8 @@ public interface PrivilegedSubject extends Comparable
    * @throws SignetAuthorityException
    */
   public Proxy grantProxy
-   (PrivilegedSubject grantee,
+   (Proxy             actingAs,
+    PrivilegedSubject grantee,
     Subsystem         subsystem,
     boolean           canUse,
     boolean           canExtend,
@@ -71,8 +74,10 @@ public interface PrivilegedSubject extends Comparable
   throws SignetAuthorityException;
   
   /**
-   * Creates an Assignment by granting a Function to a PrivilegedSubject.
+   * Creates an Assignment by exercising a Proxy to grant a Function to a
+   * PrivilegedSubject.
    * 
+   * @param actingAs
    * @param grantee
    * @param scope
    * @param function
@@ -87,17 +92,17 @@ public interface PrivilegedSubject extends Comparable
    * @throws SignetAuthorityException, ObjectNotFoundException
    */
   public Assignment grant
-  (PrivilegedSubject 	grantee,
-   TreeNode 					scope,
-   Function 					function,
-   Set								limitValues,
+  (Proxy              actingAs,
+   PrivilegedSubject  grantee,
+   TreeNode           scope,
+   Function           function,
+   Set                limitValues,
    boolean            canUse,
-   boolean 						canGrant,
+   boolean            canGrant,
    Date               effectiveDate,
    Date               expirationDate)
   throws
-  	SignetAuthorityException,
-  	ObjectNotFoundException;
+    SignetAuthorityException;
   
   /**
    * Gets all the {@link Proxy}s which have been received by this

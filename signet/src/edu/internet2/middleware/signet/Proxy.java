@@ -1,6 +1,6 @@
 /*--
-$Id: Proxy.java,v 1.1 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: Proxy.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
+$Date: 2005-08-26 19:50:24 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -36,7 +36,18 @@ import edu.internet2.middleware.signet.SignetAuthorityException;
 * <code>Subsystem</code> is the smallest unit of authority which can be
 * delegated.
 * <p>
-* Proxies are not transitive.
+* Proxies are not transitive. As an illustration, consider the following case:
+* 
+*   Subject A grants a proxy to subject B.
+*   Subject B may now "act as" subject A, when granting Assignments.
+* 
+*   Subject B grants a proxy to subject C.
+*   Subject C may now "act as" subject B, when granting Assignments.
+*   Subject C may NOT "act as" subject A
+*   When "acting as" subject B, Subject C may grant only those Privileges
+*   which subject B holds directly. That is, Subject C may NOT grant any
+*   Assignments which subject B can grant only when subject B is "acting as"
+*   subject A. 
 * <p>
 * An existing Proxy may be modified. To save the modified Proxy,
 * call Proxy.save().

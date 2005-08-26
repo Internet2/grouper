@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.1 2005-08-25 20:31:35 acohen Exp $
- $Date: 2005-08-25 20:31:35 $
+ $Id: ProxyImpl.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
+ $Date: 2005-08-26 19:50:24 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -30,6 +30,7 @@ implements Proxy
   public ProxyImpl
   	(Signet							signet,
      PrivilegedSubject	grantor, 
+     Proxy              actingAs,
      PrivilegedSubject 	grantee,
      Subsystem          subsystem,
      boolean            canUse,
@@ -39,7 +40,7 @@ implements Proxy
   throws
   	SignetAuthorityException
   {    
-    super(signet, grantor, grantee, effectiveDate, expirationDate);
+    super(signet, grantor, actingAs, grantee, effectiveDate, expirationDate);
     
     if (subsystem == null)
     {
@@ -47,11 +48,26 @@ implements Proxy
       	("It's illegal to grant a Proxy for a NULL Subsystem.");
     }
     
+    if ((actingAs != null) && (actingAs.getSubsystem() != null))
+    {
+      if (!actingAs.getSubsystem().equals(subsystem))
+      {
+        throw new IllegalArgumentException
+          ("When extending a Proxy to a third party,"
+           + " the Subsystem of the original Proxy must match the Subsystem"
+           + " associated with the new Proxy."
+           + " '" + actingAs.getSubsystem().getName() + "',"
+           + " the Subsystem of the original Proxy, does not match"
+           + " '" + subsystem.getName() + "',"
+           + " the Subsystem of the new Proxy.");
+      }
+    }
+    
     if ((canUse == false) && (canExtend == false))
     {
       throw new IllegalArgumentException
-        ("It is illegal to create a new Assignment with both its canUse"
-         + " and canGrant attributes set false.");
+        ("It is illegal to create a new Proxy with both its canUse"
+         + " and canExtend attributes set false.");
     }
     
     this.subsystem = (SubsystemImpl)subsystem;

@@ -1,6 +1,6 @@
 /*--
-$Id: Reason.java,v 1.1 2005-08-16 16:41:08 acohen Exp $
-$Date: 2005-08-16 16:41:08 $
+$Id: Reason.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
+$Date: 2005-08-26 19:50:24 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -68,7 +68,7 @@ public class Reason extends TypeSafeEnumeration
    */
   public static final Reason SCOPE
     = new Reason
-        ("function",
+        ("scope",
          "The scope of this Assignment lies outside the scope within which"
          + " this PrivilegedSubject has the ability to grant the specified"
          + " Function.");
