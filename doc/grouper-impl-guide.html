@@ -27,7 +27,7 @@ pre {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-08-29 18:05:03 $
+$Date: 2005-08-29 18:24:46 $
 </div>
 <div id="title">
 <h2>Grouper Implementation Guide</h2>
@@ -747,13 +747,19 @@ following code example demonstrates the creation of a namespace and a
 group within that namespace:
 </p>
 <pre>
-  String      stem  = Grouper.NS_ROOT;
-  String      extn  = "uofc";
-  GrouperStem ns    = GrouperStem.create(s, stem, extn);
+  /*
+   * Create a root-level namespace with the extension "uofc".
+   */
+  String        ns_extn   = "uofc";
+  GrouperStem   ns        = GrouperStem.create(s, ns_extn);
 
-  String      stem  = "uofc";
-  String      extn  = "exec_council";
-  GrouperGroup g    = GrouperGroup.create(s, stem, extn);
+  /*
+   * Create a group with the extension "exec_council" within the "uofc"
+   * namespace.  
+   */
+  String        grp_stem  = "uofc";
+  String        grp_extn  = "exec_council";
+  GrouperGroup  g         = GrouperGroup.create(s, grp_stem, grp_extn);
 </pre>
 <p>
 A <i>hierarchy delimiter</i> is used in string representations of the names of
