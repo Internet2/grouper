@@ -27,7 +27,7 @@ pre {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-08-29 17:47:42 $
+$Date: 2005-08-29 18:03:18 $
 </div>
 <div id="title">
 <h2>Grouper Implementation Guide</h2>
@@ -952,12 +952,20 @@ are listed in the following tables.
 <tr>
   <td id="td"><i>VIEW</i></td>
   <td id="td">Can see the group and can refer to it, e.g., to make
-    it a subgroup of another group.</td>
+    it a subgroup of another group.
+    <br /><br />
+    <b>NOTE:</b> If no explicit <i>VIEW</i> privileges have been
+    assigned to a group, <b>all</b> subjects can <i>VIEW</i> the
+    group.</td>
 </tr>
 <tr>
   <td id="td"><i>READ</i></td>
   <td id="td">Can read all "public" fields of the group. Implies
-    <i>VIEW</i>.</td>
+    <i>VIEW</i>.
+    <br /><br />
+    <b>NOTE:</b>  If no explicit <i>READ</i> privileges have been
+    assigned to a group, <b>all</b> subjects can <i>READ</i> the
+    group's  public fields.</td>
 </tr>
 <tr>
   <td id="td"><i>UPDATE</i></td>
