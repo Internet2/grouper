@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.13 2005-07-29 02:42:28 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.14 2005-08-29 17:41:21 blair Exp $
  */
 public class SubjectFactory {
 
@@ -156,8 +156,7 @@ public class SubjectFactory {
   }
  
   /**
-   * Gets a Subject by other well-known identifiers, aside from the
-   * subject ID, e.g. login ID.
+   * Gets a Subject by other well-known identifiers.
    * <p />
    * @param   id  identifier
    * @return  a {@link Subject}
@@ -170,8 +169,7 @@ public class SubjectFactory {
   }
 
   /**
-   * Gets a Subject by other well-known identifiers, aside from the
-   * subject ID, e.g. login ID.
+   * Gets a Subject by other well-known identifiers.
    * <p />
    * @param   id    identifier
    * @param   type  subject type
