@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.24 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: Fixtures.java,v 1.25 2005-08-29 18:29:31 acohen Exp $
+$Date: 2005-08-29 18:29:31 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -181,9 +181,27 @@ public class Fixtures
     {
       // Each Subject grants a Proxy to the next Subject, except that the
       // last Subject grants a Proxy to the first Subject.
-      int grantorNumber = i;
-      int granteeNumber = (i == (Constants.MAX_SUBJECTS-1) ? 0 : i+1);
-      Proxy proxy = getOrCreateProxy(grantorNumber, granteeNumber);
+      //
+      // Each Proxy is for the test Subsystem, except that the last
+      // Subject grants a non-Subsystem-restricted Proxy to the first
+      // Subject.
+      int       grantorNumber = i;
+      int       granteeNumber;
+      Subsystem proxiedSubsystem;
+      
+      if (i == (Constants.MAX_SUBJECTS-1))
+      {
+        granteeNumber = 0;
+        proxiedSubsystem = null;
+      }
+      else
+      {
+        granteeNumber = i+1;
+        proxiedSubsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+      }
+      
+      Proxy proxy
+        = getOrCreateProxy(grantorNumber, granteeNumber, proxiedSubsystem);
       proxy.save();
     }
     
@@ -250,21 +268,21 @@ public class Fixtures
     stmt.executeUpdate
       ("DELETE FROM signet_proxy_history WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
-       + "'");
+       + "' OR subsystemID IS NULL");
     stmt.executeUpdate
-    ("DELETE FROM signet_proxy WHERE subsystemID='"
-     + Constants.SUBSYSTEM_ID
-     + "'");
+      ("DELETE FROM signet_proxy WHERE subsystemID='"
+       + Constants.SUBSYSTEM_ID
+       + "' OR subsystemID IS NULL");
     conn.commit();
     conn.close();
   }
   
   private Proxy getOrCreateProxy
-    (int grantorSubjectNumber,
-     int granteeSubjectNumber)
+    (int        grantorSubjectNumber,
+     int        granteeSubjectNumber,
+     Subsystem  proxiedSubsystem)
   throws
-    SignetAuthorityException,
-    ObjectNotFoundException
+    SignetAuthorityException
   {
     PrivilegedSubject grantor
       = signet.getPrivilegedSubject
@@ -280,7 +298,7 @@ public class Fixtures
     
     Set proxiesReceived
       = grantee.getProxiesReceived
-          (Status.ACTIVE, this.subsystem, grantor);
+          (Status.ACTIVE, proxiedSubsystem, grantor);
     
     Iterator proxiesReceivedIterator = proxiesReceived.iterator();
     while (proxiesReceivedIterator.hasNext())
@@ -297,7 +315,7 @@ public class Fixtures
       = grantor.grantProxy
           (null,  // actingAs
            grantee,
-           this.subsystem,
+           proxiedSubsystem,
            Constants.PROXY_CANUSE,
            Constants.PROXY_CANEXTEND,
            Constants.YESTERDAY,

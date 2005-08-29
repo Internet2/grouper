@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.13 2005-08-26 19:50:24 acohen Exp $
- $Date: 2005-08-26 19:50:24 $
+ $Id: PrivilegedSubject.java,v 1.14 2005-08-29 18:29:30 acohen Exp $
+ $Date: 2005-08-29 18:29:30 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -46,7 +46,9 @@ public interface PrivilegedSubject extends Comparable
    *        allowed to act in the name of this PrivilegedSubject. Note that
    *        it is legal to grant a <code>Proxy</code> in any
    *        <code>Subsystem</code>, regardless of whether or not the grantor
-   *        currently has any privileges in that <code>Subsystem</code>.
+   *        currently has any privileges in that <code>Subsystem</code>. If
+   *        this parameter is <code>null</code>, then this <code>Proxy</code>
+   *        will be available in every <code>Subsystem</code>.
    *
    * @param canUse When <code>true</true>, means that the grantee, when acting
    *        as a Proxy for this grantor, can use this Proxy to directly

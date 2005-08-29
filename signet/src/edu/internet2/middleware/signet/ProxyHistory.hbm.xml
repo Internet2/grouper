@@ -3,33 +3,17 @@
           "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping>
 	<class
-		name="edu.internet2.middleware.signet.ProxyImpl"
-		table="signet_proxy"
+		name="edu.internet2.middleware.signet.ProxyHistory"
+		table="signet_proxy_history"
 		lazy="true">
 		
-<!--
-		NOTE: The following ID declaration must be used on HSQL.
--->
-		<id name="id" type="int" column="proxyID">
+		<id name="historyId" type="int" column="historyID">
 			<generator class="native"/>
 		</id>
 
-<!-- 
-		NOTE: The following ID declaration, while correct,
-		fails on HSQL, which has no "numeric" datatype.
-		
-		FURTHER NOTE: TEST THIS SOMEHOW ON SYBASE, AND SEE IF THERE'S
-		SOME WAY TO SPECIFY A DECIMAL PRECISION OF (12,0) WITHOUT
-		FORCING THE DATATYPE TO NUMERIC, WHICH NOT EVERY DB SUPPORTS.
-		<id name="numericId" type="big_decimal" unsaved-value="null"> 
-       		<column name="assignmentID" sql-type="numeric(12,0)"/> 
-       		<generator class="native"/> 
-    	</id>
--->
-    	
-<!--		
-		<timestamp name="modifyDatetime"/>
--->
+		<property
+			name="proxyId"
+			column="proxyID" />
         <property
 			name="modifyDatetime" column="modifyDatetime" />
 		
@@ -51,7 +35,7 @@
 		<many-to-one
 			name="subsystem"
 			class="edu.internet2.middleware.signet.SubsystemImpl"
-			cascade="save-update"
+			cascade="none"
 			not-null="false">
 			
 			<column name="subsystemID"/>
@@ -79,6 +63,9 @@
 			not-null="false"/>
 		<property
 			name="instanceNumber"
+			not-null="true"/>
+		<property
+			name="historyDatetime"
 			not-null="true"/>
 
 	</class>

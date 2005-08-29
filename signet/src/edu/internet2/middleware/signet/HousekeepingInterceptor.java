@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.13 2005-07-21 07:40:59 acohen Exp $
- $Date: 2005-07-21 07:40:59 $
+ $Id: HousekeepingInterceptor.java,v 1.14 2005-08-29 18:29:31 acohen Exp $
+ $Date: 2005-08-29 18:29:31 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -10,10 +10,7 @@ package edu.internet2.middleware.signet;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 
 import net.sf.hibernate.CallbackException;
@@ -157,24 +154,44 @@ class HousekeepingInterceptor implements Interceptor, Serializable
   }
   
   private void saveInitialHistoryRecord
-    (Session        session,
-     AssignmentImpl assignmentImpl)
+    (Session       session,
+     GrantableImpl grantableInstance)
   throws CallbackException
   {
-    AssignmentHistory historyRecord
-      = new AssignmentHistory(assignmentImpl);
+    History historyRecord;
+    
+    if (grantableInstance instanceof Assignment)
+    {
+      historyRecord
+        = new AssignmentHistory((AssignmentImpl)grantableInstance);
+    }
+    else if (grantableInstance instanceof Proxy)
+    {
+      historyRecord = new ProxyHistory((ProxyImpl)grantableInstance);
+    }
+    else
+    {
+      throw new CallbackException
+        ("HousekeepingInterceptor.saveInitialHistoryRecord() received"
+         + " a Grantable instance which was neither an Assignment nor a"
+         + " Proxy.");
+    }
     
     try
     {
       session.save(historyRecord);
-      assignmentImpl.recordLimitValuesHistory(session);
+      
+      if (grantableInstance instanceof Assignment)
+      {
+        ((AssignmentImpl)grantableInstance).recordLimitValuesHistory(session);
+      }
     }
     catch (HibernateException e)
     {
       throw new CallbackException(e);
     }   
     
-    assignmentImpl.needsInitialHistoryRecord(false); 
+    grantableInstance.needsInitialHistoryRecord(false); 
   }
   
   /* (non-Javadoc)
@@ -190,16 +207,16 @@ class HousekeepingInterceptor implements Interceptor, Serializable
     {
       Object entity = entities.next();
       
-      if (entity instanceof AssignmentImpl)
+      if (entity instanceof Grantable)
       {
-        AssignmentImpl assignment = (AssignmentImpl)entity;
+        GrantableImpl grantableInstance = (GrantableImpl)entity;
 
         tempSession = this.sessionFactory.openSession(this.connection);
         tx = startXact(tempSession);
 
-        if (assignment.needsInitialHistoryRecord())
+        if (grantableInstance.needsInitialHistoryRecord())
         {
-          saveInitialHistoryRecord(tempSession, assignment);
+          saveInitialHistoryRecord(tempSession, grantableInstance);
         }
         
         try

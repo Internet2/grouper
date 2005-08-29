@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
- $Date: 2005-08-26 19:50:24 $
+ $Id: ProxyImpl.java,v 1.3 2005-08-29 18:29:31 acohen Exp $
+ $Date: 2005-08-29 18:29:31 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -41,12 +41,6 @@ implements Proxy
   	SignetAuthorityException
   {    
     super(signet, grantor, actingAs, grantee, effectiveDate, expirationDate);
-    
-    if (subsystem == null)
-    {
-      throw new IllegalArgumentException
-      	("It's illegal to grant a Proxy for a NULL Subsystem.");
-    }
     
     if ((actingAs != null) && (actingAs.getSubsystem() != null))
     {
@@ -89,7 +83,7 @@ implements Proxy
 
   public Subsystem getSubsystem()
   {
-    if (this.getSignet() != null)
+    if ((this.subsystem != null) && (this.getSignet() != null))
     {
       this.subsystem.setSignet(this.getSignet());
     }

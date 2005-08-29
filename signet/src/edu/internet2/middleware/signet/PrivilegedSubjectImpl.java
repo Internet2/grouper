@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.22 2005-08-26 19:50:24 acohen Exp $
- $Date: 2005-08-26 19:50:24 $
+ $Id: PrivilegedSubjectImpl.java,v 1.23 2005-08-29 18:29:31 acohen Exp $
+ $Date: 2005-08-29 18:29:31 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1212,12 +1212,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       throw new IllegalArgumentException
         ("It's illegal to grant a Proxy to a NULL grantee.");
-    }
-    
-    if (subsystem == null)
-    {
-      throw new IllegalArgumentException
-        ("It's illegal to grant a Proxy on a NULL Subsystem.");
     }
 
     Proxy newProxy = null;
