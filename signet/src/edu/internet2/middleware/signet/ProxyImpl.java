@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.3 2005-08-29 18:29:31 acohen Exp $
- $Date: 2005-08-29 18:29:31 $
+ $Id: ProxyImpl.java,v 1.4 2005-08-29 20:37:01 acohen Exp $
+ $Date: 2005-08-29 20:37:01 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -41,6 +41,15 @@ implements Proxy
   	SignetAuthorityException
   {    
     super(signet, grantor, actingAs, grantee, effectiveDate, expirationDate);
+    
+    if (actingAs != null)
+    {
+      if (actingAs.canExtend() == false)
+      {
+        Decision decision = new DecisionImpl(false, Reason.CANNOT_EXTEND, null);
+        throw new SignetAuthorityException(decision);
+      }
+    }
     
     if ((actingAs != null) && (actingAs.getSubsystem() != null))
     {

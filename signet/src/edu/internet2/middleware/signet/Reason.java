@@ -1,6 +1,6 @@
 /*--
-$Id: Reason.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: Reason.java,v 1.3 2005-08-29 20:37:01 acohen Exp $
+$Date: 2005-08-29 20:37:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -32,13 +32,14 @@ public class Reason extends TypeSafeEnumeration
 
   /**
    * The instance that describes an attempt to modify one's own
-   * {@link Assignment}.
+   * {@link Assignment} or {@link Proxy}.
    */
   public static final Reason SELF
     = new Reason
         ("self",
-         "It is illegal to grant an assignment to oneself, or to modify or"
-         + " revoke an assignment which is granted to oneself.");
+         "It is illegal to grant an assignment or proxy to oneself, or to"
+         + " modify or revoke an assignment or proxy which is granted to"
+         + " oneself.");
 
   /**
    * The instance that describes an attempt to modify an {@link Assignment}
@@ -72,4 +73,13 @@ public class Reason extends TypeSafeEnumeration
          "The scope of this Assignment lies outside the scope within which"
          + " this PrivilegedSubject has the ability to grant the specified"
          + " Function.");
+  
+  /**
+   * The instance that describes an attempt to extend a {@link Proxy} which
+   * cannot be extended to a third party.
+   */
+  public static final Reason CANNOT_EXTEND
+    = new Reason
+        ("cannot extend",
+         "This Proxy cannot be extended to a third party.");
 }

@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.9 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: PrivilegedSubjectTest.java,v 1.10 2005-08-29 20:37:01 acohen Exp $
+$Date: 2005-08-29 20:37:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -395,5 +395,48 @@ public class PrivilegedSubjectTest extends TestCase
   int expectedLimitValuesCount(int subjectNumber)
   {
     return subjectNumber + 1;
+  }
+  
+  public final void testGrantProxyActingAs()
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {
+    // We'll attempt to have subject 1 grant a Proxy to subject 2, while
+    // "acting as" subject 0.
+    
+    Subject subject0
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           fixtures.makeSubjectId(0));
+    Subject subject1
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           fixtures.makeSubjectId(1));
+    Subject subject2
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           fixtures.makeSubjectId(2));
+    
+    PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
+    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
+
+    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Set proxies
+      = pSubject1.getProxiesReceived(Status.ACTIVE, subsystem, pSubject0);
+    Proxy proxyFrom0to1 = (Proxy)(Common.getSingleSetMember(proxies));
+    
+    Proxy newProxyFrom1to2
+      = pSubject1.grantProxy
+          (proxyFrom0to1,       // actingAs
+           pSubject2,           // grantee
+           subsystem,
+           false,               // canUse
+           true,                // canGrant
+           Constants.YESTERDAY, // effective immediately
+           null);               // no expiration date
+    
+    assertNotNull(newProxyFrom1to2);
   }
 }

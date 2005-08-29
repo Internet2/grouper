@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeImpl.java,v 1.4 2005-08-16 20:51:03 acohen Exp $
-$Date: 2005-08-16 20:51:03 $
+$Id: PrivilegeImpl.java,v 1.5 2005-08-29 20:37:01 acohen Exp $
+$Date: 2005-08-29 20:37:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PrivilegeImpl
+class PrivilegeImpl
 implements
   Privilege,
   Comparable
