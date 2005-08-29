@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
- $Date: 2005-08-26 19:50:24 $
+ $Id: GrantableImpl.java,v 1.3 2005-08-29 21:12:12 acohen Exp $
+ $Date: 2005-08-29 21:12:12 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -129,6 +129,12 @@ implements Grantable
     }
     else
     {
+      if (actingAs.canUse() == false)
+      {
+        Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
+        throw new SignetAuthorityException(decision);
+      }
+      
       this.setGrantor(actingAs.getGrantor());
       this.setProxy(grantor);
     }
