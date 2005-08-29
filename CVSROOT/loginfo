@@ -24,5 +24,6 @@
 #DEFAULT (echo ""; id; echo %s; date; cat) >> $CVSROOT/CVSROOT/commitlog
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
-^grouper   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
-^subject   /usr/bin/activitymail -df %{sVv} -t subject-commit@listhost.uchicago.edu
+#^grouper-ui /bin/true
+^grouper/   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
+^subject    /usr/bin/activitymail -df %{sVv} -t subject-commit@listhost.uchicago.edu
