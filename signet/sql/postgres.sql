@@ -21,6 +21,9 @@ drop table signet_assignmentLimit;
 drop table signet_assignment_history cascade;
 drop table signet_assignmentLimit_history;
 drop sequence assignmentSerial;
+drop table signet_proxy cascade;
+drop table signet_proxy_history cascade;
+drop sequence proxySerial;
 
 -- Subsystem tables
 drop table signet-permission_limit cascade; 
@@ -30,8 +33,6 @@ drop table signet_function cascade;
 drop table signet_permission cascade;
 drop table signet_limit cascade;
 drop table signet_subsystem cascade;
-drop table signet_proxy cascade;
-drop table signet_proxy_history cascade;
 
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute;
@@ -312,7 +313,7 @@ create table signet_proxy
 proxyID             integer             DEFAULT nextval('proxySerial'),
 instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
+subsystemID         varchar(64)         NULL,
 grantorTypeID       varchar(32)         NOT NULL,
 grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,
@@ -338,7 +339,7 @@ historyID           integer             DEFAULT nextval('proxyHistoySerial'),
 proxyID             integer             NOT NULL,
 instanceNumber      integer             NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
+subsystemID         varchar(64)         NULL,
 grantorTypeID       varchar(32)         NOT NULL,
 grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,

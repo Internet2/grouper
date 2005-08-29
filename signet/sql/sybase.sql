@@ -27,8 +27,6 @@ drop table signet_function;
 drop table signet_permission;
 drop table signet_limit;
 drop table signet_subsystem;
-drop table signet_proxy;
-drop table signet_proxy_history;
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute;
 drop table Subject;
@@ -272,7 +270,7 @@ create table signet_proxy
 proxyID             numeric(12,0)       IDENTITY,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
+subsystemID         varchar(64)         NULL,
 grantorTypeID       varchar(32)         NOT NULL,
 grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,
@@ -295,7 +293,7 @@ historyID           numeric(12,0)       IDENTITY,
 proxyID             numeric(12,0)       NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
+subsystemID         varchar(64)         NULL,
 grantorTypeID       varchar(32)         NOT NULL,
 grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,

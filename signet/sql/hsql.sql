@@ -14,6 +14,8 @@ drop table signet_assignmentLimit if exists;
 drop table signet_assignment if exists;
 drop table signet_assignmentLimit_history if exists;
 drop table signet_assignment_history if exists;
+drop table signet_proxy if exists;
+drop table signet_proxy_history if exists;
 -- Subsystem tables
 drop table signet_permission_limit if exists;
 drop table signet_function_permission if exists;
@@ -22,8 +24,6 @@ drop table signet_function if exists;
 drop table signet_permission if exists;
 drop table signet_limit if exists;
 drop table signet_subsystem if exists;
-drop table signet_proxy if exists;
-drop table signet_proxy_history if exists;
 -- Subject tables (optional, for local subject tables)
 drop table SubjectAttribute if exists;
 drop table Subject if exists;
@@ -275,7 +275,7 @@ create table signet_proxy
 proxyID             int                 NOT NULL IDENTITY,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
+subsystemID         varchar(64)         NULL,
 grantorTypeID       varchar(32)         NOT NULL,
 grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,
@@ -298,7 +298,7 @@ historyID           int                 NOT NULL IDENTITY,
 proxyID             int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
-subsystemID         varchar(64)         NOT NULL,
+subsystemID         varchar(64)         NULL,
 grantorTypeID       varchar(32)         NOT NULL,
 grantorID           varchar(64)         NOT NULL,
 granteeTypeID       varchar(32)         NOT NULL,
