@@ -9,14 +9,35 @@ pre {
   padding-right: 5%;
   padding-top: 2%;
 }
-#section { }
-#subsection { }
 #table {
   border: 1px solid black;
   border-collapse: collapse;
 }
-#td {
-  padding: 3px;
+body {
+  padding-bottom: 2%;
+  padding-left: 2%;
+  padding-right: 2%;
+  padding-top: 2%;
+}
+h2 {
+  padding-top: 1%;
+}
+h3 {
+  padding-top: 1%;
+}
+td.c {
+  text-align: center;
+  padding: 5px;
+}
+td.r {
+  text-align: left;
+  padding: 5px;
+}
+.section { }
+.subsection { }
+.TODO {
+  color: red;
+  font-weight: bolder;
 }
 #title {
   text-align: center;
@@ -27,42 +48,51 @@ pre {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-08-29 18:24:46 $
+$Date: 2005-08-30 20:34:57 $
 </div>
 <div id="title">
-<h2>Grouper Implementation Guide</h2>
+<h1>Grouper Implementation Guide</h1>
 </div>
+
+<!-- toc -->
 <div id="toc">
-<h3>Table of Contents</h3>
+<h2>Table of Contents</h2>
 <ol>
-  <li><a href="#section_1">Introduction To Grouper</a></li>
-  <li><a href="#section_2">Building Grouper</a></li>
+  <li><a href="#intro">Introduction To Grouper</a></li>
+  <li><a href="#layout">Project Layout</a></li>
+  <li><a href="#build">Building Grouper</a></li>
+  <li><a href="#config">Configuring Grouper</a></li>
+  <li><a href="#running">Running Grouper</a></li>
+  <li><a href="#registry">The Groups Registry</a></li>
   <ol>
-    <li><a href="#section_2.1">Build Instructions</a></li>
-    <li><a href="#section_2.2">Configuring Grouper</a></li>
-    <li><a href="#section_2.3">Running Grouper</a></li>
-    <li><a href="#section_2.4">Building And Running Sample Applications</a></li>
+    <li><a href="#registry_gans">Groups And Namespaces</a></li>
   </ol>
+</ol>
+</div>
+<!-- toc -->
+
+<!-- toc_old -->
+<div id="toc_old" class="TODO">
+<ol>
+  <li><a href="#section_2.4">Building And Running Sample Applications</a></li>
   <li><a href="#section_3">Using Grouper's Data And Privilege Models</a></li>
-  <ol>
-    <li><a href="#section_3.1">Grouper Fields</a></li>
-    <li><a href="#section_3.2">Extending Grouper's Fields</a></li>
-    <li><a href="#section_3.3">Naming Elements And Examples</a></li>
-    <li><a href="#section_3.4">Grouper Privileges</a></li>
-    <li><a href="#section_3.5">Using Privileges To Distribute Group Management Capabilities</a></li>
-    <li><a href="#section_3.6">Subject Identifiers</a></li>
-  </ol>
+  <li><a href="#section_3.1">Grouper Fields</a></li>
+  <li><a href="#section_3.2">Extending Grouper's Fields</a></li>
+  <li><a href="#section_3.3">Naming Elements And Examples</a></li>
+  <li><a href="#section_3.4">Grouper Privileges</a></li>
+  <li><a href="#section_3.5">Using Privileges To Distribute Group Management Capabilities</a></li>
+  <li><a href="#section_3.6">Subject Identifiers</a></li>
   <li><a href="#section_4">Integration Tasks</a></li>
-  <ol>
-    <li><a href="#section_4.1">Using Your Own RDBMS</a></li>
-    <li><a href="#section_4.2">SQL Tuning</a></li>
-    <li><a href="#section_4.3">Getting Subjects Into Grouper</a></li>
-    <li><a href="#section_4.4">Loaders And Provisioning Connecters</a></li>
-    <li><a href="#section_4.5">Integrating Grouper With An External Privilege Management System</a></li>
-  </ol>
+  <li><a href="#section_4.1">Using Your Own RDBMS</a></li>
+  <li><a href="#section_4.2">SQL Tuning</a></li>
+  <li><a href="#section_4.3">Getting Subjects Into Grouper</a></li>
+  <li><a href="#section_4.4">Loaders And Provisioning Connecters</a></li>
+  <li><a href="#section_4.5">Integrating Grouper With An External Privilege Management System</a></li>
 </ol>
 <br />
 </div>
+<!-- toc_old -->
+
 <div id="body">
 <p>
 This guide will help you to build and operate Grouper.  As Grouper
@@ -76,127 +106,127 @@ the enhancement of this document by their experiences.
 <p>
 Along with obtaining Grouper (see the MACE-Dir-Groups website
 <a href="http://middleware.internet2.edu/dir/groups/grouper/">&lt;http://middleware.internet2.edu/dir/groups/grouper/&gt;</a>
-for instructions), adopters should join the grouper-users at internet2
-dot edu and possibly the grouper-dev at internet2 dot edu mailing lists
-for collective self-help with implementation and to discuss ideas
-for further development of Grouper.  Instructions for joining these
-lists are also on the Grouper website.
+for instructions), adopters should join the 
+<a href="https://mail.internet2.edu/wws/info/grouper-users">grouper-users</a>
+and possibly the 
+<a href="https://mail.internet2.edu/wws/info/grouper-dev">grouper-dev</a>
+mailing lists for implementation assistance and to discuss the further
+development of Grouper.
 </p>
-<div id="section">
-<a name="section_1"/>
-<h3>1. Introduction To Grouper</h3>
+
+<!-- intro -->
+<div class="section">
+<a name="intro"/>
+<h2>Introduction To Grouper</h2>
 </div>
 <p>
-Grouper provides an API supporting basic groups management
-capabilities - creation, update, and removal of groups from a Groups
-Registry; subgroups; limited querying capabilities and basic logging.
-It also includes sample programs illustrating how to load data into
-and extract data from the Groups Registry.
+Grouper is an open source toolkit for managing groups.  It provides an
+API for supporting basic group management capabilities - creation,
+reading, updating and deletion of groups from a Groups Registry, a
+central information repository complementary to a site's Person
+Registry.  Grouper also supports automated and manual maintenance of
+groups, subgroups, limited querying capabilities, support for multiple
+database backends and the ability to integrate with existing identity
+management (IDM) infrastructure.
 </p>
 <p>
 In <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>
 the <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components &amp; architecture section</a>
 depicts the major components of Grouper and their relation to
-elements of an implementation site's existing identity management
+an implementation site's existing identity management
 infrastructure. Those components are an API, a relational database
-called the Groups Registry, a set of aging tasks, and one or more
-user interfaces for managing groups. Grouper is comprised of
-an alpha release of the API and procedures to create the Groups
-Registry within an HSQLDB database. The user interface, aging tasks,
-and some substantial elements of API functionality are slated for
-future release according to the following table.
+called the Groups Registry and one or more user interfaces for managing
+groups.  While the API and other design details have changed since the
+<i>Grouper Phase 1 Specification</i>  was released, the architectural
+drawing remains accurate.   Future Grouper releases will provide an
+improved and more feature-rich API, UI enhancements, aging tasks,
+loading and provisioning support and performance improvements.  A
+broad roadmap of the Grouper development cycle is below:
+</p>
 </p>
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
   <th>Version</th>
+  <th>Release Date</th>
   <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td id="td">0.5</td>
-  <td id="td">Initial API release providing a subset of the Phase 1
+  <td class="c" width="15%">0.5</td>
+  <td class="c" width="15%">200412</td>
+  <td class="r">Initial API release providing a subset of the Phase 1
     Specification: basic group management by automation processes</td>
 </tr>
 <tr>
-  <td id="td">0.6</td>
-  <td id="td">Initial UI release supporting Phase 1 Specification</td>
+  <td class="c">0.5.5, 0.5.6</td>
+  <td class="c">200504</td>
+  <td class="r">Improvements to public API and internals</td>
 </tr>
 <tr>
-  <td id="td">0.7</td>
-  <td id="td">API release that meets Phase 2 Specification: group math
-    and Signet integration)</td>
+  <td class="c">0.6</td>
+  <td class="c">~200509</td>
+  <td class="r">Initial UI release, I2MI Subject interface for
+    integration with existing IDM infrastructure, full privilege
+    model implementation and improved querying capabilities
+  </td>
 </tr>
 <tr>
-  <td id="td">0.8</td>
-  <td id="td">UI release supporting Phase 2 Specification</td>
+  <td class="c">0.9</td>
+  <td class="c">~200511</td>
+  <td class="r">API and UI support for new Grouper API</td>
 </tr>
 <tr>
-  <td id="td">0.9</td>
-  <td id="td">API release supporting Phase 3 Specification: group and
-    membership aging</td>
+  <td class="c">1.0</td>
+  <td class="c">~200601</td>
+  <td class="r">API and UI support for group math</td>
 </tr>
 <tr>
-  <td id="td">1.0</td>
-  <td id="td">UI supporting Phase 3 Specification</td>
+  <td class="c">1.1</td>
+  <td class="c">~200603</td>
+  <td class="r">API and UI support for aging tasks</td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>
-In <a href="#section_2">section 2</a> of this document we'll start
-by describing how to build, configure and install the API and
-Groups Registry.  <a href="#section_3">Section 3</a> describes
-Grouper's information and privilege models and how they may integrate
-with existing identifier namespaces and extend existing identity
-management practices.  <a href="#section_4">Section 4</a> describes, on
-a functional level, how Grouper may be made to articulate with an
-existing infrastructure.
+The rest of this document will describe how to 
+<span class="TODO">build</span>, <span class="TODO">configure</span> and 
+<span class="TODO">run</span> Grouper; the Group Registry's 
+<span class="TODO">information</span> and 
+<span class="TODO">privilege</span> models; integrating Grouper with an
+existing <span class="TODO">IDM infrastructure</span>; and
+<span class="TODO">bootstrapping your implementation</span> 
+<span class="TODO">(csv2subject changes to work with ui?)</span>
+by using the sample programs that come with Grouper.
 </p>
 <p>
-In addition to this Implementation Guide, the Grouper distribution
-contains javadoc and other germinal guides for developers (i.e., good
-intention outweighs substance at the moment). All of these are found in
-the <i>doc/</i> directory of the distribution, which also contains a file
-called <i>NEWS</i> that lists features in the current release, those that
-are slated for a future release, and known problems with the current
-release. If this document and the <i>NEWS</i> file appear to be in
-conflict on any point, the <i>NEWS</i> file should be considered
-authoritative.
+In addition to this implementation guide, the Grouper distribution
+contains javadoc (<tt>$GROUPER/doc/javadoc</tt>) that provides
+some information on using the API and a list of changes from prior
+releases (<tt>$GROUPER/doc/NEWS</tt>).  If this guide and the
+<i>NEWS</i> file appear in conflict, <i>NEWS</i> should be considered
+authoritative.  We use the symbol <i>$GROUPER</i> throughout this
+document to refer to the top level of your Grouper distribution.
 </p>
 <p>
-The best source of API usage guidelines for developers at this time is
-the set of contributed programs and Grouper's test suite, both of which
-are included with the distribution.  They exercise many functional
-aspects of the API and the latter serves as a means of assessing that a
-Grouper installation is working properly.
+The best source of practical information on using the Grouper API to
+can currently be found in the contributed programs
+(<tt>$GROUPER/contrib/</tt>) and Grouper's test suite
+(<tt>$GROUPER/java/tests/</tt>), both of which are included with
+the Grouper distribution.  They exercise many functional aspects of the
+API and the latter serves as a means of assessing that a Grouper
+installation is working properly.  A Grouper development guide and
+improved sample programs are under construction and will be available
+at a later date.  
 </p>
-<p>
-<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>
-contains an Entity Relationship Diagram for an early form of the
-Groups Registry schema. An ERD of the schema used by Grouper can be
-found
-<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.6.jpg">here</a>.
-</p>
-<div id="subsection">
-<a name="section_1.1"/>
-<h4>1.1. Typographical Conventions</h4>
-</div>
-<p>
-The following typographical conventions are used throughout this
-document:
-<ul>
-  <li>When defining terms or referring to class, method and table
-    names <i>italics</i> will be used.</li>
-  <li>All forms of system-level text, commands that you must
-    run and file and directory names are set in a <tt>fixed-space
-    font</tt>.</li>
-</ul>
-</p>
-<div id="section">
-<a name="section_2"/>
-<h3>2. Building Grouper</h3>
+<!-- intro -->
+
+<!-- layout -->
+<div class="section">
+<a name="layout"/>
+<h2>Project Layout</h2>
 </div>
 <p>
 The top-level directory of the unpacked Grouper distribution contains
@@ -206,67 +236,66 @@ the following directories and files:
 <table id="table" align="center" border="0" width="60%">
 <thead>
 <tr>
-  <td id="td" width="25%"><tt>conf/</tt></td>
-  <td id="td">Configuration files for Grouper and third party components</td>
+  <td class="c" width="25%"><tt>conf/</tt></td>
+  <td class="r">Configuration files for Grouper and third party components</td>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td id="td"><tt>contrib/</tt></td>
-  <td id="td">Contributed software</td>
+  <td class="c"><tt>contrib/</tt></td>
+  <td class="r">Contributed software</td>
 </tr>
 <tr>
-  <td id="td"><tt>doc/</tt></td>
-  <td id="td">Grouper documentation</td>
+  <td class="c"><tt>doc/</tt></td>
+  <td class="r">Grouper documentation</td>
 </tr>
 <tr>
-  <td id="td"><tt>doc/javadoc/</tt></td>
-  <td id="td">javadoc for the Grouper API</td>
+  <td class="c"><tt>doc/javadoc/</tt></td>
+  <td class="r">javadoc for the Grouper API</td>
 </tr>
 <tr>
-  <td id="td"><tt>java/</tt></td>
-  <td id="td">Java source and compiled code</td>
+  <td class="c"><tt>java/</tt></td>
+  <td class="r">Java source and compiled code</td>
 </tr>
 <tr>
-  <td id="td"><tt>java/lib/</tt></td>
-  <td id="td">Third party .jar files required by Grouper</td>
+  <td class="c"><tt>java/lib/</tt></td>
+  <td class="r">Third party .jar files required by Grouper</td>
 </tr>
 <tr>
-  <td id="td"><tt>java/src/</tt></td>
-  <td id="td">Grouper source code</td>
+  <td class="c"><tt>java/src/</tt></td>
+  <td class="r">Grouper source code</td>
 </tr>
 <tr>
-  <td id="td"><tt>java/tests/</tt></td>
-  <td id="td">Grouper test suite source code</td>
+  <td class="c"><tt>java/tests/</tt></td>
+  <td class="r">Grouper test suite source code</td>
 </tr>
 <tr>
-  <td id="td"><tt>sql/</tt></td>
-  <td id="td">SQL scripts for creating, initializing and testing the
+  <td class="c"><tt>sql/</tt></td>
+  <td class="r">SQL scripts for creating, initializing and testing the
     Groups Registry</td>
 </tr>
 <tr>
-  <td id="td"><tt>LICENSE</tt></td>
-  <td id="td">License under which Grouper may be used</td>
+  <td class="c"><tt>LICENSE</tt></td>
+  <td class="r">License under which Grouper may be used</td>
 </tr>
 <tr>
-  <td id="td"><tt>build.xml</tt></td>
-  <td id="td">Ant configuration file</td>
+  <td class="c"><tt>build.xml</tt></td>
+  <td class="r">Ant configuration file</td>
 </tr>
 </tbody>
 </table>
 </p>
 <p>
-The file <i>java/lib/README</i> lists the third party software used by Grouper
+The file <tt>$GROUPER/java/lib/README</tt> lists the third party software used by Grouper
 and identifies the version, source, and license for each.  README
 files occur here and there - you should read them!
 </p>
-<p>
-We'll use the symbol <i>$GROUPER_BASE</i> throughout this document to
-refer to the top level of your Grouper distribution.
-</p>
-<div id="subsection">
-<a name="section_2.1"/>
-<h4>2.1. Build Instructions</h4>
+<!-- layout -->
+
+<!-- build -->
+<div class="section">
+<a name="build"/>
+<h2>Building Grouper</h2>
 </div>
 <p>
 <ol>
@@ -279,79 +308,96 @@ refer to the top level of your Grouper distribution.
     at <i>docs/manual/install.html#installing</i>. You may need to
     copy <i>tools.jar</i> from <tt>$JAVA_HOME/lib</tt> to
     <tt>$ANT_HOME/lib</tt> to get ant working properly.</p></li>
-  <li>Change directory to <tt>$GROUPER_BASE</tt>.</li>
+  <li>Change directory to <tt>$GROUPER</tt>.</li>
   <li><p><tt>ant build</tt></p>
     <p>This will compile Grouper and place the class files under
-    the <tt>$GROUPER_BASE/build</tt> directory.</p></li>
+    the <tt>$GROUPER/build</tt> directory.</p></li>
   <li><p><tt>ant db-init</tt></p>
     <p>This will create a Groups Registry in
-    <tt$GROUPER_BASE/dist/run/</tt> directory using the default
+    <tt>$GROUPER/dist/run/</tt> directory using the default
     HSQLDB RDBMS.</p></li>
   <li><p><tt>ant test</tt></p>
     <p>This will compile and run the Grouper test suite to exercise the
     API and ensure that Grouper is properly configured.</p>
     <p><b>Note: Running the test suite is destructive and will
-    delete all groups and memberships.  Do not run the test
-    suite against production data.</b></p></li>
+    delete all groups and memberships in the Groups Registry.  Do
+    not run the test suite against production data.</b></p></li>
   <li><p><tt>ant db</tt> [optional]</p>
     <p>This will launch HSQLDB's GUI database manager.  From within the
     manager you can run SQL queries against the Groups Registry.</p></li>
   <li><p><tt>ant dist</tt> [optional]</p>
     <p>This creates two .jar files within
-    <tt>$GROUPER_BASE/dist/lib/</tt>.  One file contains all of the
+    <tt>$GROUPER/dist/lib/</tt>.  One file contains all of the
     Grouper class files while the other contains all of the third
     party .jar files used by Grouper.  This isn't required but does
     ease <i>$CLASSPATH</i> configuration.</p></li>
 </ol>
 </p>
-<div id="subsection">
-<a name="section_2.2"/>
-<h4>2.2. Configuring Grouper</h4>
+<!-- build -->
+
+<div class="section">
+<a name="config"/>
+<h2>Configuring Grouper</h2>
 </div>
 <p>
-Grouper has only a few configuration options. The configuration
-files are located in <tt>$GROUPER_BASE/conf/</tt>. Most of the files
-in that directory either do not need to be modified or should not
-be modified.
+Grouper requires very little configuration and does not require any by
+default.  All Grouper configuration files are stored in
+<tt>$GROUPER/conf/</tt>.  The four configuration files that you
+<b>may</b> want to adjust and reasons why are described below.
+</p>
+<h3>hibernate.properties</h3>
+<p>
+Update this file if you are using an alternate database or intend to run
+programs from somewhere other than <i>$GROUPER</i>.  You will want to
+review and adjust as necessary the <i>hibernate.dialect</i> and
+<i>hibernate.connection.*</i> parameters.
+</p>
+<h3>log4j.properties</h3>
+Update this file if you intend to run programs from somewhere other
+than <i>$GROUPER</i>.  Set the <i>log4j.appender.rfile.File</i>
+parameter to the absolute path of your desired logfile location.
+</p>
+<h3>sources.xml</h3>
+<p>
+This is the configuration file for Grouper's I2MI Subject API resolver.
+The I2MI Subject API is used to map an external IDM infrastructure to
+Grouper internals and can be used to identify people, groups and
+applications from a variety of internal and external to Grouper sources
+of authority.  Grouper's default configuration uses Grouper as its
+source of authority for subjects of type <i>group</i> and several
+tables within the Groups Registry for subjects of type <i>person</i>.
+If you wish to use additional or different sources, you will need
+to adjust this file.  At this time, the javadoc provided with each
+source adapter is probably the best location for configuration
+information.  Please <b>do not</b> change the source for subjects
+of type <i>group</i>.
 </p>
 <p>
-The <i>hibernate.properties</i> and <i>log4j.properties</i>
-configuration files should be adjusted to reflect the location of your
-Grouper distribution.
+See <span class="TODO">$SECTION</span> for more information on the I2MI
+Subject and how Grouper utilizes it.
 </p>
+<h3>ehcache.xml</h3>
 <p>
-In <i>hibernate.properties</i>, change:
+ehcache is used by Hibernate to cache objects and query results in both
+memory and on disk.  Grouper comes with a default and unoptimized
+configuration.  Depending upon your usage and the size of your Groups
+Registry, you may want to adjust your cache settings.  See the 
+<a href="http://ehcache.sourceforge.net/documentation/">ehcache
+documentation</a> for more details.
 </p>
-<pre>
-  hibernate.connection.url = jdbc:hsqldb:/FULL/PATH/TO/dist/run/grouper
-</pre>
-<p>
-In <i>log4j.properties</i>, change:
-</p>
-<pre>
-  log4j.appender.rfile.File = /FULL/PATH/TO/dist/run/log
-</pre>
-<p>
-The <i>Grouper.properties</i> file contains only three variables, none
-of which require modification by default.  The first specifies the
-<i>subjectID</i> of Grouper's "root" or superuser subject.  This defaults to
-<i>GrouperSystem</i>.  This subject has unlimited privileges within the
-Grouper API.  The other two variables specify the classes
-implementing Grouper's Access and Naming Privilege Interfaces.  By
-default manages both access and naming privileges internally.
-</p>
-<p>
-The <i>Grouper.hbm.xml</i> file should <b>not</b> be changed while the
-<i>ehcache.xml</i> file should be changed only if you wish to change
-the default Hibernate cache sizes.
-</p>
-<div id="subsection">
-<a name="section_2.3"/>
-<h4>2.3. Running Grouper</h4>
+<!-- config -->
+
+<!-- running -->
+<div class="section">
+<a name="running"/>
+<h2>Running Grouper</h2>
 </div>
 <p>
-To run a java program using the Grouper API, the Java environment
-must have a classpath that includes:
+As Grouper is currently just a database and a Java API for exercising
+that database, there is no "Groups Registry server" that needs to
+be running to interact with the Groups Registry.  All that is necessary
+is that one be able to connect to your configured database and that the
+following items be in your classpath:
 <ul>
   <li>full pathname of the <i>Grouper.jar</i> file produced by <tt>ant
     dist</tt></li>
@@ -361,111 +407,55 @@ must have a classpath that includes:
     files.</li>
 </ul>
 </p>
-<div id="subsection">
-<a name="section_2.4"/>
-<h4>2.4. Building And Running Sample Applications</h4>
+<!-- running -->
+
+<!-- registry -->
+<div class="section">
+<a name="registry"/>
+<h2>The Groups Registry</h2>
+</div>
+<!-- registry_gandns -->
+<div class="subsection">
+<a name="registry_gans"/>
+<h3>Groups And Namespaces</h3>
 </div>
 <p>
-Grouper includes four sample programs to aid in getting started
-with a Grouper deployment.
-</p>
-<div id="subsection">
-<a name="section_2.4.1"/>
-<a name="csv2subject"/>
-<h4>2.4.1. Sample Subject Loader - csv2subject</h4>
-</div>
-<p>
-Subjects are identifiers for people, groups and other objects that may
-be members of a group.  In this release of Grouper, subjects are
-maintained in the <i>Subject</i> table within the Groups
-Registry.  <i>csv2subject</i> is a simple program for populating that
-table.  Subjects and the preferred means of dealing with them are
-discussed in sections <a href="#section_3.6">3.6</a> and 
-<a href="#section_4.3">4.3</a>.
+Grouper works by managing two principal types of objects: groups
+and namespaces.  A group is a list of members and various attributes.
+A namespace is a context in which a group or a another namespace
+may be located and and named along with various attributes.  Both
+groups and namespaces may have a number of different privileges
+assigned to them.  From the perspective of information management
+a Grouper deployment is defined by which subjects (people, applications,
+groups) have what access to each namespace and group.
 </p>
 <p>
-<i>csvsubject</i> is located in <tt>$GROUPER_BASE/contrib/load/csv2subject</tt>.  
-This program reads in a .csv file containing <i>subjectIDs</i> and
-<i>subjectTypeIDs</i> and then inserts the subjects into the Groups
-Registry via a direct JDBC connection.  <i>csv2subject</i> uses
-Grouper's Hibernate configuration file for its JDBC configuration.
-<p>
-A sample .csv file is located in the <tt>$GROUPER_BASE/contrib/load/csv2subject</tt>
-directory.
+The Groups Registry uses a RDBMS to store information on namespaces,
+groups, memberships and possibly privileges.  Grouper is
+currently known to work and tested with HSQLDB, PostgreSQL and Oracle.
+<span class="TODO">
+This is the current Grouper database schema
+<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.5.jpg">ERD</a>.
+</span>
 </p>
 <p>
-To use <i>csv2subject</i>:
-<ol>
-  <li>Change to the <tt>$GROUPER_BASE/contrib/load/csv2subject</tt>
-    directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
+<span class="TODO">In this section we present Grouper's data and
+privilege models and discuss several aspects of a Grouper deployment:
+naming, distributing management of groups, and choice of identifiers
+for members.</span>
 </p>
-<div id="subsection">
-<a name="section_2.4.2"/>
-<a name="csv2group"/>
-<h4>2.4.2. Sample Group Loader - csv2group</h4>
-</div>
-<p>
-<i>csv2group</i> is a simple program for adding namespaces, groups and
-members to the Groups Registry.  To use it:
-<ol>
-  <li>Change to the <tt>$GROUPER_BASE/contrib/load/csv2group</tt> directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-<p>
-A sample .csv file that creates a number of different namespaces,
-groups and memberships is located in this directory.  To use the sample
-file you will first need to load sample subjects into the Groups
-Registry using <a href="#csv2subject">csv2subject</a>.  The sample
-subjects are located in <tt>$GROUPER_BASE/contrib/load/csv2subject/sample.csv</tt>.
-</p>
-<div id="subsection">
-<a name="section_2.4.3"/>
-<a name="groupmgr"/>
-<h4>2.4.3. Sample Group Manager - groupmgr</h4>
-</div>
-<p>
-<i>groupmgr</i> is a program that provides a command line interface for
-manipulating the Groups Registry.  It can add and delete namespaces,
-groups and memberships.  To use it:
-<ol>
-  <li>Change to the <tt>$GROUPER_BASE/contrib/load/groupmgr</tt> directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-<div id="subsection">
-<a name="section_2.4.4"/>
-<a name="grouperq"/>
-<h4>2.4.4. Sample Query Tool - grouperq</h4>
-</div>
-<p>
-<i>grouperq</i> is a program that provides a command line interface for
-performing simple queries on the Groups Registry.  To use it:
-<ol>
-  <li>Change to the <tt>$GROUPER_BASE/contrib/load/groupmgr</tt> directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-<div id="section">
+<!-- registry_gans -->
+<!-- registry -->
+
+
+<span class="TODO">
+<div class="section">
 <a name="section_3"/>
-<h3>3. Using Grouper's Data And Privilege Models</h3>
+<h2>3. Using Grouper's Data And Privilege Models</h2>
 </div>
-<p>
-Grouper works by managing two principal types of objects: groups and
-namespaces. A group is a list of members and other associated data that
-can be referred to in several ways. A namespace is a context in which a
-group is named. From the perspective of information management, a
-Grouper deployment is defined by which people and applications have
-what access to each namespace and group. In this section we present
-Grouper's data and privilege models and discuss several aspects of
-a Grouper deployment: naming, distributing management of groups, and
-choice of identifiers for members.
-</p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_3.1"/>
-<h4>3.1. Grouper Fields</h4>
+<h3>3.1. Grouper Fields</h3>
 </div>
 <p>
 In Grouper parlance, each group has a set of <i>fields</i> and each field can
@@ -491,45 +481,45 @@ Groups have the following set of attributes:
 </thead>
 <tbody>
 <tr>
-  <td id="td">guid</td>
-  <td id="td">public</td>
-  <td id="td">system-assigned, read-only, globally unique identifier
+  <td class="c">guid</td>
+  <td class="c">public</td>
+  <td class="c">system-assigned, read-only, globally unique identifier
     for the group that is never reassigned</td>
 </tr>
 <tr>
-  <td id="td">stem</td>
-  <td id="td">public</td>
-  <td id="td">the namespace in which the group is named</td>
+  <td class="c">stem</td>
+  <td class="c">public</td>
+  <td class="c">the namespace in which the group is named</td>
 </tr>
 <tr>
-  <td id="td">extension</td>
-  <td id="td">public</td>
-  <td id="td">relative name of the group within its namespace</td>
+  <td class="c">extension</td>
+  <td class="c">public</td>
+  <td class="c">relative name of the group within its namespace</td>
 </tr>
 <tr>
-  <td id="td">name</td>
-  <td id="td">public</td>
-  <td id="td">system-maintained, read-only string representation
+  <td class="c">name</td>
+  <td class="c">public</td>
+  <td class="c">system-maintained, read-only string representation
     of the logical ordered pair of (stem, extension), used to facilitate
     searching for groups by name</td>
 </tr>
 <tr>
-  <td id="td">displayExtension</td>
-  <td id="td">public</td>
-  <td id="td">alternative string for representing the extension
+  <td class="c">displayExtension</td>
+  <td class="c">public</td>
+  <td class="c">alternative string for representing the extension
     attribute</td>
 </tr>
 <tr>
-  <td id="td">displayName</td>
-  <td id="td">public</td>
-  <td id="td">system-maintained, read-only string representation
+  <td class="c">displayName</td>
+  <td class="c">public</td>
+  <td class="c">system-maintained, read-only string representation
     of the logical ordered pair of (displayName of stem, displayExtension),
     used to facilitate searching for groups by displayed name</td>
 </tr>
 <tr>
-  <td id="td">description</td>
-  <td id="td">public</td>
-  <td id="td">semantics defined by implementation site</td>
+  <td class="c">description</td>
+  <td class="c">public</td>
+  <td class="c">semantics defined by implementation site</td>
 </tr>
 </tbody>
 </table>
@@ -543,41 +533,41 @@ Groups have the following set of lists:
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
-  <td id="td">members</td>
-  <td id="td">public</td>
-  <td id="td">subjects belonging to this group</td>
+  <td class="c">members</td>
+  <td class="c">public</td>
+  <td class="c">subjects belonging to this group</td>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td id="td">viewers</td>
-  <td id="td">private</td>
-  <td id="td">subjects with VIEW privilege for this group</td>
+  <td class="c">viewers</td>
+  <td class="c">private</td>
+  <td class="c">subjects with VIEW privilege for this group</td>
 </tr>
 <tr>
-  <td id="td">readers</td>
-  <td id="td">private</td>
-  <td id="td">subjects with READ privilege for this group</td>
+  <td class="c">readers</td>
+  <td class="c">private</td>
+  <td class="c">subjects with READ privilege for this group</td>
 </tr>
 <tr>
-  <td id="td">updaters</td>
-  <td id="td">private</td>
-  <td id="td">subjects with UPDATE privilege for this group</td>
+  <td class="c">updaters</td>
+  <td class="c">private</td>
+  <td class="c">subjects with UPDATE privilege for this group</td>
 </tr>
 <tr>
-  <td id="td">admins</td>
-  <td id="td">private</td>
-  <td id="td">subjects with ADMIN privilege for this group</td>
+  <td class="c">admins</td>
+  <td class="c">private</td>
+  <td class="c">subjects with ADMIN privilege for this group</td>
 </tr>
 <tr>
-  <td id="td">optins</td>
-  <td id="td">private</td>
-  <td id="td">subjects with OPTIN privilege for this group</td>
+  <td class="c">optins</td>
+  <td class="c">private</td>
+  <td class="c">subjects with OPTIN privilege for this group</td>
 </tr>
 <tr>
-  <td id="td">optouts</td>
-  <td id="td">private</td>
-  <td id="td">subjects with OPTOUT privilege for this group</td>
+  <td class="c">optouts</td>
+  <td class="c">private</td>
+  <td class="c">subjects with OPTOUT privilege for this group</td>
 </tr>
 </tbody>
 </table>
@@ -607,45 +597,45 @@ Namespaces have the following set of attributes:
 </thead>
 <tbody>
 <tr>
-  <td id="td">guid</td>
-  <td id="td">public</td>
-  <td id="td">system-assigned, read-only, globally unique identifier
+  <td class="c">guid</td>
+  <td class="c">public</td>
+  <td class="c">system-assigned, read-only, globally unique identifier
     for the namespace that is never reassigned</td>
 </tr>
 <tr>
-  <td id="td">stem</td>
-  <td id="td">public</td>
-  <td id="td">the namespace to which this one is subordinate</td>
+  <td class="c">stem</td>
+  <td class="c">public</td>
+  <td class="c">the namespace to which this one is subordinate</td>
 </tr>
 <tr>
-  <td id="td">extension</td>
-  <td id="td">public</td>
-  <td id="td">relative name of the namespace within its parent namespace</td>
+  <td class="c">extension</td>
+  <td class="c">public</td>
+  <td class="c">relative name of the namespace within its parent namespace</td>
 </tr>
 <tr>
-  <td id="td">name</td>
-  <td id="td">public</td>
-  <td id="td">system-maintained, read-only string representation
+  <td class="c">name</td>
+  <td class="c">public</td>
+  <td class="c">system-maintained, read-only string representation
     of the logical ordered pair of (stem, extension), used to facilitate
     searching for namespaces by name</td>
 </tr>
 <tr>
-  <td id="td">displayExtension</td>
-  <td id="td">public</td>
-  <td id="td">alternative string for representing the extension
+  <td class="c">displayExtension</td>
+  <td class="c">public</td>
+  <td class="c">alternative string for representing the extension
     attribute</td>
 </tr>
 <tr>
-  <td id="td">displayName</td>
-  <td id="td">public</td>
-  <td id="td">system-maintained, read-only string representation
+  <td class="c">displayName</td>
+  <td class="c">public</td>
+  <td class="c">system-maintained, read-only string representation
     of the logical ordered pair of (displayName of stem, displayExtension),
     used to facilitate searching for namespaces by displayed name</td>
 </tr>
 <tr>
-  <td id="td">description</td>
-  <td id="td">public</td>
-  <td id="td">semantics defined by implementation site</td>
+  <td class="c">description</td>
+  <td class="c">public</td>
+  <td class="c">semantics defined by implementation site</td>
 </tr>
 </tbody>
 </table>
@@ -666,22 +656,22 @@ Namespaces have the following set of lists:
 </thead>
 <tbody>
 <tr>
-  <td id="td">creators</td>
-  <td id="td">private</td>
-  <td id="td">subjects with CREATE privilege for this namespace</td>
+  <td class="c">creators</td>
+  <td class="c">private</td>
+  <td class="c">subjects with CREATE privilege for this namespace</td>
 </tr>
 <tr>
-  <td id="td">stemmers</td>
-  <td id="td">private</td>
-  <td id="td">subjects with STEM privilege for this namespace</td>
+  <td class="c">stemmers</td>
+  <td class="c">private</td>
+  <td class="c">subjects with STEM privilege for this namespace</td>
 </tr>
 </tbody>
 </table>
 <div align="center"><b>Table 4 - Lists Of <i>naming</i> Type</b></div>
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_3.2"/>
-<h4>3.2. Extending Grouper's Fields</h4>
+<h3>3.2. Extending Grouper's Fields</h3>
 </div>
 <p>
 To support some of the 
@@ -715,7 +705,7 @@ structure is shown in <a href="#table_3">Table 3</a> and
 <p>
 Although the API provides no support for managing group types, a
 site may alter or learn by example from the Groups Registry
-initialization script in <tt>$GROUPER_BASE/sql/init.sql</tt> to populate the
+initialization script in <tt>$GROUPER/sql/init.sql</tt> to populate the
 <i>grouper_type</i>, <i>grouper_typeDef</i>, and <i>grouper_field</i>
 tables to determine the set of attributes, lists and group types
 they want in their Grouper deployment.
@@ -727,9 +717,9 @@ with the <i>Group.id()</i> method instead of with the
 <i>Group.attribute()</i> method. In presentation and documentation
 contexts we'll use the term <i>guid</i>.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_3.3"/>
-<h4>3.3. Naming Elements And Examples</h4>
+<h3>3.3. Naming Elements And Examples</h3>
 </div>
 <p>
 Tables <a href="#table_1">1</a>, <a href="#table_2">2</a>, 
@@ -786,24 +776,24 @@ the naming attributes of several namespaces and groups.
 </thead>
 <tbody>
 <tr>
-  <td id="td" width="25%"><i>stem</i></td>
-  <td id="td">&nbsp;</td>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="c">&nbsp;</td>
 </tr>
 <tr>
-  <td id="td"><i>extension</i></td>
-  <td id="td">uofc</td>
+  <td class="c"><i>extension</i></td>
+  <td class="c">uofc</td>
 </tr>
 <tr>
-  <td id="td"><i>displayExtension</i></td>
-  <td id="td">University Of Chicago</td>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="c">University Of Chicago</td>
 </tr>
 <tr>
-  <td id="td"><i>name</i></td>
-  <td id="td">uofc</td>
+  <td class="c"><i>name</i></td>
+  <td class="c">uofc</td>
 </tr>
 <tr>
-  <td id="td"><i>displayName</i></td>
-  <td id="td">University Of Chicago</td>
+  <td class="c"><i>displayName</i></td>
+  <td class="c">University Of Chicago</td>
 </tr>
 </tbody>
 </table>
@@ -817,28 +807,28 @@ the naming attributes of several namespaces and groups.
 </thead>
 <tbody>
 <tr>
-  <td id="td" width="25%"><i>guid</i></td>
-  <td id="td">258a158b-3f40-43d4-a4b2-c97398c6ad19</td>
+  <td class="c" width="25%"><i>guid</i></td>
+  <td class="c">258a158b-3f40-43d4-a4b2-c97398c6ad19</td>
 </tr>
 <tr>
-  <td id="td"><i>stem</i></td>
-  <td id="td">uofc</td>
+  <td class="c"><i>stem</i></td>
+  <td class="c">uofc</td>
 </tr>
 <tr>
-  <td id="td"><i>extension</i></td>
-  <td id="td">exec_council</td>
+  <td class="c"><i>extension</i></td>
+  <td class="c">exec_council</td>
 </tr>
 <tr>
-  <td id="td"><i>displayExtension</i></td>
-  <td id="td">Executive Council</td>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="c">Executive Council</td>
 </tr>
 <tr>
-  <td id="td"><i>name</i></td>
-  <td id="td">uofc:exec_council</td>
+  <td class="c"><i>name</i></td>
+  <td class="c">uofc:exec_council</td>
 </tr>
 <tr>
-  <td id="td"><i>displayName</i></td>
-  <td id="td">University Of Chicago:Executive Council</td>
+  <td class="c"><i>displayName</i></td>
+  <td class="c">University Of Chicago:Executive Council</td>
 </tr>
 </tbody>
 </table>
@@ -852,24 +842,24 @@ the naming attributes of several namespaces and groups.
 </thead>
 <tbody>
 <tr>
-  <td id="td" width="25"><i>stem</i></td>
-  <td id="td">uofc</td>
+  <td class="c" width="25"><i>stem</i></td>
+  <td class="c">uofc</td>
 </tr>
 <tr>
-  <td id="td"><i>extension</i></td>
-  <td id="td">bsd</td>
+  <td class="c"><i>extension</i></td>
+  <td class="c">bsd</td>
 </tr>
 <tr>
-  <td id="td"><i>displayExtension</i></td>
-  <td id="td">Biological Sciences Division</td>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="c">Biological Sciences Division</td>
 </tr>
 <tr>
-  <td id="td"><i>name</i></td>
-  <td id="td">uofc:bsd</td>
+  <td class="c"><i>name</i></td>
+  <td class="c">uofc:bsd</td>
 </tr>
 <tr>
-  <td id="td"><i>displayName</i></td>
-  <td id="td">University Of Chicago:Biological Sciences Division</td>
+  <td class="c"><i>displayName</i></td>
+  <td class="c">University Of Chicago:Biological Sciences Division</td>
 </tr>
 </tbody>
 </table>
@@ -883,28 +873,28 @@ the naming attributes of several namespaces and groups.
 </thead>
 <tbody>
 <tr>
-  <td id="td" width="25%"><i>guid</i></td>
-  <td id="td">82a303fa-cb6b-4330-b085-46a1974b0a79</td>
+  <td class="c" width="25%"><i>guid</i></td>
+  <td class="c">82a303fa-cb6b-4330-b085-46a1974b0a79</td>
 </tr>
 <tr>
-  <td id="td"><i>stem</i></td>
-  <td id="td">uofc:bsd</td>
+  <td class="c"><i>stem</i></td>
+  <td class="c">uofc:bsd</td>
 </tr>
 <tr>
-  <td id="td"><i>extension</i></td>
-  <td id="td">eis_staff</td>
+  <td class="c"><i>extension</i></td>
+  <td class="c">eis_staff</td>
 </tr>
 <tr>
-  <td id="td"><i>displayExtension</i></td>
-  <td id="td">Enterprise Information Systems staff</td>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="c">Enterprise Information Systems staff</td>
 </tr>
 <tr>
-  <td id="td"><i>name</i></td>
-  <td id="td">uofc:bsd:eis_staff</td>
+  <td class="c"><i>name</i></td>
+  <td class="c">uofc:bsd:eis_staff</td>
 </tr>
 <tr>
-  <td id="td"><i>displayName</i></td>
-  <td id="td">University Of Chicago:Biological Sciences Division:Enterprise
+  <td class="c"><i>displayName</i></td>
+  <td class="c">University Of Chicago:Biological Sciences Division:Enterprise
     Information Systems staff</td>
 </tr>
 </tbody>
@@ -930,9 +920,9 @@ gives a different impression than seeing it in the context of
 "Biological Sciences Division". That, in part, motivates the care taken
 in the design of Grouper's privilege model, introduced next.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_3.4"/>
-<h4>3.4. Grouper Privileges</h4>
+<h3>3.4. Grouper Privileges</h3>
 </div>
 <p>
 There are two categories of privileges in Grouper. Access privileges
@@ -951,8 +941,8 @@ are listed in the following tables.
 </thead>
 <tbody>
 <tr>
-  <td id="td"><i>VIEW</i></td>
-  <td id="td">Can see the group and can refer to it, e.g., to make
+  <td class="c"><i>VIEW</i></td>
+  <td class="c">Can see the group and can refer to it, e.g., to make
     it a subgroup of another group.
     <br /><br />
     <b>NOTE:</b> If no explicit <i>VIEW</i> privileges have been
@@ -960,8 +950,8 @@ are listed in the following tables.
     group.</td>
 </tr>
 <tr>
-  <td id="td"><i>READ</i></td>
-  <td id="td">Can read all "public" fields of the group. Implies
+  <td class="c"><i>READ</i></td>
+  <td class="c">Can read all "public" fields of the group. Implies
     <i>VIEW</i>.
     <br /><br />
     <b>NOTE:</b>  If no explicit <i>READ</i> privileges have been
@@ -969,25 +959,25 @@ are listed in the following tables.
     group's  public fields.</td>
 </tr>
 <tr>
-  <td id="td"><i>UPDATE</i></td>
-  <td id="td">Can update the group's members list and can grant and
+  <td class="c"><i>UPDATE</i></td>
+  <td class="c">Can update the group's members list and can grant and
     revoke <i>OPTIN</i> and <i>OPTOUT</i> privileges for this group.
     Implies <i>VIEW</i>, <i>OPTIN</i> and <i>OPTOUT</i>.</td>
 </tr>
 <tr>
-  <td id="td"><i>ADMIN</i></td>
-  <td id="td">Can modify all group fields, can grant and revoke all
+  <td class="c"><i>ADMIN</i></td>
+  <td class="c">Can modify all group fields, can grant and revoke all
     access privileges, can rename the group and can delete the
     group.  Implies all other access privileges.</td>
 </tr>
 <tr>
-  <td id="td"><i>OPTIN</i></td>
-  <td id="td">Can add oneself to the members list of the group. Implies
+  <td class="c"><i>OPTIN</i></td>
+  <td class="c">Can add oneself to the members list of the group. Implies
     <i>VIEW</i>.</td>
 </tr>
 <tr>
-  <td id="td"><i>OPTOUT</i></td>
-  <td id="td">Can remove oneself from the members list of the group.
+  <td class="c"><i>OPTOUT</i></td>
+  <td class="c">Can remove oneself from the members list of the group.
     Implies <i>VIEW</i>.</td>
 </tr>
 </tbody>
@@ -1005,12 +995,12 @@ are listed in the following tables.
 </thead>
 <tbody>
 <tr>
-  <td id="td"><i>CREATE</i></td>
-  <td id="td">Can create a group in the namespace.</td>
+  <td class="c"><i>CREATE</i></td>
+  <td class="c">Can create a group in the namespace.</td>
 </tr>
 <tr>
-  <td id="td"><i>STEM</i></td>
-  <td id="td">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
+  <td class="c"><i>STEM</i></td>
+  <td class="c">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
     privilege for the namespace, can create a subordinate namespace,
     can delete the namespace and can modify all namespace fields.</td>
 </tr>
@@ -1064,13 +1054,13 @@ can declare which privileges are needed to read and to write each
 attribute and list. These declarations are in the <i>grouper_field</i>
 table.  Although the API provides no support for managing extended
 fields or their security, sites may alter or learn by example from the
-Groups Registry initialization script <tt>$GROUPER_BASE/sql/init.sql</tt>
+Groups Registry initialization script <tt>$GROUPER/sql/init.sql</tt>
 to do so.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_3.5"/>
-<h4>3.5. Using Privileges To Distribute Group Management
-Capabilities</h4>
+<h3>3.5. Using Privileges To Distribute Group Management
+Capabilities</h3>
 </div>
 <p>
 One of the leading reasons why there is interest in Grouper is that
@@ -1103,9 +1093,9 @@ An example of an actual scenario for delegation of group management to
 solve an access control problem can be found in
 <a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt</a>.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_3.6"/>
-<h4>3.6. Subject Identifiers</h4>
+<h3>3.6. Subject Identifiers</h3>
 </div>
 <p>
 Most often the members of your groups will be people and other groups.
@@ -1163,9 +1153,9 @@ the identifier used for group members can be translated by a
 provisioning connector by use of the Subject Interface into one
 that is suitable in the provisioned context.
 </p>
-<div id="section">
+<div class="section">
 <a name="section_4"/>
-<h3>4. Integration Tasks</h3>
+<h2>4. Integration Tasks</h2>
 </div>
 <p>
 This section is intended to demonstrate how to integrate Grouper with
@@ -1173,9 +1163,9 @@ your existing infrastructure and practices.  Unfortunately, because of
 where Grouper is in its development process, practical integration
 remains sparse.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.1"/>
-<h4>4.1. Using Your Own RDBMS</h4>
+<h3>4.1. Using Your Own RDBMS</h3>
 </div>
 <p>
 Grouper uses Hibernate 
@@ -1185,38 +1175,38 @@ should not be difficult to configure Grouper to work with your
 preferred database backend.  Grouper is currently being tested against
 and should work with HSQLDB (the default), PostgreSQL and Oracle.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.1.1"/>
-<h4>4.1.1 Using HSQLDB</h4>
+<h3>4.1.1 Using HSQLDB</h3>
 </div>
 <p>
 Grouper uses HSQLDB as its default RDBMS and no additional
 configuration is required.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.1.2"/>
-<h4>4.1.2 Using PostgreSQL</h4>
+<h3>4.1.2 Using PostgreSQL</h3>
 </div>
 <p>
 PostgreSQL is a supported Grouper backend and should only require small
 configuration changes to use.  Grouper also includes a PostgreSQL
-JDBC driver; see <tt>$GROUPER_BASE/java/lib/README</tt> for version
+JDBC driver; see <tt>$GROUPER/java/lib/README</tt> for version
 information.  to use PostgreSQL you will need to:
 <ol>
   <li>Uncomment the PostgreSQL section of 
-    <tt>$GROUPER_BASE/conf/hibernate.properties</tt> and modify as
+    <tt>$GROUPER/conf/hibernate.properties</tt> and modify as
     appropriate.</li>
   <li>Uncomment the PostgreSQL section of 
-    <tt>$GROUPER_BASE/conf/sources.xml</tt> and modify as
+    <tt>$GROUPER/conf/sources.xml</tt> and modify as
     appropriate.</li>
   <li>Set <i>sql.type</i> to <i>postgres</i> in 
-    <tt>$GROUPER_BASE/build.xml</tt></li>
+    <tt>$GROUPER/build.xml</tt></li>
 </ol>
 </p>
 
 <div>
 <a name="section_4.1.3"/>
-<h4>4.1.3 Using Oracle</h4>
+<h3>4.1.3 Using Oracle</h3>
 </div>
 <p>
 Oracle is a supported Grouper backend and should only require small
@@ -1224,18 +1214,18 @@ configuration changes to use.  An Oracle JDBC driver is not currently
 distributed with Grouper.  To use Oracle you will need to:
 <ol>
   <li>Uncomment the Oracle section of 
-    <tt>$GROUPER_BASE/conf/hibernate.properties</tt> and modify as
+    <tt>$GROUPER/conf/hibernate.properties</tt> and modify as
     appropriate.</li>
   <li>Uncomment the Oracle section of 
-    <tt>$GROUPER_BASE/conf/sources.xml</tt> and modify as
+    <tt>$GROUPER/conf/sources.xml</tt> and modify as
     appropriate.</li>
   <li>Set <i>sql.type</i> to <i>oracle</i> in 
-    <tt>$GROUPER_BASE/build.xml</tt></li>
+    <tt>$GROUPER/build.xml</tt></li>
 </ol>
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.1.4"/>
-<h4>4.1.4 Using Other Databases</h4>
+<h3>4.1.4 Using Other Databases</h3>
 </div>
 <p>
 While Grouper should work with other databases, it has not yet been
@@ -1243,31 +1233,31 @@ tested with them nor does it provide support for them as shipped.
 To use an alternate database you will need to:
 <ol>
   <li>Modify Grouper's Hibernate configuration file
-    (<tt>$GROUPER_BASE/conf/hibernate.properties</tt>) to connect to
+    (<tt>$GROUPER/conf/hibernate.properties</tt>) to connect to
     your RDBMS</li>
   <li>Modify Grouper's Subject API configuration file
-    (<tt>$GROUPER_BASE/conf/sources.xml</tt>) to connect to
+    (<tt>$GROUPER/conf/sources.xml</tt>) to connect to
     your RDBMS</li>
-  <li>Create <tt>$GROUPER_BASE/sql/schema-$YOUR_DB_TYPE.sql</tt></li>
-  <li>Create <tt>$GROUPER_BASE/sql/test-data-$YOUR_DB_TYPE.sql</tt></li>
+  <li>Create <tt>$GROUPER/sql/schema-$YOUR_DB_TYPE.sql</tt></li>
+  <li>Create <tt>$GROUPER/sql/test-data-$YOUR_DB_TYPE.sql</tt></li>
   <li>Set <i>sql.type</i> to <i>$YOUR_DB_TYPE</i> in 
-    <tt>$GROUPER_BASE/build.xml</tt></li>
+    <tt>$GROUPER/build.xml</tt></li>
 </ol>
 If you do use an alternate database that is not natively supported by
 Grouper, please contact the grouper-dev list with your results and
 schema files.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.2"/>
-<h4>4.2. SQL Tuning</h4>
+<h3>4.2. SQL Tuning</h3>
 </div>
 <p>
 As development progresses, general performance tuning and RDBMS-specific
 suggestions will be made available.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.3"/.
-<h4>4.3. Getting Subjects Into Grouper</h4>
+<h3>4.3. Getting Subjects Into Grouper</h3>
 </div>
 <p>
 <a href="#section_3.6">Section 3.6</a> broached issues surrounding
@@ -1321,9 +1311,9 @@ functionality.
 <b>Note:</b> The adapter class for the <i>group subjectType</i> should not
 be changed!  Else why are you bothering with Grouper?
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.4"/>
-<h4>4.4. Loaders And Provisioning Connectors</h4>
+<h3>4.4. Loaders And Provisioning Connectors</h3>
 </div>
 <p>
 Loaders and provisioning connectors are defined in the 
@@ -1429,30 +1419,30 @@ attributes</i> associated with it.  These include:
 </thead>
 <tbody>
 <tr>
-  <td id="td"><i>createTime</i></td>
-  <td id="td">time at which the group was created</td>
+  <td class="c"><i>createTime</i></td>
+  <td class="c">time at which the group was created</td>
 </tr>
 <tr>
-  <td id="td"><i>createSubject</i></td>
-  <td id="td">the <i>memberKey</i> of the subject that created the
+  <td class="c"><i>createSubject</i></td>
+  <td class="c">the <i>memberKey</i> of the subject that created the
     group</td>
 </tr>
 <tr>
-  <td id="td"><i>createSource</i></td>
-  <td id="td">currently undefined</td>
+  <td class="c"><i>createSource</i></td>
+  <td class="c">currently undefined</td>
 </tr>
 <tr>
-  <td id="td"><i>modifyTime</i></td>
-  <td id="td">time at which the group was last modified</td>
+  <td class="c"><i>modifyTime</i></td>
+  <td class="c">time at which the group was last modified</td>
 </tr>
 <tr>
-  <td id="td"><i>modifySubject</i></td>
-  <td id="td">the <i>memberKey</i> of the subject that last modifed the
+  <td class="c"><i>modifySubject</i></td>
+  <td class="c">the <i>memberKey</i> of the subject that last modifed the
     group</td>
 </tr>
 <tr>
-  <td id="td"><i>modifySource</i></td>
-  <td id="td">currently undefined</td>
+  <td class="c"><i>modifySource</i></td>
+  <td class="c">currently undefined</td>
 </tr>
 </tbody>
 </table>
@@ -1473,13 +1463,101 @@ with. The <i>GrouperGroup.createSubject()</i> and
 <i>GrouperGroup.modifySubject()</i> methods return
 <i>Subject</i> objects corresponding to this <i>memberKey</i>.
 </p>
-<div id="subsection">
+<div class="subsection">
 <a name="section_4.5"/>
-<h4>4.5. Integrating Grouper With An External Privilege Management
-System</h4>
+<h3>4.5. Integrating Grouper With An External Privilege Management
+System</h3>
 </div>
 <p>
 This will be addressed in a later release cycle.
 </p>
+<div class="subsection">
+<a name="section_2.4"/>
+<h3>2.4. Building And Running Sample Applications</h3>
+</div>
+<p>
+Grouper includes four sample programs to aid in getting started
+with a Grouper deployment.
+</p>
+<div class="subsection">
+<a name="section_2.4.1"/>
+<a name="csv2subject"/>
+<h3>2.4.1. Sample Subject Loader - csv2subject</h3>
+</div>
+<p>
+Subjects are identifiers for people, groups and other objects that may
+be members of a group.  In this release of Grouper, subjects are
+maintained in the <i>Subject</i> table within the Groups
+Registry.  <i>csv2subject</i> is a simple program for populating that
+table.  Subjects and the preferred means of dealing with them are
+discussed in sections <a href="#section_3.6">3.6</a> and 
+<a href="#section_4.3">4.3</a>.
+</p>
+<p>
+<i>csvsubject</i> is located in <tt>$GROUPER/contrib/load/csv2subject</tt>.  
+This program reads in a .csv file containing <i>subjectIDs</i> and
+<i>subjectTypeIDs</i> and then inserts the subjects into the Groups
+Registry via a direct JDBC connection.  <i>csv2subject</i> uses
+Grouper's Hibernate configuration file for its JDBC configuration.
+<p>
+A sample .csv file is located in the <tt>$GROUPER/contrib/load/csv2subject</tt>
+directory.
+</p>
+<p>
+To use <i>csv2subject</i>:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/csv2subject</tt>
+    directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<div class="subsection">
+<a name="section_2.4.2"/>
+<a name="csv2group"/>
+<h3>2.4.2. Sample Group Loader - csv2group</h3>
+</div>
+<p>
+<i>csv2group</i> is a simple program for adding namespaces, groups and
+members to the Groups Registry.  To use it:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/csv2group</tt> directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<p>
+A sample .csv file that creates a number of different namespaces,
+groups and memberships is located in this directory.  To use the sample
+file you will first need to load sample subjects into the Groups
+Registry using <a href="#csv2subject">csv2subject</a>.  The sample
+subjects are located in <tt>$GROUPER/contrib/load/csv2subject/sample.csv</tt>.
+</p>
+<div class="subsection">
+<a name="section_2.4.3"/>
+<a name="groupmgr"/>
+<h3>2.4.3. Sample Group Manager - groupmgr</h3>
+</div>
+<p>
+<i>groupmgr</i> is a program that provides a command line interface for
+manipulating the Groups Registry.  It can add and delete namespaces,
+groups and memberships.  To use it:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<div class="subsection">
+<a name="section_2.4.4"/>
+<a name="grouperq"/>
+<h3>2.4.4. Sample Query Tool - grouperq</h3>
+</div>
+<p>
+<i>grouperq</i> is a program that provides a command line interface for
+performing simple queries on the Groups Registry.  To use it:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+</span>
 </body>
 </html>
