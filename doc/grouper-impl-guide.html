@@ -20,7 +20,7 @@ body {
   padding-top: 2%;
 }
 h2 {
-  padding-top: 1%;
+  padding-top: 3%;
 }
 h3 {
   padding-top: 1%;
@@ -48,7 +48,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-08-30 20:34:57 $
+$Date: 2005-08-31 05:16:05 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -62,37 +62,29 @@ $Date: 2005-08-30 20:34:57 $
   <li><a href="#layout">Project Layout</a></li>
   <li><a href="#build">Building Grouper</a></li>
   <li><a href="#config">Configuring Grouper</a></li>
-  <li><a href="#running">Running Grouper</a></li>
+  <li><a href="#run">Running Grouper</a></li>
   <li><a href="#registry">The Groups Registry</a></li>
   <ol>
     <li><a href="#registry_gans">Groups And Namespaces</a></li>
+    <li><a href="#registry_attrs">Group And Namespace Attributes</a></li>
+    <li><a href="#registry_lists">Group Lists</a></li>
+    <li><a href="#registry_naming">Naming Examples</a></li>
+    <li><a href="#registry_privs">Privileges</a></li>
+  </ol>
+  <li><a href="#integrate">Integrating Grouper</a></li>
+  <ol>
+    <li><a href="#integrate_privs">Privileges</a></li>
+  </ol>
+  <li><a href="#extend">Extending Grouper</a></li>
+  <ol>
+    <li><a href="#extend_group_types">Group Types</a></li>
+    <li><a href="#extend_privs">Privileges</a></li>
   </ol>
 </ol>
 </div>
 <!-- toc -->
 
-<!-- toc_old -->
-<div id="toc_old" class="TODO">
-<ol>
-  <li><a href="#section_2.4">Building And Running Sample Applications</a></li>
-  <li><a href="#section_3">Using Grouper's Data And Privilege Models</a></li>
-  <li><a href="#section_3.1">Grouper Fields</a></li>
-  <li><a href="#section_3.2">Extending Grouper's Fields</a></li>
-  <li><a href="#section_3.3">Naming Elements And Examples</a></li>
-  <li><a href="#section_3.4">Grouper Privileges</a></li>
-  <li><a href="#section_3.5">Using Privileges To Distribute Group Management Capabilities</a></li>
-  <li><a href="#section_3.6">Subject Identifiers</a></li>
-  <li><a href="#section_4">Integration Tasks</a></li>
-  <li><a href="#section_4.1">Using Your Own RDBMS</a></li>
-  <li><a href="#section_4.2">SQL Tuning</a></li>
-  <li><a href="#section_4.3">Getting Subjects Into Grouper</a></li>
-  <li><a href="#section_4.4">Loaders And Provisioning Connecters</a></li>
-  <li><a href="#section_4.5">Integrating Grouper With An External Privilege Management System</a></li>
-</ol>
-<br />
-</div>
-<!-- toc_old -->
-
+<!-- body -->
 <div id="body">
 <p>
 This guide will help you to build and operate Grouper.  As Grouper
@@ -342,7 +334,7 @@ files occur here and there - you should read them!
 <p>
 Grouper requires very little configuration and does not require any by
 default.  All Grouper configuration files are stored in
-<tt>$GROUPER/conf/</tt>.  The four configuration files that you
+<tt>$GROUPER/conf/</tt>.  The five configuration files that you
 <b>may</b> want to adjust and reasons why are described below.
 </p>
 <h3>hibernate.properties</h3>
@@ -376,6 +368,12 @@ of type <i>group</i>.
 See <span class="TODO">$SECTION</span> for more information on the I2MI
 Subject and how Grouper utilizes it.
 </p>
+<h3>grouper.properties</h3>
+<p>
+Update this file if intending to use an alternate privilege
+implementation.  See <a href="#integrate_privs">Integrating
+Privileges</a> for more information.
+</p>
 <h3>ehcache.xml</h3>
 <p>
 ehcache is used by Hibernate to cache objects and query results in both
@@ -387,9 +385,9 @@ documentation</a> for more details.
 </p>
 <!-- config -->
 
-<!-- running -->
+<!-- run -->
 <div class="section">
-<a name="running"/>
+<a name="run"/>
 <h2>Running Grouper</h2>
 </div>
 <p>
@@ -407,14 +405,14 @@ following items be in your classpath:
     files.</li>
 </ul>
 </p>
-<!-- running -->
+<!-- run -->
 
 <!-- registry -->
 <div class="section">
 <a name="registry"/>
 <h2>The Groups Registry</h2>
 </div>
-<!-- registry_gandns -->
+<!-- registry_gans -->
 <div class="subsection">
 <a name="registry_gans"/>
 <h3>Groups And Namespaces</h3>
@@ -445,289 +443,120 @@ naming, distributing management of groups, and choice of identifiers
 for members.</span>
 </p>
 <!-- registry_gans -->
-<!-- registry -->
-
-
-<span class="TODO">
-<div class="section">
-<a name="section_3"/>
-<h2>3. Using Grouper's Data And Privilege Models</h2>
-</div>
+<!-- registry_attrs -->
 <div class="subsection">
-<a name="section_3.1"/>
-<h3>3.1. Grouper Fields</h3>
+<a name="registry_attrs"/>
+<h3>Group And Namespace Attributes</h3>
 </div>
 <p>
-In Grouper parlance, each group has a set of <i>fields</i> and each field can
-either be a list or an attribute.  A <i>list</i> is a multivalued
-set of subjects and an <i>attribute</i> is a single-valued string.
-Each subject has a single <i>subjectType</i>, the full set of which
-is determined by each implementation site.  Grouper provides
-<i>person</i> and <i>group</i> <i>subjectTypes</i> by default.
-</p>
-<p>Field names are case sensitive.</p>
+Attributes are predefined single-valued pairs that may be assigned to both
+groups and namespaces.  The names of attributes are <b>case
+sensitive</b> while the values are typically not.
 <p>
-Groups have the following set of attributes:
+Groups and namespaces have the following set of attributes:
 </p>
 <p>
-<a name="table_1"/>
+<a name="table_group_and_ns_attrs"/>
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
-  <th>Field</th>
-  <th>Public Or Private?</th>
+  <th>Attribute</th>
   <th>Semantics</th>
 </tr>
 </thead>
 <tbody>
 <tr>
   <td class="c">guid</td>
-  <td class="c">public</td>
-  <td class="c">system-assigned, read-only, globally unique identifier
-    for the group that is never reassigned</td>
+  <td class="r">A system-assigned, read-only, globally unique identifier
+    that is never reassigned.</td>
 </tr>
 <tr>
   <td class="c">stem</td>
-  <td class="c">public</td>
-  <td class="c">the namespace in which the group is named</td>
+  <td class="r">The namespace in which the group or namespace is
+    located.  All groups must exist within a namespace.  Stems may either
+    exist at the root-level or within another namespace.</td>
 </tr>
 <tr>
   <td class="c">extension</td>
-  <td class="c">public</td>
-  <td class="c">relative name of the group within its namespace</td>
+  <td class="r">Relative name of the group or namespace within its
+    parent namespace.</td>
 </tr>
 <tr>
   <td class="c">name</td>
-  <td class="c">public</td>
-  <td class="c">system-maintained, read-only string representation
-    of the logical ordered pair of (stem, extension), used to facilitate
-    searching for groups by name</td>
+  <td class="r">A system-maintained, read-only string representation
+    of the logical ordered pair of <i>(stem, extension)</i>, used
+    to facilitate searching for groups by name.  The name is
+    represented as <i>stem:extension</i>.</td>
 </tr>
 <tr>
   <td class="c">displayExtension</td>
-  <td class="c">public</td>
-  <td class="c">alternative string for representing the extension
-    attribute</td>
+  <td class="r">An alternative string representation for the group or
+    namespace's <i>extension</i> attribute.  The value defaults to
+    the value of <i>extension</i> and will revert to the value of
+    <i>extension</i> if deleted.</td>
 </tr>
 <tr>
   <td class="c">displayName</td>
-  <td class="c">public</td>
-  <td class="c">system-maintained, read-only string representation
-    of the logical ordered pair of (displayName of stem, displayExtension),
-    used to facilitate searching for groups by displayed name</td>
+  <td class="r">A system-maintained, read-only string representation
+    of the logical ordered pair of <i>(displayName of stem,
+    displayExtension)</i>, used to facilitate searching for groups
+    by displayed name.  The <i>displayName</i> is represented as
+    <i>displayName of stem:displayExtension</i>.</td>
 </tr>
 <tr>
   <td class="c">description</td>
-  <td class="c">public</td>
-  <td class="c">semantics defined by implementation site</td>
+  <td class="r">Semantics defined by the ementation site.</td>
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 1 - Attributes Of <i>base</i> Type</b></div>
+<div align="center"><b>Table 1 - Group And Namespace Attributes</b></div>
+</p>
+<!-- registry_attrs -->
+<!-- registry_lists -->
+<div class="subsection">
+<a name="registry_attrs"/>
+<h3>Group Lists</h3>
+</div>
+In addition to the <a href="#registry_attrs">attributes</a> described
+above, groups (but <b>not</b> namespaces) also have a list of members.
 </p>
 <p>
-Groups have the following set of lists:
-</p>
-<p>
-<a name="table_2"/>
+<a name="table_group_lists"/>
 <table id="table" align="center" border="1" width="60%">
 <thead>
+<tr>
+  <th>List</th>
+  <th>Semantics</th>
+</tr>
+</thead>
+<tbody>
 <tr>
   <td class="c">members</td>
-  <td class="c">public</td>
-  <td class="c">subjects belonging to this group</td>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td class="c">viewers</td>
-  <td class="c">private</td>
-  <td class="c">subjects with VIEW privilege for this group</td>
-</tr>
-<tr>
-  <td class="c">readers</td>
-  <td class="c">private</td>
-  <td class="c">subjects with READ privilege for this group</td>
-</tr>
-<tr>
-  <td class="c">updaters</td>
-  <td class="c">private</td>
-  <td class="c">subjects with UPDATE privilege for this group</td>
-</tr>
-<tr>
-  <td class="c">admins</td>
-  <td class="c">private</td>
-  <td class="c">subjects with ADMIN privilege for this group</td>
-</tr>
-<tr>
-  <td class="c">optins</td>
-  <td class="c">private</td>
-  <td class="c">subjects with OPTIN privilege for this group</td>
-</tr>
-<tr>
-  <td class="c">optouts</td>
-  <td class="c">private</td>
-  <td class="c">subjects with OPTOUT privilege for this group</td>
+  <td class="r">All members of the group.  A group can have as a
+    member any subject that can by located by the I2MI Subject
+    sources that you have configured for your Grouper installation.
+    This means that people, applications and groups may all be
+    members of a group.  If a group is made a member of another
+    group, the members of the group will also be made members.</td>
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 2 - Lists Of <i>base</i> Type</b></div>
+<div align="center"><b>Table 2 - Group Lists</b></div>
 </p>
-<p>
-Fields listed as "private" are maintained for use by the API while
-"public" ones are maintained for use by calling programs.  The 
-<i>viewers</i> through <i>optouts</i> lists are used only if using the
-default Grouper Access Privilege implementation (see <a
-href="#section_3.4">section 3.4</a>).  Thus, a group is a list of
-members, a description, a set of naming elements and the privileges
-that subjects have over it.
-</p>
-<p>
-Namespaces have the following set of attributes:
-</p>
-<p>
-<a name="table_3"/>
-<table id="table" align="center" border="1" width="60%">
-<thead>
-<tr>
-  <th>Field</th>
-  <th>Public Or Private?</th>
-  <th>Semantics</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td class="c">guid</td>
-  <td class="c">public</td>
-  <td class="c">system-assigned, read-only, globally unique identifier
-    for the namespace that is never reassigned</td>
-</tr>
-<tr>
-  <td class="c">stem</td>
-  <td class="c">public</td>
-  <td class="c">the namespace to which this one is subordinate</td>
-</tr>
-<tr>
-  <td class="c">extension</td>
-  <td class="c">public</td>
-  <td class="c">relative name of the namespace within its parent namespace</td>
-</tr>
-<tr>
-  <td class="c">name</td>
-  <td class="c">public</td>
-  <td class="c">system-maintained, read-only string representation
-    of the logical ordered pair of (stem, extension), used to facilitate
-    searching for namespaces by name</td>
-</tr>
-<tr>
-  <td class="c">displayExtension</td>
-  <td class="c">public</td>
-  <td class="c">alternative string for representing the extension
-    attribute</td>
-</tr>
-<tr>
-  <td class="c">displayName</td>
-  <td class="c">public</td>
-  <td class="c">system-maintained, read-only string representation
-    of the logical ordered pair of (displayName of stem, displayExtension),
-    used to facilitate searching for namespaces by displayed name</td>
-</tr>
-<tr>
-  <td class="c">description</td>
-  <td class="c">public</td>
-  <td class="c">semantics defined by implementation site</td>
-</tr>
-</tbody>
-</table>
-<div align="center"><b>Table 3 - Attributes Of <i>naming</i> Type</b></div>
-</p>
-<p>
-Namespaces have the following set of lists:
-</p>
-<p>
-<a name="table_4"/>
-<table id="table" align="center" border="1" width="60%">
-<thead>
-<tr>
-  <th>Field</th>
-  <th>Public Or Private?</th>
-  <th>Semantics</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td class="c">creators</td>
-  <td class="c">private</td>
-  <td class="c">subjects with CREATE privilege for this namespace</td>
-</tr>
-<tr>
-  <td class="c">stemmers</td>
-  <td class="c">private</td>
-  <td class="c">subjects with STEM privilege for this namespace</td>
-</tr>
-</tbody>
-</table>
-<div align="center"><b>Table 4 - Lists Of <i>naming</i> Type</b></div>
-</p>
+<!-- registry_lists -->
+<!-- registry_naming -->
 <div class="subsection">
-<a name="section_3.2"/>
-<h3>3.2. Extending Grouper's Fields</h3>
+<a name="registry_naming"/>
+<h3>Naming Examples</h3>
 </div>
 <p>
-To support some of the 
-<a href="http://middleware.internet2.edu/dir/docs/draft-internet2-mace-dir-sage-scenarios-00.html">use cases</a>
-identified by MACE-Dir-Groups working group members, Grouper was
-designed from the start to enable implementation sites to extend the
-set of attributes and lists available to be associated with groups.
-This was done by declaring attributes, lists, and their properties in
-tables within the Groups Registry rather than having them represented
-as static schematic elements of that database. Sets of attributes and
-lists are packaged into group types, and, in a future release of
-Grouper, each group can be assigned to any number of types. This is
-similar to how schemas for LDAP directories are managed and extended:
-LDAP attributes are packaged into object classes, and each LDAP entry
-can have a set of object classes associated with it, allowing different
-entries to serve different purposes. However, as this release of
-Grouper only allows groups to have a single type, each site using
-extended types will need to ensure that each extended type includes
-all of the naming related base fields, <i>members</i>, and all of
-the privilege lists unless the site is using an access privilege
-interface implementation different from Grouper's default.
-</p>
-<p>
-Grouper ships with two group types. All groups are of the
-<i>base</i> type - its structure is shown in <a href="#table_1">Table
-1</a> and <a href="#table_2">Table 2</a>. Namespaces are modeled
-internally to Grouper as groups of <i>naming</i> type.  Namespace
-structure is shown in <a href="#table_3">Table 3</a> and 
-<a href="#table_4">Table 4</a>.
-</p>
-<p>
-Although the API provides no support for managing group types, a
-site may alter or learn by example from the Groups Registry
-initialization script in <tt>$GROUPER/sql/init.sql</tt> to populate the
-<i>grouper_type</i>, <i>grouper_typeDef</i>, and <i>grouper_field</i>
-tables to determine the set of attributes, lists and group types
-they want in their Grouper deployment.
-</p>
-<p>
-<b>Note:</b> the <i>guid</i> attribute is an operational attribute. It is stored in
-the database as the <i>grouper_group:groupID</i> column and exposed in the API
-with the <i>Group.id()</i> method instead of with the
-<i>Group.attribute()</i> method. In presentation and documentation
-contexts we'll use the term <i>guid</i>.
-</p>
-<div class="subsection">
-<a name="section_3.3"/>
-<h3>3.3. Naming Elements And Examples</h3>
-</div>
-<p>
-Tables <a href="#table_1">1</a>, <a href="#table_2">2</a>, 
-<a href="#table_3">3</a> and <a href="#table_4">4</a> show that
-groups and namespaces have the same naming attributes with the same
-semantics. Groups and namespaces are created and named within
-namespaces, and namespaces can be arranged in a flat or hierarchical
-style, as desired by each implementation site.
+The <a href="#table_attrs">attributes table</a> shows that groups and
+namespaces have the same naming attributes (<i>stem</i>,
+<i>extension</i>, <i>name</i>, <i>displayExtension</i> and
+<i>displayName</i>) with the same semantics.  Groups and namespaces are
+created and named within namespaces and namespaces can be arranged in
+either a flat or hierarchical style as desired by the implementation
+site.
 </p>
 <p>
 Since a group must be named within a namespace, it is necessary to
@@ -753,11 +582,9 @@ group within that namespace:
 </pre>
 <p>
 A <i>hierarchy delimiter</i> is used in string representations of the names of
-groups and namespaces. The delimiter is a ":" and this character can
+groups and namespaces. This delimiter is placed between every
+<i>stem</i> and <i>extension</i>.  The delimiter is a ":" and this character can
 not be used as part of the extension for either namespaces or groups.
-A future release of Grouper will make the delimiter configurable.
-Continuing the above example, the <i>name</i> of the "exec_council"
-group within the "uofc" namespace is "uofc:exec_council".
 </p>
 <p>
 Each newly created group or namespace contributes just one new element,
@@ -766,6 +593,10 @@ of groups and namespaces is likewise accumulative - that's why the
 <i>name</i> and <i>displayName</i> attributes are system maintained
 and read-only. Here are some further examples illustrating all of
 the naming attributes of several namespaces and groups.
+</p>
+<p>
+Continuing with the example of the namespace and group created above,
+below are the attributes values that each would have:
 </p>
 <p>
 <table id="table" align="center" border="1" width="60%">
@@ -777,23 +608,23 @@ the naming attributes of several namespaces and groups.
 <tbody>
 <tr>
   <td class="c" width="25%"><i>stem</i></td>
-  <td class="c">&nbsp;</td>
+  <td class="r">&nbsp;</td>
 </tr>
 <tr>
   <td class="c"><i>extension</i></td>
-  <td class="c">uofc</td>
+  <td class="r">uofc</td>
 </tr>
 <tr>
   <td class="c"><i>displayExtension</i></td>
-  <td class="c">University Of Chicago</td>
+  <td class="r">uofc</td>
 </tr>
 <tr>
   <td class="c"><i>name</i></td>
-  <td class="c">uofc</td>
+  <td class="r">uofc</td>
 </tr>
 <tr>
   <td class="c"><i>displayName</i></td>
-  <td class="c">University Of Chicago</td>
+  <td class="r">uofc</td>
 </tr>
 </tbody>
 </table>
@@ -807,31 +638,163 @@ the naming attributes of several namespaces and groups.
 </thead>
 <tbody>
 <tr>
-  <td class="c" width="25%"><i>guid</i></td>
-  <td class="c">258a158b-3f40-43d4-a4b2-c97398c6ad19</td>
-</tr>
-<tr>
-  <td class="c"><i>stem</i></td>
-  <td class="c">uofc</td>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="r">uofc</td>
 </tr>
 <tr>
   <td class="c"><i>extension</i></td>
-  <td class="c">exec_council</td>
+  <td class="r">exec_council</td>
 </tr>
 <tr>
   <td class="c"><i>displayExtension</i></td>
-  <td class="c">Executive Council</td>
+  <td class="r">exec_council</td>
 </tr>
 <tr>
   <td class="c"><i>name</i></td>
-  <td class="c">uofc:exec_council</td>
+  <td class="r">uofc:exec_council</td>
 </tr>
 <tr>
   <td class="c"><i>displayName</i></td>
-  <td class="c">University Of Chicago:Executive Council</td>
+  <td class="r">uofc:exec_council</td>
 </tr>
 </tbody>
 </table>
+</p>
+<p>
+If we then assign the namespace a <i>displayExtension</i> value of
+"The University Of Chicago", the namespace and group will have the
+following attribute values:
+</p>
+<p>
+<table id="table" align="center" border="1" width="60%">
+<thead>
+<tr>
+  <th colspan="2">namespace uofc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="r">&nbsp;</td>
+</tr>
+<tr>
+  <td class="c"><i>extension</i></td>
+  <td class="r">uofc</td>
+</tr>
+<tr>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="r">The University Of Chicago</td>
+</tr>
+<tr>
+  <td class="c"><i>name</i></td>
+  <td class="r">uofc</td>
+</tr>
+<tr>
+  <td class="c"><i>displayName</i></td>
+  <td class="r">The University Of Chicago</td>
+</tr>
+</tbody>
+</table>
+</p>
+<p>
+<table id="table" align="center" border="1" width="60%">
+<thead>
+<tr>
+  <th colspan="2">group uofc:exec_council</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="r">uofc</td>
+</tr>
+<tr>
+  <td class="c"><i>extension</i></td>
+  <td class="r">exec_council</td>
+</tr>
+<tr>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="r">exec_council</td>
+</tr>
+<tr>
+  <td class="c"><i>name</i></td>
+  <td class="r">uofc:exec_council</td>
+</tr>
+<tr>
+  <td class="c"><i>displayName</i></td>
+  <td class="r">The University Of Chicago:exec_council</td>
+</tr>
+</tbody>
+</table>
+</p>
+<p>
+Next we'll give the group a <i>displayExtension</i> value of "Executive
+Council".
+</p>
+<p>
+<table id="table" align="center" border="1" width="60%">
+<thead>
+<tr>
+  <th colspan="2">namespace uofc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="r">&nbsp;</td>
+</tr>
+<tr>
+  <td class="c"><i>extension</i></td>
+  <td class="r">uofc</td>
+</tr>
+<tr>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="r">The University Of Chicago</td>
+</tr>
+<tr>
+  <td class="c"><i>name</i></td>
+  <td class="r">uofc</td>
+</tr>
+<tr>
+  <td class="c"><i>displayName</i></td>
+  <td class="r">The University Of Chicago</td>
+</tr>
+</tbody>
+</table>
+</p>
+<p>
+<table id="table" align="center" border="1" width="60%">
+<thead>
+<tr>
+  <th colspan="2">group uofc:exec_council</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="r">uofc</td>
+</tr>
+<tr>
+  <td class="c"><i>extension</i></td>
+  <td class="r">exec_council</td>
+</tr>
+<tr>
+  <td class="c"><i>displayExtension</i></td>
+  <td class="r">Executive Council</td>
+</tr>
+<tr>
+  <td class="c"><i>name</i></td>
+  <td class="r">uofc:exec_council</td>
+</tr>
+<tr>
+  <td class="c"><i>displayName</i></td>
+  <td class="r">The University Of Chicago:Executive Council</td>
+</tr>
+</tbody>
+</table>
+</p>
+<p>
+Display values propagate down through subordinate namespaces as well:
 </p>
 <p>
 <table id="table" align="center" border="1" width="60%">
@@ -843,23 +806,23 @@ the naming attributes of several namespaces and groups.
 <tbody>
 <tr>
   <td class="c" width="25"><i>stem</i></td>
-  <td class="c">uofc</td>
+  <td class="r">uofc</td>
 </tr>
 <tr>
   <td class="c"><i>extension</i></td>
-  <td class="c">bsd</td>
+  <td class="r">bsd</td>
 </tr>
 <tr>
   <td class="c"><i>displayExtension</i></td>
-  <td class="c">Biological Sciences Division</td>
+  <td class="r">Biological Sciences Division</td>
 </tr>
 <tr>
   <td class="c"><i>name</i></td>
-  <td class="c">uofc:bsd</td>
+  <td class="r">uofc:bsd</td>
 </tr>
 <tr>
   <td class="c"><i>displayName</i></td>
-  <td class="c">University Of Chicago:Biological Sciences Division</td>
+  <td class="r">The University Of Chicago:Biological Sciences Division</td>
 </tr>
 </tbody>
 </table>
@@ -873,35 +836,28 @@ the naming attributes of several namespaces and groups.
 </thead>
 <tbody>
 <tr>
-  <td class="c" width="25%"><i>guid</i></td>
-  <td class="c">82a303fa-cb6b-4330-b085-46a1974b0a79</td>
-</tr>
-<tr>
-  <td class="c"><i>stem</i></td>
-  <td class="c">uofc:bsd</td>
+  <td class="c" width="25%"><i>stem</i></td>
+  <td class="r">uofc:bsd</td>
 </tr>
 <tr>
   <td class="c"><i>extension</i></td>
-  <td class="c">eis_staff</td>
+  <td class="r">eis_staff</td>
 </tr>
 <tr>
   <td class="c"><i>displayExtension</i></td>
-  <td class="c">Enterprise Information Systems staff</td>
+  <td class="r">Enterprise Information Systems staff</td>
 </tr>
 <tr>
   <td class="c"><i>name</i></td>
-  <td class="c">uofc:bsd:eis_staff</td>
+  <td class="r">uofc:bsd:eis_staff</td>
 </tr>
 <tr>
   <td class="c"><i>displayName</i></td>
-  <td class="c">University Of Chicago:Biological Sciences Division:Enterprise
+  <td class="r">The University Of Chicago:Biological Sciences Division:Enterprise
     Information Systems staff</td>
 </tr>
 </tbody>
 </table>
-</p>
-<p>
-<div align="center"><b>Figure 1 - Naming Examples</b></div>
 </p>
 <p>
 This set of examples illuminates at least two things. First, that it
@@ -918,31 +874,40 @@ things, influence people's initial expectations of the meaning of
 those groups. Seeing "Enterprise Information Systems staff" by itself
 gives a different impression than seeing it in the context of
 "Biological Sciences Division". That, in part, motivates the care taken
-in the design of Grouper's privilege model, introduced next.
+in the design of Grouper's <a href="#registry_privs">privilege
+model</a>.
 </p>
+<!-- registry_naming -->
+<!-- registry_privs -->
 <div class="subsection">
-<a name="section_3.4"/>
-<h3>3.4. Grouper Privileges</h3>
+<a name="registry_privs"/>
+<h3>Privileges</h3>
 </div>
 <p>
-There are two categories of privileges in Grouper. Access privileges
-determine what a subject can do to a group. Naming privileges determine
-what a subject can do to a namespace.  The access and naming privileges
-are listed in the following tables.
+There are two categories of privileges in Grouper: <i>Access</i> and
+<i>Naming</i>.  Access privileges determine what a subject can do
+to a group. Naming privileges determine what a subject can do to a
+namespace.  All Grouper API methods are subject to the Grouper
+privilege model and privileges can be assigned to subjects of any type,
+including groups.  See <a href="#integrate_privs">Integrating
+Privileges</a> for more information on the Grouper privilege model.
 </p>
 <p>
-<a name="table_5"/>
+The access and naming privileges are listed in the following tables:
+</p>
+<p>
+<a name="table_privs_access"/>
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
   <th>Privilege</th>
-  <th>Description</th>
+  <th>Semantics</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td class="c"><i>VIEW</i></td>
-  <td class="c">Can see the group and can refer to it, e.g., to make
+  <td class="c" width="25%">VIEW</td>
+  <td class="r">Can see the group and can refer to it, e.g., to make
     it a subgroup of another group.
     <br /><br />
     <b>NOTE:</b> If no explicit <i>VIEW</i> privileges have been
@@ -950,113 +915,209 @@ are listed in the following tables.
     group.</td>
 </tr>
 <tr>
-  <td class="c"><i>READ</i></td>
-  <td class="c">Can read all "public" fields of the group. Implies
-    <i>VIEW</i>.
+  <td class="c">READ</td>
+  <td class="r">Can read the group's public attributes and
+    <i>members</i> list.
+    <br /><br />
+    Implies <i>VIEW</i>.
     <br /><br />
     <b>NOTE:</b>  If no explicit <i>READ</i> privileges have been
     assigned to a group, <b>all</b> subjects can <i>READ</i> the
     group's  public fields.</td>
 </tr>
 <tr>
-  <td class="c"><i>UPDATE</i></td>
-  <td class="c">Can update the group's members list and can grant and
+  <td class="c">UPDATE</td>
+  <td class="r">Can update the group's <i>members</i> list and can grant and
     revoke <i>OPTIN</i> and <i>OPTOUT</i> privileges for this group.
+    <br /><br />
     Implies <i>VIEW</i>, <i>OPTIN</i> and <i>OPTOUT</i>.</td>
 </tr>
 <tr>
-  <td class="c"><i>ADMIN</i></td>
-  <td class="c">Can modify all group fields, can grant and revoke all
+  <td class="c">ADMIN</td>
+  <td class="r">Can modify all group fields, can grant and revoke all
     access privileges, can rename the group and can delete the
-    group.  Implies all other access privileges.</td>
+    group.  The creator of a group is automatically granted this
+    privilege.
+    <br /><br />
+    Implies all other access privileges.
+  </td>
 </tr>
 <tr>
-  <td class="c"><i>OPTIN</i></td>
-  <td class="c">Can add oneself to the members list of the group. Implies
-    <i>VIEW</i>.</td>
-</tr>
-<tr>
-  <td class="c"><i>OPTOUT</i></td>
-  <td class="c">Can remove oneself from the members list of the group.
+  <td class="c">OPTIN</td>
+  <td class="r">Can add oneself to the members list of the group. 
+    <br /><br />
     Implies <i>VIEW</i>.</td>
+</tr>
+<tr>
+  <td class="c">OPTOUT</td>
+  <td class="r">Can remove oneself from the members list of the group.
+    <br /><br />
+    Implies <i>VIEW</i>.
+    <br /><br />
+    <b>NOTE:</b> Can only remove <b>immediate</b> memberships.
+  </td>
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 5 - Access Privileges</b></div>
+<div align="center"><b>Table 3 - Access Privileges</b></div>
 </p>
 <p>
-<a name="table_6"/>
+<a name="table_privs_naming"/>
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
   <th>Privilege</th>
-  <th>Description</th>
+  <th>Semantics</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td class="c"><i>CREATE</i></td>
-  <td class="c">Can create a group in the namespace.</td>
+  <td class="c">CREATE</td>
+  <td class="r">Can create a group in the namespace.</td>
 </tr>
 <tr>
-  <td class="c"><i>STEM</i></td>
-  <td class="c">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
+  <td class="c">STEM</td>
+  <td class="r">Can grant and revoke <i>CREATE</i> and <i>STEM</i>
     privilege for the namespace, can create a subordinate namespace,
-    can delete the namespace and can modify all namespace fields.</td>
+    can delete the namespace and can modify all namespace fields.  The
+    creator of a namespace is automatically granted this privilege.
+    <br /><br />
+    Top-level namespaces (those existing at the root of the Groups
+    Registry and thus not possessing a parent namespace) can only
+    be created by the <i>GrouperSystem</i> subject.
+    <br /><br />
+    <b>NOTE:</b> This privilege does <b>not</b> imply <i>CREATE</i> but
+    a subject with this privilege can grant themselves that privilege.
+  </td>
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 6 - Naming Privileges</b></div>
+<div align="center"><b>Table 4 - Naming Privileges</b></div>
+</p>
+<!-- registry_privs -->
+<!-- registry -->
+
+<!-- integrate -->
+<div class="section">
+<a name="integrate"/>
+<h2>Integrating Grouper</h2>
+</div>
+<p>
+<span class="TODO">TODO</span>
+</p>
+<!-- integrate_privs -->
+<div class="subsection">
+<a name="integrate_privs"/>
+<h3>Privileges</h3>
+</div>
+<p>
+The Grouper API provides and uses abstracted interfaces
+(<i>GrouperAccess</i> and <i>GrouperNaming</i>) to access and
+manage the Access and Naming privileges.  This design permits
+implementation sites to replace Grouper's default implementation
+of either or both of these interfaces if they desire to integrate
+with an already existing external privilege management system.  It
+is anticipated that Grouper will provide support for integrating
+with a
+<a href="http://middleware.internet2.edu/signet/">Signet</a> 
+<span class="TODO">Privilege Registry</a> in the future.
 </p>
 <p>
-Grouper filters group loads and search results based on a subject's
-<i>VIEW</i> and <i>READ</i> privileges for each matched group. Subjects
-lacking <i>VIEW</i> privilege to a group will not have that group's
-existence revealed to them by the Grouper API. Subjects with
-<i>VIEW</i> but lacking <i>READ</i> can read the group's naming
-attributes and no others. <i>OPTOUT</i> privilege to a group does not
-enable the subject to remove themselves from effective membership in
-the group, only immediate membership. The creator of a group is
-automatically granted <i>ADMIN</i> privilege to the group. The creator
-of a namespace is automatically granted <i>STEM</i> privilege to the
-namespace. Although <i>STEM</i> privilege does not imply <i>CREATE</i>
-privilege, a subject with <i>STEM</i> privilege can assign themselves
-<i>CREATE</i> privilege.
+The default implementations of the Access and Naming privileges that
+are used by Grouper uses group list values to represent assigned
+privileges.  Because privileges are modeled as list values in these
+implementations one is able to take advantage of Grouper's list
+management capabilities.  In particular, this means that one can use
+subgroups to provide for the interitance of privileges.  In addition,
+one will be able to take advantage of group math and aging tasks to
+provide an even richer privilege management environment.
 </p>
 <p>
-Top-level namespaces, i.e., those for which the stem attribute is the
-constant <i>Grouper.NS_ROOT</i>, can currently only be created by the
-<i>GrouperSystem</i> subject.
+If a site desires to replace one or both of the default privilege
+implementations, see the <i>GrouperAccess</i> and <i>GrouperNaming</i>
+javadoc for information on the interface that must be implemented.  In
+addition, the <i>interface.access</i> and <i>interface.naming</i>
+configuration parameters in <tt>$GROUPER/conf/grouper.properties</tt>
+will need to be adjusted to reflect the privilege implementation being
+used.
+</p>
+<!-- integrate_privs -->
+<!-- integrate -->
+
+<!-- extend -->
+<div class="section">
+<a name="extend"/>
+<h2>Extending Grouper</h2>
+</div>
+<p>
+Grouper does currently provide some ability for sites to extend
+Grouper's default behavior and types to better fit local needs.
+Currently <span class="TODO">??? <a href="#extend_group_types">group 
+types</a> (including attributes and lists) and 
+<a href="#extend_privs">privileges</a></span> may be extended
+with varying degrees of difficulty.
+</p>
+<!-- extend_group_types -->
+<div class="subsection">
+<a name="extend_group_types"/>
+<h3>Group Types</h3>
+</div>
+<p>
+To support some of the 
+<a href="http://middleware.internet2.edu/dir/docs/draft-internet2-mace-dir-sage-scenarios-00.html">use cases</a>
+identified by MACE-Dir-Groups working group members, Grouper was
+designed from the start to enable implementation sites to extend the
+set of attributes and lists available to be associated with groups.
+This was done by declaring attributes, lists, and their properties in
+tables within the Groups Registry rather than having them represented
+as static schematic elements of that database. Sets of attributes and
+lists are packaged into group types.  This is similar to how schemas
+for LDAP directories are managed and extended: LDAP attributes are
+packaged into object classes, and each LDAP entry can have a set
+of object classes associated with it, allowing different entries
+to serve different purposes.  
 </p>
 <p>
-The Grouper API presents and itself uses abstracted interfaces,
-<i>GrouperAccess</i> and <i>GrouperNaming</i>, to manage access and
-naming privileges. This design permits implementation sites to replace
-Grouper's default implementation of either or both of these
-interfaces with ones of their own devise, in case the site has or will
-have privilege management capabilities with which they wish to
-integrate management of Grouper privileges (see 
-<a href="#section_4.5">section 4.5</a>).
+Unfortunately, at this time Grouper only allows a single group type to
+be assigned to a group.  Thus, if you are extending the Groups Registry
+by creating new group types you will currently need to first duplicate
+the definition of the <i>base</i> group type and then add any
+additional attributes and lists that you may desire.  Grouper ships
+with one custom group type: <i>naming</i>.  This type is used
+internally to model namespaces.
 </p>
 <p>
-The privilege interfaces permit privileges to be assigned to subjects
-of any type, including groups. An implementation of the privilege
-interfaces that relies on Grouper to resolve subjects that are groups
-can take advantage of Grouper's subgroup, compound group and aging
-capabilities to enrich privilege management. In particular,
-Grouper's default privilege implementation uses group management to
-support inheritance and aging of privileges.
+Although it is not currently possible  to extend Grouper's supported
+group types, attributes and lists with the API, sites can create
+new group types, attributes and lists.  To adjust the schema  you will
+need to manually alter the <i>grouper_type</i>, <i>grouper_typeDef</i>
+and <i>grouper_field</i> tables within the Groups Registry to
+determine the set of attributes and lists that are associated with
+an extended group type.  The <tt>$GROUPER/sql/init.sql</tt> file
+may provide some guidance on how to update those tables with your
+desired extensions.
 </p>
+<!-- extend_group_types -->
+<!-- extend_privs -->
+<div class="subsection">
+<a name="extend_privs"/>
+<h3>Privileges</h3>
+</div>
 <p>
-Although it is not currently possible to extend Grouper's privilege model,
-sites that extend the set of attributes and lists in their deployment
-can declare which privileges are needed to read and to write each
-attribute and list. These declarations are in the <i>grouper_field</i>
-table.  Although the API provides no support for managing extended
-fields or their security, sites may alter or learn by example from the
-Groups Registry initialization script <tt>$GROUPER/sql/init.sql</tt>
-to do so.
+Although it is not currently possible to extend Grouper's privilege
+model with the API, sites that extend the set of <a href="#extend_group_types">attributes
+and lists</a> in their deployment can declare which privileges are
+needed to read and write each attribute and list.  To adjust the schema
+you will need to manually alter the <i>grouper_field</i> table within
+the Groups Registry.  The <tt>$GROUPER/sql/init.sql</tt> file may
+provide some guidance on how to update this table with your desired
+additions.
 </p>
+<!-- extend_privs -->
+<!-- extend -->
+
+
+<span class="TODO">
 <div class="subsection">
 <a name="section_3.5"/>
 <h3>3.5. Using Privileges To Distribute Group Management
@@ -1468,6 +1529,8 @@ with. The <i>GrouperGroup.createSubject()</i> and
 <h3>4.5. Integrating Grouper With An External Privilege Management
 System</h3>
 </div>
+<!-- body -->
+
 <p>
 This will be addressed in a later release cycle.
 </p>
