@@ -48,7 +48,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-08-31 05:16:05 $
+$Date: 2005-09-01 00:13:14 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -59,10 +59,6 @@ $Date: 2005-08-31 05:16:05 $
 <h2>Table of Contents</h2>
 <ol>
   <li><a href="#intro">Introduction To Grouper</a></li>
-  <li><a href="#layout">Project Layout</a></li>
-  <li><a href="#build">Building Grouper</a></li>
-  <li><a href="#config">Configuring Grouper</a></li>
-  <li><a href="#run">Running Grouper</a></li>
   <li><a href="#registry">The Groups Registry</a></li>
   <ol>
     <li><a href="#registry_gans">Groups And Namespaces</a></li>
@@ -71,6 +67,10 @@ $Date: 2005-08-31 05:16:05 $
     <li><a href="#registry_naming">Naming Examples</a></li>
     <li><a href="#registry_privs">Privileges</a></li>
   </ol>
+  <li><a href="#layout">Project Layout</a></li>
+  <li><a href="#build">Building Grouper</a></li>
+  <li><a href="#config">Configuring Grouper</a></li>
+  <li><a href="#run">Running Grouper</a></li>
   <li><a href="#integrate">Integrating Grouper</a></li>
   <ol>
     <li><a href="#integrate_privs">Privileges</a></li>
@@ -214,198 +214,6 @@ improved sample programs are under construction and will be available
 at a later date.  
 </p>
 <!-- intro -->
-
-<!-- layout -->
-<div class="section">
-<a name="layout"/>
-<h2>Project Layout</h2>
-</div>
-<p>
-The top-level directory of the unpacked Grouper distribution contains
-the following directories and files:
-</p>
-<p>
-<table id="table" align="center" border="0" width="60%">
-<thead>
-<tr>
-  <td class="c" width="25%"><tt>conf/</tt></td>
-  <td class="r">Configuration files for Grouper and third party components</td>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td class="c"><tt>contrib/</tt></td>
-  <td class="r">Contributed software</td>
-</tr>
-<tr>
-  <td class="c"><tt>doc/</tt></td>
-  <td class="r">Grouper documentation</td>
-</tr>
-<tr>
-  <td class="c"><tt>doc/javadoc/</tt></td>
-  <td class="r">javadoc for the Grouper API</td>
-</tr>
-<tr>
-  <td class="c"><tt>java/</tt></td>
-  <td class="r">Java source and compiled code</td>
-</tr>
-<tr>
-  <td class="c"><tt>java/lib/</tt></td>
-  <td class="r">Third party .jar files required by Grouper</td>
-</tr>
-<tr>
-  <td class="c"><tt>java/src/</tt></td>
-  <td class="r">Grouper source code</td>
-</tr>
-<tr>
-  <td class="c"><tt>java/tests/</tt></td>
-  <td class="r">Grouper test suite source code</td>
-</tr>
-<tr>
-  <td class="c"><tt>sql/</tt></td>
-  <td class="r">SQL scripts for creating, initializing and testing the
-    Groups Registry</td>
-</tr>
-<tr>
-  <td class="c"><tt>LICENSE</tt></td>
-  <td class="r">License under which Grouper may be used</td>
-</tr>
-<tr>
-  <td class="c"><tt>build.xml</tt></td>
-  <td class="r">Ant configuration file</td>
-</tr>
-</tbody>
-</table>
-</p>
-<p>
-The file <tt>$GROUPER/java/lib/README</tt> lists the third party software used by Grouper
-and identifies the version, source, and license for each.  README
-files occur here and there - you should read them!
-</p>
-<!-- layout -->
-
-<!-- build -->
-<div class="section">
-<a name="build"/>
-<h2>Building Grouper</h2>
-</div>
-<p>
-<ol>
-  <li><p>Get the Java SDK.</p>
-    <p>The SDK may be downloaded from <a href="http://java.sun.com/j2se/">&lt;http://java.sun.com/j2se/&gt;</a>.
-    The JRE alone is not sufficient.</p></li>
-  <li><p>Get Ant</p>
-    <p>Ant may be downloaded from <a href="http://ant.apache.org/">&lt;http://ant.apache.org&gt;</a>.</p>
-    <p>Directions for installing Ant are in the unpacked distribution
-    at <i>docs/manual/install.html#installing</i>. You may need to
-    copy <i>tools.jar</i> from <tt>$JAVA_HOME/lib</tt> to
-    <tt>$ANT_HOME/lib</tt> to get ant working properly.</p></li>
-  <li>Change directory to <tt>$GROUPER</tt>.</li>
-  <li><p><tt>ant build</tt></p>
-    <p>This will compile Grouper and place the class files under
-    the <tt>$GROUPER/build</tt> directory.</p></li>
-  <li><p><tt>ant db-init</tt></p>
-    <p>This will create a Groups Registry in
-    <tt>$GROUPER/dist/run/</tt> directory using the default
-    HSQLDB RDBMS.</p></li>
-  <li><p><tt>ant test</tt></p>
-    <p>This will compile and run the Grouper test suite to exercise the
-    API and ensure that Grouper is properly configured.</p>
-    <p><b>Note: Running the test suite is destructive and will
-    delete all groups and memberships in the Groups Registry.  Do
-    not run the test suite against production data.</b></p></li>
-  <li><p><tt>ant db</tt> [optional]</p>
-    <p>This will launch HSQLDB's GUI database manager.  From within the
-    manager you can run SQL queries against the Groups Registry.</p></li>
-  <li><p><tt>ant dist</tt> [optional]</p>
-    <p>This creates two .jar files within
-    <tt>$GROUPER/dist/lib/</tt>.  One file contains all of the
-    Grouper class files while the other contains all of the third
-    party .jar files used by Grouper.  This isn't required but does
-    ease <i>$CLASSPATH</i> configuration.</p></li>
-</ol>
-</p>
-<!-- build -->
-
-<div class="section">
-<a name="config"/>
-<h2>Configuring Grouper</h2>
-</div>
-<p>
-Grouper requires very little configuration and does not require any by
-default.  All Grouper configuration files are stored in
-<tt>$GROUPER/conf/</tt>.  The five configuration files that you
-<b>may</b> want to adjust and reasons why are described below.
-</p>
-<h3>hibernate.properties</h3>
-<p>
-Update this file if you are using an alternate database or intend to run
-programs from somewhere other than <i>$GROUPER</i>.  You will want to
-review and adjust as necessary the <i>hibernate.dialect</i> and
-<i>hibernate.connection.*</i> parameters.
-</p>
-<h3>log4j.properties</h3>
-Update this file if you intend to run programs from somewhere other
-than <i>$GROUPER</i>.  Set the <i>log4j.appender.rfile.File</i>
-parameter to the absolute path of your desired logfile location.
-</p>
-<h3>sources.xml</h3>
-<p>
-This is the configuration file for Grouper's I2MI Subject API resolver.
-The I2MI Subject API is used to map an external IDM infrastructure to
-Grouper internals and can be used to identify people, groups and
-applications from a variety of internal and external to Grouper sources
-of authority.  Grouper's default configuration uses Grouper as its
-source of authority for subjects of type <i>group</i> and several
-tables within the Groups Registry for subjects of type <i>person</i>.
-If you wish to use additional or different sources, you will need
-to adjust this file.  At this time, the javadoc provided with each
-source adapter is probably the best location for configuration
-information.  Please <b>do not</b> change the source for subjects
-of type <i>group</i>.
-</p>
-<p>
-See <span class="TODO">$SECTION</span> for more information on the I2MI
-Subject and how Grouper utilizes it.
-</p>
-<h3>grouper.properties</h3>
-<p>
-Update this file if intending to use an alternate privilege
-implementation.  See <a href="#integrate_privs">Integrating
-Privileges</a> for more information.
-</p>
-<h3>ehcache.xml</h3>
-<p>
-ehcache is used by Hibernate to cache objects and query results in both
-memory and on disk.  Grouper comes with a default and unoptimized
-configuration.  Depending upon your usage and the size of your Groups
-Registry, you may want to adjust your cache settings.  See the 
-<a href="http://ehcache.sourceforge.net/documentation/">ehcache
-documentation</a> for more details.
-</p>
-<!-- config -->
-
-<!-- run -->
-<div class="section">
-<a name="run"/>
-<h2>Running Grouper</h2>
-</div>
-<p>
-As Grouper is currently just a database and a Java API for exercising
-that database, there is no "Groups Registry server" that needs to
-be running to interact with the Groups Registry.  All that is necessary
-is that one be able to connect to your configured database and that the
-following items be in your classpath:
-<ul>
-  <li>full pathname of the <i>Grouper.jar</i> file produced by <tt>ant
-    dist</tt></li>
-  <li>full pathname of the <i>Grouper-lib.jar</i> file produced by
-    <tt>ant dist</tt></li>
-  <li>full pathname of the directory containing Grouper's configuration
-    files.</li>
-</ul>
-</p>
-<!-- run -->
 
 <!-- registry -->
 <div class="section">
@@ -997,6 +805,198 @@ The access and naming privileges are listed in the following tables:
 <!-- registry_privs -->
 <!-- registry -->
 
+<!-- layout -->
+<div class="section">
+<a name="layout"/>
+<h2>Project Layout</h2>
+</div>
+<p>
+The top-level directory of the unpacked Grouper distribution contains
+the following directories and files:
+</p>
+<p>
+<table id="table" align="center" border="0" width="60%">
+<thead>
+<tr>
+  <td class="c" width="25%"><tt>conf/</tt></td>
+  <td class="r">Configuration files for Grouper and third party components</td>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="c"><tt>contrib/</tt></td>
+  <td class="r">Contributed software</td>
+</tr>
+<tr>
+  <td class="c"><tt>doc/</tt></td>
+  <td class="r">Grouper documentation</td>
+</tr>
+<tr>
+  <td class="c"><tt>doc/javadoc/</tt></td>
+  <td class="r">javadoc for the Grouper API</td>
+</tr>
+<tr>
+  <td class="c"><tt>java/</tt></td>
+  <td class="r">Java source and compiled code</td>
+</tr>
+<tr>
+  <td class="c"><tt>java/lib/</tt></td>
+  <td class="r">Third party .jar files required by Grouper</td>
+</tr>
+<tr>
+  <td class="c"><tt>java/src/</tt></td>
+  <td class="r">Grouper source code</td>
+</tr>
+<tr>
+  <td class="c"><tt>java/tests/</tt></td>
+  <td class="r">Grouper test suite source code</td>
+</tr>
+<tr>
+  <td class="c"><tt>sql/</tt></td>
+  <td class="r">SQL scripts for creating, initializing and testing the
+    Groups Registry</td>
+</tr>
+<tr>
+  <td class="c"><tt>LICENSE</tt></td>
+  <td class="r">License under which Grouper may be used</td>
+</tr>
+<tr>
+  <td class="c"><tt>build.xml</tt></td>
+  <td class="r">Ant configuration file</td>
+</tr>
+</tbody>
+</table>
+</p>
+<p>
+The file <tt>$GROUPER/java/lib/README</tt> lists the third party software used by Grouper
+and identifies the version, source, and license for each.  README
+files occur here and there - you should read them!
+</p>
+<!-- layout -->
+
+<!-- build -->
+<div class="section">
+<a name="build"/>
+<h2>Building Grouper</h2>
+</div>
+<p>
+<ol>
+  <li><p>Get the Java SDK.</p>
+    <p>The SDK may be downloaded from <a href="http://java.sun.com/j2se/">&lt;http://java.sun.com/j2se/&gt;</a>.
+    The JRE alone is not sufficient.</p></li>
+  <li><p>Get Ant</p>
+    <p>Ant may be downloaded from <a href="http://ant.apache.org/">&lt;http://ant.apache.org&gt;</a>.</p>
+    <p>Directions for installing Ant are in the unpacked distribution
+    at <i>docs/manual/install.html#installing</i>. You may need to
+    copy <i>tools.jar</i> from <tt>$JAVA_HOME/lib</tt> to
+    <tt>$ANT_HOME/lib</tt> to get ant working properly.</p></li>
+  <li>Change directory to <tt>$GROUPER</tt>.</li>
+  <li><p><tt>ant build</tt></p>
+    <p>This will compile Grouper and place the class files under
+    the <tt>$GROUPER/build</tt> directory.</p></li>
+  <li><p><tt>ant db-init</tt></p>
+    <p>This will create a Groups Registry in
+    <tt>$GROUPER/dist/run/</tt> directory using the default
+    HSQLDB RDBMS.</p></li>
+  <li><p><tt>ant test</tt></p>
+    <p>This will compile and run the Grouper test suite to exercise the
+    API and ensure that Grouper is properly configured.</p>
+    <p><b>Note: Running the test suite is destructive and will
+    delete all groups and memberships in the Groups Registry.  Do
+    not run the test suite against production data.</b></p></li>
+  <li><p><tt>ant db</tt> [optional]</p>
+    <p>This will launch HSQLDB's GUI database manager.  From within the
+    manager you can run SQL queries against the Groups Registry.</p></li>
+  <li><p><tt>ant dist</tt> [optional]</p>
+    <p>This creates two .jar files within
+    <tt>$GROUPER/dist/lib/</tt>.  One file contains all of the
+    Grouper class files while the other contains all of the third
+    party .jar files used by Grouper.  This isn't required but does
+    ease <i>$CLASSPATH</i> configuration.</p></li>
+</ol>
+</p>
+<!-- build -->
+
+<div class="section">
+<a name="config"/>
+<h2>Configuring Grouper</h2>
+</div>
+<p>
+Grouper requires very little configuration and does not require any by
+default.  All Grouper configuration files are stored in
+<tt>$GROUPER/conf/</tt>.  The five configuration files that you
+<b>may</b> want to adjust and reasons why are described below.
+</p>
+<h3>hibernate.properties</h3>
+<p>
+Update this file if you are using an alternate database or intend to run
+programs from somewhere other than <i>$GROUPER</i>.  You will want to
+review and adjust as necessary the <i>hibernate.dialect</i> and
+<i>hibernate.connection.*</i> parameters.
+</p>
+<h3>log4j.properties</h3>
+Update this file if you intend to run programs from somewhere other
+than <i>$GROUPER</i>.  Set the <i>log4j.appender.rfile.File</i>
+parameter to the absolute path of your desired logfile location.
+</p>
+<h3>sources.xml</h3>
+<p>
+This is the configuration file for Grouper's I2MI Subject API resolver.
+The I2MI Subject API is used to map an external IDM infrastructure to
+Grouper internals and can be used to identify people, groups and
+applications from a variety of internal and external to Grouper sources
+of authority.  Grouper's default configuration uses Grouper as its
+source of authority for subjects of type <i>group</i> and several
+tables within the Groups Registry for subjects of type <i>person</i>.
+If you wish to use additional or different sources, you will need
+to adjust this file.  At this time, the javadoc provided with each
+source adapter is probably the best location for configuration
+information.  Please <b>do not</b> change the source for subjects
+of type <i>group</i>.
+</p>
+<p>
+See <span class="TODO">$SECTION</span> for more information on the I2MI
+Subject and how Grouper utilizes it.
+</p>
+<h3>grouper.properties</h3>
+<p>
+Update this file if intending to use an alternate privilege
+implementation.  See <a href="#integrate_privs">Integrating
+Privileges</a> for more information.
+</p>
+<h3>ehcache.xml</h3>
+<p>
+ehcache is used by Hibernate to cache objects and query results in both
+memory and on disk.  Grouper comes with a default and unoptimized
+configuration.  Depending upon your usage and the size of your Groups
+Registry, you may want to adjust your cache settings.  See the 
+<a href="http://ehcache.sourceforge.net/documentation/">ehcache
+documentation</a> for more details.
+</p>
+<!-- config -->
+
+<!-- run -->
+<div class="section">
+<a name="run"/>
+<h2>Running Grouper</h2>
+</div>
+<p>
+As Grouper is currently just a database and a Java API for exercising
+that database, there is no "Groups Registry server" that needs to
+be running to interact with the Groups Registry.  All that is necessary
+is that one be able to connect to your configured database and that the
+following items be in your classpath:
+<ul>
+  <li>full pathname of the <i>Grouper.jar</i> file produced by <tt>ant
+    dist</tt></li>
+  <li>full pathname of the <i>Grouper-lib.jar</i> file produced by
+    <tt>ant dist</tt></li>
+  <li>full pathname of the directory containing Grouper's configuration
+    files.</li>
+</ul>
+</p>
+<!-- run -->
+
 <!-- integrate -->
 <div class="section">
 <a name="integrate"/>
@@ -1524,11 +1524,6 @@ with. The <i>GrouperGroup.createSubject()</i> and
 <i>GrouperGroup.modifySubject()</i> methods return
 <i>Subject</i> objects corresponding to this <i>memberKey</i>.
 </p>
-<div class="subsection">
-<a name="section_4.5"/>
-<h3>4.5. Integrating Grouper With An External Privilege Management
-System</h3>
-</div>
 <!-- body -->
 
 <p>
