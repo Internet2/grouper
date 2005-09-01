@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.9 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: ConfirmAction.java,v 1.10 2005-09-01 17:59:58 acohen Exp $
+$Date: 2005-09-01 17:59:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -20,6 +20,8 @@ import org.apache.struts.util.MessageResources;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
@@ -54,6 +56,7 @@ throws Exception
 {
   // Setup message array in case there are errors
   ArrayList messages = new ArrayList();
+  ActionMessages actionMessages = null;
 
   // Confirm message resources loaded
   MessageResources resources = getResources(request);
@@ -72,6 +75,8 @@ throws Exception
   HttpSession session = request.getSession(); 
   boolean canUse;
   boolean canGrant;
+  Date    effectiveDate   = null;
+  Date    expirationDate  = null;
 
   PrivilegedSubject grantor
     = (PrivilegedSubject)
@@ -100,8 +105,29 @@ throws Exception
   String canUseString = request.getParameter("can_use");
   String canGrantString = request.getParameter("can_grant");
 
-  Date effectiveDate = Common.getDateParam(request, "effectiveDate");
-  Date expirationDate = Common.getDateParam(request, "expirationDate");
+  try
+  {
+    effectiveDate
+      = Common.getDateParam(request, Constants.EFFECTIVE_DATE_PREFIX, new Date());
+  }
+  catch (DataEntryException dee)
+  {
+    actionMessages
+      = addActionMessage
+          (request, actionMessages, Constants.EFFECTIVE_DATE_PREFIX);
+  }
+  
+  try
+  {
+    expirationDate
+      = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX);
+  }
+  catch (DataEntryException dee)
+  {
+    actionMessages
+      = addActionMessage
+          (request, actionMessages, Constants.EXPIRATION_DATE_PREFIX);
+  }
 
   if (paramIsPresent(canUseString))
   {
@@ -120,7 +146,15 @@ throws Exception
   {
     canGrant = false;
   }
+  
   Set limitValues = LimitRenderer.getAllLimitValues(signet, request);
+  
+  // If we've detected any data-entry errors, let's bail out here, before we
+  // try to use that bad data.
+  if (actionMessages != null)
+  {
+    return findDataEntryErrors(mapping);
+  }
   
   if (assignment != null)
   {
@@ -129,7 +163,7 @@ throws Exception
     assignment.setCanGrant(grantor, canGrant);
     assignment.setCanUse(grantor, canUse);
     assignment.setEffectiveDate(grantor, effectiveDate);
-    assignment.setEffectiveDate(grantor, expirationDate);
+    assignment.setExpirationDate(grantor, expirationDate);
   }
   else
   {
@@ -173,15 +207,30 @@ throws Exception
   return findSuccess(mapping);
 }
 
-private boolean paramIsPresent(String param)
-{
-  if ((param != null) && (param != ""))
+  private boolean paramIsPresent(String param)
   {
-    return true;
-  }
-  else
-  {
+    if ((param != null) && (param != ""))
+    {
+      return true;
+    }
+
     return false;
   }
-}
+
+  private ActionMessages addActionMessage
+    (HttpServletRequest request,
+     ActionMessages     msgs,
+     String             msgKey)
+  {
+    if (msgs == null)
+    {
+      msgs = new ActionMessages();
+    }
+    
+    ActionMessage msg = new ActionMessage("dateformat");
+    msgs.add(msgKey, msg);
+    saveMessages(request, msgs);
+    
+    return msgs;
+  }
 }

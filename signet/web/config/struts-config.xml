@@ -104,6 +104,7 @@
           <forward name="failure" path="/error.jsp" />
           <forward name="success" path="/confirm.jsp" />
           <forward name="duplicateAssignments" path="/duplicateAssignments.jsp" />
+		  <forward name="dataEntryErrors" path="/conditions.jsp" />
       </action>
 
       <!-- Signet assignment-details page -->

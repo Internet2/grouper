@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.3 2005-08-29 21:12:12 acohen Exp $
- $Date: 2005-08-29 21:12:12 $
+ $Id: GrantableImpl.java,v 1.4 2005-09-01 17:59:58 acohen Exp $
+ $Date: 2005-09-01 17:59:58 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -140,6 +140,12 @@ implements Grantable
     }
     
     this.setGrantee(grantee);
+    
+    if (effectiveDate == null)
+    {
+      throw new IllegalArgumentException
+        ("An effective-date may not be NULL.");
+    }
     
     if (datesInWrongOrder(effectiveDate, expirationDate))
     {
@@ -404,6 +410,12 @@ implements Grantable
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
+    
+    if (date == null)
+    {
+      throw new IllegalArgumentException
+        ("effectiveDate must have a non-NULL value.");
+    }
     
     this.effectiveDate = date;
     this.setGrantor(actor);

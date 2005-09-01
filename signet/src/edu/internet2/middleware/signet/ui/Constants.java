@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.3 2005-07-12 23:13:26 acohen Exp $
-$Date: 2005-07-12 23:13:26 $
+$Id: Constants.java,v 1.4 2005-09-01 17:59:58 acohen Exp $
+$Date: 2005-09-01 17:59:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,7 +8,8 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.ui;
 
-public final class Constants {
+public final class Constants
+{
 
   /**
    * The package name for this application.
@@ -34,6 +35,13 @@ public final class Constants {
    * application.
    */
   public static final String DUPLICATE_ASSIGNMENTS = "duplicateAssignments";
+
+
+  /**
+   * The token representing the discovery of data-entry errors for this
+   * application.
+   */
+  public static final String DATA_ENTRY_ERRORS = "dataEntryErrors";
 
 
   /**
@@ -76,5 +84,9 @@ public final class Constants {
    * of error messages, if required resources are missing.
    */
   public static final String ERROR_KEY = "ERROR";
+
+
+  public static final String EFFECTIVE_DATE_PREFIX = "effectiveDate";
+  public static final String EXPIRATION_DATE_PREFIX = "expirationDate";
 
 }

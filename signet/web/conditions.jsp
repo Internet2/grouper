@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.29 2005-08-25 20:31:35 acohen Exp $
-  $Date: 2005-08-25 20:31:35 $
+  $Id: conditions.jsp,v 1.30 2005-09-01 17:59:58 acohen Exp $
+  $Date: 2005-09-01 17:59:58 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -83,7 +83,9 @@
       }
   </script>
   
+<%@ taglib uri="http://struts.apache.org/tags-bean"  prefix="bean" %>
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
+<%@ taglib uri="http://struts.apache.org/tags-html"  prefix="html" %>
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -103,6 +105,7 @@
 
 <%@ page import="edu.internet2.middleware.signet.ui.LimitRenderer" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 
 <% 
   Signet signet
@@ -393,46 +396,40 @@
 <%
    }
 %>
-              <fieldset>
-              
-                <legend>
-                  Effective date
-                </legend>
-                
-                <%=Common.dateSelection
-                    ("effectiveDate",
-                     currentAssignment == null
-                       ? new Date()
-                       : currentAssignment.getEffectiveDate())%>
-                  
-              </fieldset>
 
-              <fieldset>
-              
-                <legend>
-                  Duration
-                </legend>
-                
-                until:
-                
-                <%=Common.dateSelection
-                    ("expirationDate",
-                     currentAssignment == null
-                       ? null
-                       : currentAssignment.getExpirationDate())%>
-                
-              </fieldset>
+                <table>
+                  <tr>
+                    <%=Common.dateSelection
+                      (request,
+                       Constants.EFFECTIVE_DATE_PREFIX,
+                       "Designation will take effect:",
+                       "immediately",
+                       "on",
+                       currentAssignment == null
+                         ? null
+                         : currentAssignment.getEffectiveDate())%>
+                  </tr>
+                  <tr>
+                    <%=Common.dateSelection
+                      (request,
+                       Constants.EXPIRATION_DATE_PREFIX,
+                       "...and will remain in effect:",
+                       "until I revoke it",
+                       "on",
+                       currentAssignment == null
+                         ? null
+                         : currentAssignment.getExpirationDate())%>
+                  </tr>
+                  <tr>
 
-              <fieldset>
-                <legend>
-                  Extensibility: privilege holder can...
-                </legend>
-                  <input
-                     name="can_use"
-                     id="can_use"
-                     type="checkbox"
-                     value="checkbox"
-                     <%=(currentAssignment==null
+                    <td>Privilege holder can:</td>
+                    <td>
+                      <input
+                        name="can_use"
+                        id="can_use"
+                        type="checkbox"
+                        value="checkbox"
+                        <%=(currentAssignment==null
                          /* We're not editing an existing Assignment, so
                           * check this box as a default value.
                           */
@@ -443,29 +440,30 @@
                          : (currentAssignment.canUse()
                               ? "checked=\"checked\""
                               : ""))%>
-                  />
-                  <label for="can_use">use this privilege</label>
-                  <br />
-                  <input
-                     name="can_grant"
-                     id="can_grant"
-                     type="checkbox"
-                     value="checkbox"
-                     <%=(currentAssignment==null
-                         /* We're not editing an existing Assignment, so
-                          * un-check this box as a default value.
-                          */
-                         ? ""
-                         /* We are editing an existing Assignment, so get
-                          * this box's status from the Assignment.
-                          */
-                         : (currentAssignment.canGrant()
-                              ? "checked=\"checked\""
-                              : ""))%>
-                  />
-                  <label for="can_grant">grant this privilege to others</label>
-
-              </fieldset>
+                      />
+                      use this privilege
+                      <br />
+                      <input
+                        name="can_grant"
+                        id="can_grant"
+                        type="checkbox"
+                        value="checkbox"
+                        <%=(currentAssignment==null
+                            /* We're not editing an existing Assignment, so
+                             * un-check this box as a default value.
+                             */
+                            ? ""
+                            /* We are editing an existing Assignment, so get
+                             * this box's status from the Assignment.
+                             */
+                            : (currentAssignment.canGrant()
+                                 ? "checked=\"checked\""
+                                 : ""))%>
+                      />
+                      grant this privilege to others
+                    </td>
+                  </tr>
+                </table>
               <p>
                 <input
                    name="completeAssignmentButton"

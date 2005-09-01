@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.18 2005-08-25 20:31:35 acohen Exp $
-  $Date: 2005-08-25 20:31:35 $
+  $Id: Common.java,v 1.19 2005-09-01 17:59:58 acohen Exp $
+  $Date: 2005-09-01 17:59:58 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@
 */
 package edu.internet2.middleware.signet.ui;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,6 +26,10 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
+import org.apache.struts.Globals;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.util.MessageResources;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Decision;
@@ -35,9 +41,18 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 public class Common
 {
-  private static final String daySuffix   = "_day";
-  private static final String monthSuffix = "_month";
-  private static final String yearSuffix  = "_year";
+  private static final String DAY_SUFFIX   = "_day";
+  private static final String MONTH_SUFFIX = "_month";
+  private static final String YEAR_SUFFIX  = "_year";
+  
+  private static final String HASDATE_SUFFIX  = "_hasDate";
+  private static final String DATETEXT_SUFFIX = "_dateText";
+  
+  private static final String NODATE_VALUE  = "NO_DATE";
+  private static final String YESDATE_VALUE = "YES_DATE";
+  
+  private static final String DATE_FORMAT = "MM-dd-yyyy";
+  private static final String DATE_SAMPLE = "mm-dd-yyyy";
   /**
    * @param log
    * @param request
@@ -388,6 +403,136 @@ public class Common
     return outStr.toString();
   }
   
+  /**
+   * This method emits some HTML which should be placed between a <tr> and a
+   * </tr> tag.
+   * 
+   * @param nameRoot
+   * @param title
+   * @param noDateLabel
+   * @param dateValueLabel
+   * @param defaultDateValue
+   * @return
+   */
+  public static String dateSelection
+    (HttpServletRequest request,
+     String             nameRoot,
+     String             title,
+     String             noDateLabel,
+     String             dateValueLabel,
+     Date               defaultDateValue)
+  {
+    StringBuffer outStr = new StringBuffer();
+    String defaultDateStr;
+    
+    
+    if (defaultDateValue == null)
+    {
+      defaultDateStr = DATE_SAMPLE;
+    }
+    else
+    {
+      SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+      defaultDateStr = formatter.format(defaultDateValue);
+    }
+    
+    String radioButtonGroupName = nameRoot + HASDATE_SUFFIX;
+    
+    outStr.append("<td>" + title + "</td>\n");
+    outStr.append("<td>\n");
+    
+    outStr.append(displayErrorMessage(request, nameRoot));
+    
+    outStr.append("  <p>\n");
+    outStr.append("    <input\n");
+    outStr.append("      name=\"" + radioButtonGroupName + "\"\n");
+    outStr.append("      type=\"radio\"\n");
+    outStr.append("      value=\"" + NODATE_VALUE + "\"\n");
+    outStr.append(       (defaultDateValue == null ? "checked" : "") + " />\n");
+    outStr.append("    " + noDateLabel + "\n");
+    outStr.append("  </p>\n");
+    outStr.append("  <p>\n");
+    outStr.append("    <input\n");
+    outStr.append("      name=\"" + radioButtonGroupName + "\"\n");
+    outStr.append("      type=\"radio\"\n");
+    outStr.append("      value=\"" + YESDATE_VALUE + "\"\n");
+    outStr.append(       (defaultDateValue != null ? "checked" : "") + " />\n");
+    outStr.append("    " + dateValueLabel + "\n");
+    outStr.append("    <input\n");
+    outStr.append("      name=\"" + nameRoot + DATETEXT_SUFFIX + "\"\n");
+    outStr.append("      type=\"text\"\n");
+    outStr.append("      class=\"date\"\n");
+    outStr.append("      value=\"" + defaultDateStr + "\"\n");
+    outStr.append("      onfocus=\n");
+    outStr.append("        \"if (this.value == '" + DATE_SAMPLE + "') this.value='';\n");
+    outStr.append("        this.style.color='black';\n");
+    outStr.append("        this.form." + radioButtonGroupName + "[0].checked=false;\n");
+    outStr.append("        this.form." + radioButtonGroupName + "[1].checked='checked'\"/>\n");
+    outStr.append("  </p>\n");
+    outStr.append("</td>\n");
+    
+    return outStr.toString();
+  }
+  
+  /*
+   * This code is copied from:
+   * 
+   *    http://javaboutique.internet.com/tutorials/excep_struts/index-3.html
+   */
+  private static String displayErrorMessage
+    (HttpServletRequest request,
+     String             nameRoot)
+  {
+    StringBuffer outStr = new StringBuffer();
+    // Get the ActionMessages 
+    Object o = request.getAttribute(Globals.MESSAGE_KEY);
+    
+    if (o != null)
+    {
+      ActionMessages actionMessages = (ActionMessages)o;
+
+      // Get the locale and message resources bundle
+      Locale locale = 
+        (Locale)(request.getSession().getAttribute(Globals.LOCALE_KEY));
+      MessageResources messageResources
+        = (MessageResources)(request.getAttribute(Globals.MESSAGES_KEY));
+
+      // Loop thru all the labels in the ActionMessages  
+      for (Iterator actionMessagesProperties = actionMessages.properties();
+           actionMessagesProperties.hasNext();)
+      {
+        String property = (String)actionMessagesProperties.next();
+        if (property.equals(nameRoot))
+        {
+          // TO DO - This code should really retrieve the text of the
+          // error-message from the ActionMessage. For right now, I'll
+          // just hard-code that error-text.
+          outStr.append("<FONT COLOR=\"RED\">\n");
+          outStr.append("  <br/>\n");
+          outStr.append("  Dates must be in the format '" + DATE_SAMPLE + "'.\n");
+          outStr.append("  Please try again.");
+          outStr.append("  <br/>\n");
+          outStr.append("</FONT>\n");
+
+//          // Get all messages for this label
+//          for (Iterator propertyValuesIterator = actionMessages.get(property);
+//               propertyValuesIterator.hasNext();)
+//          {
+//            ActionMessage actionMessage
+//              = (ActionMessage)propertyValuesIterator.next();
+//            String key = actionMessage.getKey();
+//            Object[] values = actionMessage.getValues();
+//            String messageStr = messageResources.getMessage(locale, key, values);
+//            outStr.append(messageStr);
+//            outStr.append("<br/>");
+//          }
+        }
+      }
+    }
+    
+    return outStr.toString();
+  }
+  
   public static String dateSelection(String nameRoot, Date date)
   {
     Calendar calDate;
@@ -409,7 +554,7 @@ public class Common
     
     StringBuffer outStr = new StringBuffer();
     
-    outStr.append("<select name=\"" + nameRoot + daySuffix + "\">\n");
+    outStr.append("<select name=\"" + nameRoot + DAY_SUFFIX + "\">\n");
     outStr.append("  <option value=\"none\"></option>\n");
     
     for (int i = 1; i <= 31; i++)
@@ -422,7 +567,7 @@ public class Common
     
     outStr.append("</select>\n");
     
-    outStr.append("<select name=\"" + nameRoot + monthSuffix + "\">\n");
+    outStr.append("<select name=\"" + nameRoot + MONTH_SUFFIX + "\">\n");
     outStr.append("  <option value=\"none\"></option>\n");
     
     SimpleDateFormat dateFormat = new SimpleDateFormat();
@@ -446,7 +591,7 @@ public class Common
     
     outStr.append("</select>\n");
     
-    outStr.append("<select name=\"" + nameRoot + yearSuffix + "\">\n");
+    outStr.append("<select name=\"" + nameRoot + YEAR_SUFFIX + "\">\n");
     outStr.append("  <option value=\"none\"></option>\n");
     
     for (int i = (yearNumber == -1 ? currentYear : yearNumber);
@@ -464,50 +609,41 @@ public class Common
     return outStr.toString();
   }
   
-  private static boolean paramIsPresent(String paramVal)
+  static public Date getDateParam
+    (HttpServletRequest request,
+     String             nameRoot)
+  throws DataEntryException
   {
-    return
-      ((paramVal != null)
-       && (paramVal.length() > 0)
-       && (!paramVal.equalsIgnoreCase("none")));
-  }
-  
-  private static boolean allDatePartsPresent
-    (String day,
-     String month,
-     String year)
-  {
-    return
-      (paramIsPresent(day) && paramIsPresent(month) && paramIsPresent(year));
+    return getDateParam
+      (request,
+       nameRoot,
+       null);
   }
   
   static public Date getDateParam
     (HttpServletRequest request,
-     String             nameRoot)
+     String             nameRoot,
+     Date               defaultDate)
+  throws DataEntryException
   {
-    Date date = null;
+    Date date;
     
-    // In this first version of this method, we'll just interpret
-    // any incomplete date as a NULL date.
-    String dayStr = request.getParameter(nameRoot + daySuffix);
-    String monthStr = request.getParameter(nameRoot + monthSuffix);
-    String yearStr = request.getParameter(nameRoot + yearSuffix);
-    
-    if (allDatePartsPresent(dayStr, monthStr, yearStr))
+    // First, let's see if the date is present or not.
+    String dateStringPresence = request.getParameter(nameRoot + HASDATE_SUFFIX);
+    if (dateStringPresence.equals(NODATE_VALUE))
     {
-      // dayNumber is between 1 and 31.
-      int dayNumber
-        = Integer.parseInt(request.getParameter(nameRoot + daySuffix));
-      // dayNumber is between 1 and 12.
-      int monthNumber
-        = Integer.parseInt(request.getParameter(nameRoot + monthSuffix));
-      int yearNumber
-        = Integer.parseInt(request.getParameter(nameRoot + yearSuffix));
-      
-      Calendar calendar = Calendar.getInstance();
-      calendar.clear();
-      calendar.set(yearNumber, monthNumber-1, dayNumber);
-      date = calendar.getTime();
+      return defaultDate;
+    }
+    
+    String dateStr = request.getParameter(nameRoot + DATETEXT_SUFFIX);
+    SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+    try
+    {
+      date = formatter.parse(dateStr);
+    }
+    catch (ParseException pe)
+    {
+      throw new DataEntryException(pe, nameRoot, dateStr, DATE_SAMPLE);
     }
     
     return date;
