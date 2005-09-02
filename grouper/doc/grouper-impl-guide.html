@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-02 18:22:43 $
+$Date: 2005-09-02 20:08:57 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -1260,6 +1260,107 @@ Grouper currently has no way to limit the number of objects returned by a
 search.  Search result limits will be added in a future release.
 </p>
 <!-- integrate_inandout -->
+<!-- integrate_subjects -->
+<div class="subsection">
+<a name="integrate_subjects"/>
+<h3>Subjects</h3>
+</div>
+<p>
+Most often the members of your groups will be people and other groups
+but they might also be of any other type (applications or computers,
+for example) for which you now or eventually will manage identities.
+By using the I2MI Subject API as a resolver service, Grouper allows
+sites to use multiple external IDM sources of authority to identify
+group members.
+</p>
+<p>
+Identifiers and their management can get complicated. They can be
+revoked or not, re-assigned or not, lucent or opaque, etc. Depending on
+such characteristics, a given identifier might be a good or bad choice
+to use in the context of managing the identified subject's group
+memberships.
+</p>
+<p>
+For example, a username is often lucent - easily remembered by the
+person to whom it is associated. But it may also be revokable, meaning
+that it no longer refers to that person (perhaps they have a new one),
+or even re-assignable, meaning that it might refer to some other person
+at a later time. If a username is used to record membership, username
+changes must trigger corresponding membership changes. A username is
+better suited to authentication than it is to indicating membership.
+</p>
+<p>
+On the other hand, an opaque registryID (machine, not human, readable)
+that never changes is great for membership, but lousy for
+authentication - it might not even be known by the person to whom
+it is associated. How would I identify myself to Grouper if I wished to
+opt-in to a list or manage a group?
+</p>
+<p>
+Grouper accommodates subject identifier issues in two ways. First, it
+maintains guids for every subject and group within the Groups
+Registry.  These are never exposed by the API, but are associated
+with externally supplied subject identifiers within the Groups Registry.
+This approach allows the identifier associated with a given subject
+to be changed without any need to change actual memberships (although
+the supporting method is not yet available via the Grouper API).
+</p>
+<p>
+Second, by incorporating the Subject API Grouper is able to lookup
+subjects that are presented with an identifier in one namespace and
+obtain identifiers in other namespaces for that subject.  That means
+that it can translate a username into a registryID and vice-versa,
+for example. So, when a user authenticates to an application using
+the Grouper API, that application can use the Subject API to fetch
+an identifier for that person chosen by the site for use in
+memberships. Similarly, when a membership in the Groups Registry
+is to be expressed elsewhere, the identifier used for group members
+can be translated by a provisioning connector by use of the Subject
+API into one that is suitable in the provisioned context.
+</p>
+<!-- integrate_subjects_resolve -->
+<div class="subsubsection">
+<a name="integrate_subjects_resolve"/>
+<h4>Resolving Subjects</h4>
+</div>
+<span class="TODO">
+<p>
+Grouper ships being able to resolve two types of subjects (<i>group</i>
+and <i>person</i>).  Subjects of type <i>group</i> are resolved using
+the Groups Registry while subjects of type <i>person</i> are resolved 
+Grouper is able to resolve subjects 
+</p>
+<p>
+A better means of integrating your person type <i>subjectIDs</i> with Grouper
+is to supply your own adapter class for the <i>person subjectType</i>.
+This class will need to validate and create subject objects given a
+<i>subjectID</i>.  For example, you might write an adapter class that
+hit your LDAP directory or your Person Registry directly to validate
+that a <i>subjectID</i> is in fact one that is valid for a group
+management operation. This would remove the need to maintain the
+<i>grouper_subject</i> table - its sole purpose in the Groups
+Registry is to bootstrap subjects into Grouper.
+</p>
+<p>
+With implementation of the Subject Interface, anticipated to be
+included in the Grouper 0.6 release cycle, a richer set of subject
+data obtained from your identity management operation will be made
+available to implement identifier translation capabilities as
+described in <a href="#section_3.6">section 3.6</a> and subject
+search capabilities in support of the Grouper UI. The default adapter class for
+the <i>person subjectType</i> in Grouper 0.6 will support these identifier
+search and translation capabilities by reliance on the
+<i>grouper_subjectAttribute</i> table. That will allow you to bootstrap your
+Grouper deployment by maintaining this table until such time as you can
+supply your own <i>person subjectType</i> adapter class with the requisite
+functionality.
+</p>
+<p>
+<b>Note:</b> The adapter class for the <i>group subjectType</i> should not
+be changed!  Else why are you bothering with Grouper?
+</p>
+</span>
+<!-- integrate_subjects_resolve -->
 <!-- integrate_privs -->
 <div class="subsection">
 <a name="integrate_privs"/>
@@ -1503,123 +1604,6 @@ An example of an actual scenario for delegation of group management to
 solve an access control problem can be found in
 <a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt</a>.
 </p>
-<div class="subsection">
-<a name="section_3.6"/>
-<h3>3.6. Subject Identifiers</h3>
-</div>
-<p>
-Most often the members of your groups will be people and other groups.
-But they might also be of any other type (applications or computers,
-for example) for which you now or eventually will manage identities.
-Grouper supports a site-defined set of <i>subjectTypes</i> (see 
-<a href="#section_4.3">section 4.3</a> below).
-</p>
-<p>
-Identifiers and their management can get complicated. They can be
-revoked or not, re-assigned or not, lucent or opaque, etc. Depending on
-such characteristics, a given identifier might be a good or bad choice
-to use in the context of managing the identified subject's group
-memberships.
-</p>
-<p>
-For example, a username is often lucent - easily remembered by the
-person to whom it is associated. But it may also be revokable, meaning
-that it no longer refers to that person (perhaps they have a new one),
-or even re-assignable, meaning that it might refer to some other person
-at a later time. If a username is used to record membership, username
-changes must trigger corresponding membership changes. A username is
-better suited to authentication than it is to indicating membership.
-</p>
-<p>
-On the other hand, an opaque registryID (machine, not human, readable)
-that never changes is great for membership, but lousy for
-authentication - it might not even be known by the person to whom
-it is associated. How would I identify myself to Grouper if I wished to
-opt-in to a list or manage a group?
-</p>
-<p>
-Grouper accommodates subject identifier issues in two ways. First, it
-maintains guids for every subject and group within the Groups
-Registry.  These are never exposed by the API, but are associated
-with externally supplied subject identifiers in the <i>grouper_member</i>
-table.  This approach allows the identifier associated with a given
-subject to be changed without any need to change actual memberships
-(although the supporting <i>GrouperMember</i> method is not yet
-available via the Grouper API).
-</p>
-<p>
-Second, during the 0.6 release cycle, the Grouper API will incorporate
-an identifier lookup and translation service called the Subject
-Interface being co-developed by the Grouper and Signet projects.
-The Subject Interface is used to lookup subjects that are presented
-with an identifier in one namespace and obtain identifiers in other
-namespaces for that subject.  That means that it can translate a
-username into a registryID and vice-versa, for example. So, when a
-user authenticates to an application using the Grouper API, that
-application can use the Subject Interface to fetch an identifier
-for that person chosen by the site for use in memberships. Similarly,
-when a membership in the Groups Registry is to be expressed elsewhere,
-the identifier used for group members can be translated by a
-provisioning connector by use of the Subject Interface into one
-that is suitable in the provisioned context.
-</p>
-<div class="subsection">
-<a name="section_4.3"/.
-<h3>4.3. Getting Subjects Into Grouper</h3>
-</div>
-<p>
-<a href="#section_3.6">Section 3.6</a> broached issues surrounding
-the choice of subject identifiers for use with Grouper. Having made
-a choice, this section tells you how to get those identifiers
-integrated with Grouper. You may want to stare at the
-<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD4.4.gif">Groups Registry ERD</a> 
-while reading this section.
-</p>
-<p>
-The <i>grouper_subjectType</i> table is used to declare what
-<i>subjectTypes</i> are in a Grouper deployment, and, for each type,
-the name of the adapter class that will be called to lookup and load
-objects of each type. Grouper installs with this table defaulted
-to support two subject types: <i>person</i> and <i>group</i>. The
-default <i>person</i> adapter class, called
-<i>SubjectTypeAdapterPersonImpl</i>, provides sites with a bootstrap
-mechanism for getting subjects into the Groups Registry.  It just
-looks in the <i>grouper_subject</i> table to qualify that the
-<i>subjectID</i> supplied to the Grouper API is valid.  Using 
-<i><a href="#csv2subject">csv2subject</a></i>, you can populate the the
-<i>grouper_subject</i> table with all of the <i>subjectIDs</i>
-encompassed by your Grouper deployment.
-</p>
-<p>
-A better means of integrating your person type <i>subjectIDs</i> with Grouper
-is to supply your own adapter class for the <i>person subjectType</i>.
-This class will need to validate and create subject objects given a
-<i>subjectID</i>.  For example, you might write an adapter class that
-hit your LDAP directory or your Person Registry directly to validate
-that a <i>subjectID</i> is in fact one that is valid for a group
-management operation. This would remove the need to maintain the
-<i>grouper_subject</i> table - its sole purpose in the Groups
-Registry is to bootstrap subjects into Grouper.
-</p>
-<p>
-With implementation of the Subject Interface, anticipated to be
-included in the Grouper 0.6 release cycle, a richer set of subject
-data obtained from your identity management operation will be made
-available to implement identifier translation capabilities as
-described in <a href="#section_3.6">section 3.6</a> and subject
-search capabilities in support of the Grouper UI. The default adapter class for
-the <i>person subjectType</i> in Grouper 0.6 will support these identifier
-search and translation capabilities by reliance on the
-<i>grouper_subjectAttribute</i> table. That will allow you to bootstrap your
-Grouper deployment by maintaining this table until such time as you can
-supply your own <i>person subjectType</i> adapter class with the requisite
-functionality.
-</p>
-<p>
-<b>Note:</b> The adapter class for the <i>group subjectType</i> should not
-be changed!  Else why are you bothering with Grouper?
-</p>
-</div>
 <!-- todo -->
 
 </div>
