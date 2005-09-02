@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-02 17:15:41 $
+$Date: 2005-09-02 18:22:43 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -91,6 +91,13 @@ $Date: 2005-09-02 17:15:41 $
   <ol>
     <li><a href="#extend_group_types">Group Types</a></li>
     <li><a href="#extend_privs">Privileges</a></li>
+  </ol>
+  <li><a href="#sample">Sample Applications</a></li>
+  <ol>
+    <li><a href="#sample_csv2subject">Subject Loader: csv2subject</a></li>
+    <li><a href="#sample_csv2group">Group Loader: csv2group</a></li>
+    <li><a href="#sample_groupmgr">Group Manager: groupmgr</a></li>
+    <li><a href="#sample_grouperq">Query Tool: grouperq</a></li>
   </ol>
 </ol>
 </div>
@@ -1364,7 +1371,101 @@ additions.
 <!-- extend_privs -->
 <!-- extend -->
 
+<!-- sample -->
+<div class="section">
+<a name="sample"/>
+<h2>Sample Applications</h2>
+</div>
+<p>
+Grouper includes four sample programs that demonstrate how to use parts
+of the API and that can be used to bootstrap a Grouper deployment.  A
+larger and better selection of sample programs should be available in
+the near future.
+</p>
+<!-- sample_csv2subject -->
+<div class="subsection">
+<a name="sample_csv2subject"/>
+<h3>Subject Loader: csv2subject</h3>
+</div>
+<p>
+The default source for <i>person</i> subjects is within the Groups
+Registry itself.  <i>csv2subject</i> is a simple program for populating
+the appropriate tables with subject information from a .csv input file.
+See <span class="TODO">Subjects</span> and 
+<span class="TODO">Integrating Subjects</span> for more information on
+subjects.  
+<p>
+<i>csv2subject</i> is located in <tt>$GROUPER/contrib/load/csv2subject</tt>.  
+This program reads in a .csv file containing <i>subjectIDs</i> and
+<i>subjectTypeIDs</i> and then inserts the subjects into the Groups
+Registry via a direct JDBC connection.  <i>csv2subject</i> uses
+Grouper's Hibernate configuration file for its JDBC configuration.
+<p>
+A sample .csv file is located in the <tt>$GROUPER/contrib/load/csv2subject</tt>
+directory.
+</p>
+<p>
+To use <i>csv2subject</i>:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/csv2subject</tt>
+    directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<!-- sample_csv2subject -->
+<!-- sample_csv2group -->
+<div class="subsection">
+<a name="sample_csv2group"/>
+<h3>Group Loader: csv2group</h3>
+</div>
+<p>
+<i>csv2group</i> is a simple program for adding namespaces, groups and
+members to the Groups Registry.  To use it:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/csv2group</tt> directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<p>
+A sample .csv file that creates a number of different namespaces,
+groups and memberships is located in this directory.  To use the sample
+file you will first need to load sample subjects into the Groups
+Registry using <a href="#sample_csv2subject">csv2subject</a>.  The sample
+subjects are located in <tt>$GROUPER/contrib/load/csv2subject/sample.csv</tt>.
+</p>
+<!-- sample_csv2group -->
+<!-- sample_groupmgr -->
+<div class="subsection">
+<a name="sample_groupmgr"/>
+<h3>Group Manager: groupmgr</h3>
+</div>
+<p>
+<i>groupmgr</i> is a program that provides a command line interface for
+manipulating the Groups Registry.  It can add and delete namespaces,
+groups and memberships.  To use it:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<!-- sample_groupmgr -->
+<!-- sample_grouperq -->
+<div class="subsection">
+<a name="sample_grouperq"/>
+<h3>Query Tool: grouperq</h3>
+</div>
+<p>
+<i>grouperq</i> is a program that provides a command line interface for
+performing simple queries on the Groups Registry.  To use it:
+<ol>
+  <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
+  <li>Follow the instructions in the README file</li>
+</ol>
+</p>
+<!-- sample_grouperq -->
+<!-- sample -->
 
+<!-- todo -->
 <span class="TODO">
 <div class="subsection">
 <a name="section_3.5"/>
@@ -1518,98 +1619,12 @@ functionality.
 <b>Note:</b> The adapter class for the <i>group subjectType</i> should not
 be changed!  Else why are you bothering with Grouper?
 </p>
-<!-- body -->
+</div>
+<!-- todo -->
 
-<p>
-This will be addressed in a later release cycle.
-</p>
-<div class="subsection">
-<a name="section_2.4"/>
-<h3>2.4. Building And Running Sample Applications</h3>
 </div>
-<p>
-Grouper includes four sample programs to aid in getting started
-with a Grouper deployment.
-</p>
-<div class="subsection">
-<a name="section_2.4.1"/>
-<a name="csv2subject"/>
-<h3>2.4.1. Sample Subject Loader - csv2subject</h3>
-</div>
-<p>
-Subjects are identifiers for people, groups and other objects that may
-be members of a group.  In this release of Grouper, subjects are
-maintained in the <i>Subject</i> table within the Groups
-Registry.  <i>csv2subject</i> is a simple program for populating that
-table.  Subjects and the preferred means of dealing with them are
-discussed in sections <a href="#section_3.6">3.6</a> and 
-<a href="#section_4.3">4.3</a>.
-</p>
-<p>
-<i>csvsubject</i> is located in <tt>$GROUPER/contrib/load/csv2subject</tt>.  
-This program reads in a .csv file containing <i>subjectIDs</i> and
-<i>subjectTypeIDs</i> and then inserts the subjects into the Groups
-Registry via a direct JDBC connection.  <i>csv2subject</i> uses
-Grouper's Hibernate configuration file for its JDBC configuration.
-<p>
-A sample .csv file is located in the <tt>$GROUPER/contrib/load/csv2subject</tt>
-directory.
-</p>
-<p>
-To use <i>csv2subject</i>:
-<ol>
-  <li>Change to the <tt>$GROUPER/contrib/load/csv2subject</tt>
-    directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-<div class="subsection">
-<a name="section_2.4.2"/>
-<a name="csv2group"/>
-<h3>2.4.2. Sample Group Loader - csv2group</h3>
-</div>
-<p>
-<i>csv2group</i> is a simple program for adding namespaces, groups and
-members to the Groups Registry.  To use it:
-<ol>
-  <li>Change to the <tt>$GROUPER/contrib/load/csv2group</tt> directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-<p>
-A sample .csv file that creates a number of different namespaces,
-groups and memberships is located in this directory.  To use the sample
-file you will first need to load sample subjects into the Groups
-Registry using <a href="#csv2subject">csv2subject</a>.  The sample
-subjects are located in <tt>$GROUPER/contrib/load/csv2subject/sample.csv</tt>.
-</p>
-<div class="subsection">
-<a name="section_2.4.3"/>
-<a name="groupmgr"/>
-<h3>2.4.3. Sample Group Manager - groupmgr</h3>
-</div>
-<p>
-<i>groupmgr</i> is a program that provides a command line interface for
-manipulating the Groups Registry.  It can add and delete namespaces,
-groups and memberships.  To use it:
-<ol>
-  <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-<div class="subsection">
-<a name="section_2.4.4"/>
-<a name="grouperq"/>
-<h3>2.4.4. Sample Query Tool - grouperq</h3>
-</div>
-<p>
-<i>grouperq</i> is a program that provides a command line interface for
-performing simple queries on the Groups Registry.  To use it:
-<ol>
-  <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
-  <li>Follow the instructions in the README file</li>
-</ol>
-</p>
-</span>
+<!-- body -->
 </body>
+
 </html>
+
