@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-02 16:19:31 $
+$Date: 2005-09-02 17:15:41 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -84,6 +84,7 @@ $Date: 2005-09-02 16:19:31 $
   <li><a href="#run">Running Grouper</a></li>
   <li><a href="#integrate">Integrating Grouper</a></li>
   <ol>
+    <li><a href="#integrate_inandout">Loaders And Provisioning Connectors</a></li>
     <li><a href="#integrate_privs">Privileges</a></li>
   </ol>
   <li><a href="#extend">Extending Grouper</a></li>
@@ -279,7 +280,7 @@ Groups and namespaces have the following set of attributes:
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
-  <th>Attribute</th>
+  <th width="25%">Attribute</th>
   <th>Semantics</th>
 </tr>
 </thead>
@@ -330,6 +331,57 @@ Groups and namespaces have the following set of attributes:
 </table>
 <div align="center"><b>Table 1 - Group And Namespace Attributes</b></div>
 </p>
+<p>
+In addition, each group and namespace in the registry has several
+<i>operational attributes</i> associated with it.  These attributes are
+system-maintained and are <b>not</b> editable.  The operational
+attributes are:
+</p>
+<p>
+<a name="table_group_and_ns_op_attrs"/>
+<table id="table" align="center" border="1" width="60%">
+<thead>
+<tr>
+  <th width="25%">Operational Attribute</th>
+  <th>Semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="c">createTime</td>
+  <td class="r">Time at which the group was created.</td>
+</tr>
+<tr>
+  <td class="c">createSubject</td>
+  <td class="r">The subject that created the group.</td>
+</tr>
+<tr>
+  <td class="c">createSource</td>
+  <td class="r">Currently undefined.</td>
+</tr>
+<tr>
+  <td class="c">modifyTime</td>
+  <td class="r">Time at which the group was last modified.</td>
+</tr>
+<tr>
+  <td class="c">modifySubject</td>
+  <td class="r">The subject that last modified the group.</td>
+</tr>
+<tr>
+  <td class="c">modifySource</td>
+  <td class="r">Currently undefined.</td>
+</tr>
+</tbody>
+</table>
+<div align="center"><b>Table 2 - Group And Namespace Operational Attributes</b></div>
+</p>
+<p>
+The <i>modifyTime</i> and <i>modifySubject</i> are updated with
+each change to any of the group's attributes or lists.  A change
+in effective membership or effective privilege is not reflected in
+the values of these operational attributes.  A request has been
+made to include that ability in a future release of Grouper.
+</p>
 <!-- registry_attrs -->
 <!-- registry_lists -->
 <div class="subsection">
@@ -344,7 +396,7 @@ above, groups (but <b>not</b> namespaces) also have a list of members.
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
-  <th>List</th>
+  <th width="25%">List</th>
   <th>Semantics</th>
 </tr>
 </thead>
@@ -360,7 +412,7 @@ above, groups (but <b>not</b> namespaces) also have a list of members.
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 2 - Group Lists</b></div>
+<div align="center"><b>Table 3 - Group Lists</b></div>
 </p>
 <!-- registry_lists -->
 <!-- registry_naming -->
@@ -719,13 +771,13 @@ The access and naming privileges are listed in the following tables:
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
-  <th>Privilege</th>
+  <th width="25%">Privilege</th>
   <th>Semantics</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td class="c" width="25%">VIEW</td>
+  <td class="c">VIEW</td>
   <td class="r">Can see the group and can refer to it, e.g., to make
     it a subgroup of another group.
     <br /><br />
@@ -778,14 +830,14 @@ The access and naming privileges are listed in the following tables:
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 3 - Access Privileges</b></div>
+<div align="center"><b>Table 4 - Access Privileges</b></div>
 </p>
 <p>
 <a name="table_privs_naming"/>
 <table id="table" align="center" border="1" width="60%">
 <thead>
 <tr>
-  <th>Privilege</th>
+  <th width="25%">Privilege</th>
   <th>Semantics</th>
 </tr>
 </thead>
@@ -811,7 +863,7 @@ The access and naming privileges are listed in the following tables:
 </tr>
 </tbody>
 </table>
-<div align="center"><b>Table 4 - Naming Privileges</b></div>
+<div align="center"><b>Table 5 - Naming Privileges</b></div>
 </p>
 <!-- registry_privs -->
 <!-- registry -->
@@ -1131,8 +1183,76 @@ following items be in your classpath:
 <h2>Integrating Grouper</h2>
 </div>
 <p>
-<span class="TODO">TODO</span>
+This section is intended to demonstrate how to integrate Grouper with
+your existing infrastructure and practices.  Unfortunately, because of
+where Grouper is in its development process, integration information
+remains sparse.
 </p>
+<!-- integrate_inandout -->
+<div class="subsection">
+<a name="integrate_inandout"/>
+<h3>Loaders And Provisioning Connectors</h3>
+</div>
+<p>
+Loaders and provisioning connectors are defined in the 
+<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components &amp; architecture section</a>
+in <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>. 
+Loaders are automation process that use the Grouper API to load and
+maintain the Groups Registry from other source.  Provisioning
+connectors are automation processes that use the Grouper API to
+extract information from the Groups Registry in order to represent it
+in other databases, directories, etc.
+</p>
+<p class="TODO">
+As this is an early release, there is as yet no contributed code
+that has been used to get real data into or out of Grouper, although
+the contributed applications discussed in 
+<a class="TODO" href="#section_2.4">section 2.4</a> above could be used as a
+starting point for developing them. So this section will merely
+identify some of Grouper's capabilities relative to loaders and
+provisioning connectors.
+</p>
+<p>
+All interactions with the Grouper API are conducted within a session
+that is constrained by the privilege's of the session's subject.
+The default <i>GrouperSystem</i> subject may be used although it may be
+preferable to assign each loader and provisioning connector a unique
+subject to better meet site-specific security requirements.
+</p>
+<p>
+When a new Grouper session is started, the API verifies the subject's
+existence but <b>does not</b> authenticate the subject.  It is assumed
+that sites will secure access to the Grouper API - as they do other
+infrastructure services - with a combination of of host and application
+platform security measures.
+</p>
+<p>
+The Grouper API provides methods for searching the registry to select
+groups to load or provision.  The search filters are provided by the
+<i>GrouperQuery</i> class.  The list of available filters includes:
+<ul>
+  <li>specifying a namespace scope for searching within</li>
+  <li>specifying a group name</li>
+  <li>specifying an arbitrary group attribute</li>
+  <li>specifying a time before which the group was modified</li>
+  <li>specifying a time after which the group was modified</li>
+  <li>specifying a time before which the group was created</li>
+  <li>specifying a time after which the group was created</li>
+  <li>specifying a group <i>type</i></li>
+  <li>specifying whether the group has immediate or effective
+    memberships, or both.</li>
+</ul>
+</p>
+<p>
+Further search capabilities are slated for later releases of Grouper.
+See <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-search-00.html">Grouper API Search &amp; Browse Capabilities</a>
+for details.
+</p>
+<p>
+Grouper currently has no way to limit the number of objects returned by a
+search.  Search result limits will be added in a future release.
+</p>
+<!-- integrate_inandout -->
 <!-- integrate_privs -->
 <div class="subsection">
 <a name="integrate_privs"/>
@@ -1397,158 +1517,6 @@ functionality.
 <p>
 <b>Note:</b> The adapter class for the <i>group subjectType</i> should not
 be changed!  Else why are you bothering with Grouper?
-</p>
-<div class="subsection">
-<a name="section_4.4"/>
-<h3>4.4. Loaders And Provisioning Connectors</h3>
-</div>
-<p>
-Loaders and provisioning connectors are defined in the 
-<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html#heading_2_Comp">components &amp; architecture section</a>
-in <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>. 
-Loaders are automation process that use the Grouper API to load and
-maintain the Groups Registry from other sources, and provisioning
-connectors are automation processes that use the Grouper API to
-extract information from the Groups Registry and represent it in
-other databases, directories, etc.
-</p>
-<p>
-As this is an early release, there is as yet no contributed code
-that has been used to get real data into or out of Grouper, although
-the contributed applications discussed in 
-<a href="#section_2.4">section 2.4</a> above could be used as a
-starting point for developing them. So this section will merely
-identify some of Grouper's capabilities relative to loaders and
-provisioning connectors.
-</p>
-<p>
-All interactions with the Grouper API are conducted within a session
-that is constrained by the privileges of the session's <i>subjectID</i>,
-so each loader and provisioning connector will need to be assigned one.
-The default <i>GrouperSystem</i> subject can be used, or others may be
-assigned as necessary to meet site-specific security requirements.
-</p>
-<p>
-The Grouper API does not authenticate the <i>subjectID</i> asserted by an API
-client. It is assumed that sites will secure access to the Grouper API
-as they do other infrastructure services, with a combination of host
-and application platform security measures.
-</p>
-<p>
-Loaders and provisioning connectors may use the Subject Interface,
-after its incorporation into Grouper in release 0.6, to lookup and
-translate external identifiers for subjects into those selected for use
-as Grouper <i>subjectIDs</i>.
-</p>
-<p>
-The <i>GrouperQuery</i> class encapsulates the search filters implemented in
-Grouper for selecting groups. These include
-<ul>
-  <li>specifying a time before which the group was modified</li>
-  <li>specifying a time after which the group was modified</li>
-  <li>specifying a time before which the group was created</li>
-  <li>specifying a time after which the group was created</li>
-  <li>specifying a group <i>type</i></li>
-  <li>specifying whether the group has immediate or effective
-    memberships, or both.</li>
-</ul>
-</p>
-<p>
-These filters can be combined to constrain a single search. A search is
-executed using the selected filters by the <i>GrouperQuery.query()</i> method.
-Further search capabilities are slated for later releases of Grouper.
-See <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-search-00.html">Grouper API Search &amp; Browse Capabilities</a>
-for details.
-</p>
-<p>
-Grouper currently has no way to limit the number of objects returned by a
-search.  Search result limits will be added in a future release.
-</p>
-<p>
-<i>GrouperQuery.query()</i> and the <i>GrouperGroup</i> and
-<i>GrouperMember</i> <i>list*</i> methods for listing immediate and
-effective memberships return lists of <i>GrouperList</i> objects.
-The <i>GrouperList.group()</i> and <i>GrouperList.member()</i>
-methods convert <i>GrouperList</i> objects into <i>GrouperGroup</i>
-or <i>GrouperMember</i> objects, respectively.
-</p>
-<p>
-In the case of a list value that is a <i>GrouperMember</i> object representing
-an effective membership, the <i>via group</i> for that membership is returned
-by the <i>GrouperList.via()</i> method. A <i>via group</i> is a
-group in which a member has an immediate membership that qualifies
-it for effective membership by virtue of a subgroup or compound
-group relationship between the via group and the group in which the
-member has effective membership (the via group concept is discussed
-in more detail in 
-<a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mace-dir-grouper-phase1-specs-04.html">Grouper Phase 1 Specifications</a>). 
-If there's more than one via group qualifying a given member's
-effective membership in some group, then the list of <i>GrouperList</i>
-objects returned by <i>GrouperGroup.listEffVals()</i> or
-<i>GrouperMember.listEffVals()</i> contains a <i>GrouperMember</i>
-object for each via group. This allows API clients like loaders and
-provisioning connectors to determine which immediate memberships
-must be removed in order to make a given effective membership go
-away.
-</p>
-<p>
-Each group in the Groups Registry has several <i>operational
-attributes</i> associated with it.  These include:
-</p>
-<p>
-<a name="table_7"/>
-<table id="table" align="center" border="1" width="60%">
-<thead>
-<tr>
-  <th>Operational Attribute</th>
-  <th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td class="c"><i>createTime</i></td>
-  <td class="c">time at which the group was created</td>
-</tr>
-<tr>
-  <td class="c"><i>createSubject</i></td>
-  <td class="c">the <i>memberKey</i> of the subject that created the
-    group</td>
-</tr>
-<tr>
-  <td class="c"><i>createSource</i></td>
-  <td class="c">currently undefined</td>
-</tr>
-<tr>
-  <td class="c"><i>modifyTime</i></td>
-  <td class="c">time at which the group was last modified</td>
-</tr>
-<tr>
-  <td class="c"><i>modifySubject</i></td>
-  <td class="c">the <i>memberKey</i> of the subject that last modifed the
-    group</td>
-</tr>
-<tr>
-  <td class="c"><i>modifySource</i></td>
-  <td class="c">currently undefined</td>
-</tr>
-</tbody>
-</table>
-<div align="center"><b>Table 7 - Operational Attributes For
-Groups</b></div>
-</p>
-<p>
-The <i>modifyTime</i> and <i>modifySubject</i> are updated with
-each change to any of the group's fields.  A change in effective
-membership or effective privilege is not reflected in the values
-of these operational attributes.  A request has been made to include
-that ability in a future release of Grouper.
-</p>
-<p>
-The <i>memberKey</i> referred to in this table is an internal globally unique
-identifier that Grouper assigns to each subject it comes into contact
-with. The <i>GrouperGroup.createSubject()</i> and
-<i>GrouperGroup.modifySubject()</i> methods return
-<i>Subject</i> objects corresponding to this <i>memberKey</i>.
 </p>
 <!-- body -->
 
