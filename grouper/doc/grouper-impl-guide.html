@@ -25,6 +25,9 @@ h2 {
 h3 {
   padding-top: 1%;
 }
+h4 {
+  padding-top: 1%;
+}
 td.c {
   text-align: center;
   padding: 5px;
@@ -35,6 +38,7 @@ td.r {
 }
 .section { }
 .subsection { }
+.subsubsection { }
 .TODO {
   color: red;
   font-weight: bolder;
@@ -48,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-01 00:13:14 $
+$Date: 2005-09-02 16:19:31 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -70,6 +74,13 @@ $Date: 2005-09-01 00:13:14 $
   <li><a href="#layout">Project Layout</a></li>
   <li><a href="#build">Building Grouper</a></li>
   <li><a href="#config">Configuring Grouper</a></li>
+  <ol>
+    <li><a href="#config_db">Database</a></li>
+    <li><a href="#config_subjects">Subjects</a></li>
+    <li><a href="#config_privs">Privileges</a></li>
+    <li><a href="#config_logging">Logging</a></li>
+    <li><a href="#config_cache">Cache</a></li>
+  </ol>
   <li><a href="#run">Running Grouper</a></li>
   <li><a href="#integrate">Integrating Grouper</a></li>
   <ol>
@@ -880,6 +891,10 @@ files occur here and there - you should read them!
 <h2>Building Grouper</h2>
 </div>
 <p>
+If you intend to build and test Grouper using a RDBMS other than the
+default HSQLDB backend, please review the configuration sections for
+the <a href="#config_db">database</a> and 
+<a href="#config_subjects">subjects</a> first.
 <ol>
   <li><p>Get the Java SDK.</p>
     <p>The SDK may be downloaded from <a href="http://java.sun.com/j2se/">&lt;http://java.sun.com/j2se/&gt;</a>.
@@ -922,57 +937,170 @@ files occur here and there - you should read them!
 <h2>Configuring Grouper</h2>
 </div>
 <p>
-Grouper requires very little configuration and does not require any by
-default.  All Grouper configuration files are stored in
-<tt>$GROUPER/conf/</tt>.  The five configuration files that you
-<b>may</b> want to adjust and reasons why are described below.
+Grouper provides very little configuration by default.  In fact, if a
+site is comfortable using the HSQLDB database and running all programs
+that interact with the Groups Registry from <i>$GROUPER</i>, no
+configuration (outside of <span class="TODO">setting one's
+classpath</a>) is required.  The next sections will explain how to
+move beyond that specific (and default) setup.
 </p>
-<h3>hibernate.properties</h3>
+<!-- config_db -->
+<div class="subsection">
+<a name="config_db"/>
+<h3>Database</h3>
+</div>
+Grouper uses <a href="http://www.hibernate.org/">Hibernate</a> to
+persist objects in the Groups Registry.  As Hibernate uses JDBC to
+speak to a RDMBS, Grouper should be able to work with your preferred
+database backend provided there is a JDBC driver.  Grouper is currently
+being tested against HSQLDB (the default), PostgreSQL and Oracle.
+</p>
+<!-- config_db_hsqldb -->
+<div class="subsubsection">
+<a name="config_db_hsqdlb"/>
+<h4>HSQLDB</h4>
+</div>
 <p>
-Update this file if you are using an alternate database or intend to run
-programs from somewhere other than <i>$GROUPER</i>.  You will want to
-review and adjust as necessary the <i>hibernate.dialect</i> and
-<i>hibernate.connection.*</i> parameters.
+Grouper uses HSQLDB as its default RDBMS.  No additional configuration
+is required.
 </p>
-<h3>log4j.properties</h3>
-Update this file if you intend to run programs from somewhere other
-than <i>$GROUPER</i>.  Set the <i>log4j.appender.rfile.File</i>
-parameter to the absolute path of your desired logfile location.
-</p>
-<h3>sources.xml</h3>
+<!-- config_db_hsqldb -->
+<!-- config_db_postgres -->
+<div class="subsubsection">
+<a name="config_db_postgres"/>
+<h4>PostgreSQL</h4>
+</div>
 <p>
-This is the configuration file for Grouper's I2MI Subject API resolver.
-The I2MI Subject API is used to map an external IDM infrastructure to
-Grouper internals and can be used to identify people, groups and
-applications from a variety of internal and external to Grouper sources
-of authority.  Grouper's default configuration uses Grouper as its
-source of authority for subjects of type <i>group</i> and several
-tables within the Groups Registry for subjects of type <i>person</i>.
-If you wish to use additional or different sources, you will need
-to adjust this file.  At this time, the javadoc provided with each
+PostgreSQL is a supported Grouper backend and should only require small
+configuration changes to use.  Grouper also includes a PostgreSQL
+JDBC driver; see <tt>$GROUPER/java/lib/README</tt> for version
+information.  To use PostgreSQL you will need to:
+<ol>
+  <li>Uncomment the PostgreSQL section of 
+    <tt>$GROUPER/conf/hibernate.properties</tt> and modify as
+    appropriate.</li>
+  <li>Uncomment the PostgreSQL section of 
+    <tt>$GROUPER/conf/sources.xml</tt> and modify as
+    appropriate.</li>
+  <li>Set <i>sql.type</i> to <i>postgres</i> in 
+    <tt>$GROUPER/build.xml</tt></li>
+</ol>
+</p>
+<!-- config_db_postgres -->
+<!-- config_db_oracle -->
+<div class="subsubsection">
+<a name="config_db_oracle"/>
+<h4>Oracle</h4>
+</div>
+<p>
+Oracle is a supported Grouper backend and should only require small
+configuration changes to use.  An Oracle JDBC driver is not currently
+distributed with Grouper.  To use Oracle you will need to:
+<ol>
+  <li>Uncomment the Oracle section of 
+    <tt>$GROUPER/conf/hibernate.properties</tt> and modify as
+    appropriate.</li>
+  <li>Uncomment the Oracle section of 
+    <tt>$GROUPER/conf/sources.xml</tt> and modify as
+    appropriate.</li>
+  <li>Set <i>sql.type</i> to <i>oracle</i> in 
+    <tt>$GROUPER/build.xml</tt></li>
+</ol>
+</p>
+<!-- config_db_oracle -->
+<div class="subsubsection">
+<a name="config_db_other"/>
+<h4>Using Other Databases</h4>
+</div>
+<p>
+While Grouper should work with other databases, it has not yet been
+tested with them nor does it provide support for them as shipped.
+To use an alternate database you will need to:
+<ol>
+  <li>Modify Grouper's Hibernate configuration file
+    (<tt>$GROUPER/conf/hibernate.properties</tt>) to connect to
+    your RDBMS</li>
+  <li>Modify Grouper's Subject API configuration file
+    (<tt>$GROUPER/conf/sources.xml</tt>) to connect to
+    your RDBMS</li>
+  <li>Create <tt>$GROUPER/sql/schema-$YOUR_DB_TYPE.sql</tt></li>
+  <li>Create <tt>$GROUPER/sql/test-data-$YOUR_DB_TYPE.sql</tt></li>
+  <li>Set <i>sql.type</i> to <i>$YOUR_DB_TYPE</i> in 
+    <tt>$GROUPER/build.xml</tt></li>
+</ol>
+If you do use an alternate database that is not natively supported by
+Grouper, please contact the 
+<a href="https://mail.internet2.edu/wws/info/grouper-dev">grouper-dev</a> 
+list with your results and schema files.
+</p>
+<!-- config_db_other -->
+<!-- config_db -->
+<!-- config_subjects -->
+<h4>Subjects</h4>
+<p>
+<span class="TODO">See ??? for more information on subjects and the
+I2MI Subject API.</span>
+</p>
+<p>
+The configuration file for Grouper's I2MI Subject API resolver is 
+<tt>$GROUPER/config/sources.xml</tt>.  The I2MI Subject API is used
+to map an external IDM infrastructure to Grouper internals and can
+be used to identify people, groups and applications from multiple
+sources of authority.
+</p>
+<p>
+Grouper's default configuration uses Grouper as the source of
+authority for subjects of type <i>group</i> and several tables
+within the Groups Registry for subjects of type <i>person</i>.  If
+you wish to use additional or different sources, you will need to
+adjust this file.  At this time, the javadoc provided with each
 source adapter is probably the best location for configuration
 information.  Please <b>do not</b> change the source for subjects
 of type <i>group</i>.
 </p>
+<!-- config_subjects -->
+<!-- config_privs -->
+<div class="subsubsection">
+<a name="config_privs"/>
+<h4>Privileges</h4>
+</div>
 <p>
-See <span class="TODO">$SECTION</span> for more information on the I2MI
-Subject and how Grouper utilizes it.
+<tt>$GROUPER/conf/grouper.properties</tt> must be modified if a site is
+using an <a href="#integrate_privs">external privilege resolver</a>.
+Modify the <i>interface.access</i> or <i>interface.naming</i>
+configuration parameters to reflect the class name of the external
+privilege resolver that is being used.
 </p>
-<h3>grouper.properties</h3>
+<!-- config_privs -->
+<!-- config_logging -->
+<div class="subsubsection">
+<a name="config_logging"/>
+<h4>Logging</h4>
+</div>
 <p>
-Update this file if intending to use an alternate privilege
-implementation.  See <a href="#integrate_privs">Integrating
-Privileges</a> for more information.
+Unless a site is running all programs from within <tt>$GROUPER</tt> the 
+<i>log4j.appender.rfile.File</i> parameter in
+<tt>$GROUPER/conf/log4j.properties</tt> should be modified to use an
+absolute path to Grouper's logfile.  Other parameters may be adjusted
+within this file to affect the verbosity and type of logging that
+Grouper produces.
 </p>
-<h3>ehcache.xml</h3>
+<!-- config_logging -->
+<!-- config_cache -->
+<div class="subsubsection">
+<a name="config_cache"/>
+<h4>Cache</h4>
+</div>
 <p>
-ehcache is used by Hibernate to cache objects and query results in both
-memory and on disk.  Grouper comes with a default and unoptimized
-configuration.  Depending upon your usage and the size of your Groups
-Registry, you may want to adjust your cache settings.  See the 
+<a href="http://ehcache.sourceforge.net/">ehcache</a> is used by
+Hibernate to cache objects and query results to both memory and disk.
+Depending upon your usage and the size of your Groups Registry, you may
+want to adjust your cache settings.  See the 
 <a href="http://ehcache.sourceforge.net/documentation/">ehcache
-documentation</a> for more details.
+documentation</a> for more details and then update
+<tt>$GROUPER/ehcache.xml</tt> as appropriate.
 </p>
+<!-- config_cache -->
 <!-- config -->
 
 <!-- run -->
@@ -1020,7 +1148,7 @@ with an already existing external privilege management system.  It
 is anticipated that Grouper will provide support for integrating
 with a
 <a href="http://middleware.internet2.edu/signet/">Signet</a> 
-<span class="TODO">Privilege Registry</a> in the future.
+Privilege Registry in the future.
 </p>
 <p>
 The default implementations of the Access and Naming privileges that
@@ -1213,108 +1341,6 @@ when a membership in the Groups Registry is to be expressed elsewhere,
 the identifier used for group members can be translated by a
 provisioning connector by use of the Subject Interface into one
 that is suitable in the provisioned context.
-</p>
-<div class="section">
-<a name="section_4"/>
-<h2>4. Integration Tasks</h2>
-</div>
-<p>
-This section is intended to demonstrate how to integrate Grouper with
-your existing infrastructure and practices.  Unfortunately, because of
-where Grouper is in its development process, practical integration
-remains sparse.
-</p>
-<div class="subsection">
-<a name="section_4.1"/>
-<h3>4.1. Using Your Own RDBMS</h3>
-</div>
-<p>
-Grouper uses Hibernate 
-(<a href="http://www.hibernate.org/">&lt;http://www.hibernate.org/&gt;</a>) 
-for object persistence.  As Hibernate uses JDBC to speak to a RDBMS, it
-should not be difficult to configure Grouper to work with your
-preferred database backend.  Grouper is currently being tested against
-and should work with HSQLDB (the default), PostgreSQL and Oracle.
-</p>
-<div class="subsection">
-<a name="section_4.1.1"/>
-<h3>4.1.1 Using HSQLDB</h3>
-</div>
-<p>
-Grouper uses HSQLDB as its default RDBMS and no additional
-configuration is required.
-</p>
-<div class="subsection">
-<a name="section_4.1.2"/>
-<h3>4.1.2 Using PostgreSQL</h3>
-</div>
-<p>
-PostgreSQL is a supported Grouper backend and should only require small
-configuration changes to use.  Grouper also includes a PostgreSQL
-JDBC driver; see <tt>$GROUPER/java/lib/README</tt> for version
-information.  to use PostgreSQL you will need to:
-<ol>
-  <li>Uncomment the PostgreSQL section of 
-    <tt>$GROUPER/conf/hibernate.properties</tt> and modify as
-    appropriate.</li>
-  <li>Uncomment the PostgreSQL section of 
-    <tt>$GROUPER/conf/sources.xml</tt> and modify as
-    appropriate.</li>
-  <li>Set <i>sql.type</i> to <i>postgres</i> in 
-    <tt>$GROUPER/build.xml</tt></li>
-</ol>
-</p>
-
-<div>
-<a name="section_4.1.3"/>
-<h3>4.1.3 Using Oracle</h3>
-</div>
-<p>
-Oracle is a supported Grouper backend and should only require small
-configuration changes to use.  An Oracle JDBC driver is not currently
-distributed with Grouper.  To use Oracle you will need to:
-<ol>
-  <li>Uncomment the Oracle section of 
-    <tt>$GROUPER/conf/hibernate.properties</tt> and modify as
-    appropriate.</li>
-  <li>Uncomment the Oracle section of 
-    <tt>$GROUPER/conf/sources.xml</tt> and modify as
-    appropriate.</li>
-  <li>Set <i>sql.type</i> to <i>oracle</i> in 
-    <tt>$GROUPER/build.xml</tt></li>
-</ol>
-</p>
-<div class="subsection">
-<a name="section_4.1.4"/>
-<h3>4.1.4 Using Other Databases</h3>
-</div>
-<p>
-While Grouper should work with other databases, it has not yet been
-tested with them nor does it provide support for them as shipped.
-To use an alternate database you will need to:
-<ol>
-  <li>Modify Grouper's Hibernate configuration file
-    (<tt>$GROUPER/conf/hibernate.properties</tt>) to connect to
-    your RDBMS</li>
-  <li>Modify Grouper's Subject API configuration file
-    (<tt>$GROUPER/conf/sources.xml</tt>) to connect to
-    your RDBMS</li>
-  <li>Create <tt>$GROUPER/sql/schema-$YOUR_DB_TYPE.sql</tt></li>
-  <li>Create <tt>$GROUPER/sql/test-data-$YOUR_DB_TYPE.sql</tt></li>
-  <li>Set <i>sql.type</i> to <i>$YOUR_DB_TYPE</i> in 
-    <tt>$GROUPER/build.xml</tt></li>
-</ol>
-If you do use an alternate database that is not natively supported by
-Grouper, please contact the grouper-dev list with your results and
-schema files.
-</p>
-<div class="subsection">
-<a name="section_4.2"/>
-<h3>4.2. SQL Tuning</h3>
-</div>
-<p>
-As development progresses, general performance tuning and RDBMS-specific
-suggestions will be made available.
 </p>
 <div class="subsection">
 <a name="section_4.3"/.
