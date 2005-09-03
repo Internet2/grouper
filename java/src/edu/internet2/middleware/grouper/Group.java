@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.46 2005-08-25 20:08:36 blair Exp $
+ * @version $Id: Group.java,v 1.47 2005-09-03 04:26:40 blair Exp $
  */
 abstract public class Group {
 
@@ -131,9 +131,15 @@ abstract public class Group {
   /**
    * Delete a group.
    * <p />
+   * <pre class="eg">
+   * // Delete the specified group
+   * GrouperGroup.delete(s, g); 
+   * </pre>
    * @param s   Delete group within this session.
    * @param g   Delete this group.
    */
+  // DESIGN Should this be instance method?
+  // DESIGN Remove the session requirement?
   public static void delete(GrouperSession s, GrouperGroup g) {
     // TODO Merge common code with ns version?
     Group.subjectCanDelete(s, g);
@@ -152,11 +158,18 @@ abstract public class Group {
 
   /**
    * Delete a stem.
-   * TODO Should this be a supported operation?
    * <p />
+   * <p />
+   * <pre class="eg">
+   * // Delete the specified namespace
+   * GrouperStem.delete(s, ns); 
+   * </pre>
    * @param s   Delete namespace within this session.
    * @param ns  Delete this namespace.
    */
+  // DESIGN Should this be instance method?
+  // DESIGN Remove the session requirement?
+  // DESIGN Should this be a supported operation?
   public static void delete(GrouperSession s, GrouperStem ns) {
     // TODO Merge common code with g version?
     Group.subjectCanDelete(s, ns);
@@ -169,7 +182,7 @@ abstract public class Group {
       s.dbSess().txCommit();
     } catch (HibernateException e) {
       s.dbSess().txRollback();
-      throw new RuntimeException("Error deleting group: " + e);
+      throw new RuntimeException("Error deleting stem: " + e);
     }
   }
 

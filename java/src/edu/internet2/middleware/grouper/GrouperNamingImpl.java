@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.71 2005-07-17 21:55:40 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.72 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -217,7 +217,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * Verify whether current subject has the specified privilege on the
    * specified group.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperSession s = GrouperSession.start(subject);
    * if (s.naming().has(s, ns, Grouper.PRIV_CREATE)) {
    *   // the current subject can create groups within this namespace
@@ -352,7 +352,7 @@ public class GrouperNamingImpl implements GrouperNaming {
    * List members who have the specified privilege on the 
    * specified group.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperSession s = GrouperSession.start(subject);
    * List stemmers  = s.access().whoHas(s, group, Grouper.PRIV_STEM);  
    * </pre>

@@ -62,7 +62,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.30 2005-07-20 19:50:53 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.31 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperQuery {
 
@@ -113,7 +113,7 @@ public class GrouperQuery {
    * Set "base" scope filter.
    * <p />
    * Restricts results to children subordinate to the given namespace.
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.base(namespace)) {
    *   List results = q.getMembers();
@@ -156,7 +156,7 @@ public class GrouperQuery {
   /**
    * Set "createdAfter" group and stem creation filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.createdAfter(date)) {
    *   List results = q.getMembers();
@@ -178,7 +178,7 @@ public class GrouperQuery {
   /**
    * Set "createdBefore" group and stem creation filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.createdBefore(date)) {
    *   List results = q.getMembers();
@@ -200,7 +200,7 @@ public class GrouperQuery {
   /**
    * Return group query results.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQUery(s);
    * if (q.base(namespace) and q.createdAfter(yesterday)) {
    *   List results = q.getGroups();
@@ -223,7 +223,7 @@ public class GrouperQuery {
   /**
    * Return list value query results.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQUery(s);
    * if (q.base(namespace) and q.createdAfter(yesterday)) {
    *   List results = q.getListValues();
@@ -246,7 +246,7 @@ public class GrouperQuery {
   /**
    * Return member query results.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQUery(s);
    * if (q.base(namespace) and q.createdAfter(yesterday)) {
    *   List results = q.getMembers();
@@ -261,7 +261,7 @@ public class GrouperQuery {
   /**
    * Return stem query results.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQUery(s);
    * if (q.base(namespace) and q.createdAfter(yesterday)) {
    *   List results = q.getStems();
@@ -284,7 +284,7 @@ public class GrouperQuery {
   /**
    * Set "group" filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.group(name)) {
    *   List results = q.getMembers();
@@ -307,7 +307,7 @@ public class GrouperQuery {
   /**
    * Set "groupBase" filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.group(namespace, name)) {
    *   List results = q.getMembers();
@@ -331,7 +331,7 @@ public class GrouperQuery {
   /**
    * Set "groupAttr" filter.
    * <p/>
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (g.groupAttr("description", "this is a generic description")) {
    *   List results = q.getGroups();
@@ -355,7 +355,7 @@ public class GrouperQuery {
   /**
    * Set "groupAttrBase" filter.
    * <p/>
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (
    *   g.groupAttr(
@@ -387,7 +387,7 @@ public class GrouperQuery {
   /**
    * Set "groupType" filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.groupType(type)) {
    *   List results = q.getMembers();
@@ -408,7 +408,7 @@ public class GrouperQuery {
   /**
    * Set "membershipType" filter.
    * <p/>
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.membershipType(Grouper.MEM_ALL)) {
    *   List results = q.getMembers();
@@ -446,7 +446,7 @@ public class GrouperQuery {
   /**
    * Set "modifiedAfter" group and stem creation filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.modifiedAfter(date)) {
    *   List results = q.getMembers();
@@ -468,7 +468,7 @@ public class GrouperQuery {
   /**
    * Set "modifiedBefore" group and stem creation filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.modifiedBefore(date)) {
    *   List results = q.getMembers();
@@ -490,7 +490,7 @@ public class GrouperQuery {
   /**
    * Set "stem" filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.stem(name)) {
    *   List results = q.getMembers();
@@ -513,7 +513,7 @@ public class GrouperQuery {
   /**
    * Set "stemBase" filter.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (q.stem(namespace, name)) {
    *   List results = q.getMembers();
@@ -537,7 +537,7 @@ public class GrouperQuery {
   /**
    * Set "stemAttr" filter.
    * <p/>
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (g.stemAttr("description", "this is a generic description")) {
    *   List results = q.getStems();
@@ -560,7 +560,7 @@ public class GrouperQuery {
   /**
    * Set "stemAttr" filter.
    * <p/>
-   * <pre>
+   * <pre class="eg">
    * GrouperQuery q = new GrouperQuery(s);
    * if (
    *   g.stemAttr(

@@ -64,7 +64,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.14 2005-08-29 17:41:21 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.15 2005-09-03 04:26:40 blair Exp $
  */
 public class SubjectFactory {
 
@@ -84,8 +84,13 @@ public class SubjectFactory {
    */
 
   /**
-   * Gets a subject by its id and using hte default subject type.
+   * Gets a subject by its id and using the default subject type.
    * <p />
+   * <pre class="eg">
+   * // Retrieve a subject of type _Grouper.DEF_SUBJ_TYPE_, the default 
+   * // subject type.
+   * Subject subj = SubjectFactory.getSubject(subjectID);
+   *  </pre>
    * @param   id      Subject ID
    * @return  A {@link SubjectFactory} object
    * @throws SubjectNotFoundException
@@ -99,6 +104,10 @@ public class SubjectFactory {
   /**
    * Gets a subject by its ID.
    * <p />
+   * <pre class="eg">
+   * // Retrieve a subject of type _group_ for group _g_.
+   * Subject subj = SubjectFactory.getSubject(g.id(), "group");
+   *  </pre>
    * @param   id      subject identifier
    * @param   type    subject type
    * @return  a {@link Subject}
