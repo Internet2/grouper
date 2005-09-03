@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.61 2005-07-17 14:35:55 blair Exp $
+ * @version $Id: GrouperList.java,v 1.62 2005-09-03 15:46:05 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -395,6 +395,10 @@ public class GrouperList implements Serializable {
    * Returns the {@link Group} object referenced by this 
    * {@link GrouperList} object.
    * <p />
+   * <pre class="eg">
+   * // What is the group for this list value?
+   * GrouperGroup g = (GrouperGroup) gl.group();
+   * </pre>
    * @return  A {@link Group} object.
    */
   public Group group() {
@@ -423,7 +427,10 @@ public class GrouperList implements Serializable {
    * Returns the {@link GrouperMember} object referenced by this 
    * {@link GrouperList} object.
    * <p />
-   *
+   * <pre class="eg">
+   * // What is the member for this list value?
+   * GrouperMember m = gl.member();
+   * </pre>
    * @return  A {@link GrouperMember} object.
    */
   public GrouperMember member() {
@@ -453,6 +460,10 @@ public class GrouperList implements Serializable {
    * If this object represents an effective membership, returning the
    * {@link Group} object that caused the effective membership.
    * <p />
+   * <pre class="eg">
+   * // What is the via group for this list value?
+   * GrouperGroup g = (GrouperGroup) gl.via();
+   * </pre>
    * @return  A {@link Group} object.
    */
   public Group via() {

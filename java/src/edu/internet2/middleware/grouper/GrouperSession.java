@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.106 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.107 2005-09-03 15:46:05 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -193,8 +193,8 @@ public class GrouperSession implements Serializable {
    * object.
    * <p/>
    * <pre class="eg">
-   * GrouperSession s = GrouperSession.start(subject);
-   * GrouperMember  m = s.getMember();
+   * // Convert the session's subject to a member 
+   * GrouperMember m = s.getMember();
    * </pre>
    * @return  {@link GrouperMember} object.
    */

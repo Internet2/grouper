@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperNaming.java,v 1.30 2005-03-29 17:41:24 blair Exp $
+ * @version $Id: GrouperNaming.java,v 1.31 2005-09-03 15:46:05 blair Exp $
  */
 public interface GrouperNaming {
 
@@ -79,7 +79,12 @@ public interface GrouperNaming {
    * Grant an naming privilege on a <i>naming</i> {@link GrouperStem}.
    * <p />
    * See implementations for more information.
-   *
+   * <pre class="eg">
+   * // Grant CREATE to a member
+   * if (s.naming().grant(s, ns, m, Grouper.PRIV_CREATE)) {
+   *   // privilege granted
+   * }
+   * </pre> 
    * @param   s     Act within this {@link GrouperSession}.
    * @param   ns    Grant privileges on this {@link GrouperStem}.
    * @param   m     Grant privileges for this {@link GrouperMember}.
@@ -166,7 +171,12 @@ public interface GrouperNaming {
    * namespace.
    * <p />
    * See implementations for more information.
-   *
+   * <pre class="eg">
+   * // Revoke all CREATE privileges for a namespace
+   * if (s.naming().revoke(s, ns, Grouper.PRIV_CREATE)) {
+   *   // privileges revoked
+   * }
+   * </pre> 
    * @param   s     Act within this {@link GrouperSession}.
    * @param   ns    Revoke privilege on this {@link GrouperStem}.
    * @param   priv  Privilege to revoke.
@@ -177,7 +187,12 @@ public interface GrouperNaming {
    * Revoke an naming privilege.
    * <p />
    * See implementations for more information.
-   *
+   * <pre class="eg">
+   * // Revoke CREATE for a member
+   * if (s.naming().revoke(s, ns, m, Grouper.PRIV_CREATE)) {
+   *   // privilege revoked
+   * }
+   * </pre> 
    * @param   s     Act within this {@link GrouperSession}.
    * @param   ns    Revoke privilege on this {@link GrouperStem}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.

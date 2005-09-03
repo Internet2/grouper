@@ -60,9 +60,30 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 /** 
  * Class for querying the groups registry.
  * <p />
- *
+ * <p>
+ * This class allows one to combine one or more query filter methods
+ * to search the Groups Registry.  Query results may then be returned
+ * as namespaces, groups, members or list values.
+ * </p>
+ * <pre class="eg">
+ * // Find all groups created since yesterday that have at least one
+ * // member of the "members" list
+ * GrouperQuery q = new GrouperQuery(s);
+ * Date now       = new Date();
+ * Date yesterday = new Date(now.getTime() - 86400000);
+ * if (
+ *   q.createdAfter(yesterday) &amp;&amp;
+ *   q.membershipType(Grouper.MEM_ALL)
+ * )
+ * {
+ *   // Groups created since yesterday with "members"
+ *   List groups  = q.getGroups();
+ *   // Members of those groups
+ *   List members = q.getMembers();
+ * }
+ * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.31 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.32 2005-09-03 15:46:05 blair Exp $
  */
 public class GrouperQuery {
 
@@ -133,7 +154,13 @@ public class GrouperQuery {
 
   /**
    * Clear all query filters.
+   * <p />
+   * <pre class="eg">
+   * // Reset all query filters
+   * q.clear();
+   * </pre>
    */
+  // DESIGN rename to _reset_?
   public void clear() {
     this.candidates.clear();
   }
@@ -141,9 +168,16 @@ public class GrouperQuery {
   /**
    * Clear the specified query filter.
    * <p />
+   * <pre class="eg">
+   * // Reset the _createdAfter_ filter
+   * if (q.clear("createdAfter")) {
+   *   // filter reset
+   * }
+   * </pre>
    * @param   filter  The name of the filter to clear.
    * @return  True if filter results were cleared.
    */
+  // DESIGN rename to _reset_?
   public boolean clear(String filter) {
     boolean rv = false;
     if (this.candidates.containsKey(filter)) {
