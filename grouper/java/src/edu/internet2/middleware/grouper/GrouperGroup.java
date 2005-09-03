@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.229 2005-08-25 20:09:49 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.230 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -143,14 +143,18 @@ public class GrouperGroup extends Group {
   /**
    * Create a group.
    * <p />
+   * <pre class="eg">
+   * // Create a group in namespace _stem_ with the extension _extn_
+   * GrouperGroup g = GrouperGroup.create(s, stem, extn);
+   * </pre>
    * @param   s     Session to create the group within.
    * @param   stem  Stem to create the group within.
    * @param   extn  Extension to assign to the group.
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
-                               GrouperSession s, String stem, String extn
-                             )
+    GrouperSession s, String stem, String extn
+  )
   {
     return GrouperGroup.create(s, stem, extn, Grouper.DEF_GROUP_TYPE);
   }
@@ -158,6 +162,11 @@ public class GrouperGroup extends Group {
   /**
    * Create a group.
    * <p />
+   * <pre class="eg">
+   * // Create a group in namespace _stem_ with the extension _extn_
+   * // and type _type_
+   * GrouperGroup g = GrouperGroup.create(s, stem, extn);
+   * </pre>
    * @param   s     Session to create the group within.
    * @param   stem  Stem to create the group within.
    * @param   extn  Extension to assign to the group.
@@ -165,9 +174,8 @@ public class GrouperGroup extends Group {
    * @return  A {@link GrouperGroup} object.
    */ 
   public static GrouperGroup create(
-                               GrouperSession s, String stem, 
-                               String extn, String type
-                             )
+    GrouperSession s, String stem, String extn, String type
+  )
   {
     Group.invalidStemOrExtn(stem, extn);
     if (type.equals(Grouper.NS_TYPE)) {
@@ -209,6 +217,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group by stem and extension.
    * <p />
+   * <pre class="eg">
+   * // Load a group by stem and extension
+   * GrouperGroup g = GrouperGroup.load(s, stem, extn);
+   * </pre>
    * @param   s     Session to load the group within.
    * @param   stem  Stem of the group to load.
    * @param   extn  Extension of the group to load.
@@ -224,6 +236,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group by stem, extension and type.
    * <p />
+   * <pre class="eg">
+   * // Load a group by stem, extension and type
+   * GrouperGroup g = GrouperGroup.load(s, stem, extn, type);
+   * </pre>
    * @param   s     Session to load the group within.
    * @param   stem  Stem of the group to load.
    * @param   extn  Extension of the group to load.
@@ -252,6 +268,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group by id.
    * <p />
+   * <pre class="eg">
+   * // Load a group by guid
+   * GrouperGroup g = GrouperGroup.loadByID(s, id);
+   * </pre>
    * @param   s           Session to load the group within.
    * @param   id          Group ID.
    * @return  A {@link GrouperGroup} object.
@@ -268,6 +288,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group by name.
    * <p />
+   * <pre class="eg">
+   * // Load a group by name
+   * GrouperGroup g = GrouperGroup.loadByName(s, name);
+   * </pre>
    * @param   s           Session to load the group within.
    * @param   name        Name of group.
    * @return  A {@link GrouperGroup} object.
@@ -282,6 +306,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve a group by name.
    * <p />
+   * <pre class="eg">
+   * // Load a group by name and type
+   * GrouperGroup g = GrouperGroup.loadByName(s, name, type);
+   * </pre>
    * @param   s           Session to load the group within.
    * @param   name        Name of group.
    * @param   type        The type of group to retrieve.
@@ -376,7 +404,7 @@ public class GrouperGroup extends Group {
   /**
    * Return <i>displayExtension</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String extn = g.getDisplayExtension();
    * </pre>
    * @return  <i>displayExtension</i> value
@@ -388,7 +416,7 @@ public class GrouperGroup extends Group {
   /**
    * Return <i>displayName</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String name = g.getDisplayName();
    * </pre>
    * @return  <i>displayName</i> value
@@ -400,7 +428,7 @@ public class GrouperGroup extends Group {
   /**
    * Return <i>extension</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String extn = g.getExtension();
    * </pre>
    * @return  <i>extension</i> value
@@ -412,7 +440,7 @@ public class GrouperGroup extends Group {
   /**
    * Return group's members.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * List members = g.getMembers();
    * </pre>
    * @return  List of {@link GrouperMember} objects.
@@ -430,7 +458,7 @@ public class GrouperGroup extends Group {
   /**
    * Return <i>name</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String name = g.getName();
    * </pre>
    * @return  <i>name</i> value
@@ -442,7 +470,7 @@ public class GrouperGroup extends Group {
   /**
    * Return <i>stem</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String stem = g.getStem();
    * </pre>
    * @return  <i>stem</i> value
@@ -489,6 +517,10 @@ public class GrouperGroup extends Group {
   /**
    * Add member to this group's default list.
    * <p />
+   * <pre class="eg">
+   * // Add _m_ to this group's _members_ list
+   * g.listAddVal(m);
+   * </pre>
    * @param m   Add this member.
    */
   public void listAddVal(GrouperMember m) {
@@ -498,6 +530,10 @@ public class GrouperGroup extends Group {
   /**
    * Add member to this group's specified list.
    * <p />
+   * <pre class="eg">
+   * // Add _m_ to this group's _members_ list
+   * g.listAddVal(m, "members");
+   * </pre>
    * @param m     Add this member.
    * @param list  To this list.
    */
@@ -508,6 +544,10 @@ public class GrouperGroup extends Group {
   /**
    * Delete member from this group's default list.
    * <p />
+   * <pre class="eg">
+   * // Delete _m_ from this group's _members_ list
+   * g.listDelVal(m);
+   * </pre>
    * @param m   Delete this member.
    */
   public void listDelVal(GrouperMember m) {
@@ -517,6 +557,10 @@ public class GrouperGroup extends Group {
   /**
    * Delete member from this group's specified list.
    * <p />
+   * <pre class="eg">
+   * // Delete _m_ from this group's _members_ list
+   * g.listDelVal(m, "members");
+   * </pre>
    * @param m     Delete this member.
    * @param list  From this list.
    */
@@ -527,6 +571,10 @@ public class GrouperGroup extends Group {
   /**
    * List members of this stem's default list.
    * <p />
+   * <pre class="eg">
+   * // Find all "members" of this group
+   * List members = g.listVals();
+   * </pre>
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals() {
@@ -536,6 +584,10 @@ public class GrouperGroup extends Group {
   /**
    * List members of this stem's specified list.
    * <p />
+   * <pre class="eg">
+   * // Find all "members" of this group
+   * List members = g.listVals("members");
+   * </pre>
    * @param list  Return members of this list.
    * @return  List of {@link GrouperList} objects.
    */
@@ -559,6 +611,10 @@ public class GrouperGroup extends Group {
   /**
    * Effective members of this stem's default list.
    * <p />
+   * <pre class="eg">
+   * // Find all effective "members" of this group
+   * List members = g.listEffVals();
+   * </pre>
    * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals() {
@@ -568,6 +624,10 @@ public class GrouperGroup extends Group {
   /**
    * Effective list members of this stem's specified list.
    * <p />
+   * <pre class="eg">
+   * // Find all effective "members" of this group
+   * List members = g.listEffVals("Members");
+   * </pre>
    * @param list  Return effective members of this list.
    * @return  List of {@link GrouperList} objects.
    */
@@ -578,6 +638,10 @@ public class GrouperGroup extends Group {
   /**
    * Immediate list members of this stem's default list.
    * <p />
+   * <pre class="eg">
+   * // Find all immediate "members" of this group
+   * List members = g.listImmVals();
+   * </pre>
    * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals() {
@@ -587,6 +651,10 @@ public class GrouperGroup extends Group {
   /**
    * Immediate list members of this stem's specified list.
    * <p />
+   * <pre class="eg">
+   * // Find all immediate "members" of this group
+   * List members = g.listImmVals();
+   * </pre>
    * @param list  Return immediate members of this list.
    * @return  List of {@link GrouperList} objects.
    */

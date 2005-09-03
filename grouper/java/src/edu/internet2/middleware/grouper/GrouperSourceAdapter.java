@@ -65,7 +65,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.11 2005-08-29 17:41:21 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.12 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -107,7 +107,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /**
    * Gets a {@link GrouperGroup} subject by its GUID.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * try {
    *   Subject subj = SubjectFactory.getSubject(guid, "group");
    *   System.out.println("Found subject: " + subj);
@@ -138,7 +138,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /**
    * Gets a {@link GrouperGroup} subject by its name.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * try {
    *   Subject subj = SubjectFactory.getSubjectByIdentifier(name, "group");
    *   System.out.println("Found subject: " + subj);

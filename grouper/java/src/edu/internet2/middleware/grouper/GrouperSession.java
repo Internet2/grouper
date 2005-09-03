@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.105 2005-08-06 23:05:44 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.106 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -137,6 +137,12 @@ public class GrouperSession implements Serializable {
   /**
    * Start a {@link Grouper} session.
    * <p />
+   * <pre class="eg">
+   * // Start a session for the retrieved subject
+   * GrouperSession s = GrouperSession.start(
+   *   SubjectFactory.getSubject(id, type);
+   * );
+   * </pre>
    * @param   subj  I2MI {@link Subject} to act as for the duration
    *   of this session.
    * @return  {@link GrouperSession} object if session started.
@@ -186,7 +192,7 @@ public class GrouperSession implements Serializable {
    * Return this session's {@link Subject} as a {@link GrouperMember}
    * object.
    * <p/>
-   * <pre>
+   * <pre class="eg">
    * GrouperSession s = GrouperSession.start(subject);
    * GrouperMember  m = s.getMember();
    * </pre>
@@ -208,6 +214,12 @@ public class GrouperSession implements Serializable {
   /**
    * Stop this session.
    * <p />
+   * <pre>
+   * // Stop the current session
+   * if (!s.stop()) {
+   *   // We failed to stop the session
+   * }
+   * </pre>
    * @return  True if session stopped.
    */
   public boolean stop() { 

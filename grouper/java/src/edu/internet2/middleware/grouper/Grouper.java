@@ -62,7 +62,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.81 2005-05-23 20:41:02 blair Exp $
+ * @version $Id: Grouper.java,v 1.82 2005-09-03 04:26:40 blair Exp $
  */
 public class Grouper {
 
@@ -173,9 +173,15 @@ public class Grouper {
   /**
    * Retrieve a {@link Grouper} configuration parameter.
    * <p />
+   * <pre class="eg">
+   * // Find what privilege interfaces are being used
+   * String access = Grouper.config("interface.access");
+   * String naming = Grouper.config("interface.naming");
+   * </pre>
    * @param   parameter Requested configuration parameter.
    * @return  Value of configuration parameter.
    */
+  // TODO Either make more useful or make !public?
   public static String config(String parameter) {
     Grouper._init();
     return conf.getProperty(parameter);

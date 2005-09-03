@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.58 2005-08-25 20:09:49 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.59 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -141,7 +141,8 @@ public class GrouperStem extends Group {
   /**
    * Create a root namespace.
    * <p />
-   * <pre>
+   * <pre class="eg">
+   * // Create a root-leve namespace _extn_
    * GrouperStem rootNS = GrouperStem.create(s, extn);
    * </pre>
    * @param   s     Session to create the namespace within.
@@ -155,7 +156,8 @@ public class GrouperStem extends Group {
   /**
    * Create a namespace.
    * <p />
-   * <pre>
+   * <pre class="eg">
+   * // Create namespace _extn_ within namespace _stem_
    * GrouperStem ns = GrouperStem.create(s, stem, extn);
    * </pre>
    * @param   s     Session to create the namespace within.
@@ -173,7 +175,7 @@ public class GrouperStem extends Group {
   /**
    * Retrieve list of all root namespaces within this groups registry.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * List roots = GrouperStem.getRootStems(s);
    * </pre>
    * @return  List of {@link GrouperStem} objects.
@@ -185,7 +187,7 @@ public class GrouperStem extends Group {
   /**
    * Retrieve a root stem by extension.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperStem rootNS = GrouperStem.load(s, extension);
    * </pre>
    * @param   s     Session to load the stem within.
@@ -199,7 +201,7 @@ public class GrouperStem extends Group {
   /**
    * Retrieve a stem by stem and extension.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperStem ns = GrouperStem.load(s, stem, extension);
    * </pre>
    * @param   s     Session to load the stem within.
@@ -359,7 +361,7 @@ public class GrouperStem extends Group {
   /**
    * Return <i>displayExtension</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String extn = g.getDisplayExtension();
    * </pre>
    * @return  <i>displayExtension</i> value
@@ -371,7 +373,7 @@ public class GrouperStem extends Group {
   /**
    * Return <i>displayName</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String name = g.getDisplayName();
    * </pre>
    * @return  <i>displayName</i> value
@@ -383,7 +385,7 @@ public class GrouperStem extends Group {
   /**
    * Return <i>extension</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String extn = g.getExtension();
    * </pre>
    * @return  <i>extension</i> value
@@ -395,7 +397,7 @@ public class GrouperStem extends Group {
   /**
    * Return stem's members.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * List members = g.getMembers();
    * </pre>
    * @return  List of {@link GrouperMember} objects.
@@ -413,7 +415,7 @@ public class GrouperStem extends Group {
   /**
    * Return <i>name</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String name = g.getName();
    * </pre>
    * @return  <i>name</i> value
@@ -425,7 +427,7 @@ public class GrouperStem extends Group {
   /**
    * Return <i>stem</i> value.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * String stem = g.getStem();
    * </pre>
    * @return  <i>stem</i> value
@@ -609,7 +611,7 @@ public class GrouperStem extends Group {
    * Retrieve list of namespaces that are <b>immediate</b> children
    * of this stem.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * List stems = s.stems();
    * </pre>
    * @return  List of {@link GrouperStem} objects.

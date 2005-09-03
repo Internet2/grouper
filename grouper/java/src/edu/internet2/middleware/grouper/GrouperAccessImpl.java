@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.75 2005-07-17 16:56:23 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.76 2005-09-03 04:26:40 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -216,7 +216,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * Verify whether current subject has the specified privilege on the
    * specified group.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperSession s = GrouperSession.start(subject);
    * if (s.access().has(s, group, Grouper.PRIV_OPTIN)) {
    *   // the current subject can optin to this group
@@ -356,7 +356,7 @@ public class GrouperAccessImpl implements GrouperAccess {
    * List members who have the specified privilege on the 
    * specified group.
    * <p />
-   * <pre>
+   * <pre class="eg">
    * GrouperSession s = GrouperSession.start(subject);
    * List admins  = s.access().whoHas(s, group, Grouper.PRIV_ADMIN);  
    * </pre>
