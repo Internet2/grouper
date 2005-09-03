@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-03 16:56:47 $
+$Date: 2005-09-03 17:00:26 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -154,7 +154,6 @@ drawing remains accurate.   Future Grouper releases will provide an
 improved and more feature-rich API, UI enhancements, aging tasks,
 loading and provisioning support and performance improvements.  A
 broad roadmap of the Grouper development cycle is below:
-</p>
 </p>
 <table id="table" align="center" border="1" width="60%">
 <thead>
@@ -1001,6 +1000,7 @@ that specific (and default) setup.
 <a name="config_db"/>
 <h3>5.1 Database</h3>
 </div>
+<p>
 Grouper uses <a href="http://www.hibernate.org/">Hibernate</a> to
 persist objects in the Groups Registry.  As Hibernate uses JDBC to
 speak to a RDMBS, Grouper should be able to work with your preferred
@@ -1112,6 +1112,7 @@ adjust this file.  At this time, the javadoc provided with each
 source adapter is probably the best location for configuration
 information.  
 </p>
+<p>
 Sites <b>should not</b> change the source for subjects of type
 <i>group</i>.  
 </p>
