@@ -60,7 +60,7 @@ import  java.util.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccess.java,v 1.31 2005-03-29 17:41:24 blair Exp $
+ * @version $Id: GrouperAccess.java,v 1.32 2005-09-03 15:46:05 blair Exp $
  */
 public interface GrouperAccess {
 
@@ -77,6 +77,12 @@ public interface GrouperAccess {
   /**
    * Grant an access privilege on a {@link Group}.
    * <p />
+   * <pre class="eg">
+   * // Grant UPDATE to a member
+   * if (s.access().grant(s, g, m, Grouper.PRIV_UPDATE)) {
+   *   // privilege granted
+   * }
+   * </pre> 
    * See implementations for more information.
    *
    * @param   s     Act within this {@link GrouperSession}.
@@ -165,7 +171,12 @@ public interface GrouperAccess {
    * group.
    * <p />
    * See implementations for more information.
-   *
+   * <pre class="eg">
+   * // Revoke all UPDATE privileges for a group
+   * if (s.access().revoke(s, g, Grouper.PRIV_UPDATE)) {
+   *   // privileges revoked
+   * }
+   * </pre> 
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Revoke privilege on this {@link Group}.
    * @param   priv  Privilege to revoke.
@@ -176,7 +187,12 @@ public interface GrouperAccess {
    * Revoke an access privilege.
    * <p />
    * See implementations for more information.
-   *
+   * <pre class="eg">
+   * // Revoke UPDATE for a member
+   * if (s.access().revoke(s, g, m, Grouper.PRIV_UPDATE)) {
+   *   // privilege revoked
+   * }
+   * </pre> 
    * @param   s     Act within this {@link GrouperSession}.
    * @param   g     Revoke privilege on this {@link Group}.
    * @param   m     Revoke privilege for this{@link GrouperMember}.

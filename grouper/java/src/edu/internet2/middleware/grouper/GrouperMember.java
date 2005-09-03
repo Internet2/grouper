@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.92 2005-08-25 15:59:13 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.93 2005-09-03 15:46:05 blair Exp $
  */
 public class GrouperMember {
 
@@ -126,6 +126,12 @@ public class GrouperMember {
   /**
    * Retrieve a {@link GrouperMember} object.
    * <p />
+   * <pre class="eg">
+   * // Convert a subject into a member 
+   * GrouperMember m = GrouperMember.load(
+   *   SessionFactory.getSubject(subjectID)
+   * );
+   * </pre>
    * @param   s     Load {@link Subject} within this {@link GrouperSession} 
    *  session.
    * @param   subj  {@link Subject} to load as {@link GrouperMember}.
@@ -183,7 +189,12 @@ public class GrouperMember {
    * <p />
    * This method will create a new entry in the <i>grouper_member</i>
    * table if this subject does not already have an entry.
-   *
+   * <pre class="eg">
+   * // Convert a subject into a member 
+   * GrouperMember m = GrouperMember.load(
+   *   SessionFactory.getSubject(subjectID, subjectType)
+   * );
+   * </pre>
    * @param   s             Load {@link GrouperMember} within this session.
    * @param   subjectID     Subject ID
    * @param   subjectTypeID Subject Type ID
@@ -191,9 +202,8 @@ public class GrouperMember {
    * @throws  SubjectNotFoundException
    */
   public static GrouperMember load(
-                                GrouperSession s, String subjectID, 
-                                String subjectTypeID
-                              ) 
+    GrouperSession s, String subjectID, String subjectTypeID
+  ) 
     throws SubjectNotFoundException
   {
     GrouperSession.validate(s);
@@ -256,6 +266,10 @@ public class GrouperMember {
   /**
    * Retrieve group memberships of the default list type for this member.
    * <p />
+   * <pre class="eg">
+   * // What are this member's memberships?
+   * List mships = m.listVals(); 
+   * </pre>
    * @return  List of {@link GrouperList} objects.
    */
   public List listVals() {
@@ -265,6 +279,10 @@ public class GrouperMember {
   /**
    * Retrieve group memberships of the specified type for this member.
    * <p />
+   * <pre class="eg">
+   * // What are this member's "members" memberships?
+   * List mships = m.listVals("members"); 
+   * </pre>
    * @param   list    Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
@@ -277,6 +295,10 @@ public class GrouperMember {
    * Retrieve effective group memberships of the default list type for
    * this member.
    * <p />
+   * <pre class="eg">
+   * // What are this member's effective memberships?
+   * List mships = m.listEffVals(); 
+   * </pre>
    * @return  List of {@link GrouperList} objects.
    */
   public List listEffVals() {
@@ -287,6 +309,10 @@ public class GrouperMember {
    * Retrieve effective group memberships of the specified type for
    * this member.
    * <p />
+   * <pre class="eg">
+   * // What are this member's effective "member" memberships?
+   * List mships = m.listEffVals("members"); 
+   * </pre>
    * @param   list    Return this list type.
    * @return  List of {@link GrouperList} objects.
    */
@@ -299,6 +325,10 @@ public class GrouperMember {
    * Retrieve immediate group memberships of the default list type for
    * this member.
    * <p />
+   * <pre class="eg">
+   * // What are this member's immediate memberships?
+   * List mships = m.listImmVals(); 
+   * </pre>
    * @return  List of {@link GrouperList} objects.
    */
   public List listImmVals() {
@@ -309,6 +339,10 @@ public class GrouperMember {
    * Retrieve immediate group memberships of the specified type for
    * this member.
    * <p />
+   * <pre class="eg">
+   * // What are this member's immediate "member" memberships?
+   * List mships = m.listImmVals("members"); 
+   * </pre>
    * @param   list    Return this list type.
    * @return  List of {@link GrouperList} objects.
    */

@@ -3,15 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.44 2005-08-25 20:08:36 blair Exp $
+$Id: ROADMAP,v 1.45 2005-09-03 15:46:05 blair Exp $
 
 ---
 
 # Grouper 0.6
 
 "initial UI release, supporting Phase 1 functionality"
-
-## Features
 
 ## Internals
 * Switch to commons logging everywhere
@@ -23,10 +21,6 @@ $Id: ROADMAP,v 1.44 2005-08-25 20:08:36 blair Exp $
 
 ## Documentation
 * Document Subject API in impl guide (#379)
-* Document empty VIEW and READ behavior (#398)
-* Document that UPDATE implies OPTIN and OPTOUT
-* Document _displayExtension_'s default value and ongoing maintenance
-* Update (or purge (or migrate)) _docs/FAQ_
 
 ## Perhaps
 * Custom _Subject_ source to provide ALL behavior

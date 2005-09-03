@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.230 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.231 2005-09-03 15:46:05 blair Exp $
  */
 public class GrouperGroup extends Group {
 
@@ -337,6 +337,11 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve the specified attribute.
    * <p />
+   * <pre class="eg">
+   * // Retrieve the group's _description_ 
+   * GrouperAttribute attr = g.attribute("description");
+   * String           desc = attr.value();
+   * </pre>
    * @param   attribute The attribute to retrieve.
    * @return  A {@link GrouperAttribute} object.
    */
@@ -357,6 +362,12 @@ public class GrouperGroup extends Group {
    * If <i>value</i> is <i>null</i> or <i>""</i>, the attribute
    * will be deleted.  
    * <p />
+   * <pre class="eg">
+   * // Set the group's _description_
+   * g.attribute("description", "new description");
+   * // Delete the group's _description_
+   * g.attribute("description", null);
+   * </pre>
    * @param   attribute   Set this attribute.
    * @param   value       To this value.
    */
@@ -386,6 +397,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve the <i>createSubject</i> value.
    * <p  />
+   * <pre class="eg">
+   * // Who created the group?
+   * Subject creator = g.createSubject();
+   * </pre>
    * @return A {@link Subject} object.
    */
   public Subject createSubject() {
@@ -395,6 +410,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve the <i>createTime</i> value.
    * <p  />
+   * <pre class="eg">
+   * // When was the group created?
+   * Date created = g.createTime();
+   * </pre>
    * @return <i>createTime</i> as a {@link Date} object.
    */
   public Date createTime() {
@@ -675,6 +694,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve the <i>modifySubject</i> value.
    * <p  />
+   * <pre class="eg">
+   * // Who last modified the group?
+   * Subject modifier = g.modifySubject();
+   * </pre>
    * @return A {@link Subject} object.
    */
   public Subject modifySubject() {
@@ -684,6 +707,10 @@ public class GrouperGroup extends Group {
   /**
    * Retrieve the <i>modifyTime</i> value.
    * <p  />
+   * <pre class="eg">
+   * // When was the group last modified?
+   * Date modified = g.modifyTime();
+   * </pre>
    * @return <i>modifyTime</i> as a {@link Date} object.
    */
   public Date modifyTime() {

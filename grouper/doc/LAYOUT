@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.13 2005-05-23 13:09:20 blair Exp $
+$Id: LAYOUT,v 1.14 2005-09-03 15:46:05 blair Exp $
 
 ---
 
@@ -90,10 +90,6 @@ API class and method summary.
 ### erd.jpg
 
 Groups Registry ERD.
-
-### FAQ
-
-Grouper FAQ.
 
 ### GETTING_GROUPER
 
