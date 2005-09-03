@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-03 16:04:38 $
+$Date: 2005-09-03 16:56:47 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -116,9 +116,9 @@ adopters to begin using Grouper and to subsequently contribute to
 the enhancement of this document by their experiences.
 </p>
 <p>
-Along with obtaining Grouper (see the MACE-Dir-Groups website
-<a href="http://middleware.internet2.edu/dir/groups/grouper/">&lt;http://middleware.internet2.edu/dir/groups/grouper/&gt;</a>
-for instructions), adopters should join the 
+Along with obtaining Grouper (see the 
+<a href="http://middleware.internet2.edu/dir/groups/grouper/">MACE-Dir-Groups</a>
+website for instructions), adopters should join the
 <a href="https://mail.internet2.edu/wws/info/grouper-users">grouper-users</a>
 and possibly the 
 <a href="https://mail.internet2.edu/wws/info/grouper-dev">grouper-dev</a>
@@ -129,7 +129,7 @@ development of Grouper.
 <!-- intro -->
 <div class="section">
 <a name="intro"/>
-<h2>Introduction To Grouper</h2>
+<h2>1. Introduction To Grouper</h2>
 </div>
 <p>
 Grouper is an open source toolkit for managing groups.  It provides an
@@ -203,15 +203,14 @@ broad roadmap of the Grouper development cycle is below:
 </table>
 </div>
 <p>
-The rest of this document will describe how to 
-<span class="TODO">build</span>, <span class="TODO">configure</span> and 
-<span class="TODO">run</span> Grouper; the Group Registry's 
-<span class="TODO">information</span> and 
-<span class="TODO">privilege</span> models; integrating Grouper with an
-existing <span class="TODO">IDM infrastructure</span>; and
-<span class="TODO">bootstrapping your implementation</span> 
-<span class="TODO">(csv2subject changes to work with ui?)</span>
-by using the sample programs that come with Grouper.
+The rest of this document will describe the 
+<a href="#registry">Groups Registry</a>; how to 
+<a href="#build">build</a>, <a href="#config">configure</a> and
+<a href="#run">run</a> Grouper; <a href="#integrate">integrating</a>
+Grouper with an existing infrastructure; 
+<a href="#extend">extending</a> Grouper and 
+<a href="#sample">sample applications</a> that can be used to bootstrap
+a site's Grouper implementation.
 </p>
 <p>
 In addition to this implementation guide, the Grouper distribution
@@ -238,12 +237,12 @@ at a later date.
 <!-- registry -->
 <div class="section">
 <a name="registry"/>
-<h2>The Groups Registry</h2>
+<h2>2. The Groups Registry</h2>
 </div>
 <!-- registry_gans -->
 <div class="subsection">
 <a name="registry_gans"/>
-<h3>Groups And Namespaces</h3>
+<h3>2.1 Groups And Namespaces</h3>
 </div>
 <p>
 Grouper works by managing two principal types of objects: groups
@@ -264,17 +263,11 @@ This is the current Grouper database schema
 <a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.5.jpg">ERD</a>.
 </span>
 </p>
-<p>
-<span class="TODO">In this section we present Grouper's data and
-privilege models and discuss several aspects of a Grouper deployment:
-naming, distributing management of groups, and choice of identifiers
-for members.</span>
-</p>
 <!-- registry_gans -->
 <!-- registry_attrs -->
 <div class="subsection">
 <a name="registry_attrs"/>
-<h3>Group And Namespace Attributes</h3>
+<h3>2.2 Group And Namespace Attributes</h3>
 </div>
 <p>
 Attributes are predefined single-valued pairs that may be assigned to both
@@ -393,8 +386,8 @@ made to include that ability in a future release of Grouper.
 <!-- registry_attrs -->
 <!-- registry_lists -->
 <div class="subsection">
-<a name="registry_attrs"/>
-<h3>Group Lists</h3>
+<a name="registry_lists"/>
+<h3>2.3 Group Lists</h3>
 </div>
 In addition to the <a href="#registry_attrs">attributes</a> described
 above, groups (but <b>not</b> namespaces) also have a list of members.
@@ -426,10 +419,10 @@ above, groups (but <b>not</b> namespaces) also have a list of members.
 <!-- registry_naming -->
 <div class="subsection">
 <a name="registry_naming"/>
-<h3>Naming Examples</h3>
+<h3>2.4 Naming Examples</h3>
 </div>
 <p>
-The <a href="#table_attrs">attributes table</a> shows that groups and
+The <a href="#table_group_and_ns_attrs">attributes table</a> shows that groups and
 namespaces have the same naming attributes (<i>stem</i>,
 <i>extension</i>, <i>name</i>, <i>displayExtension</i> and
 <i>displayName</i>) with the same semantics.  Groups and namespaces are
@@ -760,7 +753,7 @@ model</a>.
 <!-- registry_privs -->
 <div class="subsection">
 <a name="registry_privs"/>
-<h3>Privileges</h3>
+<h3>2.5 Privileges</h3>
 </div>
 <p>
 There are two categories of privileges in Grouper: <i>Access</i> and
@@ -878,7 +871,7 @@ The access and naming privileges are listed in the following tables:
 <!-- layout -->
 <div class="section">
 <a name="layout"/>
-<h2>Project Layout</h2>
+<h2>3. Project Layout</h2>
 </div>
 <p>
 The top-level directory of the unpacked Grouper distribution contains
@@ -947,7 +940,7 @@ files occur here and there - you should read them!
 <!-- build -->
 <div class="section">
 <a name="build"/>
-<h2>Building Grouper</h2>
+<h2>4. Building Grouper</h2>
 </div>
 <p>
 If you intend to build and test Grouper using a RDBMS other than the
@@ -993,20 +986,20 @@ the <a href="#config_db">database</a> and
 
 <div class="section">
 <a name="config"/>
-<h2>Configuring Grouper</h2>
+<h2>5. Configuring Grouper</h2>
 </div>
 <p>
 Grouper provides very little configuration by default.  In fact, if a
 site is comfortable using the HSQLDB database and running all programs
 that interact with the Groups Registry from <i>$GROUPER</i>, no
-configuration (outside of <span class="TODO">setting one's
-classpath</a>) is required.  The next sections will explain how to
-move beyond that specific (and default) setup.
+configuration (outside of <a href="#run">setting one's classpath</a>)
+is required.  The next sections will explain how to move beyond
+that specific (and default) setup.
 </p>
 <!-- config_db -->
 <div class="subsection">
 <a name="config_db"/>
-<h3>Database</h3>
+<h3>5.1 Database</h3>
 </div>
 Grouper uses <a href="http://www.hibernate.org/">Hibernate</a> to
 persist objects in the Groups Registry.  As Hibernate uses JDBC to
@@ -1017,7 +1010,7 @@ being tested against HSQLDB (the default), PostgreSQL and Oracle.
 <!-- config_db_hsqldb -->
 <div class="subsubsection">
 <a name="config_db_hsqdlb"/>
-<h4>HSQLDB</h4>
+<h4>5.1.1 HSQLDB</h4>
 </div>
 <p>
 Grouper uses HSQLDB as its default RDBMS.  No additional configuration
@@ -1027,7 +1020,7 @@ is required.
 <!-- config_db_postgres -->
 <div class="subsubsection">
 <a name="config_db_postgres"/>
-<h4>PostgreSQL</h4>
+<h4>5.1.2 PostgreSQL</h4>
 </div>
 <p>
 PostgreSQL is a supported Grouper backend and should only require small
@@ -1049,7 +1042,7 @@ information.  To use PostgreSQL you will need to:
 <!-- config_db_oracle -->
 <div class="subsubsection">
 <a name="config_db_oracle"/>
-<h4>Oracle</h4>
+<h4>5.1.3 Oracle</h4>
 </div>
 <p>
 Oracle is a supported Grouper backend and should only require small
@@ -1069,7 +1062,7 @@ distributed with Grouper.  To use Oracle you will need to:
 <!-- config_db_oracle -->
 <div class="subsubsection">
 <a name="config_db_other"/>
-<h4>Using Other Databases</h4>
+<h4>5.1.4 Using Other Databases</h4>
 </div>
 <p>
 While Grouper should work with other databases, it has not yet been
@@ -1095,9 +1088,9 @@ list with your results and schema files.
 <!-- config_db_other -->
 <!-- config_db -->
 <!-- config_subjects -->
-<div class="subsubsection">
+<div class="subsection">
 <a name="config_subjects"/>
-<h4>Subjects</h4>
+<h3>5.2 Subjects</h3>
 </div>
 <p>
 See <a href="#integrate_subjects">Integrating Subjects</a> for more
@@ -1124,9 +1117,9 @@ Sites <b>should not</b> change the source for subjects of type
 </p>
 <!-- config_subjects -->
 <!-- config_privs -->
-<div class="subsubsection">
+<div class="subsection">
 <a name="config_privs"/>
-<h4>Privileges</h4>
+<h3>5.3 Privileges</h3>
 </div>
 <p>
 <tt>$GROUPER/conf/grouper.properties</tt> must be modified if a site is
@@ -1137,9 +1130,9 @@ privilege resolver that is being used.
 </p>
 <!-- config_privs -->
 <!-- config_logging -->
-<div class="subsubsection">
+<div class="subsection">
 <a name="config_logging"/>
-<h4>Logging</h4>
+<h3>5.4 Logging</h3>
 </div>
 <p>
 Unless a site is running all programs from within <tt>$GROUPER</tt> the 
@@ -1151,9 +1144,9 @@ Grouper produces.
 </p>
 <!-- config_logging -->
 <!-- config_cache -->
-<div class="subsubsection">
+<div class="subsection">
 <a name="config_cache"/>
-<h4>Cache</h4>
+<h3>5.5 Cache</h3>
 </div>
 <p>
 <a href="http://ehcache.sourceforge.net/">ehcache</a> is used by
@@ -1170,7 +1163,7 @@ documentation</a> for more details and then update
 <!-- run -->
 <div class="section">
 <a name="run"/>
-<h2>Running Grouper</h2>
+<h2>6. Running Grouper</h2>
 </div>
 <p>
 As Grouper is currently just a database and a Java API for exercising
@@ -1192,7 +1185,7 @@ following items be in your classpath:
 <!-- integrate -->
 <div class="section">
 <a name="integrate"/>
-<h2>Integrating Grouper</h2>
+<h2>7. Integrating Grouper</h2>
 </div>
 <p>
 This section is intended to demonstrate how to integrate Grouper with
@@ -1203,7 +1196,7 @@ remains sparse.
 <!-- integrate_inandout -->
 <div class="subsection">
 <a name="integrate_inandout"/>
-<h3>Loaders And Provisioning Connectors</h3>
+<h3>7.1 Loaders And Provisioning Connectors</h3>
 </div>
 <p>
 Loaders and provisioning connectors are defined in the 
@@ -1215,14 +1208,11 @@ connectors are automation processes that use the Grouper API to
 extract information from the Groups Registry in order to represent it
 in other databases, directories, etc.
 </p>
-<p class="TODO">
-As this is an early release, there is as yet no contributed code
-that has been used to get real data into or out of Grouper, although
-the contributed applications discussed in 
-<a class="TODO" href="#section_2.4">section 2.4</a> above could be used as a
-starting point for developing them. So this section will merely
-identify some of Grouper's capabilities relative to loaders and
-provisioning connectors.
+<p>
+As this is an early release, there is as yet no real world contributed
+code that has been used to get data in and out of Grouper.  However, the 
+<a href="#sample">sample applications</a> discussed later in this
+document could be used as a starting point.
 </p>
 <p>
 All interactions with the Grouper API are conducted within a session
@@ -1268,7 +1258,7 @@ search.  Search result limits will be added in a future release.
 <!-- integrate_subjects -->
 <div class="subsection">
 <a name="integrate_subjects"/>
-<h3>Subjects</h3>
+<h3>7.2 Subjects</h3>
 </div>
 <p>
 Most often the members of your groups will be people and other groups
@@ -1335,7 +1325,7 @@ API will include a LDAP source adapter in the near future.
 <!-- integrate_privs -->
 <div class="subsection">
 <a name="integrate_privs"/>
-<h3>Privileges</h3>
+<h3>7.3 Privileges</h3>
 </div>
 <p>
 The Grouper API provides and uses abstracted interfaces
@@ -1371,7 +1361,7 @@ used.
 <!-- integrate_privs_dgmc -->
 <div class="subsubsection">
 <a name="integrate_privs_dgmc"/>
-<h4>Using Privileges To Distribute Group Management
+<h4>7.3.1 Using Privileges To Distribute Group Management
 Capabilities</h4>
 </div>
 <p>
@@ -1413,20 +1403,19 @@ solve an access control problem can be found in
 <!-- extend -->
 <div class="section">
 <a name="extend"/>
-<h2>Extending Grouper</h2>
+<h2>8. Extending Grouper</h2>
 </div>
 <p>
 Grouper does currently provide some ability for sites to extend
 Grouper's default behavior and types to better fit local needs.
-Currently <span class="TODO">??? <a href="#extend_group_types">group 
-types</a> (including attributes and lists) and 
-<a href="#extend_privs">privileges</a></span> may be extended
-with varying degrees of difficulty.
+Currently <a href="#extend_group_types">group types</a> (including
+attributes and lists) and <a href="#extend_privs">privileges</a>
+may be extended with varying degrees of difficulty.
 </p>
 <!-- extend_group_types -->
 <div class="subsection">
 <a name="extend_group_types"/>
-<h3>Group Types</h3>
+<h3>8.1 Group Types</h3>
 </div>
 <p>
 To support some of the 
@@ -1467,7 +1456,7 @@ desired extensions.
 <!-- extend_privs -->
 <div class="subsection">
 <a name="extend_privs"/>
-<h3>Privileges</h3>
+<h3>8.2 Privileges</h3>
 </div>
 <p>
 Although it is not currently possible to extend Grouper's privilege
@@ -1485,7 +1474,7 @@ additions.
 <!-- sample -->
 <div class="section">
 <a name="sample"/>
-<h2>Sample Applications</h2>
+<h2>9. Sample Applications</h2>
 </div>
 <p>
 Grouper includes four sample programs that demonstrate how to use parts
@@ -1496,15 +1485,15 @@ the near future.
 <!-- sample_csv2subject -->
 <div class="subsection">
 <a name="sample_csv2subject"/>
-<h3>Subject Loader: csv2subject</h3>
+<h3>9.1 Subject Loader: csv2subject</h3>
 </div>
 <p>
 The default source for <i>person</i> subjects is within the Groups
 Registry itself.  <i>csv2subject</i> is a simple program for populating
 the appropriate tables with subject information from a .csv input file.
-See <span class="TODO">Subjects</span> and 
-<span class="TODO">Integrating Subjects</span> for more information on
-subjects.  
+See <a href="#config_subjects">Configuring Subjects</a> and 
+<a href="#integrate_subjects">Integrating Subjects</a> for more
+information on subjects.
 <p>
 <i>csv2subject</i> is located in <tt>$GROUPER/contrib/load/csv2subject</tt>.  
 This program reads in a .csv file containing <i>subjectIDs</i> and
@@ -1527,7 +1516,7 @@ To use <i>csv2subject</i>:
 <!-- sample_csv2group -->
 <div class="subsection">
 <a name="sample_csv2group"/>
-<h3>Group Loader: csv2group</h3>
+<h3>9.2 Group Loader: csv2group</h3>
 </div>
 <p>
 <i>csv2group</i> is a simple program for adding namespaces, groups and
@@ -1548,7 +1537,7 @@ subjects are located in <tt>$GROUPER/contrib/load/csv2subject/sample.csv</tt>.
 <!-- sample_groupmgr -->
 <div class="subsection">
 <a name="sample_groupmgr"/>
-<h3>Group Manager: groupmgr</h3>
+<h3>9.3 Group Manager: groupmgr</h3>
 </div>
 <p>
 <i>groupmgr</i> is a program that provides a command line interface for
@@ -1563,7 +1552,7 @@ groups and memberships.  To use it:
 <!-- sample_grouperq -->
 <div class="subsection">
 <a name="sample_grouperq"/>
-<h3>Query Tool: grouperq</h3>
+<h3>9.4 Query Tool: grouperq</h3>
 </div>
 <p>
 <i>grouperq</i> is a program that provides a command line interface for
