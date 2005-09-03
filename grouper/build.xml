@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.57 2005-07-13 20:03:25 blair Exp $ -->
+<!-- $Id: build.xml,v 1.58 2005-09-03 03:59:56 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -83,12 +83,18 @@
   <target name="html" depends="init" description="generate public api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
     <delete dir="${javadoc.dest.public}" />
+    <mkdir  dir="${javadoc.dest.public}" />
+<!--
+    <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
+-->
     <javadoc sourcepath="${javadoc.source}" 
       destdir="${javadoc.dest.public}" 
       packagenames="${javadoc.packages}" 
       classpathref="project.class.path" 
       access="public"
-      author="true"/>
+      author="true"
+      stylesheetfile="${basedir}/doc/stylesheet.css"
+    />
   </target>
 
   <target name="javadoc" depends="html"/>
