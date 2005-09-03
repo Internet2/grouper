@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-03 17:00:26 $
+$Date: 2005-09-03 17:22:45 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -186,7 +186,9 @@ broad roadmap of the Grouper development cycle is below:
 <tr>
   <td class="c">0.9</td>
   <td class="c">~200511</td>
-  <td class="r">API and UI support for new Grouper API</td>
+  <td class="r">API and UI support for new Grouper API; preparation for
+    1.0
+  </td>
 </tr>
 <tr>
   <td class="c">1.0</td>
@@ -257,10 +259,7 @@ groups) have what access to each namespace and group.
 The Groups Registry uses a RDBMS to store information on namespaces,
 groups, memberships and possibly privileges.  Grouper is
 currently known to work and tested with HSQLDB, PostgreSQL and Oracle.
-<span class="TODO">
-This is the current Grouper database schema
-<a href="http://middleware.internet2.edu/dir/groups/docs/groupsRegERD0.5.5.jpg">ERD</a>.
-</span>
+This is the current Grouper database schema <a href="erd.jpg">ERD</a>.
 </p>
 <!-- registry_gans -->
 <!-- registry_attrs -->
@@ -305,8 +304,9 @@ Groups and namespaces have the following set of attributes:
   <td class="c">name</td>
   <td class="r">A system-maintained, read-only string representation
     of the logical ordered pair of <i>(stem, extension)</i>, used
-    to facilitate searching for groups by name.  The name is
-    represented as <i>stem:extension</i>.</td>
+    to facilitate searching for groups by name.  The string
+    representation of the <i>name</i> attribute is <i>stem:extension</i>.
+  </td>
 </tr>
 <tr>
   <td class="c">displayExtension</td>
@@ -320,12 +320,14 @@ Groups and namespaces have the following set of attributes:
   <td class="r">A system-maintained, read-only string representation
     of the logical ordered pair of <i>(displayName of stem,
     displayExtension)</i>, used to facilitate searching for groups
-    by displayed name.  The <i>displayName</i> is represented as
-    <i>displayName of stem:displayExtension</i>.</td>
+    by displayed name.  The string representation of the
+    <i>displayName</i> attribute is 
+    <i>displayName of stem:displayExtension</i>.
+  </td>
 </tr>
 <tr>
   <td class="c">description</td>
-  <td class="r">Semantics defined by the ementation site.</td>
+  <td class="r">Semantics defined by the implementation site.</td>
 </tr>
 </tbody>
 </table>
@@ -988,12 +990,12 @@ the <a href="#config_db">database</a> and
 <h2>5. Configuring Grouper</h2>
 </div>
 <p>
-Grouper provides very little configuration by default.  In fact, if a
+Grouper requires very little configuration by default.  In fact, if a
 site is comfortable using the HSQLDB database and running all programs
-that interact with the Groups Registry from <i>$GROUPER</i>, no
-configuration (outside of <a href="#run">setting one's classpath</a>)
-is required.  The next sections will explain how to move beyond
-that specific (and default) setup.
+that interact with the Groups Registry from the <i>$GROUPER</i>
+directory, no configuration (outside of <a href="#run">setting one's
+classpath</a>) is required.  The next sections will explain how to
+move beyond that specific (and default) setup.
 </p>
 <!-- config_db -->
 <div class="subsection">
@@ -1003,9 +1005,10 @@ that specific (and default) setup.
 <p>
 Grouper uses <a href="http://www.hibernate.org/">Hibernate</a> to
 persist objects in the Groups Registry.  As Hibernate uses JDBC to
-speak to a RDMBS, Grouper should be able to work with your preferred
-database backend provided there is a JDBC driver.  Grouper is currently
-being tested against HSQLDB (the default), PostgreSQL and Oracle.
+speak to a RDBMS, Grouper should be able to work with your preferred
+database backend provided there is a JDBC driver for it.  Grouper
+is currently being tested against HSQLDB (the default), PostgreSQL
+and Oracle.
 </p>
 <!-- config_db_hsqldb -->
 <div class="subsubsection">
@@ -1013,8 +1016,10 @@ being tested against HSQLDB (the default), PostgreSQL and Oracle.
 <h4>5.1.1 HSQLDB</h4>
 </div>
 <p>
-Grouper uses HSQLDB as its default RDBMS.  No additional configuration
-is required.
+Grouper uses HSQLDB as its default RDBMS.  The ony configuration that
+may be required is to provide an absolute path to one's database by
+setting <i>hibernate.connection.url</i> in
+<tt>$GROUPER/conf/grouper.properties</tt>.
 </p>
 <!-- config_db_hsqldb -->
 <!-- config_db_postgres -->
@@ -1217,7 +1222,7 @@ document could be used as a starting point.
 </p>
 <p>
 All interactions with the Grouper API are conducted within a session
-that is constrained by the privilege's of the session's subject.
+that is constrained by the privileges of the session's subject.
 The default <i>GrouperSystem</i> subject may be used although it may be
 preferable to assign each loader and provisioning connector a unique
 subject to better meet site-specific security requirements.
