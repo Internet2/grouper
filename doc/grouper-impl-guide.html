@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-02 20:08:57 $
+$Date: 2005-09-03 16:04:38 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -85,6 +85,7 @@ $Date: 2005-09-02 20:08:57 $
   <li><a href="#integrate">Integrating Grouper</a></li>
   <ol>
     <li><a href="#integrate_inandout">Loaders And Provisioning Connectors</a></li>
+    <li><a href="#integrate_subjects">Subjects</a></li>
     <li><a href="#integrate_privs">Privileges</a></li>
   </ol>
   <li><a href="#extend">Extending Grouper</a></li>
@@ -872,7 +873,6 @@ The access and naming privileges are listed in the following tables:
 </table>
 <div align="center"><b>Table 5 - Naming Privileges</b></div>
 </p>
-<!-- registry_privs -->
 <!-- registry -->
 
 <!-- layout -->
@@ -1095,10 +1095,13 @@ list with your results and schema files.
 <!-- config_db_other -->
 <!-- config_db -->
 <!-- config_subjects -->
+<div class="subsubsection">
+<a name="config_subjects"/>
 <h4>Subjects</h4>
+</div>
 <p>
-<span class="TODO">See ??? for more information on subjects and the
-I2MI Subject API.</span>
+See <a href="#integrate_subjects">Integrating Subjects</a> for more
+information on subjects and the I2MI Subject API.
 </p>
 <p>
 The configuration file for Grouper's I2MI Subject API resolver is 
@@ -1114,8 +1117,10 @@ within the Groups Registry for subjects of type <i>person</i>.  If
 you wish to use additional or different sources, you will need to
 adjust this file.  At this time, the javadoc provided with each
 source adapter is probably the best location for configuration
-information.  Please <b>do not</b> change the source for subjects
-of type <i>group</i>.
+information.  
+</p>
+Sites <b>should not</b> change the source for subjects of type
+<i>group</i>.  
 </p>
 <!-- config_subjects -->
 <!-- config_privs -->
@@ -1318,48 +1323,14 @@ is to be expressed elsewhere, the identifier used for group members
 can be translated by a provisioning connector by use of the Subject
 API into one that is suitable in the provisioned context.
 </p>
-<!-- integrate_subjects_resolve -->
-<div class="subsubsection">
-<a name="integrate_subjects_resolve"/>
-<h4>Resolving Subjects</h4>
-</div>
-<span class="TODO">
 <p>
-Grouper ships being able to resolve two types of subjects (<i>group</i>
-and <i>person</i>).  Subjects of type <i>group</i> are resolved using
-the Groups Registry while subjects of type <i>person</i> are resolved 
-Grouper is able to resolve subjects 
+While Grouper currently only includes support for two sources of
+authority for subject information, sites could write a source adapter
+class that would hit their LDAP directory or Person Registry directly
+to validate that a <i>subjectID</i> is in fact one that is valid
+for a group management operation.  It is expected that the I2MI Subject
+API will include a LDAP source adapter in the near future.
 </p>
-<p>
-A better means of integrating your person type <i>subjectIDs</i> with Grouper
-is to supply your own adapter class for the <i>person subjectType</i>.
-This class will need to validate and create subject objects given a
-<i>subjectID</i>.  For example, you might write an adapter class that
-hit your LDAP directory or your Person Registry directly to validate
-that a <i>subjectID</i> is in fact one that is valid for a group
-management operation. This would remove the need to maintain the
-<i>grouper_subject</i> table - its sole purpose in the Groups
-Registry is to bootstrap subjects into Grouper.
-</p>
-<p>
-With implementation of the Subject Interface, anticipated to be
-included in the Grouper 0.6 release cycle, a richer set of subject
-data obtained from your identity management operation will be made
-available to implement identifier translation capabilities as
-described in <a href="#section_3.6">section 3.6</a> and subject
-search capabilities in support of the Grouper UI. The default adapter class for
-the <i>person subjectType</i> in Grouper 0.6 will support these identifier
-search and translation capabilities by reliance on the
-<i>grouper_subjectAttribute</i> table. That will allow you to bootstrap your
-Grouper deployment by maintaining this table until such time as you can
-supply your own <i>person subjectType</i> adapter class with the requisite
-functionality.
-</p>
-<p>
-<b>Note:</b> The adapter class for the <i>group subjectType</i> should not
-be changed!  Else why are you bothering with Grouper?
-</p>
-</span>
 <!-- integrate_subjects_resolve -->
 <!-- integrate_privs -->
 <div class="subsection">
@@ -1397,6 +1368,45 @@ configuration parameters in <tt>$GROUPER/conf/grouper.properties</tt>
 will need to be adjusted to reflect the privilege implementation being
 used.
 </p>
+<!-- integrate_privs_dgmc -->
+<div class="subsubsection">
+<a name="integrate_privs_dgmc"/>
+<h4>Using Privileges To Distribute Group Management
+Capabilities</h4>
+</div>
+<p>
+One of the leading reasons why there is interest in Grouper is that
+many sites recognize a need to involve many sources of authority in
+managing resource access, distribution lists and application
+customization - the types of needs which groups help to satisfy.
+Grouper's privilege model supports five ways to distribute
+management of groups.
+<ol>
+  <li>Create a group and assign someone <i>UPDATE</i> privilege to
+    it.  This delegates the ability to maintain the group's
+    membership.</li>
+  <li>Create a group and assign someone <i>ADMIN</i> privilege to it.
+    This delegates the ability to manage who can maintain the group's
+    membership as well as manage all access to the group.</li>
+  <li>Create a namespace and assign someone <i>CREATE</i> privilege
+    to it. This delegates the ability to preside over the collection
+    of all groups they create in that namespace.</li>
+  <li>Create a namespace and assign someone <i>STEM</i> privilege
+    to it.  They can rule over an entire hierarchy of namespaces and
+    groups, all sharing a common root namespace.</li>
+  <li>Create a group and assign <i>OPTIN</i> and/or <i>OPTOUT</i>
+    privilege to other groups. Subjects belonging to those other
+    groups are entitled to manage their own membership in the
+    group.</li>
+</ol>
+</p>
+<p>
+An example of an actual scenario for delegation of group management to
+solve an access control problem can be found in
+<a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt</a>.
+</p>
+<!-- integrate_privs_dgmc -->
+<!-- registry_privs -->
 <!-- integrate_privs -->
 <!-- integrate -->
 
@@ -1566,47 +1576,6 @@ performing simple queries on the Groups Registry.  To use it:
 <!-- sample_grouperq -->
 <!-- sample -->
 
-<!-- todo -->
-<span class="TODO">
-<div class="subsection">
-<a name="section_3.5"/>
-<h3>3.5. Using Privileges To Distribute Group Management
-Capabilities</h3>
-</div>
-<p>
-One of the leading reasons why there is interest in Grouper is that
-many sites recognize a need to involve many sources of authority in
-managing resource access, distribution lists and application
-customization - the types of needs which groups help to satisfy.
-Grouper's privilege model supports five ways to distribute
-management of groups.
-<ol>
-  <li>Create a group and assign someone <i>UPDATE</i> privilege to
-    it.  This delegates the ability to maintain the group's
-    membership.</li>
-  <li>Create a group and assign someone <i>ADMIN</i> privilege to it.
-    This delegates the ability to manage who can maintain the group's
-    membership as well as manage all access to the group.</li>
-  <li>Create a namespace and assign someone <i>CREATE</i> privilege
-    to it. This delegates the ability to preside over the collection
-    of all groups they create in that namespace.</li>
-  <li>Create a namespace and assign someone <i>STEM</i> privilege
-    to it.  They can rule over an entire hierarchy of namespaces and
-    groups, all sharing a common root namespace.</li>
-  <li>Create a group and assign <i>OPTIN</i> and/or <i>OPTOUT</i>
-    privilege to other groups. Subjects belonging to those other
-    groups are entitled to manage their own membership in the
-    group.</li>
-</ol>
-</p>
-<p>
-An example of an actual scenario for delegation of group management to
-solve an access control problem can be found in
-<a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt</a>.
-</p>
-<!-- todo -->
-
-</div>
 <!-- body -->
 </body>
 
