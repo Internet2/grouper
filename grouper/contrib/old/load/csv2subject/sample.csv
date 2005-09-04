@@ -1,10 +1,10 @@
-adams,person
-bartlett,person
+adams,person,John Adams,jadams
+bartlett,person,Joshiah Bartlett
 braxton,person
 carroll,person
 chase,person
 clark,person
-clymer,person
+clymer,person,George Clymer,gclymer
 ellery,person
 franklin,person
 gerry,person
@@ -30,7 +30,7 @@ nelson,person
 paca,person
 paine,person
 penn,person
-read,person
+read,person,George Read,gread
 rloyd,person
 rodneyr,person
 ross,person

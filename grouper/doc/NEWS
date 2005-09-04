@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.76 2005-08-25 02:38:49 blair Exp $
+$Id: NEWS,v 1.77 2005-09-04 15:26:09 blair Exp $
 
 ---
 
@@ -80,6 +80,7 @@ $Id: NEWS,v 1.76 2005-08-25 02:38:49 blair Exp $
 
 * CONTRIB: _cvs2subject_ now uses Grouper's _conf/hibernate.properties_
   for its JDBC configuration information.
+* CONTRIB: _csv2subject_ now supports additional input formats
 
 ---
 

@@ -19,7 +19,7 @@ import  org.apache.commons.cli.*;
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.17 2005-07-16 14:12:11 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.18 2005-09-04 15:26:09 blair Exp $ 
  */
 class csv2subject {
 
@@ -42,11 +42,11 @@ class csv2subject {
   private static String       jdbcURL       = new String();
   private static String       jdbcUsername  = new String();
   private static String       jdbcPassword  = new String();
-  private static Map          newSubs       = new HashMap();
   private static Options      options;
   private static String       path;
+  private static Map          subjects      = new HashMap();
   private static boolean      verbose       = false;
-
+  private static PreparedStatement st_desc, st_login, st_subj;
 
 
   /*
@@ -66,10 +66,8 @@ class csv2subject {
    * PRIVATE CLASS METHODS
    */
 
-  /* (!javadoc)
+  /* 
    * Read configuration file.
-   * <p />
-   * @return Boolean true if succesful.
    */
   private static void _cfRead() {
     InputStream in = csv2subject.class
@@ -90,38 +88,30 @@ class csv2subject {
     _verbose("password  " + jdbcPassword);
   }
 
-  /* (!javadoc)
+  /* 
    * Add CSV contents to registry.
    */
   private static void _csvAdd() {
-    if (newSubs != null) {
-      Set keys = newSubs.keySet();
+    if (subjects != null) {
+      Set keys = subjects.keySet();
       _verbose("There are " + keys.size() + " subjects to add.");
       Iterator iter = keys.iterator();
       while (iter.hasNext()) {
-        String subjID     = (String) iter.next();
-        String subjTypeID = (String) newSubs.get(subjID);
-        if (_sqlAdd(subjID, subjTypeID)) {
-          _verbose(
-            "Added sid=`" + subjID + "', subjTypeID=`" + 
-            subjTypeID + "'"
-          );
+        String  key   = (String)  iter.next();
+        Map     attrs = (Map)     subjects.get(key);
+        String  msg   = 
+          " " + attrs.get("type") + ":" + (String) attrs.get("id");
+        if ( _addSubject(key, attrs) ) {
+          _verbose("Added"+msg);
         } else {
-          _verbose(
-            "Unable to add sid=`" + subjID + "', subjTypeID=`" + 
-            subjTypeID + "'"
-          );
-        }
-      }
-    } else {
-      _verbose("Subject list is not valid.");
-    }
-  }
+          _verbose("Unable to add"+msg);
+        } // if (_addSubject(keys, attrs))
+      } // while (iter.hasNext())
+    } // if (subjects != null)
+  } // private static void _csvAdd()
 
-  /* (!javadoc)
+  /* 
    * Read in CSV file
-   * <p />
-   * @param path Path to input CSV file
    */
   private static void _csvRead() {
     if (path != null) {
@@ -129,37 +119,19 @@ class csv2subject {
         BufferedReader  br    = new BufferedReader(new FileReader(path));
         String          line  = null; 
         while ((line=br.readLine()) != null){ 
-          StringTokenizer st = new StringTokenizer(line, ",");
-          // FIXME Blindly assume that if we have two tokens, they are two
-          //       *good* tokens
-          if (st.countTokens() == 2) {
-            String subjID     = st.nextToken();
-            String subjTypeID = st.nextToken();
-            _verbose(
-              "Found sid=`" + subjID + "', subjTypeID=`" + subjTypeID + "'"
-            );
-            newSubs.put(subjID, subjTypeID);
-          } else {
-            System.err.println("Skipping.  Invalid format: '" + line + "'");
-          }
-        } 
+          _parseCSV(line);
+        } // while ((line=br.readLine()) != null
         br.close(); 
       } catch (IOException e) { 
         System.err.println("Error processing '" + path + "': " + e);
-        // Kill whatever might have been added to the hashmap and then
-        // carry on so that our connection is closed
-        newSubs = new HashMap();
-      }
+      } // try 
     } else {
       _usage();
-    }
-  }
+    } // if (path != null)
+  } // private static void _csvRead
 
-  /* (!javadoc)
-   *
+  /* 
    * Conditionally print SQL messages depending upon verbosity level.
-   * <p />
-   * @param   msg Message to print if running verbosely.
    */
   private static void _debug(String msg) {
     if (debug == true) {
@@ -167,7 +139,7 @@ class csv2subject {
     }
   }
 
-  /* (!javadoc)
+  /*
    * Initialize JDBC connection.
    */
   private static void _jdbcConnect() {
@@ -178,6 +150,22 @@ class csv2subject {
           jdbcURL, jdbcUsername, jdbcPassword
         );
         _verbose("Connected to " + jdbcURL);
+        // Prepare statements for later insertion 
+        st_subj   = conn.prepareStatement(
+          "INSERT INTO SUBJECT"
+          + " (subjectID, subjectTypeID, name, description)"
+          + " VALUES (?, ?, ?, ?)"
+        );
+        st_desc   = conn.prepareStatement(
+          "INSERT INTO SUBJECTATTRIBUTE"
+          + " (subjectID, name, value, searchValue)" 
+          + " VALUES (?, 'description', ?, ?)"
+        );
+        st_login  = conn.prepareStatement(
+          "INSERT INTO SUBJECTATTRIBUTE"
+          + " (subjectID, name, value, searchValue)" 
+          + " VALUES (?, 'loginid', ?, ?)"
+        );
       } catch (SQLException se) {
         System.err.println("Unable to connect: " + se);
         System.exit(1);
@@ -196,42 +184,31 @@ class csv2subject {
     }
   }
 
-  /* (!javadoc)
+  /*
    * Close JDBC connection.
    */
   private static void _jdbcDisconnect() {
     if (conn != null) { 
       try {
-        conn.commit();
-        _verbose("JDBC commit performed");
-        try {
-          conn.close();
-          _verbose("JDBC connection closed");
-        } catch (SQLException ce) {
-          System.err.println("Unable to close JDBC connection: " + ce);
-          System.exit(1);
-        }
-      } catch (SQLException come) {
-        System.err.println("Unable to perform JDBC commit: " + come);
+        conn.close();
+        _verbose("JDBC connection closed");
+      } catch (SQLException ce) {
+        System.err.println("Unable to close JDBC connection: " + ce);
         System.exit(1);
-      }
-    }
-  }
+      } // try
+    } // if (conn != null)
+  } // private static void _jdbcDisconnect()
 
-  /* (!javadoc)
+  /*
    * Handle command line options.
-   * <p />
-   * @param   String Array.
    */
   private static void _opts(String[] args) {
     _optsParse(args); // Parse CLI options
     _optsProcess();   // Handle CLI options
   }
 
-  /* (!javadoc)
+  /* 
    * Parse command line options.
-   * <p />
-   * @param   String array.
    */
   private static void _optsParse(String[] args) {
     options = new Options();
@@ -251,8 +228,7 @@ class csv2subject {
     }
   }
 
-  /* (!javadoc)
-   *
+  /* 
    * Process command line options.
    */
   private static void _optsProcess() {
@@ -282,36 +258,89 @@ class csv2subject {
     }
   }
 
-  /* (!javadoc)
+  /*
+   * parse a line of .csv input
+   */
+  private static void _parseCSV(String line) {
+    StringTokenizer st = new StringTokenizer(line, ",");
+    // TODO Yuck
+    if (st.countTokens() >= 2) {
+      Map     attrs = new HashMap();
+      String desc, id, key, login, name, type;
+      id    = st.nextToken();
+      type  = st.nextToken();
+      key   = type + ":" + id;
+      attrs.put("id", id);
+      attrs.put("type", type);
+      if (st.hasMoreTokens()) {
+        name = st.nextToken();
+        if (st.hasMoreTokens()) {
+          login = st.nextToken();
+        } else {
+          login = id;
+        } // if (st.hasMoreTokens())
+        desc = name;
+      } else {
+        desc = login = name = id;
+      } // if (st.hasMoreTokens())
+      attrs.put("desc" , desc);
+      attrs.put("login", login);
+      attrs.put("name" , name);
+      if (st.hasMoreTokens()) {
+        System.err.println(
+          "WARNING: Too many input elements in '" + line + "'"
+        );
+      } // if (st.hasMoreTokens())
+      String[] desc_ary = desc.split("\\s+", 2);
+      if (desc_ary.length > 1) {
+        attrs.put( "desc_v" , desc_ary[1] + ", " + desc_ary[0] );
+        attrs.put( 
+          "desc_sv", 
+          desc_ary[1].toLowerCase() + " "  + desc_ary[0].toLowerCase() 
+        );
+      } else {
+        attrs.put( "desc_v" , desc );
+        attrs.put( "desc_sv", desc.toLowerCase() );
+      } // if (desc_ary.length > 1)
+    subjects.put(key, attrs);
+    } // if (st.countTokens() >= 2)
+  } // private static void _parseCSV
+
+  /* 
    * Add subject 
    */
-  private static boolean _sqlAdd(String subjID, String subjTypeID) {
+  private static boolean _addSubject(String key, Map attrs) {
     boolean rv = false;
-    Statement stmt = null;
     try {
-      stmt = conn.createStatement();
-      try {
-        String insert = "INSERT INTO " + TABLE        +
-                        "(subjectID, subjectTypeID) " +
-                        "VALUES ("                    +
-                        "'" + subjID      + "', "     +
-                        "'" + subjTypeID  + "'"       +
-                        ")";
-        int cnt = stmt.executeUpdate(insert);
-        if (cnt == 1) {
-          _debug("Added 1 row to '" + TABLE + "'");
-          rv = true;
-        }
-      } catch (SQLException eue) {
-        _debug("Error executing statement: " + eue);
-      }
-    } catch (SQLException cse) {
-      System.err.println("Error creating insert statement: " + cse);
+      conn.setAutoCommit(false);
+      // Subject
+      st_subj.setString(  1, (String) attrs.get("id")      );
+      st_subj.setString(  2, (String) attrs.get("type")    );
+      st_subj.setString(  3, (String) attrs.get("name")    );
+      st_subj.setString(  4, (String) attrs.get("desc")    );
+      st_subj.executeUpdate();
+      // Attribute: description
+      st_desc.setString(  1, (String) attrs.get("id")      );
+      st_desc.setString(  2, (String) attrs.get("desc_v")  );
+      st_desc.setString(  3, (String) attrs.get("desc_sv") );
+      st_desc.executeUpdate();
+      // Attribute: loginid
+      st_login.setString( 1, (String) attrs.get("id")      );
+      st_login.setString( 2, (String) attrs.get("login")   );
+      st_login.setString( 3, (String) attrs.get("login")   );
+      st_login.executeUpdate();
+      conn.commit();
+      conn.setAutoCommit(true);
+      rv = true;
+    } catch (SQLException e) {
+      System.err.println(
+        "Error adding subject: " + key + " " + e.getMessage()
+      );
     }
     return rv;
   }
 
-  /* (!javadoc)
+  /* 
    *
    * Print usage information.
    */
@@ -320,11 +349,8 @@ class csv2subject {
     formatter.printHelp(NAME, options);
   }
 
-  /* (!javadoc)
-   *
+  /*
    * Conditionally print messages depending upon verbosity level.
-   * <p />
-   * @param   msg Message to print if running verbosely.
    */
   private static void _verbose(String msg) {
     if (verbose == true) {
