@@ -3,7 +3,7 @@
 
 This code was contributed by The University Of Chicago.
 
-$Id: README,v 1.4 2005-07-15 15:04:20 blair Exp $
+$Id: README,v 1.5 2005-09-04 15:26:09 blair Exp $
 
 ---
 
@@ -33,19 +33,12 @@ required.
 
 ## Input File Format
 
-Each line should have two tokens separated by a comma:
+Each line should be one of the following three formats.  A single .csv
+file may combine all three formats.
 
-* _subjectID_
-* _subjectTypeID_
+  subjectID,subjectType
+  subjectID,subjectType,name
+  subjectID,subjectType,name,login
 
 See the _sample.csv_ file for examples.
-
---
-
-## Bugs
-
-* No support for removing subjects
-
-As currently written, _csv2subject_ will simply try to add every
-subject that it finds in its input file.
 
