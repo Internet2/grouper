@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.47 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: Group.java,v 1.48 2005-09-06 18:33:03 blair Exp $
  */
 abstract public class Group {
 
@@ -345,7 +345,7 @@ abstract public class Group {
 
   /*
    * Load {@link Group} by id.
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected static Group _loadByID(GrouperSession s, String id) 
     throws InsufficientPrivilegeException
@@ -363,7 +363,7 @@ abstract public class Group {
 
   /*
    * Load {@link Group} by key.
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected static Group loadByKey(GrouperSession s, String key) 
     throws InsufficientPrivilegeException
@@ -389,7 +389,7 @@ abstract public class Group {
 
   /*
    * Load {@link Group} by name and type.
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected static Group loadByNameAndType(
     GrouperSession s, String name, String type
@@ -420,7 +420,7 @@ abstract public class Group {
   /*
    * Does the current subject have privs to create a group beneath this
    * stem?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected static void subjectCanCreateGroup(
     GrouperSession s, String stem
@@ -446,7 +446,7 @@ abstract public class Group {
   /*
    * Does the current subject have privs to create a stem beneath this
    * stem?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected static void subjectCanCreateStem(
     GrouperSession s, String stem
