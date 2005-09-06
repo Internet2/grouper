@@ -68,7 +68,7 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.107 2005-09-03 15:46:05 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.108 2005-09-06 18:33:03 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -304,7 +304,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Can the subject ADMIN?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected void canADMIN(Group g) 
     throws InsufficientPrivilegeException
@@ -329,7 +329,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Can the subject CREATE?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected void canCREATE(GrouperStem ns) 
     throws InsufficientPrivilegeException
@@ -357,7 +357,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Can the subject READ?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected void canREAD(Group g) 
     throws InsufficientPrivilegeException
@@ -454,7 +454,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Can the subject STEM?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected void canSTEM(GrouperStem ns) 
     throws InsufficientPrivilegeException
@@ -503,7 +503,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Can the subject VIEW?
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    * TODO Should I use canREAD, et. al.?  Would that buy me additional
    *      caching for free?
    */
@@ -560,7 +560,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Dispatch field level access checking to the appropriate method
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected void canReadField(Group g, String field)
     throws InsufficientPrivilegeException
@@ -572,7 +572,7 @@ public class GrouperSession implements Serializable {
 
   /*
    * Dispatch field level access checking to the appropriate method
-   * @throws {@link InsufficientPrivilegeException}
+   * @throws InsufficientPrivilegeException
    */
   protected void canWriteField(Group g, String field)
     throws InsufficientPrivilegeException

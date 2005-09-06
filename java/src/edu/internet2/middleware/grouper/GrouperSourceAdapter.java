@@ -80,7 +80,7 @@ import  org.apache.commons.logging.LogFactory;
  * </pre>
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.13 2005-09-06 18:24:33 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.14 2005-09-06 18:31:30 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -139,7 +139,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * </pre>
    * @param   id  Group GUID
    * @return  A {@link Subject}
-   * @throws  {@link SubjectNotFoundException}
+   * @throws  SubjectNotFoundException
    */
   public Subject getSubject(String id) 
     throws SubjectNotFoundException 
@@ -177,7 +177,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * </pre>
    * @param   name  Group name
    * @return  A {@link Subject}
-   * @throws  {@link SubjectNotFoundException}
+   * @throws  SubjectNotFoundException
    */
   public Subject getSubjectByIdentifier(String name) 
     throws SubjectNotFoundException 
@@ -201,6 +201,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * <p>
    * No initialization is currently performed by this adapter.
    * </p>
+   * @throws  SourceUnavailableException
    */
   public void init() throws SourceUnavailableException {
     // DESIGN What initialization should I be doing?
