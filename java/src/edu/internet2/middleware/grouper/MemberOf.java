@@ -62,9 +62,9 @@ import  org.apache.commons.logging.LogFactory;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.26 2005-09-06 14:14:06 blair Exp $
+ * @version $Id: MemberOf.java,v 1.27 2005-09-06 18:44:53 blair Exp $
  */
-class MemberOf {
+public class MemberOf {
 
   /*
    * PRIVATE CLASS VARIABLES

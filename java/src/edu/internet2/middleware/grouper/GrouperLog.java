@@ -66,9 +66,9 @@ import  org.apache.log4j.*;
  * will be implemented in a later release.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.18 2005-09-06 14:14:06 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.19 2005-09-06 18:44:53 blair Exp $
  */
-class GrouperLog {
+public class GrouperLog {
 
   /*
    * PROTECTED CONSTANTS
