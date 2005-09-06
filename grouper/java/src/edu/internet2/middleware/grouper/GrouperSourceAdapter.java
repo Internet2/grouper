@@ -61,11 +61,26 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * TODO
+ * Use Grouper's Groups Registry as an I2MI Subject API source.
  * <p />
+ * <p>
+ * This is an adapter for subjects of type <i>group</i>.  It allows
+ * groups (within a Grouper Groups Registry) to be used as I2MI
+ * Subjects.
+ * </p>
+ * <p>
+ * To use, add the following to your <i>sources.xml</i> file:
+ * </p>
+ * <pre class="eg">
+ * &lt;source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter"&gt;
+ *   &lt;id&gt;grouperAdapter&lt;/id&gt;
+ *   &lt;name&gt;Grouper Adapter&lt;/name&gt;
+ *   &lt;type&gt;group&lt;/type&gt;
+ * &lt;/source&gt;
+ * </pre>
  *
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.12 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.13 2005-09-06 18:24:33 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -108,11 +123,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * Gets a {@link GrouperGroup} subject by its GUID.
    * <p />
    * <pre class="eg">
+   * // Use it within the Grouper API
    * try {
    *   Subject subj = SubjectFactory.getSubject(guid, "group");
-   *   System.out.println("Found subject: " + subj);
    * } catch (SubjectNotFoundException e) {
-   *   System.err.println("subject not found: " + e.getMessage());
+   *   // Subject not found
+   * }
+   *
+   * // Use it directly
+   * try {
+   *   Subject subj = source.getSubject(guid, "group");
+   * } catch (SubjectNotFoundException e) {
+   *   // Subject not found
    * }
    * </pre>
    * @param   id  Group GUID
@@ -139,11 +161,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * Gets a {@link GrouperGroup} subject by its name.
    * <p />
    * <pre class="eg">
+   * // Use it within the Grouper API
    * try {
    *   Subject subj = SubjectFactory.getSubjectByIdentifier(name, "group");
-   *   System.out.println("Found subject: " + subj);
    * } catch (SubjectNotFoundException e) {
-   *   System.err.println("subject not found: " + e.getMessage());
+   *   // Subject not found
+   * }
+   *
+   * // Use it directly
+   * try {
+   *   Subject subj = source.getSubjectByIdentifier(name, "group");
+   * } catch (SubjectNotFoundException e) {
+   *   // Subject not found
    * }
    * </pre>
    * @param   name  Group name
@@ -167,18 +196,34 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   }
 
   /** 
-   * {@inheritDoc}
+   * Initializes the {@link Grouper} source adapter.
+   * <p />
+   * <p>
+   * No initialization is currently performed by this adapter.
+   * </p>
    */
   public void init() throws SourceUnavailableException {
-    // TODO What initialization should I be doing?
+    // DESIGN What initialization should I be doing?
     log.info("Initializing GrouperSourceAdapter");
   }
 
   /**
-   * {@inheritDoc}
+   * Searches for {@link GrouperGroup} subjects by naming attributes.
+   * <p />
+   * <p>
+   * This method performs a fuzzy search on the <i>stem</i>,
+   * <i>extension</i>, <i>displayExtension</i>, <i>name</i> and
+   * <i>displayName</i> group attributes.
+   * </p>
+   * <pre class="eg">
+   * // Use it within the Grouper API
+   * Set subjects = SubjectFactory.search("admins");
+   *
+   * // Use it directly
+   * Set subjects = source.search("admins");
+   * </pre>
    */
   // TODO Is this the right search?
-  // TODO document search
   // TODO ideally this query could be moved to GrouperQuery
   // TODO There is overlap in code between this and sBID
   public Set search(String searchValue) {
