@@ -60,7 +60,7 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * {@link Subject} Lookup Cache.
+ * Internal class providing a simple and extremely naive cache.
  * <p />
  * TODO Ideally this class would just become a passthrough for an
  * ehcache cache<br />
@@ -69,9 +69,9 @@ import  org.apache.commons.logging.LogFactory;
  * TODO And condense the multiple key levels into one?
  *
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.1 2005-07-29 01:53:50 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.2 2005-09-06 14:14:06 blair Exp $
  */
-public class SimpleCache {
+class SimpleCache {
 
   /*
    * PRIVATE CLASS VARIABLES

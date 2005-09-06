@@ -58,13 +58,13 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * Class implementing the memberOf algorithm.
+ * Internal class implementing the memberOf algorithm.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.25 2005-07-28 03:14:37 blair Exp $
+ * @version $Id: MemberOf.java,v 1.26 2005-09-06 14:14:06 blair Exp $
  */
-public class MemberOf {
+class MemberOf {
 
   /*
    * PRIVATE CLASS VARIABLES
