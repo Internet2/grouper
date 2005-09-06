@@ -58,16 +58,17 @@ import  org.apache.log4j.*;
 
 
 /** 
- * Class used within {@link Grouper} for logging.
+ * Internal class for an increasingly deprecated form of Grouper
+ * logging.
  * <p />
  * This class is only used internally and isn't very useful at the
  * moment.  A more coherent, useful and comprehensive logging policy
  * will be implemented in a later release.
  *
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.17 2005-05-23 13:09:20 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.18 2005-09-06 14:14:06 blair Exp $
  */
-public class GrouperLog {
+class GrouperLog {
 
   /*
    * PROTECTED CONSTANTS

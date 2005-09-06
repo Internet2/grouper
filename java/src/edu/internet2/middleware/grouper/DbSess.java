@@ -58,13 +58,13 @@ import  net.sf.hibernate.cfg.*;
 
 
 /** 
- * Class representing a database session.
+ * Internal class representing a database session.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.9 2005-03-29 20:36:43 blair Exp $
+ * @version $Id: DbSess.java,v 1.10 2005-09-06 14:14:06 blair Exp $
  */
-public class DbSess {
+class DbSess {
 
   /*
    * PRIVATE CLASS CONSTANTS

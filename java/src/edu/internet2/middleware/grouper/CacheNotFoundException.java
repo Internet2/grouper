@@ -53,12 +53,13 @@ package edu.internet2.middleware.grouper;
 
 
 /** 
- * Thrown when an object is not found within a {@link SimpleCache}.
+ * Internal exception throw when an object is not found with a 
+ * {@link SimpleCache}.
  * <p />
  * @author  blair christensen.
- * @version $Id: CacheNotFoundException.java,v 1.1 2005-07-29 01:53:50 blair Exp $
+ * @version $Id: CacheNotFoundException.java,v 1.2 2005-09-06 14:14:06 blair Exp $
  */
-public class CacheNotFoundException extends Exception {
+class CacheNotFoundException extends Exception {
 
   /*
    * CONSTRUCTORS
