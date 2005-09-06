@@ -3,107 +3,99 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.45 2005-09-03 15:46:05 blair Exp $
+$Id: ROADMAP,v 1.46 2005-09-06 20:11:30 blair Exp $
 
 ---
 
-# Grouper 0.6
+## Known Issues
+* Fuzzy search performance (#391)
+* Index analysis
+* Improved via chain code (#329, #330)
+* Effective membership performance profiling
 
-"initial UI release, supporting Phase 1 functionality"
+---
 
-## Internals
-* Switch to commons logging everywhere
-* Review and document named queries
+## Design
 
-## Testing
-* Add ADMIN tests
-* Add STEM tests
+* When a subject is a member of a group that they don't have VIEW access
+  on, should a) that group be included in a list of mships but not
+  necessarily accessible or b) not included at all?
+* Should STEM imply CREATE?
+
+---
 
 ## Documentation
-* Document Subject API in impl guide (#379)
-
-## Perhaps
-* Custom _Subject_ source to provide ALL behavior
-* Fuzzy search performance (#391)
-* Custom _Subject_ source to provide _GrouperSystem_?
-* Index analysis
-* Throw _GroupNotFoundException_
-* Throw _StemNotFoundException_
-* Throw _MemberNotFoundException_
-* Move constants (but to where?)
-* Make empty VIEW and READ behavior configurable (#397)
+* "Programming With The Grouper API" guide
+* Review and document named queries
 
 ---
 
-# Grouper 0.6.x
-
-* has() (#334)
-* Improved via chain code (#329, #330)
-* Improved schema validation (#267)
-* Improved group type support (multiple types, type addition|removal,
-  custom types) (#271, #272)
-* Rename subjectIDs in local subject<=>member mapping (#133)
-* Provide more specific Grouper exceptions (#351)
-* Removal of members that are no longer in use (#196)
-* Have GrouperQuery return group and member objects in addition to
-  lists (#256)
-* Delete groups that either have members or are members of other groups (#345)
-* Search all groups with a given stem [S&B#3]
-* Search all namespaces within a given stem [S&B#4]
-* Search by the set of groups or namespaces created or modified
-  by a specified subject [S&B#12]
-* Search by the extension or displayExtension attributes of groups
-  scoped to groups with a given stem [S&B#5]
-* Search by the extension or displayExtension attributes of
-  namespaces scoped to namespaces with a given stem [S&B#6]
-* Search by the set of groups to which a given subject is an immediate 
-  member can be listed [S&B#9]
-* Search by the set of groups to which a given subject is an effective 
-  member can be listed [S&B#10]
-
----
-
-# Grouper 0.7
-
-"API meeting Phase 2 specs (group math & signet integration)"
-
-* Support for external data validators
-
----
-
-# Grouper 0.8
-
-"UI supporting Phase 2 functionality"
+## Contributed Code
+* com.devclue.grouper contributed code
 
 ---
 
 # Grouper 0.9
 
-"API meeting Phase 3 specs (aging of groups and of memberships)"
+## Features
+* Refactored API
+* ALL subject
+* Improved exception hierarchy (#351)
+* Rename subjectIDs in local subject<=>member mapping (#133)
+* Make all query methods scoped
+
+## Documentation
+* Proposed API Changes
+* Proposed Access and Naming Privilege API changes
+
+## Internals
+* Hibernate 3.x
+* List value aging
+* Custom source for all internal subjects (root, all, etc)
+* Switch to commons logging
+* Make _InsufficientPrivilegeException_ !public
+* Make _CacheNotFoundException_ !public
+* Make _DbSess_ !public
+* Make _GrouperLog_ !public
+* Make _MemberOf_ !public
+* Make _SimpleCache_ !public
 
 ---
 
 # Grouper 1.0
 
-"UI supporting Phase 3 functionality"
+## Features
+* Group math
 
 ---
 
-# Unassigned
+# Grouper 1.1
 
+## Features
+* Aging Tasks
+
+---
+
+# Future Release
+
+* has() (#334)
+* Improved group type support (multiple types, type addition|removal,
+  custom types) (#271, #272)
+* Removal of members that are no longer in use (#196)
+* Delete groups that either have members or are members of other groups (#345)
+* Search by the set of groups or namespaces created or modified
+  by a specified subject [S&B#12]
+* Search by the set of groups to which a given subject is an immediate 
+  member can be listed [S&B#9]
+* Search by the set of groups to which a given subject is an effective 
+  member can be listed [S&B#10]
 * Configurable stem delimiter
 * Paged search results
 * Make search filters an interface that supports arbitrary local
   filter implementations
 * Group Hierarchy depth restrictions
-* Group Hierarchy delimiter configuration
 * Personal Groups
 * Improved, expanded and more consistent logging policy (#226)
-* Improved Java Beans compliance
 * Ability to rename groups (#262) 
-* Search by arbitrary attribute
 * Search limits
-
-
-
 
