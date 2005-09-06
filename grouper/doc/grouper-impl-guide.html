@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-03 17:22:45 $
+$Date: 2005-09-06 16:53:15 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -259,7 +259,8 @@ groups) have what access to each namespace and group.
 The Groups Registry uses a RDBMS to store information on namespaces,
 groups, memberships and possibly privileges.  Grouper is
 currently known to work and tested with HSQLDB, PostgreSQL and Oracle.
-This is the current Grouper database schema <a href="erd.jpg">ERD</a>.
+This is the current Grouper database schema 
+<a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/grouper/doc/erd.jpg?rev=1.2&cvsroot=I2MI">ERD</a>.
 </p>
 <!-- registry_gans -->
 <!-- registry_attrs -->
@@ -745,7 +746,7 @@ was used where we now say <i>extension</i>).
 Second, that the names of groups, as with the titles of many types of
 things, influence people's initial expectations of the meaning of
 those groups. Seeing "Enterprise Information Systems staff" by itself
-gives a different impression than seeing it in the context of
+gives a different impression than seeing it in the naming context of
 "Biological Sciences Division". That, in part, motivates the care taken
 in the design of Grouper's <a href="#registry_privs">privilege
 model</a>.
@@ -1019,7 +1020,10 @@ and Oracle.
 Grouper uses HSQLDB as its default RDBMS.  The ony configuration that
 may be required is to provide an absolute path to one's database by
 setting <i>hibernate.connection.url</i> in
-<tt>$GROUPER/conf/grouper.properties</tt>.
+<tt>$GROUPER/conf/grouper.properties</tt>.  The
+<i>hibernate.connection.url</i> can be chosen to refer to an instance
+of HSQLDB running in "server mode", recommended for installations
+containing more than just a few groups and namespaces.
 </p>
 <!-- config_db_hsqldb -->
 <!-- config_db_postgres -->
@@ -1105,8 +1109,8 @@ information on subjects and the I2MI Subject API.
 The configuration file for Grouper's I2MI Subject API resolver is 
 <tt>$GROUPER/config/sources.xml</tt>.  The I2MI Subject API is used
 to map an external IDM infrastructure to Grouper internals and can
-be used to identify people, groups and applications from multiple
-sources of authority.
+be used to identify people, groups and applications or other subject
+types from multiple sources of authority.
 </p>
 <p>
 Grouper's default configuration uses Grouper as the source of
@@ -1257,8 +1261,9 @@ See <a href="http://middleware.internet2.edu/dir/groups/docs/draft-internet2-mac
 for details.
 </p>
 <p>
-Grouper currently has no way to limit the number of objects returned by a
-search.  Search result limits will be added in a future release.
+Grouper currently has no way to order or limit the number of objects
+returned by a search.  Search result limits will be added in a
+future release.
 </p>
 <!-- integrate_inandout -->
 <!-- integrate_subjects -->
@@ -1319,6 +1324,16 @@ is to be expressed elsewhere, the identifier used for group members
 can be translated by a provisioning connector by use of the Subject
 API into one that is suitable in the provisioned context.
 </p>
+<p>
+Grouper includes the initial v0.1 release of the Subject API, which
+only includes support for two sources of authority for subject
+information. Sites can choose to write a source adapter class that
+would hit their LDAP directory or Person Registry directly to
+validate that a <i>subjectID</i> is in fact one that is valid for
+a group management operation.  It is expected that the I2MI Subject
+API will include an LDAP source adapter in the near future.
+</p>
+
 <p>
 While Grouper currently only includes support for two sources of
 authority for subject information, sites could write a source adapter
@@ -1563,11 +1578,12 @@ groups and memberships.  To use it:
 <p>
 <i>grouperq</i> is a program that provides a command line interface for
 performing simple queries on the Groups Registry.  To use it:
+</p>
 <ol>
   <li>Change to the <tt>$GROUPER/contrib/load/groupmgr</tt> directory</li>
   <li>Follow the instructions in the README file</li>
 </ol>
-</p>
+<p></p>
 <!-- sample_grouperq -->
 <!-- sample -->
 
