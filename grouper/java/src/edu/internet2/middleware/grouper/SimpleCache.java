@@ -69,9 +69,9 @@ import  org.apache.commons.logging.LogFactory;
  * TODO And condense the multiple key levels into one?
  *
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.2 2005-09-06 14:14:06 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.3 2005-09-06 18:44:53 blair Exp $
  */
-class SimpleCache {
+public class SimpleCache {
 
   /*
    * PRIVATE CLASS VARIABLES

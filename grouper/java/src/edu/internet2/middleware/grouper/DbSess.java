@@ -62,9 +62,9 @@ import  net.sf.hibernate.cfg.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.10 2005-09-06 14:14:06 blair Exp $
+ * @version $Id: DbSess.java,v 1.11 2005-09-06 18:44:53 blair Exp $
  */
-class DbSess {
+public class DbSess {
 
   /*
    * PRIVATE CLASS CONSTANTS

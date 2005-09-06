@@ -57,9 +57,9 @@ package edu.internet2.middleware.grouper;
  * insufficient privileges.
  * <p />
  * @author  blair christensen.
- * @version $Id: InsufficientPrivilegeException.java,v 1.2 2005-09-06 18:37:54 blair Exp $
+ * @version $Id: InsufficientPrivilegeException.java,v 1.3 2005-09-06 18:44:53 blair Exp $
  */
-class InsufficientPrivilegeException extends Exception {
+public class InsufficientPrivilegeException extends Exception {
 
   /*
    * CONSTRUCTORS
