@@ -60,11 +60,11 @@ import  org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /** 
- * Class modeling a {@link GrouperGroup} type definition relationship.
+ * A (field, group type) pair within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperTypeDef.java,v 1.21 2005-03-29 17:32:02 blair Exp $
+ * @version $Id: GrouperTypeDef.java,v 1.22 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperTypeDef implements Serializable {
 

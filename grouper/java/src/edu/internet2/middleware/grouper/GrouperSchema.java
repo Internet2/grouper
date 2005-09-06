@@ -61,11 +61,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link GrouperGroup} schema definition.
+ * Provides schema mappings for different group types.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSchema.java,v 1.25 2005-03-29 20:30:56 blair Exp $
+ * @version $Id: GrouperSchema.java,v 1.26 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperSchema implements Serializable {
 

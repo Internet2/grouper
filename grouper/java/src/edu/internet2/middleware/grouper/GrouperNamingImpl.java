@@ -58,9 +58,13 @@ import  java.util.*;
 /** 
  * Default implementation of the {@link GrouperNaming} privilege interface.
  * <p />
+ * <p>
+ * This implementation uses the Groups Registry, groups and memberships
+ * to record privilege information.
+ * </p>
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.72 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.73 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 

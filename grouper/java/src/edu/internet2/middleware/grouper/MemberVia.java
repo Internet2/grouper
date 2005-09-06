@@ -61,11 +61,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} via path element.
+ * An effective membership path element within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: MemberVia.java,v 1.18 2005-07-13 18:33:38 blair Exp $
+ * @version $Id: MemberVia.java,v 1.19 2005-09-06 19:04:45 blair Exp $
  */
 public class MemberVia implements Serializable {
 
@@ -254,7 +254,7 @@ public class MemberVia implements Serializable {
   }
 
   /*
-   * Save this object to the groups registry.
+   * Save this object to the Groups Registry.
    */
   protected void save(DbSess dbSess) {
     // TODO I should validate our state first

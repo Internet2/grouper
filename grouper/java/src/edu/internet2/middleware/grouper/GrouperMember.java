@@ -60,11 +60,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} list value member.
+ * A member within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.93 2005-09-03 15:46:05 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.94 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperMember {
 
@@ -494,7 +494,7 @@ public class GrouperMember {
   }
 
   /*
-   * Save a {@link GrouperMember} to the groups registry.
+   * Save a {@link GrouperMember} to the Groups Registry.
    */
   protected void save(DbSess dbSess) {
     try {
@@ -612,7 +612,7 @@ public class GrouperMember {
    */
 
   /*
-   * Perform a list query against the groups registry.
+   * Perform a list query against the Groups Registry.
    */
   private List queryListVals(String qry, String list) {
     List vals = new ArrayList();

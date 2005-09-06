@@ -60,11 +60,11 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * {@link Grouper} {@link Subject} implementation.
+ * {@link Subject} returned by the {@linK GrouperSource Adapter}.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.44 2005-07-19 15:33:31 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.45 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperSubject implements Subject {
 

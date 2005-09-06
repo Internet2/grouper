@@ -59,11 +59,12 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * Class modeling a {@link GrouperGroup} field.
+ * Provides schema information for attributes and lists within the
+ * Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperField.java,v 1.25 2005-07-18 19:09:05 blair Exp $
+ * @version $Id: GrouperField.java,v 1.26 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperField implements Comparable {
 
