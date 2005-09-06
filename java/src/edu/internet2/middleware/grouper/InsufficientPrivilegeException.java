@@ -53,11 +53,11 @@ package edu.internet2.middleware.grouper;
 
 
 /** 
- * Thrown when subject attempting to perform an operation has
- * insufficient privileges.
+ * Internal exception thrown when subject attempting to perform an
+ * operation has insufficient privileges.
  * <p />
  * @author  blair christensen.
- * @version $Id: InsufficientPrivilegeException.java,v 1.3 2005-09-06 18:44:53 blair Exp $
+ * @version $Id: InsufficientPrivilegeException.java,v 1.4 2005-09-06 19:04:45 blair Exp $
  */
 public class InsufficientPrivilegeException extends Exception {
 

@@ -60,11 +60,12 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * Class for performing I2MI {@link Subject} lookups.
+ * Provides a wrapper for searching through all known sources of
+ * subjecct information.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: SubjectFactory.java,v 1.15 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: SubjectFactory.java,v 1.16 2005-09-06 19:04:45 blair Exp $
  */
 public class SubjectFactory {
 

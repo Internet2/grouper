@@ -61,11 +61,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link Grouper} list value.
+ * A membership within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperList.java,v 1.62 2005-09-03 15:46:05 blair Exp $
+ * @version $Id: GrouperList.java,v 1.63 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperList implements Serializable {
 
@@ -253,7 +253,7 @@ public class GrouperList implements Serializable {
 
 
   /*
-   * Delete a {@link GrouperList} object from the groups registry.
+   * Delete a {@link GrouperList} object from the Groups Registry.
    */
   protected static void delete(GrouperSession s, GrouperList gl) {
     // TODO Refactor into smaller components
@@ -323,7 +323,7 @@ public class GrouperList implements Serializable {
   }
 
   /*
-   * Save a {@link GrouperList} object to the groups registry.
+   * Save a {@link GrouperList} object to the Groups Registry.
    */
   protected static void save(GrouperSession s, GrouperList gl) {
     GrouperList.validate(gl);

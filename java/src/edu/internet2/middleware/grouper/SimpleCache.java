@@ -62,15 +62,15 @@ import  org.apache.commons.logging.LogFactory;
 /** 
  * Internal class providing a simple and extremely naive cache.
  * <p />
- * TODO Ideally this class would just become a passthrough for an
- * ehcache cache<br />
- * TODO Until then, however, do I need a TTL?<br />
- * TODO And a flush?<br />
- * TODO And condense the multiple key levels into one?
  *
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.3 2005-09-06 18:44:53 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.4 2005-09-06 19:04:45 blair Exp $
  */
+ // TODO Ideally this class would just become a passthrough for an
+ // ehcache cache<br />
+ // TODO Until then, however, do I need a TTL?<br />
+ // TODO And a flush?<br />
+ // TODO And condense the multiple key levels into one?
 public class SimpleCache {
 
   /*

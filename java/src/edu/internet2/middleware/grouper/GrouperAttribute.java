@@ -61,11 +61,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a {@link GrouperGroup} attribute.
+ * A group or namespace attribute within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.34 2005-07-14 20:26:47 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.35 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -163,7 +163,7 @@ public class GrouperAttribute implements Serializable {
   }
 
   /*
-   * Save an attribute in the groups registry.
+   * Save an attribute in the Groups Registry.
    */
   protected static void save(GrouperSession s, GrouperAttribute attr) {
     String            qry   = "GrouperAttribute.by.key.and.field";

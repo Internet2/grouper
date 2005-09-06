@@ -59,11 +59,11 @@ import  net.sf.hibernate.*;
 
 
 /** 
- * Class modeling a {@link Grouper} stem.
+ * A namespace within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.59 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.60 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -173,7 +173,7 @@ public class GrouperStem extends Group {
   }
 
   /**
-   * Retrieve list of all root namespaces within this groups registry.
+   * Retrieve list of all root namespaces within this Groups Registry.
    * <p />
    * <pre class="eg">
    * List roots = GrouperStem.getRootStems(s);

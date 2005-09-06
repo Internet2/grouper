@@ -59,11 +59,11 @@ import  net.sf.hibernate.*;
 
 
 /** 
- * Class modeling a {@link Grouper} group.
+ * A group within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperGroup.java,v 1.231 2005-09-03 15:46:05 blair Exp $
+ * @version $Id: GrouperGroup.java,v 1.232 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperGroup extends Group {
 

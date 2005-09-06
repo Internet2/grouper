@@ -56,11 +56,11 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class modeling a null {@link GrouperGroup} attribute.
+ * A null group or namespace attribute within the Groups Registry.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: NullGrouperAttribute.java,v 1.2 2005-05-17 20:30:33 blair Exp $
+ * @version $Id: NullGrouperAttribute.java,v 1.3 2005-09-06 19:04:45 blair Exp $
  */
 public class NullGrouperAttribute extends GrouperAttribute {
 

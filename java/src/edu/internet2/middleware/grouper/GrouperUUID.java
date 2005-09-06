@@ -56,12 +56,12 @@ import  org.doomdark.uuid.UUIDGenerator;
 
 
 /** 
- * Class for generating UUIDs.
+ * Provides a method for generating UUIDs.
  * <p />
  * This class uses the Doomdark UUID generator to create random UUIDs.
  *
  * @author  blair christensen.
- * @version $Id: GrouperUUID.java,v 1.3 2005-04-12 15:00:38 blair Exp $
+ * @version $Id: GrouperUUID.java,v 1.4 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperUUID {
 

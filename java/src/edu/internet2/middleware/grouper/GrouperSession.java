@@ -64,11 +64,12 @@ import  org.apache.commons.logging.LogFactory;
 
 
 /** 
- * Class modeling a {@link Grouper} session.
+ * Provides an environment within which all interactions within the
+ * Groups Registry must occur.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.108 2005-09-06 18:33:03 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.109 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -671,7 +672,7 @@ public class GrouperSession implements Serializable {
   }
 
   /*
-   * Delete a session from the groups registry.
+   * Delete a session from the Groups Registry.
    */
   private void delete() {
     try {
@@ -721,7 +722,7 @@ public class GrouperSession implements Serializable {
   }
 
   /*
-   * Save the session to the groups registry.
+   * Save the session to the Groups Registry.
    */
   private void save() {
     try {

@@ -58,11 +58,11 @@ import  net.sf.hibernate.cfg.*;
 
 
 /** 
- * Internal class representing a database session.
+ * Internal wrapper around a Hibernate session.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: DbSess.java,v 1.11 2005-09-06 18:44:53 blair Exp $
+ * @version $Id: DbSess.java,v 1.12 2005-09-06 19:04:45 blair Exp $
  */
 public class DbSess {
 

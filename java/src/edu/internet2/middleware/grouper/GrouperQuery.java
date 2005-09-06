@@ -58,7 +58,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
- * Class for querying the groups registry.
+ * Provides methods for querying the Groups Registry.
  * <p />
  * <p>
  * This class allows one to combine one or more query filter methods
@@ -83,7 +83,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * }
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.32 2005-09-03 15:46:05 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.33 2005-09-06 19:04:45 blair Exp $
  */
 public class GrouperQuery {
 

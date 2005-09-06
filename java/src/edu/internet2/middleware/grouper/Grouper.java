@@ -58,11 +58,11 @@ import  java.util.*;
 
 
 /** 
- * Class providing access to the {@link Grouper} environment.
+ * Provides access to Grouper configuration and schema information.
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Grouper.java,v 1.82 2005-09-03 04:26:40 blair Exp $
+ * @version $Id: Grouper.java,v 1.83 2005-09-06 19:04:45 blair Exp $
  */
 public class Grouper {
 
