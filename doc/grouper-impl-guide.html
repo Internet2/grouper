@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-06 16:53:15 $
+$Date: 2005-09-06 23:41:20 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -1333,15 +1333,6 @@ validate that a <i>subjectID</i> is in fact one that is valid for
 a group management operation.  It is expected that the I2MI Subject
 API will include an LDAP source adapter in the near future.
 </p>
-
-<p>
-While Grouper currently only includes support for two sources of
-authority for subject information, sites could write a source adapter
-class that would hit their LDAP directory or Person Registry directly
-to validate that a <i>subjectID</i> is in fact one that is valid
-for a group management operation.  It is expected that the I2MI Subject
-API will include a LDAP source adapter in the near future.
-</p>
 <!-- integrate_subjects_resolve -->
 <!-- integrate_privs -->
 <div class="subsection">
@@ -1361,23 +1352,21 @@ with a
 Privilege Registry in the future.
 </p>
 <p>
-The default implementations of the Access and Naming privileges that
-are used by Grouper uses group list values to represent assigned
-privileges.  Because privileges are modeled as list values in these
-implementations one is able to take advantage of Grouper's list
-management capabilities.  In particular, this means that one can use
-subgroups to provide for the interitance of privileges.  In addition,
-one will be able to take advantage of group math and aging tasks to
-provide an even richer privilege management environment.
+The default implementations of the Access and Naming privileges that are used
+by Grouper use group list values to represent assigned privileges, enabling
+Grouper's list management capabilities to be used in privilege management. In
+particular, this means that one can use subgroups to provide for the
+inheritance of privileges. In addition, one will be able to take
+advantage of group math and aging tasks to provide an even richer
+privilege management environment.
 </p>
 <p>
-If a site desires to replace one or both of the default privilege
-implementations, see the <i>GrouperAccess</i> and <i>GrouperNaming</i>
-javadoc for information on the interface that must be implemented.  In
-addition, the <i>interface.access</i> and <i>interface.naming</i>
-configuration parameters in <tt>$GROUPER/conf/grouper.properties</tt>
-will need to be adjusted to reflect the privilege implementation being
-used.
+To replace one or both of the default privilege implementations, 
+see the <i>GrouperAccess</i> and <i>GrouperNaming</i> javadoc for
+information on the interface that must be implemented.  In addition,
+the <i>interface.access</i> and <i>interface.naming</i> configuration
+parameters in <tt>$GROUPER/conf/grouper.properties</tt> will need
+to be adjusted to reflect the privilege implementation being used.
 </p>
 <!-- integrate_privs_dgmc -->
 <div class="subsubsection">
@@ -1414,7 +1403,7 @@ management of groups.
 <p>
 An example of an actual scenario for delegation of group management to
 solve an access control problem can be found in
-<a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt</a>.
+<a href="http://home.uchicago.edu/%7Etbarton/camp-200411/20041117-authz.ppt">&lt;http://home.uchicago.edu/~tbarton/camp -200411/20041117-authz.ppt&gt;</a>.
 </p>
 <!-- integrate_privs_dgmc -->
 <!-- registry_privs -->
