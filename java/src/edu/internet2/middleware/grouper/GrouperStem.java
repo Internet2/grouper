@@ -63,7 +63,7 @@ import  net.sf.hibernate.*;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperStem.java,v 1.60 2005-09-06 19:04:45 blair Exp $
+ * @version $Id: GrouperStem.java,v 1.61 2005-09-07 18:58:15 blair Exp $
  */
 public class GrouperStem extends Group {
 
@@ -176,12 +176,28 @@ public class GrouperStem extends Group {
    * Retrieve list of all root namespaces within this Groups Registry.
    * <p />
    * <pre class="eg">
+   * // Retrieve the root namespaces within the Groups Registry
    * List roots = GrouperStem.getRootStems(s);
    * </pre>
    * @return  List of {@link GrouperStem} objects.
    */
   public static List getRootStems(GrouperSession s) {
-    return GrouperStem.getStems(s, Grouper.NS_ROOT);
+    List      stems = new ArrayList();
+    Iterator  iter  = GrouperStem.getChildStemKeys(
+      s, Grouper.NS_ROOT
+    ).iterator();
+    while (iter.hasNext()) {
+      String      key = (String) iter.next();
+      try {
+        GrouperStem ns  = (GrouperStem) Group.loadByKey(s, key);
+        if (s != null) { // TODO
+          stems.add(ns);
+        }
+      } catch (InsufficientPrivilegeException e) {
+        // TODO Ignore?
+      }
+    }
+    return stems;
   }
 
   /**
@@ -325,37 +341,27 @@ public class GrouperStem extends Group {
    * Retrieve list of groups that are <b>immediate</b> children
    * of this stem.
    * <p />
+   * <pre class="eg">
+   * // Retrieve groups that are immediate children of this namespace
+   * List groups = ns.groups();
+   * </pre>
    * @return  List of {@link GrouperGroup} objects.
    */
   public List groups() {
-    // TODO Shares a lot of common code with stems()
-    String  qry   = "Group.key.child.group.of.stem";
-    List    vals  = new ArrayList();
-    try {
-      Query q = s.dbSess().session().getNamedQuery(qry);
-      q.setString(0, this.name());
+    List      groups  = new ArrayList();
+    Iterator  iter    = this.getChildGroupKeys().iterator();
+    while (iter.hasNext()) {
+      String key = (String) iter.next();
       try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          try {
-            String key = (String) iter.next();
-            GrouperGroup s = (GrouperGroup) Group.loadByKey(this.s, key);
-            vals.add(s);
-          } catch (InsufficientPrivilegeException e) {
-            // Ignore
-          }
+        GrouperGroup g = (GrouperGroup) Group.loadByKey(this.s, key);
+        if (g != null) { // TODO
+          groups.add(g);
         }
-      } catch (HibernateException e) {
-        throw new RuntimeException(
-          "Error retrieving results for " + qry + ": " + e.getMessage()
-        );
+      } catch (InsufficientPrivilegeException e) {
+        // TODO Ignore?
       }
-    } catch (HibernateException e) {
-      throw new RuntimeException(
-        "Unable to get query " + qry + ": " + e.getMessage()
-      );
     }
-    return vals;
+    return groups;
   }
 
   /**
@@ -612,12 +618,26 @@ public class GrouperStem extends Group {
    * of this stem.
    * <p />
    * <pre class="eg">
-   * List stems = s.stems();
+   * // Retrieve namespaces that are immediate children of this namespace
+   * List stems = ns.stems();
    * </pre>
    * @return  List of {@link GrouperStem} objects.
    */
   public List stems() {
-    return GrouperStem.getStems(this.s, this.name());
+    List      stems = new ArrayList();
+    Iterator  iter  = this.getChildStemKeys().iterator();
+    while (iter.hasNext()) {
+      String      key = (String) iter.next();
+      try {
+        GrouperStem ns  = (GrouperStem) Group.loadByKey(s, key);
+        if (s != null) { // TODO
+          stems.add(ns);
+        }
+      } catch (InsufficientPrivilegeException e) {
+        // TODO Ignore?
+      }
+    }
+    return stems;
   }
 
   /**
@@ -649,6 +669,19 @@ public class GrouperStem extends Group {
     return rv;
   }
 
+  /*
+   * Get keys of child groups
+   */
+  protected static List getChildGroupKeys(GrouperSession s, String stem) {
+    return GrouperStem._getChildKeys(s, stem, "Group.key.child.group.of.stem");
+  }
+
+  /*
+   * Get keys of child stems
+   */
+  protected static List getChildStemKeys(GrouperSession s, String stem) {
+    return GrouperStem._getChildKeys(s, stem, "Group.key.child.stem.of.stem");
+  }
 
   /*
    * PROTECTED INSTANCE METHODS
@@ -668,6 +701,20 @@ public class GrouperStem extends Group {
   protected void attributeDel(GrouperAttribute attr) {
     attr.delete(this.s);
     this.attributes.remove(attr.field());
+  }
+
+  /*
+   * Get keys of child groups
+   */
+  protected List getChildGroupKeys() {
+    return GrouperStem.getChildGroupKeys(this.s, this.getName());
+  }
+
+  /*
+   * Get keys of child stems
+   */
+  protected List getChildStemKeys() {
+    return GrouperStem.getChildStemKeys(this.s, this.getName());
   }
 
   /*
@@ -782,26 +829,15 @@ public class GrouperStem extends Group {
   }
 
   /*
-   * Find immediate child stems within a given namespace
+   * Retrieve keys matching the specified query
    */
-  private static List getStems(GrouperSession s, String stem) {
-    // TODO Shares a lot of common code with groups()
-    String  qry   = "Group.key.child.stem.of.stem";
-    List    vals  = new ArrayList();
+  private static List _getChildKeys(GrouperSession s, String stem, String qry) {
+    List keys = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, stem);
       try {
-        Iterator iter = q.list().iterator();
-        while (iter.hasNext()) {
-          try {
-            String key = (String) iter.next();
-            GrouperStem ns = (GrouperStem) Group.loadByKey(s, key);
-            vals.add(ns);
-          } catch (InsufficientPrivilegeException e) {
-            // Ignore
-          }
-        }
+        keys = q.list();
       } catch (HibernateException e) {
         throw new RuntimeException(
           "Error retrieving results for " + qry + ": " + e.getMessage()
@@ -812,9 +848,8 @@ public class GrouperStem extends Group {
         "Unable to get query " + qry + ": " + e.getMessage()
       );
     }
-    return vals;
+    return keys;
   }
-
   /*
    * Load the specified stem
    */

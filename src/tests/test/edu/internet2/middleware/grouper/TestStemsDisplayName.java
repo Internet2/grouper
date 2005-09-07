@@ -257,6 +257,7 @@ public class TestStemsDisplayName extends TestCase {
     );
 
     // Parent
+    Constants.ns0 = Constants.loadStem(s, Constants.ns0s, Constants.ns0e);
     Constants.ns0.attribute(attrE, null);
     Assert.assertNotNull(
       attrE + " != null (ns0/reset)",
@@ -277,7 +278,6 @@ public class TestStemsDisplayName extends TestCase {
       )
     );
     // Child - reloaded
-    // FIXME Once I make _refresh()_ public I can switch
     Constants.ns1 = Constants.loadStem(s, Constants.ns1s, Constants.ns1e);
     Assert.assertNotNull(
       attrE + " != null (ns1/reset)",
@@ -293,10 +293,9 @@ public class TestStemsDisplayName extends TestCase {
     );
     Assert.assertTrue(
       attrN + " right value (ns1/reset)",
-      Constants.ns1.getDisplayName().equals(
-        "root:a stem"
-      )
+      Constants.ns1.getDisplayName().equals( Constants.ns1.getName() )
     );
+
   }
 
   public void testSetDisplayExtnOnGrandparent() {
