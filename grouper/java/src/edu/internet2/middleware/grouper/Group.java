@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.48 2005-09-06 18:33:03 blair Exp $
+ * @version $Id: Group.java,v 1.49 2005-09-07 18:58:15 blair Exp $
  */
 abstract public class Group {
 
@@ -588,7 +588,9 @@ abstract public class Group {
         g.attributeAdd(attr);
       }
 
-      updateDisplayedAttributes(s, g, attribute, value);
+      if (attribute.equals("displayExtension")) {
+        updateDisplayNames(s, g, value);
+      } 
 
       g.setModified();
       s.dbSess().txCommit();
@@ -990,71 +992,82 @@ abstract public class Group {
     }
   }
 
-  /*
-   * Update _displayExtension_ and _displayName_ as appropriate,
-   * including recursively if necessary.
-   */
-  private void updateDisplayedAttributes(
-    GrouperSession s, Group g, String attr, String extn
+  // Its own method primarily so I can recurse back into it
+  private void updateChildDisplayNames(
+    GrouperSession s, String stem, String stemDN
   ) 
   {
-    GrouperAttribute dn = g.attribute("displayName");
-    // Update this group
-    if (attr.equals("displayExtension")) {
-      dn.setGroupFieldValue( Group.getDisplayName(s, g.getStem(), extn) );
-      g.attributeAdd(dn);
-    }
-
-    // And update children if a stem
-    if (
-        (g.type().equals(Grouper.NS_TYPE)) &&
-        (
-          (attr.equals("displayExtension")) ||
-          (attr.equals("displayName"))
-        )
-       )
-    {
-      // Update any potential children as root to avoid access
-      // restrictions
-      // FIXME Of course, the combination of doing this in a separate
-      // session and how we currently maintain|load|attach attributes
-      // to groups and stems means that children that are modified
-      // *and* already loaded in the parent session context won't
-      // display the changed values unless a reload (or _refresh()_ when 
-      // I make that public) occurs.  
-      try {
-        GrouperStem parent = (GrouperStem) GrouperStem.loadByKey(
-          GrouperSession.getRootSession(), g.key()
-        );
-
-        // Child groups
-        Iterator groups = parent.groups().iterator();
-        while (groups.hasNext()) {
-          GrouperGroup      cg = (GrouperGroup) groups.next();
-          // Attempt to evade access controls
-          GrouperAttribute  gn = cg.attribute("displayName");
-          gn.setGroupFieldValue(
-            Group.getDisplayName( dn.value(), cg.getDisplayExtension() )
-          );
-          cg.attributeAdd(gn);
+    this.updateChildDisplayNames(
+      s, stemDN, GrouperStem.getChildGroupKeys(s, stem).iterator()
+    );
+    this.updateChildDisplayNames(
+      s, stemDN, GrouperStem.getChildStemKeys(s, stem).iterator()
+    );
+  }
+ 
+  // Update _displayName_ for all child groups and stems
+  private void updateChildDisplayNames(
+    GrouperSession s, String stemDN, Iterator iter
+  )
+  {
+    while (iter.hasNext()) {
+      String  key = (String) iter.next();
+      String  dE  = GrouperAttribute.getAttrValByKey(
+        s, key, "displayExtension"
+      );
+      // Merge the desired new _displayName_ with the current
+      // _displayExtension_
+      String  newDN = stemDN + Grouper.HIER_DELIM + dE;
+      Group             g   = null;
+      GrouperAttribute  dn  = null;
+      // First try to retrieve the group from the session cache as it
+      // might already be loaded.
+      try { 
+        g = (Group) s.dbSess().session().get(Group.class, key);
+        if (g != null) {
+          // If so, do a direct update.
+          dn = g.attribute("displayName");
+          dn.setGroupFieldValue(newDN);
         }
-
-        // Child stems.  This will recurse.
-        Iterator stems = parent.stems().iterator();
-        while (stems.hasNext()) {
-          GrouperStem cs = (GrouperStem) stems.next();
-          cs.attribute(
-            "displayName",
-            Group.getDisplayName( dn.value(), cs.getDisplayExtension())
-          );
-        }
-
-      } catch (InsufficientPrivilegeException e) {
+      } catch (HibernateException e) {
         throw new RuntimeException(
-          "Error updating child displayName: " + e.getMessage()
+          "Error retrieving group: " + e.getMessage()
         );
       }
+      // Otherwise, instantiate a new object with the right value and
+      // save that instead.
+      // ??? Is this statement ever reached?
+      if (dn == null) {
+        dn = new GrouperAttribute(
+          key, "displayName", newDN
+        );
+        GrouperAttribute.save(s, dn);
+      }
+      // And now attempt to recurse down into all children
+      // TODO This is inefficient in that we perform this query for
+      // stems *and* groups.
+      this.updateChildDisplayNames(
+        s, GrouperAttribute.getAttrValByKey(s, key, "name"), newDN
+      );
     }
+  }
+
+  // Update a group's _displayName_ and then recurse as appropriate
+  private void updateDisplayNames(
+    GrouperSession s, Group g, String displayExtn
+  )
+  {
+    // Update the _displayName_ for this group
+    GrouperAttribute dn = g.attribute("displayName");
+    dn.setGroupFieldValue( 
+      Group.getDisplayName(s, g.getStem(), displayExtn) 
+    );
+    g.attributeAdd(dn);
+
+    // And update children if a stem
+    if (g.type().equals(Grouper.NS_TYPE)) {
+      updateChildDisplayNames(s, g.getName(), dn.value());
+    } 
   }
 
 }

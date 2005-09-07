@@ -65,7 +65,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperAttribute.java,v 1.35 2005-09-06 19:04:45 blair Exp $
+ * @version $Id: GrouperAttribute.java,v 1.36 2005-09-07 18:58:15 blair Exp $
  */
 public class GrouperAttribute implements Serializable {
 
@@ -163,11 +163,37 @@ public class GrouperAttribute implements Serializable {
   }
 
   /*
+   * Retrieve an attribute value by group key
+   */
+  protected static String getAttrValByKey(
+    GrouperSession s, String key, String field
+  ) 
+  {
+    String qry = "GrouperAttribute.string.value.by.group.key";
+    try {
+      Query q = s.dbSess().session().getNamedQuery(qry);
+      q.setString(0, key);    // Search for this key
+      q.setString(1, field);  // And this field value
+      try {
+        return (String) q.uniqueResult();
+      } catch (HibernateException e) {
+        throw new RuntimeException(
+          "Error retrieving results for " + qry + ": " + e.getMessage()
+        );
+      }
+    } catch (HibernateException e) {
+      throw new RuntimeException(
+        "Unable to get query " + qry + ": " + e.getMessage()
+      );
+    }
+  }
+
+  /*
    * Save an attribute in the Groups Registry.
    */
   protected static void save(GrouperSession s, GrouperAttribute attr) {
-    String            qry   = "GrouperAttribute.by.key.and.field";
-    List              vals  = new ArrayList();
+    String qry   = "GrouperAttribute.by.key.and.field";
+    List   vals  = new ArrayList();
     try {
       Query q = s.dbSess().session().getNamedQuery(qry);
       q.setString(0, attr.key());
@@ -197,6 +223,7 @@ public class GrouperAttribute implements Serializable {
               );
             }
           } else {
+            // FIXME ???
           }
         } 
       } catch (HibernateException e) {
