@@ -3,35 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.46 2005-09-06 20:11:30 blair Exp $
-
----
-
-## Known Issues
-* Fuzzy search performance (#391)
-* Index analysis
-* Improved via chain code (#329, #330)
-* Effective membership performance profiling
-
----
-
-## Design
-
-* When a subject is a member of a group that they don't have VIEW access
-  on, should a) that group be included in a list of mships but not
-  necessarily accessible or b) not included at all?
-* Should STEM imply CREATE?
-
----
-
-## Documentation
-* "Programming With The Grouper API" guide
-* Review and document named queries
-
----
-
-## Contributed Code
-* com.devclue.grouper contributed code
+$Id: ROADMAP,v 1.47 2005-09-07 22:13:48 blair Exp $
 
 ---
 

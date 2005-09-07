@@ -4,7 +4,7 @@
 This file is intended to give you a brief overview of how the Grouper
 directory tree is structured.
 
-$Id: LAYOUT,v 1.14 2005-09-03 15:46:05 blair Exp $
+$Id: LAYOUT,v 1.15 2005-09-07 22:13:48 blair Exp $
 
 ---
 
@@ -104,13 +104,17 @@ Grouper implementation guide.
 
 Generated API javadoc.
 
-### NEWS
+### KNOWN_ISSUES
 
-Release Notes.
+Known issues with the Grouper API and Groups Registry.
 
 ### LAYOUT
 
 This file.
+
+### NEWS
+
+Release Notes.
 
 ### ROADMAP
 
