@@ -21,6 +21,7 @@ ui.folder=${basedir}
 webapp.name=grouper
 
 #Where to build
+dist.home=${basedir}/../dist
 default.webapp.folder=${basedir}/../build/${webapp.name}
 default.webapp.folder.cleanable=true
 
