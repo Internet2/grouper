@@ -64,7 +64,7 @@ import  java.util.*;
  * </p>
  *
  * @author  blair christensen.
- * @version $Id: GrouperAccessImpl.java,v 1.77 2005-09-06 19:04:45 blair Exp $
+ * @version $Id: GrouperAccessImpl.java,v 1.78 2005-09-08 16:18:22 blair Exp $
  */
 public class GrouperAccessImpl implements GrouperAccess {
 
@@ -375,14 +375,15 @@ public class GrouperAccessImpl implements GrouperAccess {
 
     if (this.can(priv) == true) {
       /*
-       * Verify that this subject has privileges to see this ist.
+       * Verify that this subject has privileges to see this list.
        * One of the reasons why we need to do this is that an empty
        * list could possibly be interpreted in two very different
        * ways (no members | no privilege to see the members) until
        * we add in the special _ALL_ subject and dispense with the
        * fuzzy magic of empty lists for _VIEW_ and _READ_ privileges.
        */
-      if (this.has(s, g, priv)) {
+      try {
+        s.canReadField(g, (String) privMap.get(priv));
         // And now retrieve the appropriate list keys, instantiate
         // them, and convert into their member objects.
         Iterator iter = Group.listValsKeys(
@@ -396,6 +397,8 @@ public class GrouperAccessImpl implements GrouperAccess {
             members.add(m);
           }
         }
+      } catch (InsufficientPrivilegeException e) {
+        // Ignore
       }
     }
     return members;

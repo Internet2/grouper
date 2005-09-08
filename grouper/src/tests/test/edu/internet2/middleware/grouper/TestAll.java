@@ -131,6 +131,7 @@ public class TestAll extends TestCase {
     suite.addTestSuite(TestNamingRevoke1.class);
     suite.addTestSuite(TestNamingCREATE.class);
     // FIXME suite.addTestSuite(TestNamingSTEM.class);
+    suite.addTestSuite(TestNamingWhoHas.class);
     suite.addTestSuite(TestAccessPrivs.class);
     suite.addTestSuite(TestAccessGrantMoF0.class);
     suite.addTestSuite(TestAccessGrantMoF1.class);
@@ -143,6 +144,7 @@ public class TestAll extends TestCase {
     // FIXME suite.addTestSuite(TestAccessADMIN.class);
     suite.addTestSuite(TestAccessOPTIN.class);
     suite.addTestSuite(TestAccessOPTOUT.class);
+    suite.addTestSuite(TestAccessWhoHas.class);
     suite.addTestSuite(TestQueryBase.class);
     suite.addTestSuite(TestQueryCreatedAfter.class);
     suite.addTestSuite(TestQueryCreatedBefore.class);

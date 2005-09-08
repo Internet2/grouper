@@ -64,7 +64,7 @@ import  java.util.*;
  * </p>
  *
  * @author  blair christensen.
- * @version $Id: GrouperNamingImpl.java,v 1.73 2005-09-06 19:04:45 blair Exp $
+ * @version $Id: GrouperNamingImpl.java,v 1.74 2005-09-08 16:18:22 blair Exp $
  */
 public class GrouperNamingImpl implements GrouperNaming {
 
@@ -379,7 +379,8 @@ public class GrouperNamingImpl implements GrouperNaming {
        * we add in the special _ALL_ subject and dispense with the
        * fuzzy magic of empty lists for _VIEW_ and _READ_ privileges.
        */
-      if (this.has(s, ns, priv)) {
+      try {
+        s.canReadField( (Group) ns, (String) privMap.get(priv));
         // And now retrieve the appropriate list keys, instantiate
         // them, and convert into their member objects.
         Iterator iter = Group.listValsKeys(
@@ -393,6 +394,8 @@ public class GrouperNamingImpl implements GrouperNaming {
             members.add(m);
           }
         }
+      } catch (InsufficientPrivilegeException e) {
+        // Ignore
       }
     }
     return members;
