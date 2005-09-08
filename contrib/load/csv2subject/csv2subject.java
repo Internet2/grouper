@@ -13,13 +13,13 @@ import  org.apache.commons.cli.*;
 
 
 /**
- * Sample laoder for populating the <i>grouper_subject</i> table from a
- * CVS input file.
+ * Sample loader for populating the <i>Subject</i> and
+ * <i>SubjectAttribute</i> tables from a CSV input file.
  * <p />
  * See <i>README</i> for more information.
  * 
  * @author  blair christensen.
- * @version $Id: csv2subject.java,v 1.18 2005-09-04 15:26:09 blair Exp $ 
+ * @version $Id: csv2subject.java,v 1.19 2005-09-08 01:30:55 blair Exp $ 
  */
 class csv2subject {
 
