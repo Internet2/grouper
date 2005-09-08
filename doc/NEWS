@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.77 2005-09-04 15:26:09 blair Exp $
+$Id: NEWS,v 1.78 2005-09-08 16:18:22 blair Exp $
 
 ---
 
@@ -60,6 +60,7 @@ $Id: NEWS,v 1.77 2005-09-04 15:26:09 blair Exp $
 * UPDATE: _grouper_attribute.groupFieldValue_ column size increased to 1024
 * UPDATE: _grouper_member_ table now includes a _subjectSource_ column
 
+* FIX: _whoHas()_ returns inaccurate results
 * FIX: Error granting privileges to and revoking privileges from self (#426)
 * FIX: _displayName_ of parent stems not consulted when creating new
   groups and stems.
