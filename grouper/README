@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   _doc/grouper-impl-guide.html_
 
-$Id: README,v 1.28 2005-06-09 17:43:12 blair Exp $
+$Id: README,v 1.29 2005-09-09 00:56:53 blair Exp $
 
 ---
 
@@ -33,7 +33,8 @@ Build Grouper from source.
     % ant db-init
 
 This initializes the Groups Registry with Grouper's default tables and
-schema.
+schema.  
+data.
 
 ---
 
@@ -42,32 +43,26 @@ schema.
     % ant test
 
 This adds some test subjects to the Groups Registry and then runs the
-Grouper test suite.
+Grouper test suite.  This is a *destructive* action and will destroy
+any data within the configured database.
 
 ---
 
 ## Installing
 
-  % ant dist
+These are optional tasks that may make runtime invocation easier.
 
-This will build _Grouper.jar_ and _Grouper-lib.jar_ files in the
-_dist/lib_ directory.  The latter is a rollup .jar of all the third
-party .jar files that Grouper relies upon.
+  % ant dist 
+
+Builds a _Grouper.jar_ file in the _dist/lib_ directory.
+
+  % ant dist-lib
+
+Builds a _Grouper-lib.jar_ file in the _dist/lib_ directory.  This is a
+rollup of all the third party .jar files that Grouper relies upon that
+are located in _java/lib_.
 
 --
-
-## Configuring
-
-Before using Grouper, you should adjust two configuration parameters
-and change relative paths to absolute paths.  
-
-In _conf/hibernate.properties_, change:
-  hibernate.connection.url
-
-In _conf/log4j.properties_, change:
-  log4j.appender.rfile.File
-
----
 
 ## Using
 
@@ -75,9 +70,11 @@ You may now try using any of the sample contributed programs (located
 in _contrib/_) or your own Grouper code.  You will need to add the
 following to your _$CLASSPATH_ to use Grouper:
 
-* Path to _Grouper.jar_
-* Path to _Grouper-lib.jar_
-* Path to Grouper configuration directory
+* Full pathname of _Grouper.jar_ OR the the full pathanme of the 
+  _build/grouper_ directory
+* Full pathname of _Grouper-lib.jar_ OR the full pathname of all of 
+  the .jar files in _java/lib_
+* Full pathname of the Grouper configuration directory
 
 ---
 

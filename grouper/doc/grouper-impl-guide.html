@@ -52,7 +52,7 @@ td.r {
 <body>
 <div id="summary">
 grouper-impl-guide.html<br />
-$Date: 2005-09-06 23:41:20 $
+$Date: 2005-09-09 00:56:53 $
 </div>
 <div id="title">
 <h1>Grouper Implementation Guide</h1>
@@ -977,11 +977,17 @@ the <a href="#config_db">database</a> and
     <p>This will launch HSQLDB's GUI database manager.  From within the
     manager you can run SQL queries against the Groups Registry.</p></li>
   <li><p><tt>ant dist</tt> [optional]</p>
-    <p>This creates two .jar files within
-    <tt>$GROUPER/dist/lib/</tt>.  One file contains all of the
-    Grouper class files while the other contains all of the third
-    party .jar files used by Grouper.  This isn't required but does
-    ease <i>$CLASSPATH</i> configuration.</p></li>
+    <p>Builds a <i>Grouper.jar</i> file in the
+    <tt>$GROUPER/dist/lib</tt> directory.  This is an optional task
+    that may make runtime invocation easier.</p>
+  </li>
+  <li><p><tt>ant dist-lib</tt> [optional]</p>
+    <p>Builds a <i>Grouper-lib.jar</i> file in the
+    <tt>$GROUPER/dist/lib</tt> directory.  This is a rollup of all
+    the third party .jar files that Grouper relies upon that are
+    located in <tt>$GROUPER/java/lib</tt>.  This is an optional task
+    that may make runtime invocation easier.</p>
+  </li>
 </ol>
 </p>
 <!-- build -->
@@ -1182,12 +1188,13 @@ be running to interact with the Groups Registry.  All that is necessary
 is that one be able to connect to your configured database and that the
 following items be in your classpath:
 <ul>
-  <li>full pathname of the <i>Grouper.jar</i> file produced by <tt>ant
-    dist</tt></li>
-  <li>full pathname of the <i>Grouper-lib.jar</i> file produced by
-    <tt>ant dist</tt></li>
-  <li>full pathname of the directory containing Grouper's configuration
-    files.</li>
+  <li>Full pathname of <i>Grouper.jar</i> OR the full pathname of the
+    <tt>$GROUPER/build/grouper</tt> directory
+  </li>
+  <li>Full pathname of <i>Grouper-lib.jar</i> OR the full pathname of
+    all the .jar files in the <tt>$GROUPER/java/lib</tt> directory.
+  </li>
+  <li>Full pathname of the Grouper configuration directory</li>
 </ul>
 </p>
 <!-- run -->
