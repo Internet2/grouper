@@ -497,5 +497,36 @@ public class TestStemsAdd extends TestCase {
     s.stop();
   } 
 
+  public void testCreateRootStemWithHierDelim() {
+    GrouperSession s = Constants.createSession();
+    try {
+      GrouperStem ns = GrouperStem.create(
+        s, ":hasdelim"
+      );
+      Assert.fail("created root stem with hierarchy delimiter in extn");
+    } 
+    catch (RuntimeException e) {
+      Assert.assertTrue(
+        "unable to create root stem with hierarchy delimiter in extn", true
+      );
+    }
+  }
+
+  public void testCreateStemWithHierDelim() {
+    GrouperSession s = Constants.createSession();
+    Constants.createStems(s);
+    try {
+      GrouperStem ns = GrouperStem.create(
+        s, Constants.ns0.getName(), ":hasdelim"
+      );
+      Assert.fail("created stem with hierarchy delimiter in extn");
+    } 
+    catch (RuntimeException e) {
+      Assert.assertTrue(
+        "unable to create stem with hierarchy delimiter in extn", true
+      );
+    }
+  }
+
 }
 

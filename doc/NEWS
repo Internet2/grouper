@@ -1,7 +1,7 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.78 2005-09-08 16:18:22 blair Exp $
+$Id: NEWS,v 1.79 2005-09-09 20:00:19 blair Exp $
 
 ---
 
@@ -60,6 +60,11 @@ $Id: NEWS,v 1.78 2005-09-08 16:18:22 blair Exp $
 * UPDATE: _grouper_attribute.groupFieldValue_ column size increased to 1024
 * UPDATE: _grouper_member_ table now includes a _subjectSource_ column
 
+* FIX: Root stems could be created with an _extension_ containing the
+  hierarchy delimiter.
+* FIX: Stems and groups could have their _extension_ and
+  _displayExtension_ set to include the hierarchy delimiter after being
+  created.
 * FIX: _whoHas()_ returns inaccurate results
 * FIX: Error granting privileges to and revoking privileges from self (#426)
 * FIX: _displayName_ of parent stems not consulted when creating new

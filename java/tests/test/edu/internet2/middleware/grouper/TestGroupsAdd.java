@@ -511,5 +511,21 @@ public class TestGroupsAdd extends TestCase {
     s.stop();
   }
 
+  public void testCreateGroupWithHierDelim() {
+    GrouperSession s = Constants.createSession();
+    Constants.createStems(s);
+    try {
+      GrouperGroup g = Constants.createGroup(
+        s, Constants.ns0.getName(), ":hasdelim"
+      );
+      Assert.fail("created group with hierarchy delimiter in extn");
+    } 
+    catch (RuntimeException e) {
+      Assert.assertTrue(
+        "unable to create group with hierarchy delimiter in extn", true
+      );
+    }
+  }
+ 
 }
 

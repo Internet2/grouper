@@ -228,5 +228,26 @@ public class TestStemsAttrsAdd extends TestCase {
     s.stop();
   }
 
+  public void testNoExtnWithDelim() {
+    GrouperSession s = Constants.createSession();
+    Constants.createStems(s); 
+    String attr = "extension";
+    try {
+      Constants.ns0.attribute(attr, ":new");
+      Assert.fail("set " + attr + " containing HIER_DELIM");
+    }
+    catch (RuntimeException e) {
+      Assert.assertTrue("did not set " + attr + " containing HIER_DELIM", true);
+    }
+    attr = "displayExtension";
+    try {
+      Constants.ns0.attribute(attr, ":new");
+      Assert.fail("set " + attr + " containing HIER_DELIM");
+    }
+    catch (RuntimeException e) {
+      Assert.assertTrue("did not set " + attr + " containing HIER_DELIM", true);
+    }
+  }
+
 }
 

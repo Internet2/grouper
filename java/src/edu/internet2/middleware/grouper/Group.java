@@ -63,7 +63,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.49 2005-09-07 18:58:15 blair Exp $
+ * @version $Id: Group.java,v 1.50 2005-09-09 20:00:19 blair Exp $
  */
 abstract public class Group {
 
@@ -327,20 +327,34 @@ abstract public class Group {
     return key;
   }
 
+  // No ':', please
+  protected static void invalidNamingAttr(String attr, String value) {
+    if (attr.equals("extension") || attr.equals("displayExtension")) {
+      if (value.indexOf(Grouper.HIER_DELIM) != -1) {
+        throw new RuntimeException(
+          attr + " may not contain '" + Grouper.HIER_DELIM + "'"
+        );
+      }
+    }
+  }
+
   /*
    * No nulls, no blanks
    */
   protected static void invalidStemOrExtn(String stem, String extn) {
-    if        (stem == null) {
+    if      (stem == null) {
       throw new RuntimeException("null stem");
-    } else if (stem.equals("")) {
+    } 
+    else if (stem.equals("")) {
       throw new RuntimeException("blank stem");
     }
-    if        (extn == null) {
+    if      (extn == null) {
       throw new RuntimeException("null extension");
-    } else if (extn.equals("")) {
+    } 
+    else if (extn.equals("")) {
       throw new RuntimeException("blank extension");
     }
+    Group.invalidNamingAttr("extension", extn);
   }
 
   /*
@@ -576,6 +590,7 @@ abstract public class Group {
         }
       } else {
         // Add-Or-Update
+        Group.invalidNamingAttr(attribute, value);
         GrouperAttribute attr = g.attribute(attribute);
         // TODO Isn't this sort of defeating the purpose?
         if (attr instanceof NullGrouperAttribute) {
