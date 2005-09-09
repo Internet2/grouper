@@ -1,5 +1,5 @@
 /*--
-  $Id: ConditionsAction.java,v 1.4 2005-09-09 20:49:46 acohen Exp $
+  $Id: DesignateAction.java,v 1.1 2005-09-09 20:49:46 acohen Exp $
   $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
@@ -9,10 +9,6 @@
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,11 +20,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
 import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
  * <p>
@@ -44,7 +37,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * </p>
  *
  */
-public final class ConditionsAction extends BaseAction
+public final class DesignateAction extends BaseAction
 {
   // ---------------------------------------------------- Public Methods
   // See superclass for Javadoc
@@ -52,7 +45,7 @@ public final class ConditionsAction extends BaseAction
   	(ActionMapping				mapping,
      ActionForm 					form,
      HttpServletRequest 	request,
-     HttpServletResponse response)
+     HttpServletResponse  response)
   throws Exception
   {
     // Setup message array in case there are errors
@@ -72,43 +65,13 @@ public final class ConditionsAction extends BaseAction
       return findFailure(mapping);
     }
     
-    HttpSession session = request.getSession();
+    HttpSession session = request.getSession(); 
+  
     Signet signet = (Signet)(session.getAttribute("signet"));
-    
+  
     if (signet == null)
     {
       return (mapping.findForward("notInitialized"));
-    }
-    
-    // If we've received a "scope" parameter, then it means we're attempting
-    // to create a new Assignment. If we receive an "assignmentID" parameter
-    // instead, then it means we're editing an existing Assignment. In either
-    // case, we'll stash the received parameter in the Session.
-    
-    if (request.getParameter("scope") != null)
-    {
-      TreeNode currentScope = signet.getTreeNode(request.getParameter("scope"));
-      session.setAttribute("currentScope", currentScope);
-    }
-    else
-    {
-      Assignment assignment
-        = signet.getAssignment
-            (Integer.parseInt
-              (request.getParameter
-                ("assignmentId")));
-      session.setAttribute("currentAssignment", assignment);
-
-      session.setAttribute
-        ("currentGranteePrivilegedSubject", assignment.getGrantee());
-      session.setAttribute
-        (Constants.SUBSYSTEM_ATTRNAME, assignment.getFunction().getSubsystem());
-      session.setAttribute
-        ("currentCategory", assignment.getFunction().getCategory());
-      session.setAttribute
-        ("currentFunction", assignment.getFunction());
-      session.setAttribute
-        ("currentScope", assignment.getScope());
     }
 
     // Forward to our success page

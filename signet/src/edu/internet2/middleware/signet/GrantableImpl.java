@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.4 2005-09-01 17:59:58 acohen Exp $
- $Date: 2005-09-01 17:59:58 $
+ $Id: GrantableImpl.java,v 1.5 2005-09-09 20:49:46 acohen Exp $
+ $Date: 2005-09-09 20:49:46 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -122,6 +122,7 @@ implements Grantable
   	SignetAuthorityException
   {    
     super(signet, null, null, null);
+    
 
     if (actingAs == null)
     {

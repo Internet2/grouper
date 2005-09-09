@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.3 2005-04-05 23:11:38 acohen Exp $
-  $Date: 2005-04-05 23:11:38 $
+  $Id: PersonViewAction.java,v 1.4 2005-09-09 20:49:46 acohen Exp $
+  $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -77,25 +77,8 @@ public final class PersonViewAction extends BaseAction
     {
       return (mapping.findForward("notInitialized"));
     }
-        
-    // Find the PrivilegedSubject specified by the "grantee" parameters, and
-    // stash it in the Session. If those parameters are not present, then
-    // it must already be stashed in the Session by some prior action.
-    String granteeSubjectTypeId = request.getParameter("granteeSubjectTypeId");
-    String granteeSubjectId = request.getParameter("granteeSubjectId");
-    PrivilegedSubject currentGrantee;
-    if (granteeSubjectId != null)
-    {
-      currentGrantee
-      	= signet.getPrivilegedSubject(granteeSubjectTypeId, granteeSubjectId);
-      session.setAttribute("currentGranteePrivilegedSubject", currentGrantee);
-    }
-    else
-    {
-      currentGrantee
-      	= (PrivilegedSubject)
-      			(session.getAttribute("currentGranteePrivilegedSubject"));
-    }
+    
+    PrivilegedSubject currentGrantee = Common.getGrantee(signet, request);
     
     String currentSubsystemId = request.getParameter("subsystemId");
     Subsystem currentSubsystem;
@@ -108,7 +91,7 @@ public final class PersonViewAction extends BaseAction
     {
       currentSubsystem = signet.getSubsystem(currentSubsystemId);
     }
-    session.setAttribute("currentSubsystem", currentSubsystem);
+    session.setAttribute(Constants.SUBSYSTEM_ATTRNAME, currentSubsystem);
     
 
     // Forward to our success page

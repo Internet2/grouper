@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.34 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: Signet.java,v 1.35 2005-09-09 20:49:46 acohen Exp $
+$Date: 2005-09-09 20:49:46 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -40,6 +40,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
+import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
@@ -735,50 +736,49 @@ public final class Signet
  }
  
  
- Set findDuplicates(Proxy proxy)
- {
-   Query query;
-   List resultList;
+  Set findDuplicates(Proxy proxy)
+  {
+    Query query;
+    List resultList;
 
-   try
-   {
-     query = session
-         .createQuery
-           ("from edu.internet2.middleware.signet.ProxyImpl"
-            + " as proxy"
-            + " where granteeID = :granteeId"
-            + " and granteeTypeID = :granteeTypeId"
-            + " and subsystemID = :subsystemId"
-            + " and proxyID != :proxyId");
+    try
+    {
+      query
+        = session.createQuery
+            ("from edu.internet2.middleware.signet.ProxyImpl"
+             + " as proxy"
+             + " where granteeID = :granteeId"
+             + " and granteeTypeID = :granteeTypeId"
+             + " and subsystemID = :subsystemId"
+             + " and proxyID != :proxyId");
 
-     query.setString
-       ("granteeId", proxy.getGrantee().getSubjectId());
-     query.setString
-       ("granteeTypeId", proxy.getGrantee().getSubjectTypeId());
-     query.setString
-       ("subsystemId", proxy.getSubsystem().getId());
-     query.setInteger
-       ("proxyId",
-        (proxy.getId() == null ? -1 : proxy.getId().intValue()));
+      query.setString
+        ("granteeId", proxy.getGrantee().getSubjectId());
+      query.setString
+        ("granteeTypeId", proxy.getGrantee().getSubjectTypeId());
+      query.setString
+        ("subsystemId", proxy.getSubsystem().getId());
+     
+      query.setParameter("proxyId", proxy.getId(), Hibernate.INTEGER);
 
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
 
-   Set resultSet = new HashSet(resultList);
+    Set resultSet = new HashSet(resultList);
 
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     Proxy matchedProxy = (Proxy) (resultSetIterator.next());
-     ((ProxyImpl) matchedProxy).setSignet(this);
-   }
+    Iterator resultSetIterator = resultSet.iterator();
+    while (resultSetIterator.hasNext())
+    {
+      Proxy matchedProxy = (Proxy) (resultSetIterator.next());
+      ((ProxyImpl) matchedProxy).setSignet(this);
+    }
 
-   return resultSet;
- }
+    return resultSet;
+  }
 
  // I really want to do away with this method, having the
  // Tree pick up its parent-child relationships via Hibernate
@@ -2054,6 +2054,34 @@ public final class Signet
 
    return assignment;
  }
+ 
+  /**
+   * Gets a single Proxy by ID.
+   * 
+   * @param proxyId
+   * @return the fetched Proxy object
+   * @throws ObjectNotFoundException
+   */
+  public Proxy getProxy(int id)
+  throws ObjectNotFoundException
+  {
+    Proxy proxy;
+
+    try
+    {
+      proxy = (Proxy) (session.load(ProxyImpl.class, new Integer(id)));
+    }
+    catch (net.sf.hibernate.ObjectNotFoundException onfe)
+    {
+      throw new edu.internet2.middleware.signet.ObjectNotFoundException(onfe);
+    }
+    catch (HibernateException he)
+    {
+      throw new SignetRuntimeException(he);
+    }
+
+    return proxy;
+  }
 
 
 

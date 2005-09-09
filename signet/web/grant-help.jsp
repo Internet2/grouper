@@ -1,6 +1,6 @@
 <!--
-   $Id: grant-help.jsp,v 1.4 2005-06-02 06:26:04 jvine Exp $
-   $Date: 2005-06-02 06:26:04 $
+   $Id: grant-help.jsp,v 1.5 2005-09-09 20:49:46 acohen Exp $
+   $Date: 2005-09-09 20:49:46 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights 
 Reserved.
@@ -12,6 +12,8 @@ Reserved.
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
+
 <% 
   Signet signet
      = (Signet)
@@ -19,7 +21,7 @@ Reserved.
          
    Subsystem currentSubsystem
      = (Subsystem)
-         (request.getSession().getAttribute("currentSubsystem"));
+         (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
 %>
 
 

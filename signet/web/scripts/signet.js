@@ -35,45 +35,90 @@ function CheckAll(){
 var personSearchFieldHasFocus = false;
 var personSearchButtonHasFocus = false;
 
+function personSearchShouldBePerformed(searchStrFieldName)
+{
+  if (cursorInPersonSearch() && !personSearchStrIsEmpty(searchStrFieldName))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+function performPersonSearch
+  (personSearchPage,
+   searchStrFieldName,
+   destDivId)
+{
+  loadXMLDoc
+    (personSearchPage
+     + '?searchString='
+     + document.getElementById(searchStrFieldName).value,
+     destDivId);
+}
+
 // If the text-cursor is in the person-search field, this method
 // executes the person-search, and returns false. Otherwise, it returns
 // true.
-function checkForCursorInPersonSearch()
+function checkForCursorInPersonSearch
+  (personSearchPage,
+   searchStrFieldName,
+   destDivId)
 {
   if (cursorInPersonSearch() == true)
   {
-    loadXMLDoc
-      ('personQuickSearch.jsp?searchString='
-       + document.getElementById('words').value);
+    if (!personSearchStrIsEmpty(searchStrFieldName))
+    {
+      performPersonSearch(personSearchPage, searchStrFieldName, destDivId);
+    }
+       
+    // Disallow the form submission.
+    return false;
   }
   
-  // Don't allow the form-submission, this form exists only for the Ajax work
-  // above.
-  return false;
+  // Allow the form-submission.
+  return true;
 }
 
-// Returns true if the text-cursor is in the person-search field (and there's
-// something in that field to search for), and false otherwise.
+function personSearchStrIsEmpty(searchStrFieldName)
+{
+  searchStr = document.getElementById(searchStrFieldName).value;
+  if (searchStr.length > 0)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+// Returns true if the text-cursor is in the person-search field, and false
+// otherwise.
 function cursorInPersonSearch()
 {
-  returnVal = (personSearchFieldHasFocus || personSearchButtonHasFocus)
-           && (document.personSearchForm.words.value.length > 0);
+  returnVal = (personSearchFieldHasFocus || personSearchButtonHasFocus);
 
   return (returnVal);
 }
 
 var requestObject;
+var destinationDivId;
 
 // This code was adapted from the following web pages:
 //
 //   www.xml.com/pub/a/2005/02/09/xml-http-request.html
 //   www.francisshanahan.com/zuggest.aspx
 
-function loadXMLDoc(url)
+function loadXMLDoc(url, destDivId)
 {
   // Set the cursor to an hourglass, to show we're really doing some serious
   // computin'.
   document.body.style.cursor = "wait";
+  
+  destinationDivId = destDivId;
   
   if (window.XMLHttpRequest)
   {
@@ -128,7 +173,7 @@ function processReqChange()
     
     if (requestObject.status == 200) // Status is OK
     {
-      var searchResultsElement = document.getElementById('PersonSearchResults');
+      var searchResultsElement = document.getElementById(destinationDivId);
       searchResultsElement.style.display = 'block';
       searchResultsElement.innerHTML = requestObject.responseText;
     }

@@ -107,6 +107,16 @@
 		  <forward name="dataEntryErrors" path="/conditions.jsp" />
       </action>
 
+      <!-- Signet grant-proxy-confirmation page -->
+      <action    path="/ConfirmProxy"
+                 type="edu.internet2.middleware.signet.ui.ConfirmProxyAction">
+          <forward name="notInitialized" path="/Start.do" />
+          <forward name="failure" path="/error.jsp" />
+          <forward name="success" path="/Start.do" />
+          <forward name="duplicateAssignments" path="/duplicateProxies.jsp" />
+		  <forward name="dataEntryErrors" path="/designate.jsp" />
+      </action>
+
       <!-- Signet assignment-details page -->
       <action    path="/Assignment"
                  type="edu.internet2.middleware.signet.ui.AssignmentAction">
@@ -133,6 +143,16 @@
           <forward name="success" path="/confirm.jsp" />
       </action>
 
+      <!-- Signet proxy-revocation-and-grant action
+		   (for resolving duplicate Proxies)
+       -->
+      <action    path="/RevokeAndGrantProxy"
+                 type="edu.internet2.middleware.signet.ui.RevokeAndGrantProxyAction">
+          <forward name="notInitialized" path="/Start.do" />
+          <forward name="failure" path="/error.jsp" />
+          <forward name="success" path="/Start.do" />
+      </action>
+
       <!-- Signet page for display of raw Privileges XML
        -->
       <action    path="/PrivilegesXML"
@@ -140,6 +160,15 @@
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
           <forward name="success" path="/privilegesXML" />
+      </action>
+
+      <!-- Signet designated-driver page
+       -->
+      <action    path="/Designate"
+                 type="edu.internet2.middleware.signet.ui.DesignateAction">
+          <forward name="notInitialized" path="/Start.do" />
+          <forward name="failure" path="/error.jsp" />
+          <forward name="success" path="/designate.jsp" />
       </action>
 
       <!-- Signet not-yet-implemented page -->

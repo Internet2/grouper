@@ -1,6 +1,6 @@
 /*--
-  $Id: AssignmentAction.java,v 1.1 2004-12-09 20:49:07 mnguyen Exp $
-  $Date: 2004-12-09 20:49:07 $
+  $Id: AssignmentAction.java,v 1.2 2005-09-09 20:49:46 acohen Exp $
+  $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -80,7 +80,7 @@ public final class AssignmentAction extends BaseAction
           (session.getAttribute("loggedInPrivilegedSubject"));
     PrivilegedSubject grantee
     	= (PrivilegedSubject)
-    	    (session.getAttribute("currentGranteePrivilegedSubject"));
+    	    (session.getAttribute(Constants.GRANTEE_ATTRNAME));
     TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
     Function function = (Function)(session.getAttribute("currentFunction"));
     Signet signet = (Signet)(session.getAttribute("signet"));

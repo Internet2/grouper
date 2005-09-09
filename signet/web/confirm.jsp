@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.26 2005-08-25 20:31:35 acohen Exp $
-  $Date: 2005-08-25 20:31:35 $
+  $Id: confirm.jsp,v 1.27 2005-09-09 20:49:46 acohen Exp $
+  $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -42,6 +42,7 @@
 <%@ page import="edu.internet2.middleware.signet.LimitValue" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 
 <% 
   Signet signet
@@ -54,11 +55,11 @@
    
    PrivilegedSubject currentGranteePrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute("currentGranteePrivilegedSubject"));
+         (request.getSession().getAttribute(Constants.GRANTEE_ATTRNAME));
          
    Subsystem currentSubsystem
      = (Subsystem)
-         (request.getSession().getAttribute("currentSubsystem"));
+         (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
          
    Category currentCategory
      = (Category)
@@ -232,7 +233,7 @@
       name="personSearchForm"
       method="post"
       action="" 
-      onsubmit ="return checkForCursorInPersonSearch()">
+      onsubmit ="return checkForCursorInPersonSearch('personQuickSearch.jsp', 'words', 'PersonSearchResults')">
         <div class="findperson">
             <h2>
               Find a subject </h2>

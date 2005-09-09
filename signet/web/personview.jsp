@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview.jsp,v 1.37 2005-07-27 18:32:20 jvine Exp $
-  $Date: 2005-07-27 18:32:20 $
+  $Id: personview.jsp,v 1.38 2005-09-09 20:49:46 acohen Exp $
+  $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -164,6 +164,7 @@
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 
 <% 
   Signet signet
@@ -176,11 +177,11 @@
    
    PrivilegedSubject currentGranteePrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute("currentGranteePrivilegedSubject"));
+         (request.getSession().getAttribute(Constants.GRANTEE_ATTRNAME));
          
    Subsystem currentSubsystem
      = (Subsystem)
-         (request.getSession().getAttribute("currentSubsystem"));
+         (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
          
    Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
          
@@ -459,7 +460,7 @@
       name="personSearchForm"
       method="post"
       action="" 
-      onsubmit ="return checkForCursorInPersonSearch()">
+      onsubmit ="return checkForCursorInPersonSearch('personQuickSearch.jsp', 'words', 'PersonSearchResults')">
         <div class="findperson">
           <h2>
             find a Subject </h2>

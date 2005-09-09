@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.10 2005-09-01 17:59:58 acohen Exp $
-$Date: 2005-09-01 17:59:58 $
+$Id: ConfirmAction.java,v 1.11 2005-09-09 20:49:46 acohen Exp $
+$Date: 2005-09-09 20:49:46 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -129,7 +129,7 @@ throws Exception
           (request, actionMessages, Constants.EXPIRATION_DATE_PREFIX);
   }
 
-  if (paramIsPresent(canUseString))
+  if (Common.paramIsPresent(canUseString))
   {
     canUse = true;
   }
@@ -138,7 +138,7 @@ throws Exception
     canUse = false;
   }
   
-  if (paramIsPresent(canGrantString))
+  if (Common.paramIsPresent(canGrantString))
   {
     canGrant = true;
   }
@@ -206,16 +206,6 @@ throws Exception
   // Forward to our success page
   return findSuccess(mapping);
 }
-
-  private boolean paramIsPresent(String param)
-  {
-    if ((param != null) && (param != ""))
-    {
-      return true;
-    }
-
-    return false;
-  }
 
   private ActionMessages addActionMessage
     (HttpServletRequest request,

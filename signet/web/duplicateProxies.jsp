@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.5 2005-09-09 20:49:46 acohen Exp $
+  $Id: duplicateProxies.jsp,v 1.1 2005-09-09 20:49:46 acohen Exp $
   $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
@@ -21,7 +21,7 @@
 	<script language="JavaScript">
 	function ButtonChange() {
 		if (document.dupForm.checkAssign.checked == true) {
-			document.dupForm.complButton.value = "COMPLETE and replace selected assignment(s)";
+			document.dupForm.complButton.value = "COMPLETE and replace selected proxy designation(s)";
 			}
 		else {
 			document.dupForm.complButton.value = "COMPLETE";
@@ -38,12 +38,10 @@
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
-<%@ page import="edu.internet2.middleware.signet.Category" %>
-<%@ page import="edu.internet2.middleware.signet.Function" %>
-<%@ page import="edu.internet2.middleware.signet.Assignment" %>
-<%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
+<%@ page import="edu.internet2.middleware.signet.Proxy" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
@@ -66,11 +64,11 @@
              .getAttribute
                (Constants.GRANTEE_ATTRNAME));
                
-  Assignment currentAssignment
-    = (Assignment)(request.getSession().getAttribute("currentAssignment"));
+  Proxy currentProxy
+    = (Proxy)(request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
     
-  Set duplicateAssignments
-    = (Set)(request.getSession().getAttribute("duplicateAssignments"));
+  Set duplicateProxies
+    = (Set)(request.getSession().getAttribute(Constants.DUP_PROXIES_ATTRNAME));
    
   String personViewHref
     = "PersonView.do?granteeSubjectTypeId="
@@ -78,7 +76,7 @@
       + "&granteeSubjectId="
       + currentGranteePrivilegedSubject.getSubjectId()
       + "&subsystemId="
-      + currentAssignment.getFunction().getSubsystem().getId();
+      + currentProxy.getSubsystem().getId();
 %>
 
       <div id="Navbar">
@@ -110,10 +108,10 @@
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
-<p><img src="images/caution.gif" align="left" />Your new assignment is very similar to the others shown below. Review these  assignments, then: </p>
+<p><img src="images/caution.gif" align="left" />Your new proxy designation is very similar to the others shown below. Review these designations, then: </p>
 
 <ul>
-	<li>check, under &quot;Replace&quot;, any assignments to be replaced by your new assignment (equivalent to revoking and reassigning authority), and </li>
+	<li>check, under &quot;Replace&quot;, any proxy designations to be replaced by your new designation (equivalent to revoking and reassigning authority), and </li>
   <li>complete this transaction using the &quot;COMPLETE&quot; button at the bottom 
   	of the page.</li>
   </ul>
@@ -122,66 +120,50 @@
 </div>
 
 <div class="section">
-<h2>Review your New assignment<span class="status"> (not yet complete)</span></h2>
+<h2>Review your new proxy designation<span class="status"> (not yet complete)</span></h2>
 	<table class="full">
 	<tr>
-		<th width="37%">Privilege</th>
-		<th width="19%">Scope</th>
-
-		<th width="32%">Limits</th>
+		<th width="37%">Subsystem</th>
 		<th width="12%">Status</th>
 		</tr>
     <tr >
       <td>
-        <%=currentAssignment.getFunction().getCategory().getName()%>  : <%=currentAssignment.getFunction().getName()%>
+        <%=currentProxy.getSubsystem().getName()%>
       </td>
-		<td class="hierarchy"><%=currentAssignment.getScope().getName()%></td>
-		<td><table class="invis">
-          <%=Common.displayLimitValues(currentAssignment)%>
-		</table></td>
 		<td>
-		  <%=Common.displayStatus(currentAssignment)%>
+		  <%=Common.displayStatus(currentProxy)%>
         </td>
 		</tr>
 </table>
 </div>
 
 <form
-  action="RevokeAndGrant.do"
+  action="RevokeAndGrantProxy.do"
   method="post"
   name="dupForm"
   id="dupForm">
   
   <div class="section">
-    <h2>check any Existing assignment(s) you want to replace</h2>
+    <h2>check any Existing proxy designation(s) you want to replace</h2>
     <table class="full">
       <tr>
         <th width="7%" align="center"> Replace</th>
-        <th width="30%">Privilege</th>
-        <th width="19%">Scope</th>
-        <th width="32%">Limits</th>
+        <th width="30%">Subsystem</th>
         <th width="12%">Status</th>
       </tr>
       
 <%
-  Iterator duplicateAssignmentsIterator = duplicateAssignments.iterator();
-  while (duplicateAssignmentsIterator.hasNext())
+  Iterator duplicateProxiesIterator = duplicateProxies.iterator();
+  while (duplicateProxiesIterator.hasNext())
   {
-    Assignment dup = (Assignment)(duplicateAssignmentsIterator.next());
+    Proxy dup = (Proxy)(duplicateProxiesIterator.next());
 %>
       <tr>
         <%=Common.revokeBox(loggedInPrivilegedSubject, dup, UnusableStyle.TEXTMSG)%>
         <td>
-          <%=Common.assignmentPopupIcon(dup)%>
-          <%=dup.getFunction().getCategory().getName()%>  : <%=dup.getFunction().getName()%>
+          <%=Common.proxyPopupIcon(dup)%>
+          <%=dup.getSubsystem().getName()%>
         </td>
-		<td class="hierarchy">
-		  <%=dup.getScope().getName()%></td>
-		<td>
-		  <table class="invis">
-            <%=Common.displayLimitValues(dup)%>
-		  </table>
-		</td>
 		<td>
 		  <%=Common.displayStatus(dup)%>
         </td>
@@ -196,7 +178,7 @@
   <div class="section">
     <h2>
       <a name="complete" id="complete"></a>
-      Complete this assignment
+      Complete this proxy designation
     </h2>
 
     <input
@@ -211,7 +193,7 @@
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this assignment and return to Lynn McRae's view
+      CANCEL this proxy designation and return to Lynn McRae's view
     </a>
   </div>
 
@@ -226,11 +208,10 @@
       	<div class="helpbox">
       		<h2>help</h2>
       		<div class="actionbox">
-      			<p>This assignment has been determined to be very similar to one or more existing assignments.</p>
-<p>The subject's actual privilege will be the highest of any specified limits or conditions. If your intent is to decrease the limits or conditions of this privilege, you should replace any assignments with higher limits.</p>
-<p>Your own limits and conditions may prevent you from replacing an assignment with higher limits and conditions. </p>
+      			<p>This proxy designation has been determined to be very similar to one or more existing proxies.</p>
+<p>The subject's actual proxy conditions will be the most lenient of any specified conditions. If your intent is to restrict the conditions of this proxy, you should replace any proxies with more lenient conditions.</p>
 
-<p>You can find out who originally granted the privilege by clicking on the ... icon. </p>
+<p>You can find out who originally granted the proxy by clicking on the ... icon. </p>
 
      			</div>
      		</div>

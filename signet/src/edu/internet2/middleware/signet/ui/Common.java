@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.19 2005-09-01 17:59:58 acohen Exp $
-  $Date: 2005-09-01 17:59:58 $
+  $Id: Common.java,v 1.20 2005-09-09 20:49:46 acohen Exp $
+  $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -27,15 +28,20 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.struts.Globals;
-import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Decision;
+import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Proxy;
+import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
@@ -205,6 +211,25 @@ public class Common
     return displayLimitValues(limits, limitValues);
   }
   
+  public static String displayProxyOptions(PrivilegedSubject pSubject)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    outStr.append
+      ("<OPTION>" + "myself (" + pSubject.getName() + ")</OPTION>\n");
+    
+    Set proxiesReceived
+      = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
+    Iterator proxiesReceivedIterator = proxiesReceived.iterator();
+    while (proxiesReceivedIterator.hasNext())
+    {
+      Proxy proxy = (Proxy)(proxiesReceivedIterator.next());
+      outStr.append("<OPTION>" + proxy.getGrantor().getName() + "</OPTION>\n");
+    }
+    
+    return outStr.toString();
+  }
+  
   public static String displayStatus(Assignment assignment)
   {
     StringBuffer statusStr = new StringBuffer();
@@ -239,6 +264,45 @@ public class Common
     if (canGrant)
     {
       statusStr.append("can grant");
+    }
+
+    return statusStr.toString();
+  }
+  
+  public static String displayStatus(Proxy proxy)
+  {
+    StringBuffer statusStr = new StringBuffer();
+    
+    // A Proxy with no ID has not yet been persisted. A Proxy
+    // that has not yet been persisted has no Status yet. That is, it's not
+    // active, it's not pending, it's not nuthin' yet.
+    boolean hasStatus = !(proxy.getId() == null);
+    boolean canUse = proxy.canUse();
+    boolean canExtend = proxy.canExtend();
+    
+    if (hasStatus)
+    {
+      statusStr.append(proxy.getStatus().getName());
+    }
+    
+    if (hasStatus && canUse)
+    {
+      statusStr.append(", ");
+    }
+    
+    if (canUse)
+    {
+      statusStr.append("can use");
+    }
+    
+    if ((hasStatus || canUse) && canExtend)
+    {
+      statusStr.append(", ");
+    }
+    
+    if (canExtend)
+    {
+      statusStr.append("can extend");
     }
 
     return statusStr.toString();
@@ -341,20 +405,20 @@ public class Common
   
   public static String revokeBox
     (PrivilegedSubject  revoker,
-     Assignment         assignment,
+     Grantable          grantableInstance,
      UnusableStyle      unusableStyle)
   {
     StringBuffer outStr = new StringBuffer();
     
-    Decision decision = revoker.canEdit(assignment);
+    Decision decision = revoker.canEdit(grantableInstance);
     if (decision.getAnswer() == true)
     {
       outStr.append("<td align=\"center\" >\n");
       outStr.append("  <input\n");
       outStr.append("    name=\"revoke\"\n");
       outStr.append("    type=\"checkbox\"\n");
-      outStr.append("    id=\"" + assignment.getId() + "\"\n");
-      outStr.append("    value=\"" + assignment.getId() + "\"\n");
+      outStr.append("    id=\"" + grantableInstance.getId() + "\"\n");
+      outStr.append("    value=\"" + grantableInstance.getId() + "\"\n");
       outStr.append("    onclick=\"selectThis(this.checked);\" />\n");
       outStr.append("</td>");
     }
@@ -370,8 +434,8 @@ public class Common
       outStr.append("  <input\n");
       outStr.append("    name=\"revoke\"\n");
       outStr.append("    type=\"checkbox\"\n");
-      outStr.append("    id=\"" + assignment.getId() + "\"\n");
-      outStr.append("    value=\"" + assignment.getId() + "\"\n");
+      outStr.append("    id=\"" + grantableInstance.getId() + "\"\n");
+      outStr.append("    value=\"" + grantableInstance.getId() + "\"\n");
       outStr.append("    disabled=\"true\"\n");
 //      outStr.append("    title=\"" + revoker.editRefusalExplanation(assignment, "logged-in user") + "\"");
       outStr.append("/>");
@@ -398,6 +462,28 @@ public class Common
     outStr.append("  <img\n");
     outStr.append("   src=\"images/maglass.gif\"\n");
     outStr.append("   alt=\"More info about this assignment...\" />\n");
+    outStr.append("</a>");
+  
+    return outStr.toString();
+  }
+  
+  public static String proxyPopupIcon(Proxy proxy)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    outStr.append("<a\n");
+    outStr.append("  style=\"float: right;\"\n");
+    outStr.append("  href\n");
+    outStr.append("    =\"javascript:openWindow\n");
+    outStr.append("        ('Proxy.do?proxyId=" + proxy.getId() + "',\n");
+    outStr.append("         'popup',\n");
+    outStr.append("         'scrollbars=yes,\n");
+    outStr.append("          resizable=yes,\n");
+    outStr.append("          width=500,\n");
+    outStr.append("          height=250');\">\n");
+    outStr.append("  <img\n");
+    outStr.append("   src=\"images/maglass.gif\"\n");
+    outStr.append("   alt=\"More info about this proxy designation...\" />\n");
     outStr.append("</a>");
   
     return outStr.toString();
@@ -647,5 +733,204 @@ public class Common
     }
     
     return date;
+  }
+  
+  static public String subsystemSelectionMultiple
+    (PrivilegedSubject pSubject,
+     String groupName,
+     String onClickAction)
+  {
+    StringBuffer outStr = new StringBuffer();
+
+    Set grantableSubsystems = pSubject.getGrantableSubsystems();
+    
+    Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
+    while (grantableSubsystemsIterator.hasNext())
+    {
+      Subsystem subsystem = (Subsystem)(grantableSubsystemsIterator.next());
+      outStr.append("<input\n");
+      outStr.append("  name=\"" + groupName + "\"\n");
+      outStr.append("  type=\"checkbox\"\n");
+      
+      if (onClickAction != null)
+      {
+        outStr.append("  onClick=\"" + onClickAction + "\"\n");
+      }
+      
+      outStr.append("  value=\"" + subsystem.getId() + "\" />\n");
+      outStr.append(subsystem.getName() + "\n");
+      outStr.append("<br />\n");
+    }
+    
+    return outStr.toString();
+  }
+  
+  static public String buildCompoundId(PrivilegedSubject pSubject)
+  {
+    return
+      pSubject.getSubjectTypeId()
+      + Constants.COMPOSITE_ID_DELIMITER
+      + pSubject.getSubjectId();
+  }
+
+  static public boolean paramIsPresent(String param)
+  {
+    if ((param != null) && (param != ""))
+    {
+      return true;
+    }
+
+    return false;
+  }
+  
+  static public PrivilegedSubject getSubjectFromSelectList
+    (Signet             signet,
+     HttpServletRequest request,
+     String             selectListName,
+     String             compositeIdDelimiter,
+     String             sessionAttrName)
+  throws ObjectNotFoundException
+  {
+    PrivilegedSubject pSubject = null;
+    
+    String compositeId = request.getParameter(selectListName);
+    if (compositeId != null)
+    {
+      int delimiterPos = compositeId.indexOf(compositeIdDelimiter);
+      
+      if (delimiterPos > 0)
+      {
+        String subjectTypeId = compositeId.substring(0, delimiterPos);
+        String subjectId
+          = compositeId.substring
+              (delimiterPos + compositeIdDelimiter.length(),
+               compositeId.length());
+        
+        pSubject = signet.getPrivilegedSubject(subjectTypeId, subjectId);
+      }
+    }
+    
+    if (sessionAttrName != null)
+    {
+      request.getSession().setAttribute(sessionAttrName, pSubject);
+    }
+    
+    return pSubject;
+  }
+  
+  static public PrivilegedSubject getGrantee
+    (Signet             signet,
+     HttpServletRequest request)
+  throws ObjectNotFoundException
+  {
+    PrivilegedSubject grantee;
+    
+    // Find the PrivilegedSubject specified by the "grantee" parameters, and
+    // stash it in the Session. If those parameters are not present, then
+    // it must already be stashed in the Session by some prior action.
+    String granteeSubjectTypeId = request.getParameter("granteeSubjectTypeId");
+    String granteeSubjectId = request.getParameter("granteeSubjectId");
+    if (granteeSubjectId != null)
+    {
+      grantee
+        = signet.getPrivilegedSubject(granteeSubjectTypeId, granteeSubjectId);
+      request
+        .getSession()
+          .setAttribute("currentGranteePrivilegedSubject", grantee);
+    }
+    else
+    {
+      grantee
+        = (PrivilegedSubject)
+            (request
+              .getSession()
+                .getAttribute("currentGranteePrivilegedSubject"));
+    }
+    
+    return grantee;
+  }
+  
+  static public Subsystem getSubsystem
+    (Signet             signet,
+     HttpServletRequest request,
+     String             paramName,
+     String             attrName)
+  throws ObjectNotFoundException
+  {    
+    Subsystem subsystem = null;
+    
+    String subsystemId = request.getParameter(paramName);
+    if ((subsystemId != null)
+        && (!subsystemId.equals(Constants.SUBSYSTEM_PROMPTVALUE)))
+    {
+      subsystem = signet.getSubsystem(subsystemId);
+      request.getSession().setAttribute(attrName, subsystem);
+    }
+    else
+    {
+      subsystem
+        = (Subsystem)
+            (request.getSession().getAttribute(attrName));
+    }
+    
+    return subsystem;
+  }
+  
+  static public Set getSubsystemSelections
+    (Signet signet,
+     HttpServletRequest request,
+     String             groupName)
+  throws ObjectNotFoundException
+  {
+    Set subsystems = new HashSet();
+    String subsystemIds[] = request.getParameterValues(groupName);
+    
+    for (int i = 0; i < 0; i++)
+    {
+      Subsystem subsystem = signet.getSubsystem(subsystemIds[i]);
+      subsystems.add(subsystem);
+    }
+    
+    return subsystems;
+  }
+  
+  static public String subsystemSelectionSingle
+    (String selectName,
+     String promptValue,
+     String promptText,
+     String onClickScript,
+     Set    subsystems)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    outStr.append("<span style=\"white-space: nowrap;\">\n");
+    outStr.append("  <!-- keep select & button together -->\n");
+    outStr.append("  <select\n");
+    outStr.append("    name=\"" + selectName + "\"\n");
+    outStr.append("    id=\"" + selectName + "\">\n");
+
+    outStr.append("    <option\n");
+    outStr.append("      selected=\"selected\"\n");
+    outStr.append("      value=\"" + promptValue + "\"\n");
+    outStr.append("      onclick=\"" + onClickScript + "\">\n");
+    outStr.append("      " + promptText + "\n");
+    outStr.append("    </option>\n");
+
+    Iterator subsystemsIterator = subsystems.iterator();
+    while (subsystemsIterator.hasNext())
+    {
+      Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
+
+      outStr.append("    <option\n");
+      outStr.append("      value=\"" + subsystem.getId() + "\"\n");
+      outStr.append("      onclick=\"" + onClickScript + "\">\n");
+      outStr.append("      " + subsystem.getName() + "\n");
+      outStr.append("    </option>\n");
+    }
+
+    outStr.append("  </select>\n");
+    outStr.append("</span>\n");
+    
+    return outStr.toString();
   }
 }

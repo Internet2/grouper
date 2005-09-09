@@ -1,6 +1,6 @@
 /*--
-$Id: OrgBrowseAction.java,v 1.3 2005-03-07 19:14:33 acohen Exp $
-$Date: 2005-03-07 19:14:33 $
+$Id: OrgBrowseAction.java,v 1.4 2005-09-09 20:49:46 acohen Exp $
+$Date: 2005-09-09 20:49:46 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -81,7 +81,7 @@ throws Exception
 
   Signet signet = (Signet)(session.getAttribute("signet"));
   Subsystem currentSubsystem
-  	= (Subsystem)(session.getAttribute("currentSubsystem"));
+  	= (Subsystem)(session.getAttribute(Constants.SUBSYSTEM_ATTRNAME));
     
   if ((signet == null) || (currentSubsystem == null))
   {

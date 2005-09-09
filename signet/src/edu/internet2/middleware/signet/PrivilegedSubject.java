@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.14 2005-08-29 18:29:30 acohen Exp $
- $Date: 2005-08-29 18:29:30 $
+ $Id: PrivilegedSubject.java,v 1.15 2005-09-09 20:49:46 acohen Exp $
+ $Date: 2005-09-09 20:49:46 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -197,8 +197,7 @@ public interface PrivilegedSubject extends Comparable
    * grantable Assignments for.
    * @throws ObjectNotFoundException
    */
-  public Set getGrantableSubsystems()
-  throws ObjectNotFoundException;
+  public Set getGrantableSubsystems();
   
   /**
    * Gets all of the Categories that this PrivilegedSubject holds

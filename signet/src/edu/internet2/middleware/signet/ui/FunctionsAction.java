@@ -1,6 +1,6 @@
 /*--
-  $Id: FunctionsAction.java,v 1.5 2005-07-27 15:03:14 acohen Exp $
-  $Date: 2005-07-27 15:03:14 $
+  $Id: FunctionsAction.java,v 1.6 2005-09-09 20:49:46 acohen Exp $
+  $Date: 2005-09-09 20:49:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -81,22 +81,17 @@ public final class FunctionsAction extends BaseAction
     // now have a Subsystem stored as an HTTP Session parameter).
     
     Subsystem currentSubsystem
-      = (Subsystem)(session.getAttribute("currentSubsystem"));
+      = Common.getSubsystem
+          (signet,
+           request,
+           "grantableSubsystems", // paramName
+           Constants.SUBSYSTEM_ATTRNAME);   // attributeName
+
     if (currentSubsystem == null)
-    {        
-      // Find the Subsystem specified by the "grantableSubsystems" parameter,
-      // and stash it in the Session.
-      String currentSubsystemId = request.getParameter("grantableSubsystems");
-      
-      if (currentSubsystemId == null)
-      {
-        // We don't have a Subsystem either via a Session attribute or via an
-        // HTTP parameter. Let's send this user back to square one.
-        return (mapping.findForward("notInitialized"));
-      }
-      
-      currentSubsystem = signet.getSubsystem(currentSubsystemId);
-      session.setAttribute("currentSubsystem", currentSubsystem);
+    {
+      // We don't have a Subsystem either via a Session attribute or via an
+      // HTTP parameter. Let's send this user back to square one.
+      return (mapping.findForward("notInitialized"));
     }
     
     // We're creating a new Assignment, not editing an existing one. Let's
