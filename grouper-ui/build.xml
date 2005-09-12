@@ -131,8 +131,8 @@
 		<fail unless="webapp.folder">webapp.folder must be set</fail>
 		<fail unless="grouper.folder">grouper.folder must be set</fail>
 		<fail unless="ui.folder">ui.folder must be set</fail>
-		<available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.available"/>
-		<fail unless="grouper.is.available" message="${grouper.folder}/dist/lib/grouper.jar does not exist. You must
+		<available file="${grouper.folder}/dist/lib/Grouper.jar" property="grouper.is.available"/>
+		<fail unless="grouper.is.available" message="${grouper.folder}/dist/lib/Grouper.jar does not exist. You must
 			   build and configure Grouper before running this script"/>
 
 		<echo message="Creating  ${webapp.folder}"/>
@@ -205,7 +205,7 @@
 			<!-- make available any classes / resources already placed in the build folder -->
 			<pathelement location="${webapp.class.folder}"/>
 			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
+			<pathelement location="${grouper.folder}/dist/lib/Grouper.jar"/>
 		
 		</path>
 		<antcall target="-compileGrouper"/>
@@ -558,7 +558,7 @@
 				<!-- Make available jar files that Grouper needs -->
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
-				<exclude name="grouper-lib.jar"/>
+				<exclude name="Grouper-lib.jar"/>
 			</fileset>
 			<!-- Make available jar files the UI needs -->
 			<fileset dir="${ui.folder}/java/lib">
@@ -572,7 +572,7 @@
 			<!-- make available any classes / resources already placed in the build folder -->
 			<pathelement location="${webapp.class.folder}"/>
 			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
+			<pathelement location="${grouper.folder}/dist/lib/Grouper.jar"/>
 		
 		</path> 
 		<property name="cp" refid="ui.class.path"/>
