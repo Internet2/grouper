@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.1 2005-09-09 20:49:46 acohen Exp $
-$Date: 2005-09-09 20:49:46 $
+$Id: ConfirmProxyAction.java,v 1.2 2005-09-12 23:52:22 acohen Exp $
+$Date: 2005-09-12 23:52:22 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -86,7 +86,7 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 2");
     // currentProxy is present in the session only if we are editing
     // an existing Proxy. Otherwise, we're attempting to create a new one.
     Proxy proxy
-      = (Proxy)(session.getAttribute("currentProxy"));
+      = (Proxy)(session.getAttribute(Constants.PROXY_ATTRNAME));
   
     Signet signet = (Signet)(session.getAttribute("signet"));
 System.out.println("DEBUG: ConfirmProxyAction: MARK 3");
@@ -207,6 +207,9 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 10");
     signet.commit();
   
     session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
+    
+    // Clear the currentProxy out of the HTTP session. We're done with it.
+    session.removeAttribute(Constants.PROXY_ATTRNAME);
 
     // Forward to our success page
     return findSuccess(mapping);

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.1 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: designate.jsp,v 1.2 2005-09-12 23:52:22 acohen Exp $
+  $Date: 2005-09-12 23:52:22 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -164,7 +164,7 @@
   // editing an existing Proxy. Otherwise, we're attempting to create a
   // new one.
   Proxy currentProxy
-    = (Proxy)(request.getSession().getAttribute("currentProxy"));
+    = (Proxy)(request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
 %>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" />

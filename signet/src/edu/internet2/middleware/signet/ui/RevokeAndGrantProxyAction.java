@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAndGrantProxyAction.java,v 1.1 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: RevokeAndGrantProxyAction.java,v 1.2 2005-09-12 23:52:22 acohen Exp $
+  $Date: 2005-09-12 23:52:22 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -103,6 +103,9 @@ public final class RevokeAndGrantProxyAction extends BaseAction
     
     proxy.save();
     signet.commit();
+    
+    // Clear the currentProxy out of the HTTP session. We're done with it.
+    session.removeAttribute(Constants.PROXY_ATTRNAME);
 
     // Forward to our success page
     return findSuccess(mapping);
