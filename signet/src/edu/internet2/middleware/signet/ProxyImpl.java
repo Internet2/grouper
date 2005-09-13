@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.4 2005-08-29 20:37:01 acohen Exp $
- $Date: 2005-08-29 20:37:01 $
+ $Id: ProxyImpl.java,v 1.5 2005-09-13 22:25:36 acohen Exp $
+ $Date: 2005-09-13 22:25:36 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,8 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 class ProxyImpl
@@ -30,7 +32,7 @@ implements Proxy
   public ProxyImpl
   	(Signet							signet,
      PrivilegedSubject	grantor, 
-     Proxy              actingAs,
+     PrivilegedSubject  actingAs,
      PrivilegedSubject 	grantee,
      Subsystem          subsystem,
      boolean            canUse,
@@ -39,30 +41,27 @@ implements Proxy
      Date               expirationDate)
   throws
   	SignetAuthorityException
-  {    
+  {  
     super(signet, grantor, actingAs, grantee, effectiveDate, expirationDate);
+    
+    Set proxyCandidates = new HashSet();
     
     if (actingAs != null)
     {
-      if (actingAs.canExtend() == false)
+      proxyCandidates = signet.getExtensibleProxies(actingAs, grantor);
+      if (proxyCandidates.size() == 0)
       {
         Decision decision = new DecisionImpl(false, Reason.CANNOT_EXTEND, null);
         throw new SignetAuthorityException(decision);
       }
-    }
-    
-    if ((actingAs != null) && (actingAs.getSubsystem() != null))
-    {
-      if (!actingAs.getSubsystem().equals(subsystem))
+      
+      if (!encompassesSubsystem(proxyCandidates, subsystem))
       {
         throw new IllegalArgumentException
           ("When extending a Proxy to a third party,"
-           + " the Subsystem of the original Proxy must match the Subsystem"
-           + " associated with the new Proxy."
-           + " '" + actingAs.getSubsystem().getName() + "',"
-           + " the Subsystem of the original Proxy, does not match"
-           + " '" + subsystem.getName() + "',"
-           + " the Subsystem of the new Proxy.");
+           + " the grantor must hold a Proxy with a NULL Subsystem, or a"
+           + " Subsystem which matches the Subsystem"
+           + " associated with the new Proxy.");
       }
     }
     

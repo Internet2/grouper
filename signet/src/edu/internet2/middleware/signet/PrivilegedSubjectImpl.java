@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.23 2005-08-29 18:29:31 acohen Exp $
- $Date: 2005-08-29 18:29:31 $
+ $Id: PrivilegedSubjectImpl.java,v 1.24 2005-09-13 22:25:36 acohen Exp $
+ $Date: 2005-09-13 22:25:36 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -942,7 +942,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
   
   public Assignment grant
-    (Proxy             actingAs,
+    (PrivilegedSubject actingAs,
      PrivilegedSubject grantee,
      TreeNode          scope,
      Function          function,
@@ -1199,7 +1199,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @see edu.internet2.middleware.signet.PrivilegedSubject#grantProxy(edu.internet2.middleware.signet.PrivilegedSubject, edu.internet2.middleware.signet.Subsystem, java.util.Date, java.util.Date)
    */
   public Proxy grantProxy
-    (Proxy              actingAs,
+    (PrivilegedSubject  actingAs,
      PrivilegedSubject  grantee,
      Subsystem          subsystem,
      boolean            canUse,

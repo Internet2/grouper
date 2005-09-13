@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.36 2005-09-13 17:16:07 acohen Exp $
-$Date: 2005-09-13 17:16:07 $
+$Id: Signet.java,v 1.37 2005-09-13 22:25:36 acohen Exp $
+$Date: 2005-09-13 22:25:36 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -2173,5 +2173,69 @@ public final class Signet
   }
   
   return sources;
+ }
+ 
+ boolean canUseProxy
+   (PrivilegedSubject proxyGrantor,
+    PrivilegedSubject proxyGrantee)
+ {
+   Set proxies
+     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+   
+   Iterator proxiesIterator = proxies.iterator();
+   while (proxiesIterator.hasNext())
+   {
+     Proxy proxy = (Proxy)(proxiesIterator.next());
+     if (proxy.canUse())
+     {
+       return true;
+     }
+   }
+   
+   // If we've gotten this far, it means we have no useable, active Proxies
+   // from ProxyGrantor to ProxyRecipient.
+   return false;
+ }
+ 
+ Set getExtensibleProxies
+   (PrivilegedSubject proxyGrantor,
+    PrivilegedSubject proxyGrantee)
+ {
+   Set proxies
+     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+   Set extensibleProxies = new HashSet();
+   
+   Iterator proxiesIterator = proxies.iterator();
+   while (proxiesIterator.hasNext())
+   {
+     Proxy proxy = (Proxy)(proxiesIterator.next());
+     if (proxy.canExtend())
+     {
+       extensibleProxies.add(proxy);
+     }
+   }
+   
+   return extensibleProxies;
+ }
+ 
+ Set getUsableProxies
+   (PrivilegedSubject proxyGrantor,
+    PrivilegedSubject proxyGrantee)
+ {
+   Set proxies
+     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+   Set usableProxies = new HashSet();
+   
+   Iterator proxiesIterator = proxies.iterator();
+   while (proxiesIterator.hasNext())
+   {
+     Proxy proxy = (Proxy)(proxiesIterator.next());
+     if (proxy.canUse())
+     {
+       usableProxies.add(proxy);
+     }
+   }
+   
+   return usableProxies;
  }
 }

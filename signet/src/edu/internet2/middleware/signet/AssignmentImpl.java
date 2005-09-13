@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.28 2005-08-26 19:50:24 acohen Exp $
- $Date: 2005-08-26 19:50:24 $
+ $Id: AssignmentImpl.java,v 1.29 2005-09-13 22:25:36 acohen Exp $
+ $Date: 2005-09-13 22:25:36 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -41,7 +41,7 @@ implements Assignment
   public AssignmentImpl
   	(Signet							signet,
      PrivilegedSubject	grantor,
-     Proxy              actingAs,
+     PrivilegedSubject  actingAs,
      PrivilegedSubject 	grantee,
      TreeNode						scope,
      Function						function,
@@ -64,21 +64,27 @@ implements Assignment
     if (function == null)
     {
       throw new IllegalArgumentException
-      	("It's illegal to grant an Assignment for a NULL Function.");
+        ("It's illegal to grant an Assignment for a NULL Function.");
     }
     
-    if ((actingAs != null) && (actingAs.getSubsystem() != null))
+    Set proxyCandidates = new HashSet();
+    
+    if (actingAs != null)
     {
-      if (!actingAs.getSubsystem().equals(function.getSubsystem()))
+      proxyCandidates = signet.getUsableProxies(actingAs, grantor);
+      if (proxyCandidates.size() == 0)
+      {
+        Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
+        throw new SignetAuthorityException(decision);
+      }
+
+      if (!encompassesSubsystem(proxyCandidates, function.getSubsystem()))
       {
         throw new IllegalArgumentException
           ("When exercising a Proxy to grant an Assignment,"
-           + " the Subsystem of the Proxy must match the Subsystem of the"
-           + " Function being assigned."
-           + " '" + actingAs.getSubsystem().getName() + "',"
-           + " the Subsystem of the Proxy, does not match"
-           + " '" + function.getSubsystem().getName() + "',"
-           + " the Subsystem of the Function.");
+           + " the grantor must hold a Proxy with a NULL Subsystem, or a"
+           + " Subsystem which matches the Subsystem of the Function"
+           + " being assigned.");
       }
     }
     

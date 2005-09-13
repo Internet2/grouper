@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.10 2005-08-29 20:37:01 acohen Exp $
-$Date: 2005-08-29 20:37:01 $
+$Id: PrivilegedSubjectTest.java,v 1.11 2005-09-13 22:25:36 acohen Exp $
+$Date: 2005-09-13 22:25:36 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -181,15 +181,10 @@ public class PrivilegedSubjectTest extends TestCase
             (pSubject0.getAssignmentsReceived
               (null, null, null)));
     Set oldLimitValues = oldAssignment.getLimitValues();
-
-    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
-    Set proxies
-      = pSubject1.getProxiesReceived(Status.ACTIVE, subsystem, pSubject0);
-    Proxy proxy = (Proxy)(Common.getSingleSetMember(proxies));
     
     Assignment newAssignment
       = pSubject1.grant
-          (proxy,     // actingAs
+          (pSubject0,     // actingAs
            pSubject2, // grantee
            oldAssignment.getScope(),
            oldAssignment.getFunction(),
@@ -423,13 +418,10 @@ public class PrivilegedSubjectTest extends TestCase
     PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
 
     Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
-    Set proxies
-      = pSubject1.getProxiesReceived(Status.ACTIVE, subsystem, pSubject0);
-    Proxy proxyFrom0to1 = (Proxy)(Common.getSingleSetMember(proxies));
     
     Proxy newProxyFrom1to2
       = pSubject1.grantProxy
-          (proxyFrom0to1,       // actingAs
+          (pSubject0,           // actingAs
            pSubject2,           // grantee
            subsystem,
            false,               // canUse

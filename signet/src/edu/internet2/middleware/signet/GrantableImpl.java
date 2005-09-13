@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.5 2005-09-09 20:49:46 acohen Exp $
- $Date: 2005-09-09 20:49:46 $
+ $Id: GrantableImpl.java,v 1.6 2005-09-13 22:25:36 acohen Exp $
+ $Date: 2005-09-13 22:25:36 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,8 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -114,7 +116,7 @@ implements Grantable
   public GrantableImpl
   	(Signet							signet,
      PrivilegedSubject	grantor,
-     Proxy              actingAs,
+     PrivilegedSubject  actingAs,
      PrivilegedSubject 	grantee,
      Date               effectiveDate,
      Date               expirationDate)
@@ -130,13 +132,13 @@ implements Grantable
     }
     else
     {
-      if (actingAs.canUse() == false)
+      if (!signet.canUseProxy(actingAs, grantor))
       {
         Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
         throw new SignetAuthorityException(decision);
       }
       
-      this.setGrantor(actingAs.getGrantor());
+      this.setGrantor(actingAs);
       this.setProxy(grantor);
     }
     
@@ -559,5 +561,29 @@ implements Grantable
     this.setStatus(newStatus);
     
     return newStatus;
+  }
+  
+  protected boolean encompassesSubsystem(Set proxies, Subsystem subsystem)
+  {
+    Iterator proxiesIterator = proxies.iterator();
+    while (proxiesIterator.hasNext())
+    {
+      Proxy proxy = (Proxy)(proxiesIterator.next());
+      
+      // If any of our candidate Proxies has a NULL Subsystem, than it
+      // encompasses every possible Subsystem.
+      if (proxy.getSubsystem() == null)
+      {
+        return true;
+      }
+
+      if (proxy.getSubsystem().equals(subsystem))
+      {
+        return true;
+      }
+    }
+    
+    // If we've gotten this far, none of our Proxies can do the job.
+    return false;
   }
 }

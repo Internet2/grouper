@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.15 2005-09-09 20:49:46 acohen Exp $
- $Date: 2005-09-09 20:49:46 $
+ $Id: PrivilegedSubject.java,v 1.16 2005-09-13 22:25:36 acohen Exp $
+ $Date: 2005-09-13 22:25:36 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -66,7 +66,7 @@ public interface PrivilegedSubject extends Comparable
    * @throws SignetAuthorityException
    */
   public Proxy grantProxy
-   (Proxy             actingAs,
+   (PrivilegedSubject actingAs,
     PrivilegedSubject grantee,
     Subsystem         subsystem,
     boolean           canUse,
@@ -94,7 +94,7 @@ public interface PrivilegedSubject extends Comparable
    * @throws SignetAuthorityException, ObjectNotFoundException
    */
   public Assignment grant
-  (Proxy              actingAs,
+  (PrivilegedSubject  actingAs,
    PrivilegedSubject  grantee,
    TreeNode           scope,
    Function           function,
