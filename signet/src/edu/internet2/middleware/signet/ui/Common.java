@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.21 2005-09-13 17:16:07 acohen Exp $
-  $Date: 2005-09-13 17:16:07 $
+  $Id: Common.java,v 1.22 2005-09-13 18:14:12 acohen Exp $
+  $Date: 2005-09-13 18:14:12 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -213,6 +213,7 @@ public class Common
   
   public static String displayActingForOptions
     (PrivilegedSubject  pSubject,
+     Proxy              actingAs,
      String             htmlSelectId)
   {
     StringBuffer outStr = new StringBuffer();
@@ -230,7 +231,7 @@ public class Common
       outStr.append("  class=\"long\"\n");
       outStr.append("  onChange=\"javascript:document.form1.switchButton.disabled=false;\">\n");
         
-      outStr.append(Common.displayProxyOptions(pSubject));
+      outStr.append(Common.displayProxyOptions(pSubject, actingAs));
 
       outStr.append("</SELECT>\n");
       outStr.append("<INPUT\n");
@@ -247,20 +248,40 @@ public class Common
     return outStr.toString();
   }
   
-  public static String displayProxyOptions(PrivilegedSubject pSubject)
+  public static String displayProxyOptions
+    (PrivilegedSubject pSubject,
+     Proxy actingAs)
   {
     StringBuffer outStr = new StringBuffer();
     
-    outStr.append
-      ("<OPTION>" + "myself (" + pSubject.getName() + ")</OPTION>\n");
+    outStr.append("<OPTION" + (actingAs == null ? " SELECTED" : "") + ">\n");
+    outStr.append("  myself (" + pSubject.getName() + ")\n");
+    outStr.append("</OPTION>\n");
     
     Set proxiesReceived
       = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
     Iterator proxiesReceivedIterator = proxiesReceived.iterator();
+    
+    // Get a Set of unique Proxy-grantors to choose from.
+    Set proxyGrantors = new TreeSet();
     while (proxiesReceivedIterator.hasNext())
     {
       Proxy proxy = (Proxy)(proxiesReceivedIterator.next());
-      outStr.append("<OPTION>" + proxy.getGrantor().getName() + "</OPTION>\n");
+      proxyGrantors.add(proxy.getGrantor());
+    }
+    
+    PrivilegedSubject actingAsGrantor
+      = (actingAs == null ? null : actingAs.getGrantor());
+    
+    Iterator proxyGrantorsIterator = proxyGrantors.iterator();
+    while (proxyGrantorsIterator.hasNext())
+    {
+      PrivilegedSubject grantor
+        = (PrivilegedSubject)(proxyGrantorsIterator.next());
+      boolean isCurrent = (grantor.equals(actingAsGrantor));
+      outStr.append("<OPTION" + (isCurrent ? " SELECTED" : "") + ">\n");
+      outStr.append("  " + grantor.getName() + "\n");
+      outStr.append("</OPTION>\n");
     }
     
     return outStr.toString();

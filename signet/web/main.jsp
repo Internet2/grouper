@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.39 2005-09-13 17:16:07 acohen Exp $
-  $Date: 2005-09-13 17:16:07 $
+  $Id: main.jsp,v 1.40 2005-09-13 18:14:12 acohen Exp $
+  $Date: 2005-09-13 18:14:12 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -37,6 +37,7 @@
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+<%@ page import="edu.internet2.middleware.signet.Proxy" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -47,8 +48,12 @@
          (request.getSession().getAttribute("signet"));
          
    PrivilegedSubject loggedInPrivilegedSubject
-     = (edu.internet2.middleware.signet.PrivilegedSubject)
+     = (PrivilegedSubject)
          (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+         
+   Proxy actingAs
+     = (Proxy)
+         (request.getSession().getAttribute(Constants.ACTINGAS_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
@@ -246,7 +251,9 @@
         <H2>Designated Drivers</H2>
         <DIV class="actionbox">
           <%=Common.displayActingForOptions
-               (loggedInPrivilegedSubject, Constants.ACTING_FOR_SELECT_ID)%>
+               (loggedInPrivilegedSubject,
+                actingAs,
+                Constants.ACTING_FOR_SELECT_ID)%>
           <BR/>
           <A href='Designate.do'>Designate a granting proxy</A>
         </DIV>
