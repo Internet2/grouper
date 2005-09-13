@@ -7,13 +7,35 @@
 
 <body>
 <h1>Configuring the Grouper UI from CVS</h1>
-<p>This document assumes that you have already downloaded, built and deployed 
+<p>This document assumes that you have already downloaded, built and deployed* 
   a Grouper instance (see <a href="file:///C|/projects/GrouperComplete/grouper/doc">Release 
   documentation for the Grouper API</a>). In addition, it is assumed that you 
   have populated the default Subject database or configured the LDAP Subject provider, 
   or configured your own Subject provider, so that one or more users can authenticate 
   themselves to the UI and start Grouper sessions. A subject with id=GrouperSystem 
   should be made available.</p>
+<p>*The Grouper UI makes the following assumptions about the Grouper deployment 
+  configured through the <font face="Courier New, Courier, mono">grouper.folder</font> 
+  property (see <a href="#buildingtheui">Building the UI</a> below):</p>
+<ol>
+  <li><font face="Courier New, Courier, mono">&lt;grouper.folder&gt;/conf</font> 
+    contains the required Grouper configuration files</li>
+  <li>You have run '<font face="Courier New, Courier, mono">ant dist</font>' such 
+    that <font face="Courier New, Courier, mono">&lt;grouper.folder&gt;/dist/lib</font> 
+    contains <font face="Courier New, Courier, mono">Grouper.jar</font> </li>
+  <li>One of the following is true 
+    <ol>
+      <li>You have run '<font face="Courier New, Courier, mono">ant dist-lib</font>' 
+        such that <font face="Courier New, Courier, mono">&lt;grouper.folder&gt;/dist/lib</font> 
+        contains <font face="Courier New, Courier, mono">Grouper-lib.jar</font>, 
+        or</li>
+      <li><font face="Courier New, Courier, mono">&lt;grouper.folder&gt;/java/lib</font> 
+        contains the third-party JAR files supplied with Grouper, or</li>
+      <li><font face="Courier New, Courier, mono">&lt;grouper.folder&gt;/dist/lib,</font>contains 
+        the third-party JAR files supplied with Grouper </li>
+    </ol>
+  </li>
+</ol>
 <p>This document also assumes you are familiar with Tomcat (available from <a href="http://jakarta.apache.org/tomcat/">jakarta.apache.org/tomcat</a>). 
 </p>
 <h2>Preparing Tomcat</h2>
@@ -37,7 +59,7 @@
   authentication schemes.</p>
 <p>**The first example is based on the custom UI which is provided as part of 
   the QuickStart distribution.</p>
-<h2>Building the UI</h2>
+<h2 id="buildingtheui">Building the UI</h2>
 <p>You must have <a href="http://ant.apache.org/">Ant</a> installed and available 
   on your path.</p>
 <p>Copy <font face="Courier New, Courier, mono">grouper-ui/build.properties.template</font> 
