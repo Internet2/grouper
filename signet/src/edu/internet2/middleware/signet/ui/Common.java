@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.20 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: Common.java,v 1.21 2005-09-13 17:16:07 acohen Exp $
+  $Date: 2005-09-13 17:16:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -209,6 +209,42 @@ public class Common
     Set limitValues = assignment.getLimitValues();
     
     return displayLimitValues(limits, limitValues);
+  }
+  
+  public static String displayActingForOptions
+    (PrivilegedSubject  pSubject,
+     String             htmlSelectId)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    Set proxiesReceived
+      = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
+    
+    if (proxiesReceived.size() > 0)
+    {    
+      outStr.append("<LABEL for=\"" + htmlSelectId + "\">\n");
+      outStr.append("  Act in Signet as:\n");
+      outStr.append("</LABEL\n");
+      outStr.append("<SELECT\n");
+      outStr.append("  name=\"" + htmlSelectId + "\"\n");
+      outStr.append("  class=\"long\"\n");
+      outStr.append("  onChange=\"javascript:document.form1.switchButton.disabled=false;\">\n");
+        
+      outStr.append(Common.displayProxyOptions(pSubject));
+
+      outStr.append("</SELECT>\n");
+      outStr.append("<INPUT\n");
+      outStr.append("  name=\"switchButton\"\n");
+      outStr.append("   disabled=\"true\"\n");
+      outStr.append("   type=\"button\"\n");
+      outStr.append("   class=\"button1\"\n");
+      outStr.append("   value=\"Switch\"\n");
+      outStr.append("   onClick=\"showActing(); document.form1.switchButton.disabled=true\"\n");
+      outStr.append("/>\n");
+
+    }
+    
+    return outStr.toString();
   }
   
   public static String displayProxyOptions(PrivilegedSubject pSubject)

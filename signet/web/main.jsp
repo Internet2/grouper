@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.38 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: main.jsp,v 1.39 2005-09-13 17:16:07 acohen Exp $
+  $Date: 2005-09-13 17:16:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -39,6 +39,7 @@
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 
 <% 
   Signet signet
@@ -244,21 +245,8 @@
       <DIV class="findperson"> 
         <H2>Designated Drivers</H2>
         <DIV class="actionbox">
-          <LABEL for="selectdd">Act in Signet as:</LABEL>
-          <SELECT
-            name="selectdd"
-            class="long"
-            onChange="javascript:document.form1.switchButton.disabled=false;">
-              
-            <%=Common.displayProxyOptions(loggedInPrivilegedSubject)%>
-          </SELECT>          
-          <INPUT
-            name="switchButton"
-            disabled="true"
-            type="button"
-            class="button1"
-            value="Switch"
-            onClick="showActing(); document.form1.switchButton.disabled=true" />
+          <%=Common.displayActingForOptions
+               (loggedInPrivilegedSubject, Constants.ACTING_FOR_SELECT_ID)%>
           <BR/>
           <A href='Designate.do'>Designate a granting proxy</A>
         </DIV>

@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.35 2005-09-09 20:49:46 acohen Exp $
-$Date: 2005-09-09 20:49:46 $
+$Id: Signet.java,v 1.36 2005-09-13 17:16:07 acohen Exp $
+$Date: 2005-09-13 17:16:07 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,10 +8,6 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1290,25 +1286,32 @@ public final class Signet
  }
 
 
- /**
-  * Gets PrivilegedSubjects by type and display ID.
-  * 
-  * @param subjectTypeId
-  * @param displayId
-  * @return Set of PrivilegedSubjects
-  */
- public Set getPrivilegedSubjectsByDisplayId(String subjectTypeId, String displayId) {
-   Set pSubjects = new HashSet();
-   for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); ) {
-    try {
-    	Subject result = ((Source)iter.next()).getSubjectByIdentifier(displayId);
-    	PrivilegedSubject pSubject =
-    		getPrivilegedSubject(result);
-    	pSubjects.add(pSubject);
+  /**
+   * Gets PrivilegedSubjects by type and display ID.
+   * 
+   * @param subjectTypeId
+   * @param displayId
+   * @return Set of PrivilegedSubjects
+   */
+  public Set getPrivilegedSubjectsByDisplayId
+    (String subjectTypeId,
+     String displayId)
+  {
+    Set pSubjects = new HashSet();
+    for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext();)
+    {
+      try
+      {
+    	  Subject result
+          = ((Source)iter.next()).getSubjectByIdentifier(displayId);
+    	  PrivilegedSubject pSubject = getPrivilegedSubject(result);
+    	  pSubjects.add(pSubject);
+      }
+      catch (SubjectNotFoundException snfe)
+      {
+      }
     }
-    catch (SubjectNotFoundException snfe) { }
-   }
-   return UnmodifiableSet.decorate(pSubjects);
+    return UnmodifiableSet.decorate(pSubjects);
  }
 
 
