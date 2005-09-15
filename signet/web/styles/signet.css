@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.16 2005-07-27 22:39:12 jvine Exp $
-   $Date: 2005-07-27 22:39:12 $
+   $Id: signet.css,v 1.17 2005-09-15 21:08:18 jvine Exp $
+   $Date: 2005-09-15 21:08:18 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -25,6 +25,10 @@ a {
 	text-decoration: none; 
 	color: #0049D4; 
 }
+
+td a {
+	white-space: nowrap;
+}	
 
 a:hover {
 	text-decoration: underline; 
@@ -83,7 +87,7 @@ h2 {  /* section headers on blue background */
 	font-weight: bold;
 	background-color: #B0D5DE;
 	padding: 2px;
-	margin: 0px;
+	margin: 0px 0px 5px 0px;
 }
 
 img {
@@ -99,6 +103,11 @@ label {
 	color: #000;
 }
 
+#Sidebar label {
+	display: block;
+	margin-top: 5px;
+}
+
 legend {
 	font-size: 11px; 
 	font-weight: bold;
@@ -106,11 +115,13 @@ legend {
 
 optgroup { /* unselectable group header in select menu */
 	text-decoration: none;
-	font-size: 11px;
-	text-transform : uppercase;
-	font-weight: normal;
+	font-size: 12px;
+	text-transform: none;
+	font-weight: bold;
 	font-style: normal;	
-	background-color: #DDD;
+	background-color: #EEE;
+	color: #333;
+	margin: 1px;
 }
 
 option { /* selectable item in select menu */
@@ -133,11 +144,11 @@ select {
 	font-size: 11px;
 }
 
-select.long {
+.long {
 	width: 170px;
 }
 
-select.short {
+.short {
 	width: 100px;
 }
 
@@ -175,10 +186,13 @@ table.invis {
 	padding: 0px;
 	margin: 0px;
 	width: auto;
+	border-collapse: collapse;
 }
 
 table.invis td {
 	border: none;
+	padding: 0px 0px 2px 0px;
+	margin: 0px;
 }
 
 th { 
@@ -232,6 +246,9 @@ th a:hover {
 th img { /* current sort up/down indicator */
 	float: right;
 }
+tr.newrow {
+	background-color: #EEEEEE;
+}
 
 /* lists */
 ol {
@@ -257,6 +274,17 @@ ul.none {
 li {
 	margin-top: 0px;
 }
+
+/* SPECIFIC CONTROLS */
+#functionSelectList {
+	float: left; 
+	margin: 0px 10px 5px 20px;
+}
+
+#scope {
+	margin: 0px 10px 5px 20px;
+}
+
 
 /* LAYOUT AND POSITIONING */
 #Header {  /* header content is in a tile */
@@ -332,9 +360,10 @@ li {
 
 #ViewHead { /* Content section header on all but Main page */
 	position:relative;
-	border: 1px solid #B0D5DE;
+	width: 450px;
+	/* border: 1px solid #B0D5DE; */
 	margin: 0px 0px 5px 0px;
-	padding: 3px;
+	/* padding: 3px; */
 }
 
 #Sidebar { /* holds sidebar boxes fixed to one side of Content */
@@ -346,23 +375,12 @@ li {
 	background-color: #fff;
 }
 
-#Scope { /* scope search section in Sidebar */
+#PersonSearchResults { /* subject search section in Sidebar */
 	position:relative;
-	margin-top: 10px;
+	margin: 2px;
 }
 
-#Scope .scroll {
-	position:relative;
-	width: 170px;
-	height: 250px;	
-}
-
-#Subject { /* subject search section in Sidebar */
-	position:relative;
-	margin-top: 10px;
-}
-
-#Subject .scroll {
+#PersonSearchResults .scroll {
 	position:relative;
 	width: 170px;
 	height: 250px;	
@@ -414,11 +432,36 @@ li {
 	width: 100px;
 }
 
+.date { /* date entry box in control bar */
+	width: 75px; 
+	color: #999; /* example value text color - set to black by javascript */
+	font-size: 11px;
+	font-weight: normal;	
+}
+
+.ocbox {
+	float: right;
+	font-size: 12px;
+	line-height: 12px;
+	font-weight: bold;
+	border: 1px solid #0049D4;
+	text-align: center;
+	width: 12px;
+	margin: 1px;
+}
+.ocbox a {
+	display: block;
+}
+.ocbox a hover {
+	text-decoration: none;
+}
+
 /* VIEW PAGES */
 
 .tablecontent {
 	position:relative;
 	width: 99.9%;
+	margin-top: 5px;
 }
 
 .tableheader { /* first title bar above content table - contains links but not controls */
@@ -458,6 +501,7 @@ li {
 }
 
 .tablecontrols { /* second title bar above content bar - contains controls for table */
+	position: relative;
 	text-decoration: none;
 	color: #333;
 	font-size: 11px;
@@ -468,6 +512,11 @@ li {
 	margin: 0px;
 	white-space: nowrap;
 	vertical-align: middle;	
+	width: 99.9%;	
+}
+
+.tablecontrols form {
+	white-space: nowrap;
 }
 
 .hierarchy a { /* applies to table cells that contain a scope node - TITLE attribute of <a> tag shows on hover */
@@ -533,6 +582,12 @@ li {
 	color: #CC0000;
 }
 
+.actingas {
+	color: #FFFFCC;
+	font-weight: bold;
+	display: none;
+}
+
 .clear {  /* hack to make various things work right */
 	clear: both;
 	display: block;
@@ -541,6 +596,11 @@ li {
 	line-height: 0px;
 	margin: 0px;
 	padding: 0px;
+}
+
+.close {
+	float: right;
+	font-size: 0.9em;
 }
 
 .dropback {
@@ -555,6 +615,9 @@ li {
 
 .ident {
 	color: #666;
+	text-transform: none;
+	font-weight: normal;
+	margin-left: 10px;
 }
 
 .label {

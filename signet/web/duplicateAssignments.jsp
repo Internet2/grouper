@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.6 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: duplicateAssignments.jsp,v 1.7 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -101,11 +101,11 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-        Granting new privilege to
+			<span class="dropback">Granting new privilege to</span>           	
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
        	</h1>
-       	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+       	<span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
@@ -210,8 +210,7 @@
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this assignment and return to Lynn McRae's view
-    </a>
+      CANCEL this assignment and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview </a>
   </div>
 
      	</form>
@@ -224,15 +223,13 @@
       <div id="Sidebar">
       	<div class="helpbox">
       		<h2>help</h2>
-      		<div class="actionbox">
       			<p>This assignment has been determined to be very similar to one or more existing assignments.</p>
 <p>The subject's actual privilege will be the highest of any specified limits or conditions. If your intent is to decrease the limits or conditions of this privilege, you should replace any assignments with higher limits.</p>
 <p>Your own limits and conditions may prevent you from replacing an assignment with higher limits and conditions. </p>
 
-<p>You can find out who originally granted the privilege by clicking on the ... icon. </p>
+<p>You can find out who originally granted the privilege by clicking on the <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> icon. </p>
 
-     			</div>
-     		</div>
+   		</div>
    	</div>  <!-- Sidebar -->
 		
 </div> <!-- Layout -->

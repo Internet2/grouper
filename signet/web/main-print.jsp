@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main-print.jsp,v 1.17 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: main-print.jsp,v 1.18 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -54,12 +54,14 @@
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
 
+  	<!-- removing header to use full page for print view; form is not required 
     <form name="form1" method="post" action="">
       <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Layout"> 
-       <a href="Start.do"><img src="images/arrow_left.gif" alt="" />return</a>
-       <h1>
-          Privileges you have granted</h1>
+	-->  
+       <h1>Privileges granted by ...</h1>
+		  <p class="dropback">Report as of (date time)</p>
+        <a href="Start.do"><img src="images/arrow_left.gif" alt="" />return</a>
   	    
         <table>            
           <tr>
@@ -145,8 +147,12 @@
 %>
             
         </table>
+		
+	<!-- removing footer and end of layout div	
         <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div>
     </form>
+	-->
+	
   </body>
 </html>

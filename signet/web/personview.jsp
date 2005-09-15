@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview.jsp,v 1.39 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: personview.jsp,v 1.40 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -203,18 +203,24 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-        Privileges assigned to
+	  	<span class="dropback">
+        Privileges overview for </span> 
          <h1>
            <%=currentGranteePrivilegedSubject.getName()%>
          </h1>
-         <span class="dropback">
+         <span class="ident">
            <%=currentGranteePrivilegedSubject.getDescription()%><!--,	Technology Strategy and Support Operations-->
          </span> 
        </div> <!-- ViewHead -->
        <div class="tableheader">
-         <form name="pickSubsystem" action="PersonView.do">
-		         <a
-              style="float: right;"
+	   
+	    <a href="PrivilegesXML.do">
+                <img
+                	src="images/xml.gif"
+                    alt="" />
+                View XML
+               </a>
+			   <a
               href="javascript:;"
               onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
              <img
@@ -223,21 +229,23 @@
              Export to Excel
            </a>
            <a
-              style="float: right;"
               href="PersonViewPrint.do">
              <img
                 src="images/print.gif"
                 alt="" />
              Printable version
            </a>
-           <h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2>
-           <span style="white-space: nowrap;"> <!-- keep select & button together -->
+        <h2><%=(currentSubsystem == null ? "NO ASSIGNED" : currentSubsystem.getName())%> Privileges</h2> 
+		</div> <!-- tableheader -->
+		<div class="tablecontrols">
+		<form name="pickSubsystem" action="PersonView.do">
+		   <label for="subsystemId">Change the view to show </label>
+           
            <select
               name="subsystemId"
               id="subsystem">
   
             <option
-                selected="selected"
                 onclick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=true">
                (assigned privilege types)
              </option>
@@ -265,7 +273,7 @@
     Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
 %>
              <option
-                value="<%=subsystem.getId()%>"
+                value="<%=subsystem.getId()%>" selected="selected"
                 onclick="javascript:document.pickSubsystem.showSubsystemPrivs.disabled=false">
                <%=subsystem.getName()%>
              </option>
@@ -274,18 +282,18 @@
   }
 %>
   
-          </select>
-                      
+           </select>
+           privileges           
           <input
               class="button1"
               disabled="true"
               type="submit"
               name="showSubsystemPrivs"
               value="Show"/>
-            </span>  
          </form> <!-- pickSubsystem -->
-       </div> <!-- tableheader -->
-              
+		
+
+		</div> <!-- tablecontrols -->              
       <form
           onsubmit
             ="return confirm
@@ -387,19 +395,9 @@
              </table>
          </div> <!-- tablecontent -->
        </form> <!-- checkform -->
-              <a href="PrivilegesXML.do">
-                <img
-                     src="images/arrow_right.gif"
-                       alt="" />
-                View XML
-              </a>
-     </div><!-- Content -->
-              <a href="Start.do">
-                <img
-                     src="images/arrow_right.gif"
-                       alt="" />
-                View XML
-              </a>
+     </div>
+    <!-- Content -->
+
      <tiles:insert page="/tiles/footer.jsp" flush="true" />
       <div id="Sidebar">
         
@@ -410,15 +408,16 @@
 
         <div class="grant">
           <h2>
-            Grant to <%=currentGranteePrivilegedSubject.getName()%>
+            Grant a privilege
           </h2>
+		   <p>to <%=currentGranteePrivilegedSubject.getName()%></p>
           <form name="grantForm" id="grantForm" action="Functions.do">
             <p>
               <select
                 id="grantableSubsystems"
                 name="grantableSubsystems"
                 class="long" 
-                onChange="setStartButtonStatus()">
+                onchange="setStartButtonStatus()">
                 
                 <option value="prompt">
                   select privilege type
@@ -463,17 +462,16 @@
           <h2>
             find a Subject </h2>
           <p>
-              <input
+<input
                 name="words"
                 type="text"
-                class="short"
+                class="long"
                 id="words"
-                style="width:100px"
                 size="15"
                 maxlength="500"
                 onfocus="personSearchFieldHasFocus=true;"
-                onblur="personSearchFieldHasFocus=false;" />
-              <input
+                onblur="personSearchFieldHasFocus=false;" />              
+<input
                 name="searchbutton"
                 type="submit"
                 class="button1"
@@ -487,11 +485,20 @@
             </label>
           </p>
           <div id="PersonSearchResults" style="display:none">
-          </div> <!-- PersonSearchResults -->
+          </div> 
+          <!-- PersonSearchResults -->
+		    <p>
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%><%=currentSubsystem == null ? "" : ("&subsystemId=" + currentSubsystem.getId())%>">
+                <img
+                     src="images/arrow_right.gif"
+                       alt="" />
+            View <%= loggedInPrivilegedSubject.getName()%>'s privileges</a>
+			</p>
         </div> <!-- findperson -->   
     </form> <!-- personSearchForm -->  
             
-          <div class="views">
+	<!-- stubbing this div out for now
+	      <div class="views">
             <h2>
               View privileges...
             </h2>
@@ -511,24 +518,15 @@
                 assigned to you
               </a>
             </p>
-            <p>
-              <a href="NotYetImplemented.do">
-                <img
-                     src="images/arrow_right.gif"
-                       alt="" />
-                by scope
-              </a>
-            </p>
-        </div> <!-- views -->
+        </div>  
+		
+		end of stubbed-out views div -->
             
           
-        <div class="helpbox">
-           <h2>
-            Help
-          </h2>
-          <jsp:include page="personview-help.jsp" flush="true" />
-        </div> <!-- helpbox-->  
+
       </div> <!-- Sidebar -->
-		</div> <!-- Layout -->
-  </body>
+	  	  <div class="clear">&nbsp;</div>
+
+</div> <!-- Layout -->
+</body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.3 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: designate.jsp,v 1.4 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -185,45 +185,49 @@
     name="form1"
           method="post"
           action="ConfirmProxy.do" 
-          onSubmit="return submitOrSearch();"> <!-- TRUE if submit -->
+          onsubmit="return submitOrSearch();"> <!-- TRUE if submit -->
 
     <div id="Layout">
       <div id="Content">
-      
-        <div class="table1"> 
-        
-          <div class="section">
-            <h2>
-              Select privilege type(s)
-            </h2>
-            <p>
-              Instructions go here.
-            </p>
-            <div style="margin-left: 25px;">
-              <%=Common.subsystemSelectionSingle
+      <div id="ViewHead">
+		<span class="dropback">Designating a granting proxy for</span>           	
+        <h1>
+          <%=currentGranteePrivilegedSubject.getName()%>
+       	</h1>
+       	<span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+      </div>
+      <!-- ViewHead -->
+ 
+        <div class="section">
+          <h2>
+            Select privilege type(s)
+          </h2>
+          <div style="margin-left: 25px;">
+            <%=Common.subsystemSelectionSingle
                    (Constants.SUBSYSTEM_SELECTNAME,
                     Constants.SUBSYSTEM_PROMPTVALUE,
                     "Instructions go here.",
                     "setContinueButtonStatus('" + Constants.SUBSYSTEM_SELECTNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
                     grantableSubsystems)%>
-            </div>
-          </div> <!-- section -->
+          </div>
+        </div>
+        <!-- section -->
       
-          <div class="section">		
-            <h2>
-              Find subject
-            </h2>
-            <div style="margin-left: 25px;">
-              <input
+        <div class="section">		
+          <h2>
+            Find subject
+          </h2>
+          <div style="margin-left: 25px;">
+            <input
                 name="subjectSearchString"
                 type="text"
                 id="subjectSearchString"
                 class="long"
                 maxlength="500"
-                onFocus="personSearchFieldHasFocus=true;"
-                onBlur="personSearchFieldHasFocus=false;" />
+                onfocus="personSearchFieldHasFocus=true;"
+                onblur="personSearchFieldHasFocus=false;" />
 
-              <input
+            <input
                 name="subjectSearchbutton"
                 type="submit"
                 class="button1"
@@ -252,7 +256,8 @@
               </span>
             </div>  <!-- subjectDetails -->
           </div> <!-- section -->
-        </div>  <!-- table1 -->
+          </div>
+        <!-- table1 -->
 		 
         <div class="section">
           <h2>Set conditions</h2>
@@ -283,9 +288,10 @@
             </tr>
           </table>
           <legend></legend>
-        </div> <!-- section -->
+          </div>
+        <!-- section -->
         
-        <div class="section" style="padding-top: 5px;">
+        <div class="section">
         
           <h2>Complete this designation </h2>	
           <input
@@ -296,30 +302,20 @@
             onclick="personSearchButtonHasFocus=false;"
             onfocus="personSearchButtonHasFocus=false;"
             value="<%=(currentProxy==null?"Complete designation":"Save changes")%>" 
-							
+			 />				
           <br />
             <a href="Start.do">
               <img src="images/arrow_left.gif" />
-              CANCEL and return to your subject view
-            </a>
-          </div>
+              CANCEL and return to your overview </a>
         </div>
       </div>
   
       <div id="Sidebar">      
         <div class="helpbox">
-          <div class="ocbox" id="cbhelp">
-            <a href="javascript:closeBox('boxhelp', 'obhelp', 'cbhelp');">-</a>
-          </div>
-          <div class="ocbox" id="obhelp" style="display: none;">
-            <a href="javascript:openBox('boxhelp', 'obhelp', 'cbhelp');">+</a>
-          </div>
           <h2>
             help
           </h2>
-          <div class="actionbox">
-            [an error occurred while processing this directive]
-          </div>
+            ...
         </div>
       </div>
   

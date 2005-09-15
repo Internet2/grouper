@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.28 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: confirm.jsp,v 1.29 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -112,11 +112,11 @@
       <div id="Layout">
         <div id="Content">
           <div id="ViewHead">
-            Privilege granted to
+            <span class="dropback">Privilege granted to</span>
             <h1>
               <%=currentGranteePrivilegedSubject.getName()%>
             </h1>
-            <span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,  Technology Strategy and Support Operations-->
+            <span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,  Technology Strategy and Support Operations-->
           </div> <!-- ViewHead -->
            
           <div class="section">
@@ -204,27 +204,22 @@
 				 
 <div class="section">
           <h2>
-             Continue
-        </h2>
-             <p>
-               <a href="<%=personViewHref%>">
-                 <img src="images/arrow_right.gif" alt="" />View all <%=currentGranteePrivilegedSubject.getName()%>'s privileges
-               </a>
-             </p>
+             Continue</h2>
              <p>
                <a href="Functions.do?grantableSubsystems=<%=currentSubsystem.getId()%>">
                  <img src="images/arrow_right.gif" alt="" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
                </a>
              </p>
              <p>
-               <a href="Start.do">
-                 <img src="images/arrow_right.gif" alt="" />Return to home page
+               <a href="<%=personViewHref%>">
+                 <img src="images/arrow_right.gif" alt="" />View all <%=currentGranteePrivilegedSubject.getName()%>'s privileges
                </a>
              </p>
+              <p>
+               <a href="Start.do">
+                 <img src="images/arrow_right.gif" alt="" />View privileges you have granted </a></p>
           </div>
-           <!-- section -->
-
-        </div> <!-- Content -->    
+           </div> <!-- Content -->    
          <div id="Sidebar">
 
     <form
@@ -256,36 +251,23 @@
                 onblur="personSearchButtonHasFocus=false;" />
               <br />
               <label for="words">
-                Enter a subject's name, and click "Search."
-              </label>
-            </p>
+                Enter a subject's name, and click "Search."</label>
+</p>
             <div id="PersonSearchResults" style="display:none">
             </div> <!-- PersonSearchResults -->
-          </div> <!-- findperson -->
-    </form> <!-- personSearchForm -->  
-
-          <div class="views">
-            <h2>
-              View privileges...
-            </h2>
-            <p>
-              <a href="Start.do">
-            <img src="images/arrow_right.gif" alt="" />you have granted</a></p>
             <p>
               <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
-                <img src="images/arrow_right.gif" alt="" />assigned to you</a>
-            </p>
-            <p>
-              <a href="NotYetImplemented.do">
-                <img src="images/arrow_right.gif" alt="" />by scope
-              </a>
-            </p>
-          </div> <!-- views -->
-                  
-          <div class="helpbox">
-            <h2>Help</h2>
-            <jsp:include page="confirm-help.jsp" flush="true" />          
-          </div>  <!-- end helpbox -->
+                <img
+                     src="images/arrow_right.gif"
+                       alt="" />
+            View <%= loggedInPrivilegedSubject.getName()%>'s privileges</a> 
+			</p>
+
+      </div> <!-- findperson -->
+    </form> <!-- personSearchForm -->  
+
+
+          
          </div> <!-- Sidebar -->
          <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->

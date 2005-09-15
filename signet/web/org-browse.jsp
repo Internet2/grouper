@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.19 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: org-browse.jsp,v 1.20 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -99,11 +99,11 @@
       <div id="Layout">
         <div id="Content">
           <div id="ViewHead">
-				  	Granting privilege to
+			<span class="dropback">Granting new privilege to</span>           	
      	    	<h1>
      	      	<%=currentGranteePrivilegedSubject.getName()%>
      	    	</h1>
-     	    	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+     	    	<span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
          	</div> <!-- ViewHead -->
 
          	<div class="section">
@@ -117,7 +117,7 @@
               	<tr>
               		<th class="label" scope="row">Type:</td>
               		<td><%=currentSubsystem.getName()%></td>
-              		<td>
+              		<td nowrap="nowrap">
 										<a href="<%=personViewHref%>">
 		               	<img src="images/arrow_left.gif" alt="" />change
     			         	</a>
@@ -140,13 +140,11 @@
            	<h2>
              	Select scope
          	 </h2>
-						<fieldset>
-						<legend>Scopes in which you are authorized to grant</legend>
-             	<p><label for "scope">
-               	Select the organization to which this privilege applies.
-             	</label></p>
-
-             	<select
+			  <p><label for "scope">
+           	  Select the scope to which this privilege applies.
+             	</label>
+			  </p>
+			  <select
               	name="scope"
 	            	id="scope"
               	size=20
@@ -160,11 +158,14 @@
                      ". ",                         // infixIncrement
                      "</option>\n",                // suffix
                      loggedInPrivilegedSubject.getGrantableScopes(currentFunction))%>
-             	</select>
-						</fieldset>	
-         	</div>	<!-- end section -->
+           	          </select>
+		  </div>
+           	<!-- end section -->
 	
           <div class="section">
+			<h2>
+           	Continue to next step : Limits and Conditions
+         	</h2> 		  
       	<input
         name="continueButton"
         disabled="true"
@@ -174,7 +175,7 @@
          
          	<p>
            	<a href="<%=personViewHref%>">
-             	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+             	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview
            	</a>
             	</p>
          </div> <!-- end section -->  	
@@ -182,8 +183,9 @@
         <div id="Sidebar">     
           <div class="helpbox">
           	<h2>Help</h2>
-          	<jsp:include page="grant-help.jsp" flush="true" />          
-					</div>  <!-- end helpbox -->
+          	...          
+					</div>  
+          <!-- end helpbox -->
         </div> <!-- end Sidebar -->
         <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div>	<!-- end Layout -->

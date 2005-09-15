@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.41 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: main.jsp,v 1.42 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -70,6 +70,16 @@
   
   <div id="Layout">
     <div id="Content"> 
+	<div id="ViewHead">
+	  	<span class="dropback">
+         Privileges overview for</span> 
+         <h1>
+           <%=loggedInPrivilegedSubject.getName()%>
+         </h1>
+         <span class="ident">
+           <%=loggedInPrivilegedSubject.getDescription()%>
+         </span> 
+       </div>
         <div class="tableheader">
           <a
             href="javascript:;"
@@ -203,8 +213,8 @@
             style="width:100px"
             size="15"
             maxlength="500"
-            onFocus="personSearchFieldHasFocus=true;"
-            onBlur="personSearchFieldHasFocus=false;" />
+            onfocus="personSearchFieldHasFocus=true;"
+            onblur="personSearchFieldHasFocus=false;" />
           <input
             name="searchbutton"
             type="submit"
@@ -220,58 +230,37 @@
        	</p>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->
+		    <p>
+              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
+                <img
+                     src="images/arrow_right.gif"
+                       alt="" />
+            View <%= loggedInPrivilegedSubject.getName()%>'s privileges</a>
+			</p>		
       </div><!-- findperson -->		
     </form> <!-- personSearchForm -->   
-      <div class="views">
-        <h2>
-          View privileges...
-        </h2> 
-        <p>
-          <a
-            href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>">
-            <img
-              src="images/arrow_right.gif"
-              alt="" />
-            assigned to you
-          </a>
-        </p>
-        <p>
-          <a href="NotYetImplemented.do">
-            <img
-                src="images/arrow_right.gif"
-                alt="" />
-            by scope
-          </a>
-        </p>
-      </div> <!-- views-->
       
-      <DIV class="findperson"> 
+<div class="findperson"> 
         <form
           name="actAsForm"
           method="post"
           action="ActAs.do">
-          <H2>Designated Drivers</H2>
-          <DIV class="actionbox">
+          <h2>Designated Drivers</h2>
+          <div class="actionbox">
             <%=Common.displayActingForOptions
                  (loggedInPrivilegedSubject,
                   actingAs,
                   Constants.ACTING_FOR_SELECT_ID)%>
-            <BR/>
-            <A href='Designate.do'>Designate a granting proxy</A>
-          </DIV> <!-- actionbox -->
+            <br/>
+            <a href='Designate.do'>
+			<img src="images/arrow_right.gif" alt="" />
+			Designate a granting proxy</a>
+          </div> <!-- actionbox -->
         </form>
-      </DIV> <!-- findperson -->
-
-
+      </div> <!-- findperson -->
       
-	    <div class="helpbox">
-       <h2>
-          Help
-       </h2>
-				<jsp:include page="main-help.jsp" flush="true" />
-      </div> <!-- helpbox-->	
-      
-  </div> <!-- Sidebar -->
+    </div>
+    <!-- Sidebar -->
  </div>	<!-- Layout -->
 </body>
 </html>

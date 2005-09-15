@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.2 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: duplicateProxies.jsp,v 1.3 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -98,11 +98,11 @@
   <div id="Layout"> 
     <div id="Content">
       <div id="ViewHead">
-        Granting new privilege to
+		<span class="dropback">Designating a granting proxy for</span>           	
         <h1>
           <%=currentGranteePrivilegedSubject.getName()%>
        	</h1>
-       	<span class="dropback"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+       	<span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
       </div>  <!-- ViewHead -->
 			
 <div class="alert">
@@ -191,7 +191,7 @@
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this proxy designation and return to Lynn McRae's view
+      CANCEL this proxy designation and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
     </a>
   </div>
 
@@ -209,9 +209,9 @@
       			<p>This proxy designation has been determined to be very similar to one or more existing proxies.</p>
 <p>The subject's actual proxy conditions will be the most lenient of any specified conditions. If your intent is to restrict the conditions of this proxy, you should replace any proxies with more lenient conditions.</p>
 
-<p>You can find out who originally granted the proxy by clicking on the ... icon. </p>
+<p>You can find out who originally granted the proxy by clicking on the <img src="images/maglass.gif" alt="" style="vertical-align:top;" /> icon. </p>
 
-     			</div>
+		  </div>
      		</div>
    	</div>  <!-- Sidebar -->
 		

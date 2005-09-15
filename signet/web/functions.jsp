@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.18 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: functions.jsp,v 1.19 2005-09-15 21:08:18 jvine Exp $
+  $Date: 2005-09-15 21:08:18 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -118,11 +118,12 @@
       <div id="Layout"> 
         <div id="Content">
           <div id="ViewHead">
-						Granting new privilege to
-           	<h1><%=currentGranteePrivilegedSubject.getName()%></h1>
-           	<span class="dropback">
+			<span class="dropback">Granting new privilege to</span>           	
+			<h1><%=currentGranteePrivilegedSubject.getName()%></h1>
+           	<span class="ident">
 						<%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
-					</div> <!-- ViewHead -->
+		  </div> 
+          <!-- ViewHead -->
          
          <div class="section">
 				 		<h2>New assignment details</h2>
@@ -135,63 +136,59 @@
               	<tr>
               		<th class="label" scope="row">Type:</td>
               		<td><%=currentSubsystem.getName()%></td>
-              		<td>
+              		<td nowrap="nowrap">
 										<a href="<%=personViewHref%>">
 		               	<img src="images/arrow_left.gif" alt="" />change
     			         	</a>
-									</td>
+				  </td>
              		</tr>								
 							</table>						
-				 </div>
+		  </div>
 				 
 				 	<div class="section">
 					<h2>
            	Select privilege
          	</h2> 
-					
-						<fieldset>
-							<legend><%=currentSubsystem.getName()%> privileges you are authorized to grant</legend>
-							<p><label for "scope">
-								Select a privilege, then click Continue.
-							</label></p>
-
-               	<select
-               	  style="float: left;"
+						  <p><label for "scope">
+							  Select a privilege, then click Continue.
+							</label>
+						  </p>
+					  <select
                		name="functionSelectList"
                		size="10"
                		id="functionSelectList"
               		onchange="javascript:selectFunction();">
- 	<%
+ 	  <%
   Iterator grantableCategoriesIterator = grantableCategories.iterator();
   while (grantableCategoriesIterator.hasNext())
   {
     Category grantableCategory = (Category)(grantableCategoriesIterator.next());
  %>
-                 	<optgroup label="<%=grantableCategory.getName()%>">
- 	<%
+                 	  <optgroup label="<%=grantableCategory.getName()%>">
+ 	  <%
     Set functions = loggedInPrivilegedSubject.getGrantableFunctions(grantableCategory);
     Iterator functionsIterator = functions.iterator();
     while (functionsIterator.hasNext())
     {
       Function function = (Function)(functionsIterator.next());
 %>
-                   	  <option value="<%=function.getId()%>">
-                     	<%=function.getName()%>
-                   	  </option>
-	<%
+                   	    <option value="<%=function.getId()%>">
+                     	  <%=function.getName()%>
+                   	    </option>
+	  <%
     }
 %>
-                 	</optgroup>
-	<%
+                 	  </optgroup>
+	  <%
   }
 %>
-               	</select>
+             	              </select>
                	
-               	<!-- Now, let's loop again, to lay down a series of SPAN elements
+       	              <!-- Now, let's loop again, to lay down a series of SPAN elements
                	     that will hold useful stuff like category name, function name,
                	     and function help-text.
                	-->
- <%
+                      <%
   grantableCategoriesIterator = grantableCategories.iterator();
   while (grantableCategoriesIterator.hasNext())
   {
@@ -202,21 +199,21 @@
     {
       Function function = (Function)(functionsIterator.next());
 %>
-                <div style="display:none" id="CATEGORY_NAME:<%=function.getId()%>">
+                      <div style="display:none" id="CATEGORY_NAME:<%=function.getId()%>">
                   <%=grantableCategory.getName()%>
-                </div>
-                <div style="display:none" id="FUNCTION_NAME:<%=function.getId()%>">
+                            </div>
+                      <div style="display:none" id="FUNCTION_NAME:<%=function.getId()%>">
                   <%=function.getName()%>
-                </div>
-                <div style="display:none" id="FUNCTION_HELPTEXT:<%=function.getId()%>">
+                            </div>
+                      <div style="display:none" id="FUNCTION_HELPTEXT:<%=function.getId()%>">
                   <%=function.getHelpText()%>
-                </div>
-	<%
+                            </div>
+                      <%
     }
   }
 %>
      
-                <div class="showdesc">
+                      <div class="showdesc">
                   <span class="category" id="categoryName">
                     <!-- category name gets inserted by Javascript -->
                   </span> <!-- categoryName -->
@@ -226,12 +223,18 @@
                   <p class="description" id="functionDescription">
                     <!-- function description gets inserted by Javascript -->
                   </p>
-                </div>  <!-- description -->
-				<div class="clear">&nbsp;</div><!--fix/hack for Safari display bug -->
-						</fieldset>		
-          </div> 	<!-- section -->
+                            </div>
+                      <!-- description -->
+		              <div class="clear">&nbsp;</div>
+		              <!--fix/hack for Safari display bug -->
+		  </div>
+				 	<!-- section -->
 					
            <div class="section">
+			<h2>
+           	Continue to next step : Scope
+         	</h2> 
+
              	<input
                   name="continueButton"
         		  		disabled="true"
@@ -241,17 +244,18 @@
            	
            	<p>
              	<a href="<%=personViewHref%>">
-               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s view
+               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview
              	</a>
            	</p>
-         	</div>	<!-- section -->
+       	  </div>	<!-- section -->
 					
        	</div><!-- Content -->
         <div id="Sidebar">
           <div class="helpbox">
           	<h2>Help</h2>
-          	<jsp:include page="grant-help.jsp" flush="true" />          
-					</div>  <!-- end helpbox -->
+          	...          
+					</div>  
+          <!-- end helpbox -->
         </div> <!-- Sidebar -->
         <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->

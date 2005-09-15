@@ -13,10 +13,11 @@
 <%@ page import="edu.internet2.middleware.signet.ui.SubjectNameComparator" %>
 
 
-    <div>
-      <link href="styles/signet.css" rel="stylesheet" type="text/css" />
-      <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
-      </script>
+    <DIV>
+      <LINK href="styles/signet.css" rel="stylesheet" type="text/css" />
+      <SCRIPT language="JavaScript" type="text/javascript" src="scripts/signet.js">
+      </SCRIPT>
+	<A class="close" href="javascript:hideResult('Subject');">[close]</A>
 <% 
   Signet signet
      = (Signet)
@@ -30,16 +31,16 @@
   if (sortSet.size() <= 0)
   {
 %>
-      <span class="error">
+      <SPAN class="error">
         Your search found no results.
-      </span>
+      </SPAN>
 <%
   }
   else
   {   
 %>
       Your search found:
-      <div class="scroll">
+      <DIV class="scroll">
 <% 
   	Iterator sortSetIterator = sortSet.iterator();
     while (sortSetIterator.hasNext())
@@ -47,22 +48,21 @@
       PrivilegedSubject listSubject
         = (PrivilegedSubject)(sortSetIterator.next());
 %>
-        <a href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId())%>'))">
+        <A href="javascript:location.replace(unescape('<%=URLEncoder.encode("PersonView.do?granteeSubjectTypeId=" + listSubject.getSubjectTypeId() + "&granteeSubjectId=" + listSubject.getSubjectId())%>'))">
           <%=listSubject.getName()%>
-		</a><br /><!-- it's important for the br to be on the same line as the a -->
-        <span class="dropback">
+		</A>
+        <DIV class="ident">
 <%
 	if (listSubject.getDescription() != null) {
 		out.print(listSubject.getDescription());
 	}
 %>
-	</span>
-        <br />
+		</DIV>
 <%
     }
 %>
-      </div> <!-- scroll -->
+      </DIV> <!-- scroll -->
 <%
   }
 %>
-    </div>
+    </DIV>
