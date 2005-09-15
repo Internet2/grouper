@@ -64,7 +64,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * <p />
  *
  * @author  blair christensen.
- * @version $Id: GrouperMember.java,v 1.94 2005-09-06 19:04:45 blair Exp $
+ * @version $Id: GrouperMember.java,v 1.95 2005-09-15 14:55:35 blair Exp $
  */
 public class GrouperMember {
 
@@ -192,7 +192,7 @@ public class GrouperMember {
    * <pre class="eg">
    * // Convert a subject into a member 
    * GrouperMember m = GrouperMember.load(
-   *   SessionFactory.getSubject(subjectID, subjectType)
+   *   SessionFactory.getSubject(s, subjectID, subjectType)
    * );
    * </pre>
    * @param   s             Load {@link GrouperMember} within this session.
