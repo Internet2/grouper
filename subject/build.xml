@@ -43,8 +43,7 @@
 		<javac
 			srcdir="${src.dir}"
 			destdir="${build.dir}"
-			includes="**/*.java"
-			fork="yes">
+			includes="**/*.java">
 			<classpath refid="build.path" />
 		</javac>
 	</target>
