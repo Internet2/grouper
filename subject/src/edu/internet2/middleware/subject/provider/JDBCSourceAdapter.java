@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.3 2005-07-15 06:38:17 mnguyen Exp $
-$Date: 2005-07-15 06:38:17 $
+$Id: JDBCSourceAdapter.java,v 1.4 2005-09-15 06:38:05 mnguyen Exp $
+$Date: 2005-09-15 06:38:05 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -72,8 +72,12 @@ public class JDBCSourceAdapter
 			" FROM Subject, SubjectAttribute" +
 			" WHERE Subject.subjectID = SubjectAttribute.subjectID" +
 			" AND (SubjectAttribute.searchValue = ?" +
-			" OR (Subject.subjectTypeID <> 'person' AND SubjectAttribute.searchValue LIKE ?)" +
-			" OR (Subject.subjectTypeID = 'person' AND SubjectAttribute.searchValue LIKE ?))";
+			" OR (Subject.subjectTypeID <> 'person'" +
+				" AND SubjectAttribute.searchValue LIKE ?)" +
+			" OR (Subject.subjectTypeID = 'person'" +
+				" AND (SubjectAttribute.searchValue LIKE ?" +
+				" OR SubjectAttribute.searchValue LIKE ?))" +
+			")";
 	
 	private static final String SEARCH_SUBJ_BY_ID_SQL =
 		"SELECT DISTINCT Subject.subjectID, Subject.name, Subject.subjectTypeID" +
@@ -144,6 +148,9 @@ public class JDBCSourceAdapter
 
 	/**
 	 * {@inheritDoc}
+	 * This method compares the argument ID with the "loginid" 
+	 * attribute in the SubjectAttribute table.
+	 * 
 	 */
 	public Subject getSubjectByIdentifier(String id)
 		throws SubjectNotFoundException {
@@ -177,6 +184,7 @@ public class JDBCSourceAdapter
 	
 	/**
 	 * {@inheritDoc}
+	 * This method supports case-insensitive matching.
 	 */
 	public Set search(String searchValue) {
 		Set result = new HashSet();
@@ -189,6 +197,7 @@ public class JDBCSourceAdapter
 			stmt.setString(1, normalizeValue);
 			stmt.setString(2, "%" + normalizeValue + "%");
 			stmt.setString(3, normalizeName(searchValue));
+			stmt.setString(4, normalizeNameLF(searchValue));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String id = rs.getString("subjectID");
@@ -296,10 +305,10 @@ public class JDBCSourceAdapter
 
 	
 	/**
-     * Normalize a value for searching.  All non-alpha-numeric are converted
-     * to a space except for apostrophes, which are elided.
+     * Normalize a value for searching.  All non-alpha-numeric are 
+     * converted to a space except for apostrophes, which are removed.
      */
-	protected static String normalizeString(String value) {
+	public static String normalizeString(String value) {
 		if (value == null) {
 			return null;
 		}
@@ -325,13 +334,47 @@ public class JDBCSourceAdapter
 
 	/**
      * Normalize a name for searching.  If the value
-     * is multi-part (delimited by spaces), the last word
-     * is moved to the beginning and the other words are
-     * appended with '% '.  All non-alpha-numeric
+     * is multi-part (delimited by spaces), each word is
+     * appended with '% '.  Else All non-alpha-numeric
      * are converted to a space except for apostrophes which
      * are removed.
      */
 	protected static String normalizeName(String value) {
+		if (value == null) {
+            return null;
+        }
+		StringBuffer buf = new StringBuffer();
+		
+		String[] words = value.trim().split("\\s");
+		if (words.length > 1) {
+			for (int i = 0; i < words.length; i++) {
+        		String str = words[i];
+        		buf.append(normalizeString(str));
+        		if (i < words.length - 1) {
+        			buf.append("%");
+            		buf.append(" ");
+        		}
+        	}
+        } else {
+        	buf.append("% ");
+        	buf.append(normalizeString(words[0]));
+        }
+        if (log.isDebugEnabled()) {
+        	log.debug("Normalized name from '" + value +
+        			"' to '" + buf.toString() + "'");
+        }
+        return buf.toString();
+	}
+	
+	/**
+     * Normalize a name to last-first format for searching.
+     * If the value is multi-part (delimited by spaces), the last
+     * word is moved to the beginning and the other words are
+     * appended with '% '.  All non-alpha-numeric
+     * are converted to a space except for apostrophes which
+     * are removed.
+     */
+	protected static String normalizeNameLF(String value) {
 		if (value == null) {
             return null;
         }
@@ -357,8 +400,7 @@ public class JDBCSourceAdapter
         		if (i < words.length - 1) {
     				buf.append(" ");
         		}
-        		log.debug(i + "-" + buf.toString());
-        	}        	
+        	}
         } else {
         	buf.append(normalizeString(words[0]));
         	buf.append(" %");

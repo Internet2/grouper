@@ -34,7 +34,7 @@ public class NormalizeNameTests extends TestCase{
 	public void test1() {
 		assertEquals(
 			"test1 normalizeName() returned unexpected result",
-			"nguyen %",
+			"% nguyen",
 			JDBCSourceAdapter.normalizeName("nguyen"));
 	}
 	
@@ -44,7 +44,7 @@ public class NormalizeNameTests extends TestCase{
 	public void test2() {
 		assertEquals(
 			"test2 normalizeName() returned unexpected result",
-			"nguyen %",
+			"% nguyen",
 			JDBCSourceAdapter.normalizeName(" nguyen "));
 	}
 	
@@ -54,47 +54,27 @@ public class NormalizeNameTests extends TestCase{
 	public void test3() {
 		assertEquals(
 			"test3 normalizeName() returned unexpected result",
-			"nguyen minh%",
+			"minh% nguyen",
 			JDBCSourceAdapter.normalizeName("minh nguyen"));
-	}
-
-	/**
-	 * Test case: Two words, comma.
-	 */
-	public void test4() {
-		assertEquals(
-			"test4 normalizeName() returned unexpected result",
-			"nguyen minh%",
-			JDBCSourceAdapter.normalizeName("nguyen, minh"));
 	}
 	
 	/**
 	 * Test case: Three words.
 	 */
-	public void test5() {
+	public void test4() {
 		assertEquals(
 			"test5 normalizeName() returned unexpected result",
-			"nguyen minh% ngoc%",
+			"minh% ngoc% nguyen",
 			JDBCSourceAdapter.normalizeName("minh ngoc nguyen"));
 	}
 
 	/**
-	 * Test case: Three words, comma.
-	 */
-	public void test6() {
-		assertEquals(
-			"test6 normalizeName() returned unexpected result",
-			"nguyen minh% ngoc%",
-			JDBCSourceAdapter.normalizeName("nguyen, minh ngoc"));
-	}
-	
-	/**
 	 * Test case: Hyphenated word.
 	 */
-	public void test7() {
+	public void test5() {
 		assertEquals(
 			"test7 normalizeName() returned unexpected result",
-			"tran nguyen minh% ngoc%",
+			"minh% ngoc% tran nguyen",
 			JDBCSourceAdapter.normalizeName("minh ngoc tran-nguyen"));
 	}
 
