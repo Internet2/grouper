@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.7 2005-09-13 18:14:12 acohen Exp $
-$Date: 2005-09-13 18:14:12 $
+$Id: Constants.java,v 1.8 2005-09-15 16:01:16 acohen Exp $
+$Date: 2005-09-15 16:01:16 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -93,6 +93,8 @@ public final class Constants
   public static final String SUBSYSTEM_PROMPTVALUE = "__subsystem_prompt_value";
   public static final String SUBSYSTEM_ATTRNAME = "currentSubsystem";
   
+  public static final String LOGGEDINUSER_ATTRNAME = "loggedInPrivilegedSubject";
+  
   public static final String GRANTEE_ATTRNAME = "currentGranteePrivilegedSubject";
   public static final String ACTINGAS_ATTRNAME = "actingAs";
   
@@ -103,4 +105,7 @@ public final class Constants
   public static final String ACTING_FOR_SELECT_ID = "selectActingFor";
   
   public static final String COMPOSITE_ID_DELIMITER = ":";
+  
+  public static final String ACTAS_BUTTON_NAME = "actAsButton";
+  public static final String ACTAS_BUTTON_ID = "actAsButton";
 }

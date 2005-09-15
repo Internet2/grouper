@@ -1,6 +1,6 @@
 /*--
-  $Id: PrivilegesXMLAction.java,v 1.1 2005-07-15 22:31:34 acohen Exp $
-  $Date: 2005-07-15 22:31:34 $
+  $Id: PrivilegesXMLAction.java,v 1.2 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -71,7 +71,7 @@ public final class PrivilegesXMLAction extends BaseAction
     
     PrivilegedSubject loggedInPrivilegedSubject
       = (PrivilegedSubject)
-          (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
   
     if ((signet == null) || (loggedInPrivilegedSubject == null))
     {

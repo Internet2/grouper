@@ -1,5 +1,5 @@
 /*--
-  $Id: RevokeAndGrantProxyAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
+  $Id: ActAsAction.java,v 1.1 2005-09-15 16:01:16 acohen Exp $
   $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
@@ -21,7 +21,6 @@ import org.apache.struts.action.ActionForward;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.PrivilegedSubject;
-import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 
 /**
@@ -38,7 +37,7 @@ import edu.internet2.middleware.signet.Signet;
  * </p>
  *
  */
-public final class RevokeAndGrantProxyAction extends BaseAction
+public final class ActAsAction extends BaseAction
 {
   // ---------------------------------------------------- Public Methods
   // See superclass for Javadoc
@@ -67,12 +66,10 @@ public final class RevokeAndGrantProxyAction extends BaseAction
     }
     
     HttpSession session = request.getSession(); 
-    Proxy proxy
-    = (Proxy)(session.getAttribute(Constants.PROXY_ATTRNAME));
   
     Signet signet = (Signet)(session.getAttribute("signet"));
   
-    if ((signet == null) || (proxy == null))
+    if (signet == null)
     {
       return (mapping.findForward("notInitialized"));
     }
@@ -80,32 +77,20 @@ public final class RevokeAndGrantProxyAction extends BaseAction
     PrivilegedSubject loggedInPrivilegedSubject
       = (PrivilegedSubject)
           (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-        
-    // Find the Proxies specified by the multi-valued "revoke" parameter,
-    // and revoke them.
-    String[] proxyIDs = request.getParameterValues("revoke");
-    if (proxyIDs == null)
+    
+    String compoundId = request.getParameter(Constants.ACTING_FOR_SELECT_ID);
+    String idParts[] = Common.parseCompoundId(compoundId);
+    PrivilegedSubject actingAs
+      = signet.getPrivilegedSubject(idParts[0], idParts[1]);
+    
+    if (actingAs.equals(loggedInPrivilegedSubject))
     {
-      proxyIDs = new String[0];
+      request.getSession().setAttribute(Constants.ACTINGAS_ATTRNAME, null);
     }
-    
-    signet.beginTransaction();
-    
-    for (int i = 0; i < proxyIDs.length; i++)
+    else
     {
-      Proxy proxyToRevoke
-      	= signet.getProxy(Integer.parseInt(proxyIDs[i]));
-      proxyToRevoke.revoke(loggedInPrivilegedSubject);
-      proxyToRevoke.save();
+      request.getSession().setAttribute(Constants.ACTINGAS_ATTRNAME, actingAs);
     }
-    
-    // Now, save the not-yet-persisted Proxy.
-    
-    proxy.save();
-    signet.commit();
-    
-    // Clear the currentProxy out of the HTTP session. We're done with it.
-    session.removeAttribute(Constants.PROXY_ATTRNAME);
 
     // Forward to our success page
     return findSuccess(mapping);

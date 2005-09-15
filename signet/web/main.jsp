@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.40 2005-09-13 18:14:12 acohen Exp $
-  $Date: 2005-09-13 18:14:12 $
+  $Id: main.jsp,v 1.41 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -49,10 +49,10 @@
          
    PrivilegedSubject loggedInPrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
-   Proxy actingAs
-     = (Proxy)
+   PrivilegedSubject actingAs
+     = (PrivilegedSubject)
          (request.getSession().getAttribute(Constants.ACTINGAS_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
@@ -61,9 +61,7 @@
     <tiles:insert page="/tiles/header.jsp" flush="true" />
     <div id="Navbar">
       <span class="logout">
-        <a href="NotYetImplemented.do">
-          <%= loggedInPrivilegedSubject.getName() %>: Logout
-        </a>
+        <%=Common.displayLogoutHref(request)%>
       </span> <!-- logout -->
       <span class="select">
         Home
@@ -248,16 +246,21 @@
       </div> <!-- views-->
       
       <DIV class="findperson"> 
-        <H2>Designated Drivers</H2>
-        <DIV class="actionbox">
-          <%=Common.displayActingForOptions
-               (loggedInPrivilegedSubject,
-                actingAs,
-                Constants.ACTING_FOR_SELECT_ID)%>
-          <BR/>
-          <A href='Designate.do'>Designate a granting proxy</A>
-        </DIV>
-      </DIV>
+        <form
+          name="actAsForm"
+          method="post"
+          action="ActAs.do">
+          <H2>Designated Drivers</H2>
+          <DIV class="actionbox">
+            <%=Common.displayActingForOptions
+                 (loggedInPrivilegedSubject,
+                  actingAs,
+                  Constants.ACTING_FOR_SELECT_ID)%>
+            <BR/>
+            <A href='Designate.do'>Designate a granting proxy</A>
+          </DIV> <!-- actionbox -->
+        </form>
+      </DIV> <!-- findperson -->
 
 
       

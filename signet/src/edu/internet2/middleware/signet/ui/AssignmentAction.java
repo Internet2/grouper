@@ -1,6 +1,6 @@
 /*--
-  $Id: AssignmentAction.java,v 1.2 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: AssignmentAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -77,7 +77,7 @@ public final class AssignmentAction extends BaseAction
 
     PrivilegedSubject grantor
       = (PrivilegedSubject)
-          (session.getAttribute("loggedInPrivilegedSubject"));
+          (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
     PrivilegedSubject grantee
     	= (PrivilegedSubject)
     	    (session.getAttribute(Constants.GRANTEE_ATTRNAME));

@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.22 2005-09-13 18:14:12 acohen Exp $
-  $Date: 2005-09-13 18:14:12 $
+  $Id: Common.java,v 1.23 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +41,7 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
@@ -213,7 +215,7 @@ public class Common
   
   public static String displayActingForOptions
     (PrivilegedSubject  pSubject,
-     Proxy              actingAs,
+     PrivilegedSubject  actingAs,
      String             htmlSelectId)
   {
     StringBuffer outStr = new StringBuffer();
@@ -229,18 +231,19 @@ public class Common
       outStr.append("<SELECT\n");
       outStr.append("  name=\"" + htmlSelectId + "\"\n");
       outStr.append("  class=\"long\"\n");
-      outStr.append("  onChange=\"javascript:document.form1.switchButton.disabled=false;\">\n");
         
-      outStr.append(Common.displayProxyOptions(pSubject, actingAs));
+      outStr.append
+        (Common.displayProxyOptions
+          (pSubject, actingAs, Constants.ACTAS_BUTTON_ID));
 
       outStr.append("</SELECT>\n");
       outStr.append("<INPUT\n");
-      outStr.append("  name=\"switchButton\"\n");
-      outStr.append("   disabled=\"true\"\n");
-      outStr.append("   type=\"button\"\n");
-      outStr.append("   class=\"button1\"\n");
-      outStr.append("   value=\"Switch\"\n");
-      outStr.append("   onClick=\"showActing(); document.form1.switchButton.disabled=true\"\n");
+      outStr.append("  name=\"" + Constants.ACTAS_BUTTON_NAME + "\"\n");
+      outStr.append("  id=\"" + Constants.ACTAS_BUTTON_ID + "\"\n");
+      outStr.append("  disabled=\"true\"\n");
+      outStr.append("  type=\"submit\"\n");
+      outStr.append("  class=\"button1\"\n");
+      outStr.append("  value=\"Switch\"\n");
       outStr.append("/>\n");
 
     }
@@ -248,13 +251,41 @@ public class Common
     return outStr.toString();
   }
   
-  public static String displayProxyOptions
+  /**
+   * 
+   * @param pSubject
+   * @param actingAs
+   * @param actingAsButtonId
+   *    The ID of the "acting as" button.
+   * @return
+   */
+  private static String displayProxyOptions
     (PrivilegedSubject pSubject,
-     Proxy actingAs)
+     PrivilegedSubject actingAs,
+     String            actingAsButtonId)
   {
     StringBuffer outStr = new StringBuffer();
     
-    outStr.append("<OPTION" + (actingAs == null ? " SELECTED" : "") + ">\n");
+    outStr.append
+      ("<OPTION\n");
+    
+    if (actingAs == null)
+    {
+      // We're acting as no one but ourselves.
+      outStr.append
+        ("  SELECTED\n");
+      outStr.append
+        ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=true;\"\n");
+    }
+    else
+    {
+      // We're acting as someone other than ourselves.
+      outStr.append
+        ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=false;\"\n");
+    }
+
+    outStr.append("  value=\"" + Common.buildCompoundId(pSubject) + "\"\n");
+    outStr.append(">\n");
     outStr.append("  myself (" + pSubject.getName() + ")\n");
     outStr.append("</OPTION>\n");
     
@@ -270,16 +301,27 @@ public class Common
       proxyGrantors.add(proxy.getGrantor());
     }
     
-    PrivilegedSubject actingAsGrantor
-      = (actingAs == null ? null : actingAs.getGrantor());
-    
     Iterator proxyGrantorsIterator = proxyGrantors.iterator();
     while (proxyGrantorsIterator.hasNext())
     {
       PrivilegedSubject grantor
         = (PrivilegedSubject)(proxyGrantorsIterator.next());
-      boolean isCurrent = (grantor.equals(actingAsGrantor));
-      outStr.append("<OPTION" + (isCurrent ? " SELECTED" : "") + ">\n");
+      boolean isCurrent = (grantor.equals(actingAs));
+      outStr.append("<OPTION\n");
+      if (isCurrent)
+      {
+        outStr.append(" SELECTED\n");
+        outStr.append
+          ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=true;\"\n");
+      }
+      else
+      {
+        outStr.append
+          ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=false;\"\n");
+      }
+      
+      outStr.append("  value=\"" + Common.buildCompoundId(grantor) + "\"\n");
+      outStr.append(">\n");
       outStr.append("  " + grantor.getName() + "\n");
       outStr.append("</OPTION>\n");
     }
@@ -829,6 +871,18 @@ public class Common
       + Constants.COMPOSITE_ID_DELIMITER
       + pSubject.getSubjectId();
   }
+  
+  static public String[] parseCompoundId(String compoundId)
+  {
+    StringTokenizer tokenizer
+      = new StringTokenizer(compoundId, Constants.COMPOSITE_ID_DELIMITER);
+    String subjectTypeId = tokenizer.nextToken();
+    String subjectId = tokenizer.nextToken();
+
+    String[] result = {subjectTypeId, subjectId};
+
+    return result;
+  }
 
   static public boolean paramIsPresent(String param)
   {
@@ -853,18 +907,8 @@ public class Common
     String compositeId = request.getParameter(selectListName);
     if (compositeId != null)
     {
-      int delimiterPos = compositeId.indexOf(compositeIdDelimiter);
-      
-      if (delimiterPos > 0)
-      {
-        String subjectTypeId = compositeId.substring(0, delimiterPos);
-        String subjectId
-          = compositeId.substring
-              (delimiterPos + compositeIdDelimiter.length(),
-               compositeId.length());
-        
-        pSubject = signet.getPrivilegedSubject(subjectTypeId, subjectId);
-      }
+      String[] idParts = parseCompoundId(compositeId);
+      pSubject = signet.getPrivilegedSubject(idParts[0], idParts[1]);
     }
     
     if (sessionAttrName != null)
@@ -987,6 +1031,31 @@ public class Common
 
     outStr.append("  </select>\n");
     outStr.append("</span>\n");
+    
+    return outStr.toString();
+  }
+  
+  static public String displayLogoutHref(HttpServletRequest request)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    PrivilegedSubject loggedInPrivilegedSubject
+      = (PrivilegedSubject)
+          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+    PrivilegedSubject actingAs
+      = (PrivilegedSubject)
+          (request.getSession().getAttribute(Constants.ACTINGAS_ATTRNAME));
+    
+    outStr.append("<a href=\"NotYetImplemented.do\">\n");
+    outStr.append(loggedInPrivilegedSubject.getName());
+
+    if (actingAs != null)
+    {
+      outStr.append(" (acting as " + actingAs.getName() + ")");
+    }
+    
+    outStr.append(": Logout\n");
+    outStr.append("</a>\n");
     
     return outStr.toString();
   }

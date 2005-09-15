@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAction.java,v 1.2 2005-07-26 18:00:48 acohen Exp $
-  $Date: 2005-07-26 18:00:48 $
+  $Id: RevokeAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -80,7 +80,7 @@ public final class RevokeAction extends BaseAction
     
     PrivilegedSubject loggedInPrivilegedSubject
       = (PrivilegedSubject)
-          (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
         
     // Find the Assignments specified by the multi-valued "revoke" parameter,
     // and revoke them.

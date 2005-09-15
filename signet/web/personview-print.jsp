@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview-print.jsp,v 1.12 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: personview-print.jsp,v 1.13 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -48,7 +48,7 @@
          
    PrivilegedSubject loggedInPrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
    
    PrivilegedSubject currentGranteePrivilegedSubject
      = (PrivilegedSubject)

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main-print.jsp,v 1.16 2005-08-25 20:31:35 acohen Exp $
-  $Date: 2005-08-25 20:31:35 $
+  $Id: main-print.jsp,v 1.17 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -40,6 +40,7 @@
 <%@ page import="edu.internet2.middleware.signet.Status" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
   
 <% 
   Signet signet
@@ -48,7 +49,7 @@
          
    PrivilegedSubject loggedInPrivilegedSubject
      = (edu.internet2.middleware.signet.PrivilegedSubject)
-         (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>

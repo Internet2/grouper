@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.11 2005-09-09 20:49:46 acohen Exp $
-$Date: 2005-09-09 20:49:46 $
+$Id: ConfirmAction.java,v 1.12 2005-09-15 16:01:16 acohen Exp $
+$Date: 2005-09-15 16:01:16 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -80,7 +80,7 @@ throws Exception
 
   PrivilegedSubject grantor
     = (PrivilegedSubject)
-        (session.getAttribute("loggedInPrivilegedSubject"));
+        (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
   PrivilegedSubject grantee
     = (PrivilegedSubject)
         (session.getAttribute("currentGranteePrivilegedSubject"));

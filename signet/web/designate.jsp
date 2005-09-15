@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.2 2005-09-12 23:52:22 acohen Exp $
-  $Date: 2005-09-12 23:52:22 $
+  $Id: designate.jsp,v 1.3 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -156,7 +156,7 @@
 
   PrivilegedSubject loggedInPrivilegedSubject
     = (edu.internet2.middleware.signet.PrivilegedSubject)
-        (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+        (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
   Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
          
@@ -171,9 +171,7 @@
 
   <div id="Navbar">
     <span class="logout">
-      <a href="NotYetImplemented.do">
-        <%= loggedInPrivilegedSubject.getName() %>: Logout
-      </a>
+      <%=Common.displayLogoutHref(request)%>
     </span> <!-- logout -->
     <span class="select">
       <a href="Start.do">

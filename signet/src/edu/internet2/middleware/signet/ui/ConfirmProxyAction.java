@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.2 2005-09-12 23:52:22 acohen Exp $
-$Date: 2005-09-12 23:52:22 $
+$Id: ConfirmProxyAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
+$Date: 2005-09-15 16:01:16 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -81,7 +81,7 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 2");
   
     PrivilegedSubject grantor
       = (PrivilegedSubject)
-          (session.getAttribute("loggedInPrivilegedSubject"));
+          (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
   
     // currentProxy is present in the session only if we are editing
     // an existing Proxy. Otherwise, we're attempting to create a new one.

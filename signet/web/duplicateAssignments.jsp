@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.5 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: duplicateAssignments.jsp,v 1.6 2005-09-15 16:01:16 acohen Exp $
+  $Date: 2005-09-15 16:01:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -44,6 +44,7 @@
 <%@ page import="edu.internet2.middleware.signet.tree.TreeNode" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
@@ -57,7 +58,7 @@
          
   PrivilegedSubject loggedInPrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute("loggedInPrivilegedSubject"));
+         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
       
   PrivilegedSubject currentGranteePrivilegedSubject
     = (PrivilegedSubject)
@@ -83,9 +84,7 @@
 
       <div id="Navbar">
         <span class="logout">
-          <a href="NotYetImplemented.do">
-            <%=loggedInPrivilegedSubject.getName()%>: Logout
-          </a>
+          <%=Common.displayLogoutHref(request)%>
         </span> <!-- logout -->
         <span class="select">
           <a href="Start.do">
