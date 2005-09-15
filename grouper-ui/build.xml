@@ -571,13 +571,7 @@
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
 			</fileset>
-			<!-- Make available jar files already placed in the build folder - 
-		  		     may happen when additional-build called -->
-			<fileset dir="${webapp.folder}/WEB-INF/lib">
-				<include name="**/*.jar"/>
-			</fileset>
-			<!-- make available any classes / resources already placed in the build folder -->
-			<pathelement location="${webapp.class.folder}"/>
+			
 			<!-- Last, but not least, make Grouper API available -->
 			<pathelement location="${grouper.folder}/dist/lib/Grouper.jar"/>
 		
