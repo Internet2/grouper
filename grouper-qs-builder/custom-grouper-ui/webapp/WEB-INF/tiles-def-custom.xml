@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<tiles-definitions>
+<!--Definitions here override or supplement those from the standard Grouper UI-->
+  <definition name="footerDef" path="/WEB-INF/jsp/custom/footer.jsp">
+    <put name="footer" type="page" value="/WEB-INF/jsp/custom/footer.jsp"/>
+  </definition>
+    <definition name="headerDef" path="/WEB-INF/jsp/custom/header.jsp"/>
+    <definition name="groupStuffDef" path="/WEB-INF/jsp/custom/groupStuff.jsp"/>
+     <definition name="easyLoginFormDef" path="/WEB-INF/jsp/custom/EasyLoginForm.jsp"/>
+     
+    <definition extends="BaseDef" name="EasyLoginFormDef">
+		<put name="content" type="page" value="/WEB-INF/jsp/custom/EasyLoginForm.jsp"/>
+  </definition>
+</tiles-definitions>
+
