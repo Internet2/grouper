@@ -89,11 +89,12 @@
 			</target>
 			
 			<target name="-make-quickstart-grouper-ui" if="grouper-ui.folder">
-				<copy todir="${quickstart.dir}">
-					<fileset dir="temp">
-						<include name="grouper-ui"/>
-						<include name="grouper-ui/**/*"/>
-						<exclude name="grouper-ui/**/*.class"/>
+				<mkdir dir="${quickstart.dir}/grouper-ui"/>				
+				<copy todir="${quickstart.dir}/grouper-ui">
+					<fileset dir="${grouper-ui.folder}">
+						
+						<include name="**/*"/>
+						<exclude name="**/*.class"/>
 					</fileset>
 				</copy>
 			 </target>
