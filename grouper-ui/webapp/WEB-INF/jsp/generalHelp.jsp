@@ -2,7 +2,7 @@
 			Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.3 2005-09-16 09:51:17 isgwb Exp $
+  @version $Id: generalHelp.jsp,v 1.4 2005-09-16 13:55:38 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -63,11 +63,9 @@ both be found by:<br/>
       <ol>
         <li><grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">the 
           query string is an exact match for a fisrt name</grouper:recordTile></li>
-        <li>the query string is an exact match for a surname</li>
-        <li> the query string is two terms e.g. f benson, and the second term 
-          is an exact surname match, and the first term matches the start of the 
-          subject's first name.
-           </li>
+        <li> the query string is two terms e.g. ben fiona, and the second term 
+          is an exact first name match, and the first term matches the start of 
+          the subject's surname. </li>
       </ol>
     </li>
   </ol>
