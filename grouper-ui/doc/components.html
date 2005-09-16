@@ -47,13 +47,18 @@
 <p>Grouper requires a relational database. The default is HSQLDB, however, in 
   principle, any database for which there is a JDBC driver and which is supported 
   by <a href="http://www.hibernate.org">Hibernate</a> can be used. </p>
-<p>The Subject API can be configured to work with multiple sources. JDBC and LDAP 
-  providers are provided with the Subject API distribution, however, sites can 
-  implement their own providers.</p>
-<p>Each time the Grouper UI is built, the sources.xml and hibernate.properties 
-  file are copied from grouper/conf to the web application classes directory. 
-  Database components can, through these files, be configured to be on the same 
-  machine or separate machines.</p>
+<p>The <a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/subject/doc/subject-api-spec-0.1.html?rev=HEAD&cvsroot=I2MI&content-type=text/html">Subject 
+  API</a> can be configured to work with multiple sources (through <font face="Courier New, Courier, mono">sources.xml</font>). 
+  A <a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/subject/doc/jdbc-adapter-user-guide.html?rev=HEAD&cvsroot=I2MI&content-type=text/html">JDBC 
+  provider</a> is provided with the Subject API distribution (an LDAP provider 
+  will be made available in the future), however, sites can implement their own 
+  providers.</p>
+<p>Each time the Grouper UI is built, the <font face="Courier New, Courier, mono">sources.xml</font> 
+  and <font face="Courier New, Courier, mono">hibernate.properties file</font> 
+  are copied from <font face="Courier New, Courier, mono">grouper/conf</font> 
+  to the web application <font face="Courier New, Courier, mono">classes</font> 
+  directory. Database components can, through these files, be configured to be 
+  on the same machine or separate machines.</p>
 <h2>The QuickStart distribution</h2>
 <p>The default QuickStart configuration uses the same HSQLDB database as a Grouper 
   repository and as a source for the JDBC provider - the only source configured. 
