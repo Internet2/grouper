@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.6 2005-09-13 22:25:36 acohen Exp $
- $Date: 2005-09-13 22:25:36 $
+ $Id: GrantableImpl.java,v 1.7 2005-09-19 06:37:04 acohen Exp $
+ $Date: 2005-09-19 06:37:04 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,8 +9,6 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -116,32 +114,13 @@ implements Grantable
   public GrantableImpl
   	(Signet							signet,
      PrivilegedSubject	grantor,
-     PrivilegedSubject  actingAs,
      PrivilegedSubject 	grantee,
      Date               effectiveDate,
      Date               expirationDate)
-  throws
-  	SignetAuthorityException
   {    
     super(signet, null, null, null);
     
-
-    if (actingAs == null)
-    {
-      this.setGrantor(grantor);
-    }
-    else
-    {
-      if (!signet.canUseProxy(actingAs, grantor))
-      {
-        Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
-        throw new SignetAuthorityException(decision);
-      }
-      
-      this.setGrantor(actingAs);
-      this.setProxy(grantor);
-    }
-    
+    this.setGrantor((PrivilegedSubjectImpl)grantor);
     this.setGrantee(grantee);
     
     if (effectiveDate == null)
@@ -265,6 +244,30 @@ implements Grantable
   {
     this.revokerTypeId = typeId;
   }
+
+  // This method is for use only by Hibernate.
+  protected void setProxyId(String id)
+  {
+    this.proxyId = id;
+  }
+
+  // This method is for use only by Hibernate.
+  protected String getProxyId()
+  {
+    return this.proxyId;
+  }
+
+  // This method is for use only by Hibernate.
+  protected String getProxyTypeId()
+  {
+    return this.proxyTypeId;
+  }
+
+  // This method is for use only by Hibernate.
+  protected void setProxyTypeId(String typeId)
+  {
+    this.proxyTypeId = typeId;
+  }
   
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getGrantor()
@@ -317,6 +320,31 @@ implements Grantable
     return this.revoker;
   }
   
+  public PrivilegedSubject getProxy()
+  {
+    if ((this.proxy == null)
+        && ((this.proxyTypeId != null) && (this.proxyId != null)))
+    {
+      Subject subject;
+      
+      try
+      {
+        subject
+          = this.getSignet().getSubject
+              (this.proxyTypeId, this.proxyId);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        throw new SignetRuntimeException(onfe);
+      }
+      
+      this.proxy
+      = new PrivilegedSubjectImpl(this.getSignet(), subject);
+    }
+    
+    return this.proxy;
+  }
+  
   /**
    * @param grantee The grantee to set.
    */
@@ -330,26 +358,47 @@ implements Grantable
   /**
    * @param grantor The grantor to set.
    */
-  void setGrantor(PrivilegedSubject grantor)
+  void setGrantor(PrivilegedSubjectImpl grantor)
   {
-    this.grantor = grantor;
-    this.grantorId = grantor.getSubjectId();
-    this.grantorTypeId = grantor.getSubjectTypeId();
+    this.grantor = grantor.getEffectiveEditor();
+    this.grantorId = this.grantor.getSubjectId();
+    this.grantorTypeId = this.grantor.getSubjectTypeId();
+    
+    if (!grantor.equals(grantor.getEffectiveEditor()))
+    {
+      this.proxy = grantor;
+      this.proxyId = this.proxy.getSubjectId();
+      this.proxyTypeId = this.proxy.getSubjectTypeId();
+    }
   }
   
-  void setRevoker(PrivilegedSubject revoker)
+  void setRevoker(PrivilegedSubjectImpl revoker)
+  throws SignetAuthorityException
   {
-    this.revoker = revoker;
-    this.revokerId = revoker.getSubjectId();
-    this.revokerTypeId = revoker.getSubjectTypeId();
+    this.revoker = revoker.getEffectiveEditor();
+    this.revokerId = this.revoker.getSubjectId();
+    this.revokerTypeId = this.revoker.getSubjectTypeId();
+    
+    if (!revoker.equals(revoker.getEffectiveEditor()))
+    {
+      if (!revoker.canUseProxy(revoker.getEffectiveEditor()))
+      {
+        Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
+        throw new SignetAuthorityException(decision);
+      }
+      
+      this.proxy = revoker;
+      this.proxyId = this.proxy.getSubjectId();
+      this.proxyTypeId = this.proxy.getSubjectTypeId();
+    }
   }
   
-  void setProxy(PrivilegedSubject proxy)
-  {
-    this.proxy = proxy;
-    this.proxyId = proxy.getSubjectId();
-    this.proxyTypeId = proxy.getSubjectTypeId();
-  }
+//  void setProxy(PrivilegedSubject proxy)
+//  {
+//    this.proxy = proxy;
+//    this.proxyId = proxy.getSubjectId();
+//    this.proxyTypeId = proxy.getSubjectTypeId();
+//  }
 
   /**
    * @param id The id to set.
@@ -377,7 +426,8 @@ implements Grantable
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#revoke()
    */
-  public void revoke(PrivilegedSubject revoker)
+  public void revoke
+    (PrivilegedSubject revoker)
   throws SignetAuthorityException
   {
     Decision decision = revoker.canEdit(this);
@@ -387,7 +437,7 @@ implements Grantable
       throw new SignetAuthorityException(decision);
     }
 
-    this.setRevoker(revoker);
+    this.setRevoker((PrivilegedSubjectImpl)revoker);
     this.setStatus(Status.INACTIVE);
   }
   
@@ -399,7 +449,8 @@ implements Grantable
     return this.effectiveDate;
   }
   
-  protected void checkEditAuthority(PrivilegedSubject actor)
+  protected void checkEditAuthority
+    (PrivilegedSubject actor)
   throws SignetAuthorityException
   {
     Decision decision = actor.canEdit(this);
@@ -409,7 +460,9 @@ implements Grantable
     }
   }
   
-  public void setEffectiveDate(PrivilegedSubject actor, Date date)
+  public void setEffectiveDate
+    (PrivilegedSubject  actor,
+     Date               date)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
@@ -421,7 +474,7 @@ implements Grantable
     }
     
     this.effectiveDate = date;
-    this.setGrantor(actor);
+    this.setGrantor((PrivilegedSubjectImpl)actor);
   }
 
 
@@ -442,13 +495,15 @@ implements Grantable
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#setExpirationDate(java.util.Date)
    */
-  public void setExpirationDate(PrivilegedSubject actor, Date expirationDate)
+  public void setExpirationDate
+    (PrivilegedSubject  actor,
+     Date               expirationDate)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
     this.expirationDate = expirationDate;
-    this.setGrantor(actor);
+    this.setGrantor((PrivilegedSubjectImpl)actor);
     this.setModifyDatetime(new Date());
   }
   
@@ -561,29 +616,5 @@ implements Grantable
     this.setStatus(newStatus);
     
     return newStatus;
-  }
-  
-  protected boolean encompassesSubsystem(Set proxies, Subsystem subsystem)
-  {
-    Iterator proxiesIterator = proxies.iterator();
-    while (proxiesIterator.hasNext())
-    {
-      Proxy proxy = (Proxy)(proxiesIterator.next());
-      
-      // If any of our candidate Proxies has a NULL Subsystem, than it
-      // encompasses every possible Subsystem.
-      if (proxy.getSubsystem() == null)
-      {
-        return true;
-      }
-
-      if (proxy.getSubsystem().equals(subsystem))
-      {
-        return true;
-      }
-    }
-    
-    // If we've gotten this far, none of our Proxies can do the job.
-    return false;
   }
 }

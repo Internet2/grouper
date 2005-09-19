@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.15 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: AssignmentTest.java,v 1.16 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -138,8 +138,7 @@ public class AssignmentTest extends TestCase
           = assignmentReceived
               .getGrantor()
                 .grant
-                  (null,  // actingAs
-                   assignmentReceived.getGrantee(),
+                  (assignmentReceived.getGrantee(),
                    assignmentReceived.getScope(),
                    assignmentReceived.getFunction(),
                    duplicateLimitValues,
@@ -539,7 +538,8 @@ public class AssignmentTest extends TestCase
         
         // Update the Assignment with the restored original "canGrant" flag.
         assignment.setCanGrant
-          (signet.getSuperPrivilegedSubject(), Constants.ASSIGNMENT_CANGRANT);
+          (signet.getSuperPrivilegedSubject(),
+           Constants.ASSIGNMENT_CANGRANT);
         assignment.save();
       }
     }

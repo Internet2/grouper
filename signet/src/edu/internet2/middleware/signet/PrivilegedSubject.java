@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.16 2005-09-13 22:25:36 acohen Exp $
- $Date: 2005-09-13 22:25:36 $
+ $Id: PrivilegedSubject.java,v 1.17 2005-09-19 06:37:04 acohen Exp $
+ $Date: 2005-09-19 06:37:04 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -32,13 +32,12 @@ public interface PrivilegedSubject extends Comparable
    * return a negatuve <code>Decision</code>, since in most situations it does
    * not make sense to attempt to extend or modify your own authority.
    */
-  public Decision canEdit(Grantable grantableInstance);
+  public Decision canEdit
+    (Grantable grantableInstance);
   
   /**
    * Creates a Proxy relationship by delegating privileges to a
    * <code>PrivilegedSubject</code>.
-   * 
-   * @param actingAs
    * 
    * @param grantee
    * 
@@ -66,8 +65,7 @@ public interface PrivilegedSubject extends Comparable
    * @throws SignetAuthorityException
    */
   public Proxy grantProxy
-   (PrivilegedSubject actingAs,
-    PrivilegedSubject grantee,
+   (PrivilegedSubject grantee,
     Subsystem         subsystem,
     boolean           canUse,
     boolean           canExtend,
@@ -79,7 +77,6 @@ public interface PrivilegedSubject extends Comparable
    * Creates an Assignment by exercising a Proxy to grant a Function to a
    * PrivilegedSubject.
    * 
-   * @param actingAs
    * @param grantee
    * @param scope
    * @param function
@@ -94,8 +91,7 @@ public interface PrivilegedSubject extends Comparable
    * @throws SignetAuthorityException, ObjectNotFoundException
    */
   public Assignment grant
-  (PrivilegedSubject  actingAs,
-   PrivilegedSubject  grantee,
+  (PrivilegedSubject  grantee,
    TreeNode           scope,
    Function           function,
    Set                limitValues,
@@ -330,5 +326,10 @@ public interface PrivilegedSubject extends Comparable
    * are related to the specified Subsystem.
    */
   public Set getPrivileges();
+  
+  public void setActingAs(PrivilegedSubject actingAs)
+  throws SignetAuthorityException;
+  
+  PrivilegedSubject getEffectiveEditor();
 }
 

@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.29 2005-09-13 22:25:36 acohen Exp $
- $Date: 2005-09-13 22:25:36 $
+ $Id: AssignmentImpl.java,v 1.30 2005-09-19 06:37:04 acohen Exp $
+ $Date: 2005-09-19 06:37:04 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -39,24 +39,22 @@ implements Assignment
   }
   
   public AssignmentImpl
-  	(Signet							signet,
-     PrivilegedSubject	grantor,
-     PrivilegedSubject  actingAs,
-     PrivilegedSubject 	grantee,
-     TreeNode						scope,
-     Function						function,
-     Set								limitValues,
-     boolean            canUse,
-     boolean						canGrant,
-     Date               effectiveDate,
-     Date               expirationDate)
+  	(Signet							    signet,
+     PrivilegedSubjectImpl	grantor,
+     PrivilegedSubject 	    grantee,
+     TreeNode               scope,
+     Function               function,
+     Set                    limitValues,
+     boolean                canUse,
+     boolean                canGrant,
+     Date                   effectiveDate,
+     Date                   expirationDate)
   throws
   	SignetAuthorityException
   {
     super
       (signet,
        grantor,
-       actingAs,
        grantee,
        effectiveDate,
        expirationDate);
@@ -67,24 +65,33 @@ implements Assignment
         ("It's illegal to grant an Assignment for a NULL Function.");
     }
     
-    Set proxyCandidates = new HashSet();
-    
-    if (actingAs != null)
+    if (!grantor.equals(grantor.getEffectiveEditor()))
     {
-      proxyCandidates = signet.getUsableProxies(actingAs, grantor);
-      if (proxyCandidates.size() == 0)
-      {
-        Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
-        throw new SignetAuthorityException(decision);
-      }
+      // At this point, we know the following things:
+      //
+      //   1) This grantor is "acting as" some other PrivilegedSubject.
+      //
+      //   2) This grantor does indeed hold at least one currently active Proxy
+      //      from the PrivilegedSubject that he/she is "acting as". That was
+      //      confirmed when PrivilegedSubject.setActingFor() was executed.
+      //
+      // We still need to confirm the following points:
+      //
+      //   3) At least one of those Proxies described in (2) above must have its
+      //      "can use" flag set, thereby allowing this grantor to use that
+      //      proxy to grant some Assignment.
+      //
+      //   4) At least one of the Proxies described in (3) above must encompass
+      //      the Subsystem of this Assignment.
 
-      if (!encompassesSubsystem(proxyCandidates, function.getSubsystem()))
+      Reason[] reasonArray = new Reason[1];
+      if (!grantor.hasUsableProxy
+            (grantor.getEffectiveEditor(),
+             function.getSubsystem(),
+             reasonArray))
       {
-        throw new IllegalArgumentException
-          ("When exercising a Proxy to grant an Assignment,"
-           + " the grantor must hold a Proxy with a NULL Subsystem, or a"
-           + " Subsystem which matches the Subsystem of the Function"
-           + " being assigned.");
+        Decision decision = new DecisionImpl(false, reasonArray[0], null);
+        throw new SignetAuthorityException(decision);
       }
     }
     
@@ -104,7 +111,7 @@ implements Assignment
     
     this.checkAllLimitValues(function, limitValues);
     
-    Decision decision = this.getGrantor().canEdit(this);
+    Decision decision = grantor.canEdit(this);
     
     if (decision.getAnswer() == false)
     {
@@ -225,13 +232,15 @@ implements Assignment
     return this.canGrant;
   }
 
-  public void setCanGrant(PrivilegedSubject actor, boolean canGrant)
+  public void setCanGrant
+    (PrivilegedSubject  actor,
+     boolean            canGrant)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
     this.canGrant = canGrant;
-    this.setGrantor(actor);
+    this.setGrantor((PrivilegedSubjectImpl)actor);
   }
   
   // This method is only for use by Hibernate.
@@ -257,12 +266,14 @@ implements Assignment
     return this.canUse;
   }
 
-  public void setCanUse(PrivilegedSubject actor, boolean canUse)
+  public void setCanUse
+    (PrivilegedSubject  actor,
+     boolean            canUse)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
-    super.setGrantor(actor);
+    super.setGrantor((PrivilegedSubjectImpl)actor);
     this.canUse = canUse;
   }
 
@@ -367,13 +378,15 @@ implements Assignment
   }
 
   
-  public void setLimitValues(PrivilegedSubject actor, Set limitValues)
+  public void setLimitValues
+    (PrivilegedSubject  actor,
+     Set                limitValues)
   throws SignetAuthorityException
   {
     checkEditAuthority(actor);
     
     this.setLimitValues(limitValues);
-    this.setGrantor(actor);
+    this.setGrantor((PrivilegedSubjectImpl)actor);
   }
   
   private void setLimitValues(Set limitValues)

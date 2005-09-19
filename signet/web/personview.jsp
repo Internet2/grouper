@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview.jsp,v 1.40 2005-09-15 21:08:18 jvine Exp $
-  $Date: 2005-09-15 21:08:18 $
+  $Id: personview.jsp,v 1.41 2005-09-19 06:37:04 acohen Exp $
+  $Date: 2005-09-19 06:37:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -171,21 +171,21 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
          
-   PrivilegedSubject loggedInPrivilegedSubject
-     = (PrivilegedSubject)
-         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+  PrivilegedSubject loggedInPrivilegedSubject
+    = (PrivilegedSubject)
+        (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
    
-   PrivilegedSubject currentGranteePrivilegedSubject
-     = (PrivilegedSubject)
-         (request.getSession().getAttribute(Constants.GRANTEE_ATTRNAME));
+  PrivilegedSubject currentGranteePrivilegedSubject
+    = (PrivilegedSubject)
+        (request.getSession().getAttribute(Constants.GRANTEE_ATTRNAME));
          
-   Subsystem currentSubsystem
-     = (Subsystem)
-         (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
+  Subsystem currentSubsystem
+    = (Subsystem)
+        (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
          
-   Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
+  Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
          
-   DateFormat dateFormat = DateFormat.getDateInstance();
+  DateFormat dateFormat = DateFormat.getDateInstance();
 %>
   <tiles:insert page="/tiles/header.jsp" flush="true" /> 
   <div id="Navbar">

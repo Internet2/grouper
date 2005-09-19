@@ -1,6 +1,6 @@
 /*--
-  $Id: AssignmentAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: AssignmentAction.java,v 1.4 2005-09-19 06:37:04 acohen Exp $
+  $Date: 2005-09-19 06:37:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -9,10 +9,6 @@
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,11 +21,7 @@ import org.apache.struts.action.ActionForward;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Subsystem;
-import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
  * <p>
@@ -47,8 +39,26 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  */
 public final class AssignmentAction extends BaseAction
 {
-  // ---------------------------------------------------- Public Methods
-  // See superclass for Javadoc
+
+  /**
+   * This method expects to find the following attributes in the Session:
+   * 
+   *   Name: "signet"
+   *   Type: Signet
+   *   Use:  A handle to the current Signet environment.
+   * 
+   * This method expects to receive the following HTTP parameters:
+   * 
+   *   Name: "assignmentId"
+   *   Use:  The String representation of a Signet Assignment's ID.
+   * 
+   * This method updates the followiing attributes in the Session:
+   * 
+   *   Name: "currentAssignment"
+   *   Type: Assignment
+   *   Use:  The Assignment which is currently being examined or edited by
+   *         the Signet user.
+   */
   public ActionForward execute
   	(ActionMapping				mapping,
      ActionForm 					form,
@@ -73,16 +83,8 @@ public final class AssignmentAction extends BaseAction
       return findFailure(mapping);
     }
 
-    HttpSession session = request.getSession(); 
+    HttpSession session = request.getSession();
 
-    PrivilegedSubject grantor
-      = (PrivilegedSubject)
-          (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-    PrivilegedSubject grantee
-    	= (PrivilegedSubject)
-    	    (session.getAttribute(Constants.GRANTEE_ATTRNAME));
-    TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
-    Function function = (Function)(session.getAttribute("currentFunction"));
     Signet signet = (Signet)(session.getAttribute("signet"));
     
     if (signet == null)
@@ -97,17 +99,5 @@ public final class AssignmentAction extends BaseAction
 
     // Forward to our success page
     return findSuccess(mapping);
-  }
-  
-  private boolean paramIsPresent(String param)
-  {
-    if ((param != null) && (param != ""))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
   }
 }

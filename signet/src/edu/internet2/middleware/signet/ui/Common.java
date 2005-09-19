@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.23 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: Common.java,v 1.24 2005-09-19 06:37:04 acohen Exp $
+  $Date: 2005-09-19 06:37:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -41,7 +41,6 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
@@ -215,7 +214,6 @@ public class Common
   
   public static String displayActingForOptions
     (PrivilegedSubject  pSubject,
-     PrivilegedSubject  actingAs,
      String             htmlSelectId)
   {
     StringBuffer outStr = new StringBuffer();
@@ -234,7 +232,7 @@ public class Common
         
       outStr.append
         (Common.displayProxyOptions
-          (pSubject, actingAs, Constants.ACTAS_BUTTON_ID));
+          (pSubject, Constants.ACTAS_BUTTON_ID));
 
       outStr.append("</SELECT>\n");
       outStr.append("<INPUT\n");
@@ -261,7 +259,6 @@ public class Common
    */
   private static String displayProxyOptions
     (PrivilegedSubject pSubject,
-     PrivilegedSubject actingAs,
      String            actingAsButtonId)
   {
     StringBuffer outStr = new StringBuffer();
@@ -269,7 +266,7 @@ public class Common
     outStr.append
       ("<OPTION\n");
     
-    if (actingAs == null)
+    if (pSubject.equals(pSubject.getEffectiveEditor()))
     {
       // We're acting as no one but ourselves.
       outStr.append
@@ -306,7 +303,7 @@ public class Common
     {
       PrivilegedSubject grantor
         = (PrivilegedSubject)(proxyGrantorsIterator.next());
-      boolean isCurrent = (grantor.equals(actingAs));
+      boolean isCurrent = (grantor.equals(pSubject.getEffectiveEditor()));
       outStr.append("<OPTION\n");
       if (isCurrent)
       {
@@ -481,12 +478,12 @@ public class Common
   }
   
   public static String editLink
-    (PrivilegedSubject  editor,
+    (PrivilegedSubject  loggedInPrivilegedSubject,
      Assignment         assignment)
   {
     StringBuffer outStr = new StringBuffer();
     
-    Decision decision = editor.canEdit(assignment);
+    Decision decision = loggedInPrivilegedSubject.canEdit(assignment);
     if (decision.getAnswer() == true)
     {
       outStr.append("<a\n");
@@ -503,13 +500,13 @@ public class Common
   }
   
   public static String revokeBox
-    (PrivilegedSubject  revoker,
+    (PrivilegedSubject  loggedInPrivilegedSubject,
      Grantable          grantableInstance,
      UnusableStyle      unusableStyle)
   {
     StringBuffer outStr = new StringBuffer();
     
-    Decision decision = revoker.canEdit(grantableInstance);
+    Decision decision = loggedInPrivilegedSubject.canEdit(grantableInstance);
     if (decision.getAnswer() == true)
     {
       outStr.append("<td align=\"center\" >\n");
@@ -834,35 +831,38 @@ public class Common
     return date;
   }
   
-  static public String subsystemSelectionMultiple
-    (PrivilegedSubject pSubject,
-     String groupName,
-     String onClickAction)
-  {
-    StringBuffer outStr = new StringBuffer();
-
-    Set grantableSubsystems = pSubject.getGrantableSubsystems();
-    
-    Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
-    while (grantableSubsystemsIterator.hasNext())
-    {
-      Subsystem subsystem = (Subsystem)(grantableSubsystemsIterator.next());
-      outStr.append("<input\n");
-      outStr.append("  name=\"" + groupName + "\"\n");
-      outStr.append("  type=\"checkbox\"\n");
-      
-      if (onClickAction != null)
-      {
-        outStr.append("  onClick=\"" + onClickAction + "\"\n");
-      }
-      
-      outStr.append("  value=\"" + subsystem.getId() + "\" />\n");
-      outStr.append(subsystem.getName() + "\n");
-      outStr.append("<br />\n");
-    }
-    
-    return outStr.toString();
-  }
+//  static public String subsystemSelectionMultiple
+//    (PrivilegedSubject loggedInPrivilegedSubject,
+//     PrivilegedSubject actingAs,
+//     String groupName,
+//     String onClickAction)
+//  {
+//    StringBuffer outStr = new StringBuffer();
+//
+//    PrivilegedSubject pSubject
+//      = (actingAs == null ? loggedInPrivilegedSubject : actingAs);
+//    Set grantableSubsystems = pSubject.getGrantableSubsystems();
+//    
+//    Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
+//    while (grantableSubsystemsIterator.hasNext())
+//    {
+//      Subsystem subsystem = (Subsystem)(grantableSubsystemsIterator.next());
+//      outStr.append("<input\n");
+//      outStr.append("  name=\"" + groupName + "\"\n");
+//      outStr.append("  type=\"checkbox\"\n");
+//      
+//      if (onClickAction != null)
+//      {
+//        outStr.append("  onClick=\"" + onClickAction + "\"\n");
+//      }
+//      
+//      outStr.append("  value=\"" + subsystem.getId() + "\" />\n");
+//      outStr.append(subsystem.getName() + "\n");
+//      outStr.append("<br />\n");
+//    }
+//    
+//    return outStr.toString();
+//  }
   
   static public String buildCompoundId(PrivilegedSubject pSubject)
   {
@@ -898,7 +898,6 @@ public class Common
     (Signet             signet,
      HttpServletRequest request,
      String             selectListName,
-     String             compositeIdDelimiter,
      String             sessionAttrName)
   throws ObjectNotFoundException
   {
@@ -1042,19 +1041,20 @@ public class Common
     PrivilegedSubject loggedInPrivilegedSubject
       = (PrivilegedSubject)
           (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-    PrivilegedSubject actingAs
-      = (PrivilegedSubject)
-          (request.getSession().getAttribute(Constants.ACTINGAS_ATTRNAME));
     
     outStr.append("<a href=\"NotYetImplemented.do\">\n");
     outStr.append(loggedInPrivilegedSubject.getName());
 
-    if (actingAs != null)
+    if (!loggedInPrivilegedSubject.equals
+          (loggedInPrivilegedSubject.getEffectiveEditor()))
     {
-      outStr.append(" (acting as " + actingAs.getName() + ")");
+      outStr.append
+        (" <span id=\"actingas\" class=\"actingas\">acting as "
+         + loggedInPrivilegedSubject.getEffectiveEditor().getName()
+         + "</span>");
     }
     
-    outStr.append(": Logout\n");
+    outStr.append(" : Logout\n");
     outStr.append("</a>\n");
     
     return outStr.toString();

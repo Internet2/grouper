@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.11 2005-09-13 22:25:36 acohen Exp $
-$Date: 2005-09-13 22:25:36 $
+$Id: PrivilegedSubjectTest.java,v 1.12 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -182,10 +182,11 @@ public class PrivilegedSubjectTest extends TestCase
               (null, null, null)));
     Set oldLimitValues = oldAssignment.getLimitValues();
     
+    pSubject1.setActingAs(pSubject0);
+    
     Assignment newAssignment
       = pSubject1.grant
-          (pSubject0,     // actingAs
-           pSubject2, // grantee
+          (pSubject2, // grantee
            oldAssignment.getScope(),
            oldAssignment.getFunction(),
            oldLimitValues,
@@ -194,7 +195,12 @@ public class PrivilegedSubjectTest extends TestCase
            new Date(),  // effective immediately
            null);       // no expiration date
     
+    pSubject1.setActingAs(null);
+    
     assertNotNull(newAssignment);
+    assertEquals(pSubject0, newAssignment.getGrantor());
+    assertEquals(pSubject1, newAssignment.getProxy());
+    assertEquals(pSubject2, newAssignment.getGrantee());
   }
   
   public final void testGrant()
@@ -221,8 +227,7 @@ public class PrivilegedSubjectTest extends TestCase
     
     Assignment newAssignment
     	= pSubject2.grant
-    			(null, // actingAs
-           pSubject0,
+    			(pSubject0,
     			 oldAssignment.getScope(),
     			 oldAssignment.getFunction(),
     			 oldLimitValues,
@@ -253,8 +258,7 @@ public class PrivilegedSubjectTest extends TestCase
     
     Proxy newProxy
       = pSubject2.grantProxy
-          (null,  // actingAs
-           pSubject0,
+          (pSubject0,
            subsystem0,
            Constants.PROXY_CANUSE,
            Constants.PROXY_CANEXTEND,
@@ -419,15 +423,18 @@ public class PrivilegedSubjectTest extends TestCase
 
     Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
     
+    pSubject1.setActingAs(pSubject0);
+    
     Proxy newProxyFrom1to2
       = pSubject1.grantProxy
-          (pSubject0,           // actingAs
-           pSubject2,           // grantee
+          (pSubject2,           // grantee
            subsystem,
            false,               // canUse
            true,                // canGrant
            Constants.YESTERDAY, // effective immediately
            null);               // no expiration date
+    
+    pSubject1.setActingAs(null);
     
     assertNotNull(newProxyFrom1to2);
   }

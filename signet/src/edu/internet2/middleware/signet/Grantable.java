@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.1 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: Grantable.java,v 1.2 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -43,6 +43,17 @@ extends Entity, Comparable
    */
   public PrivilegedSubject getGrantor();
 
+  /**
+   * Gets the <code>PrivilegedSubject</code> 
+   * who acually granted this grantable entity while "acting as" a proxy for the
+   * official grantor, or <code>null</code>.
+   * 
+   * @return the <code>PrivilegedSubject</code> 
+   * who acted as a proxy for the official grantor when granting this grantable
+   * entity, or <code>null</code> if there was no such proxy involved.
+   */
+  public PrivilegedSubject getProxy();
+
 
   /**
    * Gets the <code>PrivilegedSubject</code> 
@@ -77,7 +88,9 @@ extends Entity, Comparable
    * 
    * @throws SignetAuthorityException
    */
-  public void setEffectiveDate(PrivilegedSubject actor, Date effectiveDate)
+  public void setEffectiveDate
+    (PrivilegedSubject  actor,
+     Date               effectiveDate)
   throws SignetAuthorityException;
   
   /**
@@ -111,7 +124,9 @@ extends Entity, Comparable
    * 
    * @throws SignetAuthorityException
    */
-  public void setExpirationDate(PrivilegedSubject editor, Date expirationDate)
+  public void setExpirationDate
+    (PrivilegedSubject  editor,
+     Date               expirationDate)
   throws SignetAuthorityException;
   
   /**

@@ -1,6 +1,6 @@
 /*--
-$Id: Reason.java,v 1.4 2005-08-29 21:12:12 acohen Exp $
-$Date: 2005-08-29 21:12:12 $
+$Id: Reason.java,v 1.5 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -92,4 +92,14 @@ public class Reason extends TypeSafeEnumeration
         ("cannot use",
          "This Proxy cannot be used directly. It may only be extended to a"
          + " third party.");
+  
+  /**
+   * The instance that describes an attempt to exercise a {@link Proxy}
+   * which does not exist.
+   */
+  public static final Reason NO_PROXY
+    = new Reason
+        ("no proxy",
+         "This PrivilegedSubject does not hold a Proxy that encompasses this"
+         + " operation.");
 }

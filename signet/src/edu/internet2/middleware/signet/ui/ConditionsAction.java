@@ -1,6 +1,6 @@
 /*--
-  $Id: ConditionsAction.java,v 1.4 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: ConditionsAction.java,v 1.5 2005-09-19 06:37:04 acohen Exp $
+  $Date: 2005-09-19 06:37:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -46,8 +46,52 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  */
 public final class ConditionsAction extends BaseAction
 {
-  // ---------------------------------------------------- Public Methods
-  // See superclass for Javadoc
+
+  /**
+   * This method expects to find the following attributes in the Session:
+   * 
+   *   Name: "signet"
+   *   Type: Signet
+   *   Use:  A handle to the current Signet environment.
+   * 
+   * This method expects to receive the following HTTP parameters:
+   * 
+   *   Name: "scope" (optional)
+   *   Type: The String representation of a Scope ID.
+   *   Use:  If present, this parameter indicates that we are trying to
+   *         create a new Assignment.
+   * 
+   *   Name: "assignmentId" (optional)
+   *   Type: The String representation of an Assignment ID.
+   *   Use:  Present only if we are trying to edit an existing Assignment.
+   * 
+   * This method updates the followiing attributes in the Session:
+   * 
+   *   Name: "currentScope"
+   *   Type: TreeNode
+   *   Use:  The Scope of the Assignment which is being either created or
+   *         edited.
+   * 
+   *   Name: "currentAssignment" (optional)
+   *   Type: Assignment
+   *   Use: Is updated only if we are trying to edit an existing Assignment.
+   * 
+   *   Name: "currentGranteePrivilegedSubject" (optional)
+   *   Type: PrivilegedSubject
+   *   Use:  Is updated only if we are trying to edit an existing Assignment.
+   * 
+   *   Name: Constants.SUBSYSTEM_ATTRNAME (optional)
+   *   Type: Subsystem
+   *   Use:  Is updated only if we are trying to edit an existing Assignment.
+   * 
+   *   Name: "currentCategory" (optional)
+   *   Type: Category
+   *   Use:  Is updated only if we are trying to edit an existing Assignment.
+   * 
+   *   Name: "currentFunction" (optional)
+   *   Type: Function
+   *   Use:  Is updated only if we are trying to edit an existing Assignment.
+   */
   public ActionForward execute
   	(ActionMapping				mapping,
      ActionForm 					form,

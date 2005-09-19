@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.24 2005-09-13 22:25:36 acohen Exp $
- $Date: 2005-09-13 22:25:36 $
+ $Id: PrivilegedSubjectImpl.java,v 1.25 2005-09-19 06:37:04 acohen Exp $
+ $Date: 2005-09-19 06:37:04 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -67,6 +67,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
   private Set        proxiesReceived;
   private boolean    proxiesReceivedNotYetFetched = true;
+  
+  private PrivilegedSubject actingAs = null;
 
   /* Hibernate requires every persistent class to have a default
    * constructor.
@@ -124,19 +126,21 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * granting abilities, then this Assignment is not editable by this
    * PrivilegedSubject.
    */
-  public Decision canEdit(Grantable grantableInstance)
+  public Decision canEdit
+    (Grantable          grantableInstance)
   {
+    PrivilegedSubject effectiveEditor = this.getEffectiveEditor();
     boolean sufficientScopeFound = false;
     
-    // First, check to see if this subject and the grantee are the same.
+    // First, check to see if this editor and the grantee are the same.
     // No one, not even the SignetSuperSubject, is allowed to grant
     // privileges to herself.
-    if (this.equals(grantableInstance.getGrantee()))
+    if (effectiveEditor.equals(grantableInstance.getGrantee()))
     {
       return new DecisionImpl(false, Reason.SELF, null);
     }
 
-    // Next, , check to see if this subject is the Signet superSubject.
+    // Next, check to see if this editor is the Signet superSubject.
     // That Subject can grant any privilege to anyone.
 
     PrivilegedSubject superPSubject;
@@ -150,7 +154,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       throw new SignetRuntimeException(onfe);
     }
 
-    if (this.equals(superPSubject))
+    if (effectiveEditor.equals(superPSubject))
     {
       return new DecisionImpl(true, null, null);
     }
@@ -164,7 +168,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       // Assignment has any Limit-values that exceed the ones we're allowed to
       // work with in this particular combination of Scope and Function.
 
-      Set grantableScopes = getGrantableScopes(anAssignment.getFunction());
+      Set grantableScopes
+        = effectiveEditor.getGrantableScopes(anAssignment.getFunction());
 
       Iterator grantableScopesIterator = grantableScopes.iterator();
       while (grantableScopesIterator.hasNext())
@@ -200,7 +205,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
             }
           
             Set grantableChoices
-            	= this.getGrantableChoices
+            	= effectiveEditor.getGrantableChoices
             			(anAssignment.getFunction(), anAssignment.getScope(), limit);
             
             if (grantableChoices.contains(choice) == false)
@@ -341,7 +346,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     Collection assignments = new HashSet();
 
-    Iterator iterator = this.getAssignmentsReceived(null, null, null).iterator();
+    Iterator iterator
+      = this
+          .getEffectiveEditor()
+            .getAssignmentsReceived(null, null, null)
+              .iterator();
+    
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -360,7 +370,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     Set assignments = new HashSet();
 
-    Iterator iterator = this.getAssignmentsReceived(null, null, null).iterator();
+    Iterator iterator
+      = this
+          .getEffectiveEditor()
+            .getAssignmentsReceived(null, null, null)
+              .iterator();
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -380,7 +394,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       // First, check to see if the we are the Signet superSubject.
       // That Subject can grant any function in any category to anyone.
-      if (this.equals(this.signet.getSuperPrivilegedSubject()))
+      if (this.hasSuperSubjectPrivileges(category.getSubsystem()))
       {
         return category.getFunctions();
       }
@@ -392,7 +406,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     Set functions = new HashSet();
 
-    Iterator iterator = this.getAssignmentsReceived(null, null, null).iterator();
+    Iterator iterator
+      = this
+          .getEffectiveEditor()
+            .getAssignmentsReceived(null, null, null)
+              .iterator();
+    
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -411,66 +430,102 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public Set getGrantableSubsystems()
   {
     Set grantableSubsystems = new HashSet();
-
+    PrivilegedSubject superSubject;
+    
     try
     {
-      // First, check to see if the we are the Signet superSubject.
-      // That Subject can grant any privilege in any subsystem to
-      // anyone, as long as that subsystem actually contains at
-      // least one function, and has a non-empty scope-tree
-      // associated with it.
-      if (this.equals(this.signet.getSuperPrivilegedSubject()))
-      {
-        Set allSubsystems = this.signet.getSubsystems();
-        Iterator allSubsystemsIterator = allSubsystems.iterator();
-        while (allSubsystemsIterator.hasNext())
-        {
-          Subsystem candidateSubsystem = (Subsystem) (allSubsystemsIterator
-              .next());
-          Tree tree = candidateSubsystem.getTree();
-          if (tree == null)
-          {
-            // This Subsystem has no Tree, and so none of its Functions
-            // can be granted.
-            continue;
-          }
-
-          if (tree.getRoots().size() == 0)
-          {
-            // This Tree contains no TreeNodes, and so none of the
-            // Functions in this Subsystem can actually be granted.
-            continue;
-          }
-
-          if (candidateSubsystem.getFunctions().size() == 0)
-          {
-            // This Subsystem contains no Functions, so there's
-            // no granting to be done nohow.
-            continue;
-          }
-
-          grantableSubsystems.add(candidateSubsystem);
-        }
-      }
+      superSubject = this.signet.getSuperPrivilegedSubject();
     }
     catch (ObjectNotFoundException onfe)
     {
       throw new SignetRuntimeException(onfe);
     }
 
-    Iterator iterator
-      = this.getAssignmentsReceived(Status.ACTIVE, null, null)
-          .iterator();
-    
-    while (iterator.hasNext())
+    // First, check to see if the we are the Signet superSubject.
+    // That Subject can grant any privilege in any subsystem to
+    // anyone, as long as that subsystem actually contains at
+    // least one function, and has a non-empty scope-tree
+    // associated with it.
+    if (this.getEffectiveEditor().equals(superSubject))
     {
-      Assignment assignment = (Assignment) (iterator.next());
-      Function candidateFunction = assignment.getFunction();
-      Subsystem candidateSubsystem = candidateFunction.getSubsystem();
-
-      if (assignment.canGrant())
+      Set superSubsystems;
+      
+      // Now, are we actually the SignetSuperSubject, or "acting as" that guy
+      // for every Subsystem, or just "acting as" that guy in some selected
+      // Subsystems?
+      if (this.equals(superSubject))
       {
+        superSubsystems = this.signet.getSubsystems();
+      }
+      else
+      {
+        superSubsystems = new HashSet();
+        
+        Set superProxies
+          = this.getProxiesReceived
+              (Status.ACTIVE, null, superSubject);
+        
+        Iterator superProxiesIterator = superProxies.iterator();
+        while (superProxiesIterator.hasNext())
+        {
+          Proxy proxy = (Proxy)(superProxiesIterator.next());
+          if (proxy.getSubsystem() == null)
+          {
+            superSubsystems.add(this.signet.getSubsystems());
+          }
+          else
+          {
+            superSubsystems.add(proxy.getSubsystem());
+          }
+        }
+      }
+      
+      Iterator superSubsystemsIterator = superSubsystems.iterator();
+      while (superSubsystemsIterator.hasNext())
+      {
+        Subsystem candidateSubsystem
+          = (Subsystem)(superSubsystemsIterator.next());
+        Tree tree = candidateSubsystem.getTree();
+        if (tree == null)
+        {
+          // This Subsystem has no Tree, and so none of its Functions
+          // can be granted.
+          continue;
+        }
+
+        if (tree.getRoots().size() == 0)
+        {
+          // This Tree contains no TreeNodes, and so none of the
+          // Functions in this Subsystem can actually be granted.
+          continue;
+        }
+
+        if (candidateSubsystem.getFunctions().size() == 0)
+        {
+          // This Subsystem contains no Functions, so there's
+          // no granting to be done nohow.
+          continue;
+        }
+
         grantableSubsystems.add(candidateSubsystem);
+      }
+    }
+    else
+    {
+      Iterator iterator
+        = this.getAssignmentsReceived(Status.ACTIVE, null, null)
+            .iterator();
+    
+      while (iterator.hasNext())
+      {
+        Assignment assignment = (Assignment) (iterator.next());
+        Function candidateFunction = assignment.getFunction();
+        Subsystem candidateSubsystem = candidateFunction.getSubsystem();
+
+        if (assignment.canGrant())
+        {
+          grantableSubsystems.add(candidateSubsystem);
+        }
       }
     }
 
@@ -485,7 +540,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     {
       // First, check to see if the we are the Signet superSubject.
       // That Subject can grant any function at any scope to anyone.
-      if (this.equals(this.signet.getSuperPrivilegedSubject()))
+      if (this.hasSuperSubjectPrivileges(aFunction.getSubsystem()))
       {
         Tree tree = aFunction.getSubsystem().getTree();
 
@@ -514,14 +569,37 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     return UnmodifiableSet.decorate(grantableScopes);
   }
+  
+  private boolean hasSuperSubjectPrivileges(Subsystem subsystem) throws ObjectNotFoundException
+  {
+    // First, check to see if the we are the Signet superSubject.
+    // That Subject can grant any privilege in any category to anyone.
+    if (this.getEffectiveEditor().equals
+          (this.signet.getSuperPrivilegedSubject()))
+    {
+      // We're either the SignetSuperSubject or we're "acting as" that
+      // esteemed personage. If we're just "acting as", then we need to make
+      // sure that our set of active Proxies actually includes this Subystem.
+      
+      if ((this.equals(this.signet.getSuperPrivilegedSubject()))
+          || (this.getProxiesReceived
+               (Status.ACTIVE,
+                subsystem,
+                this.signet.getSuperPrivilegedSubject())
+              .size() > 0))
+      {
+        return true;
+      }
+    }
+      
+    return false;
+  }
 
   public Set getGrantableCategories(Subsystem subsystem)
   {
     try
     {
-      // First, check to see if the we are the Signet superSubject.
-      // That Subject can grant any privilege in any category to anyone.
-      if (this.equals(this.signet.getSuperPrivilegedSubject()))
+      if (hasSuperSubjectPrivileges(subsystem))
       {
         return subsystem.getCategories();
       }
@@ -748,28 +826,28 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
   
-  private Set filterAssignmentsByGrantor
-    (Set                all,
-     PrivilegedSubject  grantor)
-  {
-    if (grantor == null)
-    {
-      return all;
-    }
-    
-    Set subset = new HashSet();
-    Iterator iterator = all.iterator();
-    while (iterator.hasNext())
-    {
-      Assignment candidate = (Assignment)(iterator.next());
-      if (candidate.getGrantor().equals(grantor))
-      {
-        subset.add(candidate);
-      }
-    }
-    
-    return subset;
-  }
+//  private Set filterAssignmentsByGrantor
+//    (Set                all,
+//     PrivilegedSubject  grantor)
+//  {
+//    if (grantor == null)
+//    {
+//      return all;
+//    }
+//    
+//    Set subset = new HashSet();
+//    Iterator iterator = all.iterator();
+//    while (iterator.hasNext())
+//    {
+//      Assignment candidate = (Assignment)(iterator.next());
+//      if (candidate.getGrantor().equals(grantor))
+//      {
+//        subset.add(candidate);
+//      }
+//    }
+//    
+//    return subset;
+//  }
   
   private Set filterProxiesByGrantee
     (Set                all,
@@ -850,7 +928,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       Proxy candidate = (Proxy) (iterator.next());
-      if (candidate.getSubsystem().equals(subsystem))
+      if ((candidate.getSubsystem() == null)
+          || candidate.getSubsystem().equals(subsystem))
       {
         subset.add(candidate);
       }
@@ -942,8 +1021,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   }
   
   public Assignment grant
-    (PrivilegedSubject actingAs,
-     PrivilegedSubject grantee,
+    (PrivilegedSubject grantee,
      TreeNode          scope,
      Function          function,
      Set               limitValues,
@@ -958,7 +1036,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       = new AssignmentImpl
           (this.signet,
            this,
-           actingAs,
            grantee,
            scope,
            function,
@@ -1053,7 +1130,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       // First, check to see if the we are the Signet superSubject.
       // That Subject can grant any Choice in any Limit in any Function in any
       // scope to anyone.
-      if (this.equals(this.signet.getSuperPrivilegedSubject()))
+      if (this.hasSuperSubjectPrivileges(function.getSubsystem()))
       {
           return
             UnmodifiableSet.decorate
@@ -1072,9 +1149,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     Iterator assignmentsReceivedIterator;
 
-    assignmentsReceivedIterator = this.getAssignmentsReceived
-      (Status.ACTIVE, function.getSubsystem(), function)
-       .iterator();
+    assignmentsReceivedIterator
+      = this
+          .getEffectiveEditor()
+            .getAssignmentsReceived
+              (Status.ACTIVE, function.getSubsystem(), function)
+                .iterator();
     
     while (assignmentsReceivedIterator.hasNext())
     {
@@ -1199,8 +1279,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @see edu.internet2.middleware.signet.PrivilegedSubject#grantProxy(edu.internet2.middleware.signet.PrivilegedSubject, edu.internet2.middleware.signet.Subsystem, java.util.Date, java.util.Date)
    */
   public Proxy grantProxy
-    (PrivilegedSubject  actingAs,
-     PrivilegedSubject  grantee,
+    (PrivilegedSubject  grantee,
      Subsystem          subsystem,
      boolean            canUse,
      boolean            canExtend,
@@ -1220,7 +1299,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       = new ProxyImpl
           (this.signet,
            this,
-           actingAs,
            grantee,
            subsystem,
            canUse,
@@ -1232,5 +1310,116 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     ((PrivilegedSubjectImpl) grantee).addProxyReceived(newProxy);
 
     return newProxy;
+  }
+
+  protected boolean canUseProxy
+    (PrivilegedSubject  actingAs,
+     Subsystem          subsystem)
+  {
+    Set proxies = this.getProxiesReceived(Status.ACTIVE, subsystem, actingAs);
+    
+    return (proxies.size() > 0);
+  }
+  
+  boolean hasUsableProxy
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystem,
+     Reason[]           returnReason)
+  {
+    Set candidates
+      = this.getProxiesReceived
+          (Status.ACTIVE, subsystem, pSubject.getEffectiveEditor());
+    
+    if (candidates.size() == 0)
+    {
+      returnReason[0] = Reason.NO_PROXY;
+      return false;
+    }
+    
+    Iterator candidatesIterator = candidates.iterator();
+    while (candidatesIterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(candidatesIterator.next());
+      if (candidate.canUse())
+      {
+        return true;
+      }
+    }
+    
+    // If we've gotten this far, none of the Proxies we hold for this Subsystem
+    // can be used directly.
+    returnReason[0] = Reason.CANNOT_USE;
+    return false;
+  }
+  
+  boolean hasExtensibleProxy
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystem,
+     Reason[]           returnReason)
+  {
+    Set candidates
+      = this.getProxiesReceived
+          (Status.ACTIVE, subsystem, pSubject.getEffectiveEditor());
+    
+    if (candidates.size() == 0)
+    {
+      returnReason[0] = Reason.NO_PROXY;
+      return false;
+    }
+    
+    Iterator candidatesIterator = candidates.iterator();
+    while (candidatesIterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(candidatesIterator.next());
+      if (candidate.canExtend())
+      {
+        return true;
+      }
+    }
+    
+    // If we've gotten this far, none of the Proxies we hold for this Subsystem
+    // can be extended.
+    returnReason[0] = Reason.CANNOT_EXTEND;
+    return false;
+  }
+  
+  public void setActingAs(PrivilegedSubject actingAs)
+  throws SignetAuthorityException
+  {
+    if (this.canUseProxy(actingAs, null))
+    {
+      this.actingAs = actingAs;
+    }
+    else
+    {
+      throw new SignetAuthorityException
+        (new DecisionImpl(false, Reason.NO_PROXY, null));
+    }
+  }
+  
+  public PrivilegedSubject getEffectiveEditor()
+  {
+    return (actingAs == null ? this : actingAs);
+  }
+  
+  boolean canUseProxy
+    (PrivilegedSubject proxyGrantor)
+  {
+    Set proxies
+      = this.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+    
+    Iterator proxiesIterator = proxies.iterator();
+    while (proxiesIterator.hasNext())
+    {
+      Proxy proxy = (Proxy)(proxiesIterator.next());
+      if (proxy.canUse())
+      {
+        return true;
+      }
+    }
+    
+    // If we've gotten this far, it means we have no useable, active Proxies
+    // from ProxyGrantor.
+    return false;
   }
 }

@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.12 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: Assignment.java,v 1.13 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,12 +8,10 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Date;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.PrivilegedSubject;
-import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 
 /**
@@ -92,7 +90,9 @@ extends Grantable
    * 
    * @throws SignetAuthorityException
    */
-  public void setCanGrant(PrivilegedSubject editor, boolean canGrant)
+  public void setCanGrant
+    (PrivilegedSubject  editor,
+     boolean            canGrant)
   throws SignetAuthorityException;
 
   /**
@@ -117,7 +117,9 @@ extends Grantable
    * 
    * @throws SignetAuthorityException
    */
-  public void setCanUse(PrivilegedSubject editor, boolean canUse)
+  public void setCanUse
+    (PrivilegedSubject  editor,
+     boolean            canUse)
   throws SignetAuthorityException;
 
   /**
@@ -143,6 +145,8 @@ extends Grantable
    * @throws SignetAuthorityException
    *
    */
-  public void setLimitValues(PrivilegedSubject editor, Set limitValues)
+  public void setLimitValues
+    (PrivilegedSubject  editor,
+     Set                limitValues)
   throws SignetAuthorityException;
 }

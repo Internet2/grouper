@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
-$Date: 2005-09-15 16:01:16 $
+$Id: ConfirmProxyAction.java,v 1.4 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -105,22 +105,7 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 4");
           (signet,
            request,
            Constants.SUBJECT_SELECTLIST_ID,
-           Constants.COMPOSITE_ID_DELIMITER,
            Constants.GRANTEE_ATTRNAME);
-     
-System.out.println("DEBUG: ConfirmProxyAction: MARK 5");
-    Subsystem subsystem
-      = Common.getSubsystem
-          (signet,
-           request,
-           Constants.SUBSYSTEM_SELECTNAME,
-           Constants.SUBSYSTEM_ATTRNAME);
-System.out.println
-("DEBUG: ConfirmProxyAction: MARK 6: currentGrantee='"
-+ currentGrantee
-+ "', subsystem='"
-+ subsystem
-+ "'");
 
     if ((currentGrantee == null) || (subsystem == null))
     {
@@ -174,8 +159,7 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 8");
       // We're creating a new Proxy.
       proxy
         = grantor.grantProxy
-            (null,  // actingAs
-             currentGrantee,
+            (currentGrantee,
              subsystem,
              true,  // canUse
              false, // canExtend

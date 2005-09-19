@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.8 2005-09-15 16:01:16 acohen Exp $
-$Date: 2005-09-15 16:01:16 $
+$Id: Constants.java,v 1.9 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -96,7 +96,6 @@ public final class Constants
   public static final String LOGGEDINUSER_ATTRNAME = "loggedInPrivilegedSubject";
   
   public static final String GRANTEE_ATTRNAME = "currentGranteePrivilegedSubject";
-  public static final String ACTINGAS_ATTRNAME = "actingAs";
   
   public static final String PROXY_ATTRNAME = "currentProxy";
   public static final String DUP_PROXIES_ATTRNAME = "duplicateProxies";

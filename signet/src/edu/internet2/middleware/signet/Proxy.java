@@ -1,6 +1,6 @@
 /*--
-$Id: Proxy.java,v 1.2 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: Proxy.java,v 1.3 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -91,7 +91,9 @@ extends Grantable
    * 
    * @throws SignetAuthorityException
    */
-  public void setCanExtend(PrivilegedSubject editor, boolean canExtend)
+  public void setCanExtend
+    (PrivilegedSubject  editor,
+     boolean            canExtend)
   throws SignetAuthorityException;
 
   /**
@@ -116,6 +118,8 @@ extends Grantable
    * 
    * @throws SignetAuthorityException
    */
-  public void setCanUse(PrivilegedSubject editor, boolean canUse)
+  public void setCanUse
+    (PrivilegedSubject  editor,
+     boolean            canUse)
   throws SignetAuthorityException;
 }

@@ -16,14 +16,22 @@
 			column="assignmentID" />
 		<property
 			name="instanceNumber" />
+			
 		<property
 			name="grantorId" column="grantorID"/>
 		<property
 			name="grantorTypeId" column="grantorTypeID"/>
+			
+		<property
+			name="proxySubjectId" column="proxyID" />
+		<property
+			name="proxySubjectTypeId" column="proxyTypeID" />
+			
 		<property
 			name="granteeId" column="granteeID" />
 		<property
 			name="granteeTypeId" column="granteeTypeID" />
+			
 		<property
 			name="revokerId" column="revokerID" />
 		<property

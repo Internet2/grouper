@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.37 2005-09-13 22:25:36 acohen Exp $
-$Date: 2005-09-13 22:25:36 $
+$Id: Signet.java,v 1.38 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -2175,28 +2175,6 @@ public final class Signet
   return sources;
  }
  
- boolean canUseProxy
-   (PrivilegedSubject proxyGrantor,
-    PrivilegedSubject proxyGrantee)
- {
-   Set proxies
-     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
-   
-   Iterator proxiesIterator = proxies.iterator();
-   while (proxiesIterator.hasNext())
-   {
-     Proxy proxy = (Proxy)(proxiesIterator.next());
-     if (proxy.canUse())
-     {
-       return true;
-     }
-   }
-   
-   // If we've gotten this far, it means we have no useable, active Proxies
-   // from ProxyGrantor to ProxyRecipient.
-   return false;
- }
- 
  Set getExtensibleProxies
    (PrivilegedSubject proxyGrantor,
     PrivilegedSubject proxyGrantee)
@@ -2218,24 +2196,48 @@ public final class Signet
    return extensibleProxies;
  }
  
- Set getUsableProxies
-   (PrivilegedSubject proxyGrantor,
-    PrivilegedSubject proxyGrantee)
+// Set getUsableProxies
+//   (PrivilegedSubject proxyGrantor,
+//    PrivilegedSubject proxyGrantee)
+// {
+//   Set proxies
+//     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+//   Set usableProxies = new HashSet();
+//   
+//   Iterator proxiesIterator = proxies.iterator();
+//   while (proxiesIterator.hasNext())
+//   {
+//     Proxy proxy = (Proxy)(proxiesIterator.next());
+//     if (proxy.canUse())
+//     {
+//       usableProxies.add(proxy);
+//     }
+//   }
+//   
+//   return usableProxies;
+// }
+ 
+ boolean encompassesSubsystem(Set proxies, Subsystem subsystem)
  {
-   Set proxies
-     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
-   Set usableProxies = new HashSet();
-   
    Iterator proxiesIterator = proxies.iterator();
    while (proxiesIterator.hasNext())
    {
      Proxy proxy = (Proxy)(proxiesIterator.next());
-     if (proxy.canUse())
+     
+     // If any of our candidate Proxies has a NULL Subsystem, than it
+     // encompasses every possible Subsystem.
+     if (proxy.getSubsystem() == null)
      {
-       usableProxies.add(proxy);
+       return true;
+     }
+
+     if (proxy.getSubsystem().equals(subsystem))
+     {
+       return true;
      }
    }
    
-   return usableProxies;
+   // If we've gotten this far, none of our Proxies can do the job.
+   return false;
  }
 }

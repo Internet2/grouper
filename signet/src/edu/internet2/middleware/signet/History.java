@@ -1,6 +1,6 @@
 /*--
-$Id: History.java,v 1.1 2005-08-29 18:29:31 acohen Exp $
-$Date: 2005-08-29 18:29:31 $
+$Id: History.java,v 1.2 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -23,6 +23,9 @@ abstract class History
 
   private String            grantorId;
   private String            grantorTypeId;
+
+  private String            proxySubjectId;
+  private String            proxySubjectTypeId;
   
   private String            granteeId;
   private String            granteeTypeId;
@@ -49,6 +52,7 @@ abstract class History
   History(GrantableImpl grantableInstance)
   {
     this.setGrantor(grantableInstance.getGrantor());
+    this.setProxySubject(grantableInstance.getProxy());
     this.setGrantee(grantableInstance.getGrantee());    
     this.setRevoker(grantableInstance.getRevoker());
     this.setEffectiveDate(grantableInstance.getEffectiveDate());
@@ -112,6 +116,20 @@ abstract class History
     {
       this.revokerId = null;
       this.revokerTypeId = null;
+    }
+  }
+
+  void setProxySubject(PrivilegedSubject proxySubject)
+  {
+    if (proxySubject != null)
+    {
+      this.proxySubjectId = proxySubject.getSubjectId();
+      this.proxySubjectTypeId = proxySubject.getSubjectTypeId();
+    }
+    else
+    {
+      this.proxySubjectId = null;
+      this.proxySubjectTypeId = null;
     }
   }
   
@@ -213,6 +231,26 @@ abstract class History
   void setRevokerTypeId(String revokerTypeId)
   {
     this.revokerTypeId = revokerTypeId;
+  }
+  
+  String getProxySubjectId()
+  {
+    return this.proxySubjectId;
+  }
+
+  void setProxySubjectId(String proxySubjectId)
+  {
+    this.proxySubjectId = proxySubjectId;
+  }
+  
+  String getProxySubjectTypeId()
+  {
+    return this.proxySubjectTypeId;
+  }
+  
+  void setProxySubjectTypeId(String proxySubjectTypeId)
+  {
+    this.proxySubjectTypeId = proxySubjectTypeId;
   }
   
   // This method is only for use by Hibernate.

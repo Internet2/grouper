@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.12 2005-09-15 16:01:16 acohen Exp $
-$Date: 2005-09-15 16:01:16 $
+$Id: ConfirmAction.java,v 1.13 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -45,8 +45,26 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 */
 public final class ConfirmAction extends BaseAction
 {
-// ---------------------------------------------------- Public Methods
-// See superclass for Javadoc
+
+  /**
+   * This method expects to find the following attributes in the Session:
+   * 
+   *   Name: "signet"
+   *   Type: Signet
+   *   Use:  A handle to the current Signet environment.
+   * 
+   * This method expects to receive the following HTTP parameters:
+   * 
+   *   Name: "assignmentId"
+   *   Use:  The String representation of a Signet Assignment's ID.
+   * 
+   * This method updates the followiing attributes in the Session:
+   * 
+   *   Name: "currentAssignment"
+   *   Type: Assignment
+   *   Use:  The Assignment which is currently being examined or edited by
+   *         the Signet user.
+   */
 public ActionForward execute
   (ActionMapping        mapping,
    ActionForm           form,
@@ -170,8 +188,7 @@ throws Exception
     // We're creating a new Assignment.
     assignment
       = grantor.grant
-          (null,  // actingAs
-           grantee,
+          (grantee,
            scope,
            function,
            limitValues,

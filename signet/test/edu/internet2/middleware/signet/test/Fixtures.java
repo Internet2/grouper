@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.25 2005-08-29 18:29:31 acohen Exp $
-$Date: 2005-08-29 18:29:31 $
+$Id: Fixtures.java,v 1.26 2005-09-19 06:37:04 acohen Exp $
+$Date: 2005-09-19 06:37:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -313,8 +313,7 @@ public class Fixtures
     
     Proxy proxy
       = grantor.grantProxy
-          (null,  // actingAs
-           grantee,
+          (grantee,
            proxiedSubsystem,
            Constants.PROXY_CANUSE,
            Constants.PROXY_CANEXTEND,
@@ -376,8 +375,7 @@ public class Fixtures
     
     Assignment assignment
     	= superPrivilegedSubject.grant
-    			(null, // actingAs
-           pSubject,
+    			(pSubject,
     	     rootNode,
     	     function,
     	     limitValues,

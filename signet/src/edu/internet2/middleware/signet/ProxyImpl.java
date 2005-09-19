@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.5 2005-09-13 22:25:36 acohen Exp $
- $Date: 2005-09-13 22:25:36 $
+ $Id: ProxyImpl.java,v 1.6 2005-09-19 06:37:04 acohen Exp $
+ $Date: 2005-09-19 06:37:04 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,8 +9,6 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 class ProxyImpl
@@ -30,38 +28,51 @@ implements Proxy
   }
   
   public ProxyImpl
-  	(Signet							signet,
-     PrivilegedSubject	grantor, 
-     PrivilegedSubject  actingAs,
-     PrivilegedSubject 	grantee,
-     Subsystem          subsystem,
-     boolean            canUse,
-     boolean            canExtend,
-     Date               effectiveDate,
-     Date               expirationDate)
+  	(Signet                 signet,
+     PrivilegedSubjectImpl  grantor, 
+     PrivilegedSubject 	    grantee,
+     Subsystem              subsystem,
+     boolean                canUse,
+     boolean                canExtend,
+     Date                   effectiveDate,
+     Date                   expirationDate)
   throws
   	SignetAuthorityException
   {  
-    super(signet, grantor, actingAs, grantee, effectiveDate, expirationDate);
+    super
+      (signet,
+       grantor,
+       grantee,
+       effectiveDate,
+       expirationDate);
     
-    Set proxyCandidates = new HashSet();
-    
-    if (actingAs != null)
+    if (!grantor.equals(grantor.getEffectiveEditor()))
     {
-      proxyCandidates = signet.getExtensibleProxies(actingAs, grantor);
-      if (proxyCandidates.size() == 0)
+      // At this point, we know the following things:
+      //
+      //   1) This grantor is "acting as" some other PrivilegedSubject.
+      //
+      //   2) This grantor does indeed hold at least one currently active Proxy
+      //      from the PrivilegedSubject that he/she is "acting as". That was
+      //      confirmed when PrivilegedSubject.setActingFor() was executed.
+      //
+      // We still need to confirm the following points:
+      //
+      //   3) At least one of those Proxies described in (2) above must have its
+      //      "can extend" flag set, thereby allowing this grantor to use that
+      //      Proxy to grant some new Proxy.
+      //
+      //   4) At least one of the Proxies described in (3) above must encompass
+      //      the Subsystem of this Assignment.
+
+      Reason[] reasonArray = new Reason[1];
+      if (!grantor.hasExtensibleProxy
+            (grantor.getEffectiveEditor(),
+             subsystem,
+             reasonArray))
       {
-        Decision decision = new DecisionImpl(false, Reason.CANNOT_EXTEND, null);
+        Decision decision = new DecisionImpl(false, reasonArray[0], null);
         throw new SignetAuthorityException(decision);
-      }
-      
-      if (!encompassesSubsystem(proxyCandidates, subsystem))
-      {
-        throw new IllegalArgumentException
-          ("When extending a Proxy to a third party,"
-           + " the grantor must hold a Proxy with a NULL Subsystem, or a"
-           + " Subsystem which matches the Subsystem"
-           + " associated with the new Proxy.");
       }
     }
     
@@ -249,13 +260,13 @@ implements Proxy
    */
   public void setCanExtend
     (PrivilegedSubject  editor,
-     boolean            canExtend)
+     boolean                canExtend)
   throws SignetAuthorityException
   {
     checkEditAuthority(editor);
     
     this.canExtend = canExtend;
-    this.setGrantor(editor);
+    this.setGrantor((PrivilegedSubjectImpl)editor);
   }
 
   /* (non-Javadoc)
@@ -288,7 +299,7 @@ implements Proxy
   {
     checkEditAuthority(editor);
     
-    super.setGrantor(editor);
+    super.setGrantor((PrivilegedSubjectImpl)editor);
     this.canUse = canUse;
   }
 }

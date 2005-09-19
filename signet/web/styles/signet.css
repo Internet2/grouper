@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.17 2005-09-15 21:08:18 jvine Exp $
-   $Date: 2005-09-15 21:08:18 $
+   $Id: signet.css,v 1.18 2005-09-19 06:37:04 acohen Exp $
+   $Date: 2005-09-19 06:37:04 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -585,7 +585,6 @@ li {
 .actingas {
 	color: #FFFFCC;
 	font-weight: bold;
-	display: none;
 }
 
 .clear {  /* hack to make various things work right */
