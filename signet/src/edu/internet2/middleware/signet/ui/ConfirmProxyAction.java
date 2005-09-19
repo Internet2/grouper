@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.4 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: ConfirmProxyAction.java,v 1.5 2005-09-19 14:49:21 acohen Exp $
+$Date: 2005-09-19 14:49:21 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -53,7 +53,6 @@ public final class ConfirmProxyAction extends BaseAction
      HttpServletResponse response)
   throws Exception
   {
-System.out.println("DEBUG: ENTERING ConfirmProxyAction.execute()");
     // Setup message array in case there are errors
     ArrayList messages = new ArrayList();
     ActionMessages actionMessages = null;
@@ -64,7 +63,6 @@ System.out.println("DEBUG: ENTERING ConfirmProxyAction.execute()");
     {
       messages.add(Constants.ERROR_MESSAGES_NOT_LOADED);
     }
-System.out.println("DEBUG: ConfirmProxyAction: MARK 1");
 
     // If there were errors, forward to our failure page
     if (messages.size()>0)
@@ -72,8 +70,6 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 1");
       request.setAttribute(Constants.ERROR_KEY,messages);
       return findFailure(mapping);
     }
-    
-System.out.println("DEBUG: ConfirmProxyAction: MARK 2");
 
     HttpSession session = request.getSession();
     Date    effectiveDate   = null;
@@ -89,13 +85,11 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 2");
       = (Proxy)(session.getAttribute(Constants.PROXY_ATTRNAME));
   
     Signet signet = (Signet)(session.getAttribute("signet"));
-System.out.println("DEBUG: ConfirmProxyAction: MARK 3");
   
     if (signet == null)
     {
       return (mapping.findForward("notInitialized"));
     }
-System.out.println("DEBUG: ConfirmProxyAction: MARK 4");
   
     Common.showHttpParams
       ("ConfirmProxyAction.execute()", signet.getLogger(), request);
@@ -106,13 +100,19 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 4");
            request,
            Constants.SUBJECT_SELECTLIST_ID,
            Constants.GRANTEE_ATTRNAME);
+    
+    Subsystem subsystem
+    = Common.getSubsystem
+        (signet,
+         request,
+         Constants.SUBSYSTEM_SELECTNAME,
+         Constants.SUBSYSTEM_ATTRNAME);
 
     if ((currentGrantee == null) || (subsystem == null))
     {
       // Let's send this user back to square one.
       return (mapping.findForward("notInitialized"));
     }
-System.out.println("DEBUG: ConfirmProxyAction: MARK 7");
 
     try
     {
@@ -145,8 +145,6 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 7");
     {
       return findDataEntryErrors(mapping);
     }
-    
-System.out.println("DEBUG: ConfirmProxyAction: MARK 8");
   
     if (proxy != null)
     {
@@ -166,8 +164,6 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 8");
              effectiveDate,
              expirationDate);
     }
-    
-System.out.println("DEBUG: ConfirmProxyAction: MARK 9");
   
     // Let's see whether or not the Proxy we want to save has any
     // duplicates. If it does, we'll sidetrack the user with a warning
@@ -180,8 +176,6 @@ System.out.println("DEBUG: ConfirmProxyAction: MARK 9");
       session.setAttribute(Constants.DUP_PROXIES_ATTRNAME, duplicateProxies);
       return findDuplicateAssignments(mapping);
     }
-    
-System.out.println("DEBUG: ConfirmProxyAction: MARK 10");
   
     // If we've gotten this far, there must be no duplicate Proxies.
     // Let's save this Proxy in the database.
