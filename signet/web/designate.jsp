@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.4 2005-09-15 21:08:18 jvine Exp $
-  $Date: 2005-09-15 21:08:18 $
+  $Id: designate.jsp,v 1.5 2005-09-19 23:42:02 acohen Exp $
+  $Date: 2005-09-19 23:42:02 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -192,9 +192,9 @@
       <div id="ViewHead">
 		<span class="dropback">Designating a granting proxy for</span>           	
         <h1>
-          <%=currentGranteePrivilegedSubject.getName()%>
+          <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>
        	</h1>
-       	<span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,	Technology Strategy and Support Operations-->
+       	<span class="ident"><%=loggedInPrivilegedSubject.getEffectiveEditor().getDescription()%></span><!--,	Technology Strategy and Support Operations-->
       </div>
       <!-- ViewHead -->
  
