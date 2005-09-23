@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.38 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Signet.java,v 1.39 2005-09-23 18:22:05 acohen Exp $
+$Date: 2005-09-23 18:22:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -108,7 +108,7 @@ public final class Signet
  // This is the metadata that describes the pre-defined Signet
  // super-subject.
  
- private static final String   SUPERSUBJECT_ID                = "SignetSuperSubject";
+// private static final String   SUPERSUBJECT_ID                = "SignetSuperSubject";
 
  private static SessionFactory sessionFactory;
  
@@ -118,7 +118,7 @@ public final class Signet
 
  private Transaction           tx;
 
- private PrivilegedSubject     superPSubject;
+// private PrivilegedSubject     superPSubject;
 
  private int                   xactNestingLevel               = 0;
 
@@ -1246,6 +1246,12 @@ public final class Signet
  {
    return new PrivilegedSubjectImpl(this, subject);
  }
+ 
+ public PrivilegedSubject getSignetSubject()
+ {
+   PrivilegedSubjectImpl.SIGNET_SUBJECT.setSignet(this);
+   return PrivilegedSubjectImpl.SIGNET_SUBJECT;
+ }
 
 
  /**
@@ -1717,35 +1723,35 @@ public final class Signet
    return subsystemImpl;
  }
 
- /**
-  * Gets the Signet super-privileged Subject, creating it if it does not
-  * already exist in the database.
-  * 
-  * @return
-  * @throws ObjectNotFoundException
-  */
- public PrivilegedSubject getSuperPrivilegedSubject()
-     throws ObjectNotFoundException
- {
-   // If we've already fetched the SuperPrivilegedSubject from the
-   // database, we'll just return it and be done.
-   if (superPSubject != null)
-   {
-     return superPSubject;
-   }
-
-   // Let's fetch the SuperPrivilegedSubject from the database, starting
-   // with its underlying Subject.
-
-   Subject superSubject
-    = this.getSubject
-        (Signet.DEFAULT_SUBJECT_TYPE_ID,
-          Signet.SUPERSUBJECT_ID);
-
-   superPSubject = new PrivilegedSubjectImpl(this, superSubject);
-
-   return superPSubject;
- }
+// /**
+//  * Gets the Signet super-privileged Subject, creating it if it does not
+//  * already exist in the database.
+//  * 
+//  * @return
+//  * @throws ObjectNotFoundException
+//  */
+// public PrivilegedSubject getSuperPrivilegedSubject()
+//     throws ObjectNotFoundException
+// {
+//   // If we've already fetched the SuperPrivilegedSubject from the
+//   // database, we'll just return it and be done.
+//   if (superPSubject != null)
+//   {
+//     return superPSubject;
+//   }
+//
+//   // Let's fetch the SuperPrivilegedSubject from the database, starting
+//   // with its underlying Subject.
+//
+//   Subject superSubject
+//    = this.getSubject
+//        (Signet.DEFAULT_SUBJECT_TYPE_ID,
+//          Signet.SUPERSUBJECT_ID);
+//
+//   superPSubject = new PrivilegedSubjectImpl(this, superSubject);
+//
+//   return superPSubject;
+// }
 
   /**
    * Gets a single Subject by type and ID.
@@ -1763,6 +1769,13 @@ public final class Signet
     if ((subjectTypeId == null) && (subjectId == null))
     {
       return null;
+    }
+    
+    // Here's another special case: Is it the signet application subject?
+    if (getSignetSubject().getSubjectTypeId().equals(subjectTypeId)
+        && getSignetSubject().getSubjectId().equals(subjectId))
+    {
+      return getSignetSubject().getSubject();
     }
     
     Subject subject = null;

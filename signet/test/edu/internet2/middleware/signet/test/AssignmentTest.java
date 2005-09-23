@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.16 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: AssignmentTest.java,v 1.17 2005-09-23 18:22:05 acohen Exp $
+$Date: 2005-09-23 18:22:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -94,7 +94,19 @@ public class AssignmentTest extends TestCase
             (null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
       Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
       
-      assignment.revoke(assignment.getGrantor());
+      PrivilegedSubject revoker;
+      
+      if (assignment.getProxy() == null)
+      {
+        revoker = assignment.getGrantor();
+      }
+      else
+      {
+        revoker = assignment.getProxy();
+        revoker.setActingAs(assignment.getGrantor());
+      }
+      
+      assignment.revoke(revoker);
       assignment.save();
     }
   }
@@ -135,17 +147,16 @@ public class AssignmentTest extends TestCase
         Set duplicateLimitValues = new HashSet();
         duplicateLimitValues.addAll(assignmentReceived.getLimitValues());
         Assignment duplicateAssignment
-          = assignmentReceived
-              .getGrantor()
-                .grant
-                  (assignmentReceived.getGrantee(),
-                   assignmentReceived.getScope(),
-                   assignmentReceived.getFunction(),
-                   duplicateLimitValues,
-                   assignmentReceived.canUse(),
-                   assignmentReceived.canGrant(),
-                   new Date(),  // EffectiveDate and expirationDate are not
-                   Common.getDate(1)); // considered when finding duplicates.
+          = Common.getOriginalGrantor(assignmentReceived)
+              .grant
+                (assignmentReceived.getGrantee(),
+                 assignmentReceived.getScope(),
+                 assignmentReceived.getFunction(),
+                 duplicateLimitValues,
+                 assignmentReceived.canUse(),
+                 assignmentReceived.canGrant(),
+                 new Date(),  // EffectiveDate and expirationDate are not
+                 Common.getDate(1)); // considered when finding duplicates.
         duplicateAssignment.save();
         
         // At this point, there shoule be exactly one duplicate Assignment.
@@ -279,7 +290,7 @@ public class AssignmentTest extends TestCase
         
         // Update the Assignment with the altered LimitValues.
         assignment.setLimitValues
-          (signet.getSuperPrivilegedSubject(), newLimitValues);
+          (Common.getOriginalGrantor(assignment), newLimitValues);
         assignment.save();
       }
       
@@ -318,7 +329,7 @@ public class AssignmentTest extends TestCase
         
         // Update the Assignment with the restored original LimitValues.
         assignment.setLimitValues
-          (signet.getSuperPrivilegedSubject(), originalLimitValues);
+          (Common.getOriginalGrantor(assignment), originalLimitValues);
         assignment.save();
       }
     }
@@ -355,8 +366,9 @@ public class AssignmentTest extends TestCase
           (Constants.YESTERDAY, originalEffectiveDate);
         
         // Update the Assignment with the altered effectiveDate.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setEffectiveDate
-          (signet.getSuperPrivilegedSubject(),
+          (grantor,
            Constants.DAY_BEFORE_YESTERDAY);
         assignment.save();
       }
@@ -375,8 +387,9 @@ public class AssignmentTest extends TestCase
           (Constants.DAY_BEFORE_YESTERDAY, alteredEffectiveDate);
         
         // Update the Assignment with the restored original effectiveDate.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setEffectiveDate
-          (signet.getSuperPrivilegedSubject(),
+          (grantor,
            Constants.YESTERDAY);
         assignment.save();
       }
@@ -419,8 +432,9 @@ public class AssignmentTest extends TestCase
 //        Date newExpirationDate = calendar.getTime();
         
         // Update the Assignment with the altered expirationDate.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setExpirationDate
-          (signet.getSuperPrivilegedSubject(),
+          (grantor,
            Constants.DAY_AFTER_TOMORROW);
         assignment.save();
       }
@@ -439,8 +453,9 @@ public class AssignmentTest extends TestCase
           (Constants.DAY_AFTER_TOMORROW, alteredExpirationDate);
         
         // Update the Assignment with the restored original expirationDate.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setExpirationDate
-          (signet.getSuperPrivilegedSubject(),
+          (grantor,
            Constants.TOMORROW);
         assignment.save();
       }
@@ -454,7 +469,7 @@ public class AssignmentTest extends TestCase
   {
     Assignment assignment = null;
     
-    PrivilegedSubject superPsubject = signet.getSuperPrivilegedSubject();
+    PrivilegedSubject superPsubject = signet.getSignetSubject();
     
     Subject subject0
       = signet.getSubject
@@ -477,16 +492,18 @@ public class AssignmentTest extends TestCase
     Date tomorrow = Common.getDate(1);
     Date nextWeek = Common.getDate(7);
     
-    assignment.setEffectiveDate(superPsubject, lastWeek);
-    assignment.setExpirationDate(superPsubject, yesterday);
+    PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
+    
+    assignment.setEffectiveDate(grantor, lastWeek);
+    assignment.setExpirationDate(grantor, yesterday);
     assertEquals(Status.INACTIVE, assignment.evaluate());
     
-    assignment.setEffectiveDate(superPsubject, yesterday);
-    assignment.setExpirationDate(superPsubject, tomorrow);
+    assignment.setEffectiveDate(grantor, yesterday);
+    assignment.setExpirationDate(grantor, tomorrow);
     assertEquals(Status.ACTIVE, assignment.evaluate());
     
-    assignment.setEffectiveDate(superPsubject, tomorrow);
-    assignment.setExpirationDate(superPsubject, nextWeek);
+    assignment.setEffectiveDate(grantor, tomorrow);
+    assignment.setExpirationDate(grantor, nextWeek);
     assertEquals(Status.PENDING, assignment.evaluate());
   }
 
@@ -520,8 +537,9 @@ public class AssignmentTest extends TestCase
         assertEquals(Constants.ASSIGNMENT_CANGRANT, originalIsGrantable);
         
         // Update the Assignment with the altered isGrantable flag.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanGrant
-          (signet.getSuperPrivilegedSubject(), !originalIsGrantable);
+          (grantor, !originalIsGrantable);
         assignment.save();
       }
       
@@ -537,8 +555,9 @@ public class AssignmentTest extends TestCase
         assertEquals(!Constants.ASSIGNMENT_CANGRANT, alteredCanGrant);
         
         // Update the Assignment with the restored original "canGrant" flag.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanGrant
-          (signet.getSuperPrivilegedSubject(),
+          (grantor,
            Constants.ASSIGNMENT_CANGRANT);
         assignment.save();
       }
@@ -575,8 +594,9 @@ public class AssignmentTest extends TestCase
         assertEquals(Constants.ASSIGNMENT_CANUSE, originalCanUse);
         
         // Update the Assignment with the altered canUse flag.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanUse
-          (signet.getSuperPrivilegedSubject(), !originalCanUse);
+          (grantor, !originalCanUse);
         assignment.save();
       }
       
@@ -592,8 +612,9 @@ public class AssignmentTest extends TestCase
         assertEquals(!Constants.ASSIGNMENT_CANUSE, alteredCanUse);
         
         // Update the Assignment with the restored original "canUse" flag.
+        PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
         assignment.setCanUse
-          (signet.getSuperPrivilegedSubject(),
+          (grantor,
            Constants.ASSIGNMENT_CANUSE);
         assignment.save();
       }

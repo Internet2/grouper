@@ -40,7 +40,11 @@ all all
 description SUBJECT_5_DESCRIPTION
 loginid SUBJECT_5_DISPLAYID
 all all
-+person SignetSuperSubject Super-User, Signet
-description Signet Privilege Boostrap user
-loginid SignetSuperSubject
++person SUBJECT_1000_ID SUBJECT_1000_NAME
+description SUBJECT_1000_DESCRIPTION
+loginid SUBJECT_1000_DISPLAYID
+all all
++person SUBJECT_1001_ID SUBJECT_1001_NAME
+description SUBJECT_1001_DESCRIPTION
+loginid SUBJECT_1001_DISPLAYID
 all all

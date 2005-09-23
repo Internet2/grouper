@@ -1,6 +1,6 @@
 /*--
-$Id: Proxy.java,v 1.3 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Proxy.java,v 1.4 2005-09-23 18:22:05 acohen Exp $
+$Date: 2005-09-23 18:22:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -97,23 +97,23 @@ extends Grantable
   throws SignetAuthorityException;
 
   /**
-   * Indicates whether or not this Assignment can be used directly
-   * by its current grantee, or can only be granted to others.
+   * Indicates whether or not this Proxy can be used directly
+   * by its current grantee, or can only be extended to others.
    * 
-   * @return <code>false</code> if this Assignment can only be granted to others
+   * @return <code>false</code> if this Proxy can only be extended to others
    * by its current grantee, and not used directly by its current grantee.
    */
   public boolean canUse();
   
   /**
-   * Changes the direct usability of an existing Assignment. To save this change
-   * to the database, call <code>Assignment.save()</code>;
+   * Changes the direct usability of an existing Proxy. To save this change
+   * to the database, call <code>Proxy.save()</code>;
    * 
    * @param editor the <code>PrivilegedSubject</code> who is responsible for
    * this change.
    * 
-   * @param isGrantOnly <code>false</code> if this Assignment should only be
-   * granted to others (and not directly used) by its current grantee, and
+   * @param isGrantOnly <code>false</code> if this Proxy should only be
+   * extended to others (and not directly used) by its current grantee, and
    * <code>true</code> otherwise.
    * 
    * @throws SignetAuthorityException

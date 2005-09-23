@@ -47,6 +47,11 @@
 			name="revokerId" column="revokerID" />
 		<property
 			name="revokerTypeId" column="revokerTypeID" />
+			
+		<property
+			name="proxyId" column="proxySubjectID" />
+		<property
+			name="proxyTypeId" column="proxyTypeID" />
 		
 		<many-to-one
 			name="subsystem"

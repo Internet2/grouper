@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.30 2005-09-19 06:37:04 acohen Exp $
- $Date: 2005-09-19 06:37:04 $
+ $Id: AssignmentImpl.java,v 1.31 2005-09-23 18:22:05 acohen Exp $
+ $Date: 2005-09-23 18:22:05 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -16,6 +16,7 @@ import java.util.Set;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 
+import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 class AssignmentImpl
@@ -58,6 +59,15 @@ implements Assignment
        grantee,
        effectiveDate,
        expirationDate);
+    
+    // The Signet application can only do one thing: Grant a Proxy to a
+    // System Administrator. The Signet Application can never directly
+    // grant any Assignment to anyone.
+    if (grantor == PrivilegedSubjectImpl.SIGNET_SUBJECT)
+    {
+      Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
+      throw new SignetAuthorityException(decision);
+    }
     
     if (function == null)
     {
@@ -383,10 +393,45 @@ implements Assignment
      Set                limitValues)
   throws SignetAuthorityException
   {
+    checkLimitValues(limitValues);
     checkEditAuthority(actor);
     
     this.setLimitValues(limitValues);
     this.setGrantor((PrivilegedSubjectImpl)actor);
+  }
+  
+  private void checkLimitValues(Set limitValues)
+  throws IllegalArgumentException
+  {
+    Iterator limitValuesIterator = limitValues.iterator();
+    while (limitValuesIterator.hasNext())
+    {
+      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
+      
+      // Let's build up a set of all the legal Choice-values for this Limit.
+      Set legalChoiceValues = new HashSet();
+      Set choices = limitValue.getLimit().getChoiceSet().getChoices();
+      Iterator choicesIterator = choices.iterator();
+      while (choicesIterator.hasNext())
+      {
+        Choice choice = (Choice)(choicesIterator.next());
+        legalChoiceValues.add(choice.getValue());
+      }
+      
+      if (!legalChoiceValues.contains(limitValue.getValue()))
+      {
+        throw new IllegalArgumentException
+          ("'"
+           + limitValue.getValue()
+           + "' is not a legal value for the Limit"
+           + " with ID '"
+           + limitValue.getLimit().getId()
+           + "' and name '"
+           + limitValue.getLimit().getName()
+           + "'. Legal values for this Limit are: "
+           + legalChoiceValues);
+      }
+    }
   }
   
   private void setLimitValues(Set limitValues)

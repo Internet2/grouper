@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetTest.java,v 1.9 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: ChoiceSetTest.java,v 1.10 2005-09-23 18:22:05 acohen Exp $
+$Date: 2005-09-23 18:22:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -130,10 +130,11 @@ public class ChoiceSetTest extends TestCase
       				.getChoiceSet
       					(fixtures.makeChoiceSetId(choiceSetIndex));
 
-      // choiceSet 0 contains choice 0, choiceSet 1 contains choices 0 and 1,
+      // choiceSet 0 contains choice 0 and choice 0_changed,
+      // choiceSet 1 contains choices 0, 0_changed, 1 and 1_changed,
       // and so on.
       Set choices = choiceSet.getChoices();
-      assertEquals(choiceSetIndex + 1, choices.size());
+      assertEquals((choiceSetIndex + 1) * 2, choices.size());
     }
   }
 }

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.17 2005-09-19 06:37:04 acohen Exp $
- $Date: 2005-09-19 06:37:04 $
+ $Id: PrivilegedSubject.java,v 1.18 2005-09-23 18:22:05 acohen Exp $
+ $Date: 2005-09-23 18:22:05 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -74,8 +74,8 @@ public interface PrivilegedSubject extends Comparable
   throws SignetAuthorityException;
   
   /**
-   * Creates an Assignment by exercising a Proxy to grant a Function to a
-   * PrivilegedSubject.
+   * Creates an Assignment (possibly by exercising a {@link Proxy}) to grant a
+   * Function to a PrivilegedSubject.
    * 
    * @param grantee
    * @param scope

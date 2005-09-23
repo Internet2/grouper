@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.10 2005-08-16 16:41:08 acohen Exp $
- $Date: 2005-08-16 16:41:08 $
+ $Id: SubsystemImpl.java,v 1.11 2005-09-23 18:22:05 acohen Exp $
+ $Date: 2005-09-23 18:22:05 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -555,5 +555,36 @@ class SubsystemImpl
   {
     throw new UnsupportedOperationException
       ("This method is not yet implemented");
+  }
+
+  /**
+   * @return
+   */
+  boolean isPopulatedForGranting()
+  {
+    if (this.getTree() == null)
+    {
+      // This Subsystem has no Tree, and so none of its Functions
+      // can be granted.
+      return false;
+    }
+
+    if (this.getTree().getRoots().size() == 0)
+    {
+      // This Tree contains no TreeNodes, and so none of the
+      // Functions in this Subsystem can actually be granted.
+      return false;
+    }
+
+    if (this.getFunctions().size() == 0)
+    {
+      // This Subsystem contains no Functions, so there's
+      // no granting to be done nohow.
+      return false;
+    }
+
+    // If we've gotten this far, this thing must contain something
+    // worth granting.
+    return true;
   }
 }

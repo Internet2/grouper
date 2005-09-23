@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.26 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Fixtures.java,v 1.27 2005-09-23 18:22:05 acohen Exp $
+$Date: 2005-09-23 18:22:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -52,6 +52,9 @@ public class Fixtures
   Signet		signet;
   Subsystem	subsystem;
   Tree			tree;
+  
+  private static final int SUBSYSTEM_OWNER_SUBJECT_NUMBER = 1000;
+  private static final int SYSADMIN_SUBJECT_NUMBER        = 1001;
   
   /**
    * @throws OperationNotSupportedException
@@ -171,9 +174,22 @@ public class Fixtures
     
     this.subsystem.save();
     
+    PrivilegedSubject sysAdmin
+      = designateSysAdmin(SYSADMIN_SUBJECT_NUMBER);
+    
+    sysAdmin.setActingAs(signet.getSignetSubject());
+    
+    PrivilegedSubject subsystemOwner
+      = designateSubsystemOwner
+          (sysAdmin,
+           SUBSYSTEM_OWNER_SUBJECT_NUMBER,
+           subsystem);
+    
+    subsystemOwner.setActingAs(signet.getSignetSubject());
+    
     for (int i = 0; i < Constants.MAX_SUBJECTS; i++)
     {
-      Assignment assignment = getOrCreateAssignment(i);
+      Assignment assignment = getOrCreateAssignment(subsystemOwner, i);
       assignment.save();
     }
     
@@ -212,10 +228,63 @@ public class Fixtures
     int[] limitChoiceNumbers = {0, 0, 0};
     Assignment assignment
     	= getOrCreateAssignment
-    			(0,  // subject-number
+    			(subsystemOwner,
+           0,  // subject-number
     			 2,  // function-number
     			 limitChoiceNumbers);
     assignment.save();
+  }
+  
+  private PrivilegedSubject designateSubsystemOwner
+    (PrivilegedSubject  sysAdmin,
+     int                subjectNumber,
+     Subsystem          subsystem)
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {
+    PrivilegedSubject subsystemOwner
+      = signet.getPrivilegedSubject
+          (getSubject(subjectNumber));
+    
+    Proxy newProxy
+      = sysAdmin
+          .grantProxy
+            (subsystemOwner,
+             subsystem,
+             true,   // canUse
+             false,  // canExtend
+             Constants.YESTERDAY,
+             Constants.TOMORROW);
+    
+    newProxy.save();
+    
+    return subsystemOwner;
+  }
+  
+  private PrivilegedSubject designateSysAdmin
+    (int subjectNumber)
+  throws
+    SignetAuthorityException,
+    ObjectNotFoundException
+  {
+    PrivilegedSubject sysAdmin
+      = signet.getPrivilegedSubject
+          (getSubject(subjectNumber));
+    
+    Proxy newProxy
+      = signet.getSignetSubject()
+          .grantProxy
+            (sysAdmin,
+             null,
+             false, // canUse
+             true,  // canExtend
+             Constants.YESTERDAY,
+             Constants.TOMORROW);
+
+    newProxy.save();
+    
+    return sysAdmin;
   }
   
   private void deleteAssignmentsAndProxies()
@@ -282,15 +351,16 @@ public class Fixtures
      int        granteeSubjectNumber,
      Subsystem  proxiedSubsystem)
   throws
-    SignetAuthorityException
+    SignetAuthorityException,
+    ObjectNotFoundException
   {
     PrivilegedSubject grantor
       = signet.getPrivilegedSubject
-          (getOrCreateSubject
+          (getSubject
             (grantorSubjectNumber));
     PrivilegedSubject grantee
       = signet.getPrivilegedSubject
-          (getOrCreateSubject
+          (getSubject
             (granteeSubjectNumber));
     
     // Before granting this new Proxy, let's see if it already exists
@@ -324,17 +394,16 @@ public class Fixtures
   }
   
   private Assignment getOrCreateAssignment
-    (int   subjectNumber,
-     int   functionNumber,
-     int[] limitValueNumbers)
+    (PrivilegedSubject  grantor,
+     int                subjectNumber,
+     int                functionNumber,
+     int[]              limitValueNumbers)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException
   {
-    PrivilegedSubject superPrivilegedSubject
-  	  = signet.getSuperPrivilegedSubject();
     TreeNode rootNode = getRoot(tree);
-    Subject subject = getOrCreateSubject(subjectNumber);
+    Subject subject = getSubject(subjectNumber);
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
     Function function = getOrCreateFunction(functionNumber);
     Limit[] limitsInDisplayOrder
@@ -374,7 +443,7 @@ public class Fixtures
     // If we've gotten this far, we must not have this Assignment yet.
     
     Assignment assignment
-    	= superPrivilegedSubject.grant
+    	= grantor.grant
     			(pSubject,
     	     rootNode,
     	     function,
@@ -387,7 +456,9 @@ public class Fixtures
     return assignment;
   }
   
-  private Assignment getOrCreateAssignment(int assignmentNumber)
+  private Assignment getOrCreateAssignment
+    (PrivilegedSubject  grantor,
+     int                assignmentNumber)
   throws
   	SignetAuthorityException,
   	ObjectNotFoundException
@@ -401,7 +472,8 @@ public class Fixtures
     }
     
     return getOrCreateAssignment
-    	(assignmentNumber, // subjectNumber
+    	(grantor,
+       assignmentNumber, // subjectNumber
        assignmentNumber, // functionNumber,
        limitChoiceNumbers);
   }
@@ -410,25 +482,17 @@ public class Fixtures
    * @param i
    * @return
    * @throws ObjectNotFoundException
+   * @throws ObjectNotFoundException
    */
-  private Subject getOrCreateSubject(int subjectNumber)
+  private Subject getSubject(int subjectNumber)
+  throws ObjectNotFoundException
   {
     Subject subject = null;
-    
-    try
-    {
-      subject = this.signet.getSubject(
-      		Signet.DEFAULT_SUBJECT_TYPE_ID, makeSubjectId(subjectNumber));
-    }
-    catch (ObjectNotFoundException onfe)
-    {
-      //subject
-    	  //= this.signet.newSubject
-    		  	//(makeSubjectId(subjectNumber),
-    		  	// makeSubjectName(subjectNumber),
-    		  	// makeSubjectDescription(subjectNumber),
-    		  	// makeSubjectDisplayId(subjectNumber));
-    }
+
+    subject
+      = this.signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           makeSubjectId(subjectNumber));
     
     return subject;
   }
@@ -447,35 +511,35 @@ public class Fixtures
       + "ID";
   }
 
-  private String makeSubjectName(int subjectNumber)
-  {
-    return
-      "SUBJECT"
-      + Constants.DELIMITER
-      + subjectNumber
-      + Constants.DELIMITER
-      + "NAME";
-  }
+//  private String makeSubjectName(int subjectNumber)
+//  {
+//    return
+//      "SUBJECT"
+//      + Constants.DELIMITER
+//      + subjectNumber
+//      + Constants.DELIMITER
+//      + "NAME";
+//  }
 
-  private String makeSubjectDescription(int subjectNumber)
-  {
-    return
-      "SUBJECT"
-      + Constants.DELIMITER
-      + subjectNumber
-      + Constants.DELIMITER
-      + "DESCRIPTION";
-  }
-
-  private String makeSubjectDisplayId(int subjectNumber)
-  {
-    return
-      "SUBJECT"
-      + Constants.DELIMITER
-      + subjectNumber
-      + Constants.DELIMITER
-      + "DISPLAYID";
-  }
+//  private String makeSubjectDescription(int subjectNumber)
+//  {
+//    return
+//      "SUBJECT"
+//      + Constants.DELIMITER
+//      + subjectNumber
+//      + Constants.DELIMITER
+//      + "DESCRIPTION";
+//  }
+//
+//  private String makeSubjectDisplayId(int subjectNumber)
+//  {
+//    return
+//      "SUBJECT"
+//      + Constants.DELIMITER
+//      + subjectNumber
+//      + Constants.DELIMITER
+//      + "DISPLAYID";
+//  }
 
   private Subsystem getOrCreateSubsystem()
   {
@@ -562,25 +626,25 @@ public class Fixtures
       + "ID";
   }
 
-  private String makeTreeNodeName(int level, TreeNode parent, int S)
-  {
-    return
-    	"L"
-      + Constants.DELIMITER
-      + level
-      + Constants.DELIMITER
-      + "PNAME"
-      + Constants.DELIMITER
-      + "["
-      + (parent == null ? "NOPARENTNAME" : parent.getName())
-      + "]"
-      + Constants.DELIMITER
-      + "S"
-      + Constants.DELIMITER
-      + S
-      + Constants.DELIMITER
-      + "NAME";
-  }
+//  private String makeTreeNodeName(int level, TreeNode parent, int S)
+//  {
+//    return
+//    	"L"
+//      + Constants.DELIMITER
+//      + level
+//      + Constants.DELIMITER
+//      + "PNAME"
+//      + Constants.DELIMITER
+//      + "["
+//      + (parent == null ? "NOPARENTNAME" : parent.getName())
+//      + "]"
+//      + Constants.DELIMITER
+//      + "S"
+//      + Constants.DELIMITER
+//      + S
+//      + Constants.DELIMITER
+//      + "NAME";
+//  }
 
   private ChoiceSet getOrCreateChoiceSet(int choiceSetNumber)
   throws
@@ -604,13 +668,24 @@ public class Fixtures
       for (int i = 0; i <= choiceSetNumber; i++)
       {
         // Create and persist the Choice object to be tested.
-        // ChoiceSet 0 has choice 0, choiceSet 1 has choices 0 and 1, and so on.
+        // ChoiceSet 0 has choice 0 and 0_changed, choiceSet 1 has choices 0, 1, 0_changed and 1_changed, and so on.
         Choice choice
         	= choiceSet.addChoice
         			(makeChoiceValue(-1, i),
         			 makeChoiceDisplayValue(i),
   	  			   makeChoiceDisplayOrder(i),
   	  			   makeChoiceRank(i, choiceSetNumber));
+        
+        choice
+          = choiceSet.addChoice
+              (makeChoiceValue
+                 (-1, i, Constants.CHANGED_SUFFIX),
+               makeChoiceDisplayValue
+                 (i, Constants.CHANGED_SUFFIX),
+               makeChoiceDisplayOrder
+                 (i + choiceSetNumber),
+               makeChoiceRank
+                 (i, choiceSetNumber + 1000));
       }
   
       // Fetch that newly-stored ChoiceSet object from the subsystem.
@@ -674,10 +749,8 @@ public class Fixtures
     {
       return true;
     }
-    else
-    {
-      return false;
-    }
+
+    return false;
   }
   
   private Category getOrCreateCategory(int categoryNumber)
@@ -818,18 +891,40 @@ public class Fixtures
   
   public String makeChoiceValue(int subjectNumber, int choiceNumber)
   {
+    return makeChoiceValue(subjectNumber, choiceNumber, "");
+  }
+  
+  public String makeChoiceValue(int subjectNumber, int choiceNumber, String suffix)
+  {
     if (subjectNumber == 0)
     {
       // Subject0 always has zero-valued Choice-values.
       choiceNumber = 0;
     }
     
-    return "CHOICE" + Constants.DELIMITER + choiceNumber + Constants.DELIMITER + "VALUE";
+    return
+      "CHOICE"
+      + Constants.DELIMITER
+      + choiceNumber
+      + Constants.DELIMITER
+      + "VALUE"
+      + suffix;
   }
   
   public String makeChoiceDisplayValue(int choiceNumber)
   {
-    return "CHOICE" + Constants.DELIMITER + choiceNumber + Constants.DELIMITER + "DISPLAY_VALUE";
+    return makeChoiceDisplayValue(choiceNumber, "");
+  }
+  
+  public String makeChoiceDisplayValue(int choiceNumber, String suffix)
+  {
+    return
+      "CHOICE"
+      + Constants.DELIMITER
+      + choiceNumber
+      + Constants.DELIMITER
+      + "DISPLAY_VALUE"
+      + suffix;
   }
   
   public int makeChoiceDisplayOrder(int choiceNumber)

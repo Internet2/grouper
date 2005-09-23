@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.9 2005-08-26 19:50:24 acohen Exp $
-$Date: 2005-08-26 19:50:24 $
+$Id: Common.java,v 1.10 2005-09-23 18:22:05 acohen Exp $
+$Date: 2005-09-23 18:22:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -18,6 +18,8 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Privilege;
+import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.SignetAuthorityException;
 
 import junit.framework.TestCase;
 
@@ -100,5 +102,28 @@ public class Common extends TestCase
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.DATE, daysOffset);
     return calendar.getTime();
+  }
+
+  /**
+   * @param assignment
+   * @return
+   * @throws SignetAuthorityException
+   */
+  public static PrivilegedSubject getOriginalGrantor(Assignment assignment)
+  throws SignetAuthorityException
+  {
+    PrivilegedSubject originalGrantor;
+    
+    if (assignment.getProxy() == null)
+    {
+      originalGrantor = assignment.getGrantor();
+    }
+    else
+    {
+      originalGrantor = assignment.getProxy();
+      originalGrantor.setActingAs(assignment.getGrantor());
+    }
+    
+    return originalGrantor;
   }
 }
