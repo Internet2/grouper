@@ -1,6 +1,6 @@
 /*--
-  $Id: DesignateAction.java,v 1.1 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: DesignateAction.java,v 1.2 2005-09-26 17:17:50 acohen Exp $
+  $Date: 2005-09-26 17:17:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,8 +19,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
-import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 
 /**

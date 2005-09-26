@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.5 2005-09-19 23:42:02 acohen Exp $
-  $Date: 2005-09-19 23:42:02 $
+  $Id: designate.jsp,v 1.6 2005-09-26 17:17:50 acohen Exp $
+  $Date: 2005-09-26 17:17:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -157,8 +157,9 @@
   PrivilegedSubject loggedInPrivilegedSubject
     = (edu.internet2.middleware.signet.PrivilegedSubject)
         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-         
-  Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
+
+  Set grantableSubsystems
+    = loggedInPrivilegedSubject.getGrantableSubsystemsForProxy();
          
   // If the session contains a "currentProxy" attribute, then we're
   // editing an existing Proxy. Otherwise, we're attempting to create a

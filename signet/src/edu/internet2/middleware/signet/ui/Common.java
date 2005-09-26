@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.24 2005-09-19 06:37:04 acohen Exp $
-  $Date: 2005-09-19 06:37:04 $
+  $Id: Common.java,v 1.25 2005-09-26 17:17:50 acohen Exp $
+  $Date: 2005-09-26 17:17:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1059,4 +1059,46 @@ public class Common
     
     return outStr.toString();
   }
+  
+//  public static Set getExtensibleProxies
+//    (PrivilegedSubject proxyGrantor,
+//     PrivilegedSubject proxyGrantee)
+//  {
+//System.out.println("DEBUG: ENTERING Common.getExtensibleProxies(): proxyGrantor='" + proxyGrantor + "', proxyGrantee='" + proxyGrantee + "'");
+//    Set proxies
+//      = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+//    Set extensibleProxies = new HashSet();
+//    
+//    Iterator proxiesIterator = proxies.iterator();
+//    while (proxiesIterator.hasNext())
+//    {
+//      Proxy proxy = (Proxy)(proxiesIterator.next());
+//      if (proxy.canExtend())
+//      {
+//        extensibleProxies.add(proxy);
+//      }
+//    }
+//    
+//    return extensibleProxies;
+//  }
+  
+//  public static Set getSubsystemsFromProxies(Set proxies)
+//  {
+//System.out.println("DEBUG: ENTERING Common.getSubsystemsFromProxies(): proxies=" + proxies);
+//    Set subsystems = new HashSet();
+//    
+//    Iterator proxiesIterator = proxies.iterator();
+//    while (proxiesIterator.hasNext())
+//    {
+//      Proxy proxy = (Proxy)(proxiesIterator.next());
+//      
+//      if (proxy.getSubsystem() == null)
+//      {
+//        subsystems.addAll(proxy.getGrantor().getGrantableSubsystemsForProxy());
+//      }
+//      subsystems.add(proxy.getSubsystem());
+//    }
+//System.out.println("DEBUG: EXITING Common.getSubsystemsFromProxies(): subsystems=" + subsystems);
+//    return subsystems;
+//  }
 }

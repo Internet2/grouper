@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubject.java,v 1.18 2005-09-23 18:22:05 acohen Exp $
- $Date: 2005-09-23 18:22:05 $
+ $Id: PrivilegedSubject.java,v 1.19 2005-09-26 17:17:50 acohen Exp $
+ $Date: 2005-09-26 17:17:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -186,14 +186,39 @@ public interface PrivilegedSubject extends Comparable
   throws ObjectNotFoundException;
   
   /**
-   * Gets all of the Subsystems that this PrivilegedSubject holds
-   * grantable Assignments for.
+   * Gets all of the {@link Subsystem}s that this <code>PrivilegedSubject</code>
+   * can grant {@link Assignment}s for. The result of this method will vary
+   * depending upon the grantable <code>Assignment</code>s held by this
+   * <code>PrivilegedSubject</code>, or, if this <code>PrivilegedSubject</code>
+   * is "acting for" some other, the usable {@link Proxy}s held by this
+   * <code>PrivilegedSubject</code>.
    * 
-   * @return all of the Subsystems that this PrivilegedSubject holds
-   * grantable Assignments for.
+   * @return all of the Subsystems that this PrivilegedSubject can grant
+   * Assignments for
+   * .
    * @throws ObjectNotFoundException
    */
-  public Set getGrantableSubsystems();
+  public Set getGrantableSubsystemsForAssignment();
+
+  
+  /**
+   * Gets all of the {@link Subsystem}s that this <code>PrivilegedSubject</code>
+   * can grant {@link Proxy}s for. The result of this method will vary
+   * depending upon whether or not this <code>PrivilegedSubject</code>
+   * is "acting for" some other. If this <code>PrivilegedSubject</code> is
+   * acting only under its own authority, then any <code>Subsystem</code> is
+   * proxyable, without regard to any <code>Assignment</code>s or
+   * <code>Proxy</code>s held by this <code>PrivilegedSubject</code>. If, on the
+   * other hand, this <code>PrivilegedSubject</code> is "acting for" another,
+   * then only those <code>Subsystem</code> associated with active, extensible
+   * <code>Proxy</code>s received from that other are grantable.
+   * 
+   * @return all of the Subsystems that this PrivilegedSubject can grant
+   * Proxies for
+   * .
+   * @throws ObjectNotFoundException
+   */
+  public Set getGrantableSubsystemsForProxy();
   
   /**
    * Gets all of the Categories that this PrivilegedSubject holds

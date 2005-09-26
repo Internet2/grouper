@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.26 2005-09-23 18:22:05 acohen Exp $
- $Date: 2005-09-23 18:22:05 $
+ $Id: PrivilegedSubjectImpl.java,v 1.27 2005-09-26 17:17:50 acohen Exp $
+ $Date: 2005-09-26 17:17:50 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -461,9 +461,63 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     return UnmodifiableSet.decorate(functions);
   }
+  
+  // First, determine who the effectiveEditor is. That's the PrivilegedSubject
+  // we're "acting for", if anyone, or ourself, if we're not "acting for"
+  // another.
+  //
+  // Then, we have two possibilities to consider:
+  //
+  //  1) We are "acting for" ourself only.
+  //
+  //      In this case, we can grant a Proxy for any Subsystem, without regard
+  //      to any Assignments or Proxies we currently hold.
+  //
+  //  2) We are "acting for" another.
+  //
+  //      In this case, we look through the extensible Proxies that we've
+  //      received from that other PrivilegedSubject, plucking the Subsystem
+  //      from each, keeping in mind that the NULL Subsystem indicates that
+  //      we can extend a Proxy for any Subsystem.
+  
+  public Set getGrantableSubsystemsForProxy()
+  {
+    Set grantableSubsystems = new HashSet();
+    
+    if (this.getEffectiveEditor().equals(this))
+    {
+      grantableSubsystems = this.signet.getSubsystems();
+    }
+    else
+    {
+      Set proxiesReceived
+        = this.getProxiesReceived
+            (Status.ACTIVE, null, this.getEffectiveEditor());
+      Iterator proxiesReceivedIterator = proxiesReceived.iterator();
+
+      while (proxiesReceivedIterator.hasNext())
+      {
+        Proxy proxy = (Proxy)(proxiesReceivedIterator.next());
+      
+        if (proxy.canExtend())
+        {
+          if (proxy.getSubsystem() == null)
+          {
+            grantableSubsystems = this.signet.getSubsystems();
+          }
+          else
+          {
+            grantableSubsystems.add(proxy.getSubsystem());
+          }
+        }
+      }
+    }
+    
+    return grantableSubsystems;
+  }
 
   // First, determine who the effectiveEditor is. That's the PrivilegedSubject
-  // we're "acting for", if anyone, and ourself, if we're not "acting for"
+  // we're "acting for", if anyone, or ourself, if we're not "acting for"
   // another.
   //
   // Then, we have three possibilities to consider:
@@ -494,7 +548,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   //      found in our set of Proxyied Subsystems, then we add it to our list
   //      of grantable subsystems.
   //
-  public Set getGrantableSubsystems()
+  public Set getGrantableSubsystemsForAssignment()
   {
     Set grantableSubsystems = new HashSet();
     
@@ -577,7 +631,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
           {
             // We can grant every subsystem that's grantable by the subject
             // we're "acting for".
-            return this.getEffectiveEditor().getGrantableSubsystems();
+            return this.getEffectiveEditor().getGrantableSubsystemsForAssignment();
           }
 
           proxiedSubsystems.add(proxy.getSubsystem());
@@ -589,7 +643,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       // of those sets.
       
       proxiedSubsystems.retainAll
-        (this.getEffectiveEditor().getGrantableSubsystems());
+        (this.getEffectiveEditor().getGrantableSubsystemsForAssignment());
       return proxiedSubsystems;
     }
   }

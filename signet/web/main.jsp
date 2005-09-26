@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.44 2005-09-23 18:22:05 acohen Exp $
-  $Date: 2005-09-23 18:22:05 $
+  $Id: main.jsp,v 1.45 2005-09-26 17:17:50 acohen Exp $
+  $Date: 2005-09-26 17:17:50 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -247,16 +247,10 @@
                  (loggedInPrivilegedSubject,
                   Constants.ACTING_FOR_SELECT_ID)%>
             <br/>
-<% if (loggedInPrivilegedSubject.equals
-        (loggedInPrivilegedSubject.getEffectiveEditor()))
-   {
-%>
             <a href='Designate.do'>
-			<img src="images/arrow_right.gif" alt="" />
-			Designate a granting proxy</a>
-<%
-  }
-%>
+			  <img src="images/arrow_right.gif" alt="" />
+			  Designate a granting proxy
+			</a>
           </div> <!-- actionbox -->
         </form>
       </div> <!-- findperson -->
