@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.6 2005-09-26 17:17:50 acohen Exp $
-  $Date: 2005-09-26 17:17:50 $
+  $Id: designate.jsp,v 1.7 2005-09-26 21:04:19 acohen Exp $
+  $Date: 2005-09-26 21:04:19 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -176,7 +176,7 @@
     </span> <!-- logout -->
     <span class="select">
       <a href="Start.do">
-        Home
+        <%=Constants.HOMEPAGE_NAME%>
       </a>
       &gt; Designated Driver
     </span> <!-- select -->

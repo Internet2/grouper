@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview.jsp,v 1.41 2005-09-19 06:37:04 acohen Exp $
-  $Date: 2005-09-19 06:37:04 $
+  $Id: personview.jsp,v 1.42 2005-09-26 21:04:19 acohen Exp $
+  $Date: 2005-09-26 21:04:19 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -183,7 +183,7 @@
     = (Subsystem)
         (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
          
-  Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
+  Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
          
   DateFormat dateFormat = DateFormat.getDateInstance();
 %>
@@ -194,7 +194,7 @@
     </span> <!-- logout -->
     <span class="select">
       <a href="Start.do">
-        Home
+        <%=Constants.HOMEPAGE_NAME%>
       </a>
       &gt; <%=currentGranteePrivilegedSubject.getName()%>
     </span> <!-- select -->

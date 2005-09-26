@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.9 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Constants.java,v 1.10 2005-09-26 21:04:19 acohen Exp $
+$Date: 2005-09-26 21:04:19 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -107,4 +107,6 @@ public final class Constants
   
   public static final String ACTAS_BUTTON_NAME = "actAsButton";
   public static final String ACTAS_BUTTON_ID = "actAsButton";
+  
+  public static final String HOMEPAGE_NAME = "My Overview";
 }

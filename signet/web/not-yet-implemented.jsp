@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: not-yet-implemented.jsp,v 1.9 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: not-yet-implemented.jsp,v 1.10 2005-09-26 21:04:19 acohen Exp $
+  $Date: 2005-09-26 21:04:19 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -56,8 +56,6 @@
      = (Subsystem)
          (request.getSession().getAttribute(Constants.SUBSYSTEM_ATTRNAME));
          
-   Set grantableSubsystems = loggedInPrivilegedSubject.getGrantableSubsystems();
-         
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
     <form name="form1" action="">
@@ -72,7 +70,7 @@
         </span> <!-- Navbar -->
         <span class="select">
           <a href="Start.do">
-            Home
+            <%=Constants.HOMEPAGE_NAME%>
           </a>
             > Feature not implemented
         </span> <!-- select -->

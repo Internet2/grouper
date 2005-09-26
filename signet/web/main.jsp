@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.45 2005-09-26 17:17:50 acohen Exp $
-  $Date: 2005-09-26 17:17:50 $
+  $Id: main.jsp,v 1.46 2005-09-26 21:04:19 acohen Exp $
+  $Date: 2005-09-26 21:04:19 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -60,7 +60,7 @@
         <%=Common.displayLogoutHref(request)%>
       </span> <!-- logout -->
       <span class="select">
-        Home
+        <%=Constants.HOMEPAGE_NAME%>
       </span> <!-- select -->
     </div> <!-- Navbar -->
   

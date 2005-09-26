@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: error.jsp,v 1.6 2005-07-27 18:31:49 jvine Exp $
-  $Date: 2005-07-27 18:31:49 $
+  $Id: error.jsp,v 1.7 2005-09-26 21:04:19 acohen Exp $
+  $Date: 2005-09-26 21:04:19 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -26,6 +26,9 @@
   <%@ page import="org.apache.struts.Globals" %>
   <%@ taglib uri="/tags/struts-bean" prefix="bean" %>
   <%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+  
+  <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
+
   <tiles:insert page="/tiles/header.jsp" flush="true" /> 
       
       <div id="Navbar">
@@ -38,7 +41,7 @@
         </span> <!-- Navbar -->
         <span class="select">
           <a href="Start.do">
-            Home
+            <%=Constants.HOMEPAGE_NAME%>
           </a>
             > Unexpected Error
         </span> <!-- select -->
