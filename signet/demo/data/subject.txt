@@ -104,10 +104,6 @@ all all
 description Comedian
 loginid mcohen
 all all
-+person SignetSuperSubject Super-User, Signet
-description Signet Privilege Boostrap user
-loginid SignetSuperSubject
-all all
 +group GangOfFour Gang of Four
 description Signet's Gang of Four
 all all
