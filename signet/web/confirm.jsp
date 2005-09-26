@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.30 2005-09-26 21:04:19 acohen Exp $
-  $Date: 2005-09-26 21:04:19 $
+  $Id: confirm.jsp,v 1.31 2005-09-26 23:22:13 acohen Exp $
+  $Date: 2005-09-26 23:22:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -250,18 +250,9 @@
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />
               <br />
-              <label for="words">
-                Enter a subject's name, and click "Search."</label>
 </p>
             <div id="PersonSearchResults" style="display:none">
             </div> <!-- PersonSearchResults -->
-            <p>
-              <a href="PersonView.do?granteeSubjectTypeId=<%=loggedInPrivilegedSubject.getSubjectTypeId()%>&granteeSubjectId=<%=loggedInPrivilegedSubject.getSubjectId()%>&subsystemId=<%=currentSubsystem.getId()%>">
-                <img
-                     src="images/arrow_right.gif"
-                       alt="" />
-            View <%= loggedInPrivilegedSubject.getName()%>'s privileges</a> 
-			</p>
 
       </div> <!-- findperson -->
     </form> <!-- personSearchForm -->  
