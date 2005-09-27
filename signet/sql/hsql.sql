@@ -121,9 +121,10 @@ foreign key (limitKey) references signet_limit (limitKey)
 -- Signet Subject tables
 --
 create table signet_privilegedSubject (
-subjectTypeID     varchar(32)     NOT NULL,
-subjectID         varchar(64)     NOT NULL,
-name              varchar(120)    NOT NULL,
+subjectTypeID       varchar(32)         NOT NULL,
+subjectID           varchar(64)         NOT NULL,
+name                varchar(120)        NOT NULL,
+modifyDatetime      datetime            NOT NULL,
 primary key (subjectTypeID, subjectID)
 )
 ;
