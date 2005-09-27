@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.34 2005-09-26 21:04:19 acohen Exp $
-  $Date: 2005-09-26 21:04:19 $
+  $Id: conditions.jsp,v 1.35 2005-09-27 17:13:34 jvine Exp $
+  $Date: 2005-09-27 17:13:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -18,7 +18,7 @@
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
     </script>
-  </head>
+    </head>
 
   <body onload="javascript:selectLimitCheckbox();">
     <script type="text/javascript">
@@ -483,10 +483,17 @@
         <div id="Sidebar">
           <div class="helpbox">
 			 	  	<h2>Help</h2>
-			  		...          
-		  </div> 
-          <!-- Helpbox -->
-        </div> <!-- Sidebar -->
+			  		<div class="helpbox"><p>To grant a privilege:</p>
+          	  <p><i>1. Select the privilege (done).</i> </p>
+          	  <p><i>    2. Select the scope (done).</i></p>
+          	  <p>       	      3. Set any limits that apply to this privilege. Set effective dates or conditions for the privilege, and select whether this subject can use and/or grant this privilege.</p>
+          	  <p>Then click &quot;Complete assignment.&quot;</p>
+          	  <p><b>Definitions</b></p>
+          	  <p>Use:  subject has access to the appropriate business system(s) to perform the tasks controlled by this privilege. </p>
+          	  <p>Grant:  subject can grant this privilege (in the same scope, and up to the same limits) to any other subject. </p>
+			  		</div>
+          	</div> 
+          </div> <!-- Sidebar -->
        <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->
     </form>

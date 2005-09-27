@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.47 2005-09-26 23:22:13 acohen Exp $
-  $Date: 2005-09-26 23:22:13 $
+  $Id: main.jsp,v 1.48 2005-09-27 17:13:34 jvine Exp $
+  $Date: 2005-09-27 17:13:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -204,9 +204,8 @@
           <input
             name="words"
             type="text"
-            class="short"
+            class="long"
             id="words"
-            style="width:100px"
             size="15"
             maxlength="500"
             onfocus="personSearchFieldHasFocus=true;"
@@ -220,6 +219,7 @@
             onfocus="personSearchButtonHasFocus=true;"
             onblur="personSearchButtonHasFocus=false;" />
           <br />
+		  	<label for="words">Enter a subject's name, then click "Search".</label>
        	</p>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.20 2005-09-26 21:04:19 acohen Exp $
-  $Date: 2005-09-26 21:04:19 $
+  $Id: functions.jsp,v 1.21 2005-09-27 17:13:34 jvine Exp $
+  $Date: 2005-09-27 17:13:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -253,8 +253,12 @@
         <div id="Sidebar">
           <div class="helpbox">
           	<h2>Help</h2>
-          	...          
-					</div>  
+          	<p>To grant a privilege:</p>
+          	<p>1. Select the privilege you want to grant <i>(only the privileges you are authorized to grant are shown)</i>, then click &quot;Continue&quot;.</p>
+          	<p>Next:<br />
+       	    2. Select the scope to which the privilege applies.</p>
+          	<p>3. Set limits and conditions for the privilege.</p>
+          </div>  
           <!-- end helpbox -->
         </div> <!-- Sidebar -->
         <tiles:insert page="/tiles/footer.jsp" flush="true" />

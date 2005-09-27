@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview.jsp,v 1.43 2005-09-26 23:22:13 acohen Exp $
-  $Date: 2005-09-26 23:22:13 $
+  $Id: personview.jsp,v 1.44 2005-09-27 17:13:34 jvine Exp $
+  $Date: 2005-09-27 17:13:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -445,7 +445,7 @@
                   <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
                   value="Start &gt;&gt;" />
                 <br />
-            <label for="select">Select the type of privilege you want to grant, then click "Start."</label></p>
+            <label for="grantableSubsystems">Select the type of privilege you want to grant, then click "Start."</label></p>
           </form> <!-- grantForm -->
         </div> <!-- grant -->
           
@@ -479,7 +479,8 @@
                 onclick="personSearchButtonHasFocus=true;"
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />
-            <br />
+		  <br />
+		  	<label for="words">Enter a subject's name, then click "Search".</label>
           </p>
           <div id="PersonSearchResults" style="display:none">
           </div> 

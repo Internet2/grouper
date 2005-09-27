@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.21 2005-09-26 21:04:19 acohen Exp $
-  $Date: 2005-09-26 21:04:19 $
+  $Id: org-browse.jsp,v 1.22 2005-09-27 17:13:34 jvine Exp $
+  $Date: 2005-09-27 17:13:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -183,8 +183,15 @@
         <div id="Sidebar">     
           <div class="helpbox">
           	<h2>Help</h2>
-          	...          
-					</div>  
+          	<div class="helpbox">
+          	  <p>To grant a privilege:</p>
+          	  <p><i>1. Select the privilege (done).</i> </p>
+          	  <p>    2. Select the scope to which the privilege applies, then click &quot;Continue&quot;.</p>
+          	  <p>Next:<br />
+       	      3. Set limits and conditions for the privilege.</p>
+       	    </div>
+          	<!-- end helpbox -->
+			</div>  
           <!-- end helpbox -->
         </div> <!-- end Sidebar -->
         <tiles:insert page="/tiles/footer.jsp" flush="true" />

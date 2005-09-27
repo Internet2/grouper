@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.7 2005-09-26 21:04:19 acohen Exp $
-  $Date: 2005-09-26 21:04:19 $
+  $Id: designate.jsp,v 1.8 2005-09-27 17:13:34 jvine Exp $
+  $Date: 2005-09-27 17:13:34 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -201,8 +201,7 @@
  
         <div class="section">
           <h2>
-            Select privilege type(s)
-          </h2>
+            Select privilege type</h2>
           <div style="margin-left: 25px;">
             <%=Common.subsystemSelectionSingle
                    (Constants.SUBSYSTEM_SELECTNAME,
@@ -257,7 +256,7 @@
               </span>
             </div>  <!-- subjectDetails -->
           </div> <!-- section -->
-          </div>
+        </div>
         <!-- table1 -->
 		 
         <div class="section">
@@ -289,7 +288,7 @@
             </tr>
           </table>
           <legend></legend>
-          </div>
+        </div>
         <!-- section -->
         
         <div class="section">
@@ -316,7 +315,12 @@
           <h2>
             help
           </h2>
-            ...
+            <p>The proxy you designate will be able to grant all of your <b>grantable</b> privileges, within the privilege type you select.</p>
+            <p>The proxy <i>will not have</i> your <b>usable</b> privileges.</p>
+            <p>To designate a proxy:</p>
+            <p>1. Select the privilege type <i>(only the types in which you have grantable authority are listed)</i>.</p>
+            <p>2. Search for and select the person you want to be your proxy.</p>
+            <p>3. Set a start and/or end date for the proxy, or leave it open-ended.</p>
         </div>
       </div>
   
