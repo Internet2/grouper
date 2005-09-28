@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.25 2005-09-26 17:17:50 acohen Exp $
-  $Date: 2005-09-26 17:17:50 $
+  $Id: Common.java,v 1.26 2005-09-28 21:48:43 acohen Exp $
+  $Date: 2005-09-28 21:48:43 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -228,7 +228,7 @@ public class Common
       outStr.append("</LABEL\n");
       outStr.append("<SELECT\n");
       outStr.append("  name=\"" + htmlSelectId + "\"\n");
-      outStr.append("  class=\"long\"\n");
+      outStr.append("  class=\"long\">\n");
         
       outStr.append
         (Common.displayProxyOptions
