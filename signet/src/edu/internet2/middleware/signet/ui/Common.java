@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.26 2005-09-28 21:48:43 acohen Exp $
-  $Date: 2005-09-28 21:48:43 $
+  $Id: Common.java,v 1.27 2005-09-28 23:26:01 acohen Exp $
+  $Date: 2005-09-28 23:26:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -225,7 +225,7 @@ public class Common
     {    
       outStr.append("<LABEL for=\"" + htmlSelectId + "\">\n");
       outStr.append("  Act in Signet as:\n");
-      outStr.append("</LABEL\n");
+      outStr.append("</LABEL>\n");
       outStr.append("<SELECT\n");
       outStr.append("  name=\"" + htmlSelectId + "\"\n");
       outStr.append("  class=\"long\">\n");
