@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.48 2005-09-27 17:13:34 jvine Exp $
-  $Date: 2005-09-27 17:13:34 $
+  $Id: main.jsp,v 1.49 2005-09-28 23:11:44 acohen Exp $
+  $Date: 2005-09-28 23:11:44 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -52,6 +52,10 @@
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
+   
+   // For use by Tiles:
+  request.setAttribute
+  	("pSubjectAttr", loggedInPrivilegedSubject.getEffectiveEditor());
 %>
 
     <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -65,129 +69,11 @@
     </div> <!-- Navbar -->
   
   <div id="Layout">
-    <div id="Content"> 
-	<div id="ViewHead">
-	  	<span class="dropback">
-         Privileges overview for</span> 
-         <h1>
-           <%=loggedInPrivilegedSubject.getName()%>
-         </h1>
-         <span class="ident">
-           <%=loggedInPrivilegedSubject.getDescription()%>
-         </span> 
-       </div>
-        <div class="tableheader">
-          <a
-            href="javascript:;"
-            onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
-            <img
-              src="images/export.gif"
-              alt="" />
-            Export to Excel
-          </a>
-          <a
-            href="MainPrint.do">
-            <img
-              src="images/print.gif"
-              alt="" />
-            Printable version
-          </a>
-          <h2>Privileges you have granted</h2>
-
-<!--
-          <select name="subsystem" class="long" id="subsystem">
-            <option selected="selected">ALL</option>
-            <option>in the past 7 days</option>
-            <option>in the past 30 days</option>
-            <option>that will expire within 7 days</option>
-            <option>that have changed in the past 7 days</option>
-            <option>that are not yet active (pending)</option>
-            <option>that are inactive (history)</option>
-          </select>
-          <input name="Submit" type="submit" class="button1" value="Show" />
--->
-
-        </div> <!-- tableheader -->
-        <div class="tablecontent"> 
-          <table>            
-            <tr class="columnhead"> 
-              <th>
-                Subject
-							</th>
-              <th width="30%">
-                Privilege
-              </th>
-              <th width="20%">
-								Scope
-							</th>
-              <th>
-                Limits
-              </th>
-              <th>
-                Status
-              </th>
-              <th>
-                Granted
-              </th>
-            </tr>
-	  
-<%
-  Set assignmentSet
-    = new TreeSet
-        (loggedInPrivilegedSubject.getAssignmentsGranted(null, null, null));
-  Iterator assignmentIterator = assignmentSet.iterator();
-  while (assignmentIterator.hasNext())
-  {
-    Assignment assignment = (Assignment)(assignmentIterator.next());
-    PrivilegedSubject grantee = assignment.getGrantee();
-    Subsystem subsystem = assignment.getFunction().getSubsystem();
-    Function function = assignment.getFunction();
-    Category category = function.getCategory();
-%>
-	
-            <tr>
-              <td class="sorted"> <!-- person -->
-                <a
-                  href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
-                  <%=grantee.getName()%>
-                </a>
-              </td> <!-- person -->
-              
-              <td> <!-- privilege -->
-                <%=Common.assignmentPopupIcon(assignment)%>
-                <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
-              </td> <!-- privilege -->
-              
-              <td> <!-- scope -->
-                 <%=assignment.getScope().getName()%>
-              </td> <!-- scope -->
-              
-              <td> <!-- limits -->
-                <%=Common.editLink(loggedInPrivilegedSubject, assignment)%>
-                <%=Common.displayLimitValues(assignment)%>
-              </td> <!-- limits -->
-              
-              <td> <!-- status -->
-                <%=Common.displayStatus(assignment)%>
-              </td> <!-- status -->
-              <td class="date">
-<%=
-  // assignment.getCreateDateTime() is no longer supported. Eventually,
-  // I'll need to remove this reference a little more completely.
-  // dateFormat.format(assignment.getCreateDateTime())
-  ""
-%>
-              </td>
-            </tr>
-  	
-<% 
-  }
-%>
-	
-            
-          </table>
-      </div> <!-- tablecontent -->
-    </div> <!-- Content -->
+  
+    <tiles:insert page="/tiles/privilegesGrantedReport.jsp" flush="true" >
+      <tiles:put name="pSubject" beanName="pSubjectAttr" />
+    </tiles:insert>
+    
     <tiles:insert page="/tiles/footer.jsp" flush="true" />
     <div id="Sidebar">
 
