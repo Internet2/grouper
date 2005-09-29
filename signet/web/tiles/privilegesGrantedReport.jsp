@@ -11,10 +11,12 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.PrivDisplayType" %>
 
-<tiles:useAttribute name="pSubject"        classname="PrivilegedSubject" />
-<tiles:useAttribute name="privDisplayType" classname="PrivDisplayType" />
+<tiles:useAttribute name="pSubject"         classname="PrivilegedSubject" />
+<tiles:useAttribute name="privDisplayType"  classname="PrivDisplayType" />
+<tiles:useAttribute name="currentSubsystem" classname="Subsystem" />
 
 <div id="Content"> 
   <div id="ViewHead">
@@ -45,7 +47,7 @@
         alt="" />
       Printable version
     </a>
-    <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%> : Bio-Sciences Project X</h2>
+    <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%> : <%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "all" : currentSubsystem.getName())%></h2>
   </div> <!-- tableheader -->
 
   <div class="tablecontent"> 

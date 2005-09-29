@@ -1,12 +1,26 @@
 /*--
-$Id: Constants.java,v 1.11 2005-09-29 01:35:31 acohen Exp $
-$Date: 2005-09-29 01:35:31 $
+$Id: Constants.java,v 1.12 2005-09-29 20:03:00 acohen Exp $
+$Date: 2005-09-29 20:03:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.ui;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+
+import edu.internet2.middleware.signet.Category;
+import edu.internet2.middleware.signet.Function;
+import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
+import edu.internet2.middleware.signet.Permission;
+import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.tree.Tree;
 
 public final class Constants
 {
@@ -91,7 +105,7 @@ public final class Constants
   
   public static final String SUBSYSTEM_SELECTNAME = "subsystem";
   public static final String SUBSYSTEM_PROMPTVALUE = "__subsystem_prompt_value";
-  public static final String SUBSYSTEM_ATTRNAME = "currentSubsystem";
+  public static final String SUBSYSTEM_ATTRNAME = "currentSubsystemAttr";
   
   public static final String LOGGEDINUSER_ATTRNAME = "loggedInPrivilegedSubject";
   
@@ -111,4 +125,33 @@ public final class Constants
   public static final String ACTAS_BUTTON_ID = "actAsButton";
   
   public static final String HOMEPAGE_NAME = "My Overview";
+  
+  public static final Subsystem WILDCARD_SUBSYSTEM
+    = new Subsystem()
+      {
+        public String getId() {return null;}
+        public Set getCategories() {return null;}
+        public Category getCategory(String categoryId){return null;}
+        public Set getFunctions() {return null;}
+        public void setFunctionsArray(Function[] categories) {}
+        public Function getFunction(String functionId){return null;}
+        public Tree getTree() {return null;}
+        public void setTree(Tree tree) {}
+        public void add(Category category) {}
+        public void add(Limit limit) {}
+        public Set getChoiceSets() {return null;}
+        public ChoiceSet getChoiceSet(String id){return null;}
+        public Map getLimits() {return null;}
+        public Limit getLimit(String id){return null;}
+        public Map getPermissions() {return null;}
+        public Permission getPermission(String id){return null;}
+        public void setHelpText(String helpText) {}
+        public String getHelpText() {return null;}
+        public void save() {}
+        public void inactivate() {}
+        public Status getStatus() {return null;}
+        public Date getCreateDatetime() {return null;}
+        public String getName() {return null;}
+        public int compareTo(Object o) {return 0;}
+  };
 }

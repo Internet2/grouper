@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.7 2005-09-29 01:35:31 acohen Exp $
-  $Date: 2005-09-29 01:35:31 $
+  $Id: StartAction.java,v 1.8 2005-09-29 20:03:00 acohen Exp $
+  $Date: 2005-09-29 20:03:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -122,6 +122,12 @@ public final class StartAction extends BaseAction
     // of the user.
     session.setAttribute
       (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_RECEIVED);
+    
+    // By default, the start page will display all privileges without
+    // regard to Subsystem. I tried setting the value of this attribute to
+    // NULL, but that makes Tiles complain that the attribute is missing.
+    session.setAttribute
+      (Constants.SUBSYSTEM_ATTRNAME, Constants.WILDCARD_SUBSYSTEM);
     
     // Forward to our success page
     return findSuccess(mapping);
