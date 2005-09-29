@@ -11,8 +11,10 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
+<%@ page import="edu.internet2.middleware.signet.ui.PrivDisplayType" %>
 
-<tiles:useAttribute name="pSubject" classname="PrivilegedSubject" />
+<tiles:useAttribute name="pSubject"        classname="PrivilegedSubject" />
+<tiles:useAttribute name="privDisplayType" classname="PrivDisplayType" />
 
 <div id="Content"> 
   <div id="ViewHead">
@@ -43,7 +45,7 @@
         alt="" />
       Printable version
     </a>
-    <h2>Privileges you have granted</h2>
+    <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%> : Bio-Sciences Project X</h2>
   </div> <!-- tableheader -->
 
   <div class="tablecontent"> 

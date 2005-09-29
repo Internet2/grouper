@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.6 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: StartAction.java,v 1.7 2005-09-29 01:35:31 acohen Exp $
+  $Date: 2005-09-29 01:35:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -117,6 +117,11 @@ public final class StartAction extends BaseAction
       
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, currentUser);
     }
+    
+    // By default, the start page will display the received privileges
+    // of the user.
+    session.setAttribute
+      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_RECEIVED);
     
     // Forward to our success page
     return findSuccess(mapping);

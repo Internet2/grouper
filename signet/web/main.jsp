@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.50 2005-09-28 23:38:51 acohen Exp $
-  $Date: 2005-09-28 23:38:51 $
+  $Id: main.jsp,v 1.51 2005-09-29 01:35:31 acohen Exp $
+  $Date: 2005-09-29 01:35:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -71,7 +71,8 @@
   <div id="Layout">
   
     <tiles:insert page="/tiles/privilegesGrantedReport.jsp" flush="true" >
-      <tiles:put name="pSubject" beanName="pSubjectAttr" />
+      <tiles:put name="pSubject"        beanName="pSubjectAttr" />
+      <tiles:put name="privDisplayType" beanName="privDisplayTypeAttr" />
     </tiles:insert>
     
     <tiles:insert page="/tiles/footer.jsp" flush="true" />
