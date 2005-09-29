@@ -49,6 +49,21 @@
     </a>
     <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%><%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))%></h2>
   </div> <!-- tableheader -->
+  
+  <div class="tablecontrols">
+    Change the view to show 
+    <div style="display: inline;">
+      <select name="viewtype" id="viewtype">
+        <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
+        <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
+      </select>
+      <input
+        name="Button"
+        type="button"
+        class="button1"
+        onclick=(parent.location="main.html") value="Show" />
+    </div>	
+  </div> <!-- tablecontrols -->
 
   <div class="tablecontent"> 
     <table>            

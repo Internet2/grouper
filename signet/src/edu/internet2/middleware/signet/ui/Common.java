@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.27 2005-09-28 23:26:01 acohen Exp $
-  $Date: 2005-09-28 23:26:01 $
+  $Id: Common.java,v 1.28 2005-09-29 22:48:14 acohen Exp $
+  $Date: 2005-09-29 22:48:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1056,6 +1056,28 @@ public class Common
     
     outStr.append(" : Logout\n");
     outStr.append("</a>\n");
+    
+    return outStr.toString();
+  }
+  
+  static public String displayOption
+    (PrivDisplayType option,
+     PrivDisplayType currentInEffect)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    outStr.append("<option");
+    if (option == currentInEffect)
+    {
+      outStr.append(" disabled=\"disabled\"");
+    }
+    else
+    {
+      outStr.append(" selected=\"selected\"");
+    }
+    outStr.append(">");
+    outStr.append(option.getDescription());
+    outStr.append("</option>\n");
     
     return outStr.toString();
   }
