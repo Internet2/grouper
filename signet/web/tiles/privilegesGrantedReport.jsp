@@ -23,50 +23,51 @@
       </h1>
       <span class="ident">
         <%=pSubject.getDescription()%>
-      </span> 
-    </div> <!-- WRONG TAG HERE ->
+      </span>
+    </span> <!-- dropback -->
+  </div> <!-- ViewHead -->
 
-    <div class="tableheader">
-      <a
-        href="javascript:;"
-        onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
-        <img
-          src="images/export.gif"
-          alt="" />
-        Export to Excel
-      </a>
-      <a
-        href="MainPrint.do">
-        <img
-          src="images/print.gif"
-          alt="" />
-        Printable version
-      </a>
-      <h2>Privileges you have granted</h2>
-    </div> <!-- tableheader -->
+  <div class="tableheader">
+    <a
+      href="javascript:;"
+      onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
+      <img
+        src="images/export.gif"
+        alt="" />
+      Export to Excel
+    </a>
+    <a
+      href="MainPrint.do">
+      <img
+        src="images/print.gif"
+        alt="" />
+      Printable version
+    </a>
+    <h2>Privileges you have granted</h2>
+  </div> <!-- tableheader -->
 
-    <div class="tablecontent"> 
-      <table>            
-        <tr class="columnhead"> 
-          <th>
-            Subject
-          </th>
-          <th width="30%">
-            Privilege
-          </th>
-          <th width="20%">
-            Scope
-          </th>
-          <th>
-            Limits
-          </th>
-          <th>
-            Status
-          </th>
-          <th>
-            Granted
-          </th>
-        </tr>
+  <div class="tablecontent"> 
+    <table>            
+      <tr class="columnhead"> 
+        <th>
+          Subject
+        </th>
+        <th width="30%">
+          Privilege
+        </th>
+        <th width="20%">
+          Scope
+        </th>
+        <th>
+          Limits
+        </th>
+        <th>
+          Status
+        </th>
+        <th>
+          Granted
+        </th>
+      </tr>
     
 <%
   Set assignmentSet
@@ -82,46 +83,46 @@
     Category category = function.getCategory();
 %>
   
-        <tr>
-          <td class="sorted"> <!-- person -->
-            <a
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
-              <%=grantee.getName()%>
-            </a>
-          </td> <!-- person -->
+      <tr>
+        <td class="sorted"> <!-- person -->
+          <a
+            href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
+            <%=grantee.getName()%>
+          </a>
+        </td> <!-- person -->
               
-          <td> <!-- privilege -->
-            <%=Common.assignmentPopupIcon(assignment)%>
-            <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
-          </td> <!-- privilege -->
+        <td> <!-- privilege -->
+          <%=Common.assignmentPopupIcon(assignment)%>
+          <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
+        </td> <!-- privilege -->
               
-          <td> <!-- scope -->
-             <%=assignment.getScope().getName()%>
-          </td> <!-- scope -->
+        <td> <!-- scope -->
+           <%=assignment.getScope().getName()%>
+        </td> <!-- scope -->
               
-          <td> <!-- limits -->
-            <%=Common.editLink(pSubject, assignment)%>
-            <%=Common.displayLimitValues(assignment)%>
-          </td> <!-- limits -->
+        <td> <!-- limits -->
+          <%=Common.editLink(pSubject, assignment)%>
+          <%=Common.displayLimitValues(assignment)%>
+        </td> <!-- limits -->
               
-          <td> <!-- status -->
-            <%=Common.displayStatus(assignment)%>
-          </td> <!-- status -->
-          <td class="date">
+        <td> <!-- status -->
+          <%=Common.displayStatus(assignment)%>
+        </td> <!-- status -->
+        <td class="date">
 <%=
   // assignment.getCreateDateTime() is no longer supported. Eventually,
   // I'll need to remove this reference a little more completely.
   // dateFormat.format(assignment.getCreateDateTime())
   ""
 %>
-          </td>
-        </tr>
+        </td>
+      </tr>
     
 <% 
   }
 %>
   
             
-      </table>
+    </table>
   </div> <!-- tablecontent -->
 </div> <!-- Content -->
