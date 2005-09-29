@@ -47,7 +47,7 @@
         alt="" />
       Printable version
     </a>
-    <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%> : <%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "all" : currentSubsystem.getName())%></h2>
+    <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%><%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))%></h2>
   </div> <!-- tableheader -->
 
   <div class="tablecontent"> 

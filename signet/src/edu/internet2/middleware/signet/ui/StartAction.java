@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.8 2005-09-29 20:03:00 acohen Exp $
-  $Date: 2005-09-29 20:03:00 $
+  $Id: StartAction.java,v 1.9 2005-09-29 21:09:32 acohen Exp $
+  $Date: 2005-09-29 21:09:32 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -118,10 +118,10 @@ public final class StartAction extends BaseAction
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, currentUser);
     }
     
-    // By default, the start page will display the received privileges
-    // of the user.
+    // By default, the start page will display the privileges granted to
+    // others.
     session.setAttribute
-      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_RECEIVED);
+      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_GRANTED);
     
     // By default, the start page will display all privileges without
     // regard to Subsystem. I tried setting the value of this attribute to
