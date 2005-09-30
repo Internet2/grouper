@@ -65,6 +65,7 @@
         </select>
         <input
           name="Button"
+          value="Show"
           type="submit"
           class="button1" />
       </div>
@@ -78,9 +79,16 @@
   <div class="tablecontent"> 
     <table>            
       <tr class="columnhead"> 
+<%
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  {
+%>
         <th>
           Subject
         </th>
+<%
+  }
+%>
         <th width="30%">
           Privilege
         </th>
@@ -113,12 +121,19 @@
 %>
   
       <tr>
+<%
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  {
+%>
         <td class="sorted"> <!-- person -->
           <a
             href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
             <%=grantee.getName()%>
           </a>
         </td> <!-- person -->
+<%
+  }
+%>
               
         <td> <!-- privilege -->
           <%=Common.assignmentPopupIcon(assignment)%>
