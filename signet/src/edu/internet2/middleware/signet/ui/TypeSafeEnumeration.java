@@ -1,6 +1,6 @@
 /*--
-$Id: TypeSafeEnumeration.java,v 1.1 2005-09-29 01:35:31 acohen Exp $
-$Date: 2005-09-29 01:35:31 $
+$Id: TypeSafeEnumeration.java,v 1.2 2005-09-30 22:38:56 acohen Exp $
+$Date: 2005-09-30 22:38:56 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -143,5 +143,16 @@ implements Serializable
     throw new CloneNotSupportedException
     	("Instances of type-safe enumerations are singletons,"
     	 + " and so cannot be cloned.");
+  }
+  
+  public boolean equals(Object obj)
+  {
+    TypeSafeEnumeration other = (TypeSafeEnumeration)obj;
+    return this.name.equals(other.name);
+  }
+  
+  public int hashCode()
+  {
+    return this.name.hashCode();
   }
 }

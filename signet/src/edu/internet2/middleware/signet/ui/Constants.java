@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.13 2005-09-30 17:52:46 acohen Exp $
-$Date: 2005-09-30 17:52:46 $
+$Id: Constants.java,v 1.14 2005-09-30 22:38:56 acohen Exp $
+$Date: 2005-09-30 22:38:56 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -103,7 +103,7 @@ public final class Constants
   public static final String EFFECTIVE_DATE_PREFIX = "effectiveDate";
   public static final String EXPIRATION_DATE_PREFIX = "expirationDate";
   
-  public static final String SUBSYSTEM_SELECTNAME = "subsystem";
+  public static final String SUBSYSTEM_HTTPPARAMNAME = "subsystem";
   public static final String SUBSYSTEM_PROMPTVALUE = "__subsystem_prompt_value";
   public static final String SUBSYSTEM_ATTRNAME = "currentSubsystemAttr";
   

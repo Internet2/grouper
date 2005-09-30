@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.10 2005-09-30 17:52:46 acohen Exp $
-  $Date: 2005-09-30 17:52:46 $
+  $Id: StartAction.java,v 1.11 2005-09-30 22:38:56 acohen Exp $
+  $Date: 2005-09-30 22:38:56 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -126,11 +126,13 @@ public final class StartAction extends BaseAction
            Constants.PRIVDISPLAYTYPE_ATTRNAME,      // attributeName
            PrivDisplayType.CURRENT_GRANTED);        // default value
     
-    // By default, the start page will display all privileges without
-    // regard to Subsystem. I tried setting the value of this attribute to
-    // NULL, but that makes Tiles complain that the attribute is missing.
-    session.setAttribute
-      (Constants.SUBSYSTEM_ATTRNAME, Constants.WILDCARD_SUBSYSTEM);
+    Subsystem currentSubsystem
+      = Common.getAndSetSubsystem
+          (signet,
+           request,
+           Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName
+           Constants.SUBSYSTEM_ATTRNAME,      // attributeName
+           Constants.WILDCARD_SUBSYSTEM);     // default value
     
     // Forward to our success page
     return findSuccess(mapping);

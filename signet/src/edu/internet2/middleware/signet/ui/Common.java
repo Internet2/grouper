@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.29 2005-09-30 17:52:46 acohen Exp $
-  $Date: 2005-09-30 17:52:46 $
+  $Id: Common.java,v 1.30 2005-09-30 22:38:56 acohen Exp $
+  $Date: 2005-09-30 22:38:56 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1004,10 +1004,52 @@ public class Common
     }
 
     request.getSession().setAttribute(attrName, privDisplayType);
-System.out.println
-("DEBUG: LEAVING Common.getAndSetPrivDisplayType():\n"
-+ "    privDisplayType='" + privDisplayType + "'\n");
     return privDisplayType;
+  }
+  
+  static public Subsystem getAndSetSubsystem
+    (Signet             signet,
+     HttpServletRequest request,
+     String             paramName,
+     String             attrName,
+     Subsystem          defaultValue)
+  throws ObjectNotFoundException
+  {
+    Subsystem subsystem = null;
+    
+    String subsystemId = request.getParameter(paramName);
+    
+    // If there's no subsystemID at all, it means we should look for a Subsystem
+    // in the Session. If there is a subsystemID, and its value is the four-
+    // character string "null", then it denotes the wildcard subsystem. This is
+    // not so great, because a Signet installation could have a legitimate
+    // Subsystem whose ID is that same four-character string. Also, it's
+    // unnecessarily confusing.
+    if (subsystemId != null)
+    {
+      if (subsystemId.equals("null"))
+      {
+        subsystem = Constants.WILDCARD_SUBSYSTEM;
+      }
+      else
+      {
+        subsystem = signet.getSubsystem(subsystemId);
+      }
+    }
+    else
+    {
+      subsystem
+        = (Subsystem)
+            (request.getSession().getAttribute(attrName));
+    }
+    
+    if (subsystem == null)
+    {
+      subsystem = defaultValue;
+    }
+
+    request.getSession().setAttribute(attrName, subsystem);
+    return subsystem;
   }
   
   static public Set getSubsystemSelections
@@ -1115,6 +1157,114 @@ System.out.println
     outStr.append("</option>\n");
     
     return outStr.toString();
+  }
+  
+  static public String subsystemLinks
+    (PrivilegedSubject  pSubject,
+     PrivDisplayType    privDisplayType,
+     Subsystem          currentSubsystem)
+  {
+    Set subsystems;
+    Set proxies;
+    Set assignments;
+    
+    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+    {
+      proxies = pSubject.getProxiesGranted(Status.ACTIVE, null, null);
+      assignments = pSubject.getAssignmentsGranted(Status.ACTIVE, null, null);
+    }
+    else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
+    {
+      proxies = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
+      assignments = pSubject.getAssignmentsReceived(Status.ACTIVE, null, null);
+    }
+    else
+    {
+        throw new IllegalArgumentException
+          ("This method needs to be extended to support a PrivDisplayType"
+           + " value of '"
+           + privDisplayType
+           + "'");
+    }
+    
+    subsystems = getSubsystems(assignments, proxies);
+    
+    StringBuffer outStr = new StringBuffer();
+    outStr.append(subsystemLink(Constants.WILDCARD_SUBSYSTEM, currentSubsystem));
+    
+    Iterator subsystemsIterator = subsystems.iterator();
+    while (subsystemsIterator.hasNext())
+    {
+      outStr.append(" | ");
+      Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
+      outStr.append(subsystemLink(subsystem, currentSubsystem));
+    }
+    
+    return outStr.toString();
+  }
+  
+  private static String subsystemLink
+    (Subsystem subsystem,
+     Subsystem currentSubsystem)
+  {
+    StringBuffer outStr = new StringBuffer();
+    String name;
+    
+    if (subsystem.equals(Constants.WILDCARD_SUBSYSTEM))
+    {
+      name = "All";
+    }
+    else
+    {
+      name = subsystem.getName();
+    }
+
+    if (subsystem.equals(currentSubsystem))
+    {
+      outStr.append("<b>");
+      outStr.append(name);
+      outStr.append("</b>");
+    }
+    else
+    {
+      outStr.append("<a href=\"Start.do?");
+      outStr.append(Constants.SUBSYSTEM_HTTPPARAMNAME);
+      outStr.append("=");
+      outStr.append(subsystem.getId());
+      outStr.append("\">");
+      outStr.append(name);
+      outStr.append("</a>");
+    }
+    
+    return outStr.toString();
+  }
+  
+  // Tosses out any NULL Subsystems.
+  private static Set getSubsystems
+    (Set assignments,
+     Set proxies)
+  {
+    Set subsystems = new TreeSet(new SubsystemNameComparator());
+    
+    Iterator assignmentsIterator = assignments.iterator();
+    while (assignmentsIterator.hasNext())
+    {
+      Assignment assignment = (Assignment)(assignmentsIterator.next());
+      subsystems.add(assignment.getFunction().getSubsystem());
+    }
+    
+    Iterator proxiesIterator = proxies.iterator();
+    while (proxiesIterator.hasNext())
+    {
+      Proxy proxy = (Proxy)(proxiesIterator.next());
+      
+      if (proxy.getSubsystem() != null)
+      {
+        subsystems.add(proxy.getSubsystem());
+      }
+    }
+    
+    return subsystems;
   }
   
 //  public static Set getExtensibleProxies

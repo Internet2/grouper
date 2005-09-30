@@ -47,7 +47,7 @@
         name="<%=Constants.SUBJECT_SELECTLIST_ID%>"
         size="10"
         id="<%=Constants.SUBJECT_SELECTLIST_ID%>"
-        onchange="<%="javascript:selectSubject('" + Constants.SUBSYSTEM_SELECTNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');"%>">
+        onchange="<%="javascript:selectSubject('" + Constants.SUBSYSTEM_HTTPPARAMNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');"%>">
 <% 
   	Iterator sortSetIterator = sortSet.iterator();
     while (sortSetIterator.hasNext())

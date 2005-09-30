@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.8 2005-09-27 17:13:34 jvine Exp $
-  $Date: 2005-09-27 17:13:34 $
+  $Id: designate.jsp,v 1.9 2005-09-30 22:38:56 acohen Exp $
+  $Date: 2005-09-30 22:38:56 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -114,7 +114,7 @@
           //   ='';
 
           setContinueButtonStatus
-            ('<%=Constants.SUBSYSTEM_SELECTNAME%>',
+            ('<%=Constants.SUBSYSTEM_HTTPPARAMNAME%>',
              '<%=Constants.SUBSYSTEM_PROMPTVALUE%>');
          
           performPersonSearch
@@ -204,10 +204,10 @@
             Select privilege type</h2>
           <div style="margin-left: 25px;">
             <%=Common.subsystemSelectionSingle
-                   (Constants.SUBSYSTEM_SELECTNAME,
+                   (Constants.SUBSYSTEM_HTTPPARAMNAME,
                     Constants.SUBSYSTEM_PROMPTVALUE,
                     "Instructions go here.",
-                    "setContinueButtonStatus('" + Constants.SUBSYSTEM_SELECTNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
+                    "setContinueButtonStatus('" + Constants.SUBSYSTEM_HTTPPARAMNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
                     grantableSubsystems)%>
           </div>
         </div>

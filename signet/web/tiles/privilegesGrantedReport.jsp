@@ -70,6 +70,10 @@
       </div>
     </form>
   </div> <!-- tablecontrols -->
+  
+  <div id="Paging" style="margin: 5px;">
+    Privilege types: <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
+  </div>		
 
   <div class="tablecontent"> 
     <table>            
