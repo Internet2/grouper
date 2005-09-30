@@ -51,18 +51,24 @@
   </div> <!-- tableheader -->
   
   <div class="tablecontrols">
-    Change the view to show 
-    <div style="display: inline;">
-      <select name="viewtype" id="viewtype">
-        <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
-        <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
-      </select>
-      <input
-        name="Button"
-        type="button"
-        class="button1"
-        onclick=(parent.location="main.html") value="Show" />
-    </div>	
+    <form
+      name="personSearchForm"
+      method="post"
+      action="Start.do">
+      Change the view to show 
+      <div style="display: inline;">
+        <select
+          name="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>"
+          id="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>">
+          <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
+        </select>
+        <input
+          name="Button"
+          type="submit"
+          class="button1" />
+      </div>
+    </form>
   </div> <!-- tablecontrols -->
 
   <div class="tablecontent"> 

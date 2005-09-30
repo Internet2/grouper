@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.9 2005-09-29 21:09:32 acohen Exp $
-  $Date: 2005-09-29 21:09:32 $
+  $Id: StartAction.java,v 1.10 2005-09-30 17:52:46 acohen Exp $
+  $Date: 2005-09-30 17:52:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -23,6 +23,7 @@ import org.apache.struts.action.ActionForward;
 
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Subsystem;
 
 /**
  * <p>
@@ -118,10 +119,12 @@ public final class StartAction extends BaseAction
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, currentUser);
     }
     
-    // By default, the start page will display the privileges granted to
-    // others.
-    session.setAttribute
-      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_GRANTED);
+    PrivDisplayType currentPrivDisplayType
+      = Common.getAndSetPrivDisplayType
+          (request,
+           Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME, // paramName
+           Constants.PRIVDISPLAYTYPE_ATTRNAME,      // attributeName
+           PrivDisplayType.CURRENT_GRANTED);        // default value
     
     // By default, the start page will display all privileges without
     // regard to Subsystem. I tried setting the value of this attribute to

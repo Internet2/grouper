@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.12 2005-09-29 20:03:00 acohen Exp $
-$Date: 2005-09-29 20:03:00 $
+$Id: Constants.java,v 1.13 2005-09-30 17:52:46 acohen Exp $
+$Date: 2005-09-30 17:52:46 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -115,6 +115,7 @@ public final class Constants
   public static final String DUP_PROXIES_ATTRNAME = "duplicateProxies";
   
   public static final String PRIVDISPLAYTYPE_ATTRNAME = "privDisplayTypeAttr";
+  public static final String PRIVDISPLAYTYPE_HTTPPARAMNAME="privDisplayType";
   
   public static final String SUBJECT_SELECTLIST_ID = "subjectSelectList";
   public static final String ACTING_FOR_SELECT_ID = "selectActingFor";

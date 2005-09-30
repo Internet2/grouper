@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.28 2005-09-29 22:48:14 acohen Exp $
-  $Date: 2005-09-29 22:48:14 $
+  $Id: Common.java,v 1.29 2005-09-30 17:52:46 acohen Exp $
+  $Date: 2005-09-30 17:52:46 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -976,6 +976,40 @@ public class Common
     return subsystem;
   }
   
+  static public PrivDisplayType getAndSetPrivDisplayType
+    (HttpServletRequest request,
+     String             paramName,
+     String             attrName,
+     PrivDisplayType    defaultValue)
+  {
+    PrivDisplayType privDisplayType = null;
+    
+    String privDisplayTypeName = request.getParameter(paramName);
+    if (privDisplayTypeName != null)
+    {
+      privDisplayType
+        = (PrivDisplayType)
+            (PrivDisplayType.getInstanceByName(privDisplayTypeName));
+    }
+    else
+    {
+      privDisplayType
+        = (PrivDisplayType)
+            (request.getSession().getAttribute(attrName));
+    }
+    
+    if (privDisplayType == null)
+    {
+      privDisplayType = defaultValue;
+    }
+
+    request.getSession().setAttribute(attrName, privDisplayType);
+System.out.println
+("DEBUG: LEAVING Common.getAndSetPrivDisplayType():\n"
++ "    privDisplayType='" + privDisplayType + "'\n");
+    return privDisplayType;
+  }
+  
   static public Set getSubsystemSelections
     (Signet signet,
      HttpServletRequest request,
@@ -1075,6 +1109,7 @@ public class Common
     {
       outStr.append(" selected=\"selected\"");
     }
+    outStr.append(" value=\"" + option.name + "\"");
     outStr.append(">");
     outStr.append(option.getDescription());
     outStr.append("</option>\n");
