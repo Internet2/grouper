@@ -56,6 +56,10 @@
 package test.edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
+import  java.io.*;
+import  java.util.*;
 import  junit.framework.*;
 
 public class TestInstantiate extends TestCase {
