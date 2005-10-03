@@ -102,9 +102,6 @@
         <th>
           Status
         </th>
-        <th>
-          Granted
-        </th>
       </tr>
     
 <%
@@ -173,14 +170,6 @@
         <td> <!-- status -->
           <%=Common.displayStatus(assignment)%>
         </td> <!-- status -->
-        <td class="date">
-<%=
-  // assignment.getCreateDateTime() is no longer supported. Eventually,
-  // I'll need to remove this reference a little more completely.
-  // dateFormat.format(assignment.getCreateDateTime())
-  ""
-%>
-        </td>
       </tr>
     
 <% 
