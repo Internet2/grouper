@@ -9,6 +9,7 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
+<%@ page import="edu.internet2.middleware.signet.Status" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -107,9 +108,29 @@
       </tr>
     
 <%
-  Set assignmentSet
-    = new TreeSet
-        (pSubject.getAssignmentsGranted(null, null, null));
+  Set assignmentSet;
+  Subsystem subsystemFilter = null;
+  
+  if (!currentSubsystem.equals(Constants.WILDCARD_SUBSYSTEM))
+  {
+    subsystemFilter = currentSubsystem;
+  }
+  
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  {
+    assignmentSet
+      = new TreeSet
+          (pSubject.getAssignmentsGranted
+            (Status.ACTIVE, subsystemFilter, null));
+  }
+  else
+  {
+    assignmentSet
+      = new TreeSet
+          (pSubject.getAssignmentsReceived
+            (Status.ACTIVE, subsystemFilter, null));
+  }
+  
   Iterator assignmentIterator = assignmentSet.iterator();
   while (assignmentIterator.hasNext())
   {
