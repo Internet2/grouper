@@ -13,7 +13,7 @@
 <body lang=EN-US bgcolor="#ffffff">
 <p><b><span style='font-size:14.0pt'>Subject Java API Specification</span></b></p>
 <p><span style='font-size:10.0pt'>Version 0.1 - 2nd draft</span></p>
-<p><span style='font-size:10.0pt'>Updated June 7, 2005</span></p>
+<p><span style='font-size:10.0pt'>Updated October 5, 2005</span></p>
 <h3>Introduction</h3>
 <p>This API is designed to provide a common way to retrieve and reference entities 
   such as a person, a group, or an organization.  It is an abstraction of common 
@@ -88,6 +88,8 @@
     the argument identifier. If no Subject matches the identifier, this method 
     will throw a SubjectNotFoundException. If more than one Subject matches the 
     identifier, this method will throw a DuplicateSubjectException.</p>
+  <p>getSubjectByIdentifier(String identifier) - Gets a subject by identifiers, 
+    e.g. login ID.</p>
   <p>search(String searchValue) - An unstructured search for Subjects. Each implementation 
     utilizes its own search algorithm tailored to the data source and schema. 
     This method returns a Set of zero or more Subjects.</p>
@@ -175,7 +177,7 @@ CREATE TABLE SubjectAttribute
 <p>&nbsp;</p>
 <hr>
 <p><b>Change Log</b></p>
-<p>Changes from the first draft</a>: 
+<p>Changes from the first draft: 
 <ol>
   <li>Removed displayName as a first class attribute.</li>
   <li>Removed the following methods from Subject interface. 
