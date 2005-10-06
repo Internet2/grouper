@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.55 2005-10-06 17:13:29 acohen Exp $
-  $Date: 2005-10-06 17:13:29 $
+  $Id: main.jsp,v 1.56 2005-10-06 17:33:01 acohen Exp $
+  $Date: 2005-10-06 17:33:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -185,9 +185,27 @@
       <span class="logout">
         <%=Common.displayLogoutHref(request)%>
       </span> <!-- logout -->
+
       <span class="select">
+<%
+  if (currentPSubject.equals(loggedInPrivilegedSubject.getEffectiveEditor()))
+  { 
+%>
         <%=Constants.HOMEPAGE_NAME%>
+<%
+  }
+  else
+  {
+%>
+      <a href="Start.do">
+        <%=Constants.HOMEPAGE_NAME%>
+      </a>
+      &gt; <%=currentPSubject.getName()%>
+<%
+  }
+%>
       </span> <!-- select -->
+
     </div> <!-- Navbar -->
   
   <div id="Layout">
@@ -203,7 +221,7 @@
     
         
 <% 
-  if (!(currentPSubject.equals(loggedInPrivilegedSubject)))
+  if (!(currentPSubject.equals(loggedInPrivilegedSubject.getEffectiveEditor())))
   {
     Set grantableSubsystems
       = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
@@ -296,7 +314,7 @@
 
       
 <% 
-  if (currentPSubject.equals(loggedInPrivilegedSubject))
+  if (currentPSubject.equals(loggedInPrivilegedSubject.getEffectiveEditor()))
   {
     Set grantableSubsystems
       = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
