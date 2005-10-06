@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.56 2005-10-06 17:33:01 acohen Exp $
-  $Date: 2005-10-06 17:33:01 $
+  $Id: main.jsp,v 1.57 2005-10-06 17:41:10 acohen Exp $
+  $Date: 2005-10-06 17:41:10 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -263,7 +263,7 @@
               name="grantButton"
               id="grantButton"
               class="button1"
-              <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
+              <%="disabled=\"disabled\""%>
               value="Start &gt;&gt;" />
             <br />
             <label for="grantableSubsystems">
