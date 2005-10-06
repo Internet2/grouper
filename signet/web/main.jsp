@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.53 2005-10-06 15:20:00 acohen Exp $
-  $Date: 2005-10-06 15:20:00 $
+  $Id: main.jsp,v 1.54 2005-10-06 17:02:07 acohen Exp $
+  $Date: 2005-10-06 17:02:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -24,6 +24,28 @@
     function initControls()
     {
       initRevokeAllCheckbox();
+    }
+    
+    function setStartButtonStatus()
+    {
+      // The first entry in the list of grantable Subsystems is always
+      // a place-holder that reads "select privilege type", to prompt the
+      // user to go ahead and pick a Subsystem.
+      //
+      // As long as that first entry is selected, the "start" button, which
+      // initiates the privilege-granting process, should be dimmed.
+      
+      var theGrantableSubsystemList = document.grantForm.grantableSubsystems;
+      var theGrantButton = document.grantForm.grantButton;
+      
+      if (theGrantableSubsystemList.selectedIndex < 1)
+      {
+        theGrantButton.disabled = true;
+      }
+      else
+      {
+        theGrantButton.disabled = false;
+      }
     }
     
     function initRevokeAllCheckbox()
@@ -151,6 +173,10 @@
      = (PrivilegedSubject)
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
+   PrivilegedSubject currentPSubject
+     = (PrivilegedSubject)
+         (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
+         
    DateFormat dateFormat = DateFormat.getDateInstance();
 %>
 
@@ -174,6 +200,64 @@
     
     <tiles:insert page="/tiles/footer.jsp" flush="true" />
     <div id="Sidebar">
+    
+        
+<% 
+  if (!(currentPSubject.equals(loggedInPrivilegedSubject)))
+  {
+    Set grantableSubsystems
+      = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
+%>
+
+      <div class="grant">
+        <h2>
+          Grant a privilege
+        </h2>
+        <p>to <%=currentPSubject.getName()%></p>
+        <form name="grantForm" id="grantForm" action="Functions.do">
+          <p>
+            <select
+              id="grantableSubsystems"
+              name="grantableSubsystems"
+              class="long" 
+              onchange="setStartButtonStatus()">
+                
+              <option value="prompt">
+                select privilege type
+              </option>
+
+<%
+    Iterator grantableSubsystemsIterator = grantableSubsystems.iterator();
+    while (grantableSubsystemsIterator.hasNext())
+    {
+      Subsystem subsystem = (Subsystem)(grantableSubsystemsIterator.next());
+%>
+              <option value="<%=subsystem.getId()%>">
+                <%=subsystem.getName()%>
+              </option>
+<%
+    }
+%>
+            </select>
+       
+            <input
+              type="submit"
+              name="grantButton"
+              id="grantButton"
+              class="button1"
+              <%=grantableSubsystems.size()==0 ? "disabled=\"disabled\"" : ""%>
+              value="Start &gt;&gt;" />
+            <br />
+            <label for="grantableSubsystems">
+              Select the type of privilege you want to grant, then click "Start."
+            </label>
+          </p>
+        </form> <!-- grantForm -->
+      </div> <!-- grant -->
+          
+<%
+  }
+%>
 
     <form
       name="personSearchForm"
@@ -203,11 +287,11 @@
             onfocus="personSearchButtonHasFocus=true;"
             onblur="personSearchButtonHasFocus=false;" />
           <br />
-		  	<label for="words">Enter a subject's name, then click "Search".</label>
-       	</p>
+        <label for="words">Enter a subject's name, then click "Search".</label>
+         </p>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->
-      </div><!-- findperson -->		
+      </div><!-- findperson -->    
     </form> <!-- personSearchForm -->   
       
 <div class="findperson"> 
@@ -229,6 +313,6 @@
       
     </div>
     <!-- Sidebar -->
- </div>	<!-- Layout -->
+ </div>  <!-- Layout -->
 </body>
 </html>

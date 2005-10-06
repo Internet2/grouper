@@ -1,6 +1,6 @@
 <!--
-   $Id: personview-help.jsp,v 1.7 2005-09-09 20:49:46 acohen Exp $
-   $Date: 2005-09-09 20:49:46 $
+   $Id: personview-help.jsp,v 1.8 2005-10-06 17:02:07 acohen Exp $
+   $Date: 2005-10-06 17:02:07 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights 
 Reserved.
@@ -23,7 +23,7 @@ Reserved.
    
    PrivilegedSubject currentGranteePrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute(Constants.GRANTEE_ATTRNAME));
+         (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
          
    Subsystem currentSubsystem
      = (Subsystem)

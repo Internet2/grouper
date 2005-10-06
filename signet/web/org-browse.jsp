@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.22 2005-09-27 17:13:34 jvine Exp $
-  $Date: 2005-09-27 17:13:34 $
+  $Id: org-browse.jsp,v 1.23 2005-10-06 17:02:07 acohen Exp $
+  $Date: 2005-10-06 17:02:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -50,7 +50,7 @@
    
    PrivilegedSubject currentGranteePrivilegedSubject
      = (PrivilegedSubject)
-         (request.getSession().getAttribute(Constants.GRANTEE_ATTRNAME));
+         (request.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
          
    Subsystem currentSubsystem
      = (Subsystem)

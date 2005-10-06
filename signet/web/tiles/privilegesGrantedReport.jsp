@@ -56,7 +56,7 @@
     <form
       name="personSearchForm"
       method="post"
-      action="Start.do">
+      action="PersonView.do">
       Change the view to show 
       <div style="display: inline;">
         <select

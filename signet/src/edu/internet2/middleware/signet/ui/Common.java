@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.31 2005-10-06 15:20:00 acohen Exp $
-  $Date: 2005-10-06 15:20:00 $
+  $Id: Common.java,v 1.32 2005-10-06 17:02:07 acohen Exp $
+  $Date: 2005-10-06 17:02:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1229,7 +1229,7 @@ public class Common
     }
     else
     {
-      outStr.append("<a href=\"Start.do?");
+      outStr.append("<a href=\"PersonView.do?");
       outStr.append(Constants.SUBSYSTEM_HTTPPARAMNAME);
       outStr.append("=");
       outStr.append(subsystem.getId());
