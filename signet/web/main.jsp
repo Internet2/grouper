@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.54 2005-10-06 17:02:07 acohen Exp $
-  $Date: 2005-10-06 17:02:07 $
+  $Id: main.jsp,v 1.55 2005-10-06 17:13:29 acohen Exp $
+  $Date: 2005-10-06 17:13:29 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -293,26 +293,36 @@
         </div> <!-- PersonSearchResults -->
       </div><!-- findperson -->    
     </form> <!-- personSearchForm -->   
+
       
-<div class="findperson"> 
-        <form
-          name="actAsForm"
-          method="post"
-          action="ActAs.do">
-          <h2>Designated Drivers</h2>
-          <%=Common.displayActingForOptions
-               (loggedInPrivilegedSubject,
-                Constants.ACTING_FOR_SELECT_ID)%>
-          <br/>
-          <a href='Designate.do'>
-            <img src="images/arrow_right.gif" alt="" />
-            Designate a granting proxy
-          </a>
-        </form>
-      </div> <!-- findperson -->
-      
-    </div>
-    <!-- Sidebar -->
- </div>  <!-- Layout -->
+<% 
+  if (currentPSubject.equals(loggedInPrivilegedSubject))
+  {
+    Set grantableSubsystems
+      = loggedInPrivilegedSubject.getGrantableSubsystemsForAssignment();
+%>
+    <div class="findperson"> 
+      <form
+        name="actAsForm"
+        method="post"
+        action="ActAs.do">
+        <h2>Designated Drivers</h2>
+        <%=Common.displayActingForOptions
+             (loggedInPrivilegedSubject,
+              Constants.ACTING_FOR_SELECT_ID)%>
+        <br/>
+        <a href='Designate.do'>
+          <img src="images/arrow_right.gif" alt="" />
+          Designate a granting proxy
+        </a>
+      </form>
+    </div> <!-- findperson -->        
+<%
+  }
+%>
+
+
+  </div> <!-- Sidebar -->
+</div>  <!-- Layout -->
 </body>
 </html>
