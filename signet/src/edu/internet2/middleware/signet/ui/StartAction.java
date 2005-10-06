@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.11 2005-09-30 22:38:56 acohen Exp $
-  $Date: 2005-09-30 22:38:56 $
+  $Id: StartAction.java,v 1.12 2005-10-06 15:20:00 acohen Exp $
+  $Date: 2005-10-06 15:20:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,9 +79,9 @@ public final class StartAction extends BaseAction
     }
     
 
-    PrivilegedSubject currentUser
+    PrivilegedSubject loggedInUser
     	= (PrivilegedSubject)(session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
-    if (currentUser == null)
+    if (loggedInUser == null)
     {
       // Find the PrivilegedSubject associated with the logged-in
       // user, and stash it in the Session.
@@ -109,15 +109,20 @@ public final class StartAction extends BaseAction
         return findFailure(mapping);
       }
       
-      currentUser = null;
+      loggedInUser = null;
       Iterator pSubjectsIterator = userMatches.iterator();
       while (pSubjectsIterator.hasNext())
       {
-        currentUser = (PrivilegedSubject)(pSubjectsIterator.next());
+        loggedInUser = (PrivilegedSubject)(pSubjectsIterator.next());
       }
       
-      session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, currentUser);
+      session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, loggedInUser);
     }
+    
+    // This action always causes us to start (or resume) the contemplation
+    // of our own navel, or our currently proxied navel.
+    session.setAttribute
+      (Constants.CURRENTPSUBJECT_ATTRNAME, loggedInUser.getEffectiveEditor());
     
     PrivDisplayType currentPrivDisplayType
       = Common.getAndSetPrivDisplayType

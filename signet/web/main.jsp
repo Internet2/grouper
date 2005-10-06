@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.52 2005-09-29 20:03:00 acohen Exp $
-  $Date: 2005-09-29 20:03:00 $
+  $Id: main.jsp,v 1.53 2005-10-06 15:20:00 acohen Exp $
+  $Date: 2005-10-06 15:20:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,7 +19,107 @@
   <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
 </head>
 
-<body>
+<body onload="javascript:initControls();">
+  <script type="text/javascript">
+    function initControls()
+    {
+      initRevokeAllCheckbox();
+    }
+    
+    function initRevokeAllCheckbox()
+    {
+      // If there are no revocable Assignments on this page, then it makes
+      // no sense to have the "revoke all" checkbox enabled.
+      var theCheckAllBox = document.checkform.checkAll;
+      
+      if (selectableCount() > 0)
+      {
+        theCheckAllBox.disabled = false;
+      }
+      else
+      {
+        theCheckAllBox.disabled = true;
+      }
+    }
+    
+    function selectThis(isChecked)
+    {
+      var theCheckAllBox = document.checkform.checkAll;
+      if (!isChecked)
+      {
+        theCheckAllBox.checked = false;
+      }
+      
+      if (selectCount() > 0)
+      {
+        document.checkform.revokeButton.disabled = false;
+      }
+      else
+      {
+        document.checkform.revokeButton.disabled = true;
+      }
+    }
+    
+    function selectAll(isChecked)
+    {
+      var theForm = document.checkform;
+
+      for (var i = 0; i < theForm.elements.length; i++)
+      {
+        if (theForm.elements[i].name != 'checkAll'
+            && theForm.elements[i].type == 'checkbox'
+            && theForm.elements[i].disabled == false)
+        {
+          theForm.elements[i].checked = isChecked;
+        }
+      }
+      
+      if (selectCount() > 0)
+      {
+        document.checkform.revokeButton.disabled = false;
+      }
+      else
+      {
+        document.checkform.revokeButton.disabled = true;
+      }
+    }
+    
+    function selectCount()
+    {
+      var theForm = document.checkform;
+      var count = 0;
+      
+      for (var i = 0; i < theForm.elements.length; i++)
+      {
+        if ((theForm.elements[i].name != 'checkAll')
+            && (theForm.elements[i].type == 'checkbox')
+            && (theForm.elements[i].checked == true))
+        {
+          count++;
+        }
+      }
+      
+      return count;
+    }
+    
+    function selectableCount()
+    {
+      var theForm = document.checkform;
+      var count = 0;
+      
+      for (var i = 0; i < theForm.elements.length; i++)
+      {
+        if ((theForm.elements[i].name != 'checkAll')
+            && (theForm.elements[i].type == 'checkbox')
+            && (theForm.elements[i].disabled == false))
+        {
+          count++;
+        }
+      }
+      
+      return count;
+    }
+  </script>
 
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
@@ -52,10 +152,6 @@
          (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
-   
-   // For use by Tiles:
-  request.setAttribute
-  	("pSubjectAttr", loggedInPrivilegedSubject.getEffectiveEditor());
 %>
 
     <tiles:insert page="/tiles/header.jsp" flush="true" />
@@ -71,7 +167,7 @@
   <div id="Layout">
   
     <tiles:insert page="/tiles/privilegesGrantedReport.jsp" flush="true" >
-      <tiles:put name="pSubject"         beanName="pSubjectAttr" />
+      <tiles:put name="pSubject"         beanName="currentPrivilegedSubject" />
       <tiles:put name="privDisplayType"  beanName="privDisplayTypeAttr" />
       <tiles:put name="currentSubsystem" beanName="currentSubsystemAttr" />
     </tiles:insert>

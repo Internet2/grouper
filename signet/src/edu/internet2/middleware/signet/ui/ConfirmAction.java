@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.13 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: ConfirmAction.java,v 1.14 2005-10-06 15:20:00 acohen Exp $
+$Date: 2005-10-06 15:20:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -28,6 +28,8 @@ import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.tree.TreeNode;
+
+import edu.internet2.middleware.signet.ui.Constants;
 
 /**
 * <p>
@@ -101,7 +103,7 @@ throws Exception
         (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
   PrivilegedSubject grantee
     = (PrivilegedSubject)
-        (session.getAttribute("currentGranteePrivilegedSubject"));
+        (session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
   TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
   Function function = (Function)(session.getAttribute("currentFunction"));
   

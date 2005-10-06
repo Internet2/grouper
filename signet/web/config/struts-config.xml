@@ -63,7 +63,7 @@
                  type="edu.internet2.middleware.signet.ui.PersonViewAction">
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
-          <forward name="success" path="/personview.jsp" />
+          <forward name="success" path="/main.jsp" />
       </action>
 
       <!-- Printable Signet person-view page -->
@@ -130,7 +130,7 @@
                  type="edu.internet2.middleware.signet.ui.RevokeAction">
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
-          <forward name="success" path="/personview.jsp" />
+          <forward name="success" path="/Start.do" />
       </action>
 
       <!-- Signet assignment-revocation-and-grant action

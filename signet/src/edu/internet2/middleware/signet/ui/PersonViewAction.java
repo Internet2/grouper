@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.4 2005-09-09 20:49:46 acohen Exp $
-  $Date: 2005-09-09 20:49:46 $
+  $Id: PersonViewAction.java,v 1.5 2005-10-06 15:20:00 acohen Exp $
+  $Date: 2005-10-06 15:20:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,19 +79,14 @@ public final class PersonViewAction extends BaseAction
     }
     
     PrivilegedSubject currentGrantee = Common.getGrantee(signet, request);
-    
-    String currentSubsystemId = request.getParameter("subsystemId");
-    Subsystem currentSubsystem;
-    if (currentSubsystemId == null)
-    {
-      currentSubsystem
-      	= getFirstSubsystemOfReceivedAssignments(currentGrantee);
-    }
-    else
-    {
-      currentSubsystem = signet.getSubsystem(currentSubsystemId);
-    }
-    session.setAttribute(Constants.SUBSYSTEM_ATTRNAME, currentSubsystem);
+
+    Subsystem currentSubsystem
+      = Common.getAndSetSubsystem
+          (signet,
+           request,
+           Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName
+           Constants.SUBSYSTEM_ATTRNAME,      // attributeName
+           Constants.WILDCARD_SUBSYSTEM);     // default value
     
 
     // Forward to our success page

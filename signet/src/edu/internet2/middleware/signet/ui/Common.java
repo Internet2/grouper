@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.30 2005-09-30 22:38:56 acohen Exp $
-  $Date: 2005-09-30 22:38:56 $
+  $Id: Common.java,v 1.31 2005-10-06 15:20:00 acohen Exp $
+  $Date: 2005-10-06 15:20:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -45,6 +45,8 @@ import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
+
+import edu.internet2.middleware.signet.ui.Constants;
 
 public class Common
 {
@@ -936,7 +938,7 @@ public class Common
         = signet.getPrivilegedSubject(granteeSubjectTypeId, granteeSubjectId);
       request
         .getSession()
-          .setAttribute("currentGranteePrivilegedSubject", grantee);
+          .setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
     }
     else
     {
@@ -944,7 +946,7 @@ public class Common
         = (PrivilegedSubject)
             (request
               .getSession()
-                .getAttribute("currentGranteePrivilegedSubject"));
+                .getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME));
     }
     
     return grantee;

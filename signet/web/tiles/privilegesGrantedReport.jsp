@@ -14,6 +14,7 @@
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
 <%@ page import="edu.internet2.middleware.signet.ui.PrivDisplayType" %>
+<%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
 <tiles:useAttribute name="pSubject"         classname="PrivilegedSubject" />
 <tiles:useAttribute name="privDisplayType"  classname="PrivDisplayType" />
@@ -76,33 +77,57 @@
   <div id="Paging" style="margin: 5px;">
     Privilege types: <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
   </div>		
+             
+  <form
+      onsubmit
+        ="return confirm
+           ('Are you sure you want to revoke the'
+            + (selectCount() == 1 ? '' : (' ' + selectCount()))
+            + ' selected assignment'
+            + (selectCount() > 1 ? 's' : '')
+            + '?'
+            + ' This action cannot be undone.'
+            + ' Click OK to confirm.');"
+      action="Revoke.do"
+      method="post"
+      name="checkform"
+      id="checkform">
 
-  <div class="tablecontent"> 
-    <table>            
-      <tr class="columnhead"> 
+    <div class="tablecontent"> 
+      <table>            
+        <tr class="columnhead"> 
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-        <th>
-          Subject
-        </th>
+          <th>
+            Subject
+          </th>
 <%
   }
 %>
-        <th width="30%">
-          Privilege
-        </th>
-        <th width="20%">
-          Scope
-        </th>
-        <th>
-          Limits
-        </th>
-        <th>
-          Status
-        </th>
-      </tr>
+          <th width="30%">
+            Privilege
+          </th>
+          <th width="20%">
+            Scope
+          </th>
+          <th>
+            Limits
+          </th>
+          <th>
+            Status
+          </th>
+          <th width="10%">
+            All:
+            <input
+               name="checkAll"
+               type="checkbox"
+               id="checkAll"
+               onclick="selectAll(this.checked);"
+               value="Check All" />
+          </th>
+        </tr>
     
 <%
   Set assignmentSet;
@@ -138,45 +163,71 @@
     Category category = function.getCategory();
 %>
   
-      <tr>
+        <tr>
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-        <td class="sorted"> <!-- person -->
-          <a
-            href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
-            <%=grantee.getName()%>
-          </a>
-        </td> <!-- person -->
+          <td class="sorted"> <!-- person -->
+            <a
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
+              <%=grantee.getName()%>
+            </a>
+          </td> <!-- person -->
 <%
   }
 %>
               
-        <td> <!-- privilege -->
-          <%=Common.assignmentPopupIcon(assignment)%>
-          <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
-        </td> <!-- privilege -->
+          <td> <!-- privilege -->
+            <%=Common.assignmentPopupIcon(assignment)%>
+            <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
+          </td> <!-- privilege -->
               
-        <td> <!-- scope -->
-           <%=assignment.getScope().getName()%>
-        </td> <!-- scope -->
+          <td> <!-- scope -->
+             <%=assignment.getScope().getName()%>
+          </td> <!-- scope -->
               
-        <td> <!-- limits -->
-          <%=Common.editLink(pSubject, assignment)%>
-          <%=Common.displayLimitValues(assignment)%>
-        </td> <!-- limits -->
+          <td> <!-- limits -->
+            <%=Common.editLink(pSubject, assignment)%>
+            <%=Common.displayLimitValues(assignment)%>
+          </td> <!-- limits -->
               
-        <td> <!-- status -->
-          <%=Common.displayStatus(assignment)%>
-        </td> <!-- status -->
-      </tr>
+          <td> <!-- status -->
+            <%=Common.displayStatus(assignment)%>
+          </td> <!-- status -->
+
+          <%=Common.revokeBox(pSubject, assignment, UnusableStyle.DIM)%>
+        </tr>
     
 <% 
   }
 %>
   
-            
-    </table>
-  </div> <!-- tablecontent -->
+       
+  
+        <tr >
+<%
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  {
+%>
+          <td>&nbsp;</td>
+<%
+  }
+%>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td align="center" >
+            <input
+              name="revokeButton"
+              type="submit"
+              disabled="true"
+              class="button1"
+              value="Revoke" />
+          </td>
+        </tr>     
+      </table>
+    </div> <!-- tablecontent -->
+  </form> <!-- checkform -->
 </div> <!-- Content -->

@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegesXMLServlet.java,v 1.1 2005-07-15 22:31:34 acohen Exp $
-$Date: 2005-07-15 22:31:34 $
+$Id: PrivilegesXMLServlet.java,v 1.2 2005-10-06 15:20:00 acohen Exp $
+$Date: 2005-10-06 15:20:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -62,7 +62,7 @@ public class PrivilegesXMLServlet implements Servlet {
           (httpRequest
             .getSession()
               .getAttribute
-                ("currentGranteePrivilegedSubject"));
+                (Constants.CURRENTPSUBJECT_ATTRNAME));
         
     PrivilegesXML privilegesXML;
     
