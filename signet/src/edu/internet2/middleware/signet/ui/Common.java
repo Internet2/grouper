@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.32 2005-10-06 17:02:07 acohen Exp $
-  $Date: 2005-10-06 17:02:07 $
+  $Id: Common.java,v 1.33 2005-10-06 19:17:52 acohen Exp $
+  $Date: 2005-10-06 19:17:52 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -481,16 +481,18 @@ public class Common
   
   public static String editLink
     (PrivilegedSubject  loggedInPrivilegedSubject,
-     Assignment         assignment)
+     Grantable          grantable)
   {
     StringBuffer outStr = new StringBuffer();
+    String editAction
+      = (grantable instanceof Proxy ? "Designate.do" : "Conditions.do");
     
-    Decision decision = loggedInPrivilegedSubject.canEdit(assignment);
+    Decision decision = loggedInPrivilegedSubject.canEdit(grantable);
     if (decision.getAnswer() == true)
     {
       outStr.append("<a\n");
       outStr.append("  style=\"float: right;\"\n");
-      outStr.append("  href=\"Conditions.do?assignmentId=" + assignment.getId() + "\">\n");
+      outStr.append("  href=\"" + editAction + "?assignmentId=" + grantable.getId() + "\">\n");
       outStr.append("  <img\n");
       outStr.append("    src=\"images/arrow_right.gif\"\n");
       outStr.append("      alt=\"\" />\n");

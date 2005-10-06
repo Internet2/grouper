@@ -10,6 +10,7 @@
 <%@ page import="edu.internet2.middleware.signet.Category" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+<%@ page import="edu.internet2.middleware.signet.Proxy" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -131,6 +132,7 @@
     
 <%
   Set assignmentSet;
+  Set proxySet;
   Subsystem subsystemFilter = null;
   
   if (!currentSubsystem.equals(Constants.WILDCARD_SUBSYSTEM))
@@ -144,12 +146,20 @@
       = new TreeSet
           (pSubject.getAssignmentsGranted
             (Status.ACTIVE, subsystemFilter, null));
+    proxySet
+      = new TreeSet
+          (pSubject.getProxiesGranted
+            (Status.ACTIVE, subsystemFilter, null));
   }
   else
   {
     assignmentSet
       = new TreeSet
           (pSubject.getAssignmentsReceived
+            (Status.ACTIVE, subsystemFilter, null));
+    proxySet
+      = new TreeSet
+          (pSubject.getProxiesReceived
             (Status.ACTIVE, subsystemFilter, null));
   }
   
@@ -197,6 +207,56 @@
           </td> <!-- status -->
 
           <%=Common.revokeBox(pSubject, assignment, UnusableStyle.DIM)%>
+        </tr>
+    
+<% 
+  }
+%>
+  
+  
+  
+<%  
+  Iterator proxyIterator = proxySet.iterator();
+  while (proxyIterator.hasNext())
+  {
+    Proxy proxy = (Proxy)(proxyIterator.next());
+    PrivilegedSubject grantee = proxy.getGrantee();
+    Subsystem subsystem = proxy.getSubsystem();
+%>
+  
+        <tr>
+<%
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  {
+%>
+          <td class="sorted"> <!-- person -->
+            <a
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
+              <%=grantee.getName()%>
+            </a>
+          </td> <!-- person -->
+<%
+  }
+%>
+              
+          <td> <!-- privilege -->
+            Proxy
+          </td> <!-- privilege -->
+              
+          <td> <!-- scope -->
+             <span class="label">acting as </span><%=proxy.getGrantor().getName()%>
+          </td> <!-- scope -->
+              
+          <td> <!-- limits -->
+            <%=Common.editLink(pSubject, proxy)%>
+            <span class="label">Grant privileges in: </span><%=subsystem == null ? "any" : subsystem.getName()%>
+          </td> <!-- limits -->
+              
+          <td> <!-- status -->
+            <%=Common.displayStatus(proxy)%>
+          </td> <!-- status -->
+
+          <%=Common.revokeBox(pSubject, proxy, UnusableStyle.DIM)%>
         </tr>
     
 <% 
