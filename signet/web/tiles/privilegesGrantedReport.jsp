@@ -180,7 +180,7 @@
 %>
           <td class="sorted"> <!-- person -->
             <a
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystem == null ? "" : ("&subsystemId=" + subsystem.getId()))%>">
               <%=grantee.getName()%>
             </a>
           </td> <!-- person -->
@@ -231,7 +231,7 @@
 %>
           <td class="sorted"> <!-- person -->
             <a
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%>&subsystemId=<%=subsystem.getId()%>">
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystem == null ? "" : ("&subsystemId=" + subsystem.getId()))%>">
               <%=grantee.getName()%>
             </a>
           </td> <!-- person -->

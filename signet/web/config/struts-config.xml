@@ -177,7 +177,7 @@
                  type="edu.internet2.middleware.signet.ui.ActAsAction">
           <forward name="notInitialized" path="/Start.do" />
           <forward name="failure" path="/error.jsp" />
-          <forward name="success" path="/main.jsp" />
+          <forward name="success" path="/Start.do" />
       </action>
 
       <!-- Signet not-yet-implemented page -->
