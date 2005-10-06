@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.27 2005-09-26 17:17:50 acohen Exp $
- $Date: 2005-09-26 17:17:50 $
+ $Id: PrivilegedSubjectImpl.java,v 1.28 2005-10-06 19:52:24 acohen Exp $
+ $Date: 2005-10-06 19:52:24 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -92,7 +92,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
              public String getName()
              {
-               return "signet";
+               return "Signet";
              }
 
              public String getDescription()
