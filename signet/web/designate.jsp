@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.9 2005-09-30 22:38:56 acohen Exp $
-  $Date: 2005-09-30 22:38:56 $
+  $Id: designate.jsp,v 1.10 2005-10-06 19:45:47 acohen Exp $
+  $Date: 2005-10-06 19:45:47 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -201,12 +201,12 @@
  
         <div class="section">
           <h2>
-            Select privilege type</h2>
+            select a privilege type...</h2>
           <div style="margin-left: 25px;">
             <%=Common.subsystemSelectionSingle
                    (Constants.SUBSYSTEM_HTTPPARAMNAME,
                     Constants.SUBSYSTEM_PROMPTVALUE,
-                    "Instructions go here.",
+                    "select a privilege type...",
                     "setContinueButtonStatus('" + Constants.SUBSYSTEM_HTTPPARAMNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
                     grantableSubsystems)%>
           </div>

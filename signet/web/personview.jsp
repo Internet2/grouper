@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview.jsp,v 1.45 2005-10-06 17:02:07 acohen Exp $
-  $Date: 2005-10-06 17:02:07 $
+  $Id: personview.jsp,v 1.46 2005-10-06 19:45:47 acohen Exp $
+  $Date: 2005-10-06 19:45:47 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -420,7 +420,7 @@
                 onchange="setStartButtonStatus()">
                 
                 <option value="prompt">
-                  select privilege type
+                  select a privilege type...
                 </option>
 
 <%

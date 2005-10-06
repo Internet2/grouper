@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.57 2005-10-06 17:41:10 acohen Exp $
-  $Date: 2005-10-06 17:41:10 $
+  $Id: main.jsp,v 1.58 2005-10-06 19:45:47 acohen Exp $
+  $Date: 2005-10-06 19:45:47 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -29,7 +29,7 @@
     function setStartButtonStatus()
     {
       // The first entry in the list of grantable Subsystems is always
-      // a place-holder that reads "select privilege type", to prompt the
+      // a place-holder that reads "select a privilege type...", to prompt the
       // user to go ahead and pick a Subsystem.
       //
       // As long as that first entry is selected, the "start" button, which
@@ -241,7 +241,7 @@
               onchange="setStartButtonStatus()">
                 
               <option value="prompt">
-                select privilege type
+                select a privilege type...
               </option>
 
 <%
