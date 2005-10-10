@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.7 2005-10-06 15:20:00 acohen Exp $
-$Date: 2005-10-06 15:20:00 $
+$Id: ConfirmProxyAction.java,v 1.8 2005-10-10 02:17:08 acohen Exp $
+$Date: 2005-10-10 02:17:08 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -75,7 +75,7 @@ public final class ConfirmProxyAction extends BaseAction
     Date    effectiveDate   = null;
     Date    expirationDate  = null;
   
-    PrivilegedSubject grantor
+    PrivilegedSubject loggedInUser
       = (PrivilegedSubject)
           (session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
   
@@ -149,14 +149,14 @@ public final class ConfirmProxyAction extends BaseAction
     if (proxy != null)
     {
       // We're editing an existing Proxy.
-      proxy.setEffectiveDate(grantor, effectiveDate);
-      proxy.setExpirationDate(grantor, expirationDate);
+      proxy.setEffectiveDate(loggedInUser, effectiveDate);
+      proxy.setExpirationDate(loggedInUser, expirationDate);
     }
     else
     {
       // We're creating a new Proxy.
       proxy
-        = grantor.grantProxy
+        = loggedInUser.grantProxy
             (currentGrantee,
              subsystem,
              true,  // canUse

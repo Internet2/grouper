@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.28 2005-10-06 19:52:24 acohen Exp $
- $Date: 2005-10-06 19:52:24 $
+ $Id: PrivilegedSubjectImpl.java,v 1.29 2005-10-10 02:17:08 acohen Exp $
+ $Date: 2005-10-10 02:17:08 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1400,7 +1400,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
            effectiveDate,
            expirationDate);
 
-    this.addProxyGranted(newProxy);
+    ((PrivilegedSubjectImpl)(this.getEffectiveEditor()))
+      .addProxyGranted(newProxy);
     ((PrivilegedSubjectImpl) grantee).addProxyReceived(newProxy);
 
     return newProxy;
