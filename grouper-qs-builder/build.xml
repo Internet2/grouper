@@ -58,7 +58,7 @@
 			 <mkdir dir="${quickstart.dir}/grouper/dist/lib"/>
 			 <mkdir dir="${quickstart.dir}/grouper/dist/run"/>
 			<ant dir="${grouper.folder}" target="dist"/>
-			<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>
+			<copy file="${grouper.folder}/dist/lib/Grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/Grouper.jar"/>
 			 <copy todir="${quickstart.dir}/grouper/dist/lib">
 				 <fileset dir="${grouper.folder}/java/lib"/>
 			 </copy>
