@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Stem.hbm.xml,v 1.1.2.1 2005-10-10 20:20:08 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Stem" table="grouper_stem">
+
+    <meta attribute="class-description">
+A namespace within the Groups Registry.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- childStems -->
+    <set name="childStems">
+      <meta attribute="field-description">
+Get child stems.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+      <key column="id"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Stem"/>
+    </set>
+    <!-- childStems -->
+
+    <!-- creator -->
+    <!-- TODO Associate with a member -->
+    <property 
+      name="creator"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get creator.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- creator -->
+
+    <!-- createTime -->
+    <property 
+      name="createTime"
+      type="java.util.Date"
+      not-null="true"
+      update="false"
+    >
+      <meta attribute="field-description">
+Get create time.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- createTime -->
+
+    <!-- description -->
+    <property 
+      name="description"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get description.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- description -->
+
+    <!-- displayExtension -->
+    <property
+      name="displayExtension"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get stem displayExtension.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- displayExtension -->
+
+    <!-- displayName -->
+    <property
+      name="displayName"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get stem displayName.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- displayName -->
+
+    <!-- extension -->
+    <property
+      name="extension"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get stem extension.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- extension -->
+
+    <!-- modifier -->
+    <!-- TODO Associate with a member -->
+    <property 
+      name="modifier"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get last modifier.
+      </meta> 
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- modifier -->
+
+    <!-- modifyTime -->
+    <!-- TODO Associate with a member -->
+    <property 
+      name="modifyTime"
+      type="java.util.Date"
+    >
+      <meta attribute="class-description">
+Get last modify time.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- modifyTime -->
+
+    <!-- name -->
+    <property
+      name="name"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get stem name.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- name -->
+
+    <!-- parentStem -->
+    <one-to-one 
+      name="parentStem" 
+      class="edu.internet2.middleware.grouper.Stem"
+    >
+      <meta attribute="field-description">
+Get parent stem.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+    </one-to-one>
+    <!-- parentStem -->
+
+    <!-- uuid -->
+    <property 
+      name="uuid"
+      type="string"
+      length="32"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get UUID.
+      </meta>
+      <meta attribute="finder-method">findByUuid</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- uuid -->
+
+  </class>
+</hibernate-mapping>
+
