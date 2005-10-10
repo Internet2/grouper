@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview-print.jsp,v 1.16 2005-10-06 17:02:07 acohen Exp $
-  $Date: 2005-10-06 17:02:07 $
+  $Id: personview-print.jsp,v 1.17 2005-10-10 04:27:22 acohen Exp $
+  $Date: 2005-10-10 04:27:22 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -29,6 +29,7 @@
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ page import="java.util.TreeSet" %>
+<%@ page import="java.util.Date" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
@@ -37,6 +38,7 @@
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+<%@ page import="edu.internet2.middleware.signet.Proxy" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -69,10 +71,10 @@
       <div id="Layout"> 
 	 --> 
         <h1>
-          <%=(currentSubsystem == null ? "" : currentSubsystem.getName())%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
+          <%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "All" : currentSubsystem.getName())%> privileges assigned to <%=currentGranteePrivilegedSubject.getName()%>
         </h1>
           <p class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></p> 
-		  <p class="dropback">Report as of (date time)</p> 
+		  <p class="dropback">Report as of <%=dateFormat.format(new Date())%></p> 
       <a href="PersonView.do"><img src="images/arrow_left.gif" alt="" />return</a>
 
         
@@ -88,7 +90,18 @@
   {
     Set assignmentsReceivedForCurrentSubsystem
       = currentGranteePrivilegedSubject
-          .getAssignmentsReceived(Status.ACTIVE, currentSubsystem, null);
+          .getAssignmentsReceived
+          	(Status.ACTIVE,
+             (currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? null : currentSubsystem),
+             null);
+             
+    Set proxiesReceivedForCurrentSubsystem
+      = currentGranteePrivilegedSubject
+          .getProxiesReceived
+          	(Status.ACTIVE,
+             (currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? null : currentSubsystem),
+             null);
+             
     Iterator assignmentsIterator = assignmentsReceivedForCurrentSubsystem.iterator();
     while (assignmentsIterator.hasNext())
     {
@@ -109,6 +122,32 @@
                 <%=Common.displayLimitValues(assignment)%>
               </td> <!-- limits -->
               <td> <!-- status -->
+                <%=Common.displayStatus(assignment)%>
+              </td> <!-- status -->
+            </tr>
+<%
+    }
+    
+             
+    Iterator proxiesIterator = proxiesReceivedForCurrentSubsystem.iterator();
+    while (proxiesIterator.hasNext())
+    {
+      Proxy proxy = (Proxy)(proxiesIterator.next());
+%>
+  
+            <tr>
+              <td>
+                Proxy
+              </td>
+              <td>
+                <span class="label">acting as </span><%=proxy.getGrantor().getName()%>
+              </td>
+              
+              <td> <!-- limits -->
+                <span class="label">Grant privileges in: </span><%=currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "any" : currentSubsystem.getName()%>
+              </td> <!-- limits -->
+              <td> <!-- status -->
+                <%=Common.displayStatus(proxy)%>
               </td> <!-- status -->
             </tr>
 <%

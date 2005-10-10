@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main-print.jsp,v 1.18 2005-09-15 21:08:18 jvine Exp $
-  $Date: 2005-09-15 21:08:18 $
+  $Id: main-print.jsp,v 1.19 2005-10-10 04:27:22 acohen Exp $
+  $Date: 2005-10-10 04:27:22 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -30,6 +30,7 @@
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ page import="java.util.TreeSet" %>
+<%@ page import="java.util.Date" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
@@ -38,6 +39,7 @@
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
+<%@ page import="edu.internet2.middleware.signet.Proxy" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
@@ -59,8 +61,8 @@
       <tiles:insert page="/tiles/header.jsp" flush="true" />
       <div id="Layout"> 
 	-->  
-       <h1>Privileges granted by ...</h1>
-		  <p class="dropback">Report as of (date time)</p>
+       <h1>Privileges granted by <%=loggedInPrivilegedSubject.getName()%></h1>
+		  <p class="dropback">Report as of <%=dateFormat.format(new Date())%></p>
         <a href="Start.do"><img src="images/arrow_left.gif" alt="" />return</a>
   	    
         <table>            
@@ -86,11 +88,6 @@
                 Status
               </b>
             </td>
-            <td>
-              <b>
-                Granted
-              </b>
-            </td>
           </tr>
 	        
 	  
@@ -98,6 +95,11 @@
   Set assignmentSet
     = new TreeSet
         (loggedInPrivilegedSubject.getAssignmentsGranted(null, null, null));
+
+  Set proxySet
+    = new TreeSet
+        (loggedInPrivilegedSubject.getProxiesGranted(null, null, null));
+        
   Iterator assignmentIterator = assignmentSet.iterator();
   while (assignmentIterator.hasNext())
   {
@@ -133,13 +135,39 @@
   + (assignment.canGrant() ? ", can grant" : "")
 %>
             </td> <!-- status -->
-            
-            <td> <!-- granted -->
-<%=
-  // dateFormat.format(assignment.getCreateDateTime())
-  ""
+          </tr>
+  	
+<% 
+  }
+        
+  Iterator proxyIterator = proxySet.iterator();
+  while (proxyIterator.hasNext())
+  {
+    Proxy proxy = (Proxy)(proxyIterator.next());
+    PrivilegedSubject grantee = proxy.getGrantee();
+    Subsystem subsystem = proxy.getSubsystem();
 %>
-            </td> <!-- granted -->
+	        
+          <tr>
+            <td> <!-- person -->
+              <%=grantee.getName()%>
+            </td> <!-- person -->
+            
+            <td> <!-- privilege -->
+              Proxy
+            </td> <!-- privilege -->
+            
+            <td> <!-- scope -->
+              <span class="label">acting as </span><%=proxy.getGrantor().getName()%>
+            </td> <!-- scope -->
+            
+            <td> <!-- limits -->
+              <span class="label">Grant privileges in: </span><%=subsystem == null ? "any" : subsystem.getName()%>
+            </td> <!-- limits -->
+            
+            <td> <!-- status -->
+              <%=Common.displayStatus(proxy)%>
+            </td> <!-- status -->
           </tr>
   	
 <% 

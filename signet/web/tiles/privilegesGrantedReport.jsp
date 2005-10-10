@@ -44,7 +44,20 @@
       Export to Excel
     </a>
     <a
+<%
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  {
+%>
       href="MainPrint.do">
+<%
+  }
+  else
+  {
+%>
+      href="PersonViewPrint.do">
+<%
+  }
+%>
       <img
         src="images/print.gif"
         alt="" />
