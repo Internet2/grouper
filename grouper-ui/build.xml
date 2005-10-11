@@ -254,7 +254,9 @@
 			<equals arg1="${web.xmls}" arg2=""/>
 		</condition>
 		<echo message="web.xmls.isempty=:${web.xmls.isempty}:"/>
-		<antcall target="-merge-xmls"/>
+		<antcall target="-merge-xmls">
+			<reference refid="ui.class.path" torefid="merge.class.path"/>
+		</antcall>
 		<antcall target="-copy-core-web-xml"/>
 		
 		<antcall target="-copyContextXmlToMetaInf"/>
@@ -293,7 +295,7 @@
 			</fileset>
 		</path>
 		<property name="final.web.xmls" refid="final.web.xml.files"/>
-		<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="ui.class.path" outputproperty="mergeOutput" resultProperty="result">
+		<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="merge.class.path" outputproperty="mergeOutput" resultProperty="result">
 			<arg value="${temp.dir}"/>
 			<arg value="${final.web.xmls}"/>
 			<arg value="${ui.folder}/web-xml-merge.xsl"/>
