@@ -125,6 +125,14 @@
           <forward name="success" path="/assignment.jsp" />
       </action>
 
+      <!-- Signet proxy-details page -->
+      <action    path="/Proxy"
+                 type="edu.internet2.middleware.signet.ui.ProxyAction">
+          <forward name="notInitialized" path="/Start.do" />
+          <forward name="failure" path="/error.jsp" />
+          <forward name="success" path="/proxy.jsp" />
+      </action>
+
       <!-- Signet assignment-revocation action -->
       <action    path="/Revoke"
                  type="edu.internet2.middleware.signet.ui.RevokeAction">

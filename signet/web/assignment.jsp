@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.18 2005-08-25 20:31:35 acohen Exp $
-  $Date: 2005-08-25 20:31:35 $
+  $Id: assignment.jsp,v 1.19 2005-10-11 19:27:35 acohen Exp $
+  $Date: 2005-10-11 19:27:35 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -143,7 +143,7 @@
         </td>
       </tr>
       <tr>
-      	<td class="label"> Granted on: </td>
+      	<td class="label"> Effective on: </td>
       	<td><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
      	</tr>
 

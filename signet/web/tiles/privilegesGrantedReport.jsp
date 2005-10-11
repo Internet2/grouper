@@ -253,6 +253,7 @@
 %>
               
           <td> <!-- privilege -->
+            <%=Common.proxyPopupIcon(proxy)%>
             Proxy
           </td> <!-- privilege -->
               
