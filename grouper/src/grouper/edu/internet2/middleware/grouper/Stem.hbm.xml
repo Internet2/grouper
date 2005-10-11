@@ -3,10 +3,10 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.1 2005-10-10 20:20:08 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.2 2005-10-11 20:30:09 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Stem" table="grouper_stem">
+  <class name="Stem" table="grouper_stems">
 
     <meta attribute="class-description">
 A namespace within the Groups Registry.
@@ -27,6 +27,17 @@ A namespace within the Groups Registry.
     <!-- version -->
 
 
+    <!-- childGroups -->
+    <set name="childGroups">
+      <meta attribute="field-description">
+Get child groups.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+      <key column="id"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Group"/>
+    </set>
+    <!-- childGroups -->
+
     <!-- childStems -->
     <set name="childStems">
       <meta attribute="field-description">
@@ -39,18 +50,15 @@ Get child stems.
     <!-- childStems -->
 
     <!-- creator -->
-    <!-- TODO Associate with a member -->
-    <property 
-      name="creator"
-      type="string"
-      length="255"
-      not-null="true"
+    <one-to-one 
+      name="creator" 
+      class="edu.internet2.middleware.grouper.Member"
     >
       <meta attribute="field-description">
 Get creator.
       </meta>
       <meta attribute="scope-get">public</meta>
-    </property>
+    </one-to-one>
     <!-- creator -->
 
     <!-- createTime -->
@@ -87,7 +95,7 @@ Get description.
       length="255"
     >
       <meta attribute="field-description">
-Get stem displayExtension.
+Get displayExtension.
       </meta>
       <meta attribute="scope-get">public</meta>
     </property>
@@ -100,7 +108,7 @@ Get stem displayExtension.
       length="255"
     >
       <meta attribute="field-description">
-Get stem displayName.
+Get displayName.
       </meta>
       <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-tostring">true</meta>
@@ -114,28 +122,25 @@ Get stem displayName.
       length="255"
     >
       <meta attribute="field-description">
-Get stem extension.
+Get extension.
       </meta>
       <meta attribute="scope-get">public</meta>
     </property>
     <!-- extension -->
 
     <!-- modifier -->
-    <!-- TODO Associate with a member -->
-    <property 
-      name="modifier"
-      type="string"
-      length="255"
+    <one-to-one 
+      name="modifier" 
+      class="edu.internet2.middleware.grouper.Member"
     >
       <meta attribute="field-description">
 Get last modifier.
-      </meta> 
+      </meta>
       <meta attribute="scope-get">public</meta>
-    </property>
+    </one-to-one>
     <!-- modifier -->
 
     <!-- modifyTime -->
-    <!-- TODO Associate with a member -->
     <property 
       name="modifyTime"
       type="java.util.Date"
@@ -154,7 +159,7 @@ Get last modify time.
       length="255"
     >
       <meta attribute="field-description">
-Get stem name.
+Get name.
       </meta>
       <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-tostring">true</meta>
@@ -162,15 +167,16 @@ Get stem name.
     <!-- name -->
 
     <!-- parentStem -->
-    <one-to-one 
-      name="parentStem" 
+    <many-to-one
+      name="parentStem"
       class="edu.internet2.middleware.grouper.Stem"
     >
       <meta attribute="field-description">
 Get parent stem.
       </meta>
       <meta attribute="scope-get">public</meta>
-    </one-to-one>
+      <column name="parentStem" sql-type="char(32)"/>
+    </many-to-one>
     <!-- parentStem -->
 
     <!-- uuid -->

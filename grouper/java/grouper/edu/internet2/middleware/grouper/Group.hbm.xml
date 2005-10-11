@@ -3,13 +3,13 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.2 2005-10-11 20:30:09 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.1 2005-10-11 20:30:09 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Stem" table="grouper_stems">
+  <class name="Group" table="grouper_groups">
 
     <meta attribute="class-description">
-A namespace within the Groups Registry.
+A group within the Groups Registry.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
@@ -26,28 +26,6 @@ A namespace within the Groups Registry.
     <version name="version"/>
     <!-- version -->
 
-
-    <!-- childGroups -->
-    <set name="childGroups">
-      <meta attribute="field-description">
-Get child groups.
-      </meta>
-      <meta attribute="scope-get">public</meta>
-      <key column="id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Group"/>
-    </set>
-    <!-- childGroups -->
-
-    <!-- childStems -->
-    <set name="childStems">
-      <meta attribute="field-description">
-Get child stems.
-      </meta>
-      <meta attribute="scope-get">public</meta>
-      <key column="id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Stem"/>
-    </set>
-    <!-- childStems -->
 
     <!-- creator -->
     <one-to-one 

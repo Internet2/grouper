@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Member.hbm.xml,v 1.1.2.1 2005-10-11 20:30:09 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Member" table="grouper_members">
+
+    <meta attribute="class-description">
+A member within the Groups Registry.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- subject_id -->
+    <property 
+      name="subject_id"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get Subject ID.
+      </meta>
+      <meta attribute="finder-method">findBySubjectId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- subject_id -->
+
+    <!-- subject_source -->
+    <property 
+      name="subject_source"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get Subject source.
+      </meta>
+      <meta attribute="finder-method">findBySubjectSource</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- subject_source -->
+
+    <!-- subject_type -->
+    <property 
+      name="subject_type"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get Subject type.
+      </meta>
+      <meta attribute="finder-method">findBySubjectType</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- subject_type -->
+
+    <!-- uuid -->
+    <property 
+      name="uuid"
+      type="string"
+      length="32"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get UUID.
+      </meta>
+      <meta attribute="finder-method">findByUuid</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- uuid -->
+
+  </class>
+</hibernate-mapping>
+
