@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.58 2005-10-06 19:45:47 acohen Exp $
-  $Date: 2005-10-06 19:45:47 $
+  $Id: main.jsp,v 1.59 2005-10-11 17:13:20 acohen Exp $
+  $Date: 2005-10-11 17:13:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -329,7 +329,7 @@
              (loggedInPrivilegedSubject,
               Constants.ACTING_FOR_SELECT_ID)%>
         <br/>
-        <a href='Designate.do'>
+        <a href='Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true'>
           <img src="images/arrow_right.gif" alt="" />
           Designate a granting proxy
         </a>

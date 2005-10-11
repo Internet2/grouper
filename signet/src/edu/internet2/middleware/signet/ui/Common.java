@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.34 2005-10-11 03:40:00 acohen Exp $
-  $Date: 2005-10-11 03:40:00 $
+  $Id: Common.java,v 1.35 2005-10-11 17:13:20 acohen Exp $
+  $Date: 2005-10-11 17:13:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1307,6 +1307,43 @@ public class Common
     }
     
     return subsystems;
+  }
+  
+  public static String displayLimitType(Proxy proxy)
+  {
+    String displayStr;
+    
+    if (proxy.canExtend() && proxy.canUse())
+    {
+      displayStr = "Extend proxy for and grant privileges in:";
+    }
+    else if (proxy.canExtend())
+    {
+      displayStr = "Extend proxy for:";
+    }
+    else
+    {
+      displayStr = "Grant privileges in:";
+    }
+    
+    return displayStr;
+  }
+  
+  public static String displaySubsystem(Proxy proxy)
+  {
+    String    displayStr;
+    Subsystem subsystem = proxy.getSubsystem();
+    
+    if ((subsystem == null) || (subsystem == Constants.WILDCARD_SUBSYSTEM))
+    {
+      displayStr = "any subsystem";
+    }
+    else
+    {
+      displayStr = subsystem.getName();
+    }
+    
+    return displayStr;
   }
   
 //  public static Set getExtensibleProxies

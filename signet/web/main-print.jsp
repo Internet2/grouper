@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main-print.jsp,v 1.19 2005-10-10 04:27:22 acohen Exp $
-  $Date: 2005-10-10 04:27:22 $
+  $Id: main-print.jsp,v 1.20 2005-10-11 17:13:20 acohen Exp $
+  $Date: 2005-10-11 17:13:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -162,7 +162,7 @@
             </td> <!-- scope -->
             
             <td> <!-- limits -->
-              <span class="label">Grant privileges in: </span><%=subsystem == null ? "any" : subsystem.getName()%>
+              <span class="label"><%=Common.displayLimitType(proxy)%> </span><%=Common.displaySubsystem(proxy)%>
             </td> <!-- limits -->
             
             <td> <!-- status -->

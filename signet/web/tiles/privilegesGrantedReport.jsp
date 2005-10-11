@@ -262,7 +262,7 @@
               
           <td> <!-- limits -->
             <%=Common.editLink(pSubject, proxy)%>
-            <span class="label">Grant privileges in: </span><%=subsystem == null ? "any" : subsystem.getName()%>
+            <span class="label"><%=Common.displayLimitType(proxy)%> </span><%=Common.displaySubsystem(proxy)%>
           </td> <!-- limits -->
               
           <td> <!-- status -->
