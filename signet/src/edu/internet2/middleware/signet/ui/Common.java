@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.35 2005-10-11 17:13:20 acohen Exp $
-  $Date: 2005-10-11 17:13:20 $
+  $Id: Common.java,v 1.36 2005-10-11 18:06:31 acohen Exp $
+  $Date: 2005-10-11 18:06:31 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1185,14 +1185,12 @@ public class Common
     StringBuffer outStr = new StringBuffer();
     
     outStr.append("<option");
+
     if (option == currentInEffect)
-    {
-      outStr.append(" disabled=\"disabled\"");
-    }
-    else
     {
       outStr.append(" selected=\"selected\"");
     }
+
     outStr.append(" value=\"" + option.name + "\"");
     outStr.append(">");
     outStr.append(option.getDescription());
