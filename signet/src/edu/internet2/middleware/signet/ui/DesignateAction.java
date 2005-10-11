@@ -1,6 +1,6 @@
 /*--
-  $Id: DesignateAction.java,v 1.2 2005-09-26 17:17:50 acohen Exp $
-  $Date: 2005-09-26 17:17:50 $
+  $Id: DesignateAction.java,v 1.3 2005-10-11 03:40:00 acohen Exp $
+  $Date: 2005-10-11 03:40:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -70,6 +70,23 @@ public final class DesignateAction extends BaseAction
     if (signet == null)
     {
       return (mapping.findForward("notInitialized"));
+    }
+    
+    // Wipe out the "currentProxy" attribute if we're explicitly intending to
+    // create a new Proxy.
+    String newProxyVal = request.getParameter(Constants.NEW_PROXY_HTTPPARAMNAME);
+    if ((newProxyVal != null) && (!newProxyVal.equals("")))
+    {
+      session.removeAttribute(Constants.PROXY_ATTRNAME);
+    }
+    
+    // Set the "currentProxy" attribute if we're editing an existing Proxy.
+    String proxyIdStr = request.getParameter(Constants.PROXYID_HTTPPARAMNAME);
+    if ((proxyIdStr != null) && (!proxyIdStr.equals("")))
+    {
+      session.setAttribute
+        (Constants.PROXY_ATTRNAME,
+         signet.getProxy(Integer.parseInt(proxyIdStr)));
     }
 
     // Forward to our success page

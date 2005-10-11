@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.33 2005-10-06 19:17:52 acohen Exp $
-  $Date: 2005-10-06 19:17:52 $
+  $Id: Common.java,v 1.34 2005-10-11 03:40:00 acohen Exp $
+  $Date: 2005-10-11 03:40:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -62,6 +62,9 @@ public class Common
   
   private static final String DATE_FORMAT = "MM-dd-yyyy";
   private static final String DATE_SAMPLE = "mm-dd-yyyy";
+
+  private static final String DATETIME_FORMAT = "dd-MMM-yyyy kk:mm:ss";
+  
   /**
    * @param log
    * @param request
@@ -76,6 +79,13 @@ public class Common
       String[] paramValues = request.getParameterValues(paramName);
       log.warn(prefix + ": " + paramName + "=" + printArray(paramValues));
     }
+  }
+  
+  public static String displayDatetime(Date datetimeVal)
+  {
+    SimpleDateFormat formatter = new SimpleDateFormat(DATETIME_FORMAT);
+    String dateStr = formatter.format(datetimeVal);
+    return dateStr;
   }
 
   /**
@@ -486,13 +496,17 @@ public class Common
     StringBuffer outStr = new StringBuffer();
     String editAction
       = (grantable instanceof Proxy ? "Designate.do" : "Conditions.do");
+    String paramName
+      = (grantable instanceof Proxy
+          ? Constants.PROXYID_HTTPPARAMNAME
+          : "assignmentId");
     
     Decision decision = loggedInPrivilegedSubject.canEdit(grantable);
     if (decision.getAnswer() == true)
     {
       outStr.append("<a\n");
       outStr.append("  style=\"float: right;\"\n");
-      outStr.append("  href=\"" + editAction + "?assignmentId=" + grantable.getId() + "\">\n");
+      outStr.append("  href=\"" + editAction + "?" + paramName + "=" + grantable.getId() + "\">\n");
       outStr.append("  <img\n");
       outStr.append("    src=\"images/arrow_right.gif\"\n");
       outStr.append("      alt=\"\" />\n");
@@ -1081,6 +1095,19 @@ public class Common
      String onClickScript,
      Set    subsystems)
   {
+    return subsystemSelectionSingle
+      (selectName, promptValue, promptText, onClickScript, subsystems, null);
+  }
+  
+  
+  static public String subsystemSelectionSingle
+    (String     selectName,
+     String     promptValue,
+     String     promptText,
+     String     onClickScript,
+     Set        subsystems,
+     Subsystem  selectedSubsystem)
+  {
     StringBuffer outStr = new StringBuffer();
     
     outStr.append("<span style=\"white-space: nowrap;\">\n");
@@ -1090,7 +1117,12 @@ public class Common
     outStr.append("    id=\"" + selectName + "\">\n");
 
     outStr.append("    <option\n");
-    outStr.append("      selected=\"selected\"\n");
+    
+    if (selectedSubsystem == null)
+    {
+      outStr.append("      selected=\"selected\"\n");
+    }
+    
     outStr.append("      value=\"" + promptValue + "\"\n");
     outStr.append("      onclick=\"" + onClickScript + "\">\n");
     outStr.append("      " + promptText + "\n");
@@ -1102,6 +1134,12 @@ public class Common
       Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
 
       outStr.append("    <option\n");
+      
+      if (subsystem.equals(selectedSubsystem))
+      {
+        outStr.append("      selected=\"selected\"\n");
+      }
+      
       outStr.append("      value=\"" + subsystem.getId() + "\"\n");
       outStr.append("      onclick=\"" + onClickScript + "\">\n");
       outStr.append("      " + subsystem.getName() + "\n");

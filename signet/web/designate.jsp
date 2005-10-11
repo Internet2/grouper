@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.10 2005-10-06 19:45:47 acohen Exp $
-  $Date: 2005-10-06 19:45:47 $
+  $Id: designate.jsp,v 1.11 2005-10-11 03:40:00 acohen Exp $
+  $Date: 2005-10-11 03:40:00 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -178,42 +178,85 @@
       <a href="Start.do">
         <%=Constants.HOMEPAGE_NAME%>
       </a>
-      &gt; Designated Driver
+      &gt; <%=currentProxy==null?"":"Edit"%> Designated Driver
     </span> <!-- select -->
   </div> <!-- Navbar -->
 
   <form
     name="form1"
-          method="post"
-          action="ConfirmProxy.do" 
-          onsubmit="return submitOrSearch();"> <!-- TRUE if submit -->
+    method="post"
+    action="ConfirmProxy.do" 
+    onsubmit="return submitOrSearch();"> <!-- TRUE if submit -->
 
     <div id="Layout">
       <div id="Content">
-      <div id="ViewHead">
-		<span class="dropback">Designating a granting proxy for</span>           	
-        <h1>
-          <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>
-       	</h1>
-       	<span class="ident"><%=loggedInPrivilegedSubject.getEffectiveEditor().getDescription()%></span><!--,	Technology Strategy and Support Operations-->
-      </div>
-      <!-- ViewHead -->
+        <div id="ViewHead">
+          <span class="dropback">
+            <%=currentProxy==null?"Designating a":"Editing"%> granting proxy for
+          </span>             
+          <h1>
+            <%=loggedInPrivilegedSubject.getEffectiveEditor().getName()%>
+          </h1>
+          <span class="ident">
+            <%=loggedInPrivilegedSubject.getEffectiveEditor().getDescription()%>
+          </span>
+        </div> <!-- ViewHead -->
  
+<%
+  if (currentProxy != null)
+  {
+%>
         <div class="section">
           <h2>
-            select a privilege type...</h2>
+            Editing proxy
+          </h2>
+          <span style="font-weight: bold;" id="categoryName">
+          </span>
+          <table>
+            <tbody>
+              <tr>
+                <td class="label" width="15%">
+                  Granted to:
+                </td>
+                <td width="85%">
+                  <%=currentProxy.getGrantee().getName()%>
+                  <span class="dropback">
+                    [<%=currentProxy.getGrantee().getDescription()%>]
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="label">
+                  Privilege Type:
+                </td>
+                <td>
+                  <%=currentProxy.getSubsystem().getName()%>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div> <!-- section -->
+<%
+  }
+  else
+  {
+%>
+        <div class="section">
+          <h2>
+            select a privilege type...
+          </h2>
           <div style="margin-left: 25px;">
             <%=Common.subsystemSelectionSingle
                    (Constants.SUBSYSTEM_HTTPPARAMNAME,
                     Constants.SUBSYSTEM_PROMPTVALUE,
                     "select a privilege type...",
                     "setContinueButtonStatus('" + Constants.SUBSYSTEM_HTTPPARAMNAME + "', '" + Constants.SUBSYSTEM_PROMPTVALUE+ "');",
-                    grantableSubsystems)%>
+                    grantableSubsystems,
+                    (currentProxy == null ? null : currentProxy.getSubsystem()))%>
           </div>
-        </div>
-        <!-- section -->
+        </div> <!-- section -->
       
-        <div class="section">		
+        <div class="section">    
           <h2>
             Find subject
           </h2>
@@ -240,13 +283,13 @@
               <!-- The contents of this DIV will be inserted by JavaScript. -->
             </div>
 
-	
+  
      
             <div id="subjectDetails" style="float: left; padding-left: 10px; width: 400px;">
               <span class="category" id="subjectName">
                 <!-- subject name gets inserted by Javascript at subject-selection time -->
               </span> <!-- subjectName -->
-              <br />			  
+              <br />        
               <span class="dropback" id="subjectDescription">
                 <!-- subject description gets inserted by Javascript at subject-selection time -->
               </span> <!-- subjectDescription -->
@@ -255,14 +298,16 @@
                 <!-- subject warning gets inserted by Javascript at subject-selection time -->
               </span>
             </div>  <!-- subjectDetails -->
-          </div> <!-- section -->
-        </div>
-        <!-- table1 -->
-		 
+          </div>
+        </div> <!-- section -->
+<%
+  }
+%>
+     
         <div class="section">
           <h2>Set conditions</h2>
-	      <table>
-	      
+        <table>
+        
             <tr>
               <%=Common.dateSelection
                 (request,
@@ -293,16 +338,23 @@
         
         <div class="section">
         
-          <h2>Complete this designation </h2>	
+          <h2>Complete this designation </h2>  
           <input
             name="continueButton"
+<%
+  if (currentProxy == null)
+  {
+%>
             disabled="true"
+<%
+  }
+%>
             type="submit"
             class="button-def"
             onclick="personSearchButtonHasFocus=false;"
             onfocus="personSearchButtonHasFocus=false;"
             value="<%=(currentProxy==null?"Complete designation":"Save changes")%>" 
-			 />				
+       />        
           <br />
             <a href="Start.do">
               <img src="images/arrow_left.gif" />
@@ -325,8 +377,8 @@
       </div>
   
       <tiles:insert page="/tiles/footer.jsp" flush="true" />
-	
-    </div>	
+  
+    </div>  
   </form>
 </body>
 </html>

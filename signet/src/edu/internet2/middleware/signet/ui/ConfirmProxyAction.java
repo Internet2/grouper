@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.8 2005-10-10 02:17:08 acohen Exp $
-$Date: 2005-10-10 02:17:08 $
+$Id: ConfirmProxyAction.java,v 1.9 2005-10-11 03:40:00 acohen Exp $
+$Date: 2005-10-11 03:40:00 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -94,24 +94,30 @@ public final class ConfirmProxyAction extends BaseAction
     Common.showHttpParams
       ("ConfirmProxyAction.execute()", signet.getLogger(), request);
     
-    PrivilegedSubject currentGrantee
-      = Common.getSubjectFromSelectList
-          (signet,
-           request,
-           Constants.SUBJECT_SELECTLIST_ID,
-           Constants.CURRENTPSUBJECT_ATTRNAME);
+    PrivilegedSubject currentGrantee = null;
+    Subsystem subsystem = null;
     
-    Subsystem subsystem
-    = Common.getSubsystem
-        (signet,
-         request,
-         Constants.SUBSYSTEM_HTTPPARAMNAME,
-         Constants.SUBSYSTEM_ATTRNAME);
-
-    if ((currentGrantee == null) || (subsystem == null))
+    if (proxy == null)
     {
-      // Let's send this user back to square one.
-      return (mapping.findForward("notInitialized"));
+      currentGrantee
+        = Common.getSubjectFromSelectList
+            (signet,
+             request,
+             Constants.SUBJECT_SELECTLIST_ID,
+             Constants.CURRENTPSUBJECT_ATTRNAME);
+    
+      subsystem
+        = Common.getSubsystem
+            (signet,
+             request,
+             Constants.SUBSYSTEM_HTTPPARAMNAME,
+             Constants.SUBSYSTEM_ATTRNAME);
+
+      if ((currentGrantee == null) || (subsystem == null))
+      {
+        // Let's send this user back to square one.
+        return (mapping.findForward("notInitialized"));
+      }
     }
 
     try
@@ -185,9 +191,6 @@ public final class ConfirmProxyAction extends BaseAction
     signet.commit();
   
     session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
-    
-    // Clear the currentProxy out of the HTTP session. We're done with it.
-    session.removeAttribute(Constants.PROXY_ATTRNAME);
 
     // Forward to our success page
     return findSuccess(mapping);
