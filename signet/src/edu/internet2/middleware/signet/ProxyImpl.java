@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.6 2005-09-19 06:37:04 acohen Exp $
- $Date: 2005-09-19 06:37:04 $
+ $Id: ProxyImpl.java,v 1.7 2005-10-12 23:08:52 acohen Exp $
+ $Date: 2005-10-12 23:08:52 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -166,7 +166,7 @@ implements Proxy
     Integer thisId = this.getId();
     Integer otherId = other.getId();
     comparisonResult = thisId.compareTo(otherId);
-    
+
     return comparisonResult;
   }
 

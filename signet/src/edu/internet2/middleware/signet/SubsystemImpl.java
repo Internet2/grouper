@@ -1,6 +1,6 @@
 /*--
- $Id: SubsystemImpl.java,v 1.11 2005-09-23 18:22:05 acohen Exp $
- $Date: 2005-09-23 18:22:05 $
+ $Id: SubsystemImpl.java,v 1.12 2005-10-12 23:08:52 acohen Exp $
+ $Date: 2005-10-12 23:08:52 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -427,6 +427,11 @@ class SubsystemImpl
    */
   public int compareTo(Object o)
   {
+    if (o == null)
+    {
+      return 1;
+    }
+    
     String thisName = null;
     String otherName = null;
 
