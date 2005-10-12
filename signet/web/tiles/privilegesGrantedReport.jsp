@@ -97,7 +97,7 @@
         ="return confirm
            ('Are you sure you want to revoke the'
             + (selectCount() == 1 ? '' : (' ' + selectCount()))
-            + ' selected assignment'
+            + ' selected privilege'
             + (selectCount() > 1 ? 's' : '')
             + '?'
             + ' This action cannot be undone.'

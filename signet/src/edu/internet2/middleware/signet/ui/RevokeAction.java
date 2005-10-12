@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAction.java,v 1.4 2005-09-19 06:37:04 acohen Exp $
-  $Date: 2005-09-19 06:37:04 $
+  $Id: RevokeAction.java,v 1.5 2005-10-12 18:11:16 acohen Exp $
+  $Date: 2005-10-12 18:11:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
-import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 
@@ -77,7 +77,7 @@ public final class RevokeAction extends BaseAction
       = (PrivilegedSubject)
           (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
         
-    // Find the Assignments specified by the multi-valued "revoke" parameter,
+    // Find the Grantable objects specified by the multi-valued "revoke" parameter,
     // and revoke them.
     String[] assignmentIDs = request.getParameterValues("revoke");
     
@@ -85,10 +85,10 @@ public final class RevokeAction extends BaseAction
     
     for (int i = 0; i < assignmentIDs.length; i++)
     {
-      Assignment assignment
-      	= signet.getAssignment(Integer.parseInt(assignmentIDs[i]));
-      assignment.revoke(loggedInPrivilegedSubject);
-      assignment.save();
+      Grantable grantableInstance
+      	= Common.getGrantableFromParamStr(signet, assignmentIDs[i]);
+      grantableInstance.revoke(loggedInPrivilegedSubject);
+      grantableInstance.save();
     }
     
     signet.commit();

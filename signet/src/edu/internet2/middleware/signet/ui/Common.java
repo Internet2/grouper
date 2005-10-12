@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.36 2005-10-11 18:06:31 acohen Exp $
-  $Date: 2005-10-11 18:06:31 $
+  $Id: Common.java,v 1.37 2005-10-12 18:11:16 acohen Exp $
+  $Date: 2005-10-12 18:11:16 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -517,6 +517,45 @@ public class Common
     return outStr.toString();
   }
   
+  public static String paramStr(Grantable grantableInstance)
+  {
+    String typeStr;
+    
+    if (grantableInstance instanceof Assignment)
+    {
+      typeStr = Constants.ASSIGNMENT_HTTPPARAMPREFIX;
+    }
+    else
+    {
+      typeStr = Constants.PROXY_HTTPPARAMPREFIX;
+    }
+    
+    return typeStr + grantableInstance.getId();
+  }
+  
+  public static Grantable getGrantableFromParamStr
+    (Signet signet, String paramStr)
+  throws NumberFormatException, ObjectNotFoundException
+  {
+    Grantable grantableInstance;
+    
+    if (paramStr.startsWith(Constants.ASSIGNMENT_HTTPPARAMPREFIX))
+    {
+      String idStr
+        = paramStr.substring(Constants.ASSIGNMENT_HTTPPARAMPREFIX.length());
+      grantableInstance = signet.getAssignment(Integer.parseInt(idStr));
+    }
+    else
+    {
+
+      String idStr
+        = paramStr.substring(Constants.PROXY_HTTPPARAMPREFIX.length());
+      grantableInstance = signet.getProxy(Integer.parseInt(idStr));
+    }
+    
+    return grantableInstance;
+  }
+  
   public static String revokeBox
     (PrivilegedSubject  loggedInPrivilegedSubject,
      Grantable          grantableInstance,
@@ -531,8 +570,8 @@ public class Common
       outStr.append("  <input\n");
       outStr.append("    name=\"revoke\"\n");
       outStr.append("    type=\"checkbox\"\n");
-      outStr.append("    id=\"" + grantableInstance.getId() + "\"\n");
-      outStr.append("    value=\"" + grantableInstance.getId() + "\"\n");
+      outStr.append("    id=\"" + paramStr(grantableInstance) + "\"\n");
+      outStr.append("    value=\"" + paramStr(grantableInstance) + "\"\n");
       outStr.append("    onclick=\"selectThis(this.checked);\" />\n");
       outStr.append("</td>");
     }
@@ -548,8 +587,8 @@ public class Common
       outStr.append("  <input\n");
       outStr.append("    name=\"revoke\"\n");
       outStr.append("    type=\"checkbox\"\n");
-      outStr.append("    id=\"" + grantableInstance.getId() + "\"\n");
-      outStr.append("    value=\"" + grantableInstance.getId() + "\"\n");
+      outStr.append("    id=\"" + paramStr(grantableInstance) + "\"\n");
+      outStr.append("    value=\"" + paramStr(grantableInstance) + "\"\n");
       outStr.append("    disabled=\"true\"\n");
 //      outStr.append("    title=\"" + revoker.editRefusalExplanation(assignment, "logged-in user") + "\"");
       outStr.append("/>");
