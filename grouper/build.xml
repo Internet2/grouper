@@ -1,29 +1,24 @@
-<!-- $Id: build.xml,v 1.61.2.1 2005-10-10 20:20:08 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.2 2005-10-12 15:23:45 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
   <!-- Global Properties -->
   <property name="app.name"               value="Grouper"/>
-  <property name="src"                    location="java"/>
-  <property name="src.grouper"            location="${src}/grouper"/>
-  <property name="src.test"               location="${src}/tests"/>
-  <property name="build"                  location="build"/>
-  <property name="build.grouper"          location="${build}/grouper"/>
-  <property name="build.lib"              location="${build}/lib"/>
-  <property name="build.test"             location="${build}/test"/>
-  <property name="dist"                   location="dist"/>
-  <property name="javadoc.source"         location="${src.grouper}"/>
-  <property name="javadoc.dest.internal"  location="${dist}/api-int"/>
-  <property name="javadoc.dest.public"    location="${dist}/api"/>
-  <property name="javadoc.packages"       location="edu.internet2.middleware.grouper.*"/>
-  <!-- TODO Use ant -Dsql.type=<foo> -->
-  <property name="sql.type"               value="hsqldb"/>
-  <property name="sql.create"             value="sql/schema-${sql.type}.sql"/>
-  <property name="sql.test-data"          value="sql/test-data-${sql.type}.sql"/>
+  <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
   <property name="impl.url" 
     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
   <property name="impl.vendor"            value="Internet2"/>
   <property name="impl.version"           value="0.9"/>
+
+  <property name="src"                    location="java"/>
+  <property name="dist"                   location="dist"/>
+  <property name="build"                  location="build"/>
+  <property name="build.grouper"          location="${build}/grouper"/>
+  <property name="build.javadoc"          location="${dist}/api"/>
+  <property name="build.lib"              location="${build}/lib"/>
+  <property name="build.test"             location="${build}/test"/>
+  <property name="src.grouper"            location="${src}/grouper"/>
+  <property name="src.test"               location="${src}/tests"/>
   <!-- Global Properties -->
 
   <!-- build -->
@@ -48,6 +43,22 @@
     </hbm2java>
   </target>
   <!-- codegen -->
+
+  <!-- html -->
+  <target name="html" depends="build" description="generate public api docs" >
+    <delete dir="${javadoc.dest.public}" />
+    <mkdir  dir="${javadoc.dest.public}" />
+    <javadoc 
+      packagenames="${javadoc.packages}" 
+      sourcepath="${src.grouper}"
+      destdir="${build.javadoc}"
+      classpathref="project.class.path" 
+      access="public"
+      author="true"
+      stylesheetfile="${basedir}/doc/stylesheet.css"
+    />
+  </target>
+  <!-- html -->
 
   <!-- init -->
   <target name="init">
@@ -132,25 +143,6 @@
 
   <target name="all" depends="dist,test,html" />
 
-  <target name="html" depends="init" description="generate public api docs" >
-    <!-- Let's be sure we clear out old cruft first... -->
-    <delete dir="${javadoc.dest.public}" />
-    <mkdir  dir="${javadoc.dest.public}" />
-<!--
-    <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
--->
-    <javadoc sourcepath="${javadoc.source}" 
-      destdir="${javadoc.dest.public}" 
-      packagenames="${javadoc.packages}" 
-      classpathref="project.class.path" 
-      access="public"
-      author="true"
-      stylesheetfile="${basedir}/doc/stylesheet.css"
-    />
-  </target>
-
-  <target name="javadoc" depends="html"/>
-
   <target name="html-internal" depends="init" description="generate internal api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
     <delete dir="${javadoc.dest.internal}" />
@@ -171,7 +163,7 @@
     </javac>
   </target>
 
-  <target name="test-run" depends="test-build,db-init-test">
+  <target name="test-run" depends="test-build">
     <mkdir dir="${dist}" />
     <mkdir dir="${dist}/run" />
     <java fork="yes" 
@@ -197,38 +189,6 @@
       <arg value="-password"/>
       <arg value="${hibernate.connection.password}"/>
     </java>
-  </target>
-
-  <target name="db-init" depends="init" description="Initialize database">
-    <property file="conf/hibernate.properties"/>
-    <sql
-      classpathref="project.class.path"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="${sql.create}"
-    />
-    <sql
-      classpathref="project.class.path"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="sql/init.sql"
-    />
-  </target>
-
-  <target name="db-init-test" description="Inserts test data into database">
-    <property file="conf/hibernate.properties"/>
-    <sql
-      classpathref="project.class.path"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="${sql.test-data}"
-    />
   </target>
 
   <target name="with.clover" depends="init">
