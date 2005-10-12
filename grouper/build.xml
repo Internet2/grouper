@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.2 2005-10-12 15:23:45 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.3 2005-10-12 15:25:58 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -46,8 +46,8 @@
 
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >
-    <delete dir="${javadoc.dest.public}" />
-    <mkdir  dir="${javadoc.dest.public}" />
+    <delete dir="${build.javadoc}"/>
+    <mkdir  dir="${build.javadoc}"/>
     <javadoc 
       packagenames="${javadoc.packages}" 
       sourcepath="${src.grouper}"
