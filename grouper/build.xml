@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.3 2005-10-12 15:25:58 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.4 2005-10-13 20:26:24 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -100,6 +100,35 @@
   </target>
   <!-- schemaexport -->
 
+  <!-- test-build -->
+  <target name="test-build" depends="build">
+    <javac srcdir="${src.test}" destdir="${build.test}">
+      <classpath refid="project.class.path" />
+<!--
+      <include name="**/*.java" />
+-->
+      <include name="**/TestMonolithic.java" />
+    </javac>
+  </target>
+  <!-- test-build -->
+
+  <!-- test -->
+  <target name="test" depends="test-build">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
+    <java fork="yes" 
+          classname="junit.textui.TestRunner"
+          taskname="junit" 
+          failonerror="true">
+<!-- TODO
+      <arg value="test.edu.internet2.middleware.grouper.TestAll"/>
+-->
+      <arg value="test.edu.internet2.middleware.grouper.TestMonolithic"/>
+      <classpath refid="project.class.path"/>
+    </java>
+  </target>
+  <!-- test -->
+
 
 
   <!-- FIXME What a mess... -->
@@ -152,27 +181,6 @@
       classpathref="project.class.path" 
       access="protected"
       author="true"/>
-  </target>
-
-  <target name="test" depends="test-run"/>
-
-  <target name="test-build" depends="build">
-    <javac srcdir="${src.test}" destdir="${build.test}">
-      <classpath refid="project.class.path" />
-      <include name="**/*.java" />
-    </javac>
-  </target>
-
-  <target name="test-run" depends="test-build">
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
-    <java fork="yes" 
-          classname="junit.textui.TestRunner"
-          taskname="junit" 
-          failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestAll"/>
-      <classpath refid="project.class.path"/>
-    </java>
   </target>
 
   <target name="db" depends="init" description="Launch HSQLDB UI">
