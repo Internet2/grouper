@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Type.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Type" table="grouper_types">
+
+    <meta attribute="class-description">
+Schema specification for a Group type.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- name -->
+    <property
+      name="name"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get type name.
+      </meta>
+      <meta attribute="finder-method">findByName</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- type_id -->
+
+    <!-- fields -->
+    <!-- TODO Map to fields[] -->
+    <property 
+      name="fields"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get fields.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- fields -->
+
+  </class>
+</hibernate-mapping>
+

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Privilege.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Privilege" table="grouper_privileges">
+
+    <meta attribute="class-description">
+Schema specification for Access and Naming privileges.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- name -->
+    <property
+      name="name"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get name.
+      </meta>
+      <meta attribute="finder-method">findByName</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- name -->
+
+    <!-- is_access -->
+    <property 
+      name="is_access"
+      type="boolean"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get whether this is an Access privilege.
+      </meta>
+      <meta attribute="finder-method">findByIsAccess</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- is_access -->
+
+    <!-- is_naming -->
+    <property 
+      name="is_naming"
+      type="boolean"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get whether this is a Naming privilege.
+      </meta>
+      <meta attribute="finder-method">findByIsNaming</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- is_naming -->
+
+  </class>
+</hibernate-mapping>
+

@@ -3,10 +3,13 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.1 2005-10-11 20:30:09 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.2 2005-10-14 18:15:04 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
+
+<!-- TODO attributes[] -->
+<!-- TODO members[] (and other lists) -->
 
     <meta attribute="class-description">
 A group within the Groups Registry.

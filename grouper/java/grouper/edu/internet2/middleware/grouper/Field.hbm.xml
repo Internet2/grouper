@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Field.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Field" table="grouper_fields">
+
+    <meta attribute="class-description">
+Schema specification for a Group attribute or list.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- type_id -->
+    <!-- TODO Map to types -->
+    <property
+      name="type_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get group type.
+      </meta>
+      <meta attribute="finder-method">findByTypeId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="type_id" sql-type="char(32)"/>
+    </property>
+    <!-- type_id -->
+
+    <!-- name -->
+    <property 
+      name="name"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get field name.
+      </meta>
+      <meta attribute="finder-method">findByName</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- name -->
+
+    <!-- read_privilege -->
+    <!-- TODO map to privs -->
+    <property 
+      name="read_privilege"
+      type="string"  
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get read privilege.
+      </meta>
+      <meta attribute="finder-method">findByReadPrivilege</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="read_privilege" sql-type="char(32)"/>
+    </property>
+    <!-- read_privilege -->
+
+    <!-- write_privilege -->
+    <!-- TODO map to privs -->
+    <property 
+      name="write_privilege"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get write privilege.
+      </meta>
+      <meta attribute="finder-method">findByWritePrivilege</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="write_privilege" sql-type="char(32)"/>
+    </property>
+    <!-- write_privilege -->
+
+    <!-- is_list -->
+    <!-- TODO Or should this be a class discriminator? -->
+    <property 
+      name="is_list"
+      type="boolean"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get whether field is a list.
+      </meta>
+      <meta attribute="finder-method">findByIsList</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- name -->
+
+  </class>
+</hibernate-mapping>
+

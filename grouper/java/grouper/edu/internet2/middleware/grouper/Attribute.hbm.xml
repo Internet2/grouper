@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Attribute.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Attribute" table="grouper_attributes">
+
+    <meta attribute="class-description">
+A group attribute within the Groups registry.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- group_id -->
+    <!-- TODO Map to groups -->
+    <!-- TODO Or does this need to be _member_? -->
+    <property
+      name="group_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get attribute group.
+      </meta>
+      <meta attribute="finder-method">findByGroupId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="group_id" sql-type="char(32)"/>
+    </property>
+    <!-- group_id -->
+
+    <!-- field_id -->
+    <!-- TODO Map to fields -->
+    <property 
+      name="field_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get attribute field.
+      </meta>
+      <meta attribute="finder-method">findByFieldId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="field_id" sql-type="char(32)"/>
+    </property>
+    <!-- field_id -->
+
+    <!-- value -->
+    <property 
+      name="value"
+      type="string"
+      length="255"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get attribute value.
+      </meta>
+      <meta attribute="finder-method">findByValue</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- value -->
+
+  </class>
+</hibernate-mapping>
+

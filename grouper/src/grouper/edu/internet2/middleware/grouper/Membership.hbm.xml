@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: Membership.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="Membership" table="grouper_memberships">
+
+    <meta attribute="class-description">
+A list membership in the Groups Registry.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- container_id -->
+    <!-- TODO Get a better name -->
+    <!-- TODO Map to members -->
+    <property
+      name="container_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get membership container.
+      </meta>
+      <meta attribute="finder-method">findByContainerId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="container_id" sql-type="char(32)"/>
+    </property>
+    <!-- container_id -->
+
+    <!-- member_id -->
+    <!-- TODO Map to members -->
+    <property
+      name="member_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get member.
+      </meta>
+      <meta attribute="finder-method">findByMemberId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="member_id" sql-type="char(32)"/>
+    </property>
+    <!-- member_id -->
+
+    <!-- list_id -->
+    <!-- TODO Map to fields -->
+    <property
+      name="list_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get membership list.
+      </meta>
+      <meta attribute="finder-method">findByListId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="list_id" sql-type="char(32)"/>
+    </property>
+    <!-- list_id -->
+
+    <!-- via_id -->
+    <!-- TODO Map to members -->
+    <property
+      name="via_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get membership via container.
+      </meta>
+      <meta attribute="finder-method">findByViaId</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="via_id" sql-type="char(32)"/>
+    </property>
+    <!-- via_id -->
+
+    <!-- count -->
+    <property
+      name="count"
+      type="integer"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get membership hop count.
+      </meta>
+      <meta attribute="finder-method">findByCnt</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- count -->
+
+  </class>
+</hibernate-mapping>
+

@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper">
+  <class name="GrouperSession" table="grouper_sessions">
+
+    <meta attribute="class-description">
+Grouper API session.
+@author blair christensen.
+    </meta>
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" type="string">
+      <meta attribute="use-in-tostring">false</meta>
+      <column name="id" sql-type="char(32)"/>
+      <generator class="uuid.hex"/>
+    </id>
+    <!-- id -->
+    <!-- version -->
+    <version name="version"/>
+    <!-- version -->
+
+
+    <!-- member_id -->
+    <!-- TODO Map to member? -->
+    <property
+      name="member_id"
+      type="string"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get member.
+      </meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="member_id" sql-type="char(32)"/>
+    </property>
+    <!-- member_id -->
+
+    <!-- start_time -->
+    <property 
+      name="start_time"
+      type="java.util.Date"
+      not-null="true"
+      update="false"
+    >
+      <meta attribute="field-description">
+Get start time.
+      </meta>
+      <meta attribute="finder-method">findByStartTime</meta>
+      <meta attribute="scope-get">public</meta>
+    </property>
+    <!-- start_time -->
+
+    <!-- uuid -->
+    <property 
+      name="uuid"
+      type="string"
+      length="32"
+      not-null="true"
+    >
+      <meta attribute="field-description">
+Get UUID.
+      </meta>
+      <meta attribute="finder-method">findByUuid</meta>
+      <meta attribute="scope-get">public</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+    </property>
+    <!-- uuid -->
+
+  </class>
+</hibernate-mapping>
+
