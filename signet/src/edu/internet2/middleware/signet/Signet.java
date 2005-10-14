@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.39 2005-09-23 18:22:05 acohen Exp $
-$Date: 2005-09-23 18:22:05 $
+$Id: Signet.java,v 1.40 2005-10-14 22:34:53 acohen Exp $
+$Date: 2005-10-14 22:34:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -668,14 +668,14 @@ public final class Signet
  }
  
  
- Set findDuplicates(Assignment assignment)
- {
-   Query query;
-   List resultList;
+  Set findDuplicates(Assignment assignment)
+  {
+    Query query;
+    List resultList;
 
-   try
-   {
-     query = session
+    try
+    {
+      query = session
          .createQuery
            ("from edu.internet2.middleware.signet.AssignmentImpl"
             + " as assignment"
@@ -687,49 +687,60 @@ public final class Signet
             + " and scopeNodeID = :scopeNodeId"
             + " and assignmentID != :assignmentId");
 
-     query.setString
-       ("granteeId", assignment.getGrantee().getSubjectId());
-     query.setString
-       ("granteeTypeId", assignment.getGrantee().getSubjectTypeId());
-     query.setString
-       ("functionId", assignment.getFunction().getId());
-     query.setString
-       ("subsystemId", assignment.getFunction().getSubsystem().getId());
-     query.setString
-       ("scopeId", assignment.getScope().getTree().getId());
-     query.setString
-       ("scopeNodeId", assignment.getScope().getId());
-     query.setInteger
-       ("assignmentId",
-        (assignment.getId() == null ? -1 : assignment.getId().intValue()));
+      query.setString
+        ("granteeId", assignment.getGrantee().getSubjectId());
+      query.setString
+        ("granteeTypeId", assignment.getGrantee().getSubjectTypeId());
+      query.setString
+        ("functionId", assignment.getFunction().getId());
+      query.setString
+        ("subsystemId", assignment.getFunction().getSubsystem().getId());
+      query.setString
+        ("scopeId", assignment.getScope().getTree().getId());
+      query.setString
+        ("scopeNodeId", assignment.getScope().getId());
+      query.setInteger
+        ("assignmentId",
+         (assignment.getId() == null ? -1 : assignment.getId().intValue()));
 
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
+      resultList = query.list();
+    }
+    catch (HibernateException e)
+    {
+      throw new SignetRuntimeException(e);
+    }
 
-   Set resultSet = new HashSet(resultList);
+    Set resultSet = new HashSet(resultList);
+    Set editedSet = new HashSet();
+    editedSet.addAll(resultSet);
 
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     Assignment matchedAssignment = (Assignment) (resultSetIterator.next());
-     ((AssignmentImpl) matchedAssignment).setSignet(this);
+    Iterator resultSetIterator = resultSet.iterator();
+    while (resultSetIterator.hasNext())
+    {
+      Assignment matchedAssignment = (Assignment) (resultSetIterator.next());
+      
+      if (matchedAssignment.getStatus() == Status.INACTIVE)
+      {
+        // We don't consider inactive Assignments when hunting for duplicates.
+        editedSet.remove(matchedAssignment);
+      }
+      else
+      {
+        ((AssignmentImpl) matchedAssignment).setSignet(this);
+
+        // Now, let's trim this set of Assignments down further, keeping only
+        // those Assignments whose LimitValues actually match.
      
-     // Now, let's trim this set of Assignments down further, keeping only
-     // those Assignments whose LimitValues actually match.
-     
-     if (!(assignment.getLimitValues()
-           .equals(matchedAssignment.getLimitValues())))
-     {
-       resultSet.remove(matchedAssignment);
-     }
-   }
+        if (!(assignment.getLimitValues()
+             .equals(matchedAssignment.getLimitValues())))
+        {
+          editedSet.remove(matchedAssignment);
+        }
+      }
+    }
 
-   return resultSet;
- }
+    return editedSet;
+  }
  
  
   Set findDuplicates(Proxy proxy)
@@ -754,7 +765,7 @@ public final class Signet
         ("granteeTypeId", proxy.getGrantee().getSubjectTypeId());
       query.setString
         ("subsystemId", proxy.getSubsystem().getId());
-     
+      
       query.setParameter("proxyId", proxy.getId(), Hibernate.INTEGER);
 
       resultList = query.list();
@@ -765,15 +776,26 @@ public final class Signet
     }
 
     Set resultSet = new HashSet(resultList);
+    Set editedSet = new HashSet();
+    editedSet.addAll(resultSet);
 
     Iterator resultSetIterator = resultSet.iterator();
     while (resultSetIterator.hasNext())
     {
       Proxy matchedProxy = (Proxy) (resultSetIterator.next());
-      ((ProxyImpl) matchedProxy).setSignet(this);
+      
+      if (matchedProxy.getStatus() == Status.INACTIVE)
+      {
+        // We don't consider inactive Proxies when hunting for duplicates.
+        editedSet.remove(matchedProxy);
+      }
+      else
+      {
+        ((ProxyImpl) matchedProxy).setSignet(this);
+      }
     }
 
-    return resultSet;
+    return editedSet;
   }
 
  // I really want to do away with this method, having the

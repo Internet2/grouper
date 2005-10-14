@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.12 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: PrivilegedSubjectTest.java,v 1.13 2005-10-14 22:34:53 acohen Exp $
+$Date: 2005-10-14 22:34:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -10,7 +10,6 @@ package edu.internet2.middleware.signet.test;
 
 import java.util.Date;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
@@ -87,7 +86,7 @@ public class PrivilegedSubjectTest extends TestCase
     PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
     
     Set assignmentsForSubject2
-    	= pSubject2.getAssignmentsReceived(null, null, null);
+    	= pSubject2.getAssignmentsReceived((Status)null, null, null);
     
     Assignment assignmentForSubject2
     	= (Assignment)(Common.getSingleSetMember(assignmentsForSubject2));
@@ -179,7 +178,7 @@ public class PrivilegedSubjectTest extends TestCase
       = (Assignment)
           (Common.getFirstSetMember
             (pSubject0.getAssignmentsReceived
-              (null, null, null)));
+              ((Status)null, null, null)));
     Set oldLimitValues = oldAssignment.getLimitValues();
     
     pSubject1.setActingAs(pSubject0);
@@ -222,7 +221,7 @@ public class PrivilegedSubjectTest extends TestCase
     	= (Assignment)
     			(Common.getSingleSetMember
     			  (pSubject2.getAssignmentsReceived
-    			    (null, null, null)));
+    			    ((Status)null, null, null)));
     Set oldLimitValues = oldAssignment.getLimitValues();
     
     Assignment newAssignment
@@ -382,14 +381,14 @@ public class PrivilegedSubjectTest extends TestCase
     }
   }
   
-  private int limitNumber(String limitName)
-  {
-    StringTokenizer tokenizer
-    	= new StringTokenizer(limitName, Constants.DELIMITER);
-    String prefix = tokenizer.nextToken();
-    int number = (new Integer(tokenizer.nextToken())).intValue();
-    return number;
-  }
+//  private int limitNumber(String limitName)
+//  {
+//    StringTokenizer tokenizer
+//    	= new StringTokenizer(limitName, Constants.DELIMITER);
+//    String prefix = tokenizer.nextToken();
+//    int number = (new Integer(tokenizer.nextToken())).intValue();
+//    return number;
+//  }
   
   int expectedLimitValuesCount(int subjectNumber)
   {

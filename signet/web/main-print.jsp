@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main-print.jsp,v 1.20 2005-10-11 17:13:20 acohen Exp $
-  $Date: 2005-10-11 17:13:20 $
+  $Id: main-print.jsp,v 1.21 2005-10-14 22:34:53 acohen Exp $
+  $Date: 2005-10-14 22:34:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -94,11 +94,13 @@
 <%
   Set assignmentSet
     = new TreeSet
-        (loggedInPrivilegedSubject.getAssignmentsGranted(null, null, null));
+        (Common.getAssignmentsGrantedForReport
+          (loggedInPrivilegedSubject, null));
 
   Set proxySet
     = new TreeSet
-        (loggedInPrivilegedSubject.getProxiesGranted(null, null, null));
+        (Common.getProxiesGrantedForReport
+          (loggedInPrivilegedSubject, null));
         
   Iterator assignmentIterator = assignmentSet.iterator();
   while (assignmentIterator.hasNext())

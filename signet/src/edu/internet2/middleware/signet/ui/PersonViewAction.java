@@ -1,6 +1,6 @@
 /*--
-  $Id: PersonViewAction.java,v 1.6 2005-10-06 17:02:07 acohen Exp $
-  $Date: 2005-10-06 17:02:07 $
+  $Id: PersonViewAction.java,v 1.7 2005-10-14 22:34:53 acohen Exp $
+  $Date: 2005-10-14 22:34:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -9,9 +9,6 @@
 package edu.internet2.middleware.signet.ui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,8 +19,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
-import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
@@ -100,24 +95,25 @@ public final class PersonViewAction extends BaseAction
     return findSuccess(mapping);
   }
 
-  /**
-   * @param currentGrantee
-   * @return
-   * @throws ObjectNotFoundException
-   */
-  private Subsystem getFirstSubsystemOfReceivedAssignments
-    (PrivilegedSubject grantee) throws ObjectNotFoundException
-  {
-    Subsystem firstSubsystem = null;
-    Set assignmentsReceived = grantee.getAssignmentsReceived(null, null, null);
-    Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
-    if (assignmentsReceivedIterator.hasNext())
-    {
-      firstSubsystem
-      	= ((Assignment)(assignmentsReceivedIterator.next()))
-      			.getFunction().getSubsystem();
-    }
-    
-    return firstSubsystem;
-  }
+//  /**
+//   * @param currentGrantee
+//   * @return
+//   * @throws ObjectNotFoundException
+//   */
+//  private Subsystem getFirstSubsystemOfReceivedAssignments
+//    (PrivilegedSubject grantee) throws ObjectNotFoundException
+//  {
+//    Subsystem firstSubsystem = null;
+//    Set assignmentsReceived
+//      = grantee.getAssignmentsReceived((Status)null, null, null);
+//    Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+//    if (assignmentsReceivedIterator.hasNext())
+//    {
+//      firstSubsystem
+//      	= ((Assignment)(assignmentsReceivedIterator.next()))
+//      			.getFunction().getSubsystem();
+//    }
+//    
+//    return firstSubsystem;
+//  }
 }

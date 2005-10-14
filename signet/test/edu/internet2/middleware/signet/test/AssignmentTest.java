@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.17 2005-09-23 18:22:05 acohen Exp $
-$Date: 2005-09-23 18:22:05 $
+$Id: AssignmentTest.java,v 1.18 2005-10-14 22:34:53 acohen Exp $
+$Date: 2005-10-14 22:34:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -91,7 +91,7 @@ public class AssignmentTest extends TestCase
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       Set assignmentsReceived
         = pSubject.getAssignmentsReceived
-            (null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+            ((Status)null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
       Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
       
       PrivilegedSubject revoker;
@@ -129,7 +129,7 @@ public class AssignmentTest extends TestCase
 
       Set assignmentsReceived
         = pSubject.getAssignmentsReceived
-            (null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+            ((Status)null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
       
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
       while (assignmentsReceivedIterator.hasNext())
@@ -478,7 +478,7 @@ public class AssignmentTest extends TestCase
     
     // Get any one of subject0's Assignments - we don't care which one.
     Set assignmentsReceived
-      = pSubject0.getAssignmentsReceived(null, null, null);
+      = pSubject0.getAssignmentsReceived((Status)null, null, null);
     Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
     while (assignmentsReceivedIterator.hasNext())
     {

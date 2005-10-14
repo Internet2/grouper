@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAndGrantAction.java,v 1.3 2005-09-15 16:01:16 acohen Exp $
-  $Date: 2005-09-15 16:01:16 $
+  $Id: RevokeAndGrantAction.java,v 1.4 2005-10-14 22:34:53 acohen Exp $
+  $Date: 2005-10-14 22:34:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -93,7 +93,8 @@ public final class RevokeAndGrantAction extends BaseAction
     for (int i = 0; i < assignmentIDs.length; i++)
     {
       Assignment assignmentToRevoke
-      	= signet.getAssignment(Integer.parseInt(assignmentIDs[i]));
+        = (Assignment)
+            (Common.getGrantableFromParamStr(signet, assignmentIDs[i]));
       assignmentToRevoke.revoke(loggedInPrivilegedSubject);
       assignmentToRevoke.save();
     }

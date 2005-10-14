@@ -157,23 +157,25 @@
   {
     assignmentSet
       = new TreeSet
-          (pSubject.getAssignmentsGranted
-            (Status.ACTIVE, subsystemFilter, null));
+          (Common.getAssignmentsGrantedForReport
+            (pSubject, subsystemFilter));
+
     proxySet
       = new TreeSet
-          (pSubject.getProxiesGranted
-            (Status.ACTIVE, subsystemFilter, null));
+          (Common.getProxiesGrantedForReport
+            (pSubject, subsystemFilter));
   }
   else
   {
     assignmentSet
       = new TreeSet
-          (pSubject.getAssignmentsReceived
-            (Status.ACTIVE, subsystemFilter, null));
+          (Common.getAssignmentsReceivedForReport
+            (pSubject, subsystemFilter));
+
     proxySet
       = new TreeSet
-          (pSubject.getProxiesReceived
-            (Status.ACTIVE, subsystemFilter, null));
+          (Common.getProxiesReceivedForReport
+            (pSubject, subsystemFilter));
   }
   
   Iterator assignmentIterator = assignmentSet.iterator();

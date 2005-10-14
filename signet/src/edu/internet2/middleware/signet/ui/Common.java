@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.37 2005-10-12 18:11:16 acohen Exp $
-  $Date: 2005-10-12 18:11:16 $
+  $Id: Common.java,v 1.38 2005-10-14 22:34:53 acohen Exp $
+  $Date: 2005-10-14 22:34:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1381,6 +1381,46 @@ public class Common
     }
     
     return displayStr;
+  }
+  
+  public static Set getAssignmentsGrantedForReport
+    (PrivilegedSubject pSubject, Subsystem subsystem)
+  {
+    Set statusSet = new HashSet(2);
+    statusSet.add(Status.ACTIVE);
+    statusSet.add(Status.PENDING);
+    
+    return pSubject.getAssignmentsGranted(statusSet, subsystem, null);
+  }
+  
+  public static Set getAssignmentsReceivedForReport
+    (PrivilegedSubject pSubject, Subsystem subsystem)
+  {
+    Set statusSet = new HashSet(2);
+    statusSet.add(Status.ACTIVE);
+    statusSet.add(Status.PENDING);
+    
+    return pSubject.getAssignmentsReceived(statusSet, subsystem, null);
+  }
+  
+  public static Set getProxiesGrantedForReport
+    (PrivilegedSubject pSubject, Subsystem subsystem)
+  {
+    Set statusSet = new HashSet(2);
+    statusSet.add(Status.ACTIVE);
+    statusSet.add(Status.PENDING);
+    
+    return pSubject.getProxiesGranted(statusSet, subsystem, null);
+  }
+  
+  public static Set getProxiesReceivedForReport
+    (PrivilegedSubject pSubject, Subsystem subsystem)
+  {
+    Set statusSet = new HashSet(2);
+    statusSet.add(Status.ACTIVE);
+    statusSet.add(Status.PENDING);
+    
+    return pSubject.getProxiesReceived(statusSet, subsystem, null);
   }
   
 //  public static Set getExtensibleProxies

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.29 2005-10-10 02:17:08 acohen Exp $
- $Date: 2005-10-10 02:17:08 $
+ $Id: PrivilegedSubjectImpl.java,v 1.30 2005-10-14 22:34:53 acohen Exp $
+ $Date: 2005-10-14 22:34:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -415,7 +415,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Iterator iterator
       = this
           .getEffectiveEditor()
-            .getAssignmentsReceived(null, null, null)
+            .getAssignmentsReceived((Status)null, null, null)
               .iterator();
     while (iterator.hasNext())
     {
@@ -444,7 +444,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Iterator iterator
       = this
           .getEffectiveEditor()
-            .getAssignmentsReceived(null, null, null)
+            .getAssignmentsReceived((Status)null, null, null)
               .iterator();
     
     while (iterator.hasNext())
@@ -731,6 +731,25 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
      Subsystem          subsystem,
      PrivilegedSubject  grantee)
   {
+    Set statusSet = null;
+    
+    if (status != null)
+    {
+      statusSet = new HashSet();
+      statusSet.add(status);
+    }
+    return this.getAssignmentsGranted(statusSet, subsystem, grantee);
+  }
+
+  /**
+   * @return Returns the assignmentsGranted.
+   * @throws ObjectNotFoundException
+   */
+  public Set getAssignmentsGranted
+    (Set                statusSet,
+     Subsystem          subsystem,
+     PrivilegedSubject  grantee)
+  {
     // I really want to handle this purely through Hibernate mappings, but
     // I haven't figured out how yet. When we switch to a persistent
     // PrivilegedSubject with its own synthetic, simple ID, this code will
@@ -751,7 +770,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     Set resultSet = UnmodifiableSet.decorate(this.assignmentsGranted);
-    resultSet = filterAssignments(resultSet, status);
+    resultSet = filterAssignments(resultSet, statusSet);
     resultSet = filterAssignments(resultSet, subsystem);
     resultSet = filterAssignmentsByGrantee(resultSet, grantee);
 
@@ -760,6 +779,22 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   
   public Set getProxiesGranted
     (Status             status,
+     Subsystem          subsystem,
+     PrivilegedSubject  grantee)
+  {
+    Set statusSet = null;
+    
+    if (status != null)
+    {
+      statusSet = new HashSet();
+      statusSet.add(status);
+    }
+    
+    return getProxiesGranted(statusSet, subsystem, grantee);
+  }
+  
+  public Set getProxiesGranted
+    (Set                statusSet,
      Subsystem          subsystem,
      PrivilegedSubject  grantee)
   {
@@ -783,7 +818,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     Set resultSet = UnmodifiableSet.decorate(this.proxiesGranted);
-    resultSet = filterProxies(resultSet, status);
+    resultSet = filterProxies(resultSet, statusSet);
     resultSet = filterProxies(resultSet, subsystem);
     resultSet = filterProxiesByGrantee(resultSet, grantee);
 
@@ -805,6 +840,24 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public Set getAssignmentsReceived
     (Status status, Subsystem subsystem, Function function)
   {
+    Set statusSet = null;
+    
+    if (status != null)
+    {
+      statusSet = new HashSet();
+      statusSet.add(status);
+    }
+    
+    return getAssignmentsReceived(statusSet, subsystem, function);
+  }
+
+  /**
+   * @return Returns the assignmentsReceived.
+   * @throws ObjectNotFoundException
+   */
+  public Set getAssignmentsReceived
+    (Set statusSet, Subsystem subsystem, Function function)
+  {
     // I really want to handle this purely through Hibernate
     // mappings, but I haven't figured out how yet.
 
@@ -824,7 +877,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     Set resultSet = UnmodifiableSet.decorate(this.assignmentsReceived);
-    resultSet = filterAssignments(resultSet, status);
+    resultSet = filterAssignments(resultSet, statusSet);
     resultSet = filterAssignments(resultSet, subsystem);
     resultSet = filterAssignments(resultSet, function);
 
@@ -833,6 +886,20 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
   public Set getProxiesReceived
     (Status status, Subsystem subsystem, PrivilegedSubject grantor)
+  {
+    Set statusSet = null;
+    
+    if (status != null)
+    {
+      statusSet = new HashSet();
+      statusSet.add(status);
+    }
+    
+    return this.getProxiesReceived(statusSet, subsystem, grantor);
+  }
+
+  public Set getProxiesReceived
+    (Set statusSet, Subsystem subsystem, PrivilegedSubject grantor)
   {
     // I really want to handle this purely through Hibernate
     // mappings, but I haven't figured out how yet. This method will be
@@ -855,16 +922,16 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
 
     Set resultSet = UnmodifiableSet.decorate(this.proxiesReceived);
-    resultSet = filterProxies(resultSet, status);
+    resultSet = filterProxies(resultSet, statusSet);
     resultSet = filterProxies(resultSet, subsystem);
     resultSet = filterProxiesByGrantor(resultSet, grantor);
 
     return resultSet;
   }
 
-  private Set filterAssignments(Set all, Status status)
+  private Set filterAssignments(Set all, Set statusSet)
   {
-    if (status == null)
+    if (statusSet == null)
     {
       return all;
     }
@@ -874,7 +941,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       Assignment candidate = (Assignment) (iterator.next());
-      if (candidate.getStatus().equals(status))
+      if (statusSet.contains(candidate.getStatus()))
       {
         subset.add(candidate);
       }
@@ -883,9 +950,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
 
-  private Set filterProxies(Set all, Status status)
+  private Set filterProxies(Set all, Set statusSet)
   {
-    if (status == null)
+    if (statusSet == null)
     {
       return all;
     }
@@ -895,7 +962,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     while (iterator.hasNext())
     {
       Proxy candidate = (Proxy) (iterator.next());
-      if (candidate.getStatus().equals(status))
+      if (statusSet.contains(candidate.getStatus()))
       {
         subset.add(candidate);
       }

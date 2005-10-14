@@ -1,6 +1,6 @@
 /*--
-  $Id: RevokeAndGrantProxyAction.java,v 1.5 2005-10-11 17:13:20 acohen Exp $
-  $Date: 2005-10-11 17:13:20 $
+  $Id: RevokeAndGrantProxyAction.java,v 1.6 2005-10-14 22:34:53 acohen Exp $
+  $Date: 2005-10-14 22:34:53 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -93,7 +93,7 @@ public final class RevokeAndGrantProxyAction extends BaseAction
     for (int i = 0; i < proxyIDs.length; i++)
     {
       Proxy proxyToRevoke
-      	= signet.getProxy(Integer.parseInt(proxyIDs[i]));
+      	= (Proxy)(Common.getGrantableFromParamStr(signet, proxyIDs[i]));
       proxyToRevoke.revoke(loggedInPrivilegedSubject);
       proxyToRevoke.save();
     }
