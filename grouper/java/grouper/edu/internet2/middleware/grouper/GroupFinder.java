@@ -1,0 +1,26 @@
+package edu.internet2.middleware.grouper;
+
+import java.io.Serializable;
+import java.util.List;
+import java.sql.SQLException;
+
+import net.sf.hibernate.*;
+import net.sf.hibernate.type.Type;
+
+/** Automatically generated Finder class for GroupFinder.
+ * @author Hibernate FinderGenerator  **/
+public class GroupFinder implements Serializable {
+
+    public static List findByUuid(java.lang.String uuid) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Group as group where group.uuid=?", uuid, Hibernate.STRING);
+        return finds;
+    }
+
+    public static List findAll() throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from Group in class edu.internet2.middleware.grouper.Group");
+        return finds;
+    }
+
+}
