@@ -23,8 +23,13 @@
      = (Signet)
          (request.getSession().getAttribute("signet"));
 
+  PrivilegedSubject loggedInPrivilegedSubject
+    = (edu.internet2.middleware.signet.PrivilegedSubject)
+        (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+
   String searchString = request.getParameter("searchString");
   Set result = signet.findPrivilegedSubjects(searchString);
+  result.remove(loggedInPrivilegedSubject.getEffectiveEditor());
   Set sortSet = new TreeSet(new SubjectNameComparator());
   sortSet.addAll(result);
 
