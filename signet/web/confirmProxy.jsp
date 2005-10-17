@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.2 2005-10-11 17:13:20 acohen Exp $
-  $Date: 2005-10-11 17:13:20 $
+  $Id: confirmProxy.jsp,v 1.3 2005-10-17 17:00:06 acohen Exp $
+  $Date: 2005-10-17 17:00:06 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -72,10 +72,6 @@
        + "&subsystemId="
        + currentSubsystem.getId();
 %>
-
-<br>
-DEBUG: currentProxy=<%=currentProxy%>
-</br>
     
     <tiles:insert page="/tiles/header.jsp" flush="true" />
     <div id="Navbar">
@@ -99,9 +95,9 @@ DEBUG: currentProxy=<%=currentProxy%>
         <div id="ViewHead">
           <span class="dropback">Designating a granting proxy for</span>
           <h1>
-            <%=currentGranteePrivilegedSubject.getName()%>
+            <%=loggedInPrivilegedSubject.getName()%>
           </h1>
-          <span class="ident"><%=currentGranteePrivilegedSubject.getDescription()%></span><!--,  Technology Strategy and Support Operations-->
+          <span class="ident"><%=loggedInPrivilegedSubject.getDescription()%></span>
         </div> <!-- ViewHead -->
            
         <div class="section">

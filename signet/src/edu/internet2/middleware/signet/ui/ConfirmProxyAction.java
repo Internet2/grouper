@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.9 2005-10-11 03:40:00 acohen Exp $
-$Date: 2005-10-11 03:40:00 $
+$Id: ConfirmProxyAction.java,v 1.10 2005-10-17 17:00:06 acohen Exp $
+$Date: 2005-10-17 17:00:06 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -170,6 +170,9 @@ public final class ConfirmProxyAction extends BaseAction
              effectiveDate,
              expirationDate);
     }
+    
+    session.setAttribute
+      (Constants.CURRENTPSUBJECT_ATTRNAME, proxy.getGrantee());
   
     // Let's see whether or not the Proxy we want to save has any
     // duplicates. If it does, we'll sidetrack the user with a warning
