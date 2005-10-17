@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.4 2005-10-17 17:39:37 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.5 2005-10-17 17:43:10 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -63,6 +63,18 @@ Get creator.
       <column name="creator_id" sql-type="char(32)"/>
     </many-to-one>
     <!-- creator_id -->
+
+    <!-- create_source -->
+    <property 
+      name="create_source"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get create source.
+      </meta>
+    </property>
+    <!-- create_source -->
 
     <!-- create_time -->
     <property 
@@ -146,6 +158,19 @@ Get modifier.
     </many-to-one>
     <!-- modifier_id -->
 
+    <!-- modify_source -->
+    <property 
+      name="modify_source"
+      type="string"
+      length="255"
+    >
+      <meta attribute="field-description">
+Get modify source.
+      </meta>
+    </property>
+    <!-- modify_source -->
+
+    <!-- modify_time -->
     <!-- modify_time -->
     <property 
       name="modify_time"
