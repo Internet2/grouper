@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Membership.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -27,77 +27,64 @@ A list membership in the Groups Registry.
     <!-- version -->
 
 
-    <!-- container_id -->
-    <!-- TODO Get a better name -->
-    <!-- TODO Map to members -->
-    <property
-      name="container_id"
-      type="string"
-      not-null="true"
+    <!-- group_id -->
+    <many-to-one
+      name="group_id"
+      class="edu.internet2.middleware.grouper.Group" 
     >
       <meta attribute="field-description">
-Get membership container.
+Get group.
       </meta>
-      <meta attribute="finder-method">findByContainerId</meta>
-      <meta attribute="scope-get">public</meta>
+      <meta attribute="finder-method">findByGroupId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="container_id" sql-type="char(32)"/>
-    </property>
-    <!-- container_id -->
+      <column name="group_id" sql-type="char(32)"/>
+    </many-to-one>
+    <!-- group_id -->
 
     <!-- member_id -->
-    <!-- TODO Map to members -->
-    <property
+    <many-to-one
       name="member_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Member" 
     >
       <meta attribute="field-description">
 Get member.
       </meta>
       <meta attribute="finder-method">findByMemberId</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="member_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- member_id -->
 
     <!-- list_id -->
-    <!-- TODO Map to fields -->
-    <property
+    <many-to-one
       name="list_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Field" 
     >
       <meta attribute="field-description">
-Get membership list.
+Get list.
       </meta>
       <meta attribute="finder-method">findByListId</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="list_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- list_id -->
 
     <!-- via_id -->
-    <!-- TODO Map to members -->
-    <property
+    <many-to-one
       name="via_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Group" 
     >
       <meta attribute="field-description">
-Get membership via container.
+Get via group.
       </meta>
       <meta attribute="finder-method">findByViaId</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="via_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- via_id -->
 
     <!-- count -->

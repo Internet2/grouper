@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Field.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -28,21 +28,16 @@ Schema specification for a Group attribute or list.
 
 
     <!-- type_id -->
-    <!-- TODO Map to types -->
-    <property
+    <many-to-one
       name="type_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Type" 
     >
-      <meta attribute="field-description">
-Get group type.
-      </meta>
       <meta attribute="finder-method">findByTypeId</meta>
       <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="type_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- type_id -->
 
     <!-- name -->
@@ -62,44 +57,37 @@ Get field name.
     </property>
     <!-- name -->
 
-    <!-- read_privilege -->
-    <!-- TODO map to privs -->
-    <property 
-      name="read_privilege"
-      type="string"  
-      not-null="true"
+    <!-- read_privilege_id -->
+    <many-to-one
+      name="read_privilege_id"
+      class="edu.internet2.middleware.grouper.Privilege" 
     >
       <meta attribute="field-description">
 Get read privilege.
       </meta>
       <meta attribute="finder-method">findByReadPrivilege</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="read_privilege" sql-type="char(32)"/>
-    </property>
-    <!-- read_privilege -->
+      <column name="read_privilege_id" sql-type="char(32)"/>
+    </many-to-one>
+    <!-- read_privilege_id -->
 
-    <!-- write_privilege -->
-    <!-- TODO map to privs -->
-    <property 
-      name="write_privilege"
-      type="string"
-      not-null="true"
+    <!-- write_privilege_id -->
+    <many-to-one
+      name="write_privilege_id"
+      class="edu.internet2.middleware.grouper.Privilege" 
     >
       <meta attribute="field-description">
 Get write privilege.
       </meta>
       <meta attribute="finder-method">findByWritePrivilege</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="write_privilege" sql-type="char(32)"/>
-    </property>
-    <!-- write_privilege -->
+      <column name="write_privilege_id" sql-type="char(32)"/>
+    </many-to-one>
+    <!-- write_privilege_id -->
 
     <!-- is_list -->
-    <!-- TODO Or should this be a class discriminator? -->
     <property 
       name="is_list"
       type="boolean"

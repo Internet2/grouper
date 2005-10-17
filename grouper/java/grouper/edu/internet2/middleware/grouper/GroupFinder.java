@@ -17,6 +17,18 @@ public class GroupFinder implements Serializable {
         return finds;
     }
 
+    public static List findByCreator(edu.internet2.middleware.grouper.Member creator_id) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Group as group where group.creator_id=?", creator_id, Hibernate.OBJECT);
+        return finds;
+    }
+
+    public static List findByModifier(edu.internet2.middleware.grouper.Member modifier_id) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Group as group where group.modifier_id=?", modifier_id, Hibernate.OBJECT);
+        return finds;
+    }
+
     public static List findAll() throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();
         List finds = session.find("from Group in class edu.internet2.middleware.grouper.Group");

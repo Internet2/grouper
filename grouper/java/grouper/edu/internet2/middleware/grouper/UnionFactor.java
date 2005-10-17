@@ -12,17 +12,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class UnionFactor extends Factor implements Serializable {
 
     /** full constructor */
-    public UnionFactor(String node_a_id, String node_b_id, Integer version) {
-        super(node_a_id, node_b_id, version);
+    public UnionFactor(Integer version, edu.internet2.middleware.grouper.Member node_a_id, edu.internet2.middleware.grouper.Member node_b_id) {
+        super(version, node_a_id, node_b_id);
     }
 
     /** default constructor */
     public UnionFactor() {
-    }
-
-    /** minimal constructor */
-    public UnionFactor(String node_a_id, String node_b_id) {
-      super(node_a_id, node_b_id);
     }
 
     public String toString() {

@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Attribute.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -28,47 +28,40 @@ A group attribute within the Groups registry.
 
 
     <!-- group_id -->
-    <!-- TODO Map to groups -->
-    <!-- TODO Or does this need to be _member_? -->
-    <property
+    <many-to-one
       name="group_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Group" 
     >
       <meta attribute="field-description">
-Get attribute group.
+Get group.
       </meta>
       <meta attribute="finder-method">findByGroupId</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="group_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- group_id -->
 
     <!-- field_id -->
-    <!-- TODO Map to fields -->
-    <property 
+    <many-to-one
       name="field_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Field" 
     >
       <meta attribute="field-description">
-Get attribute field.
+Get field.
       </meta>
       <meta attribute="finder-method">findByFieldId</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="field_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- field_id -->
 
     <!-- value -->
     <property 
       name="value"
       type="string"
-      length="255"
+      length="1024"
       not-null="true"
     >
       <meta attribute="field-description">

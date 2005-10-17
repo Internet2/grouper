@@ -17,16 +17,7 @@ public class Field implements Serializable {
     private String id;
 
     /** persistent field */
-    private String type_id;
-
-    /** persistent field */
     private String name;
-
-    /** persistent field */
-    private String read_privilege;
-
-    /** persistent field */
-    private String write_privilege;
 
     /** persistent field */
     private boolean is_list;
@@ -34,14 +25,23 @@ public class Field implements Serializable {
     /** nullable persistent field */
     private Integer version;
 
+    /** nullable persistent field */
+    private edu.internet2.middleware.grouper.Type type_id;
+
+    /** nullable persistent field */
+    private edu.internet2.middleware.grouper.Privilege read_privilege_id;
+
+    /** nullable persistent field */
+    private edu.internet2.middleware.grouper.Privilege write_privilege_id;
+
     /** full constructor */
-    public Field(String type_id, String name, String read_privilege, String write_privilege, boolean is_list, Integer version) {
-        this.type_id = type_id;
+    public Field(String name, boolean is_list, Integer version, edu.internet2.middleware.grouper.Type type_id, edu.internet2.middleware.grouper.Privilege read_privilege_id, edu.internet2.middleware.grouper.Privilege write_privilege_id) {
         this.name = name;
-        this.read_privilege = read_privilege;
-        this.write_privilege = write_privilege;
         this.is_list = is_list;
         this.version = version;
+        this.type_id = type_id;
+        this.read_privilege_id = read_privilege_id;
+        this.write_privilege_id = write_privilege_id;
     }
 
     /** default constructor */
@@ -49,11 +49,8 @@ public class Field implements Serializable {
     }
 
     /** minimal constructor */
-    public Field(String type_id, String name, String read_privilege, String write_privilege, boolean is_list) {
-        this.type_id = type_id;
+    public Field(String name, boolean is_list) {
         this.name = name;
-        this.read_privilege = read_privilege;
-        this.write_privilege = write_privilege;
         this.is_list = is_list;
     }
 
@@ -66,18 +63,6 @@ public class Field implements Serializable {
     }
 
     /** 
-     * Get group type.
-     *       
-     */
-    public String getType_id() {
-        return this.type_id;
-    }
-
-    public void setType_id(String type_id) {
-        this.type_id = type_id;
-    }
-
-    /** 
      * Get field name.
      *       
      */
@@ -87,30 +72,6 @@ public class Field implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    /** 
-     * Get read privilege.
-     *       
-     */
-    public String getRead_privilege() {
-        return this.read_privilege;
-    }
-
-    public void setRead_privilege(String read_privilege) {
-        this.read_privilege = read_privilege;
-    }
-
-    /** 
-     * Get write privilege.
-     *       
-     */
-    public String getWrite_privilege() {
-        return this.write_privilege;
-    }
-
-    public void setWrite_privilege(String write_privilege) {
-        this.write_privilege = write_privilege;
     }
 
     /** 
@@ -133,13 +94,45 @@ public class Field implements Serializable {
         this.version = version;
     }
 
+    public edu.internet2.middleware.grouper.Type getType_id() {
+        return this.type_id;
+    }
+
+    public void setType_id(edu.internet2.middleware.grouper.Type type_id) {
+        this.type_id = type_id;
+    }
+
+    /** 
+     * Get read privilege.
+     *       
+     */
+    public edu.internet2.middleware.grouper.Privilege getRead_privilege_id() {
+        return this.read_privilege_id;
+    }
+
+    public void setRead_privilege_id(edu.internet2.middleware.grouper.Privilege read_privilege_id) {
+        this.read_privilege_id = read_privilege_id;
+    }
+
+    /** 
+     * Get write privilege.
+     *       
+     */
+    public edu.internet2.middleware.grouper.Privilege getWrite_privilege_id() {
+        return this.write_privilege_id;
+    }
+
+    public void setWrite_privilege_id(edu.internet2.middleware.grouper.Privilege write_privilege_id) {
+        this.write_privilege_id = write_privilege_id;
+    }
+
     public String toString() {
         return new ToStringBuilder(this)
-            .append("type_id", getType_id())
             .append("name", getName())
-            .append("read_privilege", getRead_privilege())
-            .append("write_privilege", getWrite_privilege())
             .append("is_list", isIs_list())
+            .append("type_id", getType_id())
+            .append("read_privilege_id", getRead_privilege_id())
+            .append("write_privilege_id", getWrite_privilege_id())
             .toString();
     }
 
@@ -148,21 +141,21 @@ public class Field implements Serializable {
         if ( !(other instanceof Field) ) return false;
         Field castOther = (Field) other;
         return new EqualsBuilder()
-            .append(this.getType_id(), castOther.getType_id())
             .append(this.getName(), castOther.getName())
-            .append(this.getRead_privilege(), castOther.getRead_privilege())
-            .append(this.getWrite_privilege(), castOther.getWrite_privilege())
             .append(this.isIs_list(), castOther.isIs_list())
+            .append(this.getType_id(), castOther.getType_id())
+            .append(this.getRead_privilege_id(), castOther.getRead_privilege_id())
+            .append(this.getWrite_privilege_id(), castOther.getWrite_privilege_id())
             .isEquals();
     }
 
     public int hashCode() {
         return new HashCodeBuilder()
-            .append(getType_id())
             .append(getName())
-            .append(getRead_privilege())
-            .append(getWrite_privilege())
             .append(isIs_list())
+            .append(getType_id())
+            .append(getRead_privilege_id())
+            .append(getWrite_privilege_id())
             .toHashCode();
     }
 

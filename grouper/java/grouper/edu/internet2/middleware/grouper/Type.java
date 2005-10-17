@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper;
 
 import java.io.Serializable;
+import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -19,17 +20,17 @@ public class Type implements Serializable {
     /** persistent field */
     private String name;
 
-    /** persistent field */
-    private String fields;
-
     /** nullable persistent field */
     private Integer version;
 
+    /** persistent field */
+    private Set fields;
+
     /** full constructor */
-    public Type(String name, String fields, Integer version) {
+    public Type(String name, Integer version, Set fields) {
         this.name = name;
-        this.fields = fields;
         this.version = version;
+        this.fields = fields;
     }
 
     /** default constructor */
@@ -37,7 +38,7 @@ public class Type implements Serializable {
     }
 
     /** minimal constructor */
-    public Type(String name, String fields) {
+    public Type(String name, Set fields) {
         this.name = name;
         this.fields = fields;
     }
@@ -62,24 +63,24 @@ public class Type implements Serializable {
         this.name = name;
     }
 
-    /** 
-     * Get fields.
-     *       
-     */
-    public String getFields() {
-        return this.fields;
-    }
-
-    public void setFields(String fields) {
-        this.fields = fields;
-    }
-
     public Integer getVersion() {
         return this.version;
     }
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    /** 
+     * Get fields.
+     *       
+     */
+    public Set getFields() {
+        return this.fields;
+    }
+
+    public void setFields(Set fields) {
+        this.fields = fields;
     }
 
     public String toString() {

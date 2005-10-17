@@ -18,9 +18,6 @@ public class GrouperSession implements Serializable {
     private String id;
 
     /** persistent field */
-    private String member_id;
-
-    /** persistent field */
     private Date start_time;
 
     /** persistent field */
@@ -29,12 +26,15 @@ public class GrouperSession implements Serializable {
     /** nullable persistent field */
     private Integer version;
 
+    /** nullable persistent field */
+    private edu.internet2.middleware.grouper.Member member_id;
+
     /** full constructor */
-    public GrouperSession(String member_id, Date start_time, String uuid, Integer version) {
-        this.member_id = member_id;
+    public GrouperSession(Date start_time, String uuid, Integer version, edu.internet2.middleware.grouper.Member member_id) {
         this.start_time = start_time;
         this.uuid = uuid;
         this.version = version;
+        this.member_id = member_id;
     }
 
     /** default constructor */
@@ -42,8 +42,7 @@ public class GrouperSession implements Serializable {
     }
 
     /** minimal constructor */
-    public GrouperSession(String member_id, Date start_time, String uuid) {
-        this.member_id = member_id;
+    public GrouperSession(Date start_time, String uuid) {
         this.start_time = start_time;
         this.uuid = uuid;
     }
@@ -54,18 +53,6 @@ public class GrouperSession implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    /** 
-     * Get member.
-     *       
-     */
-    public String getMember_id() {
-        return this.member_id;
-    }
-
-    public void setMember_id(String member_id) {
-        this.member_id = member_id;
     }
 
     /** 
@@ -100,10 +87,22 @@ public class GrouperSession implements Serializable {
         this.version = version;
     }
 
+    /** 
+     * Get member.
+     *       
+     */
+    public edu.internet2.middleware.grouper.Member getMember_id() {
+        return this.member_id;
+    }
+
+    public void setMember_id(edu.internet2.middleware.grouper.Member member_id) {
+        this.member_id = member_id;
+    }
+
     public String toString() {
         return new ToStringBuilder(this)
-            .append("member_id", getMember_id())
             .append("uuid", getUuid())
+            .append("member_id", getMember_id())
             .toString();
     }
 
@@ -112,15 +111,15 @@ public class GrouperSession implements Serializable {
         if ( !(other instanceof GrouperSession) ) return false;
         GrouperSession castOther = (GrouperSession) other;
         return new EqualsBuilder()
-            .append(this.getMember_id(), castOther.getMember_id())
             .append(this.getUuid(), castOther.getUuid())
+            .append(this.getMember_id(), castOther.getMember_id())
             .isEquals();
     }
 
     public int hashCode() {
         return new HashCodeBuilder()
-            .append(getMember_id())
             .append(getUuid())
+            .append(getMember_id())
             .toHashCode();
     }
 

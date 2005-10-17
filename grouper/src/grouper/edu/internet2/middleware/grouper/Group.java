@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -18,22 +19,22 @@ public class Group implements Serializable {
     private String id;
 
     /** persistent field */
-    private Date createTime;
+    private Date create_time;
 
     /** nullable persistent field */
     private String description;
 
     /** nullable persistent field */
-    private String displayExtension;
+    private String display_extension;
 
     /** nullable persistent field */
-    private String displayName;
+    private String display_name;
 
     /** nullable persistent field */
     private String extension;
 
     /** nullable persistent field */
-    private Date modifyTime;
+    private Date modify_time;
 
     /** nullable persistent field */
     private String name;
@@ -45,28 +46,36 @@ public class Group implements Serializable {
     private Integer version;
 
     /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member creator;
+    private edu.internet2.middleware.grouper.Member creator_id;
 
     /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member modifier;
+    private edu.internet2.middleware.grouper.Member modifier_id;
 
     /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Stem parentStem;
+    private edu.internet2.middleware.grouper.Stem parent_stem;
+
+    /** persistent field */
+    private Set attributes;
+
+    /** persistent field */
+    private Set memberships;
 
     /** full constructor */
-    public Group(Date createTime, String description, String displayExtension, String displayName, String extension, Date modifyTime, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator, edu.internet2.middleware.grouper.Member modifier, edu.internet2.middleware.grouper.Stem parentStem) {
-        this.createTime = createTime;
+    public Group(Date create_time, String description, String display_extension, String display_name, String extension, Date modify_time, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator_id, edu.internet2.middleware.grouper.Member modifier_id, edu.internet2.middleware.grouper.Stem parent_stem, Set attributes, Set memberships) {
+        this.create_time = create_time;
         this.description = description;
-        this.displayExtension = displayExtension;
-        this.displayName = displayName;
+        this.display_extension = display_extension;
+        this.display_name = display_name;
         this.extension = extension;
-        this.modifyTime = modifyTime;
+        this.modify_time = modify_time;
         this.name = name;
         this.uuid = uuid;
         this.version = version;
-        this.creator = creator;
-        this.modifier = modifier;
-        this.parentStem = parentStem;
+        this.creator_id = creator_id;
+        this.modifier_id = modifier_id;
+        this.parent_stem = parent_stem;
+        this.attributes = attributes;
+        this.memberships = memberships;
     }
 
     /** default constructor */
@@ -74,9 +83,11 @@ public class Group implements Serializable {
     }
 
     /** minimal constructor */
-    public Group(Date createTime, String uuid) {
-        this.createTime = createTime;
+    public Group(Date create_time, String uuid, Set attributes, Set memberships) {
+        this.create_time = create_time;
         this.uuid = uuid;
+        this.attributes = attributes;
+        this.memberships = memberships;
     }
 
     public String getId() {
@@ -91,12 +102,12 @@ public class Group implements Serializable {
      * Get create time.
      *       
      */
-    public Date getCreateTime() {
-        return this.createTime;
+    public Date getCreate_time() {
+        return this.create_time;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
     }
 
     /** 
@@ -115,24 +126,24 @@ public class Group implements Serializable {
      * Get displayExtension.
      *       
      */
-    public String getDisplayExtension() {
-        return this.displayExtension;
+    public String getDisplay_extension() {
+        return this.display_extension;
     }
 
-    public void setDisplayExtension(String displayExtension) {
-        this.displayExtension = displayExtension;
+    public void setDisplay_extension(String display_extension) {
+        this.display_extension = display_extension;
     }
 
     /** 
      * Get displayName.
      *       
      */
-    public String getDisplayName() {
-        return this.displayName;
+    public String getDisplay_name() {
+        return this.display_name;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setDisplay_name(String display_name) {
+        this.display_name = display_name;
     }
 
     /** 
@@ -147,12 +158,12 @@ public class Group implements Serializable {
         this.extension = extension;
     }
 
-    public Date getModifyTime() {
-        return this.modifyTime;
+    public Date getModify_time() {
+        return this.modify_time;
     }
 
-    public void setModifyTime(Date modifyTime) {
-        this.modifyTime = modifyTime;
+    public void setModify_time(Date modify_time) {
+        this.modify_time = modify_time;
     }
 
     /** 
@@ -191,43 +202,69 @@ public class Group implements Serializable {
      * Get creator.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getCreator() {
-        return this.creator;
+    public edu.internet2.middleware.grouper.Member getCreator_id() {
+        return this.creator_id;
     }
 
-    public void setCreator(edu.internet2.middleware.grouper.Member creator) {
-        this.creator = creator;
+    public void setCreator_id(edu.internet2.middleware.grouper.Member creator_id) {
+        this.creator_id = creator_id;
     }
 
     /** 
-     * Get last modifier.
+     * Get modifier.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getModifier() {
-        return this.modifier;
+    public edu.internet2.middleware.grouper.Member getModifier_id() {
+        return this.modifier_id;
     }
 
-    public void setModifier(edu.internet2.middleware.grouper.Member modifier) {
-        this.modifier = modifier;
+    public void setModifier_id(edu.internet2.middleware.grouper.Member modifier_id) {
+        this.modifier_id = modifier_id;
     }
 
     /** 
      * Get parent stem.
      *       
      */
-    public edu.internet2.middleware.grouper.Stem getParentStem() {
-        return this.parentStem;
+    public edu.internet2.middleware.grouper.Stem getParent_stem() {
+        return this.parent_stem;
     }
 
-    public void setParentStem(edu.internet2.middleware.grouper.Stem parentStem) {
-        this.parentStem = parentStem;
+    public void setParent_stem(edu.internet2.middleware.grouper.Stem parent_stem) {
+        this.parent_stem = parent_stem;
+    }
+
+    /** 
+     * Get attributes.
+     *       
+     */
+    public Set getAttributes() {
+        return this.attributes;
+    }
+
+    public void setAttributes(Set attributes) {
+        this.attributes = attributes;
+    }
+
+    /** 
+     * Get memberships.
+     *       
+     */
+    public Set getMemberships() {
+        return this.memberships;
+    }
+
+    public void setMemberships(Set memberships) {
+        this.memberships = memberships;
     }
 
     public String toString() {
         return new ToStringBuilder(this)
-            .append("displayName", getDisplayName())
+            .append("display_name", getDisplay_name())
             .append("name", getName())
             .append("uuid", getUuid())
+            .append("creator_id", getCreator_id())
+            .append("modifier_id", getModifier_id())
             .toString();
     }
 
@@ -237,12 +274,16 @@ public class Group implements Serializable {
         Group castOther = (Group) other;
         return new EqualsBuilder()
             .append(this.getUuid(), castOther.getUuid())
+            .append(this.getCreator_id(), castOther.getCreator_id())
+            .append(this.getModifier_id(), castOther.getModifier_id())
             .isEquals();
     }
 
     public int hashCode() {
         return new HashCodeBuilder()
             .append(getUuid())
+            .append(getCreator_id())
+            .append(getModifier_id())
             .toHashCode();
     }
 

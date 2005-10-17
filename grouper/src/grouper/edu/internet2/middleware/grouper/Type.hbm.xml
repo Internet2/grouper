@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Type.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: Type.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Type" table="grouper_types">
@@ -45,20 +45,15 @@ Get type name.
     <!-- type_id -->
 
     <!-- fields -->
-    <!-- TODO Map to fields[] -->
-    <property 
-      name="fields"
-      type="string"
-      length="255"
-      not-null="true"
-    >
+    <set name="fields">
       <meta attribute="field-description">
 Get fields.
       </meta>
-      <meta attribute="scope-get">public</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
+      <meta attribute="use-in-equals">true</meta> 
+      <meta attribute="use-in-tostring">true</meta> 
+      <key  column="id"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Field"/>
+    </set>
     <!-- fields -->
 
   </class>

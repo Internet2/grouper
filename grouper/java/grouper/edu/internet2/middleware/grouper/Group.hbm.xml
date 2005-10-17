@@ -3,13 +3,10 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.2 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.3 2005-10-17 14:53:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
-
-<!-- TODO attributes[] -->
-<!-- TODO members[] (and other lists) -->
 
     <meta attribute="class-description">
 A group within the Groups Registry.
@@ -30,21 +27,34 @@ A group within the Groups Registry.
     <!-- version -->
 
 
-    <!-- creator -->
-    <one-to-one 
-      name="creator" 
-      class="edu.internet2.middleware.grouper.Member"
+    <!-- attributes -->
+    <set name="attributes">
+      <meta attribute="field-description">
+Get attributes.
+      </meta>
+      <key column="group_id"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Attribute"/>
+    </set>
+    <!-- attributes -->
+
+    <!-- creator_id -->
+    <many-to-one
+      name="creator_id"
+      class="edu.internet2.middleware.grouper.Member" 
     >
       <meta attribute="field-description">
 Get creator.
       </meta>
-      <meta attribute="scope-get">public</meta>
-    </one-to-one>
-    <!-- creator -->
+      <meta attribute="finder-method">findByCreator</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="creator_id" sql-type="char(32)"/>
+    </many-to-one>
+    <!-- creator_id -->
 
-    <!-- createTime -->
+    <!-- create_time -->
     <property 
-      name="createTime"
+      name="create_time"
       type="java.util.Date"
       not-null="true"
       update="false"
@@ -54,7 +64,7 @@ Get create time.
       </meta>
       <meta attribute="scope-get">public</meta>
     </property>
-    <!-- createTime -->
+    <!-- create_time -->
 
     <!-- description -->
     <property 
@@ -69,9 +79,9 @@ Get description.
     </property>
     <!-- description -->
 
-    <!-- displayExtension -->
+    <!-- display_extension -->
     <property
-      name="displayExtension"
+      name="display_extension"
       type="string"
       length="255"
     >
@@ -80,11 +90,11 @@ Get displayExtension.
       </meta>
       <meta attribute="scope-get">public</meta>
     </property>
-    <!-- displayExtension -->
+    <!-- display_extension -->
 
-    <!-- displayName -->
+    <!-- display_name -->
     <property
-      name="displayName"
+      name="display_name"
       type="string"
       length="255"
     >
@@ -94,7 +104,7 @@ Get displayName.
       <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
-    <!-- displayName -->
+    <!-- display_name -->
 
     <!-- extension -->
     <property
@@ -109,21 +119,34 @@ Get extension.
     </property>
     <!-- extension -->
 
-    <!-- modifier -->
-    <one-to-one 
-      name="modifier" 
-      class="edu.internet2.middleware.grouper.Member"
+    <!-- memberships -->
+    <set name="memberships">
+      <meta attribute="field-description">
+Get memberships.
+      </meta>
+      <key column="group_id"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Membership"/>
+    </set>
+    <!-- memberships -->
+
+    <!-- modifier_id -->
+    <many-to-one
+      name="modifier_id"
+      class="edu.internet2.middleware.grouper.Member" 
     >
       <meta attribute="field-description">
-Get last modifier.
+Get modifier.
       </meta>
-      <meta attribute="scope-get">public</meta>
-    </one-to-one>
-    <!-- modifier -->
+      <meta attribute="finder-method">findByModifier</meta>
+      <meta attribute="use-in-equals">true</meta>
+      <meta attribute="use-in-tostring">true</meta>
+      <column name="modifier_id" sql-type="char(32)"/>
+    </many-to-one>
+    <!-- modifier_id -->
 
-    <!-- modifyTime -->
+    <!-- modify_time -->
     <property 
-      name="modifyTime"
+      name="modify_time"
       type="java.util.Date"
     >
       <meta attribute="class-description">
@@ -131,7 +154,7 @@ Get last modify time.
       </meta>
       <meta attribute="scope-get">public</meta>
     </property>
-    <!-- modifyTime -->
+    <!-- modify_time -->
 
     <!-- name -->
     <property
@@ -147,18 +170,18 @@ Get name.
     </property>
     <!-- name -->
 
-    <!-- parentStem -->
+    <!-- parent_stem -->
     <many-to-one
-      name="parentStem"
+      name="parent_stem"
       class="edu.internet2.middleware.grouper.Stem"
     >
       <meta attribute="field-description">
 Get parent stem.
       </meta>
       <meta attribute="scope-get">public</meta>
-      <column name="parentStem" sql-type="char(32)"/>
+      <column name="parent_stem" sql-type="char(32)"/>
     </many-to-one>
-    <!-- parentStem -->
+    <!-- parent_stem -->
 
     <!-- uuid -->
     <property 

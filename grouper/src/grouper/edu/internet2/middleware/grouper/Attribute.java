@@ -17,23 +17,23 @@ public class Attribute implements Serializable {
     private String id;
 
     /** persistent field */
-    private String group_id;
-
-    /** persistent field */
-    private String field_id;
-
-    /** persistent field */
     private String value;
 
     /** nullable persistent field */
     private Integer version;
 
+    /** nullable persistent field */
+    private edu.internet2.middleware.grouper.Group group_id;
+
+    /** nullable persistent field */
+    private edu.internet2.middleware.grouper.Field field_id;
+
     /** full constructor */
-    public Attribute(String group_id, String field_id, String value, Integer version) {
-        this.group_id = group_id;
-        this.field_id = field_id;
+    public Attribute(String value, Integer version, edu.internet2.middleware.grouper.Group group_id, edu.internet2.middleware.grouper.Field field_id) {
         this.value = value;
         this.version = version;
+        this.group_id = group_id;
+        this.field_id = field_id;
     }
 
     /** default constructor */
@@ -41,9 +41,7 @@ public class Attribute implements Serializable {
     }
 
     /** minimal constructor */
-    public Attribute(String group_id, String field_id, String value) {
-        this.group_id = group_id;
-        this.field_id = field_id;
+    public Attribute(String value) {
         this.value = value;
     }
 
@@ -53,30 +51,6 @@ public class Attribute implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    /** 
-     * Get attribute group.
-     *       
-     */
-    public String getGroup_id() {
-        return this.group_id;
-    }
-
-    public void setGroup_id(String group_id) {
-        this.group_id = group_id;
-    }
-
-    /** 
-     * Get attribute field.
-     *       
-     */
-    public String getField_id() {
-        return this.field_id;
-    }
-
-    public void setField_id(String field_id) {
-        this.field_id = field_id;
     }
 
     /** 
@@ -99,11 +73,35 @@ public class Attribute implements Serializable {
         this.version = version;
     }
 
+    /** 
+     * Get group.
+     *       
+     */
+    public edu.internet2.middleware.grouper.Group getGroup_id() {
+        return this.group_id;
+    }
+
+    public void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
+        this.group_id = group_id;
+    }
+
+    /** 
+     * Get field.
+     *       
+     */
+    public edu.internet2.middleware.grouper.Field getField_id() {
+        return this.field_id;
+    }
+
+    public void setField_id(edu.internet2.middleware.grouper.Field field_id) {
+        this.field_id = field_id;
+    }
+
     public String toString() {
         return new ToStringBuilder(this)
+            .append("value", getValue())
             .append("group_id", getGroup_id())
             .append("field_id", getField_id())
-            .append("value", getValue())
             .toString();
     }
 
@@ -112,17 +110,17 @@ public class Attribute implements Serializable {
         if ( !(other instanceof Attribute) ) return false;
         Attribute castOther = (Attribute) other;
         return new EqualsBuilder()
+            .append(this.getValue(), castOther.getValue())
             .append(this.getGroup_id(), castOther.getGroup_id())
             .append(this.getField_id(), castOther.getField_id())
-            .append(this.getValue(), castOther.getValue())
             .isEquals();
     }
 
     public int hashCode() {
         return new HashCodeBuilder()
+            .append(getValue())
             .append(getGroup_id())
             .append(getField_id())
-            .append(getValue())
             .toHashCode();
     }
 

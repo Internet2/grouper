@@ -19,22 +19,22 @@ public class Stem implements Serializable {
     private String id;
 
     /** persistent field */
-    private Date createTime;
+    private Date create_time;
 
     /** nullable persistent field */
     private String description;
 
     /** nullable persistent field */
-    private String displayExtension;
+    private String display_extension;
 
     /** nullable persistent field */
-    private String displayName;
+    private String display_name;
 
     /** nullable persistent field */
     private String extension;
 
     /** nullable persistent field */
-    private Date modifyTime;
+    private Date modify_time;
 
     /** nullable persistent field */
     private String name;
@@ -46,36 +46,36 @@ public class Stem implements Serializable {
     private Integer version;
 
     /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member creator;
+    private edu.internet2.middleware.grouper.Member creator_id;
 
     /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member modifier;
+    private edu.internet2.middleware.grouper.Member modifier_id;
 
     /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Stem parentStem;
+    private edu.internet2.middleware.grouper.Stem parent_stem;
 
     /** persistent field */
-    private Set childGroups;
+    private Set child_groups;
 
     /** persistent field */
-    private Set childStems;
+    private Set child_stems;
 
     /** full constructor */
-    public Stem(Date createTime, String description, String displayExtension, String displayName, String extension, Date modifyTime, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator, edu.internet2.middleware.grouper.Member modifier, edu.internet2.middleware.grouper.Stem parentStem, Set childGroups, Set childStems) {
-        this.createTime = createTime;
+    public Stem(Date create_time, String description, String display_extension, String display_name, String extension, Date modify_time, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator_id, edu.internet2.middleware.grouper.Member modifier_id, edu.internet2.middleware.grouper.Stem parent_stem, Set child_groups, Set child_stems) {
+        this.create_time = create_time;
         this.description = description;
-        this.displayExtension = displayExtension;
-        this.displayName = displayName;
+        this.display_extension = display_extension;
+        this.display_name = display_name;
         this.extension = extension;
-        this.modifyTime = modifyTime;
+        this.modify_time = modify_time;
         this.name = name;
         this.uuid = uuid;
         this.version = version;
-        this.creator = creator;
-        this.modifier = modifier;
-        this.parentStem = parentStem;
-        this.childGroups = childGroups;
-        this.childStems = childStems;
+        this.creator_id = creator_id;
+        this.modifier_id = modifier_id;
+        this.parent_stem = parent_stem;
+        this.child_groups = child_groups;
+        this.child_stems = child_stems;
     }
 
     /** default constructor */
@@ -83,11 +83,11 @@ public class Stem implements Serializable {
     }
 
     /** minimal constructor */
-    public Stem(Date createTime, String uuid, Set childGroups, Set childStems) {
-        this.createTime = createTime;
+    public Stem(Date create_time, String uuid, Set child_groups, Set child_stems) {
+        this.create_time = create_time;
         this.uuid = uuid;
-        this.childGroups = childGroups;
-        this.childStems = childStems;
+        this.child_groups = child_groups;
+        this.child_stems = child_stems;
     }
 
     public String getId() {
@@ -102,12 +102,12 @@ public class Stem implements Serializable {
      * Get create time.
      *       
      */
-    public Date getCreateTime() {
-        return this.createTime;
+    public Date getCreate_time() {
+        return this.create_time;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
     }
 
     /** 
@@ -126,24 +126,24 @@ public class Stem implements Serializable {
      * Get displayExtension.
      *       
      */
-    public String getDisplayExtension() {
-        return this.displayExtension;
+    public String getDisplay_extension() {
+        return this.display_extension;
     }
 
-    public void setDisplayExtension(String displayExtension) {
-        this.displayExtension = displayExtension;
+    public void setDisplay_extension(String display_extension) {
+        this.display_extension = display_extension;
     }
 
     /** 
      * Get displayName.
      *       
      */
-    public String getDisplayName() {
-        return this.displayName;
+    public String getDisplay_name() {
+        return this.display_name;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setDisplay_name(String display_name) {
+        this.display_name = display_name;
     }
 
     /** 
@@ -158,12 +158,12 @@ public class Stem implements Serializable {
         this.extension = extension;
     }
 
-    public Date getModifyTime() {
-        return this.modifyTime;
+    public Date getModify_time() {
+        return this.modify_time;
     }
 
-    public void setModifyTime(Date modifyTime) {
-        this.modifyTime = modifyTime;
+    public void setModify_time(Date modify_time) {
+        this.modify_time = modify_time;
     }
 
     /** 
@@ -202,67 +202,69 @@ public class Stem implements Serializable {
      * Get creator.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getCreator() {
-        return this.creator;
+    public edu.internet2.middleware.grouper.Member getCreator_id() {
+        return this.creator_id;
     }
 
-    public void setCreator(edu.internet2.middleware.grouper.Member creator) {
-        this.creator = creator;
+    public void setCreator_id(edu.internet2.middleware.grouper.Member creator_id) {
+        this.creator_id = creator_id;
     }
 
     /** 
-     * Get last modifier.
+     * Get modifier.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getModifier() {
-        return this.modifier;
+    public edu.internet2.middleware.grouper.Member getModifier_id() {
+        return this.modifier_id;
     }
 
-    public void setModifier(edu.internet2.middleware.grouper.Member modifier) {
-        this.modifier = modifier;
+    public void setModifier_id(edu.internet2.middleware.grouper.Member modifier_id) {
+        this.modifier_id = modifier_id;
     }
 
     /** 
      * Get parent stem.
      *       
      */
-    public edu.internet2.middleware.grouper.Stem getParentStem() {
-        return this.parentStem;
+    public edu.internet2.middleware.grouper.Stem getParent_stem() {
+        return this.parent_stem;
     }
 
-    public void setParentStem(edu.internet2.middleware.grouper.Stem parentStem) {
-        this.parentStem = parentStem;
+    public void setParent_stem(edu.internet2.middleware.grouper.Stem parent_stem) {
+        this.parent_stem = parent_stem;
     }
 
     /** 
      * Get child groups.
      *       
      */
-    public Set getChildGroups() {
-        return this.childGroups;
+    public Set getChild_groups() {
+        return this.child_groups;
     }
 
-    public void setChildGroups(Set childGroups) {
-        this.childGroups = childGroups;
+    public void setChild_groups(Set child_groups) {
+        this.child_groups = child_groups;
     }
 
     /** 
      * Get child stems.
      *       
      */
-    public Set getChildStems() {
-        return this.childStems;
+    public Set getChild_stems() {
+        return this.child_stems;
     }
 
-    public void setChildStems(Set childStems) {
-        this.childStems = childStems;
+    public void setChild_stems(Set child_stems) {
+        this.child_stems = child_stems;
     }
 
     public String toString() {
         return new ToStringBuilder(this)
-            .append("displayName", getDisplayName())
+            .append("display_name", getDisplay_name())
             .append("name", getName())
             .append("uuid", getUuid())
+            .append("creator_id", getCreator_id())
+            .append("modifier_id", getModifier_id())
             .toString();
     }
 
@@ -272,12 +274,16 @@ public class Stem implements Serializable {
         Stem castOther = (Stem) other;
         return new EqualsBuilder()
             .append(this.getUuid(), castOther.getUuid())
+            .append(this.getCreator_id(), castOther.getCreator_id())
+            .append(this.getModifier_id(), castOther.getModifier_id())
             .isEquals();
     }
 
     public int hashCode() {
         return new HashCodeBuilder()
             .append(getUuid())
+            .append(getCreator_id())
+            .append(getModifier_id())
             .toHashCode();
     }
 

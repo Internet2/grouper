@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GrouperSession" table="grouper_sessions">
@@ -28,20 +28,17 @@ Grouper API session.
 
 
     <!-- member_id -->
-    <!-- TODO Map to member? -->
-    <property
+    <many-to-one
       name="member_id"
-      type="string"
-      not-null="true"
+      class="edu.internet2.middleware.grouper.Member" 
     >
       <meta attribute="field-description">
 Get member.
       </meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="member_id" sql-type="char(32)"/>
-    </property>
+    </many-to-one>
     <!-- member_id -->
 
     <!-- start_time -->

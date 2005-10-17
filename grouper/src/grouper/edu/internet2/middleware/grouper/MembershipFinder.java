@@ -11,33 +11,33 @@ import net.sf.hibernate.type.Type;
  * @author Hibernate FinderGenerator  **/
 public class MembershipFinder implements Serializable {
 
-    public static List findByContainerId(java.lang.String container_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.container_id=?", container_id, Hibernate.STRING);
-        return finds;
-    }
-
-    public static List findByMemberId(java.lang.String member_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.member_id=?", member_id, Hibernate.STRING);
-        return finds;
-    }
-
-    public static List findByListId(java.lang.String list_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.list_id=?", list_id, Hibernate.STRING);
-        return finds;
-    }
-
-    public static List findByViaId(java.lang.String via_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.via_id=?", via_id, Hibernate.STRING);
-        return finds;
-    }
-
     public static List findByCnt(int count) throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();
         List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.count=?", new Integer( count ), Hibernate.INTEGER);
+        return finds;
+    }
+
+    public static List findByGroupId(edu.internet2.middleware.grouper.Group group_id) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.group_id=?", group_id, Hibernate.OBJECT);
+        return finds;
+    }
+
+    public static List findByMemberId(edu.internet2.middleware.grouper.Member member_id) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.member_id=?", member_id, Hibernate.OBJECT);
+        return finds;
+    }
+
+    public static List findByListId(edu.internet2.middleware.grouper.Field list_id) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.list_id=?", list_id, Hibernate.OBJECT);
+        return finds;
+    }
+
+    public static List findByViaId(edu.internet2.middleware.grouper.Group via_id) throws SQLException, HibernateException {
+        Session session = HibernateUtil.getSession();
+        List finds = session.find("from edu.internet2.middleware.grouper.Membership as membership where membership.via_id=?", via_id, Hibernate.OBJECT);
         return finds;
     }
 
