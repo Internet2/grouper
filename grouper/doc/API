@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.1 2005-10-17 16:47:04 blair Exp $
+$Id: API,v 1.86.2.2 2005-10-17 19:54:33 blair Exp $
 
 ---
 
@@ -12,49 +12,54 @@ The new...
 
 # eg
 
-TODO When|what performs a save?
-TODO How do transactions fit in?
 TODO Should the root stem be an actual entry in the db?
 TODO Custom mship types
 
 try {
-  Subject subj        = SubjectFinder.findById(id);
-  Stem    rootStem    = StemFinder.findRootStem(subj);
-  Stem    childStem   = new Stem(extension, displayExtn, description);
+  GrouperSession s = GrouperSession.startSession(
+    SubjectFinder.findById(id)
+  );
+  s.beginTransaction();
+  Stem rootStem = StemFinder.findRootStem(s);
   try {
-    rootStem.addChildStem(childStem);
+    Stem childStem = rootStem.addChildStem(extn, displayExtn);
+    try {
+      Group childGroup = childStem.addChildGroup(extn, displayExtn);
+      try {
+        Group otherGroup = childStem.addChildGroup(extn, displayExtn);
+        try {
+          childGroup.addMember(MemberFinder.findBySubject(subj));
+        }
+        catch (MemberAddException e) {
+          s.rollback();
+          System.err.println("Unable to add member: " + e.getMessage());
+        }
+        try {
+          otherGroup.addMember(MemberFinder.findByGroup(childGroup));
+        }
+        catch (MemberAddException e) {
+          s.rollback();
+          System.err.println("Unable to add member: " + e.getMessage());
+        }
+        s.commit();
+      }
+      catch (GroupAddException e) {
+        s.rollback();
+        System.err.println("Unable to add group: " + e.getMessage());
+      }  
+    }
+    catch (GroupAddException e) {
+      s.rollback();
+      System.err.println("Unable to add group: " + e.getMessage())
+    }
   }
   catch (StemAddException e) {
+    s.rollback();
     System.err.println("Unable to add stem: " + e.getMessage());
-  }
-  Group   childGroup  = new Group(extension, displayExtn, description);
-  try {
-    childStem.addChildGroup(childGroup);
-  }
-  catch (GroupAddException e) {
-    System.err.println("Unable to add group: " + e.getMessage());
-  }
-  Group   otherGroup  = new Group(extension, displayExtn, description);
-  try {
-    childStem.addChildGroup(otherGroup);
-  }
-  catch (GroupAddException e) {
-    System.err.println("Unable to add group " + e.getMessage());
-  }
-  try {
-    childGroup.addMember( MemberFinder.findBySubject(subj) );
-  }
-  catch (MemberAddException e) {
-    System.err.println("Unable to add member: " + e.getMessage());
-  }
-  try {
-    otherGroup.addMember( MemberFinder.findByGroup(childGroup) );
-  }
-  catch (MemberAddException e) {
-    System.err.println("Unable to add member: " + e.getMessage());
   }
 }
 catch (SubjectNotFoundException e) {
+  s.rollback();
   System.err.println("Unable to find subject: " + e.getMessage());
 }
 
@@ -65,7 +70,6 @@ catch (SubjectNotFoundException e) {
 # Classes
 
 ## Group
-* Group               Group(extension, displayExtension, description)
 * void                addMember(member)
 * void                delete()
 * void                deleteMember(member)
@@ -116,8 +120,17 @@ catch (SubjectNotFoundException e) {
 * void                revokePriv(privilege)
 
 ## GroupFinder
-* Group               GroupFinder.findByName(subject, name)
-* Group               GroupFinder.findByUuid(subject, uuid)
+* Group               GroupFinder.findByName(session, name)
+* Group               GroupFinder.findByUuid(session, uuid)
+
+## GrouperSession
+* GrouperSession      GrouperSession.startSession(subject)
+* void                beginTransaction()
+* void                commit()
+* Member              getMember()
+* Subject             getSubject()
+* void                rollback()
+* void                stopSession()
 
 ## Member
 * Set                 getEffectiveGroups()
@@ -154,9 +167,8 @@ catch (SubjectNotFoundException e) {
 * Member              MemberFinder.findByUuid(uuid)
 
 ## Stem
-* Stem                Stem(extension, displayExtension, description);
-* void                addChildGroup(group)
-* void                addChildStem(stem)
+* Group               addChildGroup(extension, displayExtension)
+* Stem                addChildStem(extension, displayExtension)
 * Set                 getChildGroups()
 * Set                 getChildStems()
 * String              getCreateSource()
@@ -185,9 +197,9 @@ catch (SubjectNotFoundException e) {
 * void                revokePriv(privilege)
 
 ## StemFinder
-* Stem                StemFinder.findByName(subject, name)
-* Stem                StemFinder.findByUuid(subject, uuid)
-* Stem                StemFinder.findRootStem(subject)
+* Stem                StemFinder.findByName(session, name)
+* Stem                StemFinder.findByUuid(session, uuid)
+* Stem                StemFinder.findRootStem(session)
 
 ## SubjectFinder
 * Subject             SubjectFinder.findById(id)  
@@ -271,17 +283,6 @@ And the old.
 
 ---
 
-## GrouperSession
-
-* GrouperAccess       access()
-* GrouperMember       getMember()
-* GrouperNaming       naming()
-* GrouperSession      static start(subject)
-* boolean             stop()
-* Subject             subject()
-
----
-
 ## GrouperTypeDef
 
 * String              field();
@@ -298,4 +299,5 @@ And the old.
 ## MemberVia
 
 * GrouperList         toList(session)
+
 
