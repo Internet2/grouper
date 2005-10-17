@@ -12,12 +12,14 @@ public class SubjectFinder implements Serializable {
   /*
    * PRIVATE CLASS VARIABLES
    */
+/*
   private static SimpleCache    cacheGS   = null;
   private static SimpleCache    cacheGSID = null;
   private static Log            log       = LogFactory.getLog(SubjectFinder.class);
   private static SourceManager  mgr       = null;
   private static List           sources   = new ArrayList();
   private static Map            types     = null;  
+*/
 
 
   /*
@@ -37,11 +39,13 @@ public class SubjectFinder implements Serializable {
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
    */
+/*
   public static Subject findById(String id)
     throws SubjectNotFoundException 
   {
     return SubjectFinder.getSubject(id, Grouper.DEF_SUBJ_TYPE);
   }
+*/
 
   /**
    * Gets a subject by its ID.
@@ -55,6 +59,7 @@ public class SubjectFinder implements Serializable {
    * @return  a {@link Subject}
    * @throws SubjectNotFoundException
    */
+/*
   public static Subject getSubject(String id, String type) 
     throws SubjectNotFoundException 
   {
@@ -80,10 +85,7 @@ public class SubjectFinder implements Serializable {
             break;
           } catch (SubjectNotFoundException e1) {
             log.debug("Did not find subject " + id + "/" + type + " in " + sa.getName());
-            /*
-             * Don't worry about not finding subjects in 
-             * particular adapters.
-             */
+             // Don't worry about not finding subjects in particular adapters.
             continue;
           }
         }
@@ -105,6 +107,7 @@ public class SubjectFinder implements Serializable {
     }
     return subj;
   }
+*/
  
   /**
    * Gets a Subject by other well-known identifiers.
@@ -113,11 +116,13 @@ public class SubjectFinder implements Serializable {
    * @return  a {@link Subject}
    * @throws  SubjectNotFoundException
    */
+/*
   public static Subject getSubjectByIdentifier(String id) 
     throws SubjectNotFoundException
   {
     return SubjectFinder.getSubjectByIdentifier(id, Grouper.DEF_SUBJ_TYPE);
   }
+*/
 
   /**
    * Gets a Subject by other well-known identifiers.
@@ -127,6 +132,7 @@ public class SubjectFinder implements Serializable {
    * @return  a {@link Subject}
    * @throws  SubjectNotFoundException
    */
+/*
   public static Subject getSubjectByIdentifier(String id, String type) 
     throws SubjectNotFoundException
   {
@@ -152,10 +158,7 @@ public class SubjectFinder implements Serializable {
             break;
           } catch (SubjectNotFoundException e1) {
             log.debug("Did not find subject " + id + "/" + type + " in " + sa.getName());
-            /*
-             * Don't worry about not finding subjects in 
-             * particular adapters.
-             */
+             // Don't worry about not finding subjects in particular adapters.
             continue;
           }
         }
@@ -177,10 +180,12 @@ public class SubjectFinder implements Serializable {
     }
     return subj;
   }
+*/
 
   /**
    * @return true if subject type is known.
    */
+/*
   public static boolean hasType(String type) {
     SubjectFinder.init();
     if (types.containsKey(type)) {
@@ -188,6 +193,7 @@ public class SubjectFinder implements Serializable {
     }
     return false;
   }
+*/
 
   /**
    * Unstructured search for Subjects.
@@ -196,6 +202,7 @@ public class SubjectFinder implements Serializable {
    * @return  Set of found subjects.
    */
   // TODO cache?
+/*
   public static Set search(String searchValue) {
     SubjectFinder.init();
     Set vals = new HashSet();
@@ -209,14 +216,17 @@ public class SubjectFinder implements Serializable {
     }
     return vals;
   }
+*/
 
   /**
    * @return known subject types.
    */
+/*
   public static Set types() {
     SubjectFinder.init();
     return new HashSet( types.values() );
   }
+*/
  
  
   /*
@@ -227,6 +237,7 @@ public class SubjectFinder implements Serializable {
    * Initialize the Subject API source manager
    * TODO I *really* hate this method and how I use it.
    */
+/*
   private static void init() {
     if (mgr == null) {
       log.debug("Initializing source manager");
@@ -249,10 +260,12 @@ public class SubjectFinder implements Serializable {
       } 
     }
   }
+*/
    
   /*
    * Load the known subject types.
    */ 
+/*
   private static void loadTypes() {
     if (types == null) {
       log.debug("Loading types");
@@ -271,6 +284,7 @@ public class SubjectFinder implements Serializable {
       }
     }
   }
+*/
  
 }
 

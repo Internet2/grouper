@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.5 2005-10-14 18:17:45 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.6 2005-10-17 15:10:56 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -30,6 +30,13 @@
   </target>
   <!-- build -->
 
+  <!-- clean -->
+  <target name="clean" description="clean up" >
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+  <!-- clean -->
+
   <!-- codegen -->
   <target name="codegen" depends="init">
     <taskdef name="hbm2java"
@@ -43,6 +50,23 @@
     </hbm2java>
   </target>
   <!-- codegen -->
+
+  <!-- db -->
+  <target name="db" depends="init" description="Launch HSQLDB UI">
+    <property file="conf/hibernate.properties"/>
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="${hibernate.connection.driver_class}"/>
+      <arg value="-url"/>
+      <arg value="${hibernate.connection.url}"/>
+      <arg value="-user"/>
+      <arg value="${hibernate.connection.username}"/>
+      <arg value="-password"/>
+      <arg value="${hibernate.connection.password}"/>
+    </java>
+  </target>
+  <!-- db -->
 
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >
@@ -82,6 +106,8 @@
 
   <!-- schemaexport -->
   <target name="schemaexport" depends="build">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
     <taskdef name="schemaexport"
       classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
       classpathref="project.class.path"
@@ -114,8 +140,6 @@
 
   <!-- test -->
   <target name="test" depends="test-build">
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
     <java fork="yes" 
           classname="junit.textui.TestRunner"
           taskname="junit" 
@@ -165,11 +189,6 @@
 
   <target name="jar" depends="dist" />
 
-  <target name="clean" description="clean up" >
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
-  </target>
-
   <target name="all" depends="dist,test,html" />
 
   <target name="html-internal" depends="init" description="generate internal api docs" >
@@ -181,22 +200,6 @@
       classpathref="project.class.path" 
       access="protected"
       author="true"/>
-  </target>
-
-  <target name="db" depends="init" description="Launch HSQLDB UI">
-    <property file="conf/hibernate.properties"/>
-    <mkdir dir="${dist}/run"/>
-    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
-      <classpath refid="project.class.path"/>
-      <arg value="-driver"/>
-      <arg value="${hibernate.connection.driver_class}"/>
-      <arg value="-url"/>
-      <arg value="${hibernate.connection.url}"/>
-      <arg value="-user"/>
-      <arg value="${hibernate.connection.username}"/>
-      <arg value="-password"/>
-      <arg value="${hibernate.connection.password}"/>
-    </java>
   </target>
 
   <target name="with.clover" depends="init">
