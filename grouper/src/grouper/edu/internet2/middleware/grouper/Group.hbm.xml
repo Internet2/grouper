@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.3 2005-10-17 14:53:02 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.4 2005-10-17 17:39:37 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -70,7 +70,7 @@ Get create time.
     <property 
       name="description"
       type="string"
-      length="255"
+      length="1024"
     >
       <meta attribute="field-description">
 Get description.
