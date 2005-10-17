@@ -18,6 +18,9 @@ public class Stem implements Serializable {
     /** identifier field */
     private String id;
 
+    /** nullable persistent field */
+    private String create_source;
+
     /** persistent field */
     private Date create_time;
 
@@ -32,6 +35,9 @@ public class Stem implements Serializable {
 
     /** nullable persistent field */
     private String extension;
+
+    /** nullable persistent field */
+    private String modify_source;
 
     /** nullable persistent field */
     private Date modify_time;
@@ -61,12 +67,14 @@ public class Stem implements Serializable {
     private Set child_stems;
 
     /** full constructor */
-    public Stem(Date create_time, String description, String display_extension, String display_name, String extension, Date modify_time, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator_id, edu.internet2.middleware.grouper.Member modifier_id, edu.internet2.middleware.grouper.Stem parent_stem, Set child_groups, Set child_stems) {
+    public Stem(String create_source, Date create_time, String description, String display_extension, String display_name, String extension, String modify_source, Date modify_time, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator_id, edu.internet2.middleware.grouper.Member modifier_id, edu.internet2.middleware.grouper.Stem parent_stem, Set child_groups, Set child_stems) {
+        this.create_source = create_source;
         this.create_time = create_time;
         this.description = description;
         this.display_extension = display_extension;
         this.display_name = display_name;
         this.extension = extension;
+        this.modify_source = modify_source;
         this.modify_time = modify_time;
         this.name = name;
         this.uuid = uuid;
@@ -96,6 +104,18 @@ public class Stem implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    /** 
+     * Get create source.
+     *       
+     */
+    public String getCreate_source() {
+        return this.create_source;
+    }
+
+    public void setCreate_source(String create_source) {
+        this.create_source = create_source;
     }
 
     /** 
@@ -156,6 +176,18 @@ public class Stem implements Serializable {
 
     public void setExtension(String extension) {
         this.extension = extension;
+    }
+
+    /** 
+     * Get modify source.
+     *       
+     */
+    public String getModify_source() {
+        return this.modify_source;
+    }
+
+    public void setModify_source(String modify_source) {
+        this.modify_source = modify_source;
     }
 
     public Date getModify_time() {
