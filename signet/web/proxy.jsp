@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.1 2005-10-11 19:27:35 acohen Exp $
-  $Date: 2005-10-11 19:27:35 $
+  $Id: proxy.jsp,v 1.2 2005-10-17 23:31:40 acohen Exp $
+  $Date: 2005-10-17 23:31:40 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -57,7 +57,7 @@
     <div class="section">
       <h2>Proxy details</h2>
       
-      <table class="invis">
+      <table>
     
         <tr>
           <td class="label">
