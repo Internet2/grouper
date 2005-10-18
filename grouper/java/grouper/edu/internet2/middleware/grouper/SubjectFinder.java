@@ -25,10 +25,10 @@ import  org.apache.commons.logging.*;
 import  org.apache.commons.logging.LogFactory;
 
 /**
- * Class for finding I2MI Subjects.
+ * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.1.2.4 2005-10-18 16:40:31 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.1.2.5 2005-10-18 17:53:29 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 

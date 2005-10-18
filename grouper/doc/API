@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.3 2005-10-17 19:57:41 blair Exp $
+$Id: API,v 1.86.2.4 2005-10-18 17:53:29 blair Exp $
 
 ---
 
@@ -63,9 +63,28 @@ catch (SubjectNotFoundException e) {
   System.err.println("Unable to find subject: " + e.getMessage());
 }
 
+---
+
 # Interfaces
 
-## _Privilege_
+## _AccessPrivilege_
+
+## _NamingPrivilege_
+
+---
+
+# Exceptions
+
+## GroupAddException
+## GroupModifyException
+## GroupNotFoundException
+## InsufficientPrivilegeException
+## MemberAddException
+## StemAddException
+## StemModifyException
+## StemNotFoundException
+
+---
 
 # Classes
 
