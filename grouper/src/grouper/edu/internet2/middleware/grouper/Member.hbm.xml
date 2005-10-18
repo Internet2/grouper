@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.1.2.3 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.1.2.4 2005-10-18 20:06:36 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -92,21 +92,21 @@ Get Subject type.
     </property>
     <!-- subject_type -->
 
-    <!-- uuid -->
+    <!-- member_id -->
     <property 
-      name="uuid"
+      name="member_id"
       type="string"
       length="32"
       not-null="true"
     >
       <meta attribute="field-description">
-Get UUID.
+Get Member UUID.
       </meta>
-      <meta attribute="finder-method">findByUuid</meta>
+      <meta attribute="finder-method">findByMemberId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
-    <!-- uuid -->
+    <!-- member_id -->
 
   </class>
 </hibernate-mapping>

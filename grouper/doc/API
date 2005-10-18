@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.4 2005-10-18 17:53:29 blair Exp $
+$Id: API,v 1.86.2.5 2005-10-18 20:06:36 blair Exp $
 
 ---
 
@@ -28,14 +28,14 @@ try {
       try {
         Group otherGroup = childStem.addChildGroup(extn, displayExtn);
         try {
-          childGroup.addMember(MemberFinder.findBySubject(subj));
+          childGroup.addMember(MemberFinder.findBySubject(s, subj));
         }
         catch (MemberAddException e) {
           s.rollback();
           System.err.println("Unable to add member: " + e.getMessage());
         }
         try {
-          otherGroup.addMember(MemberFinder.findByGroup(childGroup));
+          otherGroup.addMember(MemberFinder.findByGroup(s, childGroup));
         }
         catch (MemberAddException e) {
           s.rollback();
@@ -74,15 +74,17 @@ catch (SubjectNotFoundException e) {
 ---
 
 # Exceptions
-
-## GroupAddException
-## GroupModifyException
-## GroupNotFoundException
-## InsufficientPrivilegeException
-## MemberAddException
-## StemAddException
-## StemModifyException
-## StemNotFoundException
+* GrantPrivilegeException
+* GroupAddException
+* GroupModifyException
+* GroupNotFoundException
+* InsufficientPrivilegeException
+* MemberAddException
+* MemberNotFoundException
+* RevokePrivilegeException
+* StemAddException
+* StemModifyException
+* StemNotFoundException
 
 ---
 
@@ -156,6 +158,7 @@ catch (SubjectNotFoundException e) {
 * Set                 getEffectiveGroups()
 * Set                 getGroups()
 * Set                 getImmediateGroups()
+* Subject             getSubject()
 * String              getSubjectId()
 * Source              getSubjectSource()
 * SubjectType         getSubjectType()
@@ -182,9 +185,9 @@ catch (SubjectNotFoundException e) {
 * boolean             isMember(group)
 
 ## MemberFinder
-* Member              MemberFinder.findByGroup(group)
-* Member              MemberFinder.findBySubject(subject)
-* Member              MemberFinder.findByUuid(uuid)
+* Member              MemberFinder.findByGroup(session, group)
+* Member              MemberFinder.findBySubject(session, subject)
+* Member              MemberFinder.findByUuid(session, uuid)
 
 ## Stem
 * Group               addChildGroup(extension, displayExtension)
@@ -319,6 +322,7 @@ And the old.
 ## MemberVia
 
 * GrouperList         toList(session)
+
 
 
 

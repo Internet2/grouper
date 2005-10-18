@@ -17,45 +17,82 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.List;
-import java.sql.SQLException;
+import  edu.internet2.middleware.subject.*;
+import  java.io.Serializable;
 
-import net.sf.hibernate.*;
-import net.sf.hibernate.type.Type;
-
-/** Automatically generated Finder class for MemberFinder.
- * @author Hibernate FinderGenerator  **/
+/**
+ * Find members within the Groups Registry.
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: MemberFinder.java,v 1.1.2.3 2005-10-18 20:06:36 blair Exp $
+ */
 public class MemberFinder implements Serializable {
 
-    public static List findBySubjectId(java.lang.String subject_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Member as member where member.subject_id=?", subject_id, Hibernate.STRING);
-        return finds;
-    }
+  /**
+   * Convert a {@link Group} to a {@link Member}.
+   * <pre class="eg">
+   * // Convert Group g to a Member object
+   * try {
+   *   Member m = MemberFinder.findByGroup(s, g);
+   * }
+   * catch (MemberNotFoundException e) {
+   *   // Member not found
+   * }
+   * </pre>
+   * @param   s   Find {@link Member} within this session context.
+   * @param   g   {@link Group} to convert.
+   * @return  A {@link Member} object.
+   * @throws  MemberNotFoundException
+   */
+  public static Member findByGroup(GrouperSession s, Group g) 
+    throws MemberNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    public static List findBySubjectSource(java.lang.String subject_source) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Member as member where member.subject_source=?", subject_source, Hibernate.STRING);
-        return finds;
-    }
+  /**
+   * Convert a {@link Subject} to a {@link Member}.
+   * <pre class="eg">
+   * // Convert a subject to a Member object
+   * try {
+   *   Member m = MemberFinder.findBySubject(s, subj);
+   * }
+   * catch (MemberNotFoundException e) {
+   *   // Member not found
+   * }
+   * </pre>
+   * @param   s   Find {@link Member} within this session context.
+   * @param   subj  {@link Subject} to convert.
+   * @return  A {@link Member} object.
+   * @throws  MemberNotFoundException
+   */
+  public static Member findBySubject(GrouperSession s, Subject subj)
+    throws MemberNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    public static List findBySubjectType(java.lang.String subject_type) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Member as member where member.subject_type=?", subject_type, Hibernate.STRING);
-        return finds;
-    }
-
-    public static List findByUuid(java.lang.String uuid) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Member as member where member.uuid=?", uuid, Hibernate.STRING);
-        return finds;
-    }
-
-    public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from Member in class edu.internet2.middleware.grouper.Member");
-        return finds;
-    }
+  /**
+   * Find a member by UUID.
+   * <pre class="eg">
+   * // Find a member by uuid.
+   * try {
+   *   Member m = MemberFind.findByUuid(s, uuid);
+   * }
+   * catch (MemberNotFoundException e) {
+   *   // Member not found
+   * }
+   * </pre>
+   * @param   s   Find {@link Member} within this session context.
+   * @param   uuid  Find {@link Member} with this UUID.
+   * @return  A {@link Member} object.
+   * @throws  MemberNotFoundException
+   */
+  public static Member findByUuid(GrouperSession s, String uuid)
+    throws MemberNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
 }
+
