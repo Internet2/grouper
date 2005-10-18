@@ -28,10 +28,10 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.2 2005-10-18 15:47:39 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.3 2005-10-18 16:09:32 blair Exp $
  */
 
-public class HibernateUtil {
+class HibernateUtil {
 
   // PRIVATE CLASS CONSTANTS
 	private static final SessionFactory factory;

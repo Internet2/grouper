@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-public class Privilege implements Serializable {
+class Privilege implements Serializable {
 
     /** identifier field */
     private String id;

@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for TypeFinder.
  * @author Hibernate FinderGenerator  **/
-public class TypeFinder implements Serializable {
+class TypeFinder implements Serializable {
 
     public static List findByName(java.lang.String name) throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();

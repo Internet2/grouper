@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for ComplementFactorFinder.
  * @author Hibernate FinderGenerator  **/
-public class ComplementFactorFinder implements Serializable {
+class ComplementFactorFinder implements Serializable {
 
     public static List findAll() throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();

@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-public class Factor implements Serializable {
+class Factor implements Serializable {
 
     /** identifier field */
     private String id;

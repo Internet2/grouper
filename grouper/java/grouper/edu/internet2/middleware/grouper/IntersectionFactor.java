@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-public class IntersectionFactor extends Factor implements Serializable {
+class IntersectionFactor extends Factor implements Serializable {
 
     /** full constructor */
     public IntersectionFactor(Integer version, edu.internet2.middleware.grouper.Member node_a_id, edu.internet2.middleware.grouper.Member node_b_id) {

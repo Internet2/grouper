@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for GrouperSessionFinder.
  * @author Hibernate FinderGenerator  **/
-public class GrouperSessionFinder implements Serializable {
+class GrouperSessionFinder implements Serializable {
 
     public static List findByStartTime(java.util.Date start_time) throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();

@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for IntersectionFactorFinder.
  * @author Hibernate FinderGenerator  **/
-public class IntersectionFactorFinder implements Serializable {
+class IntersectionFactorFinder implements Serializable {
 
     public static List findAll() throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();

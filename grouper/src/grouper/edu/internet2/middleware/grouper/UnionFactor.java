@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-public class UnionFactor extends Factor implements Serializable {
+class UnionFactor extends Factor implements Serializable {
 
     /** full constructor */
     public UnionFactor(Integer version, edu.internet2.middleware.grouper.Member node_a_id, edu.internet2.middleware.grouper.Member node_b_id) {

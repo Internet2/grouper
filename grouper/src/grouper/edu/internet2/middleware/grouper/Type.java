@@ -29,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-public class Type implements Serializable {
+class Type implements Serializable {
 
     /** identifier field */
     private String id;

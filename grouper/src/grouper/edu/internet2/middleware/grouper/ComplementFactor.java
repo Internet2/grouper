@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-public class ComplementFactor extends Factor implements Serializable {
+class ComplementFactor extends Factor implements Serializable {
 
     /** full constructor */
     public ComplementFactor(Integer version, edu.internet2.middleware.grouper.Member node_a_id, edu.internet2.middleware.grouper.Member node_b_id) {

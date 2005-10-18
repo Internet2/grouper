@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for FactorFinder.
  * @author Hibernate FinderGenerator  **/
-public class FactorFinder implements Serializable {
+class FactorFinder implements Serializable {
 
     public static List findAll() throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();

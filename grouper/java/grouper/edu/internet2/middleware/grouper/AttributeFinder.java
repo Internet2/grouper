@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for AttributeFinder.
  * @author Hibernate FinderGenerator  **/
-public class AttributeFinder implements Serializable {
+class AttributeFinder implements Serializable {
 
     public static List findByValue(java.lang.String value) throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();

@@ -26,7 +26,7 @@ import net.sf.hibernate.type.Type;
 
 /** Automatically generated Finder class for MembershipFinder.
  * @author Hibernate FinderGenerator  **/
-public class MembershipFinder implements Serializable {
+class MembershipFinder implements Serializable {
 
     public static List findByCnt(int count) throws SQLException, HibernateException {
         Session session = HibernateUtil.getSession();
