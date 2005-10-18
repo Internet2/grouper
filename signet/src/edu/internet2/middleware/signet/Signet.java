@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.40 2005-10-14 22:34:53 acohen Exp $
-$Date: 2005-10-14 22:34:53 $
+$Id: Signet.java,v 1.41 2005-10-18 16:03:19 acohen Exp $
+$Date: 2005-10-18 16:03:19 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -754,11 +754,17 @@ public final class Signet
         = session.createQuery
             ("from edu.internet2.middleware.signet.ProxyImpl"
              + " as proxy"
-             + " where granteeID = :granteeId"
+             + " where grantorID = :grantorId"
+             + " and grantorTypeID = :grantorTypeId"
+             + " and granteeID = :granteeId"
              + " and granteeTypeID = :granteeTypeId"
              + " and subsystemID = :subsystemId"
              + " and proxyID != :proxyId");
 
+      query.setString
+        ("grantorId", proxy.getGrantor().getSubjectId());
+      query.setString
+        ("grantorTypeId", proxy.getGrantor().getSubjectTypeId());
       query.setString
         ("granteeId", proxy.getGrantee().getSubjectId());
       query.setString
