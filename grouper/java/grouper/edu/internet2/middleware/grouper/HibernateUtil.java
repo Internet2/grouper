@@ -1,3 +1,20 @@
+/*
+  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2005 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
 package edu.internet2.middleware.grouper;
 
 import  net.sf.hibernate.*;
@@ -11,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.1 2005-10-10 20:20:08 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.2 2005-10-18 15:47:39 blair Exp $
  */
 
 public class HibernateUtil {
