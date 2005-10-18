@@ -53,11 +53,11 @@ public class Membership implements Serializable {
         this.count = count;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -65,19 +65,19 @@ public class Membership implements Serializable {
      * Get membership hop count.
      *       
      */
-    public int getCount() {
+    private int getCount() {
         return this.count;
     }
 
-    public void setCount(int count) {
+    private void setCount(int count) {
         this.count = count;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -85,11 +85,11 @@ public class Membership implements Serializable {
      * Get group.
      *       
      */
-    public edu.internet2.middleware.grouper.Group getGroup_id() {
+    private edu.internet2.middleware.grouper.Group getGroup_id() {
         return this.group_id;
     }
 
-    public void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
+    private void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
         this.group_id = group_id;
     }
 
@@ -97,11 +97,11 @@ public class Membership implements Serializable {
      * Get member.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getMember_id() {
+    private edu.internet2.middleware.grouper.Member getMember_id() {
         return this.member_id;
     }
 
-    public void setMember_id(edu.internet2.middleware.grouper.Member member_id) {
+    private void setMember_id(edu.internet2.middleware.grouper.Member member_id) {
         this.member_id = member_id;
     }
 
@@ -109,11 +109,11 @@ public class Membership implements Serializable {
      * Get list.
      *       
      */
-    public edu.internet2.middleware.grouper.Field getList_id() {
+    private edu.internet2.middleware.grouper.Field getList_id() {
         return this.list_id;
     }
 
-    public void setList_id(edu.internet2.middleware.grouper.Field list_id) {
+    private void setList_id(edu.internet2.middleware.grouper.Field list_id) {
         this.list_id = list_id;
     }
 
@@ -121,11 +121,11 @@ public class Membership implements Serializable {
      * Get via group.
      *       
      */
-    public edu.internet2.middleware.grouper.Group getVia_id() {
+    private edu.internet2.middleware.grouper.Group getVia_id() {
         return this.via_id;
     }
 
-    public void setVia_id(edu.internet2.middleware.grouper.Group via_id) {
+    private void setVia_id(edu.internet2.middleware.grouper.Group via_id) {
         this.via_id = via_id;
     }
 

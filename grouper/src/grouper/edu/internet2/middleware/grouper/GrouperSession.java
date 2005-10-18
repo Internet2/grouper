@@ -47,11 +47,11 @@ public class GrouperSession implements Serializable {
         this.uuid = uuid;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -59,11 +59,11 @@ public class GrouperSession implements Serializable {
      * Get start time.
      *       
      */
-    public Date getStart_time() {
+    private Date getStart_time() {
         return this.start_time;
     }
 
-    public void setStart_time(Date start_time) {
+    private void setStart_time(Date start_time) {
         this.start_time = start_time;
     }
 
@@ -71,19 +71,19 @@ public class GrouperSession implements Serializable {
      * Get UUID.
      *       
      */
-    public String getUuid() {
+    private String getUuid() {
         return this.uuid;
     }
 
-    public void setUuid(String uuid) {
+    private void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -91,11 +91,11 @@ public class GrouperSession implements Serializable {
      * Get member.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getMember_id() {
+    private edu.internet2.middleware.grouper.Member getMember_id() {
         return this.member_id;
     }
 
-    public void setMember_id(edu.internet2.middleware.grouper.Member member_id) {
+    private void setMember_id(edu.internet2.middleware.grouper.Member member_id) {
         this.member_id = member_id;
     }
 

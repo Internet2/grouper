@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.5 2005-10-17 17:43:10 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.6 2005-10-18 15:31:43 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -74,7 +74,6 @@ Get create source.
       <meta attribute="field-description">
 Get create time.
       </meta>
-      <meta attribute="scope-get">public</meta>
     </property>
     <!-- create_time -->
 
@@ -87,7 +86,6 @@ Get create time.
       <meta attribute="field-description">
 Get description.
       </meta>
-      <meta attribute="scope-get">public</meta>
     </property>
     <!-- description -->
 
@@ -100,7 +98,6 @@ Get description.
       <meta attribute="field-description">
 Get displayExtension.
       </meta>
-      <meta attribute="scope-get">public</meta>
     </property>
     <!-- display_extension -->
 
@@ -113,7 +110,6 @@ Get displayExtension.
       <meta attribute="field-description">
 Get displayName.
       </meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
     <!-- display_name -->
@@ -127,7 +123,6 @@ Get displayName.
       <meta attribute="field-description">
 Get extension.
       </meta>
-      <meta attribute="scope-get">public</meta>
     </property>
     <!-- extension -->
 
@@ -176,7 +171,6 @@ Get modify source.
       <meta attribute="class-description">
 Get last modify time.
       </meta>
-      <meta attribute="scope-get">public</meta>
     </property>
     <!-- modify_time -->
 
@@ -189,7 +183,6 @@ Get last modify time.
       <meta attribute="field-description">
 Get name.
       </meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
     <!-- name -->
@@ -202,7 +195,6 @@ Get name.
       <meta attribute="field-description">
 Get parent stem.
       </meta>
-      <meta attribute="scope-get">public</meta>
       <column name="parent_stem" sql-type="char(32)"/>
     </many-to-one>
     <!-- parent_stem -->
@@ -218,7 +210,6 @@ Get parent stem.
 Get UUID.
       </meta>
       <meta attribute="finder-method">findByUuid</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>

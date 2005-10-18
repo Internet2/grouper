@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
+<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.3 2005-10-18 15:31:43 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GrouperSession" table="grouper_sessions">
@@ -52,7 +52,6 @@ Get member.
 Get start time.
       </meta>
       <meta attribute="finder-method">findByStartTime</meta>
-      <meta attribute="scope-get">public</meta>
     </property>
     <!-- start_time -->
 
@@ -67,7 +66,6 @@ Get start time.
 Get UUID.
       </meta>
       <meta attribute="finder-method">findByUuid</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>

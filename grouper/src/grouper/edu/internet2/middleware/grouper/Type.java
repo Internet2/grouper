@@ -43,11 +43,11 @@ public class Type implements Serializable {
         this.fields = fields;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -55,19 +55,19 @@ public class Type implements Serializable {
      * Get type name.
      *       
      */
-    public String getName() {
+    private String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -75,11 +75,11 @@ public class Type implements Serializable {
      * Get fields.
      *       
      */
-    public Set getFields() {
+    private Set getFields() {
         return this.fields;
     }
 
-    public void setFields(Set fields) {
+    private void setFields(Set fields) {
         this.fields = fields;
     }
 

@@ -47,11 +47,11 @@ public class Privilege implements Serializable {
         this.is_naming = is_naming;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -59,11 +59,11 @@ public class Privilege implements Serializable {
      * Get name.
      *       
      */
-    public String getName() {
+    private String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
@@ -71,11 +71,11 @@ public class Privilege implements Serializable {
      * Get whether this is an Access privilege.
      *       
      */
-    public boolean isIs_access() {
+    private boolean isIs_access() {
         return this.is_access;
     }
 
-    public void setIs_access(boolean is_access) {
+    private void setIs_access(boolean is_access) {
         this.is_access = is_access;
     }
 
@@ -83,19 +83,19 @@ public class Privilege implements Serializable {
      * Get whether this is a Naming privilege.
      *       
      */
-    public boolean isIs_naming() {
+    private boolean isIs_naming() {
         return this.is_naming;
     }
 
-    public void setIs_naming(boolean is_naming) {
+    private void setIs_naming(boolean is_naming) {
         this.is_naming = is_naming;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 

@@ -98,11 +98,11 @@ public class Group implements Serializable {
         this.memberships = memberships;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -110,11 +110,11 @@ public class Group implements Serializable {
      * Get create source.
      *       
      */
-    public String getCreate_source() {
+    private String getCreate_source() {
         return this.create_source;
     }
 
-    public void setCreate_source(String create_source) {
+    private void setCreate_source(String create_source) {
         this.create_source = create_source;
     }
 
@@ -122,11 +122,11 @@ public class Group implements Serializable {
      * Get create time.
      *       
      */
-    public Date getCreate_time() {
+    private Date getCreate_time() {
         return this.create_time;
     }
 
-    public void setCreate_time(Date create_time) {
+    private void setCreate_time(Date create_time) {
         this.create_time = create_time;
     }
 
@@ -134,11 +134,11 @@ public class Group implements Serializable {
      * Get description.
      *       
      */
-    public String getDescription() {
+    private String getDescription() {
         return this.description;
     }
 
-    public void setDescription(String description) {
+    private void setDescription(String description) {
         this.description = description;
     }
 
@@ -146,11 +146,11 @@ public class Group implements Serializable {
      * Get displayExtension.
      *       
      */
-    public String getDisplay_extension() {
+    private String getDisplay_extension() {
         return this.display_extension;
     }
 
-    public void setDisplay_extension(String display_extension) {
+    private void setDisplay_extension(String display_extension) {
         this.display_extension = display_extension;
     }
 
@@ -158,11 +158,11 @@ public class Group implements Serializable {
      * Get displayName.
      *       
      */
-    public String getDisplay_name() {
+    private String getDisplay_name() {
         return this.display_name;
     }
 
-    public void setDisplay_name(String display_name) {
+    private void setDisplay_name(String display_name) {
         this.display_name = display_name;
     }
 
@@ -170,11 +170,11 @@ public class Group implements Serializable {
      * Get extension.
      *       
      */
-    public String getExtension() {
+    private String getExtension() {
         return this.extension;
     }
 
-    public void setExtension(String extension) {
+    private void setExtension(String extension) {
         this.extension = extension;
     }
 
@@ -182,19 +182,19 @@ public class Group implements Serializable {
      * Get modify source.
      *       
      */
-    public String getModify_source() {
+    private String getModify_source() {
         return this.modify_source;
     }
 
-    public void setModify_source(String modify_source) {
+    private void setModify_source(String modify_source) {
         this.modify_source = modify_source;
     }
 
-    public Date getModify_time() {
+    private Date getModify_time() {
         return this.modify_time;
     }
 
-    public void setModify_time(Date modify_time) {
+    private void setModify_time(Date modify_time) {
         this.modify_time = modify_time;
     }
 
@@ -202,11 +202,11 @@ public class Group implements Serializable {
      * Get name.
      *       
      */
-    public String getName() {
+    private String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
@@ -214,19 +214,19 @@ public class Group implements Serializable {
      * Get UUID.
      *       
      */
-    public String getUuid() {
+    private String getUuid() {
         return this.uuid;
     }
 
-    public void setUuid(String uuid) {
+    private void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -234,11 +234,11 @@ public class Group implements Serializable {
      * Get creator.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getCreator_id() {
+    private edu.internet2.middleware.grouper.Member getCreator_id() {
         return this.creator_id;
     }
 
-    public void setCreator_id(edu.internet2.middleware.grouper.Member creator_id) {
+    private void setCreator_id(edu.internet2.middleware.grouper.Member creator_id) {
         this.creator_id = creator_id;
     }
 
@@ -246,11 +246,11 @@ public class Group implements Serializable {
      * Get modifier.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getModifier_id() {
+    private edu.internet2.middleware.grouper.Member getModifier_id() {
         return this.modifier_id;
     }
 
-    public void setModifier_id(edu.internet2.middleware.grouper.Member modifier_id) {
+    private void setModifier_id(edu.internet2.middleware.grouper.Member modifier_id) {
         this.modifier_id = modifier_id;
     }
 
@@ -258,11 +258,11 @@ public class Group implements Serializable {
      * Get parent stem.
      *       
      */
-    public edu.internet2.middleware.grouper.Stem getParent_stem() {
+    private edu.internet2.middleware.grouper.Stem getParent_stem() {
         return this.parent_stem;
     }
 
-    public void setParent_stem(edu.internet2.middleware.grouper.Stem parent_stem) {
+    private void setParent_stem(edu.internet2.middleware.grouper.Stem parent_stem) {
         this.parent_stem = parent_stem;
     }
 
@@ -270,11 +270,11 @@ public class Group implements Serializable {
      * Get attributes.
      *       
      */
-    public Set getAttributes() {
+    private Set getAttributes() {
         return this.attributes;
     }
 
-    public void setAttributes(Set attributes) {
+    private void setAttributes(Set attributes) {
         this.attributes = attributes;
     }
 
@@ -282,11 +282,11 @@ public class Group implements Serializable {
      * Get memberships.
      *       
      */
-    public Set getMemberships() {
+    private Set getMemberships() {
         return this.memberships;
     }
 
-    public void setMemberships(Set memberships) {
+    private void setMemberships(Set memberships) {
         this.memberships = memberships;
     }
 

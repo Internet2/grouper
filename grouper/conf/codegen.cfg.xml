@@ -1,15 +1,10 @@
-<!-- $Id: codegen.cfg.xml,v 1.1.2.2 2005-10-11 20:30:09 blair Exp $ -->
+<!-- $Id: codegen.cfg.xml,v 1.1.2.3 2005-10-18 15:31:43 blair Exp $ -->
 <codegen>
   <generate renderer="net.sf.hibernate.tool.hbm2java.BasicRenderer"/>
-<!-- TODO Put in separate package once stable?
-    package="edu.internet2.middleware.grouper.finder"
--->
   <generate renderer="net.sf.hibernate.tool.hbm2java.FinderRenderer"
     suffix="Finder"
   />
-  <!-- TODO Make private -->
-  <meta attribute="scope-get">public</meta>
-  <!-- TODO Make private -->
-  <meta attribute="scope-set">public</meta>
+  <meta attribute="scope-get">private</meta>
+  <meta attribute="scope-set">private</meta>
 </codegen>
 

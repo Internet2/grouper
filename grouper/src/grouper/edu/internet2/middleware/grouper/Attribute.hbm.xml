@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Attribute.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.1.2.3 2005-10-18 15:31:43 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -68,7 +68,6 @@ Get field.
 Get attribute value.
       </meta>
       <meta attribute="finder-method">findByValue</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>

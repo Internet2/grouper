@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Privilege.hbm.xml,v 1.1.2.1 2005-10-14 18:15:04 blair Exp $ -->
+<!-- $Id: Privilege.hbm.xml,v 1.1.2.2 2005-10-18 15:31:43 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Privilege" table="grouper_privileges">
@@ -37,7 +37,6 @@ Schema specification for Access and Naming privileges.
 Get name.
       </meta>
       <meta attribute="finder-method">findByName</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
@@ -53,7 +52,6 @@ Get name.
 Get whether this is an Access privilege.
       </meta>
       <meta attribute="finder-method">findByIsAccess</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
@@ -69,7 +67,6 @@ Get whether this is an Access privilege.
 Get whether this is a Naming privilege.
       </meta>
       <meta attribute="finder-method">findByIsNaming</meta>
-      <meta attribute="scope-get">public</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>

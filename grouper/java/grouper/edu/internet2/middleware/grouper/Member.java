@@ -52,11 +52,11 @@ public class Member implements Serializable {
         this.uuid = uuid;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -64,11 +64,11 @@ public class Member implements Serializable {
      * Get Subject ID.
      *       
      */
-    public String getSubject_id() {
+    private String getSubject_id() {
         return this.subject_id;
     }
 
-    public void setSubject_id(String subject_id) {
+    private void setSubject_id(String subject_id) {
         this.subject_id = subject_id;
     }
 
@@ -76,11 +76,11 @@ public class Member implements Serializable {
      * Get Subject source.
      *       
      */
-    public String getSubject_source() {
+    private String getSubject_source() {
         return this.subject_source;
     }
 
-    public void setSubject_source(String subject_source) {
+    private void setSubject_source(String subject_source) {
         this.subject_source = subject_source;
     }
 
@@ -88,11 +88,11 @@ public class Member implements Serializable {
      * Get Subject type.
      *       
      */
-    public String getSubject_type() {
+    private String getSubject_type() {
         return this.subject_type;
     }
 
-    public void setSubject_type(String subject_type) {
+    private void setSubject_type(String subject_type) {
         this.subject_type = subject_type;
     }
 
@@ -100,19 +100,19 @@ public class Member implements Serializable {
      * Get UUID.
      *       
      */
-    public String getUuid() {
+    private String getUuid() {
         return this.uuid;
     }
 
-    public void setUuid(String uuid) {
+    private void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 

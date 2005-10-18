@@ -54,11 +54,11 @@ public class Field implements Serializable {
         this.is_list = is_list;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -66,11 +66,11 @@ public class Field implements Serializable {
      * Get field name.
      *       
      */
-    public String getName() {
+    private String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
@@ -78,27 +78,27 @@ public class Field implements Serializable {
      * Get whether field is a list.
      *       
      */
-    public boolean isIs_list() {
+    private boolean isIs_list() {
         return this.is_list;
     }
 
-    public void setIs_list(boolean is_list) {
+    private void setIs_list(boolean is_list) {
         this.is_list = is_list;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
-    public edu.internet2.middleware.grouper.Type getType_id() {
+    private edu.internet2.middleware.grouper.Type getType_id() {
         return this.type_id;
     }
 
-    public void setType_id(edu.internet2.middleware.grouper.Type type_id) {
+    private void setType_id(edu.internet2.middleware.grouper.Type type_id) {
         this.type_id = type_id;
     }
 
@@ -106,11 +106,11 @@ public class Field implements Serializable {
      * Get read privilege.
      *       
      */
-    public edu.internet2.middleware.grouper.Privilege getRead_privilege_id() {
+    private edu.internet2.middleware.grouper.Privilege getRead_privilege_id() {
         return this.read_privilege_id;
     }
 
-    public void setRead_privilege_id(edu.internet2.middleware.grouper.Privilege read_privilege_id) {
+    private void setRead_privilege_id(edu.internet2.middleware.grouper.Privilege read_privilege_id) {
         this.read_privilege_id = read_privilege_id;
     }
 
@@ -118,11 +118,11 @@ public class Field implements Serializable {
      * Get write privilege.
      *       
      */
-    public edu.internet2.middleware.grouper.Privilege getWrite_privilege_id() {
+    private edu.internet2.middleware.grouper.Privilege getWrite_privilege_id() {
         return this.write_privilege_id;
     }
 
-    public void setWrite_privilege_id(edu.internet2.middleware.grouper.Privilege write_privilege_id) {
+    private void setWrite_privilege_id(edu.internet2.middleware.grouper.Privilege write_privilege_id) {
         this.write_privilege_id = write_privilege_id;
     }
 

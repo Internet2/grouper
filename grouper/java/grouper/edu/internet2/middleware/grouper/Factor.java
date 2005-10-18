@@ -36,19 +36,19 @@ public class Factor implements Serializable {
     public Factor() {
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -56,11 +56,11 @@ public class Factor implements Serializable {
      * Get node a.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getNode_a_id() {
+    protected edu.internet2.middleware.grouper.Member getNode_a_id() {
         return this.node_a_id;
     }
 
-    public void setNode_a_id(edu.internet2.middleware.grouper.Member node_a_id) {
+    private void setNode_a_id(edu.internet2.middleware.grouper.Member node_a_id) {
         this.node_a_id = node_a_id;
     }
 
@@ -68,11 +68,11 @@ public class Factor implements Serializable {
      * Get node b.
      *       
      */
-    public edu.internet2.middleware.grouper.Member getNode_b_id() {
+    protected edu.internet2.middleware.grouper.Member getNode_b_id() {
         return this.node_b_id;
     }
 
-    public void setNode_b_id(edu.internet2.middleware.grouper.Member node_b_id) {
+    private void setNode_b_id(edu.internet2.middleware.grouper.Member node_b_id) {
         this.node_b_id = node_b_id;
     }
 

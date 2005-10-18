@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<!-- $Id: Factor.hbm.xml,v 1.1.2.2 2005-10-17 14:53:02 blair Exp $ -->
+<!-- $Id: Factor.hbm.xml,v 1.1.2.3 2005-10-18 15:31:43 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Factor" table="grouper_factors">
@@ -38,6 +38,7 @@ Group math factors.
       <meta attribute="field-description">
 Get node a.
       </meta>
+      <meta attribute="scope-get">protected</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="node_a_id" sql-type="char(32)"/>
@@ -52,6 +53,7 @@ Get node a.
       <meta attribute="field-description">
 Get node b.
       </meta>
+      <meta attribute="scope-get">protected</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="node_b_id" sql-type="char(32)"/>

@@ -45,11 +45,11 @@ public class Attribute implements Serializable {
         this.value = value;
     }
 
-    public String getId() {
+    private String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
@@ -57,19 +57,19 @@ public class Attribute implements Serializable {
      * Get attribute value.
      *       
      */
-    public String getValue() {
+    private String getValue() {
         return this.value;
     }
 
-    public void setValue(String value) {
+    private void setValue(String value) {
         this.value = value;
     }
 
-    public Integer getVersion() {
+    private Integer getVersion() {
         return this.version;
     }
 
-    public void setVersion(Integer version) {
+    private void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -77,11 +77,11 @@ public class Attribute implements Serializable {
      * Get group.
      *       
      */
-    public edu.internet2.middleware.grouper.Group getGroup_id() {
+    private edu.internet2.middleware.grouper.Group getGroup_id() {
         return this.group_id;
     }
 
-    public void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
+    private void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
         this.group_id = group_id;
     }
 
@@ -89,11 +89,11 @@ public class Attribute implements Serializable {
      * Get field.
      *       
      */
-    public edu.internet2.middleware.grouper.Field getField_id() {
+    private edu.internet2.middleware.grouper.Field getField_id() {
         return this.field_id;
     }
 
-    public void setField_id(edu.internet2.middleware.grouper.Field field_id) {
+    private void setField_id(edu.internet2.middleware.grouper.Field field_id) {
         this.field_id = field_id;
     }
 

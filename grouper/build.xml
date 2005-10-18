@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.6 2005-10-17 15:10:56 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.7 2005-10-18 15:31:43 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -39,6 +39,8 @@
 
   <!-- codegen -->
   <target name="codegen" depends="init">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
     <taskdef name="hbm2java"
       classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask"
       classpathref="project.class.path"
