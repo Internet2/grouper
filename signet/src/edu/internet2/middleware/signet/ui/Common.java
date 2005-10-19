@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.38 2005-10-14 22:34:53 acohen Exp $
-  $Date: 2005-10-14 22:34:53 $
+  $Id: Common.java,v 1.39 2005-10-19 21:55:01 acohen Exp $
+  $Date: 2005-10-19 21:55:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -502,7 +502,18 @@ public class Common
           : "assignmentId");
     
     Decision decision = loggedInPrivilegedSubject.canEdit(grantable);
-    if (decision.getAnswer() == true)
+    boolean canEdit = decision.getAnswer();
+    
+    // Here's a notable exception: Since the UI cannot grant non-Subsystem-
+    // specific Proxies, it cannot edit them either.
+    
+    if ((grantable instanceof Proxy)
+        && (((Proxy)grantable).getSubsystem() == null))
+    {
+      canEdit = false; 
+    }
+    
+    if (canEdit == true)
     {
       outStr.append("<a\n");
       outStr.append("  style=\"float: right;\"\n");
