@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.7 2005-09-19 06:37:04 acohen Exp $
- $Date: 2005-09-19 06:37:04 $
+ $Id: GrantableImpl.java,v 1.8 2005-10-19 18:14:34 acohen Exp $
+ $Date: 2005-10-19 18:14:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -373,20 +373,13 @@ implements Grantable
   }
   
   void setRevoker(PrivilegedSubjectImpl revoker)
-  throws SignetAuthorityException
   {
     this.revoker = revoker.getEffectiveEditor();
     this.revokerId = this.revoker.getSubjectId();
     this.revokerTypeId = this.revoker.getSubjectTypeId();
     
     if (!revoker.equals(revoker.getEffectiveEditor()))
-    {
-      if (!revoker.canUseProxy(revoker.getEffectiveEditor()))
-      {
-        Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
-        throw new SignetAuthorityException(decision);
-      }
-      
+    {      
       this.proxy = revoker;
       this.proxyId = this.proxy.getSubjectId();
       this.proxyTypeId = this.proxy.getSubjectTypeId();

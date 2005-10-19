@@ -17,9 +17,10 @@
 <%@ page import="edu.internet2.middleware.signet.ui.PrivDisplayType" %>
 <%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
-<tiles:useAttribute name="pSubject"         classname="PrivilegedSubject" />
-<tiles:useAttribute name="privDisplayType"  classname="PrivDisplayType" />
-<tiles:useAttribute name="currentSubsystem" classname="Subsystem" />
+<tiles:useAttribute name="pSubject"                  classname="PrivilegedSubject" />
+<tiles:useAttribute name="loggedInPrivilegedSubject" classname="PrivilegedSubject" />
+<tiles:useAttribute name="privDisplayType"           classname="PrivDisplayType" />
+<tiles:useAttribute name="currentSubsystem"          classname="Subsystem" />
 
 <div id="Content"> 
   <div id="ViewHead">
@@ -221,7 +222,7 @@
             <%=Common.displayStatus(assignment)%>
           </td> <!-- status -->
 
-          <%=Common.revokeBox(pSubject, assignment, UnusableStyle.DIM)%>
+          <%=Common.revokeBox(loggedInPrivilegedSubject, assignment, UnusableStyle.DIM)%>
         </tr>
     
 <% 
@@ -272,7 +273,7 @@
             <%=Common.displayStatus(proxy)%>
           </td> <!-- status -->
 
-          <%=Common.revokeBox(pSubject, proxy, UnusableStyle.DIM)%>
+          <%=Common.revokeBox(loggedInPrivilegedSubject, proxy, UnusableStyle.DIM)%>
         </tr>
     
 <% 

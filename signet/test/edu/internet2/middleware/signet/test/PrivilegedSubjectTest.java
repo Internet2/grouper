@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.13 2005-10-14 22:34:53 acohen Exp $
-$Date: 2005-10-14 22:34:53 $
+$Id: PrivilegedSubjectTest.java,v 1.14 2005-10-19 18:14:34 acohen Exp $
+$Date: 2005-10-19 18:14:34 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -77,6 +77,8 @@ public class PrivilegedSubjectTest extends TestCase
   public final void testCanEdit()
   throws ObjectNotFoundException
   {
+    // Test the editability of an Assignment.
+    
     Subject subject0 = signet.getSubject(
     		Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
     PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
@@ -92,6 +94,19 @@ public class PrivilegedSubjectTest extends TestCase
     	= (Assignment)(Common.getSingleSetMember(assignmentsForSubject2));
     
     assertFalse(pSubject0.canEdit(assignmentForSubject2).getAnswer());
+    
+    // Test the editability of a Proxy.
+    
+    Subject subject1
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(1));
+    PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
+    
+    Set proxiesFrom2to0
+      = pSubject0.getProxiesReceived((Status)null, null, pSubject2);
+    Proxy proxyFrom2to0 = (Proxy)(Common.getSingleSetMember(proxiesFrom2to0));
+    
+    assertFalse(pSubject1.canEdit(proxyFrom2to0).getAnswer());
   }
 
   public final void testGetGrantableChoices()

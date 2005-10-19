@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.30 2005-10-14 22:34:53 acohen Exp $
- $Date: 2005-10-14 22:34:53 $
+ $Id: PrivilegedSubjectImpl.java,v 1.31 2005-10-19 18:14:34 acohen Exp $
+ $Date: 2005-10-19 18:14:34 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -178,7 +178,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * PrivilegedSubject.
    */
   public Decision canEdit
-    (Grantable          grantableInstance)
+    (Grantable grantableInstance)
   {
     PrivilegedSubject effectiveEditor = this.getEffectiveEditor();
     boolean sufficientScopeFound = false;
@@ -203,6 +203,15 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     if (grantableInstance instanceof Assignment)
     {
       Assignment anAssignment = (Assignment)grantableInstance;
+
+      // If you're going to edit an Assignment while "acting as" someone
+      // else, you must hold a "useable" Proxy from that other person.
+      if (!(this.equals(effectiveEditor))
+          && (!this.canUseProxy
+                (effectiveEditor, anAssignment.getFunction().getSubsystem())))
+      {
+        return new DecisionImpl(false, Reason.CANNOT_USE, null);
+      }
       
       // Next, let's see whether or not this Assignment is in a Scope that we can
       // grant this particular Function in, and if so, whether or not this
@@ -261,6 +270,27 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       {
         // None of our grantable Scopes were high and mighty enough to edit
         // this Assignment.
+        return new DecisionImpl(false, Reason.SCOPE, null);
+      }
+    }
+    
+    if (grantableInstance instanceof Proxy)
+    {
+      Proxy proxy = (Proxy)grantableInstance;
+      
+      // If you're going to edit a Proxy while "acting as" someone
+      // else, you must hold an "extensible" Proxy from that other person.
+      if (!(this.equals(effectiveEditor))
+          && (!this.canExtendProxy
+                (effectiveEditor, proxy.getSubsystem())))
+      {
+        return new DecisionImpl(false, Reason.CANNOT_EXTEND, null);
+      }
+      
+      // If you're "acting as" no one but yourself, then you can't edit
+      // any Proxy that you didn't grant.
+      if (this.equals(effectiveEditor) && !(this.equals(proxy.getGrantor())))
+      {
         return new DecisionImpl(false, Reason.SCOPE, null);
       }
     }
@@ -1474,7 +1504,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return newProxy;
   }
 
-  protected boolean canUseProxy
+  protected boolean canActAs
     (PrivilegedSubject  actingAs,
      Subsystem          subsystem)
   {
@@ -1548,7 +1578,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   public void setActingAs(PrivilegedSubject actingAs)
   throws SignetAuthorityException
   {
-    if (this.canUseProxy(actingAs, null))
+    if (this.canActAs(actingAs, null))
     {
       this.actingAs = actingAs;
     }
@@ -1564,11 +1594,17 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return (actingAs == null ? this : actingAs);
   }
   
+  /*
+   * This method returns true if this PrivilegedSubject holds any "useable"
+   * proxies from the specified grantor. A "useable" proxy is one that can be
+   * be used(!) to grant Assignments. A proxy that is not "useable" can be
+   * extended to another person, but may not be used to grant Assignments.
+   */
   boolean canUseProxy
-    (PrivilegedSubject proxyGrantor)
+    (PrivilegedSubject proxyGrantor, Subsystem subsystem)
   {
     Set proxies
-      = this.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+      = this.getProxiesReceived(Status.ACTIVE, subsystem, proxyGrantor);
     
     Iterator proxiesIterator = proxies.iterator();
     while (proxiesIterator.hasNext())
@@ -1581,7 +1617,34 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     }
     
     // If we've gotten this far, it means we have no useable, active Proxies
-    // from ProxyGrantor.
+    // from ProxyGrantor that are applicable to the specified Subsystem.
+    return false;
+  }
+  
+  /*
+   * This method returns true if this PrivilegedSubject holds any "extensible"
+   * proxies from the specified grantor. An "extensible" proxy is one that can
+   * be used to grant Proxies. A proxy that is not "extensible" can be
+   * used to grant Assignments, but may not be used to extend Proxies.
+   */
+  boolean canExtendProxy
+    (PrivilegedSubject proxyGrantor, Subsystem subsystem)
+  {
+    Set proxies
+      = this.getProxiesReceived(Status.ACTIVE, subsystem, proxyGrantor);
+    
+    Iterator proxiesIterator = proxies.iterator();
+    while (proxiesIterator.hasNext())
+    {
+      Proxy proxy = (Proxy)(proxiesIterator.next());
+      if (proxy.canExtend())
+      {
+        return true;
+      }
+    }
+    
+    // If we've gotten this far, it means we have no useable, active Proxies
+    // from ProxyGrantor that are applicable to the specified Subsystem.
     return false;
   }
 }
