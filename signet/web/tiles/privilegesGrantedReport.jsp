@@ -214,7 +214,7 @@
           </td> <!-- scope -->
               
           <td> <!-- limits -->
-            <%=Common.editLink(pSubject, assignment)%>
+            <%=Common.editLink(loggedInPrivilegedSubject, assignment)%>
             <%=Common.displayLimitValues(assignment)%>
           </td> <!-- limits -->
               
@@ -265,7 +265,7 @@
           </td> <!-- scope -->
               
           <td> <!-- limits -->
-            <%=Common.editLink(pSubject, proxy)%>
+            <%=Common.editLink(loggedInPrivilegedSubject, proxy)%>
             <span class="label"><%=Common.displayLimitType(proxy)%> </span><%=Common.displaySubsystem(proxy)%>
           </td> <!-- limits -->
               
