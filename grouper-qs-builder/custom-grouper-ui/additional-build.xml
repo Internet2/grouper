@@ -59,7 +59,7 @@
 				  <!--copy web.uob.xml and filter tokens
 				  <filter filtersfile="${basedir}/../custom-grouper-ui/build.properties"/>-->
 				  <copy file="../custom-grouper-ui/webapp/WEB-INF/web.custom.xml" tofile="${temp.dir}/00.web.custom.filtered.xml" filtering="true" overwrite="true"/>
-				  <copy file="../custom-grouper-ui/webapp/WEB-INF/web.custom1.xml" tofile="${temp.dir}/95.web.custom.filtered.xml" filtering="true" overwrite="true"/>
+				  <copy file="../custom-grouper-ui/webapp/WEB-INF/web.custom1.xml" tofile="${temp.dir}/80.web.custom.filtered.xml" filtering="true" overwrite="true"/>
 		  	  
 		  	  
 		  </target>
