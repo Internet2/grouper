@@ -4,73 +4,40 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.9 2005-10-20 19:33:57 blair Exp $
+$Id: API,v 1.86.2.10 2005-10-20 20:41:11 blair Exp $
 
 ---
-
-The new...
-
-# eg
 
 TODO Should the root stem be an actual entry in the db?
 TODO Custom mship types
 TODO Be more consistent about when calling for a member and a subject
 
-try {
-  GrouperSession s = GrouperSession.startSession(
-    SubjectFinder.findById(id)
-  );
-  s.beginTransaction();
-  Stem rootStem = StemFinder.findRootStem(s);
-  try {
-    Stem childStem = rootStem.addChildStem(extn, displayExtn);
-    try {
-      Group childGroup = childStem.addChildGroup(extn, displayExtn);
-      try {
-        Group otherGroup = childStem.addChildGroup(extn, displayExtn);
-        try {
-          childGroup.addMember(MemberFinder.findBySubject(s, subj));
-        }
-        catch (MemberAddException e) {
-          s.rollback();
-          System.err.println("Unable to add member: " + e.getMessage());
-        }
-        try {
-          otherGroup.addMember(MemberFinder.findByGroup(s, childGroup));
-        }
-        catch (MemberAddException e) {
-          s.rollback();
-          System.err.println("Unable to add member: " + e.getMessage());
-        }
-        s.commit();
-      }
-      catch (GroupAddException e) {
-        s.rollback();
-        System.err.println("Unable to add group: " + e.getMessage());
-      }  
-    }
-    catch (GroupAddException e) {
-      s.rollback();
-      System.err.println("Unable to add group: " + e.getMessage())
-    }
-  }
-  catch (StemAddException e) {
-    s.rollback();
-    System.err.println("Unable to add stem: " + e.getMessage());
-  }
-}
-catch (SubjectNotFoundException e) {
-  s.rollback();
-  System.err.println("Unable to find subject: " + e.getMessage());
-}
-
 ---
 
 # Interfaces
 
-## _AccessPrivilege_
+## AccessPrivilege
 
-## _NamingPrivilege_
+## NamingPrivilege
+
+## QueryFilter
+* AndFilter(filter, filter)
+* GroupAttributeFilter(attribute, value, stem)
+* GroupCreatedAfterFilter(date, stem)
+* GroupCreatedBeforeFilter(date, stem)
+* GroupMemberFilter(member, stem)
+* GroupModifiedAfterFilter(date, stem)
+* GroupModifiedBeforeFilter(date, stem)
+* GroupNameFilter(name, stem)
+* GroupTypeFilter(type, stem)
+* OrFilter(filter, filter)
+* NotFilter(filter)
+* StemAttributeFilter(attribute, value, stem)
+* StemCreatedAfterFilter(date, stem)
+* StemCreatedBeforeFilter(date, stem)
+* StemModifiedAfterFilter(date, stem)
+* StemModifiedBeforeFilter(date, stem)
+* StemNameFilter(name, stem)
 
 ---
 
@@ -147,6 +114,13 @@ catch (SubjectNotFoundException e) {
 ## GroupFinder
 * Group               GroupFinder.findByName(session, name)
 * Group               GroupFinder.findByUuid(session, uuid)
+
+## GrouperQuery
+* GrouperQuery        GrouperQuery.createQuery(filter)
+* Set                 getGroups()
+* Set                 getMembers()
+* Set                 getMemberships()
+* Set                 getStems()
 
 ## GrouperSession
 * GrouperSession      GrouperSession.startSession(subject)
@@ -240,91 +214,4 @@ catch (SubjectNotFoundException e) {
 * Subject             SubjectFinder.findByIdentifier(id)  
 * Subject             SubjectFinder.findByIdentifier(id, type)
 * Set                 SubjectFinder.find(query)
-
-----
-
-And the old.
-
-# Classes
-
-## Grouper
-
-* String              static config(parameter)
-* boolean             static groupField(groupType, groupField)
-* List                static groupFields()
-* boolean             static groupType(groupType)
-* List                static groupTypeDefs()
-* List                static groupTypes()
-
----
-
-## GrouperAttribute
-
-* String              field()
-* String              value()
-
----
-
-## GrouperField
-
-* String              field()
-* boolean             isList()
-* String              readPriv()
-* String              writePriv()
-
----
-
-## GrouperQuery
-
-* boolean             base(namespace)
-* void                clear()
-* boolean             clear(filter)
-* boolean             createdAfter(date)
-* boolean             createdBefore(date)
-* List                getGroups()
-* List                getListValues()
-* List                getMembers()
-* List                getStems()
-* boolean             group(name)
-* boolean             group(namespace, name)
-* boolean             groupAttr(attribute, value)
-* boolean             groupAttr(namespace, attribute, value)
-* boolean             groupType(groupType)
-* boolean             membershipType(membershipType)
-* boolean             modifedAfter(date)
-* boolean             modifiedBefore(date)
-* boolean             stem(name)
-* boolean             stem(namespace, name)
-* boolean             stemAttr(name, value)
-* boolean             stemAttr(namespace, name, value)
-
----
-
-## GrouperSchema
-
-* String              type()
-
----
-
-## GrouperTypeDef
-
-* String              field();
-* String              type();
-
----
-
-## MemberOf
-
-* List                memberOf(GrouperList)
-
----
-
-## MemberVia
-
-* GrouperList         toList(session)
-
-
-
-
-
 
