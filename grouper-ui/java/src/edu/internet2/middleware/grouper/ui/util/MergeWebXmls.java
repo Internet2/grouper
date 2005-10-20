@@ -66,7 +66,7 @@ import javax.xml.transform.stream.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MergeWebXmls.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: MergeWebXmls.java,v 1.2 2005-10-20 14:42:17 isgwb Exp $
  */
 
 public class MergeWebXmls {
@@ -124,19 +124,22 @@ public class MergeWebXmls {
 		Arrays.sort(files);
 		Map params = new HashMap();
 		params.put("mergeTagsXmlFile", mergeTagsXml);
-		String mergeIn = files[0];
+		String mergeIn;
+		String baseXml = files[0];
 		String out = null;
 		System.out.println("Transforming: "
 				+ xmlFiles.replaceAll(File.pathSeparator, "\n") + "\n\n");
 		for (int i = 1; i < files.length; i++) {
+			mergeIn = files[i];
+			
 			out = tempDir + File.separatorChar + "web." + i + ".xml";
 			if (i == files.length - 1)
 				out = finalXml;
 			params.put("mergeXmlFile", mergeIn);
-			System.out.println(files[i] + "\n + " + mergeIn + "\n -> " + out
+			System.out.println("Base = " + baseXml + "\n + " + mergeIn + "\n -> " + out
 					+ "\n");
-			transform(files[i], out, mergeXsl, params);
-			mergeIn = out;
+			transform(baseXml, out, mergeXsl, params);
+			baseXml = out;
 		}
 	}
 
