@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.8 2005-10-20 19:29:12 blair Exp $
+$Id: API,v 1.86.2.9 2005-10-20 19:33:57 blair Exp $
 
 ---
 
@@ -85,6 +85,7 @@ catch (SubjectNotFoundException e) {
 * MemberAddException
 * MemberDeleteException
 * MemberNotFoundException
+* MembershipNotFoundException
 * RevokePrivilegeException
 * StemAddException
 * StemModifyException
@@ -321,6 +322,7 @@ And the old.
 ## MemberVia
 
 * GrouperList         toList(session)
+
 
 
 

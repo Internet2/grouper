@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.5 2005-10-20 19:29:12 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.6 2005-10-20 19:33:57 blair Exp $
  *     
 */
 public class Membership implements Serializable {
@@ -110,22 +110,38 @@ public class Membership implements Serializable {
   /**
    * Get parent membership of this membership.
    * <pre class="eg">
-   * Membership parent = ms.getParentMembership();
+   * try {
+   *   Membership parent = ms.getParentMembership();
+   * }
+   * catch (MembershipNotFoundException e) {
+   *   // Unable to retrieve parent membership
+   * }
    * </pre>
    * @return  A {@link Membership}
+   * @throws  MembershipNotFoundException
    */
-  public Membership getParentMembership() {
+  public Membership getParentMembership() 
+    throws MembershipNotFoundException
+  {
     throw new RuntimeException("Not implemented");
   }
  
   /**
    * Get this membership's via group.
    * <pre class="eg">
-   * Group via = ms.getViaGroup();
+   * try {
+   *   Group via = ms.getViaGroup();
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Unable to retrieve via group
+   * }
    * </pre>
    * @return  A {@link Group}
+   * @throws  GroupNotFoundException
    */
-  public Group getViaGroup() {
+  public Group getViaGroup() 
+    throws GroupNotFoundException
+  {
     throw new RuntimeException("Not implemented");
   }
 
