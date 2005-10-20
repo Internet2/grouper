@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:output doctype-public="-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" doctype-system="http://java.sun.com/dtd/web-app_2_3.dtd" indent="yes"/>
 	<xsl:preserve-space elements="*"/>
-	<xsl:param name="mergeXmlFile">c:/projects/GrouperComplete/uob-grouper-ui/webapp/WEB-INF/web.uob.xml</xsl:param>
+	<xsl:param name="mergeXmlFile">C:\delete\grouper-qs\grouper-ui/temp/95.web.custom.filtered.xml</xsl:param>
 	<xsl:param name="mergeTagsXmlFile">c:/projects/GrouperComplete/grouper-ui/web-xml-merge-tags.xml</xsl:param>
 	<xsl:variable name="mergeXml" select="document($mergeXmlFile)"/>
 	<xsl:variable name="mergeTagsXml" select="document($mergeTagsXmlFile)"/>
@@ -78,6 +78,7 @@
 		</xsl:if>
 	</xsl:template>
 	<xsl:template name="sequenceType">
+	   <xsl:comment>Processing <xsl:value-of select="@name"/></xsl:comment>
 		<xsl:variable name="key">
 			<xsl:value-of select="@key"/>
 		</xsl:variable>
@@ -103,15 +104,15 @@
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:variable name="curDocKey">
-						<xsl:value-of select="$docRoot/*[name()=$tagname]/*[name()=$key]"/>
+						<xsl:value-of select="./*[name()=$key]"/>
 					</xsl:variable>
 					<xsl:variable name="mergeDocKey">
-						<xsl:value-of select="$mergeXml/web-app/*[name()=$tagname]/*[name()=$key]/child::text()"/>
+						<xsl:value-of select="$mergeXml/web-app/*[name()=$tagname]/*[name()=$key and child::text()=$curDocKey]"/>
 					</xsl:variable>
 					<xsl:if test="$tagname='security-constraint'">
 
 					</xsl:if>
-					<xsl:if test="not($curDocKey=$mergeDocKey)">
+					<xsl:if test="$mergeDocKey=''">
 						<xsl:copy-of select="."/>
 					</xsl:if>
 				</xsl:otherwise>
