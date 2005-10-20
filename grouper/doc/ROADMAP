@@ -3,27 +3,45 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47 2005-09-07 22:13:48 blair Exp $
+$Id: ROADMAP,v 1.47.2.1 2005-10-20 21:13:19 blair Exp $
 
 ---
 
 # Grouper 0.9
 
+TODO Sync with Basecamp
+
+* [DOCS] _AccessPrivilege_ javadoc
+* [DOCS] _NamingPrivilege_ javadoc
+* [TEST] Find root subject via custom source adapter
+* [TEST] Find root stem
+* [TEST] Create stem
+* [TEST] Create child stem
+* [TEST] Create child group
+* [TEST] Delete group
+* [TEST] Add member
+* [TEST] Delete member
+* [TEST] Group source adapter
+* [TEST] Add group as member
+* [TEST] Delete group as member
+* [TEST] STEM naming privilege
+* [TEST] CREATE naming privilege
+* [TEST] ADMIN access privilege
+* [TEST] UPDATE access privilege
+* [TEST] ALL|ANY subject adapter
+* [TEST] READ access privilege
+* [TEST] VIEW access privilege
+* [TEST] OPTIN access privilege
+* [TEST] OPTOUT access privilege
+* Merge HEAD and GROUPER_RELENG_0_9 branches
+
 ## Features
-* Refactored API
-* ALL subject
 * Improved exception hierarchy (#351)
 * Rename subjectIDs in local subject<=>member mapping (#133)
-* Make all query methods scoped
-
-## Documentation
-* Proposed API Changes
-* Proposed Access and Naming Privilege API changes
 
 ## Internals
 * Hibernate 3.x
 * List value aging
-* Custom source for all internal subjects (root, all, etc)
 * Switch to commons logging
 * Make _InsufficientPrivilegeException_ !public
 * Make _CacheNotFoundException_ !public
