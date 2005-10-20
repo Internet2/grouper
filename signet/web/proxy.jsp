@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.2 2005-10-17 23:31:40 acohen Exp $
-  $Date: 2005-10-17 23:31:40 $
+  $Id: proxy.jsp,v 1.3 2005-10-20 21:28:27 acohen Exp $
+  $Date: 2005-10-20 21:28:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -46,8 +46,9 @@
     = (Proxy)
          (request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
          
-  PrivilegedSubject grantee = currentProxy.getGrantee();
-  PrivilegedSubject grantor = currentProxy.getGrantor();
+  PrivilegedSubject grantee      = currentProxy.getGrantee();
+  PrivilegedSubject grantor      = currentProxy.getGrantor();
+  PrivilegedSubject proxySubject = currentProxy.getProxy();
          
   boolean canUse = currentProxy.canUse();
   boolean canExtend = currentProxy.canExtend();
@@ -105,7 +106,7 @@
             Granted by:
           </td>
           <td>
-            <%=grantor.getName()%>
+            <%=(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()%>
           </td>
         </tr>
       

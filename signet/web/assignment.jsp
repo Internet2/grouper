@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.20 2005-10-17 23:31:40 acohen Exp $
-  $Date: 2005-10-17 23:31:40 $
+  $Id: assignment.jsp,v 1.21 2005-10-20 21:28:27 acohen Exp $
+  $Date: 2005-10-20 21:28:27 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -58,6 +58,10 @@
   	= signet.getSubject
   		(currentAssignment.getGrantor().getSubjectTypeId(),
   		 currentAssignment.getGrantor().getSubjectId());
+  Subject proxy
+  	= signet.getSubject
+  		(currentAssignment.getProxy().getSubjectTypeId(),
+  		 currentAssignment.getProxy().getSubjectId());
          
   boolean canUse = currentAssignment.canUse();
   boolean canGrant = currentAssignment.canGrant();
@@ -152,7 +156,7 @@
           Granted by:
         </td>
         <td>
-          <%=grantor.getName()%>
+          <%=(proxy==null ? "" : (proxy.getName() + " acting as ")) + grantor.getName()%>
         </td>
       </tr>
       
