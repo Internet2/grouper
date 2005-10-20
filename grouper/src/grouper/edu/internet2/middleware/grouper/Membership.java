@@ -17,166 +17,194 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
+import  java.io.Serializable;
+import  java.util.*;
+import  org.apache.commons.lang.builder.*;
 
 /** 
  * A list membership in the Groups Registry.
- * @author blair christensen.
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: Membership.java,v 1.1.2.5 2005-10-20 19:29:12 blair Exp $
  *     
 */
 public class Membership implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Hibernate Properties
+  private String  id;
+  private int     count;
+  private Group   group_id;
+  private Member  member_id;
+  private Field   list_id;
+  private Integer version;
+  private Group   via_id;
 
-    /** persistent field */
-    private int count;
+  // Constructors
 
-    /** nullable persistent field */
-    private Integer version;
+  /**
+   * Default constructor for Hibernate.
+   */
+  public Membership() {
+    // Nothing
+  }
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Group group_id;
+  // Public Instance Methods
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member member_id;
+  public boolean equals(Object other) {
+    if ( (this == other ) ) return true;
+    if ( !(other instanceof Membership) ) return false;
+    Membership castOther = (Membership) other;
+    return new EqualsBuilder()
+           .append(this.getCount(), castOther.getCount())
+           .append(this.getGroup_id(), castOther.getGroup_id())
+           .append(this.getMember_id(), castOther.getMember_id())
+           .append(this.getList_id(), castOther.getList_id())
+           .append(this.getVia_id(), castOther.getVia_id())
+           .isEquals();
+  }
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Field list_id;
+  /**
+   * Get child memberships of this membership.
+   * <pre class="eg">
+   * Set children = ms.getChildMemberships();
+   * </pre>
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getChildMemberships() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Group via_id;
+  /**
+   * Get this membership's group.
+   * <pre class="eg">
+   * Group g = ms.getGroup();
+   * </pre>
+   * @return  A {@link Group}
+   */
+  public Group getGroup() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** full constructor */
-    public Membership(int count, Integer version, edu.internet2.middleware.grouper.Group group_id, edu.internet2.middleware.grouper.Member member_id, edu.internet2.middleware.grouper.Field list_id, edu.internet2.middleware.grouper.Group via_id) {
-        this.count = count;
-        this.version = version;
-        this.group_id = group_id;
+  /**
+   * Get this membership's list.
+   * <pre class="eg">
+   * String list = g.getList();
+   * </pre>
+   * @return  List of this membership.
+   */
+  public String getList() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get this membership's member.
+   * <pre class="eg">
+   * Member m = ms.getMember();
+   * </pre>
+   * @return  A {@link Member}
+   */
+  public Member getMember() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get parent membership of this membership.
+   * <pre class="eg">
+   * Membership parent = ms.getParentMembership();
+   * </pre>
+   * @return  A {@link Membership}
+   */
+  public Membership getParentMembership() {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Get this membership's via group.
+   * <pre class="eg">
+   * Group via = ms.getViaGroup();
+   * </pre>
+   * @return  A {@link Group}
+   */
+  public Group getViaGroup() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  public int hashCode() {
+    return new HashCodeBuilder()
+           .append(getCount())
+           .append(getGroup_id())
+           .append(getMember_id())
+           .append(getList_id())
+           .append(getVia_id())
+           .toHashCode();
+  }
+
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("count", getCount())
+           .append("group_id", getGroup_id())
+           .append("member_id", getMember_id())
+           .append("list_id", getList_id())
+           .append("via_id", getVia_id())
+           .toString();
+  }
+
+  // Hibernate Accessors
+
+  private String getId() {
+    return this.id;
+  }
+
+  private void setId(String id) {
+    this.id = id;
+  }
+
+  private int getCount() {
+    return this.count;
+  }
+
+  private void setCount(int count) {
+    this.count = count;
+  }
+
+  private Integer getVersion() {
+    return this.version;
+  }
+
+  private void setVersion(Integer version) {
+    this.version = version;
+  }
+
+  private Group getGroup_id() {
+    return this.group_id;
+  }
+
+  private void setGroup_id(Group group_id) {
+    this.group_id = group_id;
+  }
+
+  private Member getMember_id() {
+    return this.member_id;
+  }
+
+  private void setMember_id(Member member_id) {
         this.member_id = member_id;
-        this.list_id = list_id;
-        this.via_id = via_id;
     }
 
-    /** default constructor */
-    public Membership() {
-    }
+  private Field getList_id() {
+    return this.list_id;
+  }
 
-    /** minimal constructor */
-    public Membership(int count) {
-        this.count = count;
-    }
+  private void setList_id(Field list_id) {
+    this.list_id = list_id;
+  }
 
-    private String getId() {
-        return this.id;
-    }
+  private Group getVia_id() {
+    return this.via_id;
+  }
 
-    private void setId(String id) {
-        this.id = id;
-    }
-
-    /** 
-     * Get membership hop count.
-     *       
-     */
-    private int getCount() {
-        return this.count;
-    }
-
-    private void setCount(int count) {
-        this.count = count;
-    }
-
-    private Integer getVersion() {
-        return this.version;
-    }
-
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    /** 
-     * Get group.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Group getGroup_id() {
-        return this.group_id;
-    }
-
-    private void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
-        this.group_id = group_id;
-    }
-
-    /** 
-     * Get member.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Member getMember_id() {
-        return this.member_id;
-    }
-
-    private void setMember_id(edu.internet2.middleware.grouper.Member member_id) {
-        this.member_id = member_id;
-    }
-
-    /** 
-     * Get list.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Field getList_id() {
-        return this.list_id;
-    }
-
-    private void setList_id(edu.internet2.middleware.grouper.Field list_id) {
-        this.list_id = list_id;
-    }
-
-    /** 
-     * Get via group.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Group getVia_id() {
-        return this.via_id;
-    }
-
-    private void setVia_id(edu.internet2.middleware.grouper.Group via_id) {
-        this.via_id = via_id;
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("count", getCount())
-            .append("group_id", getGroup_id())
-            .append("member_id", getMember_id())
-            .append("list_id", getList_id())
-            .append("via_id", getVia_id())
-            .toString();
-    }
-
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Membership) ) return false;
-        Membership castOther = (Membership) other;
-        return new EqualsBuilder()
-            .append(this.getCount(), castOther.getCount())
-            .append(this.getGroup_id(), castOther.getGroup_id())
-            .append(this.getMember_id(), castOther.getMember_id())
-            .append(this.getList_id(), castOther.getList_id())
-            .append(this.getVia_id(), castOther.getVia_id())
-            .isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getCount())
-            .append(getGroup_id())
-            .append(getMember_id())
-            .append(getList_id())
-            .append(getVia_id())
-            .toHashCode();
-    }
+  private void setVia_id(Group via_id) {
+    this.via_id = via_id;
+  }
 
 }

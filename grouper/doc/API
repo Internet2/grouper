@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.7 2005-10-20 18:09:30 blair Exp $
+$Id: API,v 1.86.2.8 2005-10-20 19:29:12 blair Exp $
 
 ---
 
@@ -191,6 +191,14 @@ catch (SubjectNotFoundException e) {
 * Member              MemberFinder.findBySubject(session, subject)
 * Member              MemberFinder.findByUuid(session, uuid)
 
+## Membership
+* Set                 getChildMemberships()
+* Group               getGroup()
+* List                getList()
+* Member              getMember()
+* Membership          getParentMembership()
+* Group               getViaGroup()
+
 ## Stem
 * Group               addChildGroup(extension, displayExtension)
 * Stem                addChildStem(extension, displayExtension)
@@ -265,16 +273,6 @@ And the old.
 
 ---
 
-## GrouperList
-
-* List                chain()
-* Group               group()
-* String              groupField()
-* GrouperMember       member()
-* Group               via()
-
----
-
 ## GrouperQuery
 
 * boolean             base(namespace)
@@ -323,6 +321,7 @@ And the old.
 ## MemberVia
 
 * GrouperList         toList(session)
+
 
 
 
