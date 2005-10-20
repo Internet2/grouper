@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.7 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.8 2005-10-20 18:09:30 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -45,7 +45,7 @@ A group within the Groups Registry.
 
 
     <!-- attributes -->
-    <set name="attributes">
+    <set name="group_attributes">
       <meta attribute="field-description">
 Get attributes.
       </meta>
@@ -96,7 +96,7 @@ Get create time.
 
     <!-- description -->
     <property 
-      name="description"
+      name="group_description"
       type="string"
       length="1024"
     >
@@ -133,7 +133,7 @@ Get displayName.
 
     <!-- extension -->
     <property
-      name="extension"
+      name="group_extension"
       type="string"
       length="255"
     >
@@ -144,7 +144,7 @@ Get extension.
     <!-- extension -->
 
     <!-- memberships -->
-    <set name="memberships">
+    <set name="group_memberships">
       <meta attribute="field-description">
 Get memberships.
       </meta>
@@ -193,7 +193,7 @@ Get last modify time.
 
     <!-- name -->
     <property
-      name="name"
+      name="group_name"
       type="string"
       length="255"
     >

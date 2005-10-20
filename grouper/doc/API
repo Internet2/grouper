@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.6 2005-10-20 16:31:16 blair Exp $
+$Id: API,v 1.86.2.7 2005-10-20 18:09:30 blair Exp $
 
 ---
 
@@ -75,12 +75,15 @@ catch (SubjectNotFoundException e) {
 ---
 
 # Exceptions
+* AttributeNotFoundException
 * GrantPrivilegeException
 * GroupAddException
+* GroupDeleteException
 * GroupModifyException
 * GroupNotFoundException
 * InsufficientPrivilegeException
 * MemberAddException
+* MemberDeleteException
 * MemberNotFoundException
 * RevokePrivilegeException
 * StemAddException
@@ -94,7 +97,9 @@ catch (SubjectNotFoundException e) {
 ## Group
 * void                addMember(member)
 * void                delete()
+* void                deleteAttribute(attr)
 * void                deleteMember(member)
+* Set                 getAdmins()
 * String              getAttribute(attr)
 * Map                 getAttributes()
 * String              getCreateSource()
@@ -104,7 +109,7 @@ catch (SubjectNotFoundException e) {
 * String              getDisplayExtension()
 * String              getDisplayName()
 * Set                 getEffectiveMembers()
-* Set                 getImmediateMemberships()
+* Set                 getEffectiveMemberships()
 * String              getExtension()
 * Set                 getImmediateMembers()
 * Set                 getImmediateMemberships()
@@ -114,33 +119,29 @@ catch (SubjectNotFoundException e) {
 * Subject             getModifySubject()
 * Date                getModifyDate()
 * String              getName()
-* Stem                getParentStem()
-* Set                 getTypes()
-* String              getUuid()
-* boolean             hasMember()
-* void                removeMember(member)
-* void                setAttribute(attr, value)
-* void                setDescription(value)
-* void                setDisplayExtension(value)
-* void                setTypes(values)
-* void                unsetAttribute(attr)
-
-* Set                 getAdmins()
-* Set                 getPrivileges(member)
 * Set                 getOptins()
 * Set                 getOptouts()
+* Stem                getParentStem()
+* Set                 getPrivileges(member)
 * Set                 getReaders()
+* Set                 getTypes()
 * Set                 getUpdaters()
+* String              getUuid()
 * Set                 getViewers()
 * void                grantPriv(member, privilege)
 * boolean             hasAdmin(member)
 * boolean             hasOptin(member)
 * boolean             hasOptout(member)
+* boolean             hasMember()
 * boolean             hasRead(member)
 * boolean             hasUpdate(member)
 * boolean             hasView(member)
-* void                revokePriv(member, privilege) 
 * void                revokePriv(privilege)
+* void                revokePriv(member, privilege) 
+* void                setAttribute(attr, value)
+* void                setDescription(value)
+* void                setDisplayExtension(value)
+* void                setTypes(values)
 
 ## GroupFinder
 * Group               GroupFinder.findByName(session, name)

@@ -17,323 +17,945 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Set;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import  edu.internet2.middleware.subject.*;
+import  java.io.Serializable;
+import  java.util.*;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * A group within the Groups Registry.
- * @author blair christensen.
- *     
-*/
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: Group.java,v 1.1.2.6 2005-10-20 18:09:30 blair Exp $
+ */
 public class Group implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Hibernate Properties
+  private String  create_source;
+  private Date    create_time;
+  private Member  creator_id;
+  private String  display_extension;
+  private String  display_name;
+  private Set     group_attributes;
+  private String  group_description;
+  private String  group_extension;
+  private Set     group_memberships;
+  private String  group_name;
+  private String  id;
+  private Member  modifier_id;
+  private String  modify_source;
+  private Date    modify_time;
+  private Stem    parent_stem;
+  private String  uuid;
+  private Integer version;
 
-    /** nullable persistent field */
-    private String create_source;
+  // Constructors
 
-    /** persistent field */
-    private Date create_time;
+  /**
+   * Default constructor for Hibernate.
+   */
+  public Group() {
+    // Nothing
+  }
 
-    /** nullable persistent field */
-    private String description;
+  // Public Instance Methods
 
-    /** nullable persistent field */
-    private String display_extension;
+  /**
+   * Add a member to the group.
+   * <pre class="eg">
+   * try {
+   *   g.addMember(m);
+   * }
+   * catch (InsufficientPrivilegeException e0) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException e1) {
+   *   // Unable to add member
+   * } 
+   * </pre>
+   * @param   m   Add this {@link Member}
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   */
+  public void addMember(Member m) 
+    throws InsufficientPrivilegeException, MemberAddException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private String display_name;
+  /**
+   * Delete this group from the Groups Registry.
+   * <pre class="eg">
+   * try {
+   *   g.delete();
+   * }
+   * catch (GroupDeleteException e0) {
+   *   // Unable to delete group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to delete this group
+   * }
+   * </pre>
+   * @throws  GroupDeleteException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void delete() 
+    throws GroupDeleteException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private String extension;
+  /**
+   * Delete a group attribute.
+   * <pre class="eg">
+   * try {
+   *   g.deleteAttribute(attribute);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to delete this attribute
+   * }
+   * </pre>
+   * @param   attr  Delete this attribute.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void deleteAttribute(String attr) 
+    throws GroupModifyException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private String modify_source;
+  /** 
+   * Delete a member from the group.
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(m);
+   * } 
+   * catch (InsufficientPrivilegeException e0) {
+   *   // Not privileged to delete this member
+   * }
+   * catch (MemberDeleteException e1) {
+   *   // Unable to delete member
+   * }
+   * </pre>
+   * @param   m   Delete this {@link Member}
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   */
+  public void deleteMember(Member m) 
+    throws InsufficientPrivilegeException, MemberDeleteException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private Date modify_time;
+  public boolean equals(Object other) {
+    if ( (this == other ) ) return true;
+    if ( !(other instanceof Group) ) return false;
+    Group castOther = (Group) other;
+    return new EqualsBuilder()
+           .append(this.getUuid(), castOther.getUuid())
+           .append(this.getCreator_id(), castOther.getCreator_id())
+           .append(this.getModifier_id(), castOther.getModifier_id())
+           .isEquals();
+  }
 
-    /** nullable persistent field */
-    private String name;
+  /**
+   * Get subjects with the ADMIN privilege on this group.
+   * <pre class="eg">
+   * Set admins = g.getAdmins();
+   * </pre>
+   * @return  Set of subjects with ADMIN
+   */
+  public Set getAdmins() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** persistent field */
-    private String uuid;
+  /**
+   * Get attribute value.
+   * <pre class="eg">
+   * try {
+   *   String value = g.getAttribute(attribute);
+   * }
+   * catch (AttributeNotFoundException e) {
+   *   // Group doesn't have attribute
+   * }
+   * </pre>
+   * @param   attr  Get value of this attribute.
+   * @return  Attribute value.
+   * @throws  AttributeNotFoundException
+   */
+  public String getAttribute(String attr) 
+    throws AttributeNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }  
 
-    /** nullable persistent field */
-    private Integer version;
+  /**
+   * Get all attributes and values.
+   * <pre class="eg">
+   * Map attributes = g.getAttributes();
+   * </pre>
+   * @return  A map of attributes and values.
+   */
+  public Map getAttributes() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member creator_id;
+  /**
+   * Get (optional and questionable) create source for this group.
+   * <pre class="eg">
+   * // Get create source
+`  * String source = g.getCreateSource();
+   * </pre>
+   * @return  Create source for this group.
+   */
+  public String getCreateSource() {
+    throw new RuntimeException("Not implemented");
+  }
+  
+  /**
+   * Get subject that created this group.
+   * <pre class="eg">
+   * // Get creator of this group.
+   * try {
+   *   Subject creator = g.getCreateSubject();
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Couldn't find subject
+   * }
+   * </pre>
+   * @return  {@link Subject} that created this group.
+   * @throws  SubjectNotFoundException
+   */
+  public Subject getCreateSubject() 
+    throws SubjectNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+  
+  /**
+   * Get creation time for this group.
+   * <pre class="eg">
+   * // Get create time.
+   * Date created = g.getCreateTime();
+   * </pre>
+   * @return  {@link Date} that this group was created.
+   */
+  public Date getCreateTime() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Member modifier_id;
+  /**
+   * Get group description.
+   * <pre class="eg">
+   * String description = g.getDescription();
+   * </pre>
+   * @return  Group description.
+   */
+  public String getDescription() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Stem parent_stem;
+  /**
+   * Get group displayExtension.
+   * <pre class="eg">
+   * String displayExtn = g.getDisplayExtension();
+   * </pre>
+   * @return  Gruop displayExtension.
+   */
+  public String getDisplayExtension() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** persistent field */
-    private Set attributes;
+  /**
+   * Get group displayName.
+   * <pre class="eg">
+   * String displayName = g.getDisplayName();
+   * </pre>
+   * @return  Group displayName.
+   */
+  public String getDisplayName() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** persistent field */
-    private Set memberships;
+  /**
+   * Get effective members of this group.
+   * <pre class="eg">
+   * Set effectives = g.getEffectiveMembers();
+   * </pre>
+   * @return  A set of {@link Member} objects.
+   */
+  public Set getEffectiveMembers() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** full constructor */
-    public Group(String create_source, Date create_time, String description, String display_extension, String display_name, String extension, String modify_source, Date modify_time, String name, String uuid, Integer version, edu.internet2.middleware.grouper.Member creator_id, edu.internet2.middleware.grouper.Member modifier_id, edu.internet2.middleware.grouper.Stem parent_stem, Set attributes, Set memberships) {
-        this.create_source = create_source;
-        this.create_time = create_time;
-        this.description = description;
-        this.display_extension = display_extension;
-        this.display_name = display_name;
-        this.extension = extension;
-        this.modify_source = modify_source;
-        this.modify_time = modify_time;
-        this.name = name;
-        this.uuid = uuid;
-        this.version = version;
-        this.creator_id = creator_id;
-        this.modifier_id = modifier_id;
-        this.parent_stem = parent_stem;
-        this.attributes = attributes;
-        this.memberships = memberships;
-    }
+  /**
+   * Get effective memberships of this group.
+   * <pre class="eg">
+   * Set effectives = g.getEffectiveMemberships();
+   * </pre>
+   * @return  A set of {@link Membership} objects.
+   */
+  public Set getEffectiveMemberships() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** default constructor */
-    public Group() {
-    }
+  /**
+   * Get group extension.
+   * <pre class="eg">
+   * String extension = g.getExtension();
+   * </pre>
+   * @return  Group extension.
+   */
+  public String getExtension() {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Get immediate members of this group.
+   * <pre class="eg">
+   * Set immediates = g.getImmediateMembers();
+   * </pre>
+   * @return  A set of {@link Member} objects.
+   */
+  public Set getImmediateMembers() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** minimal constructor */
-    public Group(Date create_time, String uuid, Set attributes, Set memberships) {
-        this.create_time = create_time;
-        this.uuid = uuid;
-        this.attributes = attributes;
-        this.memberships = memberships;
-    }
+  /**
+   * Get immediate memberships of this group.
+   * <pre class="eg">
+   * Set immediates = g.getImmediateMemberships();
+   * </pre>
+   * @return  A set of {@link Membership} objects.
+   */
+  public Set getImmediateMemberships() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private String getId() {
-        return this.id;
-    }
+  /**
+   * Get members of this group.
+   * <pre class="eg">
+   * Set members = g.getMembers();
+   * </pre>
+   * @return  A set of {@link Member} objects.
+   */
+  public Set getMembers() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setId(String id) {
-        this.id = id;
-    }
+  /**
+   * Get memberships of this group.
+   * <pre class="eg">
+   * Set memberships = g.getMemberships();
+   * </pre>
+   * @return  A set of {@link Membership} objects.
+   */
+  public Set getMemberships() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get create source.
-     *       
-     */
-    private String getCreate_source() {
-        return this.create_source;
-    }
+  /**
+   * Get (optional and questionable) modify source for this group.
+   * <pre class="eg">
+   * // Get modify source
+`  * String source = g.getModifySource();
+   * </pre>
+   * @return  Modify source for this group.
+   */
+  public String getModifySource() {
+    throw new RuntimeException("Not implemented");
+  }
+  
+  /**
+   * Get subject that last modified this group.
+   * <pre class="eg">
+   * // Get last modifier of this group.
+   * try {
+   *   Subject modifier = g.getModifySubject();
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Couldn't find subject
+   * }
+   * </pre>
+   * @return  {@link Subject} that last modified this group.
+   * @throws  SubjectNotFoundException
+   */
+  public Subject getModifySubject() 
+    throws SubjectNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+  
+  /**
+   * Get last modified time for this group.
+   * <pre class="eg">
+   * // Get last modified time.
+   * Date modified = g.getModifyTime();
+   * </pre>
+   * @return  {@link Date} that this group was last modified.
+   */
+  public Date getModifyTime() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setCreate_source(String create_source) {
-        this.create_source = create_source;
-    }
+  /**
+   * Get group name.
+   * <pre class="eg">
+   * String name = g.getName();
+   * </pre>
+   * @return  Group name.
+   */
+  public String getName() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get create time.
-     *       
-     */
-    private Date getCreate_time() {
-        return this.create_time;
-    }
+  /**
+   * Get subjects with the OPTIN privilege on this group.
+   * <pre class="eg">
+   * Set optins = g.getOptins();
+   * </pre>
+   * @return  Set of subjects with OPTIN
+   */
+  public Set getOptins() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setCreate_time(Date create_time) {
-        this.create_time = create_time;
-    }
+  /**
+   * Get subjects with the OPTOUT privilege on this group.
+   * <pre class="eg">
+   * Set admins = g.getOptouts();
+   * </pre>
+   * @return  Set of subjects with OPTOUT
+   */
+  public Set getOptouts() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get description.
-     *       
-     */
-    private String getDescription() {
-        return this.description;
-    }
+  /**
+   * Get parent stem.
+   * <pre class="eg">
+   * Stem parent = g.getParentStem();
+   * </pre>
+   * @return  Parent {@link Stem}.
+   */
+  public Stem getParentStem() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setDescription(String description) {
-        this.description = description;
-    }
+  /**
+   * Get privileges for the specified member on this group.
+   * <pre class="eg">
+   * Set privileges = g.getPrivileges(m);
+   * </pre>
+   * @param   m   Get privileges for this {@link Member}.
+   * @return  Set of privileges.
+   */
+  public Set getPrivileges(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get displayExtension.
-     *       
-     */
-    private String getDisplay_extension() {
-        return this.display_extension;
-    }
+  /**
+   * Get subjects with the READ privilege on this group.
+   * <pre class="eg">
+   * Set readers = g.getReaders();
+   * </pre>
+   * @return  Set of subjects with READ
+   */
+  public Set getReaders() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setDisplay_extension(String display_extension) {
-        this.display_extension = display_extension;
-    }
+  /**
+   * Get group types for this group.
+   * <pre class="eg">
+   * Set types = g.getTypes();
+   * </pre>
+   * @return  Set of group types.
+   */
+  public Set getTypes() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get displayName.
-     *       
-     */
-    private String getDisplay_name() {
-        return this.display_name;
-    }
+  /**
+   * Get subjects with the UPDATE privilege on this group.
+   * <pre class="eg">
+   * Set updaters = g.getUpdaters();
+   * </pre>
+   * @return  Set of subjects with UPDATE
+   */
+  public Set getUpdaters() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setDisplay_name(String display_name) {
-        this.display_name = display_name;
-    }
+  /**
+   * Get group UUID.
+   * <pre class="eg">
+   * String uuid = g.getUuid();
+   * </pre>
+   * @return  Group UUID.
+   */
+  public String getUuud() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get extension.
-     *       
-     */
-    private String getExtension() {
-        return this.extension;
-    }
+  /**
+   * Get subjects with the VIEW privilege on this group.
+   * <pre class="eg">
+   * Set viewers = g.getViewers();
+   * </pre>
+   * @return  Set of subjects with VIEW
+   */
+  public Set getViewers() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setExtension(String extension) {
-        this.extension = extension;
-    }
+  /**
+   * Grant privilege to a member on this group.
+   * <pre class="eg">
+   * try {
+   *   g.grantPriv(m, Privilege.ADMIN);
+   * }
+   * catch (GrantPrivilegeException e0) {
+   *   // Not privileged to grant this privilege
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Unable to grant this privilege
+   * }
+   * </pre>
+   * @param   m     Grant privilege to this member.
+   * @param   priv  Grant this privilege.
+   * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void grantPrivilege(Member m, String priv) 
+    throws GrantPrivilegeException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  } 
 
-    /** 
-     * Get modify source.
-     *       
-     */
-    private String getModify_source() {
-        return this.modify_source;
-    }
+  /**
+   * Check whether the member has ADMIN on this group.
+   * <pre class="eg">
+   * if (g.hasAdmin(m)) {
+   *   // m has ADMIN
+   * }
+   * else {
+   *   // m does not have ADMIN
+   * }
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member has ADMIN.
+   */
+  public boolean hasAdmin(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setModify_source(String modify_source) {
-        this.modify_source = modify_source;
-    }
+  public int hashCode() {
+    return new HashCodeBuilder()
+           .append(getUuid())
+           .append(getCreator_id())
+           .append(getModifier_id())
+           .toHashCode();
+  }
 
-    private Date getModify_time() {
-        return this.modify_time;
-    }
+  /**
+   * Check whether the member has OPTIN on this group.
+   * <pre class="eg">
+   * if (g.hasOptin(m)) {
+   *   // m has OPTIN
+   * }
+   * else {
+   *   // m does not have OPTIN
+   * }
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member has OPTIN.
+   */
+  public boolean hasOptin(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setModify_time(Date modify_time) {
-        this.modify_time = modify_time;
-    }
+  /**
+   * Check whether the member has OPTOUT on this group.
+   * <pre class="eg">
+   * if (g.hasOptout(m)) {
+   *   // m has OPTOUT
+   * }
+   * else {
+   *   // m does not have OPTOUT
+   * }
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member has OPTOUT.
+   */
+  public boolean hasOptout(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get name.
-     *       
-     */
-    private String getName() {
-        return this.name;
-    }
+  /**
+   * Check whether the member is a member of this group.
+   * <pre class="eg">
+   * if (g.hasMember(m)) {
+   *   // m is a member of this group
+   * }
+   * else {
+   *   // m is not a member of this group
+   * } 
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member belongs to this group.
+   */
+  public boolean hasMember(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setName(String name) {
-        this.name = name;
-    }
+  /**
+   * Check whether the member has READ on this group.
+   * <pre class="eg">
+   * if (g.hasRead(m)) {
+   *   // m has READ
+   * }
+   * else {
+   *   // m does not have READ
+   * }
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member has READ.
+   */
+  public boolean hasRead(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get UUID.
-     *       
-     */
-    private String getUuid() {
-        return this.uuid;
-    }
+  /**
+   * Check whether the member has UPDATE on this group.
+   * <pre class="eg">
+   * if (g.hasUpdate(m)) {
+   *   // m has UPDATE
+   * }
+   * else {
+   *   // m does not have UPDATE
+   * }
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member has UPDATE.
+   */
+  public boolean hasUpdate(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
+  /**
+   * Check whether the member has VIEW on this group.
+   * <pre class="eg">
+   * if (g.hasView(m)) {
+   *   // m has VIEW
+   * }
+   * else {
+   *   // m does not have VIEW
+   * }
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member has VIEW.
+   */
+  public boolean hasView(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private Integer getVersion() {
-        return this.version;
-    }
+  /**
+   * Revoke all privileges of the specified type on this group.
+   * <pre class="eg">
+   * try {
+   *   g.revokePriv(Privilege.OPTIN);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to revoke this privilege
+   * }
+   * </pre>
+   * @param   priv  Revoke all instances of this privilege.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void revokePriv(String priv)
+    throws GroupModifyException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
+  /**
+   * Revoke a privilege from the specified member.
+   * <pre class="eg">
+   * try {
+   *   g.revokePriv(m, Privilege.OPTIN);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to revoke this privilege
+   * }
+   * </pre>
+   * @param   m     Revoke this member's privilege.
+   * @param   priv  Revoke this privilege.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void revokePriv(Member m, String priv)
+    throws GroupModifyException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get creator.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Member getCreator_id() {
-        return this.creator_id;
-    }
+  /**
+   * Set an attribute value.
+   * <pre class="eg">
+   * try {
+   *   g.attribute(attribute, value);
+   * } 
+   * catch (AttributeNotFoundException e0) {
+   *   // Attribute doesn't exist
+   * }
+   * catch (GroupModifyException e1) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e2) {
+   *   // Not privileged to modify this attribute
+   * }
+   * </pre>
+   * @param   attr  Set this attribute.
+   * @param   value Set to this value.
+   * @throws  AttributeNotFoundException
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setAttribute(String attr, String value) 
+    throws AttributeNotFoundException, GroupModifyException, 
+           InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setCreator_id(edu.internet2.middleware.grouper.Member creator_id) {
-        this.creator_id = creator_id;
-    }
+  /**
+   * Set group description.
+   * <pre class="eg">
+   * try {
+   *   g.setDescription(value);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to modify description
+   * }
+   * </pre>
+   * @param   value   Set description to this value.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setDescription(String value) 
+    throws GroupModifyException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Set group displayExtension.
+   * <pre class="eg">
+   * try {
+   *   g.setDisplayExtension(value);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to modify displayExtension
+   * }
+   * </pre>
+   * @param   value   Set displayExtension to this value.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setDisplayExtension(String value) 
+    throws GroupModifyException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get modifier.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Member getModifier_id() {
-        return this.modifier_id;
-    }
+  /**
+   * Set group type.
+   * <pre class="eg">
+   * try {
+   *   g.setTypes(types);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to modify group type
+   * }
+   * </pre>
+   * @param   types   Set of group types.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setTypes(Set types) 
+    throws GroupModifyException, InsufficientPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("display_name", getDisplay_name())
+           .append("name", getName())
+           .append("uuid", getUuid())
+           .append("creator_id", getCreator_id())
+           .append("modifier_id", getModifier_id())
+           .toString();
+  }
 
-    private void setModifier_id(edu.internet2.middleware.grouper.Member modifier_id) {
-        this.modifier_id = modifier_id;
-    }
+  // Hibernate Accessors
 
-    /** 
-     * Get parent stem.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Stem getParent_stem() {
-        return this.parent_stem;
-    }
+  private String getId() {
+    return this.id;
+  }
 
-    private void setParent_stem(edu.internet2.middleware.grouper.Stem parent_stem) {
-        this.parent_stem = parent_stem;
-    }
+  private void setId(String id) {
+    this.id = id;
+  }
 
-    /** 
-     * Get attributes.
-     *       
-     */
-    private Set getAttributes() {
-        return this.attributes;
-    }
+  private String getCreate_source() {
+    return this.create_source;
+  }
 
-    private void setAttributes(Set attributes) {
-        this.attributes = attributes;
-    }
+  private void setCreate_source(String create_source) {
+    this.create_source = create_source;
+  }
 
-    /** 
-     * Get memberships.
-     *       
-     */
-    private Set getMemberships() {
-        return this.memberships;
-    }
+  private Date getCreate_time() {
+    return this.create_time;
+  }
 
-    private void setMemberships(Set memberships) {
-        this.memberships = memberships;
-    }
+  private void setCreate_time(Date create_time) {
+    this.create_time = create_time;
+  }
 
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("display_name", getDisplay_name())
-            .append("name", getName())
-            .append("uuid", getUuid())
-            .append("creator_id", getCreator_id())
-            .append("modifier_id", getModifier_id())
-            .toString();
-    }
+  private String getGroup_description() {
+    return this.group_description;
+  }
 
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Group) ) return false;
-        Group castOther = (Group) other;
-        return new EqualsBuilder()
-            .append(this.getUuid(), castOther.getUuid())
-            .append(this.getCreator_id(), castOther.getCreator_id())
-            .append(this.getModifier_id(), castOther.getModifier_id())
-            .isEquals();
-    }
+  private void setGroup_description(String group_description) {
+    this.group_description = group_description;
+  }
 
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getUuid())
-            .append(getCreator_id())
-            .append(getModifier_id())
-            .toHashCode();
-    }
+  private String getDisplay_extension() {
+    return this.display_extension;
+  }
+
+  private void setDisplay_extension(String display_extension) {
+    this.display_extension = display_extension;
+  }
+
+  private String getDisplay_name() {
+    return this.display_name;
+  }
+
+  private void setDisplay_name(String display_name) {
+    this.display_name = display_name;
+  }
+
+  private String getGroup_extension() {
+    return this.group_extension;
+  }
+
+  private void setGroup_extension(String group_extension) {
+    this.group_extension = group_extension;
+  }
+
+  private String getModify_source() {
+    return this.modify_source;
+  }
+
+  private void setModify_source(String modify_source) {
+    this.modify_source = modify_source;
+  }
+
+  private Date getModify_time() {
+    return this.modify_time;
+  }
+
+  private void setModify_time(Date modify_time) {
+    this.modify_time = modify_time;
+  }
+
+  private String getGroup_name() {
+    return this.group_name;
+  }
+
+  private void setGroup_name(String group_name) {
+    this.group_name = group_name;
+  }
+
+  private String getUuid() {
+    return this.uuid;
+  }
+
+  private void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
+  private Integer getVersion() {
+    return this.version;
+  }
+
+  private void setVersion(Integer version) {
+    this.version = version;
+  }
+
+  private Member getCreator_id() {
+    return this.creator_id;
+  }
+
+  private void setCreator_id(Member creator_id) {
+    this.creator_id = creator_id;
+  }
+
+  private Member getModifier_id() {
+    return this.modifier_id;
+  }
+
+  private void setModifier_id(Member modifier_id) {
+    this.modifier_id = modifier_id;
+  }
+
+  private Stem getParent_stem() {
+    return this.parent_stem;
+  }
+
+  private void setParent_stem(Stem parent_stem) {
+    this.parent_stem = parent_stem;
+  }
+
+  private Set getGroup_attributes() {
+    return this.group_attributes;
+  }
+
+  private void setGroup_attributes(Set group_attributes) {
+    this.group_attributes = group_attributes;
+  }
+
+  private Set getGroup_memberships() {
+    return this.group_memberships;
+  }
+
+  private void setGroup_memberships(Set group_memberships) {
+    this.group_memberships = group_memberships;
+  }
 
 }

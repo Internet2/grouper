@@ -18,22 +18,22 @@
 package edu.internet2.middleware.grouper;
 
 /**
- * Exception thrown when a member cannot be added to a group.
+ * Exception thrown when a member cannot be removed from a group.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberAddException.java,v 1.1.2.2 2005-10-20 18:09:30 blair Exp $
+ * @version $Id: MemberDeleteException.java,v 1.1.2.1 2005-10-20 18:09:30 blair Exp $
  */
-public class MemberAddException extends Exception {
-  public MemberAddException() { 
+public class MemberDeleteException extends Exception {
+  public MemberDeleteException() { 
     super(); 
   }
-  public MemberAddException(String msg) { 
+  public MemberDeleteException(String msg) { 
     super(msg); 
   }
-  public MemberAddException(String msg, Throwable cause) { 
+  public MemberDeleteException(String msg, Throwable cause) { 
     super(msg, cause); 
   }
-  public MemberAddException(Throwable cause) { 
+  public MemberDeleteException(Throwable cause) { 
     super(cause); 
   }
 }

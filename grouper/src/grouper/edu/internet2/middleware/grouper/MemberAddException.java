@@ -18,10 +18,10 @@
 package edu.internet2.middleware.grouper;
 
 /**
- * Exception thrown when a member cannot be added to the Groups Registry.
+ * Exception thrown when a member cannot be added to a group.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberAddException.java,v 1.1.2.1 2005-10-18 20:06:36 blair Exp $
+ * @version $Id: MemberAddException.java,v 1.1.2.2 2005-10-20 18:09:30 blair Exp $
  */
 public class MemberAddException extends Exception {
   public MemberAddException() { 

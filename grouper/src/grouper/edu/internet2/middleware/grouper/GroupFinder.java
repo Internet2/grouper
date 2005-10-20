@@ -17,39 +17,57 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.List;
-import java.sql.SQLException;
+import  java.io.Serializable;
 
-import net.sf.hibernate.*;
-import net.sf.hibernate.type.Type;
-
-/** Automatically generated Finder class for GroupFinder.
- * @author Hibernate FinderGenerator  **/
+/**
+ * Find groups within the Groups Registry.
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: GroupFinder.java,v 1.1.2.4 2005-10-20 18:09:30 blair Exp $
+ */
 public class GroupFinder implements Serializable {
 
-    public static List findByUuid(java.lang.String uuid) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Group as group where group.uuid=?", uuid, Hibernate.STRING);
-        return finds;
-    }
+  /**
+   * Find a group within the registry by name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByName(GrouperSession s, String name) 
+    throws GroupNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
-    public static List findByCreator(edu.internet2.middleware.grouper.Member creator_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Group as group where group.creator_id=?", creator_id, Hibernate.OBJECT);
-        return finds;
-    }
-
-    public static List findByModifier(edu.internet2.middleware.grouper.Member modifier_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Group as group where group.modifier_id=?", modifier_id, Hibernate.OBJECT);
-        return finds;
-    }
-
-    public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from Group in class edu.internet2.middleware.grouper.Group");
-        return finds;
-    }
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByUuid(uuid);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByUuid(GrouperSession s, String uuid) 
+    throws GroupNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
 
 }
+
