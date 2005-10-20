@@ -17,16 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.*;
-import org.apache.commons.lang.builder.*;
+import  edu.internet2.middleware.subject.*;
+import  java.io.Serializable;
+import  java.util.*;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.6 2005-10-20 02:32:28 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.7 2005-10-20 04:00:27 blair Exp $
  *     
 */
 public class Stem implements Serializable {
