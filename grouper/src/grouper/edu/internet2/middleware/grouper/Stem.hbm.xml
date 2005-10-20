@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.7 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.8 2005-10-20 16:31:16 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -106,7 +106,7 @@ Get create time.
 
     <!-- description -->
     <property 
-      name="description"
+      name="stem_description"
       type="string"
       length="1024"
     >
@@ -143,7 +143,7 @@ Get displayName.
 
     <!-- extension -->
     <property
-      name="extension"
+      name="stem_extension"
       type="string"
       length="255"
     >
@@ -194,7 +194,7 @@ Get last modify time.
 
     <!-- name -->
     <property
-      name="name"
+      name="stem_name"
       type="string"
       length="255"
     >
@@ -217,9 +217,9 @@ Get parent stem.
     </many-to-one>
     <!-- parent_stem -->
 
-    <!-- uuid -->
+    <!-- stem_id -->
     <property 
-      name="uuid"
+      name="stem_id"
       type="string"
       length="32"
       not-null="true"
@@ -227,11 +227,11 @@ Get parent stem.
       <meta attribute="field-description">
 Get UUID.
       </meta>
-      <meta attribute="finder-method">findByUuid</meta>
+      <meta attribute="finder-method">findByStemId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
-    <!-- uuid -->
+    <!-- stem_id -->
 
   </class>
 </hibernate-mapping>

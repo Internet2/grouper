@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.7 2005-10-20 04:00:27 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.8 2005-10-20 16:31:16 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -39,16 +39,16 @@ public class Stem implements Serializable {
   private String  create_source;
   private Date    create_time;
   private Member  creator_id;
-  private String  description;
   private String  display_extension;
   private String  display_name;
-  private String  extension;
   private Member  modifier_id;
   private String  modify_source;
   private Date    modify_time;
-  private String  name;
   private Stem    parent_stem;
-  private String  uuid;
+  private String  stem_description;
+  private String  stem_extension;
+  private String  stem_id;
+  private String  stem_name;
   private Integer version;
 
   // Constructors
@@ -104,6 +104,17 @@ public class Stem implements Serializable {
     throws StemAddException 
   {
     throw new RuntimeException("Not implemented");
+  }
+
+  public boolean equals(Object other) {
+    if ( (this == other ) ) return true;
+    if ( !(other instanceof Stem) ) return false;
+    Stem castOther = (Stem) other;
+    return new EqualsBuilder()
+           .append(this.getStem_id(), castOther.getStem_id())
+           .append(this.getCreator_id(), castOther.getCreator_id())
+           .append(this.getModifier_id(), castOther.getModifier_id())
+           .isEquals();
   }
 
   /**
@@ -173,7 +184,66 @@ public class Stem implements Serializable {
   public Date getCreateTime() {
     throw new RuntimeException("Not implemented");
   }
-  
+
+  /**
+   * Get subjects with CREATE privilege on this stem.
+   * <pre class="eg">
+   * Set creators = ns.getCreators();
+   * </pre>
+   * @return  Set of {@link Subject} objects
+   */
+  public Set getCreators() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get stem description.
+   * <pre class="eg">
+   * // Get description
+   * String description = ns.getDescription();
+   * </pre>
+   * @return  Stem description.
+   */
+  public String getDescription() {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Get stem displayExtension.
+   * <pre class="eg">
+   * // Get displayExtension
+   * String displayExtn = ns.getDisplayExtension();
+   * </pre>
+   * @return  Stem displayExtension.
+   */
+  public String getDisplayExtension() {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Get stem displayName.
+   * <pre class="eg">
+   * // Get displayName
+   * String displayName = ns.getDisplayName();
+   * </pre>
+   * @return  Stem displayName.
+   */
+  public String getDisplayName() {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Get stem extension.
+   * <pre class="eg">
+   * // Get extension
+   * String extension = ns.getExtension();
+   * </pre>
+   * @return  Stem extension.
+   */
+  public String getExtension() {
+    throw new RuntimeException("Not implemented");
+  }
+ 
   /**
    * Get (optional and questionable) modify source for this stem.
    * <pre class="eg">
@@ -217,34 +287,224 @@ public class Stem implements Serializable {
   public Date getModifyTime() {
     throw new RuntimeException("Not implemented");
   }
-  
-  public String toString() {
-    return new ToStringBuilder(this)
-           .append("display_name", getDisplay_name())
-           .append("name", getName())
-           .append("uuid", getUuid())
-           .append("creator_id", getCreator_id())
-           .append("modifier_id", getModifier_id())
-           .toString();
+
+  /**
+   * Get stem name.
+   * <pre class="eg">
+   * // Get name
+   * String name = ns.getName();
+   * </pre>
+   * @return  Stem name.
+   */ 
+  public String getName() {
+    throw new RuntimeException("Not implemented");
   }
 
-  public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
-    if ( !(other instanceof Stem) ) return false;
-    Stem castOther = (Stem) other;
-    return new EqualsBuilder()
-           .append(this.getUuid(), castOther.getUuid())
-           .append(this.getCreator_id(), castOther.getCreator_id())
-           .append(this.getModifier_id(), castOther.getModifier_id())
-           .isEquals();
+  /**
+   * Get parent stem.
+   * <pre class="eg">
+   * // Get parent
+   * Stem parent = ns.getParentStem();
+   * </pre>
+   * @return  Parent {@link Stem}.
+   */
+  public Stem getParentStem() {
+    throw new RuntimeException("Not implemented");
   }
 
+  /**
+   * Get privileges that the specified member has on this stem.
+   * <pre class="eg">
+   * Set privileges = ns.getPrivileges(member);
+   * </pre>
+   * @param   m   Get privileges for this member.
+   * @return  Set of privileges.
+   */
+  public Set getPrivileges(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get subjects with STEM privilege on this stem.
+   * <pre class="eg">
+   * Set stemmers = ns.getStemmers();
+   * </pre>
+   * @return  Set of {@link Subject} objects
+   */
+  public Set getStemmers() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get stem UUID.
+   * <pre class="eg">
+   * // Get UUID
+   * String uuid = ns.getUuid();
+   * </pre>
+   * @return  Stem UUID.
+   */
+  public String getUuid() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Grant a privilege on this stem.
+   * <pre class="eg">
+   * // Grant CREATE to the specified member
+   * try {
+   *   ns.grantPriv(m, Privilege.CREATE);
+   * }
+   * catch (GrantPrivilegeException e) {
+   *   // Error granting privilege
+   * }
+   * </pre>
+   * @param   m     Grant privilege to this member.
+   * @param   priv  Grant this privilege.
+   * @throws  GrantPrivilegeException
+   */
+  public void grantPriv(Member m, String priv) 
+    throws GrantPrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Check whether a member has the CREATE privilege on this stem.
+   * <pre class="eg">
+   * if (ns.hasCreate(m)) {
+   *   // Has CREATE
+   * }
+   *   // Does not have CREATE
+   * } 
+   * </pre>
+   * @param   m   Check whether this member has CREATE.
+   * @return  Boolean true if the member has CREATE.
+   */
+  public boolean hasCreate(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Check whether a member has the STEM privilege on this stem.
+   * <pre class="eg">
+   * if (ns.hasStem(m)) {
+   *   // Has STEM
+   * }
+   *   // Does not have STEM
+   * } 
+   * </pre>
+   * @param   m   Check whether this member has STEM.
+   * @return  Boolean true if the member has STEM.
+   */
+  public boolean hasStem(Member m) {
+    throw new RuntimeException("Not implemented");
+  }
+ 
   public int hashCode() {
     return new HashCodeBuilder()
            .append(getUuid())
            .append(getCreator_id())
            .append(getModifier_id())
            .toHashCode();
+  }
+
+  /**
+   * Revoke all privileges of the specified type on this stem.
+   * <pre class="eg">
+   * // Revoke CREATE from everyone on this stem.
+   * try {
+   *   ns.revokePriv(Privilege.CREATE);
+   * }
+   * catch (RevokePrivilegeException e) {
+   *   // Error revoking privilege
+   * }
+   * </pre>
+   * @param   priv  Revoke this privilege.
+   * @throws  RevokePrivilegeException
+   */
+  public void revokePriv(String priv) 
+    throws RevokePrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Revoke a privilege on this stem.
+   * <pre class="eg">
+   * // Revoke CREATE from the specified member
+   * try {
+   *   ns.revokePriv(m, Privilege.CREATE);
+   * }
+   * catch (RevokePrivilegeException e) {
+   *   // Error revoking privilege
+   * }
+   * </pre>
+   * @param   m     Revoke privilege from this member.
+   * @param   priv  Revoke this privilege.
+   * @throws  RevokePrivilegeException
+   */
+  public void revokePriv(Member m, String priv) 
+    throws RevokePrivilegeException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+ 
+  /**
+   * Set stem description.
+   * <pre class="eg">
+   * // Set description
+   * try {
+   *  ns.setDescription(value);
+   * }
+   * }
+   * catch (InsufficientPrivilegeException e0) {
+   *   // Not privileged to set description
+   * catch (StemModifyException e1) {
+   *   // Error setting description
+   * }
+   * </pre>
+   * @param   value   Set description to this value.
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemModifyException
+   */
+  public void setDescription(String value) 
+    throws InsufficientPrivilegeException, StemModifyException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Set stem displayExtension.
+   * <pre class="eg">
+   * // Set displayExtension
+   * try {
+   *  ns.setDisplayExtension(value);
+   * }
+   * }
+   * catch (InsufficientPrivilegeException e0) {
+   *   // Not privileged to set displayExtension
+   * catch (StemModifyException e1) {
+   *   // Error setting displayExtension
+   * }
+   * </pre>
+   * @param   value   Set displayExtension to this value.
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemModifyException
+   */
+  public void setDisplayExtension(String value) 
+    throws InsufficientPrivilegeException, StemModifyException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("display_name", getDisplay_name())
+           .append("name", getName())
+           .append("uuid", getStem_id())
+           .append("creator_id", getCreator_id())
+           .append("modifier_id", getModifier_id())
+           .toString();
   }
 
   // Hibernate Accessors
@@ -272,12 +532,12 @@ public class Stem implements Serializable {
     this.create_time = create_time;
   }
 
-  private String getDescription() {
-    return this.description;
+  private String getStem_description() {
+    return this.stem_description;
   }
 
-  private void setDescription(String description) {
-    this.description = description;
+  private void setStem_description(String stem_description) {
+    this.stem_description = stem_description;
   }
 
   private String getDisplay_extension() {
@@ -296,12 +556,12 @@ public class Stem implements Serializable {
     this.display_name = display_name;
   }
 
-  private String getExtension() {
-    return this.extension;
+  private String getStem_extension() {
+    return this.stem_extension;
   }
 
-  private void setExtension(String extension) {
-    this.extension = extension;
+  private void setStem_extension(String stem_extension) {
+    this.stem_extension = stem_extension;
   }
 
   private String getModify_source() {
@@ -320,20 +580,20 @@ public class Stem implements Serializable {
     this.modify_time = modify_time;
   }
 
-  private String getName() {
-    return this.name;
+  private String getStem_name() {
+    return this.stem_name;
   }
 
-  private void setName(String name) {
-    this.name = name;
+  private void setStem_name(String stem_name) {
+    this.stem_name = stem_name;
   }
 
-  private String getUuid() {
-    return this.uuid;
+  private String getStem_id() {
+    return this.stem_id;
   }
 
-  private void setUuid(String uuid) {
-    this.uuid = uuid;
+  private void setStem_id(String stem_id) {
+    this.stem_id = stem_id;
   }
 
   private Integer getVersion() {
