@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE web-app PUBLIC 
           "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-          "http://java.sun.com/dtd/web-app_2_3.dtd ">
+          "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
     <filter>
   	<filter-name>EasyLogin Filter</filter-name>
@@ -19,7 +19,28 @@
   		<param-value>:/populateIndex.do:/callLogin.do:/easyLogin.do:</param-value>  
   	</init-param>
   </filter>
+  
+  <!--Example of adding a filter which controls authentication.-->
+   <filter-mapping>
+  	<filter-name>EasyLogin Filter</filter-name>
+  	<url-pattern>*.do</url-pattern>
+  </filter-mapping>
 
+  <!--Example of adding custom struts configuration to override or supplement that from the standard Grouper Ui-->  
+ <servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config-custom.xml,/WEB-INF/struts-config.xml,/WEB-INF/struts-config-custom.xml</param-value>
+    </init-param>
+    <init-param>
+      <param-name>config/i2mi</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  
  <!--ensure that Basic HTTP authentication used for standard UI-->
    <security-constraint>
     <web-resource-collection>
