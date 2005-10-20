@@ -62,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.2 2005-10-20 14:40:56 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -108,6 +108,7 @@ public class GroupAsMap extends ObjectAsMap {
 			GrouperAttribute ga = group.attribute((String)key);
 			obj=ga.value();
 		}
+		if(obj==null&& "description".equals(key)) obj = get("displayExtension");
 		if(obj==null) obj="";
 		return obj;
 	}
