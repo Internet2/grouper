@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main-print.jsp,v 1.21 2005-10-14 22:34:53 acohen Exp $
-  $Date: 2005-10-14 22:34:53 $
+  $Id: main-print.jsp,v 1.22 2005-10-21 19:07:11 acohen Exp $
+  $Date: 2005-10-21 19:07:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -156,7 +156,7 @@
             </td> <!-- person -->
             
             <td> <!-- privilege -->
-              Proxy
+              <%=Common.proxyPrivilegeDisplayName(signet, proxy)%>
             </td> <!-- privilege -->
             
             <td> <!-- scope -->

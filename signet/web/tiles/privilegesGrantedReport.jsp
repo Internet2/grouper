@@ -4,6 +4,7 @@
 <%@ page import="java.util.TreeSet" %>
 <%@ page import="java.util.Iterator" %>
 
+<%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
@@ -17,6 +18,7 @@
 <%@ page import="edu.internet2.middleware.signet.ui.PrivDisplayType" %>
 <%@ page import="edu.internet2.middleware.signet.ui.UnusableStyle" %>
 
+<tiles:useAttribute name="signet"                    classname="Signet" />
 <tiles:useAttribute name="pSubject"                  classname="PrivilegedSubject" />
 <tiles:useAttribute name="loggedInPrivilegedSubject" classname="PrivilegedSubject" />
 <tiles:useAttribute name="privDisplayType"           classname="PrivDisplayType" />
@@ -257,7 +259,7 @@
               
           <td> <!-- privilege -->
             <%=Common.proxyPopupIcon(proxy)%>
-            Proxy
+            <%=Common.proxyPrivilegeDisplayName(signet, proxy)%>
           </td> <!-- privilege -->
               
           <td> <!-- scope -->

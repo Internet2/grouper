@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview-print.jsp,v 1.18 2005-10-11 17:13:20 acohen Exp $
-  $Date: 2005-10-11 17:13:20 $
+  $Id: personview-print.jsp,v 1.19 2005-10-21 19:07:11 acohen Exp $
+  $Date: 2005-10-21 19:07:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -137,7 +137,7 @@
   
             <tr>
               <td>
-                Proxy
+                <%=Common.proxyPrivilegeDisplayName(signet, proxy)%>
               </td>
               <td>
                 <span class="label">acting as </span><%=proxy.getGrantor().getName()%>

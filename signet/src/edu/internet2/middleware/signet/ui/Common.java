@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.39 2005-10-19 21:55:01 acohen Exp $
-  $Date: 2005-10-19 21:55:01 $
+  $Id: Common.java,v 1.40 2005-10-21 19:07:11 acohen Exp $
+  $Date: 2005-10-21 19:07:11 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -47,6 +47,9 @@ import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 import edu.internet2.middleware.signet.ui.Constants;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 public class Common
 {
@@ -1432,6 +1435,43 @@ public class Common
     statusSet.add(Status.PENDING);
     
     return pSubject.getProxiesReceived(statusSet, subsystem, null);
+  }
+  
+  public static Set removeGroups(Set setWithGroups)
+  {
+    Set setWithoutGroups = new HashSet();
+    Iterator setWithGroupsIterator = setWithGroups.iterator();
+    while (setWithGroupsIterator.hasNext())
+    {
+      PrivilegedSubject candidate
+        = (PrivilegedSubject)(setWithGroupsIterator.next());
+      
+      if (!(candidate.getSubject().getType().equals(SubjectTypeEnum.GROUP)))
+      {
+        setWithoutGroups.add(candidate);
+      }
+    }
+    
+    return setWithoutGroups;
+  }
+  
+  public static String proxyPrivilegeDisplayName(Signet signet, Proxy proxy)
+  {
+    String displayName = "Proxy";
+    
+    if (proxy.getGrantor().equals(signet.getSignetSubject()))
+    {
+      if (proxy.getSubsystem() == null)
+      {
+        displayName = "System Administrator";
+      }
+      else
+      {
+        displayName = "Subsystem Owner";
+      }
+    }
+    
+    return displayName;
   }
   
 //  public static Set getExtensibleProxies

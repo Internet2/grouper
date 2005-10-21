@@ -29,7 +29,15 @@
 
   String searchString = request.getParameter("searchString");
   Set result = signet.findPrivilegedSubjects(searchString);
+  
+  // There are some Subjects which are not candidates to serve as proxies
+  // for a specific Subject:
+  //
+  //    a) The Subject itself cannot be its own Proxy
+  //    b) A Group cannot be a Proxy.
   result.remove(loggedInPrivilegedSubject.getEffectiveEditor());
+  result = Common.removeGroups(result);
+  
   Set sortSet = new TreeSet(new SubjectNameComparator());
   sortSet.addAll(result);
 
