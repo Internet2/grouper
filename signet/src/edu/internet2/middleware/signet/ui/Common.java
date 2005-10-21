@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.40 2005-10-21 19:07:11 acohen Exp $
-  $Date: 2005-10-21 19:07:11 $
+  $Id: Common.java,v 1.41 2005-10-21 21:12:48 acohen Exp $
+  $Date: 2005-10-21 21:12:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -227,14 +227,30 @@ public class Common
     return displayLimitValues(limits, limitValues);
   }
   
+  /**
+   * 
+   * @param currentLoggedInPrivilegedSubject
+   *    The current PrivilegedSubject who's logged in as the user.
+   * @param htmlSelectId
+   *    The HTML ID which should be used to identify this SELECT element.
+   * @param onChange
+   *    The name of the JavaScript method which should be invoked when
+   *    this SELECT element's "onChange" event is fired. That method will
+   *    receive two parameters:
+   *      1) The SELECT element's HTML ID.
+   *      2) The ID of the current PrivilegedSubject who's being "acted for".
+   * @return
+   *   A String which represents this SELECT element in HTML.
+   */
   public static String displayActingForOptions
-    (PrivilegedSubject  pSubject,
-     String             htmlSelectId)
+    (PrivilegedSubject  currentLoggedInPrivilegedSubject,
+     String             htmlSelectId,
+     String             onChange)
   {
     StringBuffer outStr = new StringBuffer();
     
     Set proxiesReceived
-      = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
+      = currentLoggedInPrivilegedSubject.getProxiesReceived(Status.ACTIVE, null, null);
     
     if (proxiesReceived.size() > 0)
     {    
@@ -243,11 +259,11 @@ public class Common
       outStr.append("</LABEL>\n");
       outStr.append("<SELECT\n");
       outStr.append("  name=\"" + htmlSelectId + "\"\n");
+      outStr.append("  id=\"" + htmlSelectId + "\"\n");
+      outStr.append("  onchange=\"" + onChange + "('" + htmlSelectId  + "', '" + Common.buildCompoundId(currentLoggedInPrivilegedSubject.getEffectiveEditor()) + "');" + "\"\n");
       outStr.append("  class=\"long\">\n");
         
-      outStr.append
-        (Common.displayProxyOptions
-          (pSubject, Constants.ACTAS_BUTTON_ID));
+      outStr.append(Common.displayProxyOptions(currentLoggedInPrivilegedSubject));
 
       outStr.append("</SELECT>\n");
       outStr.append("<INPUT\n");
@@ -273,8 +289,7 @@ public class Common
    * @return
    */
   private static String displayProxyOptions
-    (PrivilegedSubject pSubject,
-     String            actingAsButtonId)
+    (PrivilegedSubject pSubject)
   {
     StringBuffer outStr = new StringBuffer();
     
@@ -286,14 +301,6 @@ public class Common
       // We're acting as no one but ourselves.
       outStr.append
         ("  SELECTED\n");
-      outStr.append
-        ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=true;\"\n");
-    }
-    else
-    {
-      // We're acting as someone other than ourselves.
-      outStr.append
-        ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=false;\"\n");
     }
 
     outStr.append("  value=\"" + Common.buildCompoundId(pSubject) + "\"\n");
@@ -323,13 +330,6 @@ public class Common
       if (isCurrent)
       {
         outStr.append(" SELECTED\n");
-        outStr.append
-          ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=true;\"\n");
-      }
-      else
-      {
-        outStr.append
-          ("  onClick=\"javascript:document.getElementById('" + actingAsButtonId + "').disabled=false;\"\n");
       }
       
       outStr.append("  value=\"" + Common.buildCompoundId(grantor) + "\"\n");

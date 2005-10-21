@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.61 2005-10-21 19:07:11 acohen Exp $
-  $Date: 2005-10-21 19:07:11 $
+  $Id: main.jsp,v 1.62 2005-10-21 21:12:48 acohen Exp $
+  $Date: 2005-10-21 21:12:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -141,6 +141,21 @@
       
       return count;
     }
+    
+    function actAsChange(selectElementID, currentlyActingAs)
+    {
+      selectElement = document.getElementById(selectElementID);
+      selectValue = selectElement.value;
+      
+      if (selectValue == currentlyActingAs)
+      {
+        document.getElementById('<%=Constants.ACTAS_BUTTON_ID%>').disabled=true;
+      }
+      else
+      {
+        document.getElementById('<%=Constants.ACTAS_BUTTON_ID%>').disabled=false;
+      }
+    }    
   </script>
 
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
@@ -329,7 +344,8 @@
         <h2>Designated Drivers</h2>
         <%=Common.displayActingForOptions
              (loggedInPrivilegedSubject,
-              Constants.ACTING_FOR_SELECT_ID)%>
+              Constants.ACTING_FOR_SELECT_ID,
+              "actAsChange")%>
         <br/>
         <a href='Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true'>
           <img src="images/arrow_right.gif" alt="" />
