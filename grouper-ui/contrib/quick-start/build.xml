@@ -48,7 +48,7 @@
 	<target name="help">
 		<echo>The 'html' target generates Javadoc for XmlLoader.
 		
-The 'run' target attemps to load an Xml file 
+The 'load' target attemps to load an Xml file 
 (see API documentation for format) defined by 
 the property load.xml. This property can be
 set on the command line, in a build.properties file in this
