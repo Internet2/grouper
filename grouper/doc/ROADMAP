@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.1 2005-10-20 21:13:19 blair Exp $
+$Id: ROADMAP,v 1.47.2.2 2005-10-21 16:02:54 blair Exp $
 
 ---
 
@@ -11,8 +11,6 @@ $Id: ROADMAP,v 1.47.2.1 2005-10-20 21:13:19 blair Exp $
 
 TODO Sync with Basecamp
 
-* [DOCS] _AccessPrivilege_ javadoc
-* [DOCS] _NamingPrivilege_ javadoc
 * [TEST] Find root subject via custom source adapter
 * [TEST] Find root stem
 * [TEST] Create stem

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.11 2005-10-20 21:13:19 blair Exp $
+$Id: API,v 1.86.2.12 2005-10-21 16:02:54 blair Exp $
 
 ---
 
@@ -17,8 +17,22 @@ TODO Be more consistent about when calling for a member and a subject
 # Interfaces
 
 ## AccessPrivilege
+* Set                 getPriv(session, group, privilege)
+* Set                 getPriv(session, member, privilege)
+* Set                 getPrivs(session, group, member)
+* void                grantPriv(session, group, member, privilege)
+* boolean             hasPriv(session, group, member, privilege)
+* void                revokePriv(session, group, privilege)
+* void                revokePriv(session, group, member, privilege)
 
 ## NamingPrivilege
+* Set                 getPriv(session, group, privilege)
+* Set                 getPriv(session, member, privilege)
+* Set                 getPrivs(session, group, member)
+* void                grantPriv(session, group, member, privilege)
+* boolean             hasPriv(session, group, member, privilege)
+* void                revokePriv(session, group, privilege)
+* void                revokePriv(session, group, member, privilege)
 
 ## QueryFilter
 * AndFilter(filter, filter)
@@ -53,6 +67,7 @@ TODO Be more consistent about when calling for a member and a subject
 * MemberDeleteException
 * MemberNotFoundException
 * MembershipNotFoundException
+* PrivilegeNotFoundException
 * RevokePrivilegeException
 * StemAddException
 * StemModifyException
