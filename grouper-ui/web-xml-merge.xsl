@@ -85,38 +85,52 @@
 		<xsl:variable name="tagname">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>
+		
 		<xsl:for-each select="$mergeXml/web-app/*[name()=$tagname]">
-			<xsl:copy-of select="."/>
+			<xsl:if test="./*[name()=$key] or $tagname != 'error-page'">
+				<xsl:comment>Inserting tag from merge file</xsl:comment>
+				<xsl:copy-of select="."/>
+			</xsl:if>
 		</xsl:for-each>
+		
 		<xsl:for-each select="$docRoot/*[name()=$tagname]">
-			<xsl:choose>
-				<xsl:when test="$tagname='security-constraint'">
-					<xsl:variable name="curDocKey">
-						<xsl:value-of select="$docRoot/security-constraint/web-resource-collection/url-pattern/child::text()"/>
-					</xsl:variable>
-					<xsl:variable name="mergeDocKey">
-						<xsl:value-of select="$mergeXml/web-app/security-constraint/web-resource-collection/url-pattern/child::text()"/>
-					</xsl:variable>
-
-					<xsl:if test="not($curDocKey=$mergeDocKey)">
-						<xsl:copy-of select="."/>
-					</xsl:if>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:variable name="curDocKey">
-						<xsl:value-of select="./*[name()=$key]"/>
-					</xsl:variable>
-					<xsl:variable name="mergeDocKey">
-						<xsl:value-of select="$mergeXml/web-app/*[name()=$tagname]/*[name()=$key and child::text()=$curDocKey]"/>
-					</xsl:variable>
-					<xsl:if test="$tagname='security-constraint'">
-
-					</xsl:if>
-					<xsl:if test="$mergeDocKey=''">
-						<xsl:copy-of select="."/>
-					</xsl:if>
-				</xsl:otherwise>
-			</xsl:choose>
+				
+				<xsl:choose>
+					<xsl:when test="$tagname='security-constraint'">
+					
+						<xsl:variable name="curDocKey">
+							<xsl:value-of select="./web-resource-collection/url-pattern/child::text()"/>
+						</xsl:variable>
+						<xsl:variable name="mergeDocKey">
+							<xsl:value-of select="$mergeXml/web-app/security-constraint/web-resource-collection/url-pattern/child::text()"/>
+						</xsl:variable>
+						
+						<xsl:if test="not($curDocKey=$mergeDocKey)">
+							<xsl:comment>Inserting tag from base file</xsl:comment>
+							<xsl:copy-of select="."/>
+						</xsl:if>
+					</xsl:when>
+					<xsl:otherwise>
+					  <xsl:if test="./*[name()=$key]">
+						<xsl:variable name="curDocKey">
+							<xsl:value-of select="./*[name()=$key]"/>
+						</xsl:variable>
+						<xsl:variable name="mergeDocKey">
+							<xsl:value-of select="$mergeXml/web-app/*[name()=$tagname]/*[name()=$key and child::text()=$curDocKey]"/>
+						</xsl:variable>
+						
+							<xsl:if test="$tagname='security-constraint'">
+	
+						</xsl:if>
+						<!-- If tag with same key didn't exist in merge file, insert here -->
+						<xsl:if test="not(boolean($mergeXml/web-app/*[name()=$tagname]/*[name()=$key and child::text()=$curDocKey]))">
+						<xsl:comment>Inserting tag from base file</xsl:comment>
+							<xsl:copy-of select="."/>
+						</xsl:if>
+					  </xsl:if>
+					</xsl:otherwise>
+				</xsl:choose>
+			
 		</xsl:for-each>
 	</xsl:template>
 </xsl:stylesheet>
