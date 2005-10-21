@@ -3,12 +3,12 @@
 		 and on the help page
 --%><%--
   @author Gary Brown.
-  @version $Id: gettingStarted.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: gettingStarted.jsp,v 1.2 2005-10-21 08:26:35 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <h2>Grouper - intro</h2>
-<p></p>Grouper is a system for creating and maintaining institutional groups in a central repository. Such groups may be used for 
+<p>Grouper is a system for creating and maintaining institutional groups in a central repository. Such groups may be used for 
  many different reasons e.g. for mailing lists, or for determining whch set of people are allowed to access specific web applications, 
  or for sharing resources. The goal is to create a group once, but use it as often as necessary in as wide a range of systems as possible.
 </p><p>
