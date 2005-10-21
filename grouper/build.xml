@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.7 2005-10-18 15:31:43 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.8 2005-10-21 18:54:31 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -91,6 +91,8 @@
     <tstamp />
     <mkdir dir="${build.grouper}" />
     <mkdir dir="${build.test}" />
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
     <!-- only define our classpath once -->
     <path id="project.class.path">
       <pathelement path="${classpath}"/>
@@ -131,11 +133,10 @@
   <!-- test-build -->
   <target name="test-build" depends="build">
     <javac srcdir="${src.test}" destdir="${build.test}">
-      <classpath refid="project.class.path" />
-<!--
-      <include name="**/*.java" />
--->
-      <include name="**/TestMonolithic.java" />
+      <classpath  refid="project.class.path"/>
+      <include    name="**/Suite*.java"/>
+      <include    name="**/TestInternalSourceAdapter.java"/>
+      <!-- TODO <include name="**/*.java" /> -->
     </javac>
   </target>
   <!-- test-build -->
@@ -146,10 +147,7 @@
           classname="junit.textui.TestRunner"
           taskname="junit" 
           failonerror="true">
-<!-- TODO
-      <arg value="test.edu.internet2.middleware.grouper.TestAll"/>
--->
-      <arg value="test.edu.internet2.middleware.grouper.TestMonolithic"/>
+      <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
       <classpath refid="project.class.path"/>
     </java>
   </target>
