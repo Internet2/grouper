@@ -72,10 +72,12 @@
 			</copy>
 			<copy todir="${quickstart.dir}/grouper">
 				<fileset dir="${grouper.folder}">
-					<include name="contrib"/>
-					<include name="sql"/>
+				    <include name="build.xml"/>
+					<include name="contrib/**/*"/>
+					<include name="sql/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
+					<exclude name="java"/>
 				</fileset>
 			</copy>
 			<antcall target="-make-grouper-complete"/>
@@ -116,8 +118,6 @@
 	 <target name="-make-grouper-complete" if="grouper.complete">
 		 <copy todir="${quickstart.dir}/grouper">
 			 <fileset dir="${grouper.folder}">
-				 <include name="build.xml"/>
-				 <include name="java"/>
 				 <include name="java/**/*"/>
 			 </fileset>
 		 </copy>
@@ -179,6 +179,7 @@
 			  <condition property="exported.grouper-ui.available">
 				  <equals arg1="${do.checkout}" arg2="n"/>
 			  </condition>
+			  <echo message="${exported.grouper-ui.available}"/>
 			  <antcall target="-do-export-grouper-ui"/>
 			  <antcall target="-use-temp-grouper-ui"/>
 	 </target>
