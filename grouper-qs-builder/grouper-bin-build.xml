@@ -1,0 +1,123 @@
+<!-- $Id: grouper-bin-build.xml,v 1.1 2005-10-24 09:09:38 isgwb Exp $ -->
+
+<project name="Grouper" default="build" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="app.name"               value="Grouper"/>
+  <property name="src"                    location="java"/>
+  <property name="src.grouper"            location="${src}/src"/>
+  <property name="src.test"               location="${src}/tests"/>
+  <property name="build"                  location="build"/>
+  <property name="build.grouper"          location="${build}/grouper"/>
+  <property name="build.lib"              location="${build}/lib"/>
+  <property name="build.test"             location="${build}/test"/>
+  <property name="dist"                   location="dist"/>
+  <property name="javadoc.source"         value="${src.grouper}"/>
+  <property name="javadoc.dest.internal"  value="${dist}/api-int"/>
+  <property name="javadoc.dest.public"    value="${dist}/api"/>
+  <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
+  <property name="sql.type"               value="oracle"/>
+  <property name="sql.create"             value="sql/schema-${sql.type}.sql"/>
+  <property name="sql.test-data"          value="sql/test-data-${sql.type}.sql"/>
+  <property name="impl.url" 
+    value="http://middleware.internet2.edu/dir/groups/grouper/"/>
+  <property name="impl.vendor"            value="Internet2"/>
+  <property name="impl.version"           value="0.6"/>
+
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build.grouper}" />
+    <mkdir dir="${build.test}" />
+    <!-- only define our classpath once -->
+    <path id="project.class.path">
+      <pathelement path="${classpath}"/>
+      <!-- for configuration files -->
+      <pathelement path="${basedir}/conf"/>
+      <fileset dir="dist/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement location="${build.grouper}"/>
+      <pathelement location="${build.test}"/>
+      <pathelement location="${user.home}/.ant/lib/clover.jar"/>
+    </path>
+  </target>
+
+
+  <target name="db" depends="init" description="Launch HSQLDB UI">
+    <property file="conf/hibernate.properties"/>
+    <mkdir dir="${dist}/run"/>
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="${hibernate.connection.driver_class}"/>
+      <arg value="-url"/>
+      <arg value="${hibernate.connection.url}"/>
+      <arg value="-user"/>
+      <arg value="${hibernate.connection.username}"/>
+      <arg value="-password"/>
+      <arg value="${hibernate.connection.password}"/>
+    </java>
+  </target>
+
+  <target name="db-init" depends="init" description="Initialize database">
+    <property file="conf/hibernate.properties"/>
+	<echo message="hibernate.connection.driver_class=${hibernate.connection.driver_class}"/>
+	<echo message="hibernate.connection.url=${hibernate.connection.url}"/>
+	<echo message="hibernate.connection.username=${hibernate.connection.username}"/>
+	<echo message="hibernate.connection.password=${hibernate.connection.password}"/>
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="${sql.create}"
+    />
+	
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="sql/init.sql"
+    />
+  </target>
+
+  <target name="db-init-test" description="Inserts test data into database">
+    <property file="conf/hibernate.properties"/>
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="${sql.test-data}"
+    />
+  </target>
+
+  <target name="with.clover" depends="init">
+    <taskdef resource="clovertasks"/>
+    <clover-setup initString="clover.db">
+      <fileset dir="${src.grouper}"/>
+    </clover-setup>
+  </target> 
+
+  <target name="clover.html" depends="with.clover">
+    <clover-report>
+      <current outfile="clover">
+        <format type="html"/>
+      </current>
+    </clover-report>
+  </target>
+
+  <target name="clover.log" depends="with.clover">
+    <clover-log/>
+  </target>
+
+ <target name="clover.swing" depends="with.clover">
+   <clover-view/>
+ </target>
+
+</project>
+
