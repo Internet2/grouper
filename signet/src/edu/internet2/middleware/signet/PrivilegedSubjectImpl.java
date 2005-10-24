@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.32 2005-10-24 18:08:07 acohen Exp $
- $Date: 2005-10-24 18:08:07 $
+ $Id: PrivilegedSubjectImpl.java,v 1.33 2005-10-24 23:30:00 acohen Exp $
+ $Date: 2005-10-24 23:30:00 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -1243,7 +1243,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
            effectiveDate,
            expirationDate);
 
-    this.addAssignmentGranted(newAssignment);
+
+    ((PrivilegedSubjectImpl)(this.getEffectiveEditor()))
+      .addAssignmentGranted(newAssignment);
     ((PrivilegedSubjectImpl) grantee).addAssignmentReceived(newAssignment);
 
     return newAssignment;
