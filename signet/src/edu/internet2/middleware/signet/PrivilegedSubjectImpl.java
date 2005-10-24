@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.31 2005-10-19 18:14:34 acohen Exp $
- $Date: 2005-10-19 18:14:34 $
+ $Id: PrivilegedSubjectImpl.java,v 1.32 2005-10-24 18:08:07 acohen Exp $
+ $Date: 2005-10-24 18:08:07 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -474,7 +474,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Iterator iterator
       = this
           .getEffectiveEditor()
-            .getAssignmentsReceived((Status)null, null, null)
+            .getAssignmentsReceived(Status.ACTIVE, null, null)
               .iterator();
     
     while (iterator.hasNext())
