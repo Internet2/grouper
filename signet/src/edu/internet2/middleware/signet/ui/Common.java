@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.41 2005-10-21 21:12:48 acohen Exp $
-  $Date: 2005-10-21 21:12:48 $
+  $Id: Common.java,v 1.42 2005-10-24 16:59:45 acohen Exp $
+  $Date: 2005-10-24 16:59:45 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -47,8 +47,6 @@ import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 import edu.internet2.middleware.signet.ui.Constants;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 public class Common
@@ -67,6 +65,16 @@ public class Common
   private static final String DATE_SAMPLE = "mm-dd-yyyy";
 
   private static final String DATETIME_FORMAT = "dd-MMM-yyyy kk:mm:ss";
+
+  final private static java.text.SimpleDateFormat[] DATERS =  {
+    new java.text.SimpleDateFormat("MM/d/yy"),
+    new java.text.SimpleDateFormat("MM-d-yy"),
+    new java.text.SimpleDateFormat("MM.d.yy"),
+    new java.text.SimpleDateFormat("dd-MMM-yy"),
+    new java.text.SimpleDateFormat("dd-MMMM-yy"),
+    new java.text.SimpleDateFormat("yyyy-MM-dd"),
+    new java.text.SimpleDateFormat("MMMM d, yyyy")
+    };
   
   /**
    * @param log
@@ -879,7 +887,8 @@ public class Common
      Date               defaultDate)
   throws DataEntryException
   {
-    Date date;
+    Date            date = null;
+    ParseException  parseException = null;
     
     // First, let's see if the date is present or not.
     String dateStringPresence = request.getParameter(nameRoot + HASDATE_SUFFIX);
@@ -889,14 +898,28 @@ public class Common
     }
     
     String dateStr = request.getParameter(nameRoot + DATETEXT_SUFFIX);
-    SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-    try
+
+    // This date-parsing code was originally written by Craig Jurney for the
+    // Sponsorship Manager.
+    for (int i = 0; i < DATERS.length && date == null; ++i)
     {
-      date = formatter.parse(dateStr);
+      DATERS[i].setLenient(false);
+      
+      try
+      {
+        date = DATERS[i].parse(dateStr);
+      }
+      catch (java.text.ParseException pe)
+      {
+        parseException = pe;
+        continue;
+      }
     }
-    catch (ParseException pe)
+
+    if (date == null)
     {
-      throw new DataEntryException(pe, nameRoot, dateStr, DATE_SAMPLE);
+      throw new DataEntryException
+        (parseException, nameRoot, dateStr, DATE_SAMPLE);
     }
     
     return date;
