@@ -36,6 +36,7 @@
 			<copy todir="${grouper.folder}/dist/run" overwrite="true">
 				<fileset dir=".">
 					<include name="grouper.script"/>
+					<include name="grouper.script.empty"/>
 					<include name="grouper.properties"/>
 				</fileset>
 			</copy>
@@ -72,7 +73,6 @@
 			</copy>
 			<copy todir="${quickstart.dir}/grouper">
 				<fileset dir="${grouper.folder}">
-				    <include name="build.xml"/>
 					<include name="contrib/**/*"/>
 					<include name="sql/**/*"/>
 					<include name="LICENSE"/>
@@ -108,10 +108,13 @@
 						 <include name="*.jar"/>
 						 <include name="subjects.xml"/>
 						 <include name="quickstart.xml"/>
+						 <include name="subjects.sql"/>
 				  </fileset>
 			  </copy>
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
+			  <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>
+			  <copy tofile="${quickstart.dir}/grouper-ui/contrib/quick-start/build.properties" file="quickstart-contrib-build.properties"/>
 			  <chmod dir="${quickstart.dir}" perm="+x" includes="*.sh"/>
 	 </target>
 	 
