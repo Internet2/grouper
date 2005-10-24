@@ -19,6 +19,7 @@
   that all components will be run on one machine. Other configurations are possible.</p>
 <p><a href="grouper/doc/">Release documentation for the Grouper API</a>.</p>
 <p><a href="grouper-ui/doc/index.html">Grouper UI specific documentation</a>.</p>
+<p><a href="#otherDatabase">Using the QuickStart instance with a different database</a></p>
 <h2>Preparing Tomcat</h2>
 <p>This document assumes you are familiar with Tomcat. </p>
 <p>The Grouper UI requires that users authenticate themselves and this QuickStart 
@@ -84,8 +85,79 @@
   </font>which can be used as a template for how to make your own customisations. 
   Information on <a href="grouper-ui/doc/customising-grouper-ui.html">how to customise the Grouper 
   UI</a> is available.</p>
-<h2>&nbsp;</h2>
+<h2 name="otherDatabase" id="otherDatabase">Using the QuickStart instance with 
+  a different database</h2>
+<p name="otherDatabase">You should only try using a different database after you 
+  have successfully setup the default QuickStart.</p>
+<p name="otherDatabase">If you want to run the QuickStart against your own data* 
+  you may:</p>
+<ol>
+  <li><a href="#emptyHsqldb">start with an empty HSQLDB database</a>, or</li>
+  <li><a href="#emptyAlternative">an empty supported database from another vendor</a></li>
+</ol>
+<p>*running <font face="Courier New, Courier, mono">ant db-init</font> (see instructions 
+  below) creates the database tables and essential data for Grouper to work, including 
+  a <font face="Courier New, Courier, mono">GrouperSystem</font> subject. The 
+  Grouper UI allows you to create new stems and groups, but not subjects. See 
+  <a href="#loadingData">Loading your own data</a> for details on how to batch load data.</p>
+<h3 id="emptyHsqldb" name="emptyHsqldb">Setting up the QuickStart with an empty 
+  HSQLDB database</h3>
+<ol>
+  <li>Shutdown the demo HSQLDB database if it is running</li>
+  <li>backup <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/run/grouper.script</font></li>
+  <li>copy <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/run/grouper.script.empty</font> 
+    to <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/run/grouper.script</font> 
+  </li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
+    <font face="Courier New, Courier, mono">ant db-init</font></li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
+    db</font></li>
+  <li>restart the grouper web application</li>
+</ol>
+<h3 id="emptyAlternative" name="emptyAlternative">Settng up the QuickStart with an alternative supported database</h3>
+<ol>
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/hibernate.properties</font> 
+    by commenting out the default <font face="Courier New, Courier, mono">hibernate.dialect</font>, 
+    <font face="Courier New, Courier, mono">hibernate.connection.driver_class</font> 
+    and<font face="Courier New, Courier, mono"> hibernate.connection.url</font> 
+    keys under <font face="Courier New, Courier, mono">#HSQLDB</font>.</li>
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/hibernate.properties</font> 
+    by uncommenting the same keys under their chosen database, ensuring a valid 
+    conection url and correct<font face="Courier New, Courier, mono"> hibernate.connection.username</font> 
+    and <font face="Courier New, Courier, mono">hibernate.connection.password 
+    </font>values</li>
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/build.xml</font> 
+    - <font face="Courier New, Courier, mono">&lt;property name=&quot;sql.type&quot; 
+    value=&quot;hsqldb&quot;/&gt;</font> - such that<font face="Courier New, Courier, mono"> 
+    hsqldb</font> becomes <font face="Courier New, Courier, mono">oracle</font> 
+    or <font face="Courier New, Courier, mono">postgress </font>(see <a href="grouper/doc/grouper-impl-guide.html#config_db">Grouper implementation 
+    guide</a> if you want to use a different database)</li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
+    <font face="Courier New, Courier, mono">ant db-init</font></li>
+  <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/</font>sources.xml 
+    to specify an appropriate subject source. You may implement your own source 
+    or specify appropriate JDBC connection parameters (see <a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/subject/doc/jdbc-adapter-user-guide.html?rev=HEAD&cvsroot=I2MI&content-type=text/html">JDBCSourceAdapter 
+    documentation</a>). Step 4 automatically creates <font face="Courier New, Courier, mono">subject</font> 
+    and <font face="Courier New, Courier, mono">subjectattribute</font> tables 
+    required by the JDBCSourceAdapter, so you may use the same database connection 
+    url, username and password as you specified in <font face="Courier New, Courier, mono">hibernate.properties</font></li>
+  <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
+    ui</font></li>
+  <li>restart the grouper web application</li>
+</ol>
+
+<h3 id="loadingData" name="loadingData">Loading your own data</h3>
+<p>You may load Subject data, into the tables specified by the JDBCSourceAdapter, 
+  directly using a tool which executes SQL statements.<font face="Courier New, Courier, mono"> 
+  grouper-qs/subjects.sql</font> shows a SQL script which was used to create the 
+  subjects in the demo database. Additional attributes may be added.</p>
+<p>When loading subjects who you want to be able to login to the Grouper UI, you 
+  must specify a loginid.</p>
+<p>You may use the <font face="Courier New, Courier, mono">ant</font> script in 
+  <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/contrib/quick-start</font> 
+  to load groups, stems, access and naming privileges into the Grouper repository 
+  from an XML file. grouper-qs/quickstart.xml was used to define the repository 
+  used in the demo database.</p>
 <p>&nbsp;</p>
-<h2>&nbsp;</h2>
 </body>
 </html>
