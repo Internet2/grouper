@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.42 2005-10-24 16:59:45 acohen Exp $
-  $Date: 2005-10-24 16:59:45 $
+  $Id: Common.java,v 1.43 2005-10-25 17:49:25 acohen Exp $
+  $Date: 2005-10-25 17:49:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -1144,6 +1144,42 @@ public class Common
 
     request.getSession().setAttribute(attrName, subsystem);
     return subsystem;
+  }
+  
+  static public PrivilegedSubject getAndSetPrivilegedSubject
+    (Signet             signet,
+     HttpServletRequest request,
+     String             paramName,
+     String             attrName,
+     PrivilegedSubject  defaultValue)
+  throws ObjectNotFoundException
+  {
+    PrivilegedSubject pSubject = null;
+    
+    String compoundSubjectId = request.getParameter(paramName);
+    
+    // If there's no compoundSubjectID at all, it means we should look for a
+    // PrivilegedSubject in the Session.
+    if (compoundSubjectId != null)
+    {
+      String subjectIdParts[] = parseCompoundId(compoundSubjectId);
+      pSubject
+        = signet.getPrivilegedSubject(subjectIdParts[0], subjectIdParts[1]);
+    }
+    else
+    {
+      pSubject
+        = (PrivilegedSubject)
+            (request.getSession().getAttribute(attrName));
+    }
+    
+    if (pSubject == null)
+    {
+      pSubject = defaultValue;
+    }
+
+    request.getSession().setAttribute(attrName, pSubject);
+    return pSubject;
   }
   
   static public Set getSubsystemSelections

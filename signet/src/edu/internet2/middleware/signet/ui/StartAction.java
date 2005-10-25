@@ -1,6 +1,6 @@
 /*--
-  $Id: StartAction.java,v 1.12 2005-10-06 15:20:00 acohen Exp $
-  $Date: 2005-10-06 15:20:00 $
+  $Id: StartAction.java,v 1.13 2005-10-25 17:49:25 acohen Exp $
+  $Date: 2005-10-25 17:49:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -119,10 +119,13 @@ public final class StartAction extends BaseAction
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, loggedInUser);
     }
     
-    // This action always causes us to start (or resume) the contemplation
-    // of our own navel, or our currently proxied navel.
-    session.setAttribute
-      (Constants.CURRENTPSUBJECT_ATTRNAME, loggedInUser.getEffectiveEditor());
+    PrivilegedSubject currentPrivilegedSubject
+      = Common.getAndSetPrivilegedSubject
+          (signet,
+           request,
+           Constants.CURRENTPSUBJECT_HTTPPARAMNAME, // paramName
+           Constants.CURRENTPSUBJECT_ATTRNAME,      // attrName
+           loggedInUser.getEffectiveEditor());      // defaultValue
     
     PrivDisplayType currentPrivDisplayType
       = Common.getAndSetPrivDisplayType

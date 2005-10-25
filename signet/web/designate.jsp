@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.11 2005-10-11 03:40:00 acohen Exp $
-  $Date: 2005-10-11 03:40:00 $
+  $Id: designate.jsp,v 1.12 2005-10-25 17:49:25 acohen Exp $
+  $Date: 2005-10-25 17:49:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -175,7 +175,7 @@
       <%=Common.displayLogoutHref(request)%>
     </span> <!-- logout -->
     <span class="select">
-      <a href="Start.do">
+      <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
         <%=Constants.HOMEPAGE_NAME%>
       </a>
       &gt; <%=currentProxy==null?"":"Edit"%> Designated Driver
@@ -356,9 +356,10 @@
             value="<%=(currentProxy==null?"Complete designation":"Save changes")%>" 
        />        
           <br />
-            <a href="Start.do">
-              <img src="images/arrow_left.gif" />
-              CANCEL and return to your overview </a>
+          <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
+            <img src="images/arrow_left.gif" />
+            CANCEL and return to your overview
+          </a>
         </div>
       </div>
   

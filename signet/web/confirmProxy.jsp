@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.3 2005-10-17 17:00:06 acohen Exp $
-  $Date: 2005-10-17 17:00:06 $
+  $Id: confirmProxy.jsp,v 1.4 2005-10-25 17:49:25 acohen Exp $
+  $Date: 2005-10-25 17:49:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -79,7 +79,7 @@
         <%=Common.displayLogoutHref(request)%>
       </span> <!-- logout -->
       <span class="select">
-        <a href="Start.do">
+        <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
           <%=Constants.HOMEPAGE_NAME%>
         </a>
         &gt; <!-- displays as text right-angle bracket -->
@@ -163,7 +163,7 @@
               </a>
             </p>
             <p>
-              <a href="Start.do">
+              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                 <img src="images/arrow_right.gif" alt="" />
                 Return to your privileges overview
               </a>

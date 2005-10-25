@@ -1,6 +1,6 @@
 /*--
-  $Id: ActAsAction.java,v 1.2 2005-09-19 06:37:04 acohen Exp $
-  $Date: 2005-09-19 06:37:04 $
+  $Id: ActAsAction.java,v 1.3 2005-10-25 17:49:25 acohen Exp $
+  $Date: 2005-10-25 17:49:25 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -90,6 +90,10 @@ public final class ActAsAction extends BaseAction
     {
       loggedInPrivilegedSubject.setActingAs(actingAs);
     }
+    
+    session.setAttribute
+      (Constants.CURRENTPSUBJECT_ATTRNAME,
+       loggedInPrivilegedSubject.getEffectiveEditor());
 
     // Forward to our success page
     return findSuccess(mapping);
