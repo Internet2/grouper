@@ -25,7 +25,7 @@ import  java.util.*;
  * Internal <i>SourceAdapter</i> for retrieving {@link InternalSubject}s.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.1.2.2 2005-10-25 17:46:51 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.1.2.3 2005-10-25 17:53:27 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -149,6 +149,8 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   private Subject _resolveSubject(String qry) 
     throws SubjectNotFoundException
   {
+    // TODO What attributes do I need to set?  Check with Gary at some
+    // point.
     if (qry.equals("GrouperSystem")) {
       return new InternalSubject(qry, qry, this);
     }
