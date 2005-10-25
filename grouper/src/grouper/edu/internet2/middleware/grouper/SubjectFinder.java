@@ -28,19 +28,17 @@ import  org.apache.commons.logging.LogFactory;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.1.2.5 2005-10-18 17:53:29 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.1.2.6 2005-10-25 17:46:51 blair Exp $
  */
 public class SubjectFinder implements Serializable {
+  // TODO Add caching?
 
-  /*
-   * PRIVATE CLASS VARIABLES
-   */
-  private static Log            log       = LogFactory.getLog(SubjectFinder.class);
+  // Private Class Variables
+  private static Log            log = LogFactory.getLog(SubjectFinder.class);
+  private static SourceManager  mgr = null;
 
 
-  /*
-   * PUBLIC CLASS METHODS 
-   */
+  // Public Class Methods
 
   /**
    * Get a subject by id.
@@ -60,7 +58,14 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id) 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");  
+    SubjectFinder._init();
+    List subjects  = SubjectFinder._findById(
+      id, mgr.getSources().iterator()
+    );
+    if (subjects.size() == 1) {
+      return (Subject) subjects.get(0);
+    }
+    throw new SubjectNotFoundException("subject not found: " + id);
   }
 
   /**
@@ -83,7 +88,14 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id, String type) 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");  
+    SubjectFinder._init();
+    List subjects  = SubjectFinder._findById(
+      id, mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator()
+    );
+    if (subjects.size() == 1) {
+      return (Subject) subjects.get(0);
+    }
+    throw new SubjectNotFoundException("subject not found: " + id);
   }
 
   /**
@@ -105,7 +117,14 @@ public class SubjectFinder implements Serializable {
   public static Subject findByIdentifier(String id) 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");  
+    SubjectFinder._init();
+    List subjects  = SubjectFinder._findByIdentifier(
+      id, mgr.getSources().iterator()
+    );
+    if (subjects.size() == 1) {
+      return (Subject) subjects.get(0);
+    }
+    throw new SubjectNotFoundException("subject not found: " + id);
   }
 
   /**
@@ -128,7 +147,14 @@ public class SubjectFinder implements Serializable {
   public static Subject findByIdentifier(String id, String type) 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");  
+    SubjectFinder._init();
+    List subjects  = SubjectFinder._findByIdentifier(
+      id, mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator()
+    );
+    if (subjects.size() == 1) {
+      return (Subject) subjects.get(0);
+    }
+    throw new SubjectNotFoundException("subject not found: " + id);
   }
 
   /**
@@ -150,6 +176,65 @@ public class SubjectFinder implements Serializable {
   public static Set find(String query) {
     throw new RuntimeException("Not implemented");
   }
+
+
+  // Private class methods
+ 
+  // Find subjects by id 
+  private static List _findById(String id, Iterator iter) {
+    Subject subj      = null;
+    List    subjects  = new ArrayList();
+    while (iter.hasNext()) {
+      Source sa = (Source) iter.next();
+      try {
+        subj = sa.getSubject(id);
+        log.debug("Found subject in " + sa.getId() + ": " + id);
+        subjects.add(subj);
+      }
+      catch (SubjectNotFoundException e) {
+        log.debug("Subject not found in " + sa.getId() + ": " + id);
+      }
+    }
+    return subjects;
+  } // private static List _findById(id, iter) 
+
+  // Find subjects by identifier
+  private static List _findByIdentifier(String id, Iterator iter) {
+    Subject subj      = null;
+    List    subjects  = new ArrayList();
+    while (iter.hasNext()) {
+      Source sa = (Source) iter.next();
+      try {
+        subj = sa.getSubjectByIdentifier(id);
+        log.debug("Found subject in " + sa.getId() + ": " + id);
+        subjects.add(subj);
+      }
+      catch (SubjectNotFoundException e) {
+        log.debug("Subject not found in " + sa.getId() + ": " + id);
+      }
+    }
+    return subjects;
+  } // private static List _findByIdentifier(id, iter) 
+
+  // Initialize the Source Manager
+  private static void _init() {
+    if (mgr == null) {
+      log.debug("Initializing source manager");
+      try {
+        mgr = SourceManager.getInstance();
+        log.debug("Source manager initialized: " + mgr);
+        // Add in internal source adapter
+        BaseSourceAdapter isa = new InternalSourceAdapter("isa", "internal source adapter"); 
+        mgr.loadSource(isa);
+        log.debug("Added source: " + isa.getId());
+        log.info("Subject finder initialized");
+      } 
+      catch (Exception e) {
+        // TODO Is there something more appropriate to do here?
+        throw new RuntimeException(e.getMessage()); 
+      }
+    }
+  } // private static void _init()
 
 }
 

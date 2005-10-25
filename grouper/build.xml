@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.8 2005-10-21 18:54:31 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.9 2005-10-25 17:46:51 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -136,6 +136,7 @@
       <classpath  refid="project.class.path"/>
       <include    name="**/Suite*.java"/>
       <include    name="**/TestInternalSourceAdapter.java"/>
+      <include    name="**/TestSubjectFinderInternal.java"/>
       <!-- TODO <include name="**/*.java" /> -->
     </javac>
   </target>

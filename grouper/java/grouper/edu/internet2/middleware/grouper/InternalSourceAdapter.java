@@ -22,19 +22,18 @@ import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 /**
- * Internal <i>SourceAdapter</i> for a {@link InternalSubject}.
+ * Internal <i>SourceAdapter</i> for retrieving {@link InternalSubject}s.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.1.2.1 2005-10-21 18:54:31 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.1.2.2 2005-10-25 17:46:51 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
   // Private Instance Variables
   private Set types = new HashSet();
 
-  /*
-   * CONSTRUCTORS
-   */
+
+  // Constructors
 
   /**
    * Allocates new InternalSourceAdapter.
@@ -58,9 +57,8 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     super(id, name);
   } // public InternalSourceAdapter(name, id)
 
-  /*
-   * PUBLIC INSTANCE METHODS
-   */
+
+  // Public Instance Methods
 
   /**
    * Gets a Subject by its ID.
@@ -70,10 +68,13 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * Subject        subj  = sa.getSubject("john");
    * </pre>
    * @param   id  Subject id to return.
-   * @return  A mock subject.
+   * @return  An internal subject.
+   * @throws  SubjectNotFoundException
    */
-  public Subject getSubject(String id) {
-    return new InternalSubject(id, id, this);
+  public Subject getSubject(String id) 
+    throws SubjectNotFoundException
+  {
+    return this._resolveSubject(id);
   } // public Subject getsubject(id)
 
   /**
@@ -85,10 +86,13 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * Subject        subj  = sa.getSubjectByIdentifier("john");
    * </pre>
    * @param   id  Identity of subject to return.
-   * @return  A mock subject.
+   * @return  An internal subject.
+   * @throws  SubjectNotFoundException
    */
-  public Subject getSubjectByIdentifier(String id) {
-    return new InternalSubject(id, id, this);
+  public Subject getSubjectByIdentifier(String id) 
+    throws SubjectNotFoundException
+  {
+    return this._resolveSubject(id);
   } // public Subject getSubjectByIdentifier(id)
 
   /**
@@ -101,7 +105,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return  Subject type supported by this source.
    */
   public Set getSubjectTypes() {
-    if (types.size() == 1) {
+    if (types.size() != 1) {
       types.add( SubjectTypeEnum.valueOf("application") );
     }
     return types;
@@ -135,8 +139,21 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return  Subjects matching search value.
    */
   public Set search(String searchValue) {
-    return new HashSet();
+    throw new RuntimeException("Not implemented");
   } // public Set search(searchValue)
+
+
+  // Private Instance Methods
+
+  // Resolve an internal subject
+  private Subject _resolveSubject(String qry) 
+    throws SubjectNotFoundException
+  {
+    if (qry.equals("GrouperSystem")) {
+      return new InternalSubject(qry, qry, this);
+    }
+    throw new SubjectNotFoundException("subject not found: " + qry);
+  } // private Subject _resolveSubject(qry)
 
 }
 

@@ -23,10 +23,10 @@ import  java.util.*;
 import  org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Internal <i>Subject</i> for a {@link InternalSourceAdapter}.
+ * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.1.2.1 2005-10-21 18:54:31 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.1.2.2 2005-10-25 17:46:51 blair Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -39,35 +39,20 @@ public class InternalSubject implements Subject {
   private String      name    = new String();
   private SubjectType type    = SubjectTypeEnum.valueOf("application");
 
+
   // Constructors
 
-  /**
-   * Create an internal subject.
-   * <pre class="eg">
-   * Subject is = new InternalSubject();
-   * </pre>
-   */
-  public InternalSubject() {
-    super();
-  } // public InternalSubject()
-
-  /**
-   * Create an internal subject.
-   * <pre class="eg">
-   * Subject is = new InternalSubject(
-   *   id, name, new InternalSourceAdapter()
-   * );
-   * </pre>
-   * @param id      Id of this subjecct.
-   * @param name    Name of this subject.
-   * @param adapter Source adapter that retrieved this subject.
-   */
-  public InternalSubject(String id, String name, InternalSourceAdapter adapter) {
+  // Create an internal subjecct
+  // @param id      Id of this subjecct.
+  // @param name    Name of this subject.
+  // @param adapter Source adapter that retrieved this subject.
+  protected InternalSubject(String id, String name, InternalSourceAdapter adapter) {
     this.adapter  = adapter;
     this.desc     = name;
     this.id       = id;
     this.name     = name;
-  } // public InternalSubject(id, name, adapter)
+  } // protected InternalSubject(id, name, adapter)
+
 
   // Public Instance Methods
   
@@ -252,7 +237,6 @@ public class InternalSubject implements Subject {
       .append("subjectID"     , this.getId()              )
       .append("subjectTypeID" , this.getType().getName()  )
       .append("name"          , this.getName()            )
-      .append("description"   , this.getDescription()     )
       .toString();
   } // public String toString()
 
