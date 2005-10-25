@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmAction.java,v 1.14 2005-10-06 15:20:00 acohen Exp $
-$Date: 2005-10-06 15:20:00 $
+$Id: ConfirmAction.java,v 1.15 2005-10-25 22:57:07 acohen Exp $
+$Date: 2005-10-25 22:57:07 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -27,6 +27,7 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
 import edu.internet2.middleware.signet.ui.Constants;
@@ -124,11 +125,23 @@ throws Exception
   
   String canUseString = request.getParameter("can_use");
   String canGrantString = request.getParameter("can_grant");
+  
+  Date defaultEffectiveDate;
+  if ((assignment != null) && (assignment.getStatus().equals(Status.ACTIVE)))
+  {
+    // You can't change the effective date of an active Assignment.
+    defaultEffectiveDate = assignment.getEffectiveDate();
+  }
+  else
+  {
+    defaultEffectiveDate = new Date();
+  }
 
   try
   {
     effectiveDate
-      = Common.getDateParam(request, Constants.EFFECTIVE_DATE_PREFIX, new Date());
+      = Common.getDateParam
+          (request, Constants.EFFECTIVE_DATE_PREFIX, defaultEffectiveDate);
   }
   catch (DataEntryException dee)
   {

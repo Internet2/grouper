@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.12 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: designate.jsp,v 1.13 2005-10-25 22:57:07 acohen Exp $
+  $Date: 2005-10-25 22:57:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -317,7 +317,8 @@
                  "on",
                  currentProxy == null
                    ? null
-                   : currentProxy.getEffectiveDate())%>
+                   : currentProxy.getEffectiveDate(),
+                 (currentProxy == null))%>
             </tr>
             
             <tr>

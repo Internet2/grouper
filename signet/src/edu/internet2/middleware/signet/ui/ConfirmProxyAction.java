@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.10 2005-10-17 17:00:06 acohen Exp $
-$Date: 2005-10-17 17:00:06 $
+$Id: ConfirmProxyAction.java,v 1.11 2005-10-25 22:57:07 acohen Exp $
+$Date: 2005-10-25 22:57:07 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -26,6 +26,7 @@ import org.apache.struts.action.ActionMessages;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 
 /**
@@ -119,12 +120,23 @@ public final class ConfirmProxyAction extends BaseAction
         return (mapping.findForward("notInitialized"));
       }
     }
+    
+    Date defaultEffectiveDate;
+    if ((proxy != null) && (proxy.getStatus().equals(Status.ACTIVE)))
+    {
+      // You can't change the effective date of an active Proxy.
+      defaultEffectiveDate = proxy.getEffectiveDate();
+    }
+    else
+    {
+      defaultEffectiveDate = new Date();
+    }
 
     try
     {
       effectiveDate
         = Common.getDateParam
-            (request, Constants.EFFECTIVE_DATE_PREFIX, new Date());
+            (request, Constants.EFFECTIVE_DATE_PREFIX, defaultEffectiveDate);
     }
     catch (DataEntryException dee)
     {

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.37 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: conditions.jsp,v 1.38 2005-10-25 22:57:07 acohen Exp $
+  $Date: 2005-10-25 22:57:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -405,7 +405,8 @@
                        "on",
                        currentAssignment == null
                          ? null
-                         : currentAssignment.getEffectiveDate())%>
+                         : currentAssignment.getEffectiveDate(),
+                       (currentAssignment == null))%>
                   </tr>
                   <tr>
                     <%=Common.dateSelection

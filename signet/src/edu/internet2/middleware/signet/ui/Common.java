@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.43 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: Common.java,v 1.44 2005-10-25 22:57:07 acohen Exp $
+  $Date: 2005-10-25 22:57:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -663,6 +663,24 @@ public class Common
   
     return outStr.toString();
   }
+
+  public static String dateSelection
+  (HttpServletRequest request,
+   String             nameRoot,
+   String             title,
+   String             noDateLabel,
+   String             dateValueLabel,
+   Date               defaultDateValue)
+  {
+    return dateSelection
+      (request,
+       nameRoot,
+       title,
+       noDateLabel,
+       dateValueLabel,
+       defaultDateValue,
+       true);  // editable
+  }
   
   /**
    * This method emits some HTML which should be placed between a <tr> and a
@@ -681,7 +699,8 @@ public class Common
      String             title,
      String             noDateLabel,
      String             dateValueLabel,
-     Date               defaultDateValue)
+     Date               defaultDateValue,
+     boolean            editable)
   {
     StringBuffer outStr = new StringBuffer();
     String defaultDateStr;
@@ -709,6 +728,10 @@ public class Common
     outStr.append("      name=\"" + radioButtonGroupName + "\"\n");
     outStr.append("      type=\"radio\"\n");
     outStr.append("      value=\"" + NODATE_VALUE + "\"\n");
+    if (editable == false)
+    {
+      outStr.append("      disabled=\"disabled\"\n");
+    }
     outStr.append(       (defaultDateValue == null ? "checked" : "") + " />\n");
     outStr.append("    " + noDateLabel + "\n");
     outStr.append("  </p>\n");
@@ -717,6 +740,10 @@ public class Common
     outStr.append("      name=\"" + radioButtonGroupName + "\"\n");
     outStr.append("      type=\"radio\"\n");
     outStr.append("      value=\"" + YESDATE_VALUE + "\"\n");
+    if (editable == false)
+    {
+      outStr.append("      disabled=\"disabled\"\n");
+    }
     outStr.append(       (defaultDateValue != null ? "checked" : "") + " />\n");
     outStr.append("    " + dateValueLabel + "\n");
     outStr.append("    <input\n");
@@ -724,6 +751,10 @@ public class Common
     outStr.append("      type=\"text\"\n");
     outStr.append("      class=\"date\"\n");
     outStr.append("      value=\"" + defaultDateStr + "\"\n");
+    if (editable == false)
+    {
+      outStr.append("      disabled=\"disabled\"\n");
+    }
     outStr.append("      onfocus=\n");
     outStr.append("        \"if (this.value == '" + DATE_SAMPLE + "') this.value='';\n");
     outStr.append("        this.style.color='black';\n");
@@ -892,7 +923,9 @@ public class Common
     
     // First, let's see if the date is present or not.
     String dateStringPresence = request.getParameter(nameRoot + HASDATE_SUFFIX);
-    if (dateStringPresence.equals(NODATE_VALUE))
+    if ((dateStringPresence == null)
+        || dateStringPresence.equals(NODATE_VALUE)
+        || dateStringPresence.equals(""))
     {
       return defaultDate;
     }
