@@ -24,9 +24,11 @@ import  java.io.Serializable;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.1.2.3 2005-10-18 20:06:36 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.1.2.4 2005-10-25 20:10:14 blair Exp $
  */
 public class MemberFinder implements Serializable {
+
+  // Public Class Methods
 
   /**
    * Convert a {@link Group} to a {@link Member}.
@@ -70,7 +72,7 @@ public class MemberFinder implements Serializable {
     throws MemberNotFoundException
   {
     throw new RuntimeException("Not implemented");
-  }
+  } // public static Member findBySubject(s, subj)
 
   /**
    * Find a member by UUID.
@@ -94,5 +96,11 @@ public class MemberFinder implements Serializable {
     throw new RuntimeException("Not implemented");
   }
 
+  
+  // Protected Class Methods
+
+  protected static Member findBySubject(Subject subj) {
+    return new Member(subj);  
+  } // protected static Member findBySubject(subj)
 }
 

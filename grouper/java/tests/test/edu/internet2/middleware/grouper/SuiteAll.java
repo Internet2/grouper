@@ -30,6 +30,8 @@ public class SuiteAll extends TestCase {
 
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);
+    suite.addTestSuite(TestGrouperSession.class);
+    suite.addTestSuite(TestMemberFinder.class);
 
     return suite;
   }

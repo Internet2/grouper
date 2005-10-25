@@ -20,14 +20,13 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
-import  org.apache.commons.lang.builder.EqualsBuilder;
-import  org.apache.commons.lang.builder.HashCodeBuilder;
-import  org.apache.commons.lang.builder.ToStringBuilder;
+import  org.apache.commons.lang.builder.*;
+import  org.doomdark.uuid.UUIDGenerator;
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.4 2005-10-18 20:06:36 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.5 2005-10-25 20:10:14 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -39,6 +38,10 @@ public class Member implements Serializable {
   private String  uuid;
   private Integer version;
 
+
+  // Private Transient Instance Properties
+  private transient Subject subj = null;
+
   // Constructors
 
   /**
@@ -47,6 +50,20 @@ public class Member implements Serializable {
   public Member() {
     // Nothing
   }
+
+  protected Member(Subject subj) {
+    // Persistent Properties
+    this.setSubject_id( subj.getId() );
+    this.setSubject_source( subj.getSource().getId() );
+    this.setSubject_type( subj.getType().getName() );
+    this.setMember_id( 
+      UUIDGenerator.getInstance().generateRandomBasedUUID().toString()
+    );
+
+    // Transient Properties  
+    this.subj = subj;
+  } // protected Member()
+
 
   // Public Instance Methods
 
@@ -103,7 +120,10 @@ public class Member implements Serializable {
   public Subject getSubject() 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");
+    if (this.subj == null) {
+      throw new RuntimeException("Member.getSubject() not implemented");
+    }
+    return this.subj;
   }
 
   /**
@@ -163,7 +183,7 @@ public class Member implements Serializable {
    * @return  Member's UUID.
    */
   public String getUuid() {
-    throw new RuntimeException("Not implemented");
+    return this.getMember_id();
   }
 
   /**
@@ -419,7 +439,7 @@ public class Member implements Serializable {
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
    */
-  // DESIGN isEffectiveMember() and isImmediateMember()?
+  // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g) {
     throw new RuntimeException("Not implemented");
   }
@@ -453,6 +473,7 @@ public class Member implements Serializable {
            .toHashCode();
   }
 
+
   // Hibernate Accessors
   private String getId() {
     return this.id;
@@ -466,7 +487,7 @@ public class Member implements Serializable {
     return this.uuid;
   }
 
-  private void setMember_id(String uuid) {
+  private void setMember_id(String member_id) {
     this.uuid = uuid;
   }
 

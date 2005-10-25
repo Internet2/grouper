@@ -20,15 +20,14 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.Date;
-import  org.apache.commons.lang.builder.EqualsBuilder;
-import  org.apache.commons.lang.builder.HashCodeBuilder;
-import  org.apache.commons.lang.builder.ToStringBuilder;
+import  org.apache.commons.lang.builder.*;
+import  org.doomdark.uuid.UUIDGenerator;
 
 /** 
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.5 2005-10-18 17:53:29 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.6 2005-10-25 20:10:14 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -40,6 +39,12 @@ public class GrouperSession implements Serializable {
   private Integer version;
   private Member  member_id;
 
+
+  // Private Transient Instance Variables
+  private transient Member  m     = null;
+  private transient Subject subj  = null;
+
+
   // Constructors
 
   /**
@@ -47,7 +52,20 @@ public class GrouperSession implements Serializable {
    */
   public GrouperSession() { 
     // Nothing
-  }
+  } // public GrouperSession()
+
+  private GrouperSession(Subject subj) {
+    // Transient
+    this.m    = MemberFinder.findBySubject(subj);
+    this.subj = subj;
+
+    // Persistent
+    this.setMember_id(m);
+    this.setStart_time( new Date() );
+    this.setUuid( 
+      UUIDGenerator.getInstance().generateRandomBasedUUID().toString()
+    );
+  } // private GrouperSession(subj) 
 
   // Public class methods
 
@@ -61,9 +79,9 @@ public class GrouperSession implements Serializable {
    * @return  A Grouper API session.
    */
   public static GrouperSession startSession(Subject subject) {
-    // DESIGN What exception?
-    throw new RuntimeException("Not implemented");
+    return new GrouperSession(subject);
   }
+
 
   // Public instance methods
 
@@ -116,9 +134,34 @@ public class GrouperSession implements Serializable {
    * @return  A {@link Member} object.
    */
   public Member getMember() {
-    // DESIGN What exception?
-    throw new RuntimeException("Not implemented");
+    // TODO What exception?
+    if (this.m == null) {
+      throw new RuntimeException("Member.getMember() not implemented");
+    }
+    return this.m;
   }
+
+  /**
+   * Get this session's id.
+   * <pre class="eg">
+   * String id = s.getSessionId();
+   * </pre>
+   * @return  The session id.
+   */
+  public String getSessionId() {
+    return this.getUuid();
+  } // public String getSessionId()
+
+  /**
+   * Get this session's start time.
+   * <pre class="eg">
+   * Date startTime = s.getStartTime();
+   * </pre>
+   * @return  This session's start time.
+   */
+  public Date getStartTime() {
+    throw new RuntimeException("Not implemented");
+  } // public Date getStartTime()
 
   /**
    * Get the {@link Subject} associated with this API session.
@@ -130,7 +173,11 @@ public class GrouperSession implements Serializable {
    */
   public Subject  getSubject() {
     // DESIGN What exception?
-    throw new RuntimeException("Not implemented");
+    // TODO What exception?
+    if (this.subj == null) {
+      throw new RuntimeException("Member.getSubject() not implemented");
+    }
+    return this.subj;
   }
 
   public int hashCode() {
@@ -165,10 +212,11 @@ public class GrouperSession implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append("uuid", getUuid())
+      .append("session_id", getUuid())
       .append("member_id", getMember_id())
       .toString();
   }
+
 
   // Hibernate Accessors
   private String getId() {

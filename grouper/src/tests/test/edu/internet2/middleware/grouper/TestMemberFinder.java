@@ -1,0 +1,83 @@
+/*
+  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2005 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+package test.edu.internet2.middleware.grouper;
+
+import  edu.internet2.middleware.grouper.*;
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
+import  java.io.*;
+import  java.util.*;
+import  junit.framework.*;
+
+/**
+ * Test {@link MemberFinder} class.
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: TestMemberFinder.java,v 1.1.2.1 2005-10-25 20:10:14 blair Exp $
+ */
+public class TestMemberFinder extends TestCase {
+
+  private Source sa;
+
+  public TestMemberFinder(String name) {
+    super(name);
+  }
+
+  protected void setUp () {
+    // Nothing
+  }
+
+  protected void tearDown () {
+    // Nothing 
+  }
+
+  // Tests
+
+  public void testFindSubjectBadSubject() {
+    Assert.assertTrue("true", true);
+/*
+    try {
+      Member m = MemberFinder.findBySubject(
+        SubjectFinder.findById("bad subject")
+      );
+      Assert.fail("found member from bad subject: " + m);
+    }
+    catch (MemberNotFoundException e0) {
+      Assert.assertTrue("failed to find member by bad subject", true);
+    }
+*/
+  } // public void testFindSubjectBadSubject()
+
+  public void testFindSubjectGoodSubject() {
+    Assert.assertTrue("true", true);
+/*
+    try {
+      Member m = MemberFinder.findBySubject(
+        SubjectFinder.findById("GrouperSystem")
+      );
+      Assert.assertTrue("found member by subject: " + m, true);
+      Assert.assertNotNull("m !null", m);
+    }
+    catch (MemberNotFoundException e0) {
+      Assert.fail("failed to find member");
+    }
+*/
+  } // public void testFindSubjectGoodSubject()
+
+}
+
