@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.13 2005-10-25 22:57:07 acohen Exp $
-  $Date: 2005-10-25 22:57:07 $
+  $Id: designate.jsp,v 1.14 2005-10-25 23:12:57 acohen Exp $
+  $Date: 2005-10-25 23:12:57 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -327,7 +327,7 @@
                  Constants.EXPIRATION_DATE_PREFIX,
                  "...and will remain in effect:",
                  "until I revoke this designation",
-                 "on",
+                 "until",
                  currentProxy == null
                    ? null
                    : currentProxy.getExpirationDate())%>
