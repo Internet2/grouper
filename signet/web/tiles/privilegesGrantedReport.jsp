@@ -51,7 +51,7 @@
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-      href="MainPrint.do">
+      href="PersonViewPrint.do">
 <%
   }
   else
