@@ -10,7 +10,7 @@ What's New
 
      - You can enable one or more individuals to act as you in a Signet session,
        giving them the right to grant those privileges to others that you
-       yourself can give.  The right to proxy soneone else's privileges for the
+       yourself can give.  The right to proxy someone else's privileges for the
        purpose of extending them to others is conferred on a subsystem by
        subsystem basis.  The person given such proxy powers does not themselves
        have the privileges to use; they can only grant them to others on your
@@ -20,15 +20,15 @@ What's New
 
 (2) Support for System Administrator and Subsystem Owner roles
 
-     - Estabslihed "Signet" as an internally supplied subject with a subject
+     - Established "Signet" as an internally supplied subject with a subject
        type of "application".  This entity has broad initial granting powers,
-       but being non-human and on-sentient cannot use the UI to wield them.
+       but being non-human and non-sentient cannot use the UI to wield them.
      - A SignetProxy utility script is used to designate those in the Signet
        System Admministrator role.
      - System Administrator can proxy Signet to establish Subsystem Owners.
      - Subsystem Owners can grant proxy Signet to grant any initial assignments
        to key individuals to boostrap a chain of delegation.
-     - these roles replace the transitional "SignetSuperSubject" entity defined
+     - These roles replace the transitional "SignetSuperSubject" entity defined
        in prior releases.
      
 (3) The view of your own privileges and of others is now unified, with the same
