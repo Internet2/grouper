@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: error.jsp,v 1.8 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: error.jsp,v 1.9 2005-10-27 17:49:42 acohen Exp $
+  $Date: 2005-10-27 17:49:42 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -40,7 +40,7 @@
 -->
         </span> <!-- Navbar -->
         <span class="select">
-          <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
+          <a href="Start.do">
             <%=Constants.HOMEPAGE_NAME%>
           </a>
             > Unexpected Error
@@ -55,8 +55,8 @@
 	    </logic:present>
 
             <br />
-            <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-              <img src="images/arrow_left.gif" alt="" />Return to home page
+            <a href="Start.do">
+            <img src="images/arrow_left.gif" alt="" />Return to home page
             </a>
           <tiles:insert page="/tiles/footer.jsp" flush="true" />
         </div> <!-- Content -->
