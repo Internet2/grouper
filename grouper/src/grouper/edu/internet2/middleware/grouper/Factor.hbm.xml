@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Factor.hbm.xml,v 1.1.2.4 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Factor.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Factor" table="grouper_factors">
@@ -58,7 +58,7 @@ Get node a.
       <meta attribute="scope-get">protected</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="node_a_id" sql-type="char(32)"/>
+      <column name="node_a_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- node_a_id -->
 
@@ -73,7 +73,7 @@ Get node b.
       <meta attribute="scope-get">protected</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="node_b_id" sql-type="char(32)"/>
+      <column name="node_b_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- node_b_id -->
 

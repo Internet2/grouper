@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.8 2005-10-20 16:31:16 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.9 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -75,7 +75,7 @@ Get creator.
       <meta attribute="finder-method">findByCreator</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="creator_id" sql-type="char(32)"/>
+      <column name="creator_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- creator_id -->
 
@@ -164,7 +164,7 @@ Get modifier.
       <meta attribute="finder-method">findByModifier</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="modifier_id" sql-type="char(32)"/>
+      <column name="modifier_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- modifier_id -->
 
@@ -213,7 +213,7 @@ Get name.
       <meta attribute="field-description">
 Get parent stem.
       </meta>
-      <column name="parent_stem" sql-type="char(32)"/>
+      <column name="parent_stem" sql-type="char(64)"/>
     </many-to-one>
     <!-- parent_stem -->
 
@@ -221,7 +221,7 @@ Get parent stem.
     <property 
       name="stem_id"
       type="string"
-      length="32"
+      length="64"
       not-null="true"
     >
       <meta attribute="field-description">

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.1.2.4 2005-10-18 20:06:36 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -57,6 +57,7 @@ Get Subject ID.
       <meta attribute="finder-method">findBySubjectId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
+      <column name="subject_id" unique-key="subject_idx"/>
     </property>
     <!-- subject_id -->
 
@@ -73,6 +74,7 @@ Get Subject source.
       <meta attribute="finder-method">findBySubjectSource</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
+      <column name="subject_source" unique-key="subject_idx"/>
     </property>
     <!-- subject_source -->
 
@@ -89,6 +91,7 @@ Get Subject type.
       <meta attribute="finder-method">findBySubjectType</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
+      <column name="subject_type" unique-key="subject_idx"/>
     </property>
     <!-- subject_type -->
 
@@ -96,7 +99,7 @@ Get Subject type.
     <property 
       name="member_id"
       type="string"
-      length="32"
+      length="64"
       not-null="true"
     >
       <meta attribute="field-description">

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.1.2.4 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -55,7 +55,7 @@ Get group.
       <meta attribute="finder-method">findByGroupId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="group_id" sql-type="char(32)"/>
+      <column name="group_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- group_id -->
 
@@ -70,7 +70,7 @@ Get member.
       <meta attribute="finder-method">findByMemberId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="member_id" sql-type="char(32)"/>
+      <column name="member_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- member_id -->
 
@@ -85,7 +85,7 @@ Get list.
       <meta attribute="finder-method">findByListId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="list_id" sql-type="char(32)"/>
+      <column name="list_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- list_id -->
 
@@ -100,7 +100,7 @@ Get via group.
       <meta attribute="finder-method">findByViaId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="via_id" sql-type="char(32)"/>
+      <column name="via_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- via_id -->
 

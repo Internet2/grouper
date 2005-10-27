@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.4 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: GrouperSession.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GrouperSession" table="grouper_sessions">
@@ -48,13 +48,14 @@ Grouper API session.
     <many-to-one
       name="member_id"
       class="edu.internet2.middleware.grouper.Member" 
+      cascade="save-update"
     >
       <meta attribute="field-description">
 Get member.
       </meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="member_id" sql-type="char(32)"/>
+      <column name="member_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- member_id -->
 
@@ -76,7 +77,7 @@ Get start time.
     <property 
       name="uuid"
       type="string"
-      length="32"
+      length="64"
       not-null="true"
     >
       <meta attribute="field-description">

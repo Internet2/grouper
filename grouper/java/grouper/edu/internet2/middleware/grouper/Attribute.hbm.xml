@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Attribute.hbm.xml,v 1.1.2.4 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -55,7 +55,7 @@ Get group.
       <meta attribute="finder-method">findByGroupId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="group_id" sql-type="char(32)"/>
+      <column name="group_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- group_id -->
 
@@ -70,7 +70,7 @@ Get field.
       <meta attribute="finder-method">findByFieldId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="field_id" sql-type="char(32)"/>
+      <column name="field_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- field_id -->
 

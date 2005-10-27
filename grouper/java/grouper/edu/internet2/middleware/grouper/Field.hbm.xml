@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.1.2.4 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -52,7 +52,7 @@ Schema specification for a Group attribute or list.
       <meta attribute="finder-method">findByTypeId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="type_id" sql-type="char(32)"/>
+      <column name="type_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- type_id -->
 
@@ -83,7 +83,7 @@ Get read privilege.
       <meta attribute="finder-method">findByReadPrivilege</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="read_privilege_id" sql-type="char(32)"/>
+      <column name="read_privilege_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- read_privilege_id -->
 
@@ -98,7 +98,7 @@ Get write privilege.
       <meta attribute="finder-method">findByWritePrivilege</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
-      <column name="write_privilege_id" sql-type="char(32)"/>
+      <column name="write_privilege_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- write_privilege_id -->
 
