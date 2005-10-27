@@ -10,11 +10,7 @@ What's New
 
      - You can enable one or more individuals to act as you in a Signet session,
        giving them the right to grant those privileges to others that you
-       yourself can give.  The right to proxy someone else's privileges for the
-       purpose of extending them to others is conferred on a subsystem by
-       subsystem basis.  The person given such proxy powers does not themselves
-       have the privileges to use; they can only grant them to others on your
-       behalf.
+       yourself can give.
      - Designated driver assignments are per-subsystem and can have future
        effective and expiration date conditions.
 
@@ -110,6 +106,19 @@ To populate the Signet demo application with sample data:
       identifier (e.g., "demo" in the sample data) of one or more Subjects
       loaded above.
 
+  (5) Establish System Administrator and Subsystem Owner roles
+    (a) Update the sample shell script util/SignetProxy/run.sh to point
+        JAVA_HOME to the location of your JDK.
+    (b) Use the run.sh script to designate online System Administrator(s). The
+        acript takes two arguments
+          1 - Action to take -- grant | revoke | list
+          2 - For grant or revoke, a login ID from the subject table
+    (c) Someone designated thusly as a System Administrator can log into the UI,
+        "act for" Signet (the control to switch identities is on the right of
+        the main interface page), an use the Designated Driver feature to 
+        enable others to proxy Signet for an individual subsystem.  These people
+        are the "Subsystem Owners" and can do all initial granting of any
+        privileges for that subsystem. 
 
 License
 -------
