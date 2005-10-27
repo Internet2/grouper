@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.11 2005-10-27 15:05:04 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.12 2005-10-27 18:09:44 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -101,6 +101,7 @@
       <fileset dir="java/lib">
         <include name="**/*.jar"/>
       </fileset>
+      <pathelement  location="${src.grouper}"/>
       <pathelement  location="${build.grouper}"/>
       <pathelement  location="${build.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
@@ -134,6 +135,7 @@
   <target name="test-build" depends="build">
     <javac srcdir="${src.test}" destdir="${build.test}">
       <classpath  refid="project.class.path"/>
+      <include    name="**/Db.java"/>
       <include    name="**/Suite*.java"/>
       <include    name="**/TestGrouperSession.java"/>
       <include    name="**/TestInternalSourceAdapter.java"/>

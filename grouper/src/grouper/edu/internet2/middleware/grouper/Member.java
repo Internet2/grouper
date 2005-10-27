@@ -26,7 +26,7 @@ import  org.doomdark.uuid.UUIDGenerator;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.5 2005-10-25 20:10:14 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.6 2005-10-27 18:09:44 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -446,9 +446,11 @@ public class Member implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("subject_source", getSubject_source())
-           .append("subject_type", getSubject_type())
-           .append("uuid", getUuid())
+           .append("ID",      this.getId()            ) 
+           .append("uuid",    this.getMember_id()     )
+           .append("id",      this.getSubject_id()    )
+           .append("source",  this.getSubject_source())
+           .append("type",    this.getSubject_type()  )
            .toString();
   }
 
@@ -487,7 +489,7 @@ public class Member implements Serializable {
     return this.uuid;
   }
 
-  private void setMember_id(String member_id) {
+  private void setMember_id(String uuid) {
     this.uuid = uuid;
   }
 

@@ -28,9 +28,8 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.5 2005-10-27 15:05:23 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.6 2005-10-27 18:09:44 blair Exp $
  */
-
 class HibernateUtil {
 
   // Private Class Constants
@@ -44,7 +43,11 @@ class HibernateUtil {
   // Create the static session factory 
 	static {
 		try {
-			factory = new Configuration().buildSessionFactory();
+      factory = new Configuration()
+        .addClass(GrouperSession.class)
+        .addClass(Member.class)
+        .buildSessionFactory()
+        ;
 		} 
     catch (Throwable e) {
       // Catch *all* the errors
@@ -56,14 +59,39 @@ class HibernateUtil {
 	}
 
 
-  // Public Class Methods
- 
+  // Protected Class Methods
+
   // @return  A Hibernate session 
-	public static Session getSession()
+	protected static Session getSession()
     throws HibernateException
   {
 		return factory.openSession();
-	} // public static Session getSession()
+	} // protected static Session getSession()
+
+  // Save an object
+  // @throws  HibernateException
+  protected static void save(Object o) 
+    throws HibernateException
+  { 
+    try {
+      Session     hs = HibernateUtil.getSession();
+      Transaction tx = hs.beginTransaction();
+      try {
+        hs.save(o);
+        tx.commit();
+      }
+      catch (HibernateException e) {
+        tx.rollback();
+        throw new HibernateException(e);
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  } // protected static void save(o)
 
 }
 

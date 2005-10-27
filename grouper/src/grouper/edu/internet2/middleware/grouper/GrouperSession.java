@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.Date;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 import  org.doomdark.uuid.UUIDGenerator;
 
@@ -27,7 +28,7 @@ import  org.doomdark.uuid.UUIDGenerator;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.6 2005-10-25 20:10:14 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.7 2005-10-27 18:09:44 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -77,10 +78,24 @@ public class GrouperSession implements Serializable {
    * </pre>
    * @param   subject   Start session as this {@link Subject}.
    * @return  A Grouper API session.
+   * @throws  SessionException
    */
-  public static GrouperSession startSession(Subject subject) {
-    return new GrouperSession(subject);
-  }
+  public static GrouperSession startSession(Subject subject) 
+    throws SessionException
+  {
+    // TODO Rename: getSession
+    GrouperSession s = new GrouperSession(subject);
+    try {
+      // Will cascade and save newly created Member if appropriate
+      HibernateUtil.save(s);
+    }
+    catch (HibernateException e) {
+      throw new SessionException(
+        "Unable to start session: " + e.getMessage()
+      );
+    }
+    return s;
+  } // public static GrouperSession startSession(subject)
 
 
   // Public instance methods
@@ -212,8 +227,9 @@ public class GrouperSession implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append("session_id", getUuid())
-      .append("member_id", getMember_id())
+      .append("session_id", this.getUuid())
+      .append("member_id",  this.getMember_id() )
+      .append("start",      this.getStart_time())
       .toString();
   }
 

@@ -24,7 +24,7 @@ import  java.io.Serializable;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.1.2.4 2005-10-25 20:10:14 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.1.2.5 2005-10-27 18:09:44 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -101,6 +101,18 @@ public class MemberFinder implements Serializable {
 
   protected static Member findBySubject(Subject subj) {
     return new Member(subj);  
+/*
+    try {
+      Member m = new Member(subj);
+      System.err.println("MEMBER: " + m);
+      HibernateUtil.save(m);
+      System.err.println("SAVED?: " + m);
+      return m;
+    }
+    catch (Exception e) {
+      throw new RuntimeException("FUCK! " + e.getMessage());
+    }
+*/
   } // protected static Member findBySubject(subj)
 }
 
