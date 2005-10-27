@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project
+	name="Signet Proxy Assignment"
+	default="build" basedir=".">
+
+	<property name="dist.dir"       value="../../../dist" />
+	<property name="util.dir"       value="${dist.dir}/util" />
+	<property name="util.name"      value="SignetProxy" />
+	
+	<!-- =================== BUILD: Create Directories ===================== --> 
+	<target name="prepare">
+		<mkdir dir="${util.dir}" /> 
+		<mkdir dir="${util.dir}/${util.name}" /> 
+	</target>
+
+	<!-- ================== BUILD: Clean Directory ========================= --> 
+	<target name="clean">
+		<delete dir="${util.dir}/${util.name}" />
+	</target>
+
+	<!-- ======================= BUILD: Build  =========================== -->
+	<target name="build" depends="clean, prepare"
+		description="Build Signet Proxy Utility">
+		<copy file="run.sh"
+			todir="${util.dir}/${util.name}" />
+
+	</target>
+
+</project>
