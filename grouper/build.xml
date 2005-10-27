@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.10 2005-10-25 20:10:14 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.11 2005-10-27 15:05:04 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -97,7 +97,7 @@
     <path id="project.class.path">
       <pathelement path="${classpath}"/>
       <!-- for configuration files -->
-      <pathelement path="${basedir}/conf"/>
+      <pathelement location="${basedir}/conf"/>
       <fileset dir="java/lib">
         <include name="**/*.jar"/>
       </fileset>

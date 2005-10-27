@@ -28,21 +28,24 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.3 2005-10-18 16:09:32 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.4 2005-10-27 15:05:04 blair Exp $
  */
 
 class HibernateUtil {
 
-  // PRIVATE CLASS CONSTANTS
+  // Private Class Constants
 	private static final SessionFactory factory;
 
-  // PRIVATE CLASS VARIABLES
-	private static        Log           log = LogFactory.getLog(HibernateUtil.class);
+
+  // Private Class Variables
+	private static Log log = LogFactory.getLog(HibernateUtil.class);
+
 
   // Create the static session factory 
 	static {
 		try {
-			factory = new Configuration().configure().buildSessionFactory();
+			factory = new Configuration()
+                  .buildSessionFactory();
 		} 
     catch (Throwable e) {
       // Catch *all* the errors
@@ -54,7 +57,7 @@ class HibernateUtil {
 	}
 
 
-  // PUBLIC CLASS METHODS
+  // Public Class Methods
  
   // @return  A Hibernate session 
 	public static Session getSession()
