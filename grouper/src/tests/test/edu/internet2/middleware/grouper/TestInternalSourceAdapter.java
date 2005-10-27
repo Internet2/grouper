@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.1.2.2 2005-10-25 17:46:51 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.1.2.3 2005-10-27 18:00:38 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -39,6 +39,7 @@ public class TestInternalSourceAdapter extends TestCase {
   }
 
   protected void setUp () {
+    Db.refreshDb();
     sa = new InternalSourceAdapter("isa", "isa");
   }
 

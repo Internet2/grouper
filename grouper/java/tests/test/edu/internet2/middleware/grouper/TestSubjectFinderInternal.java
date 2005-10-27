@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.1.2.1 2005-10-25 17:46:51 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.1.2.2 2005-10-27 18:00:38 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 
@@ -39,7 +39,7 @@ public class TestSubjectFinderInternal extends TestCase {
   }
 
   protected void setUp () {
-    // Nothing
+    Db.refreshDb();
   }
 
   protected void tearDown () {

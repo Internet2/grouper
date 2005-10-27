@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link Member} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.1.2.1 2005-10-25 20:10:14 blair Exp $
+ * @version $Id: TestMember.java,v 1.1.2.2 2005-10-27 18:00:38 blair Exp $
  */
 public class TestMember extends TestCase {
 
@@ -39,6 +39,7 @@ public class TestMember extends TestCase {
   }
 
   protected void setUp () {
+    Db.refreshDb();
     // Nothing
   }
 

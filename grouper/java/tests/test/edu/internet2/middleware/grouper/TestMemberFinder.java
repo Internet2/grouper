@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link MemberFinder} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberFinder.java,v 1.1.2.1 2005-10-25 20:10:14 blair Exp $
+ * @version $Id: TestMemberFinder.java,v 1.1.2.2 2005-10-27 18:00:38 blair Exp $
  */
 public class TestMemberFinder extends TestCase {
 
@@ -39,7 +39,7 @@ public class TestMemberFinder extends TestCase {
   }
 
   protected void setUp () {
-    // Nothing
+    Db.refreshDb();
   }
 
   protected void tearDown () {
