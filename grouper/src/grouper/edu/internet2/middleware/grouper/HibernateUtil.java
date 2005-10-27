@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.4 2005-10-27 15:05:04 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.5 2005-10-27 15:05:23 blair Exp $
  */
 
 class HibernateUtil {
@@ -44,8 +44,7 @@ class HibernateUtil {
   // Create the static session factory 
 	static {
 		try {
-			factory = new Configuration()
-                  .buildSessionFactory();
+			factory = new Configuration().buildSessionFactory();
 		} 
     catch (Throwable e) {
       // Catch *all* the errors
