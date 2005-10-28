@@ -3,8 +3,8 @@ package edu.internet2.middleware.signet;
 import java.util.Set;
 
 /**
- * This interface represents a single Permission held by a single
- * PrivilegedSubject, along with its limits.
+ * This interface represents a single {@link Permission} held by a single
+ * {@link PrivilegedSubject}, along with its {@link Limit}s.
  */
 
 public interface Privilege

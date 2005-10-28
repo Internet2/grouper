@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.2 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Grantable.java,v 1.3 2005-10-28 19:17:59 acohen Exp $
+$Date: 2005-10-28 19:17:59 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * This interface encapsulates some attributes that are common to Assignment
- * and Proxy.
+ * This interface encapsulates some attributes that are common to
+ * {@link Assignment} and {@link Proxy}.
  */
 public interface Grantable
 extends Entity, Comparable
