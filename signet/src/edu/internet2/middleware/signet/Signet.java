@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.41 2005-10-18 16:03:19 acohen Exp $
-$Date: 2005-10-18 16:03:19 $
+$Id: Signet.java,v 1.42 2005-10-28 18:09:58 acohen Exp $
+$Date: 2005-10-28 18:09:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -214,7 +214,7 @@ public final class Signet
  /**
   * Sets the Log associated with this Signet instance.
   * 
-  * @param log
+  * @param logger
   */
  public final void setLogger(Logger logger)
  {
@@ -248,9 +248,6 @@ public final class Signet
   * @param helpText
   *          A prose description which will appear in help-text and other
   *          explanatory materials.
-  * @param permissions
-  *          The {@link Permission}s which should be associated with this
-  *          {@link Function}.
   */
  public Function newFunction(Category category, String id, String name,
      Status status, String helpText)
@@ -268,7 +265,7 @@ public final class Signet
  /**
   * Creates a new Subsystem.
   * 
-  * @param code
+  * @param id
   *          A short mnemonic code which will appear in XML documents and other
   *          documents used by analysts.
   * @param name
@@ -386,25 +383,10 @@ public final class Signet
  }
 
  /**
-  * Creates a new TreeNode.
-  * 
-  * @param tree
-  * @param id
-  * @param name
-  * @return
-  */
- public final TreeNode newTreeNode(Tree tree, String id, String name)
- {
-   TreeNode newTreeNode = tree.getAdapter().newTreeNode(tree, id, name);
-
-   return newTreeNode;
- }
-
- /**
   * Gets a single Tree by ID.
   * 
   * @param id
-  * @return
+  * @return the specified Tree
   * @throws ObjectNotFoundException
   */
  public final Tree getTree(String id)
@@ -431,7 +413,7 @@ public final class Signet
   * Gets a single ChoiceSet by ID.
   * 
   * @param id
-  * @return
+  * @return the specified ChoiceSet
   * @throws ObjectNotFoundException
   */
  public final ChoiceSet getChoiceSet(String id)
@@ -528,7 +510,7 @@ public final class Signet
   * Gets all PrivilegedSubjects. Should probably be changed to return a
   * type-safe Collection.
   * 
-  * @return a List of all of the {@link PrivilegedSubjects}s accessible to
+  * @return a List of all of the {@link PrivilegedSubject}s accessible to
   *         Signet, including those who have no privileges. Never returns null:
   *         in the case of zero {@link PrivilegedSubject}s, this method will
   *         return an empty List.
@@ -1162,7 +1144,7 @@ public final class Signet
  /**
   * Creates a new Subsystem.
   * 
-  * @return
+  * @return the new Subsystem
   */
  public Subsystem newSubsystem(String id, String name, String helpText)
  {
@@ -1229,7 +1211,7 @@ public final class Signet
   * @param subsystem the Subsystem which will contain the new Permission.
   * @param id the ID of the new Permission.
   * @param status the Status of the new Permission.
-  * @return
+  * @return the new Permission
   */
  public Permission newPermission
   (Subsystem subsystem, String id, Status status)
@@ -1250,7 +1232,7 @@ public final class Signet
   * @param set
   * @param parentsArray
   */
- public Object[] collection2array(Collection srcCollection, Object[] destArray)
+ private Object[] collection2array(Collection srcCollection, Object[] destArray)
  {
    Iterator srcIterator = srcCollection.iterator();
    int i = 0;
@@ -1267,7 +1249,7 @@ public final class Signet
   * Gets a single PrivilegedSubject by its underlying Subject.
   * 
   * @param subject
-  * @return
+  * @return the specified PrivilegedSubject
   * @throws ObjectNotFoundException
   */
  public PrivilegedSubject getPrivilegedSubject(Subject subject)
@@ -1287,7 +1269,7 @@ public final class Signet
   * 
   * @param subjectTypeId
   * @param subjectId
-  * @return
+  * @return the specified PrivilegedSubject
   * @throws ObjectNotFoundException
   */
  public PrivilegedSubject getPrivilegedSubject(String subjectTypeId,
@@ -1305,7 +1287,7 @@ public final class Signet
   * 
   * @param subjectTypeId
   * @param displayId
-  * @return
+  * @return the specified PrivilegedSubject
   * @throws ObjectNotFoundException
   *           if the PrivilegedSubject is not found.
   */
@@ -1336,10 +1318,10 @@ public final class Signet
     {
       try
       {
-    	  Subject result
+        Subject result
           = ((Source)iter.next()).getSubjectByIdentifier(displayId);
-    	  PrivilegedSubject pSubject = getPrivilegedSubject(result);
-    	  pSubjects.add(pSubject);
+        PrivilegedSubject pSubject = getPrivilegedSubject(result);
+        pSubjects.add(pSubject);
       }
       catch (SubjectNotFoundException snfe)
       {
@@ -1432,7 +1414,7 @@ public final class Signet
   * is finalized.
   * 
   * @param scopeString
-  * @return
+  * @return the specified TreeNode
   * @throws ObjectNotFoundException
   */
  public TreeNode getTreeNode(String scopeString)
@@ -1712,8 +1694,8 @@ public final class Signet
  /**
   * Gets a single Subsystem by ID.
   * 
-  * @param string
-  * @return
+  * @param id
+  * @return the specified Subsystem
   */
  public Subsystem getSubsystem(String id)
  throws ObjectNotFoundException
@@ -1786,7 +1768,7 @@ public final class Signet
    * 
    * @param subjectTypeId
    * @param subjectId
-   * @return
+   * @return the specified Subject
    * @throws ObjectNotFoundException
    */
   public Subject getSubject(String subjectTypeId, String subjectId)
@@ -1837,7 +1819,7 @@ public final class Signet
   * 
   * @param subjectTypeId
   * @param displayId
-  * @return
+  * @return the specified Subject
   * @throws ObjectNotFoundException
   */
  public Subject getSubjectByDisplayId(String subjectTypeId, String displayId)
@@ -1845,8 +1827,8 @@ public final class Signet
  {
    Subject subject = null;
    for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); ) {
-   	try {
-    	subject = ((Source)iter.next()).getSubjectByIdentifier(displayId);
+    try {
+      subject = ((Source)iter.next()).getSubjectByIdentifier(displayId);
     }
     catch (SubjectNotFoundException snfe) {
         // Don't do anything since we may find the subject
@@ -1863,7 +1845,7 @@ public final class Signet
   * Finds a set of Subjects which matches the argument search value.
   * 
   * @param searchValue
-  * @return
+  * @return the set of matching Subjects
   */
  public Set findPrivilegedSubjects(String searchValue)
  {
@@ -1884,7 +1866,7 @@ public final class Signet
   * 
   * @param subjectTypeId
   * @param searchValue
-  * @return
+  * @return the specified Subjects
   */
  public Set findPrivilegedSubjects(String subjectTypeId, String searchValue)
  {
@@ -1961,7 +1943,7 @@ public final class Signet
   * @param infixIncrement
   * @param suffix
   * @param treeNodesOfInterest
-  * @return
+  * @return a String representation of the Tree
   * @throws TreeNotFoundException
   */
  public String printTreeNodesInContext
@@ -2001,7 +1983,7 @@ public final class Signet
   * @param infixIncrement
   * @param followingLine
   * @param tree
-  * @return
+  * @return a String representation of the Tree
   * @throws TreeNotFoundException
   */
  public String printTree(String ancestorPrefix, String selfPrefix,
@@ -2073,7 +2055,7 @@ public final class Signet
  /**
   * Gets a single Assignment by ID.
   * 
-  * @param assignmentId
+  * @param id
   * @return the fetched Assignment object
   * @throws ObjectNotFoundException
   */
@@ -2102,7 +2084,7 @@ public final class Signet
   /**
    * Gets a single Proxy by ID.
    * 
-   * @param proxyId
+   * @param id
    * @return the fetched Proxy object
    * @throws ObjectNotFoundException
    */
@@ -2130,8 +2112,8 @@ public final class Signet
 
 
  /**
-  * @param helptext
-  * @return
+  * @param helpText
+  * @return the new Limit
   */
  public Limit newLimit
   (Subsystem  subsystem,
@@ -2184,7 +2166,7 @@ public final class Signet
  }
 
  /**
-  * @return
+  * @return the new ChoiceSet
   */
  public ChoiceSet newChoiceSet
   (Subsystem        subsystem,

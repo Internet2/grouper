@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.7 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Subsystem.java,v 1.8 2005-10-28 18:09:58 acohen Exp $
+$Date: 2005-10-28 18:09:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -22,21 +22,21 @@ import edu.internet2.middleware.signet.tree.Tree;
 * For our September release, the following Subsystem-related entities
 * will be implemented:
 * <ul>
-* 		<li>Subsystem</li>
-* 		<li>Category</li>
-* 		<li>Function</li>
-* 		<li>Permission</li>
-* 		<li>Tree</li>
+*     <li>Subsystem</li>
+*     <li>Category</li>
+*     <li>Function</li>
+*     <li>Permission</li>
+*     <li>Tree</li>
 * </ul>
 *
 * The following Subsystem-related entities will appear in subsequent
 * releases:
 * <ul>
-* 		<li>Condition</li>
-* 		<li>ProxyType</li>
-* 		<li>Limit</li>
-* 		<li>LimitChoice</li>
-* 		<li>Prerequisite</li>
+*     <li>Condition</li>
+*     <li>ProxyType</li>
+*     <li>Limit</li>
+*     <li>LimitChoice</li>
+*     <li>Prerequisite</li>
 * </ul>
 * 
 */
@@ -56,7 +56,7 @@ extends HelpText, Entity, Name, Comparable
    * Gets the Categories currently associated with this Subsystem.
    * 
    * @return Returns the categories currently associated with this
-   * 		Subsystem.
+   *    Subsystem.
    */
   public Set getCategories();
   
@@ -72,7 +72,7 @@ extends HelpText, Entity, Name, Comparable
    * Gets the Functions currently associated with this Subsystem.
    * 
    * @return Returns the functions currently associated with this
-   * 		Subsystem.
+   *    Subsystem.
    */
   public Set getFunctions();
   
@@ -80,7 +80,7 @@ extends HelpText, Entity, Name, Comparable
    * Sets the Functions that should be associated with this Subsystem.
    * 
    * @param categories the functions that should be associated with
-   * 		this Subsystem.
+   *    this Subsystem.
    */
   public void setFunctionsArray(Function[] categories);
 
@@ -123,7 +123,6 @@ extends HelpText, Entity, Name, Comparable
   
   /**
    * Get the ChoiceSets currently associated with this Subsystem.
-   * @param choiceSetId
    * 
    * @return a Set containing all the ChoiceSets currently associated with
    * this Subsystem.
@@ -132,7 +131,7 @@ extends HelpText, Entity, Name, Comparable
   
   /**
    * Gets a single ChoiceSet associated with this Subsystem by its ID.
-   * @param choiceSetId
+   * @param id
    * @return the specified ChoiceSet
    * 
    * @throws ObjectNotFoundException
@@ -142,7 +141,6 @@ extends HelpText, Entity, Name, Comparable
   
   /**
    * Get the Limits currently associated with this Subsystem.
-   * @param limitId
    * 
    * @return a Map of the Limits, indexed by limitId.
    */
@@ -150,7 +148,7 @@ extends HelpText, Entity, Name, Comparable
 
   /**
    * Gets a single Limit associated with this Subsystem by its ID.
-   * @param limit-ID
+   * @param id
    * @return the specified Limit
    */
   public Limit getLimit(String id)
@@ -158,7 +156,7 @@ extends HelpText, Entity, Name, Comparable
   
   /**
    * Get the Permissions currently associated with this Subsystem.
-   * @param permissionId
+   * 
    * @return a Map of the Permissions, indexed by permissionId.
    */
   public Map getPermissions();

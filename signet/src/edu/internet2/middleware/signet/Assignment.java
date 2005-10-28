@@ -1,6 +1,6 @@
 /*--
-$Id: Assignment.java,v 1.13 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: Assignment.java,v 1.14 2005-10-28 18:09:58 acohen Exp $
+$Date: 2005-10-28 18:09:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -111,7 +111,7 @@ extends Grantable
    * @param editor the <code>PrivilegedSubject</code> who is responsible for
    * this change.
    * 
-   * @param isGrantOnly <code>false</code> if this Assignment should only be
+   * @param canUse <code>false</code> if this Assignment should only be
    * granted to others (and not directly used) by its current grantee, and
    * <code>true</code> otherwise.
    * 

@@ -1,6 +1,6 @@
 /*--
-$Id: Proxy.java,v 1.4 2005-09-23 18:22:05 acohen Exp $
-$Date: 2005-09-23 18:22:05 $
+$Id: Proxy.java,v 1.5 2005-10-28 18:09:58 acohen Exp $
+$Date: 2005-10-28 18:09:58 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -71,7 +71,7 @@ extends Grantable
  /**
   * Indicates whether or not this Proxy can be extended to a third party.
   * 
-  * @param canExtend When <code>true</code>, means that the Proxy grantee, when
+  * @return canExtend When <code>true</code>, means that the Proxy grantee, when
   *        acting as a Proxy for the Proxy grantor, can grant the grantor's
   *        Proxy to some third <code>PrivilegedSubject</code>. Note, however,
   *        that that third <code>PrivilegedSubject</code> is never allowed to
@@ -112,7 +112,7 @@ extends Grantable
    * @param editor the <code>PrivilegedSubject</code> who is responsible for
    * this change.
    * 
-   * @param isGrantOnly <code>false</code> if this Proxy should only be
+   * @param canUse <code>false</code> if this Proxy should only be
    * extended to others (and not directly used) by its current grantee, and
    * <code>true</code> otherwise.
    * 
