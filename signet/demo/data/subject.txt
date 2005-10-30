@@ -104,6 +104,10 @@ all all
 description Comedian
 loginid mcohen
 all all
++person K0000022 Bibbee, Jessica
+description Tech Writer
+loginid jbibbee
+all all
 +group GangOfFour Gang of Four
 description Signet's Gang of Four
 all all
