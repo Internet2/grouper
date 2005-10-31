@@ -1,6 +1,6 @@
 /*--
-$Id: DataType.java,v 1.2 2005-02-25 19:37:03 acohen Exp $
-$Date: 2005-02-25 19:37:03 $
+$Id: DataType.java,v 1.3 2005-10-31 18:31:44 acohen Exp $
+$Date: 2005-10-31 18:31:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,8 +9,8 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet;
 
 /**
- * This is a typesafe enumeration that identifies the various types that a
- * Signet Limit-value may have.
+ * This is a typesafe enumeration that identifies the various types of 
+ * Signet {@link Limit} data.
  *  
  */
 public class DataType

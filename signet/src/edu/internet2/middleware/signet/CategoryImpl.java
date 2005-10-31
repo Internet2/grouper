@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.5 2005-08-16 16:41:08 acohen Exp $
-$Date: 2005-08-16 16:41:08 $
+$Id: CategoryImpl.java,v 1.6 2005-10-31 18:31:44 acohen Exp $
+$Date: 2005-10-31 18:31:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -67,46 +67,6 @@ implements Category
       super(subsystem.getSignet(), id, name, status);
       this.subsystem = subsystem;
       this.functions = new HashSet();
-  }
-
-  /**
-   * @return Returns the functions.
-   */
-  public Function[] getFunctionsArray()
-  {
-    Function[] functionsArray;
-    
-    if (this.functions == null)
-    {
-      functionsArray = new Function[0];
-    }
-    else
-    {
-      functionsArray = new Function[this.functions.size()];
-      Iterator functionsIterator = this.functions.iterator();
-      int i = 0;
-      while (functionsIterator.hasNext())
-      {
-        functionsArray[i] = (Function)(functionsIterator.next());
-        i++;
-      }
-    }
-    
-    return functionsArray;
-  }
-
-  /**
-   * @param functions The functions to set.
-   */
-  public void setFunctionsArray(Function[] functions)
-  {
-    int functionCount = (functions == null ? 0 : functions.length);
-    this.functions = new HashSet(functionCount);
-      
-    for (int i = 0; i < functionCount; i++)
-    {
-      this.functions.add(functions[i]);
-    }
   }
   
   /* This method exists only for use by Hibernate. */

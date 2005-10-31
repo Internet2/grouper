@@ -1,6 +1,6 @@
 /*--
-$Id: Category.java,v 1.3 2005-06-17 23:24:28 acohen Exp $
-$Date: 2005-06-17 23:24:28 $
+$Id: Category.java,v 1.4 2005-10-31 18:31:44 acohen Exp $
+$Date: 2005-10-31 18:31:44 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -13,7 +13,7 @@ import java.util.Set;
 import edu.internet2.middleware.subject.Subject;
 
 /**
-* Category organizes a group of {@link Function}s. Each {@link Function} is
+* Category organizes a group of {@link Function}s. Each <code>Function</code> is
 * intended to correspond to a business-level task that a {@link Subject}
 * must perform in order to accomplish some business operation.
 * 
@@ -31,18 +31,11 @@ extends SubsystemPart, Name, Comparable
   public String getId();
   
   /**
-   * Gets the functions associated with this Category.
+   * Gets the {@link Function}s associated with this Category.
    * 
    * @return Returns the functions associated with this Category.
    */
   public Set getFunctions();
-  
-  /**
-   * Sets the Functions associated with this Category.
-   * 
-   * @param functions The functions to set.
-   */
-  public void setFunctionsArray(Function[] functions);
 
   /**
    * Gets the Subsystem associated with this Category.
