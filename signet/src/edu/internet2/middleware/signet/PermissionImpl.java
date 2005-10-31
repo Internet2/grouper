@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.11 2005-08-16 16:41:08 acohen Exp $
- $Date: 2005-08-16 16:41:08 $
+ $Id: PermissionImpl.java,v 1.12 2005-10-31 22:45:28 acohen Exp $
+ $Date: 2005-10-31 22:45:28 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -149,7 +149,7 @@ implements
     if (!(this.functions.contains(function)))
     {
       this.functions.add(function);
-      function.addPermission(this);
+      ((FunctionImpl)function).addPermission(this);
     }
   }
 

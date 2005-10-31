@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.3 2005-10-28 19:17:59 acohen Exp $
-$Date: 2005-10-28 19:17:59 $
+$Id: Grantable.java,v 1.4 2005-10-31 22:45:28 acohen Exp $
+$Date: 2005-10-31 22:45:28 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -152,6 +152,9 @@ extends Entity, Comparable
    * case of duplicate or overlapping grantable entities, the grantee may still retain
    * a given {@link Privilege} even after the revocation of a single
    * grantable entity that grants that <code>Privilege</code>.
+   * 
+   * @param revoker the <code>PrivilegedSubject</code> who is attempting to
+   * revoke this <code>Grantable</code> entity.
    * 
    * @throws SignetAuthorityException
    * 
