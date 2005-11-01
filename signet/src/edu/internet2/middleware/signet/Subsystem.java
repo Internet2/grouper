@@ -1,6 +1,6 @@
 /*--
-$Id: Subsystem.java,v 1.8 2005-10-28 18:09:58 acohen Exp $
-$Date: 2005-10-28 18:09:58 $
+$Id: Subsystem.java,v 1.9 2005-11-01 00:07:33 acohen Exp $
+$Date: 2005-11-01 00:07:33 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -42,7 +42,7 @@ import edu.internet2.middleware.signet.tree.Tree;
 */
 
 public interface Subsystem
-extends HelpText, Entity, Name, Comparable
+extends HelpText, NonGrantable, Name, Comparable
 {
   /**
    * Gets the ID of this entity.

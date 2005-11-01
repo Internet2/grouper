@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemPart.java,v 1.5 2005-10-31 22:45:28 acohen Exp $
-$Date: 2005-10-31 22:45:28 $
+$Id: SubsystemPart.java,v 1.6 2005-11-01 00:07:33 acohen Exp $
+$Date: 2005-11-01 00:07:33 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -14,7 +14,7 @@ package edu.internet2.middleware.signet;
 * attributes.
 * 
 */
-interface SubsystemPart extends Entity
+interface SubsystemPart extends NonGrantable
 {
  /**
   * Gets the <code>Subsystem</code> associated with this entity.
