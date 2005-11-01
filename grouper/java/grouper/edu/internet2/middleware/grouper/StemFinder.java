@@ -23,7 +23,7 @@ import  java.io.Serializable;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.1.2.4 2005-10-18 17:53:29 blair Exp $
+ * @version $Id: StemFinder.java,v 1.1.2.5 2005-11-01 18:01:38 blair Exp $
  */
 public class StemFinder implements Serializable {
 
@@ -79,9 +79,14 @@ public class StemFinder implements Serializable {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
    */
-  public static Stem findByUuid(GrouperSession s) {
-    throw new RuntimeException("Not implemented");
+  public static Stem findRootStem(GrouperSession s) 
+    throws StemNotFoundException
+  {
+    // TODO Should this ever throw a SNFE?
+    // TODO This is *obviously* not right
+    return new Stem();
   }
 
 }

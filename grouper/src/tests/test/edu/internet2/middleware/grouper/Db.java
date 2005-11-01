@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.1.2.1 2005-10-27 18:00:38 blair Exp $
+ * @version $Id: Db.java,v 1.1.2.2 2005-11-01 18:01:38 blair Exp $
  */
 class Db {
 
@@ -57,6 +57,7 @@ class Db {
     }
     _emptyTable("grouper_sessions");
     _emptyTable("grouper_members");
+    _emptyTable("grouper_stems");
     try {
       conn.commit();
     } 
