@@ -1,6 +1,6 @@
 /*--
-$Id: NonGrantable.java,v 1.1 2005-11-01 00:07:33 acohen Exp $
-$Date: 2005-11-01 00:07:33 $
+$Id: NonGrantable.java,v 1.2 2005-11-02 00:29:29 acohen Exp $
+$Date: 2005-11-02 00:29:29 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -12,7 +12,7 @@ package edu.internet2.middleware.signet;
  * This interface encapsulates some attributes that are common to
  * all Signet entities except for {@link Assignment} and {@link Proxy}.
  */
-public interface NonGrantable
+interface NonGrantable
 extends Entity
 {
 
