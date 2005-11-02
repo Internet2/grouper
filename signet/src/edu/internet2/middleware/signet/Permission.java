@@ -1,6 +1,6 @@
 /*--
-$Id: Permission.java,v 1.8 2005-11-02 17:54:17 acohen Exp $
-$Date: 2005-11-02 17:54:17 $
+$Id: Permission.java,v 1.9 2005-11-02 18:05:51 acohen Exp $
+$Date: 2005-11-02 18:05:51 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -35,13 +35,6 @@ extends SubsystemPart
   * @return Returns the Functions associated with this Permission.
   */
  public Set getFunctions();
- 
- /**
-  * Sets the Functions associated with this Permission.
-  * 
-  * @param functions The Functions associated with this Permission.
-  */
- public void setFunctionsArray(Function[] functions);
  
  /**
   * Adds a Function to the set of Functions associated with this Permission.

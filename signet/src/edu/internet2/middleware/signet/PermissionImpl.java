@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.13 2005-11-02 17:54:17 acohen Exp $
- $Date: 2005-11-02 17:54:17 $
+ $Id: PermissionImpl.java,v 1.14 2005-11-02 18:05:51 acohen Exp $
+ $Date: 2005-11-02 18:05:51 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -64,20 +64,6 @@ implements
     this.setSubsystem(subsystem);
     this.functions = new HashSet();
     this.limits = new HashSet();
-  }
-  
-  /**
-   * @param functions The Functions to associate with this Permission.
-   */
-  public void setFunctionsArray(Function[] functions)
-  {
-    int functionCount = (functions == null ? 0 : functions.length);
-    this.functions = new HashSet(functionCount);
-    
-    for (int i = 0; i < functionCount; i++)
-    {
-      this.functions.add(functions[i]);
-    }
   }
   
   /* This method exists only for use by Hibernate. */
