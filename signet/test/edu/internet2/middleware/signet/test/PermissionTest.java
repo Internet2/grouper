@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionTest.java,v 1.4 2005-03-03 18:29:00 acohen Exp $
-$Date: 2005-03-03 18:29:00 $
+$Id: PermissionTest.java,v 1.5 2005-11-02 17:54:17 acohen Exp $
+$Date: 2005-11-02 17:54:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,14 +8,16 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.test;
 
-import javax.naming.OperationNotSupportedException;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 import junit.framework.TestCase;
 
@@ -88,16 +90,22 @@ public class PermissionTest extends TestCase
 
       // Permission 0 contains limit 0, Permission 1 contains Limits 0 and 1,
       // and so forth.
-      Limit[] limits = permission.getLimitsArray();
-      assertEquals(permissionIndex + 1, limits.length);
+      Set limits = permission.getLimits();
+      assertEquals(permissionIndex + 1, limits.size());
       
-      for (int limitNumber = 0; limitNumber < limits.length; limitNumber++)
+      SortedSet sortedLimits = new TreeSet(new LimitDisplayOrderComparator());
+      sortedLimits.addAll(limits);
+      Iterator sortedLimitsIterator = sortedLimits.iterator();
+      int limitNumber = 0;
+      while (sortedLimitsIterator.hasNext())
       {
+        Limit limit = (Limit)(sortedLimitsIterator.next());
         assertEquals
-        	(limits[limitNumber],
+        	(limit,
         	 signet
       	 	   .getSubsystem(Constants.SUBSYSTEM_ID)
       	 		   .getLimit(fixtures.makeLimitId(limitNumber)));
+        limitNumber++;
       }
     }
   }
@@ -118,10 +126,11 @@ public class PermissionTest extends TestCase
 
       // Permission 0 is associated with Function 0, Permission 1 is
       // associated with Function 1, and so forth.
-      Function[] functions = permission.getFunctionsArray();
-      assertEquals(1, functions.length);
+      Set functions = permission.getFunctions();
+      assertEquals(1, functions.size());
+
       assertEquals
-      	(functions[0],
+      	(Common.getSingleSetMember(functions),
       	 signet
       	 	.getSubsystem(Constants.SUBSYSTEM_ID)
       	 		.getFunction(fixtures.makeFunctionId(permissionIndex)));

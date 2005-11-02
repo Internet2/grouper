@@ -1,12 +1,14 @@
 /*--
-$Id: Permission.java,v 1.7 2005-10-28 18:09:58 acohen Exp $
-$Date: 2005-10-28 18:09:58 $
+$Id: Permission.java,v 1.8 2005-11-02 17:54:17 acohen Exp $
+$Date: 2005-11-02 17:54:17 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
 see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet;
+
+import java.util.Set;
 
 import edu.internet2.middleware.subject.Subject;
 
@@ -32,7 +34,7 @@ extends SubsystemPart
   * 
   * @return Returns the Functions associated with this Permission.
   */
- public Function[] getFunctionsArray();
+ public Set getFunctions();
  
  /**
   * Sets the Functions associated with this Permission.
@@ -58,8 +60,7 @@ extends SubsystemPart
  /**
   * Gets the Limits associated with this Permission.
   * 
-  * @return the Limits associated with this Permission, in display
-  * order.
+  * @return the Limits associated with this Permission.
   */
- public Limit[] getLimitsArray();
+ public Set getLimits();
 }

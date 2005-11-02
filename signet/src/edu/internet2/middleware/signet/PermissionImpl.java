@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.12 2005-10-31 22:45:28 acohen Exp $
- $Date: 2005-10-31 22:45:28 $
+ $Id: PermissionImpl.java,v 1.13 2005-11-02 17:54:17 acohen Exp $
+ $Date: 2005-11-02 17:54:17 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -11,7 +11,6 @@ package edu.internet2.middleware.signet;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -68,36 +67,6 @@ implements
   }
   
   /**
-   * @return Returns the {@link Function}s associated with this Permission.
-   */
-  public Function[] getFunctionsArray()
-  {
-      Function[] functionsArray = new Function[0];
-      
-      return (Function[])(this.functions.toArray(functionsArray));
-  }
-  
-  public Limit[] getLimitsArray()
-  {
-      Comparator displayOrderComparator
-      	= new Comparator()
-      	    {
-              public int compare(Object o1, Object o2)
-              {
-                return
-                	((Limit)o1).getDisplayOrder() - ((Limit)o2).getDisplayOrder();
-              }
-      	    };
-
-      Set limits = this.getLimits();
-      Limit[] limitArray = new Limit[0];
-      limitArray = (Limit[])(limits.toArray(limitArray));
-      	    
-      Arrays.sort(limitArray, displayOrderComparator);
-      return limitArray;
-  }
-  
-  /**
    * @param functions The Functions to associate with this Permission.
    */
   public void setFunctionsArray(Function[] functions)
@@ -116,10 +85,8 @@ implements
   {
     this.functions = functions;
   }
-  
-  /* This method exists only for use by Hibernate.
-   */
-  Set getFunctions()
+
+  public Set getFunctions()
   {
     return this.functions;
   }
@@ -129,10 +96,8 @@ implements
   {
     this.limits = limits;
   }
-  
-  /* This method exists only for use by Hibernate.
-   */
-  Set getLimits()
+
+  public Set getLimits()
   {
     return this.limits;
   }
