@@ -21,12 +21,11 @@ import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.builder.*;
-import  org.doomdark.uuid.UUIDGenerator;
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.6 2005-10-27 18:09:44 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.7 2005-11-03 16:09:21 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -56,9 +55,7 @@ public class Member implements Serializable {
     this.setSubject_id( subj.getId() );
     this.setSubject_source( subj.getSource().getId() );
     this.setSubject_type( subj.getType().getName() );
-    this.setMember_id( 
-      UUIDGenerator.getInstance().generateRandomBasedUUID().toString()
-    );
+    this.setMember_id( GrouperUuid.getUuid() );
 
     // Transient Properties  
     this.subj = subj;

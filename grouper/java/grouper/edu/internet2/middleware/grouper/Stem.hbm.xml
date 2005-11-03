@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.9 2005-10-27 18:05:34 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.10 2005-11-03 16:09:21 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -55,7 +55,7 @@ Get child groups.
     <!-- child_groups -->
 
     <!-- child_stems -->
-    <set name="child_stems">
+    <set name="child_stems" inverse="true">
       <meta attribute="field-description">
 Get child stems.
       </meta>

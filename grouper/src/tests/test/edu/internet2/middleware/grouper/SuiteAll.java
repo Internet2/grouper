@@ -28,11 +28,11 @@ public class SuiteAll extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
+    suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
+    suite.addTestSuite(TestMemberFinder.class);
     suite.addTestSuite(TestStFiFindRootStem.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);
-    suite.addTestSuite(TestGrouperSession.class);
-    suite.addTestSuite(TestMemberFinder.class);
 
     return suite;
   }

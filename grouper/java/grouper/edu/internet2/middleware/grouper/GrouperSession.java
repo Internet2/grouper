@@ -22,13 +22,12 @@ import  java.io.Serializable;
 import  java.util.Date;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
-import  org.doomdark.uuid.UUIDGenerator;
 
 /** 
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.7 2005-10-27 18:09:44 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.8 2005-11-03 16:09:21 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -63,9 +62,7 @@ public class GrouperSession implements Serializable {
     // Persistent
     this.setMember_id(m);
     this.setStart_time( new Date() );
-    this.setUuid( 
-      UUIDGenerator.getInstance().generateRandomBasedUUID().toString()
-    );
+    this.setUuid( GrouperUuid.getUuid() );
   } // private GrouperSession(subj) 
 
   // Public class methods

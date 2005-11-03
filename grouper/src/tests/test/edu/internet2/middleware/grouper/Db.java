@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.1.2.2 2005-11-01 18:01:38 blair Exp $
+ * @version $Id: Db.java,v 1.1.2.3 2005-11-03 16:09:21 blair Exp $
  */
 class Db {
 
@@ -55,9 +55,13 @@ class Db {
         "Error disabling autocommit: " + e.getMessage()
       );
     }
+    _emptyTable("grouper_memberships");
     _emptyTable("grouper_sessions");
-    _emptyTable("grouper_members");
+    _emptyTable("grouper_attributes");
+    _emptyTable("grouper_groups");
     _emptyTable("grouper_stems");
+    _emptyTable("grouper_factors");
+    _emptyTable("grouper_members");
     try {
       conn.commit();
     } 

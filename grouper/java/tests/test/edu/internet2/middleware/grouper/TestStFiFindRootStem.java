@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link StemFinder.findRootStem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStFiFindRootStem.java,v 1.1.2.1 2005-11-01 18:01:38 blair Exp $
+ * @version $Id: TestStFiFindRootStem.java,v 1.1.2.2 2005-11-03 16:09:21 blair Exp $
  */
 public class TestStFiFindRootStem extends TestCase {
 
@@ -48,7 +48,7 @@ public class TestStFiFindRootStem extends TestCase {
 
   public void testFindRootStem() {
     try {
-      GrouperSession  s = GrouperSession.startSession(
+      GrouperSession s = GrouperSession.startSession(
         SubjectFinder.findById("GrouperSystem")
       );
       try {

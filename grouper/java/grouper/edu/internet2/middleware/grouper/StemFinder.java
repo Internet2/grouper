@@ -18,12 +18,13 @@
 package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
+import  net.sf.hibernate.*;
 
 /**
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.1.2.5 2005-11-01 18:01:38 blair Exp $
+ * @version $Id: StemFinder.java,v 1.1.2.6 2005-11-03 16:09:21 blair Exp $
  */
 public class StemFinder implements Serializable {
 
@@ -86,8 +87,18 @@ public class StemFinder implements Serializable {
   {
     // TODO Should this ever throw a SNFE?
     // TODO This is *obviously* not right
-    return new Stem();
-  }
+    Stem root = new Stem(s);
+    try {
+      HibernateUtil.save(root);
+      return root;
+    }
+    catch (HibernateException e) {
+      throw new StemNotFoundException(
+        "root stem not found: " + e.getMessage()
+      );
+    }
+    //return new Stem();
+  } // public static Stem findRootStem(s)
 
 }
 

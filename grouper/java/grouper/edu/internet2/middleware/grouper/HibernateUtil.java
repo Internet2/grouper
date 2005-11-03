@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.6 2005-10-27 18:09:44 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.7 2005-11-03 16:09:21 blair Exp $
  */
 class HibernateUtil {
 
@@ -44,8 +44,15 @@ class HibernateUtil {
 	static {
 		try {
       factory = new Configuration()
+        .addClass(Attribute.class)
+        .addClass(Field.class)
+        .addClass(Group.class)
         .addClass(GrouperSession.class)
         .addClass(Member.class)
+        .addClass(Membership.class)
+        .addClass(Privilege.class)
+        .addClass(Stem.class)
+        .addClass(Type.class)
         .buildSessionFactory()
         ;
 		} 

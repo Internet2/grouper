@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.8 2005-10-20 16:31:16 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.9 2005-11-03 16:09:21 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -51,6 +51,11 @@ public class Stem implements Serializable {
   private String  stem_name;
   private Integer version;
 
+
+  // Transient Instance Variables
+  private transient GrouperSession s;
+
+
   // Constructors
 
   /**
@@ -59,6 +64,19 @@ public class Stem implements Serializable {
   public Stem() {
     // Nothing
   }
+
+  // Return a stem with an attached session
+  protected Stem(GrouperSession s) {
+    this.s = s;
+    this.setCreator_id( s.getMember() );
+    this.setCreate_time( new java.util.Date() );
+    this.setStem_id( GrouperUuid.getUuid() );
+    this.setStem_name("");
+    this.setDisplay_name("");
+    this.setStem_extension("");
+    this.setDisplay_extension("");
+  } // protected Stem(s)
+  
 
   // Public Instance Methods
 

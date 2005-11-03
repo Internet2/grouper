@@ -15,26 +15,22 @@
   limitations under the License.
 */
 
-package test.edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper;
 
-import  junit.framework.*;
+import  org.doomdark.uuid.UUIDGenerator;
 
-public class SuiteAll extends TestCase {
+/** 
+ * Generate UUIDs.
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: GrouperUuid.java,v 1.1.2.1 2005-11-03 16:09:21 blair Exp $
+ *     
+*/
+class GrouperUuid {
 
-  public SuiteAll(String name) {
-    super(name);
-  }
-
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
-
-    suite.addTestSuite(TestGrouperSession.class);
-    suite.addTestSuite(TestInternalSourceAdapter.class);
-    suite.addTestSuite(TestMemberFinder.class);
-    suite.addTestSuite(TestStFiFindRootStem.class);
-    suite.addTestSuite(TestSubjectFinderInternal.class);
-
-    return suite;
+  // Protected Class Methods
+  protected static String getUuid() {
+    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
   }
 
 }
