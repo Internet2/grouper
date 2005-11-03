@@ -31,6 +31,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestMemberFinder.class);
+    suite.addTestSuite(TestStemAddChildStem.class);
     suite.addTestSuite(TestStFiFindRootStem.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);
 

@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 
@@ -27,15 +28,15 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.9 2005-11-03 16:09:21 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.10 2005-11-03 18:19:54 blair Exp $
  *     
 */
 public class Stem implements Serializable {
 
   // Hibernate Properties
   private String  id;
-  private Set     child_groups;
-  private Set     child_stems;
+  private Set     child_groups        = new HashSet();
+  private Set     child_stems         = new HashSet();
   private String  create_source;
   private Date    create_time;
   private Member  creator_id;
@@ -121,7 +122,34 @@ public class Stem implements Serializable {
   public Stem addChildStem(String extension, String displayExtension) 
     throws StemAddException 
   {
-    throw new RuntimeException("Not implemented");
+    Stem child = new Stem(this.s);
+    // Set naming attributes
+    child.setStem_extension(extension);
+    child.setDisplay_extension(displayExtension);
+    child.setStem_name( 
+      this.constructName(this.getName(), extension)
+    );
+    child.setDisplay_name( 
+      this.constructName(this.getDisplayName(), displayExtension)
+    );
+    // Set parent
+    child.setParent_stem(this);
+    // Add to children 
+    Set children  = this.getChild_stems();
+    children.add(child);
+    this.setChild_stems(children);
+    // TODO this.setChild_stems( this.getChild_stems().add(child) );
+    try {
+      // Save and cascade
+      HibernateUtil.save(this);
+      return child;
+    }
+    catch (HibernateException e) {
+      throw new StemAddException(
+        "Unable to add " + this.getName() + ":" + extension + ": " 
+        + e.getMessage()
+      );
+    }
   }
 
   public boolean equals(Object other) {
@@ -247,7 +275,7 @@ public class Stem implements Serializable {
    * @return  Stem displayName.
    */
   public String getDisplayName() {
-    throw new RuntimeException("Not implemented");
+    return this.getDisplay_name();
   }
  
   /**
@@ -315,7 +343,7 @@ public class Stem implements Serializable {
    * @return  Stem name.
    */ 
   public String getName() {
-    throw new RuntimeException("Not implemented");
+    return this.getStem_name();
   }
 
   /**
@@ -362,7 +390,7 @@ public class Stem implements Serializable {
    * @return  Stem UUID.
    */
   public String getUuid() {
-    throw new RuntimeException("Not implemented");
+    return this.getStem_id();
   }
 
   /**
@@ -524,6 +552,18 @@ public class Stem implements Serializable {
            .append("modifier_id", getModifier_id())
            .toString();
   }
+
+
+  // Private Instance Methods
+
+  private String constructName(String stem, String extn) {
+    // TODO This should probably end up in a "naming" utility class
+    if (stem.equals("")) {
+      return extn;
+    }
+    return stem + ":" + extn;
+  } // private String constructName(stem, extn)
+
 
   // Hibernate Accessors
   private String getId() {

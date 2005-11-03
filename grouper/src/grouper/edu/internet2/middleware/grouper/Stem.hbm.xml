@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.10 2005-11-03 16:09:21 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.11 2005-11-03 18:19:54 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -55,13 +55,23 @@ Get child groups.
     <!-- child_groups -->
 
     <!-- child_stems -->
-    <set name="child_stems" inverse="true">
+    <!-- 
+TODO Disabled for now until I feel like dealing with this problem
+     again.  Worst case I can find them easy enough on my own if
+     need be.  Cascading updates may be another issue.
+    -->
+<!--
+    <set name="child_stems" 
+         inverse="true"
+         cascade="save-update"
+    >
       <meta attribute="field-description">
 Get child stems.
       </meta>
-      <key column="id"/>
+      <key column="parent_stem"/>
       <one-to-many class="edu.internet2.middleware.grouper.Stem"/>
     </set>
+-->
     <!-- child_stems -->
 
     <!-- creator_id -->
