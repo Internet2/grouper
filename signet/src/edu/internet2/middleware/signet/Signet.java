@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.42 2005-10-28 18:09:58 acohen Exp $
-$Date: 2005-10-28 18:09:58 $
+$Id: Signet.java,v 1.43 2005-11-03 22:33:14 acohen Exp $
+$Date: 2005-11-03 22:33:14 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -175,15 +175,24 @@ public final class Signet
      throw new SignetRuntimeException(he);
    }
 
-   this.logger = Logger.getLogger(this.toString());
-
-   try {
-    this.sourceManager = SourceManager.getInstance();
-   }
-   catch (Exception ex) {
-    throw new RuntimeException("Error getting SourceManager", ex);
+   this.logger = Logger.getLogger(this.toString());   
+ }
+ 
+ private SourceManager getSourceManager()
+ {
+   if (this.sourceManager == null)
+   {
+     try
+     {
+       this.sourceManager = SourceManager.getInstance();
+     }
+     catch (Exception e)
+     {
+       throw new SignetRuntimeException("Error getting SourceManager", e);
+     }
    }
    
+   return this.sourceManager;
  }
 
  /**
@@ -1850,7 +1859,7 @@ public final class Signet
  public Set findPrivilegedSubjects(String searchValue)
  {
   Set pSubjects = new HashSet();
-   for (Iterator iter = sourceManager.getSources().iterator(); iter.hasNext(); ) {
+   for (Iterator iter = getSourceManager().getSources().iterator(); iter.hasNext(); ) {
     Set result = ((Source)iter.next()).search(searchValue);
     for (Iterator iter2 = result.iterator(); iter2.hasNext();) {
       PrivilegedSubject pSubject =
@@ -2186,7 +2195,7 @@ public final class Signet
  public Collection getSources(String subjectTypeId)
  {
   SubjectType type = SubjectTypeEnum.valueOf(subjectTypeId);
-  Collection sources = this.sourceManager.getSources(type);
+  Collection sources = this.getSourceManager().getSources(type);
   
   // Sometimes, SourceManaget.getSources() returns null. We want to avoid
   // doing that.

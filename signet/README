@@ -65,8 +65,7 @@ Quick Start
 (7) Change the feedback href (@FEEDBACK_URL@) in webapp/signet/tiles/footer.jsp
     to point to your preferred email address.
 
-(8) Configure your subject sources in two places:
-    webapp/signet/WEB-INF/classes/sources.xml and util/classes/sources.xml.
+(8) Configure your subject sources in webapp/signet/WEB-INF/classes/sources.xml.
     If you are using the local subject adapter, add or uncomment a database
     section, and set the database connection parameters (@DB_URL@,
     @DB_USERNAME@, @DB_PASSWORD@).
