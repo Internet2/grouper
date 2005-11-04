@@ -18,7 +18,14 @@
   		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:</param-value>  
   	</init-param>
   </filter>
- 
+  <filter>
+  	<filter-name>Caller page</filter-name>
+  	<filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
+    </filter>
+   <filter-mapping>
+  	<filter-name>Caller page</filter-name>
+  	<url-pattern>/gotoCallerPage</url-pattern>
+  </filter-mapping>
   <filter-mapping>
   	<filter-name>Login check</filter-name>
   	<url-pattern>*.do</url-pattern>
