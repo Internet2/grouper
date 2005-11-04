@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
 import  org.apache.commons.logging.*;
@@ -28,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.7 2005-11-03 16:09:21 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.8 2005-11-04 17:25:10 blair Exp $
  */
 class HibernateUtil {
 
@@ -84,7 +85,7 @@ class HibernateUtil {
       Session     hs = HibernateUtil.getSession();
       Transaction tx = hs.beginTransaction();
       try {
-        hs.save(o);
+        hs.saveOrUpdate(o);
         tx.commit();
       }
       catch (HibernateException e) {
@@ -99,6 +100,35 @@ class HibernateUtil {
       throw new HibernateException(e);
     }
   } // protected static void save(o)
+
+  // Save multiple objects in one transaction
+  // @throws  HibernateException
+  protected static void save(Set objects)
+    throws HibernateException
+  { 
+    try {
+      Session     hs = HibernateUtil.getSession();
+      Transaction tx = hs.beginTransaction();
+      Iterator    iter  = objects.iterator();
+      try {
+        while (iter.hasNext()) {
+          Object o = iter.next();
+          hs.saveOrUpdate(o);
+        }
+        tx.commit();
+      }
+      catch (HibernateException e) {
+        tx.rollback();
+        throw new HibernateException(e);
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  } // protected static void save(objects)
 
 }
 
