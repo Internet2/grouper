@@ -54,16 +54,13 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
-
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.tiles.ComponentContext;
+import org.apache.struts.config.ActionConfig;
 import java.util.*;
+
 import edu.internet2.middleware.grouper.*;
 
 /**
@@ -72,8 +69,7 @@ import edu.internet2.middleware.grouper.*;
  * are in a base class which is extended by GrouperCapableAction as some things 
  * done here only need to be done for top level actions. 
  * <p />
- * 
- <table width="75%" border="1">
+ * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -94,10 +90,22 @@ import edu.internet2.middleware.grouper.*;
       for current browseMode</font></td>
   </tr>
   <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">callerPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">the pageId of the previous page 
+      </font></td>
+  </tr>
+  <tr> 
     <td><font face="Arial, Helvetica, sans-serif">flat</font></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif"><em>true</em> indicates that 
       hierarchy should not be shown - just a list of groups</font></td>
+  </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">_reinstatePageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif"> indicates that this page is 
+      being restored - and so shouldn`t be saved again</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -121,6 +129,12 @@ import edu.internet2.middleware.grouper.*;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif"><em>true </em>indicates that 
       hierarchy should not be shown - just a list of groups</font></td>
+  </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">thisPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">the page id used to look up 
+      the saved data for this page (assuming it was saved)</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -180,13 +194,14 @@ import edu.internet2.middleware.grouper.*;
     <td>&nbsp;</td>
   </tr>
 </table>
+ 
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.2 2005-11-04 12:23:39 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
-	extends org.apache.struts.action.Action {
+	extends LowLevelGrouperCapableAction {
 	public static final String HIER_DELIM = GrouperHelper.HIER_DELIM; 
 	/**
 	 * Action specific - must be implemented by all subclasses
@@ -218,6 +233,7 @@ public abstract class GrouperCapableAction
 					//let's just ignore it
 				}
 			}
+			if(form!=null)request.setAttribute("grouperForm",form);
 			Date before = new Date();
 			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
 			Date after = new Date();
@@ -245,80 +261,7 @@ public abstract class GrouperCapableAction
 			request.setAttribute("isAdvancedSearch",getAdvancedSearchMode(session));
 			return forward;
 	}
-	/**
-	 * Convenience method to extract tiles attributes as a Map
-	 */
-	public Map getTilesAttributes(HttpServletRequest request) {
-		ComponentContext context = ComponentContext.getContext(request);
-		Map attr = new HashMap();
-		Iterator it = context.getAttributeNames();
-		String name;
-		while(it.hasNext()) {
-			name = (String)it.next();
-			attr.put(name,context.getAttribute(name));
-		}
 
-		return attr;
-	}
-	
-	/**
-	 * Convenience method checks request for attribute. If not present checks session
-	 * TODO: check application 
-	 */
-	public Object findAttribute(String name,HttpServletRequest request) {
-		Object obj = request.getAttribute(name);
-		if(obj==null) obj = request.getSession().getAttribute(name);
-		return obj;
-	}
-	
-	/**
-	 * Convenience method to retrieve nav ResourceBundle
-	 */
-	public ResourceBundle getNavResources(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("nav");
-		ResourceBundle nav = localizationContext.getResourceBundle();
-		return nav;
-	}
-	
-	/**
-	 * Convenience method to retrieve nav ResourceBundle
-	 */
-	public ResourceBundle getMediaResources(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		return getMediaResources(session);
-	}
-	
-	/**
-	 * Convenience method to retrieve media ResourceBundle given an HttpSession
-	 */
-	public ResourceBundle getMediaResources(HttpSession session) {
-		
-		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("media");
-		ResourceBundle media = localizationContext.getResourceBundle();
-		return media;
-	}
-	
-	/**
-	 * Put here so not duplicated in Actions
-	 */
-	protected boolean processFlatForMode(String mode,HttpServletRequest request,HttpSession session) {
-		
-		String flat = request.getParameter("flat");
-		Boolean isFlat = (Boolean)session.getAttribute("isFlat" + mode);
-		if((flat==null || flat.length()==0)) {
-			if(isFlat==null) isFlat=Boolean.FALSE; 
-		}else isFlat=new Boolean("true".equals(flat));
-		session.setAttribute("isFlat" + mode,isFlat);
-		request.setAttribute("isFlat",isFlat);
-		return isFlat.booleanValue();
-	}
-	/**
-	 * Convenience method to simplify calling code
-	 */
-	public boolean isEmpty(Object obj) {
-		return (obj==null || "".equals(obj));
-	}
 	
 	/**
 	 * Convenience method to stop duplication of logic in Actions
@@ -338,37 +281,7 @@ public abstract class GrouperCapableAction
 		return pageSize;
 	}
 	
-	/**
-	 * Place centrally for consistency and to hide session attribute name
-	 */
-	public String getBrowseMode(HttpSession session) {
-		String browseMode = (String) session.getAttribute(
-		"browseMode");
-		if (browseMode == null)
-			browseMode = "";
-		return browseMode;
-	}
 	
-	/**
-	 * Place centrally for consistency and to hide session attribute name
-	 */
-	public void setBrowseMode(String mode,HttpSession session) {
-		session.setAttribute("browseMode",mode);
-	}
-	
-	/**
-	 * Place centrally for consistency and to hide session attribute name
-	 */
-	public String getBrowseNode(HttpSession session) {
-		return (String) session.getAttribute("browseNodeId" + getBrowseMode(session));
-	}
-	
-	/**
-	 * Place centrally for consistency and to hide session attribute name
-	 */
-	public void setBrowseNode(String node,HttpSession session) {
-		session.setAttribute("browseNodeId" + getBrowseMode(session),node);
-	}
 	
 	/**
 	 * Place centrally for consistency and to hide session attribute name
@@ -377,50 +290,163 @@ public abstract class GrouperCapableAction
 		session.setAttribute("searchMode" + getBrowseMode(session),new Boolean(mode));
 	}
 	
+	
+	
+	
+	
 	/**
-	 * Place centrally for consistency and to hide session attribute name
+	 * Saves a DynaActionForm in the session so it can be restored later. Used
+	 * so that all parameters don`t have to be passed through complex chains
+	 * of pages
+	 * @param session
+	 * @param form
+	 * @param name
 	 */
-	public Boolean getAdvancedSearchMode(HttpSession session) {
-		Boolean res = (Boolean)session.getAttribute("searchMode" + getBrowseMode(session));
-		if(res==null) res = Boolean.FALSE;
-		return res;
+	public static void saveDynaFormBean(HttpSession session,DynaActionForm form,String name) {
+		Map map = new HashMap(form.getMap());
+		session.setAttribute(name,map);
 	}
 	
 	/**
-	 * Place centrally for consistency and convenience - gets default specified
-	 * in media ResourceBundle if none set
+	 * Restores previously saved DynaFormBean
+	 * @param session
+	 * @param form
+	 * @param name
 	 */
-	public Group getCurrentGroupOrStem(GrouperSession s,HttpSession session) {
-		String node = getBrowseNode(session);
-		
-		if(node==null) {
-			try {
-				
-				String defaultStem = getDefaultRootStemName(session);
-				Group defaultStemObj = GrouperStem.loadByName(s,defaultStem);
-				return defaultStemObj;
-			}catch(Exception e) {
-				throw new RuntimeException(e);
-			}
+	public static void restoreDynaFormBean(HttpSession session,DynaActionForm form,String name) {
+		Map map = (Map)	session.getAttribute(name);
+		if(map==null) return;
+		Map.Entry entry;
+		Iterator it = map.entrySet().iterator();
+		while(it.hasNext()) {
+			entry = (Map.Entry)it.next();
+			form.set((String)entry.getKey(),entry.getValue());	
 		}
+	}
+	
+	/**
+	 * Saves the current page so it can be restored. This signature doesn`t save
+	 * any session attributes
+	 * @param request
+	 * @param form
+	 * @return
+	 */
+	public static String saveAsCallerPage(HttpServletRequest request,DynaActionForm form){
+		return saveAsCallerPage(request,form);
+	}
+	
+	/**
+	 * Saves the current page so it can be restored. Saves specified session attributes
+	 * @param request
+	 * @param form
+	 * @param sessionKeepers - splt on spaces to get attribute names
+	 */
+	public static void saveAsCallerPage(HttpServletRequest request,DynaActionForm form,String sessionKeepers){
+		
+		//Dont`s save again if we are restoring this page + retrieve previously
+		//saved pageId
+		if(!isEmpty(request.getParameter("_reinstatePageId"))) {
+			Map[] savedData = getCallerPageData(request ,request.getParameter("_reinstatePageId"));
+			request.setAttribute("thisPageId",savedData[0].get("_thisPageId"));
 			
-		try {
-			GrouperGroup group = GrouperGroup.loadByID(s,node);
-			return group;
-		}catch(Exception e) {
-			//@TODO when we have typed exceptions check error
+			return;
 		}
-		GrouperStem stem = GrouperStem.loadByID(s,node);
-		return stem;
+		//Generate a unique page id for this session
+		int rnd = (int)(Math.random() * 1000);
+		String id = (new Date()).getTime() + "-" + rnd;
+		
+		
+		HttpSession session = request.getSession();
+		
+		//Retrieve (or create if necessary) Map to store pages
+		Map callerPageHistory=(Map)session.getAttribute("callerPageHistory");
+		if(callerPageHistory==null) {
+			callerPageHistory=new HashMap();
+			session.setAttribute("callerPageHistory",callerPageHistory);
+		}
+		
+		//Get ActionConfig to determine the current path - so we can return to it
+		ActionConfig ac= (ActionConfig)request.getAttribute("org.apache.struts.action.mapping.instance");
+		Map[] data = new Map[2];
+		//Save request parameters
+		data[0] = new HashMap(request.getParameterMap());
+		//save path
+		data[0].put("_callerPagePath",ac.getPath());
+		
+		//Save session variables
+		data[1]=new HashMap();
+		StringTokenizer st = new StringTokenizer(sessionKeepers);
+		String key;
+		while(st.hasMoreTokens()) {
+			key = st.nextToken();
+			data[1].put(key,session.getAttribute(key));
+		}
+		
+		//put the data in the session
+		callerPageHistory.put(id,data);
+		
+		//Make the page id available for templates
+		request.setAttribute("thisPageId",id);
+		
+		//Store page id in session
+		data[0].put("_thisPageId",id);
+		
+		
+		
 	}
 	
-	public String getDefaultRootStemName(HttpSession session) {
-		
-			Map mediaMap = (Map)session.getAttribute("mediaMap");
-			String defaultStem = (String)mediaMap.get("default.browse.stem");
-			if(isEmpty(defaultStem) || defaultStem.startsWith("@")) defaultStem = Grouper.NS_ROOT;
-			return defaultStem;	
+	/**
+	 * Wipe out saved pages - should probably be called when changing browse mode
+	 * @param request
+	 */
+	public static void clearCallerPageHistory(HttpServletRequest request) {
+		Map callerPageHistory = (Map)request.getSession().getAttribute("callerPageHistory");
+		if(callerPageHistory!=null)callerPageHistory.clear();
 	}
+	
+	
+	/**
+	 * Retrieve actual data which was saved - called by Filter. Chose to keep
+	 * all logic here for saving and retrieving data
+	 * @param request
+	 * @param id
+	 * @return
+	 * @throws IllegalStateException
+	 */
+	public static Map[] getCallerPageData(HttpServletRequest request ,String id) throws IllegalStateException {
+		Map callerPageHistory = (Map)request.getSession().getAttribute("callerPageHistory");
+		if(callerPageHistory==null || !callerPageHistory.containsKey(id)) throw new IllegalStateException("No caller page data for ID=" + id);
+		return (Map[]) callerPageHistory.get(id);
+	}
+	
+	
+	/**
+	 * Abstract away the logic Actions should use to determine if they should
+	 * be returning a user to a previous page
+	 * @param form
+	 * @return
+	 */
+	boolean doRedirectToCaller(DynaActionForm form) {
+		String callerPageId = (String) form.get("callerPageId");
+		if(isEmpty(callerPageId)) return false;
+	
+	return true;
+	}
+	
+	
+	/**
+	 * Provides Struts with means to send the user to a saved page
+	 * @param form
+	 * @return
+	 */
+	ActionForward redirectToCaller(DynaActionForm form) {
+		String callerPageId = (String) form.get("callerPageId");
+		if(isEmpty(callerPageId)) throw new IllegalStateException("No caller page id");
+		return new ActionForward("/gotoCallerPage?pageId=" + callerPageId,true);
+	
+	}
+	
+	
 }
 
 
