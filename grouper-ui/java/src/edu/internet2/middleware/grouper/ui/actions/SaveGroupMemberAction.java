@@ -121,12 +121,6 @@ import edu.internet2.middleware.subject.Subject;
       making assignments to</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">subjectId</font></p></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Identifies the Subject we are 
-      making assignments to</font></td>
-  </tr>
-  <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">contextSubjectId</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Identifies the subject where 
@@ -183,7 +177,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.2 2005-11-04 14:17:12 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.3 2005-11-04 14:21:39 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
