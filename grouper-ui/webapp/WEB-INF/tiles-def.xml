@@ -12,6 +12,7 @@
     <put name="subheader" type="definition" value="subheaderDef"/>
     <put name="contentwrapper" type="definition" value="contentDef"/>
     <put name="left" type="definition" value="leftDef"/>
+     <put name="menu" type="definition" value="menuDef"/>
 	<put name="flatten" type="definition" value="flattenDef"/>
     <put name="right" type="definition" value="rightDef"/>
     <put name="head" type="definition" value="headDef"/>
@@ -84,9 +85,9 @@
     <put name="content" type="page" value="/WEB-INF/jsp/EditGroup.jsp"/>
   </definition>
   
-    <!--definition extends="BaseDef" name="ChainDef">
+    <definition extends="BaseDef" name="ChainDef">
     <put name="content" type="page" value="/WEB-INF/jsp/Chain.jsp"/>
-  </definition-->
+  </definition>
   
   <definition extends="BaseDef" name="EditStemDef">
 	 <description>
@@ -148,6 +149,14 @@
 			the maintenance of the group
 	</description>
     <put name="content" type="page" value="/WEB-INF/jsp/GroupSummary.jsp"/>
+  </definition>
+  
+    <definition extends="BaseDef" name="SubjectSummaryDef">
+      <description>
+			Displays summary of a subject and a means to discovering memberships and 
+			privileges
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SubjectSummary.jsp"/>
   </definition>
   
   <definition extends="BaseDef" name="IndexDef">
@@ -311,11 +320,17 @@
   <definition name="leftDef" path="/WEB-INF/jsp/left.jsp">
 	  <description>
 		 Standard tile used in baseDef which appears at the left
-		 of all pages unless otherwise configured. Currently contains
-		 the menu and can be 'relocated' to the menu bar by CSS - 
-		 should separateso that left and menu are not one and same
+		 of all pages.
 	  </description>
  </definition>
+ 
+ <definition name="menuDef" path="/WEB-INF/jsp/menu.jsp" controllerUrl="/prepareMenu.do">
+	  <description>
+		 Standard tile used in baseDef which appears at the left, by default,
+		 of all pages unless otherwise configured. Can be 'relocated' to the menu bar by CSS 
+	  </description>
+ </definition>
+ 
  
   <definition name="messageDef" path="/WEB-INF/jsp/message.jsp">
 	  <description>
@@ -361,6 +376,12 @@
 	  </description>
  </definition>
  
+   <definition name="subjectLinksDef" path="/WEB-INF/jsp/subjectLinks.jsp">
+	  <description>
+		 Tile which displays a standard set of links for a subject
+	  </description>
+ </definition>
+ 
   <definition name="subheaderDef" path="/WEB-INF/jsp/subheader.jsp">
 	  <description>
 		 Stanard tile which displays a menu bar below the header
@@ -402,6 +423,26 @@
 	  </description>
   </definition>
   
+   <definition name="SubjectSearchResultsDef" extends="BaseDef" >
+	  <description>
+		Tile which displays the subject search results
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/SubjectSearchResults.jsp"/>
+  </definition>
+  
+  <definition name="SimpleSubjectSearchDef" extends="BaseDef" >
+	  <description>
+		Tile which displays the subject search form
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/SimpleSubjectSearch.jsp"/>
+  </definition>  
+  
+  <definition name="subjectSearchFragmentDef" path="/WEB-INF/jsp/subjectSearchFragment.jsp"  controllerUrl="/prepareSubjectSearch.do"><put name="maintainModule" type="String" value="y"/>
+	  <description>
+		Tile which displays the subject search form fragment - it uses SourceManager to get a list of sources and allows a user to select which to search.
+	  </description>
+  </definition>
+  
   <definition name="advancedSearchGroupsDef" path="/WEB-INF/jsp/advancedSearchGroups.jsp"   controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
 	  <description>
 		Tile which displays the advanced search form for groups
@@ -433,6 +474,14 @@
 	  </description>
    </definition>
    
+      <definition name="changeSubjectSummaryScopeDef" path="/WEB-INF/jsp/changeSubjectSummaryScope.jsp">
+ 	  <description>
+		Tile which displays a form which allows a user to change whether only immediate, or only effective 
+		or all memberships of the active subject should be displayed, or groups / stems for which the subject
+		has the specified access / naming privilege
+	  </description>
+   </definition>
+   
    <definition name="selectGroupPrivilegeDef" path="/WEB-INF/jsp/selectGroupPrivilege.jsp">
  	  <description>
 		Tile which displays a form which allows a user to select a group privilege and
@@ -451,6 +500,13 @@
  	  <description>
 		Tile which displays a summary of group attributes  - currently inserted
 		in GroupSummaryDef
+	  </description>
+   </definition>
+   
+       <definition name="subjectInfoDef" path="/WEB-INF/jsp/subjectInfo.jsp">
+ 	  <description>
+		Tile which displays a summary of subject attributes  - currently inserted
+		in SubjectSummaryDef
 	  </description>
    </definition>
    
@@ -477,6 +533,18 @@
 	<definition name="generalHelpDef" path="/WEB-INF/jsp/generalHelp.jsp">
 		<description>
 			Tile which displays general help about the UI
+	  </description>
+	 </definition>
+	 
+	 <definition name="callerPageButtonDef" path="/WEB-INF/jsp/callerPageButton.jsp">
+		<description>
+			Tile which displays button to go to previous page
+	  </description>
+	 </definition>
+	 
+	 <definition name="effectivePrivsDef" path="/WEB-INF/jsp/effectivePrivs.jsp">
+		<description>
+			Tile which displays effective privs on priv assignment screen
 	  </description>
 	 </definition>
 	 
