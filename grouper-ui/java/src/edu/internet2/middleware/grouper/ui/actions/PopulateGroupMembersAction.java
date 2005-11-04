@@ -106,6 +106,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;thisPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
+      be added to links/forms so this page can be returned to</font></td>
+  </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
@@ -175,7 +181,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.2 2005-11-04 13:47:54 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -196,7 +202,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		session.setAttribute("subtitle","groups.action.show-members");
 		
 		DynaActionForm groupForm = (DynaActionForm) form;
-		
+		saveAsCallerPage(request,groupForm,"findForNode membershipListScope");
 		//Identify the group whose membership we are showing
 		String groupId = (String)groupForm.get("groupId");
 		//TODO: check following - shouldn't I always pass parameter
