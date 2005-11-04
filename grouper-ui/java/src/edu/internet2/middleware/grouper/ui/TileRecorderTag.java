@@ -67,7 +67,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * indicates the object type, view, selected key and template name
  * 
  * @author Gary Brown.
- * @version $Id: TileRecorderTag.java,v 1.1.1.1 2005-08-23 13:04:14 isgwb Exp $
+ * @version $Id: TileRecorderTag.java,v 1.2 2005-11-04 11:02:02 isgwb Exp $
  */
 
 public class TileRecorderTag extends TagSupport {
@@ -211,7 +211,7 @@ public class TileRecorderTag extends TagSupport {
 	}
 
 	private void doPrint(boolean isStart) {
-		if (view != null || !"".equals(view))
+		if (view != null && !"".equals(view))
 			return;
 		String end = "end:";
 		if (isStart)
