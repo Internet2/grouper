@@ -68,7 +68,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * Top level Strut's action which retrieves and makes available a GrouperGroup 
  * object. 
  * <p/>
- <table width="75%" border="1">
+ 
+<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -85,6 +86,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td><p><font face="Arial, Helvetica, sans-serif">groupName</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">The group extension</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextGroup</font></p>
+      <p>&nbsp;</p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">If set then assume this is a 
+      diversion and don`t reset the browsePath to this group</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -168,9 +176,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td>&nbsp;</td>
   </tr>
 </table>
-
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.2 2005-11-04 13:55:58 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
@@ -205,7 +212,8 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		//TODO: check this
 		session.setAttribute("group", groupMap);
 		
-		setBrowseNode(groupId,session);
+		//Only reset if we are not here on a diversion
+		if(isEmpty(groupForm.get("contextGroup"))) setBrowseNode(groupId,session);
 
 		//Determine privileges for group so user only gets the buttons they
 		// should get
