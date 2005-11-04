@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.14 2005-11-03 18:19:54 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.15 2005-11-04 17:29:28 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -140,6 +140,7 @@
       <include    name="**/TestGrouperSession.java"/>
       <include    name="**/TestInternalSourceAdapter.java"/>
       <include    name="**/TestMemberFinder.java"/>
+      <include    name="**/TestStemAddChildGroup.java"/>
       <include    name="**/TestStemAddChildStem.java"/>
       <include    name="**/TestStFiFindRootStem.java"/>
       <include    name="**/TestSubjectFinderInternal.java"/>

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.10 2005-11-03 18:19:54 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.11 2005-11-04 17:29:28 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -45,12 +45,12 @@ public class Stem implements Serializable {
   private Member  modifier_id;
   private String  modify_source;
   private Date    modify_time;
-  private Stem    parent_stem;
+  // TODO private Stem    parent_stem;
+  private String  parent_stem;
   private String  stem_description;
   private String  stem_extension;
   private String  stem_id;
   private String  stem_name;
-  private Integer version;
 
 
   // Transient Instance Variables
@@ -100,8 +100,29 @@ public class Stem implements Serializable {
   public Group addChildGroup(String extension, String displayExtension) 
     throws GroupAddException 
   {
-    throw new RuntimeException("Not implemented");
-  }
+    Group child = new Group(this.s, this, extension, displayExtension);
+    // Set parent
+    child.setParent_stem(this.getId());
+    // Add to children 
+    Set children  = this.getChild_groups();
+    children.add(child);
+    this.setChild_groups(children);
+    // TODO this.setChild_groups( this.getChild_groups().add(child) );
+    try {
+      // TODO Save and cascade
+      Set objects = new HashSet();
+      objects.add(this);
+      objects.add(child);
+      HibernateUtil.save(objects);
+      return child;
+    }
+    catch (HibernateException e) {
+      throw new GroupAddException(
+        "Unable to add group " + this.getName() + ":" + extension + ": " 
+        + e.getMessage()
+      );
+    }
+  } // public Group addChildGroup(extension, displayExtension)
 
   /**
    * Add a new stem to the registry.
@@ -140,17 +161,20 @@ public class Stem implements Serializable {
     this.setChild_stems(children);
     // TODO this.setChild_stems( this.getChild_stems().add(child) );
     try {
-      // Save and cascade
-      HibernateUtil.save(this);
+      // TODO Save and cascade
+      Set objects = new HashSet();
+      objects.add(this);
+      objects.add(child);
+      HibernateUtil.save(objects);
       return child;
     }
     catch (HibernateException e) {
       throw new StemAddException(
-        "Unable to add " + this.getName() + ":" + extension + ": " 
+        "Unable to add stem " + this.getName() + ":" + extension + ": " 
         + e.getMessage()
       );
     }
-  }
+  } // public Stem addChildStem(extension, displayExtension)
 
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
@@ -554,15 +578,15 @@ public class Stem implements Serializable {
   }
 
 
-  // Private Instance Methods
+  // Protected Instance Methods
 
-  private String constructName(String stem, String extn) {
+  protected String constructName(String stem, String extn) {
     // TODO This should probably end up in a "naming" utility class
     if (stem.equals("")) {
       return extn;
     }
     return stem + ":" + extn;
-  } // private String constructName(stem, extn)
+  } // protected String constructName(stem, extn)
 
 
   // Hibernate Accessors
@@ -654,14 +678,6 @@ public class Stem implements Serializable {
     this.stem_id = stem_id;
   }
 
-  private Integer getVersion() {
-    return this.version;
-  }
-
-  private void setVersion(Integer version) {
-    this.version = version;
-  }
-
   private Member getCreator_id() {
     return this.creator_id;
   }
@@ -678,12 +694,14 @@ public class Stem implements Serializable {
       this.modifier_id = modifier_id;
   }
 
-  private Stem getParent_stem() {
+  // TODO private Stem getParent_stem() {
+  private String getParent_stem() {
     return this.parent_stem;
   }
 
   private void setParent_stem(Stem parent_stem) {
-    this.parent_stem = parent_stem;
+    // TODO I should just be able to use a _Stem_ object
+    this.parent_stem = parent_stem.getId();
   }
 
   private Set getChild_groups() {

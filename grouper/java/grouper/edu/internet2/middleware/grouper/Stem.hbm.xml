@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.1.2.11 2005-11-03 18:19:54 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.1.2.12 2005-11-04 17:29:28 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -33,34 +33,45 @@ A namespace within the Groups Registry.
     <meta attribute="session-method">HibernateUtil.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
+    <id name="id" 
+        type="string" 
+        unsaved-value="null"
+    >
       <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
     <!-- version -->
+<!--
     <version name="version"/>
+-->
     <!-- version -->
 
 
     <!-- child_groups -->
-    <set name="child_groups">
-      <meta attribute="field-description">
-Get child groups.
-      </meta>
-      <key column="id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Group"/>
-    </set>
-    <!-- child_groups -->
-
-    <!-- child_stems -->
-    <!-- 
+<!-- 
 TODO Disabled for now until I feel like dealing with this problem
      again.  Worst case I can find them easy enough on my own if
      need be.  Cascading updates may be another issue.
-    -->
-<!--
+    <set  name="child_groups"
+          inverse="true"
+          cascade="save-update"
+    >
+      <meta attribute="field-description">
+Get child groups.
+      </meta>
+      <key column="group_id"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Group"/>
+    </set>
+-->
+    <!-- child_groups -->
+
+    <!-- child_stems -->
+<!-- 
+TODO Disabled for now until I feel like dealing with this problem
+     again.  Worst case I can find them easy enough on my own if
+     need be.  Cascading updates may be another issue.
     <set name="child_stems" 
          inverse="true"
          cascade="save-update"
@@ -216,6 +227,7 @@ Get name.
     <!-- name -->
 
     <!-- parent_stem -->
+<!-- TODO Map directly to the Stem class
     <many-to-one
       name="parent_stem"
       class="edu.internet2.middleware.grouper.Stem"
@@ -225,6 +237,13 @@ Get parent stem.
       </meta>
       <column name="parent_stem" sql-type="char(64)"/>
     </many-to-one>
+-->
+    <property 
+      name="parent_stem"
+      type="string"
+    >
+      <column name="parent_stem" sql-type="char(32)"/>
+    </property>
     <!-- parent_stem -->
 
     <!-- stem_id -->
@@ -233,6 +252,7 @@ Get parent stem.
       type="string"
       length="64"
       not-null="true"
+      unique="true"
     >
       <meta attribute="field-description">
 Get UUID.

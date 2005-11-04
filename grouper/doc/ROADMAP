@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.5 2005-11-03 18:19:54 blair Exp $
+$Id: ROADMAP,v 1.47.2.6 2005-11-04 17:29:28 blair Exp $
 
 ---
 
@@ -11,8 +11,6 @@ $Id: ROADMAP,v 1.47.2.5 2005-11-03 18:19:54 blair Exp $
 
 TODO Sync with Basecamp
 
-* [TEST] Create child stem
-* [TEST] Create child group
 * [TEST] Delete group
 * [TEST] Add member
 * [TEST] Delete member
@@ -29,7 +27,12 @@ TODO Sync with Basecamp
 * [TEST] OPTIN access privilege
 * [TEST] OPTOUT access privilege
 * Merge HEAD and GROUPER_RELENG_0_9 branches
+
+## Not Quite Bugs
 * Stem.child_stems mapping
+* Stem.child_groups mapping
+* Group.parent_stem mapping
+* Stem.parent_stem mapping
 
 ## Features
 * Improved exception hierarchy (#351)
@@ -84,4 +87,5 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 

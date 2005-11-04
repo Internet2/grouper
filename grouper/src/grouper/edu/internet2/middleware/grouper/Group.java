@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.6 2005-10-20 18:09:30 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.7 2005-11-04 17:29:28 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -40,15 +40,20 @@ public class Group implements Serializable {
   private Set     group_attributes;
   private String  group_description;
   private String  group_extension;
+  private String  group_id;
   private Set     group_memberships;
   private String  group_name;
   private String  id;
   private Member  modifier_id;
   private String  modify_source;
   private Date    modify_time;
-  private Stem    parent_stem;
-  private String  uuid;
-  private Integer version;
+  // TODO private Stem    parent_stem;
+  private String  parent_stem;
+
+
+  // Transient Instance Methods
+  private transient GrouperSession s;
+
 
   // Constructors
 
@@ -59,6 +64,25 @@ public class Group implements Serializable {
     // Nothing
   }
 
+  // Return a group with an attached session
+  protected Group(
+    GrouperSession s, Stem ns, String extn, String displayExtn
+  ) 
+  {
+    this.s = s;
+    // Set create information
+    this.setCreator_id( s.getMember() );
+    this.setCreate_time( new java.util.Date() );
+    // Assign UUID
+    this.setGroup_id( GrouperUuid.getUuid() );
+    // Set naming information
+    this.setGroup_name( ns.constructName(ns.getName(), extn) );
+    this.setDisplay_name( ns.constructName(ns.getDisplayName(), displayExtn) );
+    this.setGroup_extension(extn);
+    this.setDisplay_extension(displayExtn);
+  } // protected Group(s, ns, extn, displayExtn)
+ 
+ 
   // Public Instance Methods
 
   /**
@@ -499,8 +523,8 @@ public class Group implements Serializable {
    * </pre>
    * @return  Group UUID.
    */
-  public String getUuud() {
-    throw new RuntimeException("Not implemented");
+  public String getUuid() {
+    return this.getGroup_id();
   }
 
   /**
@@ -902,20 +926,12 @@ public class Group implements Serializable {
     this.group_name = group_name;
   }
 
-  private String getUuid() {
-    return this.uuid;
+  private String getGroup_id() {
+    return this.group_id;
   }
 
-  private void setUuid(String uuid) {
-    this.uuid = uuid;
-  }
-
-  private Integer getVersion() {
-    return this.version;
-  }
-
-  private void setVersion(Integer version) {
-    this.version = version;
+  private void setGroup_id(String group_id) {
+    this.group_id = group_id;
   }
 
   private Member getCreator_id() {
@@ -934,11 +950,15 @@ public class Group implements Serializable {
     this.modifier_id = modifier_id;
   }
 
-  private Stem getParent_stem() {
+  // TODO private Stem getParent_stem() {
+  private String getParent_stem() {
     return this.parent_stem;
   }
 
-  private void setParent_stem(Stem parent_stem) {
+  // TODO protected void setParent_stem(Stem parent_stem) {
+  protected void setParent_stem(String parent_stem) {
+    // TODO I should just be able to use a _Stem_ object
+    // TODO this.parent_stem = parent_stem.getId();
     this.parent_stem = parent_stem;
   }
 

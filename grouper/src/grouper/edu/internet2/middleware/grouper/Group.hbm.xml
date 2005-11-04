@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.9 2005-10-27 18:05:34 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.10 2005-11-04 17:29:28 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -33,14 +33,19 @@ A group within the Groups Registry.
     <meta attribute="session-method">HibernateUtil.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+    >
       <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
     <!-- version -->
+<!--
     <version name="version"/>
+-->
     <!-- version -->
 
 
@@ -205,6 +210,7 @@ Get name.
     <!-- name -->
 
     <!-- parent_stem -->
+<!-- TODO Map directly to the Stem class
     <many-to-one
       name="parent_stem"
       class="edu.internet2.middleware.grouper.Stem"
@@ -214,23 +220,31 @@ Get parent stem.
       </meta>
       <column name="parent_stem" sql-type="char(64)"/>
     </many-to-one>
+-->
+    <property 
+      name="parent_stem"
+      type="string"
+    >
+      <column name="parent_stem" sql-type="char(32)"/>
+    </property>
     <!-- parent_stem -->
 
-    <!-- uuid -->
+    <!-- group_id -->
     <property 
-      name="uuid"
+      name="group_id"
       type="string"
       length="64"
       not-null="true"
+      unique="true"
     >
       <meta attribute="field-description">
 Get UUID.
       </meta>
-      <meta attribute="finder-method">findByUuid</meta>
+      <meta attribute="finder-method">findByGroupId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
-    <!-- uuid -->
+    <!-- group_id -->
 
   </class>
 </hibernate-mapping>
