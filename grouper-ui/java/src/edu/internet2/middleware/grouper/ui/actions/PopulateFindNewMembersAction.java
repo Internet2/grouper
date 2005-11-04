@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
  * Top level Strut's action which does any setup required for browsing / searching 
  * for new members / privilegees. 
  * <p/>
+ 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
@@ -129,17 +130,11 @@ import edu.internet2.middleware.grouper.GrouperStem;
       ids and labels which will be used to render a select list which allows a 
       user to scope their search</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">personSources</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of Sources which can be 
-      searched to find people. If &gt;1 user can select one to search</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">personSourcesSize</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Size of personSources - allows 
-      UI to determine if it should display select for element</font></td>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;thisPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
+      be added to links/forms so this page can be returned to</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subtitleArgs</font></td>
@@ -181,8 +176,9 @@ import edu.internet2.middleware.grouper.GrouperStem;
       a stem</font></td>
   </tr>
 </table>
+
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.2 2005-11-04 12:36:05 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 
@@ -201,6 +197,7 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		session.setAttribute("subtitle","groups.action.find-new-members");
 		
 		DynaActionForm groupOrStemForm = (DynaActionForm) form;
+		saveAsCallerPage(request,groupOrStemForm,"findForNode");
 		GrouperGroup group = null;
 		GrouperStem stem = null;
 		String param = mapping.getParameter();
@@ -270,10 +267,6 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		List path = GrouperHelper.parentStemsAsMaps(grouperSession, groupOrStem);
 		request.setAttribute("browsePath", path);
 		request.setAttribute("browseParent", nodeMap);
-		
-		List personSources = GrouperHelper.getPersonSources();
-		request.setAttribute("personSources",personSources);
-		request.setAttribute("personSourcesSize",new Integer(personSources.size()));
 		
 		return mapping.findForward(FORWARD_FindNewMembers);
 
