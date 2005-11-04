@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.7 2005-11-03 16:09:21 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.8 2005-11-04 17:24:08 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -35,7 +35,6 @@ public class Member implements Serializable {
   private String  subject_source;
   private String  subject_type;
   private String  uuid;
-  private Integer version;
 
 
   // Private Transient Instance Properties
@@ -514,12 +513,5 @@ public class Member implements Serializable {
     this.subject_type = subject_type;
   }
 
-  private Integer getVersion() {
-    return this.version;
-  }
-
-  private void setVersion(Integer version) {
-    this.version = version;
-  }
-
 }
+

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.1.2.6 2005-11-04 17:24:08 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -33,15 +33,15 @@ A member within the Groups Registry.
     <meta attribute="session-method">HibernateUtil.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+    >
       <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-    <version name="version"/>
-    <!-- version -->
 
 
     <!-- subject_id -->
@@ -101,6 +101,7 @@ Get Subject type.
       type="string"
       length="64"
       not-null="true"
+      unique="true"
     >
       <meta attribute="field-description">
 Get Member UUID.
