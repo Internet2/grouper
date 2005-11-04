@@ -65,6 +65,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
+import org.apache.struts.actions.ForwardAction;
 
 import edu.internet2.middleware.grouper.GrouperAccess;
 import edu.internet2.middleware.grouper.GrouperGroup;
@@ -80,6 +81,7 @@ import edu.internet2.middleware.subject.Subject;
  * Top level Strut's action which saves privileges for a subject 
  * for a group and / or makes the subject a member of the group. 
  * <p/>
+
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
@@ -102,8 +104,15 @@ import edu.internet2.middleware.subject.Subject;
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">privilege</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Indicates that we were finding in the context of this privilege - 
-    so we should return to list of privilegees and not members</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates that we were finding 
+      in the context of this privilege - so we should return to list of privilegees 
+      and not members</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">callerPageId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies page to which we 
+      should return</font></td>
   </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">subjectId</font></p></td>
@@ -112,10 +121,33 @@ import edu.internet2.middleware.subject.Subject;
       making assignments to</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">subjectType</font></p></td>
+    <td><p><font face="Arial, Helvetica, sans-serif">subjectId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies the Subject we are 
+      making assignments to</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextSubjectId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies the subject where 
+      we started out</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextSubjectType</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Identifies the type of the Subject 
-      we are making assignments to</font></td>
+      where we started out</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextSubject</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies that there is a contextSubject</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextGroup</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies the group where we 
+      started out</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -150,9 +182,8 @@ import edu.internet2.middleware.subject.Subject;
     <td>&nbsp;</td>
   </tr>
 </table>
-
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.2 2005-11-04 14:17:12 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -161,6 +192,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 	static final private String FORWARD_GroupMembers = "GroupMembers";
 	static final private String FORWARD_GroupMember = "GroupMember";
 	static final private String FORWARD_GroupPrivilegees = "GroupPrivilegees";
+	static final private String FORWARD_SubjectSummary = "SubjectSummary";
 
 	//------------------------------------------------------------ Action
 	// Methods
@@ -170,12 +202,13 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		DynaActionForm groupOrStemMemberForm = (DynaActionForm) form;
+		String contextGroup = (String) groupOrStemMemberForm.get("contextGroup");
 		String asMemberOf = (String) groupOrStemMemberForm.get("asMemberOf");
 		String[] privileges = (String[]) groupOrStemMemberForm.get("privileges");
 		String privilege = (String) groupOrStemMemberForm.get("privilege");
 		String subjectId = (String) groupOrStemMemberForm.get("subjectId");
 		String subjectType = (String) groupOrStemMemberForm.get("subjectType");
-		
+		if(isEmpty(asMemberOf)&& !isEmpty(contextGroup))asMemberOf=contextGroup;
 		GrouperAccess accessImpl = grouperSession.access();
 		GrouperGroup curGroup = (GrouperGroup)GrouperGroup.loadByID(grouperSession,
 				asMemberOf);
@@ -184,7 +217,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		GrouperMember member = GrouperMember.load(grouperSession,subjectId, subjectType);
 		List failedRevocations=new ArrayList();
 		//Get privileges as they existed and determine new ones as Map
-		Map privs = GrouperHelper.hasAsMap(grouperSession, curGroup, member);
+		Map privs = GrouperHelper.getImmediateHas(grouperSession, curGroup, member);
 		Map newPrivs = new HashMap();
 		int newPrivsCount = 0;
 		for (int i = 0; i < privileges.length; i++) {
@@ -235,10 +268,18 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 			request.setAttribute("failedRevocations", failedRevocations);
 			return mapping.findForward(FORWARD_GroupMember);
 		}
-
+		if(doRedirectToCaller(groupOrStemMemberForm))return redirectToCaller(groupOrStemMemberForm);
+		if(!isEmpty(groupOrStemMemberForm.get("contextSubject"))) return mapping.findForward(FORWARD_SubjectSummary);
 		
-		if(isEmpty(privilege))
+		if(isEmpty(privilege)) {
+			if(!isEmpty(contextGroup)) {
+				return new ActionForward("populateChains.do?subjectId=" + groupOrStemMemberForm.get("contextSubjectId") +
+						"&subjectType=" + groupOrStemMemberForm.get("contextSubjectType") +
+						"&groupId=" + groupOrStemMemberForm.get("contextGroup")+
+						"&contextSubject=" + groupOrStemMemberForm.get("contextSubject"),true);
+			}
 			return mapping.findForward(FORWARD_GroupMembers);
+		}
 		return mapping.findForward(FORWARD_GroupPrivilegees);
 	}
 }
