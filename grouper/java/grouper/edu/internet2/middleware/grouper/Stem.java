@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.11 2005-11-04 17:29:28 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.12 2005-11-04 18:33:44 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -287,7 +287,7 @@ public class Stem implements Serializable {
    * @return  Stem displayExtension.
    */
   public String getDisplayExtension() {
-    throw new RuntimeException("Not implemented");
+    return this.getDisplay_extension();
   }
  
   /**
@@ -311,7 +311,7 @@ public class Stem implements Serializable {
    * @return  Stem extension.
    */
   public String getExtension() {
-    throw new RuntimeException("Not implemented");
+    return this.getStem_extension();
   }
  
   /**
