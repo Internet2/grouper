@@ -51,7 +51,12 @@
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,6 +70,8 @@ import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Low level Strut's action which acts as a controller to do any necessary setup 
@@ -138,9 +145,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.2 2005-11-04 14:03:58 isgwb Exp $
  */
-public class PrepareGroupSearchFormAction extends GrouperCapableAction {
+public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
 
 	public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
@@ -154,6 +161,7 @@ public class PrepareGroupSearchFormAction extends GrouperCapableAction {
 		String searchNameOrExtension = getMediaResources(request).getString("search.default.search-in-name-or-extension");
 		searchForm.set("searchInDisplayNameOrExtension",searchDisplayNameOrExtension);
 		searchForm.set("searchInNameOrExtension",searchNameOrExtension);
+		
 		if(browsePath==null) {
 			Group curGroupOrStem = getCurrentGroupOrStem(grouperSession,session);
 			if(curGroupOrStem!=null) {
@@ -163,7 +171,6 @@ public class PrepareGroupSearchFormAction extends GrouperCapableAction {
 				request.setAttribute("currentLocation",GrouperHelper.group2Map(grouperSession,curGroupOrStem));
 			}
 		}
-
 		return null;
 	}
 }

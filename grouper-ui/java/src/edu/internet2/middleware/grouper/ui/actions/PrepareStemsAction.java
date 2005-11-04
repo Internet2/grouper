@@ -222,10 +222,10 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareStemsAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PrepareStemsAction.java,v 1.2 2005-11-04 14:05:52 isgwb Exp $
  */
 
-public class PrepareStemsAction extends GrouperCapableAction {
+public class PrepareStemsAction extends LowLevelGrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
@@ -293,7 +293,7 @@ public class PrepareStemsAction extends GrouperCapableAction {
 		} catch (Exception e) {
 			//TODO: something
 		}
-		String defaultStem = getDefaultRootStemName(session);
+		String defaultStem = getDefaultRootStemName(session); 
 		Map parent = null;
 		if (isFlat || ((isEmpty(currentNodeId)||"ROOT".equals(currentNodeId)) && pluginInitialStems == null)
 				|| ("All".equals(browseMode) && isEmpty(currentNodeId ))

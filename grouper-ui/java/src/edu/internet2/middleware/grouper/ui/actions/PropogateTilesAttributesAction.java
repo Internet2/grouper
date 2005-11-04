@@ -70,9 +70,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PropogateTilesAttributesAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PropogateTilesAttributesAction.java,v 1.2 2005-11-04 14:06:22 isgwb Exp $
  */
-public class PropogateTilesAttributesAction extends GrouperCapableAction {
+public class PropogateTilesAttributesAction extends LowLevelGrouperCapableAction {
 
 	//------------------------------------------------------------ Action
 	// Methods
