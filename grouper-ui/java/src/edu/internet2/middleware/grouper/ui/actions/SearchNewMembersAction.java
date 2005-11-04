@@ -100,12 +100,6 @@ import edu.internet2.middleware.subject.provider.SourceManager;
       search results</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">searchFor</font></p></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Identifies Subject type we are 
-      searching for - currently limited to person or group</font></td>
-  </tr>
-  <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">searchInNameOrExtension=name 
         or extension</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
@@ -126,10 +120,10 @@ import edu.internet2.middleware.subject.provider.SourceManager;
       out a new search vs paged a previous search</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">personSource</font></p></td>
+    <td><p><font face="Arial, Helvetica, sans-serif">subjectSource</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Identifies which personSource 
-      to search if searching for people</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies which sourceAdapter 
+      to search</font></td>
   </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">forStems</font></p></td>
@@ -160,14 +154,10 @@ import edu.internet2.middleware.subject.provider.SourceManager;
       results</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">searchedPeople</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">thisPageId</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Indicates that people were searched</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">searchedGroups</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Indicates that groups were searched</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">The id by which this page was 
+      saved and can be returned to. Used on links and forms</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -197,8 +187,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td>&nbsp;</td>
   </tr>
 </table>
+
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.2 2005-11-04 14:34:56 isgwb Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -214,17 +205,18 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		DynaActionForm searchForm = (DynaActionForm)form;
+		saveAsCallerPage(request,searchForm,"findForNode searchObj");
 		String browseMode = getBrowseMode(session);
 		if (browseMode == null)
 			browseMode = "";
 		Map searchObj = new HashMap();
 		//Determine search parameters
 		String query = (String) searchForm.get("searchTerm");
-		String searchFor = (String) searchForm.get("searchFor");
+
 		String searchFrom = (String) searchForm.get("searchFrom");
 		String searchStart = (String) searchForm.get("start");
 		String newSearch = (String) searchForm.get("newSearch");
-		String personSource = (String) searchForm.get("personSource");
+		String subjectSource = (String) searchForm.get("subjectSource");
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
 		boolean forStem = "true".equals(searchForm.get("stems"));
@@ -233,18 +225,18 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		if ("Y".equals(newSearch)){
 			//Initialise searchObj with search parameters
 			searchObj.put("searchTerm", query);
-			searchObj.put("searchFor", searchFor);
+
 			searchObj.put("searchFrom", searchFrom);
-			searchObj.put("personSource", personSource);
+			searchObj.put("subjectSource", subjectSource);
 			searchObj.put("searchInNameOrExtension", searchInNameOrExtension);
 			searchObj.put("searchInDisplayNameOrExtension", searchInDisplayNameOrExtension);
 		} else {
 			//Retrieve last search
 			searchObj = (Map) session.getAttribute("searchObj");
 			query = (String) searchObj.get("searchTerm");
-			searchFor = (String) searchObj.get("searchFor");
+
 			searchFrom = (String) searchObj.get("searchFrom");
-			personSource = (String) searchObj.get("personSource");
+			subjectSource = (String) searchObj.get("subjectSource");
 			searchInNameOrExtension = (String) searchObj.get("searchInNameOrExtension");
 			searchInDisplayNameOrExtension = (String) searchObj.get("searchInDisplayNameOrExtension");
 		}
@@ -272,13 +264,13 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			targetId = (String) session.getAttribute("findForNode");
 		
 		//Did we search for people?
-		if (searchFor.indexOf("people") > -1) {
+		if (!"grouperAdapter".equals(subjectSource)) {
 			searchedPeople = Boolean.TRUE;
 			StringBuffer tmp = new StringBuffer();
 			//TODO: implement true subject interface when available
 			//Do search  + get page worth of results
 			SourceManager sm= SourceManager.getInstance();
-			Source personSourceImpl = sm.getSource(personSource);
+			Source personSourceImpl = sm.getSource(subjectSource);
 			Set results = personSourceImpl.search(query);
 			subjectRes = GrouperHelper.subjects2Maps(results.toArray());
 			resultSize = results.size();
@@ -286,7 +278,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		Boolean searchedGroups = Boolean.FALSE;
 		
 		//Did we search for groups
-		if (searchFor.indexOf("groups") > -1) {
+		if ("grouperAdapter".equals(subjectSource)) {
 			searchedGroups = Boolean.TRUE;
 			GrouperStem searchFromStem = (GrouperStem)GrouperStem.loadByID(
 					grouperSession, searchFrom);
