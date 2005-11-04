@@ -28,6 +28,7 @@ public class SuiteAll extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
+    suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestStemAddChildGroup.class);

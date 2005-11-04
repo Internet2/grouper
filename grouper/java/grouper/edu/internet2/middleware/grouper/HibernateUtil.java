@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.8 2005-11-04 17:25:10 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.9 2005-11-04 19:51:53 blair Exp $
  */
 class HibernateUtil {
 
@@ -62,12 +62,35 @@ class HibernateUtil {
       log.fatal(
         "Unable to build HibernateSessionFactory: " + e.getMessage()
       );
-			throw new ExceptionInInitializerError(e);
+			throw new ExceptionInInitializerError(e.getMessage());
 		}
 	}
 
 
   // Protected Class Methods
+
+  protected static void delete(Object o) 
+    throws HibernateException
+  {
+    try {
+      Session     hs = HibernateUtil.getSession();
+      Transaction tx = hs.beginTransaction();
+      try {
+        hs.delete(o);
+        tx.commit();
+      }
+      catch (HibernateException e) {
+        tx.rollback();
+        throw new HibernateException(e.getMessage());
+      }
+      finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException e) {
+      throw new HibernateException(e.getMessage());
+    }
+  } // protected static void delete(o)
 
   // @return  A Hibernate session 
 	protected static Session getSession()
@@ -90,14 +113,14 @@ class HibernateUtil {
       }
       catch (HibernateException e) {
         tx.rollback();
-        throw new HibernateException(e);
+        throw new HibernateException(e.getMessage());
       }
       finally {
         hs.close();
       }
     }
     catch (HibernateException e) {
-      throw new HibernateException(e);
+      throw new HibernateException(e.getMessage());
     }
   } // protected static void save(o)
 
@@ -119,14 +142,14 @@ class HibernateUtil {
       }
       catch (HibernateException e) {
         tx.rollback();
-        throw new HibernateException(e);
+        throw new HibernateException(e.getMessage());
       }
       finally {
         hs.close();
       }
     }
     catch (HibernateException e) {
-      throw new HibernateException(e);
+      throw new HibernateException(e.getMessage());
     }
   } // protected static void save(objects)
 

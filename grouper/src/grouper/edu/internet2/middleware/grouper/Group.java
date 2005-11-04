@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 
@@ -27,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.7 2005-11-04 17:29:28 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.8 2005-11-04 19:51:53 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -127,7 +128,14 @@ public class Group implements Serializable {
   public void delete() 
     throws GroupDeleteException, InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
+    try {
+      HibernateUtil.delete(this);
+    }
+    catch (HibernateException e) {
+      throw new GroupDeleteException(
+        "Unable to delete group: " + e.getMessage()
+      );
+    }
   }
 
   /**
