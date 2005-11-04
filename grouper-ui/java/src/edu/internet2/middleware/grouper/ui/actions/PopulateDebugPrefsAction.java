@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -127,7 +128,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateDebugPrefsAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: PopulateDebugPrefsAction.java,v 1.2 2005-11-04 12:27:37 isgwb Exp $
  */
 public class PopulateDebugPrefsAction extends GrouperCapableAction {
 
@@ -148,27 +149,7 @@ public class PopulateDebugPrefsAction extends GrouperCapableAction {
 		Map prefs = (Map)session.getAttribute("debugPrefs");
 		if(prefs==null) {
 			
-			String x = request.getRealPath(request.getServletPath());
-			String prefsFile=x.substring(0,x.lastIndexOf("\\")) + "\\WEB-INF\\debugPrefs.obj";
-			File pFile = new File(prefsFile);
-			if(pFile.exists()) {
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(prefsFile));
-				prefs = (Map)ois.readObject();
-				ois.close();
-			}else{
-				prefs=new HashMap();
-				prefs.put("isActive",Boolean.FALSE);
-				prefs.put("i2miDir","");
-				prefs.put("siteDir","");
-				prefs.put("doShowResources",Boolean.TRUE);
-				prefs.put("doShowResourcesInSitu",Boolean.FALSE);
-				prefs.put("doHideStyles",Boolean.FALSE);
-				prefs.put("doSaveOutput",Boolean.FALSE);
-				prefs.put("outputDir","");
-				prefs.put("doShowTilesHistory",Boolean.TRUE);
-				prefs.put("JSPEditor","");
-			}
-			session.setAttribute("debugPrefs",prefs);
+			prefs=readDebugPrefs(request);
 		}
 		DynaActionForm debugPrefsForm = (DynaActionForm)form;
 		Iterator it = prefs.entrySet().iterator();
@@ -177,6 +158,8 @@ public class PopulateDebugPrefsAction extends GrouperCapableAction {
 			entry = (Map.Entry)it.next();
 			debugPrefsForm.set((String)entry.getKey(),entry.getValue());
 		}
+		Cookie cookie=new Cookie("grouperDebugPrefs","true");
+		response.addCookie(cookie);
 		return mapping.findForward(FORWARD_DebugPrefs);
 	}
 
