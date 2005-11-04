@@ -74,6 +74,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFactory;
+import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.subject.Source;
 
 /**
@@ -89,7 +90,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.1.1.1 2005-08-23 13:04:14 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.2 2005-11-04 11:00:55 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -136,6 +137,11 @@ public class LoginCheckFilter implements Filter {
 		UIThreadLocal.put("navResource", new ArrayList());
 		UIThreadLocal.put("dynamicTiles", new ArrayList());
 		Map debugPrefs = (Map) session.getAttribute("debugPrefs");
+		if(debugPrefs==null && LowLevelGrouperCapableAction.getCookie("grouperDebugPrefs",request)!=null) {
+			try {
+				debugPrefs = LowLevelGrouperCapableAction.readDebugPrefs(request);
+			}catch(Exception e){}
+		}
 		if (debugPrefs != null) {
 			Boolean doShowResourcesInSitu = (Boolean) debugPrefs
 					.get("doShowResourcesInSitu");
