@@ -108,6 +108,12 @@ import edu.internet2.middleware.grouper.ui.Message;
     <td><font face="Arial, Helvetica, sans-serif">Array of privilege names to 
       be assigned</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">callerPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">pageId of saved page which should 
+      be returned to</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -149,7 +155,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.1.1.1 2005-08-23 13:04:14 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.2 2005-11-04 11:41:42 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 
@@ -226,6 +232,7 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 		message = new Message("priv.message.assigned");
 		request.setAttribute("message", message);
 		//Make sure we don't switch inadvertantly to group context
+		if(doRedirectToCaller(assignMembersForm))return redirectToCaller(assignMembersForm);
 		if (forStem)
 			return mapping.findForward(FORWARD_StemPrivilegees);
 		if(!isEmpty(session.getAttribute("findForPriv"))) return mapping.findForward((FORWARD_GroupPrivilegees));
