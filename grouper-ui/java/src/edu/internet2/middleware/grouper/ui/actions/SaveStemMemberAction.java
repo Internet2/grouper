@@ -103,10 +103,16 @@ import edu.internet2.middleware.subject.Subject;
       making assignments to</font></td>
   </tr>
   <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">subjectType</font></p></td>
+    <td><p><font face="Arial, Helvetica, sans-serif">contextSubject</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Identifies the type of the Subject 
-      we are making assignments to</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies that we started out 
+      looking at a subject</font></td>
+  </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">callerPageId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies the page to which 
+      we should return</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -143,13 +149,14 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SaveStemMemberAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: SaveStemMemberAction.java,v 1.2 2005-11-04 14:26:00 isgwb Exp $
  */
 public class SaveStemMemberAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_StemPriviligees = "StemPriviligees";
+	static final private String FORWARD_SubjectSummary = "SubjectSummary";
 
 	//------------------------------------------------------------ Action
 	// Methods
@@ -173,7 +180,7 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 		GrouperMember member = GrouperMember.load(grouperSession,subjectId, subjectType);
 		
 		//Get new privileges as a Map
-		Map privs = GrouperHelper.hasAsMap(grouperSession, curStem, member);
+		Map privs = GrouperHelper.getImmediateHas(grouperSession, curStem, member);
 		Map newPrivs = new HashMap();
 		int newPrivsCount = 0;
 		for (int i = 0; i < privileges.length; i++) {
@@ -198,9 +205,7 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 		while (it.hasNext()) {
 			key = (String) it.next();
 			if (!newPrivs.containsKey(key)) {
-
 				namingImpl.revoke(grouperSession, curStem, member, key);
-
 			}
 		}
 		//Assign privileges
@@ -210,7 +215,9 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 				newPrivileges, forStems);
 
 		request.setAttribute("message", new Message("priv.action.assigned"));
-
+		
+		if(doRedirectToCaller(groupOrStemMemberForm))return redirectToCaller(groupOrStemMemberForm);
+		if(!isEmpty(groupOrStemMemberForm.get("contextSubject"))) return mapping.findForward(FORWARD_SubjectSummary);
 		return mapping.findForward(FORWARD_StemPriviligees);
 
 	}
