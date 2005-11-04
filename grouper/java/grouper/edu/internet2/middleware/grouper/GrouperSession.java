@@ -27,17 +27,16 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.8 2005-11-03 16:09:21 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.9 2005-11-04 17:23:25 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
 
   // Properties
   private String  id;
-  private Date    start_time;
-  private String  uuid;
-  private Integer version;
   private Member  member_id;
+  private String  session_id;
+  private Date    start_time;
 
 
   // Private Transient Instance Variables
@@ -62,7 +61,7 @@ public class GrouperSession implements Serializable {
     // Persistent
     this.setMember_id(m);
     this.setStart_time( new Date() );
-    this.setUuid( GrouperUuid.getUuid() );
+    this.setSession_id( GrouperUuid.getUuid() );
   } // private GrouperSession(subj) 
 
   // Public class methods
@@ -132,7 +131,7 @@ public class GrouperSession implements Serializable {
     if ( !(other instanceof GrouperSession) ) return false;
     GrouperSession castOther = (GrouperSession) other;
     return new EqualsBuilder()
-           .append(this.getUuid(), castOther.getUuid())
+           .append(this.getSession_id(), castOther.getSession_id())
            .append(this.getMember_id(), castOther.getMember_id())
            .isEquals();
   }
@@ -161,7 +160,7 @@ public class GrouperSession implements Serializable {
    * @return  The session id.
    */
   public String getSessionId() {
-    return this.getUuid();
+    return this.getSession_id();
   } // public String getSessionId()
 
   /**
@@ -194,7 +193,7 @@ public class GrouperSession implements Serializable {
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getUuid())
+           .append(getSession_id())
            .append(getMember_id())
            .toHashCode();
   }
@@ -224,7 +223,7 @@ public class GrouperSession implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append("session_id", this.getUuid())
+      .append("session_id", this.getSession_id())
       .append("member_id",  this.getMember_id() )
       .append("start",      this.getStart_time())
       .toString();
@@ -248,20 +247,12 @@ public class GrouperSession implements Serializable {
     this.start_time = start_time;
   }
 
-  private String getUuid() {
-    return this.uuid;
+  private String getSession_id() {
+    return this.session_id;
   }
 
-  private void setUuid(String uuid) {
-    this.uuid = uuid;
-  }
-
-  private Integer getVersion() {
-    return this.version;
-  }
-
-  private void setVersion(Integer version) {
-    this.version = version;
+  private void setSession_id(String session_id) {
+    this.session_id = session_id;
   }
 
   private Member getMember_id() {
