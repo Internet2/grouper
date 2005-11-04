@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.1.2.2 2005-10-27 18:00:38 blair Exp $
+ * @version $Id: TestGrouperSession.java,v 1.1.2.3 2005-11-04 18:34:35 blair Exp $
  */
 public class TestGrouperSession extends TestCase {
 
@@ -49,46 +49,11 @@ public class TestGrouperSession extends TestCase {
   // Tests
 
   public void testStartSessionBadSubject() {
-    try {
-      GrouperSession s = GrouperSession.startSession(
-        SubjectFinder.findById("bad subject")
-      );
-      Assert.fail("started session with bad subject: " + s);
-    }
-    catch (SessionException e0) {
-      Assert.fail("should have been a SubjectNotFoundException");
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.assertTrue("could not start session with bad subject", true);
-    }
+    Helper.getBadSession("bad subject");
   } // public void testStartSessionBadSubject()
 
   public void testStartSessionGoodSubject() {
-    String  id    = "GrouperSystem";
-    String  type  = "application";
-    try {
-      GrouperSession s = GrouperSession.startSession(
-        SubjectFinder.findById(id)
-      );
-      Assert.assertTrue("started session: " + s, true);
-      Assert.assertNotNull("session id !null", s.getSessionId());
-      Member  m     = s.getMember();
-      Assert.assertNotNull("m !null", m);
-      Subject subj  = s.getSubject();
-      Assert.assertNotNull("subj !null", subj);
-      Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj type", subj.getType().getName().equals(type));
-    }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session with good subject: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to start session with good subject: " + e1.getMessage()
-      );
-    }
+    GrouperSession s = Helper.getSession("GrouperSystem", "application");
   } // public void testStartSessionGoodSubject()
 
 }

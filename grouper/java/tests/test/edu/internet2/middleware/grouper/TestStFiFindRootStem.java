@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link StemFinder.findRootStem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStFiFindRootStem.java,v 1.1.2.2 2005-11-03 16:09:21 blair Exp $
+ * @version $Id: TestStFiFindRootStem.java,v 1.1.2.3 2005-11-04 18:34:35 blair Exp $
  */
 public class TestStFiFindRootStem extends TestCase {
 
@@ -47,29 +47,9 @@ public class TestStFiFindRootStem extends TestCase {
   // Tests
 
   public void testFindRootStem() {
-    try {
-      GrouperSession s = GrouperSession.startSession(
-        SubjectFinder.findById("GrouperSystem")
-      );
-      try {
-        Stem root = StemFinder.findRootStem(s);
-        Assert.assertTrue("found root stem", true);
-        Assert.assertTrue("root isa Stem", root instanceof Stem);
-      }
-      catch (StemNotFoundException e) {
-        Assert.fail("root stem not found: " + e.getMessage());
-      }  
-    }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session with good subject: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to start session with good subject: " + e1.getMessage()
-      );
-    }
+    Stem  root  = Helper.getRootStem(
+      Helper.getRootSession()
+    );
   } // public void testFindRootStem()
 
 }

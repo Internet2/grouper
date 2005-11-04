@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildStem()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildStem.java,v 1.1.2.1 2005-11-03 18:19:54 blair Exp $
+ * @version $Id: TestStemAddChildStem.java,v 1.1.2.2 2005-11-04 18:34:35 blair Exp $
  */
 public class TestStemAddChildStem extends TestCase {
 
@@ -45,42 +45,10 @@ public class TestStemAddChildStem extends TestCase {
   // Tests
 
   public void testAddChildStemAtRoot() {
-    try {
-      GrouperSession s = GrouperSession.startSession(
-        SubjectFinder.findById("GrouperSystem")
-      );
-      try {
-        Stem root = StemFinder.findRootStem(s);
-        try {
-          String extn         = "edu";
-          String displayExtn  = "eductional";
-          Stem child = root.addChildStem(extn, displayExtn);
-          Assert.assertNotNull("child !null", child);
-          Assert.assertTrue("added child stem", true);
-          Assert.assertTrue(
-            "child stem instanceof Stem", 
-            child instanceof Stem
-          );
-          Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
-        }
-        catch (StemAddException e) {
-          Assert.fail("failed to add stem: " + e.getMessage());
-        }
-      }
-      catch (StemNotFoundException e) {
-        Assert.fail("root stem not found: " + e.getMessage());
-      }  
-    }
-    catch (SessionException e0) {
-      Assert.fail(
-        "failed to start session with good subject: " + e0.getMessage()
-      );
-    }
-    catch (SubjectNotFoundException e1) {
-      Assert.fail(
-        "failed to start session with good subject: " + e1.getMessage()
-      );
-    }
+    Stem  root  = Helper.getRootStem(
+      Helper.getRootSession()
+    );
+    Stem  edu   = Helper.addChildStem(root, "edu", "education");
   } // public void testAddChildStemAtRoot()
 
 }
