@@ -93,9 +93,10 @@ import edu.internet2.middleware.grouper.GrouperStem;
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">&nbsp;</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;thisPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
+      be added to links/forms so this page can be returned to</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -139,7 +140,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: BrowseStemsAction.java,v 1.1.1.1 2005-08-23 13:04:14 isgwb Exp $
+ * @version $Id: BrowseStemsAction.java,v 1.2 2005-11-04 11:30:29 isgwb Exp $
  */
 public class BrowseStemsAction extends GrouperCapableAction {
 
@@ -181,7 +182,7 @@ public class BrowseStemsAction extends GrouperCapableAction {
 		
 		//Check if browsing to find members
 		if ("FindNewMembers".equals(param)) {
-			
+			saveAsCallerPage(request,browseForm,"findForNode");
 			//The node we are finding members for
 			String findForNode = (String) session.getAttribute(
 					"findForNode");
