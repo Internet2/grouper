@@ -108,6 +108,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;thisPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
+      be added to links/forms so this page can be returned to</font></td>
+  </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
@@ -202,8 +208,9 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td>&nbsp;</td>
   </tr>
 </table>
+
  * @author Gary Brown.
- * @version $Id: PopulateStemPriviligeesAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PopulateStemPriviligeesAction.java,v 1.2 2005-11-04 14:00:17 isgwb Exp $
  */
 
 public class PopulateStemPriviligeesAction extends GrouperCapableAction {
@@ -220,6 +227,7 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		DynaActionForm groupOrStemForm = (DynaActionForm) form;
+		saveAsCallerPage(request,groupOrStemForm,"findForNode");
 		String privilege = (String)groupOrStemForm.get("privilege");
 		
 		session.setAttribute("title", "stems.manage");
