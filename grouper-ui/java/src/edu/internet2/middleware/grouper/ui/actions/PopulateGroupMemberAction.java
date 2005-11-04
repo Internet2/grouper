@@ -77,7 +77,6 @@ import edu.internet2.middleware.grouper.GrouperStem;
  * assigned directly from those derived from group memberships - may 
  * give unexpected behaviour. 
  * <p/>
- * 
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
@@ -115,6 +114,12 @@ import edu.internet2.middleware.grouper.GrouperStem;
     <td><font face="Arial, Helvetica, sans-serif">Used in subtitleArgs to give 
       UI context</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextGroupId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Used when we are on a diversion 
+      and the group we are modifying is not the browseParent</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -147,8 +152,14 @@ import edu.internet2.middleware.grouper.GrouperStem;
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subjectPri</font>v</td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Map of privileges the Subject 
-      identified by request parameters has for this group or stem</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Map of direct privileges the 
+      Subject identified by request parameters has for this group or stem</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">possiblePrivs</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">All privileges (Naming or Access) 
+      which can be assigned</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">possiblePrivs</font></td>
@@ -160,6 +171,18 @@ import edu.internet2.middleware.grouper.GrouperStem;
     <td><font face="Arial, Helvetica, sans-serif">subtitleArgs</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Provides context for UI</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">thisPageId</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">USed in links and forms so this 
+      page can be returned to</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">extendedSubjectPriv</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Effective privileges and how 
+      they are derived</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -196,8 +219,9 @@ import edu.internet2.middleware.grouper.GrouperStem;
   </tr>
 </table>
  * 
+ * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.2 2005-11-04 12:47:40 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 
@@ -221,9 +245,22 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		
 		//We are using same class for stems and groups, but action is different
 		//we distinguish by checking parameter
+		
+		
 		boolean forStems = "stems".equals(mapping.getParameter());
 		DynaActionForm groupOrStemMemberForm = (DynaActionForm) form;
+		saveAsCallerPage(request,groupOrStemMemberForm,"findForNode");
 		String asMemberOf = (String) groupOrStemMemberForm.get("asMemberOf");
+		String contextGroupId = (String) groupOrStemMemberForm.get("contextGroup");
+		Group contextGroup=null;
+		if(!isEmpty(contextGroupId)) {
+			if(forStems) {
+				contextGroup = GrouperStem.loadByID(grouperSession,contextGroupId);
+			}else{
+				contextGroup = GrouperGroup.loadByID(grouperSession,contextGroupId);
+			}
+		}
+		if(isEmpty(asMemberOf) && !isEmpty(contextGroupId)) asMemberOf = contextGroupId;
 		
 //		If not set explicitly, default to findForNode
 		if (isEmpty(asMemberOf)) {
@@ -275,11 +312,13 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		GrouperMember member = GrouperMember.load(grouperSession,subjectId, subjectType);
 		Map authUserPrivs = GrouperHelper.hasAsMap(grouperSession, groupOrStem,false);
 		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member);
+		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member);
+		Map immediatePrivs = GrouperHelper.getImmediateHas(grouperSession,groupOrStem,member);
 		
 		
 		//The actual privileges the subject has
-		String privileges[] = new String[privs.size()];
-		Iterator it = privs.keySet().iterator();
+		String privileges[] = new String[immediatePrivs.size()];
+		Iterator it = immediatePrivs.keySet().iterator();
 		String privilege;
 		int pos = 0;
 		while (it.hasNext()) {
@@ -291,12 +330,20 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		request.setAttribute("subject", subjectMap);
 		request.setAttribute("authUserPriv", authUserPrivs);
 		request.setAttribute("subjectPriv", privs);
+		request.setAttribute("extendedSubjectPriv", extendedPrivs);
 		request.setAttribute("possiblePrivs", possiblePrivs);
 		
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, groupOrStem);
+		if(contextGroup==null) {
+			List path = GrouperHelper.parentStemsAsMaps(grouperSession, groupOrStem);
 
-		request.setAttribute("browsePath", path);
-		request.setAttribute("browseParent", groupOrStemMap);
+			request.setAttribute("browsePath", path);
+			request.setAttribute("browseParent", groupOrStemMap);
+		}else{
+			List path = GrouperHelper.parentStemsAsMaps(grouperSession, contextGroup);
+
+			request.setAttribute("browsePath", path);
+			request.setAttribute("browseParent", GrouperHelper.group2Map(grouperSession,contextGroup));
+		}
 		
 		if (forStems) {
 			return mapping.findForward(FORWARD_StemMember);
