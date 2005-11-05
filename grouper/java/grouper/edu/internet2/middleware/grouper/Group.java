@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.8 2005-11-04 19:51:53 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.9 2005-11-05 23:43:46 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -52,6 +52,10 @@ public class Group implements Serializable {
   private String  parent_stem;
 
 
+  // Public Static Constants
+  public static final String LIST = "members";
+
+
   // Transient Instance Methods
   private transient GrouperSession s;
 
@@ -72,8 +76,7 @@ public class Group implements Serializable {
   {
     this.s = s;
     // Set create information
-    this.setCreator_id( s.getMember() );
-    this.setCreate_time( new java.util.Date() );
+    this._setCreated();
     // Assign UUID
     this.setGroup_id( GrouperUuid.getUuid() );
     // Set naming information
@@ -106,7 +109,20 @@ public class Group implements Serializable {
   public void addMember(Member m) 
     throws InsufficientPrivilegeException, MemberAddException
   {
-    throw new RuntimeException("Not implemented");
+    try {
+      // Create the membership
+      Membership ms = new Membership(this.s, this, m, Group.LIST);
+      // Update group modify time
+      this._setModified();
+      // And then save group and membership
+      Set objects = new HashSet();
+      objects.add(ms);
+      //objects.add(this);
+      HibernateUtil.save(objects);
+    }
+    catch (HibernateException e) {
+      throw new MemberAddException("could not add member: " + e.getMessage());
+    }
   }
 
   /**
@@ -311,7 +327,7 @@ public class Group implements Serializable {
    * @return  Group displayName.
    */
   public String getDisplayName() {
-    throw new RuntimeException("Not implemented");
+    return this.getDisplay_name();
   }
 
   /**
@@ -443,7 +459,7 @@ public class Group implements Serializable {
    * @return  Group name.
    */
   public String getName() {
-    throw new RuntimeException("Not implemented");
+    return this.getGroup_name();
   }
 
   /**
@@ -852,8 +868,21 @@ public class Group implements Serializable {
            .toString();
   }
 
-  // Hibernate Accessors
 
+  // Private Instance Methods
+  
+  private void _setCreated() {
+    this.setCreator_id( s.getMember()         );
+    this.setCreate_time( new java.util.Date() );
+  } // private void _setCreated()
+
+  private void _setModified() {
+    this.setModifier_id( s.getMember()        );
+    this.setModify_time( new java.util.Date() );
+  } // private void _setModified()
+
+
+  // Hibernate Accessors
   private String getId() {
     return this.id;
   }

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Member.hbm.xml,v 1.1.2.6 2005-11-04 17:24:08 blair Exp $ -->
+<!-- $Id: Member.hbm.xml,v 1.1.2.7 2005-11-05 23:43:46 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Member" table="grouper_members">
@@ -113,5 +113,6 @@ Get Member UUID.
     <!-- member_id -->
 
   </class>
+
 </hibernate-mapping>
 

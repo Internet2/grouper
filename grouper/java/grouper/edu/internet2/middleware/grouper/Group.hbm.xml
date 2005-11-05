@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.10 2005-11-04 17:29:28 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.11 2005-11-05 23:43:46 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -149,6 +149,7 @@ Get extension.
     <!-- extension -->
 
     <!-- memberships -->
+<!-- TODO I'll deal with this later
     <set name="group_memberships">
       <meta attribute="field-description">
 Get memberships.
@@ -156,6 +157,7 @@ Get memberships.
       <key column="group_id"/>
       <one-to-many class="edu.internet2.middleware.grouper.Membership"/>
     </set>
+-->
     <!-- memberships -->
 
     <!-- modifier_id -->

@@ -18,59 +18,90 @@
 package edu.internet2.middleware.grouper;
 
 import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.*;
 
 
 /** 
  * Schema specification for a Group attribute or list.
- * @author blair christensen.
- *     
-*/
+ * <p />
+ * @author  blair christensen.
+ * @version $Id: Field.java,v 1.1.2.6 2005-11-05 23:43:46 blair Exp $    
+ */
 class Field implements Serializable {
 
-    /** identifier field */
-    private String id;
+    // TODO Should I have a singleton for each field?
 
-    /** persistent field */
-    private String name;
+    // Hibernate Properties
+    private String    field_name;;
+    private String    id;
+    private boolean   is_list;
+    private Privilege read_privilege_id;
+    private GroupType type_id;
+    private Privilege write_privilege_id;
 
-    /** persistent field */
-    private boolean is_list;
-
-    /** nullable persistent field */
-    private Integer version;
-
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Type type_id;
-
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Privilege read_privilege_id;
-
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Privilege write_privilege_id;
-
-    /** full constructor */
-    public Field(String name, boolean is_list, Integer version, edu.internet2.middleware.grouper.Type type_id, edu.internet2.middleware.grouper.Privilege read_privilege_id, edu.internet2.middleware.grouper.Privilege write_privilege_id) {
-        this.name = name;
-        this.is_list = is_list;
-        this.version = version;
-        this.type_id = type_id;
-        this.read_privilege_id = read_privilege_id;
-        this.write_privilege_id = write_privilege_id;
-    }
-
-    /** default constructor */
+    
+    // Constructors
+    
+    // For Hibernate
     public Field() {
+      super();
     }
 
-    /** minimal constructor */
-    public Field(String name, boolean is_list) {
-        this.name = name;
-        this.is_list = is_list;
-    }
+    protected Field(String field) {
+      this.setField_name(field);
+    } // protected Field(field)
 
+
+    // Public Instance Methods
+    public boolean equals(Object other) {
+      if (this == other) { 
+        return true;
+      }
+      if (!(other instanceof Field)) {
+        return false;
+      }
+      Field otherField = (Field) other;
+      return new EqualsBuilder()
+             .append(
+                this.getField_name(),         otherField.getField_name()
+              )
+             .append(
+                this.isIs_list(),             otherField.isIs_list()
+              )
+             .append(
+                this.getType_id(),            otherField.getType_id()
+              )
+             .append(
+                this.getRead_privilege_id(),  otherField.getRead_privilege_id() 
+              )
+             .append(
+                this.getWrite_privilege_id(), otherField.getWrite_privilege_id()
+              )
+             .isEquals();
+    } // public boolean equals(other)
+
+    public int hashCode() {
+      return new HashCodeBuilder()
+             .append(getField_name()        )
+             .append(isIs_list()            )
+             .append(getType_id()           )
+             .append(getRead_privilege_id() )
+             .append(getWrite_privilege_id())
+             .toHashCode();
+    } // public int hashCode()
+
+    public String toString() {
+      return new ToStringBuilder(this)
+             .append("name",                getField_name()         )
+             .append("is_list",             isIs_list()             )
+             .append("type_id",             getType_id()            )
+             .append("read_privilege_id",   getRead_privilege_id()  )
+             .append("write_privilege_id",  getWrite_privilege_id() )
+             .toString();
+    } // public String toString()
+
+
+    // Hibernate Accessors
     private String getId() {
         return this.id;
     }
@@ -79,22 +110,14 @@ class Field implements Serializable {
         this.id = id;
     }
 
-    /** 
-     * Get field name.
-     *       
-     */
-    private String getName() {
-        return this.name;
+    private String getField_name() {
+        return this.field_name;
     }
 
-    private void setName(String name) {
-        this.name = name;
+    private void setField_name(String field_name) {
+        this.field_name = field_name;
     }
 
-    /** 
-     * Get whether field is a list.
-     *       
-     */
     private boolean isIs_list() {
         return this.is_list;
     }
@@ -103,77 +126,28 @@ class Field implements Serializable {
         this.is_list = is_list;
     }
 
-    private Integer getVersion() {
-        return this.version;
-    }
-
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    private edu.internet2.middleware.grouper.Type getType_id() {
+    private GroupType getType_id() {
         return this.type_id;
     }
 
-    private void setType_id(edu.internet2.middleware.grouper.Type type_id) {
+    private void setType_id(GroupType type_id) {
         this.type_id = type_id;
     }
 
-    /** 
-     * Get read privilege.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Privilege getRead_privilege_id() {
+    private Privilege getRead_privilege_id() {
         return this.read_privilege_id;
     }
 
-    private void setRead_privilege_id(edu.internet2.middleware.grouper.Privilege read_privilege_id) {
+    private void setRead_privilege_id(Privilege read_privilege_id) {
         this.read_privilege_id = read_privilege_id;
     }
 
-    /** 
-     * Get write privilege.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Privilege getWrite_privilege_id() {
+    private Privilege getWrite_privilege_id() {
         return this.write_privilege_id;
     }
 
-    private void setWrite_privilege_id(edu.internet2.middleware.grouper.Privilege write_privilege_id) {
+    private void setWrite_privilege_id(Privilege write_privilege_id) {
         this.write_privilege_id = write_privilege_id;
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("name", getName())
-            .append("is_list", isIs_list())
-            .append("type_id", getType_id())
-            .append("read_privilege_id", getRead_privilege_id())
-            .append("write_privilege_id", getWrite_privilege_id())
-            .toString();
-    }
-
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Field) ) return false;
-        Field castOther = (Field) other;
-        return new EqualsBuilder()
-            .append(this.getName(), castOther.getName())
-            .append(this.isIs_list(), castOther.isIs_list())
-            .append(this.getType_id(), castOther.getType_id())
-            .append(this.getRead_privilege_id(), castOther.getRead_privilege_id())
-            .append(this.getWrite_privilege_id(), castOther.getWrite_privilege_id())
-            .isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getName())
-            .append(isIs_list())
-            .append(getType_id())
-            .append(getRead_privilege_id())
-            .append(getWrite_privilege_id())
-            .toHashCode();
     }
 
 }

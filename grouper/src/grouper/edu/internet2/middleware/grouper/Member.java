@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.8 2005-11-04 17:24:08 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.9 2005-11-05 23:43:46 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -38,7 +38,8 @@ public class Member implements Serializable {
 
 
   // Private Transient Instance Properties
-  private transient Subject subj = null;
+  private transient GrouperSession  s     = null;
+  private transient Subject         subj  = null;
 
   // Constructors
 
@@ -131,11 +132,11 @@ public class Member implements Serializable {
    * @return  Subject id
    */ 
   public String getSubjectId() {
-    throw new RuntimeException("Not implemented");
+    return this.getSubject_id();
   }
 
   /**
-   * Get the {@link Source}  of the subject that maps to this member.
+   * Get the {@link Source} of the subject that maps to this member.
    * <pre class="eg">
    * // Get this member's source.
    * Source sa = m.getSubjectSource();
@@ -145,6 +146,17 @@ public class Member implements Serializable {
   public Source getSubjectSource() {
     throw new RuntimeException("Not implemented");
   }
+
+  /** Get the {@link Source} id of the subject that maps to this
+   * member.
+   * <pre class="eg">
+   * String id = m.getSubjectSourceId();
+   * </pre>
+   * @return  Subject's {@link Source} id
+   */
+  public String getSubjectSourceId() {
+    return this.getSubject_source();
+  } 
 
   /**
    * Get the {@link SubjectType} of the subject that maps to this member.
@@ -167,7 +179,7 @@ public class Member implements Serializable {
    * @return  Subject's type id.
    */ 
   public String getSubjectTypeId() {
-    throw new RuntimeException("Not implemented");
+    return this.getSubject_type();
   }
 
   /**
@@ -450,17 +462,22 @@ public class Member implements Serializable {
            .toString();
   }
 
+  // TODO CLEAN ME UP!
   public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
-    if ( !(other instanceof Member) ) return false;
-    Member castOther = (Member) other;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Member)) {
+      return false;
+    }
+    Member otherMember = (Member) other;
     return new EqualsBuilder()
-           .append(this.getSubject_id(), castOther.getSubject_id())
-           .append(this.getSubject_source(), castOther.getSubject_source())
-           .append(this.getSubject_type(), castOther.getSubject_type())
-           .append(this.getUuid(), castOther.getUuid())
+           .append(this.getSubject_id(),      otherMember.getSubject_id()     )
+           .append(this.getSubject_source(),  otherMember.getSubject_source() )
+           .append(this.getSubject_type(),    otherMember.getSubject_type()   )
+           .append(this.getUuid(),            otherMember.getUuid()           )
            .isEquals();
-  }
+  } // public boolean equals(other)
 
   public int hashCode() {
     return new HashCodeBuilder()
@@ -472,10 +489,23 @@ public class Member implements Serializable {
   }
 
 
+  // Protected Instance Methods
+  
+  // Assign Session
+  protected void setSession(GrouperSession s) {
+    this.s = s;
+  } // protected void setSession(s)
+
+  // Assign Subject
+  protected void setSubject(Subject subj) {
+    this.subj = subj;
+  } // protected void setSubject(subj)
+
+
   // Hibernate Accessors
   private String getId() {
     return this.id;
-  }
+  } 
 
   private void setId(String id) {
     this.id = id;

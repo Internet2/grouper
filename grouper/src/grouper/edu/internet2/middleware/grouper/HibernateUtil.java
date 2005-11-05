@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.9 2005-11-04 19:51:53 blair Exp $
+ * @version $Id: HibernateUtil.java,v 1.1.2.10 2005-11-05 23:43:46 blair Exp $
  */
 class HibernateUtil {
 
@@ -49,11 +49,11 @@ class HibernateUtil {
         .addClass(Field.class)
         .addClass(Group.class)
         .addClass(GrouperSession.class)
+        .addClass(GroupType.class)
         .addClass(Member.class)
         .addClass(Membership.class)
         .addClass(Privilege.class)
         .addClass(Stem.class)
-        .addClass(Type.class)
         .buildSessionFactory()
         ;
 		} 
@@ -104,24 +104,9 @@ class HibernateUtil {
   protected static void save(Object o) 
     throws HibernateException
   { 
-    try {
-      Session     hs = HibernateUtil.getSession();
-      Transaction tx = hs.beginTransaction();
-      try {
-        hs.saveOrUpdate(o);
-        tx.commit();
-      }
-      catch (HibernateException e) {
-        tx.rollback();
-        throw new HibernateException(e.getMessage());
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException e) {
-      throw new HibernateException(e.getMessage());
-    }
+    Set objects = new HashSet();
+    objects.add(o);
+    HibernateUtil.save(objects);
   } // protected static void save(o)
 
   // Save multiple objects in one transaction

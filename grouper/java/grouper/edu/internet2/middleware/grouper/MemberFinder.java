@@ -19,12 +19,15 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
+import  java.util.*;
+import  net.sf.hibernate.*;
+import  net.sf.hibernate.type.*;
 
 /**
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.1.2.5 2005-10-27 18:09:44 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.1.2.6 2005-11-05 23:43:46 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -71,7 +74,48 @@ public class MemberFinder implements Serializable {
   public static Member findBySubject(GrouperSession s, Subject subj)
     throws MemberNotFoundException
   {
-    throw new RuntimeException("Not implemented");
+    if (s == null) {
+      throw new MemberNotFoundException("invalid session");
+    }
+    if (subj == null) {
+      throw new MemberNotFoundException("invalid subject");
+    }
+    try {
+      Member  m       = null;
+      Session hs      = HibernateUtil.getSession();
+      List    members = hs.find(
+                          "from Member as m where       "
+                          + "m.subject_id          = ?  "
+                          + "and m.subject_type    = ?  "
+                          + "and m.subject_source  = ?",
+                          new Object[] { 
+                            subj.getId(),
+                            subj.getType().getName(),
+                            subj.getSource().getId()
+                          },
+                          new Type[] {
+                            Hibernate.STRING,
+                            Hibernate.STRING,
+                            Hibernate.STRING
+                          }
+                        )
+                        ;
+      if (members.size() == 1) {
+        m = (Member) members.get(0);
+        m.setSession(s);
+        m.setSubject(subj);
+      }
+      hs.close();
+      if (m != null) {
+        return m;
+      }
+      throw new MemberNotFoundException("member not found");
+    }
+    catch (HibernateException e) {
+      throw new MemberNotFoundException("member not found: " + e.getMessage());
+    }
+    finally {
+    }
   } // public static Member findBySubject(s, subj)
 
   /**

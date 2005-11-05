@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Type.hbm.xml,v 1.1.2.4 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: GroupType.hbm.xml,v 1.1.2.1 2005-11-05 23:43:46 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
-  <class name="Type" table="grouper_types">
+  <class name="GroupType" table="grouper_types">
 
     <meta attribute="class-description">
 Schema specification for a Group type.
@@ -61,6 +61,7 @@ Get type name.
     <!-- type_id -->
 
     <!-- fields -->
+<!-- TODO Resolve this later
     <set name="fields">
       <meta attribute="field-description">
 Get fields.
@@ -70,6 +71,7 @@ Get fields.
       <key  column="id"/>
       <one-to-many class="edu.internet2.middleware.grouper.Field"/>
     </set>
+-->
     <!-- fields -->
 
   </class>

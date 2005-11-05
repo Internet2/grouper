@@ -28,11 +28,9 @@ import  junit.framework.*;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.1.2.2 2005-10-27 18:00:38 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.1.2.3 2005-11-05 23:43:46 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
-
-  private Source sa;
 
   public TestSubjectFinderInternal(String name) {
     super(name);
@@ -48,62 +46,17 @@ public class TestSubjectFinderInternal extends TestCase {
 
   // Tests
 
-/* 
-  public void testFinder() { 
-    Assert.assertNotNull("sa !null", sa);
-    Assert.assertTrue("sa.id == isa", sa.getId().equals("isa"));
-    Assert.assertTrue("sa.name == isa", sa.getName().equals("isa"));
-  } // public void testFinder()
-
-  public void testFinderTypes() {
-    Object[]    types = sa.getSubjectTypes().toArray();
-    Assert.assertTrue("1 type", types.length == 1);
-    SubjectType type  = (SubjectType) types[0];
-    Assert.assertNotNull("type !null", type);
-    Assert.assertTrue(
-      "type instanceof SubjectType",
-      type instanceof SubjectType
-    );
-    Assert.assertTrue(
-      "type == application", type.getName().equals("application")
-    );
-  } // public void testFinderTypes()
-*/
-
   public void testFinderBadSubject() {
-    String id = "i do not exist";
-    try { 
-      Subject subj = SubjectFinder.findById(id);
-      Assert.fail("found bad subject: " + subj);
-    } 
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
+    Helper.getSubjectByIdBad(Helper.BAD_SUBJ_ID);
+    Assert.assertTrue("failed to get bad subject", true);
   } // public void testFinderBadSubject()
 
-  public void testFinderBadSubjectWithBadType() {
-    String  id    = "i do not exist";
-    String  type  = "person";
-    try { 
-      Subject subj = SubjectFinder.findById(id, type);
-      Assert.fail("found bad subject: " + subj);
-    } 
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
-  } // public void testFinderBadSubjectWithBadType()
+  public void testFinderBadSubjectWithType() {
+    Helper.getSubjectByIdBadAndType(Helper.BAD_SUBJ_ID, "person");
+    Assert.assertTrue("failed to get bad subject", true);
+  } // public void testFinderBadSubjectWithType()
 
-  public void testFinderBadSubjectWithGoodType() {
-    String  id    = "i do not exist";
-    String  type  = "application";
-    try { 
-      Subject subj = SubjectFinder.findById(id, type);
-      Assert.fail("found bad subject: " + subj);
-    } 
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
-  } // public void testFinderBadSubjectWithGoodType()
+  // TODO Convert below to use _Helper_
 
   public void testFinderBadSubjectByIdentifier() {
     String id = "i do not exist";

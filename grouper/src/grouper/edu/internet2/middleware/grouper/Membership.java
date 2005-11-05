@@ -21,23 +21,31 @@ import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.lang.builder.*;
 
+
 /** 
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.6 2005-10-20 19:33:57 blair Exp $
- *     
-*/
+ * @version $Id: Membership.java,v 1.1.2.7 2005-11-05 23:43:46 blair Exp $
+ */
 public class Membership implements Serializable {
 
   // Hibernate Properties
   private String  id;
   private int     count;
-  private Group   group_id;
-  private Member  member_id;
-  private Field   list_id;
-  private Integer version;
-  private Group   via_id;
+  // TODO private Group   group_id;
+  private String  group_id;
+  // TODO private Member  member_id;
+  private String  member_id;
+  // TODO private Field   list_id;
+  private String  list_id;
+  // TODO private Group   via_id;
+  private String  via_id;
+
+  
+  // Transient Private Instance Variables
+  private transient GrouperSession s;
+
 
   // Constructors
 
@@ -47,6 +55,22 @@ public class Membership implements Serializable {
   public Membership() {
     // Nothing
   }
+
+  // Creating a new membership
+  protected Membership(GrouperSession s, Group g, Member m, String field) {
+    // Attach session
+    this.s = s;
+    // Set group
+    // TODO this.setGroup_id(g);
+    this.setGroup_id(g.getUuid());
+    // Set member
+    // TODO this.setMember_id(m);
+    this.setMember_id(m.getUuid());
+    // Set field  
+    // TOOD this.setList_id( FieldFinder.getField(field) );
+    this.setList_id(field);
+  } // protected Membership(s, g, m, field)
+
 
   // Public Instance Methods
 
@@ -183,43 +207,43 @@ public class Membership implements Serializable {
     this.count = count;
   }
 
-  private Integer getVersion() {
-    return this.version;
-  }
-
-  private void setVersion(Integer version) {
-    this.version = version;
-  }
-
-  private Group getGroup_id() {
+  // TODO private Group getGroup_id() {
+  private String getGroup_id() {
     return this.group_id;
   }
 
-  private void setGroup_id(Group group_id) {
+  // TODO private void setGroup_id(Group group_id) {
+  private void setGroup_id(String group_id) {
     this.group_id = group_id;
   }
 
-  private Member getMember_id() {
+  // TODO private Member getMember_id() {
+  private String getMember_id() {
     return this.member_id;
   }
 
-  private void setMember_id(Member member_id) {
-        this.member_id = member_id;
-    }
+  // TODO private void setMember_id(Member member_id) {
+  private void setMember_id(String member_id) {
+    this.member_id = member_id;
+  }
 
-  private Field getList_id() {
+  // TODO private Field getList_id() {
+  private String getList_id() {
     return this.list_id;
   }
 
-  private void setList_id(Field list_id) {
+  // TODO private void setList_id(Field list_id) {
+  private void setList_id(String list_id) {
     this.list_id = list_id;
   }
 
-  private Group getVia_id() {
+  // TODO private Group getVia_id() {
+  private String getVia_id() {
     return this.via_id;
   }
 
-  private void setVia_id(Group via_id) {
+  // TODO private void setVia_id(Group via_id) {
+  private void setVia_id(String via_id) {
     this.via_id = via_id;
   }
 

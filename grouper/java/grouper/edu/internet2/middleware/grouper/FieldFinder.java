@@ -17,51 +17,46 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.List;
-import java.sql.SQLException;
-
+import java.util.*;
 import net.sf.hibernate.*;
 import net.sf.hibernate.type.Type;
 
-/** Automatically generated Finder class for FieldFinder.
- * @author Hibernate FinderGenerator  **/
-class FieldFinder implements Serializable {
+/**
+ * Find fields.
+ * <p/>
+ * @author  blair christensen.
+ * @version $Id: FieldFinder.java,v 1.1.2.5 2005-11-05 23:43:46 blair Exp $
+ */
+class FieldFinder {
 
-    public static List findByName(java.lang.String name) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Field as field where field.name=?", name, Hibernate.STRING);
-        return finds;
-    }
+  // Private Class Variables
+  private static Map fields = new HashMap();
 
-    public static List findByIsList(boolean is_list) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Field as field where field.is_list=?", new Boolean( is_list ), Hibernate.BOOLEAN);
-        return finds;
-    }
 
-    public static List findByTypeId(edu.internet2.middleware.grouper.Type type_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Field as field where field.type_id=?", type_id, Hibernate.OBJECT);
-        return finds;
+  // Protected Class Methods
+ 
+  // @return  A singleton {@link Field} 
+  protected static Field getField(String field) {
+    if (fields.containsKey(field)) {
+      return (Field) fields.get(field);
     }
-
-    public static List findByReadPrivilege(edu.internet2.middleware.grouper.Privilege read_privilege_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Field as field where field.read_privilege_id=?", read_privilege_id, Hibernate.OBJECT);
-        return finds;
+    try {
+      // TODO Schema should be predefined in registry
+      //      Or should it be in XML?
+      Field f = new Field(field);
+System.err.println("saving field: " + field);
+      HibernateUtil.save(f);
+System.err.println("saved: " + field);
+      fields.put(field, f);
+      return f; 
     }
-
-    public static List findByWritePrivilege(edu.internet2.middleware.grouper.Privilege write_privilege_id) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.Field as field where field.write_privilege_id=?", write_privilege_id, Hibernate.OBJECT);
-        return finds;
+    catch (HibernateException e) {
+      // TODO For lack of a better alternative at the moment
+      throw new RuntimeException(
+        "unable to save field '" + field + "': " + e.getMessage()
+      );
     }
-
-    public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
-        List finds = session.find("from Field in class edu.internet2.middleware.grouper.Field");
-        return finds;
-    }
+  } // protected static Field getField(field)
 
 }
+

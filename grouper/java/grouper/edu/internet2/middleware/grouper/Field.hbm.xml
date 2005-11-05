@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Field.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
+<!-- $Id: Field.hbm.xml,v 1.1.2.6 2005-11-05 23:43:46 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Field" table="grouper_fields">
@@ -33,46 +33,41 @@ Schema specification for a Group attribute or list.
     <meta attribute="session-method">HibernateUtil.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
-      <meta attribute="use-in-tostring">false</meta>
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+    >
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-    <version name="version"/>
-    <!-- version -->
 
 
     <!-- type_id -->
+<!-- TODO
     <many-to-one
       name="type_id"
-      class="edu.internet2.middleware.grouper.Type" 
+      class="edu.internet2.middleware.grouper.GroupType" 
     >
       <meta attribute="finder-method">findByTypeId</meta>
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
       <column name="type_id" sql-type="char(64)"/>
     </many-to-one>
+-->
     <!-- type_id -->
 
-    <!-- name -->
+    <!-- field_name -->
     <property 
-      name="name"
+      name="field_name"
       type="string"
       length="255"
       not-null="true"
-    >
-      <meta attribute="field-description">
-Get field name.
-      </meta>
-      <meta attribute="finder-method">findByName</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
-    <!-- name -->
+    />
+    <!-- field_name -->
 
     <!-- read_privilege_id -->
+<!-- TODO
     <many-to-one
       name="read_privilege_id"
       class="edu.internet2.middleware.grouper.Privilege" 
@@ -85,9 +80,11 @@ Get read privilege.
       <meta attribute="use-in-tostring">true</meta>
       <column name="read_privilege_id" sql-type="char(64)"/>
     </many-to-one>
+-->
     <!-- read_privilege_id -->
 
     <!-- write_privilege_id -->
+<!-- TODO
     <many-to-one
       name="write_privilege_id"
       class="edu.internet2.middleware.grouper.Privilege" 
@@ -100,9 +97,11 @@ Get write privilege.
       <meta attribute="use-in-tostring">true</meta>
       <column name="write_privilege_id" sql-type="char(64)"/>
     </many-to-one>
+-->
     <!-- write_privilege_id -->
 
     <!-- is_list -->
+<!-- TODO
     <property 
       name="is_list"
       type="boolean"
@@ -115,6 +114,7 @@ Get whether field is a list.
       <meta attribute="use-in-equals">true</meta>
       <meta attribute="use-in-tostring">true</meta>
     </property>
+-->
     <!-- name -->
 
   </class>

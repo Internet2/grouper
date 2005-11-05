@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.1.2.5 2005-10-27 18:05:34 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.1.2.6 2005-11-05 23:43:46 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -33,18 +33,19 @@ A list membership in the Groups Registry.
     <meta attribute="session-method">HibernateUtil.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+    >
       <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-    <version name="version"/>
-    <!-- version -->
 
 
     <!-- group_id -->
+<!-- TODO I'll resolve this later
     <many-to-one
       name="group_id"
       class="edu.internet2.middleware.grouper.Group" 
@@ -57,9 +58,20 @@ Get group.
       <meta attribute="use-in-tostring">true</meta>
       <column name="group_id" sql-type="char(64)"/>
     </many-to-one>
+-->
+    <property name="group_id"
+              type="string"
+              not-null="true"
+    >
+      <column name="group_id" 
+              sql-type="char(64)" 
+              unique-key="members_idx"
+      />
+    </property>
     <!-- group_id -->
 
     <!-- member_id -->
+<!-- TODO I'll resolve this later
     <many-to-one
       name="member_id"
       class="edu.internet2.middleware.grouper.Member" 
@@ -72,9 +84,20 @@ Get member.
       <meta attribute="use-in-tostring">true</meta>
       <column name="member_id" sql-type="char(64)"/>
     </many-to-one>
+-->
+    <property name="member_id"
+              type="string"
+              not-null="true"
+    >
+      <column name="member_id" 
+              sql-type="char(64)" 
+              unique-key="members_idx"
+      />
+    </property>
     <!-- member_id -->
 
     <!-- list_id -->
+<!-- TODO I'll resolve this later
     <many-to-one
       name="list_id"
       class="edu.internet2.middleware.grouper.Field" 
@@ -87,9 +110,20 @@ Get list.
       <meta attribute="use-in-tostring">true</meta>
       <column name="list_id" sql-type="char(64)"/>
     </many-to-one>
+-->
+    <property name="list_id"
+              type="string"
+              not-null="true"
+    >
+      <column name="list_id" 
+              sql-type="char(64)" 
+              unique-key="members_idx"
+      />
+    </property>
     <!-- list_id -->
 
     <!-- via_id -->
+<!-- TODO I'll resolve this later
     <many-to-one
       name="via_id"
       class="edu.internet2.middleware.grouper.Group" 
@@ -102,6 +136,15 @@ Get via group.
       <meta attribute="use-in-tostring">true</meta>
       <column name="via_id" sql-type="char(64)"/>
     </many-to-one>
+-->
+    <property name="via_id"
+              type="string"
+    >
+      <column name="via_id" 
+              sql-type="char(64)" 
+              unique-key="members_idx"
+      />
+    </property>
     <!-- via_id -->
 
     <!-- count -->

@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.8 2005-11-05 14:10:09 blair Exp $
+$Id: ROADMAP,v 1.47.2.9 2005-11-05 23:43:46 blair Exp $
 
 ---
 
@@ -11,7 +11,8 @@ $Id: ROADMAP,v 1.47.2.8 2005-11-05 14:10:09 blair Exp $
 
 TODO Sync with Basecamp
 
-* [TEST] Add member
+* [TEST] `Group.hasMember()`
+* [TEST] `Member.isMember()`
 * [TEST] Delete member
 * [TEST] Group source adapter
 * [TEST] Add group as member
@@ -27,17 +28,29 @@ TODO Sync with Basecamp
 * [TEST] OPTOUT access privilege
 * [TEST] Find stem
 * [TEST] Find group
-* [TEST] Find member
 * [TEST] Search by name attrs
 * Merge HEAD and GROUPER_RELENG_0_9 branches
 
 ## Not Quite Bugs
-* Stem.child_stems mapping
-* Stem.child_groups mapping
-* Group.parent_stem mapping
-* Stem.parent_stem mapping
+* Field
+** is_list mapping
+** read_privilege_id mapping
+** type_id mapping
+** write_privilege_id mapping
+* GroupType
+** fields mapping
+* Membership
+** list_id mapping
+* Stem
+** child_stems mapping
+** child_groups mapping
+** parent_stem mapping
+* Group
+** parent_stem mapping
 
 ## Tests
+* General
+** Create private testing methods for each major class in _Helper_
 * Groups
 ** Deletion
 *** Group with members

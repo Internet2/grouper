@@ -29,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author blair christensen.
  *     
 */
-class Type implements Serializable {
+class GroupType implements Serializable {
 
     /** identifier field */
     private String id;
@@ -44,18 +44,18 @@ class Type implements Serializable {
     private Set fields;
 
     /** full constructor */
-    public Type(String name, Integer version, Set fields) {
+    public GroupType(String name, Integer version, Set fields) {
         this.name = name;
         this.version = version;
         this.fields = fields;
     }
 
     /** default constructor */
-    public Type() {
+    public GroupType() {
     }
 
     /** minimal constructor */
-    public Type(String name, Set fields) {
+    public GroupType(String name, Set fields) {
         this.name = name;
         this.fields = fields;
     }
@@ -109,8 +109,8 @@ class Type implements Serializable {
 
     public boolean equals(Object other) {
         if ( (this == other ) ) return true;
-        if ( !(other instanceof Type) ) return false;
-        Type castOther = (Type) other;
+        if ( !(other instanceof GroupType) ) return false;
+        GroupType castOther = (GroupType) other;
         return new EqualsBuilder()
             .append(this.getName(), castOther.getName())
             .append(this.getFields(), castOther.getFields())

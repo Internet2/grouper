@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.18 2005-11-04 19:51:53 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.19 2005-11-05 23:43:46 blair Exp $ -->
 
 <project name="Grouper" default="codegen" basedir=".">
 
@@ -138,12 +138,15 @@
       <include    name="**/Db.java"/>
       <include    name="**/Helper.java"/>
       <include    name="**/Suite*.java"/>
+      <include    name="**/TestGroupAddMember.java"/>
       <include    name="**/TestGroupDelete.java"/>
       <include    name="**/TestGrouperSession.java"/>
       <include    name="**/TestInternalSourceAdapter.java"/>
+      <include    name="**/TestMeFiFindBySubject.java"/>
       <include    name="**/TestStemAddChildGroup.java"/>
       <include    name="**/TestStemAddChildStem.java"/>
       <include    name="**/TestStFiFindRootStem.java"/>
+      <include    name="**/TestSuFiInSoAdFindById.java"/>
       <include    name="**/TestSubjectFinderInternal.java"/>
       <!-- TODO <include name="**/*.java" /> -->
     </javac>
