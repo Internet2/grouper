@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.14 2005-10-27 18:09:44 blair Exp $
+$Id: API,v 1.86.2.15 2005-11-05 23:40:17 blair Exp $
 
 ---
 
@@ -156,6 +156,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Subject             getSubject()
 * String              getSubjectId()
 * Source              getSubjectSource()
+* String              getSubjectSourceId()
 * SubjectType         getSubjectType()
 * String              getSubjectTypeId()
 * String              getUuid()
