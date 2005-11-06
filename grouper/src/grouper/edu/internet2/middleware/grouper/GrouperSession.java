@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.9 2005-11-04 17:23:25 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.10 2005-11-06 15:55:19 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -83,7 +83,7 @@ public class GrouperSession implements Serializable {
     GrouperSession s = new GrouperSession(subject);
     try {
       // Will cascade and save newly created Member if appropriate
-      HibernateUtil.save(s);
+      HibernateHelper.save(s);
     }
     catch (HibernateException e) {
       throw new SessionException(

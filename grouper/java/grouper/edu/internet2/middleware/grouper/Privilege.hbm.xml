@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Privilege.hbm.xml,v 1.1.2.3 2005-10-18 15:47:39 blair Exp $ -->
+<!-- $Id: Privilege.hbm.xml,v 1.1.2.4 2005-11-06 15:55:19 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Privilege" table="grouper_privileges">
@@ -30,7 +30,7 @@ Schema specification for Access and Naming privileges.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
-    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+    <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
     <!-- id -->
     <id name="id" type="string">

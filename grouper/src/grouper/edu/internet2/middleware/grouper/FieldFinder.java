@@ -25,7 +25,7 @@ import net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.1.2.5 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.1.2.6 2005-11-06 15:55:19 blair Exp $
  */
 class FieldFinder {
 
@@ -45,7 +45,7 @@ class FieldFinder {
       //      Or should it be in XML?
       Field f = new Field(field);
 System.err.println("saving field: " + field);
-      HibernateUtil.save(f);
+      HibernateHelper.save(f);
 System.err.println("saved: " + field);
       fields.put(field, f);
       return f; 

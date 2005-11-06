@@ -25,20 +25,20 @@ import  org.apache.commons.logging.*;
 /**
  * Hibernate utility helper class.
  * <p/>
- * This code is derived from code in the book <i>Hibernate In
+ * This code was initially derived code in the book <i>Hibernate In
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateUtil.java,v 1.1.2.10 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.1.2.1 2005-11-06 15:55:19 blair Exp $
  */
-class HibernateUtil {
+class HibernateHelper {
 
   // Private Class Constants
 	private static final SessionFactory factory;
 
 
   // Private Class Variables
-	private static Log log = LogFactory.getLog(HibernateUtil.class);
+	private static Log log = LogFactory.getLog(HibernateHelper.class);
 
 
   // Create the static session factory 
@@ -73,7 +73,7 @@ class HibernateUtil {
     throws HibernateException
   {
     try {
-      Session     hs = HibernateUtil.getSession();
+      Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
       try {
         hs.delete(o);
@@ -106,7 +106,7 @@ class HibernateUtil {
   { 
     Set objects = new HashSet();
     objects.add(o);
-    HibernateUtil.save(objects);
+    HibernateHelper.save(objects);
   } // protected static void save(o)
 
   // Save multiple objects in one transaction
@@ -115,7 +115,7 @@ class HibernateUtil {
     throws HibernateException
   { 
     try {
-      Session     hs = HibernateUtil.getSession();
+      Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
       Iterator    iter  = objects.iterator();
       try {

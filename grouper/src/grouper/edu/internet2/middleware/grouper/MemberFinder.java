@@ -27,7 +27,7 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.1.2.6 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.1.2.7 2005-11-06 15:55:19 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -82,7 +82,7 @@ public class MemberFinder implements Serializable {
     }
     try {
       Member  m       = null;
-      Session hs      = HibernateUtil.getSession();
+      Session hs      = HibernateHelper.getSession();
       List    members = hs.find(
                           "from Member as m where       "
                           + "m.subject_id          = ?  "
@@ -149,7 +149,7 @@ public class MemberFinder implements Serializable {
     try {
       Member m = new Member(subj);
       System.err.println("MEMBER: " + m);
-      HibernateUtil.save(m);
+      HibernateHelper.save(m);
       System.err.println("SAVED?: " + m);
       return m;
     }

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.1.2.6 2005-11-05 23:43:46 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.1.2.7 2005-11-06 15:55:19 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -30,7 +30,7 @@ A list membership in the Groups Registry.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
-    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+    <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
     <!-- id -->
     <id name="id" 

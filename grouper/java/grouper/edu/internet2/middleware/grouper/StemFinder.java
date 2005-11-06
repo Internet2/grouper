@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.1.2.6 2005-11-03 16:09:21 blair Exp $
+ * @version $Id: StemFinder.java,v 1.1.2.7 2005-11-06 15:55:19 blair Exp $
  */
 public class StemFinder implements Serializable {
 
@@ -89,7 +89,7 @@ public class StemFinder implements Serializable {
     // TODO This is *obviously* not right
     Stem root = new Stem(s);
     try {
-      HibernateUtil.save(root);
+      HibernateHelper.save(root);
       return root;
     }
     catch (HibernateException e) {

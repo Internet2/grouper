@@ -29,7 +29,7 @@ import net.sf.hibernate.type.Type;
 class FactorFinder implements Serializable {
 
     public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
+        Session session = HibernateHelper.getSession();
         List finds = session.find("from Factor in class edu.internet2.middleware.grouper.Factor");
         return finds;
     }

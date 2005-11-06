@@ -29,19 +29,19 @@ import net.sf.hibernate.type.Type;
 class GrouperSessionFinder implements Serializable {
 
     public static List findByStartTime(java.util.Date start_time) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
+        Session session = HibernateHelper.getSession();
         List finds = session.find("from edu.internet2.middleware.grouper.GrouperSession as groupersession where groupersession.start_time=?", start_time, Hibernate.OBJECT);
         return finds;
     }
 
     public static List findByUuid(java.lang.String uuid) throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
+        Session session = HibernateHelper.getSession();
         List finds = session.find("from edu.internet2.middleware.grouper.GrouperSession as groupersession where groupersession.uuid=?", uuid, Hibernate.STRING);
         return finds;
     }
 
     public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
+        Session session = HibernateHelper.getSession();
         List finds = session.find("from GrouperSession in class edu.internet2.middleware.grouper.GrouperSession");
         return finds;
     }

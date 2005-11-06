@@ -29,7 +29,7 @@ import net.sf.hibernate.type.Type;
 class UnionFactorFinder implements Serializable {
 
     public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateUtil.getSession();
+        Session session = HibernateHelper.getSession();
         List finds = session.find("from UnionFactor in class edu.internet2.middleware.grouper.UnionFactor");
         return finds;
     }

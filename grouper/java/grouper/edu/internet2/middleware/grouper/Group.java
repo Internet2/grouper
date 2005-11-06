@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.9 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.10 2005-11-06 15:55:19 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -118,7 +118,7 @@ public class Group implements Serializable {
       Set objects = new HashSet();
       objects.add(ms);
       //objects.add(this);
-      HibernateUtil.save(objects);
+      HibernateHelper.save(objects);
     }
     catch (HibernateException e) {
       throw new MemberAddException("could not add member: " + e.getMessage());
@@ -145,7 +145,7 @@ public class Group implements Serializable {
     throws GroupDeleteException, InsufficientPrivilegeException
   {
     try {
-      HibernateUtil.delete(this);
+      HibernateHelper.delete(this);
     }
     catch (HibernateException e) {
       throw new GroupDeleteException(

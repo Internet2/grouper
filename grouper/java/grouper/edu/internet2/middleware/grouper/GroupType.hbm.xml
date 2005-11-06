@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: GroupType.hbm.xml,v 1.1.2.1 2005-11-05 23:43:46 blair Exp $ -->
+<!-- $Id: GroupType.hbm.xml,v 1.1.2.2 2005-11-06 15:55:19 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="GroupType" table="grouper_types">
@@ -30,7 +30,7 @@ Schema specification for a Group type.
 @author blair christensen.
     </meta>
     <meta attribute="implement-equals">true</meta>
-    <meta attribute="session-method">HibernateUtil.getSession();</meta>
+    <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
     <!-- id -->
     <id name="id" type="string">
