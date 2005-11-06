@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.10 2005-11-06 15:55:19 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.11 2005-11-06 16:33:51 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -659,7 +659,7 @@ public class Group implements Serializable {
    * @return  Boolean true if member belongs to this group.
    */
   public boolean hasMember(Member m) {
-    throw new RuntimeException("Not implemented");
+    return MembershipFinder.isMember(this, m, Group.LIST);
   }
 
   /**

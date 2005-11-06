@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.10 2005-11-06 15:50:44 blair Exp $
+$Id: ROADMAP,v 1.47.2.11 2005-11-06 16:33:51 blair Exp $
 
 ---
 
@@ -11,9 +11,8 @@ $Id: ROADMAP,v 1.47.2.10 2005-11-06 15:50:44 blair Exp $
 
 TODO Sync with Basecamp
 
-* [TEST] `Group.hasMember()`
-* [TEST] `Member.isMember()`
 * [TEST] Delete member
+* [TEST] Find group
 * [TEST] Group source adapter
 * [TEST] Add group as member
 * [TEST] Delete group as member
@@ -27,7 +26,6 @@ TODO Sync with Basecamp
 * [TEST] OPTIN access privilege
 * [TEST] OPTOUT access privilege
 * [TEST] Find stem
-* [TEST] Find group
 * [TEST] Search by name attrs
 * Merge HEAD and GROUPER_RELENG_0_9 branches
 
@@ -106,5 +104,6 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
