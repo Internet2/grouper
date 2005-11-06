@@ -17,15 +17,18 @@
 
 package edu.internet2.middleware.grouper;
 
-import  java.io.Serializable;
+import  java.util.*;
+import  net.sf.hibernate.*;
+import  net.sf.hibernate.type.*;
+
 
 /**
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.1.2.4 2005-10-20 18:09:30 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.1.2.5 2005-11-06 22:48:00 blair Exp $
  */
-public class GroupFinder implements Serializable {
+public class GroupFinder {
 
   /**
    * Find a group within the registry by name.
@@ -45,8 +48,31 @@ public class GroupFinder implements Serializable {
   public static Group findByName(GrouperSession s, String name) 
     throws GroupNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      Group   g       = null;
+      Session hs      = HibernateHelper.getSession();
+      List    groups  = hs.find(
+                          "from Group as g where  "
+                          + "g.group_name = ?     ",
+                          name,
+                          Hibernate.STRING
+                        )
+                        ;
+      if (groups.size() == 1) {
+        g = (Group) groups.get(0);
+      }
+      hs.close();
+      if (g == null) {
+        throw new GroupNotFoundException("group not found");
+      }
+      return g; 
+    }
+    catch (HibernateException e) {
+      throw new GroupNotFoundException(
+        "error finding group: " + e.getMessage()
+      );  
+    }
+  } // public static Group findByName(s, name)
 
   /**
    * Find a group within the registry by UUID.
@@ -66,8 +92,31 @@ public class GroupFinder implements Serializable {
   public static Group findByUuid(GrouperSession s, String uuid) 
     throws GroupNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      Group   g       = null;
+      Session hs      = HibernateHelper.getSession();
+      List    groups  = hs.find(
+                          "from Group as g where  "
+                          + "g.group_id = ?       ",
+                          uuid,
+                          Hibernate.STRING
+                        )
+                        ;
+      if (groups.size() == 1) {
+        g = (Group) groups.get(0);
+      }
+      hs.close();
+      if (g == null) {
+        throw new GroupNotFoundException("group not found");
+      }
+      return g; 
+    }
+    catch (HibernateException e) {
+      throw new GroupNotFoundException(
+        "error finding group: " + e.getMessage()
+      );  
+    }
+  } // public static Group findByUuid(s, uuid)
 
 }
 

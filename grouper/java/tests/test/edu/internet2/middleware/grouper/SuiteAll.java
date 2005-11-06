@@ -28,6 +28,8 @@ public class SuiteAll extends TestCase {
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
+    suite.addTestSuite(TestGrFiFindByName.class);
+    suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestGroupAddMember.class);
     suite.addTestSuite(TestGroupDeleteMember.class);
     suite.addTestSuite(TestGroupDelete.class);

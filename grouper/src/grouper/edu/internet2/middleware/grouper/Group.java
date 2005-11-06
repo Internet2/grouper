@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.13 2005-11-06 17:52:26 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.14 2005-11-06 22:48:00 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -212,15 +212,21 @@ public class Group implements Serializable {
   }
 
   public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
-    if ( !(other instanceof Group) ) return false;
-    Group castOther = (Group) other;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Group)) {
+      return false;
+    }
+    Group otherGroup = (Group) other;
+    // TODO Include parent stem check
     return new EqualsBuilder()
-           .append(this.getUuid(), castOther.getUuid())
-           .append(this.getCreator_id(), castOther.getCreator_id())
-           .append(this.getModifier_id(), castOther.getModifier_id())
+           .append(this.getUuid(),        otherGroup.getUuid()      )
+           .append(this.getExtension(),   otherGroup.getExtension() )
+           .append(this.getName(),        otherGroup.getName()      )
+           .append(this.getCreator_id(),  otherGroup.getCreator_id())
            .isEquals();
-  }
+  } // public boolean equals(other)
 
   /**
    * Get subjects with the ADMIN privilege on this group.
@@ -371,7 +377,7 @@ public class Group implements Serializable {
    * @return  Group extension.
    */
   public String getExtension() {
-    throw new RuntimeException("Not implemented");
+    return this.getGroup_extension();
   }
  
   /**
