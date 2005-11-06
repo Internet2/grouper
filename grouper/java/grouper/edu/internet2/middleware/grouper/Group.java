@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.12 2005-11-06 17:37:45 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.13 2005-11-06 17:52:26 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -197,7 +197,18 @@ public class Group implements Serializable {
   public void deleteMember(Member m) 
     throws InsufficientPrivilegeException, MemberDeleteException
   {
-    throw new RuntimeException("Not implemented");
+    try {
+      Membership ms = MembershipFinder.findMembership(this, m, Group.LIST);
+      HibernateHelper.delete(ms);
+    }
+    catch (HibernateException e) {
+      throw new MemberDeleteException(
+        "unable to delete membership: " + e.getMessage()
+      );
+    }
+    catch (MembershipNotFoundException e) {
+      throw new MemberDeleteException("membership does not exist");
+    }
   }
 
   public boolean equals(Object other) {
