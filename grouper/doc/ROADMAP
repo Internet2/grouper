@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.9 2005-11-05 23:43:46 blair Exp $
+$Id: ROADMAP,v 1.47.2.10 2005-11-06 15:50:44 blair Exp $
 
 ---
 
@@ -51,6 +51,7 @@ TODO Sync with Basecamp
 ## Tests
 * General
 ** Create private testing methods for each major class in _Helper_
+** Review old *.todo test classes
 * Groups
 ** Deletion
 *** Group with members
