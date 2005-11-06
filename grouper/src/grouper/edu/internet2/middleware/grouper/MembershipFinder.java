@@ -26,22 +26,24 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.1.2.6 2005-11-06 16:33:51 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.1.2.7 2005-11-06 17:37:45 blair Exp $
  */
 class MembershipFinder {
 
   // Protected Class Methods
 
-  // @return  boolean true if membership exists
-  protected static boolean isMember(Group g, Member m, String field) {
-    boolean rv = false;
+  // @return  {@link Membership} if it exists
+  protected static Membership findMembership(Group g, Member m, String field) 
+    throws MembershipNotFoundException
+  {
     try {
-      Session hs      = HibernateHelper.getSession();
-      List    members = hs.find(
-                          "select ms.id from Membership as ms where "
-                          + "ms.group_id      = ?                   "
-                          + "and ms.member_id = ?                   "
-                          + "and ms.list_id   = ?                   ",
+      Membership  ms      = null;
+      Session     hs      = HibernateHelper.getSession();
+      List        mships  = hs.find(
+                          "from Membership as ms where "
+                          + "ms.group_id      = ?      "
+                          + "and ms.member_id = ?      "
+                          + "and ms.list_id   = ?      ",
                           new Object[] {
                             g.getUuid(),
                             m.getUuid(),
@@ -54,10 +56,14 @@ class MembershipFinder {
                           }
                         )
                         ;
-      if (members.size() == 1) {
-        rv = true;
+      if (mships.size() == 1) {
+        ms = (Membership) mships.get(0);
       }
       hs.close();
+      if (ms == null) {
+        throw new MembershipNotFoundException("membership not found");
+      }
+      return ms; 
     }
     catch (HibernateException e) {
       // TODO Is a RE appropriate here?
@@ -65,8 +71,7 @@ class MembershipFinder {
         "error checking membership: " + e.getMessage()
       );  
     }
-    return rv;
-  } // protected static boolean isMember(g, m, field)
+  } // protected static Membership findMembership(g, m, field)
 
 }
 

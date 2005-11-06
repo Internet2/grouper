@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMember.java,v 1.1.2.1 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: TestGroupAddMember.java,v 1.1.2.2 2005-11-06 17:37:45 blair Exp $
  */
 public class TestGroupAddMember extends TestCase {
 
@@ -52,7 +52,7 @@ public class TestGroupAddMember extends TestCase {
     Member          m     = Helper.getMemberBySubject(
       s, Helper.getSubjectById(Helper.GOOD_SUBJ_ID)
     );
-    Helper.addMember(i2, m);
+    GroupHelper.addMember(i2, m);
   } // public void testAddMember()
 
 }

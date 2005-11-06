@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.1.2.7 2005-11-06 15:55:19 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.1.2.8 2005-11-06 17:37:45 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -37,7 +37,6 @@ A list membership in the Groups Registry.
         type="string"
         unsaved-value="null"
     >
-      <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
@@ -45,20 +44,7 @@ A list membership in the Groups Registry.
 
 
     <!-- group_id -->
-<!-- TODO I'll resolve this later
-    <many-to-one
-      name="group_id"
-      class="edu.internet2.middleware.grouper.Group" 
-    >
-      <meta attribute="field-description">
-Get group.
-      </meta>
-      <meta attribute="finder-method">findByGroupId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="group_id" sql-type="char(64)"/>
-    </many-to-one>
--->
+<!-- TODO I'll resolve this later -->
     <property name="group_id"
               type="string"
               not-null="true"
@@ -71,20 +57,7 @@ Get group.
     <!-- group_id -->
 
     <!-- member_id -->
-<!-- TODO I'll resolve this later
-    <many-to-one
-      name="member_id"
-      class="edu.internet2.middleware.grouper.Member" 
-    >
-      <meta attribute="field-description">
-Get member.
-      </meta>
-      <meta attribute="finder-method">findByMemberId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="member_id" sql-type="char(64)"/>
-    </many-to-one>
--->
+<!-- TODO I'll resolve this later -->
     <property name="member_id"
               type="string"
               not-null="true"
@@ -97,20 +70,7 @@ Get member.
     <!-- member_id -->
 
     <!-- list_id -->
-<!-- TODO I'll resolve this later
-    <many-to-one
-      name="list_id"
-      class="edu.internet2.middleware.grouper.Field" 
-    >
-      <meta attribute="field-description">
-Get list.
-      </meta>
-      <meta attribute="finder-method">findByListId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="list_id" sql-type="char(64)"/>
-    </many-to-one>
--->
+<!-- TODO I'll resolve this later -->
     <property name="list_id"
               type="string"
               not-null="true"
@@ -123,20 +83,7 @@ Get list.
     <!-- list_id -->
 
     <!-- via_id -->
-<!-- TODO I'll resolve this later
-    <many-to-one
-      name="via_id"
-      class="edu.internet2.middleware.grouper.Group" 
-    >
-      <meta attribute="field-description">
-Get via group.
-      </meta>
-      <meta attribute="finder-method">findByViaId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="via_id" sql-type="char(64)"/>
-    </many-to-one>
--->
+<!-- TODO I'll resolve this later -->
     <property name="via_id"
               type="string"
     >
@@ -147,20 +94,18 @@ Get via group.
     </property>
     <!-- via_id -->
 
-    <!-- count -->
+    <!-- depth -->
     <property
-      name="count"
+      name="depth"
       type="integer"
       not-null="true"
     >
-      <meta attribute="field-description">
-Get membership hop count.
-      </meta>
-      <meta attribute="finder-method">findByCnt</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
+      <column name="depth"
+              sql-type="int"
+              unique-key="members_idx"
+      />
     </property>
-    <!-- count -->
+    <!-- depth -->
 
   </class>
 </hibernate-mapping>

@@ -26,15 +26,15 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.7 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.8 2005-11-06 17:37:45 blair Exp $
  */
 public class Membership implements Serializable {
 
   // Hibernate Properties
-  private String  id;
-  private int     count;
+  private int     depth;
   // TODO private Group   group_id;
   private String  group_id;
+  private String  id;
   // TODO private Member  member_id;
   private String  member_id;
   // TODO private Field   list_id;
@@ -79,7 +79,7 @@ public class Membership implements Serializable {
     if ( !(other instanceof Membership) ) return false;
     Membership castOther = (Membership) other;
     return new EqualsBuilder()
-           .append(this.getCount(), castOther.getCount())
+           .append(this.getDepth(), castOther.getDepth())
            .append(this.getGroup_id(), castOther.getGroup_id())
            .append(this.getMember_id(), castOther.getMember_id())
            .append(this.getList_id(), castOther.getList_id())
@@ -171,7 +171,7 @@ public class Membership implements Serializable {
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getCount())
+           .append(getDepth())
            .append(getGroup_id())
            .append(getMember_id())
            .append(getList_id())
@@ -181,7 +181,7 @@ public class Membership implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("count", getCount())
+           .append("depth", getDepth())
            .append("group_id", getGroup_id())
            .append("member_id", getMember_id())
            .append("list_id", getList_id())
@@ -199,12 +199,12 @@ public class Membership implements Serializable {
     this.id = id;
   }
 
-  private int getCount() {
-    return this.count;
+  private int getDepth() {
+    return this.depth;
   }
 
-  private void setCount(int count) {
-    this.count = count;
+  private void setDepth(int depth) {
+    this.depth = depth;
   }
 
   // TODO private Group getGroup_id() {

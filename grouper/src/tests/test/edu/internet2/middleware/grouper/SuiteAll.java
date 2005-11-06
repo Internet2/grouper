@@ -29,6 +29,8 @@ public class SuiteAll extends TestCase {
     TestSuite suite = new TestSuite();
 
     suite.addTestSuite(TestGroupAddMember.class);
+    //suite.addTestSuite(TestGroupDeleteMember.class);
+/*
     suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
@@ -38,6 +40,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestStFiFindRootStem.class);
     suite.addTestSuite(TestSuFiInSoAdFindById.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);
+*/
 
     return suite;
   }
