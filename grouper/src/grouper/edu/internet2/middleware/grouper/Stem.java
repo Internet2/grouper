@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.13 2005-11-06 15:55:19 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.14 2005-11-06 22:05:02 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -102,7 +102,7 @@ public class Stem implements Serializable {
   {
     Group child = new Group(this.s, this, extension, displayExtension);
     // Set parent
-    child.setParent_stem(this.getId());
+    child.setParent_stem(this.getUuid());
     // Add to children 
     Set children  = this.getChild_groups();
     children.add(child);
@@ -154,7 +154,7 @@ public class Stem implements Serializable {
       this.constructName(this.getDisplayName(), displayExtension)
     );
     // Set parent
-    child.setParent_stem(this);
+    child.setParent_stem(this.getUuid());
     // Add to children 
     Set children  = this.getChild_stems();
     children.add(child);
@@ -699,9 +699,9 @@ public class Stem implements Serializable {
     return this.parent_stem;
   }
 
-  private void setParent_stem(Stem parent_stem) {
-    // TODO I should just be able to use a _Stem_ object
-    this.parent_stem = parent_stem.getId();
+  // TODO private void setParent_stem(Stem parent_stem) {
+  private void setParent_stem(String parent_stem) {
+    this.parent_stem = parent_stem;
   }
 
   private Set getChild_groups() {

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.12 2005-11-06 15:55:19 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.13 2005-11-06 22:05:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -212,22 +212,14 @@ Get name.
     <!-- name -->
 
     <!-- parent_stem -->
-<!-- TODO Map directly to the Stem class
-    <many-to-one
-      name="parent_stem"
-      class="edu.internet2.middleware.grouper.Stem"
+    <!-- TODO I'll resolve this later -->
+    <property name="parent_stem"
+              type="string"
+              not-null="true"
     >
-      <meta attribute="field-description">
-Get parent stem.
-      </meta>
-      <column name="parent_stem" sql-type="char(64)"/>
-    </many-to-one>
--->
-    <property 
-      name="parent_stem"
-      type="string"
-    >
-      <column name="parent_stem" sql-type="char(32)"/>
+      <column name="parent_stem" 
+              sql-type="char(64)" 
+      />
     </property>
     <!-- parent_stem -->
 
