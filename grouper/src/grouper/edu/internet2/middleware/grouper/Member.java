@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.9 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.10 2005-11-06 15:56:26 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -462,7 +462,6 @@ public class Member implements Serializable {
            .toString();
   }
 
-  // TODO CLEAN ME UP!
   public boolean equals(Object other) {
     if (this == other) {
       return true;
