@@ -1,129 +1,552 @@
+/*
+  Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
+  Copyright 2004-2005 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
+import  edu.internet2.middleware.subject.*;
+import  java.io.Serializable;
+import  java.util.*;
+import  org.apache.commons.lang.builder.*;
 
 /** 
  * A member within the Groups Registry.
- * @author blair christensen.
- *     
-*/
+ * @author  blair christensen.
+ * @version $Id: Member.java,v 1.1.2.14 2005-11-07 00:31:15 blair Exp $
+ */
 public class Member implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Hibernate Properties
+  private String  id;
+  private String  subject_id;
+  private String  subject_source;
+  private String  subject_type;
+  private String  uuid;
 
-    /** persistent field */
-    private String subject_id;
 
-    /** persistent field */
-    private String subject_source;
+  // Private Transient Instance Properties
+  private transient GrouperSession  s     = null;
+  private transient Subject         subj  = null;
 
-    /** persistent field */
-    private String subject_type;
+  // Constructors
 
-    /** persistent field */
-    private String member_id;
+  /**
+   * Default constructor for Hibernate.
+   */
+  public Member() {
+    // Nothing
+  }
 
-    /** full constructor */
-    public Member(String subject_id, String subject_source, String subject_type, String member_id) {
-        this.subject_id = subject_id;
-        this.subject_source = subject_source;
-        this.subject_type = subject_type;
-        this.member_id = member_id;
+  protected Member(Subject subj) {
+    // Persistent Properties
+    this.setSubject_id( subj.getId() );
+    this.setSubject_source( subj.getSource().getId() );
+    this.setSubject_type( subj.getType().getName() );
+    this.setMember_id( GrouperUuid.getUuid() );
+
+    // Transient Properties  
+    this.subj = subj;
+  } // protected Member()
+
+
+  // Public Instance Methods
+
+  /**
+   * Get groups where this member has an effective membership.
+   * <pre class="eg">
+   * // Get groups where this member is an effective member.
+   * Set effectives = m.getEffectiveGroups();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set getEffectiveGroups() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get groups where this member is a member.
+   * <pre class="eg">
+   * // Get groups where this member is a member.
+   * Set groups = m.getEffectiveGroups();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set getGroups() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get groups where this member has an immediate membership.
+   * <pre class="eg">
+   * // Get groups where this member is an immediate member.
+   * Set immediates = m.getImmediateGroups();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set getImmediateGroups() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get {@link Subject} that maps to this member.
+   * <pre class="eg">
+   * // Convert a member back into a subject
+   * try {
+   *   Subject subj = m.getSubject();
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   * </pre>
+   * @return  A {@link Subject} object.
+   * @throws  SubjectNotFoundException
+   */ 
+  public Subject getSubject() 
+    throws SubjectNotFoundException
+  {
+    if (this.subj == null) {
+      throw new RuntimeException("Member.getSubject() not implemented");
     }
+    return this.subj;
+  }
 
-    /** default constructor */
-    public Member() {
-    }
+  /**
+   * Get the subject id of the subject that maps to this member.
+   * <pre class="eg">
+   * // Get this member's subject id.
+   * String id = m.getSubjectId();
+   * </pre>
+   * @return  Subject id
+   */ 
+  public String getSubjectId() {
+    return this.getSubject_id();
+  }
 
-    private String getId() {
-        return this.id;
-    }
+  /**
+   * Get the {@link Source} of the subject that maps to this member.
+   * <pre class="eg">
+   * // Get this member's source.
+   * Source sa = m.getSubjectSource();
+   * </pre>
+   * @return  Subject's {@link Source}
+   */ 
+  public Source getSubjectSource() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setId(String id) {
-        this.id = id;
-    }
+  /** Get the {@link Source} id of the subject that maps to this
+   * member.
+   * <pre class="eg">
+   * String id = m.getSubjectSourceId();
+   * </pre>
+   * @return  Subject's {@link Source} id
+   */
+  public String getSubjectSourceId() {
+    return this.getSubject_source();
+  } 
 
-    /** 
-     * Get Subject ID.
-     *       
-     */
-    private String getSubject_id() {
-        return this.subject_id;
-    }
+  /**
+   * Get the {@link SubjectType} of the subject that maps to this member.
+   * <pre class="eg">
+   * // Get this member's subject type.
+   * SubjectType type = m.getSubjectType();
+   * </pre>
+   * @return  Subject's {@link SubjectType}
+   */ 
+  public SubjectType getSubjectType() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setSubject_id(String subject_id) {
-        this.subject_id = subject_id;
-    }
+  /**
+   * Get the subject type id of the subject that maps to this member.
+   * <pre class="eg">
+   * // Get this member's subject type id.
+   * String type = m.getSubjectTypeId();
+   * </pre>
+   * @return  Subject's type id.
+   */ 
+  public String getSubjectTypeId() {
+    return this.getSubject_type();
+  }
 
-    /** 
-     * Get Subject source.
-     *       
-     */
-    private String getSubject_source() {
-        return this.subject_source;
-    }
+  /**
+   * Get member's UUID.
+   * <pre class="eg">
+   * // Get UUID of member.
+   * String uuid = m.getUuid();
+   * </pre>
+   * @return  Member's UUID.
+   */
+  public String getUuid() {
+    return this.getMember_id();
+  }
 
-    private void setSubject_source(String subject_source) {
-        this.subject_source = subject_source;
-    }
+  /**
+   * Get groups where this member has the ADMIN privilege.
+   * <pre class="eg">
+   * // Get groups where this member has the ADMIN privilege.
+   * Set admin = m.hasAdmin();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set hasAdmin() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get Subject type.
-     *       
-     */
-    private String getSubject_type() {
-        return this.subject_type;
-    }
+  /**
+   * Report whether this member has ADMIN on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has ADMIN on the specified group.
+   * if (m.hasAdmin(g)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   g   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasAdmin(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setSubject_type(String subject_type) {
-        this.subject_type = subject_type;
-    }
+  /**
+   * Get stems where this member has the CREATE privilege.
+   * <pre class="eg">
+   * // Get stems where this member has the CREATE privilege.
+   * Set create = m.hasCreate();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   */
+  public Set hasCreate() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    /** 
-     * Get Member UUID.
-     *       
-     */
-    private String getMember_id() {
-        return this.member_id;
-    }
+  /**
+   * Report whether this member has CREATE on the specified stem.
+   * <pre class="eg">
+   * // Check whether this member has CREATE on the specified stem.
+   * if (m.hasCreate(ns)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   ns  Test for privilege on this {@link Stem}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasCreate(Stem ns) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    private void setMember_id(String member_id) {
-        this.member_id = member_id;
-    }
+  /**
+   * Get groups where this member has the OPTIN privilege.
+   * <pre class="eg">
+   * // Get groups where this member has the OPTIN privilege.
+   * Set optin = m.hasOptin();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set hasOptin() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("subject_id", getSubject_id())
-            .append("subject_source", getSubject_source())
-            .append("subject_type", getSubject_type())
-            .append("member_id", getMember_id())
-            .toString();
-    }
+  /**
+   * Report whether this member has OPTIN on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has OPTIN on the specified group.
+   * if (m.hasOptin(g)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   g   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasOptin(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
 
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Member) ) return false;
-        Member castOther = (Member) other;
-        return new EqualsBuilder()
-            .append(this.getSubject_id(), castOther.getSubject_id())
-            .append(this.getSubject_source(), castOther.getSubject_source())
-            .append(this.getSubject_type(), castOther.getSubject_type())
-            .append(this.getMember_id(), castOther.getMember_id())
-            .isEquals();
-    }
+  /**
+   * Get groups where this member has the OPTOUT privilege.
+   * <pre class="eg">
+   * // Get groups where this member has the OPTOUT privilege.
+   * Set optout = m.hasOptout();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set hasOptout() {
+    throw new RuntimeException("Not implemented");
+  }
 
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getSubject_id())
-            .append(getSubject_source())
-            .append(getSubject_type())
-            .append(getMember_id())
-            .toHashCode();
+  /**
+   * Report whether this member has OPTOUT on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has OPTOUT on the specified group.
+   * if (m.hasOptout(g)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   g   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasOptout(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Find all Access Privileges held by this member on a group.
+   * <pre class="eg">
+   * // Find this member's access privileges.
+   * Set access = m.hasPrivs(g);
+   * </pre>
+   * @param   g   Find Access Privileges on this {@link Group}
+   * @return  A set of privileges.
+   */
+  public Set hasPrivs(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Find all Naming Privileges held by this member on a stem.
+   * <pre class="eg">
+   * // Find this member's naming privileges.
+   * Set naming = m.hasPrivs(ns);
+   * </pre>
+   * @param   ns  Find Naming Privileges on this {@link Stem}
+   * @return  A set of privileges.
+   */
+  public Set hasPrivs(Stem ns) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get groups where this member has the READ privilege.
+   * <pre class="eg">
+   * // Get groups where this member has the READ privilege.
+   * Set read = m.hasRead();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set hasRead() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Report whether this member has READ on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has READ on the specified group.
+   * if (m.hasRead(g)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   g   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasRead(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get stems where this member has the STEM privilege.
+   * <pre class="eg">
+   * // Get stems where this member has the STEM privilege.
+   * Set stem = m.hasStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   */
+  public Set hasStem() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Report whether this member has STEM on the specified stem.
+   * <pre class="eg">
+   * // Check whether this member has STEM on the specified stem.
+   * if (m.hasStem(ns)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   ns  Test for privilege on this {@link Stem}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasStem(Stem ns) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get groups where this member has the UPDATE privilege.
+   * <pre class="eg">
+   * // Get groups where this member has the UPDATE privilege.
+   * Set update = m.hasUpdate();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set hasUpdate() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Report whether this member has UPDATE on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has UPDATE on the specified group.
+   * if (m.hasUpdate(g)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   g   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasUpdate(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get groups where this member has the VIEW privilege.
+   * <pre class="eg">
+   * // Get groups where this member has the VIEW privilege.
+   * Set view = m.hasView();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set hasView() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Report whether this member has VIEW on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has VIEW on the specified group.
+   * if (m.hasView(g)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   g   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasView(Group g) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Test whether a member belongs to a group.
+   * <pre class="eg">
+   * // Does this member belong to the specified group?
+   * if (m.isMember(g)) {
+   *   // Is a member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @return  Boolean true if is a member.
+   */
+  // TODO isEffectiveMember() and isImmediateMember()?
+  public boolean isMember(Group g) {
+    try {
+      Membership ms = MembershipFinder.findMembership(g, this, Group.LIST);
+      return true;
     }
+    catch (MembershipNotFoundException e) {
+      return false;
+    }
+  }
+
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("ID",      this.getId()            ) 
+           .append("uuid",    this.getMember_id()     )
+           .append("id",      this.getSubject_id()    )
+           .append("source",  this.getSubject_source())
+           .append("type",    this.getSubject_type()  )
+           .toString();
+  }
+
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Member)) {
+      return false;
+    }
+    Member otherMember = (Member) other;
+    return new EqualsBuilder()
+           .append(this.getSubject_id(),      otherMember.getSubject_id()     )
+           .append(this.getSubject_source(),  otherMember.getSubject_source() )
+           .append(this.getSubject_type(),    otherMember.getSubject_type()   )
+           .append(this.getUuid(),            otherMember.getUuid()           )
+           .isEquals();
+  } // public boolean equals(other)
+
+  public int hashCode() {
+    return new HashCodeBuilder()
+           .append(getSubject_id())
+           .append(getSubject_source())
+           .append(getSubject_type())
+           .append(getUuid())
+           .toHashCode();
+  }
+
+
+  // Protected Instance Methods
+  
+  // Assign Session
+  protected void setSession(GrouperSession s) {
+    this.s = s;
+  } // protected void setSession(s)
+
+  // Assign Subject
+  protected void setSubject(Subject subj) {
+    this.subj = subj;
+  } // protected void setSubject(subj)
+
+
+  // Hibernate Accessors
+  private String getId() {
+    return this.id;
+  } 
+
+  private void setId(String id) {
+    this.id = id;
+  }
+
+  private String getMember_id() {
+    return this.uuid;
+  }
+
+  private void setMember_id(String uuid) {
+    this.uuid = uuid;
+  }
+
+  private String getSubject_id() {
+    return this.subject_id;
+  }
+
+  private void setSubject_id(String subject_id) {
+    this.subject_id = subject_id;
+  }
+
+  private String getSubject_source() {
+    return this.subject_source;
+  }
+
+  private void setSubject_source(String subject_source) {
+    this.subject_source = subject_source;
+  }
+
+  private String getSubject_type() {
+    return this.subject_type;
+  }
+
+  private void setSubject_type(String subject_type) {
+    this.subject_type = subject_type;
+  }
 
 }
+
