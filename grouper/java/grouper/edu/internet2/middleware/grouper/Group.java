@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.16 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.17 2005-11-07 01:03:10 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -890,6 +890,12 @@ public class Group implements Serializable {
            .append("modifier_id", getModifier_id())
            .toString();
   }
+
+
+  // Protected Instance Methods
+  protected void setSession(GrouperSession s) {
+    this.s = s;
+  } // protected void setSession(s)
 
 
   // Private Instance Methods

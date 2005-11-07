@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.1.2.7 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.1.2.8 2005-11-07 01:03:10 blair Exp $
  */
 public class GroupFinder {
 
@@ -46,6 +46,40 @@ public class GroupFinder {
    * @throws  GroupNotFoundException
    */
   public static Group findByName(GrouperSession s, String name) 
+    throws GroupNotFoundException
+  {
+    Group g = findByName(name);
+    g.setSession(s);
+    return g;
+  }
+
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByUuid(uuid);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByUuid(GrouperSession s, String uuid) 
+    throws GroupNotFoundException
+  {
+    Group g = findByUuid(uuid);
+    g.setSession(s);
+    return g;
+  } // public static Group findByUuid(s, uuid)
+
+
+  // Protected Class Methods
+
+  protected static Group findByName(String name)
     throws GroupNotFoundException
   {
     try {
@@ -72,24 +106,9 @@ public class GroupFinder {
         "error finding group: " + e.getMessage()
       );  
     }
-  } // public static Group findByName(s, name)
+  } // protected static Group findByName(s, name)
 
-  /**
-   * Find a group within the registry by UUID.
-   * <pre class="eg">
-   * try {
-   *   Group g = GroupFinder.findByUuid(uuid);
-   * }
-   * catch (GroupNotFoundException e) {
-   *   // Group not found
-   * }
-   * </pre>
-   * @param   s     Find group within this session context.
-   * @param   uuid  UUID of group to find.
-   * @return  A {@link Group}
-   * @throws  GroupNotFoundException
-   */
-  public static Group findByUuid(GrouperSession s, String uuid) 
+  protected static Group findByUuid(String uuid)
     throws GroupNotFoundException
   {
     try {
@@ -116,7 +135,7 @@ public class GroupFinder {
         "error finding group: " + e.getMessage()
       );  
     }
-  } // public static Group findByUuid(s, uuid)
+  } // protected static Group findByUuid(s, uuid)
 
 }
 
