@@ -26,44 +26,37 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.1.2.9 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.1.2.10 2005-11-07 19:47:41 blair Exp $
  */
 class MembershipFinder {
 
   // Protected Class Methods
 
-  // @return  {@link Membership} if it exists
-  protected static Membership findMembership(Group g, Member m, String field) 
-    throws MembershipNotFoundException
+  // @return  Set of matching memberships
+  protected static Set findEffectiveMemberships(
+    Group g, Member m, String field
+  )
   {
+    // TODO Switch to criteria queries?
+    Set mships = new HashSet();
     try {
-      Membership  ms      = null;
-      Session     hs      = HibernateHelper.getSession();
-      List        mships  = hs.find(
-                          "from Membership as ms where "
-                          + "ms.group_id      = ?      "
-                          + "and ms.member_id = ?      "
-                          + "and ms.list_id   = ?      ",
-                          new Object[] {
-                            g.getUuid(),
-                            m.getUuid(),
-                            field
-                          },
-                          new Type[] {
-                            Hibernate.STRING,
-                            Hibernate.STRING,
-                            Hibernate.STRING
-                          }
-                        )
-                        ;
-      if (mships.size() == 1) {
-        ms = (Membership) mships.get(0);
-      }
+      Session hs = HibernateHelper.getSession();
+      mships.addAll(
+        hs.find(
+          "from Membership as ms where  "
+          + "ms.group_id      = ?       "
+          + "and ms.member_id = ?       "
+          + "and ms.list_id   = ?       "
+          + "and ms.depth     > 0       ", 
+          new Object[] {
+            g.getUuid(), m.getUuid(), field
+          },
+          new Type[] {
+            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+          }
+        )
+      );
       hs.close();
-      if (ms == null) {
-        throw new MembershipNotFoundException("membership not found");
-      }
-      return ms; 
     }
     catch (HibernateException e) {
       // TODO Is a RE appropriate here?
@@ -71,7 +64,84 @@ class MembershipFinder {
         "error checking membership: " + e.getMessage()
       );  
     }
-  } // protected static Membership findMembership(g, m, field)
+    return mships;
+  } // protected static Set findEffectiveMemberships(g, m, field)
+
+  // @return  Set of matching memberships
+  protected static Set findMemberships(Member m, String field) {
+    // TODO Switch to criteria queries?
+    Set mships = new HashSet();
+    try {
+      Session hs = HibernateHelper.getSession();
+      mships.addAll(
+        hs.find(
+          "from Membership as ms where "
+          + "and ms.member_id = ?      "
+          + "and ms.list_id   = ?      ",
+          new Object[] {
+            m.getUuid(), field
+          },
+          new Type[] {
+            Hibernate.STRING, Hibernate.STRING
+          }
+        )
+      );
+      hs.close();
+    }
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error checking membership: " + e.getMessage()
+      );  
+    }
+    return mships;
+  } // protected static Set findMemberships(m, field)
+
+  // @return  Set of matching memberships
+  protected static Set findMemberships(Group g, Member m, String field) {
+    // TODO Switch to criteria queries?
+    Set mships = new HashSet();
+    try {
+      Session hs = HibernateHelper.getSession();
+      mships.addAll(
+        hs.find(
+          "from Membership as ms where "
+          + "ms.group_id      = ?      "
+          + "and ms.member_id = ?      "
+          + "and ms.list_id   = ?      ",
+          new Object[] {
+            g.getUuid(), m.getUuid(), field
+          },
+          new Type[] {
+            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+          }
+        )
+      );
+      hs.close();
+    }
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error checking membership: " + e.getMessage()
+      );  
+    }
+    return mships;
+  } // protected static Set findMemberships(g, m, field)
+
+  // @return  {@link Membership} object
+  protected static Membership getImmediateMembership(
+    Group g, Member m, String field
+  )
+    throws MembershipNotFoundException
+  {
+    Set mships = findMemberships(g, m, field);
+    if (mships.size() == 1) {
+      return (Membership) new ArrayList(mships).get(0);
+      //List l = new ArrayList(mships);
+      //return (Membership) l.get(0);
+    }
+    throw new MembershipNotFoundException("membership not found");
+  } // protected static Membership getImmediateMembership(g, m, field)
 
 }
 

@@ -20,13 +20,14 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 import  junit.framework.*;
 
 /**
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1.2.3 2005-11-07 17:39:04 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.1.2.4 2005-11-07 19:47:41 blair Exp $
  */
 public class GroupHelper {
 
@@ -38,9 +39,8 @@ public class GroupHelper {
       Member m = gm.getAsMember();
       g.addMember(m);
       Assert.assertTrue("added member", true);
-      Assert.assertTrue("g hasMember m", g.hasMember(m));
-      Assert.assertTrue("m isMember g", m.isMember(g));
-      // TODO Assert immediate and effective in some manner or another
+      _testMemberships(g, m);
+      //_testEffectiveMemberships(g, gm, m);
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.fail("not privileged to add member: " + eIP.getMessage());
@@ -58,8 +58,7 @@ public class GroupHelper {
     try {
       g.addMember(m);
       Assert.assertTrue("added member", true);
-      Assert.assertTrue("g hasMember m", g.hasMember(m));
-      Assert.assertTrue("m isMember g", m.isMember(g));
+      _testMemberships(g, m);
     }
     catch (InsufficientPrivilegeException e0) {
       Assert.fail("not privileged to add member: " + e0.getMessage());
@@ -105,6 +104,26 @@ public class GroupHelper {
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
   } // protected static void deleteMember(g, m)
+
+
+  // Private Class Methods
+
+/*
+  private static void _testEffectiveMemberships(Group g, Group gm, Member m) {
+    Iterator iter = gm.getMembers().iterator();
+    while (iter.hasNext()) {
+      Member member = (Member) iter.next();
+    }
+    Assert.assertTrue("not yet!", true);
+  } // private static void _testEffectiveMemberships(g, gm, m)
+*/
+
+  private static void _testMemberships(Group g, Member m) {
+    Assert.assertTrue("g hasMember m", g.hasMember(m));
+    Assert.assertTrue("g hasImmMember m", g.hasImmediateMember(m));
+    Assert.assertTrue("m isMember g", m.isMember(g));
+    Assert.assertTrue("m isImmMember g", m.isImmediateMember(g));
+  } // private static void _testMemberships(g, m)
 
 }
 

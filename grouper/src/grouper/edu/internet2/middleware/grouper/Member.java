@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.15 2005-11-07 17:39:04 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.16 2005-11-07 19:47:41 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -78,10 +78,21 @@ public class Member implements Serializable {
   }
 
   /**
+   * Get effective memberships.
+   * <pre class="eg">
+   * Set effectives = m.getEffectiveMemberships();
+   * </pre>
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getEffectiveMemberships() {
+    throw new RuntimeException("Not implemented");
+  } // public Set getEffectiveMemberships()
+
+  /**
    * Get groups where this member is a member.
    * <pre class="eg">
    * // Get groups where this member is a member.
-   * Set groups = m.getEffectiveGroups();
+   * Set groups = m.getGroups();
    * </pre>
    * @return  Set of {@link Group} objects.
    */
@@ -100,6 +111,28 @@ public class Member implements Serializable {
   public Set getImmediateGroups() {
     throw new RuntimeException("Not implemented");
   }
+
+  /**
+   * Get immediate memberships.
+   * <pre class="eg">
+   * Set immediates = m.getImmediateMemberships();
+   * </pre>
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getImmediateMemberships() {
+    throw new RuntimeException("Not implemented");
+  } // public Set getImmediateMemberships()
+
+  /**
+   * Get memberships.
+   * <pre class="eg">
+   * Set groups = m.getMemberships();
+   * </pre>
+   * @return  Set of {@link Membership} objects.
+   */
+  public Set getMemberships() {
+    return MembershipFinder.findMemberships(this, Group.LIST);
+  } // public Set getMemberships()
 
   /**
    * Get {@link Subject} that maps to this member.
@@ -438,6 +471,50 @@ public class Member implements Serializable {
   }
 
   /**
+   * Test whether a member effectively belongs to a group.
+   * <pre class="eg">
+   * // Does this member effectively belong to the specified group?
+   * if (m.isEffectiveMember(g)) {
+   *   // Is an effective member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @return  Boolean true if is a member.
+   */
+  public boolean isEffectiveMember(Group g) {
+    if (
+      MembershipFinder.findEffectiveMemberships(g, this, Group.LIST).size() > 0
+    )
+    {
+      return true;
+    }
+    return false;
+  } // public boolean isEffectiveMember(g)
+
+  /**
+   * Test whether a member immediately belongs to a group.
+   * <pre class="eg">
+   * // Does this member immediately belong to the specified group?
+   * if (m.isImmediateMember(g)) {
+   *   // Is an immediate member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @return  Boolean true if is a member.
+   */
+  public boolean isImmediateMember(Group g) {
+    try {
+      Membership ms = MembershipFinder.getImmediateMembership(
+        g, this, Group.LIST
+      );
+      return true;
+    }
+    catch (MembershipNotFoundException e) {
+      return false;
+    }
+  } // public boolean isImmediateMember(g)
+
+  /**
    * Test whether a member belongs to a group.
    * <pre class="eg">
    * // Does this member belong to the specified group?
@@ -450,14 +527,11 @@ public class Member implements Serializable {
    */
   // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g) {
-    try {
-      Membership ms = MembershipFinder.findMembership(g, this, Group.LIST);
+    if (MembershipFinder.findMemberships(g, this, Group.LIST).size() > 0) {
       return true;
     }
-    catch (MembershipNotFoundException e) {
-      return false;
-    }
-  }
+    return false;
+  } // public boolean isMember(g)
 
   public String toString() {
     return new ToStringBuilder(this)

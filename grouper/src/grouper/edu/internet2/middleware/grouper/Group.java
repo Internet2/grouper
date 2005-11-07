@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.18 2005-11-07 17:39:04 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.19 2005-11-07 19:47:41 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -109,19 +109,41 @@ public class Group implements Serializable {
   public void addMember(Member m) 
     throws InsufficientPrivilegeException, MemberAddException
   {
+    // TODO refactor into smaller components
     try {
-      // Create the membership
-      Membership ms = new Membership(this.s, this, m, Group.LIST);
-      // Update group modify time
-      this._setModified();
-      // And then save group and membership
-      Set objects = new HashSet();
-      objects.add(ms);
-      //objects.add(this);
-      HibernateHelper.save(objects);
+      // Does the membership already exist?
+      Membership ms = MembershipFinder.getImmediateMembership(
+        this, m, Group.LIST
+      );
+      throw new MemberAddException(
+        "membership already exists"
+      );
     }
-    catch (HibernateException e) {
-      throw new MemberAddException("could not add member: " + e.getMessage());
+    catch (MembershipNotFoundException eMNF) {
+      try {
+        // Create the membership
+        Membership ms = new Membership(this.s, this, m, Group.LIST);
+        // Update group modify time
+        this._setModified();
+        // And then save group and membership
+        Set objects = new HashSet();
+        objects.add(ms);
+        objects.add(this);
+
+/*
+        Set gMships = g.getAsMember().getMemberships();
+        if (gMships.size() != ) {
+          throw new RuntimeException("Not implemented!");
+        }
+*/
+        // TODO g as member
+        // TODO m's members
+
+        HibernateHelper.save(objects);
+      }
+      catch (HibernateException eH) {
+        throw new MemberAddException("could not add member: " + eH.getMessage());
+      }
     }
   } // public void addMember(m)
 
@@ -198,7 +220,7 @@ public class Group implements Serializable {
     throws InsufficientPrivilegeException, MemberDeleteException
   {
     try {
-      Membership ms = MembershipFinder.findMembership(this, m, Group.LIST);
+      Membership ms = MembershipFinder.getImmediateMembership(this, m, Group.LIST);
       HibernateHelper.delete(ms);
     }
     catch (HibernateException e) {
@@ -650,6 +672,56 @@ public class Group implements Serializable {
     throw new RuntimeException("Not implemented");
   }
 
+  /**
+   * Check whether the member is an effective member of this group.
+   * <pre class="eg">
+   * if (g.hasEffectiveMember(m)) {
+   *   // m is an effective member of this group
+   * }
+   * else {
+   *   // m is not an effective member of this group
+   * } 
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member belongs to this group.
+   */
+  public boolean hasEffectiveMember(Member m) {
+    if (
+      MembershipFinder.findEffectiveMemberships(
+        this, m, Group.LIST
+      ).size() > 0
+    )
+    {
+      return true;
+    }
+    return false;
+  } // public boolean hasEffectiveMember(m)
+
+  /**
+   * Check whether the member is an immediate member of this group.
+   * <pre class="eg">
+   * if (g.hasImmediateMember(m)) {
+   *   // m is an immediate member of this group
+   * }
+   * else {
+   *   // m is not a immediate member of this group
+   * } 
+   * </pre>
+   * @param   m   Check this member.
+   * @return  Boolean true if member belongs to this group.
+   */
+  public boolean hasImmediateMember(Member m) {
+    try {
+      Membership ms = MembershipFinder.getImmediateMembership(
+        this, m, Group.LIST
+      );
+      return true;
+    }
+    catch (MembershipNotFoundException e) {
+      return false;
+    }
+  } // public boolean hasImmediateMember(m)
+
   public int hashCode() {
     return new HashCodeBuilder()
            .append(getUuid())
@@ -706,13 +778,10 @@ public class Group implements Serializable {
    * @return  Boolean true if member belongs to this group.
    */
   public boolean hasMember(Member m) {
-    try {
-      Membership ms = MembershipFinder.findMembership(this, m, Group.LIST);
+    if (MembershipFinder.findMemberships(this, m, Group.LIST).size() > 0) {
       return true;
     }
-    catch (MembershipNotFoundException e) {
-      return false;
-    }
+    return false;
   }
 
   /**

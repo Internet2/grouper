@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.16 2005-11-07 17:39:04 blair Exp $
+$Id: API,v 1.86.2.17 2005-11-07 19:47:41 blair Exp $
 
 ---
 
@@ -115,9 +115,11 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 getViewers()
 * void                grantPriv(member, privilege)
 * boolean             hasAdmin(member)
+* boolean             hasEffectiveMember(member)
+* boolean             hasImmediateMember(member)
 * boolean             hasOptin(member)
 * boolean             hasOptout(member)
-* boolean             hasMember()
+* boolean             hasMember(member)
 * boolean             hasRead(member)
 * boolean             hasUpdate(member)
 * boolean             hasView(member)
@@ -152,8 +154,11 @@ TODO Be more consistent about when calling for a member and a subject
 
 ## Member
 * Set                 getEffectiveGroups()
+* Set                 getEffectiveMemberships()
 * Set                 getGroups()
 * Set                 getImmediateGroups()
+* Set                 getImmediateMemberships()
+* Set                 getMemberships()
 * Subject             getSubject()
 * String              getSubjectId()
 * Source              getSubjectSource()
@@ -179,6 +184,8 @@ TODO Be more consistent about when calling for a member and a subject
 * boolean             hasUpdate(group)
 * Set                 hasView()
 * boolean             hasView(group)
+* boolean             isEffectiveMember(group)
+* boolean             isImmediateMember(group)
 * boolean             isMember(group)
 
 ## MemberFinder
