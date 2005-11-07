@@ -20,7 +20,6 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
 
@@ -28,7 +27,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findById()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindById.java,v 1.1.2.2 2005-11-07 16:22:36 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindById.java,v 1.1.2.3 2005-11-07 17:46:06 blair Exp $
  */
 public class TestSuFiInSoAdFindById extends TestCase {
 
@@ -46,15 +45,27 @@ public class TestSuFiInSoAdFindById extends TestCase {
 
   // Tests
 
-  public void testFindBySubjectBad() {
+  public void testFindByIdBadId() {
     SubjectHelper.getSubjectByBadId(Helper.BAD_SUBJ_ID);
-    Assert.assertTrue("failed to find  bad subject", true);
-  } // public void testFindBySubjectBad()
+    Assert.assertTrue("failed to find bad subject", true);
+  } // public void testFindByIdBadId()
 
-  public void testFindBySubject() {
+  public void testFindByIdGoodIdBadType() {
+    SubjectHelper.getSubjectByBadIdType(Helper.GOOD_SUBJ_ID, "person");
+    Assert.assertTrue("failed to find bad subject", true);
+  } // public void testFindByIdGoodIdBadType()
+
+  public void testFindByIdGoodId() {
     Subject subj = SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID);
     Assert.assertTrue("found subject", true);
-  } // public void testFindBySubject()
+  } // public void testFindByIdGoodId()
+
+  public void testFindByIdGoodIdGoodType() {
+    Subject subj = SubjectHelper.getSubjectByIdType(
+      Helper.GOOD_SUBJ_ID, "application"
+    );
+    Assert.assertTrue("found subject", true);
+  } // public void testFindByIdGoodIdGoodType()
 
 }
 

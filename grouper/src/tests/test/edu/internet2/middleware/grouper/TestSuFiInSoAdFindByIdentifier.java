@@ -24,14 +24,14 @@ import  java.util.*;
 import  junit.framework.*;
 
 /**
- * Test {@link SubjectFinder.findById()} with {@link InternalSourceAdapter}.
+ * Test {@link SubjectFinder.findByIdentifier()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindById.java,v 1.1.2.3 2005-11-07 17:46:06 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindByIdentifier.java,v 1.1.2.1 2005-11-07 17:46:06 blair Exp $
  */
-public class TestSuFiInSoAdFindById extends TestCase {
+public class TestSuFiInSoAdFindByIdentifier extends TestCase {
 
-  public TestSuFiInSoAdFindById(String name) {
+  public TestSuFiInSoAdFindByIdentifier(String name) {
     super(name);
   }
 
@@ -45,27 +45,27 @@ public class TestSuFiInSoAdFindById extends TestCase {
 
   // Tests
 
-  public void testFindByIdBadId() {
+  public void testFindByIdentifierBadId() {
     SubjectHelper.getSubjectByBadId(Helper.BAD_SUBJ_ID);
     Assert.assertTrue("failed to find bad subject", true);
-  } // public void testFindByIdBadId()
+  } // public void testFindByIdentifierBadId()
 
-  public void testFindByIdGoodIdBadType() {
+  public void testFindByIdentifierGoodIdBadType() {
     SubjectHelper.getSubjectByBadIdType(Helper.GOOD_SUBJ_ID, "person");
     Assert.assertTrue("failed to find bad subject", true);
-  } // public void testFindByIdGoodIdBadType()
+  } // public void testFindByIdentifierGoodIdBadType()
 
-  public void testFindByIdGoodId() {
-    Subject subj = SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID);
+  public void testFindByIdentifierGoodId() {
+    Subject subj = SubjectHelper.getSubjectByIdentifier(Helper.GOOD_SUBJ_ID);
     Assert.assertTrue("found subject", true);
-  } // public void testFindByIdGoodId()
+  } // public void testFindByIdentifierGoodId()
 
-  public void testFindByIdGoodIdGoodType() {
-    Subject subj = SubjectHelper.getSubjectByIdType(
+  public void testFindByIdentifierGoodIdGoodType() {
+    Subject subj = SubjectHelper.getSubjectByIdentifierType(
       Helper.GOOD_SUBJ_ID, "application"
     );
     Assert.assertTrue("found subject", true);
-  } // public void testFindByIdGoodIdGoodType()
+  } // public void testFindByIdentifierGoodIdGoodType()
 
 }
 
