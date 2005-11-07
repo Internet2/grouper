@@ -26,13 +26,9 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1.2.1 2005-11-06 17:52:26 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.1.2.2 2005-11-07 16:22:36 blair Exp $
  */
 public class GroupHelper {
-
-  // Private Class Constants
-  private static final String ERROR = "How did we reach this statement?";
-
 
   // Protected Class Methods
 
@@ -67,5 +63,6 @@ public class GroupHelper {
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
   }
+
 }
 

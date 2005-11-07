@@ -26,17 +26,14 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.1.2.3 2005-11-06 16:33:51 blair Exp $
+ * @version $Id: Helper.java,v 1.1.2.4 2005-11-07 16:22:36 blair Exp $
  */
 public class Helper {
 
   // Protected Class Constants
   protected static final String BAD_SUBJ_ID   = "i do not exist";
+  protected static final String ERROR         = "How did we reach this statement?";
   protected static final String GOOD_SUBJ_ID  = "GrouperSystem";
-
-
-  // Private Class Constants
-  private static final String ERROR = "How did we reach this statement?";
 
 
   // Protected Class Methods
@@ -264,46 +261,6 @@ public class Helper {
     }
     throw new RuntimeException(ERROR);
   } // protected static GrouperSession getSession(id, type)
-
-  // Get a subject by id
-  // @return  A {@link Subject}
-  protected static Subject getSubjectById(String id) { 
-    try {
-      Subject subj = SubjectFinder.findById(id);
-      Assert.assertNotNull("subj !null", subj);
-      Assert.assertTrue(
-        "subj instanceof Subject", subj instanceof Subject
-      );
-      Assert.assertTrue("subj id", subj.getId().equals(id));
-      return subj;
-    }
-    catch (SubjectNotFoundException e) {
-      Assert.fail("failed to find subject '" + id + "': " + e.getMessage());
-    }
-    throw new RuntimeException(ERROR);
-  } // protected static Subject getSubjectById(id)
-
-  // Get a bad subject by id
-  protected static void getSubjectByIdBad(String id) { 
-    try {
-      Subject subj = SubjectFinder.findById(id);
-      Assert.fail("found bad subject " + id + ": " + subj);
-    }
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
-  } // protected static void getSubjectByIdBad(id)
-
-  // Get a bad subject by bad id and valid type
-  protected static void getSubjectByIdBadAndType(String id, String type) { 
-    try {
-      Subject subj = SubjectFinder.findById(id, type);
-      Assert.fail("found bad subject " + id + "/" + type + ": " + subj);
-    }
-    catch (SubjectNotFoundException e) {
-      Assert.assertTrue("failed to find bad subject", true);
-    }
-  } // protected static void getSubjectByIdBadAndType(id, type)
 
 }
 

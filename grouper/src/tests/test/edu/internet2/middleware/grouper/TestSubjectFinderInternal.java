@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.1.2.3 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.1.2.4 2005-11-07 16:22:36 blair Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 
@@ -47,12 +47,12 @@ public class TestSubjectFinderInternal extends TestCase {
   // Tests
 
   public void testFinderBadSubject() {
-    Helper.getSubjectByIdBad(Helper.BAD_SUBJ_ID);
+    SubjectHelper.getSubjectByBadId(Helper.BAD_SUBJ_ID);
     Assert.assertTrue("failed to get bad subject", true);
   } // public void testFinderBadSubject()
 
   public void testFinderBadSubjectWithType() {
-    Helper.getSubjectByIdBadAndType(Helper.BAD_SUBJ_ID, "person");
+    SubjectHelper.getSubjectByBadIdType(Helper.BAD_SUBJ_ID, "person");
     Assert.assertTrue("failed to get bad subject", true);
   } // public void testFinderBadSubjectWithType()
 

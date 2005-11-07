@@ -2,18 +2,10 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.7.2.1 2005-10-25 17:26:21 blair Exp $
+$Id: sources.xml,v 1.7.2.2 2005-11-07 16:22:36 blair Exp $
 -->
 
 <sources>
-
-<!--
-  <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
-    <id>grouperAdapter</id>
-    <name>Grouper Adapter</name>
-    <type>group</type>
-  </source>
--->
 
   <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
     <id>personJDBCAdapter</id>

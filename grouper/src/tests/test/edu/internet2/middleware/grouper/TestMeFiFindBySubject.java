@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link MemberFinder.findBySubject()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMeFiFindBySubject.java,v 1.1.2.1 2005-11-05 23:43:46 blair Exp $
+ * @version $Id: TestMeFiFindBySubject.java,v 1.1.2.2 2005-11-07 16:22:36 blair Exp $
  */
 public class TestMeFiFindBySubject extends TestCase {
 
@@ -46,7 +46,7 @@ public class TestMeFiFindBySubject extends TestCase {
 
   public void testFindBySubjectBadSession() {
     Helper.getMemberBySubjectBad(
-      null, Helper.getSubjectById(Helper.GOOD_SUBJ_ID)
+      null, SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID)
     );
     Assert.assertTrue("failed to find bad member", true);
   } // public void testFindBySubjectBadSession()
@@ -62,7 +62,7 @@ public class TestMeFiFindBySubject extends TestCase {
     GrouperSession  s   = Helper.getRootSession();
     String          id  = "GrouperSystem";
     Member          m   = Helper.getMemberBySubject(
-      s, Helper.getSubjectById(id)
+      s, SubjectHelper.getSubjectById(id)
     );
     Assert.assertTrue("found member", true);
     if (s.getMember().equals(m)) {

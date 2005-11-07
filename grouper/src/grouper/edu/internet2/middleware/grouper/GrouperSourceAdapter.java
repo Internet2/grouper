@@ -41,10 +41,14 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.1.2.1 2005-11-07 01:03:10 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.1.2.2 2005-11-07 16:22:36 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
   // TODO Is configuration necessary if used within Grouper?
+
+  // Private Instance Variables
+  private Set types = new HashSet();
+
 
   // Constructors
 
@@ -142,6 +146,22 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       );
     }
   } // public Subject getSubjectByIdentifier(name)
+
+  /**
+   * Gets the SubjectTypes supported by this source.
+   * <pre class="eg">
+   * // Return subject types supported by this source.
+   * SourceAdapter  sa    = new GrouperSourceAdapter();
+   * Set            types = sa.getSubjectTypes();
+   * </pre>
+   * @return  Subject types supported by this source.
+   */
+  public Set getSubjectTypes() {
+    if (types.size() != 1) {
+      types.add( SubjectTypeEnum.valueOf("group") );
+    }
+    return types;
+  } // public Set getSubjectTypes()
 
   /** 
    * Initializes the {@link Grouper} source adapter.

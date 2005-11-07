@@ -40,7 +40,11 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestStemAddChildGroup.class);
     suite.addTestSuite(TestStemAddChildStem.class);
     suite.addTestSuite(TestStFiFindRootStem.class);
+    // TODO Make this look like TestSuFiGrSoAdFindById
     suite.addTestSuite(TestSuFiInSoAdFindById.class);
+    // TODO suite.addTestSuite(TestSuFiInSoAdFindByIdentifier.class);
+    suite.addTestSuite(TestSuFiGrSoAdFindById.class);
+    suite.addTestSuite(TestSuFiGrSoAdFindByIdentifier.class);
     suite.addTestSuite(TestSubjectFinderInternal.class);
 
     return suite;
