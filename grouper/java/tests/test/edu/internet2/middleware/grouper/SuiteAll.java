@@ -34,6 +34,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGroupDeleteMember.class);
     suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGrouperSession.class);
+    //suite.addTestSuite(TestGrouperSourceAdapter.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestMeFiFindBySubject.class);
     suite.addTestSuite(TestStemAddChildGroup.class);

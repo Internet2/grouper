@@ -1,6 +1,6 @@
-<!-- $Id: build.xml,v 1.61.2.20 2005-11-06 15:50:44 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.21 2005-11-07 00:00:28 blair Exp $ -->
 
-<project name="Grouper" default="codegen" basedir=".">
+<project name="Grouper" default="build" basedir=".">
 
   <!-- Global Properties -->
   <property name="app.name"               value="Grouper"/>
