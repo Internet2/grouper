@@ -20,12 +20,13 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.io.Serializable;
 import  java.util.*;
+import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.14 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.15 2005-11-07 17:39:04 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -492,6 +493,27 @@ public class Member implements Serializable {
            .append(getUuid())
            .toHashCode();
   }
+
+
+  // Protected Class Methods
+
+  // Add a new Member to the Registry
+  protected static Member addMember(Subject subj) 
+    throws MemberNotFoundException 
+  {
+    try {
+      Member m = new Member(subj);
+      HibernateHelper.save(m);
+      m.setSubject(subj);
+      return m;
+    }
+    catch (HibernateException e) {
+      throw new MemberNotFoundException(
+        "unable to save member: " + e.getMessage()
+      );
+    }
+  } // protected static Member addMember(subj)
+
 
 
   // Protected Instance Methods

@@ -31,7 +31,9 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrFiFindByName.class);
     suite.addTestSuite(TestGrFiFindByUuid.class);
     suite.addTestSuite(TestGroupAddMember.class);
+    suite.addTestSuite(TestGroupAddMemberGroup.class);
     suite.addTestSuite(TestGroupDeleteMember.class);
+    suite.addTestSuite(TestGroupDeleteMemberGroup.class);
     suite.addTestSuite(TestGroupDelete.class);
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestGrouperSourceAdapter.class);

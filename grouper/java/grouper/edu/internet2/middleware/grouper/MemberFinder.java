@@ -27,33 +27,11 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.1.2.9 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.1.2.10 2005-11-07 17:39:04 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
   // Public Class Methods
-
-  /**
-   * Convert a {@link Group} to a {@link Member}.
-   * <pre class="eg">
-   * // Convert Group g to a Member object
-   * try {
-   *   Member m = MemberFinder.findByGroup(s, g);
-   * }
-   * catch (MemberNotFoundException e) {
-   *   // Member not found
-   * }
-   * </pre>
-   * @param   s   Find {@link Member} within this session context.
-   * @param   g   {@link Group} to convert.
-   * @return  A {@link Member} object.
-   * @throws  MemberNotFoundException
-   */
-  public static Member findByGroup(GrouperSession s, Group g) 
-    throws MemberNotFoundException
-  {
-    throw new RuntimeException("Not implemented");
-  }
 
   /**
    * Convert a {@link Subject} to a {@link Member}.
@@ -77,45 +55,9 @@ public class MemberFinder implements Serializable {
     if (s == null) {
       throw new MemberNotFoundException("invalid session");
     }
-    if (subj == null) {
-      throw new MemberNotFoundException("invalid subject");
-    }
-    try {
-      Member  m       = null;
-      Session hs      = HibernateHelper.getSession();
-      List    members = hs.find(
-                          "from Member as m where       "
-                          + "m.subject_id          = ?  "
-                          + "and m.subject_type    = ?  "
-                          + "and m.subject_source  = ?",
-                          new Object[] { 
-                            subj.getId(),
-                            subj.getType().getName(),
-                            subj.getSource().getId()
-                          },
-                          new Type[] {
-                            Hibernate.STRING,
-                            Hibernate.STRING,
-                            Hibernate.STRING
-                          }
-                        )
-                        ;
-      if (members.size() == 1) {
-        m = (Member) members.get(0);
-        m.setSession(s);
-        m.setSubject(subj);
-      }
-      hs.close();
-      if (m != null) {
-        return m;
-      }
-      throw new MemberNotFoundException("member not found");
-    }
-    catch (HibernateException e) {
-      throw new MemberNotFoundException("member not found: " + e.getMessage());
-    }
-    finally {
-    }
+    Member m = findBySubject(subj);
+    m.setSession(s);
+    return m;
   } // public static Member findBySubject(s, subj)
 
   /**
@@ -143,20 +85,51 @@ public class MemberFinder implements Serializable {
   
   // Protected Class Methods
 
-  protected static Member findBySubject(Subject subj) {
-    return new Member(subj);  
-/*
+  protected static Member findBySubject(Subject subj) 
+    throws MemberNotFoundException
+  {
+    if (subj == null) {
+      throw new MemberNotFoundException("invalid subject");
+    }
     try {
-      Member m = new Member(subj);
-      System.err.println("MEMBER: " + m);
-      HibernateHelper.save(m);
-      System.err.println("SAVED?: " + m);
-      return m;
+      Member  m       = null;
+      Session hs      = HibernateHelper.getSession();
+      List    members = hs.find(
+                          "from Member as m where       "
+                          + "m.subject_id          = ?  "
+                          + "and m.subject_type    = ?  "
+                          + "and m.subject_source  = ?",
+                          new Object[] { 
+                            subj.getId(),
+                            subj.getType().getName(),
+                            subj.getSource().getId()
+                          },
+                          new Type[] {
+                            Hibernate.STRING,
+                            Hibernate.STRING,
+                            Hibernate.STRING
+                          }
+                        )
+                        ;
+      if (members.size() == 1) {
+        // The member already exists
+        m = (Member) members.get(0);
+      }
+      hs.close();
+      if (m != null) {
+        m.setSubject(subj);
+        return m;
+      }
+      else {
+        // Create a new member
+        m = Member.addMember(subj);
+        return m;
+        //return Member.addMember(subj);
+      }
     }
-    catch (Exception e) {
-      throw new RuntimeException("FUCK! " + e.getMessage());
+    catch (HibernateException e) {
+      throw new MemberNotFoundException("member not found: " + e.getMessage());
     }
-*/
   } // protected static Member findBySubject(subj)
 }
 

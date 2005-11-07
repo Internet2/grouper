@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.12 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.13 2005-11-07 17:39:04 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -53,16 +53,6 @@ public class GrouperSession implements Serializable {
     // Nothing
   } // public GrouperSession()
 
-  private GrouperSession(Subject subj) {
-    // Transient
-    this.m    = MemberFinder.findBySubject(subj);
-    this.subj = subj;
-
-    // Persistent
-    this.setMember_id(m);
-    this.setStart_time( new Date() );
-    this.setSession_id( GrouperUuid.getUuid() );
-  } // private GrouperSession(subj) 
 
   // Public class methods
 
@@ -76,11 +66,11 @@ public class GrouperSession implements Serializable {
    * @return  A Grouper API session.
    * @throws  SessionException
    */
+  // TODO Rename: getSession
   public static GrouperSession startSession(Subject subject) 
     throws SessionException
   {
-    // TODO Rename: getSession
-    GrouperSession s = new GrouperSession(subject);
+    GrouperSession s = _getSession(subject);
     try {
       // Will cascade and save newly created Member if appropriate
       HibernateHelper.save(s);
@@ -228,6 +218,28 @@ public class GrouperSession implements Serializable {
       .append("start",      this.getStart_time())
       .toString();
   }
+
+
+  // Private Static Methods
+  private static GrouperSession _getSession(Subject subj) {
+    try {
+      GrouperSession s = new GrouperSession();
+      // Transient
+      s.m    = MemberFinder.findBySubject(subj);
+      s.subj = subj;
+      // Persistent
+      s.setMember_id(s.m);
+      s.setStart_time( new Date() );
+      s.setSession_id( GrouperUuid.getUuid() );
+      return s;
+    }
+    catch (MemberNotFoundException e) {
+      // TODO What to do|throw here?
+      throw new RuntimeException(
+        "member error: " + e.getMessage()
+      );
+    }
+  } // private GrouperSession(subj) 
 
 
   // Hibernate Accessors

@@ -26,11 +26,32 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1.2.2 2005-11-07 16:22:36 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.1.2.3 2005-11-07 17:39:04 blair Exp $
  */
 public class GroupHelper {
 
   // Protected Class Methods
+
+  // Add a group as a member to a group
+  protected static void addMember(Group g, Group gm) {
+    try {
+      Member m = gm.getAsMember();
+      g.addMember(m);
+      Assert.assertTrue("added member", true);
+      Assert.assertTrue("g hasMember m", g.hasMember(m));
+      Assert.assertTrue("m isMember g", m.isMember(g));
+      // TODO Assert immediate and effective in some manner or another
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail("not privileged to add member: " + eIP.getMessage());
+    }
+    catch (MemberAddException eMA) {
+      Assert.fail("failed to add member: " + eMA.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail("failed to get group as member: " + eMNF.getMessage());
+    }
+  } // protected static void addMember(g, gm)
 
   // Add a member to a group
   protected static void addMember(Group g, Member m) {
@@ -46,7 +67,28 @@ public class GroupHelper {
     catch (MemberAddException e1) {
       Assert.fail("failed to add member: " + e1.getMessage());
     }
-  }
+  } // protected static void addMember(g, m)
+
+  // Delete a group as a member from a group
+  protected static void deleteMember(Group g, Group gm) {
+    try {
+      Member m = gm.getAsMember();
+      g.deleteMember(m);
+      Assert.assertTrue("deleted member", true);
+      Assert.assertFalse("g !hasMember m", g.hasMember(m));
+      Assert.assertFalse("m !isMember g", m.isMember(g));
+      // TODO Assert immediate and effective in some manner or another
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail("not privileged to delete member: " + eIP.getMessage());
+    }
+    catch (MemberDeleteException eMA) {
+      Assert.fail("failed to delete member: " + eMA.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail("failed to get group as member: " + eMNF.getMessage());
+    }
+  } // protected static void deleteMember(g, gm)
 
   // Delete a member from a group
   protected static void deleteMember(Group g, Member m) {
@@ -62,7 +104,7 @@ public class GroupHelper {
     catch (MemberDeleteException e1) {
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
-  }
+  } // protected static void deleteMember(g, m)
 
 }
 

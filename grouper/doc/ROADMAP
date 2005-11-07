@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.14 2005-11-07 16:22:36 blair Exp $
+$Id: ROADMAP,v 1.47.2.15 2005-11-07 17:39:04 blair Exp $
 
 ---
 
@@ -11,8 +11,8 @@ $Id: ROADMAP,v 1.47.2.14 2005-11-07 16:22:36 blair Exp $
 
 TODO Sync with Basecamp
 
-* [TEST] Add group as member
-* [TEST] Delete group as member
+* [TEST] Add group with members as member
+* [TEST] Delete group with members as member
 * [TEST] STEM naming privilege
 * [TEST] CREATE naming privilege
 * [TEST] ADMIN access privilege

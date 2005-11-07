@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.15 2005-11-05 23:40:17 blair Exp $
+$Id: API,v 1.86.2.16 2005-11-07 17:39:04 blair Exp $
 
 ---
 
@@ -84,6 +84,7 @@ TODO Be more consistent about when calling for a member and a subject
 * void                deleteAttribute(attr)
 * void                deleteMember(member)
 * Set                 getAdmins()
+* Member              getAsMember()
 * String              getAttribute(attr)
 * Map                 getAttributes()
 * String              getCreateSource()
@@ -181,7 +182,6 @@ TODO Be more consistent about when calling for a member and a subject
 * boolean             isMember(group)
 
 ## MemberFinder
-* Member              MemberFinder.findByGroup(session, group)
 * Member              MemberFinder.findBySubject(session, subject)
 * Member              MemberFinder.findByUuid(session, uuid)
 
