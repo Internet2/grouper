@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.1.2.16 2005-11-07 19:47:41 blair Exp $
+ * @version $Id: Member.java,v 1.1.2.17 2005-11-07 20:39:13 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -567,6 +567,23 @@ public class Member implements Serializable {
            .append(getUuid())
            .toHashCode();
   }
+
+  /**
+   * Convert this member back to a {@link Group} object.
+   * <p/>
+   * <pre class="eg">
+   * try {
+   *   Group g = m.toGroup();
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // unable to convert member back to group
+   * }
+   * </pre>
+   * @return  {@link Member} as a {@link Group}
+   */
+  public Group toGroup() throws GroupNotFoundException {
+    return GroupFinder.findByUuid(this.s, this.getSubjectId());
+  } // public Group toGroup()
 
 
   // Protected Class Methods

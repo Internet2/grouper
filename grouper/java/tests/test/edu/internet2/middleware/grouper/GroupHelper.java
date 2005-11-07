@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1.2.4 2005-11-07 19:47:41 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.1.2.5 2005-11-07 20:39:13 blair Exp $
  */
 public class GroupHelper {
 
@@ -36,7 +36,7 @@ public class GroupHelper {
   // Add a group as a member to a group
   protected static void addMember(Group g, Group gm) {
     try {
-      Member m = gm.getAsMember();
+      Member m = gm.toMember();
       g.addMember(m);
       Assert.assertTrue("added member", true);
       _testMemberships(g, m);
@@ -47,9 +47,6 @@ public class GroupHelper {
     }
     catch (MemberAddException eMA) {
       Assert.fail("failed to add member: " + eMA.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail("failed to get group as member: " + eMNF.getMessage());
     }
   } // protected static void addMember(g, gm)
 
@@ -71,7 +68,7 @@ public class GroupHelper {
   // Delete a group as a member from a group
   protected static void deleteMember(Group g, Group gm) {
     try {
-      Member m = gm.getAsMember();
+      Member m = gm.toMember();
       g.deleteMember(m);
       Assert.assertTrue("deleted member", true);
       Assert.assertFalse("g !hasMember m", g.hasMember(m));
@@ -83,9 +80,6 @@ public class GroupHelper {
     }
     catch (MemberDeleteException eMA) {
       Assert.fail("failed to delete member: " + eMA.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail("failed to get group as member: " + eMNF.getMessage());
     }
   } // protected static void deleteMember(g, gm)
 
@@ -105,18 +99,49 @@ public class GroupHelper {
     }
   } // protected static void deleteMember(g, m)
 
+  // test converting a Group to a Member
+  protected static Member toMember(Group g) {
+    try {
+      Member m = g.toMember();
+      Assert.assertTrue("converted group to member", true);
+      Assert.assertNotNull("m !null", m);
+      Assert.assertTrue(
+        "m subj id", m.getSubjectId().equals(g.getUuid())
+      );
+      Assert.assertTrue(
+        "m type == group", m.getSubjectTypeId().equals("group")
+      );
+      Assert.assertTrue(
+        "m source", m.getSubjectSourceId().equals("grouperAdapter")
+      );
+      return m;
+    }
+    catch (RuntimeException e) {
+      Assert.fail("failed to convert group to member");
+    }
+    throw new RuntimeException(Helper.ERROR); 
+  } // protected static Member toMember(g)
+
 
   // Private Class Methods
 
-/*
   private static void _testEffectiveMemberships(Group g, Group gm, Member m) {
-    Iterator iter = gm.getMembers().iterator();
-    while (iter.hasNext()) {
-      Member member = (Member) iter.next();
+    Set membersOfGM = gm.getMembers();
+    Iterator iterGM = membersOfGM.iterator();
+    while (iterGM.hasNext()) {
+      Member member = (Member) iterGM.next();
+System.err.println("ASSERT.hasMember.g="+g);
+System.err.println("ASSERT.hasMember.m="+member);
+      Assert.assertTrue("g hasMember member", g.hasMember(member));
+      Assert.assertTrue(
+        "g hasEffMember member", g.hasEffectiveMember(member)
+      );
+      Assert.assertTrue("member isMember g", member.isMember(g));
+      Assert.assertTrue(
+        "m isEffMember g", member.isEffectiveMember(g)
+      );
     }
-    Assert.assertTrue("not yet!", true);
   } // private static void _testEffectiveMemberships(g, gm, m)
-*/
 
   private static void _testMemberships(Group g, Member m) {
     Assert.assertTrue("g hasMember m", g.hasMember(m));

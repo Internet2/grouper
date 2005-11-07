@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.19 2005-11-07 19:47:41 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.20 2005-11-07 20:39:13 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -137,7 +137,24 @@ public class Group implements Serializable {
         }
 */
         // TODO g as member
-        // TODO m's members
+
+        // Add m's members to g
+/*
+        if (m.getSubjectTypeId().equals("group")) {
+          try {
+            Group gm = m.toGroup();  
+            Set gmMships = gm.getMemberships();
+System.err.println("M: " + m);
+System.err.println("AS G: " + gm);
+System.err.println("HAS MEMBERS: " + gmMships.size());
+          }
+          catch (GroupNotFoundException eGNF) {
+            throw new MemberAddException(
+              "could not add member: " + eGNF.getMessage()
+            );
+          }
+        }
+*/
 
         HibernateHelper.save(objects);
       }
@@ -260,36 +277,6 @@ public class Group implements Serializable {
   public Set getAdmins() {
     throw new RuntimeException("Not implemented");
   }
-
-  /**
-   * Convert this group to a {@link Member} object.
-   * <p/>
-   * <pre class="eg">
-   * try {
-   *   Member m = g.getAsMember();
-   * }
-   * catch (MemberNotFoundException e) {
-   *   // unable to convert group to member
-   * }
-   * </pre>
-   * @return  {@link Group} as a {@link Member}
-   */
-  public Member getAsMember() throws MemberNotFoundException {
-    try {
-      Member m = MemberFinder.findBySubject(
-        this.s,
-        SubjectFinder.findById(
-          this.getUuid(), "group"
-        )
-      );
-      return m;
-    }
-    catch (SubjectNotFoundException e) {
-      throw new MemberNotFoundException(
-        "could not find group as subject: " + e.getMessage()
-      );
-    }
-  } // public Member getAsMember()
 
   /**
    * Get attribute value.
@@ -980,6 +967,35 @@ public class Group implements Serializable {
     throw new RuntimeException("Not implemented");
   }
  
+  /**
+   * Convert this group to a {@link Member} object.
+   * <p/>
+   * <pre class="eg">
+   * Member m = g.toMember();
+   * </pre>
+   * @return  {@link Group} as a {@link Member}
+   */
+  public Member toMember() {
+    try {
+      return MemberFinder.findBySubject(
+        this.s,
+        SubjectFinder.findById(
+          this.getUuid(), "group"
+        )
+      );
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(
+        "could not find group as member: " + eMNF.getMessage()
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(
+        "could not find group as subject: " + eSNF.getMessage()
+      );
+    }
+  } // public Member toMember()
+
   public String toString() {
     return new ToStringBuilder(this)
            .append("display_name", getDisplay_name())
