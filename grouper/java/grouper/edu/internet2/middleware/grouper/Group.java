@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.20 2005-11-07 20:39:13 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.21 2005-11-08 16:31:16 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -109,58 +109,19 @@ public class Group implements Serializable {
   public void addMember(Member m) 
     throws InsufficientPrivilegeException, MemberAddException
   {
-    // TODO refactor into smaller components
     try {
-      // Does the membership already exist?
-      Membership ms = MembershipFinder.getImmediateMembership(
-        this, m, Group.LIST
-      );
-      throw new MemberAddException(
-        "membership already exists"
-      );
+      // Create the immediate membership
+      Membership ms = Membership.addMembership(this.s, this, m, Group.LIST);
+      // Update group modify time
+      this._setModified();
+      // And then save group and membership
+      Set objects = new HashSet();
+      objects.add(ms);
+      objects.add(this);
+      HibernateHelper.save(objects);
     }
-    catch (MembershipNotFoundException eMNF) {
-      try {
-        // Create the membership
-        Membership ms = new Membership(this.s, this, m, Group.LIST);
-        // Update group modify time
-        this._setModified();
-        // And then save group and membership
-        Set objects = new HashSet();
-        objects.add(ms);
-        objects.add(this);
-
-/*
-        Set gMships = g.getAsMember().getMemberships();
-        if (gMships.size() != ) {
-          throw new RuntimeException("Not implemented!");
-        }
-*/
-        // TODO g as member
-
-        // Add m's members to g
-/*
-        if (m.getSubjectTypeId().equals("group")) {
-          try {
-            Group gm = m.toGroup();  
-            Set gmMships = gm.getMemberships();
-System.err.println("M: " + m);
-System.err.println("AS G: " + gm);
-System.err.println("HAS MEMBERS: " + gmMships.size());
-          }
-          catch (GroupNotFoundException eGNF) {
-            throw new MemberAddException(
-              "could not add member: " + eGNF.getMessage()
-            );
-          }
-        }
-*/
-
-        HibernateHelper.save(objects);
-      }
-      catch (HibernateException eH) {
-        throw new MemberAddException("could not add member: " + eH.getMessage());
-      }
+    catch (HibernateException eH) {
+      throw new MemberAddException("could not add member: " + eH.getMessage());
     }
   } // public void addMember(m)
 

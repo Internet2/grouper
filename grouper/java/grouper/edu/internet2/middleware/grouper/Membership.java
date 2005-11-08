@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.10 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.11 2005-11-08 16:31:16 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -57,7 +57,7 @@ public class Membership implements Serializable {
   }
 
   // Creating a new membership
-  protected Membership(GrouperSession s, Group g, Member m, String field) {
+  private Membership(GrouperSession s, Group g, Member m, String field) {
     // Attach session
     this.s = s;
     // Set group
@@ -69,7 +69,7 @@ public class Membership implements Serializable {
     // Set field  
     // TOOD this.setList_id( FieldFinder.getField(field) );
     this.setList_id(field);
-  } // protected Membership(s, g, m, field)
+  } // private Membership(s, g, m, field)
 
 
   // Public Instance Methods
@@ -188,6 +188,34 @@ public class Membership implements Serializable {
            .append("via_id", getVia_id())
            .toString();
   }
+
+
+  // Protected Class Methods
+  protected static Membership addMembership(
+    GrouperSession s, Group g, Member m, String field
+  )
+    throws MemberAddException
+  {
+    Membership ms = null;
+    try {
+      // Does the membership already exist?
+      ms = MembershipFinder.getImmediateMembership(
+        g, m, Group.LIST
+      );
+      throw new MemberAddException(
+        "membership already exists"
+      );
+    }
+    catch (MembershipNotFoundException eMNF) {
+      // Membership doesn't exist.  Create it.
+      ms = new Membership(s, g, m, field);
+    }
+    if (ms == null) {
+      throw new MemberAddException("unable to add member");
+    }
+    return ms;
+  } 
+
 
   // Hibernate Accessors
 
