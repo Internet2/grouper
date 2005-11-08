@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.1.2.10 2005-11-07 19:47:41 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.1.2.11 2005-11-08 20:06:47 blair Exp $
  */
 class MembershipFinder {
 
@@ -67,7 +67,37 @@ class MembershipFinder {
     return mships;
   } // protected static Set findEffectiveMemberships(g, m, field)
 
-  // @return  Set of matching memberships
+  // @return  Set of matching memberships for a {@link Group}
+  protected static Set findMemberships(Group g, String field) {
+    // TODO Switch to criteria queries?
+    Set mships = new HashSet();
+    try {
+      Session hs = HibernateHelper.getSession();
+      mships.addAll(
+        hs.find(
+          "from Membership as ms where  "
+          + "ms.group_id      = ?       "
+          + "and ms.list_id   = ?       ",
+          new Object[] {
+            g.getUuid(), field
+          },
+          new Type[] {
+            Hibernate.STRING, Hibernate.STRING
+          }
+        )
+      );
+      hs.close();
+    }
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error checking membership: " + e.getMessage()
+      );  
+    }
+    return mships;
+  } // protected static Set findMemberships(g, field)
+
+  // @return  Set of matching memberships for a {@link Member}
   protected static Set findMemberships(Member m, String field) {
     // TODO Switch to criteria queries?
     Set mships = new HashSet();
@@ -75,9 +105,9 @@ class MembershipFinder {
       Session hs = HibernateHelper.getSession();
       mships.addAll(
         hs.find(
-          "from Membership as ms where "
-          + "and ms.member_id = ?      "
-          + "and ms.list_id   = ?      ",
+          "from Membership as ms where  "
+          + "ms.member_id = ?           "
+          + "and ms.list_id   = ?       ",
           new Object[] {
             m.getUuid(), field
           },
@@ -127,6 +157,51 @@ class MembershipFinder {
     }
     return mships;
   } // protected static Set findMemberships(g, m, field)
+
+  // @return  {@link Membership} object
+  protected static Membership getEffectiveMembership(
+    String gid, String mid, String field, String vid, int depth
+  )
+    throws MembershipNotFoundException
+  {
+    // TODO Switch to criteria queries?
+    List mships = new ArrayList();
+    try {
+      Session hs = HibernateHelper.getSession();
+      mships.addAll(
+        hs.find(
+          "from Membership as ms where  "
+          + "ms.group_id      = ?       "
+          + "and ms.member_id = ?       "
+          + "and ms.list_id   = ?       "
+          + "and ms.via_id    = ?       "
+          + "and ms.depth     = ?       ", 
+          new Object[] {
+            gid, mid, field, 
+            vid, new Integer(depth)
+          },
+          new Type[] {
+            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING,
+            Hibernate.STRING, Hibernate.INTEGER
+          }
+        )
+      );
+      hs.close();
+    }
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error checking membership: " + e.getMessage()
+      );  
+    }
+    if (mships.size() == 1) {
+      Membership ms = (Membership) mships.get(0);
+      return ms;
+    }
+    throw new MembershipNotFoundException(
+      "effective membership not found"
+    );
+  } // protected static Membership getEffectiveMembership(gid, mid, field, vid, depth)
 
   // @return  {@link Membership} object
   protected static Membership getImmediateMembership(
