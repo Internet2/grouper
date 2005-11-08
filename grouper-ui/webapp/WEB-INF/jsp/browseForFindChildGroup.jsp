@@ -3,10 +3,10 @@
 		  to render child groups
 --%><%--
   @author Gary Brown.
-  @version $Id: browseForFindChildGroup.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: browseForFindChildGroup.jsp,v 1.2 2005-11-08 15:48:16 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<tiles:importAttribute />
+<tiles:importAttribute ignore="true"/>
 	<c:choose>
 		<c:when test="${viewObject.isGroup}">
 			<c:set var="linkTitle" value="${navMap['browse.expand.group']} ${viewObject.displayExtension}"/>
@@ -21,14 +21,23 @@
 		</label>
 		<c:set var="areAssignableChildren" value="true" scope="request"/>
 	   <input type="checkbox" name="members" id="members<c:out value="${itemPos}"/>" value="<c:out value="${viewObject.id}"/>" <c:out escapeXml="false" value="${checked}"/>/> 
-	   [<html:link 	page="/browseStemsFind.do" 
-					paramId="currentNode" 
-					paramName="viewObject" 
-					paramProperty="id"
+	   <jsp:useBean id="attrLink" class="java.util.HashMap"/>
+		<c:set target="${attrLink}" property="groupId" value="${viewObject.id}"/>
+		<c:set target="${attrLink}" property="currentNode" value="${viewObject.id}"/>
+		<c:set target="${attrLink}" property="callerPageId" value="${thisPageId}"/>
+	   <html:link 	page="/browseStemsFind.do" 
+					name="attrLink" 
 					title="${linkTitle}">
 					
-						<span class="<c:out value="${viewObject.subjectType}"/>Subject"><c:out value="${viewObject.displayExtension}"/></span>
-		</html:link>]
+						<fmt:message bundle="${nav}" key="groups.membership.view-members"/>
+		</html:link> /
+		
+			   <html:link 	page="/populateGroupSummary.do" 
+					name="attrLink"
+					title="${linkTitle}">
+					
+						<fmt:message bundle="${nav}" key="groups.membership.view-group-attributes"/>
+		</html:link>	<fmt:message bundle="${nav}" key="groups.membership.for"/> [<c:out value="${viewObject.displayExtension}"/>]
 
 
 		
