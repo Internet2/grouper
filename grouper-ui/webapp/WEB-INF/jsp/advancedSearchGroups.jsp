@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.2 2005-11-08 15:39:36 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -19,7 +19,7 @@
 		<c:set var="submitAction" value="/searchGroups${browseMode}"/>
 	</c:otherwise>
 </c:choose>
-	<html:form styleId="SearchGroupsForm" action="${submitAction}">
+	<html:form styleId="SearchFormBean" action="${submitAction}">
 	<input type="hidden" name="searchFor" value="groups"/>
 	<input type="hidden" name="newSearch" value="Y"/>
 	<fieldset>
@@ -50,7 +50,7 @@
 		</div>
 				<div class="formRow">
 			<div class="formLeft">
-				<label for="formSearchInDisplayNone"></label><fmt:message bundle="${nav}" key="find.search-in-display-none"/></label>
+				<label for="formSearchInDisplayNone"><fmt:message bundle="${nav}" key="find.search-in-display-none"/></label>
 			</div>
 			<div class="formRight">
 				<html:radio property="searchInDisplayNameOrExtension" value="" styleId="formSearchInDisplayNone"/>
