@@ -13,19 +13,31 @@ bulk update capability?). Also link to find new members --%>
 	</fmt:message>
 </h2>
 
-<tiles:insert definition="dynamicTileDef">
-	<tiles:put name="viewObject" beanName="chainPath"/>
-	<tiles:put name="view" value="chain"/>
-	<tiles:put name="currentSubject" beanName="subject"/>
-	<tiles:put name="currentGroup" beanName="browseParent"/>
-</tiles:insert>
+<c:forEach var="chainSubject" items="${chainPaths}">
+	<c:set var="chainPath" value="${chainSubject.chainPath}"/>
+	<tiles:insert definition="dynamicTileDef">
+		<tiles:put name="viewObject" beanName="chainPath"/>
+		<tiles:put name="view" value="chain"/>
+		<tiles:put name="currentSubject" beanName="chainSubject"/>
+		<tiles:put name="currentGroup" beanName="browseParent"/>
+	</tiles:insert>
+</c:forEach>
 
 
 <br/>
 <div class="linkButton">
-<html:link page="/populateGroupMembers.do" name="requestParams">
-	<fmt:message bundle="${nav}" key="groups.membership.chain.cancel"/>
-</html:link>
+<c:choose>
+	<c:when test="${GroupFormBean.map.contextSubject=='true'}">
+		<html:link page="/populateSubjectSummary.do">
+					<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+		</html:link>
+	</c:when>
+	<c:otherwise>
+		<html:link page="/populateGroupMembers.do" name="requestParams">
+			<fmt:message bundle="${nav}" key="groups.membership.chain.cancel"/>
+		</html:link>
+	</c:otherwise>
+</c:choose>
 
 </div>
 <br/>
