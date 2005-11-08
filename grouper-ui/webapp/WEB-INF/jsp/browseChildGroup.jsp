@@ -3,10 +3,10 @@
 		  to display a child group
 --%><%--
   @author Gary Brown.
-  @version $Id: browseChildGroup.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: browseChildGroup.jsp,v 1.2 2005-11-08 15:46:44 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<tiles:importAttribute />
+<tiles:importAttribute ignore="true"/>
 [<html:link page="/populateGroupSummary.do" 
 			paramId="groupId" 
 			paramName="viewObject" 
