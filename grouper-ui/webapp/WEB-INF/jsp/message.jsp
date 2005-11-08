@@ -4,7 +4,7 @@
 		 'message'
 --%><%--
   @author Gary Brown.
-  @version $Id: message.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: message.jsp,v 1.2 2005-11-08 16:13:47 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -17,5 +17,5 @@
 </fmt:message>
 <!--/message-->
 </div>
-<p/>&nbsp;&nbsp;&nbsp;
+<p>&nbsp;</p>
 </grouper:recordTile>
