@@ -3,7 +3,7 @@
 		or stem. The stem names are not links
 --%><%--
   @author Gary Brown.
-  @version $Id: showStemsLocation.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: showStemsLocation.jsp,v 1.2 2005-11-08 16:18:24 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -15,8 +15,8 @@
 	<c:forEach var="stem" items="${browsePath}">
 		<span class="browseStemsLocationPart"><c:out value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/></span>
 	</c:forEach>
-	<span class="browseStemsLocationHere">
-	<c:if test="${browseParent.isGroup}">[</c:if><c:out value="${browseParent.displayExtension}"/><c:if test="${browseParent.isGroup}">]</c:if></span>
+	
+	<c:if test="${browseParent.isGroup}"><span class="browseStemsLocationHere">[</c:if><c:out value="${browseParent.displayExtension}"/><c:if test="${browseParent.isGroup}">]</span></c:if>
 </div>
 <a name="endLocation" id="endLocation"></a>
 </grouper:recordTile>
