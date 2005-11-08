@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: simpleSearch.jsp,v 1.2 2005-11-08 16:19:56 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,9 +13,10 @@
 </h2>
 <p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><fmt:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
 
- <html:form styleId="FindMembersForm" action="/searchNewMembers">
+ <html:form styleId="SearchFormBean" action="/searchNewMembers">
  		<html:hidden property="searchInNameOrExtension"/>
 		<html:hidden property="searchInDisplayNameOrExtension"/>
+		<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 <fieldset>
 <c:if test="${forStems}">
     <html:hidden property="stemId"/>
@@ -33,49 +34,17 @@
 	</div>
 </div>
 
-
-<div class="formRow">
-	<div class="formLeft">
-	<fmt:message bundle="${nav}" key="find.search-for"/>
-	</div>
-	<div class="formRight">
-	<c:choose>
-		<c:when test="${personSourcesSize > 0}">
-		<input type="radio" name="searchFor" checked="checked" value="people" id="searchForPeople"/><label for="searchForPeople"><fmt:message bundle="${nav}" key="find.people"/></label><br/>
-		<c:choose>
-			<c:when test="${personSourcesSize == 1}">
-			<input type="hidden" name="personSource" value="<c:out value="${personSources[0].id}"/>"/>
-			</c:when>
-			<c:otherwise>
-			<label for="personSource"><fmt:message bundle="${nav}" key="find.select-person-source"/></label>
-			<select name="personSource">
-				<c:forEach var="source" items="${personSources}">
-					<option value="<c:out value="${source.id}"/>"><c:out value="${source.name}"/></option>
-				</c:forEach>
-			</select><br/>
-			</c:otherwise>
-		</c:choose>
-		
-		
-		<input type="radio" name="searchFor" value="groups" id="searchForGroups"/><label for="searchForGroups"><fmt:message bundle="${nav}" key="find.groups"/></label> 
-		</c:when>
-		<c:otherwise>
-			<input type="radio" name="searchFor" checked="checked" value="groups" id="searchForGroups"/><label for="searchForGroups"><fmt:message bundle="${nav}" key="find.groups"/></label> 
-
-		</c:otherwise>
-	</c:choose>
-	</div>
-</div>
-
-
+<tiles:insert definition="subjectSearchFragmentDef">
 <c:if test="${!empty browsePath}">
-
-<tiles:insert definition="searchFromDef"/>
-
+	<tiles:put name="groupInsert" value="searchFromDef"/>
 </c:if>
+</tiles:insert>
 
 
-<p><html:submit property="submit.group.member" value="${navMap['find.action.search']}"/></p>
+
+
+
+<div class="formRow"><html:submit property="submit.group.member" value="${navMap['find.action.search']}"/></div>
 <input type="hidden" name="newSearch" value="Y"/>
 </fieldset>
 </html:form>
