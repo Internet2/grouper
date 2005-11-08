@@ -4,7 +4,7 @@
 			overridden
 --%><%--
   @author Gary Brown.
-  @version $Id: head.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: head.jsp,v 1.2 2005-11-08 16:10:39 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -32,7 +32,9 @@ base.append("/");
 <c:if test="${!debugPrefs.doHideStyles}">
 <link href="i2mi/signet.css" rel="stylesheet" type="text/css" />
 <link href="grouper/grouper.css" rel="stylesheet" type="text/css" />
-<link href="<c:out value="${mediaMap['css.additional']}"/>" rel="stylesheet" type="text/css" />
+<c:if test="${!empty mediaMap['css.additional']}">
+	<link href="<c:out value="${mediaMap['css.additional']}"/>" rel="stylesheet" type="text/css" />
+</c:if>
 </c:if>
 <script type="text/javascript" src="<%=base%>i2mi/signet.js"></script>
 </grouper:recordTile>
