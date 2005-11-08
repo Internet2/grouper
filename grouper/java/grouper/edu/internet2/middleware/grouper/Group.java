@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.21 2005-11-08 16:31:16 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.22 2005-11-08 20:14:05 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -110,14 +110,22 @@ public class Group implements Serializable {
     throws InsufficientPrivilegeException, MemberAddException
   {
     try {
-      // Create the immediate membership
-      Membership ms = Membership.addMembership(this.s, this, m, Group.LIST);
+      // The objects that will need saving
+      Set objects = new HashSet();
+
       // Update group modify time
       this._setModified();
-      // And then save group and membership
-      Set objects = new HashSet();
-      objects.add(ms);
       objects.add(this);
+
+      // Create the immediate membership
+      objects.add( 
+        Membership.addMembership(this.s, this, m, Group.LIST) 
+      );
+
+      // Find effective memberships
+      objects.addAll( this._memberOf(m) );
+
+      // And then save group and memberships
       HibernateHelper.save(objects);
     }
     catch (HibernateException eH) {
@@ -421,7 +429,7 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    throw new RuntimeException("Not implemented");
+    return MembershipFinder.findMemberships(this, Group.LIST);
   }
 
   /**
@@ -975,7 +983,109 @@ public class Group implements Serializable {
 
 
   // Private Instance Methods
-  
+
+  // Part of the effective membership|memberOf voodoo  
+  private Set _findMembershipsOfMember(
+    Group gm, Set isMember, Set hasMembers
+  ) 
+    throws MemberAddException 
+  {
+    Set mships = new HashSet();
+
+    // Add members of m to where this group is a member
+
+    // For every member of m...
+    Iterator iterMofM = hasMembers.iterator();
+    while (iterMofM.hasNext()) {
+      Membership  mofm  = (Membership) iterMofM.next();
+      // ... add to this group
+      int         depth = mofm.getDepth() + 1;
+      String      vid   = mofm.getVia_id();
+      if (vid == null) {
+        vid = gm.getUuid();
+      }
+      mships.add(
+        new Membership(
+          this.s, this.getUuid(), mofm.getMember_id(),
+          Group.LIST, vid, depth
+        )
+      );
+      // ... and add to wherever this group is a member
+      Iterator iterGisM = isMember.iterator();
+      while (iterGisM.hasNext()) {
+        Membership gism = (Membership) iterGisM.next();
+        mships.add(
+          new Membership(
+            this.s, gism.getGroup_id(), mofm.getMember_id(),
+            Group.LIST, vid, depth + gism.getDepth() 
+          )
+        );
+      }
+    }
+
+    return mships;
+  } // private Set _findMembershipsOfMemberWhereGroupIsMember(gm, isMember, hasMembers)
+
+  // Part of the effective membership|memberOf voodoo  
+  private Set _findMembershipsWhereGroupIsMember(Member m, Set isMember) 
+    throws MemberAddException
+  {
+    Set mships = new HashSet();
+    // Add m to where g is a member
+    Iterator iter = isMember.iterator();
+    while (iter.hasNext()) {
+      Membership  ms    = (Membership) iter.next();
+      int         depth = ms.getDepth() + 1;
+      String      vid   = ms.getVia_id();
+      if (vid == null) {
+        vid = this.getUuid();
+      }
+      mships.add(
+        new Membership(
+          this.s, ms.getGroup_id(), ms.getMember_id(), Group.LIST,
+          vid, depth
+        )
+      );
+    }
+    return mships;
+  } // private Set _findMembershipsWhereGroupIsMember(m, isMember)
+
+  // Find effective memberships, whether for addition or deletion
+  private Set _memberOf(Member m) 
+    throws MemberAddException
+  {
+    Set mships    = new HashSet();
+
+    // Find where g is a member
+    Set isMember  = this.toMember().getMemberships();
+
+    // Add m to where g is a member
+    mships.addAll(
+      this._findMembershipsWhereGroupIsMember(m, isMember)
+    );
+
+    Set hasMembers  = new HashSet();
+    if (m.getSubjectTypeId().equals("group")) {
+      try {
+        // Convert member back to a group
+        Group gm = m.toGroup();
+
+        // Find members of m
+        hasMembers = gm.getMemberships();
+
+        // Add members of m to g
+        // Add members of m to where g is a member
+        mships.addAll(
+          this._findMembershipsOfMember(gm, isMember, hasMembers)
+        );
+      }
+      catch (GroupNotFoundException eGNF) {
+        throw new MemberAddException(eGNF.getMessage());
+      }
+    }
+    return mships;
+  } // private Set _memberOf(m)
+
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
     this.setCreate_time( new java.util.Date() );
