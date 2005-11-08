@@ -3,7 +3,7 @@
 		 on the privileges of the current user for the current stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemLinks.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: stemLinks.jsp,v 1.2 2005-11-08 16:21:37 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -37,6 +37,6 @@
 <br/>
 </c:if>
 <!--/stemLinks.jsp-->
-</div>
+
 <a name="endStemLinks" id="endStemLinks"></a>
 </grouper:recordTile>
