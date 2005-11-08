@@ -2,14 +2,14 @@
 			Tile which displays debug information if dbug mode is on
 --%><%--
   @author Gary Brown.
-  @version $Id: debug.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: debug.jsp,v 1.2 2005-11-08 15:54:03 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 
 <c:if test="${debugPrefs.isActive}">
 <div id="debug">
-<script language="Javascript">
+<script type="text/javascript">
 
 var debugStuff = new Object();
 
@@ -47,16 +47,27 @@ function show(id) {
 
 
 </script>
-<a href="populateDebugPrefs.do" border="0"><fmt:message bundle="${nav}" key="debug.prefs.edit.link"/></a>
+<a href="populateDebugPrefs.do" ><fmt:message bundle="${nav}" key="debug.prefs.edit.link"/></a>
 <c:if test="${debugPrefs.doShowResources}">
 	<span id="resourceButton"><a href="#" onclick="changeDebug('resource');return false;">Show resources</a></span>
-	<script language="javascript">debugStuff['resource']=1;</script>
+	<script type="text/javascript">debugStuff['resource']=1;</script>
 </c:if>
 
 <c:if test="${debugPrefs.doShowTilesHistory}">
 	<span id="tileHistoryButton"><a href="#" onclick="changeDebug('tileHistory');return false;">Show tile history</a></span>
-	<script language="javascript">debugStuff['tileHistory']=1;</script>
+	<script type="text/javascript">debugStuff['tileHistory']=1;</script>
 </c:if>
+
+<span id="requestParametersButton"><a href="#" onclick="changeDebug('requestParameters');return false;">Show request parameters</a></span>
+	<script type="text/javascript">debugStuff['requestParameters']=1;</script>
+<span id="requestAttributesButton"><a href="#" onclick="changeDebug('requestAttributes');return false;">Show request attributes</a></span>
+	<script type="text/javascript">debugStuff['requestAttributes']=1;</script>
+	
+<span id="sessionAttributesButton"><a href="#" onclick="changeDebug('sessionAttributes');return false;">Show session attributes</a></span>
+	<script type="text/javascript">debugStuff['sessionAttributes']=1;</script>
+	
+<span id="applicationAttributesButton"><a href="#" onclick="changeDebug('applicationAttributes');return false;">Show application attributes</a></span>
+	<script type="text/javascript">debugStuff['applicationAttributes']=1;</script>
 
 <br/>
 <c:if test="${debugPrefs.doShowResources}">
@@ -75,7 +86,7 @@ function show(id) {
 </div>
 </c:if>
 <c:if test="${debugPrefs.doShowTilesHistory}">
-<div id="tileHistoryPanel" class="top:20;">
+<div id="tileHistoryPanel" style="top:20;">
 <%
 	List dynamicTiles = (List)UIThreadLocal.get("dynamicTiles");
 	request.setAttribute("dynamicTiles",dynamicTiles);
@@ -88,12 +99,65 @@ function show(id) {
 <tiles:insert page="/WEB-INF/jsp/dynamicTileHistory.jsp"/>
 
 </div>
-<script language="Javascript">
+<script type="text/javascript">
 	
 	if(debugStuff['resource']) changeDebug('resource');
 </script>
 </c:if>
 </div>
+
+<div id="requestParametersPanel" style="top:20;display:none">
+<%
+	pageContext.setAttribute("reqParams",request.getParameterMap());
+%>
+<table><tr><th align="right">Parameter</th><th align="left">Value</th></tr>
+<c:forEach var="entry" items="${reqParams}">
+<tr><td align="right"><c:out value="${entry.key}"/></td>
+<td>
+	<c:forEach var="val" items="${entry.value}">
+		<c:out value="${val}"/><br/>
+	</c:forEach>
+</td></tr>
+</c:forEach>
+</table>
+</div>
+
+<div id="requestAttributesPanel" style="top:20;display:none">
+
+<table><tr><th align="right">Attribute</th><th align="left">Value</th></tr>
+<c:forEach var="entry" items="${requestScope}">
+<tr><td align="right"><c:out value="${entry.key}"/></td>
+<td>
+		<c:out value="${entry.value}"/><br/>
+</td></tr>
+</c:forEach>
+</table>
+</div>
+
+<div id="sessionAttributesPanel" style="top:20;display:none">
+
+<table width="100%"><tr><th align="right">Attribute</th><th align="left">Value</th></tr>
+<c:forEach var="entry" items="${sessionScope}">
+<tr><td align="right"><c:out value="${entry.key}"/></td>
+<td>
+		<c:out value="${entry.value}"/><br/>
+</td></tr>
+</c:forEach>
+</table>
+</div>
+
+<div id="applicationAttributesPanel" style="top:20;display:none">
+
+<table width="100%"><tr><th align="right">Attribute</th><th align="left">Value</th></tr>
+<c:forEach var="entry" items="${applicationScope}">
+<tr><td align="right"><c:out value="${entry.key}"/></td>
+<td>
+		<c:out value="${entry.value}"/><br/>
+</td></tr>
+</c:forEach>
+</table>
+</div>
+
 </c:if>
 
 
