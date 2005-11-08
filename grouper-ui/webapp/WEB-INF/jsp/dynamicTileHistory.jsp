@@ -3,7 +3,7 @@
 		  of tiles used to construct current page
 --%><%--
   @author Gary Brown.
-  @version $Id: dynamicTileHistory.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: dynamicTileHistory.jsp,v 1.2 2005-11-08 15:56:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:forEach var="tile" items="${dynamicTiles}">
@@ -24,10 +24,10 @@
 	%>
 	<c:choose>
 		<c:when test="${!empty isI2mi && !empty debugPrefs.i2miDir}">
-			<span style="text-align:left"><a target="temp" href="editJSP.do?jsp=<c:out value="${debugPrefs.i2miDir}"/><c:out value="${tile.tile}"/>" border="0"><c:out value="${tile.tile}"/></a></span><br/>
+			<span style="text-align:left"><a target="temp" href="editJSP.do?jsp=<c:out value="${debugPrefs.i2miDir}"/><c:out value="${tile.tile}"/>" ><c:out value="${tile.tile}"/></a></span><br/>
 		</c:when>
 		<c:when test="${empty isI2mi && !empty debugPrefs.siteDir}">
-			<span style="text-align:left"><a target="temp" href="editJSP.do?jsp=<c:out value="${debugPrefs.siteDir}"/><c:out value="${tile.tile}"/>" border="0"><c:out value="${tile.tile}"/></a></span><br/>
+			<span style="text-align:left"><a target="temp" href="editJSP.do?jsp=<c:out value="${debugPrefs.siteDir}"/><c:out value="${tile.tile}"/>" ><c:out value="${tile.tile}"/></a></span><br/>
 		</c:when>
 		<c:otherwise>
 			<span style="text-align:left"><c:out value="${tile.tile}"/></span><br/>
