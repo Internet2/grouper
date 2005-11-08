@@ -3,7 +3,7 @@
 		 and on the help page
 --%><%--
   @author Gary Brown.
-  @version $Id: gettingStarted.jsp,v 1.2 2005-10-21 08:26:35 isgwb Exp $
+  @version $Id: gettingStarted.jsp,v 1.3 2005-11-08 16:00:03 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -12,7 +12,7 @@
  many different reasons e.g. for mailing lists, or for determining whch set of people are allowed to access specific web applications, 
  or for sharing resources. The goal is to create a group once, but use it as often as necessary in as wide a range of systems as possible.
 </p><p>
-In order to use Grouper effectively you must first understand some key concepts:
+In order to use Grouper effectively you must first understand some key concepts:</p>
 <dl><dt>Group</dt><dd>A group represents a collection of 'items' which are themselves considered to be members of the group. 
 </dd></dl>
 
@@ -40,5 +40,5 @@ granting a privilege to a subject which is a group, all members of that group ar
 <dt>Read</dt><dd>subject may see the membership list for this group</dd>
 <dt>Update</dt><dd>subject may modify the membership of this group</dd>
 <dt>Admin</dt><dd>subject may modify the membership of this group, delete the group or assign privileges for the group</dd></dl></dd></dl>
-</p>
+
 </grouper:recordTile>

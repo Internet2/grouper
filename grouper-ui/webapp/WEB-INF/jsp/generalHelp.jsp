@@ -2,7 +2,7 @@
 			Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.4 2005-09-16 13:55:38 isgwb Exp $
+  @version $Id: generalHelp.jsp,v 1.5 2005-11-08 15:58:02 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -48,27 +48,28 @@ both be found by:<br/>
   <dd>the user interface allows the user to enter a query string which is used 
     to match Subjects. How the query string is interpreted depends on the specific 
     implementation(s) of the Subject API present in the Grouper installation. 
-    The reference Grouper installation will return subjects where:</dd>
-</dl>
-</grouper:recordTile> 
-<ol>
+    The reference Grouper installation will return subjects where:
+	
   <ol>
-    <li><grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">any 
-      of the subject attributes are an exact* match for the query string</grouper:recordTile></li>
-    <li><grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">the 
+    <li>any 
+      of the subject attributes are an exact* match for the query string</li>
+    <li>the 
       subject is not a person and the the query string is a substring of a subject 
-      attribute.</grouper:recordTile></li>
-    <li><grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">the 
-      subject is a person and:</grouper:recordTile> 
+      attribute.</li>
+    <li>the 
+      subject is a person and:
       <ol>
-        <li><grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">the 
-          query string is an exact match for a fisrt name</grouper:recordTile></li>
+        <li>the 
+          query string is an exact match for a fisrt name</li>
         <li> the query string is two terms e.g. ben fiona, and the second term 
           is an exact first name match, and the first term matches the start of 
           the subject's surname. </li>
       </ol>
     </li>
   </ol>
-</ol>
-*searches are case-insensitive
+
+*searches are case-insensitive</dd>
+</dl>
+
+
 </grouper:recordTile>
