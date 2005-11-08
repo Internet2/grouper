@@ -4,7 +4,7 @@
 		  when searching for subjects in 'Find' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.2 2005-11-08 16:17:42 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -15,6 +15,7 @@
 </h2>
 <div class="assignMembersForm">
     <form class="AssignMembersForm" action="doAssignNewMembers.do">
+	<input type="hidden" name="callerPageId" value="<c:out value="${SearchFormBean.map.callerPageId}"/>"/>
 	<fieldset>
 		<c:if test="${forStems}">
 			<input type="hidden" name="stems" value="true"/>
@@ -26,10 +27,10 @@
 		</c:if>
 		<div class="privilegeCheckBoxes">
 			<c:if test="${forStems}">
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="CREATE" id="privCreate"/> 
-					<label for="privCreate"><fmt:message bundle="${nav}" key="priv.create"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="STEM" id="privStem"/> 
-					<label for="privCreate"><fmt:message bundle="${nav}" key="priv.stem"/></label></span>
+    			<span class="checkbox"><input type="checkbox" name="privileges" 
+				value="CREATE" id="privCreate"/>&#160;<label for="privCreate"><fmt:message bundle="${nav}" key="priv.create"/></label></span>
+    			<span class="checkbox"><input type="checkbox" name="privileges" 
+				value="STEM" id="privStem"/>&#160;<label for="privCreate"><fmt:message bundle="${nav}" key="priv.stem"/></label></span>
 				<input type="hidden" name="stems" value="true"/>
 			</c:if>
 
@@ -47,8 +48,8 @@
 					<label for="privRead"><fmt:message bundle="${nav}" key="priv.read"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" value="UPDATE"  id="privUpdate"/> 
 					<label for="privUpdate"><fmt:message bundle="${nav}" key="priv.update"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="ADMIN"  id="privAdmin"/> 
-					<label for="privAdmin"><fmt:message bundle="${nav}" key="priv.admin"/></label></span>
+    			<span class="checkbox"><input type="checkbox" name="privileges" 
+				value="ADMIN"  id="privAdmin"/>&#160;<label for="privAdmin"><fmt:message bundle="${nav}" key="priv.admin"/></label></span>
 			</c:if>
 
 

@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchStems.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: simpleSearchStems.jsp,v 1.2 2005-11-08 16:20:59 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,7 +13,7 @@
 	</h2>
 	<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><fmt:message bundle="${nav}" key="find.action.select.stems-advanced-search"/></a></p>
 	
-    <html:form action="/searchStems" styleId="SearchStemsAction">
+    <html:form action="/searchStems" styleId="SearchFormBean">
 		<html:hidden property="searchInNameOrExtension"/>
 		<html:hidden property="searchInDisplayNameOrExtension"/>
 	<fieldset>
