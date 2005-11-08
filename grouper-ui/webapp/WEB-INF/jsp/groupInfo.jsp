@@ -3,7 +3,7 @@
 		in GroupSummaryDef
 --%><%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: groupInfo.jsp,v 1.2 2005-11-08 16:06:19 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -59,6 +59,6 @@
 </div>
 </c:if>
 <div class="formRow"></div>
-<tiles:insert definition="groupLinksDef"/>
+
 </div>
 </grouper:recordTile>
