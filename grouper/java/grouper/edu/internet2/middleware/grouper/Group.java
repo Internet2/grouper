@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.22 2005-11-08 20:14:05 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.23 2005-11-08 20:56:10 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -123,7 +123,14 @@ public class Group implements Serializable {
       );
 
       // Find effective memberships
-      objects.addAll( this._memberOf(m) );
+      try {
+        objects.addAll( this._memberOf(m) );
+      }
+      catch (GroupNotFoundException eGNF) {
+        throw new MemberAddException(
+          "error creating effective memberships: " + eGNF.getMessage()
+        );
+      }
 
       // And then save group and memberships
       HibernateHelper.save(objects);
@@ -206,16 +213,52 @@ public class Group implements Serializable {
     throws InsufficientPrivilegeException, MemberDeleteException
   {
     try {
-      Membership ms = MembershipFinder.getImmediateMembership(this, m, Group.LIST);
-      HibernateHelper.delete(ms);
+      // The objects that will need saving
+      Set objects = new HashSet();
+
+      // Update group modify time
+      this._setModified();
+      objects.add(this);
+
+      // Find the immediate membership that is to be deleted
+      objects.add( 
+        MembershipFinder.getImmediateMembership(this, m, Group.LIST)
+      );
+
+      // Find effective memberships
+      try {
+        // As many of the memberships are likely to be transient, we
+        // need to retrieve the persistent version of each before
+        // passing it along to be deleted by HibernateHelper.  
+        Session hs = HibernateHelper.getSession();
+        Iterator iter = this._memberOf(m).iterator();
+        while (iter.hasNext()) {
+          Membership ms = (Membership) iter.next();
+          objects.add( 
+            MembershipFinder.getEffectiveMembership(
+              ms.getGroup_id(), ms.getMember_id(), ms.getList_id(),
+              ms.getVia_id(), ms.getDepth()
+            )
+          );
+        }
+        hs.close();
+      }
+      catch (GroupNotFoundException eGNF) {
+        throw new MemberDeleteException(
+          "error deleting effective memberships: " + eGNF.getMessage()
+        );
+      }
+
+      // And then save group and memberships
+      HibernateHelper.delete(objects);
     }
-    catch (HibernateException e) {
+    catch (HibernateException eH) {
       throw new MemberDeleteException(
-        "unable to delete membership: " + e.getMessage()
+        "could not delete member: " + eH.getMessage()
       );
     }
-    catch (MembershipNotFoundException e) {
-      throw new MemberDeleteException("membership does not exist");
+    catch (MembershipNotFoundException eMNF) {
+      throw new MemberDeleteException(eMNF.getMessage());
     }
   }
 
@@ -988,7 +1031,6 @@ public class Group implements Serializable {
   private Set _findMembershipsOfMember(
     Group gm, Set isMember, Set hasMembers
   ) 
-    throws MemberAddException 
   {
     Set mships = new HashSet();
 
@@ -1027,9 +1069,7 @@ public class Group implements Serializable {
   } // private Set _findMembershipsOfMemberWhereGroupIsMember(gm, isMember, hasMembers)
 
   // Part of the effective membership|memberOf voodoo  
-  private Set _findMembershipsWhereGroupIsMember(Member m, Set isMember) 
-    throws MemberAddException
-  {
+  private Set _findMembershipsWhereGroupIsMember(Member m, Set isMember) {
     Set mships = new HashSet();
     // Add m to where g is a member
     Iterator iter = isMember.iterator();
@@ -1052,7 +1092,7 @@ public class Group implements Serializable {
 
   // Find effective memberships, whether for addition or deletion
   private Set _memberOf(Member m) 
-    throws MemberAddException
+    throws GroupNotFoundException
   {
     Set mships    = new HashSet();
 
@@ -1066,22 +1106,17 @@ public class Group implements Serializable {
 
     Set hasMembers  = new HashSet();
     if (m.getSubjectTypeId().equals("group")) {
-      try {
-        // Convert member back to a group
-        Group gm = m.toGroup();
+      // Convert member back to a group
+      Group gm = m.toGroup();
 
-        // Find members of m
-        hasMembers = gm.getMemberships();
+      // Find members of m
+      hasMembers = gm.getMemberships();
 
-        // Add members of m to g
-        // Add members of m to where g is a member
-        mships.addAll(
-          this._findMembershipsOfMember(gm, isMember, hasMembers)
-        );
-      }
-      catch (GroupNotFoundException eGNF) {
-        throw new MemberAddException(eGNF.getMessage());
-      }
+      // Add members of m to g
+      // Add members of m to where g is a member
+      mships.addAll(
+        this._findMembershipsOfMember(gm, isMember, hasMembers)
+      );
     }
     return mships;
   } // private Set _memberOf(m)

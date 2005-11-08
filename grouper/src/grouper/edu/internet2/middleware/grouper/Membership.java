@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.12 2005-11-08 20:09:23 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.13 2005-11-08 20:56:10 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -193,13 +193,13 @@ public class Membership implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("depth", getDepth())
-           .append("group_id", getGroup_id())
+           .append("depth"    , getDepth()    )
+           .append("group_id" , getGroup_id() )
            .append("member_id", getMember_id())
-           .append("list_id", getList_id())
-           .append("via_id", getVia_id())
+           .append("list_id"  , getList_id()  )
+           .append("via_id"   , getVia_id()   )
            .toString();
-  }
+  } // public String toString()
 
 
   // Protected Class Methods
@@ -267,7 +267,8 @@ public class Membership implements Serializable {
     this.member_id = member_id;
   }
 
-  private String getList_id() {
+  // TODO private String getList_id() {
+  protected String getList_id() {
     return this.list_id;
   }
 
