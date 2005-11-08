@@ -4,7 +4,7 @@
 		  the active node.
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsFindListFooterView.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: browseStemsFindListFooterView.jsp,v 1.2 2005-11-08 15:49:02 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -18,7 +18,9 @@
 	</c:if>
 </c:if>
 </div>
-
+<div class="linkButton">
+<tiles:insert definition="callerPageButtonDef"/>
+</div>
 <c:if test="${!empty areAssignableChildren}">
 		<br/><input type="submit" name="submit.group.member" value="<c:out value="${navMap['priv.assign']}"/>"/> 
 	</c:if>
