@@ -2,11 +2,11 @@
 		  Form for saving debug preferences.
 --%><%--
   @author Gary Brown.
-  @version $Id: DebugPrefs.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: DebugPrefs.jsp,v 1.2 2005-11-08 15:54:50 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="preferences">
-<html:form styleId="EditGroupForm" action="/saveDebugPrefs">
+<html:form styleId="DebugPrefsFormBean" action="/saveDebugPrefs">
 
 <table border="0">
 <tr>

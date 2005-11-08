@@ -2,12 +2,12 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.2 2005-11-08 15:57:01 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
 <div class="editForm">
-<html:form styleId="EditGroupForm" action="/saveGroup">
+<html:form styleId="GroupFormBean" action="/saveGroup">
 <fieldset>
 <html:hidden property="groupId"/>
 <div class="formRow">
