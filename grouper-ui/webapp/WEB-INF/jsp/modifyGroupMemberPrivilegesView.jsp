@@ -3,16 +3,21 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.2 2005-11-08 16:14:48 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<html:form styleId="MemberPrivilegesForm" action="/saveGroupMember">
+<html:form styleId="GroupOrStemMemberFormBean" action="/saveGroupMember">
 <fieldset>
 	<html:hidden property="asMemberOf"/>
+	<html:hidden property="contextGroup"/>
+	<html:hidden property="contextSubjectId"/>
+	<html:hidden property="contextSubject"/>
+	<html:hidden property="contextSubjectType"/>
 	<html:hidden property="subjectId"/>
 	<html:hidden property="subjectType"/>
 	<html:hidden property="privilege"/>
+	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	
 	<c:if test="${authUserPriv.UPDATE || authUserPriv.ADMIN}">
 	<html:multibox property="privileges" value="MEMBER" /> <fmt:message bundle="${nav}" key="priv.member"/><br/>
@@ -26,4 +31,5 @@
 	<html:submit property="submit.group.member" value="${navMap['priv.assign']}"/> 
 </fieldset>
 </html:form>
+<tiles:insert definition="effectivePrivsDef"/>
 </grouper:recordTile>
