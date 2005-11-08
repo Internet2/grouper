@@ -26,20 +26,16 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.11 2005-11-08 16:31:16 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.12 2005-11-08 20:09:23 blair Exp $
  */
 public class Membership implements Serializable {
 
   // Hibernate Properties
   private int     depth;
-  // TODO private Group   group_id;
   private String  group_id;
   private String  id;
-  // TODO private Member  member_id;
   private String  member_id;
-  // TODO private Field   list_id;
   private String  list_id;
-  // TODO private Group   via_id;
   private String  via_id;
 
   
@@ -56,20 +52,36 @@ public class Membership implements Serializable {
     // Nothing
   }
 
-  // Creating a new membership
+  // Creating a new (immediate) membership
   private Membership(GrouperSession s, Group g, Member m, String field) {
+    this(s, g.getUuid(), m.getUuid(), field);
+  } // private Membership(s, g, m, field)
+
+  // Creating a new (effective) membership
+  protected Membership(
+    GrouperSession s, String gid, String mid, String field, String vid, int depth
+  )
+  {
+    this(s, gid, mid, field);
+    this.setVia_id(vid);
+    this.setDepth(depth); 
+  } // protected Membership(s, gid, mid, field, vid, depth)
+
+  // Shared constructor
+  private Membership(
+    GrouperSession s, String gid, String mid, String field
+  ) 
+  {
     // Attach session
     this.s = s;
     // Set group
-    // TODO this.setGroup_id(g);
-    this.setGroup_id(g.getUuid());
+    this.setGroup_id(gid);
     // Set member
-    // TODO this.setMember_id(m);
-    this.setMember_id(m.getUuid());
+    this.setMember_id(mid);
     // Set field  
     // TOOD this.setList_id( FieldFinder.getField(field) );
     this.setList_id(field);
-  } // private Membership(s, g, m, field)
+  } // private Membership(s, gid, mid, field)
 
 
   // Public Instance Methods
@@ -191,6 +203,7 @@ public class Membership implements Serializable {
 
 
   // Protected Class Methods
+
   protected static Membership addMembership(
     GrouperSession s, Group g, Member m, String field
   )
@@ -214,7 +227,7 @@ public class Membership implements Serializable {
       throw new MemberAddException("unable to add member");
     }
     return ms;
-  } 
+  } // protected static Membership addMembership(s, g, m, field)
 
 
   // Hibernate Accessors
@@ -227,7 +240,8 @@ public class Membership implements Serializable {
     this.id = id;
   }
 
-  private int getDepth() {
+  // TODO private int getDepth() {
+  protected int getDepth() {
     return this.depth;
   }
 
@@ -235,42 +249,37 @@ public class Membership implements Serializable {
     this.depth = depth;
   }
 
-  // TODO private Group getGroup_id() {
-  private String getGroup_id() {
+  // TODO private String getGroup_id() {
+  protected String getGroup_id() {
     return this.group_id;
   }
 
-  // TODO private void setGroup_id(Group group_id) {
   private void setGroup_id(String group_id) {
     this.group_id = group_id;
   }
 
-  // TODO private Member getMember_id() {
-  private String getMember_id() {
+  // TODO private String getMember_id() {
+  protected String getMember_id() {
     return this.member_id;
   }
 
-  // TODO private void setMember_id(Member member_id) {
   private void setMember_id(String member_id) {
     this.member_id = member_id;
   }
 
-  // TODO private Field getList_id() {
   private String getList_id() {
     return this.list_id;
   }
 
-  // TODO private void setList_id(Field list_id) {
   private void setList_id(String list_id) {
     this.list_id = list_id;
   }
 
-  // TODO private Group getVia_id() {
-  private String getVia_id() {
+  // TODO private String getVia_id() {
+  protected String getVia_id() {
     return this.via_id;
   }
 
-  // TODO private void setVia_id(Group via_id) {
   private void setVia_id(String via_id) {
     this.via_id = via_id;
   }
