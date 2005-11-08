@@ -7,7 +7,7 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: template.jsp,v 1.2 2005-11-08 16:25:55 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
@@ -41,15 +41,14 @@ request.setAttribute("pageUrlWithDelim",pageUrl.toString());
 <body>
 <% try {
 	%>
-   
+   		<!--ContentSpace-->
         <div id="ContentSpace">
             <div id="TitleBox">
                <tiles:insert attribute="title" />
             </div>
+			
             <c:if test="${!empty message}">
-               
-                    <tiles:insert attribute="message" />
-               
+                    <tiles:insert attribute="message" />   
             </c:if>
             <!--content-->
             <div id="Content">
@@ -58,26 +57,33 @@ request.setAttribute("pageUrlWithDelim",pageUrl.toString());
 				</tiles:insert>
             </div>
             <!--/content-->
-        
-        <div id="Right">
-            <tiles:insert attribute="right" />
-        </div>
-		
-    <!--div id="BelowHeader"-->
-	<div id="Navbar">
-        <tiles:insert attribute='subheader'/>
-    </div>
-        <div id="Sidebar">
-            <tiles:insert attribute="left" />
-        </div>
-		 <div id="Header">
-        <tiles:insert attribute="header" />
-    </div>
-    
-        <div id="Footer">
-            <tiles:insert attribute="footer" />
-        </div>
-    </div> 
+        	<!--Right-->
+			<div id="Right">
+				<tiles:insert attribute="right" />
+			</div><!--/Right-->
+			<!--NavBar-->
+			<div id="Navbar">
+				<tiles:insert attribute='subheader'/>
+			</div><!--/NavBar-->
+			<!--Left-->
+			<div id="left">
+				<tiles:insert attribute="left" />
+			</div><!--/Left-->
+			<c:if test="${!empty authUser}">
+				<!--SideBar-->
+				<div id="Sidebar">
+					<tiles:insert attribute="menu" />
+				</div><!--/SideBar-->
+			</c:if>
+			<!--Header-->
+			 <div id="Header">
+				<tiles:insert attribute="header" />
+			 </div><!--/Header-->
+    		<!--Footer-->
+			<div id="Footer">
+				<tiles:insert attribute="footer" />
+			</div><!--Footer-->
+    </div><!--/ContentSpace--> 
 	<%
 	
 		}catch(Exception e) {
@@ -106,7 +112,7 @@ request.setAttribute("pageUrlWithDelim",pageUrl.toString());
 }
 %>
  <c:if test="${!empty sessionScope.templateException && !debugPrefs.isActive}">
-	<script language="JavaScript">
+	<script type="text/javascript">
 		document.location.replace("error.do");
 	</script>
   </c:if>	
