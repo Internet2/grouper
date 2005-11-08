@@ -3,7 +3,7 @@
 		  items and footer
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListView.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: genericListView.jsp,v 1.2 2005-11-08 15:58:42 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -13,6 +13,7 @@
 	  <tiles:put name="view" beanName="headerView"/>
 	  <tiles:put name="viewObject" beanName="viewObject"/>
 	  <tiles:put name="pager" beanName="pager"/>
+	 
 	  <tiles:put name="noResultsMsg" beanName="noResultsMsg"/>
 	  <tiles:put name="listInstruction" beanName="listInstruction"/>
   </tiles:insert>
@@ -28,6 +29,7 @@
 		<li><tiles:insert definition="dynamicTileDef" flush="false">
 			<tiles:put name="view" beanName="itemView"/>
 			<tiles:put name="viewObject" beanName="listItem"/>
+			 <tiles:put name="linkSeparator" beanName="linkSeparator"/>
 			<tiles:put name="itemPos" beanName="itemPos"/>
 		</tiles:insert></li>
 		<%pageContext.setAttribute("itemPos",new Integer(++itemPos));%>
