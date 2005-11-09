@@ -28,24 +28,23 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.17 2005-11-09 18:50:48 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.18 2005-11-09 23:20:03 blair Exp $
  *     
 */
 public class Stem implements Serializable {
 
   // Hibernate Properties
   private String  id;
-  private Set     child_groups        = new HashSet();
-  private Set     child_stems         = new HashSet();
+  private Set     child_groups        = new LinkedHashSet();
+  private Set     child_stems         = new LinkedHashSet();
   private String  create_source;
-  private Date    create_time;
+  private long    create_time;
   private Member  creator_id;
   private String  display_extension;
   private String  display_name;
   private Member  modifier_id;
   private String  modify_source;
-  private Date    modify_time;
-  // TODO private Stem    parent_stem;
+  private long    modify_time;
   private String  parent_stem;
   private String  stem_description;
   private String  stem_extension;
@@ -69,8 +68,7 @@ public class Stem implements Serializable {
   // Return a stem with an attached session
   protected Stem(GrouperSession s) {
     this.s = s;
-    this.setCreator_id( s.getMember() );
-    this.setCreate_time( new java.util.Date() );
+    this._setCreated();
     this.setStem_id( GrouperUuid.getUuid() );
     this.setStem_name("");
     this.setDisplay_name("");
@@ -252,8 +250,8 @@ public class Stem implements Serializable {
    * @return  {@link Date} that this stem was created.
    */
   public Date getCreateTime() {
-    throw new RuntimeException("Not implemented");
-  }
+    return new Date(this.getCreate_time());
+  } // public Date getCreateTime()
 
   /**
    * Get subjects with CREATE privilege on this stem.
@@ -355,8 +353,8 @@ public class Stem implements Serializable {
    * @return  {@link Date} that this stem was last modified.
    */
   public Date getModifyTime() {
-    throw new RuntimeException("Not implemented");
-  }
+    return new Date(this.getModify_time());
+  } // public Date getModifyTime()
 
   /**
    * Get stem name.
@@ -580,6 +578,20 @@ public class Stem implements Serializable {
   }
 
 
+  // Protected Class Methods
+
+  protected static List setSession(GrouperSession s, List l) {
+    List      stems = new ArrayList();
+    Iterator  iter  = l.iterator();
+    while (iter.hasNext()) {
+      Stem ns = (Stem) iter.next();
+      ns.setSession(s);
+      stems.add(ns);
+    }
+    return stems;
+  } // protected static List setSession(s, l)
+
+
   // Protected Instance Methods
 
   protected String constructName(String stem, String extn) {
@@ -591,8 +603,21 @@ public class Stem implements Serializable {
   } // protected String constructName(stem, extn)
 
   protected void setSession(GrouperSession s) {
+    GrouperSession.validate(s);
     this.s = s;
   } // protected void setSession(s)
+
+
+  // Private Instance Methods
+  private void _setCreated() {
+    this.setCreator_id( s.getMember()         );
+    this.setCreate_time( new Date().getTime() );
+  } // private void _setCreated()
+
+  private void _setModified() {
+    this.setModifier_id( s.getMember()        );
+    this.setModify_time( new Date().getTime() );
+  } // private void _setModified()
 
 
   // Hibernate Accessors
@@ -612,11 +637,11 @@ public class Stem implements Serializable {
     this.create_source = create_source;
   }
 
-  private Date getCreate_time() {
+  private long getCreate_time() {
     return this.create_time;
   }
 
-  private void setCreate_time(Date create_time) {
+  private void setCreate_time(long create_time) {
     this.create_time = create_time;
   }
 
@@ -660,11 +685,11 @@ public class Stem implements Serializable {
     this.modify_source = modify_source;
   }
 
-  private Date getModify_time() {
+  private long getModify_time() {
     return this.modify_time;
   }
 
-  private void setModify_time(Date modify_time) {
+  private void setModify_time(long modify_time) {
     this.modify_time = modify_time;
   }
 

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.deleteMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDeleteMemberGroup.java,v 1.1.2.2 2005-11-08 20:56:10 blair Exp $
+ * @version $Id: TestGroupDeleteMemberGroup.java,v 1.1.2.3 2005-11-09 23:20:03 blair Exp $
  */
 public class TestGroupDeleteMemberGroup extends TestCase {
 
@@ -46,20 +46,20 @@ public class TestGroupDeleteMemberGroup extends TestCase {
 
   public void testDeleteMemberGroup() {
     GrouperSession  s     = Helper.getRootSession();
-    Stem            root  = Helper.getRootStem(s);
-    Stem            edu   = Helper.addChildStem(root, "edu", "education");
-    Group           i2    = Helper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = Helper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            root  = StemHelper.getRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     GroupHelper.addMember(i2, uofc);
     GroupHelper.deleteMember(i2, uofc);
   } // public void testDeleteMemberGroup()
 
   public void testDeleteMemberWithNonGroupMember() {
     GrouperSession  s     = Helper.getRootSession();
-    Stem            root  = Helper.getRootStem(s);
-    Stem            edu   = Helper.addChildStem(root, "edu", "education");
-    Group           i2    = Helper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = Helper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            root  = StemHelper.getRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Member          m     = Helper.getMemberBySubject(
       s, SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID)
     );

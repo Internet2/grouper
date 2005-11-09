@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.1.2.13 2005-11-06 22:05:02 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.1.2.14 2005-11-09 23:20:03 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -89,7 +89,7 @@ Get create source.
     <!-- create_time -->
     <property 
       name="create_time"
-      type="java.util.Date"
+      type="long"
       not-null="true"
       update="false"
     >
@@ -190,7 +190,7 @@ Get modify source.
     <!-- modify_time -->
     <property 
       name="modify_time"
-      type="java.util.Date"
+      type="long"
     >
       <meta attribute="class-description">
 Get last modify time.

@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.1.2.10 2005-11-09 18:50:48 blair Exp $
+ * @version $Id: StemFinder.java,v 1.1.2.11 2005-11-09 23:20:03 blair Exp $
  */
 public class StemFinder {
 
@@ -108,6 +108,56 @@ public class StemFinder {
 
   // Protected Class Methods
 
+  // @return  stems created after this date
+  protected static Set findByCreatedAfter(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    List stems = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find(
+                      "from Stem as ns where  "
+                      + "ns.create_time > ?   ",
+                      new Long(d.getTime()),
+                      Hibernate.LONG
+                    )
+                    ;
+      hs.close();
+      stems.addAll( Stem.setSession(s, l) );
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage()
+      );  
+    }
+    return new LinkedHashSet(stems);
+  } // protected static Set findByCreatedAfter(s, d)
+
+  // @return  stems created before this date
+  protected static Set findByCreatedBefore(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    List stems = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find(
+                      "from Stem as ns where  "
+                      + "ns.create_time < ?   ",
+                      new Long(d.getTime()),
+                      Hibernate.LONG
+                      )
+                      ;
+      hs.close();
+      stems.addAll( Stem.setSession(s, l) );
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage()
+      );  
+    }
+    return new LinkedHashSet(stems);
+  } // protected static Set findByCreatedBefore(s, d)
+
   protected static Stem findByUuid(String uuid)
     throws StemNotFoundException
   {
@@ -137,12 +187,13 @@ public class StemFinder {
     }
   } // protected static Stem findByUuid(s, uuid)
 
+  // TODO Is this the right location for this method?
+  // TODO Would a top-down rather than bottom-up approach work better?
   protected static boolean isChild(Stem ns, Group g) {
     try {
       Stem parent = g.getParentStem();
       while (parent != null) {
         if (parent.equals(ns)) {
-System.err.println(g.getName() + " is a child of " + ns.getName());
           return true;
         }
         parent = parent.getParentStem();
@@ -153,6 +204,24 @@ System.err.println(g.getName() + " is a child of " + ns.getName());
     }
     return false;
   } // protected static boolean isChild(ns, g)
+
+  // TODO Is this the right location for this method?
+  // TODO Would a top-down rather than bottom-up approach work better?
+  protected static boolean isChild(Stem ns, Stem stem) {
+    try {
+      Stem parent = stem.getParentStem();
+      while (parent != null) {
+        if (parent.equals(ns)) {
+          return true;
+        }
+        parent = parent.getParentStem();
+      }
+    }
+    catch (StemNotFoundException eSNF) {
+      // Nothing
+    }
+    return false;
+  } // protected static boolean isChild(ns, stem)
 
 }
 

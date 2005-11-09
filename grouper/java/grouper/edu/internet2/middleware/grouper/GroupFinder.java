@@ -26,9 +26,11 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.1.2.8 2005-11-07 01:03:10 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.1.2.9 2005-11-09 23:20:03 blair Exp $
  */
 public class GroupFinder {
+
+  // Public Instance Methods
 
   /**
    * Find a group within the registry by name.
@@ -78,6 +80,56 @@ public class GroupFinder {
 
 
   // Protected Class Methods
+
+  // @return  groups created after this date
+  protected static Set findByCreatedAfter(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    List groups = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find(
+                      "from Group as g where  "
+                      + "g.create_time > ?    ",
+                      new Long(d.getTime()),
+                      Hibernate.LONG
+                    )
+                    ;
+      hs.close();
+      groups.addAll( Group.setSession(s, l) );
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage()
+      );  
+    }
+    return new LinkedHashSet(groups);
+  } // protected static Set findByCreatedAfter(s, d)
+
+  // @return  groups created before this date
+  protected static Set findByCreatedBefore(GrouperSession s, Date d) 
+    throws QueryException 
+  {
+    List groups = new ArrayList();
+    try {
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find(
+                      "from Group as g where  "
+                      + "g.create_time < ?    ",
+                      new Long(d.getTime()),
+                      Hibernate.LONG
+                      )
+                      ;
+      hs.close();
+      groups.addAll( Group.setSession(s, l) );
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage()
+      );  
+    }
+    return new LinkedHashSet(groups);
+  } // protected static Set findByCreatedBefore(s, d)
 
   protected static Group findByName(String name)
     throws GroupNotFoundException

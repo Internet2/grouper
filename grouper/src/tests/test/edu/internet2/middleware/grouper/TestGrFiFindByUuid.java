@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GroupFinder.findByUuid()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByUuid.java,v 1.1.2.1 2005-11-06 22:48:00 blair Exp $
+ * @version $Id: TestGrFiFindByUuid.java,v 1.1.2.2 2005-11-09 23:20:03 blair Exp $
  */
 public class TestGrFiFindByUuid extends TestCase {
 
@@ -46,9 +46,9 @@ public class TestGrFiFindByUuid extends TestCase {
 
   public void testFindByUuid() {
     GrouperSession  s     = Helper.getRootSession();
-    Stem            root  = Helper.getRootStem(s);
-    Stem            edu   = Helper.addChildStem(root, "edu", "educational");
-    Group           i2    = Helper.addChildGroup(edu, "i2", "internet2");
+    Stem            root  = StemHelper.getRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     try {
       Group found = GroupFinder.findByUuid(s, i2.getUuid());
       Assert.assertTrue("found a group", true);

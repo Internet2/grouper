@@ -27,7 +27,7 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.1.2.10 2005-11-07 17:39:04 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.1.2.11 2005-11-09 23:20:03 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -61,9 +61,9 @@ public class MemberFinder implements Serializable {
   } // public static Member findBySubject(s, subj)
 
   /**
-   * Find a member by UUID.
+   * Get a member by UUID.
    * <pre class="eg">
-   * // Find a member by uuid.
+   * // Get a member by uuid.
    * try {
    *   Member m = MemberFind.findByUuid(s, uuid);
    * }
@@ -71,16 +71,41 @@ public class MemberFinder implements Serializable {
    *   // Member not found
    * }
    * </pre>
-   * @param   s   Find {@link Member} within this session context.
-   * @param   uuid  Find {@link Member} with this UUID.
+   * @param   s     Get {@link Member} within this session context.
+   * @param   uuid  Get {@link Member} with this UUID.
    * @return  A {@link Member} object.
    * @throws  MemberNotFoundException
    */
-  public static Member findByUuid(GrouperSession s, String uuid)
+  public static Member getByUuid(GrouperSession s, String uuid)
     throws MemberNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (s == null) {
+      throw new MemberNotFoundException("invalid session");
+    }
+    try {
+      Member  m       = null;
+      Session hs      = HibernateHelper.getSession();
+      List    members = hs.find(
+                          "from Member as m where       "
+                          + "m.member_id           = ?  ",
+                          uuid,
+                          Hibernate.STRING
+                        )
+                        ;
+      if (members.size() == 1) {
+        // Member exists
+        m = (Member) members.get(0);
+        m.setSession(s);
+      }
+      hs.close();
+      return m;
+    }
+    catch (HibernateException eMNF) {
+      throw new MemberNotFoundException(
+        "member not found: " + eMNF.getMessage()
+      );
+    }
+  } // public static Member getByUuid(s, uuid)
 
   
   // Protected Class Methods

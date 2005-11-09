@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.1.2.1 2005-11-04 19:51:53 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.1.2.2 2005-11-09 23:20:03 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
 
@@ -45,11 +45,11 @@ public class TestGroupDelete extends TestCase {
   // Tests
 
   public void testGroupDelete() {
-    Stem  root  = Helper.getRootStem(
+    Stem  root  = StemHelper.getRootStem(
       Helper.getRootSession()
     );
-    Stem  edu   = Helper.addChildStem(root, "edu", "educational");
-    Group i2    = Helper.addChildGroup(edu, "i2", "internet2");
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "educational");
+    Group i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     try {
       i2.delete();
       Assert.assertTrue("group deleted", true);

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.1.2.13 2005-11-07 17:39:04 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.1.2.14 2005-11-09 23:20:03 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -218,6 +218,14 @@ public class GrouperSession implements Serializable {
       .append("start",      this.getStart_time())
       .toString();
   }
+
+
+  // Protected Static Methods
+  protected static void validate(GrouperSession s) {
+    if (s == null) {
+      throw new RuntimeException("null session");
+    }
+  } // protected static void validate(s)
 
 
   // Private Static Methods

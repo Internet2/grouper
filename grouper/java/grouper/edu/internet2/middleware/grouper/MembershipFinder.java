@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.1.2.11 2005-11-08 20:06:47 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.1.2.12 2005-11-09 23:20:03 blair Exp $
  */
 class MembershipFinder {
 
@@ -68,25 +68,25 @@ class MembershipFinder {
   } // protected static Set findEffectiveMemberships(g, m, field)
 
   // @return  Set of matching memberships for a {@link Group}
-  protected static Set findMemberships(Group g, String field) {
+  protected static Set findMemberships(GrouperSession s, Group g, String field) {
     // TODO Switch to criteria queries?
     Set mships = new HashSet();
     try {
-      Session hs = HibernateHelper.getSession();
-      mships.addAll(
-        hs.find(
-          "from Membership as ms where  "
-          + "ms.group_id      = ?       "
-          + "and ms.list_id   = ?       ",
-          new Object[] {
-            g.getUuid(), field
-          },
-          new Type[] {
-            Hibernate.STRING, Hibernate.STRING
-          }
-        )
-      );
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find(
+                      "from Membership as ms where  "
+                      + "ms.group_id      = ?       "
+                      + "and ms.list_id   = ?       ",
+                      new Object[] {
+                        g.getUuid(), field
+                      },
+                      new Type[] {
+                        Hibernate.STRING, Hibernate.STRING
+                      }
+                    )
+                    ;
       hs.close();
+      mships.addAll(Membership.setSession(s, l));
     }
     catch (HibernateException e) {
       // TODO Is a RE appropriate here?
@@ -95,7 +95,7 @@ class MembershipFinder {
       );  
     }
     return mships;
-  } // protected static Set findMemberships(g, field)
+  } // protected static Set findMemberships(s, g, field)
 
   // @return  Set of matching memberships for a {@link Member}
   protected static Set findMemberships(Member m, String field) {

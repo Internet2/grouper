@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.13 2005-11-08 20:56:10 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.14 2005-11-09 23:20:03 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -138,10 +138,16 @@ public class Membership implements Serializable {
    * Member m = ms.getMember();
    * </pre>
    * @return  A {@link Member}
+   * @throws  MemberNotFoundException
    */
-  public Member getMember() {
-    throw new RuntimeException("Not implemented");
-  }
+  public Member getMember() 
+    throws MemberNotFoundException
+  {
+    if (this.s == null) {
+throw new RuntimeException("NULL SESSION: " + this.getId());
+    }
+    return MemberFinder.getByUuid(this.s, this.getMember_id());
+  } // public Member getMember()
 
   /**
    * Get parent membership of this membership.
@@ -228,6 +234,25 @@ public class Membership implements Serializable {
     }
     return ms;
   } // protected static Membership addMembership(s, g, m, field)
+
+  // Protected Class Methods
+  protected static List setSession(GrouperSession s, List l) {
+    List      mships  = new ArrayList();
+    Iterator  iter    = l.iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      ms.setSession(s);
+      mships.add(ms);
+    }
+    return mships;
+  } // protected static List setSession(s, l)
+
+
+  // Protected Instance Methods
+  protected void setSession(GrouperSession s) {
+    GrouperSession.validate(s);
+    this.s = s;
+  } // protected void setSession(s)
 
 
   // Hibernate Accessors

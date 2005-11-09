@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.1.2.2 2005-11-07 19:47:41 blair Exp $
+ * @version $Id: TestGroupAddMemberGroup.java,v 1.1.2.3 2005-11-09 23:20:03 blair Exp $
  */
 public class TestGroupAddMemberGroup extends TestCase {
 
@@ -46,19 +46,19 @@ public class TestGroupAddMemberGroup extends TestCase {
 
   public void testAddMember() {
     GrouperSession  s     = Helper.getRootSession();
-    Stem            root  = Helper.getRootStem(s);
-    Stem            edu   = Helper.addChildStem(root, "edu", "education");
-    Group           i2    = Helper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = Helper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            root  = StemHelper.getRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     GroupHelper.addMember(i2, uofc);
   } // public void testAddMember()
 
   public void testAddMemberWithNonGroupMember() {
     GrouperSession  s     = Helper.getRootSession();
-    Stem            root  = Helper.getRootStem(s);
-    Stem            edu   = Helper.addChildStem(root, "edu", "education");
-    Group           i2    = Helper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = Helper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            root  = StemHelper.getRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Member          m     = Helper.getMemberBySubject(
       s, SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID)
     );

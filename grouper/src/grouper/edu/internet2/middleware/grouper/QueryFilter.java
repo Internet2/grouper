@@ -24,47 +24,20 @@ import  java.util.*;
  * Interface for querying the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: QueryFilter.java,v 1.1.2.1 2005-10-20 20:41:11 blair Exp $
+ * @version $Id: QueryFilter.java,v 1.1.2.2 2005-11-09 23:20:03 blair Exp $
  */
 public interface QueryFilter {
 
   // Public Instance Methods
 
   /**
-   * Get groups matching query filter.
-   * <pre class="eg">
-   * Set groups = gq.getGroups();
-   * </pre>
-   * @return  Set of matching {@link Group} objects.
+   * Get filter results.
+   * <p/>
+   * @param   s   Get groups within this session context.
+   * @return  Objects that match filter constraints.
+   * @throws  QueryException
    */
-  public Set getGroups();
-
-  /**
-   * Get members matching query filter.
-   * <pre class="eg">
-   * Set members = gq.getMembers();
-   * </pre>
-   * @return  Set of matching {@link Member} objects.
-   */
-  public Set getMembers();
-
-  /**
-   * Get memberships matching query filter.
-   * <pre class="eg">
-   * Set memberships = gq.getMemberships();
-   * </pre>
-   * @return  Set of matching {@link Membership} objects.
-   */
-  public Set getMemberships();
-
-  /**
-   * Get stems matching query filter.
-   * <pre class="eg">
-   * Set stems = gq.getStems();
-   * </pre>
-   * @return  Set of matching {@link Stem} objects.
-   */
-  public Set getStems();
+  public Set getResults(GrouperSession s)  throws QueryException;
 
 }
 

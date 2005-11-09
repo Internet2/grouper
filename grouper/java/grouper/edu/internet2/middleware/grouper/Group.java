@@ -28,13 +28,13 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.24 2005-11-09 18:50:48 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.25 2005-11-09 23:20:03 blair Exp $
  */
 public class Group implements Serializable {
 
   // Hibernate Properties
   private String  create_source;
-  private Date    create_time;
+  private long    create_time;
   private Member  creator_id;
   private String  display_extension;
   private String  display_name;
@@ -47,8 +47,7 @@ public class Group implements Serializable {
   private String  id;
   private Member  modifier_id;
   private String  modify_source;
-  private Date    modify_time;
-  // TODO private Stem    parent_stem;
+  private long    modify_time;
   private String  parent_stem;
 
 
@@ -362,8 +361,8 @@ public class Group implements Serializable {
    * @return  {@link Date} that this group was created.
    */
   public Date getCreateTime() {
-    throw new RuntimeException("Not implemented");
-  }
+    return new Date(this.getCreate_time());
+  } // public Date getCreateTime()
 
   /**
    * Get group description.
@@ -472,7 +471,7 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    return MembershipFinder.findMemberships(this, Group.LIST);
+    return MembershipFinder.findMemberships(this.s, this, Group.LIST);
   }
 
   /**
@@ -516,7 +515,7 @@ public class Group implements Serializable {
    * @return  {@link Date} that this group was last modified.
    */
   public Date getModifyTime() {
-    throw new RuntimeException("Not implemented");
+    return new Date(this.getModify_time());
   }
 
   /**
@@ -1021,8 +1020,22 @@ public class Group implements Serializable {
   }
 
 
+  // Protected Class Methods
+  protected static List setSession(GrouperSession s, List l) {
+    List      groups  = new ArrayList();
+    Iterator  iter    = l.iterator();
+    while (iter.hasNext()) {
+      Group g = (Group) iter.next();
+      g.setSession(s);
+      groups.add(g);
+    }
+    return groups;
+  } // protected static List setSession(s, l)
+
+
   // Protected Instance Methods
   protected void setSession(GrouperSession s) {
+    GrouperSession.validate(s);
     this.s = s;
   } // protected void setSession(s)
 
@@ -1125,12 +1138,12 @@ public class Group implements Serializable {
 
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
-    this.setCreate_time( new java.util.Date() );
+    this.setCreate_time( new Date().getTime() );
   } // private void _setCreated()
 
   private void _setModified() {
     this.setModifier_id( s.getMember()        );
-    this.setModify_time( new java.util.Date() );
+    this.setModify_time( new Date().getTime() );
   } // private void _setModified()
 
 
@@ -1151,11 +1164,11 @@ public class Group implements Serializable {
     this.create_source = create_source;
   }
 
-  private Date getCreate_time() {
+  private long getCreate_time() {
     return this.create_time;
   }
 
-  private void setCreate_time(Date create_time) {
+  private void setCreate_time(long create_time) {
     this.create_time = create_time;
   }
 
@@ -1199,11 +1212,11 @@ public class Group implements Serializable {
     this.modify_source = modify_source;
   }
 
-  private Date getModify_time() {
+  private long getModify_time() {
     return this.modify_time;
   }
 
-  private void setModify_time(Date modify_time) {
+  private void setModify_time(long modify_time) {
     this.modify_time = modify_time;
   }
 
