@@ -41,7 +41,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.1.2.2 2005-11-07 16:22:36 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.1.2.3 2005-11-09 23:23:15 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
   // TODO Is configuration necessary if used within Grouper?
@@ -109,7 +109,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   } // public Subject getSubject(id)
 
   /**
-   * Gets a {@link GrouperGroup} subject by its name.
+   * Gets a {@link Group} subject by its name.
    * <p />
    * <pre class="eg">
    * // Use it within the Grouper API
@@ -164,7 +164,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   } // public Set getSubjectTypes()
 
   /** 
-   * Initializes the {@link Grouper} source adapter.
+   * Initializes the Grouper source adapter.
    * <p/>
    * <p>
    * No initialization is currently performed by this adapter.
@@ -176,7 +176,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   } // public void init()
 
   /**
-   * Searches for {@link GrouperGroup} subjects by naming attributes.
+   * Searches for {@link Group} subjects by naming attributes.
    * <p />
    * <p>
    * This method performs a fuzzy search on the <i>stem</i>,
