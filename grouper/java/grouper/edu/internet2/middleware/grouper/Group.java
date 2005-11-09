@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.23 2005-11-08 20:56:10 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.24 2005-11-09 18:50:48 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -559,9 +559,11 @@ public class Group implements Serializable {
    * </pre>
    * @return  Parent {@link Stem}.
    */
-  public Stem getParentStem() {
-    throw new RuntimeException("Not implemented");
-  }
+  public Stem getParentStem() 
+    throws StemNotFoundException
+  {
+    return StemFinder.getByUuid(this.s, this.parent_stem);
+  } // public Stem getParentStem()
 
   /**
    * Get privileges for the specified member on this group.

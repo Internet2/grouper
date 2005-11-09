@@ -17,60 +17,19 @@
 
 package edu.internet2.middleware.grouper;
 
-import  java.io.Serializable;
+import  java.util.*;
 import  net.sf.hibernate.*;
+
 
 /**
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.1.2.9 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: StemFinder.java,v 1.1.2.10 2005-11-09 18:50:48 blair Exp $
  */
-public class StemFinder implements Serializable {
+public class StemFinder {
 
-  /**
-   * Find stem by name.
-   * <pre class="eg">
-   * // Find the specified stem by name.
-   * try {
-   *   Stem stem = StemFinder.findByName(s, name);
-   * }
-   * catch (StemNotFoundException e) {
-   *   // Stem not found
-   * }
-   * </pre>
-   * @param   s     Search within this {@link GrouperSession} context
-   * @param   name  Find stem with this name.
-   * @return  A {@link Stem} object
-   * @throws  StemNotFoundException
-   */
-  public static Stem findByName(GrouperSession s, String name) 
-    throws StemNotFoundException
-  {
-    throw new RuntimeException("Not implemented");
-  }
-
-  /**
-   * Find stem by uuid.
-   * <pre class="eg">
-   * // Find the specified stem by uuid.
-   * try {
-   *   Stem stem = StemFinder.findByUuid(s, uuid);
-   * }
-   * catch (StemNotFoundException e) {
-   *   // Stem not found
-   * }
-   * </pre>
-   * @param   s     Search within this {@link GrouperSession} context
-   * @param   uuid  Find stem with this UUID.
-   * @return  A {@link Stem} object
-   * @throws  StemNotFoundException
-   */
-  public static Stem findByUuid(GrouperSession s, String uuid) 
-    throws StemNotFoundException
-  {
-    throw new RuntimeException("Not implemented");
-  }
+  // Public Class Methods
 
   /**
    * Find root stem of the Groups Registry.
@@ -99,6 +58,101 @@ public class StemFinder implements Serializable {
     }
     //return new Stem();
   } // public static Stem findRootStem(s)
+
+  /**
+   * Get stem by name.
+   * <pre class="eg">
+   * // Get the specified stem by name.
+   * try {
+   *   Stem stem = StemFinder.getByName(s, name);
+   * }
+   * catch (StemNotFoundException e) {
+   *   // Stem not found
+   * }
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Get stem with this name.
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem getByName(GrouperSession s, String name) 
+    throws StemNotFoundException
+  {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * Get stem by uuid.
+   * <pre class="eg">
+   * // Get the specified stem by uuid.
+   * try {
+   *   Stem stem = StemFinder.getByUuid(s, uuid);
+   * }
+   * catch (StemNotFoundException e) {
+   *   // Stem not found
+   * }
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   uuid  Get stem with this UUID.
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem getByUuid(GrouperSession s, String uuid) 
+    throws StemNotFoundException
+  {
+    Stem ns = findByUuid(uuid);
+    ns.setSession(s);
+    return ns;
+  } // public static Stem getByUuid(s, uuid)
+
+
+  // Protected Class Methods
+
+  protected static Stem findByUuid(String uuid)
+    throws StemNotFoundException
+  {
+    try {
+      Stem    ns    = null;
+      Session hs    = HibernateHelper.getSession();
+      List    stems = hs.find(
+                        "from Stem as ns where  "
+                        + "ns.stem_id = ?       ",
+                        uuid,
+                        Hibernate.STRING
+                      )
+                      ;
+      if (stems.size() == 1) {
+        ns = (Stem) stems.get(0);
+      }
+      hs.close();
+      if (ns == null) {
+        throw new StemNotFoundException("stem not found");
+      }
+      return ns; 
+    }
+    catch (HibernateException eH) {
+      throw new StemNotFoundException(
+        "error finding stem: " + eH.getMessage()
+      );  
+    }
+  } // protected static Stem findByUuid(s, uuid)
+
+  protected static boolean isChild(Stem ns, Group g) {
+    try {
+      Stem parent = g.getParentStem();
+      while (parent != null) {
+        if (parent.equals(ns)) {
+System.err.println(g.getName() + " is a child of " + ns.getName());
+          return true;
+        }
+        parent = parent.getParentStem();
+      }
+    }
+    catch (StemNotFoundException eSNF) {
+      // Nothing
+    }
+    return false;
+  } // protected static boolean isChild(ns, g)
 
 }
 

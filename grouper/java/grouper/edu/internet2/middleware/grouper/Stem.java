@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.1.2.16 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: Stem.java,v 1.1.2.17 2005-11-09 18:50:48 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -378,9 +378,11 @@ public class Stem implements Serializable {
    * </pre>
    * @return  Parent {@link Stem}.
    */
-  public Stem getParentStem() {
-    throw new RuntimeException("Not implemented");
-  }
+  public Stem getParentStem() 
+    throws StemNotFoundException
+  {
+    return StemFinder.getByUuid(this.s, this.parent_stem);
+  } // public Stem getParentStem()
 
   /**
    * Get privileges that the specified member has on this stem.
@@ -587,6 +589,10 @@ public class Stem implements Serializable {
     }
     return stem + ":" + extn;
   } // protected String constructName(stem, extn)
+
+  protected void setSession(GrouperSession s) {
+    this.s = s;
+  } // protected void setSession(s)
 
 
   // Hibernate Accessors

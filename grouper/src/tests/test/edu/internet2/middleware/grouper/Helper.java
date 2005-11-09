@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.1.2.4 2005-11-07 16:22:36 blair Exp $
+ * @version $Id: Helper.java,v 1.1.2.5 2005-11-09 18:50:49 blair Exp $
  */
 public class Helper {
 
@@ -153,39 +153,6 @@ public class Helper {
   protected static GrouperSession getRootSession() {
     return Helper.getSession("GrouperSystem");
   } // protected static GrouperSession getRootSession()
-
-  // Get the root stem
-  // @return  The root {@link Stem}
-  protected static Stem getRootStem(GrouperSession s) {
-    try {
-      Stem root = StemFinder.findRootStem(s);
-      Assert.assertNotNull("root !null", root);
-      Assert.assertTrue("found root stem", true);
-      Assert.assertTrue(
-        "root stem instanceof Stem", 
-        root instanceof Stem
-      );
-      Assert.assertNotNull("root uuid !null", root.getUuid());
-      Assert.assertTrue("root has uuid",      !root.getUuid().equals(""));
-      Assert.assertTrue(
-        "root extn", root.getExtension().equals("")
-      );
-      Assert.assertTrue(
-        "root displayExtn", root.getDisplayExtension().equals("")
-      );
-      Assert.assertTrue(
-        "root name", root.getName().equals("")
-      );
-      Assert.assertTrue(
-        "root displayName", root.getDisplayName().equals("")
-      );
-      return root;
-    }
-    catch (StemNotFoundException e) {
-      Assert.fail("root stem not found: " + e.getMessage());
-    }  
-    throw new RuntimeException(ERROR);
-  } // protected static Stem getRootStem(s)
 
   // Get a session by id
   // @return  A {@link GrouperSession}
