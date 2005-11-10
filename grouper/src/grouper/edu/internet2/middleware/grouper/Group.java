@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.25 2005-11-09 23:20:03 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.26 2005-11-10 16:36:18 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -416,8 +416,8 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getEffectiveMemberships() {
-    throw new RuntimeException("Not implemented");
-  }
+    return MembershipFinder.findEffectiveMemberships(this.s, this, Group.LIST);
+  } // public Set getEffectiveMembership()
 
   /**
    * Get group extension.
@@ -449,8 +449,8 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getImmediateMemberships() {
-    throw new RuntimeException("Not implemented");
-  }
+    return MembershipFinder.findImmediateMemberships(this.s, this, Group.LIST);
+  } // public Set getImmediateMemberships()
 
   /**
    * Get members of this group.
@@ -460,8 +460,8 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getMembers() {
-    throw new RuntimeException("Not implemented");
-  }
+    return MembershipFinder.findMembers(this.s, this, Group.LIST);
+  } // public Set getMembers()
 
   /**
    * Get memberships of this group.
@@ -472,7 +472,7 @@ public class Group implements Serializable {
    */
   public Set getMemberships() {
     return MembershipFinder.findMemberships(this.s, this, Group.LIST);
-  }
+  } // public Set getMemberships()
 
   /**
    * Get (optional and questionable) modify source for this group.

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.14 2005-11-09 23:20:03 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.15 2005-11-10 16:36:18 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -117,9 +117,11 @@ public class Membership implements Serializable {
    * </pre>
    * @return  A {@link Group}
    */
-  public Group getGroup() {
-    throw new RuntimeException("Not implemented");
-  }
+  public Group getGroup() 
+    throws GroupNotFoundException
+  {
+    return GroupFinder.findByUuid(this.s, this.getGroup_id());
+  } // public Group getGroup()
 
   /**
    * Get this membership's list.
@@ -129,8 +131,8 @@ public class Membership implements Serializable {
    * @return  List of this membership.
    */
   public String getList() {
-    throw new RuntimeException("Not implemented");
-  }
+    return this.getList_id();
+  } // public String getList()
 
   /**
    * Get this membership's member.
@@ -143,9 +145,6 @@ public class Membership implements Serializable {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    if (this.s == null) {
-throw new RuntimeException("NULL SESSION: " + this.getId());
-    }
     return MemberFinder.getByUuid(this.s, this.getMember_id());
   } // public Member getMember()
 
@@ -184,18 +183,23 @@ throw new RuntimeException("NULL SESSION: " + this.getId());
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (this.getVia_id() == null) {
+      throw new GroupNotFoundException(
+        "no via group for immediate memberships"
+      );
+    }
+    return GroupFinder.findByUuid(this.s, this.getVia_id());
+  } // public Group getViaGroup()
 
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getDepth())
-           .append(getGroup_id())
-           .append(getMember_id())
-           .append(getList_id())
-           .append(getVia_id())
+           .append(getDepth()     )
+           .append(getGroup_id()  )
+           .append(getMember_id() )
+           .append(getList_id()   )
+           .append(getVia_id()    )
            .toHashCode();
-  }
+  } // public int hashCode()
 
   public String toString() {
     return new ToStringBuilder(this)
@@ -266,7 +270,7 @@ throw new RuntimeException("NULL SESSION: " + this.getId());
   }
 
   // TODO private int getDepth() {
-  protected int getDepth() {
+  public int getDepth() {
     return this.depth;
   }
 

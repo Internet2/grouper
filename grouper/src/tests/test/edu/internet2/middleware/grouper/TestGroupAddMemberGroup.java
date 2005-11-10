@@ -20,13 +20,14 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 import  junit.framework.*;
 
 /**
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.1.2.3 2005-11-09 23:20:03 blair Exp $
+ * @version $Id: TestGroupAddMemberGroup.java,v 1.1.2.4 2005-11-10 16:36:18 blair Exp $
  */
 public class TestGroupAddMemberGroup extends TestCase {
 
@@ -51,6 +52,10 @@ public class TestGroupAddMemberGroup extends TestCase {
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     GroupHelper.addMember(i2, uofc);
+    // mships
+    MembershipHelper.testNumMship(i2,   Group.LIST, 1,    1, 0);
+    MembershipHelper.testNumMship(uofc, Group.LIST, 0,    0, 0);
+    MembershipHelper.testImmMship(s,    i2,         uofc, Group.LIST);
   } // public void testAddMember()
 
   public void testAddMemberWithNonGroupMember() {
@@ -64,6 +69,12 @@ public class TestGroupAddMemberGroup extends TestCase {
     );
     GroupHelper.addMember(uofc, m);
     GroupHelper.addMember(i2, uofc);
+    // mships
+    MembershipHelper.testNumMship(i2,   Group.LIST, 2,    1, 1);
+    MembershipHelper.testNumMship(uofc, Group.LIST, 1,    1, 0);
+    MembershipHelper.testImmMship(s,    i2,         uofc, Group.LIST);
+    MembershipHelper.testImmMship(s,    uofc,       m,    Group.LIST);
+    MembershipHelper.testEffMship(s,    i2,         m,    Group.LIST, uofc, 1);
   } // public void testAddMember()
 
 }

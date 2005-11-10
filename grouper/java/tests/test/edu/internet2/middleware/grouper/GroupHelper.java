@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1.2.6 2005-11-08 20:14:05 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.1.2.7 2005-11-10 16:36:18 blair Exp $
  */
 public class GroupHelper {
 
@@ -39,8 +39,8 @@ public class GroupHelper {
       Member m = gm.toMember();
       g.addMember(m);
       Assert.assertTrue("added member", true);
-      _testMemberships(g, m);
-      // TODO _testEffectiveMemberships(g, gm, m);
+      MembershipHelper.testImm(g, m);
+      MembershipHelper.testEff(g, gm, m);
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.fail("not privileged to add member: " + eIP.getMessage());
@@ -55,7 +55,7 @@ public class GroupHelper {
     try {
       g.addMember(m);
       Assert.assertTrue("added member", true);
-      _testMemberships(g, m);
+      MembershipHelper.testImm(g, m);
     }
     catch (InsufficientPrivilegeException e0) {
       Assert.fail("not privileged to add member: " + e0.getMessage());
@@ -121,34 +121,6 @@ public class GroupHelper {
     }
     throw new RuntimeException(Helper.ERROR); 
   } // protected static Member toMember(g)
-
-
-  // Private Class Methods
-
-  private static void _testEffectiveMemberships(Group g, Group gm, Member m) {
-    Set membersOfGM = gm.getMembers();
-    Iterator iterGM = membersOfGM.iterator();
-    while (iterGM.hasNext()) {
-      Member member = (Member) iterGM.next();
-System.err.println("ASSERT.hasMember.g="+g);
-System.err.println("ASSERT.hasMember.m="+member);
-      Assert.assertTrue("g hasMember member", g.hasMember(member));
-      Assert.assertTrue(
-        "g hasEffMember member", g.hasEffectiveMember(member)
-      );
-      Assert.assertTrue("member isMember g", member.isMember(g));
-      Assert.assertTrue(
-        "m isEffMember g", member.isEffectiveMember(g)
-      );
-    }
-  } // private static void _testEffectiveMemberships(g, gm, m)
-
-  private static void _testMemberships(Group g, Member m) {
-    Assert.assertTrue("g hasMember m", g.hasMember(m));
-    Assert.assertTrue("g hasImmMember m", g.hasImmediateMember(m));
-    Assert.assertTrue("m isMember g", m.isMember(g));
-    Assert.assertTrue("m isImmMember g", m.isImmediateMember(g));
-  } // private static void _testMemberships(g, m)
 
 }
 
