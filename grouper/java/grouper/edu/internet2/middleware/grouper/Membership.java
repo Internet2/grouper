@@ -26,17 +26,18 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.15 2005-11-10 16:36:18 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.16 2005-11-10 17:47:42 blair Exp $
  */
 public class Membership implements Serializable {
 
   // Hibernate Properties
-  private int     depth;
-  private String  group_id;
-  private String  id;
-  private String  member_id;
-  private String  list_id;
-  private String  via_id;
+  private int       depth;
+  private String    group_id;
+  private String    id;
+  private String    member_id;
+  private String    list_id;
+  private FieldType list_type;
+  private String    via_id;
 
   
   // Transient Private Instance Variables
@@ -53,23 +54,27 @@ public class Membership implements Serializable {
   }
 
   // Creating a new (immediate) membership
-  private Membership(GrouperSession s, Group g, Member m, String field) {
-    this(s, g.getUuid(), m.getUuid(), field);
-  } // private Membership(s, g, m, field)
+  private Membership(
+    GrouperSession s, Group g, Member m, String field, FieldType type
+  ) 
+  {
+    this(s, g.getUuid(), m.getUuid(), field, type);
+  } // private Membership(s, g, m, field, type)
 
   // Creating a new (effective) membership
   protected Membership(
-    GrouperSession s, String gid, String mid, String field, String vid, int depth
+    GrouperSession s, String gid, String mid, 
+    String field, FieldType type, String vid, int depth
   )
   {
-    this(s, gid, mid, field);
+    this(s, gid, mid, field, type);
     this.setVia_id(vid);
     this.setDepth(depth); 
   } // protected Membership(s, gid, mid, field, vid, depth)
 
   // Shared constructor
   private Membership(
-    GrouperSession s, String gid, String mid, String field
+    GrouperSession s, String gid, String mid, String field, FieldType type
   ) 
   {
     // Attach session
@@ -81,7 +86,8 @@ public class Membership implements Serializable {
     // Set field  
     // TOOD this.setList_id( FieldFinder.getField(field) );
     this.setList_id(field);
-  } // private Membership(s, gid, mid, field)
+    this.setList_type(type);
+  } // private Membership(s, gid, mid, field, type)
 
 
   // Public Instance Methods
@@ -197,17 +203,19 @@ public class Membership implements Serializable {
            .append(getGroup_id()  )
            .append(getMember_id() )
            .append(getList_id()   )
+           .append(getList_type() )
            .append(getVia_id()    )
            .toHashCode();
   } // public int hashCode()
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("depth"    , getDepth()    )
-           .append("group_id" , getGroup_id() )
-           .append("member_id", getMember_id())
-           .append("list_id"  , getList_id()  )
-           .append("via_id"   , getVia_id()   )
+           .append("depth"      , getDepth()      )
+           .append("group_id"   , getGroup_id()   )
+           .append("member_id"  , getMember_id()  )
+           .append("list_id"    , getList_id()    )
+           .append("list_type"  , getList_type()  )
+           .append("via_id"     , getVia_id()     )
            .toString();
   } // public String toString()
 
@@ -215,7 +223,7 @@ public class Membership implements Serializable {
   // Protected Class Methods
 
   protected static Membership addMembership(
-    GrouperSession s, Group g, Member m, String field
+    GrouperSession s, Group g, Member m, String field, FieldType type
   )
     throws MemberAddException
   {
@@ -231,13 +239,13 @@ public class Membership implements Serializable {
     }
     catch (MembershipNotFoundException eMNF) {
       // Membership doesn't exist.  Create it.
-      ms = new Membership(s, g, m, field);
+      ms = new Membership(s, g, m, field, type);
     }
     if (ms == null) {
       throw new MemberAddException("unable to add member");
     }
     return ms;
-  } // protected static Membership addMembership(s, g, m, field)
+  } // protected static Membership addMembership(s, g, m, field, type)
 
   // Protected Class Methods
   protected static List setSession(GrouperSession s, List l) {
@@ -303,6 +311,15 @@ public class Membership implements Serializable {
 
   private void setList_id(String list_id) {
     this.list_id = list_id;
+  }
+
+  // TODO private FieldType getList_type() {
+  protected FieldType getList_type() {
+    return this.list_type;
+  }
+
+  private void setList_type(FieldType list_type) {
+    this.list_type = list_type;
   }
 
   // TODO private String getVia_id() {

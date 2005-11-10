@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.26 2005-11-10 16:36:18 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.27 2005-11-10 17:47:42 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -118,7 +118,7 @@ public class Group implements Serializable {
 
       // Create the immediate membership
       objects.add( 
-        Membership.addMembership(this.s, this, m, Group.LIST) 
+        Membership.addMembership(this.s, this, m, Group.LIST, FieldType.LIST) 
       );
 
       // Find effective memberships
@@ -235,8 +235,8 @@ public class Group implements Serializable {
           Membership ms = (Membership) iter.next();
           objects.add( 
             MembershipFinder.getEffectiveMembership(
-              ms.getGroup_id(), ms.getMember_id(), ms.getList_id(),
-              ms.getVia_id(), ms.getDepth()
+              ms.getGroup_id(), ms.getMember_id(), 
+              ms.getList_id(), ms.getVia_id(), ms.getDepth()
             )
           );
         }
@@ -1064,7 +1064,7 @@ public class Group implements Serializable {
       mships.add(
         new Membership(
           this.s, this.getUuid(), mofm.getMember_id(),
-          Group.LIST, vid, depth
+          Group.LIST, FieldType.LIST, vid, depth
         )
       );
       // ... and add to wherever this group is a member
@@ -1074,7 +1074,7 @@ public class Group implements Serializable {
         mships.add(
           new Membership(
             this.s, gism.getGroup_id(), mofm.getMember_id(),
-            Group.LIST, vid, depth + gism.getDepth() 
+            Group.LIST, FieldType.LIST, vid, depth + gism.getDepth() 
           )
         );
       }
@@ -1097,8 +1097,8 @@ public class Group implements Serializable {
       }
       mships.add(
         new Membership(
-          this.s, ms.getGroup_id(), ms.getMember_id(), Group.LIST,
-          vid, depth
+          this.s, ms.getGroup_id(), ms.getMember_id(), 
+          Group.LIST, FieldType.LIST, vid, depth
         )
       );
     }
