@@ -1,55 +1,173 @@
-<!-- $Id: build.xml,v 1.61 2005-09-09 00:56:53 blair Exp $ -->
+<!-- $Id: build.xml,v 1.62 2005-11-11 17:42:13 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
-  <!-- set global properties for this build -->
+  <!-- Global Properties -->
   <property name="app.name"               value="Grouper"/>
-  <property name="src"                    location="java"/>
-  <property name="src.grouper"            location="${src}/src"/>
-  <property name="src.test"               location="${src}/tests"/>
-  <property name="build"                  location="build"/>
-  <property name="build.grouper"          location="${build}/grouper"/>
-  <property name="build.lib"              location="${build}/lib"/>
-  <property name="build.test"             location="${build}/test"/>
-  <property name="dist"                   location="dist"/>
-  <property name="javadoc.source"         value="${src.grouper}"/>
-  <property name="javadoc.dest.internal"  value="${dist}/api-int"/>
-  <property name="javadoc.dest.public"    value="${dist}/api"/>
   <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
-  <property name="sql.type"               value="hsqldb"/>
-  <property name="sql.create"             value="sql/schema-${sql.type}.sql"/>
-  <property name="sql.test-data"          value="sql/test-data-${sql.type}.sql"/>
   <property name="impl.url" 
     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
   <property name="impl.vendor"            value="Internet2"/>
-  <property name="impl.version"           value="0.6"/>
+  <property name="impl.version"           value="0.9"/>
 
-  <target name="init">
-    <tstamp />
-    <mkdir dir="${build.grouper}" />
-    <mkdir dir="${build.test}" />
-    <!-- only define our classpath once -->
-    <path id="project.class.path">
-      <pathelement path="${classpath}"/>
-      <!-- for configuration files -->
-      <pathelement path="${basedir}/conf"/>
-      <fileset dir="java/lib">
-        <include name="**/*.jar"/>
-      </fileset>
-      <pathelement location="${build.grouper}"/>
-      <pathelement location="${build.test}"/>
-      <pathelement location="${user.home}/.ant/lib/clover.jar"/>
-    </path>
-  </target>
+  <property name="src"                    location="java"/>
+  <property name="dist"                   location="dist"/>
+  <property name="build"                  location="build"/>
+  <property name="build.grouper"          location="${build}/grouper"/>
+  <property name="build.javadoc"          location="${dist}/api"/>
+  <property name="build.lib"              location="${build}/lib"/>
+  <property name="build.test"             location="${build}/test"/>
+  <property name="src.grouper"            location="${src}/grouper"/>
+  <property name="src.test"               location="${src}/tests"/>
+  <!-- Global Properties -->
 
+  <!-- build -->
   <target name="build" depends="init"
         description="compile the source " >
     <javac srcdir="${src.grouper}" destdir="${build.grouper}">
       <classpath refid="project.class.path"/>
     </javac>
   </target>
+  <!-- build -->
 
-  <!-- dist -->
+  <!-- clean -->
+  <target name="clean" description="clean up" >
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+  <!-- clean -->
+
+  <!-- codegen -->
+  <target name="codegen" depends="init">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
+    <taskdef name="hbm2java"
+      classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask"
+      classpathref="project.class.path"
+    />
+    <hbm2java config="conf/codegen.cfg.xml" output="${src.grouper}">
+      <fileset dir="${src.grouper}">
+        <include name="**/*.hbm.xml"/>
+      </fileset>
+    </hbm2java>
+  </target>
+  <!-- codegen -->
+
+  <!-- db -->
+  <target name="db" depends="init" description="Launch HSQLDB UI">
+    <property file="conf/hibernate.properties"/>
+    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
+      <classpath refid="project.class.path"/>
+      <arg value="-driver"/>
+      <arg value="${hibernate.connection.driver_class}"/>
+      <arg value="-url"/>
+      <arg value="${hibernate.connection.url}"/>
+      <arg value="-user"/>
+      <arg value="${hibernate.connection.username}"/>
+      <arg value="-password"/>
+      <arg value="${hibernate.connection.password}"/>
+    </java>
+  </target>
+  <!-- db -->
+
+  <!-- db-init -->
+  <target name="db-init" 
+          depends="build"
+          description="initialize database"
+  >
+    <java classname="edu.internet2.middleware.grouper.RegistryInstall"
+          fork="yes"
+    >
+      <classpath refid="project.class.path"/>
+    </java>
+  </target>
+  <!-- db-init -->
+
+  <!-- html -->
+  <target name="html" depends="build" description="generate public api docs" >
+    <delete dir="${build.javadoc}"/>
+    <mkdir  dir="${build.javadoc}"/>
+    <javadoc 
+      packagenames="${javadoc.packages}" 
+      sourcepath="${src.grouper}"
+      destdir="${build.javadoc}"
+      classpathref="project.class.path" 
+      access="public"
+      author="true"
+      stylesheetfile="${basedir}/doc/stylesheet.css"
+    />
+  </target>
+  <!-- html -->
+
+  <!-- init -->
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build.grouper}" />
+    <mkdir dir="${build.test}" />
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
+    <!-- only define our classpath once -->
+    <path id="project.class.path">
+      <pathelement path="${classpath}"/>
+      <!-- for configuration files -->
+      <pathelement location="${basedir}/conf"/>
+      <fileset dir="java/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement  location="${src.grouper}"/>
+      <pathelement  location="${build.grouper}"/>
+      <pathelement  location="${build.test}"/>
+      <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
+    </path>
+  </target>
+  <!-- init -->
+
+  <!-- schemaexport -->
+  <target name="schemaexport" depends="build">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/run" />
+    <taskdef name="schemaexport"
+      classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
+      classpathref="project.class.path"
+    />
+    <schemaexport
+      properties="conf/hibernate.properties"
+      quiet="yes"
+      text="no"
+      drop="no"
+      delimiter=";"
+      output="sql/schema-export.sql">
+      <fileset dir="${src.grouper}">
+        <include name="**/*.hbm.xml"/>
+      </fileset>
+    </schemaexport>
+  </target>
+  <!-- schemaexport -->
+
+  <!-- test-build -->
+  <target name="test-build" depends="build">
+    <javac srcdir="${src.test}" destdir="${build.test}">
+      <classpath  refid="project.class.path"/>
+      <include name="**/*.java" />
+    </javac>
+  </target>
+  <!-- test-build -->
+
+  <!-- test -->
+  <target name="test" depends="test-build">
+    <java fork="yes" 
+          classname="junit.textui.TestRunner"
+          taskname="junit" 
+          failonerror="true">
+      <arg value="test.edu.internet2.middleware.grouper.SuiteAll"/>
+      <classpath refid="project.class.path"/>
+    </java>
+  </target>
+  <!-- test -->
+
+
+
+  <!-- FIXME What a mess... -->
   <target name="dist" depends="build" 
     description="package Grouper">
     <mkdir dir="${dist}/lib" />
@@ -83,31 +201,7 @@
 
   <target name="jar" depends="dist" />
 
-  <target name="clean" description="clean up" >
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
-  </target>
-
   <target name="all" depends="dist,test,html" />
-
-  <target name="html" depends="init" description="generate public api docs" >
-    <!-- Let's be sure we clear out old cruft first... -->
-    <delete dir="${javadoc.dest.public}" />
-    <mkdir  dir="${javadoc.dest.public}" />
-<!--
-    <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
--->
-    <javadoc sourcepath="${javadoc.source}" 
-      destdir="${javadoc.dest.public}" 
-      packagenames="${javadoc.packages}" 
-      classpathref="project.class.path" 
-      access="public"
-      author="true"
-      stylesheetfile="${basedir}/doc/stylesheet.css"
-    />
-  </target>
-
-  <target name="javadoc" depends="html"/>
 
   <target name="html-internal" depends="init" description="generate internal api docs" >
     <!-- Let's be sure we clear out old cruft first... -->
@@ -118,75 +212,6 @@
       classpathref="project.class.path" 
       access="protected"
       author="true"/>
-  </target>
-
-  <target name="test" depends="test-run"/>
-
-  <target name="test-build" depends="build">
-    <javac srcdir="${src.test}" destdir="${build.test}">
-      <classpath refid="project.class.path" />
-      <include name="**/*.java" />
-    </javac>
-  </target>
-
-  <target name="test-run" depends="test-build,db-init-test">
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}/run" />
-    <java fork="yes" 
-          classname="junit.textui.TestRunner"
-          taskname="junit" 
-          failonerror="true">
-      <arg value="test.edu.internet2.middleware.grouper.TestAll"/>
-      <classpath refid="project.class.path"/>
-    </java>
-  </target>
-
-  <target name="db" depends="init" description="Launch HSQLDB UI">
-    <property file="conf/hibernate.properties"/>
-    <mkdir dir="${dist}/run"/>
-    <java classname="org.hsqldb.util.DatabaseManager" fork="yes">
-      <classpath refid="project.class.path"/>
-      <arg value="-driver"/>
-      <arg value="${hibernate.connection.driver_class}"/>
-      <arg value="-url"/>
-      <arg value="${hibernate.connection.url}"/>
-      <arg value="-user"/>
-      <arg value="${hibernate.connection.username}"/>
-      <arg value="-password"/>
-      <arg value="${hibernate.connection.password}"/>
-    </java>
-  </target>
-
-  <target name="db-init" depends="init" description="Initialize database">
-    <property file="conf/hibernate.properties"/>
-    <sql
-      classpathref="project.class.path"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="${sql.create}"
-    />
-    <sql
-      classpathref="project.class.path"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="sql/init.sql"
-    />
-  </target>
-
-  <target name="db-init-test" description="Inserts test data into database">
-    <property file="conf/hibernate.properties"/>
-    <sql
-      classpathref="project.class.path"
-      driver="${hibernate.connection.driver_class}"
-      url="${hibernate.connection.url}"
-      userid="${hibernate.connection.username}"
-      password="${hibernate.connection.password}"
-      src="${sql.test-data}"
-    />
   </target>
 
   <target name="with.clover" depends="init">

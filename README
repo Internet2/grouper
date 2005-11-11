@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   _doc/grouper-impl-guide.html_
 
-$Id: README,v 1.29 2005-09-09 00:56:53 blair Exp $
+$Id: README,v 1.30 2005-11-11 17:42:13 blair Exp $
 
 ---
 
@@ -30,11 +30,15 @@ Build Grouper from source.
 
 ## Initializing Database
 
+    % ant schemaexport
+
+This creates a DDL appropriate for the database you are using and
+applies it to the database
+
     % ant db-init
 
-This initializes the Groups Registry with Grouper's default tables and
-schema.  
-data.
+This initializes the Groups Registry with Grouper's default tables
+and schema.
 
 ---
 
