@@ -1,7 +1,5 @@
 -- This is the HSQL DDL for the Signet database
 --
--- Signet Subject tables
-drop table signet_privilegedSubject if exists;
 -- Tree tables
 drop table signet_treeNodeRelationship if exists;
 drop table signet_treeNode if exists;
@@ -28,6 +26,8 @@ drop table signet_subsystem if exists;
 drop table SubjectAttribute if exists;
 drop table Subject if exists;
 drop table SubjectType if exists;
+-- Signet Subject tables
+drop table signet_subject if exists;
 --
 -- Subsystem tables
 create table signet_subsystem
@@ -120,12 +120,15 @@ foreign key (limitKey) references signet_limit (limitKey)
 --
 -- Signet Subject tables
 --
-create table signet_privilegedSubject (
+create table signet_subject (
+subjectKey			int                 NOT NULL IDENTITY,
 subjectTypeID       varchar(32)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
 name                varchar(120)        NOT NULL,
+description         varchar(255)        NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (subjectTypeID, subjectID)
+primary key (subjectKey),
+unique (subjectTypeID, subjectID)
 )
 ;
 --
@@ -195,22 +198,22 @@ instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-grantorTypeID       varchar(32)         NOT NULL,
-grantorID           varchar(64)         NOT NULL,
-granteeTypeID       varchar(32)         NOT NULL,
-granteeID           varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NULL,
-proxyID             varchar(64)         NULL,
+grantorKey          int                 NOT NULL,
+granteeKey          int                 NOT NULL,
+proxyKey            int                 NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canGrant            bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerTypeID       varchar(32)         NULL,
-revokerID           varchar(64)         NULL,
+revokerKey          int                 NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (assignmentID)
+primary key (assignmentID),
+foreign key (grantorKey) references signet_subject (subjectKey),
+foreign key (granteeKey) references signet_subject (subjectKey),
+foreign key (proxyKey) references signet_subject (subjectKey),
+foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 create table signet_assignmentLimit
@@ -231,23 +234,23 @@ instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
-grantorTypeID       varchar(32)         NOT NULL,
-grantorID           varchar(64)         NOT NULL,
-granteeTypeID       varchar(32)         NOT NULL,
-granteeID           varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NULL,
-proxyID             varchar(64)         NULL,
+grantorKey          int                 NOT NULL,
+granteeKey          int                 NOT NULL,
+proxyKey            int                 NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
 canGrant            bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerTypeID       varchar(32)         NULL,
-revokerID           varchar(64)         NULL,
+revokerKey          int                 NULL,
 historyDatetime     datetime            NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-unique (assignmentID, instanceNumber)
+unique (assignmentID, instanceNumber),
+foreign key (grantorKey) references signet_subject (subjectKey),
+foreign key (granteeKey) references signet_subject (subjectKey),
+foreign key (proxyKey) references signet_subject (subjectKey),
+foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 create table signet_assignmentLimit_history
@@ -277,20 +280,20 @@ proxyID             int                 NOT NULL IDENTITY,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NULL,
-grantorTypeID       varchar(32)         NOT NULL,
-grantorID           varchar(64)         NOT NULL,
-granteeTypeID       varchar(32)         NOT NULL,
-granteeID           varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NULL,
-proxySubjectID		varchar(64)			NULL,
+grantorKey          int                 NOT NULL,
+granteeKey          int                 NOT NULL,
+proxySubjectKey     int                 NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerTypeID       varchar(32)         NULL,
-revokerID           varchar(64)         NULL,
+revokerKey          int                 NULL,
 modifyDatetime      datetime            NOT NULL,
-primary key (proxyID)
+primary key (proxyID),
+foreign key (grantorKey) references signet_subject (subjectKey),
+foreign key (granteeKey) references signet_subject (subjectKey),
+foreign key (proxySubjectKey) references signet_subject (subjectKey),
+foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 create table signet_proxy_history
@@ -300,21 +303,21 @@ proxyID             int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NULL,
-grantorTypeID       varchar(32)         NOT NULL,
-grantorID           varchar(64)         NOT NULL,
-granteeTypeID       varchar(32)         NOT NULL,
-granteeID           varchar(64)         NOT NULL,
-proxyTypeID         varchar(64)         NULL,
-proxySubjectID		varchar(64)			NULL,
+grantorKey          int                 NOT NULL,
+granteeKey          int                 NOT NULL,
+proxySubjectKey		int                 NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerTypeID       varchar(32)         NULL,
-revokerID           varchar(64)         NULL,
+revokerKey          int                 NULL,
 historyDatetime     datetime            NOT NULL,
 modifyDatetime      datetime            NOT NULL,
-unique (proxyID, instanceNumber)
+unique (proxyID, instanceNumber),
+foreign key (grantorKey) references signet_subject (subjectKey),
+foreign key (granteeKey) references signet_subject (subjectKey),
+foreign key (proxySubjectKey) references signet_subject (subjectKey),
+foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
 --

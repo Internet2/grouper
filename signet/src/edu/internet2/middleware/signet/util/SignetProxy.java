@@ -10,12 +10,11 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.util;
 
 import edu.internet2.middleware.signet.*;
-import edu.internet2.middleware.signet.Proxy.*;
 import edu.internet2.middleware.signet.Status;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -70,7 +69,7 @@ public class SignetProxy
 
       } else if (action.equals("list")) {
 
-         list(signet, signetSubject);
+         list(signetSubject);
 
       }
 
@@ -86,8 +85,11 @@ public class SignetProxy
       throws ObjectNotFoundException, SignetAuthorityException {
 
       PrivilegedSubject sysAdminSubject = signet.getPrivilegedSubjectByDisplayId("person", sysAdminIdentifier);
-      Set proxiesSet = sysAdminSubject.getProxiesReceived(Status.ACTIVE, null, signetSubject);
-
+      
+      Set proxiesSet = sysAdminSubject.getProxiesReceived();
+      proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
+      proxiesSet = filterProxiesByGrantor(proxiesSet, signetSubject);
+      
       if (proxiesSet.size() > 0)
       {
          System.out.println("Signet system administration proxy already exists for " + sysAdminIdentifier);
@@ -113,7 +115,10 @@ public class SignetProxy
       throws ObjectNotFoundException, SignetAuthorityException {
 
       PrivilegedSubject sysAdminSubject = signet.getPrivilegedSubjectByDisplayId("person", sysAdminIdentifier);
-      Set proxiesSet = sysAdminSubject.getProxiesReceived(Status.ACTIVE, null, signetSubject);
+      
+      Set proxiesSet = sysAdminSubject.getProxiesReceived();
+      proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
+      proxiesSet = filterProxiesByGrantor(proxiesSet, signetSubject);
 
       int proxyCount = 0;
       Iterator proxiesIterator = proxiesSet.iterator();
@@ -149,11 +154,12 @@ public class SignetProxy
       signet.commit();
    }
 
-   private static void list(Signet signet, PrivilegedSubject signetSubject)
+   private static void list(PrivilegedSubject signetSubject)
    {
       System.out.println("Current Signet system administration proxies:");
 
-      Set proxiesSet = signetSubject.getProxiesGranted(Status.ACTIVE, null, null);
+      Set proxiesSet = signetSubject.getProxiesGranted();
+      proxiesSet = filterProxies(proxiesSet, Status.ACTIVE);
 
       if (proxiesSet.size() == 0)
       {
@@ -172,4 +178,54 @@ public class SignetProxy
       }
    }
 
+   private static Set filterProxies(Set all, Status status)
+   {
+     Set statusSet = new HashSet();
+     statusSet.add(status);
+     return filterProxies(all, statusSet);
+   }
+
+   private static Set filterProxies(Set all, Set statusSet)
+   {
+     if (statusSet == null)
+     {
+       return all;
+     }
+
+     Set subset = new HashSet();
+     Iterator iterator = all.iterator();
+     while (iterator.hasNext())
+     {
+       Proxy candidate = (Proxy) (iterator.next());
+       if (statusSet.contains(candidate.getStatus()))
+       {
+         subset.add(candidate);
+       }
+     }
+
+     return subset;
+   }
+   
+   private static Set filterProxiesByGrantor
+     (Set                all,
+      PrivilegedSubject  grantor)
+   {
+     if (grantor == null)
+     {
+       return all;
+     }
+     
+     Set subset = new HashSet();
+     Iterator iterator = all.iterator();
+     while (iterator.hasNext())
+     {
+       Proxy candidate = (Proxy)(iterator.next());
+       if (candidate.getGrantor().equals(grantor))
+       {
+         subset.add(candidate);
+       }
+     }
+     
+     return subset;
+   }
 }

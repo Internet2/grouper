@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.14 2005-10-19 18:14:34 acohen Exp $
-$Date: 2005-10-19 18:14:34 $
+$Id: PrivilegedSubjectTest.java,v 1.15 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -87,8 +87,7 @@ public class PrivilegedSubjectTest extends TestCase
     		Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(2));
     PrivilegedSubject pSubject2 = signet.getPrivilegedSubject(subject2);
     
-    Set assignmentsForSubject2
-    	= pSubject2.getAssignmentsReceived((Status)null, null, null);
+    Set assignmentsForSubject2 = pSubject2.getAssignmentsReceived();
     
     Assignment assignmentForSubject2
     	= (Assignment)(Common.getSingleSetMember(assignmentsForSubject2));
@@ -102,8 +101,10 @@ public class PrivilegedSubjectTest extends TestCase
           (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(1));
     PrivilegedSubject pSubject1 = signet.getPrivilegedSubject(subject1);
     
-    Set proxiesFrom2to0
-      = pSubject0.getProxiesReceived((Status)null, null, pSubject2);
+    Set proxiesTo0
+      = pSubject0.getProxiesReceived();
+    Set proxiesFrom2to0 = Common.filterProxiesByGrantor(proxiesTo0, pSubject2);
+    
     Proxy proxyFrom2to0 = (Proxy)(Common.getSingleSetMember(proxiesFrom2to0));
     
     assertFalse(pSubject1.canEdit(proxyFrom2to0).getAnswer());
@@ -192,8 +193,7 @@ public class PrivilegedSubjectTest extends TestCase
     Assignment oldAssignment
       = (Assignment)
           (Common.getFirstSetMember
-            (pSubject0.getAssignmentsReceived
-              ((Status)null, null, null)));
+            (pSubject0.getAssignmentsReceived()));
     Set oldLimitValues = oldAssignment.getLimitValues();
     
     pSubject1.setActingAs(pSubject0);
@@ -234,9 +234,7 @@ public class PrivilegedSubjectTest extends TestCase
     
     Assignment oldAssignment
     	= (Assignment)
-    			(Common.getSingleSetMember
-    			  (pSubject2.getAssignmentsReceived
-    			    ((Status)null, null, null)));
+    			(Common.getSingleSetMember(pSubject2.getAssignmentsReceived()));
     Set oldLimitValues = oldAssignment.getLimitValues();
     
     Assignment newAssignment
@@ -305,7 +303,8 @@ public class PrivilegedSubjectTest extends TestCase
               (Signet.DEFAULT_SUBJECT_TYPE_ID,
                fixtures.makeSubjectId(granteeNumber)));
       
-      Set proxiesGranted = grantor.getProxiesGranted(Status.ACTIVE, null, null);
+      Set proxiesGranted = grantor.getProxiesGranted();
+      proxiesGranted = Common.filterProxies(proxiesGranted, Status.ACTIVE);
       assertEquals(1, proxiesGranted.size());
       
       Proxy proxyGranted = (Proxy)(Common.getSingleSetMember(proxiesGranted));
@@ -341,8 +340,8 @@ public class PrivilegedSubjectTest extends TestCase
               (Signet.DEFAULT_SUBJECT_TYPE_ID,
                fixtures.makeSubjectId(granteeNumber)));
       
-      Set proxiesReceived
-        = grantee.getProxiesReceived(Status.ACTIVE, null, null);
+      Set proxiesReceived = grantee.getProxiesReceived();
+      proxiesReceived = Common.filterProxies(proxiesReceived, Status.ACTIVE);
       assertEquals(1, proxiesReceived.size());
       
       Proxy proxyReceived = (Proxy)(Common.getSingleSetMember(proxiesReceived));

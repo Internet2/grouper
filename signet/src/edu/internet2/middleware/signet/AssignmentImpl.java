@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.31 2005-09-23 18:22:05 acohen Exp $
- $Date: 2005-09-23 18:22:05 $
+ $Id: AssignmentImpl.java,v 1.32 2005-11-11 00:24:01 acohen Exp $
+ $Date: 2005-11-11 00:24:01 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -63,7 +63,7 @@ implements Assignment
     // The Signet application can only do one thing: Grant a Proxy to a
     // System Administrator. The Signet Application can never directly
     // grant any Assignment to anyone.
-    if (grantor == PrivilegedSubjectImpl.SIGNET_SUBJECT)
+    if (grantor == this.getSignet().getSignetSubject())
     {
       Decision decision = new DecisionImpl(false, Reason.CANNOT_USE, null);
       throw new SignetAuthorityException(decision);

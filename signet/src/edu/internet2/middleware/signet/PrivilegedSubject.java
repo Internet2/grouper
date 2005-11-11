@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubject.java,v 1.22 2005-10-28 18:09:58 acohen Exp $
-$Date: 2005-10-28 18:09:58 $
+$Id: PrivilegedSubject.java,v 1.23 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -21,6 +21,13 @@ import edu.internet2.middleware.subject.Subject;
 
 public interface PrivilegedSubject extends Comparable
 {
+  /**
+   * Gets the unique identifier of this <code>PrivilegedSubject</code>.
+   * 
+   * @return the unique identifier of this <code>PrivilegedSubject</code>.
+   */
+  public Integer getId();
+  
  /**
   * This method returns a <code>Decision</code> object that describes whether
   * or not this PrivilegedSubject has authority to edit the argument
@@ -106,165 +113,37 @@ public interface PrivilegedSubject extends Comparable
   * Gets all the {@link Proxy}s which have been received by this
   * <code>PrivilegedSubject</code>.
   * 
-  * @param status The <code>Status</code> value to filter the result by. A
-  * <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Status</code>.
-  * 
-  * @param subsystem The <code>Subsystem</code> values to filter the result by.
-  * A <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Subsystem</code>.
-  * 
-  * @param grantor The <code>PrivilegedSubject</code> value to filter the
-  * result by. A <code>null</code> value returns all <code>Proxy</code>s
-  * regardless of grantor.
-  * 
   * @return all the {@link Proxy}s which have been received by this
   * <code>PrivilegedSubject</code>.
   */
- public Set getProxiesReceived
-   (Status status, Subsystem subsystem, PrivilegedSubject grantor);
- 
- /**
-  * Gets all the {@link Proxy}s which have been received by this
-  * <code>PrivilegedSubject</code>.
-  * 
-  * @param statusSet The <code>Status</code> values to filter the result by. A
-  * <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Status</code>.
-  * 
-  * @param subsystem The <code>Subsystem</code> values to filter the result by.
-  * A <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Subsystem</code>.
-  * 
-  * @param grantor The <code>PrivilegedSubject</code> value to filter the
-  * result by. A <code>null</code> value returns all <code>Proxy</code>s
-  * regardless of grantor.
-  * 
-  * @return all the {@link Proxy}s which have been received by this
-  * <code>PrivilegedSubject</code>.
-  */
- public Set getProxiesReceived
-   (Set statusSet, Subsystem subsystem, PrivilegedSubject grantor);
+ public Set getProxiesReceived();
  
  /**
   * Gets all the {@link Proxy}s which have been granted by this
   * <code>PrivilegedSubject</code>.
   * 
-  * @param status The <code>Status</code> value to filter the result by. A
-  * <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Status</code>.
-  * 
-  * @param subsystem The <code>Subsystem</code> values to filter the result by.
-  * A <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Subsystem</code>.
-  * 
-  * @param grantee The grantee <code>PrivilegedSubject</code> to filter the
-  * result by. A <code>null</code> value returns all <code>Proxy</code>s
-  * regardless of grantee.
-  * 
   * @return all the {@link Proxy}s which have been granted by this
   * <code>PrivilegedSubject</code>.
   */
- public Set getProxiesGranted
-   (Status status, Subsystem subsystem, PrivilegedSubject grantee);
- 
- /**
-  * Gets all the {@link Proxy}s which have been granted by this
-  * <code>PrivilegedSubject</code>.
-  * 
-  * @param statusSet The <code>Status</code> values to filter the result by. A
-  * <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Status</code>.
-  * 
-  * @param subsystem The <code>Subsystem</code> values to filter the result by.
-  * A <code>null</code> value returns all <code>Proxy</code>s regardless of
-  * <code>Subsystem</code>.
-  * 
-  * @param grantee The grantee <code>PrivilegedSubject</code> to filter the
-  * result by. A <code>null</code> value returns all <code>Proxy</code>s
-  * regardless of grantee.
-  * 
-  * @return all the {@link Proxy}s which have been granted by this
-  * <code>PrivilegedSubject</code>.
-  */
- public Set getProxiesGranted
-   (Set statusSet, Subsystem subsystem, PrivilegedSubject grantee);
+ public Set getProxiesGranted();
  
  /**
   * Gets all the Assignments which have been received by this
   * PrivilegedSubject.
-  * 
-  * @param status The Status value to filter the result by. A null value
-  * returns all Assignments regardless of Status.
-  * @param subsystem The Subsystem value to filter the result by. A null value
-  * returns all Assignments regardless of Subsystem.
-  * @param function The Function value to filter the result by. A null value
-  * returns all Assignments regardless of Function.
+  *
   * @return all the Assignments which have been received by this
   * PrivilegedSubject.
   */
- public Set getAssignmentsReceived
-   (Status status, Subsystem subsystem, Function function);
- 
- /**
-  * Gets all the Assignments which have been received by this
-  * PrivilegedSubject.
-  * 
-  * @param statusSet The Status values to filter the result by. A null value
-  * returns all Assignments regardless of Status.
-  * @param subsystem The Subsystem value to filter the result by. A null value
-  * returns all Assignments regardless of Subsystem.
-  * @param function The Function value to filter the result by. A null value
-  * returns all Assignments regardless of Function.
-  * @return all the Assignments which have been received by this
-  * PrivilegedSubject.
-  */
- public Set getAssignmentsReceived
-   (Set statusSet, Subsystem subsystem, Function function);
+ public Set getAssignmentsReceived();
  
  /**
   * Gets all the {@link Assignment}s which have been granted by this
   * <code>PrivilegedSubject</code>.
   * 
-  * @param status The <code>Status</code> value to filter the result by. A
-  * <code>null</code> value returns all <code>Assignments</code>s regardless
-  * of <code>Status</code>.
-  * 
-  * @param subsystem The <code>Subsystem</code> values to filter the result by.
-  * A <code>null</code> value returns all <code>Assignments</code>s regardless of
-  * <code>Subsystem</code>.
-  * 
-  * @param grantee The grantee <code>PrivilegedSubject</code> to filter the
-  * result by. A <code>null</code> value returns all <code>Assignments</code>s
-  * regardless of grantee.
-  * 
   * @return all the {@link Proxy}s which have been granted by this
   * <code>PrivilegedSubject</code>.
   */
- public Set getAssignmentsGranted
-   (Status status, Subsystem subsystem, PrivilegedSubject grantee);
- 
- /**
-  * Gets all the {@link Assignment}s which have been granted by this
-  * <code>PrivilegedSubject</code>.
-  * 
-  * @param statusSet The <code>Status</code> values to filter the result by. A
-  * <code>null</code> value returns all <code>Assignments</code>s regardless
-  * of <code>Status</code>.
-  * 
-  * @param subsystem The <code>Subsystem</code> values to filter the result by.
-  * A <code>null</code> value returns all <code>Assignments</code>s regardless of
-  * <code>Subsystem</code>.
-  * 
-  * @param grantee The grantee <code>PrivilegedSubject</code> to filter the
-  * result by. A <code>null</code> value returns all <code>Assignments</code>s
-  * regardless of grantee.
-  * 
-  * @return all the {@link Proxy}s which have been granted by this
-  * <code>PrivilegedSubject</code>.
-  */
- public Set getAssignmentsGranted
-   (Set statusSet, Subsystem subsystem, PrivilegedSubject grantee);
+ public Set getAssignmentsGranted();
  
  /**
   * Gets all of the {@link Subsystem}s that this <code>PrivilegedSubject</code>
@@ -341,8 +220,10 @@ public interface PrivilegedSubject extends Comparable
  /**
   * Gets the Subject which underlies this PrivilegedSubject.
   * @return the ID of the Subject which underlies this PrivilegedSubject.
+ * @throws ObjectNotFoundException
   */
- public Subject getSubject();
+ public Subject getSubject()
+ throws ObjectNotFoundException;
  
  /**
   * Gets the ID of the Subject which underlies this PrivilegedSubject.

@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.43 2005-11-03 22:33:14 acohen Exp $
-$Date: 2005-11-03 22:33:14 $
+$Id: Signet.java,v 1.44 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -105,10 +105,10 @@ public final class Signet
   */
  public static final String    ATTR_DISPLAYID                 = "~displayid";
 
- // This is the metadata that describes the pre-defined Signet
- // super-subject.
+  // This is the metadata that describes the pre-defined Signet
+  // application subject.
  
-// private static final String   SUPERSUBJECT_ID                = "SignetSuperSubject";
+  private static final String   SIGNET_SUBJECT_ID = "signet";
 
  private static SessionFactory sessionFactory;
  
@@ -154,6 +154,8 @@ public final class Signet
  private Logger                logger;
 
  private SourceManager sourceManager;
+ 
+ private PrivilegedSubject signetSubject;
  
  /**
   * This constructor builds the fundamental Signet factory object. It opens a
@@ -541,123 +543,6 @@ public final class Signet
 
  }
 
-
- // I really want to do away with this method, having the PrivilegedSubject
- // pick up its granted Assignments via Hibernate object-mapping. I just
- // haven't figured out how to do that yet. This method will be greatly
- // simplified when we re-introduce the PrivilegedSubject table, which will
- // use a simple synthetic key.
- //
- // I do, however, like this notion of returning an UnmodifiableSet instead of
- // an Array.
- Set getAssignmentsByGrantor(SubjectKey grantor)
- {
-   Query query;
-   List resultList;
-
-   try
-   {
-     query = session
-         .createQuery("from edu.internet2.middleware.signet.AssignmentImpl"
-             + " as assignment" + " where grantorID = :id"
-             + " and grantorTypeID = :type");
-
-     query.setString("id", grantor.getSubjectId());
-     query.setString("type", grantor.getSubjectTypeId());
-
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
-
-   Set resultSet = new HashSet(resultList);
-
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     Assignment assignment = (Assignment) (resultSetIterator.next());
-     ((AssignmentImpl) assignment).setSignet(this);
-   }
-
-   return resultSet;
- }
-
-
- // This method will be greatly simplified when we re-introduce the
- // PrivilegedSubject table, which will use a simple synthetic key.
- Set getProxiesByGrantor(SubjectKey grantor)
- {
-   Query query;
-   List resultList;
-
-   try
-   {
-     query = session
-         .createQuery("from edu.internet2.middleware.signet.ProxyImpl"
-             + " as proxy" + " where grantorID = :id"
-             + " and grantorTypeID = :type");
-
-     query.setString("id", grantor.getSubjectId());
-     query.setString("type", grantor.getSubjectTypeId());
-
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
-
-   Set resultSet = new HashSet(resultList);
-
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     Proxy proxy = (Proxy) (resultSetIterator.next());
-     ((ProxyImpl) proxy).setSignet(this);
-   }
-
-   return resultSet;
- }
-
-
- // This method will be greatly simplified when we re-introduce the
- // PrivilegedSubject table, which will use a simple synthetic key.
- Set getProxiesByGrantee(SubjectKey grantee)
- {
-   Query query;
-   List resultList;
-
-   try
-   {
-     query = session
-         .createQuery("from edu.internet2.middleware.signet.ProxyImpl"
-             + " as proxy" + " where granteeID = :id"
-             + " and granteeTypeID = :type");
-
-     query.setString("id", grantee.getSubjectId());
-     query.setString("type", grantee.getSubjectTypeId());
-
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
-
-   Set resultSet = new HashSet(resultList);
-
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     Proxy proxy = (Proxy) (resultSetIterator.next());
-     ((ProxyImpl) proxy).setSignet(this);
-   }
-
-   return resultSet;
- }
- 
  
   Set findDuplicates(Assignment assignment)
   {
@@ -670,18 +555,15 @@ public final class Signet
          .createQuery
            ("from edu.internet2.middleware.signet.AssignmentImpl"
             + " as assignment"
-            + " where granteeID = :granteeId"
-            + " and granteeTypeID = :granteeTypeId"
+            + " where granteeKey = :granteeKey"
             + " and functionID = :functionId"
             + " and subsystemID = :subsystemId"
             + " and scopeID = :scopeId"
             + " and scopeNodeID = :scopeNodeId"
             + " and assignmentID != :assignmentId");
 
-      query.setString
-        ("granteeId", assignment.getGrantee().getSubjectId());
-      query.setString
-        ("granteeTypeId", assignment.getGrantee().getSubjectTypeId());
+      query.setInteger
+        ("granteeKey", assignment.getGrantee().getId().intValue());
       query.setString
         ("functionId", assignment.getFunction().getId());
       query.setString
@@ -690,9 +572,8 @@ public final class Signet
         ("scopeId", assignment.getScope().getTree().getId());
       query.setString
         ("scopeNodeId", assignment.getScope().getId());
-      query.setInteger
-        ("assignmentId",
-         (assignment.getId() == null ? -1 : assignment.getId().intValue()));
+      
+      query.setParameter("assignmentId", assignment.getId(), Hibernate.INTEGER);
 
       resultList = query.list();
     }
@@ -745,21 +626,15 @@ public final class Signet
         = session.createQuery
             ("from edu.internet2.middleware.signet.ProxyImpl"
              + " as proxy"
-             + " where grantorID = :grantorId"
-             + " and grantorTypeID = :grantorTypeId"
-             + " and granteeID = :granteeId"
-             + " and granteeTypeID = :granteeTypeId"
+             + " where grantorKey = :grantorKey"
+             + " and granteeKey = :granteeKey"
              + " and subsystemID = :subsystemId"
              + " and proxyID != :proxyId");
 
-      query.setString
-        ("grantorId", proxy.getGrantor().getSubjectId());
-      query.setString
-        ("grantorTypeId", proxy.getGrantor().getSubjectTypeId());
-      query.setString
-        ("granteeId", proxy.getGrantee().getSubjectId());
-      query.setString
-        ("granteeTypeId", proxy.getGrantee().getSubjectTypeId());
+      query.setInteger
+        ("grantorKey", proxy.getGrantor().getId().intValue());
+      query.setInteger
+        ("granteeKey", proxy.getGrantee().getId().intValue());
       query.setString
         ("subsystemId", proxy.getSubsystem().getId());
       
@@ -875,45 +750,6 @@ public final class Signet
    }
 
    return children;
- }
-
- // I really want to do away with this method, having the PrivilegedSubject
- // pick up its granted Assignments via Hibernate object-mapping. I just
- // haven't figured out how to do that yet.
- //
- // I do, however, like this notion of returning an UnmodifiableSet instead of
- // an Array.
- Set getAssignmentsByGrantee(SubjectKey grantee)
- {
-   Query query;
-   List resultList;
-
-   try
-   {
-     query = session
-         .createQuery("from edu.internet2.middleware.signet.AssignmentImpl"
-             + " as assignment" + " where granteeID = :id"
-             + " and granteeTypeID = :type");
-
-     query.setString("id", grantee.getSubjectId());
-     query.setString("type", grantee.getSubjectTypeId());
-
-     resultList = query.list();
-   }
-   catch (HibernateException e)
-   {
-     throw new SignetRuntimeException(e);
-   }
-
-   Set resultSet = new HashSet(resultList);
-   Iterator resultSetIterator = resultSet.iterator();
-   while (resultSetIterator.hasNext())
-   {
-     AssignmentImpl assignment = (AssignmentImpl) (resultSetIterator.next());
-     assignment.setSignet(this);
-   }
-
-   return resultSet;
  }
 
  // I really want to do away with this method, having the Subsystem
@@ -1263,32 +1099,182 @@ public final class Signet
   */
  public PrivilegedSubject getPrivilegedSubject(Subject subject)
  {
-   return new PrivilegedSubjectImpl(this, subject);
- }
- 
- public PrivilegedSubject getSignetSubject()
- {
-   PrivilegedSubjectImpl.SIGNET_SUBJECT.setSignet(this);
-   return PrivilegedSubjectImpl.SIGNET_SUBJECT;
- }
-
-
- /**
-  * Gets a single PrivilegedSubject by type and ID.
-  * 
-  * @param subjectTypeId
-  * @param subjectId
-  * @return the specified PrivilegedSubject
-  * @throws ObjectNotFoundException
-  */
- public PrivilegedSubject getPrivilegedSubject(String subjectTypeId,
-     String subjectId) throws ObjectNotFoundException
- {
-   Subject subject = getSubject(subjectTypeId, subjectId);
-   PrivilegedSubject pSubject = getPrivilegedSubject(subject);
-
+   PrivilegedSubject pSubject;
+   
+   try
+   {
+     pSubject
+       = getPrivilegedSubject
+           (subject.getType().getName(), subject.getId());
+   }
+   catch (ObjectNotFoundException onfe)
+   {
+     // This should never happen - we already have the Subject in hand,
+     // so the method we just called should not have failed to find it.
+     throw new SignetRuntimeException(onfe);
+   }
+   
    return pSubject;
  }
+ 
+  public PrivilegedSubject getSignetSubject()
+  {
+    if (this.signetSubject == null)
+    {
+      Subject underlyingSubject
+        = new Subject()
+          {
+             public String getId()
+             {
+               return SIGNET_SUBJECT_ID;
+             }
+             
+             public String getSubjectTypeId()
+             {
+               return SubjectTypeEnum.APPLICATION.getName();
+             }
+             
+             public SubjectType getType()
+             {
+               return SubjectTypeEnum.APPLICATION;
+             }
+             
+             public String getName()
+             {
+               return "Signet";
+             }
+
+             public String getDescription()
+             {
+               return "the Signet system";
+             }
+
+             public String getAttributeValue(String name)
+             {
+               return null;
+             }
+
+             public Set getAttributeValues(String name)
+             {
+               return new HashSet();
+             }
+
+             public Map getAttributes()
+             {
+               return new HashMap();
+             }
+
+             public Source getSource()
+             {
+               return null;
+             }
+          };
+      try
+      {
+        this.signetSubject
+          = fetchPrivilegedSubject
+              (SubjectTypeEnum.APPLICATION.getName(), SIGNET_SUBJECT_ID);
+        ((PrivilegedSubjectImpl)this.signetSubject).setSubject
+          (underlyingSubject);
+      }
+      catch (ObjectNotFoundException onfe)
+      {
+        this.signetSubject = new PrivilegedSubjectImpl(this, underlyingSubject);
+      }
+    }
+
+    return this.signetSubject;
+  }
+
+  private PrivilegedSubject fetchPrivilegedSubject
+    (String subjectTypeId,
+     String subjectId)
+  throws ObjectNotFoundException
+  {
+    PrivilegedSubjectImpl pSubject;
+    Query                 query;
+    List                  resultList;
+
+    try
+    {
+      query
+        = session
+            .createQuery
+              ("from edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+               + " as privilegedSubject" + " where subjectID = :id"
+               + " and subjectTypeID = :type");
+
+       query.setString("id", subjectId);
+       query.setString("type", subjectTypeId);
+
+       resultList = query.list();
+     }
+     catch (HibernateException e)
+     {
+       throw new SignetRuntimeException(e);
+     }
+     
+     if (resultList.size() > 1)
+     {
+       throw new SignetRuntimeException
+         ("Found "
+          + resultList.size()
+          + " PrivilegedSubject instances in the database matching subjectId '"
+          + subjectId
+          + "' and subjectTypeId '"
+          + subjectTypeId
+          + "'. This compound value should be unique.");
+     }
+     
+     if (resultList.size() == 0)
+     {
+       throw new ObjectNotFoundException
+         ("Unable to fetch PrivilegedSubject with typeId '"
+          + subjectTypeId
+          + "' and subjectId '"
+          + subjectId
+          + "'.");
+     } 
+
+     // If we've gotten this far, then resultList.size() must be equal to 1.
+
+     Set resultSet = new HashSet(resultList);
+     Iterator resultSetIterator = resultSet.iterator();
+     pSubject= (PrivilegedSubjectImpl)(resultSetIterator.next());
+     pSubject.setSignet(this);
+     
+     return pSubject;
+  }
+
+  /**
+   * Gets a single PrivilegedSubject by type and ID.
+   * 
+   * @param subjectTypeId
+   * @param subjectId
+   * @return the specified PrivilegedSubject
+   * @throws ObjectNotFoundException
+   */
+  public PrivilegedSubject getPrivilegedSubject
+    (String subjectTypeId,
+     String subjectId)
+  throws ObjectNotFoundException
+  {
+    PrivilegedSubject pSubject;
+    
+    try
+    {
+      pSubject = this.fetchPrivilegedSubject(subjectTypeId, subjectId);
+    }
+    catch (ObjectNotFoundException onfe)
+    {
+      // We've got to fetch the specified Subject from the SubjectAdapter,
+      // and build a new PrivilegedSubject around it.
+      Subject subject = getSubject(subjectTypeId, subjectId);
+      pSubject = new PrivilegedSubjectImpl(this, subject);
+    }
+
+    return pSubject;
+  }
 
 
  /**
@@ -2211,8 +2197,11 @@ public final class Signet
    (PrivilegedSubject proxyGrantor,
     PrivilegedSubject proxyGrantee)
  {
-   Set proxies
-     = proxyGrantee.getProxiesReceived(Status.ACTIVE, null, proxyGrantor);
+   Set proxies = proxyGrantee.getProxiesReceived();
+   proxies = PrivilegedSubjectImpl.filterProxies(proxies, Status.ACTIVE);
+   proxies
+     = PrivilegedSubjectImpl.filterProxiesByGrantor(proxies, proxyGrantor);
+   
    Set extensibleProxies = new HashSet();
    
    Iterator proxiesIterator = proxies.iterator();

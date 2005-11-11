@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.33 2005-10-24 23:30:00 acohen Exp $
- $Date: 2005-10-24 23:30:00 $
+ $Id: PrivilegedSubjectImpl.java,v 1.34 2005-11-11 00:24:01 acohen Exp $
+ $Date: 2005-11-11 00:24:01 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -10,10 +10,8 @@ package edu.internet2.middleware.signet;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.set.UnmodifiableSet;
@@ -24,109 +22,42 @@ import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
  *  An object of this class describes the privileges possessed by a Subject
  * (e.g. a person).
  */
 
-/* These are the columns in the Subject table:
- * 
- * subjectTypeID
- * subjectID
- * name
- * description
- * displayID
- * createDatetime
- * createDbAccount
- * createUserID
- * createContext
- * modifyDatetime
- * modifyDbAccount
- * modifyUserID
- * modifyContext
- * comment
- */
-
 class PrivilegedSubjectImpl implements PrivilegedSubject
 {
   private Signet     signet;
-
-  private SubjectKey	subjectKey;
+  
+  private Integer    id;
   
   private Subject    subject;
 
+  private String  subjectTypeId;
+  private String  subjectId;
+  private String  subjectName;
+  private String  subjectDescription;
+
   private Set        assignmentsGranted;
-  private boolean    assignmentsGrantedNotYetFetched  = true;
-
   private Set        assignmentsReceived;
-  private boolean    assignmentsReceivedNotYetFetched = true;
-
   private Set        proxiesGranted;
-  private boolean    proxiesGrantedNotYetFetched  = true;
-
   private Set        proxiesReceived;
-  private boolean    proxiesReceivedNotYetFetched = true;
   
   private PrivilegedSubject actingAs = null;
-
-  static final PrivilegedSubjectImpl SIGNET_SUBJECT
-    = new PrivilegedSubjectImpl
-        (null,
-         new Subject()
-           {
-             public String getId()
-             {
-               return "signet";
-             }
-
-             public SubjectType getType()
-             {
-               return SubjectTypeEnum.APPLICATION;
-             }
-
-             public String getName()
-             {
-               return "Signet";
-             }
-
-             public String getDescription()
-             {
-               return "the Signet system";
-             }
-
-             public String getAttributeValue(String name)
-             {
-               return null;
-             }
-
-             public Set getAttributeValues(String name)
-             {
-               return new HashSet();
-             }
-
-             public Map getAttributes()
-             {
-               return new HashMap();
-             }
-
-             public Source getSource()
-             {
-               return null;
-             }
-           });
+  
+  /* The date and time this entity was last modified. */
+  private Date  modifyDatetime;
 
   /* Hibernate requires every persistent class to have a default
    * constructor.
    */
   public PrivilegedSubjectImpl()
   {
-  	this.subjectKey = new SubjectKey();
     this.assignmentsReceived = new HashSet();
     this.assignmentsGranted = new HashSet();
   }
@@ -135,11 +66,25 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     this.signet = signet;
     this.subject = subject;
-    this.subjectKey = new SubjectKey(subject);
+    
+    this.subjectName = subject.getName();
+    this.subjectDescription = subject.getDescription();
+    this.subjectId = subject.getId();
+    this.subjectTypeId = subject.getType().getName();
+    
     this.assignmentsReceived = new HashSet();
     this.assignmentsGranted = new HashSet();
     this.proxiesReceived = new HashSet();
     this.proxiesGranted = new HashSet();
+    
+    // PrivilegedSubject is the only Signet entity which is automatically
+    // persisted, because it's just a record of a query to the Subject adapter.
+    signet.save(this);
+  }
+  
+  Signet getSignet()
+  {
+    return this.signet;
   }
 
 
@@ -194,7 +139,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     // The Signet application can only do one thing: Grant (or edit) a Proxy to
     // a System Administrator. The Signet Application can never directly
     // grant (or edit) any Assignment to anyone.
-    if (this.equals(SIGNET_SUBJECT)
+    if (this.equals(this.getSignet().getSignetSubject())
         && (grantableInstance instanceof Assignment))
     {
       return new DecisionImpl(false, Reason.CANNOT_USE, null);
@@ -418,10 +363,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Collection assignments = new HashSet();
 
     Iterator iterator
-      = this
-          .getEffectiveEditor()
-            .getAssignmentsReceived(Status.ACTIVE, null, null)
-              .iterator();
+      = filterAssignments
+          (this.getEffectiveEditor().getAssignmentsReceived(), Status.ACTIVE)
+                .iterator();
     
     while (iterator.hasNext())
     {
@@ -445,8 +389,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Iterator iterator
       = this
           .getEffectiveEditor()
-            .getAssignmentsReceived((Status)null, null, null)
+            .getAssignmentsReceived()
               .iterator();
+    
     while (iterator.hasNext())
     {
       Assignment assignment = (Assignment) (iterator.next());
@@ -472,10 +417,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     Set functions = new HashSet();
 
     Iterator iterator
-      = this
-          .getEffectiveEditor()
-            .getAssignmentsReceived(Status.ACTIVE, null, null)
-              .iterator();
+      = filterAssignments
+          (this.getEffectiveEditor().getAssignmentsReceived(),
+           Status.ACTIVE)
+         .iterator();
     
     while (iterator.hasNext())
     {
@@ -521,8 +466,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     else
     {
       Set proxiesReceived
-        = this.getProxiesReceived
-            (Status.ACTIVE, null, this.getEffectiveEditor());
+        = filterProxies
+            (this.getProxiesReceived(), Status.ACTIVE);
+      proxiesReceived
+        = filterProxiesByGrantor(proxiesReceived, this.getEffectiveEditor());
       Iterator proxiesReceivedIterator = proxiesReceived.iterator();
 
       while (proxiesReceivedIterator.hasNext())
@@ -600,11 +547,12 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
       
       return grantableSubsystems;
     }
-    else if (this.getEffectiveEditor().equals(SIGNET_SUBJECT))
+    else if (this.getEffectiveEditor().equals(this.getSignet().getSignetSubject()))
     {
       // We are acting for the Signet subject.
-      Set proxies
-        = this.getProxiesReceived(Status.ACTIVE, null, SIGNET_SUBJECT);
+      Set proxies = this.getProxiesReceived();
+      proxies = filterProxies(proxies, Status.ACTIVE);
+      proxies = filterProxiesByGrantor(proxies, this.getSignet().getSignetSubject());
       
       Iterator proxiesIterator = proxies.iterator();
       while (proxiesIterator.hasNext())
@@ -644,9 +592,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     else
     {
       // We are acting for some other subject who is not the Signet subject.
-      Set proxies
-        = this.getProxiesReceived
-            (Status.ACTIVE, null, this.getEffectiveEditor());
+      Set proxies = this.getProxiesReceived();
+      proxies = filterProxies(proxies, Status.ACTIVE);
+      proxies = filterProxiesByGrantor(proxies, this.getEffectiveEditor());
       
       Set proxiedSubsystems = new HashSet();
     
@@ -713,18 +661,18 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     // First, check to see if the we are the Signet superSubject.
     // That Subject can grant any privilege in any category to anyone.
-    if (this.getEffectiveEditor().equals(SIGNET_SUBJECT))
+    if (this.getEffectiveEditor().equals(this.getSignet().getSignetSubject()))
     {
       // We're either the SignetSuperSubject or we're "acting as" that
       // esteemed personage. If we're just "acting as", then we need to make
       // sure that our set of active Proxies actually includes this Subystem.
       
-      if ((this.equals(SIGNET_SUBJECT))
-          || (this.getProxiesReceived
-               (Status.ACTIVE,
-                subsystem,
-                SIGNET_SUBJECT)
-              .size() > 0))
+      Set proxies = this.getProxiesReceived();
+      proxies = filterProxies(proxies, Status.ACTIVE);
+      proxies = filterProxies(proxies, subsystem);
+      proxies = filterProxiesByGrantor(proxies, this.getSignet().getSignetSubject());
+      
+      if ((this.equals(this.getSignet().getSignetSubject())) || (proxies.size() > 0))
       {
         return true;
       }
@@ -756,103 +704,30 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    * @return Returns the assignmentsGranted.
    * @throws ObjectNotFoundException
    */
-  public Set getAssignmentsGranted
-    (Status             status,
-     Subsystem          subsystem,
-     PrivilegedSubject  grantee)
+  public Set getAssignmentsGranted()
   {
-    Set statusSet = null;
+    // Make sure that all of the members of this Set have Signet instances.
+    Iterator iterator = this.assignmentsGranted.iterator();
+    while (iterator.hasNext())
+    {
+      AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
+      assignment.setSignet(this.getSignet());
+    }
     
-    if (status != null)
-    {
-      statusSet = new HashSet();
-      statusSet.add(status);
-    }
-    return this.getAssignmentsGranted(statusSet, subsystem, grantee);
-  }
-
-  /**
-   * @return Returns the assignmentsGranted.
-   * @throws ObjectNotFoundException
-   */
-  public Set getAssignmentsGranted
-    (Set                statusSet,
-     Subsystem          subsystem,
-     PrivilegedSubject  grantee)
-  {
-    // I really want to handle this purely through Hibernate mappings, but
-    // I haven't figured out how yet. When we switch to a persistent
-    // PrivilegedSubject with its own synthetic, simple ID, this code will
-    // be simplified considerably.
-
-    if (this.assignmentsGrantedNotYetFetched == true)
-    {
-        // We have not yet fetched the assignments granted by this
-        // PrivilegedSubject from the database. Let's make a copy of
-        // whatever in-memory assignments we DO have, because they represent
-        // granted-but-not-necessarily-yet-persisted assignments.
-        Set inMemoryAssignments = this.assignmentsGranted;
-        this.assignmentsGranted = this.signet
-            .getAssignmentsByGrantor(this.subjectKey);
-        this.assignmentsGranted.addAll(inMemoryAssignments);
-
-        this.assignmentsGrantedNotYetFetched = false;
-    }
-
-    Set resultSet = UnmodifiableSet.decorate(this.assignmentsGranted);
-    resultSet = filterAssignments(resultSet, statusSet);
-    resultSet = filterAssignments(resultSet, subsystem);
-    resultSet = filterAssignmentsByGrantee(resultSet, grantee);
-
-    return resultSet;
+    return this.assignmentsGranted;
   }
   
-  public Set getProxiesGranted
-    (Status             status,
-     Subsystem          subsystem,
-     PrivilegedSubject  grantee)
+  public Set getProxiesGranted()
   {
-    Set statusSet = null;
-    
-    if (status != null)
+    // Make sure that all of the members of this Set have Signet instances.
+    Iterator iterator = this.proxiesGranted.iterator();
+    while (iterator.hasNext())
     {
-      statusSet = new HashSet();
-      statusSet.add(status);
+      ProxyImpl proxy = (ProxyImpl)(iterator.next());
+      proxy.setSignet(this.getSignet());
     }
     
-    return getProxiesGranted(statusSet, subsystem, grantee);
-  }
-  
-  public Set getProxiesGranted
-    (Set                statusSet,
-     Subsystem          subsystem,
-     PrivilegedSubject  grantee)
-  {
-    // I really want to handle this purely through Hibernate mappings, but
-    // I haven't figured out how yet. When we switch to a persistent
-    // PrivilegedSubject with its own synthetic, simple ID, this code will
-    // be simplified considerably.
-
-    if (this.proxiesGrantedNotYetFetched == true)
-    {
-        // We have not yet fetched the Proxies granted by this
-        // PrivilegedSubject from the database. Let's make a copy of
-        // whatever in-memory Proxies we DO have, because they represent
-        // granted-but-not-necessarily-yet-persisted Proxies.
-        Set inMemoryProxies = this.proxiesGranted;
-        this.proxiesGranted = this.signet
-            .getProxiesByGrantor(this.subjectKey);
-        this.proxiesGranted.addAll(inMemoryProxies);
-
-        this.proxiesGrantedNotYetFetched = false;
-    }
-
-    Set resultSet = UnmodifiableSet.decorate(this.proxiesGranted);
-    resultSet = filterProxies(resultSet, statusSet);
-    resultSet = filterProxies(resultSet, subsystem);
-    resultSet = filterProxiesByGrantee(resultSet, grantee);
-
-    return resultSet;
+    return this.proxiesGranted;
   }
 
   /**
@@ -862,104 +737,64 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     this.assignmentsGranted = assignmentsGranted;
   }
-
-  /**
-   * @return Returns the assignmentsReceived.
-   * @throws ObjectNotFoundException
-   */
-  public Set getAssignmentsReceived
-    (Status status, Subsystem subsystem, Function function)
+  
+  // This method is for use only by Hibernate.
+  private void setProxiesGranted(Set proxies)
   {
-    Set statusSet = null;
-    
-    if (status != null)
-    {
-      statusSet = new HashSet();
-      statusSet.add(status);
-    }
-    
-    return getAssignmentsReceived(statusSet, subsystem, function);
+    this.proxiesGranted = proxies;
+  }
+  
+  // This method is for use only by Hibernate.
+  private void setProxiesReceived(Set proxies)
+  {
+    this.proxiesReceived = proxies;
   }
 
   /**
    * @return Returns the assignmentsReceived.
    * @throws ObjectNotFoundException
    */
-  public Set getAssignmentsReceived
-    (Set statusSet, Subsystem subsystem, Function function)
+  public Set getAssignmentsReceived()
   {
-    // I really want to handle this purely through Hibernate
-    // mappings, but I haven't figured out how yet.
-
-    if (this.assignmentsReceivedNotYetFetched == true)
+    // Make sure that all of the members of this Set have Signet instances.
+    Iterator iterator = this.assignmentsReceived.iterator();
+    while (iterator.hasNext())
     {
-        // We have not yet fetched the assignments received by this
-        // PrivilegedSubject from the database. Let's make a copy of
-        // whatever in-memory assignments we DO have, because they represent
-        // received-but-not-necessarily-yet-persisted assignments.
-        Set unsavedAssignmentsReceived = this.assignmentsReceived;
-
-        this.assignmentsReceived = this.signet
-            .getAssignmentsByGrantee(this.subjectKey);
-        this.assignmentsReceived.addAll(unsavedAssignmentsReceived);
-
-        this.assignmentsReceivedNotYetFetched = false;
-    }
-
-    Set resultSet = UnmodifiableSet.decorate(this.assignmentsReceived);
-    resultSet = filterAssignments(resultSet, statusSet);
-    resultSet = filterAssignments(resultSet, subsystem);
-    resultSet = filterAssignments(resultSet, function);
-
-    return resultSet;
-  }
-
-  public Set getProxiesReceived
-    (Status status, Subsystem subsystem, PrivilegedSubject grantor)
-  {
-    Set statusSet = null;
-    
-    if (status != null)
-    {
-      statusSet = new HashSet();
-      statusSet.add(status);
+      AssignmentImpl assignment = (AssignmentImpl)(iterator.next());
+      assignment.setSignet(this.getSignet());
     }
     
-    return this.getProxiesReceived(statusSet, subsystem, grantor);
+    return this.assignmentsReceived;
   }
 
-  public Set getProxiesReceived
-    (Set statusSet, Subsystem subsystem, PrivilegedSubject grantor)
+  public Set getProxiesReceived()
   {
-    // I really want to handle this purely through Hibernate
-    // mappings, but I haven't figured out how yet. This method will be
-    // considerably simplified when the PrivilegedSubject table, which will
-    // use a simple synthetic key, is re-instated.
-
-    if (this.proxiesReceivedNotYetFetched == true)
+    // Make sure that all of the members of this Set have Signet instances.
+    Iterator iterator = this.proxiesReceived.iterator();
+    while (iterator.hasNext())
     {
-        // We have not yet fetched the proxies received by this
-        // PrivilegedSubject from the database. Let's make a copy of
-        // whatever in-memory proxies we DO have, because they represent
-        // received-but-not-necessarily-yet-persisted proxies.
-        Set unsavedProxiesReceived = this.proxiesReceived;
-
-        this.proxiesReceived
-          = this.signet.getProxiesByGrantee(this.subjectKey);
-        this.proxiesReceived.addAll(unsavedProxiesReceived);
-
-        this.proxiesReceivedNotYetFetched = false;
+      ProxyImpl proxy = (ProxyImpl)(iterator.next());
+      proxy.setSignet(this.getSignet());
     }
-
-    Set resultSet = UnmodifiableSet.decorate(this.proxiesReceived);
-    resultSet = filterProxies(resultSet, statusSet);
-    resultSet = filterProxies(resultSet, subsystem);
-    resultSet = filterProxiesByGrantor(resultSet, grantor);
-
-    return resultSet;
+    
+    return this.proxiesReceived;
+  }
+  
+  static Set filterAssignments(Set all, Status status)
+  {
+    Set statusSet = new HashSet();
+    statusSet.add(status);
+    return filterAssignments(all, statusSet);
+  }
+  
+  static Set filterProxies(Set all, Status status)
+  {
+    Set statusSet = new HashSet();
+    statusSet.add(status);
+    return filterProxies(all, statusSet);
   }
 
-  private Set filterAssignments(Set all, Set statusSet)
+  static Set filterAssignments(Set all, Set statusSet)
   {
     if (statusSet == null)
     {
@@ -980,7 +815,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
 
-  private Set filterProxies(Set all, Set statusSet)
+  static Set filterProxies(Set all, Set statusSet)
   {
     if (statusSet == null)
     {
@@ -1001,7 +836,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
   
-  private Set filterAssignmentsByGrantee
+  static Set filterAssignmentsByGrantee
     (Set                all,
      PrivilegedSubject  grantee)
   {
@@ -1047,7 +882,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 //    return subset;
 //  }
   
-  private Set filterProxiesByGrantee
+  static Set filterProxiesByGrantee
     (Set                all,
      PrivilegedSubject  grantee)
   {
@@ -1070,7 +905,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
   
-  private Set filterProxiesByGrantor
+  static Set filterProxiesByGrantor
     (Set                all,
      PrivilegedSubject  grantor)
   {
@@ -1093,7 +928,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
 
-  private Set filterAssignments(Set all, Subsystem subsystem)
+  static Set filterAssignments(Set all, Subsystem subsystem)
   {
     if (subsystem == null)
     {
@@ -1114,7 +949,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
 
-  private Set filterProxies(Set all, Subsystem subsystem)
+  static Set filterProxies(Set all, Subsystem subsystem)
   {
     if (subsystem == null)
     {
@@ -1136,7 +971,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     return subset;
   }
 
-  private Set filterAssignments(Set all, Function function)
+  static Set filterAssignments(Set all, Function function)
   {
     if (function == null)
     {
@@ -1168,8 +1003,15 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.PrivilegedSubject#getSubject()
    */
-  public Subject getSubject() {
-    return this.subject;
+  public Subject getSubject()
+  throws ObjectNotFoundException
+  {
+    if (this.subject != null)
+    {
+      return this.subject;
+    }
+    
+    return this.getSignet().getSubject(this.subjectTypeId, this.subjectId);
   }
 
   /* (non-Javadoc)
@@ -1177,17 +1019,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public String getSubjectId()
   {
-    String subjectId;
-    
-    if (this.subject == null)
-    {
-      subjectId = null;
-    }
-    else
-    {
-      subjectId = this.subject.getId();
-    }
-    
   	return subjectId;
   }
 
@@ -1196,26 +1027,52 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public String getSubjectTypeId()
   {
-    if (this.subject == null)
-    {
-      return null;
-    }
-
-  	return this.subject.getType().getName();
+    return subjectTypeId;
+  }
+  
+  void setSubjectId(String subjectId)
+  {
+    this.subjectId = subjectId;
+  }
+  
+  void setSubjectTypeId(String subjectTypeId)
+  {
+    this.subjectTypeId = subjectTypeId;
+  }
+  
+  void setSubject(Subject subject)
+  {
+    this.subject = subject;
+    this.subjectId = subject.getId();
+    this.subjectTypeId = subject.getType().getName();
   }
   
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.PrivilegedSubject#getName()
    */
-  public String getName() {
-    return this.subject.getName();
+  public String getName()
+  {
+    return this.subjectName;
+  }
+  
+  // This method is for use only by Hibernate.
+  private void setName(String name)
+  {
+    this.subjectName = name;
   }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.PrivilegedSubject#getDescription()
    */
-  public String getDescription() {
-    return this.subject.getDescription();
+  public String getDescription()
+  {
+    return this.subjectDescription;
+  }
+  
+  // This method is for use only by Hibernate.
+  private void setDescription(String description)
+  {
+    this.subjectDescription = description;
   }
   
   public Assignment grant
@@ -1288,9 +1145,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
    */
   public String toString()
   {
-    String name = this.subject.getName();
-    String typeId = this.subject.getType().getName();
-    String id = this.subject.getId();
+    String name = this.getName();
+    String typeId = this.getSubjectTypeId();
+    String id = this.getSubjectId();
 
     return "[name='" + name + "',typeId ='" + typeId + "',id ='" + id + "']";
   }
@@ -1303,9 +1160,9 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     String thisName = null;
     String otherName = null;
 
-    thisName = this.subject.getName();
-    otherName = ((PrivilegedSubject) o).getSubject().getName();
-
+    thisName = this.getName();
+    otherName = ((PrivilegedSubjectImpl) o).getName();
+    
     return thisName.compareToIgnoreCase(otherName);
   }
 
@@ -1342,12 +1199,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
 
     Iterator assignmentsReceivedIterator;
 
-    assignmentsReceivedIterator
-      = this
-          .getEffectiveEditor()
-            .getAssignmentsReceived
-              (Status.ACTIVE, function.getSubsystem(), function)
-                .iterator();
+    Set assignments = this.getAssignmentsReceived();
+    assignments = filterAssignments(assignments, Status.ACTIVE);
+    assignments = filterAssignments(assignments, function.getSubsystem());
+    assignments = filterAssignments(assignments, function);
+    assignmentsReceivedIterator = assignments.iterator();
     
     while (assignmentsReceivedIterator.hasNext())
     {
@@ -1456,7 +1312,8 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   {
     Set privileges = new HashSet();
     
-    Set assignments = this.getAssignmentsReceived(Status.ACTIVE, null, null);
+    Set assignments = this.getAssignmentsReceived();
+    assignments = filterAssignments(assignments, Status.ACTIVE);
     Iterator assignmentsIterator = assignments.iterator();
     while (assignmentsIterator.hasNext())
     {
@@ -1510,7 +1367,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     (PrivilegedSubject  actingAs,
      Subsystem          subsystem)
   {
-    Set proxies = this.getProxiesReceived(Status.ACTIVE, subsystem, actingAs);
+    Set proxies = this.getProxiesReceived();
+    proxies = filterProxies(proxies, Status.ACTIVE);
+    proxies = filterProxies(proxies, subsystem);
+    proxies = filterProxiesByGrantor(proxies, actingAs);
     
     return (proxies.size() > 0);
   }
@@ -1520,9 +1380,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
      Subsystem          subsystem,
      Reason[]           returnReason)
   {
-    Set candidates
-      = this.getProxiesReceived
-          (Status.ACTIVE, subsystem, fromGrantor);
+    Set candidates = this.getProxiesReceived();
+    candidates = filterProxies(candidates, Status.ACTIVE);
+    candidates = filterProxies(candidates, subsystem);
+    candidates = filterProxiesByGrantor(candidates, fromGrantor);
     
     if (candidates.size() == 0)
     {
@@ -1551,9 +1412,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
      Subsystem          subsystem,
      Reason[]           returnReason)
   {
-    Set candidates
-      = this.getProxiesReceived
-          (Status.ACTIVE, subsystem, pSubject.getEffectiveEditor());
+    Set candidates = this.getProxiesReceived();
+    candidates = filterProxies(candidates, Status.ACTIVE);
+    candidates = filterProxies(candidates, subsystem);
+    candidates
+      = filterProxiesByGrantor(candidates, pSubject.getEffectiveEditor());
     
     if (candidates.size() == 0)
     {
@@ -1605,8 +1468,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   boolean canUseProxy
     (PrivilegedSubject proxyGrantor, Subsystem subsystem)
   {
-    Set proxies
-      = this.getProxiesReceived(Status.ACTIVE, subsystem, proxyGrantor);
+    Set proxies = this.getProxiesReceived();
+    proxies = filterProxies(proxies, Status.ACTIVE);
+    proxies = filterProxies(proxies, subsystem);
+    proxies = filterProxiesByGrantor(proxies, proxyGrantor);
     
     Iterator proxiesIterator = proxies.iterator();
     while (proxiesIterator.hasNext())
@@ -1632,8 +1497,10 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   boolean canExtendProxy
     (PrivilegedSubject proxyGrantor, Subsystem subsystem)
   {
-    Set proxies
-      = this.getProxiesReceived(Status.ACTIVE, subsystem, proxyGrantor);
+    Set proxies = this.getProxiesReceived();
+    proxies = filterProxies(proxies, Status.ACTIVE);
+    proxies = filterProxies(proxies, subsystem);
+    proxies = filterProxiesByGrantor(proxies, proxyGrantor);
     
     Iterator proxiesIterator = proxies.iterator();
     while (proxiesIterator.hasNext())
@@ -1648,5 +1515,31 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     // If we've gotten this far, it means we have no useable, active Proxies
     // from ProxyGrantor that are applicable to the specified Subsystem.
     return false;
+  }
+  
+  public Integer getId()
+  {
+    return this.id;
+  }
+  
+  void setId(Integer id)
+  {
+    this.id = id;
+  }
+  
+  /**
+   * @return Returns the date and time this entity was last modified.
+   */
+  public final Date getModifyDatetime()
+  {
+    return this.modifyDatetime;
+  }
+  
+  /**
+   * @param modifyDatetime The modifyDatetime to set.
+   */
+  final void setModifyDatetime(Date modifyDatetime)
+  {
+    this.modifyDatetime = modifyDatetime;
   }
 }

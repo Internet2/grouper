@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.44 2005-10-25 22:57:07 acohen Exp $
-  $Date: 2005-10-25 22:57:07 $
+  $Id: Common.java,v 1.45 2005-11-11 00:24:01 acohen Exp $
+  $Date: 2005-11-11 00:24:01 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -258,7 +258,8 @@ public class Common
     StringBuffer outStr = new StringBuffer();
     
     Set proxiesReceived
-      = currentLoggedInPrivilegedSubject.getProxiesReceived(Status.ACTIVE, null, null);
+      = currentLoggedInPrivilegedSubject.getProxiesReceived();
+    proxiesReceived = filterProxies(proxiesReceived, Status.ACTIVE);
     
     if (proxiesReceived.size() > 0)
     {    
@@ -316,8 +317,8 @@ public class Common
     outStr.append("  myself (" + pSubject.getName() + ")\n");
     outStr.append("</OPTION>\n");
     
-    Set proxiesReceived
-      = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
+    Set proxiesReceived = pSubject.getProxiesReceived();
+    proxiesReceived = filterProxies(proxiesReceived, Status.ACTIVE);
     Iterator proxiesReceivedIterator = proxiesReceived.iterator();
     
     // Get a Set of unique Proxy-grantors to choose from.
@@ -443,7 +444,7 @@ public class Common
     
       if ((searchString == null)
           || (searchString.equals(""))
-          || (pSubject.getSubject().getName().toUpperCase().indexOf
+          || (pSubject.getName().toUpperCase().indexOf
                (searchString.toUpperCase())
                	 != -1))
       {
@@ -1355,13 +1356,19 @@ public class Common
     
     if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
     {
-      proxies = pSubject.getProxiesGranted(Status.ACTIVE, null, null);
-      assignments = pSubject.getAssignmentsGranted(Status.ACTIVE, null, null);
+      proxies = pSubject.getProxiesGranted();
+      proxies = filterProxies(proxies, Status.ACTIVE);
+      
+      assignments = pSubject.getAssignmentsGranted();
+      assignments = filterAssignments(assignments, Status.ACTIVE);
     }
     else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
     {
-      proxies = pSubject.getProxiesReceived(Status.ACTIVE, null, null);
-      assignments = pSubject.getAssignmentsReceived(Status.ACTIVE, null, null);
+      proxies = pSubject.getProxiesReceived();
+      proxies = filterProxies(proxies, Status.ACTIVE);
+      
+      assignments = pSubject.getAssignmentsReceived();
+      assignments = filterAssignments(assignments, Status.ACTIVE);
     }
     else
     {
@@ -1496,7 +1503,11 @@ public class Common
     statusSet.add(Status.ACTIVE);
     statusSet.add(Status.PENDING);
     
-    return pSubject.getAssignmentsGranted(statusSet, subsystem, null);
+    Set assignments = pSubject.getAssignmentsGranted();
+    assignments = filterAssignments(assignments, statusSet);
+    assignments = filterAssignments(assignments, subsystem);
+    
+    return assignments;
   }
   
   public static Set getAssignmentsReceivedForReport
@@ -1506,7 +1517,11 @@ public class Common
     statusSet.add(Status.ACTIVE);
     statusSet.add(Status.PENDING);
     
-    return pSubject.getAssignmentsReceived(statusSet, subsystem, null);
+    Set assignments = pSubject.getAssignmentsReceived();
+    assignments = filterAssignments(assignments, statusSet);
+    assignments = filterAssignments(assignments, subsystem);
+    
+    return assignments;
   }
   
   public static Set getProxiesGrantedForReport
@@ -1516,7 +1531,11 @@ public class Common
     statusSet.add(Status.ACTIVE);
     statusSet.add(Status.PENDING);
     
-    return pSubject.getProxiesGranted(statusSet, subsystem, null);
+    Set proxies = pSubject.getProxiesGranted();
+    proxies = filterProxies(proxies, statusSet);
+    proxies = filterProxies(proxies, subsystem);
+    
+    return proxies;
   }
   
   public static Set getProxiesReceivedForReport
@@ -1526,7 +1545,11 @@ public class Common
     statusSet.add(Status.ACTIVE);
     statusSet.add(Status.PENDING);
     
-    return pSubject.getProxiesReceived(statusSet, subsystem, null);
+    Set proxies = pSubject.getProxiesReceived();
+    proxies = filterProxies(proxies, statusSet);
+    proxies = filterProxies(proxies, subsystem);
+    
+    return proxies;
   }
   
   public static Set removeGroups(Set setWithGroups)
@@ -1538,7 +1561,8 @@ public class Common
       PrivilegedSubject candidate
         = (PrivilegedSubject)(setWithGroupsIterator.next());
       
-      if (!(candidate.getSubject().getType().equals(SubjectTypeEnum.GROUP)))
+      if (!(candidate.getSubjectTypeId().equals
+             (SubjectTypeEnum.GROUP.getName())))
       {
         setWithoutGroups.add(candidate);
       }
@@ -1564,6 +1588,105 @@ public class Common
     }
     
     return displayName;
+  }
+  
+  static Set filterProxies(Set all, Status status)
+  {
+    Set statusSet = new HashSet();
+    statusSet.add(status);
+    return filterProxies(all, statusSet);
+  }
+  
+  static Set filterAssignments(Set all, Status status)
+  {
+    Set statusSet = new HashSet();
+    statusSet.add(status);
+    return filterAssignments(all, statusSet);
+  }
+
+  static Set filterAssignments(Set all, Set statusSet)
+  {
+    if (statusSet == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment) (iterator.next());
+      if (statusSet.contains(candidate.getStatus()))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  static Set filterAssignments(Set all, Subsystem subsystem)
+  {
+    if (subsystem == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment) (iterator.next());
+      if (candidate.getFunction().getSubsystem().equals(subsystem))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  static Set filterProxies(Set all, Set statusSet)
+  {
+    if (statusSet == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy) (iterator.next());
+      if (statusSet.contains(candidate.getStatus()))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  static Set filterProxies(Set all, Subsystem subsystem)
+  {
+    if (subsystem == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy) (iterator.next());
+      if ((candidate.getSubsystem() == null)
+          || candidate.getSubsystem().equals(subsystem))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
   }
   
 //  public static Set getExtensibleProxies

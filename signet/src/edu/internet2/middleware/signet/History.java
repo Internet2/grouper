@@ -1,6 +1,6 @@
 /*--
-$Id: History.java,v 1.2 2005-09-19 06:37:04 acohen Exp $
-$Date: 2005-09-19 06:37:04 $
+$Id: History.java,v 1.3 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -21,17 +21,10 @@ abstract class History
   protected Integer historyId;
   private Date historyDatetime = new Date();
 
-  private String            grantorId;
-  private String            grantorTypeId;
-
-  private String            proxySubjectId;
-  private String            proxySubjectTypeId;
-  
-  private String            granteeId;
-  private String            granteeTypeId;
-  
-  private String            revokerId;
-  private String            revokerTypeId;
+  private PrivilegedSubject  grantor;
+  private PrivilegedSubject  proxySubject;  
+  private PrivilegedSubject  grantee;
+  private PrivilegedSubject  revoker;
   
   private Date              effectiveDate;
   private Date              expirationDate;
@@ -90,48 +83,49 @@ abstract class History
     this.historyId = historyId;
   }
 
-  void setGrantee(PrivilegedSubject grantee)
+  protected void setGrantee(PrivilegedSubject grantee)
   {
-    this.granteeId = grantee.getSubjectId();
-    this.granteeTypeId = grantee.getSubjectTypeId();
+    this.grantee = grantee;
   }
   
   /**
    * @param grantor The grantor to set.
    */
-  void setGrantor(PrivilegedSubject grantor)
+  protected void setGrantor(PrivilegedSubject grantor)
   {
-    this.grantorId = grantor.getSubjectId();
-    this.grantorTypeId = grantor.getSubjectTypeId();
+    this.grantor = grantor;
   }
 
-  void setRevoker(PrivilegedSubject revoker)
+  protected void setRevoker(PrivilegedSubject revoker)
   {
-    if (revoker != null)
-    {
-      this.revokerId = revoker.getSubjectId();
-      this.revokerTypeId = revoker.getSubjectTypeId();
-    }
-    else
-    {
-      this.revokerId = null;
-      this.revokerTypeId = null;
-    }
+    this.revoker = revoker;
   }
 
-  void setProxySubject(PrivilegedSubject proxySubject)
+  protected void setProxySubject(PrivilegedSubject proxySubject)
   {
-    if (proxySubject != null)
-    {
-      this.proxySubjectId = proxySubject.getSubjectId();
-      this.proxySubjectTypeId = proxySubject.getSubjectTypeId();
-    }
-    else
-    {
-      this.proxySubjectId = null;
-      this.proxySubjectTypeId = null;
-    }
+    this.proxySubject = proxySubject;
   }
+  
+  protected PrivilegedSubject getGrantor()
+  {
+    return this.grantor;
+  }
+  
+  protected PrivilegedSubject getGrantee()
+  {
+    return this.grantee;
+  }
+  
+  protected PrivilegedSubject getRevoker()
+  {
+    return this.revoker;
+  }
+  
+  protected PrivilegedSubject getProxySubject()
+  {
+    return this.proxySubject;
+  }
+  
   
   Date getEffectiveDate()
   {
@@ -171,86 +165,6 @@ abstract class History
   void setInstanceNumber(int instanceNumber)
   {
     this.instanceNumber = instanceNumber;
-  }
-  
-  String getGranteeId()
-  {
-    return this.granteeId;
-  }
-  
-  void setGranteeId(String granteeId)
-  {
-    this.granteeId = granteeId;
-  }
-  
-  String getGranteeTypeId()
-  {
-    return this.granteeTypeId;
-  }
-  
-  void setGranteeTypeId(String granteeTypeId)
-  {
-    this.granteeTypeId = granteeTypeId;
-  }
-  
-  String getGrantorId()
-  {
-    return this.grantorId;
-  }
-
-  void setGrantorId(String grantorId)
-  {
-    this.grantorId = grantorId;
-  }
-  
-  String getGrantorTypeId()
-  {
-    return this.grantorTypeId;
-  }
-  
-  void setGrantorTypeId(String grantorTypeId)
-  {
-    this.grantorTypeId = grantorTypeId;
-  }
-  
-  String getRevokerId()
-  {
-    return this.revokerId;
-  }
-
-  void setRevokerId(String revokerId)
-  {
-    this.revokerId = revokerId;
-  }
-  
-  String getRevokerTypeId()
-  {
-    return this.revokerTypeId;
-  }
-  
-  void setRevokerTypeId(String revokerTypeId)
-  {
-    this.revokerTypeId = revokerTypeId;
-  }
-  
-  String getProxySubjectId()
-  {
-    return this.proxySubjectId;
-  }
-
-  void setProxySubjectId(String proxySubjectId)
-  {
-    this.proxySubjectId = proxySubjectId;
-  }
-  
-  String getProxySubjectTypeId()
-  {
-    return this.proxySubjectTypeId;
-  }
-  
-  void setProxySubjectTypeId(String proxySubjectTypeId)
-  {
-    this.proxySubjectTypeId = proxySubjectTypeId;
   }
   
   // This method is only for use by Hibernate.

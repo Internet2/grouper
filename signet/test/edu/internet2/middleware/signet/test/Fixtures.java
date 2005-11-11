@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.27 2005-09-23 18:22:05 acohen Exp $
-$Date: 2005-09-23 18:22:05 $
+$Id: Fixtures.java,v 1.28 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -366,9 +366,10 @@ public class Fixtures
     // Before granting this new Proxy, let's see if it already exists
     // in the database.
     
-    Set proxiesReceived
-      = grantee.getProxiesReceived
-          (Status.ACTIVE, proxiedSubsystem, grantor);
+    Set proxiesReceived = grantee.getProxiesReceived();
+    proxiesReceived = Common.filterProxies(proxiesReceived, Status.ACTIVE);
+    proxiesReceived = Common.filterProxies(proxiesReceived, proxiedSubsystem);
+    proxiesReceived = Common.filterProxiesByGrantor(proxiesReceived, grantor);
     
     Iterator proxiesReceivedIterator = proxiesReceived.iterator();
     while (proxiesReceivedIterator.hasNext())
@@ -422,9 +423,13 @@ public class Fixtures
     // Before granting this new Assignment, let's see if it already exists
     // in the database.
     
-    Set assignmentsReceived
-      = pSubject.getAssignmentsReceived
-          (Status.ACTIVE, this.subsystem, function);
+    Set assignmentsReceived = pSubject.getAssignmentsReceived();
+    assignmentsReceived
+      = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+    assignmentsReceived
+      = Common.filterAssignments(assignmentsReceived, this.subsystem);
+    assignmentsReceived
+      = Common.filterAssignments(assignmentsReceived, function);
     
     Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
     while (assignmentsReceivedIterator.hasNext())

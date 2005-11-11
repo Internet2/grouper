@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.10 2005-08-16 20:51:03 acohen Exp $
-$Date: 2005-08-16 20:51:03 $
+$Id: FunctionImpl.java,v 1.11 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -171,9 +171,7 @@ implements Function
    */
   public Subsystem getSubsystem()
   {
-    if ((this.subsystem == null)
-        && (this.subsystemId != null)
-        && (this.getSignet() != null))
+    if (this.subsystem == null)
     {
       try
       {

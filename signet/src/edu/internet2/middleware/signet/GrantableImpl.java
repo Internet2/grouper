@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.8 2005-10-19 18:14:34 acohen Exp $
- $Date: 2005-10-19 18:14:34 $
+ $Id: GrantableImpl.java,v 1.9 2005-11-11 00:24:01 acohen Exp $
+ $Date: 2005-11-11 00:24:01 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -30,9 +30,7 @@ implements Grantable
   //
   // If this Grantable instance was granted via a Proxy, then this is the
   // PrivilegedSubject who originally granted that Proxy.
-  private PrivilegedSubject	grantor;
-  private String						grantorId;
-  private String						grantorTypeId;
+  private PrivilegedSubjectImpl	grantor;
   
   // If this Grantable instance was granted directly by a PrivilegedSubject,
   // then this is null.
@@ -40,17 +38,11 @@ implements Grantable
   // If this Grantable instance was granted via a Proxy, then this is the
   // PrivilegedSubject who acting on behalf of the PrivilegedSubject who
   // originally granted that Proxy.
-  private PrivilegedSubject proxy;
-  private String            proxyId;
-  private String            proxyTypeId;
+  private PrivilegedSubjectImpl proxy;
   
-  private PrivilegedSubject	grantee;
-  private String						granteeId;
-  private String						granteeTypeId;
+  private PrivilegedSubjectImpl	grantee;
   
-  private PrivilegedSubject revoker;
-  private String            revokerId;
-  private String            revokerTypeId;
+  private PrivilegedSubjectImpl revoker;
   
   private Date							effectiveDate;
   private Date              expirationDate = null;
@@ -152,121 +144,8 @@ implements Grantable
    */
   public PrivilegedSubject getGrantee()
   {
-    if (this.grantee == null)
-    {
-      Subject subject;
-      
-      try
-      {
-        subject = this.getSignet().getSubject
-        (this.granteeTypeId, this.granteeId);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
-      
-      this.grantee
-      = new PrivilegedSubjectImpl(this.getSignet(), subject);
-    }
-    
+    this.grantee.setSignet(this.getSignet());
     return this.grantee;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setGranteeId(String id)
-  {
-    this.granteeId = id;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getGranteeId()
-  {
-    return this.granteeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getGranteeTypeId()
-  {
-    return this.granteeTypeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setGranteeTypeId(String typeId)
-  {
-    this.granteeTypeId = typeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setGrantorId(String id)
-  {
-    this.grantorId = id;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getGrantorId()
-  {
-    return this.grantorId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getGrantorTypeId()
-  {
-    return this.grantorTypeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setGrantorTypeId(String typeId)
-  {
-    this.grantorTypeId = typeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setRevokerId(String id)
-  {
-    this.revokerId = id;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getRevokerId()
-  {
-    return this.revokerId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getRevokerTypeId()
-  {
-    return this.revokerTypeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setRevokerTypeId(String typeId)
-  {
-    this.revokerTypeId = typeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setProxyId(String id)
-  {
-    this.proxyId = id;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getProxyId()
-  {
-    return this.proxyId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected String getProxyTypeId()
-  {
-    return this.proxyTypeId;
-  }
-
-  // This method is for use only by Hibernate.
-  protected void setProxyTypeId(String typeId)
-  {
-    this.proxyTypeId = typeId;
   }
   
   /* (non-Javadoc)
@@ -274,47 +153,15 @@ implements Grantable
    */
   public PrivilegedSubject getGrantor()
   {
-    if (this.grantor == null)
-    {
-      Subject subject;
-      
-      try
-      {
-        subject = this.getSignet().getSubject
-        (this.grantorTypeId, this.grantorId);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
-      
-      this.grantor
-      = new PrivilegedSubjectImpl(this.getSignet(), subject);
-    }
-    
+    this.grantor.setSignet(this.getSignet());
     return this.grantor;
   }
   
   public PrivilegedSubject getRevoker()
   {
-    if ((this.revoker == null)
-        && ((this.revokerTypeId != null) && (this.revokerId != null)))
+    if (this.revoker != null)
     {
-      Subject subject;
-      
-      try
-      {
-        subject
-          = this.getSignet().getSubject
-              (this.revokerTypeId, this.revokerId);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
-      
-      this.revoker
-      = new PrivilegedSubjectImpl(this.getSignet(), subject);
+      this.revoker.setSignet(this.getSignet());
     }
     
     return this.revoker;
@@ -322,27 +169,18 @@ implements Grantable
   
   public PrivilegedSubject getProxy()
   {
-    if ((this.proxy == null)
-        && ((this.proxyTypeId != null) && (this.proxyId != null)))
+    if (this.proxy != null)
     {
-      Subject subject;
-      
-      try
-      {
-        subject
-          = this.getSignet().getSubject
-              (this.proxyTypeId, this.proxyId);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
-      
-      this.proxy
-      = new PrivilegedSubjectImpl(this.getSignet(), subject);
+      this.proxy.setSignet(this.getSignet());
     }
     
     return this.proxy;
+  }
+  
+  // This method is only for use by Hibernate.
+  void setProxy(PrivilegedSubject proxy)
+  {
+    this.proxy = (PrivilegedSubjectImpl)proxy;
   }
   
   /**
@@ -350,9 +188,7 @@ implements Grantable
    */
   void setGrantee(PrivilegedSubject grantee)
   {
-    this.grantee = grantee;
-    this.granteeId = grantee.getSubjectId();
-    this.granteeTypeId = grantee.getSubjectTypeId();
+    this.grantee = (PrivilegedSubjectImpl)grantee;
   }
   
   /**
@@ -360,29 +196,24 @@ implements Grantable
    */
   void setGrantor(PrivilegedSubjectImpl grantor)
   {
-    this.grantor = grantor.getEffectiveEditor();
-    this.grantorId = this.grantor.getSubjectId();
-    this.grantorTypeId = this.grantor.getSubjectTypeId();
+    this.grantor = (PrivilegedSubjectImpl)(grantor.getEffectiveEditor());
     
     if (!grantor.equals(grantor.getEffectiveEditor()))
     {
       this.proxy = grantor;
-      this.proxyId = this.proxy.getSubjectId();
-      this.proxyTypeId = this.proxy.getSubjectTypeId();
     }
   }
   
   void setRevoker(PrivilegedSubjectImpl revoker)
   {
-    this.revoker = revoker.getEffectiveEditor();
-    this.revokerId = this.revoker.getSubjectId();
-    this.revokerTypeId = this.revoker.getSubjectTypeId();
+    if (revoker != null)
+    {
+      this.revoker = (PrivilegedSubjectImpl)(revoker.getEffectiveEditor());
     
-    if (!revoker.equals(revoker.getEffectiveEditor()))
-    {      
-      this.proxy = revoker;
-      this.proxyId = this.proxy.getSubjectId();
-      this.proxyTypeId = this.proxy.getSubjectTypeId();
+      if (!revoker.equals(revoker.getEffectiveEditor()))
+      {      
+        this.proxy = revoker;
+      }
     }
   }
   

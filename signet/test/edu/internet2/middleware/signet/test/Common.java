@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.10 2005-09-23 18:22:05 acohen Exp $
-$Date: 2005-09-23 18:22:05 $
+$Id: Common.java,v 1.11 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -11,15 +11,20 @@ package edu.internet2.middleware.signet.test;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.SignetAuthorityException;
+import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.Subsystem;
 
 import junit.framework.TestCase;
 
@@ -125,5 +130,148 @@ public class Common extends TestCase
     }
     
     return originalGrantor;
+  }
+  
+  public static Set filterProxies(Set all, Status status)
+  {
+    Set statusSet = new HashSet();
+    statusSet.add(status);
+    return filterProxies(all, statusSet);
+  }
+  
+  public static Set filterAssignments(Set all, Status status)
+  {
+    Set statusSet = new HashSet();
+    statusSet.add(status);
+    return filterAssignments(all, statusSet);
+  }
+
+  public static Set filterAssignments(Set all, Set statusSet)
+  {
+    if (statusSet == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment) (iterator.next());
+      if (statusSet.contains(candidate.getStatus()))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  public static Set filterAssignments(Set all, Subsystem subsystem)
+  {
+    if (subsystem == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment) (iterator.next());
+      if (candidate.getFunction().getSubsystem().equals(subsystem))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  public static Set filterProxies(Set all, Set statusSet)
+  {
+    if (statusSet == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy) (iterator.next());
+      if (statusSet.contains(candidate.getStatus()))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+
+  public static Set filterProxies(Set all, Subsystem subsystem)
+  {
+    if (subsystem == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy) (iterator.next());
+      if ((candidate.getSubsystem() == null)
+          || candidate.getSubsystem().equals(subsystem))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
+  }
+  
+  static Set filterProxiesByGrantor
+    (Set                all,
+     PrivilegedSubject  grantor)
+  {
+    if (grantor == null)
+    {
+      return all;
+    }
+    
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Proxy candidate = (Proxy)(iterator.next());
+      if (candidate.getGrantor().equals(grantor))
+      {
+        subset.add(candidate);
+      }
+    }
+    
+    return subset;
+  }
+
+  static Set filterAssignments(Set all, Function function)
+  {
+    if (function == null)
+    {
+      return all;
+    }
+
+    Set subset = new HashSet();
+    Iterator iterator = all.iterator();
+    while (iterator.hasNext())
+    {
+      Assignment candidate = (Assignment) (iterator.next());
+      if (candidate.getFunction().equals(function))
+      {
+        subset.add(candidate);
+      }
+    }
+
+    return subset;
   }
 }

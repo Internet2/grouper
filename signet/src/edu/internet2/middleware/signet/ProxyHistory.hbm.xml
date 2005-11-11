@@ -16,21 +16,24 @@
 			column="proxyID" />
         <property
 			name="modifyDatetime" column="modifyDatetime" />
-		
-		<property
-			name="grantorId" column="grantorID"/>
-		<property
-			name="grantorTypeId" column="grantorTypeID"/>
 			
-		<property
-			name="granteeId" column="granteeID" />
-		<property
-			name="granteeTypeId" column="granteeTypeID" />
-			
-		<property
-			name="revokerId" column="revokerID" />
-		<property
-			name="revokerTypeId" column="revokerTypeID" />
+		<many-to-one
+			name="grantor"
+			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			column="grantorKey"
+			not-null="true"/>
+
+		<many-to-one
+			name="grantee"
+			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			column="granteeKey"
+			not-null="true"/>
+
+		<many-to-one
+			name="revoker"
+			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			column="revokerKey"
+			not-null="false"/>
 		
 		<many-to-one
 			name="subsystem"

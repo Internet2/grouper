@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.18 2005-10-14 22:34:53 acohen Exp $
-$Date: 2005-10-14 22:34:53 $
+$Id: AssignmentTest.java,v 1.19 2005-11-11 00:24:01 acohen Exp $
+$Date: 2005-11-11 00:24:01 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -89,9 +89,12 @@ public class AssignmentTest extends TestCase
              fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            ((Status)null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+      
       Assignment assignment = (Assignment)(assignmentsReceived.toArray()[0]);
       
       PrivilegedSubject revoker;
@@ -126,10 +129,12 @@ public class AssignmentTest extends TestCase
              fixtures.makeSubjectId(subjectIndex));
  
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            ((Status)null, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+      
       
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
       while (assignmentsReceivedIterator.hasNext())
@@ -178,9 +183,13 @@ public class AssignmentTest extends TestCase
       			Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-      	= pSubject.getAssignmentsReceived
-      			(Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
       
       // Here's a picture of the Assignments which this test expects to find:
       //
@@ -263,9 +272,13 @@ public class AssignmentTest extends TestCase
             Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single LimitValue for every received Assignment.
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
@@ -349,9 +362,13 @@ public class AssignmentTest extends TestCase
             Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single effectiveDate for every received Assignment.
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
@@ -411,9 +428,13 @@ public class AssignmentTest extends TestCase
              fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single expirationDate for every received Assignment.
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
@@ -469,16 +490,13 @@ public class AssignmentTest extends TestCase
   {
     Assignment assignment = null;
     
-    PrivilegedSubject superPsubject = signet.getSignetSubject();
-    
     Subject subject0
       = signet.getSubject
           (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
     PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
     
     // Get any one of subject0's Assignments - we don't care which one.
-    Set assignmentsReceived
-      = pSubject0.getAssignmentsReceived((Status)null, null, null);
+    Set assignmentsReceived = pSubject0.getAssignmentsReceived();
     Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
     while (assignmentsReceivedIterator.hasNext())
     {
@@ -522,9 +540,13 @@ public class AssignmentTest extends TestCase
              fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single "isGrantable" flag for every received Assignment.
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
@@ -579,9 +601,13 @@ public class AssignmentTest extends TestCase
              fixtures.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
-      Set assignmentsReceived
-        = pSubject.getAssignmentsReceived
-            (Status.ACTIVE, signet.getSubsystem(Constants.SUBSYSTEM_ID), null);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
 
       // Alter every single "canUse" flag for every received Assignment.
       Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
