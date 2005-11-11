@@ -1,7 +1,16 @@
 
 # Grouper News
 
-$Id: NEWS,v 1.80 2005-09-16 14:41:09 blair Exp $
+$Id: NEWS,v 1.81 2005-11-11 17:42:13 blair Exp $
+
+---
+
+# Version 0.9
+
+## Changes
+* UPDATE: License changed to Apache License, Version 2.0
+* UPDATE: _GrouperSystem_ subject now resolved via an internal source
+  adapter and does not need to be externally defined.
 
 ---
 

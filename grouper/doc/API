@@ -4,263 +4,263 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86 2005-07-28 19:12:47 blair Exp $
+$Id: API,v 1.87 2005-11-11 17:42:13 blair Exp $
+
+---
+
+TODO Should the root stem be an actual entry in the db?
+TODO Custom mship types
+TODO Be more consistent about when calling for a member and a subject
 
 ---
 
 # Interfaces
 
-## GrouperAccess
+## AccessPrivilege
+* Set                 getPriv(session, group, privilege)
+* Set                 getPriv(session, member, privilege)
+* Set                 getPrivs(session, group, member)
+* void                grantPriv(session, group, member, privilege)
+* boolean             hasPriv(session, group, member, privilege)
+* void                revokePriv(session, group, privilege)
+* void                revokePriv(session, group, member, privilege)
 
-* boolean             can(privilege)
-* boolean             grant(session, Group, GrouperMember, privilege)
-* List                has(session, Group)
-* List                has(session, GrouperMember, privilege)
-* List                has(session, Group, GrouperMember)
-* boolean             has(session, Group, GrouperMember, privilege)
-* boolean             has(session, Group, privilege)
-* List                has(session, privilege)
-* boolean             revoke(session, Group, GrouperMember, privilege)
-* boolean             revoke(session, Group, privilege)
-* List                whoHas(session, Group, privilege)
+## NamingPrivilege
+* Set                 getPriv(session, group, privilege)
+* Set                 getPriv(session, member, privilege)
+* Set                 getPrivs(session, group, member)
+* void                grantPriv(session, group, member, privilege)
+* boolean             hasPriv(session, group, member, privilege)
+* void                revokePriv(session, group, privilege)
+* void                revokePriv(session, group, member, privilege)
+
+## QueryFilter
+* Set                 getResults(session)
 
 ---
 
-## GrouperNaming
-
-* boolean             can(privilege)
-* boolean             grant(session, GrouperStem, GrouperMember, privilege)
-* List                has(session, GrouperStem)
-* List                has(session, GrouperMember, privilege)
-* List                has(session, GrouperStem, GrouperMember)
-* boolean             has(session, GrouperStem, GrouperMember, privilege)
-* boolean             has(session, GrouperStem, privilege)
-* List                has(session, privilege)
-* boolean             revoke(session, GrouperStem, GrouperMember, privilege)
-* boolean             revoke(session, GrouperStem, privilege)
-* List                whoHas(session, GrouperStem, privilege)
+# Exceptions
+* AttributeNotFoundException
+* GrantPrivilegeException
+* GroupAddException
+* GroupDeleteException
+* GroupModifyException
+* GroupNotFoundException
+* InsufficientPrivilegeException
+* MemberAddException
+* MemberDeleteException
+* MemberNotFoundException
+* MembershipNotFoundException
+* PrivilegeNotFoundException
+* QueryException
+* RevokePrivilegeException
+* SchemaException
+* SessionException
+* StemAddException
+* StemModifyException
+* StemNotFoundException
 
 ---
 
 # Classes
 
-## Grouper
+## BaseQueryFilter implements QueryFilter
+* Set                 filterByScope(stem, candidates)
+* Set                 getResults(session)
 
-* String              static config(parameter)
-* boolean             static groupField(groupType, groupField)
-* List                static groupFields()
-* boolean             static groupType(groupType)
-* List                static groupTypeDefs()
-* List                static groupTypes()
+## ComplementFilter extends BaseQueryFilter
 
----
+## Field
+* FieldType           getType()
+* String              getName()
 
-## GrouperAttribute
+## FieldFinder
+* Set                 FieldFinder.findAll()
+* Field               FieldFinder.getField(field)
 
-* String              field()
-* String              value()
-
----
-
-## GrouperField
-
-* String              field()
-* boolean             isList()
-* String              readPriv()
-* String              writePriv()
-
----
-
-## GrouperGroup
-
-* GrouperAttribute    attribute(attribute)
-* void                attribute(attribute, value)
-* Map                 attributes()
-* GrouperGroup        static create(session, stem, extension)
-* GrouperGroup        static create(session, stem, extension, groupType)
-* String              createSource()
-* Subject             createSubject()
-* Date                createTime()
-* void                static delete(session, Group)
+## Group
+* void                addMember(member)
+* void                delete()
+* void                deleteAttribute(attr)
+* void                deleteMember(member)
+* Set                 getAdmins()
+* String              getAttribute(attr)
+* Map                 getAttributes()
+* String              getCreateSource()
+* Subject             getCreateSubject()
+* Date                getCreateDate()
+* String              getDescription()
 * String              getDisplayExtension()
 * String              getDisplayName()
+* Set                 getEffectiveMembers()
+* Set                 getEffectiveMemberships()
 * String              getExtension()
-* List                getMembers()
+* Set                 getImmediateMembers()
+* Set                 getImmediateMemberships()
+* Set                 getMembers()
+* Set                 getMemberships()
+* String              getModifySource()
+* Subject             getModifySubject()
+* Date                getModifyDate()
 * String              getName()
-* String              getStem()
-* String              static groupName(stem, extension)
-* boolean             hasMember(GrouperMember)
-* boolean             hasMember(GrouperMember, list)
-* String              id()
-* boolean             listAddVal(GrouperMember)
-* boolean             listAddVal(GrouperMember, list)
-* boolean             listDelVal(GrouperMember)
-* boolean             listDelVal(GrouperMember, list)
-* List                listEffVals()
-* List                listEffVals(list)
-* List                listImmVals()
-* List                listImmVals(list)
-* List                listVals()
-* List                listVals(list)
-* GrouperGroup        static load(session, stem, extension)
-* GrouperGroup        static load(session, stem, extension, groupType)
-* GrouperGroup        static loadByID(session, groupID)
-* Group               static loadByName(session, name)
-* Group               static loadByName(session, name, groupType)
-* String              modifySource()
-* Subject             modifySubject()
-* Date                modifyTime()
-* GrouperMember       toMember()
-* String              type()
+* Set                 getOptins()
+* Set                 getOptouts()
+* Stem                getParentStem()
+* Set                 getPrivileges(member)
+* Set                 getReaders()
+* Set                 getTypes()
+* Set                 getUpdaters()
+* String              getUuid()
+* Set                 getViewers()
+* void                grantPriv(member, privilege)
+* boolean             hasAdmin(member)
+* boolean             hasEffectiveMember(member)
+* boolean             hasImmediateMember(member)
+* boolean             hasOptin(member)
+* boolean             hasOptout(member)
+* boolean             hasMember(member)
+* boolean             hasRead(member)
+* boolean             hasUpdate(member)
+* boolean             hasView(member)
+* void                revokePriv(privilege)
+* void                revokePriv(member, privilege) 
+* void                setAttribute(attr, value)
+* void                setDescription(value)
+* void                setDisplayExtension(value)
+* void                setTypes(values)
+* Member              toMember()
 
----
+## GroupCreatedAfterFilter extends BaseQueryFilter
 
-## GrouperList
+## GroupCreatedBeforeFilter extends BaseQueryFilter
 
-* List                chain()
-* Group               group()
-* String              groupField()
-* GrouperMember       member()
-* Group               via()
-
----
-
-## GrouperMember
-
-* boolean             isMember(Group)
-* boolean             isMember(Group, list)
-* List                listEffVals()
-* List                listEffVals(list)
-* List                listImmVals()
-* List                listImmVals(list)
-* List                listVals()
-* List                listVals(list)
-* GrouperMember       static load(session, memberID)
-* GrouperMember       static load(session, subjectID, subjectTypeID)
-* GrouperMember       static load(session, subject)
-* String              memberID()
-* String              source()
-* String              subjectID()
-* Group               toGroup()
-* String              typeID()
-
----
+## GroupFinder
+* Group               GroupFinder.findByName(session, name)
+* Group               GroupFinder.findByUuid(session, uuid)
 
 ## GrouperQuery
-
-* boolean             base(namespace)
-* void                clear()
-* boolean             clear(filter)
-* boolean             createdAfter(date)
-* boolean             createdBefore(date)
-* List                getGroups()
-* List                getListValues()
-* List                getMembers()
-* List                getStems()
-* boolean             group(name)
-* boolean             group(namespace, name)
-* boolean             groupAttr(attribute, value)
-* boolean             groupAttr(namespace, attribute, value)
-* boolean             groupType(groupType)
-* boolean             membershipType(membershipType)
-* boolean             modifedAfter(date)
-* boolean             modifiedBefore(date)
-* boolean             stem(name)
-* boolean             stem(namespace, name)
-* boolean             stemAttr(name, value)
-* boolean             stemAttr(namespace, name, value)
-
----
-
-## GrouperSchema
-
-* String              type()
-
----
+* GrouperQuery        GrouperQuery.createQuery(session, filter)
+* Set                 getGroups()
+* Set                 getMembers()
+* Set                 getMemberships()
+* Set                 getStems()
 
 ## GrouperSession
+* GrouperSession      GrouperSession.startSession(subject)
+* void                beginTransaction()
+* void                commit()
+* Member              getMember()
+* String              getSessionId()
+* Date                getStartTime()
+* Subject             getSubject()
+* void                rollback()
+* void                stopSession()
 
-* GrouperAccess       access()
-* GrouperMember       getMember()
-* GrouperNaming       naming()
-* GrouperSession      static start(subject)
-* boolean             stop()
-* Subject             subject()
+## IntersectionFilter extends BaseQueryFilter
 
----
+## Member
+* Group               getAsGroup()
+* Set                 getEffectiveGroups()
+* Set                 getEffectiveMemberships()
+* Set                 getGroups()
+* Set                 getImmediateGroups()
+* Set                 getImmediateMemberships()
+* Set                 getMemberships()
+* Subject             getSubject()
+* String              getSubjectId()
+* Source              getSubjectSource()
+* String              getSubjectSourceId()
+* SubjectType         getSubjectType()
+* String              getSubjectTypeId()
+* String              getUuid()
+* Set                 hasAdmin()
+* boolean             hasAdmin(group)
+* Set                 hasCreate()
+* boolean             hasCreate(stem)
+* Set                 hasOptin()
+* boolean             hasOptin(group)
+* Set                 hasOptout()
+* boolean             hasOptout(group)
+* Set                 hasPrivs(group)
+* Set                 hasPrivs(stem)
+* Set                 hasRead()
+* boolean             hasRead(group)
+* Set                 hasStem()
+* boolean             hasStem(stem)
+* Set                 hasUpdate()
+* boolean             hasUpdate(group)
+* Set                 hasView()
+* boolean             hasView(group)
+* boolean             isEffectiveMember(group)
+* boolean             isImmediateMember(group)
+* boolean             isMember(group)
 
-## GrouperStem
+## MemberFinder
+* Member              MemberFinder.getByUuid(session, uuid)
+* Member              MemberFinder.findBySubject(session, subject)
 
-* GrouperAttribute    attribute(attribute)
-* void                attribute(attribute, value)
-* Map                 attributes()
-* GrouperStem         static create(session, extension)
-* GrouperStem         static create(session, stem, extension)
-* String              createSource()
-* Subject             createSubject()
-* Date                createTime()
-* void                static delete(session, Group)
+## Membership
+* Set                 getChildMemberships()
+* int                 getDepth()
+* Group               getGroup()
+* List                getList()
+* Member              getMember()
+* Membership          getParentMembership()
+* Group               getViaGroup()
+
+## MembershipFinder
+* Membership          getEffectiveMembership(session, group, member, list, group, depth)
+* Membership          getImmediateMembership(session, group, member, list)
+
+## NullFilter extends BaseQueryFilter
+
+## QueryFilter extends BaseQueryFilter
+
+## Stem
+* Group               addChildGroup(extension, displayExtension)
+* Stem                addChildStem(extension, displayExtension)
+* Set                 getChildGroups()
+* Set                 getChildStems()
+* String              getCreateSource()
+* Subject             getCreateSubject()
+* Date                getCreateTime()
+* Set                 getCreators()
+* String              getDescription()
 * String              getDisplayExtension()
 * String              getDisplayName()
 * String              getExtension()
-* List                getMembers()
+* String              getModifySource()
+* Subject             getModifySubject()
+* Date                getModifyTime()
 * String              getName()
-* List                static getRootStems(session)
-* String              getStem()
-* String              static groupName(stem, extension)
-* List                groups()
-* boolean             hasMember(GrouperMember)
-* boolean             hasMember(GrouperMember, list)
-* String              id()
-* boolean             listAddVal(GrouperMember)
-* boolean             listAddVal(GrouperMember, list)
-* boolean             listDelVal(GrouperMember)
-* boolean             listDelVal(GrouperMember, list)
-* List                listEffVals()
-* List                listEffVals(list)
-* List                listImmVals()
-* List                listImmVals(list)
-* List                listVals()
-* List                listVals(list)
-* GrouperStem         static load(session, extension)
-* GrouperStem         static load(session, stem, extension)
-* GrouperStem         static loadByID(session, groupID)
-* GrouperStem         static loadByName(session, name)
-* String              modifySource()
-* Subject             modifySubject()
-* Date                modifyTime()
-* List                stems()
-* String              type()
+* Stem                getParentStem()
+* Set                 getPrivileges(member)
+* Set                 getStemmers()
+* String              getUuid()
+* void                grantPriv(member, privilege)
+* boolean             hasCreate(member)
+* boolean             hasStem(member)
+* void                revokePriv(privilege)
+* void                revokePriv(member, privilege) 
+* void                setDescription(value)
+* void                setDisplayExtension(value) 
 
----
+## StemCreatedAfterFilter extends BaseQueryFilter
 
-## GrouperTypeDef
+## StemCreatedBeforeFilter extends BaseQueryFilter
 
-* String              field();
-* String              type();
+## StemFinder
+* Stem                StemFinder.getByName(session, name)
+* Stem                StemFinder.getByUuid(session, uuid)
+* Stem                StemFinder.findRootStem(session)
 
----
+## SubjectFinder
+* Subject             SubjectFinder.findById(id)  
+* Subject             SubjectFinder.findById(id, type)
+* Subject             SubjectFinder.findByIdentifier(id)  
+* Subject             SubjectFinder.findByIdentifier(id, type)
+* Set                 SubjectFinder.find(query)
 
-## MemberOf
-
-* List                memberOf(GrouperList)
-
----
-
-## MemberVia
-
-* GrouperList         toList(session)
-
----
-
-## SubjectFactory
-
-* Subject             static getSubject(id)
-* Subject             static getSubject(id, type)
-* Subject             static getSubjectByIdentifier(id)
-* Subject             static getSubjectByIdentifier(id, type)
-* boolean             static hasType(type)
-* Set                 static search(query)
-* Set                 static types()
+## UnionFilter extends BaseQueryFilter
 
 

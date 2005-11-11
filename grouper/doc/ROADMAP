@@ -3,34 +3,46 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47 2005-09-07 22:13:48 blair Exp $
+$Id: ROADMAP,v 1.48 2005-11-11 17:42:13 blair Exp $
 
 ---
 
 # Grouper 0.9
 
-## Features
-* Refactored API
-* ALL subject
-* Improved exception hierarchy (#351)
+TODO Sync with Basecamp
+
+## Next Actions
+* Merge HEAD and GROUPER_RELENG_0_9 branches
+* Mock subjects
+* Add privileges to Field mapping
+* STEM and CREATE naming privileges
+* _GroupNameFilter_ and _StemNameFilter_
+* ADMIN and UPDATE access privileges
+* ALL subject adapter
+* READ and VIEW access privileges
+* Use _Subject_, not _Member_, in most method calls
+* Switch to _LinkedHashSet_
+
+## Later
+* Review Gary's privilege enhancement
+* OPTIN and OPTOUT access privileges
+* Implement all 0.6 query filters
+* _Stem_ child stems mapping
+* _Stem_ parent stem mapping
+* _Group_ parent stem mapping
+* More effective membership testing
+* Group deletion when groups have members or are members
+* Add create + modify times to memberships
+* Add create (+ modify?) time to members
+* Commons logging
+* Map _GroupType_
+* many-to-many maping between _Field_ and _GroupType_
+* Review old _*.todo_ test classes
 * Rename subjectIDs in local subject<=>member mapping (#133)
-* Make all query methods scoped
-
-## Documentation
-* Proposed API Changes
-* Proposed Access and Naming Privilege API changes
-
-## Internals
-* Hibernate 3.x
-* List value aging
-* Custom source for all internal subjects (root, all, etc)
-* Switch to commons logging
-* Make _InsufficientPrivilegeException_ !public
-* Make _CacheNotFoundException_ !public
-* Make _DbSess_ !public
-* Make _GrouperLog_ !public
-* Make _MemberOf_ !public
-* Make _SimpleCache_ !public
+* Switch to Hibernate 3.x
+* Custom group types
+* Custom group attributes
+* Custom group lists
 
 ---
 
@@ -70,4 +82,6 @@ $Id: ROADMAP,v 1.47 2005-09-07 22:13:48 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
+
 
