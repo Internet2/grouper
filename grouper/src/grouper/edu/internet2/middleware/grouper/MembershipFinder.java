@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.1.2.14 2005-11-11 17:07:30 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.1.2.15 2005-11-11 17:12:42 blair Exp $
  */
 public class MembershipFinder {
 
@@ -99,7 +99,7 @@ public class MembershipFinder {
                       + "and ms.field.type  = ?     "
                       + "and ms.depth       > 0     ", 
                       new Object[] {
-                        g.getUuid(), f.getName(), f.getFieldType().toString()
+                        g.getUuid(), f.getName(), f.getType().toString()
                       },
                       new Type[] {
                         Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
@@ -134,7 +134,7 @@ public class MembershipFinder {
                       + "and ms.field.type  = ?     "
                       + "and ms.depth       > 0     ", 
                       new Object[] {
-                        m.getUuid(), f.getName(), f.getFieldType().toString()
+                        m.getUuid(), f.getName(), f.getType().toString()
                       },
                       new Type[] {
                         Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
@@ -174,7 +174,7 @@ public class MembershipFinder {
           + "and ms.depth       > 0     ", 
           new Object[] {
             g.getUuid(), m.getUuid(), 
-            f.getName(), f.getFieldType().toString()
+            f.getName(), f.getType().toString()
           },
           new Type[] {
             Hibernate.STRING, Hibernate.STRING, 
@@ -211,7 +211,7 @@ public class MembershipFinder {
                       new Object[] {
                         g.getUuid(), 
                         f.getName(), 
-                        f.getFieldType().toString()
+                        f.getType().toString()
                       },
                       new Type[] {
                         Hibernate.STRING, 
@@ -248,7 +248,7 @@ public class MembershipFinder {
                       + "and ms.field.type  = ?     "
                       + "and ms.depth       = 0     ", 
                       new Object[] {
-                        m.getUuid(), f.getName(), f.getFieldType().toString()
+                        m.getUuid(), f.getName(), f.getType().toString()
                       },
                       new Type[] {
                         Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
@@ -280,7 +280,7 @@ public class MembershipFinder {
                           + "and ms.field.name  = ?                     "  
                           + "and ms.field.type  = ?                     ",
                           new Object[] {
-                            g.getUuid(), f.getName(), f.getFieldType().toString()
+                            g.getUuid(), f.getName(), f.getType().toString()
                           },
                           new Type[] {
                             Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
@@ -321,7 +321,7 @@ public class MembershipFinder {
                       + "and ms.field.name  = ?     "
                       + "and ms.field.type  = ?     ",
                       new Object[] {
-                        g.getUuid(), f.getName(), f.getFieldType().toString()
+                        g.getUuid(), f.getName(), f.getType().toString()
                       },
                       new Type[] {
                         Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
@@ -353,7 +353,7 @@ public class MembershipFinder {
           + "and ms.field.name  = ?     "
           + "and ms.field.type  = ?     ",
           new Object[] {
-            m.getUuid(), f.getName(), f.getFieldType().toString()
+            m.getUuid(), f.getName(), f.getType().toString()
           },
           new Type[] {
             Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
@@ -386,7 +386,7 @@ public class MembershipFinder {
           + "and ms.field.type  = ?     ",
           new Object[] {
             g.getUuid(), m.getUuid(), 
-            f.getName(), f.getFieldType().toString()
+            f.getName(), f.getType().toString()
           },
           new Type[] {
             Hibernate.STRING, Hibernate.STRING, 
@@ -425,7 +425,7 @@ public class MembershipFinder {
           + "and ms.via_id      = ?     "
           + "and ms.depth       = ?     ", 
           new Object[] {
-            gid, mid, f.getName(), f.getFieldType().toString(), 
+            gid, mid, f.getName(), f.getType().toString(), 
             vid, new Integer(depth)
           },
           new Type[] {

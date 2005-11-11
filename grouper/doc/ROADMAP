@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.19 2005-11-11 05:33:03 blair Exp $
+$Id: ROADMAP,v 1.47.2.20 2005-11-11 17:12:42 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.47.2.19 2005-11-11 05:33:03 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Add _FieldType_ to membership operations
 * Merge HEAD and GROUPER_RELENG_0_9 branches
 * Mock subjects
 * Add privileges to Field mapping
@@ -22,9 +21,9 @@ TODO Sync with Basecamp
 * ALL subject adapter
 * READ and VIEW access privileges
 * Use _Subject_, not _Member_, in most method calls
+* Switch to _LinkedHashSet_
 
 ## Later
-* Switch to _LinkedHashSet_
 * Review Gary's privilege enhancement
 * OPTIN and OPTOUT access privileges
 * Implement all 0.6 query filters

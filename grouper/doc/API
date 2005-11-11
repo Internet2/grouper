@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.22 2005-11-11 17:07:30 blair Exp $
+$Id: API,v 1.86.2.23 2005-11-11 17:12:42 blair Exp $
 
 ---
 
@@ -71,7 +71,7 @@ TODO Be more consistent about when calling for a member and a subject
 ## ComplementFilter extends BaseQueryFilter
 
 ## Field
-* FieldType           getFieldType()
+* FieldType           getType()
 * String              getName()
 
 ## FieldFinder
@@ -262,4 +262,5 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 SubjectFinder.find(query)
 
 ## UnionFilter extends BaseQueryFilter
+
 
