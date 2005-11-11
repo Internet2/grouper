@@ -17,68 +17,120 @@
 
 package edu.internet2.middleware.grouper;
 
+import  java.io.Serializable;
 import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  net.sf.hibernate.engine.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.lang.builder.*;
 
 
 /** 
- * Custom Field User Type.
+ * Custom {@link Field} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldUserType.java,v 1.1.2.1 2005-11-10 17:47:42 blair Exp $    
+ * @version $Id: FieldUserType.java,v 1.1.2.2 2005-11-11 17:07:30 blair Exp $    
  */
-public class FieldUserType implements UserType {
+public class FieldUserType implements CompositeUserType {
 
-    // Private Class Constants
-    private static final int[] SQL_TYPES = { Types.VARCHAR };
+  // Public Instance Methods
+  public Object assemble(
+    Serializable cached, SessionImplementor session, Object owner
+  )
+    throws HibernateException
+  {
+    return cached;
+  } // public Object assemble(cached, session, owner)
 
+  public Object deepCopy(Object value) {
+    return value;
+  } // public Object deepCopy(value)
 
-    // Public Instance Methods
+  public Serializable disassemble(Object value, SessionImplementor session)
+    throws HibernateException
+  {
+    return (Serializable) value;
+  } // public Object disassemble(value, session)
 
-    public Object deepCopy(Object value) {
-      return value;
-    } // public Object deepCopy(value)
-
-    public boolean equals(Object x, Object y) {
-      return x == y;
-    } // public boolean equals(x, y)
-
-    public boolean isMutable() {
+  public boolean equals(Object x, Object y) {
+    if (x == y) {
+      return true;
+    }
+    if (x == null || y == null) {
       return false;
-    } // public boolean isMutable()
+    }
+    return x.equals(y);
+  } // public boolean equals(x, y)
 
-    public Object nullSafeGet(
-      ResultSet resultSet, String[] types, Object owner
-    )
-      throws HibernateException, SQLException
-    {
-      String type = resultSet.getString(types[0]); 
-      return resultSet.wasNull() ? null : FieldType.getInstance(type);
-    } // public Object nullSafeGet(resultSet, types, owner)
+  public String[] getPropertyNames() {
+    return new String[] { "name", "type" };
+  } // public String[] getPropertyNames()
+
+  public Type[] getPropertyTypes() {
+    return new Type[] { Hibernate.STRING, Hibernate.STRING };
+  } // public Type[] getPropertyTypes()
+
+  public Object getPropertyValue(Object component, int property)
+    throws HibernateException
+  {
+    Field f = (Field) component;
+    if (property == 0) {
+      return f.getName();
+    }
+    else {
+      return f.getFieldType().toString();
+    }
+  } // public Object getPropertyValue(component, property)
+
+  public boolean isMutable() {
+    return false;
+  } // public boolean isMutable()
+
+  public Object nullSafeGet(
+    ResultSet resultSet, String[] names, SessionImplementor session, Object owner
+  )
+    throws HibernateException, SQLException
+  {
+    if (resultSet.wasNull()) {
+      return null;
+    }
+    try {
+      return FieldFinder.getField(
+        resultSet.getString( names[0] )
+      );
+    }
+    catch (SchemaException eS) {
+      throw new HibernateException(
+        "unable to get field: " + eS.getMessage()
+      );
+    }
+  } // public Object nullSafeGet(resultSet, types, session, owner)
      
-    public void nullSafeSet(
-      PreparedStatement statement, Object value, int index
-    ) 
-      throws HibernateException, SQLException
-    {
-      if (value == null) {
-        statement.setNull(index, Types.VARCHAR);
-      } 
-      else {
-        statement.setString(index, value.toString());
-      }
-    } // public void nullSafeSet(statement, value, index)
+  public void nullSafeSet(
+    PreparedStatement statement, Object value, int index, SessionImplementor session
+  ) 
+    throws HibernateException, SQLException
+  {
+    if (value == null) {
+      statement.setNull(index,    Types.VARCHAR);
+      statement.setNull(index+1,  Types.VARCHAR);
+    } 
+    else {
+      Field f = (Field) value;
+      statement.setString(index,    f.getName());
+      statement.setString(index+1,  f.getFieldType().toString());
+    }
+  } // public void nullSafeSet(statement, value, index, session)
  
-    public Class returnedClass() {
-      //return edu.internet2.middleware.grouper.FieldType.Class;
-      return FieldType.class;
-    } // public Class returnedClass()
-    
-    public int[] sqlTypes() {
-      return SQL_TYPES;
-    } // public int[] sqlTypes()
+  public Class returnedClass() {
+    return Field.class;
+  } // public Class returnedClass() 
+ 
+  public void setPropertyValue(Object component, int property, Object value) 
+    throws HibernateException
+  {
+    throw new UnsupportedOperationException("immutable!");
+  } // public void setPropertyValue(comonent, property, value)
+
 }
 

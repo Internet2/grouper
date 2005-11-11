@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.21 2005-11-11 05:33:03 blair Exp $
+$Id: API,v 1.86.2.22 2005-11-11 17:07:30 blair Exp $
 
 ---
 
@@ -54,6 +54,7 @@ TODO Be more consistent about when calling for a member and a subject
 * PrivilegeNotFoundException
 * QueryException
 * RevokePrivilegeException
+* SchemaException
 * SessionException
 * StemAddException
 * StemModifyException
@@ -74,7 +75,8 @@ TODO Be more consistent about when calling for a member and a subject
 * String              getName()
 
 ## FieldFinder
-* Set                 findAll()
+* Set                 FieldFinder.findAll()
+* Field               FieldFinder.getField(field)
 
 ## Group
 * void                addMember(member)

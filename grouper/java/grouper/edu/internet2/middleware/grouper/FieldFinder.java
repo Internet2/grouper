@@ -25,12 +25,27 @@ import net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.1.2.9 2005-11-11 05:33:03 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.1.2.10 2005-11-11 17:07:30 blair Exp $
  */
 public class FieldFinder {
 
+  // Private Static Variables
+  private static final Map FIELDS = new HashMap();
+
+  static {
+    Iterator iter = findAll().iterator();
+    while (iter.hasNext()) {
+      Field f = (Field) iter.next();
+      FIELDS.put(f.getName(), f);
+    }
+  } // static 
+
+
   // Public Class Methods
   public static Set findAll() {
+    // TODO Should this return the cached results if they exist?
+    //      Likewise, should it update the cached results if they
+    //      exist?
     Set fields = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
@@ -46,6 +61,15 @@ public class FieldFinder {
     }
     return fields;
   } // public Static Set findAll()
+
+  public static Field getField(String field) 
+    throws SchemaException
+  {
+    if (FIELDS.containsKey(field)) {
+      return (Field) FIELDS.get(field);
+    }
+    throw new SchemaException("invalid field: " + field);
+  } // public static Field getField(field)
 
 }
 

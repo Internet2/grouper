@@ -28,9 +28,13 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.1.2.27 2005-11-10 17:47:42 blair Exp $
+ * @version $Id: Group.java,v 1.1.2.28 2005-11-11 17:07:30 blair Exp $
  */
 public class Group implements Serializable {
+
+  // Public Static Variables Posing As Constants
+  public static Field LIST = null;
+
 
   // Hibernate Properties
   private String  create_source;
@@ -49,10 +53,6 @@ public class Group implements Serializable {
   private String  modify_source;
   private long    modify_time;
   private String  parent_stem;
-
-
-  // Public Static Constants
-  public static final String LIST = "members";
 
 
   // Transient Instance Methods
@@ -118,7 +118,7 @@ public class Group implements Serializable {
 
       // Create the immediate membership
       objects.add( 
-        Membership.addMembership(this.s, this, m, Group.LIST, FieldType.LIST) 
+        Membership.addMembership(this.s, this, m, Group.LIST)
       );
 
       // Find effective memberships
@@ -221,7 +221,7 @@ public class Group implements Serializable {
 
       // Find the immediate membership that is to be deleted
       objects.add( 
-        MembershipFinder.getImmediateMembership(this, m, Group.LIST)
+        MembershipFinder.getImmediateMembership(this.s, this, m, Group.LIST)
       );
 
       // Find effective memberships
@@ -236,7 +236,7 @@ public class Group implements Serializable {
           objects.add( 
             MembershipFinder.getEffectiveMembership(
               ms.getGroup_id(), ms.getMember_id(), 
-              ms.getList_id(), ms.getVia_id(), ms.getDepth()
+              ms.getList(), ms.getVia_id(), ms.getDepth()
             )
           );
         }
@@ -713,7 +713,7 @@ public class Group implements Serializable {
   public boolean hasImmediateMember(Member m) {
     try {
       Membership ms = MembershipFinder.getImmediateMembership(
-        this, m, Group.LIST
+        this.s, this, m, Group.LIST
       );
       return true;
     }
@@ -1021,6 +1021,21 @@ public class Group implements Serializable {
 
 
   // Protected Class Methods
+
+  // TODO I *really* don't like this, but...
+  protected static void init() {
+    if (Group.LIST == null) { 
+      try {
+        LIST = FieldFinder.getField("members");
+      }
+      catch (SchemaException eS) {
+        throw new RuntimeException(
+          "fatal error initializing environment: " + eS.getMessage()
+        );
+      }
+    }
+  } // protected static void init()
+
   protected static List setSession(GrouperSession s, List l) {
     List      groups  = new ArrayList();
     Iterator  iter    = l.iterator();
@@ -1064,7 +1079,7 @@ public class Group implements Serializable {
       mships.add(
         new Membership(
           this.s, this.getUuid(), mofm.getMember_id(),
-          Group.LIST, FieldType.LIST, vid, depth
+          Group.LIST, vid, depth
         )
       );
       // ... and add to wherever this group is a member
@@ -1074,7 +1089,7 @@ public class Group implements Serializable {
         mships.add(
           new Membership(
             this.s, gism.getGroup_id(), mofm.getMember_id(),
-            Group.LIST, FieldType.LIST, vid, depth + gism.getDepth() 
+            Group.LIST, vid, depth + gism.getDepth() 
           )
         );
       }
@@ -1098,7 +1113,7 @@ public class Group implements Serializable {
       mships.add(
         new Membership(
           this.s, ms.getGroup_id(), ms.getMember_id(), 
-          Group.LIST, FieldType.LIST, vid, depth
+          Group.LIST, vid, depth
         )
       );
     }

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.1.2.16 2005-11-10 17:47:42 blair Exp $
+ * @version $Id: Membership.java,v 1.1.2.17 2005-11-11 17:07:30 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -35,8 +35,7 @@ public class Membership implements Serializable {
   private String    group_id;
   private String    id;
   private String    member_id;
-  private String    list_id;
-  private FieldType list_type;
+  private Field     field;
   private String    via_id;
 
   
@@ -55,26 +54,26 @@ public class Membership implements Serializable {
 
   // Creating a new (immediate) membership
   private Membership(
-    GrouperSession s, Group g, Member m, String field, FieldType type
+    GrouperSession s, Group g, Member m, Field f
   ) 
   {
-    this(s, g.getUuid(), m.getUuid(), field, type);
-  } // private Membership(s, g, m, field, type)
+    this(s, g.getUuid(), m.getUuid(), f);
+  } // private Membership(s, g, m, f, type)
 
   // Creating a new (effective) membership
   protected Membership(
     GrouperSession s, String gid, String mid, 
-    String field, FieldType type, String vid, int depth
+    Field f, String vid, int depth
   )
   {
-    this(s, gid, mid, field, type);
+    this(s, gid, mid, f);
     this.setVia_id(vid);
     this.setDepth(depth); 
-  } // protected Membership(s, gid, mid, field, vid, depth)
+  } // protected Membership(s, gid, mid, f, vid, depth)
 
   // Shared constructor
   private Membership(
-    GrouperSession s, String gid, String mid, String field, FieldType type
+    GrouperSession s, String gid, String mid, Field f
   ) 
   {
     // Attach session
@@ -84,26 +83,28 @@ public class Membership implements Serializable {
     // Set member
     this.setMember_id(mid);
     // Set field  
-    // TOOD this.setList_id( FieldFinder.getField(field) );
-    this.setList_id(field);
-    this.setList_type(type);
-  } // private Membership(s, gid, mid, field, type)
+    this.setField(f);
+  } // private Membership(s, gid, mid, f)
 
 
   // Public Instance Methods
 
   public boolean equals(Object other) {
-    if ( (this == other ) ) return true;
-    if ( !(other instanceof Membership) ) return false;
-    Membership castOther = (Membership) other;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Membership)) {
+      return false;
+    }
+    Membership otherMembership = (Membership) other;
     return new EqualsBuilder()
-           .append(this.getDepth(), castOther.getDepth())
-           .append(this.getGroup_id(), castOther.getGroup_id())
-           .append(this.getMember_id(), castOther.getMember_id())
-           .append(this.getList_id(), castOther.getList_id())
-           .append(this.getVia_id(), castOther.getVia_id())
+           .append(this.getDepth()    , otherMembership.getDepth()    )
+           .append(this.getGroup_id() , otherMembership.getGroup_id() )
+           .append(this.getMember_id(), otherMembership.getMember_id())
+           .append(this.getField()    , otherMembership.getField()    )
+           .append(this.getVia_id()   , otherMembership.getVia_id()   )
            .isEquals();
-  }
+  } // public boolean equals(other)
 
   /**
    * Get child memberships of this membership.
@@ -134,11 +135,11 @@ public class Membership implements Serializable {
    * <pre class="eg">
    * String list = g.getList();
    * </pre>
-   * @return  List of this membership.
+   * @return  The {@link Field} type of this membership.
    */
-  public String getList() {
-    return this.getList_id();
-  } // public String getList()
+  public Field getList() {
+    return this.getField();
+  } // public Field getList()
 
   /**
    * Get this membership's member.
@@ -202,20 +203,18 @@ public class Membership implements Serializable {
            .append(getDepth()     )
            .append(getGroup_id()  )
            .append(getMember_id() )
-           .append(getList_id()   )
-           .append(getList_type() )
+           .append(getField()     )
            .append(getVia_id()    )
            .toHashCode();
   } // public int hashCode()
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("depth"      , getDepth()      )
            .append("group_id"   , getGroup_id()   )
            .append("member_id"  , getMember_id()  )
-           .append("list_id"    , getList_id()    )
-           .append("list_type"  , getList_type()  )
+           .append("list"       , getField()      )
            .append("via_id"     , getVia_id()     )
+           .append("depth"      , getDepth()      )
            .toString();
   } // public String toString()
 
@@ -223,7 +222,7 @@ public class Membership implements Serializable {
   // Protected Class Methods
 
   protected static Membership addMembership(
-    GrouperSession s, Group g, Member m, String field, FieldType type
+    GrouperSession s, Group g, Member m, Field f 
   )
     throws MemberAddException
   {
@@ -231,7 +230,7 @@ public class Membership implements Serializable {
     try {
       // Does the membership already exist?
       ms = MembershipFinder.getImmediateMembership(
-        g, m, Group.LIST
+        s, g, m, f
       );
       throw new MemberAddException(
         "membership already exists"
@@ -239,13 +238,13 @@ public class Membership implements Serializable {
     }
     catch (MembershipNotFoundException eMNF) {
       // Membership doesn't exist.  Create it.
-      ms = new Membership(s, g, m, field, type);
+      ms = new Membership(s, g, m, f);
     }
     if (ms == null) {
       throw new MemberAddException("unable to add member");
     }
     return ms;
-  } // protected static Membership addMembership(s, g, m, field, type)
+  } // protected static Membership addMembership(s, g, m, f)
 
   // Protected Class Methods
   protected static List setSession(GrouperSession s, List l) {
@@ -304,22 +303,12 @@ public class Membership implements Serializable {
     this.member_id = member_id;
   }
 
-  // TODO private String getList_id() {
-  protected String getList_id() {
-    return this.list_id;
+  private Field getField() {
+    return this.field;
   }
 
-  private void setList_id(String list_id) {
-    this.list_id = list_id;
-  }
-
-  // TODO private FieldType getList_type() {
-  protected FieldType getList_type() {
-    return this.list_type;
-  }
-
-  private void setList_type(FieldType list_type) {
-    this.list_type = list_type;
+  private void setField(Field f) {
+    this.field = f;
   }
 
   // TODO private String getVia_id() {

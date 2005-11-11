@@ -17,104 +17,104 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.*;
+import  java.io.Serializable;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.1.2.10 2005-11-11 05:33:03 blair Exp $    
+ * @version $Id: Field.java,v 1.1.2.11 2005-11-11 17:07:30 blair Exp $    
  */
 public class Field implements Serializable {
 
-    // TODO Should I have a singleton for each field?
-
-    // Hibernate Properties
-    private String    field_name;
-    private FieldType field_type;
-    private String    id;
+  // Hibernate Properties
+  private String    field_name;
+  private FieldType field_type;
+  private String    id;
 
     
-    // Constructors
+  // Constructors
     
-    // For Hibernate
-    public Field() {
-      super();
+  // For Hibernate
+  public Field() {
+    super();
+  }
+
+  protected Field(String field, FieldType type) {
+    this.setField_name(field);
+    this.setField_type(type);
+  } // protected Field(field, type)
+
+  // TODO Deprecate?
+  protected Field(String field) {
+    this.setField_name(field);
+  } // protected Field(field)
+
+
+  // Public Instance Methods
+  public boolean equals(Object other) {
+    if (this == other) { 
+      return true;
     }
-
-    protected Field(String field, FieldType type) {
-      this.setField_name(field);
-      this.setField_type(type);
-    } // protected Field(field, type)
-
-    protected Field(String field) {
-      this.setField_name(field);
-    } // protected Field(field)
-
-
-    // Public Instance Methods
-    public boolean equals(Object other) {
-      if (this == other) { 
-        return true;
-      }
-      if (!(other instanceof Field)) {
-        return false;
-      }
-      Field otherField = (Field) other;
-      return new EqualsBuilder()
-             .append(this.getField_name(),  otherField.getField_name())
-             .append(this.getField_type(),  otherField.getField_type())
-             .isEquals();
-    } // public boolean equals(other)
-
-    public FieldType getFieldType() {
-      return this.getField_type();
-    } // public FieldType getFieldType()
-
-    public String getName() {
-      return this.getField_name();
-    } // public String getName()
-
-    public int hashCode() {
-      return new HashCodeBuilder()
-             .append(getField_name()        )
-             .append(getField_type()        )
-             .toHashCode();
-    } // public int hashCode()
-
-    public String toString() {
-      return new ToStringBuilder(this)
-             .append("name",  getField_name() )
-             .append("type",  getField_type() )
-             .toString();
-    } // public String toString()
-
-
-    // Hibernate Accessors
-    private String getId() {
-      return this.id;
+    if (!(other instanceof Field)) {
+      return false;
     }
+    Field otherField = (Field) other;
+    return new EqualsBuilder()
+           .append(this.getField_name(),  otherField.getField_name())
+           .append(this.getField_type(),  otherField.getField_type())
+           .isEquals();
+  } // public boolean equals(other)
 
-    private void setId(String id) {
-      this.id = id;
-    }
+  public FieldType getFieldType() {
+    return this.getField_type();
+  } // public FieldType getFieldType()
 
-    private String getField_name() {
-      return this.field_name;
-    }
+  public String getName() {
+    return this.getField_name();
+  } // public String getName()
 
-    private void setField_name(String field_name) {
-      this.field_name = field_name;
-    }
+  public int hashCode() {
+    return new HashCodeBuilder()
+           .append(getField_name()        )
+           .append(getField_type()        )
+           .toHashCode();
+  } // public int hashCode()
 
-    private FieldType getField_type() {
-      return this.field_type;
-    }
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("name",  getField_name() )
+           .append("type",  getField_type() )
+           .toString();
+  } // public String toString()
 
-    private void setField_type(FieldType type) {
-      this.field_type = type;
-    }
+
+  // Hibernate Accessors
+  private String getId() {
+    return this.id;
+  }
+
+  private void setId(String id) {
+    this.id = id;
+  }
+
+  private String getField_name() {
+    return this.field_name;
+  }
+
+  private void setField_name(String field_name) {
+    this.field_name = field_name;
+  }
+
+  private FieldType getField_type() {
+    return this.field_type;
+  }
+
+  private void setField_type(FieldType type) {
+    this.field_type = type;
+  }
 
 }
+
