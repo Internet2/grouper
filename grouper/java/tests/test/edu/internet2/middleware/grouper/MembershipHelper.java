@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.1.2.1 2005-11-10 16:36:18 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.1.2.2 2005-11-11 17:01:07 blair Exp $
  */
 public class MembershipHelper {
 
@@ -62,35 +62,35 @@ public class MembershipHelper {
   } // protected static void testEff(g, gm, m)
 
   protected static void testEffMship(
-    GrouperSession s, Group g, Member m, String l, Group v, int d
+    GrouperSession s, Group g, Member m, Field f, Group v, int d
   ) 
   {
     try {
-      Membership ms = MembershipFinder.getEffectiveMembership(
-        s, g, m, l, v, d
+      Membership  ms  = MembershipFinder.getEffectiveMembership(
+        s, g, m, f, v, d
       );
       Assert.assertTrue("eff mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
       Assert.fail("eff membership not found");
     }
-  } // protected static void testEffMship(s, g, m, l, v, d)
+  } // protected static void testEffMship(s, g, m, f, v, d)
 
-  protected static void testImmMship(GrouperSession s, Group g, Group m, String l) {
-    testImmMship(s, g, m.toMember(), l);
-  } // protected static void testImmMship(s, g, m, l)
+  protected static void testImmMship(GrouperSession s, Group g, Group m, Field f) {
+    testImmMship(s, g, m.toMember(), f);
+  } // protected static void testImmMship(s, g, m, f)
 
-  protected static void testImmMship(GrouperSession s, Group g, Member m, String l) {
+  protected static void testImmMship(GrouperSession s, Group g, Member m, Field f) {
     try {
-      Membership ms = MembershipFinder.getImmediateMembership(s, g, m, l);
+      Membership  ms  = MembershipFinder.getImmediateMembership(s, g, m, f);
       Assert.assertTrue("imm mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
       Assert.fail("imm membership not found");
     }
-  } // protected static void testImmMship(s, g, m, l)
+  } // protected static void testImmMship(s, g, m, f)
 
-  protected static void testNumMship(Group g, String l, int m, int i, int e) {
+  protected static void testNumMship(Group g, Field f, int m, int i, int e) {
     Assert.assertTrue(
       g.getName() + " mships = " + m,
       g.getMemberships().size() == m
@@ -103,7 +103,7 @@ public class MembershipHelper {
       g.getName() + " eff mships = " + e,
       g.getEffectiveMemberships().size() == e
     );
-  } // protected static void testNumMship(g, l, m, i, e) 
+  } // protected static void testNumMship(g, f, m, i, e) 
   
   
   // Private Class Methods

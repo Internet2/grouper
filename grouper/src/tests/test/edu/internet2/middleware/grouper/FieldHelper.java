@@ -24,7 +24,7 @@ import  junit.framework.*;
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.1.2.1 2005-11-11 05:33:03 blair Exp $
+ * @version $Id: FieldHelper.java,v 1.1.2.2 2005-11-11 17:01:07 blair Exp $
  */
 public class FieldHelper {
 
@@ -34,6 +34,18 @@ public class FieldHelper {
     Assert.assertTrue("f instanceof Field", f instanceof Field);
     Assert.assertTrue("f name = " + name, f.getName().equals(name));
     Assert.assertTrue("f type = " + type, f.getFieldType().toString().equals(type));
+    try {
+      Field field = FieldFinder.getField(name);
+      Assert.assertTrue("got field " + f, true);
+      Assert.assertTrue("field instanceof Field", field instanceof Field);
+      Assert.assertTrue("field name = " + name, field.getName().equals(name));
+      Assert.assertTrue(
+        "field type = " + type, field.getFieldType().toString().equals(type)
+      );
+    }
+    catch (SchemaException eS) {
+      Assert.fail("failed to get " + name);
+    }
   } // protected static void testField(f, name, type)
 
 }

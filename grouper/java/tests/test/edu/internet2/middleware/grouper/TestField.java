@@ -25,7 +25,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.1.2.1 2005-11-11 05:33:03 blair Exp $
+ * @version $Id: TestField.java,v 1.1.2.2 2005-11-11 17:01:07 blair Exp $
  */
 public class TestField extends TestCase {
 
@@ -45,7 +45,6 @@ public class TestField extends TestCase {
 
   public void testFields() {
     Set       fields  = FieldFinder.findAll();
-    Assert.assertTrue("fields == 14", fields.size() == 14);
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( (Field) iter.next(), "admins",           "list"      );
     FieldHelper.testField( (Field) iter.next(), "creators",         "list"      );
