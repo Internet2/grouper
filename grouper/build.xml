@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.61.2.21 2005-11-07 00:00:28 blair Exp $ -->
+<!-- $Id: build.xml,v 1.61.2.22 2005-11-11 05:33:03 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -69,6 +69,19 @@
     </java>
   </target>
   <!-- db -->
+
+  <!-- db-init -->
+  <target name="db-init" 
+          depends="build"
+          description="initialize database"
+  >
+    <java classname="edu.internet2.middleware.grouper.RegistryInstall"
+          fork="yes"
+    >
+      <classpath refid="project.class.path"/>
+    </java>
+  </target>
+  <!-- db-init -->
 
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >

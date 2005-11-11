@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.86.2.20 2005-11-10 16:36:18 blair Exp $
+$Id: API,v 1.86.2.21 2005-11-11 05:33:03 blair Exp $
 
 ---
 
@@ -68,6 +68,13 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 getResults(session)
 
 ## ComplementFilter extends BaseQueryFilter
+
+## Field
+* FieldType           getFieldType()
+* String              getName()
+
+## FieldFinder
+* Set                 findAll()
 
 ## Group
 * void                addMember(member)

@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.47.2.18 2005-11-09 23:20:03 blair Exp $
+$Id: ROADMAP,v 1.47.2.19 2005-11-11 05:33:03 blair Exp $
 
 ---
 
@@ -11,53 +11,39 @@ $Id: ROADMAP,v 1.47.2.18 2005-11-09 23:20:03 blair Exp $
 
 TODO Sync with Basecamp
 
-* [TEST] STEM naming privilege
-* [TEST] CREATE naming privilege
-* [TEST] ADMIN access privilege
-* [TEST] UPDATE access privilege
-* [TEST] ALL|ANY subject adapter
-* [TEST] READ access privilege
-* [TEST] VIEW access privilege
-* [TEST] OPTIN access privilege
-* [TEST] OPTOUT access privilege
+## Next Actions
+* Add _FieldType_ to membership operations
 * Merge HEAD and GROUPER_RELENG_0_9 branches
+* Mock subjects
+* Add privileges to Field mapping
+* STEM and CREATE naming privileges
+* _GroupNameFilter_ and _StemNameFilter_
+* ADMIN and UPDATE access privileges
+* ALL subject adapter
+* READ and VIEW access privileges
+* Use _Subject_, not _Member_, in most method calls
 
-## Not Quite Bugs
-* Field
-** is_list mapping
-** read_privilege_id mapping
-** type_id mapping
-** write_privilege_id mapping
-* GroupType
-** fields mapping
-* Membership
-** list_id mapping
-* Stem
-** child_stems mapping
-** child_groups mapping
-** parent_stem mapping
-* Group
-** parent_stem mapping
-
-## Tests
-* General
-** Create private testing methods for each major class in _Helper_
-** Review old *.todo test classes
-* Groups
-** Deletion
-*** Group with members
-*** Group with attributes
-*** Insufficient privilege
-*** Is parent stem's child stems list updated?
-
-## Features
-* Improved exception hierarchy (#351)
+## Later
+* Switch to _LinkedHashSet_
+* Review Gary's privilege enhancement
+* OPTIN and OPTOUT access privileges
+* Implement all 0.6 query filters
+* _Stem_ child stems mapping
+* _Stem_ parent stem mapping
+* _Group_ parent stem mapping
+* More effective membership testing
+* Group deletion when groups have members or are members
+* Add create + modify times to memberships
+* Add create (+ modify?) time to members
+* Commons logging
+* Map _GroupType_
+* many-to-many maping between _Field_ and _GroupType_
+* Review old _*.todo_ test classes
 * Rename subjectIDs in local subject<=>member mapping (#133)
-
-## Internals
-* Hibernate 3.x
-* List value aging
-* Switch to commons logging
+* Switch to Hibernate 3.x
+* Custom group types
+* Custom group attributes
+* Custom group lists
 
 ---
 

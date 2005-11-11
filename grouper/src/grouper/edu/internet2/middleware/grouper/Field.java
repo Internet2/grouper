@@ -25,9 +25,9 @@ import org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.1.2.9 2005-11-10 17:47:42 blair Exp $    
+ * @version $Id: Field.java,v 1.1.2.10 2005-11-11 05:33:03 blair Exp $    
  */
-class Field implements Serializable {
+public class Field implements Serializable {
 
     // TODO Should I have a singleton for each field?
 
@@ -43,6 +43,11 @@ class Field implements Serializable {
     public Field() {
       super();
     }
+
+    protected Field(String field, FieldType type) {
+      this.setField_name(field);
+      this.setField_type(type);
+    } // protected Field(field, type)
 
     protected Field(String field) {
       this.setField_name(field);
@@ -63,6 +68,14 @@ class Field implements Serializable {
              .append(this.getField_type(),  otherField.getField_type())
              .isEquals();
     } // public boolean equals(other)
+
+    public FieldType getFieldType() {
+      return this.getField_type();
+    } // public FieldType getFieldType()
+
+    public String getName() {
+      return this.getField_name();
+    } // public String getName()
 
     public int hashCode() {
       return new HashCodeBuilder()

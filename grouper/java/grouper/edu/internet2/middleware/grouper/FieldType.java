@@ -19,18 +19,19 @@ package edu.internet2.middleware.grouper;
 
 import  java.io.Serializable;
 import  java.util.*;
-import  org.apache.commons.lang.builder.*;
+//import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * Field Type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.1.2.1 2005-11-10 17:47:42 blair Exp $    
+ * @version $Id: FieldType.java,v 1.1.2.2 2005-11-11 05:33:03 blair Exp $    
  */
 public class FieldType implements Serializable {
 
     // Public Class Constants
+    // TODO Do I need a "trait" (or whatever) type?
     public static final FieldType ACCESS    = new FieldType("access");
     public static final FieldType ATTRIBUTE = new FieldType("attribute");
     public static final FieldType LIST      = new FieldType("list");
@@ -67,9 +68,12 @@ public class FieldType implements Serializable {
 
     // Public Instance Methods
     public String toString() {
+      return this.type;
+/*
       return new ToStringBuilder(this)
              .append("type", type)
              .toString();
+*/
     } // public String toString()
 
 

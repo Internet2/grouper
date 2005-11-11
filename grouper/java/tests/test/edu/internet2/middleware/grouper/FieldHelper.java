@@ -15,37 +15,26 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package test.edu.internet2.middleware.grouper;
 
-import java.util.*;
-import net.sf.hibernate.*;
-import net.sf.hibernate.type.Type;
+import  edu.internet2.middleware.grouper.*;
+import  junit.framework.*;
 
 /**
- * Find fields.
- * <p/>
+* Field-related helper methods for testing the Grouper API.
+ * <p />
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.1.2.9 2005-11-11 05:33:03 blair Exp $
+ * @version $Id: FieldHelper.java,v 1.1.2.1 2005-11-11 05:33:03 blair Exp $
  */
-public class FieldFinder {
+public class FieldHelper {
 
-  // Public Class Methods
-  public static Set findAll() {
-    Set fields = new LinkedHashSet();
-    try {
-      Session   hs    = HibernateHelper.getSession();
-      fields.addAll(
-        hs.find("from Field order by field_name asc")
-      );
-      hs.close();  
-    }
-    catch (HibernateException eH) {
-      throw new RuntimeException(
-        "unable to find fields: " + eH.getMessage()
-      );
-    }
-    return fields;
-  } // public Static Set findAll()
+  // Protected Class Methods
+
+  protected static void testField(Field f, String name, String type) {
+    Assert.assertTrue("f instanceof Field", f instanceof Field);
+    Assert.assertTrue("f name = " + name, f.getName().equals(name));
+    Assert.assertTrue("f type = " + type, f.getFieldType().toString().equals(type));
+  } // protected static void testField(f, name, type)
 
 }
 

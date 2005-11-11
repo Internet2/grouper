@@ -25,38 +25,27 @@ import net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.1.2.8 2005-11-07 00:31:15 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.1.2.9 2005-11-11 05:33:03 blair Exp $
  */
-class FieldFinder {
+public class FieldFinder {
 
-  // Private Class Variables
-  private static Map fields = new HashMap();
-
-
-  // Protected Class Methods
- 
-  // @return  A singleton {@link Field} 
-  protected static Field getField(String field) {
-    if (fields.containsKey(field)) {
-      return (Field) fields.get(field);
-    }
+  // Public Class Methods
+  public static Set findAll() {
+    Set fields = new LinkedHashSet();
     try {
-      // TODO Schema should be predefined in registry
-      //      Or should it be in XML?
-      Field f = new Field(field);
-System.err.println("saving field: " + field);
-      HibernateHelper.save(f);
-System.err.println("saved: " + field);
-      fields.put(field, f);
-      return f; 
+      Session   hs    = HibernateHelper.getSession();
+      fields.addAll(
+        hs.find("from Field order by field_name asc")
+      );
+      hs.close();  
     }
-    catch (HibernateException e) {
-      // TODO For lack of a better alternative at the moment
+    catch (HibernateException eH) {
       throw new RuntimeException(
-        "unable to save field '" + field + "': " + e.getMessage()
+        "unable to find fields: " + eH.getMessage()
       );
     }
-  } // protected static Field getField(field)
+    return fields;
+  } // public Static Set findAll()
 
 }
 
