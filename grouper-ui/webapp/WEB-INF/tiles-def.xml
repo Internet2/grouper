@@ -16,7 +16,7 @@
 	<put name="flatten" type="definition" value="flattenDef"/>
     <put name="right" type="definition" value="rightDef"/>
     <put name="head" type="definition" value="headDef"/>
-    <put name="message" type="definition" value="messageDef"/>
+    <put name="messageArea" type="definition" value="messageDef"/>
     <put name="init" type="definition" value="initDef"/>
     <put name="title" value="titleDef"/>
         <put name="debug" value="debugDef"/>
@@ -33,6 +33,12 @@
 	  </description>
     <put name="content" type="page" value="/WEB-INF/jsp/AssignNewMembers.jsp"/>
 	<put name="browseChildGroup" type="page" value="/WEB-INF/jsp/browseForFindChildGroup.jsp"/> 
+  </definition>
+  
+    <definition name="bodyDef" path="/WEB-INF/jsp/body.jsp">
+	  <description>
+		  Start body tag + content
+	  </description>
   </definition>
   
   <definition name="contentDef" path="/WEB-INF/jsp/content.jsp">
@@ -564,6 +570,12 @@
 	<definition name="debugDef" path="/WEB-INF/jsp/debug.jsp">
 		<description>
 			Tile which displays debug information if dbug mode is on
+	  </description>
+	 </definition>
+	 
+	 	<definition name="linkSeparatorDef" path="/WEB-INF/jsp/linkSeparator.jsp">
+		<description>
+			defaults to : to separate links. Made a tile to allow it to be easily changed - possibly with graphic
 	  </description>
 	 </definition>
 
