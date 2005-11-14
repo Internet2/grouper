@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.50 2005-11-14 16:09:07 blair Exp $
+$Id: ROADMAP,v 1.51 2005-11-14 21:16:17 blair Exp $
 
 ---
 
@@ -12,12 +12,24 @@ $Id: ROADMAP,v 1.50 2005-11-14 16:09:07 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* STEM and CREATE naming privileges
+* Privilege interface should take fields
+* GrouperNamingPrivilege.getPrivs(s, ns, subj)
+* GrouperAccessPrivilege.getPrivs(s, g, subj)
+* GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
+* GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
+* GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
+* GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
+* GrouperNamingPrivilege.grantPriv(s, ns, subj, priv)
+* GrouperAccessPrivilege.grantPriv(s, ns, subj, priv)
+* GrouperNamingPrivilege.revokePriv(s, g, priv)
+
+## Later
+* GrouperAccessPrivilege.revokePriv(s, ns, priv)
+* GrouperNamingPrivilege.revokePriv(s, ns, subj, priv)
+* GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
 * _GroupNameFilter_ and _StemNameFilter_
-* Add privileges to Field mapping
-* ADMIN and UPDATE access privileges
 * ALL subject adapter
-* READ and VIEW access privileges
+* Add privileges to Field mapping
 * Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_
 * `GrouperSession.validate()` in any public method that takes a session
@@ -25,10 +37,8 @@ TODO Sync with Basecamp
 * Review *Finder classes and make sure a session is being attached to
   returned objects
 
-## Later
 * get vs. find method renaming
 * Review Gary's privilege enhancement ideas
-* OPTIN and OPTOUT access privileges
 * Implement all 0.6 query filters
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
