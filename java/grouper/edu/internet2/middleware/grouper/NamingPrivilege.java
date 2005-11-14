@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.3 2005-11-14 16:25:05 blair Exp $
+ * @version $Id: NamingPrivilege.java,v 1.4 2005-11-14 16:45:24 blair Exp $
  */
 public interface NamingPrivilege {
 
@@ -51,7 +51,7 @@ public interface NamingPrivilege {
    * @return  Set of {@link Subjecct} objects.
    * @throws  PrivilegeNotFoundException
    */
-  Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
+  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
@@ -72,7 +72,7 @@ public interface NamingPrivilege {
    * @return  Set of {@link Stem} objects.
    * @throws  PrivilegeNotFoundException
    */
-  Set getPriv(GrouperSession s, Subject subj, String priv) 
+  public Set getPriv(GrouperSession s, Subject subj, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
@@ -85,7 +85,7 @@ public interface NamingPrivilege {
    * @param   subj  Get privileges for this subject.
    * @return  Set of privileges.
    */
-  Set getPrivs(GrouperSession s, Stem ns, Subject subj);
+  public Set getPrivs(GrouperSession s, Stem ns, Subject subj);
 
   /**
    * Grant the privilege to the subject on this stem.
@@ -111,7 +111,7 @@ public interface NamingPrivilege {
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    */
-  void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
            PrivilegeNotFoundException;
@@ -132,7 +132,7 @@ public interface NamingPrivilege {
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws PrivilegeNotFoundException;
 
   /**
@@ -158,7 +158,7 @@ public interface NamingPrivilege {
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  void revokePriv(GrouperSession s, Stem ns, String priv)
+  public void revokePriv(GrouperSession s, Stem ns, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;
@@ -187,7 +187,7 @@ public interface NamingPrivilege {
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;

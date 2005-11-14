@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.88 2005-11-14 16:25:05 blair Exp $
+$Id: API,v 1.89 2005-11-14 16:45:24 blair Exp $
 
 ---
 
@@ -138,6 +138,10 @@ TODO Be more consistent about when calling for a member and a subject
 * Group               GroupFinder.findByName(session, name)
 * Group               GroupFinder.findByUuid(session, uuid)
 
+## GrouperAccessPrivilege implements AccessPrivilege
+
+## GrouperNamingPrivilege implements NamingPrivilege
+
 ## GrouperQuery
 * GrouperQuery        GrouperQuery.createQuery(session, filter)
 * Set                 getGroups()
@@ -262,5 +266,6 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 SubjectFinder.find(query)
 
 ## UnionFilter extends BaseQueryFilter
+
 
 
