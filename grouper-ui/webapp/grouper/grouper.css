@@ -156,6 +156,7 @@ chrome://webdeveloper/content/stylesheets/view_style_information.css
 	border-bottom-color:#cccccc;
 	border-bottom-width:1px;
 	border-bottom-style:solid;
+	clear:both;
 }
 
 fieldset.nested {
