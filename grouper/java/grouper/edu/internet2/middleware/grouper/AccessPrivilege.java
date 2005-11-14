@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 
 
@@ -28,17 +29,17 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.2 2005-11-11 18:32:06 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.3 2005-11-14 16:25:05 blair Exp $
  */
 public interface AccessPrivilege {
 
   // Public Instance Methods
 
   /**
-   * Get all members with this privilege on this group.
+   * Get all subjects with this privilege on this group.
    * <pre class="eg">
    * try {
-   *   Set admins = ap.getPriv(s, g, Privilege.ADMIN);
+   *   Set admins = ap.getSubjectsWithPriv(s, g, Privilege.ADMIN);
    * }
    * catch (PrivilegeNotFoundException e0) {
    *   // Invalid priv
@@ -47,48 +48,50 @@ public interface AccessPrivilege {
    * @param   s     Get privileges within this session context.
    * @param   g     Get privileges on this group.
    * @param   priv  Get this privilege.
-   * @return  Set of {@link Member} objects.
+   * @return  Set of {@link Subject} objects.
    * @throws  PrivilegeNotFoundException
    */
-  Set getPriv(GrouperSession s, Group g, String priv) 
+  Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
-   * Get all groups where this member has this privilege.
+   * Get all groups where this subject has this privilege.
    * <pre class="eg">
    * try {
-   *   Set isAdmin = ap.getPriv(s, m, Privilege.ADMIN);
+   *   Set isAdmin = ap.getGroupsWhereSubjectHasPriv(
+   *     s, subj, Privilege.ADMIN
+   *   );
    * }
    * catch (PrivilegeNotFoundException e0) {
    *   // Invalid priv
    * }
    * </pre>
    * @param   s     Get privileges within this session context.
-   * @param   m     Get privileges for this member.
+   * @param   subj  Get privileges for this subject.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Group} objects.
    * @throws  PrivilegeNotFoundException
    */
-  Set getPriv(GrouperSession s, Member m, String priv) 
+  Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
-   * Get all privileges held by this member on this group.
+   * Get all privileges held by this subject on this group.
    * <pre class="eg">
-   * Set privs = ap.getPrivs(s, g, m);
+   * Set privs = ap.getPrivs(s, g, subj);
    * </pre>
-   * @param   s   Get privileges within this session context.
-   * @param   g   Get privileges on this group.
-   * @param   m   Get privileges for this member.
+   * @param   s     Get privileges within this session context.
+   * @param   g     Get privileges on this group.
+   * @param   subj  Get privileges for this member.
    * @return  Set of privileges.
    */
-  Set getPrivs(GrouperSession s, Group g, Member m);
+  Set getPrivs(GrouperSession s, Group g, Subject subj);
 
   /**
-   * Grant the privilege to the member on this group.
+   * Grant the privilege to the subject on this group.
    * <pre class="eg">
    * try {
-   *   ap.grantPriv(s, g, m, Privilege.ADMIN);
+   *   ap.grantPriv(s, g, subj, Privilege.ADMIN);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Unable to grant the privilege
@@ -102,22 +105,22 @@ public interface AccessPrivilege {
    * </pre>
    * @param   s     Grant privilege in this session context.
    * @param   g     Grant privilege on this group.
-   * @param   m     Grant privilege to this member.
+   * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    */
-  void grantPriv(GrouperSession s, Group g, Member m, String priv)
+  void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
            PrivilegeNotFoundException;
 
   /**
-   * Check whether the member has this privilege on this group.
+   * Check whether the subject has this privilege on this group.
    * <pre class="eg">
    * try {
-   *   ap.hasPriv(s, g, m, Privilege.ADMIN);
+   *   ap.hasPriv(s, g, subject, Privilege.ADMIN);
    * }
    * catch (PrivilegeNotFoundException e) {
    *   // Invalid privilege
@@ -125,11 +128,11 @@ public interface AccessPrivilege {
    * </pre>
    * @param   s     Check privilege in this session context.
    * @param   g     Check privilege on this group.
-   * @param   m     Check privilege for this member.
+   * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  boolean hasPriv(GrouperSession s, Group g, Member m, String priv)
+  boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws PrivilegeNotFoundException;
 
   /**
@@ -161,10 +164,10 @@ public interface AccessPrivilege {
            RevokePrivilegeException;
 
   /**
-   * Revoke the privilege from the member on this group.
+   * Revoke the privilege from the subject on this group.
    * <pre class="eg">
    * try {
-   *   ap.revokePriv(s, g, m, Privilege.ADMIN);
+   *   ap.revokePriv(s, g, subj, Privilege.ADMIN);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
@@ -178,13 +181,13 @@ public interface AccessPrivilege {
    * </pre>
    * @param   s     Revoke privilege in this session context.
    * @param   g     Revoke privilege on this group.
-   * @param   m     Revoke privilege from this member.
+   * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  void revokePriv(GrouperSession s, Group g, Member m, String priv)
+  void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;

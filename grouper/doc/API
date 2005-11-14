@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.87 2005-11-11 17:42:13 blair Exp $
+$Id: API,v 1.88 2005-11-14 16:25:05 blair Exp $
 
 ---
 
@@ -17,22 +17,22 @@ TODO Be more consistent about when calling for a member and a subject
 # Interfaces
 
 ## AccessPrivilege
-* Set                 getPriv(session, group, privilege)
-* Set                 getPriv(session, member, privilege)
-* Set                 getPrivs(session, group, member)
-* void                grantPriv(session, group, member, privilege)
-* boolean             hasPriv(session, group, member, privilege)
+* Set                 getSubjectsWithPriv(session, group, privilege)
+* Set                 getGroupsWhereSubjectHasPriv(session, subject, privilege)
+* Set                 getPrivs(session, group, subject)
+* void                grantPriv(session, group, subject, privilege)
+* boolean             hasPriv(session, group, subject, privilege)
 * void                revokePriv(session, group, privilege)
-* void                revokePriv(session, group, member, privilege)
+* void                revokePriv(session, group, subject, privilege)
 
 ## NamingPrivilege
-* Set                 getPriv(session, group, privilege)
-* Set                 getPriv(session, member, privilege)
-* Set                 getPrivs(session, group, member)
-* void                grantPriv(session, group, member, privilege)
-* boolean             hasPriv(session, group, member, privilege)
-* void                revokePriv(session, group, privilege)
-* void                revokePriv(session, group, member, privilege)
+* Set                 getSubjectsWithPriv(session, stem, privilege)
+* Set                 getStemsWhereSubjectHasPriv(session, subject, privilege)
+* Set                 getPrivs(session, stem, subject)
+* void                grantPriv(session, stem, subject, privilege)
+* boolean             hasPriv(session, stem, subject, privilege)
+* void                revokePriv(session, stem, privilege)
+* void                revokePriv(session, stem, subject, privilege)
 
 ## QueryFilter
 * Set                 getResults(session)
