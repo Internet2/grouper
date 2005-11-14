@@ -179,7 +179,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </table>
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.1.1.1 2005-08-23 13:04:16 isgwb Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.2 2005-11-14 14:28:17 isgwb Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -198,6 +198,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 			throws Exception {
 		DynaActionForm groupForm = (DynaActionForm) form;
 		String groupId = (String) groupForm.get("groupId");
+		saveAsCallerPage(request,groupForm);
 		if(isEmpty(groupId))groupId = (String) groupForm.get("asMemberOf");
 		String privilege = (String)groupForm.get("privilege");
 		if(isEmpty(privilege)) privilege = (String)session.getAttribute("findForPriv");
