@@ -7,21 +7,23 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.2 2005-11-08 16:25:55 isgwb Exp $
+  @version $Id: template.jsp,v 1.3 2005-11-14 14:10:28 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
      PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-
-
-
+<%@page import="org.apache.struts.tiles.ComponentContext"%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
+<tiles:importAttribute ignore="true"/>
+<grouper:recordTile key="Not dynamic" tile="/WEB-INF/jsp/template.jsp">
+
 <%@page import="java.io.PrintWriter"%>
 <%
 StringBuffer pageUrl = request.getRequestURL();
-request.setAttribute("pageUrlMinusQueryString",pageUrl.toString());
+//request.setAttribute("pageUrlMinusQueryString",pageUrl.toString());
+request.setAttribute("pageUrlMinusQueryString", request.getAttribute( "javax.servlet.forward.request_uri" )); // added, smb1 - 2005.10.11
 char delim = '?';
 if(request.getQueryString()!=null) {
 	pageUrl.append("?" + request.getQueryString());
@@ -30,60 +32,23 @@ if(request.getQueryString()!=null) {
 request.setAttribute("pageUrl",pageUrl.toString());
 pageUrl.append(delim);
 request.setAttribute("pageUrlWithDelim",pageUrl.toString());
-%>
-
+%><head>
+    <tiles:insert attribute="head"/>
+</head>
 <tiles:insert attribute="init"/>
 <html:html lang="en" xhtml="true">
 <html:xhtml/>
-<head>
-    <tiles:insert attribute="head"/>
-</head>
-<body>
 <% try {
-	%>
-   		<!--ContentSpace-->
-        <div id="ContentSpace">
-            <div id="TitleBox">
-               <tiles:insert attribute="title" />
-            </div>
-			
-            <c:if test="${!empty message}">
-                    <tiles:insert attribute="message" />   
-            </c:if>
-            <!--content-->
-            <div id="Content">
-                <tiles:insert attribute='contentwrapper'>
-					<tiles:put name="tile"><tiles:getAsString name="content"/></tiles:put>
-				</tiles:insert>
-            </div>
-            <!--/content-->
-        	<!--Right-->
-			<div id="Right">
-				<tiles:insert attribute="right" />
-			</div><!--/Right-->
-			<!--NavBar-->
-			<div id="Navbar">
-				<tiles:insert attribute='subheader'/>
-			</div><!--/NavBar-->
-			<!--Left-->
-			<div id="left">
-				<tiles:insert attribute="left" />
-			</div><!--/Left-->
-			<c:if test="${!empty authUser}">
-				<!--SideBar-->
-				<div id="Sidebar">
-					<tiles:insert attribute="menu" />
-				</div><!--/SideBar-->
-			</c:if>
-			<!--Header-->
-			 <div id="Header">
-				<tiles:insert attribute="header" />
-			 </div><!--/Header-->
-    		<!--Footer-->
-			<div id="Footer">
-				<tiles:insert attribute="footer" />
-			</div><!--Footer-->
-    </div><!--/ContentSpace--> 
+	
+ComponentContext tContext = ComponentContext.getContext(request);
+pageContext.setAttribute("parentTilesContext",tContext);
+String prefix = org.apache.struts.util.ModuleUtils.getInstance().getModuleConfig(request).getPrefix();
+request.setAttribute("modulePrefix",prefix);
+%>
+<tiles:insert definition="bodyDef" controllerUrl="${modulePrefix}/propogateTilesAttributes.do">
+	<tiles:put name="parentTilesContext" beanName="parentTilesContext"/>
+</tiles:insert>
+	
 	<%
 	
 		}catch(Exception e) {
@@ -95,7 +60,10 @@ request.setAttribute("pageUrlWithDelim",pageUrl.toString());
 	<%}%>
 	<tiles:insert attribute="debug" />
 	
-    <c:if test="${!empty templateException && debugPrefs.isActive}"><pre>
+    <c:if test="${!empty templateException && debugPrefs.isActive}">
+
+
+		<pre>
 		<%
 			Exception te = (Exception)pageContext.getAttribute("templateException");
 			if(te.getMessage()!=null) out.write("\n" + te.getMessage() + "\n");
@@ -104,19 +72,16 @@ request.setAttribute("pageUrlWithDelim",pageUrl.toString());
 		</pre>
 		
 	</c:if>
-		<%
-			if(pageContext.getAttribute("throwTemplateException")!=null) {
-				session.setAttribute("templateException",pageContext.getAttribute("templateException"));
-			
-				
-}
+<%
+	if(pageContext.getAttribute("throwTemplateException")!=null) {
+				session.setAttribute("templateException",pageContext.getAttribute("templateException"));		
+	}
 %>
  <c:if test="${!empty sessionScope.templateException && !debugPrefs.isActive}">
 	<script type="text/javascript">
 		document.location.replace("error.do");
 	</script>
-  </c:if>	
-	
-            
+  </c:if>	        
 </body>
 </html:html>
+</grouper:recordTile>
