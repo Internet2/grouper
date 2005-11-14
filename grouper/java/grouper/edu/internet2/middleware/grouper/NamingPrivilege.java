@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.5 2005-11-14 16:47:07 blair Exp $
+ * @version $Id: NamingPrivilege.java,v 1.6 2005-11-14 17:00:46 blair Exp $
  */
 public interface NamingPrivilege {
 
@@ -72,7 +72,7 @@ public interface NamingPrivilege {
    * @return  Set of {@link Stem} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getPriv(GrouperSession s, Subject subj, String priv) 
+  public Set getStemsWhereSubjectHasPriv(GrouperSession s, Subject subj, String priv) 
     throws PrivilegeNotFoundException;
 
   /**

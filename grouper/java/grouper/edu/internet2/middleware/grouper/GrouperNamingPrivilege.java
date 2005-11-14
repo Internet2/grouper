@@ -29,7 +29,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingPrivilege.java,v 1.2 2005-11-14 16:47:07 blair Exp $
+ * @version $Id: GrouperNamingPrivilege.java,v 1.3 2005-11-14 17:00:46 blair Exp $
  */
 public class GrouperNamingPrivilege implements NamingPrivilege {
 
@@ -75,11 +75,13 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * @return  Set of {@link Stem} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getPriv(GrouperSession s, Subject subj, String priv) 
+  public Set getStemsWhereSubjectHashPriv(
+    GrouperSession s, Subject subj, String priv
+  ) 
     throws PrivilegeNotFoundException 
   {
     throw new RuntimeException("not implemented");
-  } // public Set getPriv(s, subj, priv)
+  } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   /**
    * Get all privileges held by this subject on this stem.
