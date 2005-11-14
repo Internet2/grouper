@@ -3,7 +3,7 @@
 		  and a 'viewObject'
 --%><%--
   @author Gary Brown.
-  @version $Id: dynamicTile.jsp,v 1.2 2005-11-08 15:55:41 isgwb Exp $
+  @version $Id: dynamicTile.jsp,v 1.3 2005-11-14 14:11:26 isgwb Exp $
 --%>
 <%@page import="org.apache.struts.tiles.ComponentContext"%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -14,8 +14,6 @@
 --><%
 ComponentContext tContext = ComponentContext.getContext(request);
 pageContext.setAttribute("parentTilesContext",tContext);
-String prefix = org.apache.struts.util.ModuleUtils.getInstance().getModuleConfig(request).getPrefix();
-pageContext.setAttribute("modulePrefix",prefix);
 %>	<grouper:recordTile view="${view}" type="${dynamicObjectType}" key="${dynamicTemplateKey}" tile="${dynamicTemplate}">
 		<c:if test="${!empty dynamicTemplate}">
 			<c:set var="safeObject" value="${viewObject}"/>
