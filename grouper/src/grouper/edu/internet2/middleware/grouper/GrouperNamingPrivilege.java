@@ -29,7 +29,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingPrivilege.java,v 1.4 2005-11-14 17:26:54 blair Exp $
+ * @version $Id: GrouperNamingPrivilege.java,v 1.5 2005-11-14 18:35:39 blair Exp $
  */
 public class GrouperNamingPrivilege implements NamingPrivilege {
 
@@ -141,14 +141,29 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * </pre>
    * @param   s     Check privilege in this session context.
    * @param   ns    Check privilege on this stem.
-   * @param   subj     Check privilege for this subject.
+   * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws PrivilegeNotFoundException 
   {
-    throw new RuntimeException("not implemented");
+    try {
+      Field   f   = FieldFinder.getField(priv);
+      Member  m   = MemberFinder.findBySubject(s, subj);
+      if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
+        return true;
+      }
+      return false;
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(
+        "could not convert subject to member: " + eMNF.getMessage()
+      );  
+    }
+    catch (SchemaException eS) {
+      throw new PrivilegeNotFoundException("invalid privilege: " + priv);
+    }
   } // public boolean hasPriv(s, ns, subj, priv) 
 
   /**

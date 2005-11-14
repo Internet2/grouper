@@ -17,6 +17,7 @@
 
 package test.edu.internet2.middleware.grouper;
 
+import  com.devclue.grouper.subject.*;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
@@ -26,9 +27,21 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.3 2005-11-14 18:35:39 blair Exp $
  */
 public class SubjectHelper {
+
+  // Protected Class Constants
+  protected static final MockSourceAdapter  MSA   = new MockSourceAdapter(
+    "mock source adapter", "msa"
+  );
+  protected static final Subject            SUBJ0 = new MockSubject(
+    "subject 0", "my name is subject 0", MSA
+  );
+  protected static final Subject            SUBJ1 = new MockSubject(
+    "subject 1", "my name is subject 1", MSA
+  );
+
 
   // Protected Class Methods
 

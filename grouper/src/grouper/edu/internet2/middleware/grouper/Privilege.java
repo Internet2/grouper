@@ -17,130 +17,115 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+
+import  java.io.Serializable;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * Schema specification for Access and Naming privileges.
- * @author blair christensen.
- *     
-*/
-class Privilege implements Serializable {
+ * <p/>
+ * @author  blair christensen.
+ * @version $Id: Privilege.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ */
+public class Privilege implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Public Class Constants
+  public static final String STEM = "stemmers";
 
-    /** persistent field */
-    private String name;
 
-    /** persistent field */
-    private boolean is_access;
+  // Hibernate Properties
+  private String  id;
+  private boolean is_access;
+  private boolean is_naming;
+  private String  name;
+  private Integer version;
 
-    /** persistent field */
-    private boolean is_naming;
 
-    /** nullable persistent field */
-    private Integer version;
+  // Constructors
 
-    /** full constructor */
-    public Privilege(String name, boolean is_access, boolean is_naming, Integer version) {
-        this.name = name;
-        this.is_access = is_access;
-        this.is_naming = is_naming;
-        this.version = version;
+  /**
+   * For Hibernate.
+   */
+  public Privilege() {
+    // nothing
+  }
+
+
+  // Public Instance Methods
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("name",      getName()     )
+           .append("is_access", isIs_access() )
+           .append("is_naming", isIs_naming() )
+           .toString()
+           ;
+  } // public String toString()
+
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
     }
-
-    /** default constructor */
-    public Privilege() {
+    if (!(other instanceof Privilege)) {
+      return false;
     }
+    Privilege otherPriv = (Privilege) other;
+    return new EqualsBuilder()
+           .append(this.getName(),      otherPriv.getName()     )
+           .append(this.isIs_access(),  otherPriv.isIs_access() )
+           .append(this.isIs_naming(),  otherPriv.isIs_naming() )
+           .isEquals()
+           ;
+    } // public boolean equals(other)
 
-    /** minimal constructor */
-    public Privilege(String name, boolean is_access, boolean is_naming) {
-        this.name = name;
-        this.is_access = is_access;
-        this.is_naming = is_naming;
-    }
+  public int hashCode() {
+    return new HashCodeBuilder()
+           .append(getName()      )
+           .append(isIs_access()  )
+           .append(isIs_naming()  )
+           .toHashCode()
+           ;
+  } // public int hashCode()
 
-    private String getId() {
-        return this.id;
-    }
+  // Hibernate Accessors
+  private String getId() {
+    return this.id;
+  }
 
-    private void setId(String id) {
-        this.id = id;
-    }
+  private void setId(String id) {
+    this.id = id;
+  }
 
-    /** 
-     * Get name.
-     *       
-     */
-    private String getName() {
-        return this.name;
-    }
+  private String getName() {
+    return this.name;
+  }
 
-    private void setName(String name) {
-        this.name = name;
-    }
+  private void setName(String name) {
+    this.name = name;
+  }
 
-    /** 
-     * Get whether this is an Access privilege.
-     *       
-     */
-    private boolean isIs_access() {
-        return this.is_access;
-    }
+  private boolean isIs_access() {
+    return this.is_access;
+  }
 
-    private void setIs_access(boolean is_access) {
-        this.is_access = is_access;
-    }
+  private void setIs_access(boolean is_access) {
+    this.is_access = is_access;
+  }
 
-    /** 
-     * Get whether this is a Naming privilege.
-     *       
-     */
-    private boolean isIs_naming() {
-        return this.is_naming;
-    }
+  private boolean isIs_naming() {
+    return this.is_naming;
+  }
 
-    private void setIs_naming(boolean is_naming) {
-        this.is_naming = is_naming;
-    }
+  private void setIs_naming(boolean is_naming) {
+    this.is_naming = is_naming;
+  }
 
-    private Integer getVersion() {
-        return this.version;
-    }
+  private Integer getVersion() {
+    return this.version;
+  }
 
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("name", getName())
-            .append("is_access", isIs_access())
-            .append("is_naming", isIs_naming())
-            .toString();
-    }
-
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Privilege) ) return false;
-        Privilege castOther = (Privilege) other;
-        return new EqualsBuilder()
-            .append(this.getName(), castOther.getName())
-            .append(this.isIs_access(), castOther.isIs_access())
-            .append(this.isIs_naming(), castOther.isIs_naming())
-            .isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getName())
-            .append(isIs_access())
-            .append(isIs_naming())
-            .toHashCode();
-    }
+  private void setVersion(Integer version) {
+    this.version = version;
+  }
 
 }

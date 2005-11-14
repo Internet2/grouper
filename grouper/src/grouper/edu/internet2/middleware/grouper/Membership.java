@@ -26,16 +26,16 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: Membership.java,v 1.3 2005-11-14 18:35:39 blair Exp $
  */
 public class Membership implements Serializable {
 
   // Hibernate Properties
   private int       depth;
-  private String    group_id;
+  private Field     field;
   private String    id;
   private String    member_id;
-  private Field     field;
+  private String    owner_id;
   private String    via_id;
 
   
@@ -73,18 +73,18 @@ public class Membership implements Serializable {
 
   // Shared constructor
   private Membership(
-    GrouperSession s, String gid, String mid, Field f
+    GrouperSession s, String oid, String mid, Field f
   ) 
   {
     // Attach session
     this.s = s;
-    // Set group
-    this.setGroup_id(gid);
+    // Set owner
+    this.setOwner_id(oid);
     // Set member
     this.setMember_id(mid);
     // Set field  
     this.setField(f);
-  } // private Membership(s, gid, mid, f)
+  } // private Membership(s, oid, mid, f)
 
 
   // Public Instance Methods
@@ -99,7 +99,7 @@ public class Membership implements Serializable {
     Membership otherMembership = (Membership) other;
     return new EqualsBuilder()
            .append(this.getDepth()    , otherMembership.getDepth()    )
-           .append(this.getGroup_id() , otherMembership.getGroup_id() )
+           .append(this.getOwner_id() , otherMembership.getOwner_id() )
            .append(this.getMember_id(), otherMembership.getMember_id())
            .append(this.getField()    , otherMembership.getField()    )
            .append(this.getVia_id()   , otherMembership.getVia_id()   )
@@ -127,7 +127,9 @@ public class Membership implements Serializable {
   public Group getGroup() 
     throws GroupNotFoundException
   {
-    return GroupFinder.findByUuid(this.s, this.getGroup_id());
+    // TODO Cache group?
+    // TODO Check field
+    return GroupFinder.findByUuid(this.s, this.getOwner_id());
   } // public Group getGroup()
 
   /**
@@ -201,7 +203,7 @@ public class Membership implements Serializable {
   public int hashCode() {
     return new HashCodeBuilder()
            .append(getDepth()     )
-           .append(getGroup_id()  )
+           .append(getOwner_id()  )
            .append(getMember_id() )
            .append(getField()     )
            .append(getVia_id()    )
@@ -210,7 +212,7 @@ public class Membership implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("group_id"   , getGroup_id()   )
+           .append("owner_id"   , getOwner_id()   )
            .append("member_id"  , getMember_id()  )
            .append("list"       , getField()      )
            .append("via_id"     , getVia_id()     )
@@ -246,7 +248,6 @@ public class Membership implements Serializable {
     return ms;
   } // protected static Membership addMembership(s, g, m, f)
 
-  // Protected Class Methods
   protected static List setSession(GrouperSession s, List l) {
     List      mships  = new ArrayList();
     Iterator  iter    = l.iterator();
@@ -260,6 +261,15 @@ public class Membership implements Serializable {
 
 
   // Protected Instance Methods
+
+  protected Stem getStem() 
+    throws StemNotFoundException
+  {
+    // TODO Cache stem?
+    // TODO Check field
+    return StemFinder.getByUuid(this.s, this.getOwner_id());
+  } // public Stem getStem()
+
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;
@@ -285,13 +295,13 @@ public class Membership implements Serializable {
     this.depth = depth;
   }
 
-  // TODO private String getGroup_id() {
-  protected String getGroup_id() {
-    return this.group_id;
+  // TODO private String getOwner_id() {
+  protected String getOwner_id() {
+    return this.owner_id;
   }
 
-  private void setGroup_id(String group_id) {
-    this.group_id = group_id;
+  private void setOwner_id(String owner_id) {
+    this.owner_id = owner_id;
   }
 
   // TODO private String getMember_id() {

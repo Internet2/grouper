@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.90 2005-11-14 17:35:35 blair Exp $
+$Id: API,v 1.91 2005-11-14 18:35:39 blair Exp $
 
 ---
 
@@ -245,7 +245,7 @@ TODO Be more consistent about when calling for a member and a subject
 * String              getUuid()
 * void                grantPriv(member, privilege)
 * boolean             hasCreate(member)
-* boolean             hasStem(member)
+* boolean             hasStem(subject)
 * void                revokePriv(privilege)
 * void                revokePriv(member, privilege) 
 * void                setDescription(value)

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: Stem.java,v 1.3 2005-11-14 18:35:39 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -457,18 +457,27 @@ public class Stem implements Serializable {
   /**
    * Check whether a member has the STEM privilege on this stem.
    * <pre class="eg">
-   * if (ns.hasStem(m)) {
+   * if (ns.hasStem(subj)) {
    *   // Has STEM
    * }
    *   // Does not have STEM
    * } 
    * </pre>
-   * @param   m   Check whether this member has STEM.
+   * @param   subj  heck whether this subject has STEM.
    * @return  Boolean true if the member has STEM.
    */
-  public boolean hasStem(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasStem(Subject subj) {
+    try {
+      return GrouperConfig
+             .getInstance()
+             .getNaming()
+             .hasPriv(this.s, this, subj, Privilege.STEM)
+             ;
+    }
+    catch (PrivilegeNotFoundException ePNF) {
+      return false;
+    }
+  } // public boolean hasStem(subj)
  
   public int hashCode() {
     return new HashCodeBuilder()
