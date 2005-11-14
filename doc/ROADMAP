@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.49 2005-11-14 15:47:08 blair Exp $
+$Id: ROADMAP,v 1.50 2005-11-14 16:09:07 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.49 2005-11-14 15:47:08 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Mock subjects
 * STEM and CREATE naming privileges
 * _GroupNameFilter_ and _StemNameFilter_
 * Add privileges to Field mapping
@@ -23,10 +22,10 @@ TODO Sync with Basecamp
 * Switch to _LinkedHashSet_
 * `GrouperSession.validate()` in any public method that takes a session
   argument
-
-## Later
 * Review *Finder classes and make sure a session is being attached to
   returned objects
+
+## Later
 * get vs. find method renaming
 * Review Gary's privilege enhancement ideas
 * OPTIN and OPTOUT access privileges
@@ -92,6 +91,7 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
