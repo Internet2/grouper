@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -79,10 +80,23 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.1.1.1 2005-08-23 13:04:13 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.2 2005-11-14 14:44:21 isgwb Exp $
  */
 
 public class GrouperHelper {
+	public static HashMap list2privMap;
+	static {
+		list2privMap = new HashMap();
+		list2privMap.put("admins",Grouper.PRIV_ADMIN);
+		list2privMap.put("optins",Grouper.PRIV_OPTIN);
+		list2privMap.put("optouts",Grouper.PRIV_OPTOUT);
+		list2privMap.put("readers",Grouper.PRIV_READ);
+		list2privMap.put("updaters",Grouper.PRIV_UPDATE);
+		list2privMap.put("viewers",Grouper.PRIV_VIEW);
+		list2privMap.put("stemmers",Grouper.PRIV_STEM);
+		list2privMap.put("creators",Grouper.PRIV_CREATE);
+		list2privMap.put("members","MEMBER");
+	}
 
 	private static Map superPrivs = null; //Privs automatically granted to the
 										  // system user
@@ -451,7 +465,35 @@ public class GrouperHelper {
 		SubjectAsMap map = new SubjectAsMap(subject);
 		return (Map) map;
 	}
+	
+	/** Given a Subject return a Map representation of it
+	 * @param subject to be wrapped
+	 * @param addAttr Map of additional attributes
+	 * @return Subject wrapped as a Map
+	 */
+	public static Map subject2Map(Subject subject,Map addAttr) {
+		//@TODO what should happen if Group - see next method
+		SubjectAsMap map = new SubjectAsMap(subject);
+		if(addAttr !=null) map.putAll(addAttr);
+		return (Map) map;
+	}
 
+	/**
+	 * Given a subject id and subject type and a Map, return a Map representation of the
+	 * subject and add the key/value pairs from the input Map.
+	 * 
+	 * @param s GrouperSession for authenticated user
+	 * @param subjectId Subject id
+	 * @param subjectType Subject type e.g. person, group
+	 * @param addAttr Map of aditional attributes
+	 * @return Subject wrapped as a Map
+	 */
+	public static Map subject2Map(GrouperSession s, String subjectId,
+			String subjectType,Map addAttr) {
+		Map subjectMap = subject2Map(s,subjectId,subjectType);
+		if(addAttr !=null) subjectMap.putAll(addAttr);
+		return subjectMap;
+	}
 	
 	/**
 	 * Given a subject id and subject type return a Map representation of it.
@@ -477,7 +519,24 @@ public class GrouperHelper {
 		Map groupMap = group2Map(s, group);
 		return groupMap;
 	}
-
+	
+	/**
+	 * Given an array of Subjects return a List of Maps representing those subjects
+	 * 
+	 * @param objects array of Subjects
+	 * @param addAttr Map of additional attributes
+	 * @return List of Subjects wrapped as Maps
+	 */
+	public static List subjects2Maps(Object[] objects,Map addAttr) {
+		if (objects instanceof Subject[])
+			return subjects2Maps((Subject[]) objects);
+		Subject[] subjects = new Subject[objects.length];
+		for (int i = 0; i < objects.length; i++) {
+			subjects[i] = (Subject) objects[i];
+		}
+		return subjects2Maps(subjects,addAttr);
+	}
+	
 	/**
 	 * Given an array of Subjects return a List of Maps representing those subjects
 	 * 
@@ -485,15 +544,25 @@ public class GrouperHelper {
 	 * @return List of Subjects wrapped as Maps
 	 */
 	public static List subjects2Maps(Object[] objects) {
-		if (objects instanceof Subject[])
-			return subjects2Maps((Subject[]) objects);
-		Subject[] subjects = new Subject[objects.length];
-		for (int i = 0; i < objects.length; i++) {
-			subjects[i] = (Subject) objects[i];
-		}
-		return subjects2Maps(subjects);
+		
+		return subjects2Maps(objects,null);
 	}
 
+	/**
+	 * Given an array of Subjects return a List of Maps representing those subjects
+	 * 
+	 * @param objects array of Subjects
+	 * @param addAttr Map of aditional attributes
+	 * @return List of Subjects wrapped as Maps
+	 */
+	public static List subjects2Maps(Subject[] subjects,Map addAttr) {
+		List maps = new ArrayList();
+		for (int i = 0; i < subjects.length; i++) {
+			maps.add(subject2Map(subjects[i],addAttr));
+		}
+		return maps;
+	}
+	
 	/**
 	 * Given an array of Subjects return a List of Maps representing those subjects
 	 * 
@@ -575,25 +644,20 @@ public class GrouperHelper {
 		GrouperGroup firstInChain = null;
 		GrouperMember chainMember = null;
 		String[] chainGroupIds = null;
+		int chainSizeAdjustment=1;
+		String[] emptyStrArray=new String[]{};
+		boolean isChainSameAsList = false;
 		for (int i = start; i < end; i++) {
-
+			chainGroupIds = emptyStrArray;
 			listItem = members.get(i);
 			if (listItem instanceof GrouperList) {
 				list = (GrouperList) listItem;
 				via = (GrouperGroup) list.via();
 				chain = list.chain();
+
 				if (chain != null && chain.size() > 0) {
-					chainGroupIds = new String[chain.size() + 1];
-					for (int j = 0; j < chain.size(); j++) {
-						chainMember = (GrouperMember) ((MemberVia) chain.get(j))
-								.toList(s).member();
-						if (j == 0)
-							firstInChain = GrouperGroup.loadByID(s, chainMember
-									.subjectID());
-						chainGroupIds[j] = chainMember.subjectID();
-					}
-					if (via != null)
-						chainGroupIds[chainGroupIds.length - 1] = via.id();
+					chainGroupIds = getChainGroupIds(s,list);
+					
 				} else {
 					firstInChain = null;
 				}
@@ -615,8 +679,14 @@ public class GrouperHelper {
 			}
 			if (firstInChain != null)
 				subjMap.put("via", group2Map(s, firstInChain));
-			if (asMemberOf != null)
+			Group group = list.group();
+			subjMap.put("memberOfGroup",group2Map(s,group));
+			if (asMemberOf != null) {
 				subjMap.put("asMemberOf", asMemberOf);
+			}else{
+				
+				subjMap.put("asMemberOf", group.id());
+			}
 			if (chain != null) {
 				subjMap.put("chain", chain);
 				subjMap.put("chainSize", new Integer(chain.size()));
@@ -626,6 +696,31 @@ public class GrouperHelper {
 			maps.add(subjMap);
 		}
 		return maps;
+	}
+	
+	public static String[] getChainGroupIds(GrouperSession s,GrouperList list) {
+		Set chainIds = new LinkedHashSet();
+		GrouperMember chainMember;
+		List chain = list.chain();
+		String[] chainGroupIds={};
+		GrouperGroup via = (GrouperGroup)list.via();
+		if(via ==null && (chain==null ||chain.size()==0)) return chainGroupIds;
+		if (via !=null) chainIds.add(via.id());
+		GrouperList gl;
+		MemberVia mv;
+		for (int j = 0; j < chain.size(); j++) {
+			try {
+				mv =(MemberVia) chain.get(j);
+				gl=mv.toList(s);
+			    chainMember = gl.member();
+			
+			chainIds.add(chainMember.subjectID());
+			}catch(NullPointerException npe) {
+				//chainGroupIds[j] = "!";
+			}
+		}
+		chainGroupIds = (String[])chainIds.toArray(chainGroupIds);
+		return chainGroupIds;
 	}
 	
 	
@@ -1448,5 +1543,64 @@ public class GrouperHelper {
 		}
 		return personSources;
 	}
+	
+	public static List getAllWaysInWhichSubjectIsMemberOFGroup(GrouperSession s,Subject subject,GrouperGroup group) {
+		List ways = new ArrayList();
+		GrouperMember member = GrouperMember.load(s,subject);
+		List memberships = member.listVals();
+		GrouperList gl;
+		for(int i=0;i<memberships.size();i++) {
+			gl = (GrouperList) memberships.get(i);
+			if(gl.groupKey().equals(group.key())) {
+				ways.add(gl);
+			}
+		}
+		return ways;
+	}
+	
+	public static Map getExtendedHas(GrouperSession s,Group group,GrouperMember member) {
+		Map map  =getAllHas(s,group,member);
+		
+		map.remove("subject");
+		return map;
+		
+	}
+	public static Map getImmediateHas(GrouperSession s,Group group,GrouperMember member) {
+		Map map  =getAllHas(s,group,member);
+		
+		return (Map)map.get("subject");
+		
+	}
+	private static Map getAllHas(GrouperSession s,Group group,GrouperMember member) {
+		List gls = group.getListValsByMember(s,member);
+		Map results = new LinkedHashMap();
+		Map privs;
+		GrouperList gl;
+		String key="subject";
+		results.put(key,new HashMap());
+		List tmpList = new ArrayList();
+		for(int i=0;i<gls.size();i++) {
+			gl = (GrouperList)gls.get(i);
+			if(gl.via()==null) {
+				key="subject";
+			}else{
+				key=gl.viaKey();
+			}
+			privs = (Map)results.get(key);
+			if(privs==null) {
+				privs=new HashMap();
+				results.put(key,privs);
+				privs.put("group",group2Map(s,gl.via()));
+				//privs.put("group",group2Map(s,gl.group()));
+				
+			}
+			privs.put(list2privMap.get(gl.groupField()),Boolean.TRUE);
+			
+		}
+		
+		return results;
+		
+	}
+	
 }
 
