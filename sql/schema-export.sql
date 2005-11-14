@@ -29,14 +29,14 @@ create table grouper_members (
 );
 create table grouper_memberships (
    id char(32) not null,
-   group_id char(64),
+   owner_id char(64),
    member_id char(64),
    list_name varchar(255) not null,
    list_type varchar(255) not null,
    via_id char(64),
    depth int,
    primary key (id),
-   unique (group_id, member_id, list_name, list_type, via_id, depth)
+   unique (owner_id, member_id, list_name, list_type, via_id, depth)
 );
 create table grouper_sessions (
    id char(32) not null,

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: Group.java,v 1.3 2005-11-14 18:35:39 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -235,7 +235,7 @@ public class Group implements Serializable {
           Membership ms = (Membership) iter.next();
           objects.add( 
             MembershipFinder.getEffectiveMembership(
-              ms.getGroup_id(), ms.getMember_id(), 
+              ms.getOwner_id(), ms.getMember_id(), 
               ms.getList(), ms.getVia_id(), ms.getDepth()
             )
           );
@@ -778,7 +778,7 @@ public class Group implements Serializable {
    * @return  Boolean true if member belongs to this group.
    */
   public boolean hasMember(Member m) {
-    if (MembershipFinder.findMemberships(this, m, Group.LIST).size() > 0) {
+    if (MembershipFinder.findMemberships(this.getUuid(), m, Group.LIST).size() > 0) {
       return true;
     }
     return false;
@@ -1088,7 +1088,7 @@ public class Group implements Serializable {
         Membership gism = (Membership) iterGisM.next();
         mships.add(
           new Membership(
-            this.s, gism.getGroup_id(), mofm.getMember_id(),
+            this.s, gism.getOwner_id(), mofm.getMember_id(),
             Group.LIST, vid, depth + gism.getDepth() 
           )
         );
@@ -1112,7 +1112,7 @@ public class Group implements Serializable {
       }
       mships.add(
         new Membership(
-          this.s, ms.getGroup_id(), ms.getMember_id(), 
+          this.s, ms.getOwner_id(), ms.getMember_id(), 
           Group.LIST, vid, depth
         )
       );

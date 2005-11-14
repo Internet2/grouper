@@ -44,6 +44,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGQStemCreatedAfter.class);
     suite.addTestSuite(TestGQStemCreatedBefore.class);
     suite.addTestSuite(TestGQUnionFilter.class);
+    suite.addTestSuite(TestGrouperNamingSTEM.class);
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestGrouperSourceAdapter.class);
     suite.addTestSuite(TestField.class);

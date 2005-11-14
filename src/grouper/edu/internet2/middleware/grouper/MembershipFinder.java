@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.3 2005-11-14 18:35:39 blair Exp $
  */
 public class MembershipFinder {
 
@@ -94,7 +94,7 @@ public class MembershipFinder {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
                       "from Membership as ms where  "
-                      + "ms.group_id        = ?     "
+                      + "ms.owner_id        = ?     "
                       + "and ms.field.name  = ?     " 
                       + "and ms.field.type  = ?     "
                       + "and ms.depth       > 0     ", 
@@ -167,7 +167,7 @@ public class MembershipFinder {
       mships.addAll(
         hs.find(
           "from Membership as ms where  "
-          + "ms.group_id        = ?     "
+          + "ms.owner_id        = ?     "
           + "and ms.member_id   = ?     "
           + "and ms.field.name  = ?     "
           + "and ms.field.type  = ?     "
@@ -204,7 +204,7 @@ public class MembershipFinder {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
                       "from Membership as ms where  "
-                      + "ms.group_id    = ?         "
+                      + "ms.owner_id    = ?         "
                       + "and ms.field.name  = ?     "
                       + "and ms.field.type  = ?     "
                       + "and ms.depth   = 0         ",   
@@ -276,7 +276,7 @@ public class MembershipFinder {
       Iterator  iter  = hs.find(
                           "select distinct ms.member_id from Membership "
                           + "as ms where                                "
-                          + "ms.group_id        = ?                     "
+                          + "ms.owner_id        = ?                     "
                           + "and ms.field.name  = ?                     "  
                           + "and ms.field.type  = ?                     ",
                           new Object[] {
@@ -317,7 +317,7 @@ public class MembershipFinder {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
                       "from Membership as ms where  "
-                      + "ms.group_id        = ?     "
+                      + "ms.owner_id        = ?     "
                       + "and ms.field.name  = ?     "
                       + "and ms.field.type  = ?     ",
                       new Object[] {
@@ -372,7 +372,7 @@ public class MembershipFinder {
   } // protected static Set findMemberships(m, f)
 
   // @return  Set of matching memberships
-  protected static Set findMemberships(Group g, Member m, Field f) {
+  protected static Set findMemberships(String oid, Member m, Field f) {
     // TODO Switch to criteria queries?
     Set mships = new LinkedHashSet();
     try {
@@ -380,12 +380,12 @@ public class MembershipFinder {
       mships.addAll(
         hs.find(
           "from Membership as ms where  "
-          + "ms.group_id        = ?     "
+          + "ms.owner_id        = ?     "
           + "and ms.member_id   = ?     "
           + "and ms.field.name  = ?     "
           + "and ms.field.type  = ?     ",
           new Object[] {
-            g.getUuid(), m.getUuid(), 
+            oid, m.getUuid(), 
             f.getName(), f.getType().toString()
           },
           new Type[] {
@@ -403,7 +403,7 @@ public class MembershipFinder {
       );  
     }
     return mships;
-  } // protected static Set findMemberships(g, m, f)
+  } // protected static Set findMemberships(oid, m, f)
 
   // @return  {@link Membership} object
   protected static Membership getEffectiveMembership(
@@ -418,7 +418,7 @@ public class MembershipFinder {
       mships.addAll(
         hs.find(
           "from Membership as ms where  "
-          + "ms.group_id        = ?     "
+          + "ms.owner_id        = ?     "
           + "and ms.member_id   = ?     "
           + "and ms.field.name  = ?     "
           + "and ms.field.type  = ?     "
@@ -455,7 +455,7 @@ public class MembershipFinder {
   protected static Membership getImmediateMembership(Group g, Member m, Field f)
     throws MembershipNotFoundException
   {
-    Set mships = findMemberships(g, m, f);
+    Set mships = findMemberships(g.getUuid(), m, f);
     if (mships.size() == 1) {
       return (Membership) new ArrayList(mships).get(0);
     }
