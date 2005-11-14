@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.48 2005-11-11 17:42:13 blair Exp $
+$Id: ROADMAP,v 1.49 2005-11-14 15:47:08 blair Exp $
 
 ---
 
@@ -12,34 +12,44 @@ $Id: ROADMAP,v 1.48 2005-11-11 17:42:13 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Merge HEAD and GROUPER_RELENG_0_9 branches
 * Mock subjects
-* Add privileges to Field mapping
 * STEM and CREATE naming privileges
 * _GroupNameFilter_ and _StemNameFilter_
+* Add privileges to Field mapping
 * ADMIN and UPDATE access privileges
 * ALL subject adapter
 * READ and VIEW access privileges
 * Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_
+* `GrouperSession.validate()` in any public method that takes a session
+  argument
 
 ## Later
-* Review Gary's privilege enhancement
+* Review *Finder classes and make sure a session is being attached to
+  returned objects
+* get vs. find method renaming
+* Review Gary's privilege enhancement ideas
 * OPTIN and OPTOUT access privileges
 * Implement all 0.6 query filters
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
 * _Group_ parent stem mapping
+* Add create time to memberships
+* Add create time to members
+* Commons logging
 * More effective membership testing
 * Group deletion when groups have members or are members
-* Add create + modify times to memberships
-* Add create (+ modify?) time to members
-* Commons logging
-* Map _GroupType_
-* many-to-many maping between _Field_ and _GroupType_
+* Switch to Hibernate 3.x
+* Review generated SQL
+* Test with Pg and Oracle and review generated SQL
 * Review old _*.todo_ test classes
 * Rename subjectIDs in local subject<=>member mapping (#133)
-* Switch to Hibernate 3.x
+* Update and expend query api javadocs
+* Review files and add TODO items to this list
+* Review exceptions
+* Map _GroupType_
+* many-to-many maping between _Field_ and _GroupType_
+* Replace `_init()` methods with static {} declarations where possible
 * Custom group types
 * Custom group attributes
 * Custom group lists
