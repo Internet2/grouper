@@ -232,7 +232,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.1 2005-11-04 16:46:52 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.2 2005-11-14 14:29:47 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -255,6 +255,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 				restoreDynaFormBean(session,subjectForm,"lastSubjectSummaryForm");
 			}else{
 				saveDynaFormBean(session,subjectForm,"lastSubjectSummaryForm");
+				saveAsCallerPage(request,subjectForm);
 			}
 		}
 		subjectForm.set("contextSubject","true");
@@ -294,8 +295,8 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		Map listViews = new HashMap();
 		listViews.put("titleKey","subject.summary.memberships");
 		listViews.put("noResultsKey","subject.list-membership.none");
-		listViews.put("view","subjectMemberships");
-		listViews.put("itemView","subjectMembership");
+		listViews.put("view","whereSubjectsAreMembers");
+		listViews.put("itemView","whereIsMemberLink");
 		listViews.put("headerView","genericListHeader");
 		listViews.put("footerView","genericListFooter");
 		
