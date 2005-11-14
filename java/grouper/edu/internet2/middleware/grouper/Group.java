@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: Group.java,v 1.4 2005-11-14 20:44:57 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -656,21 +656,23 @@ public class Group implements Serializable {
   } 
 
   /**
-   * Check whether the member has ADMIN on this group.
+   * Check whether the subject has ADMIN on this group.
    * <pre class="eg">
-   * if (g.hasAdmin(m)) {
-   *   // m has ADMIN
+   * if (g.hasAdmin(subj)) {
+   *   // Has ADMIN
    * }
    * else {
-   *   // m does not have ADMIN
+   *   // Does not have ADMIN
    * }
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member has ADMIN.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ADMIN.
    */
-  public boolean hasAdmin(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasAdmin(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.ADMIN
+    );
+  } // public boolean hasAdmin(subj)
 
   /**
    * Check whether the member is an effective member of this group.
@@ -731,38 +733,42 @@ public class Group implements Serializable {
   }
 
   /**
-   * Check whether the member has OPTIN on this group.
+   * Check whether the subject has OPTIN on this group.
    * <pre class="eg">
-   * if (g.hasOptin(m)) {
-   *   // m has OPTIN
+   * if (g.hasOptin(subj)) {
+   *   // Has OPTIN
    * }
    * else {
-   *   // m does not have OPTIN
+   *   // Does not have OPTIN
    * }
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member has OPTIN.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has OPTIN.
    */
-  public boolean hasOptin(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasOptin(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.OPTIN
+    );
+  } // public boolean hasOption(subj)
 
   /**
-   * Check whether the member has OPTOUT on this group.
+   * Check whether the subject has OPTOUT on this group.
    * <pre class="eg">
-   * if (g.hasOptout(m)) {
-   *   // m has OPTOUT
+   * if (g.hasOptout(subj)) {
+   *   // has OPTOUT
    * }
    * else {
-   *   // m does not have OPTOUT
+   *   // Does not have OPTOUT
    * }
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member has OPTOUT.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has OPTOUT.
    */
-  public boolean hasOptout(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasOptout(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.OPTOUT
+    );
+  } // public boolean hasOptout(subj)
 
   /**
    * Check whether the member is a member of this group.
@@ -785,55 +791,61 @@ public class Group implements Serializable {
   }
 
   /**
-   * Check whether the member has READ on this group.
+   * Check whether the subject has READ on this group.
    * <pre class="eg">
-   * if (g.hasRead(m)) {
-   *   // m has READ
+   * if (g.hasRead(subj)) {
+   *   // Has READ
    * }
    * else {
-   *   // m does not have READ
+   *   // Does not have READ
    * }
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member has READ.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has READ.
    */
-  public boolean hasRead(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasRead(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.READ
+    );
+  } // public boolean hasRead(subj)
 
   /**
-   * Check whether the member has UPDATE on this group.
+   * Check whether the subject has UPDATE on this group.
    * <pre class="eg">
-   * if (g.hasUpdate(m)) {
-   *   // m has UPDATE
+   * if (g.hasUpdate(subj)) {
+   *   // Has UPDATE
    * }
    * else {
-   *   // m does not have UPDATE
+   *   // Does not have UPDATE
    * }
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member has UPDATE.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has UPDATE.
    */
-  public boolean hasUpdate(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasUpdate(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.UPDATE
+    );
+  } // public boolean hasUpdate(subj)
 
   /**
-   * Check whether the member has VIEW on this group.
+   * Check whether the subject has VIEW on this group.
    * <pre class="eg">
-   * if (g.hasView(m)) {
-   *   // m has VIEW
+   * if (g.hasView(subj)) {
+   *   // Has VIEW
    * }
    * else {
-   *   // m does not have VIEW
+   *   // Does not have VIEW
    * }
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member has VIEW.
+   * @param   subj  Check this member.
+   * @return  Boolean true if subject has VIEW.
    */
-  public boolean hasView(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasView(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.VIEW
+    );
+  } // public boolean hasView(subj)
 
   /**
    * Revoke all privileges of the specified type on this group.

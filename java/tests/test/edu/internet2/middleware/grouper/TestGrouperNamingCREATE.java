@@ -26,11 +26,11 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.2 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: TestGrouperNamingCREATE.java,v 1.1 2005-11-14 20:44:57 blair Exp $
  */
-public class TestGrouperNamingSTEM extends TestCase {
+public class TestGrouperNamingCREATE extends TestCase {
 
-  public TestGrouperNamingSTEM(String name) {
+  public TestGrouperNamingCREATE(String name) {
     super(name);
   }
 
@@ -49,13 +49,13 @@ public class TestGrouperNamingSTEM extends TestCase {
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Assert.assertTrue(
-      "root has STEM", edu.hasStem( s.getSubject() )
+      "root has CREATE",    edu.hasCreate( s.getSubject() )
     );
     Assert.assertFalse(
-      "subj0 !has STEM", edu.hasStem( SubjectHelper.SUBJ0 )
+      "subj0 !has CREATE",  edu.hasCreate( SubjectHelper.SUBJ0 )
     );
     Assert.assertFalse(
-      "subj1 !has STEM", edu.hasStem( SubjectHelper.SUBJ1 )
+      "subj1 !has CREATE",  edu.hasCreate( SubjectHelper.SUBJ1 )
     );
   } // public void testDefaultPrivs()
 

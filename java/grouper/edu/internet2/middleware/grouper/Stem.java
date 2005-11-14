@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: Stem.java,v 1.4 2005-11-14 20:44:57 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -439,20 +439,22 @@ public class Stem implements Serializable {
   }
 
   /**
-   * Check whether a member has the CREATE privilege on this stem.
+   * Check whether a subject has the CREATE privilege on this stem.
    * <pre class="eg">
-   * if (ns.hasCreate(m)) {
+   * if (ns.hasCreate(subj)) {
    *   // Has CREATE
    * }
    *   // Does not have CREATE
    * } 
    * </pre>
-   * @param   m   Check whether this member has CREATE.
-   * @return  Boolean true if the member has CREATE.
+   * @param   subj  Check whether this subject has CREATE.
+   * @return  Boolean true if the subject has CREATE.
    */
-  public boolean hasCreate(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public boolean hasCreate(Subject subj) {
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.CREATE
+    );
+  } // public boolean hasCreate(subj)
  
   /**
    * Check whether a member has the STEM privilege on this stem.
@@ -464,28 +466,22 @@ public class Stem implements Serializable {
    * } 
    * </pre>
    * @param   subj  heck whether this subject has STEM.
-   * @return  Boolean true if the member has STEM.
+   * @return  Boolean true if the subject has STEM.
    */
   public boolean hasStem(Subject subj) {
-    try {
-      return GrouperConfig
-             .getInstance()
-             .getNaming()
-             .hasPriv(this.s, this, subj, Privilege.STEM)
-             ;
-    }
-    catch (PrivilegeNotFoundException ePNF) {
-      return false;
-    }
+    return PrivilegeResolver.getInstance().hasPriv(
+      this.s, this, subj, Privilege.STEM
+    );
   } // public boolean hasStem(subj)
  
   public int hashCode() {
     return new HashCodeBuilder()
-           .append(getUuid())
-           .append(getCreator_id())
-           .append(getModifier_id())
-           .toHashCode();
-  }
+           .append(getUuid()        )
+           .append(getCreator_id()  )
+           .append(getModifier_id() )
+           .toHashCode()
+           ;
+  } // public int hashCode()
 
   /**
    * Revoke all privileges of the specified type on this stem.

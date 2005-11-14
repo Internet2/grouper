@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.1 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: TestGrouperNamingSTEM.java,v 1.2 2005-11-14 20:44:57 blair Exp $
  */
 public class TestGrouperNamingSTEM extends TestCase {
 
@@ -44,20 +44,20 @@ public class TestGrouperNamingSTEM extends TestCase {
 
   // Tests
 
-  public void testAddChildStemAtRoot() {
+  public void testDefaultPrivs() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Assert.assertFalse(
-      "root !STEM", edu.hasStem( s.getSubject() )
+    Assert.assertTrue(
+      "root has STEM", edu.hasStem( s.getSubject() )
     );
     Assert.assertFalse(
-      "subj0 !STEM", edu.hasStem( SubjectHelper.SUBJ0 )
+      "subj0 !has STEM", edu.hasStem( SubjectHelper.SUBJ0 )
     );
     Assert.assertFalse(
-      "subj1 !STEM", edu.hasStem( SubjectHelper.SUBJ1 )
+      "subj1 !has STEM", edu.hasStem( SubjectHelper.SUBJ1 )
     );
-  } // public void testAddChildStemAtRoot()
+  } // public void testDefaultPrivs()
 
 }
 

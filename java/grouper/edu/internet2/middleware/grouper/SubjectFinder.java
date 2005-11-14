@@ -28,7 +28,7 @@ import  org.apache.commons.logging.LogFactory;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.3 2005-11-14 20:44:57 blair Exp $
  */
 public class SubjectFinder implements Serializable {
   // TODO Add caching?
@@ -224,12 +224,14 @@ public class SubjectFinder implements Serializable {
         mgr = SourceManager.getInstance();
         log.debug("Source manager initialized: " + mgr);
         // Add in internal source adapter
-        BaseSourceAdapter isa = new InternalSourceAdapter("isa", "internal source adapter"); 
+        BaseSourceAdapter isa = new InternalSourceAdapter(
+          "grouper internal adapter", "grouper internal adapter"
+        ); 
         mgr.loadSource(isa);
         log.debug("Added source: " + isa.getId());
         // Add in group source adapter
         BaseSourceAdapter gsa = new GrouperSourceAdapter(
-          "grouperAdapter", "grouper source adapter"
+          "grouper group adapter", "grouper group adapter"
         );
         mgr.loadSource(gsa);
         log.debug("Added source: " + gsa.getId());

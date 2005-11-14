@@ -23,14 +23,14 @@ import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
 
 /**
- * Test {@link GrouperNamingPrivilege}.
+ * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.2 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: TestGrouperAccessUPDATE.java,v 1.1 2005-11-14 20:44:57 blair Exp $
  */
-public class TestGrouperNamingSTEM extends TestCase {
+public class TestGrouperAccessUPDATE extends TestCase {
 
-  public TestGrouperNamingSTEM(String name) {
+  public TestGrouperAccessUPDATE(String name) {
     super(name);
   }
 
@@ -48,14 +48,15 @@ public class TestGrouperNamingSTEM extends TestCase {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Assert.assertTrue(
-      "root has STEM", edu.hasStem( s.getSubject() )
+      "root has UPDATE",   i2.hasUpdate( s.getSubject() )
     );
     Assert.assertFalse(
-      "subj0 !has STEM", edu.hasStem( SubjectHelper.SUBJ0 )
+      "subj0 !has UPDATE", i2.hasUpdate( SubjectHelper.SUBJ0 )
     );
     Assert.assertFalse(
-      "subj1 !has STEM", edu.hasStem( SubjectHelper.SUBJ1 )
+      "subj1 !has UPDATE", i2.hasUpdate( SubjectHelper.SUBJ1 )
     );
   } // public void testDefaultPrivs()
 
