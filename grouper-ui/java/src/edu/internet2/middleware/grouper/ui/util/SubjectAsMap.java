@@ -61,7 +61,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.2 2005-10-20 14:41:43 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.3 2005-11-14 14:31:04 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -110,6 +110,9 @@ public class SubjectAsMap extends ObjectAsMap {
 					obj = subject.getId();
 				else if ("description".equals(key) || "desc".equals(key)) {
 					obj = subject.getDescription();
+					if((obj==null || "".equals(obj)) && subject.getType().getName().equals("group")) {
+						obj = subject.getAttributeValue("displayExtension");
+					}
 				} else if ("subjectType".equals(key))
 					obj = subject.getType().getName();
 				else if ("source".equals(key))
