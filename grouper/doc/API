@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.91 2005-11-14 18:35:39 blair Exp $
+$Id: API,v 1.92 2005-11-14 20:44:57 blair Exp $
 
 ---
 
@@ -113,15 +113,15 @@ TODO Be more consistent about when calling for a member and a subject
 * String              getUuid()
 * Set                 getViewers()
 * void                grantPriv(member, privilege)
-* boolean             hasAdmin(member)
+* boolean             hasAdmin(subject)
 * boolean             hasEffectiveMember(member)
 * boolean             hasImmediateMember(member)
-* boolean             hasOptin(member)
-* boolean             hasOptout(member)
-* boolean             hasMember(member)
-* boolean             hasRead(member)
-* boolean             hasUpdate(member)
-* boolean             hasView(member)
+* boolean             hasOptin(subject)
+* boolean             hasOptout(subject)
+* boolean             hasMember(subject)
+* boolean             hasRead(subject)
+* boolean             hasUpdate(subject)
+* boolean             hasView(subject)
 * void                revokePriv(privilege)
 * void                revokePriv(member, privilege) 
 * void                setAttribute(attr, value)
@@ -244,7 +244,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 getStemmers()
 * String              getUuid()
 * void                grantPriv(member, privilege)
-* boolean             hasCreate(member)
+* boolean             hasCreate(subject)
 * boolean             hasStem(subject)
 * void                revokePriv(privilege)
 * void                revokePriv(member, privilege) 
@@ -268,6 +268,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 SubjectFinder.find(query)
 
 ## UnionFilter extends BaseQueryFilter
+
 
 
 

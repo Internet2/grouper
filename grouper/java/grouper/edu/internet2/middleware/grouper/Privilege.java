@@ -26,12 +26,19 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for Access and Naming privileges.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: Privilege.java,v 1.4 2005-11-14 20:44:57 blair Exp $
  */
 public class Privilege implements Serializable {
 
   // Public Class Constants
-  public static final String STEM = "stemmers";
+  public static final String ADMIN  = "admins";
+  public static final String CREATE = "creators";
+  public static final String OPTIN  = "optins";
+  public static final String OPTOUT = "optouts";
+  public static final String READ   = "readers";
+  public static final String STEM   = "stemmers";
+  public static final String UPDATE = "updaters";
+  public static final String VIEW   = "viewers";
 
 
   // Hibernate Properties
