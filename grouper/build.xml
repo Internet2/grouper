@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.62 2005-11-11 17:42:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.63 2005-11-14 16:09:07 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -83,6 +83,52 @@
   </target>
   <!-- db-init -->
 
+  <!-- dist -->
+  <target name="dist" 
+          depends="build" 
+          description="package grouper"
+  >
+    <mkdir dir="${dist}/lib" />
+    <jar destfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}">
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="${impl.vendor}" />
+        <attribute name="Implementation-Title"    value="${app.name}" />
+        <attribute name="Implementation-Version"  value="${impl.version}" />
+        <attribute name="Implementation-URL"      value="${impl.url}" />
+      </manifest>
+    </jar>
+    <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   
+          tofile="${dist}/lib/${app.name}.jar" 
+    />
+  </target>
+  <!-- dist -->
+
+  <!-- dist-lib -->
+  <target name="dist-lib"
+          depends="init" 
+          description="package 3rd party libraries"
+    >
+    <!-- ugly, i know -->
+    <unzip dest="${build.lib}">
+      <fileset dir="java/lib">
+        <include name="*.jar"/>
+        <exclude name="**/cdg-mock.jar"/>
+      </fileset>
+    </unzip>
+    <!-- be sure to include _java/lib/README_ -->
+    <copy file="java/lib/README" 
+          tofile="${build.lib}/README"
+    />
+    <jar  jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" 
+          basedir="${build.lib}"
+    />
+    <copy file="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" 
+          tofile="${dist}/lib/${app.name}-lib.jar" 
+    />
+  </target>
+  <!-- dist-lib -->
+
   <!-- html -->
   <target name="html" depends="build" description="generate public api docs" >
     <delete dir="${build.javadoc}"/>
@@ -166,38 +212,6 @@
   <!-- test -->
 
 
-
-  <!-- FIXME What a mess... -->
-  <target name="dist" depends="build" 
-    description="package Grouper">
-    <mkdir dir="${dist}/lib" />
-    <jar destfile="${dist}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.grouper}">
-      <manifest>
-        <attribute name="Built-By" value="${user.name}"/>
-        <attribute name="Implementation-Vendor" value="${impl.vendor}" />
-        <attribute name="Implementation-Title" value="${app.name}" />
-        <attribute name="Implementation-Version" value="${impl.version}" />
-        <attribute name="Implementation-URL" value="${impl.url}" />
-    </manifest>
-    </jar>
-    <copy file="${dist}/lib/${app.name}-${DSTAMP}.jar"   tofile="${dist}/lib/${app.name}.jar" />
-  </target>
-
-  <!-- dist-lib -->
-  <target name="dist-lib" depends="init" 
-    description="package 3rd party libraries">
-    <!-- ugly, i know -->
-    <unzip dest="${build.lib}">
-      <fileset dir="java/lib">
-        <include name="*.jar"/>
-      </fileset>
-    </unzip>
-    <!-- be sure to include _java/lib/README_ -->
-    <copy file="java/lib/README" tofile="${build.lib}/README"/>
-    <jar jarfile="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" basedir="${build.lib}"/>
-    <copy file="${dist}/lib/${app.name}-lib-${DSTAMP}.jar" tofile="${dist}/lib/${app.name}-lib.jar" />
-  </target>
-  <!-- dist-lib -->
 
   <target name="jar" depends="dist" />
 
