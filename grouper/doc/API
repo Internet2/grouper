@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.89 2005-11-14 16:45:24 blair Exp $
+$Id: API,v 1.90 2005-11-14 17:35:35 blair Exp $
 
 ---
 
@@ -153,7 +153,9 @@ TODO Be more consistent about when calling for a member and a subject
 * GrouperSession      GrouperSession.startSession(subject)
 * void                beginTransaction()
 * void                commit()
+* String              getAccessClass()
 * Member              getMember()
+* String              getNamingClass()
 * String              getSessionId()
 * Date                getStartTime()
 * Subject             getSubject()

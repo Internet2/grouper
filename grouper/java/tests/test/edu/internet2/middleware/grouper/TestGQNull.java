@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link NullFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQNull.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestGQNull.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  */
 public class TestGQNull extends TestCase {
 
@@ -46,7 +46,7 @@ public class TestGQNull extends TestCase {
   // Tests
 
   public void testNullFilterNothing() {
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -69,7 +69,7 @@ public class TestGQNull extends TestCase {
   } // public void testNullFilterNothing()
 
   public void testNullFilterSomething() {
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -92,7 +92,7 @@ public class TestGQNull extends TestCase {
   } // public void testNull()
 
   public void testNullFilterSomethingScoped() {
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");

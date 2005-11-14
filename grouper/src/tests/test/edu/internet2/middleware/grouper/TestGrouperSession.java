@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestGrouperSession.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  */
 public class TestGrouperSession extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestGrouperSession extends TestCase {
   } // public void testStartSessionBadSubject()
 
   public void testStartSessionGoodSubject() {
-    GrouperSession s = Helper.getSession("GrouperSystem", "application");
+    GrouperSession s = SessionHelper.getSession("GrouperSystem", "application");
   } // public void testStartSessionGoodSubject()
 
 }
