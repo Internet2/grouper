@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link ComplementFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQComplementFilter.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestGQComplementFilter.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  */
 public class TestGQComplementFilter extends TestCase {
 
@@ -46,7 +46,7 @@ public class TestGQComplementFilter extends TestCase {
   // Tests
 
   public void testComplementFilterNothing() {
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -73,7 +73,7 @@ public class TestGQComplementFilter extends TestCase {
 
   public void testComplementFilterSomething() {
     Date            when  = DateHelper.getPastDate();
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -101,7 +101,7 @@ public class TestGQComplementFilter extends TestCase {
 
   public void testComplementFilterSomethingScoped() {
     Date            when  = DateHelper.getPastDate();
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");

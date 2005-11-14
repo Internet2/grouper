@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GroupCreatedAfterFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupCreatedAfter.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestGQGroupCreatedAfter.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  */
 public class TestGQGroupCreatedAfter extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGQGroupCreatedAfter extends TestCase {
 
   public void testGroupCreatedAfterFilterNothing() {
     Date            when  = DateHelper.getFutureDate();
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -71,7 +71,7 @@ public class TestGQGroupCreatedAfter extends TestCase {
 
   public void testGroupCreatedAfterFilterSomething() {
     Date            when  = DateHelper.getPastDate();
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -95,7 +95,7 @@ public class TestGQGroupCreatedAfter extends TestCase {
 
   public void testGroupCreatedAfterFilterSomethingScoped() {
     Date            when  = DateHelper.getPastDate();
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");

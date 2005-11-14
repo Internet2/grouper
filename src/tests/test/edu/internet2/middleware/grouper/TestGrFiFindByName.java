@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GroupFinder.findByName()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByName.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestGrFiFindByName.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  */
 public class TestGrFiFindByName extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestGrFiFindByName extends TestCase {
   // Tests
 
   public void testFindByName() {
-    GrouperSession  s     = Helper.getRootSession();
+    GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -129,6 +129,17 @@ public class GrouperSession implements Serializable {
   }
 
   /**
+   * Get name of class being used for access privileges.
+   * <pre class="eg">
+   * String klass = s.getAccessClass();
+   * </pre>
+   * @return  Name of class implementing naming privileges.
+   */
+  public String getAccessClass() {
+    return GrouperConfig.getInstance().getProperty("interface.access"); 
+  } // public String getAccessClass()
+
+   /**
    * Get the {@link Member} associated with this API session.
    * <pre class="eg">
    * // Get this session's Subject as a Member object.
@@ -142,7 +153,18 @@ public class GrouperSession implements Serializable {
       throw new RuntimeException("Member.getMember() not implemented");
     }
     return this.m;
-  }
+  } // public Member getMember()
+
+  /**
+   * Get name of class being used for naming privileges.
+   * <pre class="eg">
+   * String klass = s.getNamingClass();
+   * </pre>
+   * @return  Name of class implementing naming privileges.
+   */
+  public String getNamingClass() {
+    return GrouperConfig.getInstance().getProperty("interface.naming"); 
+  } // public String getNamingClass()
 
   /**
    * Get this session's id.

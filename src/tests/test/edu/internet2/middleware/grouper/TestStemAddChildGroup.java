@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.3 2005-11-14 17:35:35 blair Exp $
  */
 public class TestStemAddChildGroup extends TestCase {
 
@@ -46,7 +46,7 @@ public class TestStemAddChildGroup extends TestCase {
 
   public void testAddChildGroupAtRoot() {
     Stem  root  = StemHelper.getRootStem(
-      Helper.getRootSession()
+      SessionHelper.getRootSession()
     );
     Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
     Group i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
