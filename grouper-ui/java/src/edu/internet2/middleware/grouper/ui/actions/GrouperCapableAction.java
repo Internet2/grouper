@@ -197,7 +197,7 @@ import edu.internet2.middleware.grouper.*;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.2 2005-11-04 12:23:39 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.3 2005-11-14 14:27:37 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -331,8 +331,8 @@ public abstract class GrouperCapableAction
 	 * @param form
 	 * @return
 	 */
-	public static String saveAsCallerPage(HttpServletRequest request,DynaActionForm form){
-		return saveAsCallerPage(request,form);
+	public static void saveAsCallerPage(HttpServletRequest request,DynaActionForm form){
+		 GrouperCapableAction.saveAsCallerPage(request,form,"");
 	}
 	
 	/**
