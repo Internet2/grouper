@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.3 2005-11-14 16:25:05 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.4 2005-11-14 16:45:24 blair Exp $
  */
 public interface AccessPrivilege {
 
@@ -51,7 +51,7 @@ public interface AccessPrivilege {
    * @return  Set of {@link Subject} objects.
    * @throws  PrivilegeNotFoundException
    */
-  Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
+  public Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
@@ -72,7 +72,7 @@ public interface AccessPrivilege {
    * @return  Set of {@link Group} objects.
    * @throws  PrivilegeNotFoundException
    */
-  Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
+  public Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
@@ -85,7 +85,7 @@ public interface AccessPrivilege {
    * @param   subj  Get privileges for this member.
    * @return  Set of privileges.
    */
-  Set getPrivs(GrouperSession s, Group g, Subject subj);
+  public Set getPrivs(GrouperSession s, Group g, Subject subj);
 
   /**
    * Grant the privilege to the subject on this group.
@@ -111,7 +111,7 @@ public interface AccessPrivilege {
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    */
-  void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
+  public void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
            PrivilegeNotFoundException;
@@ -132,7 +132,7 @@ public interface AccessPrivilege {
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
+  public boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws PrivilegeNotFoundException;
 
   /**
@@ -158,7 +158,7 @@ public interface AccessPrivilege {
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  void revokePriv(GrouperSession s, Group g, String priv)
+  public void revokePriv(GrouperSession s, Group g, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;
@@ -187,7 +187,7 @@ public interface AccessPrivilege {
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
+  public void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;
