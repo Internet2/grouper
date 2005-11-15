@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.55 2005-11-15 21:05:58 blair Exp $
+$Id: ROADMAP,v 1.56 2005-11-15 21:23:27 blair Exp $
 
 ---
 
@@ -12,35 +12,34 @@ $Id: ROADMAP,v 1.55 2005-11-15 21:05:58 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* GrouperNamingPrivilege.getPrivs(s, ns, subj)
-* GrouperAccessPrivilege.getPrivs(s, g, subj)
+* Make _Privilege_ an enumerated user type like _FieldType_
+* Add _Privilege_ to _Field_ mapping
+* GrouperNamingPrivilege.grantPriv(s, ns, subj, priv)
+* GrouperAccessPrivilege.grantPriv(s, ns, subj, priv)
+* GrouperNamingPrivilege.revokePriv(s, ns, subj, priv)
+* GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
 * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
 * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
 * GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
 * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
-* GrouperNamingPrivilege.grantPriv(s, ns, subj, priv)
-* GrouperAccessPrivilege.grantPriv(s, ns, subj, priv)
-* GrouperNamingPrivilege.revokePriv(s, g, priv)
-* GrouperAccessPrivilege.revokePriv(s, ns, priv)
 
 ## Later
-* GrouperNamingPrivilege.revokePriv(s, ns, subj, priv)
-* GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
+* GrouperNamingPrivilege.revokePriv(s, g, priv)
+* GrouperAccessPrivilege.revokePriv(s, ns, priv)
 * _GroupNameFilter_ and _StemNameFilter_
 * ALL subject adapter
+* Review *Finder classes and make sure a session is being attached to
+  returned objects
+* get vs. find method renaming
+* Add create time to memberships
+* Add create time to members
 * Should MemberNotFound and SubjectNotFound be replaced by Runtime
   exceptions?  Or at least be used more selectively?
-* Should priv interface takes fields or privs instead of strings?
 * should PrivilegeNotFoundException and SchemaException be merged?
-* Add privileges to Field mapping
 * Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_
 * `GrouperSession.validate()` in any public method that takes a session
   argument
-* Review *Finder classes and make sure a session is being attached to
-  returned objects
-* get vs. find method renaming
-* Review Gary's privilege enhancement ideas
 * Implement all 0.6 query filters
 ** GroupAttributeMatchFilter
 ** GroupAnyAttributeFilter
@@ -48,8 +47,6 @@ TODO Sync with Basecamp
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
 * _Group_ parent stem mapping
-* Add create time to memberships
-* Add create time to members
 * Commons logging
 * More effective membership testing
 * Group deletion when groups have members or are members
