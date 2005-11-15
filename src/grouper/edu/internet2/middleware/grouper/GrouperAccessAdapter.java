@@ -29,9 +29,9 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.4 2005-11-14 16:45:24 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.1 2005-11-15 19:06:39 blair Exp $
  */
-public interface AccessPrivilege {
+public class GrouperAccessAdapter implements AccessAdapter {
 
   // Public Instance Methods
 
@@ -52,7 +52,10 @@ public interface AccessPrivilege {
    * @throws  PrivilegeNotFoundException
    */
   public Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
-    throws PrivilegeNotFoundException;
+    throws PrivilegeNotFoundException 
+  {
+    throw new RuntimeException("not implemented");
+  } // public Set getSubjectsWithpriv(s, g, priv)
 
   /**
    * Get all groups where this subject has this privilege.
@@ -73,7 +76,10 @@ public interface AccessPrivilege {
    * @throws  PrivilegeNotFoundException
    */
   public Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
-    throws PrivilegeNotFoundException;
+    throws PrivilegeNotFoundException
+  {
+    throw new RuntimeException("not implemented");
+  } // public Set getGroupsWhereSubjectHashPriv(s, subj, priv)
 
   /**
    * Get all privileges held by this subject on this group.
@@ -85,7 +91,28 @@ public interface AccessPrivilege {
    * @param   subj  Get privileges for this member.
    * @return  Set of privileges.
    */
-  public Set getPrivs(GrouperSession s, Group g, Subject subj);
+  public Set getPrivs(GrouperSession s, Group g, Subject subj) {
+    Set privs = new LinkedHashSet();
+    try {
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      Iterator  iter  = FieldFinder.findType(FieldType.ACCESS).iterator();
+      while (iter.hasNext()) {
+        Field f = (Field) iter.next();
+        if (
+          MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0
+        )
+        {
+          privs.add(f);
+        }
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(
+        "could not convert subject to member: " + eMNF.getMessage()
+      );  
+    }
+    return privs;
+  } // public Set getPrivs(s, g, subj)
 
   /**
    * Grant the privilege to the subject on this group.
@@ -114,7 +141,10 @@ public interface AccessPrivilege {
   public void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
-           PrivilegeNotFoundException;
+           PrivilegeNotFoundException
+  {
+    throw new RuntimeException("not implemented");
+  } // public void grantPriv(s, g, subj, priv)
 
   /**
    * Check whether the subject has this privilege on this group.
@@ -133,7 +163,25 @@ public interface AccessPrivilege {
    * @throws  PrivilegeNotFoundException
    */
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
-    throws PrivilegeNotFoundException;
+    throws PrivilegeNotFoundException 
+  {
+    try {
+      Field   f   = FieldFinder.getField(priv);
+      Member  m   = MemberFinder.findBySubject(s, subj);
+      if (MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0) {
+        return true;
+      }
+      return false;
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(
+        "could not convert subject to member: " + eMNF.getMessage()
+      );  
+    }
+    catch (SchemaException eS) {
+      throw new PrivilegeNotFoundException("invalid privilege: " + priv);
+    }
+  } // public boolean hasPriv(s, g, subj, priv)
 
   /**
    * Revoke this privilege from everyone on this group.
@@ -161,7 +209,10 @@ public interface AccessPrivilege {
   public void revokePriv(GrouperSession s, Group g, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
-           RevokePrivilegeException;
+           RevokePrivilegeException 
+  {
+    throw new RuntimeException("not implemented");
+  } // public void revokePriv(s, g, priv)
 
   /**
    * Revoke the privilege from the subject on this group.
@@ -190,7 +241,10 @@ public interface AccessPrivilege {
   public void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
-           RevokePrivilegeException;
+           RevokePrivilegeException
+  {
+    throw new RuntimeException("not implemented");
+  } // public void revokePriv(s, g, subj, priv)
 
 }
 

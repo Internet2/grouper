@@ -22,16 +22,16 @@ import  java.util.*;
 
 
 /** 
- * Default implementation of the Grouper {@link NamingPrivilege}
- * interface.
+ * Grouper Naming Privilege interface.
  * <p>
- * This implementation uses the Groups Registry and custom list types
- * to manage naming privileges.
+ * Unless you are implementing a new implementation of this interface,
+ * you should not need to directly use these methods as they are all
+ * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingPrivilege.java,v 1.6 2005-11-15 04:23:04 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.1 2005-11-15 19:06:39 blair Exp $
  */
-public class GrouperNamingPrivilege implements NamingPrivilege {
+public interface NamingAdapter {
 
   // Public Instance Methods
 
@@ -52,10 +52,7 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * @throws  PrivilegeNotFoundException
    */
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
-    throws PrivilegeNotFoundException 
-  {
-    throw new RuntimeException("not implemented");
-  } // public Set getSubjectsWithPriv(s, ns, priv)
+    throws PrivilegeNotFoundException;
 
   /**
    * Get all stems where this subject has this privilege.
@@ -75,23 +72,11 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * @return  Set of {@link Stem} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getStemsWhereSubjectHasPriv(
-    GrouperSession s, Subject subj, String priv
-  ) 
-    throws PrivilegeNotFoundException 
-  {
-    throw new RuntimeException("not implemented");
-  } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
+  public Set getStemsWhereSubjectHasPriv(GrouperSession s, Subject subj, String priv) 
+    throws PrivilegeNotFoundException;
 
   /**
    * Get all privileges held by this subject on this stem.
-   * <p>
-   * TODO What type of objects should be returned?  Review Gary's
-   * proposals for ideas.
-   * </p>
-   * <p>
-   * TODO And should be explicitly included?
-   * </p>
    * <pre class="eg">
    * Set privs = np.getPrivs(s, ns, subj);
    * </pre>
@@ -100,28 +85,7 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * @param   subj  Get privileges for this subject.
    * @return  Set of privileges.
    */
-  public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
-    Set privs = new LinkedHashSet();
-    try {
-      Member    m     = MemberFinder.findBySubject(s, subj);
-      Iterator  iter  = FieldFinder.findType(FieldType.NAMING).iterator();
-      while (iter.hasNext()) {
-        Field f = (Field) iter.next();
-        if (
-          MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0
-        )
-        {
-          privs.add(f);
-        }
-      }
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not convert subject to member: " + eMNF.getMessage()
-      );  
-    }
-    return privs;
-  } // public Set getPrivs(s, ns, subj)
+  public Set getPrivs(GrouperSession s, Stem ns, Subject subj);
 
   /**
    * Grant the privilege to the subject on this stem.
@@ -150,10 +114,7 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
   public void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
-           PrivilegeNotFoundException 
-  {
-    throw new RuntimeException("not implemented");
-  } // public void grantPriv(s, ns, subj, priv)
+           PrivilegeNotFoundException;
 
   /**
    * Check whether the subject has this privilege on this stem.
@@ -167,30 +128,12 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * </pre>
    * @param   s     Check privilege in this session context.
    * @param   ns    Check privilege on this stem.
-   * @param   subj  Check privilege for this subject.
+   * @param   subj     Check privilege for this subject.
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
-    throws PrivilegeNotFoundException 
-  {
-    try {
-      Field   f   = FieldFinder.getField(priv);
-      Member  m   = MemberFinder.findBySubject(s, subj);
-      if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
-        return true;
-      }
-      return false;
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not convert subject to member: " + eMNF.getMessage()
-      );  
-    }
-    catch (SchemaException eS) {
-      throw new PrivilegeNotFoundException("invalid privilege: " + priv);
-    }
-  } // public boolean hasPriv(s, ns, subj, priv) 
+    throws PrivilegeNotFoundException;
 
   /**
    * Revoke this privilege from everyone on this stem.
@@ -218,10 +161,7 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
   public void revokePriv(GrouperSession s, Stem ns, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
-           RevokePrivilegeException 
-  {
-    throw new RuntimeException("not implemented");
-  } // public void revokePriv(s, ns, priv)
+           RevokePrivilegeException;
 
   /**
    * Revoke the privilege from the subject on this stem.
@@ -250,10 +190,7 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
   public void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
-           RevokePrivilegeException 
-  {
-    throw new RuntimeException("not implemented");
-  } // public void revokePriv(s, ns, subj, priv)
+           RevokePrivilegeException;
 
 }
 

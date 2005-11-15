@@ -22,47 +22,47 @@ import  java.util.*;
 
 
 /** 
- * Grouper Access Privilege interface.
+ * Default implementation of the Grouper {@link NamingPrivilege}
+ * interface.
  * <p>
- * Unless you are implementing a new implementation of this interface,
- * you should not need to directly use these methods as they are all
- * wrapped by methods in the {@link Group} class.
+ * This implementation uses the Groups Registry and custom list types
+ * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessPrivilege.java,v 1.3 2005-11-15 18:23:56 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.1 2005-11-15 19:06:39 blair Exp $
  */
-public class GrouperAccessPrivilege implements AccessPrivilege {
+public class GrouperNamingAdapter implements NamingAdapter {
 
   // Public Instance Methods
 
   /**
-   * Get all subjects with this privilege on this group.
+   * Get all subjects with this privilege on this stem.
    * <pre class="eg">
    * try {
-   *   Set admins = ap.getSubjectsWithPriv(s, g, Privilege.ADMIN);
+   *   Set stemmers = np.getSubjectsWithPriv(s, ns, Privilege.STEM);
    * }
    * catch (PrivilegeNotFoundException e0) {
    *   // Invalid priv
    * }
    * </pre>
    * @param   s     Get privileges within this session context.
-   * @param   g     Get privileges on this group.
+   * @param   ns    Get privileges on this stem.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Subject} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
+  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
     throws PrivilegeNotFoundException 
   {
     throw new RuntimeException("not implemented");
-  } // public Set getSubjectsWithpriv(s, g, priv)
+  } // public Set getSubjectsWithPriv(s, ns, priv)
 
   /**
-   * Get all groups where this subject has this privilege.
+   * Get all stems where this subject has this privilege.
    * <pre class="eg">
    * try {
-   *   Set isAdmin = ap.getGroupsWhereSubjectHasPriv(
-   *     s, subj, Privilege.ADMIN
+   *   Set isStemmer = np.getStemsWhereSubjectHasPriv(
+   *     s, subj, Privilege.STEM
    *   );
    * }
    * catch (PrivilegeNotFoundException e0) {
@@ -72,34 +72,43 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
    * @param   s     Get privileges within this session context.
    * @param   subj  Get privileges for this subject.
    * @param   priv  Get this privilege.
-   * @return  Set of {@link Group} objects.
+   * @return  Set of {@link Stem} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
-    throws PrivilegeNotFoundException
+  public Set getStemsWhereSubjectHasPriv(
+    GrouperSession s, Subject subj, String priv
+  ) 
+    throws PrivilegeNotFoundException 
   {
     throw new RuntimeException("not implemented");
-  } // public Set getGroupsWhereSubjectHashPriv(s, subj, priv)
+  } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   /**
-   * Get all privileges held by this subject on this group.
+   * Get all privileges held by this subject on this stem.
+   * <p>
+   * TODO What type of objects should be returned?  Review Gary's
+   * proposals for ideas.
+   * </p>
+   * <p>
+   * TODO And should be explicitly included?
+   * </p>
    * <pre class="eg">
-   * Set privs = ap.getPrivs(s, g, subj);
+   * Set privs = np.getPrivs(s, ns, subj);
    * </pre>
    * @param   s     Get privileges within this session context.
-   * @param   g     Get privileges on this group.
-   * @param   subj  Get privileges for this member.
+   * @param   ns    Get privileges on this stem.
+   * @param   subj  Get privileges for this subject.
    * @return  Set of privileges.
    */
-  public Set getPrivs(GrouperSession s, Group g, Subject subj) {
+  public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
-      Iterator  iter  = FieldFinder.findType(FieldType.ACCESS).iterator();
+      Iterator  iter  = FieldFinder.findType(FieldType.NAMING).iterator();
       while (iter.hasNext()) {
         Field f = (Field) iter.next();
         if (
-          MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0
+          MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0
         )
         {
           privs.add(f);
@@ -112,13 +121,13 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
       );  
     }
     return privs;
-  } // public Set getPrivs(s, g, subj)
+  } // public Set getPrivs(s, ns, subj)
 
   /**
-   * Grant the privilege to the subject on this group.
+   * Grant the privilege to the subject on this stem.
    * <pre class="eg">
    * try {
-   *   ap.grantPriv(s, g, subj, Privilege.ADMIN);
+   *   np.grantPriv(s, ns, subj, Privilege.STEM);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Unable to grant the privilege
@@ -131,44 +140,44 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
    * }
    * </pre>
    * @param   s     Grant privilege in this session context.
-   * @param   g     Grant privilege on this group.
+   * @param   ns    Grant privilege on this stem.
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    */
-  public void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
+  public void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
-           PrivilegeNotFoundException
+           PrivilegeNotFoundException 
   {
     throw new RuntimeException("not implemented");
-  } // public void grantPriv(s, g, subj, priv)
+  } // public void grantPriv(s, ns, subj, priv)
 
   /**
-   * Check whether the subject has this privilege on this group.
+   * Check whether the subject has this privilege on this stem.
    * <pre class="eg">
    * try {
-   *   ap.hasPriv(s, g, subject, Privilege.ADMIN);
+   *   np.hasPriv(s, ns, subj, Privilege.STEM);
    * }
    * catch (PrivilegeNotFoundException e) {
    *   // Invalid privilege
    * }
    * </pre>
    * @param   s     Check privilege in this session context.
-   * @param   g     Check privilege on this group.
+   * @param   ns    Check privilege on this stem.
    * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  public boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
+  public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws PrivilegeNotFoundException 
   {
     try {
       Field   f   = FieldFinder.getField(priv);
       Member  m   = MemberFinder.findBySubject(s, subj);
-      if (MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0) {
+      if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
         return true;
       }
       return false;
@@ -181,13 +190,13 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
     catch (SchemaException eS) {
       throw new PrivilegeNotFoundException("invalid privilege: " + priv);
     }
-  } // public boolean hasPriv(s, g, subj, priv)
+  } // public boolean hasPriv(s, ns, subj, priv) 
 
   /**
-   * Revoke this privilege from everyone on this group.
+   * Revoke this privilege from everyone on this stem.
    * <pre class="eg">
    * try {
-   *   ap.revokePriv(s, g, Privilege.ADMIN);
+   *   np.revokePriv(s, ns, Privilege.STEM);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to revoke the privilege
@@ -200,25 +209,25 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
    * }
    * </pre>
    * @param   s     Revoke privilege in this session context.
-   * @param   g     Revoke privilege on this group.
+   * @param   ns    Revoke privilege on this stem.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Group g, String priv)
+  public void revokePriv(GrouperSession s, Stem ns, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException 
   {
     throw new RuntimeException("not implemented");
-  } // public void revokePriv(s, g, priv)
+  } // public void revokePriv(s, ns, priv)
 
   /**
-   * Revoke the privilege from the subject on this group.
+   * Revoke the privilege from the subject on this stem.
    * <pre class="eg">
    * try {
-   *   ap.revokePriv(s, g, subj, Privilege.ADMIN);
+   *   np.revokePriv(s, ns, subj, Privilege.STEM);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
@@ -231,20 +240,20 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
    * }
    * </pre>
    * @param   s     Revoke privilege in this session context.
-   * @param   g     Revoke privilege on this group.
-   * @param   subj  Revoke privilege from this subject.
+   * @param   ns    Revoke privilege on this stem.
+   * @param   subj  Revoke privilege from this member.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
+  public void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
-           RevokePrivilegeException
+           RevokePrivilegeException 
   {
     throw new RuntimeException("not implemented");
-  } // public void revokePriv(s, g, subj, priv)
+  } // public void revokePriv(s, ns, subj, priv)
 
 }
 

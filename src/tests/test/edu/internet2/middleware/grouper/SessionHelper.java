@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.1 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: SessionHelper.java,v 1.2 2005-11-15 19:06:39 blair Exp $
  */
 public class SessionHelper {
 
@@ -99,11 +99,11 @@ public class SessionHelper {
       );
       Assert.assertTrue(
         "access priv klass",
-        s.getAccessClass().equals("edu.internet2.middleware.grouper.GrouperAccessPrivilege")
+        s.getAccessClass().equals("edu.internet2.middleware.grouper.GrouperAccessAdapter")
       );
       Assert.assertTrue(
         "naming priv klass",
-        s.getNamingClass().equals("edu.internet2.middleware.grouper.GrouperNamingPrivilege")
+        s.getNamingClass().equals("edu.internet2.middleware.grouper.GrouperNamingAdapter")
       );
       return s;
     }

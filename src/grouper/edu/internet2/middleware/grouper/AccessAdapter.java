@@ -22,44 +22,44 @@ import  java.util.*;
 
 
 /** 
- * Grouper Naming Privilege interface.
+ * Grouper Access Privilege interface.
  * <p>
  * Unless you are implementing a new implementation of this interface,
  * you should not need to directly use these methods as they are all
- * wrapped by methods in the {@link Stem} class.
+ * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.6 2005-11-14 17:00:46 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.1 2005-11-15 19:06:39 blair Exp $
  */
-public interface NamingPrivilege {
+public interface AccessAdapter {
 
   // Public Instance Methods
 
   /**
-   * Get all subjects with this privilege on this stem.
+   * Get all subjects with this privilege on this group.
    * <pre class="eg">
    * try {
-   *   Set stemmers = np.getSubjectsWithPriv(s, ns, Privilege.STEM);
+   *   Set admins = ap.getSubjectsWithPriv(s, g, Privilege.ADMIN);
    * }
    * catch (PrivilegeNotFoundException e0) {
    *   // Invalid priv
    * }
    * </pre>
    * @param   s     Get privileges within this session context.
-   * @param   ns    Get privileges on this stem.
+   * @param   g     Get privileges on this group.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Subject} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
+  public Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
-   * Get all stems where this subject has this privilege.
+   * Get all groups where this subject has this privilege.
    * <pre class="eg">
    * try {
-   *   Set isStemmer = np.getStemsWhereSubjectHasPriv(
-   *     s, subj, Privilege.STEM
+   *   Set isAdmin = ap.getGroupsWhereSubjectHasPriv(
+   *     s, subj, Privilege.ADMIN
    *   );
    * }
    * catch (PrivilegeNotFoundException e0) {
@@ -69,29 +69,29 @@ public interface NamingPrivilege {
    * @param   s     Get privileges within this session context.
    * @param   subj  Get privileges for this subject.
    * @param   priv  Get this privilege.
-   * @return  Set of {@link Stem} objects.
+   * @return  Set of {@link Group} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getStemsWhereSubjectHasPriv(GrouperSession s, Subject subj, String priv) 
+  public Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
     throws PrivilegeNotFoundException;
 
   /**
-   * Get all privileges held by this subject on this stem.
+   * Get all privileges held by this subject on this group.
    * <pre class="eg">
-   * Set privs = np.getPrivs(s, ns, subj);
+   * Set privs = ap.getPrivs(s, g, subj);
    * </pre>
    * @param   s     Get privileges within this session context.
-   * @param   ns    Get privileges on this stem.
-   * @param   subj  Get privileges for this subject.
+   * @param   g     Get privileges on this group.
+   * @param   subj  Get privileges for this member.
    * @return  Set of privileges.
    */
-  public Set getPrivs(GrouperSession s, Stem ns, Subject subj);
+  public Set getPrivs(GrouperSession s, Group g, Subject subj);
 
   /**
-   * Grant the privilege to the subject on this stem.
+   * Grant the privilege to the subject on this group.
    * <pre class="eg">
    * try {
-   *   np.grantPriv(s, ns, subj, Privilege.STEM);
+   *   ap.grantPriv(s, g, subj, Privilege.ADMIN);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Unable to grant the privilege
@@ -104,42 +104,42 @@ public interface NamingPrivilege {
    * }
    * </pre>
    * @param   s     Grant privilege in this session context.
-   * @param   ns    Grant privilege on this stem.
+   * @param   g     Grant privilege on this group.
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    */
-  public void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException, 
            PrivilegeNotFoundException;
 
   /**
-   * Check whether the subject has this privilege on this stem.
+   * Check whether the subject has this privilege on this group.
    * <pre class="eg">
    * try {
-   *   np.hasPriv(s, ns, subj, Privilege.STEM);
+   *   ap.hasPriv(s, g, subject, Privilege.ADMIN);
    * }
    * catch (PrivilegeNotFoundException e) {
    *   // Invalid privilege
    * }
    * </pre>
    * @param   s     Check privilege in this session context.
-   * @param   ns    Check privilege on this stem.
-   * @param   subj     Check privilege for this subject.
+   * @param   g     Check privilege on this group.
+   * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
     throws PrivilegeNotFoundException;
 
   /**
-   * Revoke this privilege from everyone on this stem.
+   * Revoke this privilege from everyone on this group.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, Privilege.STEM);
+   *   ap.revokePriv(s, g, Privilege.ADMIN);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to revoke the privilege
@@ -152,22 +152,22 @@ public interface NamingPrivilege {
    * }
    * </pre>
    * @param   s     Revoke privilege in this session context.
-   * @param   ns    Revoke privilege on this stem.
+   * @param   g     Revoke privilege on this group.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Stem ns, String priv)
+  public void revokePriv(GrouperSession s, Group g, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;
 
   /**
-   * Revoke the privilege from the subject on this stem.
+   * Revoke the privilege from the subject on this group.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, subj, Privilege.STEM);
+   *   ap.revokePriv(s, g, subj, Privilege.ADMIN);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
@@ -180,14 +180,14 @@ public interface NamingPrivilege {
    * }
    * </pre>
    * @param   s     Revoke privilege in this session context.
-   * @param   ns    Revoke privilege on this stem.
-   * @param   subj  Revoke privilege from this member.
+   * @param   g     Revoke privilege on this group.
+   * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
     throws InsufficientPrivilegeException, 
            PrivilegeNotFoundException, 
            RevokePrivilegeException;
