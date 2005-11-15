@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.93 2005-11-15 04:23:04 blair Exp $
+$Id: API,v 1.94 2005-11-15 18:23:56 blair Exp $
 
 ---
 
@@ -173,6 +173,8 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 getImmediateGroups()
 * Set                 getImmediateMemberships()
 * Set                 getMemberships()
+* Set                 getPrivs(group)
+* Set                 getPrivs(stem)
 * Subject             getSubject()
 * String              getSubjectId()
 * Source              getSubjectSource()
@@ -188,8 +190,6 @@ TODO Be more consistent about when calling for a member and a subject
 * boolean             hasOptin(group)
 * Set                 hasOptout()
 * boolean             hasOptout(group)
-* Set                 hasPrivs(group)
-* Set                 hasPrivs(stem)
 * Set                 hasRead()
 * boolean             hasRead(group)
 * Set                 hasStem()

@@ -26,9 +26,15 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingCREATE.java,v 1.1 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: TestGrouperNamingCREATE.java,v 1.2 2005-11-15 18:23:28 blair Exp $
  */
 public class TestGrouperNamingCREATE extends TestCase {
+
+  // Private Class Variables
+  Stem            edu;
+  Stem            root;
+  GrouperSession  s;
+
 
   public TestGrouperNamingCREATE(String name) {
     super(name);
@@ -36,6 +42,9 @@ public class TestGrouperNamingCREATE extends TestCase {
 
   protected void setUp () {
     Db.refreshDb();
+    s     = SessionHelper.getRootSession();
+    root  = StemHelper.getRootStem(s);
+    edu   = StemHelper.addChildStem(root, "edu", "education");
   }
 
   protected void tearDown () {
@@ -45,18 +54,9 @@ public class TestGrouperNamingCREATE extends TestCase {
   // Tests
 
   public void testDefaultPrivs() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Assert.assertTrue(
-      "root has CREATE",    edu.hasCreate( s.getSubject() )
-    );
-    Assert.assertFalse(
-      "subj0 !has CREATE",  edu.hasCreate( SubjectHelper.SUBJ0 )
-    );
-    Assert.assertFalse(
-      "subj1 !has CREATE",  edu.hasCreate( SubjectHelper.SUBJ1 )
-    );
+    PrivHelper.getPrivs(s, edu, s.getSubject(),       0, true,  true);
+    PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0,  0, false, false);
+    PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1,  0, false, false);
   } // public void testDefaultPrivs()
 
 }

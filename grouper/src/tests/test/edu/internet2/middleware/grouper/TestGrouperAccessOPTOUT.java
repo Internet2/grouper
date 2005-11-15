@@ -26,9 +26,16 @@ import  junit.framework.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessOPTOUT.java,v 1.1 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: TestGrouperAccessOPTOUT.java,v 1.2 2005-11-15 18:23:28 blair Exp $
  */
 public class TestGrouperAccessOPTOUT extends TestCase {
+
+  // Private Class Variables
+  Stem            edu;
+  Group           i2;
+  Stem            root;
+  GrouperSession  s;
+
 
   public TestGrouperAccessOPTOUT(String name) {
     super(name);
@@ -36,6 +43,10 @@ public class TestGrouperAccessOPTOUT extends TestCase {
 
   protected void setUp () {
     Db.refreshDb();
+    s     = SessionHelper.getRootSession();
+    root  = StemHelper.getRootStem(s);
+    edu   = StemHelper.addChildStem(root, "edu", "education");
+    i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
   }
 
   protected void tearDown () {
@@ -45,18 +56,14 @@ public class TestGrouperAccessOPTOUT extends TestCase {
   // Tests
 
   public void testDefaultPrivs() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Assert.assertTrue(
-      "root has OPTOUT",   i2.hasOptout( s.getSubject() )
+    PrivHelper.getPrivs(
+      s, i2, s.getSubject(),       0, true,  true, true, true, true, true
     );
-    Assert.assertFalse(
-      "subj0 !has OPTOUT", i2.hasOptout( SubjectHelper.SUBJ0 )
+    PrivHelper.getPrivs(
+      s, i2, SubjectHelper.SUBJ0,  0, false, false, false, false, false, false
     );
-    Assert.assertFalse(
-      "subj1 !has OPTOUT", i2.hasOptout( SubjectHelper.SUBJ1 )
+    PrivHelper.getPrivs(
+      s, i2, SubjectHelper.SUBJ1,  0, false, false, false, false, false, false
     );
   } // public void testDefaultPrivs()
 

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.4 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: Group.java,v 1.5 2005-11-15 18:23:56 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -565,16 +565,19 @@ public class Group implements Serializable {
   } // public Stem getParentStem()
 
   /**
-   * Get privileges for the specified member on this group.
+   * Get privileges that the specified subject has on this group.
    * <pre class="eg">
-   * Set privileges = g.getPrivileges(m);
+   * Set privs = g.getPrivs(subj);
    * </pre>
-   * @param   m   Get privileges for this {@link Member}.
-   * @return  Set of privileges.
+   * @param   subj  Get privileges for this subject.
+   * @return  Set of {@link Privilege} objects.
    */
-  public Set getPrivileges(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public Set getPrivs(Subject subj) {
+    return PrivilegeResolver.getInstance().getPrivs(
+      this.s, this, subj
+    );
+  } // public Set getPrivs(subj)
+
 
   /**
    * Get subjects with the READ privilege on this group.
