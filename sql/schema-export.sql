@@ -10,7 +10,6 @@ alter table grouper_attributes drop constraint FK92BF040AC8A07680;
 drop table grouper_members if exists;
 drop table grouper_memberships if exists;
 drop table grouper_sessions if exists;
-drop table grouper_privileges if exists;
 drop table grouper_stems if exists;
 drop table grouper_types if exists;
 drop table grouper_groups if exists;
@@ -45,14 +44,6 @@ create table grouper_sessions (
    session_id varchar(64) not null,
    primary key (id),
    unique (session_id)
-);
-create table grouper_privileges (
-   id char(32) not null,
-   version integer not null,
-   name varchar(255) not null,
-   is_access bit not null,
-   is_naming bit not null,
-   primary key (id)
 );
 create table grouper_stems (
    id char(32) not null,

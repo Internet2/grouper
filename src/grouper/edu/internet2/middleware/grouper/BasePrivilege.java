@@ -24,12 +24,12 @@ import  java.util.*;
 
 
 /** 
- * Interface for representating a granted privilege.
+ * Base implementation of the {@link Privilege} interface.
  * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.5 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: BasePrivilege.java,v 1.1 2005-11-15 20:14:42 blair Exp $
  */
-public interface Privilege {
+public class BasePrivilege implements Privilege {
 
   // Public Instance Methods
 
@@ -37,19 +37,25 @@ public interface Privilege {
    * Get name of implementation class for this privilege type.
    * @return  Class name of implementing class.
    */
-  public String getImplementationName();
+  public String getImplementationName() {
+    throw new RuntimeException("not implemented");
+  } // public String getImplementationName()
 
   /**
    * Returns true if privilege can be revoked.
    * @return  Boolean true if privilege can be revoked.
    */
-  public boolean isRevokable();
+  public boolean isRevokable() {
+    throw new RuntimeException("not implemented");
+  } // public boolean isRevokable()
 
   /**
    * Get name of privilege.
    * @return  Name of privilege.
    */
-  public String getName();
+  public String getName() {
+    throw new RuntimeException("not implemented");
+  } // public String getName()
 
   /**
    * Get object ({@link Group} or {@link Stem}) that the privilege was
@@ -57,19 +63,27 @@ public interface Privilege {
    * <p/>
    * @return  {@link Group} or {@link Stem} object.
    */
-  public Object getObject();
+  public Object getObject() {
+    throw new RuntimeException("not implemented");
+  } // public Object getObject()
 
   /**
    * Get subject which was granted privilege on this object.
    * @return  {@link Subject} that was granted privilege.
    */
-  public Subject getOwner() throws SubjectNotFoundException;
+  public Subject getOwner() 
+    throws SubjectNotFoundException
+  {
+    throw new RuntimeException("not implemented");
+  } // public Subject getOwner()
 
   /**
    * Get subject which has this privilege.
    * @return  {@link Subject} that has this privilege.
    */
-  public Subject getSubject();
+  public Subject getSubject() {
+    throw new RuntimeException("not implemented");
+  } // public Subject getSubject()
 
 }
 

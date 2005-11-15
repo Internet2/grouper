@@ -18,121 +18,58 @@
 package edu.internet2.middleware.grouper;
 
 
-import  java.io.Serializable;
-import  org.apache.commons.lang.builder.*;
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 
 
 /** 
- * Schema specification for Access and Naming privileges.
- * <p/>
+ * Interface for representating a granted privilege.
+ * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.4 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: Privilege.java,v 1.5 2005-11-15 20:14:42 blair Exp $
  */
-public class Privilege implements Serializable {
-
-  // Public Class Constants
-  public static final String ADMIN  = "admins";
-  public static final String CREATE = "creators";
-  public static final String OPTIN  = "optins";
-  public static final String OPTOUT = "optouts";
-  public static final String READ   = "readers";
-  public static final String STEM   = "stemmers";
-  public static final String UPDATE = "updaters";
-  public static final String VIEW   = "viewers";
-
-
-  // Hibernate Properties
-  private String  id;
-  private boolean is_access;
-  private boolean is_naming;
-  private String  name;
-  private Integer version;
-
-
-  // Constructors
-
-  /**
-   * For Hibernate.
-   */
-  public Privilege() {
-    // nothing
-  }
-
+public interface Privilege {
 
   // Public Instance Methods
-  public String toString() {
-    return new ToStringBuilder(this)
-           .append("name",      getName()     )
-           .append("is_access", isIs_access() )
-           .append("is_naming", isIs_naming() )
-           .toString()
-           ;
-  } // public String toString()
 
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Privilege)) {
-      return false;
-    }
-    Privilege otherPriv = (Privilege) other;
-    return new EqualsBuilder()
-           .append(this.getName(),      otherPriv.getName()     )
-           .append(this.isIs_access(),  otherPriv.isIs_access() )
-           .append(this.isIs_naming(),  otherPriv.isIs_naming() )
-           .isEquals()
-           ;
-    } // public boolean equals(other)
+  /**
+   * Get name of implementation class for this privilege type.
+   * @return  Class name of implementing class.
+   */
+  public String getImplementationName();
 
-  public int hashCode() {
-    return new HashCodeBuilder()
-           .append(getName()      )
-           .append(isIs_access()  )
-           .append(isIs_naming()  )
-           .toHashCode()
-           ;
-  } // public int hashCode()
+  /**
+   * Returns true if privilege can be revoked.
+   * @return  Boolean true if privilege can be revoked.
+   */
+  public boolean isRevokable();
 
-  // Hibernate Accessors
-  private String getId() {
-    return this.id;
-  }
+  /**
+   * Get name of privilege.
+   * @return  Name of privilege.
+   */
+  public String getName();
 
-  private void setId(String id) {
-    this.id = id;
-  }
+  /**
+   * Get object ({@link Group} or {@link Stem}) that the privilege was
+   * granted on.
+   * <p/>
+   * @return  {@link Group} or {@link Stem} object.
+   */
+  public Object getObject();
 
-  private String getName() {
-    return this.name;
-  }
+  /**
+   * Get subject which was granted privilege on this object.
+   * @return  {@link Subject} that was granted privilege.
+   */
+  public Subject getOwner() throws SubjectNotFoundException;
 
-  private void setName(String name) {
-    this.name = name;
-  }
-
-  private boolean isIs_access() {
-    return this.is_access;
-  }
-
-  private void setIs_access(boolean is_access) {
-    this.is_access = is_access;
-  }
-
-  private boolean isIs_naming() {
-    return this.is_naming;
-  }
-
-  private void setIs_naming(boolean is_naming) {
-    this.is_naming = is_naming;
-  }
-
-  private Integer getVersion() {
-    return this.version;
-  }
-
-  private void setVersion(Integer version) {
-    this.version = version;
-  }
+  /**
+   * Get subject which has this privilege.
+   * @return  {@link Subject} that has this privilege.
+   */
+  public Subject getSubject();
 
 }
+

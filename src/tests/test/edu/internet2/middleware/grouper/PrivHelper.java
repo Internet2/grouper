@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.1 2005-11-15 18:23:28 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.2 2005-11-15 20:14:42 blair Exp $
  */
 public class PrivHelper {
 
@@ -47,12 +47,12 @@ public class PrivHelper {
       Assert.assertTrue(
         msg, m.getPrivs(g).size()    == cnt
       );
-      hasPriv(g, subj, m, Privilege.ADMIN,  admin );
-      hasPriv(g, subj, m, Privilege.OPTIN,  optin );
-      hasPriv(g, subj, m, Privilege.OPTOUT, optout);
-      hasPriv(g, subj, m, Privilege.READ,   read  );
-      hasPriv(g, subj, m, Privilege.UPDATE, update);
-      hasPriv(g, subj, m, Privilege.VIEW,   view  );
+      hasPriv(g, subj, m, AccessPrivilege.ADMIN,  admin );
+      hasPriv(g, subj, m, AccessPrivilege.OPTIN,  optin );
+      hasPriv(g, subj, m, AccessPrivilege.OPTOUT, optout);
+      hasPriv(g, subj, m, AccessPrivilege.READ,   read  );
+      hasPriv(g, subj, m, AccessPrivilege.UPDATE, update);
+      hasPriv(g, subj, m, AccessPrivilege.VIEW,   view  );
     }
     catch (MemberNotFoundException eMNF) {
       Assert.fail(eMNF.getMessage());
@@ -74,8 +74,8 @@ public class PrivHelper {
       Assert.assertTrue(
         msg, m.getPrivs(ns).size()    == cnt
       );
-      hasPriv(ns, subj, m, Privilege.CREATE, create);
-      hasPriv(ns, subj, m, Privilege.STEM,   stem);
+      hasPriv(ns, subj, m, NamingPrivilege.CREATE, create);
+      hasPriv(ns, subj, m, NamingPrivilege.STEM,   stem);
     }
     catch (MemberNotFoundException eMNF) {
       Assert.fail(eMNF.getMessage());
@@ -83,7 +83,7 @@ public class PrivHelper {
   } // protected static void getPrivs(s,ns, subj, cnt, create, stem)
 
   protected static void hasPriv(
-    Group g, Subject subj, Member m, String priv, boolean has
+    Group g, Subject subj, Member m, Privilege priv, boolean has
   ) 
   {
     String msg  = subj.getName();
@@ -93,27 +93,27 @@ public class PrivHelper {
     else {
       msg += " does not have ";
     }
-    if      (priv.equals(Privilege.ADMIN)) {
+    if      (priv.equals(AccessPrivilege.ADMIN)) {
       Assert.assertTrue(msg + " ADMIN",   g.hasAdmin(subj)  == has  );
       Assert.assertTrue(msg + " ADMIN",   m.hasAdmin(g)     == has  );
     }
-    else if (priv.equals(Privilege.OPTIN)) {
+    else if (priv.equals(AccessPrivilege.OPTIN)) {
       Assert.assertTrue(msg + " OPTIN",   g.hasOptin(subj)  == has  );
       Assert.assertTrue(msg + " OPTIN",   m.hasOptin(g)     == has  );
     }
-    else if (priv.equals(Privilege.OPTOUT)) {
+    else if (priv.equals(AccessPrivilege.OPTOUT)) {
       Assert.assertTrue(msg + " OPTOUT",  g.hasOptout(subj) == has  );
       Assert.assertTrue(msg + " OPTOUT",  m.hasOptout(g)    == has  );
     }
-    else if (priv.equals(Privilege.READ)) {
+    else if (priv.equals(AccessPrivilege.READ)) {
       Assert.assertTrue(msg + " READ",    g.hasRead(subj)   == has  );
       Assert.assertTrue(msg + " READ",    m.hasRead(g)      == has  );
     }
-    else if (priv.equals(Privilege.UPDATE)) {
+    else if (priv.equals(AccessPrivilege.UPDATE)) {
       Assert.assertTrue(msg + " UPDATE",  g.hasUpdate(subj) == has  );
       Assert.assertTrue(msg + " UPDATE",  m.hasUpdate(g)    == has  );
     }
-    else if (priv.equals(Privilege.VIEW)) {
+    else if (priv.equals(AccessPrivilege.VIEW)) {
       Assert.assertTrue(msg + " VIEW",    g.hasView(subj)   == has  );
       Assert.assertTrue(msg + " VIEW",    m.hasView(g)      == has  );
     }
@@ -123,7 +123,7 @@ public class PrivHelper {
   } // protected static void hasPriv(g, subj, m, priv, has)
 
   protected static void hasPriv(
-    Stem ns, Subject subj, Member m, String priv, boolean has
+    Stem ns, Subject subj, Member m, Privilege priv, boolean has
   ) 
   {
     String msg  = subj.getName();
@@ -133,11 +133,11 @@ public class PrivHelper {
     else {
       msg += " does not have ";
     }
-    if      (priv.equals(Privilege.CREATE)) {
+    if      (priv.equals(NamingPrivilege.CREATE)) {
       Assert.assertTrue(msg + " CREATE",  ns.hasCreate(subj)  == has  );
       Assert.assertTrue(msg + " CREATE",  m.hasCreate(ns)     == has  );
     }
-    else if (priv.equals(Privilege.STEM)) {
+    else if (priv.equals(NamingPrivilege.STEM)) {
       Assert.assertTrue(msg + " STEM",    ns.hasStem(subj)    == has  );
       Assert.assertTrue(msg + " STEM",    m.hasStem(ns)       == has  );
     }

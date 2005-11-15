@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.5 2005-11-15 18:23:56 blair Exp $
+ * @version $Id: Group.java,v 1.6 2005-11-15 20:14:42 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -638,7 +638,7 @@ public class Group implements Serializable {
    * Grant privilege to a member on this group.
    * <pre class="eg">
    * try {
-   *   g.grantPriv(m, Privilege.ADMIN);
+   *   g.grantPriv(m, AccessPrivilege.ADMIN);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Not privileged to grant this privilege
@@ -673,7 +673,7 @@ public class Group implements Serializable {
    */
   public boolean hasAdmin(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.ADMIN
+      this.s, this, subj, AccessPrivilege.ADMIN
     );
   } // public boolean hasAdmin(subj)
 
@@ -750,7 +750,7 @@ public class Group implements Serializable {
    */
   public boolean hasOptin(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.OPTIN
+      this.s, this, subj, AccessPrivilege.OPTIN
     );
   } // public boolean hasOption(subj)
 
@@ -769,7 +769,7 @@ public class Group implements Serializable {
    */
   public boolean hasOptout(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.OPTOUT
+      this.s, this, subj, AccessPrivilege.OPTOUT
     );
   } // public boolean hasOptout(subj)
 
@@ -808,7 +808,7 @@ public class Group implements Serializable {
    */
   public boolean hasRead(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.READ
+      this.s, this, subj, AccessPrivilege.READ
     );
   } // public boolean hasRead(subj)
 
@@ -827,7 +827,7 @@ public class Group implements Serializable {
    */
   public boolean hasUpdate(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.UPDATE
+      this.s, this, subj, AccessPrivilege.UPDATE
     );
   } // public boolean hasUpdate(subj)
 
@@ -846,7 +846,7 @@ public class Group implements Serializable {
    */
   public boolean hasView(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.VIEW
+      this.s, this, subj, AccessPrivilege.VIEW
     );
   } // public boolean hasView(subj)
 
@@ -854,7 +854,7 @@ public class Group implements Serializable {
    * Revoke all privileges of the specified type on this group.
    * <pre class="eg">
    * try {
-   *   g.revokePriv(Privilege.OPTIN);
+   *   g.revokePriv(AccessPrivilege.OPTIN);
    * }
    * catch (GroupModifyException e0) {
    *   // Unable to modify group
@@ -877,7 +877,7 @@ public class Group implements Serializable {
    * Revoke a privilege from the specified member.
    * <pre class="eg">
    * try {
-   *   g.revokePriv(m, Privilege.OPTIN);
+   *   g.revokePriv(m, AccessPrivilege.OPTIN);
    * }
    * catch (GroupModifyException e0) {
    *   // Unable to modify group

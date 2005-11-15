@@ -29,7 +29,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.1 2005-11-15 19:06:39 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.2 2005-11-15 20:14:42 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -39,7 +39,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * Get all subjects with this privilege on this stem.
    * <pre class="eg">
    * try {
-   *   Set stemmers = np.getSubjectsWithPriv(s, ns, Privilege.STEM);
+   *   Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
    * }
    * catch (PrivilegeNotFoundException e0) {
    *   // Invalid priv
@@ -62,7 +62,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * <pre class="eg">
    * try {
    *   Set isStemmer = np.getStemsWhereSubjectHasPriv(
-   *     s, subj, Privilege.STEM
+   *     s, subj, NamingPrivilege.STEM
    *   );
    * }
    * catch (PrivilegeNotFoundException e0) {
@@ -127,7 +127,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * Grant the privilege to the subject on this stem.
    * <pre class="eg">
    * try {
-   *   np.grantPriv(s, ns, subj, Privilege.STEM);
+   *   np.grantPriv(s, ns, subj, NamingPrivilege.STEM);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Unable to grant the privilege
@@ -159,7 +159,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * Check whether the subject has this privilege on this stem.
    * <pre class="eg">
    * try {
-   *   np.hasPriv(s, ns, subj, Privilege.STEM);
+   *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM);
    * }
    * catch (PrivilegeNotFoundException e) {
    *   // Invalid privilege
@@ -171,11 +171,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws PrivilegeNotFoundException 
   {
     try {
-      Field   f   = FieldFinder.getField(priv);
+      // TODO Bah
+      Field   f   = FieldFinder.getField( ((NamingPrivilege) priv).getList());
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
         return true;
@@ -196,7 +197,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * Revoke this privilege from everyone on this stem.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, Privilege.STEM);
+   *   np.revokePriv(s, ns, NamingPrivilege.STEM);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to revoke the privilege
@@ -227,7 +228,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * Revoke the privilege from the subject on this stem.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, subj, Privilege.STEM);
+   *   np.revokePriv(s, ns, subj, NamingPrivilege.STEM);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
