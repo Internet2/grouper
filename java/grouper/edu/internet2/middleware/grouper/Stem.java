@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.4 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: Stem.java,v 1.5 2005-11-15 04:23:04 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -383,16 +383,18 @@ public class Stem implements Serializable {
   } // public Stem getParentStem()
 
   /**
-   * Get privileges that the specified member has on this stem.
+   * Get privileges that the specified subject has on this stem.
    * <pre class="eg">
-   * Set privileges = ns.getPrivileges(member);
+   * Set privs = ns.getPrivs(subj);
    * </pre>
-   * @param   m   Get privileges for this member.
+   * @param   subj  Get privileges for this subject.
    * @return  Set of privileges.
    */
-  public Set getPrivileges(Member m) {
-    throw new RuntimeException("Not implemented");
-  }
+  public Set getPrivs(Subject subj) {
+    return PrivilegeResolver.getInstance().getPrivs(
+      this.s, this, subj
+    );
+  } // public Set getPrivs(subj)
 
   /**
    * Get subjects with STEM privilege on this stem.

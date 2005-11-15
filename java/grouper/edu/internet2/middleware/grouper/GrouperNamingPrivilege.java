@@ -29,7 +29,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingPrivilege.java,v 1.5 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: GrouperNamingPrivilege.java,v 1.6 2005-11-15 04:23:04 blair Exp $
  */
 public class GrouperNamingPrivilege implements NamingPrivilege {
 
@@ -85,6 +85,13 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
 
   /**
    * Get all privileges held by this subject on this stem.
+   * <p>
+   * TODO What type of objects should be returned?  Review Gary's
+   * proposals for ideas.
+   * </p>
+   * <p>
+   * TODO And should be explicitly included?
+   * </p>
    * <pre class="eg">
    * Set privs = np.getPrivs(s, ns, subj);
    * </pre>
@@ -94,7 +101,26 @@ public class GrouperNamingPrivilege implements NamingPrivilege {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
-    throw new RuntimeException("not implemented");
+    Set privs = new LinkedHashSet();
+    try {
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      Iterator  iter  = FieldFinder.findType(FieldType.NAMING).iterator();
+      while (iter.hasNext()) {
+        Field f = (Field) iter.next();
+        if (
+          MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0
+        )
+        {
+          privs.add(f);
+        }
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(
+        "could not convert subject to member: " + eMNF.getMessage()
+      );  
+    }
+    return privs;
   } // public Set getPrivs(s, ns, subj)
 
   /**

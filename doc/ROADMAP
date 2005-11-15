@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.51 2005-11-14 21:16:17 blair Exp $
+$Id: ROADMAP,v 1.52 2005-11-15 04:23:04 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.51 2005-11-14 21:16:17 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Privilege interface should take fields
 * GrouperNamingPrivilege.getPrivs(s, ns, subj)
 * GrouperAccessPrivilege.getPrivs(s, g, subj)
 * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
@@ -22,13 +21,15 @@ TODO Sync with Basecamp
 * GrouperNamingPrivilege.grantPriv(s, ns, subj, priv)
 * GrouperAccessPrivilege.grantPriv(s, ns, subj, priv)
 * GrouperNamingPrivilege.revokePriv(s, g, priv)
+* GrouperAccessPrivilege.revokePriv(s, ns, priv)
 
 ## Later
-* GrouperAccessPrivilege.revokePriv(s, ns, priv)
 * GrouperNamingPrivilege.revokePriv(s, ns, subj, priv)
 * GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
 * _GroupNameFilter_ and _StemNameFilter_
 * ALL subject adapter
+* Should priv interface takes fields or privs instead of strings?
+* should PrivilegeNotFoundException and SchemaException be merged?
 * Add privileges to Field mapping
 * Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_

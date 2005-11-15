@@ -25,7 +25,7 @@ import net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.2 2005-11-11 18:32:06 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.3 2005-11-15 04:23:04 blair Exp $
  */
 public class FieldFinder {
 
@@ -48,7 +48,7 @@ public class FieldFinder {
     //      exist?
     Set fields = new LinkedHashSet();
     try {
-      Session   hs    = HibernateHelper.getSession();
+      Session hs = HibernateHelper.getSession();
       fields.addAll(
         hs.find("from Field order by field_name asc")
       );
@@ -61,6 +61,27 @@ public class FieldFinder {
     }
     return fields;
   } // public Static Set findAll()
+
+  public static Set findType(FieldType type) {
+    Set fields = new LinkedHashSet();
+    try {
+      Session hs = HibernateHelper.getSession();
+      fields.addAll(
+        hs.find(
+          "from Field where field_type = ? order by field_name asc",
+          type.toString(),
+          Hibernate.STRING
+        )
+      );
+      hs.close();  
+    }
+    catch (HibernateException eH) {
+      throw new RuntimeException(
+        "unable to find fields: " + eH.getMessage()
+      );
+    }
+    return fields;
+  } // public static Set fieldType(type)
 
   public static Field getField(String field) 
     throws SchemaException

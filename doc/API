@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.92 2005-11-14 20:44:57 blair Exp $
+$Id: API,v 1.93 2005-11-15 04:23:04 blair Exp $
 
 ---
 
@@ -76,6 +76,7 @@ TODO Be more consistent about when calling for a member and a subject
 
 ## FieldFinder
 * Set                 FieldFinder.findAll()
+* Set                 FieldFinder.findType(fieldType)
 * Field               FieldFinder.getField(field)
 
 ## Group
@@ -106,7 +107,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 getOptins()
 * Set                 getOptouts()
 * Stem                getParentStem()
-* Set                 getPrivileges(member)
+* Set                 getPrivs(subject)
 * Set                 getReaders()
 * Set                 getTypes()
 * Set                 getUpdaters()
@@ -240,7 +241,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Date                getModifyTime()
 * String              getName()
 * Stem                getParentStem()
-* Set                 getPrivileges(member)
+* Set                 getPrivs(subject)
 * Set                 getStemmers()
 * String              getUuid()
 * void                grantPriv(member, privilege)
