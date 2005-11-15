@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.54 2005-11-15 16:48:13 blair Exp $
+$Id: ROADMAP,v 1.55 2005-11-15 21:05:58 blair Exp $
 
 ---
 
@@ -28,8 +28,8 @@ TODO Sync with Basecamp
 * GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
 * _GroupNameFilter_ and _StemNameFilter_
 * ALL subject adapter
-* Should MemberNotFound be replaced by a Runtime?  Or at least used be
-  more selectively?
+* Should MemberNotFound and SubjectNotFound be replaced by Runtime
+  exceptions?  Or at least be used more selectively?
 * Should priv interface takes fields or privs instead of strings?
 * should PrivilegeNotFoundException and SchemaException be merged?
 * Add privileges to Field mapping
@@ -39,12 +39,12 @@ TODO Sync with Basecamp
   argument
 * Review *Finder classes and make sure a session is being attached to
   returned objects
-
 * get vs. find method renaming
 * Review Gary's privilege enhancement ideas
 * Implement all 0.6 query filters
 ** GroupAttributeMatchFilter
 ** GroupAnyAttributeFilter
+** Load group attributes into group subjects
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
 * _Group_ parent stem mapping
