@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessPrivilege.java,v 1.2 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: GrouperAccessPrivilege.java,v 1.3 2005-11-15 18:23:56 blair Exp $
  */
 public class GrouperAccessPrivilege implements AccessPrivilege {
 
@@ -92,7 +92,26 @@ public class GrouperAccessPrivilege implements AccessPrivilege {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Group g, Subject subj) {
-    throw new RuntimeException("not implemented");
+    Set privs = new LinkedHashSet();
+    try {
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      Iterator  iter  = FieldFinder.findType(FieldType.ACCESS).iterator();
+      while (iter.hasNext()) {
+        Field f = (Field) iter.next();
+        if (
+          MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0
+        )
+        {
+          privs.add(f);
+        }
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(
+        "could not convert subject to member: " + eMNF.getMessage()
+      );  
+    }
+    return privs;
   } // public Set getPrivs(s, g, subj)
 
   /**

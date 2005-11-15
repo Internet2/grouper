@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: Member.java,v 1.4 2005-11-15 18:23:56 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -133,6 +133,50 @@ public class Member implements Serializable {
   public Set getMemberships() {
     return MembershipFinder.findMemberships(this, Group.LIST);
   } // public Set getMemberships()
+
+  /**
+   * Find access privileges held by this member on a {@link Group}.
+   * <pre class="eg">
+   * Set access = m.getPrivs(g);
+   * </pre>
+   * @param   g   Find Access Privileges on this {@link Group}
+   * @return  A set of {@link Privilege} objects.
+   */
+  public Set getPrivs(Group g) {
+    try {
+      return PrivilegeResolver.getInstance().getPrivs(
+        this.s, g, this.getSubject()
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // TODO Bah
+      throw new RuntimeException(
+        "unable to get privs on " + g.getName() + ": " + eSNF.getMessage()
+      );
+    }
+  } // public Set getPrivs(g)
+
+  /**
+   * Find naming privileges held by this member on a {@link Stem}.
+   * <pre class="eg">
+   * Set naming = m.getPrivs(ns);
+   * </pre>
+   * @param   ns  Find Naming Privileges on this {@link Stem}
+   * @return  A set of {@link Privilege} objects.
+   */
+  public Set getPrivs(Stem ns) {
+    try {
+      return PrivilegeResolver.getInstance().getPrivs(
+        this.s, ns, this.getSubject()
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // TODO Bah
+      throw new RuntimeException(
+        "unable to get privs on " + ns.getName() + ": " + eSNF.getMessage()
+      );
+    }
+  } // public Set getPrivs(ns)
 
   /**
    * Get {@link Subject} that maps to this member.
@@ -252,8 +296,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasAdmin(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(g, Privilege.ADMIN);
+  } // public boolean hasAdmin(g)
 
   /**
    * Get stems where this member has the CREATE privilege.
@@ -279,8 +323,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasCreate(Stem ns) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(ns, Privilege.CREATE);
+  } // public boolean hasCreate(ns)
 
   /**
    * Get groups where this member has the OPTIN privilege.
@@ -306,8 +350,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasOptin(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(g, Privilege.OPTIN);
+  } // public boolean hasOptin(g)
 
   /**
    * Get groups where this member has the OPTOUT privilege.
@@ -333,34 +377,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasOptout(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
-
-  /**
-   * Find all Access Privileges held by this member on a group.
-   * <pre class="eg">
-   * // Find this member's access privileges.
-   * Set access = m.hasPrivs(g);
-   * </pre>
-   * @param   g   Find Access Privileges on this {@link Group}
-   * @return  A set of privileges.
-   */
-  public Set hasPrivs(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
-
-  /**
-   * Find all Naming Privileges held by this member on a stem.
-   * <pre class="eg">
-   * // Find this member's naming privileges.
-   * Set naming = m.hasPrivs(ns);
-   * </pre>
-   * @param   ns  Find Naming Privileges on this {@link Stem}
-   * @return  A set of privileges.
-   */
-  public Set hasPrivs(Stem ns) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(g, Privilege.OPTOUT);
+  } // public boolean hasOptout(g)
 
   /**
    * Get groups where this member has the READ privilege.
@@ -386,8 +404,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasRead(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(g, Privilege.READ);
+  } // public boolean _hasPriv(g)
 
   /**
    * Get stems where this member has the STEM privilege.
@@ -404,7 +422,6 @@ public class Member implements Serializable {
   /**
    * Report whether this member has STEM on the specified stem.
    * <pre class="eg">
-   * // Check whether this member has STEM on the specified stem.
    * if (m.hasStem(ns)) {
    *   // Member has privilege
    * }
@@ -413,8 +430,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasStem(Stem ns) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(ns, Privilege.STEM);
+  } // public boolean hasStem(ns)
 
   /**
    * Get groups where this member has the UPDATE privilege.
@@ -440,8 +457,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasUpdate(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(g, Privilege.UPDATE);
+  } // public boolean hasUpdate(g)
 
   /**
    * Get groups where this member has the VIEW privilege.
@@ -467,8 +484,8 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasView(Group g) {
-    throw new RuntimeException("Not implemented");
-  }
+    return this._hasPriv(g, Privilege.VIEW);
+  } // public boolean hasview(g)
 
   /**
    * Test whether a member effectively belongs to a group.
@@ -619,6 +636,36 @@ public class Member implements Serializable {
   protected void setSubject(Subject subj) {
     this.subj = subj;
   } // protected void setSubject(subj)
+
+
+  // Private Instance Methods
+  private boolean _hasPriv(Group g, String priv) {
+    try {
+      return PrivilegeResolver.getInstance().hasPriv(
+        this.s, g, this.getSubject(), priv
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // TODO Bah
+      throw new RuntimeException(
+        "unable to get privs on " + g.getName() + ": " + eSNF.getMessage()
+      );
+    }
+  } // private boolean _hasPriv(g, priv)
+
+  private boolean _hasPriv(Stem ns, String priv) {
+    try {
+      return PrivilegeResolver.getInstance().hasPriv(
+        this.s, ns, this.getSubject(), priv
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // TODO Bah
+      throw new RuntimeException(
+        "unable to get privs on " + ns.getName() + ": " + eSNF.getMessage()
+      );
+    }
+  } // private boolean _hasPriv(ns, priv)
 
 
   // Hibernate Accessors

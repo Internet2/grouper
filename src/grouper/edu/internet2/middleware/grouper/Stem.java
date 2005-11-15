@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.5 2005-11-15 04:23:04 blair Exp $
+ * @version $Id: Stem.java,v 1.6 2005-11-15 18:23:56 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -388,7 +388,7 @@ public class Stem implements Serializable {
    * Set privs = ns.getPrivs(subj);
    * </pre>
    * @param   subj  Get privileges for this subject.
-   * @return  Set of privileges.
+   * @return  Set of {@link Privilege} objects.
    */
   public Set getPrivs(Subject subj) {
     return PrivilegeResolver.getInstance().getPrivs(
