@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.2 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: TestGrouperNamingSTEM.java,v 1.3 2005-11-15 04:23:04 blair Exp $
  */
 public class TestGrouperNamingSTEM extends TestCase {
 
@@ -48,16 +48,51 @@ public class TestGrouperNamingSTEM extends TestCase {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.getRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Assert.assertTrue(
-      "root has STEM", edu.hasStem( s.getSubject() )
-    );
-    Assert.assertFalse(
-      "subj0 !has STEM", edu.hasStem( SubjectHelper.SUBJ0 )
-    );
-    Assert.assertFalse(
-      "subj1 !has STEM", edu.hasStem( SubjectHelper.SUBJ1 )
-    );
+    getPrivs(edu, s.getSubject(),       0, true,  true);
+    getPrivs(edu, SubjectHelper.SUBJ0,  0, false, false);
+    getPrivs(edu, SubjectHelper.SUBJ1,  0, false, false);
   } // public void testDefaultPrivs()
+
+  protected void hasPriv(Stem ns, Subject subj, String priv, boolean has) {
+    String msg = subj.getName();
+    if (has == true) {
+      msg += " has ";
+      if      (priv.equals(Privilege.CREATE)) {
+        Assert.assertTrue(msg + " CREATE",  ns.hasCreate(subj)  );
+      }
+      else if (priv.equals(Privilege.STEM)) {
+        Assert.assertTrue(msg + " STEM",    ns.hasStem(subj)    );
+      }
+      else {
+        Assert.fail("unable test priv '" + priv + "'");
+      } 
+    }
+    else {
+      msg += " does not have ";
+      if      (priv.equals(Privilege.CREATE)) {
+        Assert.assertFalse(msg + " CREATE",  ns.hasCreate(subj)  );
+      }
+      else if (priv.equals(Privilege.STEM)) {
+        Assert.assertFalse(msg + " STEM",    ns.hasStem(subj)    );
+      }
+      else {
+        Assert.fail("unable test priv '" + priv + "'");
+      } 
+    }
+  } // protected void hasPriv(ns, subj, priv, has)
+
+  protected void getPrivs(
+    Stem ns, Subject subj, int cnt, boolean create, boolean stem
+  ) 
+  {
+    String msg = subj.getName() + " has ";
+    Assert.assertTrue(
+      msg + cnt + " privs on " + ns.getName(),
+      ns.getPrivs(subj).size() == cnt
+    );
+    hasPriv(ns, subj, Privilege.CREATE, create);
+    hasPriv(ns, subj, Privilege.STEM,   stem);
+  } // protected void getPrivs(ns, subj, cnt, create, stem)
 
 }
 
