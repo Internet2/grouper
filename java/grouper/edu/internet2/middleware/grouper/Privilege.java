@@ -18,58 +18,43 @@
 package edu.internet2.middleware.grouper;
 
 
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 
 
 /** 
- * Interface for representating a granted privilege.
+ * Privilege schema specification.
  * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.5 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: Privilege.java,v 1.6 2005-11-15 21:03:25 blair Exp $
  */
-public interface Privilege {
+public class Privilege {
+
+  // Private Instance Variables
+  private String list;
+  private String name;
+
+
+  // Constructors
+  protected Privilege(String name, String list) {
+    this.list = list;
+    this.name = name;
+  } // private Privilege(name)
+
 
   // Public Instance Methods
+  public String getName() {
+    return this.name;
+  } // public String getName()
 
-  /**
-   * Get name of implementation class for this privilege type.
-   * @return  Class name of implementing class.
-   */
-  public String getImplementationName();
+  public String toString() {
+    return this.name;
+  } // public String toString()
 
-  /**
-   * Returns true if privilege can be revoked.
-   * @return  Boolean true if privilege can be revoked.
-   */
-  public boolean isRevokable();
 
-  /**
-   * Get name of privilege.
-   * @return  Name of privilege.
-   */
-  public String getName();
-
-  /**
-   * Get object ({@link Group} or {@link Stem}) that the privilege was
-   * granted on.
-   * <p/>
-   * @return  {@link Group} or {@link Stem} object.
-   */
-  public Object getObject();
-
-  /**
-   * Get subject which was granted privilege on this object.
-   * @return  {@link Subject} that was granted privilege.
-   */
-  public Subject getOwner() throws SubjectNotFoundException;
-
-  /**
-   * Get subject which has this privilege.
-   * @return  {@link Subject} that has this privilege.
-   */
-  public Subject getSubject();
+  // Protected Instance Methods
+  protected String getList() {
+    return this.list;
+  } // protected String getList()
 
 }
 

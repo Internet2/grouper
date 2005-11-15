@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.2 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.3 2005-11-15 21:03:25 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -167,7 +167,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     try {
       // TODO Bah
-      Field   f   = FieldFinder.getField( ((AccessPrivilege) priv).getList());
+      Field   f   = FieldFinder.getField(priv.getList());
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0) {
         return true;

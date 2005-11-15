@@ -24,33 +24,20 @@ import  java.util.*;
 
 
 /** 
- * Implementation of the {@link Privilege} interface for naming
- * privileges.
+ * An instance of a granted naming privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.8 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: NamingPrivilege.java,v 1.9 2005-11-15 21:03:25 blair Exp $
  */
-public class NamingPrivilege extends BasePrivilege {
+public class NamingPrivilege {
 
   // Public Class Constants
-  public static final Privilege CREATE = new NamingPrivilege(
+  public static final Privilege CREATE = new Privilege(
     "create", "creators"   
   );
-  public static final Privilege STEM   = new NamingPrivilege(
+  public static final Privilege STEM   = new Privilege(
     "stem"  , "stemmers"  
   );
-
-
-  // Private Instance Variables
-  private String list;
-  private String name;
-
-
-  // Constructors
-  private NamingPrivilege(String name, String list) {
-    this.list = list;
-    this.name = name;
-  } // private NamingPrivilege(name)
 
 
   // Public Instance Methods
@@ -106,17 +93,6 @@ public class NamingPrivilege extends BasePrivilege {
   public Subject getSubject() {
     throw new RuntimeException("not implemented");
   } // public Subject getSubject()
-
-  public String toString() {
-    return this.name;
-  } // public String toString()
-
-
-  // Protected Instance Methods
-  // TODO Bah
-  protected String getList() {
-    return this.list;
-  } // protected String getList()
 
 }
 
