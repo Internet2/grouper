@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.95 2005-11-15 19:06:39 blair Exp $
+$Id: API,v 1.96 2005-11-15 20:14:42 blair Exp $
 
 ---
 
@@ -63,6 +63,12 @@ TODO Be more consistent about when calling for a member and a subject
 ---
 
 # Classes
+
+## AccessPrivilege extends BasePrivilege
+TODO
+
+## BasePrivilege implements Privilege
+TODO
 
 ## BaseQueryFilter implements QueryFilter
 * Set                 filterByScope(stem, candidates)
@@ -219,6 +225,16 @@ TODO Be more consistent about when calling for a member and a subject
 * Membership          getEffectiveMembership(session, group, member, list, group, depth)
 * Membership          getImmediateMembership(session, group, member, list)
 
+## NamingPrivilege extends BasePrivilege
+TODO
+
+## BaseQueryFilter implements QueryFilter
+* Set                 filterByScope(stem, candidates)
+* Set                 getResults(session)
+
+## ComplementFilter extends BaseQueryFilter
+
+## Field
 ## NullFilter extends BaseQueryFilter
 
 ## QueryFilter extends BaseQueryFilter
@@ -269,6 +285,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 SubjectFinder.find(query)
 
 ## UnionFilter extends BaseQueryFilter
+
 
 
 

@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.4 2005-11-15 19:06:39 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.5 2005-11-15 20:14:42 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -66,7 +66,7 @@ class PrivilegeResolver {
 
   // Protected Instance Methods
   protected boolean hasPriv(
-    GrouperSession s, Group g, Subject subj, String priv
+    GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
     if (this._isRoot(subj)) {
@@ -82,7 +82,7 @@ class PrivilegeResolver {
   } // protected boolean hasPriv(s, g, subj, priv)
 
   protected boolean hasPriv(
-    GrouperSession s, Stem ns, Subject subj, String priv
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
   {
     if (this._isRoot(subj)) {

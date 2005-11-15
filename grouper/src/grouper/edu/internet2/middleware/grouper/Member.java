@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.4 2005-11-15 18:23:56 blair Exp $
+ * @version $Id: Member.java,v 1.5 2005-11-15 20:14:42 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -296,7 +296,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasAdmin(Group g) {
-    return this._hasPriv(g, Privilege.ADMIN);
+    return this._hasPriv(g, AccessPrivilege.ADMIN);
   } // public boolean hasAdmin(g)
 
   /**
@@ -323,7 +323,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasCreate(Stem ns) {
-    return this._hasPriv(ns, Privilege.CREATE);
+    return this._hasPriv(ns, NamingPrivilege.CREATE);
   } // public boolean hasCreate(ns)
 
   /**
@@ -350,7 +350,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasOptin(Group g) {
-    return this._hasPriv(g, Privilege.OPTIN);
+    return this._hasPriv(g, AccessPrivilege.OPTIN);
   } // public boolean hasOptin(g)
 
   /**
@@ -377,7 +377,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasOptout(Group g) {
-    return this._hasPriv(g, Privilege.OPTOUT);
+    return this._hasPriv(g, AccessPrivilege.OPTOUT);
   } // public boolean hasOptout(g)
 
   /**
@@ -404,7 +404,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasRead(Group g) {
-    return this._hasPriv(g, Privilege.READ);
+    return this._hasPriv(g, AccessPrivilege.READ);
   } // public boolean _hasPriv(g)
 
   /**
@@ -430,7 +430,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasStem(Stem ns) {
-    return this._hasPriv(ns, Privilege.STEM);
+    return this._hasPriv(ns, NamingPrivilege.STEM);
   } // public boolean hasStem(ns)
 
   /**
@@ -457,7 +457,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasUpdate(Group g) {
-    return this._hasPriv(g, Privilege.UPDATE);
+    return this._hasPriv(g, AccessPrivilege.UPDATE);
   } // public boolean hasUpdate(g)
 
   /**
@@ -484,7 +484,7 @@ public class Member implements Serializable {
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasView(Group g) {
-    return this._hasPriv(g, Privilege.VIEW);
+    return this._hasPriv(g, AccessPrivilege.VIEW);
   } // public boolean hasview(g)
 
   /**
@@ -639,7 +639,7 @@ public class Member implements Serializable {
 
 
   // Private Instance Methods
-  private boolean _hasPriv(Group g, String priv) {
+  private boolean _hasPriv(Group g, Privilege priv) {
     try {
       return PrivilegeResolver.getInstance().hasPriv(
         this.s, g, this.getSubject(), priv
@@ -653,7 +653,7 @@ public class Member implements Serializable {
     }
   } // private boolean _hasPriv(g, priv)
 
-  private boolean _hasPriv(Stem ns, String priv) {
+  private boolean _hasPriv(Stem ns, Privilege priv) {
     try {
       return PrivilegeResolver.getInstance().hasPriv(
         this.s, ns, this.getSubject(), priv

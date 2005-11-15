@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.6 2005-11-15 18:23:56 blair Exp $
+ * @version $Id: Stem.java,v 1.7 2005-11-15 20:14:42 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -424,7 +424,7 @@ public class Stem implements Serializable {
    * <pre class="eg">
    * // Grant CREATE to the specified member
    * try {
-   *   ns.grantPriv(m, Privilege.CREATE);
+   *   ns.grantPriv(m, NamingPrivilege.CREATE);
    * }
    * catch (GrantPrivilegeException e) {
    *   // Error granting privilege
@@ -454,7 +454,7 @@ public class Stem implements Serializable {
    */
   public boolean hasCreate(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.CREATE
+      this.s, this, subj, NamingPrivilege.CREATE
     );
   } // public boolean hasCreate(subj)
  
@@ -472,7 +472,7 @@ public class Stem implements Serializable {
    */
   public boolean hasStem(Subject subj) {
     return PrivilegeResolver.getInstance().hasPriv(
-      this.s, this, subj, Privilege.STEM
+      this.s, this, subj, NamingPrivilege.STEM
     );
   } // public boolean hasStem(subj)
  
@@ -490,7 +490,7 @@ public class Stem implements Serializable {
    * <pre class="eg">
    * // Revoke CREATE from everyone on this stem.
    * try {
-   *   ns.revokePriv(Privilege.CREATE);
+   *   ns.revokePriv(NamingPrivilege.CREATE);
    * }
    * catch (RevokePrivilegeException e) {
    *   // Error revoking privilege
@@ -510,7 +510,7 @@ public class Stem implements Serializable {
    * <pre class="eg">
    * // Revoke CREATE from the specified member
    * try {
-   *   ns.revokePriv(m, Privilege.CREATE);
+   *   ns.revokePriv(m, NamingPrivilege.CREATE);
    * }
    * catch (RevokePrivilegeException e) {
    *   // Error revoking privilege

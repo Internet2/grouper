@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.1 2005-11-15 19:06:39 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.2 2005-11-15 20:14:42 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -39,7 +39,7 @@ public interface AccessAdapter {
    * Get all subjects with this privilege on this group.
    * <pre class="eg">
    * try {
-   *   Set admins = ap.getSubjectsWithPriv(s, g, Privilege.ADMIN);
+   *   Set admins = ap.getSubjectsWithPriv(s, g, AccessPrivilege.ADMIN);
    * }
    * catch (PrivilegeNotFoundException e0) {
    *   // Invalid priv
@@ -59,7 +59,7 @@ public interface AccessAdapter {
    * <pre class="eg">
    * try {
    *   Set isAdmin = ap.getGroupsWhereSubjectHasPriv(
-   *     s, subj, Privilege.ADMIN
+   *     s, subj, AccessPrivilege.ADMIN
    *   );
    * }
    * catch (PrivilegeNotFoundException e0) {
@@ -91,7 +91,7 @@ public interface AccessAdapter {
    * Grant the privilege to the subject on this group.
    * <pre class="eg">
    * try {
-   *   ap.grantPriv(s, g, subj, Privilege.ADMIN);
+   *   ap.grantPriv(s, g, subj, AccessPrivilege.ADMIN);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Unable to grant the privilege
@@ -120,7 +120,7 @@ public interface AccessAdapter {
    * Check whether the subject has this privilege on this group.
    * <pre class="eg">
    * try {
-   *   ap.hasPriv(s, g, subject, Privilege.ADMIN);
+   *   ap.hasPriv(s, g, subject, AccessPrivilege.ADMIN);
    * }
    * catch (PrivilegeNotFoundException e) {
    *   // Invalid privilege
@@ -132,14 +132,14 @@ public interface AccessAdapter {
    * @param   priv  Check this privilege.   
    * @throws  PrivilegeNotFoundException
    */
-  public boolean hasPriv(GrouperSession s, Group g, Subject subj, String priv)
+  public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws PrivilegeNotFoundException;
 
   /**
    * Revoke this privilege from everyone on this group.
    * <pre class="eg">
    * try {
-   *   ap.revokePriv(s, g, Privilege.ADMIN);
+   *   ap.revokePriv(s, g, AccessPrivilege.ADMIN);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to revoke the privilege
@@ -167,7 +167,7 @@ public interface AccessAdapter {
    * Revoke the privilege from the subject on this group.
    * <pre class="eg">
    * try {
-   *   ap.revokePriv(s, g, subj, Privilege.ADMIN);
+   *   ap.revokePriv(s, g, subj, AccessPrivilege.ADMIN);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
