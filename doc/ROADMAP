@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.53 2005-11-15 14:01:00 blair Exp $
+$Id: ROADMAP,v 1.54 2005-11-15 16:48:13 blair Exp $
 
 ---
 
@@ -102,7 +102,4 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
-
-
-
 
