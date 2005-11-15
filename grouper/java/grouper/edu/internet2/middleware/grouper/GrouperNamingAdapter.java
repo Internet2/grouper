@@ -29,7 +29,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.2 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.3 2005-11-15 20:47:31 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -98,7 +98,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   s     Get privileges within this session context.
    * @param   ns    Get privileges on this stem.
    * @param   subj  Get privileges for this subject.
-   * @return  Set of privileges.
+   * @return  Set of {@link Privilege} objects.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
     Set privs = new LinkedHashSet();
@@ -106,7 +106,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Member    m     = MemberFinder.findBySubject(s, subj);
       Iterator  iter  = FieldFinder.findType(FieldType.NAMING).iterator();
       while (iter.hasNext()) {
-        Field f = (Field) iter.next();
+        Field     f       = (Field) iter.next();
         if (
           MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0
         )
