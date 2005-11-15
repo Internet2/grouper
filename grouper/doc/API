@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.96 2005-11-15 20:14:42 blair Exp $
+$Id: API,v 1.97 2005-11-15 21:03:25 blair Exp $
 
 ---
 
@@ -17,22 +17,22 @@ TODO Be more consistent about when calling for a member and a subject
 # Interfaces
 
 ## AccessAdapter
-* Set                 getSubjectsWithPriv(session, group, privilege)
-* Set                 getGroupsWhereSubjectHasPriv(session, subject, privilege)
+* Set                 getSubjectsWithPriv(session, group, access priv)
+* Set                 getGroupsWhereSubjectHasPriv(session, subject, access priv)
 * Set                 getPrivs(session, group, subject)
-* void                grantPriv(session, group, subject, privilege)
-* boolean             hasPriv(session, group, subject, privilege)
-* void                revokePriv(session, group, privilege)
-* void                revokePriv(session, group, subject, privilege)
+* void                grantPriv(session, group, subject, access priv)
+* boolean             hasPriv(session, group, subject, access priv)
+* void                revokePriv(session, group, access priv)
+* void                revokePriv(session, group, subject, access priv)
 
 ## NamingAdapter
-* Set                 getSubjectsWithPriv(session, stem, privilege)
-* Set                 getStemsWhereSubjectHasPriv(session, subject, privilege)
+* Set                 getSubjectsWithPriv(session, stem, naming priv)
+* Set                 getStemsWhereSubjectHasPriv(session, subject, naming priv)
 * Set                 getPrivs(session, stem, subject)
-* void                grantPriv(session, stem, subject, privilege)
-* boolean             hasPriv(session, stem, subject, privilege)
-* void                revokePriv(session, stem, privilege)
-* void                revokePriv(session, stem, subject, privilege)
+* void                grantPriv(session, stem, subject, naming priv)
+* boolean             hasPriv(session, stem, subject, naming priv)
+* void                revokePriv(session, stem, naming priv)
+* void                revokePriv(session, stem, subject, naming priv)
 
 ## QueryFilter
 * Set                 getResults(session)
@@ -64,10 +64,7 @@ TODO Be more consistent about when calling for a member and a subject
 
 # Classes
 
-## AccessPrivilege extends BasePrivilege
-TODO
-
-## BasePrivilege implements Privilege
+## AccessPrivilege 
 TODO
 
 ## BaseQueryFilter implements QueryFilter
@@ -119,7 +116,7 @@ TODO
 * Set                 getUpdaters()
 * String              getUuid()
 * Set                 getViewers()
-* void                grantPriv(member, privilege)
+* void                grantPriv(member, access priv)
 * boolean             hasAdmin(subject)
 * boolean             hasEffectiveMember(member)
 * boolean             hasImmediateMember(member)
@@ -129,8 +126,8 @@ TODO
 * boolean             hasRead(subject)
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
-* void                revokePriv(privilege)
-* void                revokePriv(member, privilege) 
+* void                revokePriv(access priv)
+* void                revokePriv(member, access priv) 
 * void                setAttribute(attr, value)
 * void                setDescription(value)
 * void                setDisplayExtension(value)
@@ -225,17 +222,12 @@ TODO
 * Membership          getEffectiveMembership(session, group, member, list, group, depth)
 * Membership          getImmediateMembership(session, group, member, list)
 
-## NamingPrivilege extends BasePrivilege
-TODO
+## NamingPrivilege 
 
-## BaseQueryFilter implements QueryFilter
-* Set                 filterByScope(stem, candidates)
-* Set                 getResults(session)
-
-## ComplementFilter extends BaseQueryFilter
-
-## Field
 ## NullFilter extends BaseQueryFilter
+
+## Privilege
+TODO
 
 ## QueryFilter extends BaseQueryFilter
 
@@ -260,11 +252,11 @@ TODO
 * Set                 getPrivs(subject)
 * Set                 getStemmers()
 * String              getUuid()
-* void                grantPriv(member, privilege)
+* void                grantPriv(member, naming priv)
 * boolean             hasCreate(subject)
 * boolean             hasStem(subject)
-* void                revokePriv(privilege)
-* void                revokePriv(member, privilege) 
+* void                revokePriv(naming priv)
+* void                revokePriv(member, naming priv) 
 * void                setDescription(value)
 * void                setDisplayExtension(value) 
 
@@ -285,6 +277,7 @@ TODO
 * Set                 SubjectFinder.find(query)
 
 ## UnionFilter extends BaseQueryFilter
+
 
 
 

@@ -29,7 +29,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.3 2005-11-15 20:47:31 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.4 2005-11-15 21:03:25 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -176,7 +176,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     try {
       // TODO Bah
-      Field   f   = FieldFinder.getField( ((NamingPrivilege) priv).getList());
+      Field   f   = FieldFinder.getField(priv.getList());
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
         return true;

@@ -24,45 +24,33 @@ import  java.util.*;
 
 
 /** 
- * Implementation of the {@link Privilege} interface for access
- * privileges.
+ * An instance of a granted access privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.6 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.7 2005-11-15 21:03:25 blair Exp $
  */
-public class AccessPrivilege extends BasePrivilege {
+public class AccessPrivilege {
 
   // Public Class Constants
-  public static final Privilege ADMIN  = new AccessPrivilege(
+  public static final Privilege ADMIN  = new Privilege(
     "admin",  "admins"
   );
-  public static final Privilege OPTIN  = new AccessPrivilege(
+  public static final Privilege OPTIN  = new Privilege(
     "optin",  "optins"
   );
-  public static final Privilege OPTOUT = new AccessPrivilege(
+  public static final Privilege OPTOUT = new Privilege(
     "optout", "optouts"
   );
-  public static final Privilege READ   = new AccessPrivilege(
+  public static final Privilege READ   = new Privilege(
     "read",   "readers"  
   );
-  public static final Privilege UPDATE = new AccessPrivilege(
+  public static final Privilege UPDATE = new Privilege(
     "update", "updaters"
   );
-  public static final Privilege VIEW   = new AccessPrivilege(
+  public static final Privilege VIEW   = new Privilege(
     "view",   "viewers"  
   );
 
-
-  // Private Instance Variables
-  private String list;
-  private String name;
-
-
-  // Constructors
-  private AccessPrivilege(String name, String list) {
-    this.list = list;
-    this.name = name;
-  } // private AccessPrivilege(name)
 
   // Public Instance Methods
 
@@ -116,17 +104,6 @@ public class AccessPrivilege extends BasePrivilege {
   public Subject getSubject() {
     throw new RuntimeException("not implemented");
   } // public Subject getSubject()
-
-  public String toString() {
-    return this.name;
-  } // public String toString()
-
-
-  // Protected Instance Methods
-  // TODO Bah
-  protected String getList() {
-    return this.list;
-  } // protected String getList()
 
 }
 
