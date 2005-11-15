@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.3 2005-11-15 18:23:56 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.4 2005-11-15 19:06:39 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -39,8 +39,8 @@ class PrivilegeResolver {
 
 
   // Private Instance Variables
-  private AccessPrivilege access;
-  private NamingPrivilege naming;
+  private AccessAdapter access;
+  private NamingAdapter naming;
 
 
   // Constructors
@@ -53,10 +53,10 @@ class PrivilegeResolver {
   protected static PrivilegeResolver getInstance() {
     if (pr == null) {
       pr = new PrivilegeResolver();
-      pr.access = (AccessPrivilege) _createInterface(
+      pr.access = (AccessAdapter) _createInterface(
         GrouperConfig.getInstance().getProperty("interface.access")
       );
-      pr.naming = (NamingPrivilege) _createInterface(
+      pr.naming = (NamingAdapter) _createInterface(
         GrouperConfig.getInstance().getProperty("interface.naming")
       );
     }
