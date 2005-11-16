@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.4 2005-11-16 02:30:14 jvine Exp $
-  $Date: 2005-11-16 02:30:14 $
+  $Id: proxy.jsp,v 1.5 2005-11-16 03:49:28 jvine Exp $
+  $Date: 2005-11-16 03:49:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -106,11 +106,14 @@
       
         <tr>
           <th class="label" scope="row">
-		  Effective on:
+		  Effective:
 		  </th>
           <td><%=dateFormat.format(currentProxy.getEffectiveDate())%> </td>
         </tr>
-
+      <tr>
+        <th class="label" scope="row">Expires:</th>
+        <td><!-- DATE (or condition) GOES HERE --></td>
+      </tr>
         <tr>
           <th class="label" scope="row">
 		  Designated on:

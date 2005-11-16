@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.23 2005-11-16 02:30:14 jvine Exp $
-  $Date: 2005-11-16 02:30:14 $
+  $Id: assignment.jsp,v 1.24 2005-11-16 03:49:28 jvine Exp $
+  $Date: 2005-11-16 03:49:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -159,10 +159,14 @@
         </td>
       </tr>
       <tr>
-      	<th class="label" scope="row">Effective on:</th>
+      	<th class="label" scope="row">Effective:</th>
       	<td><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
      	</tr>
 
+      <tr>
+        <th class="label" scope="row">Expires:</th>
+        <td><!-- DATE (or condition) GOES HERE --></td>
+      </tr>
       <tr>
         <th class="label" scope="row">Granted on:</th>
         <td><!-- DATE/TIME GOES HERE --> </td>

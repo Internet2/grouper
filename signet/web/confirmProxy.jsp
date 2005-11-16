@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.5 2005-11-16 02:30:14 jvine Exp $
-  $Date: 2005-11-16 02:30:14 $
+  $Id: confirmProxy.jsp,v 1.6 2005-11-16 03:49:28 jvine Exp $
+  $Date: 2005-11-16 03:49:28 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -133,10 +133,14 @@
                 <td><%=Common.displayStatus(currentProxy)%></td>
               </tr>
               <tr>
-                <th class="label" scope="row">Effective on:</th>
-                <td>&nbsp;</td>
+                <th class="label" scope="row">Effective:</th>
+                <td><!-- DATE (or condition) GOES HERE --></td>
               </tr>
               <tr>
+        		<th class="label" scope="row">Expires:</th>
+        		<td><!-- DATE (or condition) GOES HERE --></td>
+      		</tr>
+	  		<tr>
                 <th class="label" scope="row">Designated on:</th>
                 <td><%=Common.displayDatetime(new Date())%></td>
               </tr>
