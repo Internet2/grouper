@@ -29,9 +29,21 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.3 2005-11-15 21:03:25 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.4 2005-11-16 21:04:25 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
+
+  // Private Class Variables
+  private static Map priv2list = new HashMap();
+
+  static {
+    priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
+    priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
+    priv2list.put(  AccessPrivilege.OPTOUT, "optous"    );
+    priv2list.put(  AccessPrivilege.READ  , "readers"   );
+    priv2list.put(  AccessPrivilege.UPDATE, "updaters"  );
+    priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
+  } // static
 
   // Public Instance Methods
 
@@ -166,8 +178,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws PrivilegeNotFoundException 
   {
     try {
-      // TODO Bah
-      Field   f   = FieldFinder.getField(priv.getList());
+      Field   f   = FieldFinder.getField( (String) priv2list.get(priv));
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0) {
         return true;

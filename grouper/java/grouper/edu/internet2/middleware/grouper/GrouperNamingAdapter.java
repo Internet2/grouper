@@ -29,9 +29,18 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.4 2005-11-15 21:03:25 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.5 2005-11-16 21:04:25 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
+
+  // Private Class Variables
+  private static Map priv2list = new HashMap();
+
+  static {
+    priv2list.put(  NamingPrivilege.CREATE, "creators"  );
+    priv2list.put(  NamingPrivilege.STEM  , "stemmers"  );
+  } // static
+
 
   // Public Instance Methods
 
@@ -175,8 +184,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws PrivilegeNotFoundException 
   {
     try {
-      // TODO Bah
-      Field   f   = FieldFinder.getField(priv.getList());
+      Field   f   = FieldFinder.getField( (String) priv2list.get(priv));
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
         return true;

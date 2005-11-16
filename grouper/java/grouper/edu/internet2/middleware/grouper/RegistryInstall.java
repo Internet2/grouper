@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.3 2005-11-16 16:59:11 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.4 2005-11-16 21:04:25 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -45,11 +45,28 @@ public class RegistryInstall {
    
     // TODO GroupType base    = new GroupType("base");
 
-    Field description = new Field("description",      FieldType.ATTRIBUTE);
-    Field displayName = new Field("displayName",      FieldType.ATTRIBUTE);
-    Field displayExtn = new Field("displayExtension", FieldType.ATTRIBUTE);
-    Field extension   = new Field("extension",        FieldType.ATTRIBUTE);
-    Field name        = new Field("name",             FieldType.ATTRIBUTE);
+    Field description = new Field(
+      "description"       , FieldType.ATTRIBUTE,
+      AccessPrivilege.READ, AccessPrivilege.ADMIN
+    );
+    // TODO Remove?
+    Field displayName = new Field(
+      "displayName"       , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM
+    );
+    Field displayExtn = new Field(
+      "displayExtension"  , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW, AccessPrivilege.ADMIN
+    );
+    Field extension   = new Field(
+      "extension"         , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW, AccessPrivilege.ADMIN
+    );
+    // TODO Remove?
+    Field name        = new Field(
+      "name"              , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM
+    );
 
     fields.add(description);
     fields.add(displayName);
@@ -57,17 +74,44 @@ public class RegistryInstall {
     fields.add(extension);
     fields.add(name);
 
-    Field admins    = new Field("admins",   FieldType.LIST);
-    // Not needed?  Or maybe just reserve it?
-    Field creators  = new Field("creators", FieldType.LIST);
-    Field members   = new Field("members",  FieldType.LIST);
-    Field optins    = new Field("optins",   FieldType.LIST);
-    Field optouts   = new Field("optouts",  FieldType.LIST);
-    Field readers   = new Field("readers",  FieldType.LIST);
-    // Not needed?  Or maybe just reserve it?
-    Field stemmers  = new Field("stemmers", FieldType.LIST);
-    Field updaters  = new Field("updaters", FieldType.LIST);
-    Field viewers   = new Field("viewers",  FieldType.LIST);
+    Field admins    = new Field(
+      "admins"                , FieldType.LIST,
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+    );
+    // TODO Not needed?  Or maybe just reserve it?
+    Field creators  = new Field(
+      "creators"              , FieldType.LIST,
+      NamingPrivilege.STEM    , NamingPrivilege.STEM
+    );
+    Field members   = new Field(
+      "members"               , FieldType.LIST,
+      AccessPrivilege.READ    , AccessPrivilege.UPDATE
+    );
+    Field optins    = new Field(
+      "optins"                , FieldType.LIST,
+      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE
+    );
+    Field optouts   = new Field(
+      "optouts"               , FieldType.LIST,
+      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE
+    );
+    Field readers   = new Field(
+      "readers"               , FieldType.LIST,
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+    );
+    // TODO Not needed?  Or maybe just reserve it?
+    Field stemmers  = new Field(
+      "stemmers"              , FieldType.LIST,
+      NamingPrivilege.STEM    , NamingPrivilege.STEM
+    );
+    Field updaters  = new Field(
+      "updaters"              , FieldType.LIST,
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+    );
+    Field viewers   = new Field(
+      "viewers"               , FieldType.LIST,
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+    );
 
     fields.add(admins);
     fields.add(creators);

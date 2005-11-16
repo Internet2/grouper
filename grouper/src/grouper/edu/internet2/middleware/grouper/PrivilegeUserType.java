@@ -21,14 +21,13 @@ import  java.sql.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
-import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * Custom {@link Privilege} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeUserType.java,v 1.1 2005-11-16 16:59:11 blair Exp $    
+ * @version $Id: PrivilegeUserType.java,v 1.2 2005-11-16 21:04:25 blair Exp $    
  */
 public class PrivilegeUserType implements UserType {
 
@@ -55,8 +54,8 @@ public class PrivilegeUserType implements UserType {
   )
     throws HibernateException, SQLException
   {
-    String type = resultSet.getString(types[0]); 
-    return resultSet.wasNull() ? null : FieldType.getInstance(type);
+    String name = resultSet.getString(types[0]); 
+    return resultSet.wasNull() ? null : Privilege.getInstance(name);
   } // public Object nullSafeGet(resultSet, types, owner)
      
   public void nullSafeSet(
