@@ -27,30 +27,17 @@ import  java.util.*;
  * An instance of a granted access privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.7 2005-11-15 21:03:25 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.8 2005-11-16 16:59:11 blair Exp $
  */
 public class AccessPrivilege {
 
   // Public Class Constants
-  public static final Privilege ADMIN  = new Privilege(
-    "admin",  "admins"
-  );
-  public static final Privilege OPTIN  = new Privilege(
-    "optin",  "optins"
-  );
-  public static final Privilege OPTOUT = new Privilege(
-    "optout", "optouts"
-  );
-  public static final Privilege READ   = new Privilege(
-    "read",   "readers"  
-  );
-  public static final Privilege UPDATE = new Privilege(
-    "update", "updaters"
-  );
-  public static final Privilege VIEW   = new Privilege(
-    "view",   "viewers"  
-  );
-
+  public static final Privilege ADMIN   = Privilege.getInstance("admin");
+  public static final Privilege OPTIN   = Privilege.getInstance("optin");
+  public static final Privilege OPTOUT  = Privilege.getInstance("optout");
+  public static final Privilege READ    = Privilege.getInstance("read");
+  public static final Privilege UPDATE  = Privilege.getInstance("update");
+  public static final Privilege VIEW    = Privilege.getInstance("view");
 
   // Public Instance Methods
 
