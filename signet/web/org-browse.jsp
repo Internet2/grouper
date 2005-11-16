@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.24 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: org-browse.jsp,v 1.25 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -110,12 +110,12 @@
 				 		<h2>New assignment details</h2>
 							<table>
               	<tr>
-              		<th width="15%" class="label" scope="row">Granted to:</td>
-              		<td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
-              		<td width="10%">&nbsp;</td>
+              		<th class="label" scope="row">Granted to:</th>
+              		<td><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<td>&nbsp;</td>
              		</tr>
               	<tr>
-              		<th class="label" scope="row">Type:</td>
+              		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
               		<td nowrap="nowrap">
 										<a href="<%=personViewHref%>">
@@ -124,10 +124,9 @@
 									</td>
              		</tr>								
               	<tr>
-              		<th class="label" scope="row">Function:</td>
-              		<td>
-						<p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
-						<p><%=currentFunction.getHelpText()%></p>
+              		<th class="label" scope="row">Function:</th>
+              		<td><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span><br />
+						<%=currentFunction.getHelpText()%>
 					</td>
               		<td>
 										<a href="<%=functionsHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
@@ -164,9 +163,9 @@
 	
           <div class="section">
 			<h2>
-           	Continue to next step : Limits and Conditions
+           	Continue to next step : Limits &amp; Conditions
          	</h2> 		  
-      	<input
+      	    <input
         name="continueButton"
         disabled="true"
         type="submit"
@@ -175,9 +174,9 @@
          
          	<p>
            	<a href="<%=personViewHref%>">
-             	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview
+             	<img src="images/arrow_left.gif" alt="" />CANCEL and return to  overview for <%=currentGranteePrivilegedSubject.getName()%>
            	</a>
-            	</p>
+           	</p>
          </div> <!-- end section -->  	
        	</div><!-- end Content -->	
         <div id="Sidebar">     

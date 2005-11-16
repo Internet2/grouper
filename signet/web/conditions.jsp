@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.39 2005-10-25 23:12:57 acohen Exp $
-  $Date: 2005-10-25 23:12:57 $
+  $Id: conditions.jsp,v 1.40 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -254,33 +254,33 @@
 %>
 							<table>
               	<tr>
-              		<th width="15%" class="label" scope="row">Granted to:</td>
-              		<td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<th class="label" scope="row">Granted to:</th>
+              		<td><%=currentGranteePrivilegedSubject.getName()%></td>
 <% if (currentAssignment == null)
    {
 %>
-              		<td width="10%">&nbsp;</td> <!-- 3rd col appears only for new assignments -->
+              		<td>&nbsp;</td> <!-- 3rd col appears only for new assignments -->
 <%
    }
 %>									
              		</tr>
               	<tr>
-              		<th class="label" scope="row">Type:</td>
+              		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
 <% if (currentAssignment == null)
    {
 %>
               		<td nowrap="nowrap" >
-														<a href="<%=personViewHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
+					<a href="<%=personViewHref%>"><img src="images/arrow_left.gif" alt="" />change</a>
 					</td>
 <%
 	}
 %>									
          		</tr>								
               	<tr>
-              		<th class="label" scope="row">Privilege:</td>
-              		<td><p><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span></p>
-              		    <p><%=currentFunction.getHelpText()%></p></td>
+              		<th class="label" scope="row">Privilege:</th>
+              		<td><span class="category"><%=currentCategory.getName()%></span> : <span class="function"><%=currentFunction.getName()%></span><br />
+              		    <%=currentFunction.getHelpText()%></td>
            		  <% if (currentAssignment == null)
    {
 %>
@@ -292,7 +292,7 @@
 %>				
                 </tr>			
 			    <tr>
-              		<th class="label" scope="row">Scope:</td>
+              		<th class="label" scope="row">Scope:</th>
               		<td>
 											<%=signet.displayAncestry
 													(currentScope,
@@ -475,10 +475,10 @@
 
               <p>
                 <a href="<%=personViewHref%>">
-                  <img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview
+                  <img src="images/arrow_left.gif" alt="" />CANCEL and return to overview for <%=currentGranteePrivilegedSubject.getName()%>
                 </a>
-              </p>
-            </div> <!-- section -->
+          </p>
+          </div> <!-- section -->
         </div> <!--Content -->
 				      
         <div id="Sidebar">
@@ -486,8 +486,8 @@
 			 	  	<h2>Help</h2>
 			  		<div class="helpbox"><p>To grant a privilege:</p>
           	  <p><i>1. Select the privilege (done).</i> </p>
-          	  <p><i>    2. Select the scope (done).</i></p>
-          	  <p>       	      3. Set any limits that apply to this privilege. Set effective dates or conditions for the privilege, and select whether this subject can use and/or grant this privilege.</p>
+          	  <p><i>2. Select the scope (done).</i></p>
+          	  <p>3. Set any limits that apply to this privilege. Set effective dates or conditions for the privilege, and select whether this subject can use and/or grant this privilege.</p>
           	  <p>Then click &quot;Complete assignment.&quot;</p>
           	  <p><b>Definitions</b></p>
           	  <p>Use:  subject has access to the appropriate business system(s) to perform the tasks controlled by this privilege. </p>

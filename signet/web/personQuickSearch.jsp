@@ -43,7 +43,8 @@
   else
   {   
 %>
-      Your search found:
+      <SPAN class="close">[<A href="javascript:;" onClick="document.getElementById('PersonSearchResults').style.display='none';">close</A>]</SPAN>	
+	  Your search found:
       <DIV class="scroll">
 <% 
   	Iterator sortSetIterator = sortSet.iterator();

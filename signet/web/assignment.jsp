@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.22 2005-10-24 16:59:45 acohen Exp $
-  $Date: 2005-10-24 16:59:45 $
+  $Id: assignment.jsp,v 1.23 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
     </script>
   </head>
-  <body>
+  <body onload="window.focus();">
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -79,9 +79,9 @@
       <table>
     
       <tr>
-        <td class="label">
+        <th class="label" scope="row">
           Granted to:
-        </td>
+        </th>
         <td>
           <%=grantee.getName()%>
         </td>
@@ -90,19 +90,26 @@
     
     
       <tr>
-      	<td class="label">Type:</td>
+      	<th class="label" scope="row">Type:</th>
       	<td><%=currentAssignment.getFunction().getSubsystem().getName()%></td>
      	</tr>
       <tr>
-      	<td class="label">Privilege:</td>
-      	<td><p><span class="category"><%=currentAssignment.getFunction().getCategory().getName()%></span> : <span class="function"><%=currentAssignment.getFunction().getName()%></span></p>
-      	    <p><%=currentAssignment.getFunction().getHelpText()%></p></td>
+      	<th class="label" scope="row">Privilege:</th>
+      	<td><span class="category"><%=currentAssignment.getFunction().getCategory().getName()%></span> : <span class="function"><%=currentAssignment.getFunction().getName()%></span><br />
+      	    <%=currentAssignment.getFunction().getHelpText()%></td>
       </tr>
       <tr>
-        <td class="label">
+        <th class="label" scope="row">
           Scope:
-        </td>
+        </th>
         <td>
+		  <%=signet.displayAncestry
+                    (currentScope,
+                     " : ",  // childSeparatorPrefix
+                     "",     // levelPrefix
+                     "",     // levelSuffix
+                     "")     // childSeparatorSuffix
+                 %>
           <%=currentAssignment.getScope().getName()%>
         </td>
       </tr>
@@ -117,9 +124,9 @@
     Limit limit = limits[limitIndex];
 %>
       <tr>
-        <td class="label">
+        <th class="label" scope="row">
           <%=limit.getName()%>:
-        </td>
+        </th>
         <td>
 <%
   StringBuffer strBuf = new StringBuffer();
@@ -144,22 +151,26 @@
 %>
 
       <tr>
-        <td class="label">
-          Extensibility:
-        </td>
+        <th class="label" scope="row">
+          Status:
+        </th>
         <td>
           <%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
         </td>
       </tr>
       <tr>
-      	<td class="label"> Effective on: </td>
+      	<th class="label" scope="row">Effective on:</th>
       	<td><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
      	</tr>
 
-  <tr>
-        <td class="label">
+      <tr>
+        <th class="label" scope="row">Granted on:</th>
+        <td><!-- DATE/TIME GOES HERE --> </td>
+      </tr>
+      <tr>
+        <th class="label" scope="row">
           Granted by:
-        </td>
+        </th>
         <td>
           <%=(proxy==null ? "" : (proxy.getName() + " acting as ")) + grantor.getName()%>
         </td>

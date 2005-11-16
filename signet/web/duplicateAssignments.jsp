@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.10 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: duplicateAssignments.jsp,v 1.11 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -210,7 +210,7 @@
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this assignment and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview </a>
+      CANCEL this assignment and return to  overview for <%=currentGranteePrivilegedSubject.getName()%></a>
   </div>
 
      	</form>

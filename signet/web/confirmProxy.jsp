@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.4 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: confirmProxy.jsp,v 1.5 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -104,17 +104,14 @@
           <h2>Completed Designated Driver</h2>
             <table>
               <tr>
-                <th width="15%" class="label" scope="row">Designated:</td>
-                <td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
+                <th class="label" scope="row">Designated:</th>
+                <td><%=currentGranteePrivilegedSubject.getName()%></td>
               </tr>          
               <tr>
                 <th class="label" scope="row">As:</th>
-                <td class="invis">
-                  <p>
-                    <span class="function">
+                <td><span class="function">
                       Granting Proxy
                     </span>
-                  </p>
                 </td>
               </tr>
               <tr>
@@ -128,28 +125,40 @@
                 </td>
               </tr>
               <tr>
-                <td class="label"> <%=Common.displayLimitType(currentProxy)%> <br></td>
+                <th class="label" scope="row"><%=Common.displayLimitType(currentProxy)%>:</th>
                 <td><%=Common.displaySubsystem(currentProxy)%></td>
               </tr>
               <tr>
-                <td class="label">Status:</td>
+                <th class="label" scope="row">Status:</th>
                 <td><%=Common.displayStatus(currentProxy)%></td>
               </tr>
               <tr>
-                <td class="label">Designated on:</td>
+                <th class="label" scope="row">Effective on:</th>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <th class="label" scope="row">Designated on:</th>
                 <td><%=Common.displayDatetime(new Date())%></td>
               </tr>
               <tr>
-                <td class="label">Designated by: </td>
-                <td><%=loggedInPrivilegedSubject.getName()%></td>
+                <th class="label" scope="row">Designated by:</th>
+                <td>
+				<%=(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()%>
+				</td>
               </tr>
             </table>            
-          </div><!-- section -->
+        </div><!-- section -->
          
           <div class="section">
             <h2>
               Continue
             </h2>
+			<p class="default">
+              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
+                <img src="images/arrow_right.gif" alt="" />
+                Return to your  overview
+              </a>
+            </p>
             <p>
               <a href="Designate.do">
                 <img src="images/arrow_right.gif" alt="" />
@@ -162,12 +171,7 @@
                 Designate another proxy
               </a>
             </p>
-            <p>
-              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-                <img src="images/arrow_right.gif" alt="" />
-                Return to your privileges overview
-              </a>
-            </p>
+          
           </div>
         </div> <!-- Content -->    
         <div id="Sidebar">

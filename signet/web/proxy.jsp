@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.3 2005-10-20 21:28:27 acohen Exp $
-  $Date: 2005-10-20 21:28:27 $
+  $Id: proxy.jsp,v 1.4 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -19,7 +19,7 @@
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
     </script>
   </head>
-  <body>
+  <body onload="window.focus();">
 
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.util.Iterator" %>
@@ -61,50 +61,66 @@
       <table>
     
         <tr>
-          <td class="label">
-            Granted to:
-          </td>
+          <th class="label" scope="row">
+            Designated:
+          </th>
           <td>
             <%=grantee.getName()%>
           </td>
         </tr>
-      
         <tr>
-          <td class="label">
-            Scope:
+          <th class="label" scope="row">
+		  	As:
+		  </th>
+          <td><span class="function">
+              Granting Proxy
+              </span>
           </td>
+        </tr>
+        <tr>
+          <th class="label" scope="row">
+            Scope:
+          </th>
           <td>
              <span class="label">acting as </span><%=grantor.getName()%>
           </td>
         </tr>
 
         <tr>
-          <td class="label">
-            Limit:
-          </td>
+          <th class="label" scope="row">
+            <%=Common.displayLimitType(currentProxy)%>:
+          </th>
           <td>
-            <span class="label"><%=Common.displayLimitType(currentProxy)%> </span><%=Common.displaySubsystem(currentProxy)%>
+            <%=Common.displaySubsystem(currentProxy)%>
           </td>
         </tr>
 
         <tr>
-          <td class="label">
+          <th class="label" scope="row">
             Status:
-          </td>
+          </th>
           <td>
             <%=Common.displayStatus(currentProxy)%>
           </td>
         </tr>
       
         <tr>
-          <td class="label"> Effective on: </td>
+          <th class="label" scope="row">
+		  Effective on:
+		  </th>
           <td><%=dateFormat.format(currentProxy.getEffectiveDate())%> </td>
         </tr>
 
         <tr>
-          <td class="label">
-            Granted by:
-          </td>
+          <th class="label" scope="row">
+		  Designated on:
+		  </th>
+          <td><%=Common.displayDatetime(new Date())%></td>
+        </tr>
+        <tr>
+          <th class="label" scope="row">
+            Designated by:
+          </th>
           <td>
             <%=(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()%>
           </td>

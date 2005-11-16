@@ -24,29 +24,31 @@
 <tiles:useAttribute name="privDisplayType"           classname="PrivDisplayType" />
 <tiles:useAttribute name="currentSubsystem"          classname="Subsystem" />
 
-<div id="Content"> 
-  <div id="ViewHead">
-    <span class="dropback">
-      Privileges overview for</span> 
-      <h1>
+<DIV id="Content"> 
+  <DIV id="ViewHead">
+    <SPAN class="dropback">
+      Privileges overview for</SPAN> 
+      <H1>
         <%=pSubject.getName()%>
-      </h1>
-      <span class="ident">
+      </H1>
+      <SPAN class="ident">
         <%=pSubject.getDescription()%>
-      </span>
+      </SPAN>
     </span> <!-- dropback -->
-  </div> <!-- ViewHead -->
+  </DIV> <!-- ViewHead -->
 
-  <div class="tableheader">
-    <a
+  <DIV class="tableheader">
+  <!-- stubbing out export option for release 1.0
+    <A
       href="javascript:;"
-      onclick="alert('This will download the data shown in the table in an Excel-readable format.')">
-      <img
+      onClick="alert('This will download the data shown in the table in an Excel-readable format.')">
+      <IMG
         src="images/export.gif"
         alt="" />
       Export to Excel
-    </a>
-    <a
+    </A>
+	-->
+    <A
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
@@ -61,42 +63,42 @@
 <%
   }
 %>
-      <img
+      <IMG
         src="images/print.gif"
         alt="" />
       Printable version
-    </a>
-    <h2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%><%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))%></h2>
-  </div> <!-- tableheader -->
+    </A>
+    <H2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%><%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))%></H2>
+  </DIV> <!-- tableheader -->
   
-  <div class="tablecontrols">
-    <form
+  <DIV class="tablecontrols">
+    <FORM
       name="personSearchForm"
       method="post"
       action="PersonView.do">
       Change the view to show 
-      <div style="display: inline;">
-        <select
+      <DIV style="display: inline;">
+        <SELECT
           name="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>"
           id="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>">
           <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
           <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
-        </select>
-        <input
+        </SELECT>
+        <INPUT
           name="Button"
           value="Show"
           type="submit"
           class="button1" />
-      </div>
-    </form>
-  </div> <!-- tablecontrols -->
+      </DIV>
+    </FORM>
+  </DIV> <!-- tablecontrols -->
   
-  <div id="Paging" style="margin: 5px;">
+  <DIV id="Paging" style="margin: 5px;">
     Privilege types: <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
-  </div>		
+  </DIV>		
              
-  <form
-      onsubmit
+  <FORM
+      onSubmit
         ="return confirm
            ('Are you sure you want to revoke the'
             + (selectCount() == 1 ? '' : (' ' + selectCount()))
@@ -110,41 +112,41 @@
       name="checkform"
       id="checkform">
 
-    <div class="tablecontent"> 
-      <table>            
-        <tr class="columnhead"> 
+    <DIV class="tablecontent"> 
+      <TABLE>            
+        <TR class="columnhead"> 
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-          <th>
+          <TH>
             Subject
-          </th>
+          </TH>
 <%
   }
 %>
-          <th width="30%">
+          <TH width="30%">
             Privilege
-          </th>
-          <th width="20%">
+          </TH>
+          <TH width="20%">
             Scope
-          </th>
-          <th>
+          </TH>
+          <TH>
             Limits
-          </th>
-          <th>
+          </TH>
+          <TH>
             Status
-          </th>
-          <th width="10%">
+          </TH>
+          <TH width="10%">
             All:
-            <input
+            <INPUT
                name="checkAll"
                type="checkbox"
                id="checkAll"
-               onclick="selectAll(this.checked);"
+               onClick="selectAll(this.checked);"
                value="Check All" />
-          </th>
-        </tr>
+          </TH>
+        </TR>
     
 <%
   Set assignmentSet;
@@ -191,41 +193,41 @@
     Category category = function.getCategory();
 %>
   
-        <tr>
+        <TR>
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-          <td class="sorted"> <!-- person -->
-            <a
+          <TD class="sorted"> <!-- person -->
+            <A
               href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystem == null ? "" : ("&subsystemId=" + subsystem.getId()))%>">
               <%=grantee.getName()%>
-            </a>
-          </td> <!-- person -->
+            </A>
+          </TD> <!-- person -->
 <%
   }
 %>
               
-          <td> <!-- privilege -->
+          <TD> <!-- privilege -->
             <%=Common.assignmentPopupIcon(assignment)%>
             <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
-          </td> <!-- privilege -->
+          </TD> <!-- privilege -->
               
-          <td> <!-- scope -->
+          <TD> <!-- scope -->
              <%=assignment.getScope().getName()%>
-          </td> <!-- scope -->
+          </TD> <!-- scope -->
               
-          <td> <!-- limits -->
+          <TD> <!-- limits -->
             <%=Common.editLink(loggedInPrivilegedSubject, assignment)%>
             <%=Common.displayLimitValues(assignment)%>
-          </td> <!-- limits -->
+          </TD> <!-- limits -->
               
-          <td> <!-- status -->
+          <TD> <!-- status -->
             <%=Common.displayStatus(assignment)%>
-          </td> <!-- status -->
+          </TD> <!-- status -->
 
           <%=Common.revokeBox(loggedInPrivilegedSubject, assignment, UnusableStyle.DIM)%>
-        </tr>
+        </TR>
     
 <% 
   }
@@ -242,41 +244,41 @@
     Subsystem subsystem = proxy.getSubsystem();
 %>
   
-        <tr>
+        <TR>
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-          <td class="sorted"> <!-- person -->
-            <a
+          <TD class="sorted"> <!-- person -->
+            <A
               href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystem == null ? "" : ("&subsystemId=" + subsystem.getId()))%>">
               <%=grantee.getName()%>
-            </a>
-          </td> <!-- person -->
+            </A>
+          </TD> <!-- person -->
 <%
   }
 %>
               
-          <td> <!-- privilege -->
+          <TD> <!-- privilege -->
             <%=Common.proxyPopupIcon(proxy)%>
             <%=Common.proxyPrivilegeDisplayName(signet, proxy)%>
-          </td> <!-- privilege -->
+          </TD> <!-- privilege -->
               
-          <td> <!-- scope -->
-             <span class="label">acting as </span><%=proxy.getGrantor().getName()%>
-          </td> <!-- scope -->
+          <TD> <!-- scope -->
+             <SPAN class="label">acting as </SPAN><%=proxy.getGrantor().getName()%>
+          </TD> <!-- scope -->
               
-          <td> <!-- limits -->
+          <TD> <!-- limits -->
             <%=Common.editLink(loggedInPrivilegedSubject, proxy)%>
-            <span class="label"><%=Common.displayLimitType(proxy)%> </span><%=Common.displaySubsystem(proxy)%>
-          </td> <!-- limits -->
+            <SPAN class="label"><%=Common.displayLimitType(proxy)%> </SPAN><%=Common.displaySubsystem(proxy)%>
+          </TD> <!-- limits -->
               
-          <td> <!-- status -->
+          <TD> <!-- status -->
             <%=Common.displayStatus(proxy)%>
-          </td> <!-- status -->
+          </TD> <!-- status -->
 
           <%=Common.revokeBox(loggedInPrivilegedSubject, proxy, UnusableStyle.DIM)%>
-        </tr>
+        </TR>
     
 <% 
   }
@@ -284,29 +286,29 @@
   
        
   
-        <tr >
+        <TR >
 <%
   if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
   {
 %>
-          <td>&nbsp;</td>
+          <TD>&nbsp;</TD>
 <%
   }
 %>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td align="center" >
-            <input
+          <TD>&nbsp;</TD>
+          <TD>&nbsp;</TD>
+          <TD>&nbsp;</TD>
+          <TD>&nbsp;</TD>
+          <TD align="center" >
+            <INPUT
               name="revokeButton"
               type="submit"
               disabled="true"
               class="button1"
               value="Revoke" />
-          </td>
-        </tr>     
-      </table>
-    </div> <!-- tablecontent -->
-  </form> <!-- checkform -->
-</div> <!-- Content -->
+          </TD>
+        </TR>     
+      </TABLE>
+    </DIV> <!-- tablecontent -->
+  </FORM> <!-- checkform -->
+</DIV> <!-- Content -->

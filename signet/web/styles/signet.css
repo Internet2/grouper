@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.18 2005-09-19 06:37:04 acohen Exp $
-   $Date: 2005-09-19 06:37:04 $
+   $Id: signet.css,v 1.19 2005-11-16 02:30:14 jvine Exp $
+   $Date: 2005-11-16 02:30:14 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -601,17 +601,21 @@ li {
 	float: right;
 	font-size: 0.9em;
 }
-
+.default {
+	text-transform: uppercase;
+	font-weight: bold;
+}
 .dropback {
 	color: #666;
 	text-transform: none;
 	font-weight: normal;
 }
-
+.error {
+	color: #CC0000;
+}
 .help {
   color: #666;
 }
-
 .ident {
 	color: #666;
 	text-transform: none;

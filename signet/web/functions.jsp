@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.23 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: functions.jsp,v 1.24 2005-11-16 02:30:14 jvine Exp $
+  $Date: 2005-11-16 02:30:14 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -129,12 +129,12 @@
 				 		<h2>New assignment details</h2>
 							<table>
               	<tr>
-              		<th width="15%" class="label" scope="row">Granted to:</td>
-              		<td width="75%"><%=currentGranteePrivilegedSubject.getName()%></td>
-              		<td width="10%">&nbsp;</td>
+              		<th class="label" scope="row">Granted to:</th>
+              		<td><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<td>&nbsp;</td>
              		</tr>
               	<tr>
-              		<th class="label" scope="row">Type:</td>
+              		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
               		<td nowrap="nowrap">
 										<a href="<%=personViewHref%>">
@@ -244,8 +244,8 @@
            	
            	<p>
              	<a href="<%=personViewHref%>">
-               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to <%=currentGranteePrivilegedSubject.getName()%>'s overview
-             	</a>
+               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to  overview for <%=currentGranteePrivilegedSubject.getName()%>
+           	  </a>
            	</p>
        	  </div>	<!-- section -->
 					
@@ -254,7 +254,7 @@
           <div class="helpbox">
           	<h2>Help</h2>
           	<p>To grant a privilege:</p>
-          	<p>1. Select the privilege you want to grant <i>(only the privileges you are authorized to grant are shown)</i>, then click &quot;Continue&quot;.</p>
+          	<p>1. Select the privilege you want to grant <i>(only those you are authorized to grant are shown)</i>, then click &quot;Continue&quot;.</p>
           	<p>Next:<br />
        	    2. Select the scope to which the privilege applies.</p>
           	<p>3. Set limits and conditions for the privilege.</p>
