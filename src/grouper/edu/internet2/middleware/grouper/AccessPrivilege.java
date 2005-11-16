@@ -27,7 +27,7 @@ import  java.util.*;
  * An instance of a granted access privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.8 2005-11-16 16:59:11 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.9 2005-11-16 21:04:25 blair Exp $
  */
 public class AccessPrivilege {
 
@@ -36,6 +36,7 @@ public class AccessPrivilege {
   public static final Privilege OPTIN   = Privilege.getInstance("optin");
   public static final Privilege OPTOUT  = Privilege.getInstance("optout");
   public static final Privilege READ    = Privilege.getInstance("read");
+  public static final Privilege SYSTEM  = Privilege.getInstance("system");
   public static final Privilege UPDATE  = Privilege.getInstance("update");
   public static final Privilege VIEW    = Privilege.getInstance("view");
 

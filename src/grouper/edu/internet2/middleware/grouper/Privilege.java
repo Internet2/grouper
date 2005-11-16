@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 
 
+import  java.io.Serializable;
 import  java.util.*;
 
 
@@ -25,19 +26,20 @@ import  java.util.*;
  * Privilege schema specification.
  * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.7 2005-11-16 16:59:11 blair Exp $
+ * @version $Id: Privilege.java,v 1.8 2005-11-16 21:04:25 blair Exp $
  */
-public class Privilege {
+public class Privilege implements Serializable {
 
   // Private Class Constants
-  private static final Privilege ADMIN   = new Privilege("admin",  "admins"  );
-  private static final Privilege CREATE  = new Privilege("create", "creators");
-  private static final Privilege OPTIN   = new Privilege("optin",  "optins"  );
-  private static final Privilege OPTOUT  = new Privilege("optout", "optouts" );
-  private static final Privilege READ    = new Privilege("read",   "readers" );
-  private static final Privilege STEM    = new Privilege("stem",   "stemmers");
-  private static final Privilege UPDATE  = new Privilege("update", "updaters");
-  private static final Privilege VIEW    = new Privilege("view",   "viewers" );
+  private static final Privilege ADMIN  = new Privilege("admin" );
+  private static final Privilege CREATE = new Privilege("create");
+  private static final Privilege OPTIN  = new Privilege("optin" );
+  private static final Privilege OPTOUT = new Privilege("optout");
+  private static final Privilege READ   = new Privilege("read"  );
+  private static final Privilege STEM   = new Privilege("stem"  );
+  private static final Privilege SYSTEM = new Privilege("system");
+  private static final Privilege UPDATE = new Privilege("update");
+  private static final Privilege VIEW   = new Privilege("view"  );
 
 
   // Private Class Constants
@@ -45,25 +47,24 @@ public class Privilege {
 
 
   // Private Instance Variables
-  private String list;
   private String name;
 
 
   static {
-    PRIVS.put(ADMIN.toString(),   ADMIN );
-    PRIVS.put(OPTIN.toString(),   OPTIN );
-    PRIVS.put(OPTOUT.toString(),  OPTOUT);
-    PRIVS.put(READ.toString(),    READ  );
-    PRIVS.put(UPDATE.toString(),  UPDATE);
-    PRIVS.put(VIEW.toString(),    VIEW  );
-    PRIVS.put(CREATE.toString(),  CREATE);
-    PRIVS.put(STEM.toString(),    STEM  );
+    PRIVS.put(ADMIN.toString()  , ADMIN );
+    PRIVS.put(CREATE.toString() , CREATE);
+    PRIVS.put(OPTIN.toString()  , OPTIN );
+    PRIVS.put(OPTOUT.toString() , OPTOUT);
+    PRIVS.put(READ.toString()   , READ  );
+    PRIVS.put(STEM.toString()   , STEM  );
+    PRIVS.put(SYSTEM.toString() , SYSTEM);
+    PRIVS.put(UPDATE.toString() , UPDATE);
+    PRIVS.put(VIEW.toString()   , VIEW  );
   } // static
 
 
   // Constructors
-  private Privilege(String name, String list) {
-    this.list = list;
+  private Privilege(String name) {
     this.name = name;
   } // private Privilege(name)
 
@@ -89,11 +90,6 @@ public class Privilege {
     return getInstance(name);
   } // Object readResolve()
 
-
-  // Protected Instance Methods
-  protected String getList() {
-    return this.list;
-  } // protected String getList()
 
 }
 

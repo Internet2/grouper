@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.2 2005-11-11 18:32:06 blair Exp $    
+ * @version $Id: Field.java,v 1.3 2005-11-16 21:04:25 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -33,6 +33,8 @@ public class Field implements Serializable {
   private String    field_name;
   private FieldType field_type;
   private String    id;
+  private Privilege read_priv;
+  private Privilege write_priv;
 
     
   // Constructors
@@ -42,15 +44,12 @@ public class Field implements Serializable {
     super();
   }
 
-  protected Field(String field, FieldType type) {
+  protected Field(String field, FieldType type, Privilege read, Privilege write) {
     this.setField_name(field);
     this.setField_type(type);
-  } // protected Field(field, type)
-
-  // TODO Deprecate?
-  protected Field(String field) {
-    this.setField_name(field);
-  } // protected Field(field)
+    this.setRead_priv(read);
+    this.setWrite_priv(write);
+  } // protected Field(field, type, read, write)
 
 
   // Public Instance Methods
@@ -76,6 +75,14 @@ public class Field implements Serializable {
     return this.getField_name();
   } // public String getName()
 
+  public Privilege getReadPriv() {
+    return this.getRead_priv();
+  } // public Privilege getReadPriv()
+
+  public Privilege getWritePriv() {
+    return this.getWrite_priv();
+  } // public Privilege getWritePriv()
+
   public int hashCode() {
     return new HashCodeBuilder()
            .append(getField_name()        )
@@ -85,8 +92,10 @@ public class Field implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("name",  getField_name() )
-           .append("type",  getField_type() )
+           .append("name"   , getField_name() )
+           .append("type"   , getField_type() )
+           .append("read"   , getRead_priv()  )
+           .append("write"  , getWrite_priv() )
            .toString();
   } // public String toString()
 
@@ -115,6 +124,23 @@ public class Field implements Serializable {
   private void setField_type(FieldType type) {
     this.field_type = type;
   }
+
+  private Privilege getRead_priv() {
+    return this.read_priv;
+  }
+
+  private void setRead_priv(Privilege read) {
+    this.read_priv = read;
+  }
+
+  private Privilege getWrite_priv() {
+    return this.write_priv;
+  }
+
+  private void setWrite_priv(Privilege write) {
+    this.write_priv = write;
+  }
+
 
 }
 

@@ -24,29 +24,38 @@ import  junit.framework.*;
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: FieldHelper.java,v 1.3 2005-11-16 21:04:25 blair Exp $
  */
 public class FieldHelper {
 
   // Protected Class Methods
 
-  protected static void testField(Field f, String name, String type) {
-    Assert.assertTrue("f instanceof Field", f instanceof Field);
-    Assert.assertTrue("f name = " + name, f.getName().equals(name));
-    Assert.assertTrue("f type = " + type, f.getType().toString().equals(type));
+  protected static void testField(
+    Field f, String name, FieldType type, Privilege read, Privilege write
+  ) 
+  {
+    _testField(f, name, type, read, write);
     try {
       Field field = FieldFinder.getField(name);
-      Assert.assertTrue("got field " + f, true);
-      Assert.assertTrue("field instanceof Field", field instanceof Field);
-      Assert.assertTrue("field name = " + name, field.getName().equals(name));
-      Assert.assertTrue(
-        "field type = " + type, field.getType().toString().equals(type)
-      );
+      _testField(field, name, type, read, write);
     }
     catch (SchemaException eS) {
       Assert.fail("failed to get " + name);
     }
-  } // protected static void testField(f, name, type)
+  } // protected static void testField(f, name, type, read, write)
+
+
+  // Private Class Methods
+  private static void _testField(
+    Field f, String name, FieldType type, Privilege read, Privilege write
+  )
+  {
+    Assert.assertTrue(name + " instanceof Field", f instanceof Field);
+    Assert.assertTrue(name + " name  = " + name, f.getName().equals(name));
+    Assert.assertTrue(name + " type  = " + type, f.getType().toString().equals(type.toString()));
+    Assert.assertTrue(name + " read  = " + read, f.getReadPriv().equals(read));
+    Assert.assertTrue(name + " write = " + read, f.getWritePriv().equals(write));
+  } // private static void _testField(f, name, type, read, write)
 
 }
 

@@ -91,6 +91,8 @@ create table grouper_fields (
    id char(32) not null,
    field_type varchar(255) not null,
    field_name varchar(255) not null,
+   read_priv varchar(255) not null,
+   write_priv varchar(255) not null,
    primary key (id),
    unique (field_name)
 );

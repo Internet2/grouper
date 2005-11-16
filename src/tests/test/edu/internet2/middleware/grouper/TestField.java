@@ -25,7 +25,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestField.java,v 1.3 2005-11-16 21:04:25 blair Exp $
  */
 public class TestField extends TestCase {
 
@@ -45,21 +45,78 @@ public class TestField extends TestCase {
 
   public void testFields() {
     Set       fields  = FieldFinder.findAll();
+    Assert.assertTrue("fields: 14", fields.size() == 14);
     Iterator  iter    = fields.iterator();
-    FieldHelper.testField( (Field) iter.next(), "admins",           "list"      );
-    FieldHelper.testField( (Field) iter.next(), "creators",         "list"      );
-    FieldHelper.testField( (Field) iter.next(), "description",      "attribute" );
-    FieldHelper.testField( (Field) iter.next(), "displayExtension", "attribute" );
-    FieldHelper.testField( (Field) iter.next(), "displayName",      "attribute" );
-    FieldHelper.testField( (Field) iter.next(), "extension",        "attribute" );
-    FieldHelper.testField( (Field) iter.next(), "members",          "list"      );
-    FieldHelper.testField( (Field) iter.next(), "name",             "attribute" );
-    FieldHelper.testField( (Field) iter.next(), "optins",           "list"      );
-    FieldHelper.testField( (Field) iter.next(), "optouts",          "list"      );
-    FieldHelper.testField( (Field) iter.next(), "readers",          "list"      );
-    FieldHelper.testField( (Field) iter.next(), "stemmers",         "list"      );
-    FieldHelper.testField( (Field) iter.next(), "updaters",         "list"      );
-    FieldHelper.testField( (Field) iter.next(), "viewers",          "list"      );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "admins"              , FieldType.LIST,
+      AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "creators"            , FieldType.LIST,
+      NamingPrivilege.STEM  , NamingPrivilege.STEM
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "description"         , FieldType.ATTRIBUTE,
+      AccessPrivilege.READ  , AccessPrivilege.ADMIN
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "displayExtension"    , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW  , AccessPrivilege.ADMIN
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "displayName"         , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "extension"           , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW, AccessPrivilege.ADMIN
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "members"             , FieldType.LIST,
+      AccessPrivilege.READ  , AccessPrivilege.UPDATE
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "name"                , FieldType.ATTRIBUTE,
+      AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "optins"              , FieldType.LIST,
+      AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "optouts"             , FieldType.LIST,
+      AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "readers"             , FieldType.LIST,
+      AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "stemmers"            , FieldType.LIST,
+      NamingPrivilege.STEM  , NamingPrivilege.STEM
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "updaters"            , FieldType.LIST,
+      AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+    );
+    FieldHelper.testField( 
+      (Field) iter.next()   , 
+      "viewers"             , FieldType.LIST,
+      AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+    );
   } // public void testFields()
 
 }
