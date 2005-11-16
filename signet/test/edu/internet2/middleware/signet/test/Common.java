@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.11 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: Common.java,v 1.12 2005-11-16 01:02:55 acohen Exp $
+$Date: 2005-11-16 01:02:55 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -106,6 +106,12 @@ public class Common extends TestCase
   {
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.DATE, daysOffset);
+    
+    // Some database-column-types we use (like Sybase's smalldatetime) store
+    // time only to the nearest second.
+    calendar.set(Calendar.MILLISECOND, 0);
+    calendar.set(Calendar.SECOND, 0);
+    
     return calendar.getTime();
   }
 

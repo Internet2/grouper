@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegedSubjectTest.java,v 1.15 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: PrivilegedSubjectTest.java,v 1.16 2005-11-16 01:02:55 acohen Exp $
+$Date: 2005-11-16 01:02:55 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -206,7 +206,7 @@ public class PrivilegedSubjectTest extends TestCase
            oldLimitValues,
            false, // canUse
            true, // canGrant
-           new Date(),  // effective immediately
+           Constants.TODAY,  // effective immediately
            null);       // no expiration date
     
     pSubject1.setActingAs(null);
@@ -245,7 +245,7 @@ public class PrivilegedSubjectTest extends TestCase
     			 oldLimitValues,
     			 false, // canUse
     			 true, // canGrant
-           new Date(),  // effective immediately
+           Constants.TODAY,  // effective immediately
            null);       // no expiration date
     
     assertNotNull(newAssignment);

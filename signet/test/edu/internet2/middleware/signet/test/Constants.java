@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.8 2005-08-25 20:31:35 acohen Exp $
-$Date: 2005-08-25 20:31:35 $
+$Id: Constants.java,v 1.9 2005-11-16 01:02:55 acohen Exp $
+$Date: 2005-11-16 01:02:55 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -42,6 +42,8 @@ public class Constants
   
   public static final String DELIMITER = "_";
   
+  public static final Date TODAY
+    = Common.getDate(0);
   public static final Date YESTERDAY
     = Common.getDate(-1);
   public static final Date TOMORROW

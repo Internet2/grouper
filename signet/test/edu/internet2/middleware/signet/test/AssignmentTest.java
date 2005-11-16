@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.19 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: AssignmentTest.java,v 1.20 2005-11-16 01:02:55 acohen Exp $
+$Date: 2005-11-16 01:02:55 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -160,8 +160,8 @@ public class AssignmentTest extends TestCase
                  duplicateLimitValues,
                  assignmentReceived.canUse(),
                  assignmentReceived.canGrant(),
-                 new Date(),  // EffectiveDate and expirationDate are not
-                 Common.getDate(1)); // considered when finding duplicates.
+                 Constants.TODAY,  // EffectiveDate and expirationDate are not
+                 Constants.TOMORROW); // considered when finding duplicates.
         duplicateAssignment.save();
         
         // At this point, there shoule be exactly one duplicate Assignment.
@@ -506,21 +506,19 @@ public class AssignmentTest extends TestCase
     assertNotNull(assignment);
     
     Date lastWeek  = Common.getDate(-7);
-    Date yesterday = Common.getDate(-1);
-    Date tomorrow = Common.getDate(1);
     Date nextWeek = Common.getDate(7);
     
     PrivilegedSubject grantor = Common.getOriginalGrantor(assignment);
     
     assignment.setEffectiveDate(grantor, lastWeek);
-    assignment.setExpirationDate(grantor, yesterday);
+    assignment.setExpirationDate(grantor, Constants.YESTERDAY);
     assertEquals(Status.INACTIVE, assignment.evaluate());
     
-    assignment.setEffectiveDate(grantor, yesterday);
-    assignment.setExpirationDate(grantor, tomorrow);
+    assignment.setEffectiveDate(grantor, Constants.YESTERDAY);
+    assignment.setExpirationDate(grantor, Constants.TOMORROW);
     assertEquals(Status.ACTIVE, assignment.evaluate());
     
-    assignment.setEffectiveDate(grantor, tomorrow);
+    assignment.setEffectiveDate(grantor, Constants.TOMORROW);
     assignment.setExpirationDate(grantor, nextWeek);
     assertEquals(Status.PENDING, assignment.evaluate());
   }

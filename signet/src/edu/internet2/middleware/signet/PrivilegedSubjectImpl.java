@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.34 2005-11-11 00:24:01 acohen Exp $
- $Date: 2005-11-11 00:24:01 $
+ $Id: PrivilegedSubjectImpl.java,v 1.35 2005-11-16 01:02:55 acohen Exp $
+ $Date: 2005-11-16 01:02:55 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -79,7 +79,7 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     
     // PrivilegedSubject is the only Signet entity which is automatically
     // persisted, because it's just a record of a query to the Subject adapter.
-    signet.save(this);
+    this.save();
   }
   
   Signet getSignet()
@@ -1541,5 +1541,11 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
   final void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
+  }
+  
+  public void save()
+  {
+    this.setModifyDatetime(new Date());
+    this.getSignet().save(this);
   }
 }

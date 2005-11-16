@@ -26,9 +26,7 @@
        		<generator class="native"/> 
     	</id>
 -->
-    	
-		<timestamp name="modifyDatetime"/>
-		
+
 		<property
 			name="subjectId" column="subjectID"/>
 		<property
@@ -70,6 +68,10 @@
 			<key column="granteeKey"/>
 			<one-to-many class="edu.internet2.middleware.signet.ProxyImpl"/>
 		</set>
+		
+        <property
+			name="modifyDatetime"
+			column="modifyDatetime" />
 
 	</class>
 </hibernate-mapping>

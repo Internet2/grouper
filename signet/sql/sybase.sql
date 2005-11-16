@@ -40,7 +40,7 @@ status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 helpText            text                NOT NULL,
 scopeTreeID         varchar(64)         NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key clustered (subsystemID)
 )
 ;
@@ -50,7 +50,7 @@ subsystemID         varchar(64)         NOT NULL,
 categoryID          varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (subsystemID, categoryID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
@@ -63,7 +63,7 @@ categoryID          varchar(64)         NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
 helpText            text                NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (subsystemID, functionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
@@ -74,7 +74,7 @@ permissionKey		numeric(12,0)       IDENTITY,
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (permissionKey),
 unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
@@ -94,7 +94,7 @@ dataType            varchar(32)         NOT NULL,
 valueType           varchar(32)         NOT NULL,
 displayOrder        smallint            NOT NULL,
 renderer            varchar(255)        NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (limitKey),
 unique (subsystemID, limitID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
@@ -127,7 +127,7 @@ subjectTypeID       varchar(32)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
 description         varchar(255)        NOT NULL,
 name                varchar(120)        NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (subjectKey),
 unique (subjectTypeID, subjectID)
 )
@@ -138,7 +138,7 @@ create table signet_tree
 treeID              varchar(64)         NOT NULL,
 name                varchar(120)        NOT NULL,
 adapterClass        varchar(255)        NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (treeID)
 )
 ;
@@ -149,7 +149,7 @@ nodeID              varchar(64)         NOT NULL,
 nodeType            varchar(32)         NOT NULL,
 status              varchar(16)         NOT NULL,
 name                varchar(120)        NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (treeID, nodeID),
 foreign key (treeID, nodeID) references signet_treeNode (treeID, nodeID)
 )
@@ -169,7 +169,7 @@ create table signet_choiceSet
 choiceSetID         varchar(64)         NOT NULL,
 adapterClass        varchar(255)        NOT NULL,
 subsystemID         varchar(64)         NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (choiceSetID)
 )
 ;
@@ -180,7 +180,7 @@ value               varchar(32)         NOT NULL,
 label               varchar(64)         NOT NULL,
 rank                smallint            NOT NULL,
 displayOrder        smallint            NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (choiceSetID, value),
 foreign key (choiceSetID) references signet_choiceSet (choiceSetID)
 )
@@ -203,7 +203,7 @@ canGrant            bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
 revokerKey          numeric(12,0)       NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (assignmentID),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
@@ -240,7 +240,7 @@ effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
 revokerKey          numeric(12,0)       NULL,
 historyDatetime     smalldatetime       NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 unique (assignmentID, instanceNumber),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
@@ -283,7 +283,7 @@ canExtend           bit                 NOT NULL,
 effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
 revokerKey          numeric(12,0)       NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 primary key (proxyID),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
@@ -307,7 +307,7 @@ effectiveDate       smalldatetime       NOT NULL,
 expirationDate      smalldatetime       NULL,
 revokerKey          numeric(12,0)       NULL,
 historyDatetime     smalldatetime       NOT NULL,
-modifyDatetime      smalldatetime       default getdate(),
+modifyDatetime      smalldatetime       NOT NULL,
 unique (proxyID, instanceNumber),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
@@ -320,7 +320,7 @@ create table SubjectType (
 subjectTypeID     varchar(32)     NOT NULL,
 name              varchar(120)    NOT NULL,
 adapterClass      varchar(255)    NOT NULL,
-modifyDatetime    smalldatetime   default getdate(),
+modifyDatetime    smalldatetime   NOT NULL,
 primary key (subjectTypeID)
 )
 ;
@@ -331,7 +331,7 @@ subjectID         varchar(64)     NOT NULL,
 name              varchar(120)    NOT NULL,
 description       varchar(255)    NOT NULL,
 displayID         varchar(64)     NOT NULL,
-modifyDatetime    smalldatetime   default getdate(),
+modifyDatetime    smalldatetime   NOT NULL,
 primary key (subjectTypeID, subjectID)
 )
 ;
@@ -343,7 +343,7 @@ name              varchar(32)     NOT NULL,
 instance          smallint        NOT NULL,
 value             varchar(255)    NOT NULL,
 searchValue       varchar(255)    NOT NULL,
-modifyDatetime    smalldatetime   default getdate(),
+modifyDatetime    smalldatetime   NOT NULL,
 primary key (subjectTypeID, subjectID, name, instance),
 foreign key (subjectTypeID, subjectID) references Subject (subjectTypeID, subjectID)
 )
