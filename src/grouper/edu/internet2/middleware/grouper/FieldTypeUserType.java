@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Custom {@link FieldType} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldTypeUserType.java,v 1.2 2005-11-11 18:32:07 blair Exp $    
+ * @version $Id: FieldTypeUserType.java,v 1.3 2005-11-16 16:59:11 blair Exp $    
  */
 public class FieldTypeUserType implements UserType {
 
@@ -73,7 +73,6 @@ public class FieldTypeUserType implements UserType {
   } // public void nullSafeSet(statement, value, index)
  
   public Class returnedClass() {
-    //return edu.internet2.middleware.grouper.FieldType.Class;
     return FieldType.class;
   } // public Class returnedClass()
   

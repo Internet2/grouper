@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.56 2005-11-15 21:23:27 blair Exp $
+$Id: ROADMAP,v 1.57 2005-11-16 16:59:11 blair Exp $
 
 ---
 
@@ -12,10 +12,10 @@ $Id: ROADMAP,v 1.56 2005-11-15 21:23:27 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Make _Privilege_ an enumerated user type like _FieldType_
 * Add _Privilege_ to _Field_ mapping
 * GrouperNamingPrivilege.grantPriv(s, ns, subj, priv)
-* GrouperAccessPrivilege.grantPriv(s, ns, subj, priv)
+* GrouperAccessPrivilege.grantPriv(s, g, subj, priv)
+* Return _AccessPrivilege_ and _NamingPrivilege_ objects
 * GrouperNamingPrivilege.revokePriv(s, ns, subj, priv)
 * GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
 * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
@@ -61,6 +61,7 @@ TODO Sync with Basecamp
 * Map _GroupType_
 * many-to-many maping between _Field_ and _GroupType_
 * Replace `_init()` methods with static {} declarations where possible
+* Replace contrib with updated cdg
 * Custom group types
 * Custom group attributes
 * Custom group lists

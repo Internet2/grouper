@@ -27,17 +27,13 @@ import  java.util.*;
  * An instance of a granted naming privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.9 2005-11-15 21:03:25 blair Exp $
+ * @version $Id: NamingPrivilege.java,v 1.10 2005-11-16 16:59:11 blair Exp $
  */
 public class NamingPrivilege {
 
   // Public Class Constants
-  public static final Privilege CREATE = new Privilege(
-    "create", "creators"   
-  );
-  public static final Privilege STEM   = new Privilege(
-    "stem"  , "stemmers"  
-  );
+  public static final Privilege CREATE  = Privilege.getInstance("create");
+  public static final Privilege STEM    = Privilege.getInstance("stem");
 
 
   // Public Instance Methods

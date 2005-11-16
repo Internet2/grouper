@@ -25,12 +25,12 @@ import  org.apache.commons.lang.builder.*;
 
 
 /** 
- * Custom {@link FieldType} user type.
+ * Custom {@link Privilege} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldTypeUserType.java,v 1.3 2005-11-16 16:59:11 blair Exp $    
+ * @version $Id: PrivilegeUserType.java,v 1.1 2005-11-16 16:59:11 blair Exp $    
  */
-public class FieldTypeUserType implements UserType {
+public class PrivilegeUserType implements UserType {
 
   // Private Class Constants
   private static final int[] SQL_TYPES = { Types.VARCHAR };
@@ -73,7 +73,7 @@ public class FieldTypeUserType implements UserType {
   } // public void nullSafeSet(statement, value, index)
  
   public Class returnedClass() {
-    return FieldType.class;
+    return Privilege.class;
   } // public Class returnedClass()
   
   public int[] sqlTypes() {
