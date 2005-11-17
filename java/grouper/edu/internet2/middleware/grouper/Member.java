@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.6 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: Member.java,v 1.7 2005-11-17 15:40:59 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -202,7 +202,9 @@ public class Member implements Serializable {
     throws SubjectNotFoundException
   {
     if (this.subj == null) {
-      throw new RuntimeException("Member.getSubject() not implemented");
+      this.subj = SubjectFinder.findById(
+        this.getSubject_id(), this.getSubject_type()
+      );
     }
     return this.subj;
   }

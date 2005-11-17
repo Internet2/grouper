@@ -20,13 +20,14 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 import  junit.framework.*;
 
 /**
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessVIEW.java,v 1.4 2005-11-17 04:10:18 blair Exp $
+ * @version $Id: TestGrouperAccessVIEW.java,v 1.5 2005-11-17 15:40:59 blair Exp $
  */
 public class TestGrouperAccessVIEW extends TestCase {
 

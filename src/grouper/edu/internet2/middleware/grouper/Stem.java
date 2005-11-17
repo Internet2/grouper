@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.10 2005-11-17 05:12:15 blair Exp $
+ * @version $Id: Stem.java,v 1.11 2005-11-17 15:40:59 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -261,8 +261,10 @@ public class Stem implements Serializable {
    * @return  Set of {@link Subject} objects
    */
   public Set getCreators() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, NamingPrivilege.CREATE
+    );
+  } // public Set getCreators()
 
   /**
    * Get stem description.
@@ -404,8 +406,10 @@ public class Stem implements Serializable {
    * @return  Set of {@link Subject} objects
    */
   public Set getStemmers() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, NamingPrivilege.STEM
+    );
+  } // public Set getStemmers()
 
   /**
    * Get stem UUID.

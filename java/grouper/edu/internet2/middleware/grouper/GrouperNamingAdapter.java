@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.10 2005-11-17 05:12:15 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.11 2005-11-17 15:40:59 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -59,11 +59,14 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   ns    Get privileges on this stem.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Subject} objects.
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) {
+  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
+    throws  SchemaException
+  {
     return MembershipFinder.findSubjects(
-      s, ns.getUuid(), (Field) priv2list.get(priv)
+      s, ns.getUuid(), 
+      (Field) FieldFinder.getField( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
@@ -280,7 +283,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
       saves.add(ns);
 
       // Find every subject that needs to have the priv revoked
-      Iterator iter = this.getSubjectsWithPriv(s, ns, priv).iterator();
+      Iterator iter = MembershipFinder.findImmediateSubjects(
+        s, ns.getUuid(), (Field) priv2list.get(priv)
+      ).iterator();
       while (iter.hasNext()) {
         Subject subj  = (Subject) iter.next();
         Member  m     = MemberFinder.findBySubject(s, subj);

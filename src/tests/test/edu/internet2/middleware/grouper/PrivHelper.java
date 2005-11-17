@@ -20,13 +20,15 @@ package test.edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+import  java.util.*;
 import  junit.framework.*;
+
 
 /**
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.4 2005-11-17 04:10:18 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.5 2005-11-17 15:40:59 blair Exp $
  */
 public class PrivHelper {
 
@@ -81,6 +83,33 @@ public class PrivHelper {
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void getPrivs(s,ns, subj, cnt, create, stem)
+
+/* TODO I need real subjects - or something - to test this
+  protected static void getSubjsWithPriv(Stem ns, Set subjs, Privilege priv) {
+    String  msg       = subjs.size() + " subjects with " + priv + " on " + ns.getName();
+    Set     subjects  = new LinkedHashSet();
+    if (priv.equals(NamingPrivilege.CREATE)) {
+      subjects = ns.getCreators();
+    } else if (priv.equals(NamingPrivilege.STEM)) {
+      subjects = ns.getStemmers();
+    } else {
+      Assert.fail("invalid privilege: " + priv);
+    }
+    Assert.assertTrue(
+      msg + ": " + subjects.size(), subjects.size() == subjs.size()
+    );
+    if (subjects.equals(subjs)) {
+System.err.println("EQUAL!");
+System.err.println("=M="+subjects);
+System.err.println("=V="+subjs);
+    }
+    else {
+System.err.println("NOT EQUAL!");
+System.err.println("!=M="+subjects);
+System.err.println("!=V="+subjs);
+    }
+  } // protected static void getSubjsWithPriv(ns, subjs, priv)
+*/
 
   protected static void grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv

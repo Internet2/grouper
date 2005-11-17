@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.7 2005-11-17 05:12:15 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.8 2005-11-17 15:40:59 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -53,7 +53,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * try {
    *   Set admins = ap.getSubjectsWithPriv(s, g, AccessPrivilege.ADMIN);
    * }
-   * catch (PrivilegeNotFoundException e0) {
+   * catch (SchemaException eS) {
    *   // Invalid priv
    * }
    * </pre>
@@ -61,10 +61,14 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @param   g     Get privileges on this group.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Subject} objects.
+   * @throws  SchemaException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) {
+  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
+    throws  SchemaException
+  {
     return MembershipFinder.findSubjects(
-      s, g.getUuid(), (Field) priv2list.get(priv)
+      s, g.getUuid(), 
+      (Field) FieldFinder.getField( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithpriv(s, g, priv)
 
@@ -185,7 +189,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @throws  PrivilegeNotFoundException
    */
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
-    throws PrivilegeNotFoundException 
+    throws  PrivilegeNotFoundException
   {
     try {
       Field   f   = FieldFinder.getField( (String) priv2list.get(priv));

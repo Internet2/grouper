@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.63 2005-11-17 14:06:10 blair Exp $
+$Id: ROADMAP,v 1.64 2005-11-17 15:40:59 blair Exp $
 
 ---
 
@@ -12,23 +12,20 @@ $Id: ROADMAP,v 1.63 2005-11-17 14:06:10 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
-* GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
-* GrouperNamingPrivilege.revokePriv(s, g, priv)
-* GrouperAccessPrivilege.revokePriv(s, ns, priv)
+* Lowercase .jar names
 * GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
 * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
 * Return _AccessPrivilege_ and _NamingPrivilege_ objects
 * Verify privileges within API
 * _GroupNameFilter_ and _StemNameFilter_
 * ALL subject adapter
-
-## Later
 * Review *Finder classes and make sure a session is being attached to
   returned objects
-* get vs. find method renaming
 * Add create member and time to memberships
 * Add create time to members
+
+## Later
+* get vs. find method renaming
 * Should MemberNotFound and SubjectNotFound be replaced by Runtime
   exceptions?  Or at least be used more selectively?
 * should PrivilegeNotFoundException and SchemaException be merged?
@@ -37,11 +34,17 @@ TODO Sync with Basecamp
 * Switch to _LinkedHashSet_
 * `GrouperSession.validate()` in any public method that takes a session
   argument
-* Lowercase .jar names
 * Implement all 0.6 query filters
 ** GroupAttributeMatchFilter
 ** GroupAnyAttributeFilter
 ** Load group attributes into group subjects
+* Test with JDBC subject adapter
+  * Have setup install subjects and teardown remove them?
+  * Test with real subjects or add memory subject adapter
+    * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
+    * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
+    * GrouperNamingPrivilege.revokePriv(s, g, priv)
+    * GrouperAccessPrivilege.revokePriv(s, ns, priv)
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
 * _Group_ parent stem mapping
@@ -99,6 +102,7 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 
