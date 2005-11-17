@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.7 2005-11-17 01:55:54 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.8 2005-11-17 03:16:30 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -287,27 +287,85 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
    * catch (RevokePrivilegeException e2) {
    *   // Unable to revoke the privilege
    * }
    * </pre>
    * @param   s     Revoke privilege in this session context.
    * @param   ns    Revoke privilege on this stem.
-   * @param   subj  Revoke privilege from this member.
+   * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException 
+  public void revokePriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException 
   {
-    throw new RuntimeException("not implemented");
+    try {
+      // Convert subject to a member
+      Member  m       = MemberFinder.findBySubject(s, subj);
+
+      // The objects that will need deleting
+      Set     objects = new HashSet();
+
+      // Update stem modify time
+      ns.setModified();
+      objects.add(ns);
+
+      // Find the immediate privilege that is to be deleted
+      objects.add(
+        MembershipFinder.getImmediateMembership(
+          s, ns.getUuid(), m, FieldFinder.getField( (String) priv2list.get(priv) )
+        )
+      );
+
+      // As many of the privileges are likely to be transient, we
+      // need to retrieve the persistent version of each before
+      // passing it along to be deleted by HibernateHelper.  
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = MemberOf.doMemberOf(s, ns, m).iterator();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        objects.add( 
+          MembershipFinder.getEffectiveMembership(
+            ms.getOwner_id(), ms.getMember_id(), 
+            ms.getList(), ms.getVia_id(), ms.getDepth()
+          )
+        );
+      }
+      hs.close();
+
+      // And then update the registry
+      HibernateHelper.delete(objects);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eGNF.getMessage()
+      );
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eH.getMessage()
+      );
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eMNF.getMessage()
+      );
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eMSNF.getMessage()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eS.getMessage()
+      );
+    }
   } // public void revokePriv(s, ns, subj, priv)
 
 }

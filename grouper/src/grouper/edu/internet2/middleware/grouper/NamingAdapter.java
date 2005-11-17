@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.4 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.5 2005-11-17 03:16:30 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -165,28 +165,24 @@ public interface NamingAdapter {
    * try {
    *   np.revokePriv(s, ns, subj, NamingPrivilege.STEM);
    * }
-   * catch (InsufficientPrivilegeException e0) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
-   * catch (RevokePrivilegeException e2) {
+   * catch (RevokePrivilegeException eRP) {
    *   // Unable to revoke the privilege
    * }
    * </pre>
    * @param   s     Revoke privilege in this session context.
    * @param   ns    Revoke privilege on this stem.
-   * @param   subj  Revoke privilege from this member.
+   * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Stem ns, Subject subj, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException;
+  public void revokePriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException
+            ;
 
 }
 

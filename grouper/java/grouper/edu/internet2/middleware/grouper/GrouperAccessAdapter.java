@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.5 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.6 2005-11-17 03:16:30 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -246,9 +246,6 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
    * catch (RevokePrivilegeException e2) {
    *   // Unable to revoke the privilege
    * }
@@ -258,15 +255,29 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException
+  public void revokePriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException
   {
-    throw new RuntimeException("not implemented");
+    try {
+      g.deleteMember(
+        subj, FieldFinder.getField( (String) priv2list.get(priv) ) 
+      );
+    }
+    catch (MemberDeleteException eMA) {
+      throw new RevokePrivilegeException(
+        "unable to revoke priv: " + eMA.getMessage()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new RevokePrivilegeException(
+        "unable to revoke priv: " + eS.getMessage()
+      ); 
+    }
   } // public void revokePriv(s, g, subj, priv)
 
 }

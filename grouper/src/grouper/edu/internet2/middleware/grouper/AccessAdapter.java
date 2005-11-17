@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.3 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.4 2005-11-17 03:16:30 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -168,13 +168,10 @@ public interface AccessAdapter {
    * try {
    *   ap.revokePriv(s, g, subj, AccessPrivilege.ADMIN);
    * }
-   * catch (InsufficientPrivilegeException e0) {
-   *   // Not privileged to grant the privilege
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to revoke the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
-   * catch (RevokePrivilegeException e2) {
+   * catch (RevokePrivilegeException eRP) {
    *   // Unable to revoke the privilege
    * }
    * </pre>
@@ -183,13 +180,12 @@ public interface AccessAdapter {
    * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Group g, Subject subj, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException;
+  public void revokePriv(GrouperSession s, Group g, Subject subj, Privilege priv)
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException
+            ;
 
 }
 

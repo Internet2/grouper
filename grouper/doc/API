@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.99 2005-11-17 01:38:27 blair Exp $
+$Id: API,v 1.100 2005-11-17 03:16:30 blair Exp $
 
 ---
 
@@ -90,7 +90,8 @@ TODO
 * void                addMember(subject, field)
 * void                delete()
 * void                deleteAttribute(attr)
-* void                deleteMember(member)
+* void                deleteMember(subject)
+* void                deleteMember(subject, field)
 * Set                 getAdmins()
 * String              getAttribute(attr)
 * Map                 getAttributes()
