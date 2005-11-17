@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.7 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.8 2005-11-17 05:12:15 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -78,6 +78,14 @@ class PrivilegeResolver {
   {
     return naming.getPrivs(s, ns, subj);
   } // protected boolean hasPriv(s, ns, subj, priv)
+
+  protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) {
+    return this.access.getSubjectsWithPriv(s, g, priv);
+  } // protected Set getSubjectsWithPriv(s, g, priv)
+
+  protected Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) {
+    return this.naming.getSubjectsWithPriv(s, ns, priv);
+  } // protected Set getSubjectsWithPriv(s, ns, priv)
 
   protected void grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
@@ -128,6 +136,20 @@ class PrivilegeResolver {
       return false;
     }
   } // protected boolean hasPriv(s, ns, subj, priv)
+
+  protected void revokePriv(GrouperSession s, Group g, Privilege priv)
+    throws  RevokePrivilegeException,
+            InsufficientPrivilegeException
+  {
+    this.access.revokePriv(s, g, priv);
+  } // protected void revokePriv(s, g, priv)
+
+  protected void revokePriv(GrouperSession s, Stem ns, Privilege priv)
+    throws  RevokePrivilegeException,
+            InsufficientPrivilegeException
+  {
+    this.naming.revokePriv(s, ns, priv);
+  } // protected void revokePriv(s, ns, priv)
 
   protected void revokePriv(
     GrouperSession s, Group g, Subject subj, Privilege priv

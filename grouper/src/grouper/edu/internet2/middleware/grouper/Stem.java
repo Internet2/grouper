@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.9 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: Stem.java,v 1.10 2005-11-17 05:12:15 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -495,18 +495,25 @@ public class Stem implements Serializable {
    * try {
    *   ns.revokePriv(NamingPrivilege.CREATE);
    * }
-   * catch (RevokePrivilegeException e) {
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to revoke this privilege
+   * }
+   * catch (RevokePrivilegeException eRP) {
    *   // Error revoking privilege
    * }
    * </pre>
    * @param   priv  Revoke this privilege.
+   * @throws  InsufficientPrivilegeException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(String priv) 
-    throws RevokePrivilegeException
+  public void revokePriv(Privilege priv) 
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    PrivilegeResolver.getInstance().revokePriv(
+      this.s, this, priv
+    );
+  } // public void revokePriv(priv)
  
   /**
    * Revoke a privilege on this stem.

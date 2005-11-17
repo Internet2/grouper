@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.9 2005-11-17 04:10:18 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.10 2005-11-17 05:12:15 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -61,10 +61,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @return  Set of {@link Subject} objects.
    * @throws  PrivilegeNotFoundException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
-    throws PrivilegeNotFoundException 
-  {
-    throw new RuntimeException("not implemented");
+  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) {
+    return MembershipFinder.findSubjects(
+      s, ns.getUuid(), (Field) priv2list.get(priv)
+    );
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
   /**
@@ -253,13 +253,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * try {
    *   np.revokePriv(s, ns, NamingPrivilege.STEM);
    * }
-   * catch (InsufficientPrivilegeException e0) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to revoke the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
-   * catch (RevokePrivilegeException e2) {
+   * catch (RevokePrivilegeException eRP) {
    *   // Unable to revoke the privilege
    * }
    * </pre>
@@ -267,15 +264,79 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   ns    Revoke privilege on this stem.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Stem ns, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException 
+  public void revokePriv(GrouperSession s, Stem ns, Privilege priv)
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException 
   {
-    throw new RuntimeException("not implemented");
+    try {
+      // The objects that will need updating and deleting
+      Set     saves   = new HashSet();
+      Set     deletes = new HashSet();
+
+      // Update stem modify time
+      ns.setModified();
+      saves.add(ns);
+
+      // Find every subject that needs to have the priv revoked
+      Iterator iter = this.getSubjectsWithPriv(s, ns, priv).iterator();
+      while (iter.hasNext()) {
+        Subject subj  = (Subject) iter.next();
+        Member  m     = MemberFinder.findBySubject(s, subj);
+
+        // This is the immediate privilege that needs to be deleted
+        deletes.add(
+          MembershipFinder.getImmediateMembership(
+            s, ns.getUuid(), m, FieldFinder.getField( (String) priv2list.get(priv) )
+          )
+        );
+
+        // As many of the privileges are likely to be transient, we
+        // need to retrieve the persistent version of each before
+        // passing it along to be deleted by HibernateHelper.  
+        Session   hs    = HibernateHelper.getSession();
+        Iterator  iterM = MemberOf.doMemberOf(s, ns, m).iterator();
+        while (iterM.hasNext()) {
+          Membership ms = (Membership) iterM.next();
+          deletes.add( 
+            MembershipFinder.getEffectiveMembership(
+              ms.getOwner_id(), ms.getMember_id(), 
+              ms.getList(), ms.getVia_id(), ms.getDepth()
+            )
+          );
+        }
+        hs.close();
+      }
+
+      // And then update the registry
+      HibernateHelper.saveAndDelete(saves, deletes);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eGNF.getMessage()
+      );
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eH.getMessage()
+      );
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eMNF.getMessage()
+      );
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eMSNF.getMessage()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eS.getMessage()
+      );
+    }
   } // public void revokePriv(s, ns, priv)
 
   /**
