@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.8 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.9 2005-11-17 04:10:18 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -308,15 +308,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);
 
-      // The objects that will need deleting
-      Set     objects = new HashSet();
+      // The objects that will need updating and deleting
+      Set     saves   = new HashSet();
+      Set     deletes = new HashSet();
 
       // Update stem modify time
       ns.setModified();
-      objects.add(ns);
+      saves.add(ns);
 
       // Find the immediate privilege that is to be deleted
-      objects.add(
+      deletes.add(
         MembershipFinder.getImmediateMembership(
           s, ns.getUuid(), m, FieldFinder.getField( (String) priv2list.get(priv) )
         )
@@ -329,7 +330,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Iterator  iter  = MemberOf.doMemberOf(s, ns, m).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
-        objects.add( 
+        deletes.add( 
           MembershipFinder.getEffectiveMembership(
             ms.getOwner_id(), ms.getMember_id(), 
             ms.getList(), ms.getVia_id(), ms.getDepth()
@@ -339,7 +340,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
       hs.close();
 
       // And then update the registry
-      HibernateHelper.delete(objects);
+      //HibernateHelper.delete(objects);
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
     catch (GroupNotFoundException eGNF) {
       throw new RevokePrivilegeException(

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.3 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.4 2005-11-17 04:10:18 blair Exp $
  */
 public class PrivHelper {
 
@@ -129,6 +129,9 @@ public class PrivHelper {
   ) 
   {
     String msg  = subj.getName();
+    if (msg.equals("GrouperSystem")) {
+      has = true;
+    }
     if (has == true) {
       msg += " has ";
     }
@@ -169,6 +172,9 @@ public class PrivHelper {
   ) 
   {
     String msg  = subj.getName();
+    if (msg.equals("GrouperSystem")) {
+      has = true;
+    }
     if (has == true) {
       msg += " has ";
     }
@@ -187,6 +193,48 @@ public class PrivHelper {
       Assert.fail("unable test priv '" + priv + "'");
     } 
   } // protected static void hasPriv(ns, subj, m, priv, has)
+
+  protected static void revokePriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+  {
+    String msg = subj.getName() + " does not have  " + priv + " on  " + g.getName();
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      g.revokePriv(subj, priv);  
+      hasPriv(g, subj, m, priv, false);
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.fail(eRP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail(eIP.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void revokePriv(s, g, subj, priv)
+
+  protected static void revokePriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+  {
+    String msg = subj.getName() + " does not have " + priv + " on  " + ns.getName();
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      ns.revokePriv(subj, priv);  
+      hasPriv(ns, subj, m, priv, false);
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.fail(eRP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail(eIP.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void revokePriv(s, ns, subj, priv)
 
 }
 

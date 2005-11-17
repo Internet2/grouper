@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.9 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: Group.java,v 1.10 2005-11-17 04:10:18 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -292,15 +292,16 @@ public class Group implements Serializable {
     try {
       Member  m       = MemberFinder.findBySubject(this.s, subj);
 
-      // The objects that will need saving
-      Set     objects = new HashSet();
+      // The objects that will need saving and deleting
+      Set     deletes = new HashSet();
+      Set     saves   = new HashSet();
 
       // Update group modify time
       this._setModified();
-      objects.add(this);
+      saves.add(this);
 
       // Find the immediate membership that is to be deleted
-      objects.add( 
+      deletes.add( 
         MembershipFinder.getImmediateMembership(this.s, this, m, f)
       );
 
@@ -312,7 +313,7 @@ public class Group implements Serializable {
       Iterator  iter  = MemberOf.doMemberOf(this.s, this, m).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
-        objects.add( 
+        deletes.add( 
           MembershipFinder.getEffectiveMembership(
             ms.getOwner_id(), ms.getMember_id(), 
             ms.getList(), ms.getVia_id(), ms.getDepth()
@@ -322,7 +323,7 @@ public class Group implements Serializable {
       hs.close();
 
       // And then commit changes to registry
-      HibernateHelper.delete(objects);
+      HibernateHelper.saveAndDelete(saves, deletes);
     }
     catch (GroupNotFoundException eGNF) {
       throw new MemberDeleteException(

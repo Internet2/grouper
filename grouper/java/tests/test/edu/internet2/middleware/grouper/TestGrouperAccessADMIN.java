@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessADMIN.java,v 1.3 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: TestGrouperAccessADMIN.java,v 1.4 2005-11-17 04:10:18 blair Exp $
  */
 public class TestGrouperAccessADMIN extends TestCase {
 
@@ -80,6 +80,31 @@ public class TestGrouperAccessADMIN extends TestCase {
       s, i2,  SubjectHelper.SUBJ1 , 0, false, false,  false,  false,  false,  false
     );
   } // public void testGrantPrivs()
+
+  public void testRevokePrivs() {
+    PrivHelper.grantPriv(s, i2,  s.getSubject()      , AccessPrivilege.ADMIN);      
+    PrivHelper.grantPriv(s, i2,  SubjectHelper.SUBJ0 , AccessPrivilege.ADMIN);    
+    PrivHelper.getPrivs(
+      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ0 , 1, true,  false,  false,  false,  false,  false
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ1 , 0, false, false,  false,  false,  false,  false
+    );
+    PrivHelper.revokePriv(s, i2,  s.getSubject()      , AccessPrivilege.ADMIN);      
+    PrivHelper.revokePriv(s, i2,  SubjectHelper.SUBJ0 , AccessPrivilege.ADMIN);    
+    PrivHelper.getPrivs(
+      s, i2,  s.getSubject()      , 0, true,  true,   true,   true,   true,   true
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ0 , 0, false, false,  false,  false,  false,  false
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ1 , 0, false, false,  false,  false,  false,  false
+    );
+  } // public void testRevokePrivs()
 
 }
 

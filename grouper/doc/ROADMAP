@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.60 2005-11-17 03:16:30 blair Exp $
+$Id: ROADMAP,v 1.61 2005-11-17 04:10:18 blair Exp $
 
 ---
 
@@ -12,8 +12,6 @@ $Id: ROADMAP,v 1.60 2005-11-17 03:16:30 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* GrouperNamingPrivilege.revokePriv(s, ns, subj, priv)
-* GrouperAccessPrivilege.revokePriv(s, g, subj, priv)
 * GrouperNamingPrivilege.revokePriv(s, g, priv)
 * GrouperAccessPrivilege.revokePriv(s, ns, priv)
 * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
@@ -22,10 +20,10 @@ TODO Sync with Basecamp
 * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
 * Return _AccessPrivilege_ and _NamingPrivilege_ objects
 * Verify privileges within API
-
-## Later
 * _GroupNameFilter_ and _StemNameFilter_
 * ALL subject adapter
+
+## Later
 * Review *Finder classes and make sure a session is being attached to
   returned objects
 * get vs. find method renaming
