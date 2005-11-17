@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.11 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.12 2005-11-17 16:50:19 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -86,14 +86,32 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   subj  Get privileges for this subject.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Stem} objects.
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
   public Set getStemsWhereSubjectHasPriv(
-    GrouperSession s, Subject subj, String priv
+    GrouperSession s, Subject subj, Privilege priv
   ) 
-    throws PrivilegeNotFoundException 
+    throws  SchemaException
   {
-    throw new RuntimeException("not implemented");
+    Set stems = new LinkedHashSet();
+    try {
+      Member    m   = MemberFinder.findBySubject(s, subj);
+      Iterator iter = MembershipFinder.findMemberships(
+        m, (Field) FieldFinder.getField( (String) priv2list.get(priv) )
+      ).iterator();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        ms.setSession(s);
+        stems.add( ms.getStem() );
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(eMNF.getMessage());
+    }
+    catch (StemNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+    return stems;
   } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   /**

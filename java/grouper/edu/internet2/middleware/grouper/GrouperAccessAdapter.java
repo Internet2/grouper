@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.8 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.9 2005-11-17 16:50:19 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -80,7 +80,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    *     s, subj, AccessPrivilege.ADMIN
    *   );
    * }
-   * catch (PrivilegeNotFoundException e0) {
+   * catch (SchemaException eS) {
    *   // Invalid priv
    * }
    * </pre>
@@ -88,13 +88,33 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @param   subj  Get privileges for this subject.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Group} objects.
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
-  public Set getGroupsWhereSubjectHashPriv(GrouperSession s, Subject subj, String priv) 
-    throws PrivilegeNotFoundException
+  public Set getGroupsWhereSubjectHasPriv(
+    GrouperSession s, Subject subj, Privilege priv
+  ) 
+    throws  SchemaException
   {
-    throw new RuntimeException("not implemented");
-  } // public Set getGroupsWhereSubjectHashPriv(s, subj, priv)
+    Set groups = new LinkedHashSet();
+    try {
+      Member    m   = MemberFinder.findBySubject(s, subj);
+      Iterator iter = MembershipFinder.findMemberships(
+        m, (Field) FieldFinder.getField( (String) priv2list.get(priv) )
+      ).iterator();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        ms.setSession(s);
+        groups.add( ms.getGroup() );
+      }
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new RuntimeException(eGNF.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RuntimeException(eMNF.getMessage());
+    }
+    return groups;
+  } // public Set getGroupsWhereSubjectHasPriv(s, subj, priv)
 
   /**
    * Get all privileges held by this subject on this group.

@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.5 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.6 2005-11-17 16:50:19 blair Exp $
  */
 public class PrivHelper {
 
@@ -264,6 +264,42 @@ System.err.println("!=V="+subjs);
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void revokePriv(s, ns, subj, priv)
+
+/* TODO GAR!
+  protected static void subjInStems(
+    GrouperSession s, Subject subj, Set stems, Privilege priv
+  ) 
+  {
+    String msg = subj.getName() + " has " + priv + " on ";
+System.err.println(msg + ": " + stems.size());
+System.err.println(stems);
+    try {
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      if      (priv.equals(NamingPrivilege.CREATE)) {
+        //Assert.assertTrue(msg, m.hasCreate(ns));
+      } 
+      else if (priv.equals(NamingPrivilege.STEM)) {
+        //Assert.assertTrue(msg, m.hasStem(ns));
+if (m.hasStem().equals(stems)) {
+System.err.println("EQUAL!");
+System.err.println("=F=" + m.hasStem());
+System.err.println("=V=" + stems);
+}
+else {
+System.err.println("NOT EQUAL!");
+System.err.println("!F=" + m.hasStem());
+System.err.println("!V=" + stems);
+}
+      } 
+      else {
+        Assert.fail("invalid priv: " + priv);
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void subjInStems(s, subj, stems, priv)
+*/
 
 }
 

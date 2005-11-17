@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.7 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: TestGrouperNamingSTEM.java,v 1.8 2005-11-17 16:50:19 blair Exp $
  */
 public class TestGrouperNamingSTEM extends TestCase {
 
@@ -39,6 +39,7 @@ public class TestGrouperNamingSTEM extends TestCase {
   Stem            edu;
   Stem            root;
   GrouperSession  s;
+  Set             stems = new HashSet();
   Set             subjs = new HashSet();
 
 
@@ -51,6 +52,8 @@ public class TestGrouperNamingSTEM extends TestCase {
     s     = SessionHelper.getRootSession();
     root  = StemHelper.getRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");
+    stems = new HashSet();
+    subjs = new HashSet();
   }
 
   protected void tearDown () {
@@ -64,6 +67,7 @@ public class TestGrouperNamingSTEM extends TestCase {
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0,  0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1,  0, false, false);
     // TODO PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    // TODO PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testDefaultPrivs()
 
   public void testGrantPrivs() {
@@ -77,6 +81,8 @@ public class TestGrouperNamingSTEM extends TestCase {
     subjs.add(SubjectHelper.SUBJ0);
     PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
 */
+    stems.add(edu);
+    // TODO PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testGrantPrivs()
 
   public void testRevokePrivs() {
@@ -91,6 +97,7 @@ public class TestGrouperNamingSTEM extends TestCase {
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
     // TODO PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    // TODO PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testRevokePrivs()
 
 }
