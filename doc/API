@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.98 2005-11-16 21:04:25 blair Exp $
+$Id: API,v 1.99 2005-11-17 01:38:27 blair Exp $
 
 ---
 
@@ -85,7 +85,9 @@ TODO
 * Field               FieldFinder.getField(field)
 
 ## Group
-* void                addMember(member)
+* Field               Group.getDefaultList()
+* void                addMember(subject)
+* void                addMember(subject, field)
 * void                delete()
 * void                deleteAttribute(attr)
 * void                deleteMember(member)
@@ -118,7 +120,7 @@ TODO
 * Set                 getUpdaters()
 * String              getUuid()
 * Set                 getViewers()
-* void                grantPriv(member, access priv)
+* void                grantPriv(subject, access priv)
 * boolean             hasAdmin(subject)
 * boolean             hasEffectiveMember(member)
 * boolean             hasImmediateMember(member)
@@ -135,6 +137,7 @@ TODO
 * void                setDisplayExtension(value)
 * void                setTypes(values)
 * Member              toMember()
+* Subject             toSubject()
 
 ## GroupCreatedAfterFilter extends BaseQueryFilter
 
@@ -254,7 +257,7 @@ TODO
 * Set                 getPrivs(subject)
 * Set                 getStemmers()
 * String              getUuid()
-* void                grantPriv(member, naming priv)
+* void                grantPriv(subject, naming priv)
 * boolean             hasCreate(subject)
 * boolean             hasStem(subject)
 * void                revokePriv(naming priv)

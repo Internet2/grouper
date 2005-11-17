@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.7 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: Stem.java,v 1.8 2005-11-17 01:38:27 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -422,23 +422,26 @@ public class Stem implements Serializable {
   /**
    * Grant a privilege on this stem.
    * <pre class="eg">
-   * // Grant CREATE to the specified member
+   * // Grant CREATE to the specified subject
    * try {
-   *   ns.grantPriv(m, NamingPrivilege.CREATE);
+   *   ns.grantPriv(subj, NamingPrivilege.CREATE);
    * }
    * catch (GrantPrivilegeException e) {
    *   // Error granting privilege
    * }
    * </pre>
-   * @param   m     Grant privilege to this member.
+   * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.
    * @throws  GrantPrivilegeException
    */
-  public void grantPriv(Member m, String priv) 
-    throws GrantPrivilegeException
+  public void grantPriv(Subject subj, Privilege priv)
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    PrivilegeResolver.getInstance().grantPriv(
+      this.s, this, subj, priv
+    );
+  } // public void grantPriv(subj, priv)
 
   /**
    * Check whether a subject has the CREATE privilege on this stem.
@@ -600,7 +603,6 @@ public class Stem implements Serializable {
 
 
   // Protected Instance Methods
-
   protected String constructName(String stem, String extn) {
     // TODO This should probably end up in a "naming" utility class
     if (stem.equals("")) {
@@ -608,6 +610,11 @@ public class Stem implements Serializable {
     }
     return stem + ":" + extn;
   } // protected String constructName(stem, extn)
+
+  protected void setModified() {
+    this.setModifier_id( s.getMember()        );
+    this.setModify_time( new Date().getTime() );
+  } // protected void setModified()
 
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
@@ -620,11 +627,6 @@ public class Stem implements Serializable {
     this.setCreator_id( s.getMember()         );
     this.setCreate_time( new Date().getTime() );
   } // private void _setCreated()
-
-  private void _setModified() {
-    this.setModifier_id( s.getMember()        );
-    this.setModify_time( new Date().getTime() );
-  } // private void _setModified()
 
 
   // Hibernate Accessors

@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.3 2005-11-17 01:38:27 blair Exp $
  */
 public class MembershipHelper {
 
@@ -139,7 +139,7 @@ public class MembershipHelper {
         Assert.fail("eff ms m: " + eMNF.getMessage());
       }
       Assert.assertNotNull("eff ms l !null", ms.getList());  
-      Assert.assertTrue( "eff ms l", ms.getList().equals(Group.LIST));
+      Assert.assertTrue( "eff ms l", ms.getList().equals(Group.getDefaultList()));
       Assert.assertTrue("eff ms depth", ms.getDepth() > 0);
       try {
         Group via = ms.getViaGroup();

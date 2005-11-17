@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.4 2005-11-16 21:04:25 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.5 2005-11-17 01:38:27 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -39,7 +39,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   static {
     priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
     priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
-    priv2list.put(  AccessPrivilege.OPTOUT, "optous"    );
+    priv2list.put(  AccessPrivilege.OPTOUT, "optouts"   );
     priv2list.put(  AccessPrivilege.READ  , "readers"   );
     priv2list.put(  AccessPrivilege.UPDATE, "updaters"  );
     priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
@@ -138,9 +138,6 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * catch (InsufficientPrivilegeException e1) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e2) {
-   *   // Invalid privilege
-   * }
    * </pre>
    * @param   s     Grant privilege in this session context.
    * @param   g     Grant privilege on this group.
@@ -148,14 +145,28 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    */
-  public void grantPriv(GrouperSession s, Group g, Subject subj, String priv)
+  public void grantPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
     throws GrantPrivilegeException, 
-           InsufficientPrivilegeException, 
-           PrivilegeNotFoundException
+           InsufficientPrivilegeException
   {
-    throw new RuntimeException("not implemented");
+    try {
+      g.addMember(
+        subj, FieldFinder.getField( (String) priv2list.get(priv) ) 
+      );
+    }
+    catch (MemberAddException eMA) {
+      throw new GrantPrivilegeException(
+        "unable to grant priv: " + eMA.getMessage()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new GrantPrivilegeException(
+        "unable to grant priv: " + eS.getMessage()
+      ); 
+    }
   } // public void grantPriv(s, g, subj, priv)
 
   /**

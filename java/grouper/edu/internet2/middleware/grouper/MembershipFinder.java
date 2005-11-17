@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public class MembershipFinder {
 
@@ -75,11 +75,20 @@ public class MembershipFinder {
   )
     throws MembershipNotFoundException
   {
-    Membership ms = getImmediateMembership(g, m, f);
+    Membership ms = getImmediateMembership(g.getUuid(), m, f);
     ms.setSession(s);
     return ms;
   } // public static Membership getImmediateMembership(s, g, m, f)
 
+  protected static Membership getImmediateMembership(
+    GrouperSession s, String oid, Member m, Field f
+  )
+    throws MembershipNotFoundException
+  {
+    Membership ms = getImmediateMembership(oid, m, f);
+    ms.setSession(s);
+    return ms;
+  } // protected static Membership getImmediateMembership(s, oid, m, f)
 
   // Protected Class Methods
 
@@ -452,15 +461,15 @@ public class MembershipFinder {
   } // protected static Membership getEffectiveMembership(gid, mid, field, vid, depth)
 
   // @return  {@link Membership} object
-  protected static Membership getImmediateMembership(Group g, Member m, Field f)
+  protected static Membership getImmediateMembership(String oid, Member m, Field f)
     throws MembershipNotFoundException
   {
-    Set mships = findMemberships(g.getUuid(), m, f);
+    Set mships = findMemberships(oid, m, f);
     if (mships.size() == 1) {
       return (Membership) new ArrayList(mships).get(0);
     }
     throw new MembershipNotFoundException("membership not found");
-  } // protected static Membership getImmediateMembership(g, m, f)
+  } // protected static Membership getImmediateMembership(oid, m, f)
 
 }
 

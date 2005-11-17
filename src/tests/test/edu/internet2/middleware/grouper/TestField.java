@@ -25,7 +25,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.3 2005-11-16 21:04:25 blair Exp $
+ * @version $Id: TestField.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public class TestField extends TestCase {
 
@@ -49,12 +49,12 @@ public class TestField extends TestCase {
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "admins"              , FieldType.LIST,
+      "admins"              , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "creators"            , FieldType.LIST,
+      "creators"            , FieldType.NAMING,
       NamingPrivilege.STEM  , NamingPrivilege.STEM
     );
     FieldHelper.testField( 
@@ -89,32 +89,32 @@ public class TestField extends TestCase {
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "optins"              , FieldType.LIST,
+      "optins"              , FieldType.ACCESS,
       AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "optouts"             , FieldType.LIST,
+      "optouts"             , FieldType.ACCESS,
       AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "readers"             , FieldType.LIST,
+      "readers"             , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "stemmers"            , FieldType.LIST,
+      "stemmers"            , FieldType.NAMING,
       NamingPrivilege.STEM  , NamingPrivilege.STEM
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "updaters"            , FieldType.LIST,
+      "updaters"            , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "viewers"             , FieldType.LIST,
+      "viewers"             , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
   } // public void testFields()

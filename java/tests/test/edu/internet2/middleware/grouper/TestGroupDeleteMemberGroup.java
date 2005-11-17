@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.deleteMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDeleteMemberGroup.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestGroupDeleteMemberGroup.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public class TestGroupDeleteMemberGroup extends TestCase {
 
@@ -60,10 +60,9 @@ public class TestGroupDeleteMemberGroup extends TestCase {
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Member          m     = Helper.getMemberBySubject(
-      s, SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID)
-    );
-    GroupHelper.addMember(uofc, m);
+    Subject         subj  = SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID);
+    Member          m     = Helper.getMemberBySubject(s, subj);
+    GroupHelper.addMember(uofc, subj, m);
     GroupHelper.addMember(i2, uofc);
     GroupHelper.deleteMember(i2, uofc);
   } // public void testDeleteMemberWithNonGroupGroup()
