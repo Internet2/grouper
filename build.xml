@@ -1,9 +1,9 @@
-<!-- $Id: build.xml,v 1.63 2005-11-14 16:09:07 blair Exp $ -->
+<!-- $Id: build.xml,v 1.64 2005-11-17 15:47:13 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
   <!-- Global Properties -->
-  <property name="app.name"               value="Grouper"/>
+  <property name="app.name"               value="grouper"/>
   <property name="javadoc.packages"       value="edu.internet2.middleware.grouper.*"/>
   <property name="impl.url" 
     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
@@ -114,6 +114,7 @@
       <fileset dir="java/lib">
         <include name="*.jar"/>
         <exclude name="**/cdg-mock.jar"/>
+        <exclude name="**/junit.jar"/>
       </fileset>
     </unzip>
     <!-- be sure to include _java/lib/README_ -->

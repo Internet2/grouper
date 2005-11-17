@@ -10,7 +10,7 @@ testing and running Grouper.
 For more detailed information see:
   _doc/grouper-impl-guide.html_
 
-$Id: README,v 1.30 2005-11-11 17:42:13 blair Exp $
+$Id: README,v 1.31 2005-11-17 15:47:13 blair Exp $
 
 ---
 
@@ -58,11 +58,11 @@ These are optional tasks that may make runtime invocation easier.
 
   % ant dist 
 
-Builds a _Grouper.jar_ file in the _dist/lib_ directory.
+Builds a _grouper.jar_ file in the _dist/lib_ directory.
 
   % ant dist-lib
 
-Builds a _Grouper-lib.jar_ file in the _dist/lib_ directory.  This is a
+Builds a _grouper-lib.jar_ file in the _dist/lib_ directory.  This is a
 rollup of all the third party .jar files that Grouper relies upon that
 are located in _java/lib_.
 
@@ -74,9 +74,9 @@ You may now try using any of the sample contributed programs (located
 in _contrib/_) or your own Grouper code.  You will need to add the
 following to your _$CLASSPATH_ to use Grouper:
 
-* Full pathname of _Grouper.jar_ OR the the full pathanme of the 
+* Full pathname of _grouper.jar_ OR the the full pathanme of the 
   _build/grouper_ directory
-* Full pathname of _Grouper-lib.jar_ OR the full pathname of all of 
+* Full pathname of _grouper-lib.jar_ OR the full pathname of all of 
   the .jar files in _java/lib_
 * Full pathname of the Grouper configuration directory
 
