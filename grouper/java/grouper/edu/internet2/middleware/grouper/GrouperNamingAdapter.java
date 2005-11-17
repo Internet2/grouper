@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 
 
 /** 
@@ -29,7 +30,7 @@ import  java.util.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.5 2005-11-16 21:04:25 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.6 2005-11-17 01:38:27 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -115,7 +116,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Member    m     = MemberFinder.findBySubject(s, subj);
       Iterator  iter  = FieldFinder.findType(FieldType.NAMING).iterator();
       while (iter.hasNext()) {
-        Field     f       = (Field) iter.next();
+        Field f = (Field) iter.next();
         if (
           MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0
         )
@@ -144,9 +145,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * catch (InsufficientPrivilegeException e1) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e2) {
-   *   // Invalid privilege
-   * }
    * </pre>
    * @param   s     Grant privilege in this session context.
    * @param   ns    Grant privilege on this stem.
@@ -154,14 +152,57 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    */
-  public void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
+  public void grantPriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
     throws GrantPrivilegeException, 
-           InsufficientPrivilegeException, 
-           PrivilegeNotFoundException 
+           InsufficientPrivilegeException
   {
-    throw new RuntimeException("not implemented");
+    try {
+      // Convert subject to a member
+      Member  m       = MemberFinder.findBySubject(s, subj);
+
+      // The objects that will need saving
+      Set     objects = new HashSet();
+
+      // Update group modify time
+      ns.setModified();
+      objects.add(ns);
+
+      // Create the immediate membership
+      objects.add( 
+        Membership.addMembership(
+          s, ns, m, FieldFinder.getField( (String) priv2list.get(priv) )
+        )
+      );
+
+      // Find effective memberships
+      objects.addAll( MemberOf.doMemberOf(s, ns, m) );
+
+      // And then save group and memberships
+      HibernateHelper.save(objects);
+    }
+    catch (HibernateException eH) {
+      throw new GrantPrivilegeException(
+        "could not grant privilege: " + eH.getMessage()
+      );
+    }
+    catch (MemberAddException eMA) {
+      throw new GrantPrivilegeException(
+        "could not grant privilege: " + eMA.getMessage()
+      );
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new GrantPrivilegeException(
+        "could not grant privilege: " + eMNF.getMessage()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new GrantPrivilegeException(
+        "could not grant privilege: " + eS.getMessage()
+      );
+    }
   } // public void grantPriv(s, ns, subj, priv)
 
   /**

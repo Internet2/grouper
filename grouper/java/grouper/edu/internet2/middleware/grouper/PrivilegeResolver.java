@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.5 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.6 2005-11-17 01:38:27 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -65,6 +65,38 @@ class PrivilegeResolver {
 
 
   // Protected Instance Methods
+  protected Set getPrivs(
+    GrouperSession s, Group g, Subject subj
+  )
+  {
+    return access.getPrivs(s, g, subj);
+  } // protected boolean hasPriv(s, ns, subj, priv)
+
+  protected Set getPrivs(
+    GrouperSession s, Stem ns, Subject subj
+  )
+  {
+    return naming.getPrivs(s, ns, subj);
+  } // protected boolean hasPriv(s, ns, subj, priv)
+
+  protected void grantPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException
+  {
+    this.access.grantPriv(s, g, subj, priv);
+  } // protected void grantPriv(s, g, subj, priv)
+
+  protected void grantPriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException
+  {
+    this.naming.grantPriv(s, ns, subj, priv);
+  } // protected void grantPriv(s, ns, subj, priv)
+
   protected boolean hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
@@ -95,20 +127,6 @@ class PrivilegeResolver {
       // TODO This is *not* right
       return false;
     }
-  } // protected boolean hasPriv(s, ns, subj, priv)
-
-  protected Set getPrivs(
-    GrouperSession s, Group g, Subject subj
-  )
-  {
-    return access.getPrivs(s, g, subj);
-  } // protected boolean hasPriv(s, ns, subj, priv)
-
-  protected Set getPrivs(
-    GrouperSession s, Stem ns, Subject subj
-  )
-  {
-    return naming.getPrivs(s, ns, subj);
   } // protected boolean hasPriv(s, ns, subj, priv)
 
 

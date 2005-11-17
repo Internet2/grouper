@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.4 2005-11-16 21:04:25 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.5 2005-11-17 01:38:27 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -75,12 +75,12 @@ public class RegistryInstall {
     fields.add(name);
 
     Field admins    = new Field(
-      "admins"                , FieldType.LIST,
+      "admins"                , FieldType.ACCESS,
       AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
     );
     // TODO Not needed?  Or maybe just reserve it?
     Field creators  = new Field(
-      "creators"              , FieldType.LIST,
+      "creators"              , FieldType.NAMING,
       NamingPrivilege.STEM    , NamingPrivilege.STEM
     );
     Field members   = new Field(
@@ -88,28 +88,28 @@ public class RegistryInstall {
       AccessPrivilege.READ    , AccessPrivilege.UPDATE
     );
     Field optins    = new Field(
-      "optins"                , FieldType.LIST,
+      "optins"                , FieldType.ACCESS,
       AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE
     );
     Field optouts   = new Field(
-      "optouts"               , FieldType.LIST,
+      "optouts"               , FieldType.ACCESS,
       AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE
     );
     Field readers   = new Field(
-      "readers"               , FieldType.LIST,
+      "readers"               , FieldType.ACCESS,
       AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
     );
     // TODO Not needed?  Or maybe just reserve it?
     Field stemmers  = new Field(
-      "stemmers"              , FieldType.LIST,
+      "stemmers"              , FieldType.NAMING,
       NamingPrivilege.STEM    , NamingPrivilege.STEM
     );
     Field updaters  = new Field(
-      "updaters"              , FieldType.LIST,
+      "updaters"              , FieldType.ACCESS,
       AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
     );
     Field viewers   = new Field(
-      "viewers"               , FieldType.LIST,
+      "viewers"               , FieldType.ACCESS,
       AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
     );
 

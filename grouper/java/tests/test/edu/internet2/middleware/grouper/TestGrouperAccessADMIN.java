@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessADMIN.java,v 1.2 2005-11-15 18:23:28 blair Exp $
+ * @version $Id: TestGrouperAccessADMIN.java,v 1.3 2005-11-17 01:38:27 blair Exp $
  */
 public class TestGrouperAccessADMIN extends TestCase {
 
@@ -66,6 +66,20 @@ public class TestGrouperAccessADMIN extends TestCase {
       s, i2, SubjectHelper.SUBJ1,  0, false, false, false, false, false, false
     );
   } // public void testDefaultPrivs()
+
+  public void testGrantPrivs() {
+    PrivHelper.grantPriv( s, i2,  s.getSubject()      , AccessPrivilege.ADMIN);      
+    PrivHelper.grantPriv( s, i2,  SubjectHelper.SUBJ0 , AccessPrivilege.ADMIN);    
+    PrivHelper.getPrivs(
+      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ0 , 1, true,  false,  false,  false,  false,  false
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ1 , 0, false, false,  false,  false,  false,  false
+    );
+  } // public void testGrantPrivs()
 
 }
 

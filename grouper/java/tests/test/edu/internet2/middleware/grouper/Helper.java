@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: Helper.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public class Helper {
 
@@ -58,22 +58,6 @@ public class Helper {
     }
     throw new RuntimeException(ERROR);
   } // protected static Group addChildGroup(ns, extn, displayExtn)
-
-  // Add a member to a group
-  protected static void addMember(Group g, Member m) {
-    try {
-      g.addMember(m);
-      Assert.assertTrue("added member", true);
-      Assert.assertTrue("g hasMember m", g.hasMember(m));
-      Assert.assertTrue("m isMember g", m.isMember(g));
-    }
-    catch (InsufficientPrivilegeException e0) {
-      Assert.fail("not privileged to add member: " + e0.getMessage());
-    }
-    catch (MemberAddException e1) {
-      Assert.fail("failed to add member: " + e1.getMessage());
-    }
-  }
 
   // Add and test a child stem
   // @return  Created {@link Stem}

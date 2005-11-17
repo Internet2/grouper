@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: Membership.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -52,27 +52,8 @@ public class Membership implements Serializable {
     // Nothing
   }
 
-  // Creating a new (immediate) membership
-  private Membership(
-    GrouperSession s, Group g, Member m, Field f
-  ) 
-  {
-    this(s, g.getUuid(), m.getUuid(), f);
-  } // private Membership(s, g, m, f, type)
-
-  // Creating a new (effective) membership
+  // Create new membership
   protected Membership(
-    GrouperSession s, String gid, String mid, 
-    Field f, String vid, int depth
-  )
-  {
-    this(s, gid, mid, f);
-    this.setVia_id(vid);
-    this.setDepth(depth); 
-  } // protected Membership(s, gid, mid, f, vid, depth)
-
-  // Shared constructor
-  private Membership(
     GrouperSession s, String oid, String mid, Field f
   ) 
   {
@@ -84,7 +65,18 @@ public class Membership implements Serializable {
     this.setMember_id(mid);
     // Set field  
     this.setField(f);
-  } // private Membership(s, oid, mid, f)
+  } // protected Membership(s, oid, mid, f)
+
+  // Creating a new (effective) membership
+  protected Membership(
+    GrouperSession s, String gid, String mid, 
+    Field f         , String vid, int depth
+  )
+  {
+    this(s, gid, mid, f);
+    this.setVia_id(vid);
+    this.setDepth(depth); 
+  } // protected Membership(s, gid, mid, f, vid, depth)
 
 
   // Public Instance Methods
@@ -223,31 +215,43 @@ public class Membership implements Serializable {
 
   // Protected Class Methods
 
+  private static String _getOid(Object o) {
+    if      (o.getClass().equals(Group.class)) {
+      return ( (Group) o ).getUuid();
+    }
+    else if (o.getClass().equals(Stem.class)) {
+      return ( (Stem) o ).getUuid();
+    }
+    throw new RuntimeException(
+      "class cannot contain membership: " + o.getClass()
+    );
+  } // private static String _getOid(o)
+
   protected static Membership addMembership(
-    GrouperSession s, Group g, Member m, Field f 
+    GrouperSession s, Object o, Member m, Field f
   )
     throws MemberAddException
   {
+    String oid = _getOid(o);
+
     Membership ms = null;
     try {
       // Does the membership already exist?
-      ms = MembershipFinder.getImmediateMembership(
-        s, g, m, f
-      );
+      ms = MembershipFinder.getImmediateMembership(s, oid, m, f);
       throw new MemberAddException(
         "membership already exists"
       );
     }
     catch (MembershipNotFoundException eMNF) {
       // Membership doesn't exist.  Create it.
-      ms = new Membership(s, g, m, f);
+      ms = new Membership(s, oid, m.getUuid(), f);
     }
     if (ms == null) {
       throw new MemberAddException("unable to add member");
     }
     return ms;
-  } // protected static Membership addMembership(s, g, m, f)
-
+  } // protected static Membership addMembership(s, o, m, f)
+    
   protected static List setSession(GrouperSession s, List l) {
     List      mships  = new ArrayList();
     Iterator  iter    = l.iterator();

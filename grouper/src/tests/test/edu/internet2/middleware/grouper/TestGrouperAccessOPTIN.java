@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessOPTIN.java,v 1.2 2005-11-15 18:23:28 blair Exp $
+ * @version $Id: TestGrouperAccessOPTIN.java,v 1.3 2005-11-17 01:38:27 blair Exp $
  */
 public class TestGrouperAccessOPTIN extends TestCase {
 
@@ -66,6 +66,20 @@ public class TestGrouperAccessOPTIN extends TestCase {
       s, i2, SubjectHelper.SUBJ1,  0, false, false, false, false, false, false
     );
   } // public void testDefaultPrivs()
+
+  public void testGrantPrivs() {
+    PrivHelper.grantPriv( s, i2,  s.getSubject()      , AccessPrivilege.OPTIN);      
+    PrivHelper.grantPriv( s, i2,  SubjectHelper.SUBJ0 , AccessPrivilege.OPTIN);    
+    PrivHelper.getPrivs(
+      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ0 , 1, false, true,   false,  false,  false,  false
+    );
+    PrivHelper.getPrivs(
+      s, i2,  SubjectHelper.SUBJ1 , 0, false, false,  false,  false,  false,  false
+    );
+  } // public void testGrantPrivs()
 
 }
 

@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.3 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public class GroupHelper {
 
@@ -37,7 +37,7 @@ public class GroupHelper {
   protected static void addMember(Group g, Group gm) {
     try {
       Member m = gm.toMember();
-      g.addMember(m);
+      g.addMember(gm.toSubject());
       Assert.assertTrue("added member", true);
       MembershipHelper.testImm(g, m);
       MembershipHelper.testEff(g, gm, m);
@@ -51,9 +51,9 @@ public class GroupHelper {
   } // protected static void addMember(g, gm)
 
   // Add a member to a group
-  protected static void addMember(Group g, Member m) {
+  protected static void addMember(Group g, Subject subj, Member m) {
     try {
-      g.addMember(m);
+      g.addMember(subj);
       Assert.assertTrue("added member", true);
       MembershipHelper.testImm(g, m);
     }
@@ -63,7 +63,7 @@ public class GroupHelper {
     catch (MemberAddException e1) {
       Assert.fail("failed to add member: " + e1.getMessage());
     }
-  } // protected static void addMember(g, m)
+  } // protected static void addMember(g, subj, m)
 
   // Delete a group as a member from a group
   protected static void deleteMember(Group g, Group gm) {

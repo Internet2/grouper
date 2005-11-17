@@ -28,13 +28,9 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.7 2005-11-16 21:51:05 blair Exp $
+ * @version $Id: Group.java,v 1.8 2005-11-17 01:38:27 blair Exp $
  */
 public class Group implements Serializable {
-
-  // Public Static Variables Posing As Constants
-  public static Field LIST = null;
-
 
   // Hibernate Properties
   private String  create_source;
@@ -85,32 +81,80 @@ public class Group implements Serializable {
     this.setDisplay_extension(displayExtn);
   } // protected Group(s, ns, extn, displayExtn)
  
+
+  // Public Class Methods
+  /**
+   * Retrieve default members {@link Field}.
+   * <pre class="eg">
+   * Field members = Group.getDefaultList();
+   * </pre>
+   * @return  
+   */
+  public static Field getDefaultList() {
+    try {
+      return FieldFinder.getField("members");
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      throw new RuntimeException(eS.getMessage());
+    }
+  } // public static Field getDefaultList()
+
  
   // Public Instance Methods
 
   /**
-   * Add a member to the group.
+   * Add a subject to the group.
    * <pre class="eg">
    * try {
-   *   g.addMember(m);
+   *   g.addMember(subj);
    * }
-   * catch (InsufficientPrivilegeException e0) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to add members 
    * }
-   * catch (MemberAddException e1) {
-   *   // Unable to add member
+   * catch (MemberAddException eMA) {
+   *   // Unable to add subject
    * } 
    * </pre>
-   * @param   m   Add this {@link Member}
+   * @param   subj  Add this {@link Subject}
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
    */
-  public void addMember(Member m) 
-    throws InsufficientPrivilegeException, MemberAddException
+  public void addMember(Subject subj) 
+    throws  InsufficientPrivilegeException,
+            MemberAddException
+  {
+    this.addMember(
+      subj, getDefaultList()
+    );
+  } // public void addMember(subj)
+
+  /**
+   * Add a subject to the group.
+   * <pre class="eg">
+   * try {
+   *   g.addMember(subj);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add member
+   * } 
+   * </pre>
+   * @param   subj  Add this {@link Subject}
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   */
+  public void addMember(Subject subj, Field f)
+    throws  InsufficientPrivilegeException,
+            MemberAddException
   {
     try {
+      Member  m       = MemberFinder.findBySubject(this.s, subj);
+
       // The objects that will need saving
-      Set objects = new HashSet();
+      Set     objects = new HashSet();
 
       // Update group modify time
       this._setModified();
@@ -118,7 +162,7 @@ public class Group implements Serializable {
 
       // Create the immediate membership
       objects.add( 
-        Membership.addMembership(this.s, this, m, Group.LIST)
+        Membership.addMembership(this.s, this, m, f)
       );
 
       // Find effective memberships
@@ -135,9 +179,16 @@ public class Group implements Serializable {
       HibernateHelper.save(objects);
     }
     catch (HibernateException eH) {
-      throw new MemberAddException("could not add member: " + eH.getMessage());
+      throw new MemberAddException(
+        "unable to add member: " + eH.getMessage()
+      );
     }
-  } // public void addMember(m)
+    catch (MemberNotFoundException eMNF) {
+      throw new MemberAddException(
+        "unable to add member: " + eMNF.getMessage()
+      );
+    }
+  } // public void addMember(subj, f)
 
   /**
    * Delete this group from the Groups Registry.
@@ -221,7 +272,9 @@ public class Group implements Serializable {
 
       // Find the immediate membership that is to be deleted
       objects.add( 
-        MembershipFinder.getImmediateMembership(this.s, this, m, Group.LIST)
+        MembershipFinder.getImmediateMembership(
+          this.s, this, m, getDefaultList()
+        )
       );
 
       // Find effective memberships
@@ -416,7 +469,9 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getEffectiveMemberships() {
-    return MembershipFinder.findEffectiveMemberships(this.s, this, Group.LIST);
+    return MembershipFinder.findEffectiveMemberships(
+      this.s, this, getDefaultList()
+    );
   } // public Set getEffectiveMembership()
 
   /**
@@ -449,7 +504,9 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getImmediateMemberships() {
-    return MembershipFinder.findImmediateMemberships(this.s, this, Group.LIST);
+    return MembershipFinder.findImmediateMemberships(
+      this.s, this, getDefaultList()
+    );
   } // public Set getImmediateMemberships()
 
   /**
@@ -460,7 +517,9 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getMembers() {
-    return MembershipFinder.findMembers(this.s, this, Group.LIST);
+    return MembershipFinder.findMembers(
+      this.s, this, getDefaultList()
+    );
   } // public Set getMembers()
 
   /**
@@ -471,7 +530,9 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    return MembershipFinder.findMemberships(this.s, this, Group.LIST);
+    return MembershipFinder.findMemberships(
+      this.s, this, getDefaultList()
+    );
   } // public Set getMemberships()
 
   /**
@@ -635,10 +696,10 @@ public class Group implements Serializable {
   }
 
   /**
-   * Grant privilege to a member on this group.
+   * Grant privilege to a subject on this group.
    * <pre class="eg">
    * try {
-   *   g.grantPriv(m, AccessPrivilege.ADMIN);
+   *   g.grantPriv(subj, AccessPrivilege.ADMIN);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Not privileged to grant this privilege
@@ -647,16 +708,19 @@ public class Group implements Serializable {
    *   // Unable to grant this privilege
    * }
    * </pre>
-   * @param   m     Grant privilege to this member.
+   * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    */
-  public void grantPrivilege(Member m, String priv) 
-    throws GrantPrivilegeException, InsufficientPrivilegeException
+  public void grantPriv(Subject subj, Privilege priv)
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  } 
+    PrivilegeResolver.getInstance().grantPriv(
+      this.s, this, subj, priv
+    );
+  }  // public void grantPriv(subj, priv)
 
   /**
    * Check whether the subject has ADMIN on this group.
@@ -693,7 +757,7 @@ public class Group implements Serializable {
   public boolean hasEffectiveMember(Member m) {
     if (
       MembershipFinder.findEffectiveMemberships(
-        this, m, Group.LIST
+        this, m, getDefaultList()
       ).size() > 0
     )
     {
@@ -718,11 +782,11 @@ public class Group implements Serializable {
   public boolean hasImmediateMember(Member m) {
     try {
       Membership ms = MembershipFinder.getImmediateMembership(
-        this.s, this, m, Group.LIST
+        this.s, this, m, getDefaultList()
       );
       return true;
     }
-    catch (MembershipNotFoundException e) {
+    catch (MembershipNotFoundException eM) {
       return false;
     }
   } // public boolean hasImmediateMember(m)
@@ -787,7 +851,12 @@ public class Group implements Serializable {
    * @return  Boolean true if member belongs to this group.
    */
   public boolean hasMember(Member m) {
-    if (MembershipFinder.findMemberships(this.getUuid(), m, Group.LIST).size() > 0) {
+    if (
+      MembershipFinder.findMemberships(
+        this.getUuid(), m, getDefaultList()
+      ).size() > 0
+    ) 
+    {
       return true;
     }
     return false;
@@ -1004,12 +1073,10 @@ public class Group implements Serializable {
    * @return  {@link Group} as a {@link Member}
    */
   public Member toMember() {
+  // TODO Does this need to be public?
     try {
       return MemberFinder.findBySubject(
-        this.s,
-        SubjectFinder.findById(
-          this.getUuid(), "group"
-        )
+        this.s, this.toSubject()
       );
     }
     catch (MemberNotFoundException eMNF) {
@@ -1017,12 +1084,28 @@ public class Group implements Serializable {
         "could not find group as member: " + eMNF.getMessage()
       );
     }
+  } // public Member toMember()
+
+  /**
+   * Convert this group to a {@link Subject} object.
+   * <p/>
+   * <pre class="eg">
+   * Subject subj = g.toSubject();
+   * </pre>
+   * @return  {@link Group} as a {@link Subject}
+   */
+  public Subject toSubject() {
+    try {
+      return SubjectFinder.findById(
+        this.getUuid(), "group"
+      );
+    }
     catch (SubjectNotFoundException eSNF) {
       throw new RuntimeException(
         "could not find group as subject: " + eSNF.getMessage()
       );
     }
-  } // public Member toMember()
+  } // public Subject toSubject()
 
   public String toString() {
     return new ToStringBuilder(this)
@@ -1036,21 +1119,6 @@ public class Group implements Serializable {
 
 
   // Protected Class Methods
-
-  // TODO I *really* don't like this, but...
-  protected static void init() {
-    if (Group.LIST == null) { 
-      try {
-        LIST = FieldFinder.getField("members");
-      }
-      catch (SchemaException eS) {
-        throw new RuntimeException(
-          "fatal error initializing environment: " + eS.getMessage()
-        );
-      }
-    }
-  } // protected static void init()
-
   protected static List setSession(GrouperSession s, List l) {
     List      groups  = new ArrayList();
     Iterator  iter    = l.iterator();

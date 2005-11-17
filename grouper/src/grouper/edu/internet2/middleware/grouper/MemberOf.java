@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.1 2005-11-16 21:51:05 blair Exp $
+ * @version $Id: MemberOf.java,v 1.2 2005-11-17 01:38:27 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -64,9 +64,7 @@ class MemberOf implements Serializable {
   } // protected static Set doMemberOf(s, m)
 
   // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) 
-    throws GroupNotFoundException
-  {
+  protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) {
     Set mships    = new HashSet();
 
     // Stems can't be members
@@ -116,9 +114,9 @@ class MemberOf implements Serializable {
       mships.add(
         new Membership(
           s, g.getUuid(), mofm.getMember_id(),
-          Group.LIST, vid, depth
-        )
-      );
+          Group.getDefaultList(), vid, depth
+          )
+        );
       // ... and add to wherever this group is a member
       Iterator iterGisM = isMember.iterator();
       while (iterGisM.hasNext()) {
@@ -126,7 +124,7 @@ class MemberOf implements Serializable {
         mships.add(
           new Membership(
             s, gism.getOwner_id(), mofm.getMember_id(),
-            Group.LIST, vid, depth + gism.getDepth() 
+            Group.getDefaultList(), vid, depth + gism.getDepth() 
           )
         );
       }
@@ -153,7 +151,7 @@ class MemberOf implements Serializable {
       mships.add(
         new Membership(
           s, ms.getOwner_id(), ms.getMember_id(), 
-          Group.LIST, vid, depth
+          Group.getDefaultList(), vid, depth
         )
       );
     }

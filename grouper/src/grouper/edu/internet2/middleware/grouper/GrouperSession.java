@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -80,8 +80,6 @@ public class GrouperSession implements Serializable {
         "Unable to start session: " + e.getMessage()
       );
     }
-    // TODO Now *this* is cheating
-    Group.init();
     return s;
   } // public static GrouperSession startSession(subject)
 

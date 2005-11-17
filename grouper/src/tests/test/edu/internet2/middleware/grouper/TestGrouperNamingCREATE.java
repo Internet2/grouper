@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingCREATE.java,v 1.2 2005-11-15 18:23:28 blair Exp $
+ * @version $Id: TestGrouperNamingCREATE.java,v 1.3 2005-11-17 01:38:27 blair Exp $
  */
 public class TestGrouperNamingCREATE extends TestCase {
 
@@ -58,6 +58,14 @@ public class TestGrouperNamingCREATE extends TestCase {
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0,  0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1,  0, false, false);
   } // public void testDefaultPrivs()
+
+  public void testGrantPrivs() {
+    PrivHelper.grantPriv( s, edu, s.getSubject()      , NamingPrivilege.CREATE);      
+    PrivHelper.grantPriv( s, edu, SubjectHelper.SUBJ0 , NamingPrivilege.CREATE);    
+    PrivHelper.getPrivs(  s, edu, s.getSubject()      , 1, true,  true);
+    PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
+    PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ1 , 0, false, false);
+  } // public void testGrantPrivs()
 
 }
 

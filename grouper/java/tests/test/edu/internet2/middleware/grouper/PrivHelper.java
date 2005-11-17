@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.2 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.3 2005-11-17 01:38:27 blair Exp $
  */
 public class PrivHelper {
 
@@ -81,6 +81,48 @@ public class PrivHelper {
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void getPrivs(s,ns, subj, cnt, create, stem)
+
+  protected static void grantPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+  {
+    String msg = subj.getName() + " has " + priv + " on  " + g.getName();
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      g.grantPriv(subj, priv);  
+      hasPriv(g, subj, m, priv, true);
+    }
+    catch (GrantPrivilegeException eGP) {
+      Assert.fail(eGP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail(eIP.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void grantPriv(s, g, subj, priv)
+
+  protected static void grantPriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+  {
+    String msg = subj.getName() + " has " + priv + " on  " + ns.getName();
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      ns.grantPriv(subj, priv);  
+      hasPriv(ns, subj, m, priv, true);
+    }
+    catch (GrantPrivilegeException eGP) {
+      Assert.fail(eGP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail(eIP.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void grantPriv(s, ns, subj, priv)
 
   protected static void hasPriv(
     Group g, Subject subj, Member m, Privilege priv, boolean has

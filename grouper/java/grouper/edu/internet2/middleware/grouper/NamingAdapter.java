@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.3 2005-11-15 20:47:31 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.4 2005-11-17 01:38:27 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -99,9 +99,6 @@ public interface NamingAdapter {
    * catch (InsufficientPrivilegeException e1) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e2) {
-   *   // Invalid privilege
-   * }
    * </pre>
    * @param   s     Grant privilege in this session context.
    * @param   ns    Grant privilege on this stem.
@@ -109,12 +106,11 @@ public interface NamingAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    */
-  public void grantPriv(GrouperSession s, Stem ns, Subject subj, String priv)
-    throws GrantPrivilegeException, 
-           InsufficientPrivilegeException, 
-           PrivilegeNotFoundException;
+  public void grantPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
+    throws  GrantPrivilegeException, 
+            InsufficientPrivilegeException
+            ;
 
   /**
    * Check whether the subject has this privilege on this stem.

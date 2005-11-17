@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.5 2005-11-15 20:14:42 blair Exp $
+ * @version $Id: Member.java,v 1.6 2005-11-17 01:38:27 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -85,7 +85,9 @@ public class Member implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getEffectiveMemberships() {
-    return MembershipFinder.findEffectiveMemberships(this.s, this, Group.LIST);
+    return MembershipFinder.findEffectiveMemberships(
+      this.s, this, Group.getDefaultList()
+    );
   } // public Set getEffectiveMemberships()
 
   /**
@@ -120,7 +122,9 @@ public class Member implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getImmediateMemberships() {
-    return MembershipFinder.findImmediateMemberships(this.s, this, Group.LIST);
+    return MembershipFinder.findImmediateMemberships(
+      this.s, this, Group.getDefaultList()
+    );
   } // public Set getImmediateMemberships()
 
   /**
@@ -131,7 +135,9 @@ public class Member implements Serializable {
    * @return  Set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    return MembershipFinder.findMemberships(this, Group.LIST);
+    return MembershipFinder.findMemberships(
+      this, Group.getDefaultList()
+    );
   } // public Set getMemberships()
 
   /**
@@ -499,8 +505,11 @@ public class Member implements Serializable {
    * @return  Boolean true if is a member.
    */
   public boolean isEffectiveMember(Group g) {
-    if (
-      MembershipFinder.findEffectiveMemberships(g, this, Group.LIST).size() > 0
+    if 
+    (
+      MembershipFinder.findEffectiveMemberships(
+        g, this, Group.getDefaultList()
+      ).size() > 0
     )
     {
       return true;
@@ -522,7 +531,7 @@ public class Member implements Serializable {
   public boolean isImmediateMember(Group g) {
     try {
       Membership ms = MembershipFinder.getImmediateMembership(
-        this.s, g, this, Group.LIST
+        this.s, g, this, Group.getDefaultList()
       );
       return true;
     }
@@ -544,7 +553,13 @@ public class Member implements Serializable {
    */
   // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g) {
-    if (MembershipFinder.findMemberships(g.getUuid(), this, Group.LIST).size() > 0) {
+    if 
+    (
+      MembershipFinder.findMemberships(
+        g.getUuid(), this, Group.getDefaultList()
+      ).size() > 0
+    ) 
+    {
       return true;
     }
     return false;
