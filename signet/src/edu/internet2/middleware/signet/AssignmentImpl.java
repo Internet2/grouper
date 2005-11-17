@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.32 2005-11-11 00:24:01 acohen Exp $
- $Date: 2005-11-11 00:24:01 $
+ $Id: AssignmentImpl.java,v 1.33 2005-11-17 19:08:40 acohen Exp $
+ $Date: 2005-11-17 19:08:40 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -473,6 +473,11 @@ implements Assignment
   public void save()
   {
     this.setModifyDatetime(new Date());
+
+    save(this.getGrantor());
+    save(this.getGrantee());
+    save(this.getRevoker());
+    save(this.getProxy());
       
     if (this.getId() != null)
     {
@@ -485,7 +490,7 @@ implements Assignment
         
       AssignmentHistory historyRecord
         = new AssignmentHistory(this);
-
+      
       this.getSignet().save(this);
       this.getSignet().save(historyRecord);
         

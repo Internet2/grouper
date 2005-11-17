@@ -1,6 +1,6 @@
 /*--
- $Id: PrivilegedSubjectImpl.java,v 1.35 2005-11-16 01:02:55 acohen Exp $
- $Date: 2005-11-16 01:02:55 $
+ $Id: PrivilegedSubjectImpl.java,v 1.36 2005-11-17 19:08:40 acohen Exp $
+ $Date: 2005-11-17 19:08:40 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -76,10 +76,6 @@ class PrivilegedSubjectImpl implements PrivilegedSubject
     this.assignmentsGranted = new HashSet();
     this.proxiesReceived = new HashSet();
     this.proxiesGranted = new HashSet();
-    
-    // PrivilegedSubject is the only Signet entity which is automatically
-    // persisted, because it's just a record of a query to the Subject adapter.
-    this.save();
   }
   
   Signet getSignet()

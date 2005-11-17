@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.44 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: Signet.java,v 1.45 2005-11-17 19:08:40 acohen Exp $
+$Date: 2005-11-17 19:08:40 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -562,8 +562,8 @@ public final class Signet
             + " and scopeNodeID = :scopeNodeId"
             + " and assignmentID != :assignmentId");
 
-      query.setInteger
-        ("granteeKey", assignment.getGrantee().getId().intValue());
+      query.setParameter
+        ("granteeKey", assignment.getGrantee().getId(), Hibernate.INTEGER);
       query.setString
         ("functionId", assignment.getFunction().getId());
       query.setString
@@ -631,10 +631,10 @@ public final class Signet
              + " and subsystemID = :subsystemId"
              + " and proxyID != :proxyId");
 
-      query.setInteger
-        ("grantorKey", proxy.getGrantor().getId().intValue());
-      query.setInteger
-        ("granteeKey", proxy.getGrantee().getId().intValue());
+      query.setParameter
+        ("grantorKey", proxy.getGrantor().getId(), Hibernate.INTEGER);
+      query.setParameter
+        ("granteeKey", proxy.getGrantee().getId(), Hibernate.INTEGER);
       query.setString
         ("subsystemId", proxy.getSubsystem().getId());
       

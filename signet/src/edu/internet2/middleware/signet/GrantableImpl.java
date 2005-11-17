@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.9 2005-11-11 00:24:01 acohen Exp $
- $Date: 2005-11-11 00:24:01 $
+ $Id: GrantableImpl.java,v 1.10 2005-11-17 19:08:40 acohen Exp $
+ $Date: 2005-11-17 19:08:40 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -440,5 +440,13 @@ implements Grantable
     this.setStatus(newStatus);
     
     return newStatus;
+  }
+  
+  protected void save(PrivilegedSubject pSubject)
+  {
+    if ((pSubject != null) && (pSubject.getId() == null))
+    {
+      ((PrivilegedSubjectImpl)pSubject).save();
+    }
   }
 }

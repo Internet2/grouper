@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.7 2005-10-12 23:08:52 acohen Exp $
- $Date: 2005-10-12 23:08:52 $
+ $Id: ProxyImpl.java,v 1.8 2005-11-17 19:08:40 acohen Exp $
+ $Date: 2005-11-17 19:08:40 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -181,6 +181,11 @@ implements Proxy
   public void save()
   {
     this.setModifyDatetime(new Date());
+
+    save(this.getGrantor());
+    save(this.getGrantee());
+    save(this.getRevoker());
+    save(this.getProxy());
       
     if (this.getId() != null)
     {
