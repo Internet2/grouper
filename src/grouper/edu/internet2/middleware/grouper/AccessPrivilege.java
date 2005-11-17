@@ -27,7 +27,7 @@ import  java.util.*;
  * An instance of a granted access privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.9 2005-11-16 21:04:25 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.10 2005-11-17 18:36:37 blair Exp $
  */
 public class AccessPrivilege {
 
@@ -39,6 +39,31 @@ public class AccessPrivilege {
   public static final Privilege SYSTEM  = Privilege.getInstance("system");
   public static final Privilege UPDATE  = Privilege.getInstance("update");
   public static final Privilege VIEW    = Privilege.getInstance("view");
+
+
+  // Private Instance Variables
+  private boolean isRevokable;
+  private String  klass;
+  private String  name;
+  private Object  object;
+  private Subject owner;
+  private Subject subj;
+
+
+  // Constructors
+  public AccessPrivilege(
+    Object  object, Subject subj,   Subject owner, 
+    Privilege priv, String  klass,  boolean isRevokable
+  ) 
+  {
+    this.isRevokable  = isRevokable;
+    this.klass        = klass;
+    this.name         = priv.toString();
+    this.object       = object;
+    this.owner        = owner;
+    this.subj         = subj;
+  } // public AccessPrivilege(object, subj, owner, priv, klass, isRevokable)
+
 
   // Public Instance Methods
 

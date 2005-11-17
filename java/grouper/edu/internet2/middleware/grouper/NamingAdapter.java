@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.8 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.9 2005-11-17 18:36:37 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -80,7 +80,7 @@ public interface NamingAdapter {
    * @param   s     Get privileges within this session context.
    * @param   ns    Get privileges on this stem.
    * @param   subj  Get privileges for this subject.
-   * @return  Set of {@link Privilege} objects.
+   * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj);
 

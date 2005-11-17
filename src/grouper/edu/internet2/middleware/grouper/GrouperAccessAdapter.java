@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.9 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.10 2005-11-17 18:36:37 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -127,24 +127,53 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Group g, Subject subj) {
+    GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
-      Iterator  iter  = FieldFinder.findType(FieldType.ACCESS).iterator();
-      while (iter.hasNext()) {
-        Field f = (Field) iter.next();
-        if (
-          MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0
-        )
-        {
-          privs.add(f);
+      Iterator  iterP = Privilege.getAccessPrivs().iterator();
+      while (iterP.hasNext()) {
+        Privilege p = (Privilege) iterP.next();
+        Iterator  iterM = MembershipFinder.findMemberships(
+          g.getUuid(), m, 
+          (Field) FieldFinder.getField( (String) priv2list.get(p) )
+        ).iterator();
+        while (iterM.hasNext()) {
+          Membership  ms      = (Membership) iterM.next();
+          Subject     owner   = subj;
+          // TODO Should take privs into account as well
+          boolean     revoke  = true;
+          ms.setSession(s);
+          try {
+            owner   = ms.getViaGroup().toSubject();
+            revoke  = false;
+          }
+          catch (GroupNotFoundException eGNF) {
+            // Ignore
+          }
+          privs.add(
+            new AccessPrivilege(
+              ms.getGroup(),  subj,               owner,
+              p           ,   s.getAccessClass(), revoke
+            )
+          );
         }
       }
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new RuntimeException(
+        "error getting privs: " + eGNF.getMessage()
+      );
     }
     catch (MemberNotFoundException eMNF) {
       throw new RuntimeException(
         "could not convert subject to member: " + eMNF.getMessage()
       );  
+    }
+    catch (SchemaException eS) {
+      throw new RuntimeException(
+        "error getting privs: " + eS.getMessage()
+      );
     }
     return privs;
   } // public Set getPrivs(s, g, subj)
