@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.7 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: Member.java,v 1.8 2005-11-17 16:50:19 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -289,8 +289,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasAdmin() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+        this.s, this.getSubject(), AccessPrivilege.ADMIN
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasAdmin()
 
   /**
    * Report whether this member has ADMIN on the specified group.
@@ -316,8 +323,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Stem} objects.
    */
   public Set hasCreate() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
+        this.s, this.getSubject(), NamingPrivilege.CREATE
+      );
+    } 
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasCreate()
 
   /**
    * Report whether this member has CREATE on the specified stem.
@@ -343,8 +357,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasOptin() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+        this.s, this.getSubject(), AccessPrivilege.OPTIN
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasOptin()
 
   /**
    * Report whether this member has OPTIN on the specified group.
@@ -370,8 +391,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasOptout() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+        this.s, this.getSubject(), AccessPrivilege.OPTOUT
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasOptout()
 
   /**
    * Report whether this member has OPTOUT on the specified group.
@@ -397,8 +425,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasRead() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+        this.s, this.getSubject(), AccessPrivilege.READ
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasRead()
 
   /**
    * Report whether this member has READ on the specified group.
@@ -424,8 +459,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Stem} objects.
    */
   public Set hasStem() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
+        this.s, this.getSubject(), NamingPrivilege.CREATE
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasStem()
 
   /**
    * Report whether this member has STEM on the specified stem.
@@ -450,8 +492,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasUpdate() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+        this.s, this.getSubject(), AccessPrivilege.UPDATE
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasUpdate()
 
   /**
    * Report whether this member has UPDATE on the specified group.
@@ -477,8 +526,15 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set hasView() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return PrivilegeResolver.getInstance().getGroupsWhereSubjectHasPriv(
+        this.s, this.getSubject(), AccessPrivilege.VIEW
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(eSNF.getMessage());
+    }
+  } // public Set hasView()
 
   /**
    * Report whether this member has VIEW on the specified group.

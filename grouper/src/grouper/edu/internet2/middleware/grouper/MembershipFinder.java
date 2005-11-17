@@ -28,7 +28,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.7 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.8 2005-11-17 16:50:19 blair Exp $
  */
 public class MembershipFinder {
 
@@ -405,7 +405,7 @@ public class MembershipFinder {
       );  
     }
     return mships;
-  } // protected static Set findSubjects(s, oid, f)
+  } // protected static Set findMemberships(oid, m, f)
 
   // @return  Set of matching immediate subjects
   protected static Set findImmediateSubjects(GrouperSession s, String oid, Field f) {
@@ -490,7 +490,7 @@ public class MembershipFinder {
       );  
     }
     return subjs;
-  } // protected static Set findMemberships(s, oid, mid)
+  } // protected static Set findSubjects(s, oid, f)
 
   // @return  {@link Membership} object
   protected static Membership getEffectiveMembership(

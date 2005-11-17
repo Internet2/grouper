@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.7 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.8 2005-11-17 16:50:19 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -57,7 +57,7 @@ public interface NamingAdapter {
    *     s, subj, NamingPrivilege.STEM
    *   );
    * }
-   * catch (PrivilegeNotFoundException e0) {
+   * catch (SchemaException eS) {
    *   // Invalid priv
    * }
    * </pre>
@@ -65,10 +65,12 @@ public interface NamingAdapter {
    * @param   subj  Get privileges for this subject.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Stem} objects.
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
-  public Set getStemsWhereSubjectHasPriv(GrouperSession s, Subject subj, String priv) 
-    throws PrivilegeNotFoundException;
+  public Set getStemsWhereSubjectHasPriv(
+    GrouperSession s, Subject subj, Privilege priv
+  ) 
+    throws  SchemaException;
 
   /**
    * Get all privileges held by this subject on this stem.
