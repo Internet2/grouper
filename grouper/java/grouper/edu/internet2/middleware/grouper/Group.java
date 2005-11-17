@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.11 2005-11-17 05:12:15 blair Exp $
+ * @version $Id: Group.java,v 1.12 2005-11-17 15:40:59 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -368,8 +368,10 @@ public class Group implements Serializable {
    * @return  Set of subjects with ADMIN
    */
   public Set getAdmins() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, AccessPrivilege.ADMIN
+    );
+  } // public Set getAdmins()
 
   /**
    * Get attribute value.
@@ -627,8 +629,10 @@ public class Group implements Serializable {
    * @return  Set of subjects with OPTIN
    */
   public Set getOptins() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, AccessPrivilege.OPTIN
+    );
+  } // public Set getOptins()
 
   /**
    * Get subjects with the OPTOUT privilege on this group.
@@ -638,8 +642,10 @@ public class Group implements Serializable {
    * @return  Set of subjects with OPTOUT
    */
   public Set getOptouts() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, AccessPrivilege.OPTOUT
+    );
+  } // public Set getOptouts()
 
   /**
    * Get parent stem.
@@ -677,8 +683,10 @@ public class Group implements Serializable {
    * @return  Set of subjects with READ
    */
   public Set getReaders() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, AccessPrivilege.READ
+    );
+  } // public Set getReaders()
 
   /**
    * Get group types for this group.
@@ -699,8 +707,10 @@ public class Group implements Serializable {
    * @return  Set of subjects with UPDATE
    */
   public Set getUpdaters() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, AccessPrivilege.UPDATE
+    );
+  } // public set getUpdateres()
 
   /**
    * Get group UUID.
@@ -721,8 +731,10 @@ public class Group implements Serializable {
    * @return  Set of subjects with VIEW
    */
   public Set getViewers() {
-    throw new RuntimeException("Not implemented");
-  }
+    return PrivilegeResolver.getInstance().getSubjectsWithPriv(
+      this.s, this, AccessPrivilege.VIEW
+    );
+  } // public Set getViewers()
 
   /**
    * Grant privilege to a subject on this group.
