@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.4 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.5 2005-11-17 05:12:15 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -38,21 +38,14 @@ public interface AccessAdapter {
   /**
    * Get all subjects with this privilege on this group.
    * <pre class="eg">
-   * try {
-   *   Set admins = ap.getSubjectsWithPriv(s, g, AccessPrivilege.ADMIN);
-   * }
-   * catch (PrivilegeNotFoundException e0) {
-   *   // Invalid priv
-   * }
+   * Set admins = ap.getSubjectsWithPriv(s, g, AccessPrivilege.ADMIN);
    * </pre>
    * @param   s     Get privileges within this session context.
    * @param   g     Get privileges on this group.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Subject} objects.
-   * @throws  PrivilegeNotFoundException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Group g, String priv) 
-    throws PrivilegeNotFoundException;
+  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv);
 
   /**
    * Get all groups where this subject has this privilege.
@@ -140,13 +133,10 @@ public interface AccessAdapter {
    * try {
    *   ap.revokePriv(s, g, AccessPrivilege.ADMIN);
    * }
-   * catch (InsufficientPrivilegeException e0) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to revoke the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
-   * catch (RevokePrivilegeException e2) {
+   * catch (RevokePrivilegeException eRP) {
    *   // Unable to revoke the privilege
    * }
    * </pre>
@@ -154,13 +144,12 @@ public interface AccessAdapter {
    * @param   g     Revoke privilege on this group.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Group g, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException;
+  public void revokePriv(GrouperSession s, Group g, Privilege priv)
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException
+            ;
 
   /**
    * Revoke the privilege from the subject on this group.

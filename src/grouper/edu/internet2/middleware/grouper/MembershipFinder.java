@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
@@ -26,7 +28,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.5 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.6 2005-11-17 05:12:15 blair Exp $
  */
 public class MembershipFinder {
 
@@ -404,6 +406,49 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Set findMemberships(oid, m, f)
+
+  // @return  Set of matching subjects
+  protected static Set findSubjects(GrouperSession s, String oid, Field f) {
+    // TODO Switch to criteria queries?
+    Set subjs = new LinkedHashSet();
+    try {
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = hs.find(
+        "from Membership as ms where  "
+        + "ms.owner_id        = ?     "
+        + "and ms.field.name  = ?     "
+        + "and ms.field.type  = ?     ",
+        new Object[] {
+          oid, f.getName(), f.getType().toString()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+      ).iterator();
+      hs.close();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        ms.setSession(s);
+        try {
+          subjs.add(ms.getMember().getSubject());
+        }
+        catch (MemberNotFoundException eMNF) {
+          // TODO Ignore?
+        }
+        catch (SubjectNotFoundException eSNF) {
+          // TODO Ignore?
+        }
+      }
+    }
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error finding subjects: " + e.getMessage()
+      );  
+    }
+System.err.println("SUBJS="+subjs);
+    return subjs;
+  } // protected static Set findMemberships(s, oid, mid)
 
   // @return  {@link Membership} object
   protected static Membership getEffectiveMembership(

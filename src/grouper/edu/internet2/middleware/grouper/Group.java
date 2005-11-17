@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.10 2005-11-17 04:10:18 blair Exp $
+ * @version $Id: Group.java,v 1.11 2005-11-17 05:12:15 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -954,22 +954,25 @@ public class Group implements Serializable {
    * try {
    *   g.revokePriv(AccessPrivilege.OPTIN);
    * }
-   * catch (GroupModifyException e0) {
-   *   // Unable to modify group
-   * }
-   * catch (InsufficientPrivilegeException e1) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to revoke this privilege
+   * }
+   * catch (RevokePrivilegeException eRP) {
+   *   // Unable to modify group
    * }
    * </pre>
    * @param   priv  Revoke all instances of this privilege.
-   * @throws  GroupModifyException
    * @throws  InsufficientPrivilegeException
+   * @throws  RevokePrivilegeException
    */
-  public void revokePriv(String priv)
-    throws GroupModifyException, InsufficientPrivilegeException
+  public void revokePriv(Privilege priv)
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    PrivilegeResolver.getInstance().revokePriv(
+      this.s, this, priv
+    );
+  } // public void revokePriv(priv)
 
   /**
    * Revoke a privilege from the specified subject.

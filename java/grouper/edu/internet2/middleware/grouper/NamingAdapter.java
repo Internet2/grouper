@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.5 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.6 2005-11-17 05:12:15 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -38,21 +38,14 @@ public interface NamingAdapter {
   /**
    * Get all subjects with this privilege on this stem.
    * <pre class="eg">
-   * try {
-   *   Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
-   * }
-   * catch (PrivilegeNotFoundException e0) {
-   *   // Invalid priv
-   * }
+   * Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
    * </pre>
    * @param   s     Get privileges within this session context.
    * @param   ns    Get privileges on this stem.
    * @param   priv  Get this privilege.
    * @return  Set of {@link Subject} objects.
-   * @throws  PrivilegeNotFoundException
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, String priv) 
-    throws PrivilegeNotFoundException;
+  public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv);
 
   /**
    * Get all stems where this subject has this privilege.
@@ -137,13 +130,10 @@ public interface NamingAdapter {
    * try {
    *   np.revokePriv(s, ns, NamingPrivilege.STEM);
    * }
-   * catch (InsufficientPrivilegeException e0) {
+   * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to revoke the privilege
    * }
-   * catch (PrivilegeNotFoundException e1) {
-   *   // Invalid privilege
-   * }
-   * catch (RevokePrivilegeException e2) {
+   * catch (RevokePrivilegeException eRP) {
    *   // Unable to revoke the privilege
    * }
    * </pre>
@@ -154,10 +144,10 @@ public interface NamingAdapter {
    * @throws  PrivilegeNotFoundException
    * @throws  RevokePrivilegeException
    */
-  public void revokePriv(GrouperSession s, Stem ns, String priv)
-    throws InsufficientPrivilegeException, 
-           PrivilegeNotFoundException, 
-           RevokePrivilegeException;
+  public void revokePriv(GrouperSession s, Stem ns, Privilege priv)
+    throws  InsufficientPrivilegeException, 
+            RevokePrivilegeException
+            ;
 
   /**
    * Revoke the privilege from the subject on this stem.
