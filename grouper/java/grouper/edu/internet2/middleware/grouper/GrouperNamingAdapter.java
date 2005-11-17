@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.6 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.7 2005-11-17 01:55:54 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -182,6 +182,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
       // And then save group and memberships
       HibernateHelper.save(objects);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new GrantPrivilegeException(
+        "could not grant privilege: " + eGNF.getMessage()
+      );
     }
     catch (HibernateException eH) {
       throw new GrantPrivilegeException(
