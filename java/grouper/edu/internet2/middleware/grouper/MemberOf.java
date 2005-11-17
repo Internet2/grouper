@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.2 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: MemberOf.java,v 1.3 2005-11-17 01:55:54 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -46,55 +46,66 @@ class MemberOf implements Serializable {
       _findMembershipsWhereGroupIsMember(s, g, m, isMember)
     );
 
-    Set hasMembers  = new HashSet();
-    if (m.getSubjectTypeId().equals("group")) {
-      // Convert member back to a group
-      Group gm = m.toGroup();
+    // Add members of m to g
+    // Add members of m to where g is a member
+    mships.addAll(
+      _findGroupAsMember(s, g.getUuid(), m, isMember)
+    );
 
-      // Find members of m
-      hasMembers = gm.getMemberships();
-
-      // Add members of m to g
-      // Add members of m to where g is a member
-      mships.addAll(
-        _findMembershipsOfMember(s, g, gm, isMember, hasMembers)
-      );
-    }
     return mships;
   } // protected static Set doMemberOf(s, m)
 
   // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) {
+  protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) 
+    throws  GroupNotFoundException
+  {
     Set mships    = new HashSet();
 
     // Stems can't be members
     Set isMember  = new HashSet();
 
-    Set hasMembers  = new HashSet();
-/*
-    if (m.getSubjectTypeId().equals("group")) {
-      // Convert member back to a group
-      Group gm = m.toGroup();
+    // Add members of m to ns
+    // Add members of m to where ns is a member
+    mships.addAll(
+      _findGroupAsMember(s, ns.getUuid(), m, isMember)
+    );
 
-      // Find members of m
-      hasMembers = gm.getMemberships();
-
-      // Add members of m to g
-      // Add members of m to where g is a member
-      mships.addAll(
-        _findMembershipsOfMember(s, g, gm, isMember, hasMembers)
-      );
-    }
-*/
     return mships;
   } // protected static Set doMemberOf(s, m)
 
 
   // Private Class Methods
 
-  // Part of the effective membership|memberOf voodoo  
+  // More effective membership voodoo
+  private static Set _findGroupAsMember(
+    GrouperSession s, String oid, Member m, Set isMember
+  )
+    throws  GroupNotFoundException
+  {
+    Set mships      = new HashSet();
+    Set hasMembers  = new HashSet();
+    
+    if (m.getSubjectTypeId().equals("group")) {
+      // Convert member back to a group
+      Group gm = m.toGroup();
+
+      // Find members of m
+      hasMembers = gm.getMemberships();
+
+      // Add members of m to g
+      // Add members of m to where g is a member
+      mships.addAll(
+        _findMembershipsOfMember(
+          s, oid, gm.getUuid(), isMember, hasMembers
+        )
+      );
+    }
+    return mships; 
+  } // private static Set _findGroupAsMember(s, oid, m, isMember)
+
+  // More effective membership voodoo
   private static Set _findMembershipsOfMember(
-    GrouperSession s, Group g, Group gm, Set isMember, Set hasMembers
+    GrouperSession s, String oid, String gmid, Set isMember, Set hasMembers
   ) 
   {
     Set mships = new HashSet();
@@ -109,11 +120,11 @@ class MemberOf implements Serializable {
       int         depth = mofm.getDepth() + 1;
       String      vid   = mofm.getVia_id();
       if (vid == null) {
-        vid = gm.getUuid();
+        vid = gmid;
       }
       mships.add(
         new Membership(
-          s, g.getUuid(), mofm.getMember_id(),
+          s, oid, mofm.getMember_id(),
           Group.getDefaultList(), vid, depth
           )
         );
@@ -131,9 +142,9 @@ class MemberOf implements Serializable {
     }
 
     return mships;
-  } // private static Set _findMembershipsOfMember(s, g, gm, isMember, hasMembers)
+  } // private static Set _findMembershipsOfMember(s, oid, gmid, isMember, hasMembers)
 
-  // Part of the effective membership|memberOf voodoo  
+  // More effective membership voodoo
   private static Set _findMembershipsWhereGroupIsMember(
     GrouperSession s, Group g, Member m, Set isMember
   ) 
