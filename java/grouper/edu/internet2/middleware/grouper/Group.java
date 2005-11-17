@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.8 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: Group.java,v 1.9 2005-11-17 03:16:30 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -104,7 +104,7 @@ public class Group implements Serializable {
   // Public Instance Methods
 
   /**
-   * Add a subject to the group.
+   * Add a subject to this group.
    * <pre class="eg">
    * try {
    *   g.addMember(subj);
@@ -130,10 +130,10 @@ public class Group implements Serializable {
   } // public void addMember(subj)
 
   /**
-   * Add a subject to the group.
+   * Add a subject to this group.
    * <pre class="eg">
    * try {
-   *   g.addMember(subj);
+   *   g.addMember(subj, f);
    * }
    * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to add members 
@@ -143,6 +143,7 @@ public class Group implements Serializable {
    * } 
    * </pre>
    * @param   subj  Add this {@link Subject}
+   * @param   f     Add subject to this {@link Field}.
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
    */
@@ -243,28 +244,56 @@ public class Group implements Serializable {
   }
 
   /** 
-   * Delete a member from the group.
+   * Delete a subject from this group.
    * <pre class="eg">
    * try {
-   *   g.deleteMember(m);
+   *   g.deleteMember(subj);
    * } 
-   * catch (InsufficientPrivilegeException e0) {
-   *   // Not privileged to delete this member
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
    * }
-   * catch (MemberDeleteException e1) {
-   *   // Unable to delete member
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
    * }
    * </pre>
-   * @param   m   Delete this {@link Member}
+   * @param   subj  Delete this {@link Subject}
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
    */
-  public void deleteMember(Member m) 
-    throws InsufficientPrivilegeException, MemberDeleteException
+  public void deleteMember(Subject subj)
+    throws  InsufficientPrivilegeException,
+            MemberDeleteException
+  {
+    this.deleteMember(subj, Group.getDefaultList());
+  } // public void deleteMember(subj)
+
+  /** 
+   * Delete a subject from this group.
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(m, f);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   subj  Delete this {@link Subject}.
+   * @param   f     Delete subject from this {@link Field}.
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   */
+  public void deleteMember(Subject subj, Field f) 
+    throws  InsufficientPrivilegeException, 
+            MemberDeleteException
   {
     try {
+      Member  m       = MemberFinder.findBySubject(this.s, subj);
+
       // The objects that will need saving
-      Set objects = new HashSet();
+      Set     objects = new HashSet();
 
       // Update group modify time
       this._setModified();
@@ -272,47 +301,46 @@ public class Group implements Serializable {
 
       // Find the immediate membership that is to be deleted
       objects.add( 
-        MembershipFinder.getImmediateMembership(
-          this.s, this, m, getDefaultList()
-        )
+        MembershipFinder.getImmediateMembership(this.s, this, m, f)
       );
 
       // Find effective memberships
-      try {
-        // As many of the memberships are likely to be transient, we
-        // need to retrieve the persistent version of each before
-        // passing it along to be deleted by HibernateHelper.  
-        Session   hs    = HibernateHelper.getSession();
-        Iterator  iter  = MemberOf.doMemberOf(this.s, this, m).iterator();
-        while (iter.hasNext()) {
-          Membership ms = (Membership) iter.next();
-          objects.add( 
-            MembershipFinder.getEffectiveMembership(
-              ms.getOwner_id(), ms.getMember_id(), 
-              ms.getList(), ms.getVia_id(), ms.getDepth()
-            )
-          );
-        }
-        hs.close();
-      }
-      catch (GroupNotFoundException eGNF) {
-        throw new MemberDeleteException(
-          "error deleting effective memberships: " + eGNF.getMessage()
+      // As many of the memberships are likely to be transient, we
+      // need to retrieve the persistent version of each before
+      // passing it along to be deleted by HibernateHelper.  
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = MemberOf.doMemberOf(this.s, this, m).iterator();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        objects.add( 
+          MembershipFinder.getEffectiveMembership(
+            ms.getOwner_id(), ms.getMember_id(), 
+            ms.getList(), ms.getVia_id(), ms.getDepth()
+          )
         );
       }
+      hs.close();
 
-      // And then save group and memberships
+      // And then commit changes to registry
       HibernateHelper.delete(objects);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new MemberDeleteException(
+        "error deleting effective memberships: " + eGNF.getMessage()
+      );
     }
     catch (HibernateException eH) {
       throw new MemberDeleteException(
-        "could not delete member: " + eH.getMessage()
+        "could not delete subject: " + eH.getMessage()
       );
     }
-    catch (MembershipNotFoundException eMNF) {
+    catch (MemberNotFoundException eMNF) {
       throw new MemberDeleteException(eMNF.getMessage());
     }
-  }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new MemberDeleteException(eMSNF.getMessage());
+    }
+  } // public void deleteMember(subj, f)
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -943,28 +971,31 @@ public class Group implements Serializable {
   }
 
   /**
-   * Revoke a privilege from the specified member.
+   * Revoke a privilege from the specified subject.
    * <pre class="eg">
    * try {
-   *   g.revokePriv(m, AccessPrivilege.OPTIN);
-   * }
-   * catch (GroupModifyException e0) {
-   *   // Unable to modify group
+   *   g.revokePriv(subj, AccessPrivilege.OPTIN);
    * }
    * catch (InsufficientPrivilegeException e1) {
    *   // Not privileged to revoke this privilege
    * }
+   * catch (RevokePrivilegeException eRP) {
+   *   // Error revoking privilege
+   * }
    * </pre>
-   * @param   m     Revoke this member's privilege.
+   * @param   subj  Revoke privilege from this subject.
    * @param   priv  Revoke this privilege.
-   * @throws  GroupModifyException
    * @throws  InsufficientPrivilegeException
+   * @throws  RevokePrivilegeException
    */
-  public void revokePriv(Member m, String priv)
-    throws GroupModifyException, InsufficientPrivilegeException
+  public void revokePriv(Subject subj, Privilege priv) 
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    PrivilegeResolver.getInstance().revokePriv(
+      this.s, this, subj, priv
+    );
+  } // public void revokePriv(subj, priv)
 
   /**
    * Set an attribute value.

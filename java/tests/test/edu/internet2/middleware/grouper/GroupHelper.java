@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.4 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.5 2005-11-17 03:16:30 blair Exp $
  */
 public class GroupHelper {
 
@@ -69,7 +69,7 @@ public class GroupHelper {
   protected static void deleteMember(Group g, Group gm) {
     try {
       Member m = gm.toMember();
-      g.deleteMember(m);
+      g.deleteMember(gm.toSubject());
       Assert.assertTrue("deleted member", true);
       Assert.assertFalse("g !hasMember m", g.hasMember(m));
       Assert.assertFalse("m !isMember g", m.isMember(g));
@@ -84,9 +84,9 @@ public class GroupHelper {
   } // protected static void deleteMember(g, gm)
 
   // Delete a member from a group
-  protected static void deleteMember(Group g, Member m) {
+  protected static void deleteMember(Group g, Subject subj, Member m) {
     try {
-      g.deleteMember(m);
+      g.deleteMember(subj);
       Assert.assertTrue("deleted member", true);
       Assert.assertFalse("g !hasMember m", g.hasMember(m));
       Assert.assertFalse("m !isMember g", m.isMember(g));
@@ -97,7 +97,7 @@ public class GroupHelper {
     catch (MemberDeleteException e1) {
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
-  } // protected static void deleteMember(g, m)
+  } // protected static void deleteMember(g, subj, m)
 
   // test converting a Group to a Member
   protected static Member toMember(Group g) {
