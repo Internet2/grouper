@@ -26,7 +26,7 @@ import  java.util.*;
  * Privilege schema specification.
  * <p />
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.8 2005-11-16 21:04:25 blair Exp $
+ * @version $Id: Privilege.java,v 1.9 2005-11-17 18:36:37 blair Exp $
  */
 public class Privilege implements Serializable {
 
@@ -43,7 +43,9 @@ public class Privilege implements Serializable {
 
 
   // Private Class Constants
-  private static final Map PRIVS = new HashMap();
+  private static final Set ACCESS = new LinkedHashSet();
+  private static final Set NAMING = new LinkedHashSet();
+  private static final Map PRIVS  = new HashMap();
 
 
   // Private Instance Variables
@@ -51,15 +53,23 @@ public class Privilege implements Serializable {
 
 
   static {
-    PRIVS.put(ADMIN.toString()  , ADMIN );
-    PRIVS.put(CREATE.toString() , CREATE);
-    PRIVS.put(OPTIN.toString()  , OPTIN );
-    PRIVS.put(OPTOUT.toString() , OPTOUT);
-    PRIVS.put(READ.toString()   , READ  );
-    PRIVS.put(STEM.toString()   , STEM  );
-    PRIVS.put(SYSTEM.toString() , SYSTEM);
-    PRIVS.put(UPDATE.toString() , UPDATE);
-    PRIVS.put(VIEW.toString()   , VIEW  );
+    PRIVS.put(  ADMIN.toString()  , ADMIN   );
+    ACCESS.add( ADMIN                       );
+    PRIVS.put(  CREATE.toString() , CREATE  );
+    NAMING.add( CREATE                      );
+    PRIVS.put(  OPTIN.toString()  , OPTIN   );
+    ACCESS.add( OPTIN                       );
+    PRIVS.put(  OPTOUT.toString() , OPTOUT  );
+    ACCESS.add( OPTOUT                      );
+    PRIVS.put(  READ.toString()   , READ    );
+    ACCESS.add( READ                        );
+    PRIVS.put(  STEM.toString()   , STEM    );
+    NAMING.add( STEM                        );
+    PRIVS.put(  SYSTEM.toString() , SYSTEM  );
+    PRIVS.put(  UPDATE.toString() , UPDATE  );
+    ACCESS.add( UPDATE                      );
+    PRIVS.put(  VIEW.toString()   , VIEW    );
+    ACCESS.add( VIEW                        );
   } // static
 
 
@@ -70,9 +80,17 @@ public class Privilege implements Serializable {
 
 
   // Public Class Methods
+  public static Set getAccessPrivs() {
+    return ACCESS;
+  } // pubilc static Set getAccessPrivs()
+
   public static Privilege getInstance(String name) {
     return (Privilege) PRIVS.get(name);
   } // public static Privilege getInstance(name)
+
+  public static Set getNamingPrivs() {
+    return NAMING;
+  } // pubilc static Set getNamingPrivs()
 
 
   // Public Instance Methods

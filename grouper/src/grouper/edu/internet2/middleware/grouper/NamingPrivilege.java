@@ -27,13 +27,37 @@ import  java.util.*;
  * An instance of a granted naming privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.10 2005-11-16 16:59:11 blair Exp $
+ * @version $Id: NamingPrivilege.java,v 1.11 2005-11-17 18:36:37 blair Exp $
  */
 public class NamingPrivilege {
 
   // Public Class Constants
   public static final Privilege CREATE  = Privilege.getInstance("create");
   public static final Privilege STEM    = Privilege.getInstance("stem");
+
+
+  // Private Instance Variables
+  private boolean isRevokable;
+  private String  klass;
+  private String  name;
+  private Object  object;
+  private Subject owner;
+  private Subject subj;
+
+
+  // Constructors
+  public NamingPrivilege(
+    Object  object, Subject subj,   Subject owner, 
+    Privilege priv, String  klass,  boolean isRevokable
+  ) 
+  {
+    this.isRevokable  = isRevokable;
+    this.klass        = klass;
+    this.name         = priv.toString();
+    this.object       = object;
+    this.owner        = owner;
+    this.subj         = subj;
+  } // public NamingPrivilege(object, subj, owner, priv, klass, isRevokable)
 
 
   // Public Instance Methods

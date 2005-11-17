@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.8 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: TestGrouperNamingSTEM.java,v 1.9 2005-11-17 18:36:37 blair Exp $
  */
 public class TestGrouperNamingSTEM extends TestCase {
 
@@ -84,6 +84,49 @@ public class TestGrouperNamingSTEM extends TestCase {
     stems.add(edu);
     // TODO PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testGrantPrivs()
+
+  // TODO Genericize?
+/* TODO
+  public void testGetPrivs() {
+    Subject subj = SubjectHelper.SUBJ0;
+    PrivHelper.grantPriv( s, edu, subj , PRIV);      
+    List  creators  = new ArrayList( edu.getCreators() );
+    List  stemmers  = new ArrayList( edu.getStemmers() );
+    Assert.assertTrue("creators: 0", creators.size() == 0);
+    Assert.assertTrue("stemmers: 1", stemmers.size() == 1);
+    NamingPrivilege np = (NamingPrivilege) stemmers.get(0);
+    Assert.assertNotNull("np !null", np);
+    Assert.assertTrue(
+      "np instanceof NamingPrivilege", np instanceof NamingPrivilege
+    );
+    Assert.assertTrue(
+      "np implementation name",
+      np.getImplementationName().equals(
+        "edu.internet2.middleware.grouper.GrouperNamingAdapter"
+      )
+    );  
+    Assert.assertTrue("np revokable", np.isRevokable());
+    Assert.assertTrue("np name", np.getName().equals(PRIV.toString()));
+    Assert.assertTrue(
+      "np object instanceof Stem", np.getObject() instanceof Stem
+    );
+    Assert.assertTrue(
+      "np object == edu", 
+      ( (Stem) np.getObject() ).equals(edu)
+    );
+    try {
+      Assert.assertTrue(
+        "np owner == subj", np.getOwner().equals(subj)
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Assert.fail("np has no owner");
+    }
+    Assert.assertTrue(
+      "np subject", np.getSubject().equals(subj)
+    );
+  } // public void testGrantPrivs()
+*/
 
   public void testRevokePrivs() {
     PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      

@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.12 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.13 2005-11-17 18:36:37 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -129,20 +129,39 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   s     Get privileges within this session context.
    * @param   ns    Get privileges on this stem.
    * @param   subj  Get privileges for this subject.
-   * @return  Set of {@link Privilege} objects.
+   * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
+    GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
-      Iterator  iter  = FieldFinder.findType(FieldType.NAMING).iterator();
-      while (iter.hasNext()) {
-        Field f = (Field) iter.next();
-        if (
-          MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0
-        )
-        {
-          privs.add(f);
+      Iterator  iterP = Privilege.getNamingPrivs().iterator();
+      while (iterP.hasNext()) {
+        Privilege p = (Privilege) iterP.next();
+        Iterator  iterM = MembershipFinder.findMemberships(
+          ns.getUuid(), m, 
+          (Field) FieldFinder.getField( (String) priv2list.get(p) )
+        ).iterator();
+        while (iterM.hasNext()) {
+          Membership  ms      = (Membership) iterM.next();
+          Subject     owner   = subj;
+          // TODO Should take privs into account as well
+          boolean     revoke  = true;
+          ms.setSession(s);
+          try {
+            owner   = ms.getViaGroup().toSubject();
+            revoke  = false;
+          }
+          catch (GroupNotFoundException eGNF) {
+            // Ignore
+          }
+          privs.add(
+            new NamingPrivilege(
+              ms.getStem(), subj,               owner,
+              p           , s.getNamingClass(), revoke
+            )
+          );
         }
       }
     }
@@ -150,6 +169,16 @@ public class GrouperNamingAdapter implements NamingAdapter {
       throw new RuntimeException(
         "could not convert subject to member: " + eMNF.getMessage()
       );  
+    }
+    catch (SchemaException eS) {
+      throw new RuntimeException(
+        "error getting privs: " + eS.getMessage()
+      );
+    }
+    catch (StemNotFoundException eSNF) {
+      throw new RuntimeException(
+        "error getting privs: " + eSNF.getMessage()
+      );
     }
     return privs;
   } // public Set getPrivs(s, ns, subj)

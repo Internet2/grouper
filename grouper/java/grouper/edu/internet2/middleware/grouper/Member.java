@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.8 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: Member.java,v 1.9 2005-11-17 18:36:37 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -146,7 +146,7 @@ public class Member implements Serializable {
    * Set access = m.getPrivs(g);
    * </pre>
    * @param   g   Find Access Privileges on this {@link Group}
-   * @return  A set of {@link Privilege} objects.
+   * @return  A set of {@link AccessPrivilege} objects.
    */
   public Set getPrivs(Group g) {
     try {
@@ -168,7 +168,7 @@ public class Member implements Serializable {
    * Set naming = m.getPrivs(ns);
    * </pre>
    * @param   ns  Find Naming Privileges on this {@link Stem}
-   * @return  A set of {@link Privilege} objects.
+   * @return  A set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(Stem ns) {
     try {
