@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.28 2005-11-11 00:24:01 acohen Exp $
-$Date: 2005-11-11 00:24:01 $
+$Id: Fixtures.java,v 1.29 2005-11-18 00:56:05 acohen Exp $
+$Date: 2005-11-18 00:56:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -611,7 +611,7 @@ public class Fixtures
 //    }
 //  }
 
-  public String makeTreeNodeId(int level, TreeNode parent, int S)
+  public String makeTreeNodeId(int level, TreeNode parent, int siblingNumber)
   {
     return
     	"L" 
@@ -626,7 +626,7 @@ public class Fixtures
       + Constants.DELIMITER
       + "S"
       + Constants.DELIMITER
-      + S
+      + siblingNumber
       + Constants.DELIMITER
       + "ID";
   }

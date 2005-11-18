@@ -18,12 +18,18 @@ public interface Privilege
   /**
    * Get the LimitValues associated with this Privilege. Limits affect the
    * extent to which this Privilege can be exercised, e.g. a dollar amount
-   * and/or a set of classrooms, and/or some "scope" expressed as a Limit
-   * object. Note that a Privilege may have one or zero Scopes, but no other
-   * number is allowed. Also note that Conditions are never included in a
-   * Privilege.
+   * and/or a set of classrooms.
+   * 
+   * Note that Conditions are never included in a Privilege.
    * 
    * @return the LimitValues associated with this Privilege.
    */
   Set getLimitValues();
+  
+  /**
+   * Gets the scope (usually an organization) of this Privilege.
+   * 
+   * @return the scope (usually an organization) of this Privilege.
+   */
+  public edu.internet2.middleware.signet.tree.TreeNode getScope();
 }

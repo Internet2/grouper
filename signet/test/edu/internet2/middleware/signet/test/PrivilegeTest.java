@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeTest.java,v 1.4 2005-07-21 22:48:06 acohen Exp $
-$Date: 2005-07-21 22:48:06 $
+$Id: PrivilegeTest.java,v 1.5 2005-11-18 00:56:05 acohen Exp $
+$Date: 2005-11-18 00:56:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -18,6 +18,7 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 
 import junit.framework.TestCase;
@@ -304,6 +305,56 @@ public class PrivilegeTest extends TestCase
         assertEquals
           (privilege.getPermission().getId(),
            fixtures.makePermissionId(subjectIndex));
+      }
+    }
+  }
+
+  public final void testGetScope()
+  throws
+    ObjectNotFoundException
+  {
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             fixtures.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      Set privileges = pSubject.getPrivileges();
+      
+      // Here's a picture of the Assignments which this test expects to find:
+      //
+      // Subject 0
+      //   Function 0, Scope L_0_PID_[NOPARENTID]_S_0_ID
+      //   Function 2, Scope L_0_PID_[NOPARENTID]_S_0_ID
+      // Subject 1
+      //   Function 1, Scope L_0_PID_[NOPARENTID]_S_0_ID
+      // Subject 2
+      //   Function 2, Scope L_0_PID_[NOPARENTID]_S_0_ID
+      
+      // subject 0 should have 2 Privileges. All others should have just 1.
+      if (subjectIndex == 0)
+      {
+        assertEquals(2, privileges.size());
+      }
+      else
+      {
+        assertEquals(1, privileges.size());
+      }
+      
+      Privilege privilege = (Privilege)(privileges.toArray()[0]);
+      
+      if (subjectIndex > 0)
+      {
+        int scopeLevel = 0;
+        TreeNode scopeParent = null;
+        int scopeSiblingNumber = 0;
+        assertEquals
+          (privilege.getScope().getId(),
+           fixtures.makeTreeNodeId(scopeLevel, scopeParent, scopeSiblingNumber));
       }
     }
   }

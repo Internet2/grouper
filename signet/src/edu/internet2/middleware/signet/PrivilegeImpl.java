@@ -1,6 +1,6 @@
 /*--
-$Id: PrivilegeImpl.java,v 1.6 2005-11-02 17:54:17 acohen Exp $
-$Date: 2005-11-02 17:54:17 $
+$Id: PrivilegeImpl.java,v 1.7 2005-11-18 00:56:05 acohen Exp $
+$Date: 2005-11-18 00:56:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -28,8 +28,9 @@ implements
   Privilege,
   Comparable
 {
-  Permission permission;
-  Set        limitValues;
+  Permission                                    permission;
+  Set                                           limitValues;
+  edu.internet2.middleware.signet.tree.TreeNode scope;
   
   /**
    * Hibernate requires the presence of a default constructor.
@@ -39,10 +40,14 @@ implements
     super();
   }
   
-  private PrivilegeImpl(Permission permission, Set limitValues)
+  private PrivilegeImpl
+    (Permission                                     permission,
+     Set                                            limitValues,
+     edu.internet2.middleware.signet.tree.TreeNode  scope)
   {
     this.permission = permission;
     this.limitValues = limitValues;
+    this.scope = scope;
   }
   
   static Set getPrivileges(Assignment assignment)
@@ -65,7 +70,7 @@ implements
         = filterLimitValues(permissionLimits, assignmentLimitValues);
       
       Privilege privilege
-        = new PrivilegeImpl(permission, permissionLimitValues);
+        = new PrivilegeImpl(permission, permissionLimitValues, assignment.getScope());
       
       privileges.add(privilege);
     }
@@ -156,5 +161,10 @@ implements
       .append(this.permission, rhs.permission)
       .append(this.limitValues, rhs.limitValues)
       .toComparison();
+  }
+  
+  public edu.internet2.middleware.signet.tree.TreeNode getScope()
+  {
+    return this.scope;
   }
 }
