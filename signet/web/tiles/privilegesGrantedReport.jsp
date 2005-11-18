@@ -2,10 +2,12 @@
 
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.TreeSet" %>
+<%@ page import="java.util.SortedSet" %>
 <%@ page import="java.util.Iterator" %>
 
 <%@ page import="edu.internet2.middleware.signet.Signet" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
+<%@ page import="edu.internet2.middleware.signet.Grantable" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
@@ -48,21 +50,7 @@
       Export to Excel
     </A>
 	-->
-    <A
-<%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-  {
-%>
-      href="PersonViewPrint.do">
-<%
-  }
-  else
-  {
-%>
-      href="PersonViewPrint.do">
-<%
-  }
-%>
+    <A href="PersonViewPrint.do">
       <IMG
         src="images/print.gif"
         alt="" />
@@ -82,7 +70,9 @@
           name="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>"
           id="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>">
           <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, privDisplayType)%>
           <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.FORMER_GRANTED, privDisplayType)%>
         </SELECT>
         <INPUT
           name="Button"
@@ -116,7 +106,8 @@
       <TABLE>            
         <TR class="columnhead"> 
 <%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
+      || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
   {
 %>
           <TH>
@@ -158,126 +149,56 @@
     subsystemFilter = currentSubsystem;
   }
   
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-  {
-    assignmentSet
-      = new TreeSet
-          (Common.getAssignmentsGrantedForReport
-            (pSubject, subsystemFilter));
+  SortedSet assignmentsAndProxies;
 
-    proxySet
-      = new TreeSet
-          (Common.getProxiesGrantedForReport
-            (pSubject, subsystemFilter));
-  }
-  else
+  assignmentsAndProxies
+    = Common.getGrantablesForReport
+        (pSubject, subsystemFilter, privDisplayType);
+             
+  Iterator assignmentsAndProxiesIterator = assignmentsAndProxies.iterator();
+  while (assignmentsAndProxiesIterator.hasNext())
   {
-    assignmentSet
-      = new TreeSet
-          (Common.getAssignmentsReceivedForReport
-            (pSubject, subsystemFilter));
-
-    proxySet
-      = new TreeSet
-          (Common.getProxiesReceivedForReport
-            (pSubject, subsystemFilter));
-  }
-  
-  Iterator assignmentIterator = assignmentSet.iterator();
-  while (assignmentIterator.hasNext())
-  {
-    Assignment assignment = (Assignment)(assignmentIterator.next());
-    PrivilegedSubject grantee = assignment.getGrantee();
-    Subsystem subsystem = assignment.getFunction().getSubsystem();
-    Function function = assignment.getFunction();
-    Category category = function.getCategory();
+    Grantable grantable = (Grantable)(assignmentsAndProxiesIterator.next());
+    PrivilegedSubject grantee = grantable.getGrantee();
 %>
-  
         <TR>
 <%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-  {
+    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
+        || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
+    {
 %>
           <TD class="sorted"> <!-- person -->
             <A
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystem == null ? "" : ("&subsystemId=" + subsystem.getId()))%>">
+              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystemFilter == null ? "" : ("&subsystemId=" + subsystemFilter.getId()))%>">
               <%=grantee.getName()%>
             </A>
           </TD> <!-- person -->
 <%
-  }
+    }
 %>
               
           <TD> <!-- privilege -->
-            <%=Common.assignmentPopupIcon(assignment)%>
-            <%=subsystem.getName()%> : <%=category.getName()%> : <%=function.getName()%>
+            <%=Common.popupIcon(grantable)%>
+            <%=Common.privilegeStr(signet, grantable)%>
           </TD> <!-- privilege -->
               
           <TD> <!-- scope -->
-             <%=assignment.getScope().getName()%>
+            <%=Common.scopeStr(grantable)%>
           </TD> <!-- scope -->
               
           <TD> <!-- limits -->
-            <%=Common.editLink(loggedInPrivilegedSubject, assignment)%>
-            <%=Common.displayLimitValues(assignment)%>
+            <%=Common.editLink(loggedInPrivilegedSubject, grantable)%>
+            <%=Common.displayLimitValues(grantable)%>
           </TD> <!-- limits -->
               
           <TD> <!-- status -->
-            <%=Common.displayStatus(assignment)%>
+            <%=Common.displayStatus(grantable)%>
           </TD> <!-- status -->
 
-          <%=Common.revokeBox(loggedInPrivilegedSubject, assignment, UnusableStyle.DIM)%>
-        </TR>
-    
-<% 
-  }
-%>
-  
-  
-  
-<%  
-  Iterator proxyIterator = proxySet.iterator();
-  while (proxyIterator.hasNext())
-  {
-    Proxy proxy = (Proxy)(proxyIterator.next());
-    PrivilegedSubject grantee = proxy.getGrantee();
-    Subsystem subsystem = proxy.getSubsystem();
-%>
-  
-        <TR>
-<%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-  {
-%>
-          <TD class="sorted"> <!-- person -->
-            <A
-              href="PersonView.do?granteeSubjectTypeId=<%=grantee.getSubjectTypeId()%>&granteeSubjectId=<%=grantee.getSubjectId()%><%=(subsystem == null ? "" : ("&subsystemId=" + subsystem.getId()))%>">
-              <%=grantee.getName()%>
-            </A>
-          </TD> <!-- person -->
-<%
-  }
-%>
-              
-          <TD> <!-- privilege -->
-            <%=Common.proxyPopupIcon(proxy)%>
-            <%=Common.proxyPrivilegeDisplayName(signet, proxy)%>
-          </TD> <!-- privilege -->
-              
-          <TD> <!-- scope -->
-             <SPAN class="label">acting as </SPAN><%=proxy.getGrantor().getName()%>
-          </TD> <!-- scope -->
-              
-          <TD> <!-- limits -->
-            <%=Common.editLink(loggedInPrivilegedSubject, proxy)%>
-            <SPAN class="label"><%=Common.displayLimitType(proxy)%> </SPAN><%=Common.displaySubsystem(proxy)%>
-          </TD> <!-- limits -->
-              
-          <TD> <!-- status -->
-            <%=Common.displayStatus(proxy)%>
-          </TD> <!-- status -->
-
-          <%=Common.revokeBox(loggedInPrivilegedSubject, proxy, UnusableStyle.DIM)%>
+          <%=Common.revokeBox
+               (loggedInPrivilegedSubject,
+                grantable,
+                UnusableStyle.DIM)%>
         </TR>
     
 <% 

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview-print.jsp,v 1.20 2005-10-26 16:53:24 acohen Exp $
-  $Date: 2005-10-26 16:53:24 $
+  $Id: personview-print.jsp,v 1.21 2005-11-18 23:56:32 acohen Exp $
+  $Date: 2005-11-18 23:56:32 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -35,6 +35,7 @@
 <%@ page import="edu.internet2.middleware.signet.PrivilegedSubject" %>
 <%@ page import="edu.internet2.middleware.signet.Subsystem" %>
 <%@ page import="edu.internet2.middleware.signet.Category" %>
+<%@ page import="edu.internet2.middleware.signet.Grantable" %>
 <%@ page import="edu.internet2.middleware.signet.Assignment" %>
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 <%@ page import="edu.internet2.middleware.signet.Status" %>
@@ -74,7 +75,10 @@
       <div id="Layout"> 
 	 --> 
         <h1>
-          <%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "All" : currentSubsystem.getName())%> privileges assigned <%=(privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED) ? "by" : "to")%> <%=pSubject.getName()%>
+          <%=Common.titleForPrintReport
+          		(currentSubsystem,
+          		 privDisplayType,
+          		 pSubject)%>
         </h1>
           <p class="ident"><%=pSubject.getDescription()%></p> 
 		  <p class="dropback">Report as of <%=Common.displayDatetime(new Date())%></p> 
@@ -84,7 +88,8 @@
           <table>
             <tr>
 <%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
+      || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
   {
 %>
               <td><b>Subject</b></td>
@@ -106,100 +111,41 @@
       subsystemFilter = currentSubsystem;
     }
   
-    Set assignments;
-    Set proxies;
-    
-    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-    {
-      assignments
-        = new TreeSet
-            (Common.getAssignmentsGrantedForReport
-              (pSubject, subsystemFilter));
+    SortedSet assignmentsAndProxies;
 
-      proxies
-        = new TreeSet
-            (Common.getProxiesGrantedForReport
-              (pSubject, subsystemFilter));
-    }
-    else
-    {
-      assignments
-        = new TreeSet
-            (Common.getAssignmentsReceivedForReport
-              (pSubject, subsystemFilter));
-
-      proxies
-        = new TreeSet
-            (Common.getProxiesReceivedForReport
-              (pSubject, subsystemFilter));
-    }
+    assignmentsAndProxies
+      = Common.getGrantablesForReport
+          (pSubject, subsystemFilter, privDisplayType);
              
-    Iterator assignmentsIterator = assignments.iterator();
-    while (assignmentsIterator.hasNext())
+    Iterator assignmentsAndProxiesIterator = assignmentsAndProxies.iterator();
+    while (assignmentsAndProxiesIterator.hasNext())
     {
-      Assignment assignment = (Assignment)(assignmentsIterator.next());
+      Grantable grantable = (Grantable)(assignmentsAndProxiesIterator.next());
 %>
   
             <tr>
 <%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-  {
+      if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
+          || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
+      {
 %>
               <td>
-                <%=assignment.getGrantee().getName()%>
+                <%=grantable.getGrantee().getName()%>
               </td>
 <%
-  }
+      }
 %>
               <td>
-                <%=assignment.getFunction().getCategory().getName()%>
-                :
-                <%=assignment.getFunction().getName()%>
+                <%=Common.privilegeStr(signet, grantable)%>
               </td>
               <td>
-                <%=assignment.getScope().getName()%>
+                <%=Common.scopeStr(grantable)%>
               </td>
-              
               <td> <!-- limits -->
-                <%=Common.displayLimitValues(assignment)%>
+                <%=Common.displayLimitValues(grantable)%>
               </td> <!-- limits -->
               <td> <!-- status -->
-                <%=Common.displayStatus(assignment)%>
-              </td> <!-- status -->
-            </tr>
-<%
-    }
-    
-             
-    Iterator proxiesIterator = proxies.iterator();
-    while (proxiesIterator.hasNext())
-    {
-      Proxy proxy = (Proxy)(proxiesIterator.next());
-%>
-  
-            <tr>
-<%
-  if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-  {
-%>
-              <td>
-                <%=proxy.getGrantee().getName()%>
-              </td>
-<%
-  }
-%>
-              <td>
-                <%=Common.proxyPrivilegeDisplayName(signet, proxy)%>
-              </td>
-              <td>
-                <span class="label">acting as </span><%=proxy.getGrantor().getName()%>
-              </td>
-              
-              <td> <!-- limits -->
-                <span class="label"><%=Common.displayLimitType(proxy)%> </span><%=Common.displaySubsystem(proxy)%>
-              </td> <!-- limits -->
-              <td> <!-- status -->
-                <%=Common.displayStatus(proxy)%>
+                <%=Common.displayStatus(grantable)%>
               </td> <!-- status -->
             </tr>
 <%

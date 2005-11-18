@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.45 2005-11-11 00:24:01 acohen Exp $
-  $Date: 2005-11-11 00:24:01 $
+  $Id: Common.java,v 1.46 2005-11-18 23:56:32 acohen Exp $
+  $Date: 2005-11-18 23:56:32 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -75,6 +76,24 @@ public class Common
     new java.text.SimpleDateFormat("yyyy-MM-dd"),
     new java.text.SimpleDateFormat("MMMM d, yyyy")
     };
+  
+  private static final Set activeAndPendingStatus = new HashSet();
+  private static final Set inactiveStatus = new HashSet();
+  
+  private static final Comparator grantableReportComparator
+    = new GrantableReportComparator();
+
+  /**
+   *  
+   */
+  static
+  /* runs at class load time */
+  {
+    activeAndPendingStatus.add(Status.ACTIVE);
+    activeAndPendingStatus.add(Status.PENDING);
+    
+    inactiveStatus.add(Status.INACTIVE);
+  }
   
   /**
    * @param log
@@ -218,21 +237,38 @@ public class Common
   }
 
   /**
-   * Formats limit-values like this:
+   * Formats Assignment-limit-values like this:
    *     <span class="label">Approval limit:<span> $100
    * 
    * Note that the colon is inside the span. The space between colon and
    * value can be inside or outside, whichever is easier.
    * 
-   * @param assignment
+   * @param grantable
    * @return
    */
-  public static String displayLimitValues(Assignment assignment)
+  public static String displayLimitValues(Grantable grantable)
   {
-    Set limits = assignment.getFunction().getLimits();
-    Set limitValues = assignment.getLimitValues();
+    String outStr;
     
-    return displayLimitValues(limits, limitValues);
+    if (grantable instanceof Assignment)
+    {
+      Assignment assignment = (Assignment)grantable;
+      Set limits = assignment.getFunction().getLimits();
+      Set limitValues = assignment.getLimitValues();
+    
+      outStr = displayLimitValues(limits, limitValues);
+    }
+    else
+    {
+      Proxy proxy = (Proxy)grantable;
+      outStr
+        = "<span class=\"label\">"
+          + displayLimitType(proxy)
+          + " </span>"
+          + displaySubsystem(proxy);
+    }
+    
+    return outStr;
   }
   
   /**
@@ -348,6 +384,22 @@ public class Common
     }
     
     return outStr.toString();
+  }
+  
+  public static String displayStatus(Grantable grantable)
+  {
+    String outStr;
+    
+    if (grantable instanceof Assignment)
+    {
+      outStr = displayStatus((Assignment)grantable);
+    }
+    else
+    {
+      outStr = displayStatus((Proxy)grantable);
+    }
+    
+    return outStr;
   }
   
   public static String displayStatus(Assignment assignment)
@@ -619,6 +671,22 @@ public class Common
     }
     
     return outStr.toString();
+  }
+  
+  public static String popupIcon(Grantable grantable)
+  {
+    String outStr;
+    
+    if (grantable instanceof Assignment)
+    {
+      outStr = assignmentPopupIcon((Assignment)grantable);
+    }
+    else
+    {
+      outStr = proxyPopupIcon((Proxy)grantable);
+    }
+    
+    return outStr;
   }
   
   public static String assignmentPopupIcon(Assignment assignment)
@@ -1362,6 +1430,14 @@ public class Common
       assignments = pSubject.getAssignmentsGranted();
       assignments = filterAssignments(assignments, Status.ACTIVE);
     }
+    else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
+    {
+      proxies = pSubject.getProxiesGranted();
+      proxies = filterProxies(proxies, Status.INACTIVE);
+      
+      assignments = pSubject.getAssignmentsGranted();
+      assignments = filterAssignments(assignments, Status.INACTIVE);
+    }
     else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
     {
       proxies = pSubject.getProxiesReceived();
@@ -1369,6 +1445,14 @@ public class Common
       
       assignments = pSubject.getAssignmentsReceived();
       assignments = filterAssignments(assignments, Status.ACTIVE);
+    }
+    else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
+    {
+      proxies = pSubject.getProxiesReceived();
+      proxies = filterProxies(proxies, Status.INACTIVE);
+      
+      assignments = pSubject.getAssignmentsReceived();
+      assignments = filterAssignments(assignments, Status.INACTIVE);
     }
     else
     {
@@ -1496,13 +1580,11 @@ public class Common
     return displayStr;
   }
   
-  public static Set getAssignmentsGrantedForReport
-    (PrivilegedSubject pSubject, Subsystem subsystem)
+  private static Set getAssignmentsGrantedForReport
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystem,
+     Set                statusSet)
   {
-    Set statusSet = new HashSet(2);
-    statusSet.add(Status.ACTIVE);
-    statusSet.add(Status.PENDING);
-    
     Set assignments = pSubject.getAssignmentsGranted();
     assignments = filterAssignments(assignments, statusSet);
     assignments = filterAssignments(assignments, subsystem);
@@ -1510,13 +1592,11 @@ public class Common
     return assignments;
   }
   
-  public static Set getAssignmentsReceivedForReport
-    (PrivilegedSubject pSubject, Subsystem subsystem)
+  private static Set getAssignmentsReceivedForReport
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystem,
+     Set                statusSet)
   {
-    Set statusSet = new HashSet(2);
-    statusSet.add(Status.ACTIVE);
-    statusSet.add(Status.PENDING);
-    
     Set assignments = pSubject.getAssignmentsReceived();
     assignments = filterAssignments(assignments, statusSet);
     assignments = filterAssignments(assignments, subsystem);
@@ -1524,13 +1604,11 @@ public class Common
     return assignments;
   }
   
-  public static Set getProxiesGrantedForReport
-    (PrivilegedSubject pSubject, Subsystem subsystem)
+  private static Set getProxiesGrantedForReport
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystem,
+     Set                statusSet)
   {
-    Set statusSet = new HashSet(2);
-    statusSet.add(Status.ACTIVE);
-    statusSet.add(Status.PENDING);
-    
     Set proxies = pSubject.getProxiesGranted();
     proxies = filterProxies(proxies, statusSet);
     proxies = filterProxies(proxies, subsystem);
@@ -1538,18 +1616,72 @@ public class Common
     return proxies;
   }
   
-  public static Set getProxiesReceivedForReport
-    (PrivilegedSubject pSubject, Subsystem subsystem)
+  private static Set getProxiesReceivedForReport
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystem,
+     Set                statusSet)
   {
-    Set statusSet = new HashSet(2);
-    statusSet.add(Status.ACTIVE);
-    statusSet.add(Status.PENDING);
-    
     Set proxies = pSubject.getProxiesReceived();
     proxies = filterProxies(proxies, statusSet);
     proxies = filterProxies(proxies, subsystem);
     
     return proxies;
+  }
+  
+  public static SortedSet getGrantablesForReport
+    (PrivilegedSubject  pSubject,
+     Subsystem          subsystemFilter,
+     PrivDisplayType    privDisplayType)
+  {
+    SortedSet grantables = new TreeSet(grantableReportComparator);
+    
+    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+    {
+      grantables.addAll
+        (getAssignmentsGrantedForReport
+          (pSubject, subsystemFilter, activeAndPendingStatus));
+
+      grantables.addAll
+        (getProxiesGrantedForReport
+            (pSubject, subsystemFilter, activeAndPendingStatus));
+    }
+    else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
+    {
+      grantables.addAll
+        (getAssignmentsReceivedForReport
+          (pSubject, subsystemFilter, activeAndPendingStatus));
+
+      grantables.addAll
+        (getProxiesReceivedForReport
+          (pSubject, subsystemFilter, activeAndPendingStatus));
+    }
+    else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
+    {
+      grantables.addAll
+        (getAssignmentsGrantedForReport
+          (pSubject, subsystemFilter, inactiveStatus));
+
+      grantables.addAll
+        (getProxiesGrantedForReport
+            (pSubject, subsystemFilter, inactiveStatus));
+    }
+    else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
+    {
+      grantables.addAll
+        (getAssignmentsReceivedForReport
+          (pSubject, subsystemFilter, inactiveStatus));
+
+      grantables.addAll
+        (getProxiesReceivedForReport
+          (pSubject, subsystemFilter, inactiveStatus));
+    }
+    else
+    {
+      throw new IllegalArgumentException
+        ("Unrecognized PrivDisplayTypeValue: " + privDisplayType);
+    }
+  
+    return grantables;
   }
   
   public static Set removeGroups(Set setWithGroups)
@@ -1588,6 +1720,71 @@ public class Common
     }
     
     return displayName;
+  }
+  
+  private static String timeWord
+    (PrivDisplayType  type,
+     boolean          initialCap)
+  {
+    if ((type.equals(PrivDisplayType.CURRENT_GRANTED)
+        || (type.equals(PrivDisplayType.CURRENT_RECEIVED))))
+    {
+      return (initialCap ? "Current" : "current");
+    }
+    else if ((type.equals(PrivDisplayType.FORMER_GRANTED)
+             || (type.equals(PrivDisplayType.FORMER_RECEIVED))))
+    {
+      return (initialCap ? "Former" : "former");
+    }
+    
+    return ("UNRECOGNIZED: PrivilegedDisplayType.getName()='"
+            + type.getName()
+            + "'");
+  }
+  
+  private static String directionPhrase(PrivDisplayType type)
+  {
+    if (type.equals(PrivDisplayType.CURRENT_GRANTED)
+        || type.equals(PrivDisplayType.FORMER_GRANTED))
+    {
+      return "assigned by" ;
+    }
+    else if (type.equals(PrivDisplayType.CURRENT_RECEIVED)
+             || type.equals(PrivDisplayType.FORMER_RECEIVED))
+    {
+      return "assigned to";
+    }
+    
+    return ("UNRECOGNIZED: PrivilegedDisplayType.getName()='"
+            + type.getName()
+            + "'");
+  }
+  
+  public static String titleForPrintReport
+    (Subsystem          subsystem,
+     PrivDisplayType    privDisplayType,
+     PrivilegedSubject  pSubject)
+  {
+    StringBuffer outStr = new StringBuffer();
+    
+    if (subsystem == Constants.WILDCARD_SUBSYSTEM)
+    {
+      outStr.append("All ");
+      outStr.append(timeWord(privDisplayType, false));
+    }
+    else
+    {
+      outStr.append(timeWord(privDisplayType, true));
+      outStr.append(" ");
+      outStr.append(subsystem.getName());
+    }
+
+    outStr.append(" privileges ");
+    outStr.append(directionPhrase(privDisplayType));
+    outStr.append(" ");
+    outStr.append(pSubject.getName());
+    
+    return outStr.toString();
   }
   
   static Set filterProxies(Set all, Status status)
@@ -1687,6 +1884,51 @@ public class Common
     }
 
     return subset;
+  }
+  
+  public static String privilegeStr
+    (Signet     signet,
+     Grantable  grantable)
+  {
+    String privilegeStr;
+    
+    if (grantable instanceof Assignment)
+    {
+      Assignment assignment = (Assignment)grantable;
+      privilegeStr
+        = assignment.getFunction().getSubsystem().getName()
+          + " : "
+          + assignment.getFunction().getCategory().getName()
+          + " : "
+          + assignment.getFunction().getName();
+    }
+    else
+    {
+      Proxy proxy = (Proxy)grantable;
+      privilegeStr = proxyPrivilegeDisplayName(signet, proxy);
+    }
+    
+    return privilegeStr;
+  }
+  
+  public static String scopeStr(Grantable grantable)
+  {
+    String scopeStr;
+    
+    if (grantable instanceof Assignment)
+    {
+      Assignment assignment = (Assignment)grantable;
+      scopeStr = assignment.getScope().getName();
+    }
+    else
+    {
+      Proxy proxy = (Proxy)grantable;
+      scopeStr
+        = "<span class=\"label\">acting as </span>"
+          + proxy.getGrantor().getName();
+    }
+      
+    return scopeStr;
   }
   
 //  public static Set getExtensibleProxies

@@ -1,6 +1,6 @@
 /*--
- $Id: PrivDisplayType.java,v 1.1 2005-09-29 01:35:31 acohen Exp $
- $Date: 2005-09-29 01:35:31 $
+ $Id: PrivDisplayType.java,v 1.2 2005-11-18 23:56:32 acohen Exp $
+ $Date: 2005-11-18 23:56:32 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -45,4 +45,19 @@ public class PrivDisplayType
   public static final PrivDisplayType CURRENT_GRANTED
   	= new PrivDisplayType
   			("current_granted", "current assignments to others");
+
+  /**
+   * The instance that indicates a display of no-longer-active Assignments and
+   * Proxies received by a specific PrivilegedSubject.
+   */
+  public static final PrivDisplayType FORMER_RECEIVED
+    = new PrivDisplayType("former_received", "former privileges");
+
+  /**
+   * The instance that indicates a display of no-longer-active Assignments and
+   * Proxies granted by a specific PrivilegedSubject.
+   */
+  public static final PrivDisplayType FORMER_GRANTED
+    = new PrivDisplayType
+        ("former_granted", "former assignments to others");
 }
