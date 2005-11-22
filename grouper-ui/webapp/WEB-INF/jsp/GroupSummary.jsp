@@ -3,11 +3,11 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.2 2005-11-08 16:09:46 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.3 2005-11-22 10:42:54 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
-<tiles:insert definition="showStemsLocationDef"/>
+<tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
 <tiles:insert definition="groupInfoDef"/>
 <c:if test="${(empty GroupFormBean.map.contextGroup) && (empty GroupFormBean.map.contextSubject) && (empty GroupFormBean.map.callerPageId)}">
 	<tiles:insert definition="groupLinksDef"/>

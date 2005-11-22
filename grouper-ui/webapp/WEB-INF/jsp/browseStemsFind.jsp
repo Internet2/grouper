@@ -4,7 +4,7 @@
 		  memberships of the curent node
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsFind.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: browseStemsFind.jsp,v 1.2 2005-11-22 10:41:41 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,7 +13,7 @@
 	
 		<tiles:importAttribute name="browseChildGroup"/>
 		<c:set var="browseMode" scope="request" value="Find"/>
-		<tiles:insert attribute="browseLocation"/>
+		<tiles:insert attribute="browseLocation" controllerUrl="/prepareBrowsePath.do"/>
 
 		<tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>

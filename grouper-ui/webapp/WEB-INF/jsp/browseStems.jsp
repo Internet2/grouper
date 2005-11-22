@@ -4,7 +4,7 @@
 		  active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStems.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: browseStems.jsp,v 1.2 2005-11-22 10:41:41 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -14,7 +14,7 @@
 		<tiles:insert definition="initialStemsDef"/>
 	</c:when>
 	<c:otherwise>
-		<tiles:insert attribute="browseLocation"/>
+		<tiles:insert attribute="browseLocation" controllerUrl="/prepareBrowsePath.do"/>
 		<div class="browseChildren">
 			<tiles:insert definition="dynamicTileDef">
 				<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
@@ -27,6 +27,6 @@
 				<tiles:put name="listInstruction" value="list.instructions.browse"/>
 			</tiles:insert>
 		</div>
-	</c:otherwise
-></c:choose>
+	</c:otherwise>
+	</c:choose>
 </grouper:recordTile>
