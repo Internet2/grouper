@@ -510,7 +510,11 @@
     </action>
   
     <action path="/prepareStems" scope="request" name="BrowseFormBean"
-            type="edu.internet2.middleware.grouper.ui.actions.PrepareStemsAction"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareRepositoryBrowserStemsAction"
+            unknown="false" validate="false"/>
+			
+	<action path="/prepareBrowsePath" scope="request" name="BrowseFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareBrowsePathAction"
             unknown="false" validate="false"/>
 			
 	<action path="/prepareMenu" 
