@@ -4,16 +4,18 @@
 		  the user to navigate the hierarchy
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsLocation.jsp,v 1.2 2005-11-08 15:50:31 isgwb Exp $
+  @version $Id: browseStemsLocation.jsp,v 1.3 2005-11-22 10:44:03 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="browseStemsLocation">
+
 <c:choose>
 	<c:when test="${! isFlat}">
 <a href="<c:out value="${pageUrl}"/>#skipCurrentLocation" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.current-location"/><br/></a>
 <strong><fmt:message bundle="${nav}" key="find.browse.here"/></strong>
-
+<c:if test="${empty repositoryBrowser.rootNode || (!empty repositoryBrowser.rootNode && !repositoryBrowser.hidePreRootNode)}">
+<c:set var="rootNodeDisplayed" value="true"/>
 	<c:choose>	
 		<c:when test="${navMap['stem.root.display-name'] != '*' && !empty browseParent}">
 			<c:set var="rootNode" value="ROOT"/>
@@ -31,17 +33,28 @@
 			<c:out value="${navMap['stem.root.display-name']}"/>
 		</c:when>
 	</c:choose>
-	
+</c:if>
+<%
+	int browsePathSize = ((List)request.getAttribute("browsePath")).size();
+	pageContext.setAttribute("browsePathSize",new Integer(browsePathSize));
+%>	
 	<c:forEach var="stem" items="${browsePath}">
-		<span class="browseStemsLocationPart">
-			<html:link 
-				page="/browseStems${browseMode}.do" 
-				paramId="currentNode" 
-				paramName="stem" 
-				paramProperty="id"
-				title="${navMap['browse.to.parent-stem']} ${stem.displayExtension}">
-					<c:out value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/>
-			</html:link>
+	<span class="browseStemsLocationPart">
+		<c:choose>
+			<c:when test="${empty rootNodeDisplayed && browsePathSize==1 && empty browseParent}">
+				<c:out value="${stem.displayExtension}"/>	
+			</c:when>
+			<c:otherwise>
+				<html:link 
+					page="/browseStems${browseMode}.do" 
+					paramId="currentNode" 
+					paramName="stem" 
+					paramProperty="id"
+					title="${navMap['browse.to.parent-stem']} ${stem.displayExtension}">
+						<c:out value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/>
+				</html:link>
+			</c:otherwise>
+		</c:choose>
 		</span>
 	</c:forEach>
 	
