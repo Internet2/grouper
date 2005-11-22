@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: proxy.jsp,v 1.5 2005-11-16 03:49:28 jvine Exp $
-  $Date: 2005-11-16 03:49:28 $
+  $Id: proxy.jsp,v 1.6 2005-11-22 03:56:44 acohen Exp $
+  $Date: 2005-11-22 03:56:44 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -22,6 +22,7 @@
   <body onload="window.focus();">
 
 <%@ page import="java.text.DateFormat" %>
+<%@ page import="java.util.Date" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
@@ -68,6 +69,7 @@
             <%=grantee.getName()%>
           </td>
         </tr>
+        
         <tr>
           <th class="label" scope="row">
 		  	As:
@@ -77,6 +79,7 @@
               </span>
           </td>
         </tr>
+        
         <tr>
           <th class="label" scope="row">
             Scope:
@@ -96,11 +99,21 @@
         </tr>
 
         <tr>
+          <th class="label" scope="row">Duration:</th>
+          <td>
+            Until
+            <%=currentProxy.getExpirationDate() == null
+               ? "revoked"
+               : dateFormat.format(currentProxy.getExpirationDate())%>
+          </td>
+        </tr>
+
+        <tr>
           <th class="label" scope="row">
             Status:
           </th>
           <td>
-            <%=Common.displayStatus(currentProxy)%>
+            <%=Common.displayStatusForDetailPopup(currentProxy)%>
           </td>
         </tr>
       
@@ -110,22 +123,20 @@
 		  </th>
           <td><%=dateFormat.format(currentProxy.getEffectiveDate())%> </td>
         </tr>
-      <tr>
-        <th class="label" scope="row">Expires:</th>
-        <td><!-- DATE (or condition) GOES HERE --></td>
-      </tr>
+        
         <tr>
           <th class="label" scope="row">
 		  Designated on:
 		  </th>
-          <td><%=Common.displayDatetime(new Date())%></td>
+          <td><!-- time of last proxy-edit goes here --></td>
         </tr>
+        
         <tr>
           <th class="label" scope="row">
             Designated by:
           </th>
           <td>
-            <%=(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()%>
+            <%=(proxySubject==null ? "" : (proxySubject.getName() + ", acting as ")) + grantor.getName()%>
           </td>
         </tr>
       

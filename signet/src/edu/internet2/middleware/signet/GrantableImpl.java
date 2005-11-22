@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.10 2005-11-17 19:08:40 acohen Exp $
- $Date: 2005-11-17 19:08:40 $
+ $Id: GrantableImpl.java,v 1.11 2005-11-22 03:56:44 acohen Exp $
+ $Date: 2005-11-22 03:56:44 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -12,8 +12,6 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import edu.internet2.middleware.subject.Subject;
 
 abstract class GrantableImpl
 extends EntityImpl

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: assignment.jsp,v 1.24 2005-11-16 03:49:28 jvine Exp $
-  $Date: 2005-11-16 03:49:28 $
+  $Id: assignment.jsp,v 1.25 2005-11-22 03:56:44 acohen Exp $
+  $Date: 2005-11-22 03:56:44 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -104,13 +104,12 @@
         </th>
         <td>
 		  <%=signet.displayAncestry
-                    (currentScope,
+                    (currentAssignment.getScope(),
                      " : ",  // childSeparatorPrefix
                      "",     // levelPrefix
                      "",     // levelSuffix
                      "")     // childSeparatorSuffix
                  %>
-          <%=currentAssignment.getScope().getName()%>
         </td>
       </tr>
 
@@ -151,22 +150,37 @@
 %>
 
       <tr>
+        <th class="label" scope="row">Duration:</th>
+        <td>
+          Until
+          <%=currentAssignment.getExpirationDate() == null
+             ? "revoked"
+             : dateFormat.format(currentAssignment.getExpirationDate())%>
+        </td>
+      </tr>
+
+      <tr>
         <th class="label" scope="row">
-          Status:
+          Extensibility:
         </th>
         <td>
           <%=canUse?"can use":""%><%=(canUse && canGrant ? ", " : "")%><%=canGrant?"can grant":""%>
         </td>
       </tr>
+
+      <tr>
+        <th class="label" scope="row">
+          Status:
+        </th>
+        <td>
+          <%=Common.displayStatusForDetailPopup(currentAssignment)%>
+        </td>
+      </tr>
+
       <tr>
       	<th class="label" scope="row">Effective:</th>
       	<td><%=dateFormat.format(currentAssignment.getEffectiveDate())%> </td>
      	</tr>
-
-      <tr>
-        <th class="label" scope="row">Expires:</th>
-        <td><!-- DATE (or condition) GOES HERE --></td>
-      </tr>
       <tr>
         <th class="label" scope="row">Granted on:</th>
         <td><!-- DATE/TIME GOES HERE --> </td>
@@ -176,7 +190,7 @@
           Granted by:
         </th>
         <td>
-          <%=(proxy==null ? "" : (proxy.getName() + " acting as ")) + grantor.getName()%>
+          <%=(proxy==null ? "" : (proxy.getName() + ", acting as ")) + grantor.getName()%>
         </td>
       </tr>
       

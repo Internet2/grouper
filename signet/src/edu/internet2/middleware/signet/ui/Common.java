@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.46 2005-11-18 23:56:32 acohen Exp $
-  $Date: 2005-11-18 23:56:32 $
+  $Id: Common.java,v 1.47 2005-11-22 03:56:44 acohen Exp $
+  $Date: 2005-11-22 03:56:44 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -436,6 +436,23 @@ public class Common
     if (canGrant)
     {
       statusStr.append("can grant");
+    }
+
+    return statusStr.toString();
+  }
+  
+  public static String displayStatusForDetailPopup(Grantable grantable)
+  {
+    StringBuffer statusStr = new StringBuffer();
+    
+    // An Assignment or Proxy with no ID has not yet been persisted. An
+    // Assignment or Proxy that has not yet been persisted has no Status yet.
+    // That is, it's not active, it's not pending, it's not nuthin' yet.
+    boolean hasStatus = !(grantable.getId() == null);
+    
+    if (hasStatus)
+    {
+      statusStr.append(grantable.getStatus().getName());
     }
 
     return statusStr.toString();
@@ -1549,15 +1566,15 @@ public class Common
     
     if (proxy.canExtend() && proxy.canUse())
     {
-      displayStr = "Extend proxy for and grant privileges in:";
+      displayStr = "Extend proxy for and grant privileges in";
     }
     else if (proxy.canExtend())
     {
-      displayStr = "Extend proxy for:";
+      displayStr = "Extend proxy for";
     }
     else
     {
-      displayStr = "Grant privileges in:";
+      displayStr = "Grant privileges in";
     }
     
     return displayStr;

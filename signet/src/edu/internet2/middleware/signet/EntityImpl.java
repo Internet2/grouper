@@ -1,6 +1,6 @@
 /*--
- $Id: EntityImpl.java,v 1.7 2005-07-06 22:48:25 acohen Exp $
- $Date: 2005-07-06 22:48:25 $
+ $Id: EntityImpl.java,v 1.8 2005-11-22 03:56:44 acohen Exp $
+ $Date: 2005-11-22 03:56:44 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,8 +9,6 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
