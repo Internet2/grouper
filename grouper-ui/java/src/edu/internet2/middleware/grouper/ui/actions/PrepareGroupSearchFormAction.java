@@ -102,13 +102,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Checks it is present - if not 
-      derives it from current browseNode and SETs it</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
+    <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Checks if browsePath iis present 
@@ -145,7 +139,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.2 2005-11-04 14:03:58 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.3 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -165,8 +159,7 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		if(browsePath==null) {
 			Group curGroupOrStem = getCurrentGroupOrStem(grouperSession,session);
 			if(curGroupOrStem!=null) {
-				List path = GrouperHelper.parentStemsAsMaps(grouperSession, curGroupOrStem);
-				request.setAttribute("browsePath",path);
+
 				request.setAttribute("browseParent",GrouperHelper.group2Map(grouperSession,curGroupOrStem));
 				request.setAttribute("currentLocation",GrouperHelper.group2Map(grouperSession,curGroupOrStem));
 			}

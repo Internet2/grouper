@@ -124,12 +124,7 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">List of objects representing 
       the chains</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stems to the current 
-      group </font></td>
-  </tr>
+
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
@@ -266,7 +261,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.1 2005-11-04 15:18:03 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.2 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 
@@ -317,9 +312,9 @@ public class PopulateChainsAction extends GrouperCapableAction {
 			}
 			chain.put("chainPath",chainPath);
 		}
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, group);
+		
 		request.setAttribute("chainPaths", chains);
-		request.setAttribute("browsePath", path);
+	
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		request.setAttribute("requestParams",request.getParameterMap());

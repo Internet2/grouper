@@ -95,14 +95,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stem ancestors as Maps 
-      <br>
-      for current stem - not including immediate parent</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
+    <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -149,7 +142,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditStemAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: PopulateEditStemAction.java,v 1.2 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateEditStemAction extends GrouperCapableAction {
 
@@ -196,8 +189,7 @@ public class PopulateEditStemAction extends GrouperCapableAction {
 		stemForm.set("stemDescription", stemMap.get("description"));
 		//TODO: check this
 		session.setAttribute("isNewStem", Boolean.FALSE);
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, stem);
-		request.setAttribute("browsePath", path);
+
 		request.setAttribute("browseParent", GrouperHelper.stem2Map(
 				grouperSession, stem));
 

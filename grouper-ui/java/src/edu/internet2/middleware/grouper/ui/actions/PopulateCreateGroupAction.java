@@ -91,13 +91,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates a new group</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stem ancestors as Maps 
-      <br>
-      for current group / stem - not including immediate parent</font></td>
-  </tr>
+
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
@@ -128,7 +122,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.2 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -151,8 +145,7 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		//request.setAttribute("groupTypes", groupTypes);
 		request.setAttribute("editMode", Boolean.FALSE);
 		GrouperStem stem = (GrouperStem)getCurrentGroupOrStem(grouperSession,session);
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, stem);
-		request.setAttribute("browsePath", path);
+		
 		request.setAttribute("browseParent", GrouperHelper.stem2Map(
 				grouperSession, stem));
 		return mapping.findForward(FORWARD_CreateGroup);

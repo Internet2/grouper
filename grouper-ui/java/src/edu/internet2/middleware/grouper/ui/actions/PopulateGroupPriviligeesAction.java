@@ -106,14 +106,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stem ancestors as Maps 
-      <br>
-      for current stem - not including immediate parent</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
+   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -179,7 +172,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </table>
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.2 2005-11-14 14:28:17 isgwb Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.3 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -247,9 +240,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		//Set up view info
 		Map privs = GrouperHelper.hasAsMap(grouperSession, group);
 		request.setAttribute("groupPrivs", privs);
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, group);
 
-		request.setAttribute("browsePath", path);
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		request.setAttribute("groupMembership", membership);

@@ -76,7 +76,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: PopulateChainAction.java,v 1.2 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateChainAction extends GrouperCapableAction {
 
@@ -117,9 +117,9 @@ public class PopulateChainAction extends GrouperCapableAction {
 			chainGroup = GrouperGroup.loadByID(grouperSession,chainGroupIds[i]);
 			chain.add(GrouperHelper.group2Map(grouperSession,chainGroup));
 		}
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, group);
+		
 		request.setAttribute("chainPath", chain);
-		request.setAttribute("browsePath", path);
+		
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		request.setAttribute("requestParams",request.getParameterMap());

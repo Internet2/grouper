@@ -114,14 +114,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">&nbsp;Allows callerPageId to 
       be added to links/forms so this page can be returned to</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stem ancestors as Maps 
-      <br>
-      for current stem - not including immediate parent</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
+   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -210,7 +203,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateStemPriviligeesAction.java,v 1.2 2005-11-04 14:00:17 isgwb Exp $
+ * @version $Id: PopulateStemPriviligeesAction.java,v 1.3 2005-11-22 10:33:32 isgwb Exp $
  */
 
 public class PopulateStemPriviligeesAction extends GrouperCapableAction {
@@ -294,9 +287,7 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 		
 		Map privs = GrouperHelper.hasAsMap(grouperSession, stem);
 		request.setAttribute("stemPrivs", privs);
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, stem);
 
-		request.setAttribute("browsePath", path);
 		request.setAttribute("stemMembership", membership);
 		Map stemMap = GrouperHelper.stem2Map(
 				grouperSession, stem);

@@ -181,12 +181,6 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Arguments for subtitle</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stem ancestors as Maps 
-      for current group / stem - not including immediate parent</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current group 
@@ -233,7 +227,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.1.1.1 2005-08-23 13:04:15 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.2 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 
@@ -376,8 +370,6 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 		request.setAttribute("subtitleArgs", new Object[] { findMap
 				.get("displayExtension") });
 
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, groupOrStem);
-		request.setAttribute("browsePath", path);
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, groupOrStem));
 		return mapping.findForward(FORWARD_AssignNewMembers);

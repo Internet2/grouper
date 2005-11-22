@@ -105,14 +105,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">browsePath</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">List of stem ancestors as Maps 
-      <br>
-      for current stem - not including immediate parent</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
+    <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">browseParent</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Map for stem of current stem</font></td>
@@ -178,7 +171,7 @@ import edu.internet2.middleware.grouper.GrouperStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.2 2005-11-04 12:36:05 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.3 2005-11-22 10:33:32 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 
@@ -264,8 +257,7 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 				.get("displayExtension") });
 		
 		//Make path to current stem/group available for navigation
-		List path = GrouperHelper.parentStemsAsMaps(grouperSession, groupOrStem);
-		request.setAttribute("browsePath", path);
+
 		request.setAttribute("browseParent", nodeMap);
 		
 		return mapping.findForward(FORWARD_FindNewMembers);
