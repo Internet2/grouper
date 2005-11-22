@@ -222,7 +222,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareStemsAction.java,v 1.2 2005-11-04 14:05:52 isgwb Exp $
+ * @version $Id: PrepareStemsAction.java,v 1.3 2005-11-22 10:34:52 isgwb Exp $
  */
 
 public class PrepareStemsAction extends LowLevelGrouperCapableAction {
@@ -400,7 +400,9 @@ public class PrepareStemsAction extends LowLevelGrouperCapableAction {
 				}
 			} else {
 				//we have a stem so we will page the children (stems / groups)
-				if(curNodeStem!=null) allChildren = GrouperHelper.getChildrenAsMaps(grouperSession, curNodeStem.name());
+				if(curNodeStem!=null) {
+					allChildren = GrouperHelper.getChildrenAsMaps(grouperSession, curNodeStem.name());
+				}
 				else allChildren = GrouperHelper.getChildrenAsMaps(grouperSession,defaultStem);
 				request.setAttribute("stemHasChildren",new Boolean(allChildren.size()>0));
 			}
