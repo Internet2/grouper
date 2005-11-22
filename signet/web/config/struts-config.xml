@@ -51,13 +51,6 @@
           <forward name="success" path="/main.jsp" />
       </action>
 
-      <!-- Printable Signet main page -->
-      <action    path="/MainPrint"
-                 type="edu.internet2.middleware.signet.ui.MainPrintAction">
-          <forward name="failure" path="/error.jsp" />
-          <forward name="success" path="/main-print.jsp" />
-      </action>
-
       <!-- Signet person-view page -->
       <action    path="/PersonView"
                  type="edu.internet2.middleware.signet.ui.PersonViewAction">

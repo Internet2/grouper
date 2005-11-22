@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.36 2005-11-16 03:49:28 jvine Exp $
-  $Date: 2005-11-16 03:49:28 $
+  $Id: confirm.jsp,v 1.37 2005-11-22 20:18:13 acohen Exp $
+  $Date: 2005-11-22 20:18:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -76,6 +76,10 @@
    Assignment currentAssignment
      = (Assignment)
          (request.getSession().getAttribute("currentAssignment"));
+         
+  PrivilegedSubject proxy = currentAssignment.getProxy();
+         
+  PrivilegedSubject grantor = currentAssignment.getGrantor();
          
    DateFormat dateFormat = DateFormat.getDateInstance();
    

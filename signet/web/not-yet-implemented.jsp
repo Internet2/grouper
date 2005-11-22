@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: not-yet-implemented.jsp,v 1.12 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: not-yet-implemented.jsp,v 1.13 2005-11-22 20:18:13 acohen Exp $
+  $Date: 2005-11-22 20:18:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -38,6 +38,7 @@
 <%@ page import="edu.internet2.middleware.signet.Function" %>
 
 <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
+<%@ page import="edu.internet2.middleware.signet.ui.Common" %>
 
 <% 
   Signet signet

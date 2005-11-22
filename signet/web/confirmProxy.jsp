@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.6 2005-11-16 03:49:28 jvine Exp $
-  $Date: 2005-11-16 03:49:28 $
+  $Id: confirmProxy.jsp,v 1.7 2005-11-22 20:18:13 acohen Exp $
+  $Date: 2005-11-22 20:18:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -61,6 +61,10 @@
    Proxy currentProxy
      = (Proxy)
          (request.getSession().getAttribute(Constants.PROXY_ATTRNAME));
+         
+   PrivilegedSubject proxySubject = currentProxy.getProxy();
+   
+   PrivilegedSubject grantor = currentProxy.getGrantor();
          
    DateFormat dateFormat = DateFormat.getDateInstance();
    

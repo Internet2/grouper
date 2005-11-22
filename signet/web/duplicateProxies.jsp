@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.7 2005-11-16 02:30:14 jvine Exp $
-  $Date: 2005-11-16 02:30:14 $
+  $Id: duplicateProxies.jsp,v 1.8 2005-11-22 20:18:13 acohen Exp $
+  $Date: 2005-11-22 20:18:13 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -198,7 +198,7 @@
      	</form>
 
 
-	<jsp:include page="footer.jsp" flush="true" />
+     <tiles:insert page="/tiles/footer.jsp" flush="true" />
    	</div>
     <!-- Content -->
 
