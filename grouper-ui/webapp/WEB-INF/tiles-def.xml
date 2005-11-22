@@ -416,7 +416,7 @@
 	  </description>
  </definition>
  
-  <definition name="showStemsLocationDef" path="/WEB-INF/jsp/showStemsLocation.jsp" >
+  <definition name="showStemsLocationDef" path="/WEB-INF/jsp/showStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
 	  <description>
 		Tile which displays a  list of parent stems to show the location of the current group
 		or stem. The stem names are not links
