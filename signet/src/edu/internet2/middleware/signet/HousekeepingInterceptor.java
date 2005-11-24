@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.14 2005-08-29 18:29:31 acohen Exp $
- $Date: 2005-08-29 18:29:31 $
+ $Id: HousekeepingInterceptor.java,v 1.15 2005-11-24 00:02:53 acohen Exp $
+ $Date: 2005-11-24 00:02:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -10,7 +10,9 @@ package edu.internet2.middleware.signet;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 
 import net.sf.hibernate.CallbackException;
@@ -177,6 +179,10 @@ class HousekeepingInterceptor implements Interceptor, Serializable
          + " Proxy.");
     }
     
+    Set historySet = new HashSet(1);
+    historySet.add(historyRecord);
+    grantableInstance.setHistory(historySet);
+    
     try
     {
       session.save(historyRecord);
@@ -189,9 +195,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
     catch (HibernateException e)
     {
       throw new CallbackException(e);
-    }   
-    
-    grantableInstance.needsInitialHistoryRecord(false); 
+    }
   }
   
   /* (non-Javadoc)
@@ -214,7 +218,7 @@ class HousekeepingInterceptor implements Interceptor, Serializable
         tempSession = this.sessionFactory.openSession(this.connection);
         tx = startXact(tempSession);
 
-        if (grantableInstance.needsInitialHistoryRecord())
+        if (grantableInstance.getHistory() == null)
         {
           saveInitialHistoryRecord(tempSession, grantableInstance);
         }

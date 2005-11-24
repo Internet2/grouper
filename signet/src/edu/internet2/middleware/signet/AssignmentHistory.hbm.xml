@@ -11,9 +11,12 @@
 			<generator class="native"/>
 		</id>
 
-		<property
-			name="assignmentId"
-			column="assignmentID" />
+		<many-to-one
+			name="assignment"
+			class="edu.internet2.middleware.signet.AssignmentImpl"
+			column="assignmentID"
+			not-null="true"/>
+			
 		<property
 			name="instanceNumber" />
 			

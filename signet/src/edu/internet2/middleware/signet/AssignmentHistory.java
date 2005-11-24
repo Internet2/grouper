@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentHistory.java,v 1.5 2005-08-29 18:29:30 acohen Exp $
-$Date: 2005-08-29 18:29:30 $
+$Id: AssignmentHistory.java,v 1.6 2005-11-24 00:02:53 acohen Exp $
+$Date: 2005-11-24 00:02:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -21,15 +21,13 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  */
 class AssignmentHistory extends History
 {
-  // AssignmentHistory is unusual among Signet entities in that it
-  // (along with AssignmentImpl) has a numeric, not alphanumeric ID.
-  protected Integer assignmentId;
+  protected Assignment assignment;
   
-  private TreeNode          scope;
-  private Function          function;
-  private Set               limitValues;
-  private boolean           canGrant;
-  private boolean           canUse;
+  private TreeNode     scope;
+  private Function     function;
+  private Set          limitValues;
+  private boolean      canGrant;
+  private boolean      canUse;
   
   /**
    * Hibernate requires the presence of a default constructor.
@@ -45,7 +43,7 @@ class AssignmentHistory extends History
     // AssignmentHistory object.
     super(assignment);
     
-    this.setAssignmentId(assignment.getId());
+    this.setAssignment(assignment);
     this.setScope(assignment.getScope());
     this.setFunction(assignment.getFunction());
     this.setLimitValues(assignment.getLimitValues());
@@ -53,15 +51,15 @@ class AssignmentHistory extends History
     this.setCanUse(assignment.canUse());
   }
   
-  Integer getAssignmentId()
+  Assignment getAssignment()
   {
-    return this.assignmentId;
+    return this.assignment;
   }
   
   // This method is only for use by Hibernate.
-  protected void setAssignmentId(Integer id)
+  protected void setAssignment(Assignment assignment)
   {
-    this.assignmentId = id;
+    this.assignment = assignment;
   }
   
   TreeNode getScope()
@@ -131,8 +129,8 @@ class AssignmentHistory extends History
   public String toString()
   {
     return
-      "[assignmentId="
-      + this.getAssignmentId()
+      "[assignment="
+      + this.getAssignment()
       + ", instanceNumber="
       + this.getInstanceNumber()
       + "]";

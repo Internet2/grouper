@@ -105,6 +105,18 @@
 			</composite-element>
 		</set>
 		
+		<set
+			name="history"
+			inverse="true"
+			lazy="true"
+			table="signet_assignment_history"
+			cascade="save-update">
+			
+			<key column="assignmentID"/>
+			<one-to-many
+				class="edu.internet2.middleware.signet.AssignmentHistory"/>
+		</set>
+		
 		<property
 			name="status"
 			type="edu.internet2.middleware.signet.StatusType"

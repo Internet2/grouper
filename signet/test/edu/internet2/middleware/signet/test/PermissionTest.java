@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionTest.java,v 1.5 2005-11-02 17:54:17 acohen Exp $
-$Date: 2005-11-02 17:54:17 $
+$Id: PermissionTest.java,v 1.6 2005-11-24 00:02:53 acohen Exp $
+$Date: 2005-11-24 00:02:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -92,7 +92,7 @@ public class PermissionTest extends TestCase
       // and so forth.
       Set limits = permission.getLimits();
       assertEquals(permissionIndex + 1, limits.size());
-      
+     
       SortedSet sortedLimits = new TreeSet(new LimitDisplayOrderComparator());
       sortedLimits.addAll(limits);
       Iterator sortedLimitsIterator = sortedLimits.iterator();

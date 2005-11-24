@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.33 2005-11-17 19:08:40 acohen Exp $
- $Date: 2005-11-17 19:08:40 $
+ $Id: AssignmentImpl.java,v 1.34 2005-11-24 00:02:53 acohen Exp $
+ $Date: 2005-11-24 00:02:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -506,10 +506,9 @@ implements Assignment
     else
     {
       // We can't construct the Assignment's initial history-record yet,
-      // because we don't yet know the ID of the assignment. We'll set a
-      // flag that will cause us to construct and save that history-record
-      // later, in the postFlush() method of the Hibernate Interceptor.
-      this.needsInitialHistoryRecord(true);
+      // because we don't yet know the ID of the assignment. We'll detect this
+      // case, construct and save that history-record later, in the postFlush()
+      // method of the Hibernate Interceptor.
       this.getSignet().save(this);
     }
   }

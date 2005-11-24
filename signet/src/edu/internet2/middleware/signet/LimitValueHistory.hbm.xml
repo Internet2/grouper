@@ -13,34 +13,18 @@
 
 		<property
 			name="assignmentId"
-			column="assignmentID" />
-		<property
-			name="instanceNumber" />
-		
-		<many-to-one 
-			name="subsystem"
-			column="limitSubsystemID"
-			class="edu.internet2.middleware.signet.SubsystemImpl"
-			not-null="true"/>
-		
-		<!-- limitType is so far unused, but will eventually indicate whether
-			 this Limit is a Tree or a ChoiceSet. For the moment, only a
-			 ChoiceSet is possible. -->
-		<property
-			name="limitType"
-			not-null="true">
-		</property>
-		
-		<!-- limitTypeId is the ID of the ChoiceSet or Tree whose values/nodes
-			 are the domain of limit values, and this ID is unique only within
-			 its limitType. That is, it's possible to have a Limit of limitType
-			 "Tree" with id "foo", and another Limit of limitType "ChoiceSet"
-			 with id "foo". -->
-		<property
-			name="choiceSetId"
-			column="limitTypeID"
+			column="assignmentID"
 			not-null="true" />
-
+		<property
+			name="instanceNumber"
+			not-null="true" />
+			
+		<many-to-one
+			name="limit"
+			column="limitKey"
+			not-null="true"
+			class="edu.internet2.middleware.signet.LimitImpl"/>
+		
 		<property
 			name="value">
 		</property> 

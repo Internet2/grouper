@@ -250,23 +250,19 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 ;
 create table signet_assignmentLimit_history
 (
-historyID			numeric(12,0)		IDENTITY,
-assignmentID        numeric(12,0)       NOT NULL,
-instanceNumber      int                 NOT NULL,
-limitSubsystemID    varchar(64)         NOT NULL,
--- limitType is so far unused, but will eventually indicate whether this
--- Limit is a Tree or a ChoiceSet. For the moment, only a ChoiceSet is
--- possible.
-limitType           varchar(32)         NOT NULL,
--- limitTypeId is the ID of the ChoiceSet or Tree whose values/nodes are the
--- domain of limit values, and this ID is unique only within its limitType.
--- That is, it's possible to have a Limit of limitType "Tree" with id "foo",
--- and another Limit of limitType "ChoiceSet" with id "foo".
-limitTypeID         varchar(64)         NOT NULL,
-value               varchar(32)         NOT NULL,
-primary key(historyID),
-foreign key(assignmentID, instanceNumber)
-  references signet_assignment_history(assignmentID, instanceNumber)
+  historyID			numeric(12,0)		IDENTITY,
+  assignmentID        numeric(12,0)       NOT NULL,
+  instanceNumber      int                 NOT NULL,
+  limitKey        int          NOT NULL,
+  value               varchar(32)         NOT NULL,
+  primary key (historyID),
+  unique      (historyID, assignmentID, instanceNumber, limitKey, value),
+  foreign key (assignmentID, instanceNumber)
+    references signet_assignment_history
+      (assignmentID, instanceNumber),
+  foreign key (limitKey)
+    references signet_limit
+      (limitKey)
 )
 ;
 create table signet_proxy

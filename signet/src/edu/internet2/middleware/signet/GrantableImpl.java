@@ -1,6 +1,6 @@
 /*--
- $Id: GrantableImpl.java,v 1.11 2005-11-22 03:56:44 acohen Exp $
- $Date: 2005-11-22 03:56:44 $
+ $Id: GrantableImpl.java,v 1.12 2005-11-24 00:02:53 acohen Exp $
+ $Date: 2005-11-24 00:02:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,7 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -42,11 +43,10 @@ implements Grantable
   
   private PrivilegedSubjectImpl revoker;
   
-  private Date							effectiveDate;
-  private Date              expirationDate = null;
-  private int               instanceNumber = MIN_INSTANCE_NUMBER;
-  
-  boolean         needsInitialHistoryRecord = false;
+  private Date                  effectiveDate;
+  private Date                  expirationDate = null;
+  private int                   instanceNumber = MIN_INSTANCE_NUMBER;
+  private Set                   history = null;
 
 
 
@@ -373,16 +373,6 @@ implements Grantable
       .append(this.id)
       .toHashCode();
   }
-  
-  boolean needsInitialHistoryRecord()
-  {
-    return this.needsInitialHistoryRecord;
-  }
-  
-  void needsInitialHistoryRecord(boolean needsInitialHistoryRecord)
-  {
-    this.needsInitialHistoryRecord = needsInitialHistoryRecord;
-  }
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()
@@ -446,5 +436,15 @@ implements Grantable
     {
       ((PrivilegedSubjectImpl)pSubject).save();
     }
+  }
+  
+  public Set getHistory()
+  {
+    return this.history;
+  }
+  
+  void setHistory(Set history)
+  {
+    this.history = history;
   }
 }

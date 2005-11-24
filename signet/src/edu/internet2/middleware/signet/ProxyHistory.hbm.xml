@@ -10,10 +10,13 @@
 		<id name="historyId" type="int" column="historyID">
 			<generator class="native"/>
 		</id>
-
-		<property
-			name="proxyId"
-			column="proxyID" />
+		
+		<many-to-one
+			name="proxy"
+			class="edu.internet2.middleware.signet.ProxyImpl"
+			column="proxyID"
+			not-null="true"/>
+			
         <property
 			name="modifyDatetime" column="modifyDatetime" />
 			

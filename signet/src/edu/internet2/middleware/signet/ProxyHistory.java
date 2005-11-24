@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyHistory.java,v 1.2 2005-08-29 18:29:31 acohen Exp $
-$Date: 2005-08-29 18:29:31 $
+$Id: ProxyHistory.java,v 1.3 2005-11-24 00:02:53 acohen Exp $
+$Date: 2005-11-24 00:02:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,7 +16,7 @@ package edu.internet2.middleware.signet;
  */
 class ProxyHistory extends History
 {
-  protected Integer proxyId;
+  protected Proxy proxy;
   
   private Subsystem         subsystem;
   private boolean           canExtend;
@@ -35,21 +35,21 @@ class ProxyHistory extends History
     // Most information is just copied from the Proxy object to the
     // AssignmentHistory object.
     super(proxy);
-    this.setProxyId(proxy.getId());
+    this.setProxy(proxy);
     this.setSubsystem(proxy.getSubsystem());
     this.setCanExtend(proxy.canExtend());
     this.setCanUse(proxy.canUse());
   }
   
-  Integer getProxyId()
+  Proxy getProxy()
   {
-    return this.proxyId;
+    return this.proxy;
   }
   
   // This method is only for use by Hibernate.
-  protected void setProxyId(Integer id)
+  protected void setProxy(Proxy proxy)
   {
-    this.proxyId = id;
+    this.proxy = proxy;
   }
   
   Subsystem getSubsystem()
@@ -99,8 +99,8 @@ class ProxyHistory extends History
   public String toString()
   {
     return
-      "[proxyId="
-      + this.getProxyId()
+      "[proxy="
+      + this.getProxy()
       + ", instanceNumber="
       + this.getInstanceNumber()
       + "]";

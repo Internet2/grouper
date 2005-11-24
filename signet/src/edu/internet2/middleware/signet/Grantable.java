@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.4 2005-10-31 22:45:28 acohen Exp $
-$Date: 2005-10-31 22:45:28 $
+$Id: Grantable.java,v 1.5 2005-11-24 00:02:53 acohen Exp $
+$Date: 2005-11-24 00:02:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -188,5 +188,13 @@ extends Entity, Comparable
    *
    */
   public void save();
+  
+  /**
+   * Retrieves the <code>Set</code> of objects which describe the history of
+   * this grantable entity.
+   * 
+   * @return a set of history objects.
+   */
+  public Set getHistory();
 
 }

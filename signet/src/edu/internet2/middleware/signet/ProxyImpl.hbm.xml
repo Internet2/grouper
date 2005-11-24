@@ -32,6 +32,18 @@
 -->
         <property
 			name="modifyDatetime" column="modifyDatetime" />
+		
+		<set
+			name="history"
+			inverse="true"
+			lazy="true"
+			table="signet_proxy_history"
+			cascade="save-update">
+			
+			<key column="proxyID"/>
+			<one-to-many
+				class="edu.internet2.middleware.signet.ProxyHistory"/>
+		</set>
 
 		<many-to-one
 			name="grantor"
