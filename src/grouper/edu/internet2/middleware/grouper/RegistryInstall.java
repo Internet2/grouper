@@ -27,7 +27,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.6 2005-11-28 17:53:06 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.7 2005-11-28 19:21:48 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -42,8 +42,8 @@ public class RegistryInstall {
 
   // Private Class Methods
   private static void _installFieldsAndTypes() {
-    Set fields  = new HashSet();
-    Set types   = new HashSet();
+    Set fields  = new LinkedHashSet();
+    Set types   = new LinkedHashSet();
    
     // TODO GroupType base    = new GroupType("base");
 
@@ -138,7 +138,7 @@ public class RegistryInstall {
 
     try {
       Session hs = HibernateHelper.getSession();
-      Set objects = new HashSet();
+      Set objects = new LinkedHashSet();
       objects.addAll(fields);
       // TODO objects.addAll(types);
       HibernateHelper.save(objects);

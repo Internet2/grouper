@@ -24,12 +24,12 @@ import  java.util.*;
  * Null {@link QueryFilter} that will never return any results.
  * <p />
  * @author  blair christensen.
- * @version $Id: NullFilter.java,v 1.3 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: NullFilter.java,v 1.4 2005-11-28 19:21:48 blair Exp $
  */
 public class NullFilter extends BaseQueryFilter {
 
   // Private Class Constants
-  private static final Set RESULTS = new HashSet();
+  private static final Set RESULTS = new LinkedHashSet();
 
 
   // Constructors

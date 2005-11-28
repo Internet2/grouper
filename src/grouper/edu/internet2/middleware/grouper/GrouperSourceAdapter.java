@@ -41,13 +41,13 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.3 2005-11-28 19:21:48 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
   // TODO Is configuration necessary if used within Grouper?
 
   // Private Instance Variables
-  private Set types = new HashSet();
+  private Set types = new LinkedHashSet();
 
 
   // Constructors
@@ -193,7 +193,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public Set search(String searchValue) {
     // TODO Implement and document
-    return new HashSet();
+    return new LinkedHashSet();
   } // public Set search(searchValue)
 
 }

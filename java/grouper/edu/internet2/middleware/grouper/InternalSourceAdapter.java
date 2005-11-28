@@ -25,12 +25,12 @@ import  java.util.*;
  * Internal <i>SourceAdapter</i> for retrieving {@link InternalSubject}s.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.3 2005-11-28 19:21:48 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
   // Private Instance Variables
-  private Set types = new HashSet();
+  private Set types = new LinkedHashSet();
 
 
   // Constructors

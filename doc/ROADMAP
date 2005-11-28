@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.72 2005-11-28 19:14:19 blair Exp $
+$Id: ROADMAP,v 1.73 2005-11-28 19:21:48 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.72 2005-11-28 19:14:19 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Switch to _LinkedHashSet_
 * Test with JDBC subject adapter
   * Have setup install subjects and teardown remove them?
   * Test with real subjects or add memory subject adapter
@@ -29,21 +28,19 @@ TODO Sync with Basecamp
 * Implement all 0.6 query filters
   * GroupAttributeMatchFilter
   * GroupAnyAttributeFilter
-
-## Later
 * Review exceptions
   * Should MemberNotFound and SubjectNotFound be replaced by Runtime
     exceptions?  Or at least be used more selectively?
   * should PrivilegeNotFoundException and SchemaException be merged?
     * Or just remove PNFE?
+
+## Later
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
-* _Group_ parent stem mapping
+  * _Group_ parent stem mapping
 * Commons logging
 * More effective membership testing
-* Custom list types
 * Group deletion when groups have members or are members
-* Switch to Hibernate 3.x
 * Review generated SQL
 * Test with Pg and Oracle and review generated SQL
 * Review old _*.todo_ test classes
@@ -61,6 +58,7 @@ TODO Sync with Basecamp
 * Custom group types
 * Custom group attributes
 * Custom group lists
+* Switch to Hibernate 3.x
 
 ---
 
@@ -96,6 +94,7 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

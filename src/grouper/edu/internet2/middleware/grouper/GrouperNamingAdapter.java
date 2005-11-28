@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.15 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.16 2005-11-28 19:21:48 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -217,7 +217,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Member  m       = MemberFinder.findBySubject(s, subj);
 
       // The objects that will need saving
-      Set     objects = new HashSet();
+      Set     objects = new LinkedHashSet();
 
       // Update group modify time
       ns.setModified();
@@ -327,8 +327,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     try {
       // The objects that will need updating and deleting
-      Set     saves   = new HashSet();
-      Set     deletes = new HashSet();
+      Set     saves   = new LinkedHashSet();
+      Set     deletes = new LinkedHashSet();
 
       // Update stem modify time
       ns.setModified();
@@ -428,8 +428,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Member  m       = MemberFinder.findBySubject(s, subj);
 
       // The objects that will need updating and deleting
-      Set     saves   = new HashSet();
-      Set     deletes = new HashSet();
+      Set     saves   = new LinkedHashSet();
+      Set     deletes = new LinkedHashSet();
 
       // Update stem modify time
       ns.setModified();

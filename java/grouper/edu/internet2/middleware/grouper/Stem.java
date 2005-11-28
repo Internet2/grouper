@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.15 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: Stem.java,v 1.16 2005-11-28 19:21:48 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -108,7 +108,7 @@ public class Stem implements Serializable {
     // TODO this.setChild_groups( this.getChild_groups().add(child) );
     try {
       // TODO Save and cascade
-      Set objects = new HashSet();
+      Set objects = new LinkedHashSet();
       objects.add(this);
       objects.add(child);
       HibernateHelper.save(objects);
@@ -161,7 +161,7 @@ public class Stem implements Serializable {
     // TODO this.setChild_stems( this.getChild_stems().add(child) );
     try {
       // TODO Save and cascade
-      Set objects = new HashSet();
+      Set objects = new LinkedHashSet();
       this.setModified();
       //HibernateHelper.save(this);
       //HibernateHelper.save(child);
