@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.14 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: Stem.java,v 1.15 2005-11-28 18:33:22 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -385,7 +385,7 @@ public class Stem implements Serializable {
   public Stem getParentStem() 
     throws StemNotFoundException
   {
-    return StemFinder.getByUuid(this.s, this.parent_stem);
+    return StemFinder.findByUuid(this.s, this.parent_stem);
   } // public Stem getParentStem()
 
   /**

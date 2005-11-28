@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.104 2005-11-28 17:53:06 blair Exp $
+$Id: API,v 1.105 2005-11-28 18:33:22 blair Exp $
 
 ---
 
@@ -85,9 +85,9 @@ TODO Be more consistent about when calling for a member and a subject
 * Privilege           getWritePriv()
 
 ## FieldFinder
+* Field               FieldFinder.find(field)
 * Set                 FieldFinder.findAll()
-* Set                 FieldFinder.findType(fieldType)
-* Field               FieldFinder.getField(field)
+* Set                 FieldFinder.findAllByType(fieldType)
 
 ## Group
 * Field               Group.getDefaultList()
@@ -219,7 +219,7 @@ TODO Be more consistent about when calling for a member and a subject
 * boolean             isMember(group)
 
 ## MemberFinder
-* Member              MemberFinder.getByUuid(session, uuid)
+* Member              MemberFinder.findByUuid(session, uuid)
 * Member              MemberFinder.findBySubject(session, subject)
 
 ## Membership
@@ -232,8 +232,8 @@ TODO Be more consistent about when calling for a member and a subject
 * Group               getViaGroup()
 
 ## MembershipFinder
-* Membership          getEffectiveMembership(session, group, member, list, group, depth)
-* Membership          getImmediateMembership(session, group, member, list)
+* Membership          MembershipFinder.findEffectiveMembership(session, group, member, list, group, depth)
+* Membership          MembershipFinder.findImmediateMembership(session, group, member, list)
 
 ## NamingPrivilege 
 * String              getImplementationName()
@@ -288,7 +288,7 @@ TODO Be more consistent about when calling for a member and a subject
 
 ## StemFinder
 * Stem                StemFinder.findByName(session, name)
-* Stem                StemFinder.getByUuid(session, uuid)
+* Stem                StemFinder.findByUuid(session, uuid)
 * Stem                StemFinder.findRootStem(session)
 
 ## StemNameFilter extends BaseQueryFilter
@@ -298,7 +298,7 @@ TODO Be more consistent about when calling for a member and a subject
 * Subject             SubjectFinder.findById(id, type)
 * Subject             SubjectFinder.findByIdentifier(id)  
 * Subject             SubjectFinder.findByIdentifier(id, type)
-* Set                 SubjectFinder.find(query)
+* Set                 SubjectFinder.findAll(query)
 
 ## UnionFilter extends BaseQueryFilter
 

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.4 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: Membership.java,v 1.5 2005-11-28 18:33:22 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -146,7 +146,7 @@ public class Membership implements Serializable {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    return MemberFinder.getByUuid(this.s, this.getMember_id());
+    return MemberFinder.findByUuid(this.s, this.getMember_id());
   } // public Member getMember()
 
   /**
@@ -237,7 +237,7 @@ public class Membership implements Serializable {
     Membership ms = null;
     try {
       // Does the membership already exist?
-      ms = MembershipFinder.getImmediateMembership(s, oid, m, f);
+      ms = MembershipFinder.findImmediateMembership(s, oid, m, f);
       throw new MemberAddException(
         "membership already exists"
       );
@@ -271,7 +271,7 @@ public class Membership implements Serializable {
   {
     // TODO Cache stem?
     // TODO Check field
-    return StemFinder.getByUuid(this.s, this.getOwner_id());
+    return StemFinder.findByUuid(this.s, this.getOwner_id());
   } // public Stem getStem()
 
   protected void setSession(GrouperSession s) {

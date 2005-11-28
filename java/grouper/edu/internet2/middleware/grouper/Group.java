@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.12 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: Group.java,v 1.13 2005-11-28 18:33:22 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -92,7 +92,7 @@ public class Group implements Serializable {
    */
   public static Field getDefaultList() {
     try {
-      return FieldFinder.getField("members");
+      return FieldFinder.find("members");
     }
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
@@ -302,7 +302,7 @@ public class Group implements Serializable {
 
       // Find the immediate membership that is to be deleted
       deletes.add( 
-        MembershipFinder.getImmediateMembership(this.s, this, m, f)
+        MembershipFinder.findImmediateMembership(this.s, this, m, f)
       );
 
       // Find effective memberships
@@ -314,7 +314,7 @@ public class Group implements Serializable {
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
         deletes.add( 
-          MembershipFinder.getEffectiveMembership(
+          MembershipFinder.findEffectiveMembership(
             ms.getOwner_id(), ms.getMember_id(), 
             ms.getList(), ms.getVia_id(), ms.getDepth()
           )
@@ -657,7 +657,7 @@ public class Group implements Serializable {
   public Stem getParentStem() 
     throws StemNotFoundException
   {
-    return StemFinder.getByUuid(this.s, this.parent_stem);
+    return StemFinder.findByUuid(this.s, this.parent_stem);
   } // public Stem getParentStem()
 
   /**
@@ -822,7 +822,7 @@ public class Group implements Serializable {
    */
   public boolean hasImmediateMember(Member m) {
     try {
-      Membership ms = MembershipFinder.getImmediateMembership(
+      Membership ms = MembershipFinder.findImmediateMembership(
         this.s, this, m, getDefaultList()
       );
       return true;

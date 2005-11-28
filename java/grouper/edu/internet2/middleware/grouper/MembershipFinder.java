@@ -28,7 +28,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.9 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.10 2005-11-28 18:33:22 blair Exp $
  */
 public class MembershipFinder {
 
@@ -48,18 +48,18 @@ public class MembershipFinder {
    * @return  A {@link Membership} object
    * @throws  MembershipNotFoundException 
    */
-  public static Membership getEffectiveMembership(
+  public static Membership findEffectiveMembership(
     GrouperSession s, Group g, Member m, Field f, Group via, int depth
   )
     throws MembershipNotFoundException
   {
     GrouperSession.validate(s);
-    Membership ms = getEffectiveMembership(
+    Membership ms = findEffectiveMembership(
       g.getUuid(), m.getUuid(), f, via.getUuid(), depth
     );
     ms.setSession(s);
     return ms;
-  } // public static Membership getEffectiveMembership(s, g, m, f, via, depth)
+  } // public static Membership findEffectiveMembership(s, g, m, f, via, depth)
 
   /**
    * Return the immediate membership if it exists.
@@ -73,16 +73,16 @@ public class MembershipFinder {
    * @return  A {@link Membership} object
    * @throws  MembershipNotFoundException 
    */
-  public static Membership getImmediateMembership(
+  public static Membership findImmediateMembership(
     GrouperSession s, Group g, Member m, Field f
   )
     throws MembershipNotFoundException
   {
     GrouperSession.validate(s);
-    Membership ms = getImmediateMembership(g.getUuid(), m, f);
+    Membership ms = findImmediateMembership(g.getUuid(), m, f);
     ms.setSession(s);
     return ms;
-  } // public static Membership getImmediateMembership(s, g, m, f)
+  } // public static Membership findImmediateMembership(s, g, m, f)
 
 
   // Protected Class Methods
@@ -296,7 +296,7 @@ public class MembershipFinder {
       while (iter.hasNext()) {
         try {
           members.add(
-            MemberFinder.getByUuid( s, (String) iter.next() )
+            MemberFinder.findByUuid( s, (String) iter.next() )
           );
         }
         catch (MemberNotFoundException eMNF) {
@@ -495,7 +495,7 @@ public class MembershipFinder {
   } // protected static Set findSubjects(s, oid, f)
 
   // @return  {@link Membership} object
-  protected static Membership getEffectiveMembership(
+  protected static Membership findEffectiveMembership(
     String gid, String mid, Field f, String vid, int depth
   )
     throws MembershipNotFoundException
@@ -538,10 +538,10 @@ public class MembershipFinder {
     throw new MembershipNotFoundException(
       "effective membership not found"
     );
-  } // protected static Membership getEffectiveMembership(gid, mid, field, vid, depth)
+  } // protected static Membership findEffectiveMembership(gid, mid, field, vid, depth)
 
   // @return  {@link Membership} object
-  protected static Membership getImmediateMembership(String oid, Member m, Field f)
+  protected static Membership findImmediateMembership(String oid, Member m, Field f)
     throws MembershipNotFoundException
   {
     Set mships = findMemberships(oid, m, f);
@@ -549,17 +549,17 @@ public class MembershipFinder {
       return (Membership) new ArrayList(mships).get(0);
     }
     throw new MembershipNotFoundException("membership not found");
-  } // protected static Membership getImmediateMembership(oid, m, f)
+  } // protected static Membership findImmediateMembership(oid, m, f)
 
-  protected static Membership getImmediateMembership(
+  protected static Membership findImmediateMembership(
     GrouperSession s, String oid, Member m, Field f
   )
     throws MembershipNotFoundException
   {
-    Membership ms = getImmediateMembership(oid, m, f);
+    Membership ms = findImmediateMembership(oid, m, f);
     ms.setSession(s);
     return ms;
-  } // protected static Membership getImmediateMembership(s, oid, m, f)
+  } // protected static Membership findImmediateMembership(s, oid, m, f)
 
 }
 
