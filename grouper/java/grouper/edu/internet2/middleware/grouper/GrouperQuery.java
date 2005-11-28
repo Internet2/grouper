@@ -25,7 +25,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.3 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.4 2005-11-28 20:13:44 blair Exp $
  */
 public class GrouperQuery implements Serializable {
 
@@ -62,10 +62,12 @@ public class GrouperQuery implements Serializable {
    * <li>{@link ComplementFilter}</li>
    * <li>{@link GroupCreatedAfterFilter}</li>
    * <li>{@link GroupCreatedBeforeFilter}</li>
+   * <li>{@link GroupNameFilter}</li>
    * <li>{@link IntersectionFilter}</li>
    * <li>{@link NullFilter}</li>
    * <li>{@link StemCreatedAfterFilter}</li>
    * <li>{@link StemCreatedBeforeFilter}</li>
+   * <li>{@link StemNameFilter}</li>
    * <li>{@link UnionFilter}</li>
    * </ul>
    * @param   s       Query within this session context.
