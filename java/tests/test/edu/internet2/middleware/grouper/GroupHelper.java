@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.5 2005-11-17 03:16:30 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.6 2005-11-28 19:14:19 blair Exp $
  */
 public class GroupHelper {
 
@@ -39,7 +39,7 @@ public class GroupHelper {
       Member m = gm.toMember();
       g.addMember(gm.toSubject());
       Assert.assertTrue("added member", true);
-      MembershipHelper.testImm(g, m);
+      MembershipHelper.testImm(g, gm.toSubject(), m);
       MembershipHelper.testEff(g, gm, m);
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -55,7 +55,7 @@ public class GroupHelper {
     try {
       g.addMember(subj);
       Assert.assertTrue("added member", true);
-      MembershipHelper.testImm(g, m);
+      MembershipHelper.testImm(g, subj, m);
     }
     catch (InsufficientPrivilegeException e0) {
       Assert.fail("not privileged to add member: " + e0.getMessage());
@@ -71,7 +71,7 @@ public class GroupHelper {
       Member m = gm.toMember();
       g.deleteMember(gm.toSubject());
       Assert.assertTrue("deleted member", true);
-      Assert.assertFalse("g !hasMember m", g.hasMember(m));
+      Assert.assertFalse("g !hasMember m", g.hasMember(gm.toSubject()));
       Assert.assertFalse("m !isMember g", m.isMember(g));
       // TODO Assert immediate and effective in some manner or another
     }
@@ -88,7 +88,7 @@ public class GroupHelper {
     try {
       g.deleteMember(subj);
       Assert.assertTrue("deleted member", true);
-      Assert.assertFalse("g !hasMember m", g.hasMember(m));
+      Assert.assertFalse("g !hasMember m", g.hasMember(subj));
       Assert.assertFalse("m !isMember g", m.isMember(g));
     }
     catch (InsufficientPrivilegeException e0) {

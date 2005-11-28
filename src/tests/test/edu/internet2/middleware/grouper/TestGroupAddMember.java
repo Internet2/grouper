@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMember.java,v 1.5 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGroupAddMember.java,v 1.6 2005-11-28 19:14:19 blair Exp $
  */
 public class TestGroupAddMember extends TestCase {
 
@@ -56,7 +56,7 @@ public class TestGroupAddMember extends TestCase {
     GroupHelper.addMember(i2, subj, m);
     // mships
     MembershipHelper.testNumMship(i2, Group.getDefaultList(), 1, 1, 0);
-    MembershipHelper.testImmMship(s,  i2,         m, Group.getDefaultList());
+    MembershipHelper.testImmMship(s, i2, subj, Group.getDefaultList());
   } // public void testAddMember()
 
 }

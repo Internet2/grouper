@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.5 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGroupAddMemberGroup.java,v 1.6 2005-11-28 19:14:19 blair Exp $
  */
 public class TestGroupAddMemberGroup extends TestCase {
 
@@ -55,7 +55,7 @@ public class TestGroupAddMemberGroup extends TestCase {
     // mships
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1,    1, 0);
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0,    0, 0);
-    MembershipHelper.testImmMship(s,    i2,         uofc, Group.getDefaultList());
+    MembershipHelper.testImmMship(s, i2, uofc, Group.getDefaultList());
   } // public void testAddMember()
 
   public void testAddMemberWithNonGroupMember() {
@@ -71,9 +71,9 @@ public class TestGroupAddMemberGroup extends TestCase {
     // mships
     MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2,    1, 1);
     MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1,    1, 0);
-    MembershipHelper.testImmMship(s,    i2,         uofc, Group.getDefaultList());
-    MembershipHelper.testImmMship(s,    uofc,       m,    Group.getDefaultList());
-    MembershipHelper.testEffMship(s,    i2,         m,    Group.getDefaultList(), uofc, 1);
+    MembershipHelper.testImmMship(s, i2,    uofc, Group.getDefaultList());
+    MembershipHelper.testImmMship(s, uofc,  subj, Group.getDefaultList());
+    MembershipHelper.testEffMship(s, i2,    subj, Group.getDefaultList(), uofc, 1);
   } // public void testAddMember()
 
 }
