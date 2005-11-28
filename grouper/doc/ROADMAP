@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.68 2005-11-28 16:46:14 blair Exp $
+$Id: ROADMAP,v 1.69 2005-11-28 17:53:06 blair Exp $
 
 ---
 
@@ -12,38 +12,35 @@ $Id: ROADMAP,v 1.68 2005-11-28 16:46:14 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Have _db-init_ install root stem
-* Review *Finder classes and make sure a session is being attached to
-  returned objects
-* Add create member and time to memberships
-* Add create time to members
-* get vs. find method renaming
-* Should MemberNotFound and SubjectNotFound be replaced by Runtime
-  exceptions?  Or at least be used more selectively?
-* should PrivilegeNotFoundException and SchemaException be merged?
-  * Or just remove PNFE?
-* Use _Subject_, not _Member_, in most method calls
-* Switch to _LinkedHashSet_
 * `GrouperSession.validate()` in any public method that takes a session
   argument
-
-## Later
+  * Review *Finder classes and make sure a session is being attached to returned objects
+* find vs findAll method renaming
+* Use _Subject_, not _Member_, in most method calls
+* Switch to _LinkedHashSet_
 * Test with JDBC subject adapter
   * Have setup install subjects and teardown remove them?
   * Test with real subjects or add memory subject adapter
+* Load group attributes into group subjects
+* GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
+  * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
+* GrouperNamingPrivilege.revokePriv(s, g, priv)
+  * GrouperAccessPrivilege.revokePriv(s, ns, priv)
+* GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
+  * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
+* Return _AccessPrivilege_ and _NamingPrivilege_ objects
+
+## Later
+* ALL subject adapter
+* Verify privileges within API
 * Implement all 0.6 query filters
   * GroupAttributeMatchFilter
   * GroupAnyAttributeFilter
-* Load group attributes into group subjects
-  * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
-  * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
-  * GrouperNamingPrivilege.revokePriv(s, g, priv)
-  * GrouperAccessPrivilege.revokePriv(s, ns, priv)
-  * GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
-  * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
-  * Return _AccessPrivilege_ and _NamingPrivilege_ objects
-  * ALL subject adapter
-* Verify privileges within API
+* Review exceptions
+  * Should MemberNotFound and SubjectNotFound be replaced by Runtime
+    exceptions?  Or at least be used more selectively?
+  * should PrivilegeNotFoundException and SchemaException be merged?
+    * Or just remove PNFE?
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
 * _Group_ parent stem mapping
@@ -54,6 +51,8 @@ TODO Sync with Basecamp
 * Review generated SQL
 * Test with Pg and Oracle and review generated SQL
 * Review old _*.todo_ test classes
+* Add create member and time to memberships
+* Add create time to members
 * Rename subjectIDs in local subject<=>member mapping (#133)
 * Update and expend query api javadocs
 * Review files and add TODO items to this list

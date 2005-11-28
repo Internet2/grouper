@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 
+import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 
@@ -25,7 +27,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.5 2005-11-17 01:38:27 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.6 2005-11-28 17:53:06 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -34,7 +36,7 @@ public class RegistryInstall {
   public static void main(String[] args) {
     // Install group types, fields and privileges
     _installFieldsAndTypes();
-    // Install root stem
+    _installRootStem();
   } // public static void main(args)
 
 
@@ -150,6 +152,23 @@ public class RegistryInstall {
       );
     }
   } // private static void _installFieldsAndTypes()
+
+  private static void _installRootStem() {
+    try {
+      GrouperSession s = GrouperSession.startSession(
+        SubjectFinder.findById(
+          "GrouperSystem", "application"
+        )
+      );
+      Stem.addRootStem(s);
+      System.err.println("root stem installed");
+    }
+    catch (Exception e) {
+      throw new RuntimeException(
+        "unable to install root stem: " + e.getMessage()
+      );
+    }
+  } // private static void _installRootStem()
 
 }
 

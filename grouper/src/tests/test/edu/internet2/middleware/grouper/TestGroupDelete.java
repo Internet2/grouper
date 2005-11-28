@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestGroupDelete extends TestCase {
   // Tests
 
   public void testGroupDelete() {
-    Stem  root  = StemHelper.getRootStem(
+    Stem  root  = StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
     Stem  edu   = StemHelper.addChildStem(root, "edu", "educational");

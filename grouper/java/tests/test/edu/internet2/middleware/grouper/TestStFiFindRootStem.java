@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link StemFinder.findRootStem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStFiFindRootStem.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestStFiFindRootStem.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class TestStFiFindRootStem extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestStFiFindRootStem extends TestCase {
   // Tests
 
   public void testFindRootStem() {
-    Stem  root  = StemHelper.getRootStem(
+    Stem  root  = StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
   } // public void testFindRootStem()

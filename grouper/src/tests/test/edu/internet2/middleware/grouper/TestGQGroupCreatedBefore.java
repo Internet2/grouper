@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GroupCreatedBeforeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupCreatedBefore.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestGQGroupCreatedBefore.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class TestGQGroupCreatedBefore extends TestCase {
 
@@ -48,7 +48,7 @@ public class TestGQGroupCreatedBefore extends TestCase {
   public void testGroupCreatedBeforeFilterNothing() {
     Date            when  = DateHelper.getPastDate();
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -72,7 +72,7 @@ public class TestGQGroupCreatedBefore extends TestCase {
   public void testGroupCreatedBeforeFilterSomething() {
     Date            when  = DateHelper.getFutureDate();
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -96,7 +96,7 @@ public class TestGQGroupCreatedBefore extends TestCase {
   public void testGroupCreatedBeforeFilterSomethingScoped() {
     Date            when  = DateHelper.getFutureDate();
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
