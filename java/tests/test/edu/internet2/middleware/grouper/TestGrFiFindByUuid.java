@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GroupFinder.findByUuid()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByUuid.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestGrFiFindByUuid.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class TestGrFiFindByUuid extends TestCase {
 
@@ -46,7 +46,7 @@ public class TestGrFiFindByUuid extends TestCase {
 
   public void testFindByUuid() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     try {

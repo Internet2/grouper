@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.3 2005-11-28 16:46:14 blair Exp $
+ * @version $Id: StemHelper.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class StemHelper {
 
@@ -88,36 +88,30 @@ public class StemHelper {
 
   // Get the root stem
   // @return  The root {@link Stem}
-  protected static Stem getRootStem(GrouperSession s) {
-    try {
-      Stem root = StemFinder.findRootStem(s);
-      Assert.assertNotNull("root !null", root);
-      Assert.assertTrue("found root stem", true);
-      Assert.assertTrue(
-        "root stem instanceof Stem", 
-        root instanceof Stem
-      );
-      Assert.assertNotNull("root uuid !null", root.getUuid());
-      Assert.assertTrue("root has uuid",      !root.getUuid().equals(""));
-      Assert.assertTrue(
-        "root extn", root.getExtension().equals("")
-      );
-      Assert.assertTrue(
-        "root displayExtn", root.getDisplayExtension().equals("")
-      );
-      Assert.assertTrue(
-        "root name", root.getName().equals("")
-      );
-      Assert.assertTrue(
-        "root displayName", root.getDisplayName().equals("")
-      );
-      return root;
-    }
-    catch (StemNotFoundException e) {
-      Assert.fail("root stem not found: " + e.getMessage());
-    }  
-    throw new RuntimeException(Helper.ERROR);
-  } // protected static Stem getRootStem(s)
+  protected static Stem findRootStem(GrouperSession s) {
+    Stem root = StemFinder.findRootStem(s);
+    Assert.assertNotNull("root !null", root);
+    Assert.assertTrue("found root stem", true);
+    Assert.assertTrue(
+      "root stem instanceof Stem", 
+      root instanceof Stem
+    );
+    Assert.assertNotNull("root uuid !null", root.getUuid());
+    Assert.assertTrue("root has uuid",      !root.getUuid().equals(""));
+    Assert.assertTrue(
+      "root extn", root.getExtension().equals("")
+    );
+    Assert.assertTrue(
+      "root displayExtn", root.getDisplayExtension().equals("")
+    );
+    Assert.assertTrue(
+      "root name", root.getName().equals("")
+    );
+    Assert.assertTrue(
+      "root displayName", root.getDisplayName().equals("")
+    );
+    return root;
+  } // protected static Stem findRootStem(s)
 
 }
 

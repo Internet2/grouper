@@ -23,14 +23,14 @@ import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
 
 /**
- * Test {@link Stem.addChildGroup()}.
+ * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestStem.java,v 1.1 2005-11-28 17:53:06 blair Exp $
  */
-public class TestStemAddChildGroup extends TestCase {
+public class TestStem extends TestCase {
 
-  public TestStemAddChildGroup(String name) {
+  public TestStem(String name) {
     super(name);
   }
 
@@ -44,13 +44,15 @@ public class TestStemAddChildGroup extends TestCase {
 
   // Tests
 
-  public void testAddChildGroupAtRoot() {
-    Stem  root  = StemHelper.findRootStem(
+  public void testRoot() {
+    Stem  rootA = StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
-    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-  } // public void testAddChildGroupAtRoot()
+    Stem  rootB = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Assert.assertEquals("root == root", rootA, rootB);
+  } // public void testAtRoot()
 
 }
 

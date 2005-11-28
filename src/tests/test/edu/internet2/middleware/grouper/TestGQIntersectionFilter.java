@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link IntersectionFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQIntersectionFilter.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestGQIntersectionFilter.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class TestGQIntersectionFilter extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGQIntersectionFilter extends TestCase {
 
   public void testIntersectionFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -74,7 +74,7 @@ public class TestGQIntersectionFilter extends TestCase {
   public void testIntersectionFilterSomething() {
     Date            when  = DateHelper.getPastDate();
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -102,7 +102,7 @@ public class TestGQIntersectionFilter extends TestCase {
   public void testIntersectionFilterSomethingScoped() {
     Date            when  = DateHelper.getPastDate();
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");

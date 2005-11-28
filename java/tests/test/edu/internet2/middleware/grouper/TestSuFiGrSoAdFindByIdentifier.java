@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.4 2005-11-28 17:53:06 blair Exp $
  */
 public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
 
@@ -42,7 +42,7 @@ public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
   protected void setUp () {
     Db.refreshDb();
     s     = SessionHelper.getRootSession();
-    root  = StemHelper.getRootStem(s);
+    root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
   }

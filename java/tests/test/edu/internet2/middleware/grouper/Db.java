@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: Db.java,v 1.3 2005-11-28 17:53:06 blair Exp $
  */
 class Db {
 
@@ -108,10 +108,18 @@ class Db {
   } // private static void _connect()
 
   private static void _emptyTable(String table) {
+    PreparedStatement del = null;
     try {
-      PreparedStatement del = conn.prepareStatement(
-        "DELETE FROM " + table
-      );
+      String sql = "DELETE FROM " + table;
+      if      (table.equals("grouper_members")) {
+        sql = "DELETE FROM " + table + " WHERE " 
+              + "subject_id != 'GrouperSystem'";
+      }
+      else if (table.equals("grouper_stems")) {
+        sql = "DELETE FROM " + table + " WHERE " 
+              + "stem_name != ''";
+      }
+      del = conn.prepareStatement(sql);
       try {
         del.executeUpdate();
       } 

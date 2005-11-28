@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link StemNameFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQStemName.java,v 1.1 2005-11-28 16:46:14 blair Exp $
+ * @version $Id: TestGQStemName.java,v 1.2 2005-11-28 17:53:06 blair Exp $
  */
 public class TestGQStemName extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -71,7 +71,7 @@ public class TestGQStemName extends TestCase {
   public void testStemNameFilterSomethingDisplayExtension() {
   try {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     GrouperQuery q = GrouperQuery.createQuery(
       s, new StemNameFilter("education", root)
     );
@@ -101,7 +101,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingDisplayName() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -124,7 +124,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingExtension() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -147,7 +147,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingName() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -170,7 +170,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingDisplayExtensionScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -193,7 +193,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingDisplayNameScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -216,7 +216,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingExtensionScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
@@ -239,7 +239,7 @@ public class TestGQStemName extends TestCase {
 
   public void testStemNameFilterSomethingNameScoped() {
     GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.getRootStem(s);
+    Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");

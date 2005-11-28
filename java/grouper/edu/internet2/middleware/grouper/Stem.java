@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.13 2005-11-28 16:46:49 blair Exp $
+ * @version $Id: Stem.java,v 1.14 2005-11-28 17:53:06 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -69,13 +69,11 @@ public class Stem implements Serializable {
   protected Stem(GrouperSession s) {
     this.s = s;
     this._setCreated();
-    // FIXME This, and perhaps all the rest, are the pigfuckers
-    //       Sort of
-    this.setStem_id( GrouperUuid.getUuid() );
-    this.setStem_name("");
-    this.setDisplay_name("");
-    this.setStem_extension("");
-    this.setDisplay_extension("");
+    this.setStem_id(          GrouperUuid.getUuid() );
+    this.setStem_name(        ""                    );
+    this.setDisplay_name(     ""                    );
+    this.setStem_extension(   ""                    );
+    this.setDisplay_extension(""                    );
   } // protected Stem(s)
   
 
@@ -613,6 +611,18 @@ public class Stem implements Serializable {
 
 
   // Protected Class Methods
+
+  protected static void addRootStem(GrouperSession s) {
+    Stem root = new Stem(s);
+    try {
+      HibernateHelper.save(root);
+    }
+    catch (HibernateException eH) {
+      throw new RuntimeException(
+        "unable to add root stem: " + eH.getMessage()
+      );
+    }
+  } // protected static void addRootStem(GrouperSession s)
 
   protected static List setSession(GrouperSession s, List l) {
     List      stems = new ArrayList();

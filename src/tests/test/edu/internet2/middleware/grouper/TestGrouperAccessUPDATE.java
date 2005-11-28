@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessUPDATE.java,v 1.5 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: TestGrouperAccessUPDATE.java,v 1.6 2005-11-28 17:53:06 blair Exp $
  */
 public class TestGrouperAccessUPDATE extends TestCase {
 
@@ -45,7 +45,7 @@ public class TestGrouperAccessUPDATE extends TestCase {
   protected void setUp () {
     Db.refreshDb();
     s     = SessionHelper.getRootSession();
-    root  = StemHelper.getRootStem(s);
+    root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
   }

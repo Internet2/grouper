@@ -27,11 +27,58 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.4 2005-11-28 16:46:14 blair Exp $
+ * @version $Id: StemFinder.java,v 1.5 2005-11-28 17:53:06 blair Exp $
  */
 public class StemFinder {
 
   // Public Class Methods
+
+  /**
+   * Find stem by name.
+   * <pre class="eg">
+   * try {
+   *   Stem stem = StemFinder.findByName(s, name);
+   * }
+   * catch (StemNotFoundException e) {
+   *   // Stem not found
+   * }
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this name.
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByName(GrouperSession s, String name) 
+    throws StemNotFoundException
+  {
+    GrouperSession.validate(s);
+    Stem ns = null;
+    try {
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find( 
+        "from Stem as ns where  "
+        + "ns.stem_name = ?     ",
+        name,
+        Hibernate.STRING
+      );
+      hs.close();
+      if (l.size() == 1) {
+        ns = (Stem) l.get(0);
+        ns.setSession(s);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new StemNotFoundException(
+        "unable to find stem: " + eH.getMessage()
+      );
+    }
+    if (ns == null) {
+      throw new StemNotFoundException(
+        "unable to find stem"
+      );
+    }
+    return ns;
+  } // public static Stem findByName(s, name)
 
   /**
    * Find root stem of the Groups Registry.
@@ -41,47 +88,17 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @return  A {@link Stem} object
-   * @throws  StemNotFoundException
    */
-  public static Stem findRootStem(GrouperSession s) 
-    throws StemNotFoundException
-  {
-    // TODO Should this ever throw a SNFE?
-    // TODO This is *obviously* not right
-    Stem root = new Stem(s);
+  public static Stem findRootStem(GrouperSession s) {
     try {
-      HibernateHelper.save(root);
-      return root;
+      return StemFinder.findByName(s, "");
     }
-    catch (HibernateException e) {
-      throw new StemNotFoundException(
-        "root stem not found: " + e.getMessage()
+    catch (StemNotFoundException eSNF) {
+      throw new RuntimeException(
+        "root stem does not exist"
       );
     }
-    //return new Stem();
   } // public static Stem findRootStem(s)
-
-  /**
-   * Get stem by name.
-   * <pre class="eg">
-   * // Get the specified stem by name.
-   * try {
-   *   Stem stem = StemFinder.getByName(s, name);
-   * }
-   * catch (StemNotFoundException e) {
-   *   // Stem not found
-   * }
-   * </pre>
-   * @param   s     Search within this {@link GrouperSession} context
-   * @param   name  Get stem with this name.
-   * @return  A {@link Stem} object
-   * @throws  StemNotFoundException
-   */
-  public static Stem getByName(GrouperSession s, String name) 
-    throws StemNotFoundException
-  {
-    throw new RuntimeException("Not implemented");
-  }
 
   /**
    * Get stem by uuid.
