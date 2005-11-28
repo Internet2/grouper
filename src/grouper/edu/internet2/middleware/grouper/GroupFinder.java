@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.3 2005-11-28 16:46:14 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.4 2005-11-28 18:13:18 blair Exp $
  */
 public class GroupFinder {
 
@@ -50,6 +50,7 @@ public class GroupFinder {
   public static Group findByName(GrouperSession s, String name) 
     throws GroupNotFoundException
   {
+    GrouperSession.validate(s);
     Group g = findByName(name);
     g.setSession(s);
     return g;
@@ -73,6 +74,7 @@ public class GroupFinder {
   public static Group findByUuid(GrouperSession s, String uuid) 
     throws GroupNotFoundException
   {
+    GrouperSession.validate(s);
     Group g = findByUuid(uuid);
     g.setSession(s);
     return g;

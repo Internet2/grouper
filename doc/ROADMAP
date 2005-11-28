@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.69 2005-11-28 17:53:06 blair Exp $
+$Id: ROADMAP,v 1.70 2005-11-28 18:13:18 blair Exp $
 
 ---
 
@@ -12,9 +12,6 @@ $Id: ROADMAP,v 1.69 2005-11-28 17:53:06 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* `GrouperSession.validate()` in any public method that takes a session
-  argument
-  * Review *Finder classes and make sure a session is being attached to returned objects
 * find vs findAll method renaming
 * Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_
@@ -29,9 +26,9 @@ TODO Sync with Basecamp
 * GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
   * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
 * Return _AccessPrivilege_ and _NamingPrivilege_ objects
+* ALL subject adapter
 
 ## Later
-* ALL subject adapter
 * Verify privileges within API
 * Implement all 0.6 query filters
   * GroupAttributeMatchFilter
@@ -100,6 +97,7 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

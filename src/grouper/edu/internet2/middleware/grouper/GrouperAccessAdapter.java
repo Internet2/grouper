@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.10 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.11 2005-11-28 18:13:18 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -66,6 +66,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
+    GrouperSession.validate(s);
     return MembershipFinder.findSubjects(
       s, g.getUuid(), 
       (Field) FieldFinder.getField( (String) priv2list.get(priv) )
@@ -95,6 +96,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   ) 
     throws  SchemaException
   {
+    GrouperSession.validate(s);
     Set groups = new LinkedHashSet();
     try {
       Member    m   = MemberFinder.findBySubject(s, subj);
@@ -204,6 +206,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     try {
       g.addMember(
         subj, FieldFinder.getField( (String) priv2list.get(priv) ) 
@@ -240,6 +243,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  PrivilegeNotFoundException
   {
+    GrouperSession.validate(s);
     try {
       Field   f   = FieldFinder.getField( (String) priv2list.get(priv));
       Member  m   = MemberFinder.findBySubject(s, subj);
@@ -281,6 +285,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException 
   {
+    GrouperSession.validate(s);
     throw new RuntimeException("not implemented");
   } // public void revokePriv(s, g, priv)
 
@@ -310,6 +315,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException
   {
+    GrouperSession.validate(s);
     try {
       g.deleteMember(
         subj, FieldFinder.getField( (String) priv2list.get(priv) ) 
