@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.13 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.14 2005-11-28 18:13:18 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -64,6 +64,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
   {
+    GrouperSession.validate(s);
     return MembershipFinder.findSubjects(
       s, ns.getUuid(), 
       (Field) FieldFinder.getField( (String) priv2list.get(priv) )
@@ -93,6 +94,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   ) 
     throws  SchemaException
   {
+    GrouperSession.validate(s);
     Set stems = new LinkedHashSet();
     try {
       Member    m   = MemberFinder.findBySubject(s, subj);
@@ -209,6 +211,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     try {
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);
@@ -279,6 +282,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws PrivilegeNotFoundException 
   {
+    GrouperSession.validate(s);
     try {
       Field   f   = FieldFinder.getField( (String) priv2list.get(priv));
       Member  m   = MemberFinder.findBySubject(s, subj);
@@ -320,6 +324,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException 
   {
+    GrouperSession.validate(s);
     try {
       // The objects that will need updating and deleting
       Set     saves   = new HashSet();
@@ -417,6 +422,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException 
   {
+    GrouperSession.validate(s);
     try {
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);

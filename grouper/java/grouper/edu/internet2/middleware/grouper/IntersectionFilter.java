@@ -24,7 +24,7 @@ import  java.util.*;
  * Returns the intersection of two other query filters.
  * <p />
  * @author  blair christensen.
- * @version $Id: IntersectionFilter.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: IntersectionFilter.java,v 1.3 2005-11-28 18:13:18 blair Exp $
  */
 public class IntersectionFilter extends BaseQueryFilter {
 
@@ -53,6 +53,7 @@ public class IntersectionFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
+    GrouperSession.validate(s);
     Set results = new LinkedHashSet();
     results.addAll( this.a.getResults(s) );
     results.retainAll( this.b.getResults(s) );

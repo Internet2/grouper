@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by groups created after the specified date.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupCreatedAfterFilter.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: GroupCreatedAfterFilter.java,v 1.3 2005-11-28 18:13:18 blair Exp $
  */
 public class GroupCreatedAfterFilter extends BaseQueryFilter {
 
@@ -53,6 +53,7 @@ public class GroupCreatedAfterFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
+    GrouperSession.validate(s);
     Set candidates  = GroupFinder.findByCreatedAfter(s, this.d);
     Set results     = this.filterByScope(this.ns, candidates);
     return results;

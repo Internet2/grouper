@@ -24,7 +24,7 @@ import  java.util.*;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p />
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.2 2005-11-11 18:32:06 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.3 2005-11-28 18:13:18 blair Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -85,6 +85,7 @@ public class BaseQueryFilter implements QueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
+    GrouperSession.validate(s);
     return RESULTS;
   } // public Set getResults(s)
 

@@ -24,7 +24,7 @@ import  java.util.*;
  * Null {@link QueryFilter} that will never return any results.
  * <p />
  * @author  blair christensen.
- * @version $Id: NullFilter.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: NullFilter.java,v 1.3 2005-11-28 18:13:18 blair Exp $
  */
 public class NullFilter extends BaseQueryFilter {
 
@@ -44,6 +44,7 @@ public class NullFilter extends BaseQueryFilter {
   // Public Instance Methods
 
   public Set getResults(GrouperSession s) {
+    GrouperSession.validate(s);
     return RESULTS;
   } // public Set getResults(s)
 

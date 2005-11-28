@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.9 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: Member.java,v 1.10 2005-11-28 18:13:18 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -702,6 +702,7 @@ public class Member implements Serializable {
   
   // Assign Session
   protected void setSession(GrouperSession s) {
+    GrouperSession.validate(s);
     this.s = s;
   } // protected void setSession(s)
 

@@ -27,7 +27,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.5 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: StemFinder.java,v 1.6 2005-11-28 18:13:18 blair Exp $
  */
 public class StemFinder {
 
@@ -90,6 +90,7 @@ public class StemFinder {
    * @return  A {@link Stem} object
    */
   public static Stem findRootStem(GrouperSession s) {
+    GrouperSession.validate(s);
     try {
       return StemFinder.findByName(s, "");
     }
@@ -131,7 +132,6 @@ public class StemFinder {
   protected static Set findByApproximateName(GrouperSession s, String name) 
     throws  QueryException
   {
-    GrouperSession.validate(s);
     String    approx  = "%" + name.toLowerCase() + "%";
     Set       stems   = new LinkedHashSet();
     try {
