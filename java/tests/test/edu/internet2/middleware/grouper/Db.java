@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.3 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: Db.java,v 1.4 2005-11-28 21:02:55 blair Exp $
  */
 class Db {
 
@@ -37,9 +37,10 @@ class Db {
 
   
   // Private Class Variables
-  private static Connection  conn;
-  private static String      driver;
-  private static Properties  properties = new Properties();
+  private static PreparedStatement  add;
+  private static Connection         conn;
+  private static String             driver;
+  private static Properties         properties = new Properties();
 
 
   // Protected Class methods
@@ -62,6 +63,9 @@ class Db {
     _emptyTable("grouper_stems");
     _emptyTable("grouper_factors");
     _emptyTable("grouper_members");
+    _emptyTable("SubjectAttribute");
+    _emptyTable("Subject");
+    _addSubjects();
     try {
       conn.commit();
     } 
@@ -75,6 +79,40 @@ class Db {
 
 
   // Private Class Methods
+
+  private static void _addSubject(String id, String type, String name) {
+    try {
+      add.setString(1, id);
+      add.setString(2, type);
+      add.setString(3, name);
+      add.executeUpdate();
+    }
+    catch (SQLException eSQL) {
+      throw new RuntimeException(eSQL.getMessage());
+    }
+  } // private static void _addSubject(id, type, name)
+
+  private static void _addSubjects() {
+    try {
+      add = conn.prepareStatement(
+        "INSERT INTO Subject (subjectID, SubjectTypeID, name) "
+        + "VALUES (?, ?, ?)"
+      );
+      _addSubject(
+        SubjectHelper.SUBJ0_ID, 
+        SubjectHelper.SUBJ0_TYPE,
+        SubjectHelper.SUBJ0_NAME
+      );
+      _addSubject(
+        SubjectHelper.SUBJ1_ID, 
+        SubjectHelper.SUBJ1_TYPE,
+        SubjectHelper.SUBJ1_NAME
+      );
+    }
+    catch (SQLException eSQL) {
+      throw new RuntimeException(eSQL.getMessage());
+    }
+  } // private static void _addSubjects()
 
   private static void _connect() {
     String klass  = properties.getProperty(

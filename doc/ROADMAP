@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.73 2005-11-28 19:21:48 blair Exp $
+$Id: ROADMAP,v 1.74 2005-11-28 21:02:54 blair Exp $
 
 ---
 
@@ -12,9 +12,6 @@ $Id: ROADMAP,v 1.73 2005-11-28 19:21:48 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Test with JDBC subject adapter
-  * Have setup install subjects and teardown remove them?
-  * Test with real subjects or add memory subject adapter
 * Load group attributes into group subjects
 * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
   * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
@@ -33,9 +30,9 @@ TODO Sync with Basecamp
     exceptions?  Or at least be used more selectively?
   * should PrivilegeNotFoundException and SchemaException be merged?
     * Or just remove PNFE?
+* _Stem_ child stems mapping
 
 ## Later
-* _Stem_ child stems mapping
 * _Stem_ parent stem mapping
   * _Group_ parent stem mapping
 * Commons logging
@@ -58,6 +55,7 @@ TODO Sync with Basecamp
 * Custom group types
 * Custom group attributes
 * Custom group lists
+* Update Subject API jar
 * Switch to Hibernate 3.x
 
 ---
@@ -94,6 +92,7 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

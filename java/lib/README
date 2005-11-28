@@ -4,17 +4,9 @@
 This file provides information on the third party libraries that ship
 with Grouper.
 
-$Id: README,v 1.15 2005-11-14 16:09:07 blair Exp $
+$Id: README,v 1.16 2005-11-28 21:02:55 blair Exp $
 
 ---
-
-## cdg-mock.jar
-
-Mock I2MI subjects and source adapter.
-
-* Version:  0.9
-* Source:   <http://grouper.devclue.com/>
-* License:  Same as Grouper
 
 ## cglib-full.jar
 

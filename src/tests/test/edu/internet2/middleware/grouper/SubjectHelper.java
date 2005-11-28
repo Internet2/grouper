@@ -17,7 +17,7 @@
 
 package test.edu.internet2.middleware.grouper;
 
-import  com.devclue.grouper.subject.*;
+// TODO import  com.devclue.grouper.subject.*;
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
@@ -27,20 +27,31 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.3 2005-11-14 18:35:39 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.4 2005-11-28 21:02:55 blair Exp $
  */
 public class SubjectHelper {
 
   // Protected Class Constants
-  protected static final MockSourceAdapter  MSA   = new MockSourceAdapter(
-    "mock source adapter", "msa"
-  );
-  protected static final Subject            SUBJ0 = new MockSubject(
-    "subject 0", "my name is subject 0", MSA
-  );
-  protected static final Subject            SUBJ1 = new MockSubject(
-    "subject 1", "my name is subject 1", MSA
-  );
+  protected static final Subject  SUBJ0;
+  protected static final Subject  SUBJ1;
+  protected static final String   SUBJ0_ID    = "test.subject.0";
+  protected static final String   SUBJ0_NAME  = "my name is test.subject.0";
+  protected static final String   SUBJ0_TYPE  = "person";
+  protected static final String   SUBJ1_ID    = "test.subject.1";
+  protected static final String   SUBJ1_NAME  = "my name is test.subject.1";
+  protected static final String   SUBJ1_TYPE  = "person";
+
+  static {
+    try {
+      SUBJ0 = SubjectFinder.findById(SUBJ0_ID);
+      SUBJ1 = SubjectFinder.findById(SUBJ1_ID);
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(
+        "unable to run tests without subjects: " + eSNF.getMessage()
+      );
+    }
+  } // static
 
 
   // Protected Class Methods
