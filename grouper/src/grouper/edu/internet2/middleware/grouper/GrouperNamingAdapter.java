@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.14 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.15 2005-11-28 18:33:22 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -67,7 +67,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     return MembershipFinder.findSubjects(
       s, ns.getUuid(), 
-      (Field) FieldFinder.getField( (String) priv2list.get(priv) )
+      (Field) FieldFinder.find( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
@@ -99,7 +99,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       Member    m   = MemberFinder.findBySubject(s, subj);
       Iterator iter = MembershipFinder.findMemberships(
-        m, (Field) FieldFinder.getField( (String) priv2list.get(priv) )
+        m, (Field) FieldFinder.find( (String) priv2list.get(priv) )
       ).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
@@ -143,7 +143,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
         Privilege p = (Privilege) iterP.next();
         Iterator  iterM = MembershipFinder.findMemberships(
           ns.getUuid(), m, 
-          (Field) FieldFinder.getField( (String) priv2list.get(p) )
+          (Field) FieldFinder.find( (String) priv2list.get(p) )
         ).iterator();
         while (iterM.hasNext()) {
           Membership  ms      = (Membership) iterM.next();
@@ -226,7 +226,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // Create the immediate membership
       objects.add( 
         Membership.addMembership(
-          s, ns, m, FieldFinder.getField( (String) priv2list.get(priv) )
+          s, ns, m, FieldFinder.find( (String) priv2list.get(priv) )
         )
       );
 
@@ -284,7 +284,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     GrouperSession.validate(s);
     try {
-      Field   f   = FieldFinder.getField( (String) priv2list.get(priv));
+      Field   f   = FieldFinder.find( (String) priv2list.get(priv));
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
         return true;
@@ -344,8 +344,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
         // This is the immediate privilege that needs to be deleted
         deletes.add(
-          MembershipFinder.getImmediateMembership(
-            s, ns.getUuid(), m, FieldFinder.getField( (String) priv2list.get(priv) )
+          MembershipFinder.findImmediateMembership(
+            s, ns.getUuid(), m, FieldFinder.find( (String) priv2list.get(priv) )
           )
         );
 
@@ -357,7 +357,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
         while (iterM.hasNext()) {
           Membership ms = (Membership) iterM.next();
           deletes.add( 
-            MembershipFinder.getEffectiveMembership(
+            MembershipFinder.findEffectiveMembership(
               ms.getOwner_id(), ms.getMember_id(), 
               ms.getList(), ms.getVia_id(), ms.getDepth()
             )
@@ -437,8 +437,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
       // Find the immediate privilege that is to be deleted
       deletes.add(
-        MembershipFinder.getImmediateMembership(
-          s, ns.getUuid(), m, FieldFinder.getField( (String) priv2list.get(priv) )
+        MembershipFinder.findImmediateMembership(
+          s, ns.getUuid(), m, FieldFinder.find( (String) priv2list.get(priv) )
         )
       );
 
@@ -450,7 +450,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
         deletes.add( 
-          MembershipFinder.getEffectiveMembership(
+          MembershipFinder.findEffectiveMembership(
             ms.getOwner_id(), ms.getMember_id(), 
             ms.getList(), ms.getVia_id(), ms.getDepth()
           )

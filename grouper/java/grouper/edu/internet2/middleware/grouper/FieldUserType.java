@@ -29,7 +29,7 @@ import  net.sf.hibernate.type.*;
  * Custom {@link Field} user type.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldUserType.java,v 1.2 2005-11-11 18:32:07 blair Exp $    
+ * @version $Id: FieldUserType.java,v 1.3 2005-11-28 18:33:22 blair Exp $    
  */
 public class FieldUserType implements CompositeUserType {
 
@@ -95,7 +95,7 @@ public class FieldUserType implements CompositeUserType {
       return null;
     }
     try {
-      return FieldFinder.getField(
+      return FieldFinder.find(
         resultSet.getString( names[0] )
       );
     }

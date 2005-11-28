@@ -27,7 +27,7 @@ import  net.sf.hibernate.type.*;
  * Find members within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.3 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.4 2005-11-28 18:33:22 blair Exp $
  */
 public class MemberFinder implements Serializable {
 
@@ -74,7 +74,7 @@ public class MemberFinder implements Serializable {
    * @return  A {@link Member} object.
    * @throws  MemberNotFoundException
    */
-  public static Member getByUuid(GrouperSession s, String uuid)
+  public static Member findByUuid(GrouperSession s, String uuid)
     throws MemberNotFoundException
   {
     GrouperSession.validate(s);
@@ -101,7 +101,7 @@ public class MemberFinder implements Serializable {
         "member not found: " + eMNF.getMessage()
       );
     }
-  } // public static Member getByUuid(s, uuid)
+  } // public static Member findByUuid(s, uuid)
 
   
   // Protected Class Methods

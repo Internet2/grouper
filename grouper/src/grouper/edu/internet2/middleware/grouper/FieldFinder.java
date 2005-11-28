@@ -25,7 +25,7 @@ import net.sf.hibernate.type.Type;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.3 2005-11-15 04:23:04 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.4 2005-11-28 18:33:22 blair Exp $
  */
 public class FieldFinder {
 
@@ -42,6 +42,28 @@ public class FieldFinder {
 
 
   // Public Class Methods
+
+  /**
+   * Get the specified field.
+   * <pre class="eg">
+   * Field f = FieldFinder.find(field);
+   * </pre>
+   */
+  public static Field find(String field) 
+    throws SchemaException
+  {
+    if (FIELDS.containsKey(field)) {
+      return (Field) FIELDS.get(field);
+    }
+    throw new SchemaException("invalid field: " + field);
+  } // public static Field find(field)
+
+  /**
+   * Find all fields.
+   * <pre class="eg">
+   * Set fields = FieldFinder.findAll();
+   * </pre>
+   */
   public static Set findAll() {
     // TODO Should this return the cached results if they exist?
     //      Likewise, should it update the cached results if they
@@ -62,7 +84,13 @@ public class FieldFinder {
     return fields;
   } // public Static Set findAll()
 
-  public static Set findType(FieldType type) {
+  /**
+   * Find all fields of the specified type.
+   * <pre class="eg">
+   * Set types = FieldFinder.findAllByType(type);
+   * </pre>
+   */
+  public static Set findAllByType(FieldType type) {
     Set fields = new LinkedHashSet();
     try {
       Session hs = HibernateHelper.getSession();
@@ -81,16 +109,7 @@ public class FieldFinder {
       );
     }
     return fields;
-  } // public static Set fieldType(type)
-
-  public static Field getField(String field) 
-    throws SchemaException
-  {
-    if (FIELDS.containsKey(field)) {
-      return (Field) FIELDS.get(field);
-    }
-    throw new SchemaException("invalid field: " + field);
-  } // public static Field getField(field)
+  } // public static Set fieldAllByType(type)
 
 }
 

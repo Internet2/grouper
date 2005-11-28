@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.10 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: Member.java,v 1.11 2005-11-28 18:33:22 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -588,7 +588,7 @@ public class Member implements Serializable {
    */
   public boolean isImmediateMember(Group g) {
     try {
-      Membership ms = MembershipFinder.getImmediateMembership(
+      Membership ms = MembershipFinder.findImmediateMembership(
         this.s, g, this, Group.getDefaultList()
       );
       return true;

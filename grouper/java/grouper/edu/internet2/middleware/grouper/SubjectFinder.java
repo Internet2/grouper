@@ -28,7 +28,7 @@ import  org.apache.commons.logging.LogFactory;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.3 2005-11-14 20:44:57 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.4 2005-11-28 18:33:22 blair Exp $
  */
 public class SubjectFinder implements Serializable {
   // TODO Add caching?
@@ -168,14 +168,14 @@ public class SubjectFinder implements Serializable {
    * </p>
    * <pre class="eg">
    * // Find all subjects matching the given query string.
-   * Set subjects = SubjectFinder.find(query);
+   * Set subjects = SubjectFinder.findAll(query);
    * </pre>
    * @param   query     Subject query string.
    * @return  A {@link Set} of {@link Subject} objects.
    */
-  public static Set find(String query) {
+  public static Set findAll(String query) {
     throw new RuntimeException("Not implemented");
-  }
+  } // public static Set findAll(query)
 
 
   // Private class methods

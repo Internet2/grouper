@@ -24,7 +24,7 @@ import  junit.framework.*;
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.3 2005-11-16 21:04:25 blair Exp $
+ * @version $Id: FieldHelper.java,v 1.4 2005-11-28 18:33:22 blair Exp $
  */
 public class FieldHelper {
 
@@ -36,7 +36,7 @@ public class FieldHelper {
   {
     _testField(f, name, type, read, write);
     try {
-      Field field = FieldFinder.getField(name);
+      Field field = FieldFinder.find(name);
       _testField(field, name, type, read, write);
     }
     catch (SchemaException eS) {

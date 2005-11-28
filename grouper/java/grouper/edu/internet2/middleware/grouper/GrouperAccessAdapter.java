@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.11 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.12 2005-11-28 18:33:22 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -69,7 +69,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     return MembershipFinder.findSubjects(
       s, g.getUuid(), 
-      (Field) FieldFinder.getField( (String) priv2list.get(priv) )
+      (Field) FieldFinder.find( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithpriv(s, g, priv)
 
@@ -101,7 +101,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       Member    m   = MemberFinder.findBySubject(s, subj);
       Iterator iter = MembershipFinder.findMemberships(
-        m, (Field) FieldFinder.getField( (String) priv2list.get(priv) )
+        m, (Field) FieldFinder.find( (String) priv2list.get(priv) )
       ).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
@@ -138,7 +138,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
         Privilege p = (Privilege) iterP.next();
         Iterator  iterM = MembershipFinder.findMemberships(
           g.getUuid(), m, 
-          (Field) FieldFinder.getField( (String) priv2list.get(p) )
+          (Field) FieldFinder.find( (String) priv2list.get(p) )
         ).iterator();
         while (iterM.hasNext()) {
           Membership  ms      = (Membership) iterM.next();
@@ -209,7 +209,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     try {
       g.addMember(
-        subj, FieldFinder.getField( (String) priv2list.get(priv) ) 
+        subj, FieldFinder.find( (String) priv2list.get(priv) ) 
       );
     }
     catch (MemberAddException eMA) {
@@ -245,7 +245,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     try {
-      Field   f   = FieldFinder.getField( (String) priv2list.get(priv));
+      Field   f   = FieldFinder.find( (String) priv2list.get(priv));
       Member  m   = MemberFinder.findBySubject(s, subj);
       if (MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0) {
         return true;
@@ -318,7 +318,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     try {
       g.deleteMember(
-        subj, FieldFinder.getField( (String) priv2list.get(priv) ) 
+        subj, FieldFinder.find( (String) priv2list.get(priv) ) 
       );
     }
     catch (MemberDeleteException eMA) {

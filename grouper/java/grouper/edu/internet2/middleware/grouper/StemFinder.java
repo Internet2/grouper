@@ -27,7 +27,7 @@ import  net.sf.hibernate.type.*;
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.6 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: StemFinder.java,v 1.7 2005-11-28 18:33:22 blair Exp $
  */
 public class StemFinder {
 
@@ -106,7 +106,7 @@ public class StemFinder {
    * <pre class="eg">
    * // Get the specified stem by uuid.
    * try {
-   *   Stem stem = StemFinder.getByUuid(s, uuid);
+   *   Stem stem = StemFinder.findByUuid(s, uuid);
    * }
    * catch (StemNotFoundException e) {
    *   // Stem not found
@@ -117,14 +117,14 @@ public class StemFinder {
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
    */
-  public static Stem getByUuid(GrouperSession s, String uuid) 
+  public static Stem findByUuid(GrouperSession s, String uuid) 
     throws StemNotFoundException
   {
     GrouperSession.validate(s);
     Stem ns = findByUuid(uuid);
     ns.setSession(s);
     return ns;
-  } // public static Stem getByUuid(s, uuid)
+  } // public static Stem findByUuid(s, uuid)
 
 
   // Protected Class Methods
