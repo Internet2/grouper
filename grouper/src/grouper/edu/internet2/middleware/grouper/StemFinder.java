@@ -17,15 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  net.sf.hibernate.type.*;
 
 
 /**
  * Find stems within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.3 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: StemFinder.java,v 1.4 2005-11-28 16:46:14 blair Exp $
  */
 public class StemFinder {
 
@@ -108,6 +110,42 @@ public class StemFinder {
 
 
   // Protected Class Methods
+
+  protected static Set findByApproximateName(GrouperSession s, String name) 
+    throws  QueryException
+  {
+    GrouperSession.validate(s);
+    String    approx  = "%" + name.toLowerCase() + "%";
+    Set       stems   = new LinkedHashSet();
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Iterator  iter    = hs.find(
+        "from Stem as ns where                    "
+        + "lower(ns.stem_name)            like  ? "
+        + "or lower(ns.display_name)      like  ? "
+        + "or lower(ns.stem_extension)    like  ? "
+        + "or lower(ns.display_extension) like  ? ",
+        new Object[] {
+          approx, approx, approx, approx
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+      ).iterator();
+      hs.close();
+      while (iter.hasNext()) {
+        Stem ns = (Stem) iter.next();
+        ns.setSession(s);
+        stems.add(ns);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding stems: " + eH.getMessage()
+      );
+    }
+    return stems;
+  } // protected static Set findByApproximateName(s, name)
 
   // @return  stems created after this date
   protected static Set findByCreatedAfter(GrouperSession s, Date d) 

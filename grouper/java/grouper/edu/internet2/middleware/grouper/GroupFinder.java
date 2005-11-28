@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.3 2005-11-28 16:46:14 blair Exp $
  */
 public class GroupFinder {
 
@@ -130,6 +130,42 @@ public class GroupFinder {
     }
     return new LinkedHashSet(groups);
   } // protected static Set findByCreatedBefore(s, d)
+
+  protected static Set findByApproximateName(GrouperSession s, String name) 
+    throws  QueryException
+  {
+    GrouperSession.validate(s);
+    String    approx  = "%" + name.toLowerCase() + "%";
+    Set       groups  = new LinkedHashSet();
+    try {
+      Session   hs      = HibernateHelper.getSession();
+      Iterator  iter    = hs.find(
+        "from Group as g where                    "
+        + "lower(g.group_name)            like  ? "
+        + "or lower(g.display_name)       like  ? "
+        + "or lower(g.group_extension)    like  ? "
+        + "or lower(g.display_extension)  like  ? ",
+        new Object[] {
+          approx, approx, approx, approx
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+      ).iterator();
+      hs.close();
+      while (iter.hasNext()) {
+        Group g = (Group) iter.next();
+        g.setSession(s);
+        groups.add(g);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage()
+      );
+    }
+    return groups;
+  } // protected static Set findByApproximateName(s, name)
 
   protected static Group findByName(String name)
     throws GroupNotFoundException

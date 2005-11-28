@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.67 2005-11-17 18:36:37 blair Exp $
+$Id: ROADMAP,v 1.68 2005-11-28 16:46:14 blair Exp $
 
 ---
 
@@ -12,8 +12,7 @@ $Id: ROADMAP,v 1.67 2005-11-17 18:36:37 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* _GroupNameFilter_ and _StemNameFilter_
-* ALL subject adapter
+* Have _db-init_ install root stem
 * Review *Finder classes and make sure a session is being attached to
   returned objects
 * Add create member and time to memberships
@@ -25,24 +24,25 @@ TODO Sync with Basecamp
   * Or just remove PNFE?
 * Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_
-
-## Later
 * `GrouperSession.validate()` in any public method that takes a session
   argument
-* Implement all 0.6 query filters
-** GroupAttributeMatchFilter
-** GroupAnyAttributeFilter
-** Load group attributes into group subjects
+
+## Later
 * Test with JDBC subject adapter
   * Have setup install subjects and teardown remove them?
   * Test with real subjects or add memory subject adapter
-    * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
-    * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
-    * GrouperNamingPrivilege.revokePriv(s, g, priv)
-    * GrouperAccessPrivilege.revokePriv(s, ns, priv)
-    * GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
-    * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
-    * Return _AccessPrivilege_ and _NamingPrivilege_ objects
+* Implement all 0.6 query filters
+  * GroupAttributeMatchFilter
+  * GroupAnyAttributeFilter
+* Load group attributes into group subjects
+  * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
+  * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
+  * GrouperNamingPrivilege.revokePriv(s, g, priv)
+  * GrouperAccessPrivilege.revokePriv(s, ns, priv)
+  * GrouperNamingPrivilege.getStemsWhereSubjectHasPriv(s, subj, priv)
+  * GrouperAccessPrivilege.getGroupsWhereSubjectHasPriv(s, subj, priv)
+  * Return _AccessPrivilege_ and _NamingPrivilege_ objects
+  * ALL subject adapter
 * Verify privileges within API
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping

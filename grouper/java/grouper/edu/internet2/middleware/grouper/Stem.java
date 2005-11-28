@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.11 2005-11-17 15:40:59 blair Exp $
+ * @version $Id: Stem.java,v 1.12 2005-11-28 16:46:14 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -69,6 +69,8 @@ public class Stem implements Serializable {
   protected Stem(GrouperSession s) {
     this.s = s;
     this._setCreated();
+    // FIXME This, and perhaps all the rest, are the pigfuckers
+    //       Sort of
     this.setStem_id( GrouperUuid.getUuid() );
     this.setStem_name("");
     this.setDisplay_name("");
@@ -141,7 +143,16 @@ public class Stem implements Serializable {
   public Stem addChildStem(String extension, String displayExtension) 
     throws StemAddException 
   {
-    Stem child = new Stem(this.s);
+/*
+    Stem child = new Stem();
+    child.setSession(this.s);
+    child._setCreated();
+    String uuid = GrouperUuid.getUuid();
+    child.setStem_id(uuid);
+    //child.setStem_id( GrouperUuid.getUuid() );
+*/
+    Stem child = new Stem(s);
+
     // Set naming attributes
     child.setStem_extension(extension);
     child.setDisplay_extension(displayExtension);
@@ -161,6 +172,9 @@ public class Stem implements Serializable {
     try {
       // TODO Save and cascade
       Set objects = new HashSet();
+      this.setModified();
+      //HibernateHelper.save(this);
+      //HibernateHelper.save(child);
       objects.add(this);
       objects.add(child);
       HibernateHelper.save(objects);

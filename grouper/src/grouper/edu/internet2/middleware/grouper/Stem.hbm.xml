@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.2 2005-11-11 18:32:07 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.3 2005-11-28 16:46:14 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -37,66 +37,21 @@ A namespace within the Groups Registry.
         type="string" 
         unsaved-value="null"
     >
-      <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-<!--
-    <version name="version"/>
--->
-    <!-- version -->
 
-
-    <!-- child_groups -->
-<!-- 
-TODO Disabled for now until I feel like dealing with this problem
-     again.  Worst case I can find them easy enough on my own if
-     need be.  Cascading updates may be another issue.
-    <set  name="child_groups"
-          inverse="true"
-          cascade="save-update"
-    >
-      <meta attribute="field-description">
-Get child groups.
-      </meta>
-      <key column="group_id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Group"/>
-    </set>
--->
-    <!-- child_groups -->
-
-    <!-- child_stems -->
-<!-- 
-TODO Disabled for now until I feel like dealing with this problem
-     again.  Worst case I can find them easy enough on my own if
-     need be.  Cascading updates may be another issue.
-    <set name="child_stems" 
-         inverse="true"
-         cascade="save-update"
-    >
-      <meta attribute="field-description">
-Get child stems.
-      </meta>
-      <key column="parent_stem"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Stem"/>
-    </set>
--->
-    <!-- child_stems -->
 
     <!-- creator_id -->
     <many-to-one
       name="creator_id"
       class="edu.internet2.middleware.grouper.Member" 
     >
-      <meta attribute="field-description">
-Get creator.
-      </meta>
-      <meta attribute="finder-method">findByCreator</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="creator_id" sql-type="char(64)"/>
+      <column name="creator_id" 
+              not-null="true"
+              sql-type="char(64)"
+      />
     </many-to-one>
     <!-- creator_id -->
 
@@ -105,11 +60,7 @@ Get creator.
       name="create_source"
       type="string"
       length="255"
-    >
-      <meta attribute="field-description">
-Get create source.
-      </meta>
-    </property>
+    />
     <!-- create_source -->
 
     <!-- create_time -->
@@ -119,9 +70,9 @@ Get create source.
       not-null="true"
       update="false"
     >
-      <meta attribute="field-description">
-Get create time.
-      </meta>
+      <column name="create_time"
+              not-null="true"
+      />
     </property>
     <!-- create_time -->
 
@@ -143,9 +94,9 @@ Get description.
       type="string"
       length="255"
     >
-      <meta attribute="field-description">
-Get displayExtension.
-      </meta>
+      <column name="display_extension"
+              not-null="true"
+      />
     </property>
     <!-- display_extension -->
 
@@ -155,10 +106,10 @@ Get displayExtension.
       type="string"
       length="255"
     >
-      <meta attribute="field-description">
-Get displayName.
-      </meta>
-      <meta attribute="use-in-tostring">true</meta>
+      <column name="display_name"
+              not-null="true"
+              unique="true"
+      />
     </property>
     <!-- display_name -->
 
@@ -168,9 +119,9 @@ Get displayName.
       type="string"
       length="255"
     >
-      <meta attribute="field-description">
-Get extension.
-      </meta>
+      <column name="stem_extension"
+              not-null="true"
+      />
     </property>
     <!-- extension -->
 
@@ -179,13 +130,9 @@ Get extension.
       name="modifier_id"
       class="edu.internet2.middleware.grouper.Member" 
     >
-      <meta attribute="field-description">
-Get modifier.
-      </meta>
-      <meta attribute="finder-method">findByModifier</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="modifier_id" sql-type="char(64)"/>
+      <column name="modifier_id" 
+              sql-type="char(64)"
+      />
     </many-to-one>
     <!-- modifier_id -->
 
@@ -194,23 +141,14 @@ Get modifier.
       name="modify_source"
       type="string"
       length="255"
-    >
-      <meta attribute="field-description">
-Get modify source.
-      </meta>
-    </property>
+    />
     <!-- modify_source -->
 
-    <!-- modify_time -->
     <!-- modify_time -->
     <property 
       name="modify_time"
       type="long"
-    >
-      <meta attribute="class-description">
-Get last modify time.
-      </meta>
-    </property>
+    />
     <!-- modify_time -->
 
     <!-- name -->
@@ -219,15 +157,14 @@ Get last modify time.
       type="string"
       length="255"
     >
-      <meta attribute="field-description">
-Get name.
-      </meta>
-      <meta attribute="use-in-tostring">true</meta>
+      <column name="stem_name"
+              not-null="true"
+              unique="true"
+      />
     </property>
     <!-- name -->
 
     <!-- parent_stem -->
-    <!-- TODO I'll resolve this later -->
     <property name="parent_stem"
               type="string"
               not-null="true"
@@ -245,14 +182,7 @@ Get name.
       length="64"
       not-null="true"
       unique="true"
-    >
-      <meta attribute="field-description">
-Get UUID.
-      </meta>
-      <meta attribute="finder-method">findByStemId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
+    />
     <!-- stem_id -->
 
   </class>
