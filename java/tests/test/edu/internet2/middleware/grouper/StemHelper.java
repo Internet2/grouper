@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: StemHelper.java,v 1.3 2005-11-28 16:46:14 blair Exp $
  */
 public class StemHelper {
 
@@ -63,7 +63,7 @@ public class StemHelper {
   // @return  Created {@link Stem}
   protected static Stem addChildStem(Stem ns, String extn, String displayExtn) {
     try {
-      Stem child = ns.addChildStem("edu", "educational");
+      Stem child = ns.addChildStem(extn, displayExtn);
       Assert.assertNotNull("child !null", child);
       Assert.assertTrue("added child stem", true);
       Assert.assertTrue(

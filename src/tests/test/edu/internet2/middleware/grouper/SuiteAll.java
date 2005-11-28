@@ -40,10 +40,12 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGQComplementFilter.class);
     suite.addTestSuite(TestGQGroupCreatedAfter.class);
     suite.addTestSuite(TestGQGroupCreatedBefore.class);
+    suite.addTestSuite(TestGQGroupName.class);
     suite.addTestSuite(TestGQIntersectionFilter.class);
     suite.addTestSuite(TestGQNull.class);
     suite.addTestSuite(TestGQStemCreatedAfter.class);
     suite.addTestSuite(TestGQStemCreatedBefore.class);
+    suite.addTestSuite(TestGQStemName.class);
     suite.addTestSuite(TestGQUnionFilter.class);
     suite.addTestSuite(TestGrouperAccessADMIN.class);
     suite.addTestSuite(TestGrouperAccessOPTIN.class);

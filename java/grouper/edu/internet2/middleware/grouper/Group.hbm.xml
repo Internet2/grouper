@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.2 2005-11-11 18:32:07 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.3 2005-11-28 16:46:14 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -116,11 +116,7 @@ Get description.
       name="display_extension"
       type="string"
       length="255"
-    >
-      <meta attribute="field-description">
-Get displayExtension.
-      </meta>
-    </property>
+    />
     <!-- display_extension -->
 
     <!-- display_name -->
@@ -128,12 +124,8 @@ Get displayExtension.
       name="display_name"
       type="string"
       length="255"
-    >
-      <meta attribute="field-description">
-Get displayName.
-      </meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
+      unique="true"
+    />
     <!-- display_name -->
 
     <!-- extension -->
@@ -141,11 +133,7 @@ Get displayName.
       name="group_extension"
       type="string"
       length="255"
-    >
-      <meta attribute="field-description">
-Get extension.
-      </meta>
-    </property>
+    />
     <!-- extension -->
 
     <!-- memberships -->
@@ -203,12 +191,8 @@ Get last modify time.
       name="group_name"
       type="string"
       length="255"
-    >
-      <meta attribute="field-description">
-Get name.
-      </meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
+      unique="true"
+    />
     <!-- name -->
 
     <!-- parent_stem -->
@@ -230,14 +214,7 @@ Get name.
       length="64"
       not-null="true"
       unique="true"
-    >
-      <meta attribute="field-description">
-Get UUID.
-      </meta>
-      <meta attribute="finder-method">findByGroupId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-    </property>
+    />
     <!-- group_id -->
 
   </class>

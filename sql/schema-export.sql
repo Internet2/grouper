@@ -47,20 +47,22 @@ create table grouper_sessions (
 );
 create table grouper_stems (
    id char(32) not null,
-   creator_id char(64),
+   creator_id char(64) not null,
    create_source varchar(255),
    create_time bigint not null,
    stem_description varchar(1024),
-   display_extension varchar(255),
-   display_name varchar(255),
-   stem_extension varchar(255),
+   display_extension varchar(255) not null,
+   display_name varchar(255) not null,
+   stem_extension varchar(255) not null,
    modifier_id char(64),
    modify_source varchar(255),
    modify_time bigint,
-   stem_name varchar(255),
+   stem_name varchar(255) not null,
    parent_stem char(64),
    stem_id varchar(64) not null,
    primary key (id),
+   unique (display_name),
+   unique (stem_name),
    unique (stem_id)
 );
 create table grouper_types (
@@ -85,7 +87,9 @@ create table grouper_groups (
    parent_stem char(64),
    group_id varchar(64) not null,
    primary key (id),
-   unique (group_id)
+   unique (display_name),
+   unique (group_id),
+   unique (group_name)
 );
 create table grouper_fields (
    id char(32) not null,
