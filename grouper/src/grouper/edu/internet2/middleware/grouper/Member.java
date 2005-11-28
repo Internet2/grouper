@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.11 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: Member.java,v 1.12 2005-11-28 19:14:19 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -589,11 +589,14 @@ public class Member implements Serializable {
   public boolean isImmediateMember(Group g) {
     try {
       Membership ms = MembershipFinder.findImmediateMembership(
-        this.s, g, this, Group.getDefaultList()
+        this.s, g, this.getSubject(), Group.getDefaultList()
       );
       return true;
     }
-    catch (MembershipNotFoundException e) {
+    catch (MembershipNotFoundException eMNF) {
+      return false;
+    }
+    catch (SubjectNotFoundException eSNF) {
       return false;
     }
   } // public boolean isImmediateMember(g)

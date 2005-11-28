@@ -4,13 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.105 2005-11-28 18:33:22 blair Exp $
-
----
-
-TODO Should the root stem be an actual entry in the db?
-TODO Custom mship types
-TODO Be more consistent about when calling for a member and a subject
+$Id: API,v 1.106 2005-11-28 19:14:19 blair Exp $
 
 ---
 
@@ -128,8 +122,8 @@ TODO Be more consistent about when calling for a member and a subject
 * Set                 getViewers()
 * void                grantPriv(subject, access priv)
 * boolean             hasAdmin(subject)
-* boolean             hasEffectiveMember(member)
-* boolean             hasImmediateMember(member)
+* boolean             hasEffectiveMember(subject)
+* boolean             hasImmediateMember(subject)
 * boolean             hasOptin(subject)
 * boolean             hasOptout(subject)
 * boolean             hasMember(subject)
@@ -137,7 +131,7 @@ TODO Be more consistent about when calling for a member and a subject
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
 * void                revokePriv(access priv)
-* void                revokePriv(member, access priv) 
+* void                revokePriv(subject, access priv) 
 * void                setAttribute(attr, value)
 * void                setDescription(value)
 * void                setDisplayExtension(value)
@@ -232,8 +226,8 @@ TODO Be more consistent about when calling for a member and a subject
 * Group               getViaGroup()
 
 ## MembershipFinder
-* Membership          MembershipFinder.findEffectiveMembership(session, group, member, list, group, depth)
-* Membership          MembershipFinder.findImmediateMembership(session, group, member, list)
+* Membership          MembershipFinder.findEffectiveMembership(session, group, subject, list, group, depth)
+* Membership          MembershipFinder.findImmediateMembership(session, group, subject, list)
 
 ## NamingPrivilege 
 * String              getImplementationName()
@@ -278,7 +272,7 @@ TODO Be more consistent about when calling for a member and a subject
 * boolean             hasCreate(subject)
 * boolean             hasStem(subject)
 * void                revokePriv(naming priv)
-* void                revokePriv(member, naming priv) 
+* void                revokePriv(subject, naming priv) 
 * void                setDescription(value)
 * void                setDisplayExtension(value) 
 

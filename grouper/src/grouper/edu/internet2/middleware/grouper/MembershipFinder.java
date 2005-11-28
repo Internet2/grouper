@@ -28,7 +28,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.10 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.11 2005-11-28 19:14:19 blair Exp $
  */
 public class MembershipFinder {
 
@@ -41,7 +41,7 @@ public class MembershipFinder {
    * </pre>
    * @param   s     Get membership within this session context.
    * @param   g     Effective membership has this group.
-   * @param   m     Effective membership has this member.
+   * @param   subj  Effective membership has this subject.
    * @param   f     Effective membership has this list.
    * @param   via   Effective membership has this via group.
    * @param   depth Effective membership has this depth.
@@ -49,17 +49,23 @@ public class MembershipFinder {
    * @throws  MembershipNotFoundException 
    */
   public static Membership findEffectiveMembership(
-    GrouperSession s, Group g, Member m, Field f, Group via, int depth
+    GrouperSession s, Group g, Subject subj, Field f, Group via, int depth
   )
     throws MembershipNotFoundException
   {
     GrouperSession.validate(s);
-    Membership ms = findEffectiveMembership(
-      g.getUuid(), m.getUuid(), f, via.getUuid(), depth
-    );
-    ms.setSession(s);
-    return ms;
-  } // public static Membership findEffectiveMembership(s, g, m, f, via, depth)
+    try {
+      Member      m   = MemberFinder.findBySubject(s, subj);
+      Membership  ms  = findEffectiveMembership(
+        g.getUuid(), m.getUuid(), f, via.getUuid(), depth
+      );
+      ms.setSession(s);
+      return ms;
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new MembershipNotFoundException(eMNF.getMessage());
+    }
+  } // public static Membership findEffectiveMembership(s, g, subj, f, via, depth)
 
   /**
    * Return the immediate membership if it exists.
@@ -68,20 +74,26 @@ public class MembershipFinder {
    * </pre>
    * @param   s     Get membership within this session context.
    * @param   g     Immediate membership has this group.
-   * @param   m     Immediate membership has this member.
+   * @param   subj  Immediate membership has this subject.
    * @param   f     Immediate membership has this list.
    * @return  A {@link Membership} object
    * @throws  MembershipNotFoundException 
    */
   public static Membership findImmediateMembership(
-    GrouperSession s, Group g, Member m, Field f
+    GrouperSession s, Group g, Subject subj, Field f
   )
     throws MembershipNotFoundException
   {
     GrouperSession.validate(s);
-    Membership ms = findImmediateMembership(g.getUuid(), m, f);
-    ms.setSession(s);
-    return ms;
+    try {
+      Member      m   = MemberFinder.findBySubject(s, subj);
+      Membership  ms  = findImmediateMembership(g.getUuid(), m, f);
+      ms.setSession(s);
+      return ms;
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new MembershipNotFoundException(eMNF.getMessage());
+    }
   } // public static Membership findImmediateMembership(s, g, m, f)
 
 

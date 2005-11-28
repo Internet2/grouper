@@ -27,16 +27,16 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.4 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.5 2005-11-28 19:14:19 blair Exp $
  */
 public class MembershipHelper {
 
   // Protected Class Methods
 
-  protected static void testImm(Group g, Member m) {
+  protected static void testImm(Group g, Subject subj, Member m) {
     // The basics
-    Assert.assertTrue("g hasMember m",    g.hasMember(m));
-    Assert.assertTrue("g hasImmMember m", g.hasImmediateMember(m));
+    Assert.assertTrue("g hasMember m",    g.hasMember(subj));
+    Assert.assertTrue("g hasImmMember m", g.hasImmediateMember(subj));
     Assert.assertTrue("m isMember g",     m.isMember(g));
     Assert.assertTrue("m isImmMember g",  m.isImmediateMember(g));
   } // protected static TestImm(g, m)
@@ -62,33 +62,33 @@ public class MembershipHelper {
   } // protected static void testEff(g, gm, m)
 
   protected static void testEffMship(
-    GrouperSession s, Group g, Member m, Field f, Group v, int d
+    GrouperSession s, Group g, Subject subj, Field f, Group v, int d
   ) 
   {
     try {
       Membership  ms  = MembershipFinder.findEffectiveMembership(
-        s, g, m, f, v, d
+        s, g, subj, f, v, d
       );
       Assert.assertTrue("eff mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
       Assert.fail("eff membership not found");
     }
-  } // protected static void testEffMship(s, g, m, f, v, d)
+  } // protected static void testEffMship(s, g, subj, f, v, d)
 
   protected static void testImmMship(GrouperSession s, Group g, Group m, Field f) {
-    testImmMship(s, g, m.toMember(), f);
+    testImmMship(s, g, m.toSubject(), f);
   } // protected static void testImmMship(s, g, m, f)
 
-  protected static void testImmMship(GrouperSession s, Group g, Member m, Field f) {
+  protected static void testImmMship(GrouperSession s, Group g, Subject subj, Field f) {
     try {
-      Membership  ms  = MembershipFinder.findImmediateMembership(s, g, m, f);
+      Membership  ms  = MembershipFinder.findImmediateMembership(s, g, subj, f);
       Assert.assertTrue("imm mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
       Assert.fail("imm membership not found");
     }
-  } // protected static void testImmMship(s, g, m, f)
+  } // protected static void testImmMship(s, g, subj, f)
 
   protected static void testNumMship(Group g, Field f, int m, int i, int e) {
     Assert.assertTrue(
@@ -108,10 +108,10 @@ public class MembershipHelper {
   
   // Private Class Methods
 
-  private static void _testEff(Group g, Member m) {
+  private static void _testEff(Group g, Subject subj, Member m) {
     // The basics
-    Assert.assertTrue("g hasMember m",    g.hasMember(m));
-    Assert.assertTrue("g hasEffMember m", g.hasEffectiveMember(m));
+    Assert.assertTrue("g hasMember m",    g.hasMember(subj));
+    Assert.assertTrue("g hasEffMember m", g.hasEffectiveMember(subj));
     Assert.assertTrue("m isMember g",     m.isMember(g));
     Assert.assertTrue("m isEffMember g",  m.isEffectiveMember(g));
     // Now try for a little more
@@ -153,31 +153,40 @@ public class MembershipHelper {
 
   private static void _testEff(Group g, Membership ms) {
     try {
-      _testEff(g, ms.getMember());
+      _testEff(g, ms.getMember().getSubject(), ms.getMember());
     }
     catch (MemberNotFoundException eMNF) {
-      Assert.fail("effective membership member not found: " + eMNF.getMessage());
+      Assert.fail(eMNF.getMessage());
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Assert.fail(eSNF.getMessage());
     }
   } // private static void _testEff(g, ms)
 
   private static void _testEff(Membership ms, Member m) {
     try {
-      _testEff(ms.getGroup(), m);
+      _testEff(ms.getGroup(), m.getSubject(), m);
     }
     catch (GroupNotFoundException eGNF) {
-      Assert.fail("effective membership group not found: " + eGNF.getMessage());
+      Assert.fail(eGNF.getMessage());
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Assert.fail(eSNF.getMessage());
     }
   } // private static void _testEff(ms, m)
 
   private static void _testEff(Membership gms, Membership mms) {
     try {
-      _testEff(gms.getGroup(), mms.getMember());
+      _testEff(gms.getGroup(), mms.getMember().getSubject(), mms.getMember());
     }
     catch (GroupNotFoundException eGNF) {
-      Assert.fail("effective membership group not found: " + eGNF.getMessage());
+      Assert.fail(eGNF.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
-      Assert.fail("effective membership member not found: " + eMNF.getMessage());
+      Assert.fail(eMNF.getMessage());
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Assert.fail(eSNF.getMessage());
     }
   } // private static void _testEff(gms, mms)
 

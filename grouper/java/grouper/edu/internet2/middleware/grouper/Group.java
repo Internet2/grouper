@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.13 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: Group.java,v 1.14 2005-11-28 19:14:19 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -302,7 +302,9 @@ public class Group implements Serializable {
 
       // Find the immediate membership that is to be deleted
       deletes.add( 
-        MembershipFinder.findImmediateMembership(this.s, this, m, f)
+        MembershipFinder.findImmediateMembership(
+          this.s, this, m.getSubject(), f
+        )
       );
 
       // Find effective memberships
@@ -340,6 +342,9 @@ public class Group implements Serializable {
     }
     catch (MembershipNotFoundException eMSNF) {
       throw new MemberDeleteException(eMSNF.getMessage());
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new MemberDeleteException(eSNF.getMessage());
     }
   } // public void deleteMember(subj, f)
 
@@ -783,54 +788,52 @@ public class Group implements Serializable {
   } // public boolean hasAdmin(subj)
 
   /**
-   * Check whether the member is an effective member of this group.
+   * Check whether the subject is an effective member of this group.
    * <pre class="eg">
-   * if (g.hasEffectiveMember(m)) {
-   *   // m is an effective member of this group
+   * if (g.hasEffectiveMember(subj)) {
+   *   // Subject is an effective member of this group
    * }
    * else {
-   *   // m is not an effective member of this group
+   *   // Subject is not an effective member of this group
    * } 
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member belongs to this group.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject belongs to this group.
    */
-  public boolean hasEffectiveMember(Member m) {
-    if (
-      MembershipFinder.findEffectiveMemberships(
-        this, m, getDefaultList()
-      ).size() > 0
-    )
-    {
-      return true;
+  public boolean hasEffectiveMember(Subject subj) {
+    try {
+      Member m = MemberFinder.findBySubject(this.s, subj);
+      return m.isEffectiveMember(this);
+    }
+    catch (MemberNotFoundException eMNF) {
+      // TODO Is silence the proper response?
     }
     return false;
-  } // public boolean hasEffectiveMember(m)
+  } // public boolean hasEffectiveMember(subj)
 
   /**
-   * Check whether the member is an immediate member of this group.
+   * Check whether the subject is an immediate member of this group.
    * <pre class="eg">
-   * if (g.hasImmediateMember(m)) {
-   *   // m is an immediate member of this group
+   * if (g.hasImmediateMember(subj)) {
+   *   // Subject is an immediate member of this group
    * }
    * else {
-   *   // m is not a immediate member of this group
+   *   // Subject is not a immediate member of this group
    * } 
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member belongs to this group.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject belongs to this group.
    */
-  public boolean hasImmediateMember(Member m) {
+  public boolean hasImmediateMember(Subject subj) {
     try {
-      Membership ms = MembershipFinder.findImmediateMembership(
-        this.s, this, m, getDefaultList()
-      );
-      return true;
+      Member m = MemberFinder.findBySubject(this.s, subj);
+      return m.isImmediateMember(this);
     }
-    catch (MembershipNotFoundException eM) {
-      return false;
+    catch (MemberNotFoundException eMNF) {
+      // TODO Is silence the proper response?
     }
-  } // public boolean hasImmediateMember(m)
+    return false;
+  } // public boolean hasImmediateMember(subj)
 
   public int hashCode() {
     return new HashCodeBuilder()
@@ -879,29 +882,28 @@ public class Group implements Serializable {
   } // public boolean hasOptout(subj)
 
   /**
-   * Check whether the member is a member of this group.
+   * Check whether the subject is a member of this group.
    * <pre class="eg">
-   * if (g.hasMember(m)) {
-   *   // m is a member of this group
+   * if (g.hasMember(subj)) {
+   *   // Subject is a member of this group
    * }
    * else {
-   *   // m is not a member of this group
+   *   // Subject is not a member of this group
    * } 
    * </pre>
-   * @param   m   Check this member.
-   * @return  Boolean true if member belongs to this group.
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject belongs to this group.
    */
-  public boolean hasMember(Member m) {
-    if (
-      MembershipFinder.findMemberships(
-        this.getUuid(), m, getDefaultList()
-      ).size() > 0
-    ) 
-    {
-      return true;
+  public boolean hasMember(Subject subj) {
+    try {
+      Member m = MemberFinder.findBySubject(this.s, subj);
+      return m.isMember(this);
+    }
+    catch (MemberNotFoundException eMNF) {
+      // TODO Fail silently?
     }
     return false;
-  }
+  } // public boolean hasMember(subj)
 
   /**
    * Check whether the subject has READ on this group.

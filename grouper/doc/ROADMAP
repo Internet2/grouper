@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.71 2005-11-28 18:33:22 blair Exp $
+$Id: ROADMAP,v 1.72 2005-11-28 19:14:19 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.71 2005-11-28 18:33:22 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Use _Subject_, not _Member_, in most method calls
 * Switch to _LinkedHashSet_
 * Test with JDBC subject adapter
   * Have setup install subjects and teardown remove them?
@@ -27,11 +26,11 @@ TODO Sync with Basecamp
 * Return _AccessPrivilege_ and _NamingPrivilege_ objects
 * ALL subject adapter
 * Verify privileges within API
-
-## Later
 * Implement all 0.6 query filters
   * GroupAttributeMatchFilter
   * GroupAnyAttributeFilter
+
+## Later
 * Review exceptions
   * Should MemberNotFound and SubjectNotFound be replaced by Runtime
     exceptions?  Or at least be used more selectively?
@@ -42,6 +41,7 @@ TODO Sync with Basecamp
 * _Group_ parent stem mapping
 * Commons logging
 * More effective membership testing
+* Custom list types
 * Group deletion when groups have members or are members
 * Switch to Hibernate 3.x
 * Review generated SQL
