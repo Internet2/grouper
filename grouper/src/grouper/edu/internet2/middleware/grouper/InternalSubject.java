@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.2 2005-11-11 18:32:07 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.3 2005-11-28 19:21:48 blair Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -144,7 +144,7 @@ public class InternalSubject implements Subject {
       Map attr = (Map) this.attrs.get(name);
       return (Set) attr.get("v");
     }
-    return new HashSet();
+    return new LinkedHashSet();
   } // public Set getAttributeValues(name)
 
   /**
@@ -165,7 +165,7 @@ public class InternalSubject implements Subject {
       Map attr = (Map) this.attrs.get(name);
       return (Set) attr.get("sv");
     }
-    return new HashSet();
+    return new LinkedHashSet();
   } // public Set getAttributeSearchValues(name)
 
   /**

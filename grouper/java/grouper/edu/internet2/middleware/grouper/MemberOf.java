@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.3 2005-11-17 01:55:54 blair Exp $
+ * @version $Id: MemberOf.java,v 1.4 2005-11-28 19:21:48 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -36,7 +36,7 @@ class MemberOf implements Serializable {
   protected static Set doMemberOf(GrouperSession s, Group g, Member m) 
     throws GroupNotFoundException
   {
-    Set mships    = new HashSet();
+    Set mships    = new LinkedHashSet();
 
     // Find where g is a member
     Set isMember  = g.toMember().getMemberships();
@@ -59,10 +59,10 @@ class MemberOf implements Serializable {
   protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) 
     throws  GroupNotFoundException
   {
-    Set mships    = new HashSet();
+    Set mships    = new LinkedHashSet();
 
     // Stems can't be members
-    Set isMember  = new HashSet();
+    Set isMember  = new LinkedHashSet();
 
     // Add members of m to ns
     // Add members of m to where ns is a member
@@ -82,8 +82,8 @@ class MemberOf implements Serializable {
   )
     throws  GroupNotFoundException
   {
-    Set mships      = new HashSet();
-    Set hasMembers  = new HashSet();
+    Set mships      = new LinkedHashSet();
+    Set hasMembers  = new LinkedHashSet();
     
     if (m.getSubjectTypeId().equals("group")) {
       // Convert member back to a group
@@ -108,7 +108,7 @@ class MemberOf implements Serializable {
     GrouperSession s, String oid, String gmid, Set isMember, Set hasMembers
   ) 
   {
-    Set mships = new HashSet();
+    Set mships = new LinkedHashSet();
 
     // Add members of m to where this group is a member
 
@@ -149,7 +149,7 @@ class MemberOf implements Serializable {
     GrouperSession s, Group g, Member m, Set isMember
   ) 
   {
-    Set mships = new HashSet();
+    Set mships = new LinkedHashSet();
     // Add m to where g is a member
     Iterator iter = isMember.iterator();
     while (iter.hasNext()) {

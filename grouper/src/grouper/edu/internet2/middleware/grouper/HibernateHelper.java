@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.4 2005-11-17 04:10:18 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.5 2005-11-28 19:21:48 blair Exp $
  */
 class HibernateHelper {
 
@@ -71,7 +71,7 @@ class HibernateHelper {
   protected static void delete(Object o) 
     throws HibernateException
   {
-    Set objects = new HashSet();
+    Set objects = new LinkedHashSet();
     objects.add(o);
     HibernateHelper.delete(objects);
   } // protected static void delete(o)
@@ -117,7 +117,7 @@ class HibernateHelper {
   protected static void save(Object o) 
     throws HibernateException
   { 
-    Set objects = new HashSet();
+    Set objects = new LinkedHashSet();
     objects.add(o);
     HibernateHelper.save(objects);
   } // protected static void save(o)

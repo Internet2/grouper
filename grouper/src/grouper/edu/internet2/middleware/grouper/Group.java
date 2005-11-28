@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.14 2005-11-28 19:14:19 blair Exp $
+ * @version $Id: Group.java,v 1.15 2005-11-28 19:21:48 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -155,7 +155,7 @@ public class Group implements Serializable {
       Member  m       = MemberFinder.findBySubject(this.s, subj);
 
       // The objects that will need saving
-      Set     objects = new HashSet();
+      Set     objects = new LinkedHashSet();
 
       // Update group modify time
       this._setModified();
@@ -293,8 +293,8 @@ public class Group implements Serializable {
       Member  m       = MemberFinder.findBySubject(this.s, subj);
 
       // The objects that will need saving and deleting
-      Set     deletes = new HashSet();
-      Set     saves   = new HashSet();
+      Set     deletes = new LinkedHashSet();
+      Set     saves   = new LinkedHashSet();
 
       // Update group modify time
       this._setModified();
