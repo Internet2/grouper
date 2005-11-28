@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.64 2005-11-17 15:47:13 blair Exp $ -->
+<!-- $Id: build.xml,v 1.65 2005-11-28 21:02:54 blair Exp $ -->
 
 <project name="Grouper" default="build" basedir=".">
 
@@ -72,8 +72,30 @@
 
   <!-- db-init -->
   <target name="db-init" 
-          depends="build"
+          depends="build, db-init-registryinstall, db-init-jdbcsource"
           description="initialize database"
+  />
+  <!-- db-init -->
+
+  <!-- db-init-jdbcsource -->
+  <target name="db-init-jdbcsource"
+          description="install jdbc source ddl"
+  >
+    <property file="conf/hibernate.properties"/>
+    <sql
+      classpathref="project.class.path"
+      driver="${hibernate.connection.driver_class}"
+      url="${hibernate.connection.url}"
+      userid="${hibernate.connection.username}"
+      password="${hibernate.connection.password}"
+      src="sql/jdbc_source.sql"
+    />
+  </target>
+  <!-- db-init-jdbcsource -->
+  
+  <!-- db-init-registryinstall -->
+  <target name="db-init-registryinstall"
+          description="install groups registry"
   >
     <java classname="edu.internet2.middleware.grouper.RegistryInstall"
           fork="yes"
@@ -81,7 +103,7 @@
       <classpath refid="project.class.path"/>
     </java>
   </target>
-  <!-- db-init -->
+  <!-- db-init-registryinstall -->
 
   <!-- dist -->
   <target name="dist" 
