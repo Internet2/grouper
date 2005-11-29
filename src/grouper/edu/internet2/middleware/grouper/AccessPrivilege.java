@@ -21,13 +21,14 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * An instance of a granted access privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.10 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.11 2005-11-29 21:32:00 blair Exp $
  */
 public class AccessPrivilege {
 
@@ -42,24 +43,24 @@ public class AccessPrivilege {
 
 
   // Private Instance Variables
+  private Group   group;
   private boolean isRevokable;
   private String  klass;
   private String  name;
-  private Object  object;
   private Subject owner;
   private Subject subj;
 
 
   // Constructors
   public AccessPrivilege(
-    Object  object, Subject subj,   Subject owner, 
+    Group   group , Subject subj,   Subject owner, 
     Privilege priv, String  klass,  boolean isRevokable
   ) 
   {
+    this.group        = group;
     this.isRevokable  = isRevokable;
     this.klass        = klass;
     this.name         = priv.toString();
-    this.object       = object;
     this.owner        = owner;
     this.subj         = subj;
   } // public AccessPrivilege(object, subj, owner, priv, klass, isRevokable)
@@ -68,46 +69,36 @@ public class AccessPrivilege {
   // Public Instance Methods
 
   /**
+   * Get {@link Group} that the privilege was granted on.
+   * <p/>
+   * @return  {@link Group}
+   */
+  public Group getGroup() {
+    return this.group;
+  } // public Group getGroup()
+
+  /**
    * Get name of implementation class for this privilege type.
    * @return  Class name of implementing class.
    */
   public String getImplementationName() {
-    throw new RuntimeException("not implemented");
+    return this.klass;
   } // public String getImplementationName()
-
-  /**
-   * Returns true if privilege can be revoked.
-   * @return  Boolean true if privilege can be revoked.
-   */
-  public boolean isRevokable() {
-    throw new RuntimeException("not implemented");
-  } // public boolean isRevokable()
 
   /**
    * Get name of privilege.
    * @return  Name of privilege.
    */
   public String getName() {
-    throw new RuntimeException("not implemented");
+    return this.name;
   } // public String getName()
-
-  /**
-   * Get {@link Group} that the privilege was granted on.
-   * <p/>
-   * @return  {@link Group}
-   */
-  public Object getObject() {
-    throw new RuntimeException("not implemented");
-  } // public Object getObject()
 
   /**
    * Get subject which was granted privilege on this object.
    * @return  {@link Subject} that was granted privilege.
    */
-  public Subject getOwner() 
-    throws SubjectNotFoundException
-  {
-    throw new RuntimeException("not implemented");
+  public Subject getOwner() {
+    return this.owner;
   } // public Subject getOwner()
 
   /**
@@ -115,8 +106,27 @@ public class AccessPrivilege {
    * @return  {@link Subject} that has this privilege.
    */
   public Subject getSubject() {
-    throw new RuntimeException("not implemented");
+    return this.subj;
   } // public Subject getSubject()
+
+  /**
+   * Returns true if privilege can be revoked.
+   * @return  Boolean true if privilege can be revoked.
+   */
+  public boolean isRevokable() {
+    return this.isRevokable;
+  } // public boolean isRevokable()
+
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("name"           , this.getName()                )
+           .append("implementation" , this.getImplementationName()  )
+           .append("revokable"      , this.isRevokable()            ) 
+           .append("group"          , this.getGroup()               )
+           .append("subject"        , this.getSubject()             )
+           .append("owner"          , this.getOwner()               )
+           .toString(); 
+  } // public String toString()
 
 }
 

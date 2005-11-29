@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.17 2005-11-29 19:39:40 blair Exp $
+ * @version $Id: Group.java,v 1.18 2005-11-29 21:32:00 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -685,7 +685,7 @@ public class Group implements Serializable {
    * Set privs = g.getPrivs(subj);
    * </pre>
    * @param   subj  Get privileges for this subject.
-   * @return  Set of {@link Privilege} objects.
+   * @return  Set of {@link AccessPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
     return PrivilegeResolver.getInstance().getPrivs(

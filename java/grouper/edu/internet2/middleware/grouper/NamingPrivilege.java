@@ -21,13 +21,14 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * An instance of a granted naming privilege.
  * <p />
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.11 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: NamingPrivilege.java,v 1.12 2005-11-29 21:32:00 blair Exp $
  */
 public class NamingPrivilege {
 
@@ -40,22 +41,22 @@ public class NamingPrivilege {
   private boolean isRevokable;
   private String  klass;
   private String  name;
-  private Object  object;
+  private Stem    stem;
   private Subject owner;
   private Subject subj;
 
 
   // Constructors
   public NamingPrivilege(
-    Object  object, Subject subj,   Subject owner, 
+    Stem      stem, Subject subj,   Subject owner, 
     Privilege priv, String  klass,  boolean isRevokable
   ) 
   {
     this.isRevokable  = isRevokable;
     this.klass        = klass;
     this.name         = priv.toString();
-    this.object       = object;
     this.owner        = owner;
+    this.stem         = stem;
     this.subj         = subj;
   } // public NamingPrivilege(object, subj, owner, priv, klass, isRevokable)
 
@@ -67,7 +68,7 @@ public class NamingPrivilege {
    * @return  Class name of implementing class.
    */
   public String getImplementationName() {
-    throw new RuntimeException("not implemented");
+    return this.klass;
   } // public String getImplementationName()
 
   /**
@@ -75,7 +76,7 @@ public class NamingPrivilege {
    * @return  Boolean true if privilege can be revoked.
    */
   public boolean isRevokable() {
-    throw new RuntimeException("not implemented");
+    return this.isRevokable;
   } // public boolean isRevokable()
 
   /**
@@ -83,8 +84,16 @@ public class NamingPrivilege {
    * @return  Name of privilege.
    */
   public String getName() {
-    throw new RuntimeException("not implemented");
+    return this.name;
   } // public String getName()
+
+  /**
+   * Get subject which was granted privilege on this object.
+   * @return  {@link Subject} that was granted privilege.
+   */
+  public Subject getOwner() {
+    return this.owner;
+  } // public Subject getOwner()
 
   /**
    * Get object {@link Stem} that the privilege was
@@ -92,27 +101,28 @@ public class NamingPrivilege {
    * <p/>
    * @return  {@link Stem} object.
    */
-  public Object getObject() {
-    throw new RuntimeException("not implemented");
-  } // public Object getObject()
-
-  /**
-   * Get subject which was granted privilege on this object.
-   * @return  {@link Subject} that was granted privilege.
-   */
-  public Subject getOwner() 
-    throws SubjectNotFoundException
-  {
-    throw new RuntimeException("not implemented");
-  } // public Subject getOwner()
+  public Stem getStem() {
+    return this.stem;
+  } // public Object getStem()
 
   /**
    * Get subject which has this privilege.
    * @return  {@link Subject} that has this privilege.
    */
   public Subject getSubject() {
-    throw new RuntimeException("not implemented");
+    return this.subj;
   } // public Subject getSubject()
+
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("name"           , this.getName()                )
+           .append("implementation" , this.getImplementationName()  )
+           .append("revokable"      , this.isRevokable()            ) 
+           .append("stem"           , this.getStem()                )
+           .append("subject"        , this.getSubject()             )
+           .append("owner"          , this.getOwner()               )
+           .toString(); 
+  } // public String toString()
 
 }
 

@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.107 2005-11-28 21:52:19 blair Exp $
+$Id: API,v 1.108 2005-11-29 21:32:00 blair Exp $
 
 ---
 
@@ -59,10 +59,10 @@ $Id: API,v 1.107 2005-11-28 21:52:19 blair Exp $
 # Classes
 
 ## AccessPrivilege 
+* Group               getGroup()
 * String              getImplementationName()
 * boolean             isRevokable()
 * String              getName()
-* Object              getObject()
 * Subject             getOwner()
 * Subject             getSubject()
 
@@ -233,8 +233,8 @@ $Id: API,v 1.107 2005-11-28 21:52:19 blair Exp $
 * String              getImplementationName()
 * boolean             isRevokable()
 * String              getName()
-* Object              getObject()
 * Subject             getOwner()
+* Stem                getStem()
 * Subject             getSubject()
 
 ## NullFilter extends BaseQueryFilter
