@@ -27,14 +27,20 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingCREATE.java,v 1.6 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGrouperNamingCREATE.java,v 1.7 2005-11-29 19:39:40 blair Exp $
  */
 public class TestGrouperNamingCREATE extends TestCase {
+
+  // Private Class Constants
+  private static final Privilege PRIV = NamingPrivilege.CREATE;
+
 
   // Private Class Variables
   Stem            edu;
   Stem            root;
   GrouperSession  s;
+  Set             stems = new HashSet();
+  Set             subjs = new HashSet();
 
 
   public TestGrouperNamingCREATE(String name) {
@@ -46,6 +52,8 @@ public class TestGrouperNamingCREATE extends TestCase {
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");
+    stems = new HashSet();
+    subjs = new HashSet();
   }
 
   protected void tearDown () {
@@ -58,28 +66,52 @@ public class TestGrouperNamingCREATE extends TestCase {
     PrivHelper.getPrivs(s, edu, s.getSubject(),       0, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0,  0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1,  0, false, false);
+    PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testDefaultPrivs()
 
   public void testGrantPrivs() {
-    PrivHelper.grantPriv( s, edu, s.getSubject()      , NamingPrivilege.CREATE);      
-    PrivHelper.grantPriv( s, edu, SubjectHelper.SUBJ0 , NamingPrivilege.CREATE);    
+    PrivHelper.grantPriv( s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.grantPriv( s, edu, SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(  s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
     PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ1 , 0, false, false);
+    subjs.add(s.getSubject());
+    subjs.add(SubjectHelper.SUBJ0);
+    PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    stems.add(edu);
+    PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
+    PrivHelper.subjInStems(s, SubjectHelper.SUBJ0, stems, PRIV);
   } // public void testGrantPrivs()
 
   public void testRevokePrivs() {
-    PrivHelper.grantPriv(s, edu, s.getSubject()      , NamingPrivilege.CREATE);      
-    PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , NamingPrivilege.CREATE);      
+    PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
     PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
-    PrivHelper.revokePriv(s, edu, s.getSubject()      , NamingPrivilege.CREATE);      
-    PrivHelper.revokePriv(s, edu, SubjectHelper.SUBJ0 , NamingPrivilege.CREATE);      
+    PrivHelper.revokePriv(s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.revokePriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
     PrivHelper.getPrivs(s, edu, s.getSubject()      , 0, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
+    PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testRevokePrivs()
+
+  public void testRevokeAllPrivs() {
+    PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
+    PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
+    PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
+    PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
+    PrivHelper.revokePriv(s, edu, PRIV);
+    PrivHelper.getPrivs(s, edu, s.getSubject()      , 0, true,  true);
+    PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 0, false, false);
+    PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
+    PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
+  } // public void testRevokeAllPrivs()
 
 }
 

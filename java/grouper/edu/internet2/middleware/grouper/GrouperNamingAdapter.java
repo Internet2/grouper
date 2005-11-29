@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.16 2005-11-28 19:21:48 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.17 2005-11-29 19:39:40 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -336,7 +336,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
       // Find every subject that needs to have the priv revoked
       Iterator iter = MembershipFinder.findImmediateSubjects(
-        s, ns.getUuid(), (Field) priv2list.get(priv)
+        s, ns.getUuid(), FieldFinder.find( (String) priv2list.get(priv))
       ).iterator();
       while (iter.hasNext()) {
         Subject subj  = (Subject) iter.next();
