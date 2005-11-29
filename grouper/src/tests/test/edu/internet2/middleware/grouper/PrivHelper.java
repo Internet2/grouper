@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.6 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.7 2005-11-29 19:39:40 blair Exp $
  */
 public class PrivHelper {
 
@@ -84,32 +84,47 @@ public class PrivHelper {
     }
   } // protected static void getPrivs(s,ns, subj, cnt, create, stem)
 
-/* TODO I need real subjects - or something - to test this
+  protected static void getSubjsWithPriv(Group g, Set subjs, Privilege priv) {
+    String  msg       = subjs.size() + " subjects with " + priv + " on " + g.getName();
+    Set     subjects  = new LinkedHashSet();
+    if      (priv.equals(AccessPrivilege.ADMIN) ) {
+      subjects = g.getAdmins();
+    } 
+    else if (priv.equals(AccessPrivilege.OPTIN) ) {
+      subjects = g.getOptins();
+    } 
+    else if (priv.equals(AccessPrivilege.OPTOUT)) {
+      subjects = g.getOptouts();
+    } 
+    else if (priv.equals(AccessPrivilege.READ)  ) {
+      subjects = g.getReaders();
+    } 
+    else if (priv.equals(AccessPrivilege.UPDATE)) {
+      subjects = g.getUpdaters();
+    } 
+    else if (priv.equals(AccessPrivilege.VIEW)  ) {
+      subjects = g.getViewers();
+    } 
+    else {
+      Assert.fail("invalid privilege: " + priv);
+    }
+    _compareCollections(msg, subjs, subjects);
+  } // protected static void getSubjsWithPriv(g, subjs, priv)
+
   protected static void getSubjsWithPriv(Stem ns, Set subjs, Privilege priv) {
     String  msg       = subjs.size() + " subjects with " + priv + " on " + ns.getName();
     Set     subjects  = new LinkedHashSet();
-    if (priv.equals(NamingPrivilege.CREATE)) {
+    if      (priv.equals(NamingPrivilege.CREATE)) {
       subjects = ns.getCreators();
-    } else if (priv.equals(NamingPrivilege.STEM)) {
+    } 
+    else if (priv.equals(NamingPrivilege.STEM)) {
       subjects = ns.getStemmers();
-    } else {
+    } 
+   else {
       Assert.fail("invalid privilege: " + priv);
     }
-    Assert.assertTrue(
-      msg + ": " + subjects.size(), subjects.size() == subjs.size()
-    );
-    if (subjects.equals(subjs)) {
-System.err.println("EQUAL!");
-System.err.println("=M="+subjects);
-System.err.println("=V="+subjs);
-    }
-    else {
-System.err.println("NOT EQUAL!");
-System.err.println("!=M="+subjects);
-System.err.println("!=V="+subjs);
-    }
+    _compareCollections(msg, subjs, subjects);
   } // protected static void getSubjsWithPriv(ns, subjs, priv)
-*/
 
   protected static void grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
@@ -265,41 +280,176 @@ System.err.println("!=V="+subjs);
     }
   } // protected static void revokePriv(s, ns, subj, priv)
 
-/* TODO GAR!
+  protected static void revokePriv(
+    GrouperSession s, Group g, Privilege priv
+  )
+  {
+    try {
+      g.revokePriv(priv);  
+      getSubjsWithPriv(g, new HashSet(), priv);
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.fail(eRP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail(eIP.getMessage());
+    }
+  } // protected static void revokePriv(s, g, priv)
+
+  protected static void revokePriv(
+    GrouperSession s, Stem ns, Privilege priv
+  )
+  {
+    try {
+      ns.revokePriv(priv);  
+      getSubjsWithPriv(ns, new HashSet(), priv);
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.fail(eRP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.fail(eIP.getMessage());
+    }
+  } // protected static void revokePriv(s, ns, priv)
+
+  protected static void subjInGroups(
+    GrouperSession s, Subject subj, Set groups, Privilege priv
+  ) 
+  {
+    String  msg   = subj.getId() + " has " + priv + " on ";
+    Set     where = new HashSet();
+    try {
+      Member    m     = MemberFinder.findBySubject(s, subj);
+      if      (priv.equals(AccessPrivilege.ADMIN))  {
+        where = m.hasAdmin();
+      } 
+      else if (priv.equals(AccessPrivilege.OPTIN))  {
+        where = m.hasOptin();
+      }
+      else if (priv.equals(AccessPrivilege.OPTOUT)) {
+        where = m.hasOptout();
+      }
+      else if (priv.equals(AccessPrivilege.READ))   {
+        where = m.hasRead();
+      }
+      else if (priv.equals(AccessPrivilege.UPDATE)) {
+        where = m.hasUpdate();
+      }
+      else if (priv.equals(AccessPrivilege.VIEW))   {
+        where = m.hasView();
+      }
+      else {
+        Assert.fail("invalid priv: " + priv);
+      }
+      _compareCollections(msg, groups, where);
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void subjInGroups(s, subj, groups, priv)
+
   protected static void subjInStems(
     GrouperSession s, Subject subj, Set stems, Privilege priv
   ) 
   {
-    String msg = subj.getName() + " has " + priv + " on ";
-System.err.println(msg + ": " + stems.size());
-System.err.println(stems);
+    String  msg   = subj.getId() + " has " + priv + " on ";
+    Set     where = new HashSet();
     try {
       Member    m     = MemberFinder.findBySubject(s, subj);
       if      (priv.equals(NamingPrivilege.CREATE)) {
-        //Assert.assertTrue(msg, m.hasCreate(ns));
+        where = m.hasCreate();
       } 
       else if (priv.equals(NamingPrivilege.STEM)) {
-        //Assert.assertTrue(msg, m.hasStem(ns));
-if (m.hasStem().equals(stems)) {
-System.err.println("EQUAL!");
-System.err.println("=F=" + m.hasStem());
-System.err.println("=V=" + stems);
-}
-else {
-System.err.println("NOT EQUAL!");
-System.err.println("!F=" + m.hasStem());
-System.err.println("!V=" + stems);
-}
-      } 
+        where = m.hasStem();
+      }
       else {
         Assert.fail("invalid priv: " + priv);
       }
+      _compareCollections(msg, stems, where);
     }
     catch (MemberNotFoundException eMNF) {
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void subjInStems(s, subj, stems, priv)
+
+  // TODO Genericize?
+/* TODO
+  public void testGetPrivs() {
+    Subject subj = SubjectHelper.SUBJ0;
+    PrivHelper.grantPriv( s, edu, subj , PRIV);      
+    List  creators  = new ArrayList( edu.getCreators() );
+    List  stemmers  = new ArrayList( edu.getStemmers() );
+    Assert.assertTrue("creators: 0", creators.size() == 0);
+    Assert.assertTrue("stemmers: 1", stemmers.size() == 1);
+    NamingPrivilege np = (NamingPrivilege) stemmers.get(0);
+    Assert.assertNotNull("np !null", np);
+    Assert.assertTrue(
+      "np instanceof NamingPrivilege", np instanceof NamingPrivilege
+    );
+    Assert.assertTrue(
+      "np implementation name",
+      np.getImplementationName().equals(
+        "edu.internet2.middleware.grouper.GrouperNamingAdapter"
+      )
+    );  
+    Assert.assertTrue("np revokable", np.isRevokable());
+    Assert.assertTrue("np name", np.getName().equals(PRIV.toString()));
+    Assert.assertTrue(
+      "np object instanceof Stem", np.getObject() instanceof Stem
+    );
+    Assert.assertTrue(
+      "np object == edu", 
+      ( (Stem) np.getObject() ).equals(edu)
+    );
+    try {
+      Assert.assertTrue(
+        "np owner == subj", np.getOwner().equals(subj)
+      );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      Assert.fail("np has no owner");
+    }
+    Assert.assertTrue(
+      "np subject", np.getSubject().equals(subj)
+    );
+  } // public void testGrantPrivs()
 */
 
+  // Private Class Methods
+  private static void _compareCollections(String msg, Set exp, Set got) {
+    Set check = new HashSet();
+    Assert.assertTrue(
+      msg + ": " + got.size(), got.size() == exp.size()
+    );
+    Iterator expIter = exp.iterator();
+    while (expIter.hasNext()) {
+      check.add( _getId( expIter.next() ) );
+    }
+    Iterator gotIter = got.iterator();
+    while (gotIter.hasNext()) {
+      String  id  = _getId( gotIter.next() );
+      Assert.assertTrue("has priv: " + id, check.remove(id));
+    }
+    if (check.size() > 0) {
+      Assert.fail("did not have priv: " + check);
+    }
+  } // private static void _compareCollections(msg, exp, got)
+
+  private static String _getId(Object o) {
+    String id = null;
+    if      (o instanceof Group)    {
+      id = (String) ( (Group) o).getUuid();
+    }
+    else if (o instanceof Stem)     {
+      id = (String) ( (Stem) o).getUuid();
+    }
+    else if (o instanceof Subject)  {
+      id = (String) ( (Subject) o).getId();
+    } 
+    else {
+      Assert.fail("unknown object: " + o);
+    }
+    return id;
+  } // private static void _getId(o)
 }
 

@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.16 2005-11-29 17:25:39 blair Exp $
+ * @version $Id: Group.java,v 1.17 2005-11-29 19:39:40 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -160,7 +160,7 @@ public class Group implements Serializable {
       Set     objects = new LinkedHashSet();
 
       // Update group modify time
-      this._setModified();
+      this.setModified();
       objects.add(this);
 
       // Create the immediate membership
@@ -299,7 +299,7 @@ public class Group implements Serializable {
       Set     saves   = new LinkedHashSet();
 
       // Update group modify time
-      this._setModified();
+      this.setModified();
       saves.add(this);
 
       // Find the immediate membership that is to be deleted
@@ -1195,6 +1195,11 @@ public class Group implements Serializable {
 
 
   // Protected Instance Methods
+  protected void setModified() {
+    this.setModifier_id( s.getMember()        );
+    this.setModify_time( new Date().getTime() );
+  } // private void setModified()
+
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;
@@ -1206,11 +1211,6 @@ public class Group implements Serializable {
     this.setCreator_id( s.getMember()         );
     this.setCreate_time( new Date().getTime() );
   } // private void _setCreated()
-
-  private void _setModified() {
-    this.setModifier_id( s.getMember()        );
-    this.setModify_time( new Date().getTime() );
-  } // private void _setModified()
 
 
   // Hibernate Accessors

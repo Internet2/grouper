@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
+import  net.sf.hibernate.*;
 
 
 /** 
@@ -29,7 +30,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.12 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.13 2005-11-29 19:39:40 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -286,7 +287,75 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException 
   {
     GrouperSession.validate(s);
-    throw new RuntimeException("not implemented");
+    try {
+      // The objects that will need updating and deleting
+      Set     saves   = new LinkedHashSet();
+      Set     deletes = new LinkedHashSet();
+
+      // Update stem modify time
+      g.setModified();
+      saves.add(g);
+
+      // Find every subject that needs to have the priv revoked
+      Iterator iter = MembershipFinder.findImmediateSubjects(
+        s, g.getUuid(), FieldFinder.find( (String) priv2list.get(priv))
+      ).iterator();
+      while (iter.hasNext()) {
+        Subject subj  = (Subject) iter.next();
+        Member  m     = MemberFinder.findBySubject(s, subj);
+
+        // This is the immediate privilege that needs to be deleted
+        deletes.add(
+          MembershipFinder.findImmediateMembership(
+            s, g.getUuid(), m, FieldFinder.find( (String) priv2list.get(priv) )
+          )
+        );
+
+        // As many of the privileges are likely to be transient, we
+        // need to retrieve the persistent version of each before
+        // passing it along to be deleted by HibernateHelper.  
+        Session   hs    = HibernateHelper.getSession();
+        Iterator  iterM = MemberOf.doMemberOf(s, g, m).iterator();
+        while (iterM.hasNext()) {
+          Membership ms = (Membership) iterM.next();
+          deletes.add( 
+            MembershipFinder.findEffectiveMembership(
+              ms.getOwner_id(), ms.getMember_id(), 
+              ms.getList(), ms.getVia_id(), ms.getDepth()
+            )
+          );
+        }
+        hs.close();
+      }
+
+      // And then update the registry
+      HibernateHelper.saveAndDelete(saves, deletes);
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eGNF.getMessage()
+      );
+    }
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eH.getMessage()
+      );
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eMNF.getMessage()
+      );
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eMSNF.getMessage()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new RevokePrivilegeException(
+        "could not revoke privilege: " + eS.getMessage()
+      );
+    }
   } // public void revokePriv(s, g, priv)
 
   /**

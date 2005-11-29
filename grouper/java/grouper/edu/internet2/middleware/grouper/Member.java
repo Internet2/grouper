@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.12 2005-11-28 19:14:19 blair Exp $
+ * @version $Id: Member.java,v 1.13 2005-11-29 19:39:40 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -461,7 +461,7 @@ public class Member implements Serializable {
   public Set hasStem() {
     try {
       return PrivilegeResolver.getInstance().getStemsWhereSubjectHasPriv(
-        this.s, this.getSubject(), NamingPrivilege.CREATE
+        this.s, this.getSubject(), NamingPrivilege.STEM
       );
     }
     catch (SubjectNotFoundException eSNF) {
