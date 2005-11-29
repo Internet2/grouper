@@ -68,7 +68,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestSuFiInSoAdFindByIdentifier.class);
     suite.addTestSuite(TestSuFiGrSoAdFindById.class);
     suite.addTestSuite(TestSuFiGrSoAdFindByIdentifier.class);
-    //suite.addTestSuite(TestSubjectFinderInternal.class);
+    suite.addTestSuite(TestSubjectFinderInternal.class);
 
     return suite;
   }
