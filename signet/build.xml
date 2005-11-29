@@ -138,6 +138,7 @@ against the database file--use when application is not running">
 			destdir="${doc.dir}"
 			access="public"
 			use="true"
+			breakiterator="true"
 			notree="false"
 			nonavbar="false"
 			noindex="false"
