@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.5 2005-11-29 17:25:39 blair Exp $
  */
 public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
 
@@ -71,6 +71,70 @@ public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
   public void testFindByIdentifierGoodIdGoodType() {
     Subject subj = SubjectHelper.getSubjectByIdentifierType(i2.getName(), "group");
     Assert.assertTrue("found subject", true);
+    Map attrs = subj.getAttributes();
+    Assert.assertTrue("7 attributes", attrs.size() == 7);
+    // createSubjectId
+    String attr = "createSubjectId";
+    String val  = "GrouperSystem";
+    Assert.assertTrue(
+      "attr => " + attr, subj.getAttributeValue(attr).equals(val)
+    );
+    Assert.assertTrue(
+      "attrs => " + attr, attrs.get(attr).equals(val)
+    );
+    // createSubjectType
+    attr = "createSubjectType";
+    val  = "application";
+    Assert.assertTrue(
+      "attr => " + attr, subj.getAttributeValue(attr).equals(val)
+    );
+    Assert.assertTrue(
+      "attrs => " + attr, attrs.get(attr).equals(val)
+    );
+    // createTime
+    attr = "createTime";
+    Assert.assertNotNull(
+      "attr => " + attr, subj.getAttributeValue(attr)
+    );
+    Assert.assertNotNull(
+      "attrs => " + attr, attrs.get(attr)
+    );
+    // displayExtension
+    attr = "displayExtension";
+    val  = "internet2";
+    Assert.assertTrue(
+      "attr => " + attr, subj.getAttributeValue(attr).equals(val)
+    );
+    Assert.assertTrue(
+      "attrs => " + attr, attrs.get(attr).equals(val)
+    );
+    // displayName
+    attr = "displayName";
+    val  = "educational:internet2";
+    Assert.assertTrue(
+      "attr => " + attr, subj.getAttributeValue(attr).equals(val)
+    );
+    Assert.assertTrue(
+      "attrs => " + attr, attrs.get(attr).equals(val)
+    );
+    // extension
+    attr = "extension";
+    val  = "i2";
+    Assert.assertTrue(
+      "attr => " + attr, subj.getAttributeValue(attr).equals(val)
+    );
+    Assert.assertTrue(
+      "attrs => " + attr, attrs.get(attr).equals(val)
+    );
+    // name
+    attr = "name";
+    val  = "edu:i2";
+    Assert.assertTrue(
+      "attr => " + attr, subj.getAttributeValue(attr).equals(val)
+    );
+    Assert.assertTrue(
+      "attrs => " + attr, attrs.get(attr).equals(val)
+    );
   } // public void testFindByIdentifierGoodIdGoodType()
 
 }

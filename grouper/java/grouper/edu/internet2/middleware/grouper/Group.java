@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.15 2005-11-28 19:21:48 blair Exp $
+ * @version $Id: Group.java,v 1.16 2005-11-29 17:25:39 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -52,7 +52,9 @@ public class Group implements Serializable {
 
 
   // Transient Instance Methods
-  private transient GrouperSession s;
+  private transient Subject         creator;
+  private transient Subject         modifier;
+  private transient GrouperSession  s;
 
 
   // Constructors
@@ -438,8 +440,11 @@ public class Group implements Serializable {
   public Subject getCreateSubject() 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (creator == null) {
+      creator = this.getCreator_id().getSubject();
+    }
+    return creator; 
+  } // public Subject getCreateSubject() 
   
   /**
    * Get creation time for this group.
@@ -461,8 +466,8 @@ public class Group implements Serializable {
    * @return  Group description.
    */
   public String getDescription() {
-    throw new RuntimeException("Not implemented");
-  }
+    return this.getGroup_description();
+  } // public String getDescription()
 
   /**
    * Get group displayExtension.
@@ -472,8 +477,8 @@ public class Group implements Serializable {
    * @return  Gruop displayExtension.
    */
   public String getDisplayExtension() {
-    throw new RuntimeException("Not implemented");
-  }
+    return this.getDisplay_extension();
+  } // public String getDisplay_extension()
 
   /**
    * Get group displayName.
@@ -600,8 +605,17 @@ public class Group implements Serializable {
   public Subject getModifySubject() 
     throws SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (modifier == null) {
+      Member m = this.getModifier_id();
+      if (m == null) {
+        throw new SubjectNotFoundException(
+          "group has not been modified"
+        );
+      }
+      modifier = m.getSubject();
+    }
+    return modifier; 
+  } // public Subject getModifySubject()
   
   /**
    * Get last modified time for this group.
