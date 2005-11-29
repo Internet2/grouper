@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.74 2005-11-28 21:02:54 blair Exp $
+$Id: ROADMAP,v 1.75 2005-11-29 17:25:38 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.74 2005-11-28 21:02:54 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* Load group attributes into group subjects
 * GrouperNamingPrivilege.getSubjectsWithPriv(s, ns, priv)
   * GrouperAccessPrivilege.getSubjectsWithPriv(s, g, priv)
 * GrouperNamingPrivilege.revokePriv(s, g, priv)
@@ -31,31 +30,37 @@ TODO Sync with Basecamp
   * should PrivilegeNotFoundException and SchemaException be merged?
     * Or just remove PNFE?
 * _Stem_ child stems mapping
-
-## Later
 * _Stem_ parent stem mapping
   * _Group_ parent stem mapping
+
+## Later
 * Commons logging
 * More effective membership testing
 * Group deletion when groups have members or are members
 * Review generated SQL
+  * Including my twisty column names
 * Test with Pg and Oracle and review generated SQL
 * Review old _*.todo_ test classes
+* Implement remaining unimplemented methods
 * Add create member and time to memberships
 * Add create time to members
 * Rename subjectIDs in local subject<=>member mapping (#133)
 * Update and expend query api javadocs
-* Review files and add TODO items to this list
-* Review exceptions
 * Map _GroupType_
 * many-to-many maping between _Field_ and _GroupType_
 * Replace `_init()` methods with static {} declarations where possible
 * Replace contrib with updated cdg
 * Test concurrent mods and access
+* Profiling and benchmarking
 * Custom group types
 * Custom group attributes
+  * add to group subjects
 * Custom group lists
+  * add to group subjects
 * Update Subject API jar
+* normalize source adapter id + name conventions
+* record where each *Finder method is called from
+* Review files and add TODO items to this list
 * Switch to Hibernate 3.x
 
 ---
@@ -92,12 +97,4 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
-
-
-
-
-
-
-
-
 
