@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.24 2005-11-16 02:30:14 jvine Exp $
-  $Date: 2005-11-16 02:30:14 $
+  $Id: functions.jsp,v 1.25 2005-11-29 22:40:33 jvine Exp $
+  $Date: 2005-11-29 22:40:33 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -149,7 +149,7 @@
 					<h2>
            	Select privilege
          	</h2> 
-						  <p><label for "scope">
+						  <p><label for="scope">
 							  Select a privilege, then click Continue.
 							</label>
 						  </p>
@@ -215,18 +215,16 @@
      
                       <div class="showdesc">
                   <span class="category" id="categoryName">
-                    <!-- category name gets inserted by Javascript -->
+                    &nbsp; <!-- category name gets inserted by Javascript - &nbsp; is placeholder for Safari -->
                   </span> <!-- categoryName -->
                   <span class="function" id="functionName">
-                    <!-- function name gets inserted by Javascript -->
-                  </span> <!-- functionName -->
-                  <p class="description" id="functionDescription">
-                    <!-- function description gets inserted by Javascript -->
-                  </p>
+                    &nbsp; <!-- function name gets inserted by Javascript -->
+                  </span> <br /><!-- functionName -->
+                  <span class="description" id="functionDescription">
+                    &nbsp; <!-- function description gets inserted by Javascript -->
+                  </span>
                             </div>
                       <!-- description -->
-		              <div class="clear">&nbsp;</div>
-		              <!--fix/hack for Safari display bug -->
 		  </div>
 				 	<!-- section -->
 					
