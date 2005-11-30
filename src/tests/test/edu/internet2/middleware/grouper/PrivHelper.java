@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.7 2005-11-29 19:39:40 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.8 2005-11-30 21:23:22 blair Exp $
  */
 public class PrivHelper {
 
@@ -169,6 +169,18 @@ public class PrivHelper {
   } // protected static void grantPriv(s, ns, subj, priv)
 
   protected static void hasPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv, boolean has
+  )
+  {
+    try {
+      hasPriv(g, subj, MemberFinder.findBySubject(s, subj), priv, has);  
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void hasPriv(s, g, subj, priv, has)
+
+  protected static void hasPriv(
     Group g, Subject subj, Member m, Privilege priv, boolean has
   ) 
   {
@@ -210,6 +222,18 @@ public class PrivHelper {
       Assert.fail("unable test priv '" + priv + "'");
     }
   } // protected static void hasPriv(g, subj, m, priv, has)
+
+  protected static void hasPriv(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv, boolean has
+  )
+  {
+    try {
+      hasPriv(ns, subj, MemberFinder.findBySubject(s, subj), priv, has);  
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void hasPriv(s, ns, subj, priv, has)
 
   protected static void hasPriv(
     Stem ns, Subject subj, Member m, Privilege priv, boolean has

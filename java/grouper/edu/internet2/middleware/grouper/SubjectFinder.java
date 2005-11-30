@@ -28,7 +28,7 @@ import  org.apache.commons.logging.LogFactory;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.4 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.5 2005-11-30 21:23:22 blair Exp $
  */
 public class SubjectFinder implements Serializable {
   // TODO Add caching?
@@ -36,6 +36,7 @@ public class SubjectFinder implements Serializable {
   // Private Class Variables
   private static Log            log = LogFactory.getLog(SubjectFinder.class);
   private static SourceManager  mgr = null;
+  private static Subject        all = null;
 
 
   // Public Class Methods
@@ -176,6 +177,28 @@ public class SubjectFinder implements Serializable {
   public static Set findAll(String query) {
     throw new RuntimeException("Not implemented");
   } // public static Set findAll(query)
+
+  /**
+   * Get <i>GrouperAll</i> subject.
+   * <pre class="eg">
+   * Subject all = SubjectFinder.findAllSubject();
+   *  </pre>
+   * @return  The <i>GrouperAll</i> {@link Subject} 
+   */
+  public static Subject findAllSubject() {
+    if (all == null) {
+      SubjectFinder._init();
+      try {
+        all = SubjectFinder.findById("GrouperAll", "application");
+      }
+      catch (SubjectNotFoundException eSNF) {
+        throw new RuntimeException(
+          "unable to retrieve ALL subject: " + eSNF.getMessage()
+        );
+      }
+    }
+    return all;
+  }
 
 
   // Private class methods

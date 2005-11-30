@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.77 2005-11-29 21:32:00 blair Exp $
+$Id: ROADMAP,v 1.78 2005-11-30 21:23:22 blair Exp $
 
 ---
 
@@ -12,7 +12,6 @@ $Id: ROADMAP,v 1.77 2005-11-29 21:32:00 blair Exp $
 TODO Sync with Basecamp
 
 ## Next Actions
-* ALL subject adapter
 * Implement all 0.6 query filters
   * GroupAttributeMatchFilter
   * GroupAnyAttributeFilter
@@ -25,14 +24,14 @@ TODO Sync with Basecamp
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
   * _Group_ parent stem mapping
-* Commons logging
 * Group deletion when groups have members or are members
+* Implement remaining unimplemented methods
 * Review generated SQL
   * Including my twisty column names
-* Implement remaining unimplemented methods
+* Replace `_init()` methods with static {} declarations where possible
+* Commons logging
 
 ## Later
-* Replace `_init()` methods with static {} declarations where possible
 * Review old _*.todo_ test classes
   * More effective membership testing
 * Add create member and time to memberships
@@ -50,6 +49,7 @@ TODO Sync with Basecamp
   * add to group subjects
 * Update Subject API jar
 * normalize source adapter id + name conventions
+* wheel group
 * record where each *Finder method is called from
 * Review files and add TODO items to this list
 * Test with Pg and Oracle and review generated SQL

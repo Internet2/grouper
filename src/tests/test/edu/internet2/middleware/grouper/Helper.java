@@ -26,14 +26,13 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.4 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: Helper.java,v 1.5 2005-11-30 21:23:22 blair Exp $
  */
 public class Helper {
 
   // Protected Class Constants
   protected static final String BAD_SUBJ_ID   = "i do not exist";
   protected static final String ERROR         = "How did we reach this statement?";
-  protected static final String GOOD_SUBJ_ID  = "GrouperSystem";
 
 
   // Protected Class Methods

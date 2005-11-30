@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.3 2005-11-30 21:23:23 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -91,8 +91,60 @@ public class TestInternalSourceAdapter extends TestCase {
     }
   } // public void testAdapterBadSubjectByIdentifer() 
 
+  public void testAdapterGrouperAllSubject() {
+    String id = SubjectHelper.SUBJ_ALL;
+    try { 
+      Subject subj = sa.getSubject(id);
+      Assert.assertTrue("found subject: " + id, true);
+      Assert.assertNotNull("subj !null", subj);
+      Assert.assertTrue(
+        "subj instanceof Subject",
+        subj instanceof Subject
+      );
+      Assert.assertTrue(
+        "subj instanceof InternalSubject",
+        subj instanceof InternalSubject
+      );
+      Assert.assertTrue("subj id", subj.getId().equals(id));
+      Assert.assertTrue("subj name", subj.getName().equals(id));
+      Assert.assertTrue(
+        "subj type",
+        subj.getType().getName().equals("application")
+      );
+    } 
+    catch (SubjectNotFoundException e) {
+      Assert.fail("failed to find subject: " + id);
+    }
+  } // public void testAdapterGrouperAllSubject()
+
+  public void testAdapterGrouperAllSubjectByIdentifier() {
+    String id = SubjectHelper.SUBJ_ALL;
+    try { 
+      Subject subj = sa.getSubjectByIdentifier(id);
+      Assert.assertTrue("found subject: " + id, true);
+      Assert.assertNotNull("subj !null", subj);
+      Assert.assertTrue(
+        "subj instanceof Subject",
+        subj instanceof Subject
+      );
+      Assert.assertTrue(
+        "subj instanceof InternalSubject",
+        subj instanceof InternalSubject
+      );
+      Assert.assertTrue("subj id", subj.getId().equals(id));
+      Assert.assertTrue("subj name", subj.getName().equals(id));
+      Assert.assertTrue(
+        "subj type",
+        subj.getType().getName().equals("application")
+      );
+    } 
+    catch (SubjectNotFoundException e) {
+      Assert.fail("failed to find subject: " + id);
+    }
+  } // public void testAdapterGrouperAllSubjectByIdentifier()
+
   public void testAdapterGrouperSystemSubject() {
-    String id = "GrouperSystem";
+    String id = SubjectHelper.SUBJ_ROOT;
     try { 
       Subject subj = sa.getSubject(id);
       Assert.assertTrue("found subject: " + id, true);
@@ -118,7 +170,7 @@ public class TestInternalSourceAdapter extends TestCase {
   } // public void testAdapterGrouperSystemSubject()
 
   public void testAdapterGrouperSystemSubjectByIdentifier() {
-    String id = "GrouperSystem";
+    String id = SubjectHelper.SUBJ_ROOT;
     try { 
       Subject subj = sa.getSubjectByIdentifier(id);
       Assert.assertTrue("found subject: " + id, true);

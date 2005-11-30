@@ -23,9 +23,15 @@ import  java.util.*;
 
 /**
  * Internal <i>SourceAdapter</i> for retrieving {@link InternalSubject}s.
- * <p />
+ * <p>
+ * This subject adapter resolves two subjects:
+ * </p>
+ * <ul>
+ * <li><i>GrouperAll</i></li>
+ * <li><i>GrouperSystem</i></li>
+ * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.3 2005-11-28 19:21:48 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.4 2005-11-30 21:23:22 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -151,7 +157,11 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   {
     // TODO What attributes do I need to set?  Check with Gary at some
     // point.
-    if (qry.equals("GrouperSystem")) {
+    // TODO Stop creating a new object each time
+    if      (qry.equals("GrouperAll"))    {
+      return new InternalSubject(qry, qry, this);
+    }
+    else if (qry.equals("GrouperSystem")) {
       return new InternalSubject(qry, qry, this);
     }
     throw new SubjectNotFoundException("subject not found: " + qry);

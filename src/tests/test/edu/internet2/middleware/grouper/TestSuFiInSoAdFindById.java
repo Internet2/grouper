@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder.findById()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindById.java,v 1.2 2005-11-11 18:39:35 blair Exp $
+ * @version $Id: TestSuFiInSoAdFindById.java,v 1.3 2005-11-30 21:23:23 blair Exp $
  */
 public class TestSuFiInSoAdFindById extends TestCase {
 
@@ -51,21 +51,33 @@ public class TestSuFiInSoAdFindById extends TestCase {
   } // public void testFindByIdBadId()
 
   public void testFindByIdGoodIdBadType() {
-    SubjectHelper.getSubjectByBadIdType(Helper.GOOD_SUBJ_ID, "person");
+    SubjectHelper.getSubjectByBadIdType(SubjectHelper.SUBJ_ROOT, "person");
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdGoodIdBadType()
 
-  public void testFindByIdGoodId() {
-    Subject subj = SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID);
-    Assert.assertTrue("found subject", true);
-  } // public void testFindByIdGoodId()
+  public void testFindByIdGoodIdAll() {
+    Subject subj = SubjectHelper.getSubjectById(SubjectHelper.SUBJ_ALL);
+    Assert.assertTrue("found all subject", true);
+  } // public void testFindByIdGoodIdAll()
 
-  public void testFindByIdGoodIdGoodType() {
+  public void testFindByIdGoodIdGoodTypeAll() {
     Subject subj = SubjectHelper.getSubjectByIdType(
-      Helper.GOOD_SUBJ_ID, "application"
+      SubjectHelper.SUBJ_ALL, "application"
     );
-    Assert.assertTrue("found subject", true);
-  } // public void testFindByIdGoodIdGoodType()
+    Assert.assertTrue("found all subject", true);
+  } // public void testFindByIdGoodIdGoodTypeAll()
+
+  public void testFindByIdGoodIdRoot() {
+    Subject subj = SubjectHelper.getSubjectById(SubjectHelper.SUBJ_ROOT);
+    Assert.assertTrue("found root subject", true);
+  } // public void testFindByIdGoodIdRoot()
+
+  public void testFindByIdGoodIdGoodTypeRoot() {
+    Subject subj = SubjectHelper.getSubjectByIdType(
+      SubjectHelper.SUBJ_ROOT, "application"
+    );
+    Assert.assertTrue("found root subject", true);
+  } // public void testFindByIdGoodIdGoodTypeRoot()
 
 }
 
