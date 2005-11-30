@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.10 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.11 2005-11-30 21:23:22 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -147,6 +147,9 @@ class PrivilegeResolver {
       return true;
     }
     try {
+      if (access.hasPriv(s, g, SubjectFinder.findAllSubject(), priv)) {
+        return true;
+      }
       return access.hasPriv(s, g, subj, priv);
     }
     catch (PrivilegeNotFoundException ePNF) {
@@ -163,6 +166,9 @@ class PrivilegeResolver {
       return true;
     }
     try {
+      if (naming.hasPriv(s, ns, SubjectFinder.findAllSubject(), priv)) {
+        return true;
+      }
       return naming.hasPriv(s, ns, subj, priv);
     }
     catch (PrivilegeNotFoundException ePNF) {

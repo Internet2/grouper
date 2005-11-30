@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMemberGroup.java,v 1.6 2005-11-28 19:14:19 blair Exp $
+ * @version $Id: TestGroupAddMemberGroup.java,v 1.7 2005-11-30 21:23:23 blair Exp $
  */
 public class TestGroupAddMemberGroup extends TestCase {
 
@@ -64,7 +64,7 @@ public class TestGroupAddMemberGroup extends TestCase {
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Subject         subj  = SubjectHelper.getSubjectById(Helper.GOOD_SUBJ_ID);
+    Subject         subj  = SubjectHelper.getSubjectById(SubjectHelper.SUBJ_ROOT);
     Member          m     = Helper.getMemberBySubject(s, subj);
     GroupHelper.addMember(uofc, subj, m);
     GroupHelper.addMember(i2, uofc);

@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.4 2005-11-28 21:02:55 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.5 2005-11-30 21:23:23 blair Exp $
  */
 public class SubjectHelper {
 
@@ -40,6 +40,8 @@ public class SubjectHelper {
   protected static final String   SUBJ1_ID    = "test.subject.1";
   protected static final String   SUBJ1_NAME  = "my name is test.subject.1";
   protected static final String   SUBJ1_TYPE  = "person";
+  protected static final String   SUBJ_ALL    = "GrouperAll";
+  protected static final String   SUBJ_ROOT   = "GrouperSystem";
 
   static {
     try {

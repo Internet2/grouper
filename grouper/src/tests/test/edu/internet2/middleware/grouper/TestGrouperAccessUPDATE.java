@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessUPDATE.java,v 1.7 2005-11-29 19:39:40 blair Exp $
+ * @version $Id: TestGrouperAccessUPDATE.java,v 1.8 2005-11-30 21:23:23 blair Exp $
  */
 public class TestGrouperAccessUPDATE extends TestCase {
 
@@ -98,6 +98,17 @@ public class TestGrouperAccessUPDATE extends TestCase {
     PrivHelper.subjInGroups(s, SubjectHelper.SUBJ0, groups, PRIV);
   } // public void testGrantPrivs()
 
+  public void testGrantPrivsAll() {
+    PrivHelper.grantPriv( s, i2, SubjectFinder.findAllSubject(), PRIV);
+    PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
+    PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, true);
+    PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ1,  PRIV, true);
+    subjs.add(SubjectFinder.findAllSubject());
+    PrivHelper.getSubjsWithPriv(i2, subjs, PRIV);
+    groups.add(i2);
+    PrivHelper.subjInGroups(s, SubjectFinder.findAllSubject(), groups, PRIV);
+  } // public void testGrantPrivs()
+
   public void testRevokePrivs() {
     PrivHelper.grantPriv(s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, i2,  SubjectHelper.SUBJ0 , PRIV);    
@@ -124,6 +135,17 @@ public class TestGrouperAccessUPDATE extends TestCase {
     PrivHelper.getSubjsWithPriv(i2, subjs, PRIV);
     PrivHelper.subjInGroups(s, s.getSubject(), groups, PRIV);
   } // public void testRevokePrivs()
+
+  public void testRevokePrivsAll() {
+    PrivHelper.grantPriv( s, i2, SubjectFinder.findAllSubject(), PRIV);
+    PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
+    PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, true);
+    PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ1,  PRIV, true);
+    PrivHelper.revokePriv(s, i2, SubjectFinder.findAllSubject(), PRIV);
+    PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
+    PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, false);
+    PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ1,  PRIV, false);
+  } // public void testRevokePrivsAll()
 
   public void testRevokeAllPrivs() {
     PrivHelper.grantPriv(s, i2,  s.getSubject()      , PRIV);      
