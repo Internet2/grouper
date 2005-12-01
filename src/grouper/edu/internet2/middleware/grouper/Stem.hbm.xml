@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.3 2005-11-28 16:46:14 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.4 2005-12-01 19:38:51 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -129,6 +129,7 @@ Get description.
     <many-to-one
       name="modifier_id"
       class="edu.internet2.middleware.grouper.Member" 
+      cascade="none"
     >
       <column name="modifier_id" 
               sql-type="char(64)"

@@ -3,28 +3,27 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.82 2005-12-01 15:16:19 blair Exp $
+$Id: ROADMAP,v 1.83 2005-12-01 19:38:51 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement STEM 
+* Implement CREATE
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
   * _Group_ parent stem mapping
-* Implement CREATE
 * Group deletion when groups have members or are members
-* Implement ADMIN
-* Implement UPDATE
-* Replace `_init()` methods with static {} declarations where possible
-* Implement READ
 * Implement VIEW
-
-## Later
+* Implement READ
+* Implement UPDATE
 * Implement OPTIN
 * Implement OPTOUT
+* Implement ADMIN
+
+## Later
+* Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
 * Review generated SQL
   * Including my twisty column names
@@ -91,6 +90,7 @@ $Id: ROADMAP,v 1.82 2005-12-01 15:16:19 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.1 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestStem.java,v 1.2 2005-12-01 19:38:51 blair Exp $
  */
 public class TestStem extends TestCase {
 
@@ -52,7 +52,17 @@ public class TestStem extends TestCase {
       SessionHelper.getRootSession()
     );
     Assert.assertEquals("root == root", rootA, rootB);
-  } // public void testAtRoot()
+  } // public void testRoot()
+
+  public void testRootAsNonRoot() {
+    Stem  rootA = StemHelper.findRootStem(
+      SessionHelper.getSession(SubjectHelper.SUBJ0_ID)
+    );
+    Stem  rootB = StemHelper.findRootStem(
+      SessionHelper.getSession(SubjectHelper.SUBJ0_ID)
+    );
+    Assert.assertEquals("root == root", rootA, rootB);
+  } // public void testRootAsNonRoot()
 
 }
 
