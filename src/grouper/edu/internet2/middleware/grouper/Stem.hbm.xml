@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Stem.hbm.xml,v 1.4 2005-12-01 19:38:51 blair Exp $ -->
+<!-- $Id: Stem.hbm.xml,v 1.5 2005-12-01 21:18:23 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Stem" table="grouper_stems">
@@ -42,6 +42,28 @@ A namespace within the Groups Registry.
     </id>
     <!-- id -->
 
+
+    <!-- child_groups -->
+    <set  name="child_groups"
+          table="grouper_groups"
+          cascade="save-update"
+          inverse="true"
+    >
+      <key column="parent_stem"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Group" />
+    </set>
+    <!-- child_stems -->
+
+    <!-- child_stems -->
+    <set  name="child_stems"
+          table="grouper_stems"
+          cascade="save-update"
+          inverse="true"
+    >
+      <key column="parent_stem"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Stem" />
+    </set>
+    <!-- child_stems -->
 
     <!-- creator_id -->
     <many-to-one
@@ -166,14 +188,15 @@ Get description.
     <!-- name -->
 
     <!-- parent_stem -->
-    <property name="parent_stem"
-              type="string"
-              not-null="true"
+    <many-to-one
+      name="parent_stem"
+      class="edu.internet2.middleware.grouper.Stem"
+      cascade="none"
     >
       <column name="parent_stem" 
-              sql-type="char(64)" 
+              sql-type="char(32)"
       />
-    </property>
+    </many-to-one>
     <!-- parent_stem -->
 
     <!-- stem_id -->

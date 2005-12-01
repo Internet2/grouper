@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.21 2005-12-01 20:04:47 blair Exp $
+ * @version $Id: Stem.java,v 1.22 2005-12-01 21:18:23 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -45,7 +45,7 @@ public class Stem implements Serializable {
   private Member  modifier_id;
   private String  modify_source;
   private long    modify_time;
-  private String  parent_stem;
+  private Stem    parent_stem;
   private String  stem_description;
   private String  stem_extension;
   private String  stem_id;
@@ -115,17 +115,18 @@ public class Stem implements Serializable {
     try {
       Group child = new Group(this.s, this, extension, displayExtension);
       // Set parent
-      child.setParent_stem(this.getUuid());
+      child.setParent_stem(this);
       // Add to children 
       Set children  = this.getChild_groups();
       children.add(child);
       this.setChild_groups(children);
-      // TODO this.setChild_groups( this.getChild_groups().add(child) );
-      // TODO Save and cascade
+/* TODO Does cascading now work?
       Set objects = new LinkedHashSet();
       objects.add(this);
       objects.add(child);
       HibernateHelper.save(objects);
+*/
+      HibernateHelper.save(this);
       return child;
     }
     catch (Exception e) {
@@ -173,19 +174,20 @@ public class Stem implements Serializable {
       this.constructName(this.getDisplayName(), displayExtension)
     );
     // Set parent
-    child.setParent_stem(this.getUuid());
+    child.setParent_stem(this);
     // Add to children 
     Set children  = this.getChild_stems();
     children.add(child);
     this.setChild_stems(children);
-    // TODO this.setChild_stems( this.getChild_stems().add(child) );
     try {
-      // TODO Save and cascade
+/* TODO Does cascading now work?
       Set objects = new LinkedHashSet();
       this.setModified();
       objects.add(this);
       objects.add(child);
       HibernateHelper.save(objects);
+*/
+      HibernateHelper.save(this);
       try {
         // Now grant STEM (as root) to the creator on the child stem.
         //
@@ -232,8 +234,10 @@ public class Stem implements Serializable {
    * @return  Set of {@link Group} objects
    */
   public Set getChildGroups() {
-    throw new RuntimeException("Not implemented");
-  }
+    // TODO Filter through canVIEW()
+    // TODO Do I need to attach sessions?
+    return this.getChild_groups();
+  } // public Set getChildGroups()
 
   /**
    * Get child stems of this stem.
@@ -244,8 +248,9 @@ public class Stem implements Serializable {
    * @return  Set of {@link Stem} objects
    */
   public Set getChildStems() {
-    throw new RuntimeException("Not implemented");
-  }
+    // TODO Do I need to attach sessions?
+    return this.getChild_stems();
+  } // public Set getChildStems()
 
   /**
    * Get (optional and questionable) create source for this stem.
@@ -423,7 +428,11 @@ public class Stem implements Serializable {
   public Stem getParentStem() 
     throws StemNotFoundException
   {
-    return StemFinder.findByUuid(this.s, this.parent_stem);
+    Stem parent = this.getParent_stem();
+    if (parent == null) {
+      throw new StemNotFoundException();
+    }
+    return parent;
   } // public Stem getParentStem()
 
   /**
@@ -825,7 +834,14 @@ public class Stem implements Serializable {
   private String getStem_id() {
     return this.stem_id;
   }
-
+/* TODO
+  private Stem getStem() {
+    return this.stem;
+  }
+  private void setStem(Stem stem) {
+    this.stem = stem;
+  }
+*/
   private void setStem_id(String stem_id) {
     this.stem_id = stem_id;
   }
@@ -846,13 +862,11 @@ public class Stem implements Serializable {
       this.modifier_id = modifier_id;
   }
 
-  // TODO private Stem getParent_stem() {
-  private String getParent_stem() {
+  private Stem getParent_stem() {
     return this.parent_stem;
   }
 
-  // TODO private void setParent_stem(Stem parent_stem) {
-  private void setParent_stem(String parent_stem) {
+  private void setParent_stem(Stem parent_stem) {
     this.parent_stem = parent_stem;
   }
 
