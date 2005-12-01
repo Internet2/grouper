@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.111 2005-12-01 15:16:19 blair Exp $
+$Id: API,v 1.112 2005-12-01 18:29:52 blair Exp $
 
 ---
 
@@ -91,17 +91,17 @@ $Id: API,v 1.111 2005-12-01 15:16:19 blair Exp $
 * void                deleteMember(subject)
 * void                deleteMember(subject, field)
 * Set                 getAdmins()
-* String              TODO  getAttribute(attr)
-* Map                 TODO getAttributes()
+* String              getAttribute(attr)
+* Map                 getAttributes()
 * String              getCreateSource()
 * Subject             getCreateSubject()
 * Date                getCreateTime()
-* String              TODO getDescription()
-* String              TODO getDisplayExtension()
-* String              TODO getDisplayName()
+* String              getDescription()
+* String              getDisplayExtension()
+* String              getDisplayName()
 * Set                 getEffectiveMembers()
 * Set                 getEffectiveMemberships()
-* String              TODO getExtension()
+* String              getExtension()
 * Set                 getImmediateMembers()
 * Set                 getImmediateMemberships()
 * Set                 getMembers()
@@ -109,7 +109,7 @@ $Id: API,v 1.111 2005-12-01 15:16:19 blair Exp $
 * String              getModifySource()
 * Subject             getModifySubject()
 * Date                getModifyTime()
-* String              TODO getName()
+* String              getName()
 * Set                 getOptins()
 * Set                 getOptouts()
 * Stem                getParentStem()
@@ -131,9 +131,9 @@ $Id: API,v 1.111 2005-12-01 15:16:19 blair Exp $
 * boolean             hasView(subject)
 * void                revokePriv(access priv)
 * void                revokePriv(subject, access priv) 
-* void                TODO setAttribute(attr, value)
-* void                TODO setDescription(value)
-* void                TODO setDisplayExtension(value)
+* void                setAttribute(attr, value)
+* void                setDescription(value)
+* void                setDisplayExtension(value)
 * void                setTypes(values)
 * Member              toMember()
 * Subject             toSubject()
