@@ -3,20 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.81 2005-12-01 03:43:55 blair Exp $
+$Id: ROADMAP,v 1.82 2005-12-01 15:16:19 blair Exp $
 
 ---
 
 # Grouper 0.9
 
-TODO Sync with Basecamp
-
 ## Next Actions
-* Review exceptions
-  * Should MemberNotFound and SubjectNotFound be replaced by Runtime
-    exceptions?  Or at least be used more selectively?
-  * should PrivilegeNotFoundException and SchemaException be merged?
-    * Or just remove PNFE?
 * Implement STEM 
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
@@ -25,11 +18,11 @@ TODO Sync with Basecamp
 * Group deletion when groups have members or are members
 * Implement ADMIN
 * Implement UPDATE
+* Replace `_init()` methods with static {} declarations where possible
 * Implement READ
 * Implement VIEW
 
 ## Later
-* Replace `_init()` methods with static {} declarations where possible
 * Implement OPTIN
 * Implement OPTOUT
 * Implement remaining unimplemented methods
