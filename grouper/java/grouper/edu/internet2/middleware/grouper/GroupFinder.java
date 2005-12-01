@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.5 2005-12-01 03:12:24 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.6 2005-12-01 03:43:10 blair Exp $
  */
 public class GroupFinder {
 
@@ -132,6 +132,67 @@ public class GroupFinder {
     }
     return new LinkedHashSet(groups);
   } // protected static Set findByCreatedBefore(s, d)
+
+  protected static Set findByAnyApproximateAttr(GrouperSession s, String val) 
+    throws  QueryException
+  {
+    GrouperSession.validate(s);
+    Set groups = new LinkedHashSet();
+    try {
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = hs.find(
+        "from Attribute as a where lower(a.value) like  ?",
+        "%" + val.toLowerCase() + "%",
+        Hibernate.STRING
+      ).iterator();
+      hs.close();
+      while (iter.hasNext()) {
+        Group g = ( (Attribute) iter.next() ).getGroup();
+        g.setSession(s);
+        groups.add(g);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage()
+      );
+    }
+    return groups;
+  } // protected static Set findByAnyApproximateAttr(s, val)
+
+  protected static Set findByApproximateAttr(GrouperSession s, String attr, String val) 
+    throws  QueryException
+  {
+    GrouperSession.validate(s);
+    Set groups = new LinkedHashSet();
+    try {
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = hs.find(
+        "from Attribute as a where    "
+        + "a.field.name       =     ? "
+        + "and lower(a.value) like  ? "
+        ,
+        new Object[] {
+          attr, "%" + val.toLowerCase() + "%"
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING
+        }
+      ).iterator();
+      hs.close();
+      while (iter.hasNext()) {
+        Group g = ( (Attribute) iter.next() ).getGroup();
+        g.setSession(s);
+        groups.add(g);
+      }
+    }
+    catch (HibernateException eH) {
+      throw new QueryException(
+        "error finding groups: " + eH.getMessage()
+      );
+    }
+    return groups;
+  } // protected static Set findByApproximateAttr(s, attr, val)
 
   protected static Set findByApproximateName(GrouperSession s, String name) 
     throws  QueryException
