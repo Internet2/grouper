@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingSTEM.java,v 1.12 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestGrouperNamingSTEM.java,v 1.13 2005-12-01 19:38:51 blair Exp $
  */
 public class TestGrouperNamingSTEM extends TestCase {
 
@@ -63,15 +63,17 @@ public class TestGrouperNamingSTEM extends TestCase {
   // Tests
 
   public void testDefaultPrivs() {
-    PrivHelper.getPrivs(s, edu, s.getSubject(),       0, true,  true);
+    PrivHelper.getPrivs(s, edu, s.getSubject(),       1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0,  0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1,  0, false, false);
+    subjs.add(s.getSubject());
     PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
+    stems.add(edu);
     PrivHelper.subjInStems(s, s.getSubject(), stems, PRIV);
   } // public void testDefaultPrivs()
 
   public void testGrantPrivs() {
-    PrivHelper.grantPriv( s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.grantPrivFail(s, edu, s.getSubject(), PRIV);      
     PrivHelper.grantPriv( s, edu, SubjectHelper.SUBJ0 , PRIV);      
     PrivHelper.getPrivs(  s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ0 , 1, false, true);
@@ -89,6 +91,7 @@ public class TestGrouperNamingSTEM extends TestCase {
     PrivHelper.hasPriv(s, edu, s.getSubject(),       PRIV, true);
     PrivHelper.hasPriv(s, edu, SubjectHelper.SUBJ0,  PRIV, true);
     PrivHelper.hasPriv(s, edu, SubjectHelper.SUBJ1,  PRIV, true);
+    subjs.add(s.getSubject());
     subjs.add(SubjectFinder.findAllSubject());
     PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
     stems.add(edu);
@@ -96,7 +99,7 @@ public class TestGrouperNamingSTEM extends TestCase {
   } // public void testGrantPrivs()
 
   public void testRevokePrivs() {
-    PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.grantPrivFail(s, edu, s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
     PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 1, false, true);
@@ -122,7 +125,7 @@ public class TestGrouperNamingSTEM extends TestCase {
   } // public void testRevokePrivsAll()
 
   public void testRevokeAllPrivs() {
-    PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      
+    PrivHelper.grantPrivFail(s, edu, s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
     PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 1, false, true);

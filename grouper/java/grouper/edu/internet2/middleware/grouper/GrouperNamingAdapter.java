@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.18 2005-12-01 15:16:19 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.19 2005-12-01 19:38:51 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -212,7 +212,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
            InsufficientPrivilegeException
   {
     GrouperSession.validate(s);
+    String msg_gp = "unable to grant " + priv + " on " + ns.getName() 
+      + " to " + subj.getId();
     try {
+      this._canWriteField(s, ns, s.getSubject(), priv);
+
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);
 
@@ -236,30 +240,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // And then save group and memberships
       HibernateHelper.save(objects);
     }
-    catch (GroupNotFoundException eGNF) {
-      throw new GrantPrivilegeException(
-        "could not grant privilege: " + eGNF.getMessage()
-      );
+    catch (InsufficientPrivilegeException eIP) {
+      throw new InsufficientPrivilegeException(eIP.getMessage());
     }
-    catch (HibernateException eH) {
-      throw new GrantPrivilegeException(
-        "could not grant privilege: " + eH.getMessage()
-      );
-    }
-    catch (MemberAddException eMA) {
-      throw new GrantPrivilegeException(
-        "could not grant privilege: " + eMA.getMessage()
-      );
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new GrantPrivilegeException(
-        "could not grant privilege: " + eMNF.getMessage()
-      );
-    }
-    catch (SchemaException eS) {
-      throw new GrantPrivilegeException(
-        "could not grant privilege: " + eS.getMessage()
-      );
+    catch (Exception e) {
+      throw new GrantPrivilegeException(msg_gp + ": " + e.getMessage());
     }
   } // public void grantPriv(s, ns, subj, priv)
 
@@ -325,7 +310,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException 
   {
     GrouperSession.validate(s);
+    String msg_rp = "unable to revoke " + priv + " on " + ns.getName(); 
     try {
+      this._canWriteField(s, ns, s.getSubject(), priv);
+
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
       Set     deletes = new LinkedHashSet();
@@ -369,30 +357,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // And then update the registry
       HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (GroupNotFoundException eGNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eGNF.getMessage()
-      );
+    catch (InsufficientPrivilegeException eIP) {
+      throw new InsufficientPrivilegeException(eIP.getMessage());
     }
-    catch (HibernateException eH) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eH.getMessage()
-      );
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eMNF.getMessage()
-      );
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eMSNF.getMessage()
-      );
-    }
-    catch (SchemaException eS) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eS.getMessage()
-      );
+    catch (Exception e) {
+      throw new RevokePrivilegeException(msg_rp + ": " + e.getMessage());
     }
   } // public void revokePriv(s, ns, priv)
 
@@ -423,7 +392,11 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException 
   {
     GrouperSession.validate(s);
+    String msg_rp = "unable to revoke " + priv + " on " + ns.getName()
+      + " from " + subj.getId();
     try {
+      this._canWriteField(s, ns, s.getSubject(), priv);
+
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);
 
@@ -462,32 +435,68 @@ public class GrouperNamingAdapter implements NamingAdapter {
       //HibernateHelper.delete(objects);
       HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (GroupNotFoundException eGNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eGNF.getMessage()
-      );
+    catch (InsufficientPrivilegeException eIP) {
+      throw new InsufficientPrivilegeException(eIP.getMessage());
     }
-    catch (HibernateException eH) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eH.getMessage()
-      );
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eMNF.getMessage()
-      );
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eMSNF.getMessage()
-      );
-    }
-    catch (SchemaException eS) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eS.getMessage()
-      );
+    catch (Exception e) {
+      throw new RevokePrivilegeException(msg_rp + ": " + e.getMessage());
     }
   } // public void revokePriv(s, ns, subj, priv)
+
+
+  // Private Instance Methods
+  private void _canFieldDispatch(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    if      (priv.equals(NamingPrivilege.CREATE)) { 
+      this._canCREATE(s, ns, subj, priv);
+    }
+    else if (priv.equals(NamingPrivilege.STEM))   {
+      this._canSTEM(s, ns, subj, priv);
+    }
+    else {
+      throw new SchemaException("unknown naming privilege: " + priv);
+    }
+  } // private void _canFieldDispatch(s, ns, subj, priv)
+
+  private void _canCREATE(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException
+  {
+    if (!PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + ns.getName() + "'"
+      );
+    }
+  } // private void _canCREATE(s, ns, subj, priv)
+
+  private void _canSTEM(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException
+  {
+    if (!PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + ns.getName() + "'"
+      );
+    }
+  } // private void _canSTEM(s, ns, subj, priv)
+
+  private void _canWriteField(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    Field f = (Field) FieldFinder.find( (String) priv2list.get(priv));
+    this._canFieldDispatch(s, ns, subj, f.getWritePriv());
+  } // private void _canWriteField(s, ns, subj, priv)
 
 }
 

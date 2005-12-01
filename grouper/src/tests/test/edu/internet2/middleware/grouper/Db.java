@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.4 2005-11-28 21:02:55 blair Exp $
+ * @version $Id: Db.java,v 1.5 2005-12-01 19:38:51 blair Exp $
  */
 class Db {
 
@@ -60,7 +60,7 @@ class Db {
     _emptyTable("grouper_sessions");
     _emptyTable("grouper_attributes");
     _emptyTable("grouper_groups");
-    _emptyTable("grouper_stems");
+    _emptyTableGrouperStems();
     _emptyTable("grouper_factors");
     _emptyTable("grouper_members");
     _emptyTable("SubjectAttribute");
@@ -172,6 +172,23 @@ class Db {
       );
     }
   } // private static void _emptyTable(table)
+
+  private static void _emptyTableGrouperStems() {
+    PreparedStatement del = null;
+    try {
+      del = conn.prepareStatement(
+        "UPDATE grouper_stems SET "
+        + "modifier_id = null, modify_source = null, modify_time = 0.0"
+      );
+      del.executeUpdate();
+    }
+    catch (SQLException eSQL) {
+      throw new RuntimeException(
+        "unable to delete stem modify* attrs: " + eSQL.getMessage()
+      );
+    }
+    _emptyTable("grouper_stems");
+  } // private static void _emptyTableGrouperStems()
 
   private static void _readConfig() {
     InputStream in = Db.class

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: Helper.java,v 1.5 2005-11-30 21:23:22 blair Exp $
+ * @version $Id: Helper.java,v 1.6 2005-12-01 19:38:51 blair Exp $
  */
 public class Helper {
 
@@ -36,48 +36,6 @@ public class Helper {
 
 
   // Protected Class Methods
-
-  // Add and test a child group
-  // @return  Created {@link Group}
-  protected static Group addChildGroup(Stem ns, String extn, String displayExtn) {
-    try {
-      Group child = ns.addChildGroup(extn, displayExtn);
-      Assert.assertNotNull("child !null", child);
-      Assert.assertTrue("added child group", true);
-      Assert.assertTrue(
-        "child group instanceof Group", 
-        child instanceof Group
-      );
-      Assert.assertNotNull("child uuid !null", child.getUuid());
-      Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
-      return child;
-    }
-    catch (GroupAddException e) {
-      Assert.fail("failed to add group: " + e.getMessage());
-    }
-    throw new RuntimeException(ERROR);
-  } // protected static Group addChildGroup(ns, extn, displayExtn)
-
-  // Add and test a child stem
-  // @return  Created {@link Stem}
-  protected static Stem addChildStem(Stem ns, String extn, String displayExtn) {
-    try {
-      Stem child = ns.addChildStem("edu", "educational");
-      Assert.assertNotNull("child !null", child);
-      Assert.assertTrue("added child stem", true);
-      Assert.assertTrue(
-        "child stem instanceof Stem", 
-        child instanceof Stem
-      );
-      Assert.assertNotNull("child uuid !null", child.getUuid());
-      Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
-      return child;
-    }
-    catch (StemAddException e) {
-      Assert.fail("failed to add stem: " + e.getMessage());
-    }
-    throw new RuntimeException(ERROR);
-  } // protected static Stem addChildStem(ns, extn, displayExtn)
 
   // Fail to get a session by id
   protected static void getBadSession(String id) {

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.5 2005-12-01 03:12:24 blair Exp $
+ * @version $Id: StemHelper.java,v 1.6 2005-12-01 19:38:51 blair Exp $
  */
 public class StemHelper {
 
@@ -91,14 +91,24 @@ public class StemHelper {
       );
       return child;
     }
-    catch (StemAddException e) {
+    catch (Exception e) {
       Assert.fail("failed to add stem: " + e.getMessage());
-    }
-    catch (StemNotFoundException eSNF) {
-      Assert.fail("failed to find parent stem" + eSNF.getMessage());
     }
     throw new RuntimeException(Helper.ERROR);
   } // protected static Stem addChildStem(ns, extn, displayExtn)
+
+  protected static void addChildStemFail(Stem ns, String extn, String displayExtn) {
+    try {
+      Stem child = ns.addChildStem(extn, displayExtn);
+      Assert.fail("created child stem: " + ns.getName());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("failed to add stem", true);
+    }
+    catch (Exception e) {
+      Assert.fail("failed to add stem: " + e.getMessage());
+    }
+  } // protected static void addChildStemFail(ns, extn, displayExtn)
 
   // Get the root stem
   // @return  The root {@link Stem}
@@ -126,6 +136,63 @@ public class StemHelper {
     );
     return root;
   } // protected static Stem findRootStem(s)
+
+  protected static void setAttr(Stem ns, String attr, String val) {
+    try {
+      if      (attr.equals("description")) {
+        String orig = ns.getDescription();
+        ns.setDescription(val);
+        Assert.assertTrue("set description", true);
+        Assert.assertTrue(
+          "description", ns.getDescription().equals(val)
+        );
+        ns.setDescription(orig);
+        Assert.assertTrue(
+          "description reset", ns.getDescription().equals(orig)
+        );
+      } 
+      else if (attr.equals("displayExtension")) {
+        String orig = ns.getDisplayExtension();
+        ns.setDisplayExtension(val);
+        Assert.assertTrue("set displayExtension", true);
+        Assert.assertTrue(
+          "displayExtension", ns.getDisplayExtension().equals(val)
+        );
+        ns.setDisplayExtension(orig);
+        Assert.assertTrue(
+          "displayExtension reset", ns.getDisplayExtension().equals(orig)
+        );
+      }
+      else {
+        Assert.fail("invalid stem attr: " + attr);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail("failed to modify " + attr + ": " + e.getMessage());
+    }
+  } // protected static void setAttr(ns, attr, val)
+
+  protected static void setAttrFail(Stem ns, String attr, String val) {
+    try {
+      if      (attr.equals("description")) {
+        ns.setDescription(val);
+        Assert.fail("set description");
+      } 
+      else if (attr.equals("displayExtension")) {
+        ns.setDisplayExtension(val);
+        Assert.fail("set displayExtension");
+      }
+      else {
+        Assert.fail("invalid stem attr: " + attr);
+      }
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("failed to set " + attr, true);
+    }
+    catch (Exception e) {
+      Assert.fail("failed to modify " + attr + ": " + e.getMessage());
+    }
+  } // protected static void setAttr(ns, attr, val)
 
 }
 

@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.8 2005-11-30 21:23:22 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.9 2005-12-01 19:38:51 blair Exp $
  */
 public class PrivHelper {
 
@@ -168,6 +168,30 @@ public class PrivHelper {
     }
   } // protected static void grantPriv(s, ns, subj, priv)
 
+  protected static void grantPrivFail(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+  {
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      try {
+        ns.grantPriv(subj, priv);  
+        Assert.fail("granted " + priv);
+      }
+      catch (GrantPrivilegeException eGP) {
+        Assert.assertTrue("failed to grant " + priv + " (exists)", true);
+        hasPriv(ns, subj, m, priv, true);
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+        hasPriv(ns, subj, m, priv, false);
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void grantPrivFail(s, ns, subj, priv)
+
   protected static void hasPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv, boolean has
   )
@@ -304,6 +328,27 @@ public class PrivHelper {
     }
   } // protected static void revokePriv(s, ns, subj, priv)
 
+  protected static void revokePrivFail(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+  {
+    String msg = subj.getName() + " does not have " + priv + " on  " + ns.getName();
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      ns.revokePriv(subj, priv);  
+      Assert.fail("revoked privilege");
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.fail(eRP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("failed to revoke privilege", true);
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void revokePriv(s, ns, subj, priv)
+
   protected static void revokePriv(
     GrouperSession s, Group g, Privilege priv
   )
@@ -333,6 +378,22 @@ public class PrivHelper {
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.fail(eIP.getMessage());
+    }
+  } // protected static void revokePriv(s, ns, priv)
+
+  protected static void revokePrivFail(
+    GrouperSession s, Stem ns, Privilege priv
+  )
+  {
+    try {
+      ns.revokePriv(priv);  
+      Assert.fail("revoked priv");
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.fail(eRP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("failed to revoke priv", true);
     }
   } // protected static void revokePriv(s, ns, priv)
 

@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link GrouperNamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperNamingCREATE.java,v 1.8 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestGrouperNamingCREATE.java,v 1.9 2005-12-01 19:38:51 blair Exp $
  */
 public class TestGrouperNamingCREATE extends TestCase {
 
@@ -63,7 +63,7 @@ public class TestGrouperNamingCREATE extends TestCase {
   // Tests
 
   public void testDefaultPrivs() {
-    PrivHelper.getPrivs(s, edu, s.getSubject(),       0, true,  true);
+    PrivHelper.getPrivs(s, edu, s.getSubject(),       1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0,  0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1,  0, false, false);
     PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
@@ -73,7 +73,7 @@ public class TestGrouperNamingCREATE extends TestCase {
   public void testGrantPrivs() {
     PrivHelper.grantPriv( s, edu, s.getSubject()      , PRIV);      
     PrivHelper.grantPriv( s, edu, SubjectHelper.SUBJ0 , PRIV);    
-    PrivHelper.getPrivs(  s, edu, s.getSubject()      , 1, true,  true);
+    PrivHelper.getPrivs(  s, edu, s.getSubject()      , 2, true,  true);
     PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
     PrivHelper.getPrivs(  s, edu, SubjectHelper.SUBJ1 , 0, false, false);
     subjs.add(s.getSubject());
@@ -98,12 +98,12 @@ public class TestGrouperNamingCREATE extends TestCase {
   public void testRevokePrivs() {
     PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
-    PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
+    PrivHelper.getPrivs(s, edu, s.getSubject()      , 2, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
     PrivHelper.revokePriv(s, edu, s.getSubject()      , PRIV);      
     PrivHelper.revokePriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
-    PrivHelper.getPrivs(s, edu, s.getSubject()      , 0, true,  true);
+    PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
     PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);
@@ -124,11 +124,11 @@ public class TestGrouperNamingCREATE extends TestCase {
   public void testRevokeAllPrivs() {
     PrivHelper.grantPriv(s, edu, s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, edu, SubjectHelper.SUBJ0 , PRIV);      
-    PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
+    PrivHelper.getPrivs(s, edu, s.getSubject()      , 2, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 1, true,  false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
     PrivHelper.revokePriv(s, edu, PRIV);
-    PrivHelper.getPrivs(s, edu, s.getSubject()      , 0, true,  true);
+    PrivHelper.getPrivs(s, edu, s.getSubject()      , 1, true,  true);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ0 , 0, false, false);
     PrivHelper.getPrivs(s, edu, SubjectHelper.SUBJ1 , 0, false, false);
     PrivHelper.getSubjsWithPriv(edu, subjs, PRIV);

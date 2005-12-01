@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.18 2005-12-01 03:12:24 blair Exp $
+ * @version $Id: Stem.java,v 1.19 2005-12-01 19:38:51 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -136,12 +136,18 @@ public class Stem implements Serializable {
    * @param   extension         Stem's extension
    * @param   displayExtension  Stem' displayExtension
    * @return  The added {@link Stem}
+   * @throws  InsufficientPrivilegeException
    * @throws  StemAddException 
    */
   public Stem addChildStem(String extension, String displayExtension) 
-    throws StemAddException 
+    throws  InsufficientPrivilegeException,
+            StemAddException 
   {
-    Stem child = new Stem(s);
+    if (!this.hasStem(this.s.getSubject())) {
+      throw new InsufficientPrivilegeException("does not have STEM");
+    }
+
+    Stem child = new Stem(this.s);
 
     // Set naming attributes
     child.setStem_extension(extension);
@@ -163,17 +169,31 @@ public class Stem implements Serializable {
       // TODO Save and cascade
       Set objects = new LinkedHashSet();
       this.setModified();
-      //HibernateHelper.save(this);
-      //HibernateHelper.save(child);
       objects.add(this);
       objects.add(child);
       HibernateHelper.save(objects);
+      try {
+        // Now grant STEM (as root) to the creator on the child stem.
+        //
+        // Ideally this would be wrapped up in the broader transaction
+        // of adding the child stem but as the interfaces may be
+        // outside of our control, I don't think we can do that.  
+        PrivilegeResolver.getInstance().grantPriv(
+          GrouperSessionFinder.getRootSession(), child, 
+          s.getSubject(), NamingPrivilege.STEM
+        );
+      }
+      catch (Exception e) {
+        throw new StemAddException(
+          "stem created but unable to grant STEM to creator: " + e.getMessage()
+        );
+      }
       return child;
     }
-    catch (HibernateException e) {
+    catch (HibernateException eH) {
       throw new StemAddException(
         "Unable to add stem " + this.getName() + ":" + extension + ": " 
-        + e.getMessage()
+        + eH.getMessage()
       );
     }
   } // public Stem addChildStem(extension, displayExtension)
@@ -279,8 +299,12 @@ public class Stem implements Serializable {
    * @return  Stem description.
    */
   public String getDescription() {
-    throw new RuntimeException("Not implemented");
-  }
+    String desc = this.getStem_description();
+    if (desc == null) {
+      desc = new String();
+    }
+    return desc;
+  } // public String getDescription()
  
   /**
    * Get stem displayExtension.
@@ -570,10 +594,23 @@ public class Stem implements Serializable {
    * @throws  StemModifyException
    */
   public void setDescription(String value) 
-    throws InsufficientPrivilegeException, StemModifyException
+    throws  InsufficientPrivilegeException,
+            StemModifyException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (!this.hasStem(this.s.getSubject())) {
+      throw new InsufficientPrivilegeException("does not have STEM");
+    }
+    try {
+      this.setStem_description(value);
+      this.setModified();
+      HibernateHelper.save(this);
+    }
+    catch (Exception e) {
+      throw new StemModifyException(
+        "unable to set description: " + e.getMessage()
+      );
+    }
+  } // public void setDescription(value)
 
   /**
    * Set stem displayExtension.
@@ -594,10 +631,37 @@ public class Stem implements Serializable {
    * @throws  StemModifyException
    */
   public void setDisplayExtension(String value) 
-    throws InsufficientPrivilegeException, StemModifyException
+    throws  InsufficientPrivilegeException,
+            StemModifyException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (!this.hasStem(this.s.getSubject())) {
+      throw new InsufficientPrivilegeException("does not have STEM");
+    }
+    try {
+      Set objects = new HashSet();
+      this.setDisplay_extension(value);
+      this.setModified();
+      try {
+        this.setDisplay_name(
+          this.constructName(
+            this.getParentStem().getDisplayName(), value
+          )
+        );
+        // TODO Iterate through child stems + groups. Ugh.
+      }
+      catch (StemNotFoundException eSNF) {
+        // I guess we're the root stem
+        this.setDisplay_name(value);
+      }
+      objects.add(this);
+      HibernateHelper.save(objects);
+    }
+    catch (Exception e) {
+      throw new StemModifyException(
+        "unable to set description: " + e.getMessage()
+      );
+    }
+  } // public void setDisplayExtension(value)
 
   public String toString() {
     return new ToStringBuilder(this)

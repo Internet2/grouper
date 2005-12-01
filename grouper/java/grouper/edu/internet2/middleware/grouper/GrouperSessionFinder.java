@@ -17,33 +17,37 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import java.util.List;
-import java.sql.SQLException;
+import  java.io.Serializable;
 
-import net.sf.hibernate.*;
-import net.sf.hibernate.type.Type;
 
-/** Automatically generated Finder class for GrouperSessionFinder.
- * @author Hibernate FinderGenerator  **/
+/**
+ * Find sessions.
+ * <p/>
+ * @author  blair christensen.
+ * @version $Id: GrouperSessionFinder.java,v 1.3 2005-12-01 19:38:51 blair Exp $
+ */
 class GrouperSessionFinder implements Serializable {
 
-    public static List findByStartTime(java.util.Date start_time) throws SQLException, HibernateException {
-        Session session = HibernateHelper.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.GrouperSession as groupersession where groupersession.start_time=?", start_time, Hibernate.OBJECT);
-        return finds;
-    }
+  // Private Class Variables
+  private static GrouperSession root = null;
 
-    public static List findByUuid(java.lang.String uuid) throws SQLException, HibernateException {
-        Session session = HibernateHelper.getSession();
-        List finds = session.find("from edu.internet2.middleware.grouper.GrouperSession as groupersession where groupersession.uuid=?", uuid, Hibernate.STRING);
-        return finds;
-    }
 
-    public static List findAll() throws SQLException, HibernateException {
-        Session session = HibernateHelper.getSession();
-        List finds = session.find("from GrouperSession in class edu.internet2.middleware.grouper.GrouperSession");
-        return finds;
+  // Protected Class Methods
+  protected static GrouperSession getRootSession() {
+    if (root == null) {
+      try {
+        root = GrouperSession.startSession(
+          SubjectFinder.findById("GrouperSystem", "application")
+        );
+      }
+      catch (Exception e) {
+        throw new RuntimeException(
+          "unable to start root session: " + e.getMessage()
+        );
+      }
     }
+    return root;
+  } // protected static GrouperSession getRootSession()
 
 }
+

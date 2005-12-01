@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.12 2005-12-01 15:16:19 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.13 2005-12-01 19:38:51 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -70,14 +70,14 @@ class PrivilegeResolver {
   )
   {
     return access.getPrivs(s, g, subj);
-  } // protected boolean hasPriv(s, ns, subj, priv)
+  } // protected Set getPrivs(s, g, subj)
 
   protected Set getPrivs(
     GrouperSession s, Stem ns, Subject subj
   )
   {
     return naming.getPrivs(s, ns, subj);
-  } // protected boolean hasPriv(s, ns, subj, priv)
+  } // protected Set getPrivs(s, ns, subj)
 
   protected Set getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
