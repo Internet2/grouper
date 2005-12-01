@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.20 2005-12-01 19:55:53 blair Exp $
+ * @version $Id: Stem.java,v 1.21 2005-12-01 20:04:47 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -106,6 +106,11 @@ public class Stem implements Serializable {
     if (!this.hasCreate(this.s.getSubject())) {
       throw new InsufficientPrivilegeException("does not have CREATE");
     }
+    if (this.equals(StemFinder.findRootStem(this.s))) {
+      throw new GroupAddException(
+        "cannot create groups at root stem level"
+      );
+    } 
 
     try {
       Group child = new Group(this.s, this, extension, displayExtension);
