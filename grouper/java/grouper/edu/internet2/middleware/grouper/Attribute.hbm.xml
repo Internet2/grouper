@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Attribute.hbm.xml,v 1.2 2005-11-11 18:32:06 blair Exp $ -->
+<!-- $Id: Attribute.hbm.xml,v 1.3 2005-12-01 03:12:24 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Attribute" table="grouper_attributes">
@@ -33,46 +33,45 @@ A group attribute within the Groups registry.
     <meta attribute="session-method">HibernateHelper.getSession();</meta>
 
     <!-- id -->
-    <id name="id" type="string">
+    <id name="id" 
+        type="string"
+        unsaved-value="null"
+    >
       <meta attribute="use-in-tostring">false</meta>
       <column name="id" sql-type="char(32)"/>
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-    <version name="version"/>
-    <!-- version -->
 
 
     <!-- group_id -->
     <many-to-one
-      name="group_id"
+      name="group"
       class="edu.internet2.middleware.grouper.Group" 
+      not-null="true"
     >
-      <meta attribute="field-description">
-Get group.
-      </meta>
-      <meta attribute="finder-method">findByGroupId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="group_id" sql-type="char(64)"/>
+      <column name="group_id"
+              sql-type="char(64)" 
+              unique-key="group_field_idx"
+      />
     </many-to-one>
     <!-- group_id -->
 
-    <!-- field_id -->
-    <many-to-one
-      name="field_id"
-      class="edu.internet2.middleware.grouper.Field" 
-    >
-      <meta attribute="field-description">
-Get field.
-      </meta>
-      <meta attribute="finder-method">findByFieldId</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
-      <column name="field_id" sql-type="char(64)"/>
-    </many-to-one>
-    <!-- field_id -->
+    <!-- field -->
+    <property name="field"
+              type="edu.internet2.middleware.grouper.FieldUserType"
+              update="false"
+    > 
+      <column name="field_name"
+              not-null="true"
+              unique-key="group_field_idx"
+      />
+      <column name="field_type"
+              not-null="true"
+              unique-key="group_field_idx"
+      />
+    </property>
+    <!-- field -->
 
     <!-- value -->
     <property 
@@ -81,12 +80,6 @@ Get field.
       length="1024"
       not-null="true"
     >
-      <meta attribute="field-description">
-Get attribute value.
-      </meta>
-      <meta attribute="finder-method">findByValue</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
     </property>
     <!-- value -->
 

@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link GroupFinder.findByUuid()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByUuid.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGrFiFindByUuid.java,v 1.5 2005-12-01 03:12:24 blair Exp $
  */
 public class TestGrFiFindByUuid extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestGrFiFindByUuid extends TestCase {
       Assert.assertTrue("found a group", true);
       Assert.assertNotNull("found group !null", found);
       Assert.assertTrue("found instanceof Group", found instanceof Group);
-      Assert.assertTrue("i2 equals found", i2.equals(found));
+      Assert.assertTrue("i2 equals", i2.equals(found));
     }
     catch (GroupNotFoundException e) {
       Assert.fail("failed to find group");

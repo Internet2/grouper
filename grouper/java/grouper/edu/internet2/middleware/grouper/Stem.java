@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.17 2005-11-29 21:32:00 blair Exp $
+ * @version $Id: Stem.java,v 1.18 2005-12-01 03:12:24 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -98,15 +98,15 @@ public class Stem implements Serializable {
   public Group addChildGroup(String extension, String displayExtension) 
     throws GroupAddException 
   {
-    Group child = new Group(this.s, this, extension, displayExtension);
-    // Set parent
-    child.setParent_stem(this.getUuid());
-    // Add to children 
-    Set children  = this.getChild_groups();
-    children.add(child);
-    this.setChild_groups(children);
-    // TODO this.setChild_groups( this.getChild_groups().add(child) );
     try {
+      Group child = new Group(this.s, this, extension, displayExtension);
+      // Set parent
+      child.setParent_stem(this.getUuid());
+      // Add to children 
+      Set children  = this.getChild_groups();
+      children.add(child);
+      this.setChild_groups(children);
+      // TODO this.setChild_groups( this.getChild_groups().add(child) );
       // TODO Save and cascade
       Set objects = new LinkedHashSet();
       objects.add(this);
@@ -114,7 +114,7 @@ public class Stem implements Serializable {
       HibernateHelper.save(objects);
       return child;
     }
-    catch (HibernateException e) {
+    catch (Exception e) {
       throw new GroupAddException(
         "Unable to add group " + this.getName() + ":" + extension + ": " 
         + e.getMessage()

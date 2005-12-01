@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.3 2005-11-28 16:46:14 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.4 2005-12-01 03:12:24 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -42,20 +42,14 @@ A group within the Groups Registry.
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
-    <!-- version -->
-<!--
-    <version name="version"/>
--->
-    <!-- version -->
 
 
     <!-- attributes -->
-    <set name="group_attributes">
-      <meta attribute="field-description">
-Get attributes.
-      </meta>
+    <set  name="group_attributes"
+          cascade="all"
+    >
       <key column="group_id"/>
-      <one-to-many class="edu.internet2.middleware.grouper.Attribute"/>
+      <one-to-many class="edu.internet2.middleware.grouper.Attribute" />
     </set>
     <!-- attributes -->
 
@@ -64,12 +58,6 @@ Get attributes.
       name="creator_id"
       class="edu.internet2.middleware.grouper.Member" 
     >
-      <meta attribute="field-description">
-Get creator.
-      </meta>
-      <meta attribute="finder-method">findByCreator</meta>
-      <meta attribute="use-in-equals">true</meta>
-      <meta attribute="use-in-tostring">true</meta>
       <column name="creator_id" sql-type="char(64)"/>
     </many-to-one>
     <!-- creator_id -->
@@ -98,43 +86,6 @@ Get create time.
       </meta>
     </property>
     <!-- create_time -->
-
-    <!-- description -->
-    <property 
-      name="group_description"
-      type="string"
-      length="1024"
-    >
-      <meta attribute="field-description">
-Get description.
-      </meta>
-    </property>
-    <!-- description -->
-
-    <!-- display_extension -->
-    <property
-      name="display_extension"
-      type="string"
-      length="255"
-    />
-    <!-- display_extension -->
-
-    <!-- display_name -->
-    <property
-      name="display_name"
-      type="string"
-      length="255"
-      unique="true"
-    />
-    <!-- display_name -->
-
-    <!-- extension -->
-    <property
-      name="group_extension"
-      type="string"
-      length="255"
-    />
-    <!-- extension -->
 
     <!-- memberships -->
 <!-- TODO I'll deal with this later
@@ -185,15 +136,6 @@ Get last modify time.
       </meta>
     </property>
     <!-- modify_time -->
-
-    <!-- name -->
-    <property
-      name="group_name"
-      type="string"
-      length="255"
-      unique="true"
-    />
-    <!-- name -->
 
     <!-- parent_stem -->
     <!-- TODO I'll resolve this later -->

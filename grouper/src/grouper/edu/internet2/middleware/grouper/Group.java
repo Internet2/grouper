@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.18 2005-11-29 21:32:00 blair Exp $
+ * @version $Id: Group.java,v 1.19 2005-12-01 03:12:24 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -36,14 +36,9 @@ public class Group implements Serializable {
   private String  create_source;
   private long    create_time;
   private Member  creator_id;
-  private String  display_extension;
-  private String  display_name;
   private Set     group_attributes;
-  private String  group_description;
-  private String  group_extension;
   private String  group_id;
   private Set     group_memberships;
-  private String  group_name;
   private String  id;
   private Member  modifier_id;
   private String  modify_source;
@@ -51,7 +46,8 @@ public class Group implements Serializable {
   private String  parent_stem;
 
 
-  // Transient Instance Methods
+  // Transient Instance Variables
+  private transient Map             attrs;
   private transient Subject         creator;
   private transient Subject         modifier;
   private transient GrouperSession  s;
@@ -70,6 +66,7 @@ public class Group implements Serializable {
   protected Group(
     GrouperSession s, Stem ns, String extn, String displayExtn
   ) 
+    throws SchemaException
   {
     this.s = s;
     // Set create information
@@ -77,10 +74,30 @@ public class Group implements Serializable {
     // Assign UUID
     this.setGroup_id( GrouperUuid.getUuid() );
     // Set naming information
-    this.setGroup_name( ns.constructName(ns.getName(), extn) );
-    this.setDisplay_name( ns.constructName(ns.getDisplayName(), displayExtn) );
-    this.setGroup_extension(extn);
-    this.setDisplay_extension(displayExtn);
+    Set attributes = new LinkedHashSet();
+    attributes.add( 
+      new Attribute(
+        this, FieldFinder.find("name"),
+        ns.constructName(ns.getName(), extn)
+      )
+    );
+    attributes.add( 
+      new Attribute(
+        this, FieldFinder.find("displayName"),
+        ns.constructName(ns.getDisplayName(), displayExtn)
+      )
+    );
+    attributes.add( 
+      new Attribute(
+        this, FieldFinder.find("extension"), extn
+      )
+    );
+    attributes.add( 
+      new Attribute(
+        this, FieldFinder.find("displayExtension"), displayExtn
+      )
+    );
+    this.setGroup_attributes(attributes);
   } // protected Group(s, ns, extn, displayExtn)
  
 
@@ -397,8 +414,11 @@ public class Group implements Serializable {
   public String getAttribute(String attr) 
     throws AttributeNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }  
+    if (!this.getAttributes().containsKey(attr)) {
+      throw new AttributeNotFoundException("attribute not found: " + attr);  
+    }
+    return (String) this.getAttributes().get(attr);
+  } // public String getAttribute(attr)
 
   /**
    * Get all attributes and values.
@@ -408,8 +428,15 @@ public class Group implements Serializable {
    * @return  A map of attributes and values.
    */
   public Map getAttributes() {
-    throw new RuntimeException("Not implemented");
-  }
+    // TODO Cache results
+    Map       attrs = new HashMap();
+    Iterator  iter  = this.getGroup_attributes().iterator();
+    while (iter.hasNext()) {
+      Attribute attr = (Attribute) iter.next();
+      attrs.put( attr.getField().getName(), attr.getValue() );
+    }
+    return attrs;
+  } // public Map getAttributes()
 
   /**
    * Get (optional and questionable) create source for this group.
@@ -466,7 +493,13 @@ public class Group implements Serializable {
    * @return  Group description.
    */
   public String getDescription() {
-    return this.getGroup_description();
+    try {
+      return (String) this.getAttribute("description");
+    }
+    catch (AttributeNotFoundException eANF) {
+      // Lack of a description is acceptable
+      return new String();
+    }
   } // public String getDescription()
 
   /**
@@ -477,8 +510,13 @@ public class Group implements Serializable {
    * @return  Gruop displayExtension.
    */
   public String getDisplayExtension() {
-    return this.getDisplay_extension();
-  } // public String getDisplay_extension()
+    try {
+      return (String) this.getAttribute("displayExtension");
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new RuntimeException("group without displayExtension");
+    }
+  } // public String getDisplayExtension()
 
   /**
    * Get group displayName.
@@ -488,8 +526,13 @@ public class Group implements Serializable {
    * @return  Group displayName.
    */
   public String getDisplayName() {
-    return this.getDisplay_name();
-  }
+    try {
+      return (String) this.getAttribute("displayName");
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new RuntimeException("group without displayName");
+    }
+  } // public String getDisplayName()
 
   /**
    * Get effective members of this group.
@@ -523,8 +566,13 @@ public class Group implements Serializable {
    * @return  Group extension.
    */
   public String getExtension() {
-    return this.getGroup_extension();
-  }
+    try {
+      return (String) this.getAttribute("extension");
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new RuntimeException("group without extension");
+    }
+  } // public String getExtension()
  
   /**
    * Get immediate members of this group.
@@ -637,8 +685,14 @@ public class Group implements Serializable {
    * @return  Group name.
    */
   public String getName() {
-    return this.getGroup_name();
-  }
+    //return this.getGroup_name();
+    try {
+      return (String) this.getAttribute("name");
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new RuntimeException("group without name");
+    }
+  } // public String getName()
 
   /**
    * Get subjects with the OPTIN privilege on this group.
@@ -1078,8 +1132,15 @@ public class Group implements Serializable {
   public void setDescription(String value) 
     throws GroupModifyException, InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      this.setAttribute("description", value);
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new GroupModifyException(
+        "unable to set description: " + eANF.getMessage()
+      );
+    }
+  } // public void setDescription(value)
  
   /**
    * Set group displayExtension.
@@ -1101,8 +1162,15 @@ public class Group implements Serializable {
   public void setDisplayExtension(String value) 
     throws GroupModifyException, InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      this.setAttribute("displayExtension", value);
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new GroupModifyException(
+        "unable to set displayExtension: " + eANF.getMessage()
+      );
+    }
+  } // public void setDisplayExtension(value)
 
   /**
    * Set group type.
@@ -1172,13 +1240,13 @@ public class Group implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("display_name", getDisplay_name())
-           .append("name", getName())
-           .append("uuid", getUuid())
-           .append("creator_id", getCreator_id())
-           .append("modifier_id", getModifier_id())
+           .append("name"         , this.getName()        )
+           .append("displayName"  , this.getDisplayName() )
+           .append("uuid"         , this.getUuid()        )
+           .append("creator_id"   , getCreator_id()       )
+           .append("modifier_id"  , getModifier_id()      )
            .toString();
-  }
+  } // public String toString()
 
 
   // Protected Class Methods
@@ -1238,38 +1306,6 @@ public class Group implements Serializable {
     this.create_time = create_time;
   }
 
-  private String getGroup_description() {
-    return this.group_description;
-  }
-
-  private void setGroup_description(String group_description) {
-    this.group_description = group_description;
-  }
-
-  private String getDisplay_extension() {
-    return this.display_extension;
-  }
-
-  private void setDisplay_extension(String display_extension) {
-    this.display_extension = display_extension;
-  }
-
-  private String getDisplay_name() {
-    return this.display_name;
-  }
-
-  private void setDisplay_name(String display_name) {
-    this.display_name = display_name;
-  }
-
-  private String getGroup_extension() {
-    return this.group_extension;
-  }
-
-  private void setGroup_extension(String group_extension) {
-    this.group_extension = group_extension;
-  }
-
   private String getModify_source() {
     return this.modify_source;
   }
@@ -1284,14 +1320,6 @@ public class Group implements Serializable {
 
   private void setModify_time(long modify_time) {
     this.modify_time = modify_time;
-  }
-
-  private String getGroup_name() {
-    return this.group_name;
-  }
-
-  private void setGroup_name(String group_name) {
-    this.group_name = group_name;
   }
 
   private String getGroup_id() {

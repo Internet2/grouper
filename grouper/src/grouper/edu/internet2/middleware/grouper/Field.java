@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.3 2005-11-16 21:04:25 blair Exp $    
+ * @version $Id: Field.java,v 1.4 2005-12-01 03:12:24 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -33,6 +33,7 @@ public class Field implements Serializable {
   private String    field_name;
   private FieldType field_type;
   private String    id;
+  private boolean   nullable;
   private Privilege read_priv;
   private Privilege write_priv;
 
@@ -44,9 +45,13 @@ public class Field implements Serializable {
     super();
   }
 
-  protected Field(String field, FieldType type, Privilege read, Privilege write) {
+  protected Field(
+    String field, FieldType type, Privilege read, Privilege write, boolean nullable
+  ) 
+  {
     this.setField_name(field);
     this.setField_type(type);
+    this.setNullable(nullable);
     this.setRead_priv(read);
     this.setWrite_priv(write);
   } // protected Field(field, type, read, write)
@@ -123,6 +128,14 @@ public class Field implements Serializable {
 
   private void setField_type(FieldType type) {
     this.field_type = type;
+  }
+
+  private boolean getNullable() {
+    return this.nullable;
+  }
+
+  private void setNullable(boolean nullable) {
+    this.nullable = nullable;
   }
 
   private Privilege getRead_priv() {
