@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.110 2005-12-01 03:12:24 blair Exp $
+$Id: API,v 1.111 2005-12-01 15:16:19 blair Exp $
 
 ---
 
@@ -45,7 +45,6 @@ $Id: API,v 1.110 2005-12-01 03:12:24 blair Exp $
 * MemberDeleteException
 * MemberNotFoundException
 * MembershipNotFoundException
-* PrivilegeNotFoundException
 * QueryException
 * RevokePrivilegeException
 * SchemaException

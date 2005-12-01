@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.13 2005-11-29 19:39:40 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.14 2005-12-01 15:16:19 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -231,7 +231,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * try {
    *   ap.hasPriv(s, g, subject, AccessPrivilege.ADMIN);
    * }
-   * catch (PrivilegeNotFoundException e) {
+   * catch (SchemaException e) {
    *   // Invalid privilege
    * }
    * </pre>
@@ -239,10 +239,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @param   g     Check privilege on this group.
    * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
-    throws  PrivilegeNotFoundException
+    throws  SchemaException
   {
     GrouperSession.validate(s);
     try {
@@ -259,7 +259,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       );  
     }
     catch (SchemaException eS) {
-      throw new PrivilegeNotFoundException("invalid privilege: " + priv);
+      throw new SchemaException("invalid privilege: " + priv);
     }
   } // public boolean hasPriv(s, g, subj, priv)
 

@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.17 2005-11-29 19:39:40 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.18 2005-12-01 15:16:19 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -51,7 +51,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * try {
    *   Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
    * }
-   * catch (PrivilegeNotFoundException e0) {
+   * catch (SchemaException e0) {
    *   // Invalid priv
    * }
    * </pre>
@@ -79,7 +79,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    *     s, subj, NamingPrivilege.STEM
    *   );
    * }
-   * catch (PrivilegeNotFoundException e0) {
+   * catch (SchemaException e0) {
    *   // Invalid priv
    * }
    * </pre>
@@ -269,7 +269,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * try {
    *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM);
    * }
-   * catch (PrivilegeNotFoundException e) {
+   * catch (SchemaException e) {
    *   // Invalid privilege
    * }
    * </pre>
@@ -277,10 +277,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   ns    Check privilege on this stem.
    * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
-    throws PrivilegeNotFoundException 
+    throws SchemaException 
   {
     GrouperSession.validate(s);
     try {
@@ -297,7 +297,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       );  
     }
     catch (SchemaException eS) {
-      throw new PrivilegeNotFoundException("invalid privilege: " + priv);
+      throw new SchemaException("invalid privilege: " + priv);
     }
   } // public boolean hasPriv(s, ns, subj, priv) 
 

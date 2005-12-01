@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.9 2005-11-17 18:36:37 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.10 2005-12-01 15:16:19 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -115,7 +115,7 @@ public interface NamingAdapter {
    * try {
    *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM);
    * }
-   * catch (PrivilegeNotFoundException e) {
+   * catch (SchemaException e) {
    *   // Invalid privilege
    * }
    * </pre>
@@ -123,10 +123,10 @@ public interface NamingAdapter {
    * @param   ns    Check privilege on this stem.
    * @param   subj     Check privilege for this subject.
    * @param   priv  Check this privilege.   
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
-    throws PrivilegeNotFoundException;
+    throws SchemaException;
 
   /**
    * Revoke this privilege from everyone on this stem.
@@ -145,7 +145,7 @@ public interface NamingAdapter {
    * @param   ns    Revoke privilege on this stem.
    * @param   priv  Revoke this privilege.   
    * @throws  InsufficientPrivilegeException
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    * @throws  RevokePrivilegeException
    */
   public void revokePriv(GrouperSession s, Stem ns, Privilege priv)

@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.7 2005-11-17 16:50:19 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.8 2005-12-01 15:16:19 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -96,7 +96,7 @@ public interface AccessAdapter {
    * catch (InsufficientPrivilegeException e1) {
    *   // Not privileged to grant the privilege
    * }
-   * catch (PrivilegeNotFoundException e2) {
+   * catch (SchemaException e2) {
    *   // Invalid privilege
    * }
    * </pre>
@@ -118,7 +118,7 @@ public interface AccessAdapter {
    * try {
    *   ap.hasPriv(s, g, subject, AccessPrivilege.ADMIN);
    * }
-   * catch (PrivilegeNotFoundException e) {
+   * catch (SchemaException e) {
    *   // Invalid privilege
    * }
    * </pre>
@@ -126,10 +126,10 @@ public interface AccessAdapter {
    * @param   g     Check privilege on this group.
    * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
-   * @throws  PrivilegeNotFoundException
+   * @throws  SchemaException
    */
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
-    throws PrivilegeNotFoundException;
+    throws SchemaException;
 
   /**
    * Revoke this privilege from everyone on this group.
