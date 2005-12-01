@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.80 2005-12-01 03:43:10 blair Exp $
+$Id: ROADMAP,v 1.81 2005-12-01 03:43:55 blair Exp $
 
 ---
 
@@ -48,8 +48,8 @@ TODO Sync with Basecamp
 * Custom group types
   * Map _GroupType_
 * Custom group attributes
-  * add to group subjects
-  * query filters
+  * add to group subjects 
+    * i can actually simplify this now, no?
   * setting, unsetting, nullable, etc
 * Custom group lists
   * add to group subjects
