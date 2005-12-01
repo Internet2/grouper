@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.83 2005-12-01 19:38:51 blair Exp $
+$Id: ROADMAP,v 1.84 2005-12-01 19:55:53 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement CREATE
 * _Stem_ child stems mapping
 * _Stem_ parent stem mapping
   * _Group_ parent stem mapping
@@ -21,9 +20,9 @@ $Id: ROADMAP,v 1.83 2005-12-01 19:38:51 blair Exp $
 * Implement OPTIN
 * Implement OPTOUT
 * Implement ADMIN
+* Replace `_init()` methods with static {} declarations where possible
 
 ## Later
-* Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
 * Review generated SQL
   * Including my twisty column names

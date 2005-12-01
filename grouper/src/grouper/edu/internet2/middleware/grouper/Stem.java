@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.19 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: Stem.java,v 1.20 2005-12-01 19:55:53 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -86,18 +86,27 @@ public class Stem implements Serializable {
    * try {
    *   Group edu = ns.addChildGroup("edu", "edu domain");
    * }
-   * catch (GroupAddException e) {
+   * catch (GroupAddException eGA) {
    *   // Group not added
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add group
    * }
    * </pre>
    * @param   extension         Group's extension
    * @param   displayExtension  Groups' displayExtension
    * @return  The added {@link Group}
    * @throws  GroupAddException 
+   * @throws  InsufficientPrivilegeException
    */
   public Group addChildGroup(String extension, String displayExtension) 
-    throws GroupAddException 
+    throws  GroupAddException,
+            InsufficientPrivilegeException
   {
+    if (!this.hasCreate(this.s.getSubject())) {
+      throw new InsufficientPrivilegeException("does not have CREATE");
+    }
+
     try {
       Group child = new Group(this.s, this, extension, displayExtension);
       // Set parent
