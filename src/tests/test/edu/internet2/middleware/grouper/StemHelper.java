@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.6 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: StemHelper.java,v 1.7 2005-12-01 19:55:53 blair Exp $
  */
 public class StemHelper {
 
@@ -64,14 +64,24 @@ public class StemHelper {
       );
       return child;
     }
-    catch (GroupAddException eGA) {
-      Assert.fail("failed to add group: " + eGA.getMessage());
-    }
-    catch (StemNotFoundException eSNF) {
-      Assert.fail("failed to find parent stem" + eSNF.getMessage());
+    catch (Exception e) {
+      Assert.fail("failed to add group: " + e.getMessage());
     }
     throw new RuntimeException(Helper.ERROR);
   } // protected static Group addChildGroup(ns, extn, displayExtn)
+
+  protected static void addChildGroupFail(Stem ns, String extn, String displayExtn) {
+    try {
+      Group child = ns.addChildGroup(extn, displayExtn);
+      Assert.fail("created child group: " + child.getName());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("failed to add group", true);
+    }
+    catch (Exception e) {
+      Assert.fail("failed to add group: " + e.getMessage());
+    }
+  } // protected static void addChildGroupFail(ns, extn, displayExtn)
 
   // Add and test a child stem
   // @return  Created {@link Stem}
@@ -100,7 +110,7 @@ public class StemHelper {
   protected static void addChildStemFail(Stem ns, String extn, String displayExtn) {
     try {
       Stem child = ns.addChildStem(extn, displayExtn);
-      Assert.fail("created child stem: " + ns.getName());
+      Assert.fail("created child stem: " + child.getName());
     }
     catch (InsufficientPrivilegeException eIP) {
       Assert.assertTrue("failed to add stem", true);
@@ -109,6 +119,20 @@ public class StemHelper {
       Assert.fail("failed to add stem: " + e.getMessage());
     }
   } // protected static void addChildStemFail(ns, extn, displayExtn)
+
+  protected static Stem findByName(GrouperSession s, String name) {
+    Stem ns = null;
+    try {
+      ns = StemFinder.findByName(s, name);
+      Assert.assertNotNull("!null", ns);
+      Assert.assertTrue("instance of Stem", ns instanceof Stem);
+      Assert.assertTrue("name", ns.getName().equals(name));
+    }
+    catch (StemNotFoundException eSNF) {
+      Assert.fail("did not find stem " + name);
+    }
+    return ns;
+  } // protected static Stem findByName(s, name)
 
   // Get the root stem
   // @return  The root {@link Stem}
