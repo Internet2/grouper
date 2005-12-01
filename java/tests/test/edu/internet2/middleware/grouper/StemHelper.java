@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: StemHelper.java,v 1.5 2005-12-01 03:12:24 blair Exp $
  */
 public class StemHelper {
 
@@ -47,6 +47,20 @@ public class StemHelper {
       Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
       Assert.assertTrue(
         "parent stem", child.getParentStem().equals(ns)
+      );
+      Assert.assertTrue(
+        "group extension", child.getExtension().equals(extn)
+      );
+      Assert.assertTrue(
+        "group name", child.getName().equals(ns.getName() + ":" + extn)
+      );
+      Assert.assertTrue(
+        "group displayExtension", 
+        child.getDisplayExtension().equals(displayExtn)
+      );
+      Assert.assertTrue(
+        "group displayName", 
+        child.getDisplayName().equals(ns.getDisplayName() + ":" + displayExtn)
       );
       return child;
     }

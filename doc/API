@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.109 2005-11-30 21:23:22 blair Exp $
+$Id: API,v 1.110 2005-12-01 03:12:24 blair Exp $
 
 ---
 
@@ -92,17 +92,17 @@ $Id: API,v 1.109 2005-11-30 21:23:22 blair Exp $
 * void                deleteMember(subject)
 * void                deleteMember(subject, field)
 * Set                 getAdmins()
-* String              getAttribute(attr)
-* Map                 getAttributes()
+* String              TODO  getAttribute(attr)
+* Map                 TODO getAttributes()
 * String              getCreateSource()
 * Subject             getCreateSubject()
 * Date                getCreateTime()
-* String              getDescription()
-* String              getDisplayExtension()
-* String              getDisplayName()
+* String              TODO getDescription()
+* String              TODO getDisplayExtension()
+* String              TODO getDisplayName()
 * Set                 getEffectiveMembers()
 * Set                 getEffectiveMemberships()
-* String              getExtension()
+* String              TODO getExtension()
 * Set                 getImmediateMembers()
 * Set                 getImmediateMemberships()
 * Set                 getMembers()
@@ -110,7 +110,7 @@ $Id: API,v 1.109 2005-11-30 21:23:22 blair Exp $
 * String              getModifySource()
 * Subject             getModifySubject()
 * Date                getModifyTime()
-* String              getName()
+* String              TODO getName()
 * Set                 getOptins()
 * Set                 getOptouts()
 * Stem                getParentStem()
@@ -132,9 +132,9 @@ $Id: API,v 1.109 2005-11-30 21:23:22 blair Exp $
 * boolean             hasView(subject)
 * void                revokePriv(access priv)
 * void                revokePriv(subject, access priv) 
-* void                setAttribute(attr, value)
-* void                setDescription(value)
-* void                setDisplayExtension(value)
+* void                TODO setAttribute(attr, value)
+* void                TODO setDescription(value)
+* void                TODO setDisplayExtension(value)
 * void                setTypes(values)
 * Member              toMember()
 * Subject             toSubject()

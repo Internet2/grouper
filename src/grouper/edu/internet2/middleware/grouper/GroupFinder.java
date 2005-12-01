@@ -26,7 +26,7 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.4 2005-11-28 18:13:18 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.5 2005-12-01 03:12:24 blair Exp $
  */
 public class GroupFinder {
 
@@ -142,11 +142,15 @@ public class GroupFinder {
     try {
       Session   hs      = HibernateHelper.getSession();
       Iterator  iter    = hs.find(
-        "from Group as g where                    "
-        + "lower(g.group_name)            like  ? "
-        + "or lower(g.display_name)       like  ? "
-        + "or lower(g.group_extension)    like  ? "
-        + "or lower(g.display_extension)  like  ? ",
+        "from Attribute as a where                                      "
+        + "( a.field.name = 'name'              and lower(a.value) like ? )"
+        + " or "
+        + "( a.field.name = 'displayName'       and lower(a.value) like ? )"
+        + " or "
+        + "( a.field.name = 'extension'         and lower(a.value) like ? )"
+        + " or " 
+        + "( a.field.name = 'displayExtension'  and lower(a.value) like ? )"
+        ,
         new Object[] {
           approx, approx, approx, approx
         },
@@ -156,7 +160,7 @@ public class GroupFinder {
       ).iterator();
       hs.close();
       while (iter.hasNext()) {
-        Group g = (Group) iter.next();
+        Group g = ( (Attribute) iter.next() ).getGroup();
         g.setSession(s);
         groups.add(g);
       }
@@ -175,15 +179,16 @@ public class GroupFinder {
     try {
       Group   g       = null;
       Session hs      = HibernateHelper.getSession();
-      List    groups  = hs.find(
-                          "from Group as g where  "
-                          + "g.group_name = ?     ",
+      List    attrs   = hs.find(
+                          "from Attribute as a where  "
+                          + "a.field.name = 'name'    "
+                          + "and a.value  = ?         ",
                           name,
                           Hibernate.STRING
                         )
                         ;
-      if (groups.size() == 1) {
-        g = (Group) groups.get(0);
+      if (attrs.size() == 1) {
+        g = ( (Attribute) attrs.get(0) ).getGroup();
       }
       hs.close();
       if (g == null) {

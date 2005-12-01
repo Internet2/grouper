@@ -17,128 +17,100 @@
 
 package edu.internet2.middleware.grouper;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+
+import  java.io.Serializable;
+import  org.apache.commons.lang.builder.*;
 
 
 /** 
  * A group attribute within the Groups registry.
- * @author blair christensen.
- *     
-*/
+ * <p/>
+ * @author  blair christensen.
+ * @version $Id: Attribute.java,v 1.3 2005-12-01 03:12:24 blair Exp $
+ */
 class Attribute implements Serializable {
 
-    /** identifier field */
-    private String id;
+  // Hibernate Properties
+  private Field   field;
+  private Group   group;
+  private String  id;
+  private String  value;
 
-    /** persistent field */
-    private String value;
 
-    /** nullable persistent field */
-    private Integer version;
+  // Constructors
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Group group_id;
+  // For Hibernate
+  public Attribute() {
+    super();
+  } // public Attribute()
 
-    /** nullable persistent field */
-    private edu.internet2.middleware.grouper.Field field_id;
+  protected Attribute(Group g, Field f, String val) {
+    this.field  = f;
+    this.group  = g;
+    this.value  = val;
+  } // protected Attribute(g, f, val)
 
-    /** full constructor */
-    public Attribute(String value, Integer version, edu.internet2.middleware.grouper.Group group_id, edu.internet2.middleware.grouper.Field field_id) {
-        this.value = value;
-        this.version = version;
-        this.group_id = group_id;
-        this.field_id = field_id;
-    }
 
-    /** default constructor */
-    public Attribute() {
-    }
+  // Public Instance Methods
+  public String toString() {
+    return new ToStringBuilder(this)
+           .append("value", getValue())
+           .append("group", getGroup())
+           .append("field", getField())
+           .toString();
+  }
 
-    /** minimal constructor */
-    public Attribute(String value) {
-        this.value = value;
-    }
+  public boolean equals(Object other) {
+    if ( (this == other ) ) return true;
+    if ( !(other instanceof Attribute) ) return false;
+    Attribute castOther = (Attribute) other;
+    return new EqualsBuilder()
+           .append(this.getValue(), castOther.getValue())
+           .append(this.getGroup(), castOther.getGroup())
+           .append(this.getField(), castOther.getField())
+           .isEquals();
+  }
 
-    private String getId() {
-        return this.id;
-    }
+  public int hashCode() {
+    return new HashCodeBuilder()
+           .append(getValue())
+           .append(getGroup())
+           .append(getField())
+           .toHashCode();
+  }
 
-    private void setId(String id) {
-        this.id = id;
-    }
+  // Hibernate Accessors
 
-    /** 
-     * Get attribute value.
-     *       
-     */
-    private String getValue() {
-        return this.value;
-    }
+  private String getId() {
+    return this.id;
+  }
 
-    private void setValue(String value) {
-        this.value = value;
-    }
+  private void setId(String id) {
+    this.id = id;
+  }
 
-    private Integer getVersion() {
-        return this.version;
-    }
+  protected String getValue() {
+    return this.value;
+  }
 
-    private void setVersion(Integer version) {
-        this.version = version;
-    }
+  private void setValue(String value) {
+    this.value = value;
+  }
 
-    /** 
-     * Get group.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Group getGroup_id() {
-        return this.group_id;
-    }
+  protected Group getGroup() {
+    return this.group;
+  }
 
-    private void setGroup_id(edu.internet2.middleware.grouper.Group group_id) {
-        this.group_id = group_id;
-    }
+  private void setGroup(Group group) {
+    this.group = group;
+  }
 
-    /** 
-     * Get field.
-     *       
-     */
-    private edu.internet2.middleware.grouper.Field getField_id() {
-        return this.field_id;
-    }
+  protected Field getField() {
+    return this.field;
+  }
 
-    private void setField_id(edu.internet2.middleware.grouper.Field field_id) {
-        this.field_id = field_id;
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("value", getValue())
-            .append("group_id", getGroup_id())
-            .append("field_id", getField_id())
-            .toString();
-    }
-
-    public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( !(other instanceof Attribute) ) return false;
-        Attribute castOther = (Attribute) other;
-        return new EqualsBuilder()
-            .append(this.getValue(), castOther.getValue())
-            .append(this.getGroup_id(), castOther.getGroup_id())
-            .append(this.getField_id(), castOther.getField_id())
-            .isEquals();
-    }
-
-    public int hashCode() {
-        return new HashCodeBuilder()
-            .append(getValue())
-            .append(getGroup_id())
-            .append(getField_id())
-            .toHashCode();
-    }
+  private void setField(Field field) {
+    this.field = field;
+  }
 
 }

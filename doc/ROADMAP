@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.78 2005-11-30 21:23:22 blair Exp $
+$Id: ROADMAP,v 1.79 2005-12-01 03:12:24 blair Exp $
 
 ---
 
@@ -13,7 +13,7 @@ TODO Sync with Basecamp
 
 ## Next Actions
 * Implement all 0.6 query filters
-  * GroupAttributeMatchFilter
+  * GroupAttributeFilter
   * GroupAnyAttributeFilter
 * Review exceptions
   * Should MemberNotFound and SubjectNotFound be replaced by Runtime
@@ -45,8 +45,11 @@ TODO Sync with Basecamp
   * Map _GroupType_
 * Custom group attributes
   * add to group subjects
+  * query filters
+  * setting, unsetting, nullable, etc
 * Custom group lists
   * add to group subjects
+* Additional query filters
 * Update Subject API jar
 * normalize source adapter id + name conventions
 * wheel group
@@ -91,6 +94,7 @@ TODO Sync with Basecamp
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

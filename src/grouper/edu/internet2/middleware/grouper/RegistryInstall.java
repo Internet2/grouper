@@ -27,7 +27,7 @@ import  net.sf.hibernate.*;
  * Install the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.7 2005-11-28 19:21:48 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.8 2005-12-01 03:12:24 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -49,25 +49,30 @@ public class RegistryInstall {
 
     Field description = new Field(
       "description"       , FieldType.ATTRIBUTE,
-      AccessPrivilege.READ, AccessPrivilege.ADMIN
+      AccessPrivilege.READ, AccessPrivilege.ADMIN,
+      true
     );
     // TODO Remove?
     Field displayName = new Field(
       "displayName"       , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM
+      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
+      false
     );
     Field displayExtn = new Field(
       "displayExtension"  , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.ADMIN
+      AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
+      false
     );
     Field extension   = new Field(
       "extension"         , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.ADMIN
+      AccessPrivilege.VIEW, AccessPrivilege.ADMIN,
+      false
     );
     // TODO Remove?
     Field name        = new Field(
       "name"              , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM
+      AccessPrivilege.VIEW, AccessPrivilege.SYSTEM,
+      false
     );
 
     fields.add(description);
@@ -78,41 +83,50 @@ public class RegistryInstall {
 
     Field admins    = new Field(
       "admins"                , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+      true
     );
     // TODO Not needed?  Or maybe just reserve it?
     Field creators  = new Field(
       "creators"              , FieldType.NAMING,
-      NamingPrivilege.STEM    , NamingPrivilege.STEM
+      NamingPrivilege.STEM    , NamingPrivilege.STEM,
+      true
     );
     Field members   = new Field(
       "members"               , FieldType.LIST,
-      AccessPrivilege.READ    , AccessPrivilege.UPDATE
+      AccessPrivilege.READ    , AccessPrivilege.UPDATE,
+      true
     );
     Field optins    = new Field(
       "optins"                , FieldType.ACCESS,
-      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE
+      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
+      true
     );
     Field optouts   = new Field(
       "optouts"               , FieldType.ACCESS,
-      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE
+      AccessPrivilege.UPDATE  , AccessPrivilege.UPDATE,
+      true
     );
     Field readers   = new Field(
       "readers"               , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+      true
     );
     // TODO Not needed?  Or maybe just reserve it?
     Field stemmers  = new Field(
       "stemmers"              , FieldType.NAMING,
-      NamingPrivilege.STEM    , NamingPrivilege.STEM
+      NamingPrivilege.STEM    , NamingPrivilege.STEM,
+      true
     );
     Field updaters  = new Field(
       "updaters"              , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+      true
     );
     Field viewers   = new Field(
       "viewers"               , FieldType.ACCESS,
-      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN
+      AccessPrivilege.ADMIN   , AccessPrivilege.ADMIN,
+      true
     );
 
     fields.add(admins);
