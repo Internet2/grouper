@@ -1,7 +1,9 @@
 alter table grouper_sessions drop constraint FKF43E3C105000A8E0;
+alter table grouper_stems drop constraint FKA98254373C82913E;
 alter table grouper_stems drop constraint FKA9825437A3FBEB83;
 alter table grouper_stems drop constraint FKA98254375236F20E;
 alter table grouper_groups drop constraint FK723686075236F20E;
+alter table grouper_groups drop constraint FK723686073C82913E;
 alter table grouper_groups drop constraint FK72368607A3FBEB83;
 alter table grouper_factors drop constraint FK82080B311BBB05D6;
 alter table grouper_factors drop constraint FK82080B311BBB7A35;
@@ -57,7 +59,7 @@ create table grouper_stems (
    modify_source varchar(255),
    modify_time bigint,
    stem_name varchar(255) not null,
-   parent_stem char(64),
+   parent_stem char(32),
    stem_id varchar(64) not null,
    primary key (id),
    unique (display_name),
@@ -78,7 +80,7 @@ create table grouper_groups (
    modifier_id char(64),
    modify_source varchar(255),
    modify_time bigint,
-   parent_stem char(64),
+   parent_stem char(32),
    group_id varchar(64) not null,
    primary key (id),
    unique (group_id)
@@ -111,9 +113,11 @@ create table grouper_attributes (
    unique (group_id, field_name, field_type)
 );
 alter table grouper_sessions add constraint FKF43E3C105000A8E0 foreign key (member_id) references grouper_members;
+alter table grouper_stems add constraint FKA98254373C82913E foreign key (parent_stem) references grouper_stems;
 alter table grouper_stems add constraint FKA9825437A3FBEB83 foreign key (modifier_id) references grouper_members;
 alter table grouper_stems add constraint FKA98254375236F20E foreign key (creator_id) references grouper_members;
 alter table grouper_groups add constraint FK723686075236F20E foreign key (creator_id) references grouper_members;
+alter table grouper_groups add constraint FK723686073C82913E foreign key (parent_stem) references grouper_stems;
 alter table grouper_groups add constraint FK72368607A3FBEB83 foreign key (modifier_id) references grouper_members;
 alter table grouper_factors add constraint FK82080B311BBB05D6 foreign key (node_a_id) references grouper_members;
 alter table grouper_factors add constraint FK82080B311BBB7A35 foreign key (node_b_id) references grouper_members;

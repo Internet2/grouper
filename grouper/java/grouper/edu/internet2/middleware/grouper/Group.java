@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.19 2005-12-01 03:12:24 blair Exp $
+ * @version $Id: Group.java,v 1.20 2005-12-01 21:18:23 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -43,7 +43,7 @@ public class Group implements Serializable {
   private Member  modifier_id;
   private String  modify_source;
   private long    modify_time;
-  private String  parent_stem;
+  private Stem    parent_stem;
 
 
   // Transient Instance Variables
@@ -727,10 +727,8 @@ public class Group implements Serializable {
    * </pre>
    * @return  Parent {@link Stem}.
    */
-  public Stem getParentStem() 
-    throws StemNotFoundException
-  {
-    return StemFinder.findByUuid(this.s, this.parent_stem);
+  public Stem getParentStem() {
+    return this.getParent_stem();
   } // public Stem getParentStem()
 
   /**
@@ -1346,15 +1344,11 @@ public class Group implements Serializable {
     this.modifier_id = modifier_id;
   }
 
-  // TODO private Stem getParent_stem() {
-  private String getParent_stem() {
+  private Stem getParent_stem() {
     return this.parent_stem;
   }
 
-  // TODO protected void setParent_stem(Stem parent_stem) {
-  protected void setParent_stem(String parent_stem) {
-    // TODO I should just be able to use a _Stem_ object
-    // TODO this.parent_stem = parent_stem.getId();
+  protected void setParent_stem(Stem parent_stem) {
     this.parent_stem = parent_stem;
   }
 

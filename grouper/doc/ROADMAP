@@ -3,16 +3,18 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.85 2005-12-01 20:04:47 blair Exp $
+$Id: ROADMAP,v 1.86 2005-12-01 21:18:23 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* _Stem_ child stems mapping
-* _Stem_ parent stem mapping
-  * _Group_ parent stem mapping
+* Test parent and child mappings
+  * _Stem.getParentStem()_
+  * _Stem.getChildStems()_
+  * _Stem.getChildGroups()_
+  * _Group.getParentStem()_
 * Group deletion when groups have members or are members
 * Implement VIEW
 * Implement READ
@@ -21,9 +23,9 @@ $Id: ROADMAP,v 1.85 2005-12-01 20:04:47 blair Exp $
 * Implement OPTOUT
 * Implement ADMIN
 * Replace `_init()` methods with static {} declarations where possible
+* Implement remaining unimplemented methods
 
 ## Later
-* Implement remaining unimplemented methods
 * Review generated SQL
   * Including my twisty column names
 * Commons logging
