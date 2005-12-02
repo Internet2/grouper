@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.20 2005-12-01 21:18:23 blair Exp $
+ * @version $Id: Group.java,v 1.21 2005-12-02 03:15:52 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -728,7 +728,9 @@ public class Group implements Serializable {
    * @return  Parent {@link Stem}.
    */
   public Stem getParentStem() {
-    return this.getParent_stem();
+    Stem parent = this.getParent_stem();
+    parent.setSession(this.s);
+    return parent;
   } // public Stem getParentStem()
 
   /**

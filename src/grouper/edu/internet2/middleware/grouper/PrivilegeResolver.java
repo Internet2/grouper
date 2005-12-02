@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.13 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.14 2005-12-02 03:15:52 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -69,6 +69,7 @@ class PrivilegeResolver {
     GrouperSession s, Group g, Subject subj
   )
   {
+    GrouperSession.validate(s);
     return access.getPrivs(s, g, subj);
   } // protected Set getPrivs(s, g, subj)
 
@@ -76,6 +77,7 @@ class PrivilegeResolver {
     GrouperSession s, Stem ns, Subject subj
   )
   {
+    GrouperSession.validate(s);
     return naming.getPrivs(s, ns, subj);
   } // protected Set getPrivs(s, ns, subj)
 
@@ -83,6 +85,7 @@ class PrivilegeResolver {
     GrouperSession s, Subject subj, Privilege priv
   ) 
   {
+    GrouperSession.validate(s);
     try {
       return this.access.getGroupsWhereSubjectHasPriv(s, subj, priv);
     }
@@ -95,6 +98,7 @@ class PrivilegeResolver {
     GrouperSession s, Subject subj, Privilege priv
   ) 
   {
+    GrouperSession.validate(s);
     try {
       return this.naming.getStemsWhereSubjectHasPriv(s, subj, priv);
     }
@@ -104,6 +108,7 @@ class PrivilegeResolver {
   } // protected Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   protected Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) {
+    GrouperSession.validate(s);
     try {
       return this.access.getSubjectsWithPriv(s, g, priv);
     }
@@ -113,6 +118,7 @@ class PrivilegeResolver {
   } // protected Set getSubjectsWithPriv(s, g, priv)
 
   protected Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) {
+    GrouperSession.validate(s);
     try {
       return this.naming.getSubjectsWithPriv(s, ns, priv);
     }
@@ -127,6 +133,7 @@ class PrivilegeResolver {
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     this.access.grantPriv(s, g, subj, priv);
   } // protected void grantPriv(s, g, subj, priv)
 
@@ -136,6 +143,7 @@ class PrivilegeResolver {
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     this.naming.grantPriv(s, ns, subj, priv);
   } // protected void grantPriv(s, ns, subj, priv)
 
@@ -143,6 +151,7 @@ class PrivilegeResolver {
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
+    GrouperSession.validate(s);
     if (this._isRoot(subj)) {
       return true;
     }
@@ -162,6 +171,7 @@ class PrivilegeResolver {
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
   {
+    GrouperSession.validate(s);
     if (this._isRoot(subj)) {
       return true;
     }
@@ -181,6 +191,7 @@ class PrivilegeResolver {
     throws  RevokePrivilegeException,
             InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     this.access.revokePriv(s, g, priv);
   } // protected void revokePriv(s, g, priv)
 
@@ -188,6 +199,7 @@ class PrivilegeResolver {
     throws  RevokePrivilegeException,
             InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     this.naming.revokePriv(s, ns, priv);
   } // protected void revokePriv(s, ns, priv)
 
@@ -197,6 +209,7 @@ class PrivilegeResolver {
     throws  RevokePrivilegeException,
             InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     this.access.revokePriv(s, g, subj, priv);
   } // protected void revokePriv(s, g, subj, priv)
 
@@ -206,6 +219,7 @@ class PrivilegeResolver {
     throws  RevokePrivilegeException,
             InsufficientPrivilegeException
   {
+    GrouperSession.validate(s);
     this.naming.revokePriv(s, ns, subj, priv);
   } // protected void revokePriv(s, ns, subj, priv)
 
