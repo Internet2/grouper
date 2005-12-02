@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.5 2005-12-02 17:17:01 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
 
@@ -54,13 +54,39 @@ public class TestGroupDelete extends TestCase {
       i2.delete();
       Assert.assertTrue("group deleted", true);
     }
-    catch (GroupDeleteException e0) {
-      Assert.fail("failed to delete group: " + e0.getMessage());
-    }
-    catch (InsufficientPrivilegeException e1) {
-      Assert.fail("not privileged to delete group: " + e1.getMessage());
+    catch (Exception e) {
+      Assert.fail("failed to delete group: " + e.getMessage());
     }
   } // public void testGroupDelete()
+
+  public void testGroupDeleteWhenMemberAndHasMembers() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Member          m     = Helper.getMemberBySubject(s, SubjectHelper.SUBJ0);
+    GroupHelper.addMember(uofc, SubjectHelper.SUBJ0, m);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    MembershipHelper.testImmMship(s, uofc, SubjectHelper.SUBJ0, Group.getDefaultList());
+    GroupHelper.addMember(i2, uofc);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
+    MembershipHelper.testImmMship(s, uofc, SubjectHelper.SUBJ0, Group.getDefaultList());
+    MembershipHelper.testImmMship(s, i2,   uofc,                Group.getDefaultList());
+    MembershipHelper.testEffMship(
+      s, i2, SubjectHelper.SUBJ0, Group.getDefaultList(), uofc, 1
+    );
+    try {
+      uofc.delete();
+      Assert.assertTrue("group deleted", true);
+      MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    }
+    catch (Exception e) {
+      Assert.fail("failed to delete group: " + e.getMessage());
+    }
+  } // public void testGroupDeleteWhenMemberAndHasMembers()
 
 }
 

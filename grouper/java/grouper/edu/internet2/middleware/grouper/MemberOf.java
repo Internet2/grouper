@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.4 2005-11-28 19:21:48 blair Exp $
+ * @version $Id: MemberOf.java,v 1.5 2005-12-02 17:17:01 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -122,22 +122,20 @@ class MemberOf implements Serializable {
       if (vid == null) {
         vid = gmid;
       }
-      mships.add(
-        new Membership(
-          s, oid, mofm.getMember_id(),
-          Group.getDefaultList(), vid, depth
-          )
-        );
+      Membership msMofM = new Membership(
+        s, oid, mofm.getMember_id(),
+        Group.getDefaultList(), vid, depth
+      );
+      mships.add(msMofM);
       // ... and add to wherever this group is a member
       Iterator iterGisM = isMember.iterator();
       while (iterGisM.hasNext()) {
         Membership gism = (Membership) iterGisM.next();
-        mships.add(
-          new Membership(
-            s, gism.getOwner_id(), mofm.getMember_id(),
-            Group.getDefaultList(), vid, depth + gism.getDepth() 
-          )
+        Membership msGisM = new Membership(
+          s, gism.getOwner_id(), mofm.getMember_id(),
+          Group.getDefaultList(), vid, depth + gism.getDepth() 
         );
+        mships.add(msGisM);
       }
     }
 
@@ -159,12 +157,11 @@ class MemberOf implements Serializable {
       if (vid == null) {
         vid = g.getUuid();
       }
-      mships.add(
-        new Membership(
-          s, ms.getOwner_id(), ms.getMember_id(), 
-          Group.getDefaultList(), vid, depth
-        )
+      Membership msGisM = new Membership(
+        s, ms.getOwner_id(), m.getUuid(),
+        Group.getDefaultList(), vid, depth
       );
+      mships.add(msGisM);
     }
     return mships;
   } // private static Set _findMembershipsWhereGroupIsMember(s, g, m, isMember)

@@ -28,7 +28,7 @@ import  net.sf.hibernate.type.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.11 2005-11-28 19:14:19 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.12 2005-12-02 17:17:01 blair Exp $
  */
 public class MembershipFinder {
 
@@ -548,7 +548,8 @@ public class MembershipFinder {
       return ms;
     }
     throw new MembershipNotFoundException(
-      "effective membership not found"
+      "effective membership not found: " + gid + "/" + mid + "/" 
+      + f.getName() + "/" + vid + "/" + depth
     );
   } // protected static Membership findEffectiveMembership(gid, mid, field, vid, depth)
 

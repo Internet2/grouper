@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.114 2005-12-02 03:36:58 blair Exp $
+$Id: API,v 1.115 2005-12-02 17:17:00 blair Exp $
 
 ---
 
@@ -219,7 +219,7 @@ $Id: API,v 1.114 2005-12-02 03:36:58 blair Exp $
 * Set                 getChildMemberships()
 * int                 getDepth()
 * Group               getGroup()
-* List                getList()
+* Field               getList()
 * Member              getMember()
 * Membership          getParentMembership()
 * Group               getViaGroup()

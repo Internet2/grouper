@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Group.deleteMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDeleteMemberGroup.java,v 1.6 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestGroupDeleteMemberGroup.java,v 1.7 2005-12-02 17:17:01 blair Exp $
  */
 public class TestGroupDeleteMemberGroup extends TestCase {
 
@@ -54,18 +54,59 @@ public class TestGroupDeleteMemberGroup extends TestCase {
     GroupHelper.deleteMember(i2, uofc);
   } // public void testDeleteMemberGroup()
 
-  public void testDeleteMemberWithNonGroupMember() {
+  public void testDeleteGroupMemberWithNonGroupMember() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Subject         subj  = SubjectHelper.getSubjectById(SubjectHelper.SUBJ_ROOT);
+    Subject         subj  = SubjectHelper.SUBJ0;
     Member          m     = Helper.getMemberBySubject(s, subj);
+    // add subj to uofc
     GroupHelper.addMember(uofc, subj, m);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+    // add uofc to i2
     GroupHelper.addMember(i2, uofc);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
+    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+    MembershipHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
+    // remove uofc from i2
     GroupHelper.deleteMember(i2, uofc);
-  } // public void testDeleteMemberWithNonGroupGroup()
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 0, 0, 0);
+    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+  } // public void testDeleteGroupMemberWithNonGroupMember()
+
+  public void testDeleteMemberFromGroupThatIsMember() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Subject         subj  = SubjectHelper.SUBJ0;
+    Member          m     = Helper.getMemberBySubject(s, subj);
+    // add uofc to i2
+    GroupHelper.addMember(i2, uofc);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0, 0, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+    // add subj to uofc   
+    GroupHelper.addMember(uofc, subj, m);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 2, 1, 1);
+    MembershipHelper.testImmMship(s, uofc, subj, Group.getDefaultList());
+    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+    MembershipHelper.testEffMship(s, i2, subj, Group.getDefaultList(), uofc, 1);
+    // remove subj from uofc
+    GroupHelper.deleteMember(uofc, subj, m);
+    MembershipHelper.testNumMship(uofc, Group.getDefaultList(), 0, 0, 0);
+    MembershipHelper.testNumMship(i2,   Group.getDefaultList(), 1, 1, 0);
+    MembershipHelper.testImmMship(s, i2,   uofc, Group.getDefaultList());
+  } // public void testDeleteMemberFromGroupThatIsMember()
 
 }
 
