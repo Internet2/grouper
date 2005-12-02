@@ -1,6 +1,6 @@
 /*--
- $Id: HousekeepingInterceptor.java,v 1.15 2005-11-24 00:02:53 acohen Exp $
- $Date: 2005-11-24 00:02:53 $
+ $Id: HousekeepingInterceptor.java,v 1.16 2005-12-02 18:36:53 acohen Exp $
+ $Date: 2005-12-02 18:36:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -155,48 +155,43 @@ class HousekeepingInterceptor implements Interceptor, Serializable
     return tx;
   }
   
-  private void saveInitialHistoryRecord
-    (Session       session,
-     GrantableImpl grantableInstance)
-  throws CallbackException
-  {
-    History historyRecord;
-    
-    if (grantableInstance instanceof Assignment)
-    {
-      historyRecord
-        = new AssignmentHistory((AssignmentImpl)grantableInstance);
-    }
-    else if (grantableInstance instanceof Proxy)
-    {
-      historyRecord = new ProxyHistory((ProxyImpl)grantableInstance);
-    }
-    else
-    {
-      throw new CallbackException
-        ("HousekeepingInterceptor.saveInitialHistoryRecord() received"
-         + " a Grantable instance which was neither an Assignment nor a"
-         + " Proxy.");
-    }
-    
-    Set historySet = new HashSet(1);
-    historySet.add(historyRecord);
-    grantableInstance.setHistory(historySet);
-    
-    try
-    {
-      session.save(historyRecord);
-      
-      if (grantableInstance instanceof Assignment)
-      {
-        ((AssignmentImpl)grantableInstance).recordLimitValuesHistory(session);
-      }
-    }
-    catch (HibernateException e)
-    {
-      throw new CallbackException(e);
-    }
-  }
+//  private void saveInitialHistoryRecord
+//    (Session       session,
+//     GrantableImpl grantableInstance)
+//  throws CallbackException
+//  {
+//    History historyRecord;
+//    
+//    if (grantableInstance instanceof Assignment)
+//    {
+//      historyRecord
+//        = new AssignmentHistoryImpl((AssignmentImpl)grantableInstance);
+//    }
+//    else if (grantableInstance instanceof Proxy)
+//    {
+//      historyRecord = new ProxyHistoryImpl((ProxyImpl)grantableInstance);
+//    }
+//    else
+//    {
+//      throw new CallbackException
+//        ("HousekeepingInterceptor.saveInitialHistoryRecord() received"
+//         + " a Grantable instance which was neither an Assignment nor a"
+//         + " Proxy.");
+//    }
+//    
+//    Set historySet = new HashSet(1);
+//    historySet.add(historyRecord);
+//    grantableInstance.setHistory(historySet);
+//    
+//    try
+//    {
+//      session.save(historyRecord);
+//    }
+//    catch (HibernateException e)
+//    {
+//      throw new CallbackException(e);
+//    }
+//  }
   
   /* (non-Javadoc)
    * @see net.sf.hibernate.Interceptor#postFlush(java.util.Iterator)
@@ -204,37 +199,37 @@ class HousekeepingInterceptor implements Interceptor, Serializable
   public void postFlush(Iterator entities)
   throws CallbackException
   {
-    Session     tempSession;
-    Transaction tx;
-    
-    while (entities.hasNext())
-    {
-      Object entity = entities.next();
-      
-      if (entity instanceof Grantable)
-      {
-        GrantableImpl grantableInstance = (GrantableImpl)entity;
-
-        tempSession = this.sessionFactory.openSession(this.connection);
-        tx = startXact(tempSession);
-
-        if (grantableInstance.getHistory() == null)
-        {
-          saveInitialHistoryRecord(tempSession, grantableInstance);
-        }
-        
-        try
-        {
-          tx.commit();
-          tempSession.flush();
-          tempSession.close();
-        }
-        catch (HibernateException he)
-        {
-          throw new CallbackException(he);
-        }
-      }
-    }
+//    Session     tempSession;
+//    Transaction tx;
+//    
+//    while (entities.hasNext())
+//    {
+//      Object entity = entities.next();
+//      
+//      if (entity instanceof Grantable)
+//      {
+//        GrantableImpl grantableInstance = (GrantableImpl)entity;
+//
+//        tempSession = this.sessionFactory.openSession(this.connection);
+//        tx = startXact(tempSession);
+//
+//        if (grantableInstance.getHistory() == null)
+//        {
+//          saveInitialHistoryRecord(tempSession, grantableInstance);
+//        }
+//        
+//        try
+//        {
+//          tx.commit();
+//          tempSession.flush();
+//          tempSession.close();
+//        }
+//        catch (HibernateException he)
+//        {
+//          throw new CallbackException(he);
+//        }
+//      }
+//    }
   }
   
   /* (non-Javadoc)

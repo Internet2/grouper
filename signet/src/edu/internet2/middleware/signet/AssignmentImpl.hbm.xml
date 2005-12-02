@@ -84,7 +84,7 @@
 			name="limitValues"
 			lazy="true"
 			table="signet_assignmentLimit"
-			cascade="all">
+			cascade="save-update">
 			<key column="assignmentID"/>
 			
 			<composite-element class="edu.internet2.middleware.signet.LimitValue">
@@ -105,16 +105,113 @@
 			</composite-element>
 		</set>
 		
+		<!-- This mapping is modeled after an example on page 212 of
+			"Hibernate in Action".
+		-->
+<!--
 		<set
 			name="history"
-			inverse="true"
 			lazy="true"
 			table="signet_assignment_history"
 			cascade="save-update">
+			<key column="assignmentID"/>
+			
+			<composite-element
+			 class="edu.internet2.middleware.signet.AssignmentHistoryImpl">
+			 
+				<property name="instanceNumber"/>
+
+				<property
+				 name="status"
+				 type="edu.internet2.middleware.signet.StatusType"
+				 not-null="true"/>
+				 
+				<many-to-one
+				 name="subsystem"
+				 cascade="none"
+				 class="edu.internet2.middleware.signet.SubsystemImpl"
+				 column="subsystemID"/>
+				 
+				<many-to-one
+				 name="function"
+				 cascade="none"
+				 class="edu.internet2.middleware.signet.FunctionImpl"
+				 column="functionID"/>
+			
+				<many-to-one
+				 name="grantor"
+				 class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+				 column="grantorKey"
+				 not-null="true"/>
+
+				<many-to-one
+				 name="grantee"
+				 class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+				 column="granteeKey"
+				 not-null="true"/>
+
+				<many-to-one
+				 name="revoker"
+				 class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+				 column="revokerKey"
+				 not-null="false"/>
+
+				<many-to-one
+				 name="proxySubject"
+				 class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+				 column="proxyKey"
+				 not-null="false"/>
+
+				<many-to-one
+				 name="scope"
+				 class="edu.internet2.middleware.signet.TreeNodeImpl"
+				 cascade="none"
+				 not-null="true">
+					<column name="scopeID"/>
+					<column name="scopeNodeID"/>
+				</many-to-one>
+				
+				<property
+				 name="canGrant"
+				 type="boolean"
+				 not-null="true"/>
+				 
+				<property
+				 name="canUse"
+				 type="boolean"
+				 not-null="true"/>
+				 
+				<property
+				 name="effectiveDate"
+				 type="timestamp"
+				 not-null="true"/>
+				 
+				<property
+				 name="expirationDate"
+				 type="timestamp"
+				 not-null="false"/>
+				 
+				<property
+				 name="historyDatetime"
+				 not-null="true"/>
+				 
+				<property
+				 name="modifyDatetime"
+				 column="modifyDatetime" />
+
+			</composite-element>
+		</set>
+-->
+		
+		<set
+		 name="history"
+		 lazy="true"
+		 table="signet_assignment_history"
+		 cascade="save-update">
 			
 			<key column="assignmentID"/>
 			<one-to-many
-				class="edu.internet2.middleware.signet.AssignmentHistory"/>
+				class="edu.internet2.middleware.signet.AssignmentHistoryImpl"/>
 		</set>
 		
 		<property

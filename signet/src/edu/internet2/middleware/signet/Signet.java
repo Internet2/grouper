@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.45 2005-11-17 19:08:40 acohen Exp $
-$Date: 2005-11-17 19:08:40 $
+$Id: Signet.java,v 1.46 2005-12-02 18:36:53 acohen Exp $
+$Date: 2005-12-02 18:36:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -635,8 +635,10 @@ public final class Signet
         ("grantorKey", proxy.getGrantor().getId(), Hibernate.INTEGER);
       query.setParameter
         ("granteeKey", proxy.getGrantee().getId(), Hibernate.INTEGER);
-      query.setString
-        ("subsystemId", proxy.getSubsystem().getId());
+      query.setParameter
+        ("subsystemId",
+         proxy.getSubsystem() == null ? null : proxy.getSubsystem().getId(),
+         Hibernate.STRING);
       
       query.setParameter("proxyId", proxy.getId(), Hibernate.INTEGER);
 

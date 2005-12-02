@@ -3,7 +3,7 @@
           "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping>
 	<class
-		name="edu.internet2.middleware.signet.ProxyHistory"
+		name="edu.internet2.middleware.signet.ProxyHistoryImpl"
 		table="signet_proxy_history"
 		lazy="true">
 		
@@ -31,6 +31,12 @@
 			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
 			column="granteeKey"
 			not-null="true"/>
+
+		<many-to-one
+			name="proxySubject"
+			class="edu.internet2.middleware.signet.PrivilegedSubjectImpl"
+			column="proxySubjectKey"
+			not-null="false"/>
 
 		<many-to-one
 			name="revoker"

@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.9 2005-11-24 00:02:53 acohen Exp $
- $Date: 2005-11-24 00:02:53 $
+ $Id: ProxyImpl.java,v 1.10 2005-12-02 18:36:53 acohen Exp $
+ $Date: 2005-12-02 18:36:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -9,6 +9,7 @@
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 class ProxyImpl
@@ -93,6 +94,12 @@ implements Proxy
     {
       throw new SignetAuthorityException(decision);
     }
+
+    ProxyHistory historyRecord = new ProxyHistoryImpl(this);
+  
+    Set historySet = new HashSet(1);
+    historySet.add(historyRecord);
+    this.setHistory(historySet);
   }
   
   void setSubsystem(Subsystem subsystem)
@@ -197,7 +204,7 @@ implements Proxy
       this.incrementInstanceNumber();
         
       ProxyHistory historyRecord
-        = new ProxyHistory(this);
+        = new ProxyHistoryImpl(this);
 
       this.getSignet().save(this);
       this.getSignet().save(historyRecord);

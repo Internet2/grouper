@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.9 2005-11-16 01:02:55 acohen Exp $
-$Date: 2005-11-16 01:02:55 $
+$Id: Constants.java,v 1.10 2005-12-02 18:36:53 acohen Exp $
+$Date: 2005-12-02 18:36:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,6 +9,10 @@ see doc/license.txt in this distribution.
 package edu.internet2.middleware.signet.test;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.signet.Status;
 
 /**
  * @author acohen
@@ -58,4 +62,13 @@ public class Constants
   
   public static final boolean PROXY_CANUSE  = true;
   public static final boolean PROXY_CANEXTEND = true;
+  
+  public static final Set STATUS_ACTIVE_OR_PENDING;
+  
+  static
+  {
+    STATUS_ACTIVE_OR_PENDING = new HashSet();
+    STATUS_ACTIVE_OR_PENDING.add(Status.ACTIVE);
+    STATUS_ACTIVE_OR_PENDING.add(Status.PENDING);
+  }
 }

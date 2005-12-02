@@ -42,7 +42,7 @@
 			
 			<key column="proxyID"/>
 			<one-to-many
-				class="edu.internet2.middleware.signet.ProxyHistory"/>
+				class="edu.internet2.middleware.signet.ProxyHistoryImpl"/>
 		</set>
 
 		<many-to-one

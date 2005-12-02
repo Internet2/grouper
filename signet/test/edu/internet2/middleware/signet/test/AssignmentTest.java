@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentTest.java,v 1.20 2005-11-16 01:02:55 acohen Exp $
-$Date: 2005-11-16 01:02:55 $
+$Id: AssignmentTest.java,v 1.21 2005-12-02 18:36:53 acohen Exp $
+$Date: 2005-12-02 18:36:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -15,12 +15,15 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 
 import junit.framework.TestCase;
@@ -86,11 +89,14 @@ public class AssignmentTest extends TestCase
       Subject subject
         = signet.getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             fixtures.makeSubjectId(subjectIndex));
+             Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
       Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, Constants.STATUS_ACTIVE_OR_PENDING);
       assignmentsReceived
         = Common.filterAssignments
             (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
@@ -126,7 +132,7 @@ public class AssignmentTest extends TestCase
       Subject subject
         = signet.getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             fixtures.makeSubjectId(subjectIndex));
+             Common.makeSubjectId(subjectIndex));
  
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -180,7 +186,7 @@ public class AssignmentTest extends TestCase
     {
       Subject subject
       	= signet.getSubject(
-      			Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
+      			Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -269,7 +275,7 @@ public class AssignmentTest extends TestCase
     {
       Subject subject
         = signet.getSubject(
-            Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
+            Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -359,7 +365,7 @@ public class AssignmentTest extends TestCase
     {
       Subject subject
         = signet.getSubject(
-            Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(subjectIndex));
+            Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -425,7 +431,7 @@ public class AssignmentTest extends TestCase
       Subject subject
         = signet.getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             fixtures.makeSubjectId(subjectIndex));
+             Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -492,7 +498,7 @@ public class AssignmentTest extends TestCase
     
     Subject subject0
       = signet.getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID, fixtures.makeSubjectId(0));
+          (Signet.DEFAULT_SUBJECT_TYPE_ID, Common.makeSubjectId(0));
     PrivilegedSubject pSubject0 = signet.getPrivilegedSubject(subject0);
     
     // Get any one of subject0's Assignments - we don't care which one.
@@ -535,7 +541,7 @@ public class AssignmentTest extends TestCase
       Subject subject
         = signet.getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             fixtures.makeSubjectId(subjectIndex));
+             Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -596,7 +602,7 @@ public class AssignmentTest extends TestCase
       Subject subject
         = signet.getSubject
             (Signet.DEFAULT_SUBJECT_TYPE_ID,
-             fixtures.makeSubjectId(subjectIndex));
+             Common.makeSubjectId(subjectIndex));
       
       PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
       
@@ -644,6 +650,312 @@ public class AssignmentTest extends TestCase
       }
     }
   }
+
+  public final void testGetHistory()
+  throws ObjectNotFoundException
+  { 
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             Common.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+
+      // Every single Assignment should have a single History record.
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        
+        Set historySet = assignment.getHistory();
+        assertNotNull(historySet);
+        assertEquals(1, historySet.size());
+      }
+    }
+  }
+
+  public final void testGetEffectiveDate()
+  throws ObjectNotFoundException
+  { 
+    int totalAssignmentsFound = 0;
+    
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             Common.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        totalAssignmentsFound++;
+        
+        Date effectiveDate = assignment.getEffectiveDate();
+
+        assertNotNull(effectiveDate);
+        assertEquals(Constants.YESTERDAY, effectiveDate);
+      }
+    }
+    
+    assertTrue
+      ("We expect to encounter at least one Assignment.",
+       totalAssignmentsFound > 0);
+  }
+
+  public final void testGetScope()
+  throws ObjectNotFoundException
+  { 
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+        = signet.getSubject
+            (Signet.DEFAULT_SUBJECT_TYPE_ID,
+             Common.makeSubjectId(subjectIndex));
+      
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+      
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+
+      // Every single Assignment should have the same scope.
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+        
+        TreeNode scope = assignment.getScope();
+        assertNotNull(scope);
+        assertEquals(Common.getRootNode(signet), scope);
+      }
+    }
+  }
+  
+  public final void testCanGrant()
+  throws ObjectNotFoundException
+  {
+    for (int subjectIndex = 0;
+         subjectIndex < Constants.MAX_SUBJECTS;
+         subjectIndex++)
+    {
+      Subject subject
+       = signet.getSubject
+           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+            Common.makeSubjectId(subjectIndex));
+ 
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+ 
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+       = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+       = Common.filterAssignments
+           (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+   
+        boolean canGrant = assignment.canGrant();
+        assertEquals(Constants.ASSIGNMENT_CANGRANT, canGrant);
+      }
+    }
+  }
+  
+  public final void testCanUse()
+  throws ObjectNotFoundException
+  {
+    for (int subjectIndex = 0;
+    subjectIndex < Constants.MAX_SUBJECTS;
+    subjectIndex++)
+    {
+      Subject subject
+       = signet.getSubject
+           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+            Common.makeSubjectId(subjectIndex));
+
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+      assignmentsReceived
+        = Common.filterAssignments(assignmentsReceived, Status.ACTIVE);
+      assignmentsReceived
+        = Common.filterAssignments
+            (assignmentsReceived, signet.getSubsystem(Constants.SUBSYSTEM_ID));
+
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+
+        boolean canUse = assignment.canUse();
+        assertEquals(Constants.ASSIGNMENT_CANUSE, canUse);
+      }
+    }
+  }
+  
+  public final void testGetGrantee()
+  throws ObjectNotFoundException
+  {
+    for (int subjectIndex = 0;
+    subjectIndex < Constants.MAX_SUBJECTS;
+    subjectIndex++)
+    {
+      Subject subject
+       = signet.getSubject
+           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+            Common.makeSubjectId(subjectIndex));
+
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+
+      Set assignmentsReceived = pSubject.getAssignmentsReceived();
+
+      Iterator assignmentsReceivedIterator = assignmentsReceived.iterator();
+      while (assignmentsReceivedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsReceivedIterator.next());
+
+        PrivilegedSubject grantee = assignment.getGrantee();
+        assertEquals(pSubject, grantee);
+      }
+    }
+  }
+  
+  public final void testGetGrantor()
+  throws ObjectNotFoundException
+  {
+    for (int subjectIndex = 0;
+    subjectIndex < Constants.MAX_SUBJECTS;
+    subjectIndex++)
+    {
+      Subject subject
+       = signet.getSubject
+           (Signet.DEFAULT_SUBJECT_TYPE_ID,
+            Common.makeSubjectId(subjectIndex));
+
+      PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+
+      Set assignmentsGranted = pSubject.getAssignmentsGranted();
+
+      Iterator assignmentsGrantedIterator = assignmentsGranted.iterator();
+      while (assignmentsGrantedIterator.hasNext())
+      {
+        Assignment assignment
+          = (Assignment)(assignmentsGrantedIterator.next());
+
+        PrivilegedSubject grantor = assignment.getGrantor();
+        assertEquals(pSubject, grantor);
+      }
+    }
+  }
+  
+  public final void testGetProxySubject()
+  throws ObjectNotFoundException
+  {
+    // subject1000 was proxy for assignments granted to subject0, subject1,
+    // and subject2.
+    correlateGranteeAndProxySubject(0, 1000);
+    correlateGranteeAndProxySubject(1, 1000);
+    correlateGranteeAndProxySubject(2, 1000);
+  }
+  
+  public final void testGetRevoker()
+  throws ObjectNotFoundException
+  {
+    // Subject0 has revoked an Assignment held by subject2.
+    
+    PrivilegedSubject expectedRevoker = Common.getPrivilegedSubject(signet, 0);
+    PrivilegedSubject grantee = Common.getPrivilegedSubject(signet, 2);
+    Set assignments = grantee.getAssignmentsReceived();
+    assignments = Common.filterAssignments(assignments, Status.INACTIVE);
+    Assignment revokedAssignment
+      = (Assignment)(Common.getSingleSetMember(assignments));
+    
+    PrivilegedSubject actualRevoker = revokedAssignment.getRevoker();
+    assertNotNull(actualRevoker);
+    assertEquals(expectedRevoker, actualRevoker);
+  }
+
+  public final void testGetFunction()
+  throws ObjectNotFoundException
+  {
+    // subject0 has assignments for functions 0 and 2.
+    // subject1 has an assignment for function 1.
+    // subject2 has an assignment for function 2.
+    correlateGranteeAndFunction(0, 0);
+    correlateGranteeAndFunction(0, 2);
+    correlateGranteeAndFunction(1, 1);
+    correlateGranteeAndFunction(2, 2);
+  }
+  
+  private void correlateGranteeAndFunction
+    (int subjectIndex,
+     int functionIndex)
+  throws ObjectNotFoundException
+  {
+    Subject subject
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Common.makeSubjectId(subjectIndex));
+  
+    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    
+    String functionId = fixtures.makeFunctionId(functionIndex);
+    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    Function function = subsystem.getFunction(functionId);
+    
+    // Let's see if this PrivilegedSubject has at least one Assignment for
+    // the specified Function.
+    Assignment matchingAssignment = null;
+    Set assignments = pSubject.getAssignmentsReceived();
+    Iterator assignmentsIterator = assignments.iterator();
+    while (assignmentsIterator.hasNext())
+    {
+      Assignment assignment = (Assignment)(assignmentsIterator.next());
+      if (assignment.getFunction().equals(function))
+      {
+        matchingAssignment = assignment;
+      }
+    }
+    
+    assertNotNull(matchingAssignment);
+  }
   
   private int limitNumber(String limitName)
   {
@@ -652,5 +964,42 @@ public class AssignmentTest extends TestCase
     String prefix = tokenizer.nextToken();
     int number = (new Integer(tokenizer.nextToken())).intValue();
     return number;
+  }
+  
+  private void correlateGranteeAndProxySubject
+    (int    granteeIndex,
+     int    proxySubjectIndex)
+  throws ObjectNotFoundException
+  {
+    Subject grantee
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Common.makeSubjectId(granteeIndex));
+  
+    PrivilegedSubject pGrantee = signet.getPrivilegedSubject(grantee);
+
+    Subject proxySubject
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           Common.makeSubjectId(proxySubjectIndex));
+  
+    PrivilegedSubject pProxySubject = signet.getPrivilegedSubject(proxySubject);
+    
+    // Let's see if this grantee has at least one Assignment proxied by this
+    // proxySubject.
+    Assignment matchingAssignment = null;
+    Set assignments = pGrantee.getAssignmentsReceived();
+    Iterator assignmentsIterator = assignments.iterator();
+    while (assignmentsIterator.hasNext())
+    {
+      Assignment assignment = (Assignment)(assignmentsIterator.next());
+      if ((assignment.getProxy() != null)
+          && assignment.getProxy().equals(pProxySubject))
+      {
+        matchingAssignment = assignment;
+      }
+    }
+    
+    assertNotNull(matchingAssignment);
   }
 }

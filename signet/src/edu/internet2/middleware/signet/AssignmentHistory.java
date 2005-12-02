@@ -1,14 +1,13 @@
 /*--
-$Id: AssignmentHistory.java,v 1.6 2005-11-24 00:02:53 acohen Exp $
-$Date: 2005-11-24 00:02:53 $
+ $Id: AssignmentHistory.java,v 1.7 2005-12-02 18:36:53 acohen Exp $
+ $Date: 2005-12-02 18:36:53 $
 
-Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
-Licensed under the Signet License, Version 1,
-see doc/license.txt in this distribution.
-*/
+ Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
+ Licensed under the Signet License, Version 1,
+ see doc/license.txt in this distribution.
+ */
 package edu.internet2.middleware.signet;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.tree.TreeNode;
@@ -19,120 +18,54 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-class AssignmentHistory extends History
+public interface AssignmentHistory extends History
 {
-  protected Assignment assignment;
+  /**
+   * Returns the scope of the (@link Assignment} described by this historical
+   * record, at the time this record was created.
+   * 
+   * @return the scope of the (@link Assignment} described by this historical
+   * record, at the time this record was created.
+   */
+  public TreeNode getScope();
   
-  private TreeNode     scope;
-  private Function     function;
-  private Set          limitValues;
-  private boolean      canGrant;
-  private boolean      canUse;
   
   /**
-   * Hibernate requires the presence of a default constructor.
+   * Returns the <code>Function</code> associated with the {@link Assignment}
+   * described by this historical record, at the time this record was created.
+   * 
+   * @return the <code>Function</code> associated with the {@link Assignment}
+   * described by this historical record, at the time this record was created.
    */
-  public AssignmentHistory()
-  {
-    super();
-  }
+  public Function getFunction();
   
-  AssignmentHistory(AssignmentImpl assignment)
-  {
-    // Most information is just copied from the Assignment object to the
-    // AssignmentHistory object.
-    super(assignment);
-    
-    this.setAssignment(assignment);
-    this.setScope(assignment.getScope());
-    this.setFunction(assignment.getFunction());
-    this.setLimitValues(assignment.getLimitValues());
-    this.setCanGrant(assignment.canGrant());
-    this.setCanUse(assignment.canUse());
-  }
   
-  Assignment getAssignment()
-  {
-    return this.assignment;
-  }
+  /**
+   * Returns the grantability of the {@link Assignment} described by this
+   * historical record, at the time this record was created.
+   * 
+   * @return the grantability of the {@link Assignment} described by this
+   * historical record, at the time this record was created.
+   */
+  public boolean canGrant();
+
   
-  // This method is only for use by Hibernate.
-  protected void setAssignment(Assignment assignment)
-  {
-    this.assignment = assignment;
-  }
+  /**
+   * Returns the useability of the {@link Assignment} described by this
+   * historical record, at the time this record was created.
+   * 
+   * @return the useability of the {@link Assignment} described by this
+   * historical record, at the time this record was created.
+   */
+  public boolean canUse();
   
-  TreeNode getScope()
-  {
-    return this.scope;
-  }
   
-  void setScope(TreeNode scope)
-  {
-    this.scope = scope;
-  }
-  
-  Function getFunction()
-  {
-    return this.function;
-  }
-  
-  void setFunction(Function function)
-  {
-    this.function = function;
-  }
-  
-  boolean canGrant()
-  {
-    return this.canGrant;
-  }
-  
-  // This method is only for use by Hibernate.
-  protected boolean getCanGrant()
-  {
-    return this.canGrant;
-  }
-  
-  void setCanGrant(boolean canGrant)
-  {
-    this.canGrant = canGrant;
-  }
-  
-  boolean canUse()
-  {
-    return this.canUse;
-  }
-  
-  // This method is only for use by Hibernate.
-  protected boolean getCanUse()
-  {
-    return this.canUse;
-  }
-  
-  void setCanUse(boolean canUse)
-  {
-    this.canUse = canUse;
-  }
-  
-  Set getLimitValues()
-  {
-    return this.limitValues;
-  }
-  
-  void setLimitValues(Set limitValues)
-  {
-    // Let's make our own local copy of this Set, to remember its state right
-    // now, when the history is being recorded.
-    this.limitValues = new HashSet(limitValues);
-  }
-  
-  public String toString()
-  {
-    return
-      "[assignment="
-      + this.getAssignment()
-      + ", instanceNumber="
-      + this.getInstanceNumber()
-      + "]";
-  }
+  /**
+   * Returns the {@link LimitValue}s of the {@link Assignment} described by this
+   * historical record, at the time this record was created.
+   * 
+   * @return the {@link LimitValue}s of the {@link Assignment} described by this
+   * historical record, at the time this record was created.
+   */
+  public Set getLimitValues();
 }

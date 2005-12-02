@@ -1,6 +1,6 @@
 /*--
- $Id: AssignmentImpl.java,v 1.34 2005-11-24 00:02:53 acohen Exp $
- $Date: 2005-11-24 00:02:53 $
+ $Id: AssignmentImpl.java,v 1.35 2005-12-02 18:36:53 acohen Exp $
+ $Date: 2005-12-02 18:36:53 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -127,6 +127,13 @@ implements Assignment
     {
       throw new SignetAuthorityException(decision);
     }
+
+    AssignmentHistory historyRecord
+      = new AssignmentHistoryImpl(this);
+  
+    Set historySet = new HashSet(1);
+    historySet.add(historyRecord);
+    this.setHistory(historySet);
   }
   
   /**
@@ -446,29 +453,7 @@ implements Assignment
   {
     return this.getSignet().findDuplicates(this);
   }
-  
-  void recordLimitValuesHistory
-    (Session         session)
-  throws HibernateException
-  {
-    Iterator limitValuesIterator
-      = this.getLimitValues().iterator();
-    while (limitValuesIterator.hasNext())
-    {
-      LimitValue limitValue = (LimitValue)(limitValuesIterator.next());
-      LimitValueHistory limitValueHistory
-        = new LimitValueHistory(this, limitValue);
-      
-      if (session != null)
-      {
-        session.save(limitValueHistory);
-      }
-      else
-      {
-        this.getSignet().save(limitValueHistory);
-      }
-    }
-  }
+
   
   public void save()
   {
@@ -489,19 +474,10 @@ implements Assignment
       this.incrementInstanceNumber();
         
       AssignmentHistory historyRecord
-        = new AssignmentHistory(this);
+        = new AssignmentHistoryImpl(this);
       
       this.getSignet().save(this);
       this.getSignet().save(historyRecord);
-        
-      try
-      {
-        this.recordLimitValuesHistory(null);
-      }
-      catch (HibernateException he)
-      {
-        throw new SignetRuntimeException(he);
-      }
     }
     else
     {

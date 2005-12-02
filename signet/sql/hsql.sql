@@ -255,16 +255,13 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 ;
 create table signet_assignmentLimit_history
 (
-  historyID       int          NOT NULL IDENTITY,
-  assignmentID    int          NOT NULL,
-  instanceNumber  int          NOT NULL,
-  limitKey        int          NOT NULL,
-  value           varchar(32)  NOT NULL,
-  primary key (historyID),
-  unique      (historyID, assignmentID, instanceNumber, limitKey, value),
-  foreign key (assignmentID, instanceNumber)
+  assignment_historyID int          NOT NULL,
+  limitKey             int          NOT NULL,
+  value                varchar(32)  NOT NULL,
+  unique      (assignment_historyID, limitKey, value),
+  foreign key (assignment_historyID)
     references signet_assignment_history
-      (assignmentID, instanceNumber),
+      (historyID),
   foreign key (limitKey)
     references signet_limit
       (limitKey)

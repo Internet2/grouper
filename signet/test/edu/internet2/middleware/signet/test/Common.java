@@ -1,6 +1,6 @@
 /*--
-$Id: Common.java,v 1.12 2005-11-16 01:02:55 acohen Exp $
-$Date: 2005-11-16 01:02:55 $
+$Id: Common.java,v 1.13 2005-12-02 18:36:53 acohen Exp $
+$Date: 2005-12-02 18:36:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -16,15 +16,22 @@ import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.AssignmentHistory;
 import edu.internet2.middleware.signet.Function;
+import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
+import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
+import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
+import edu.internet2.middleware.signet.tree.Tree;
+import edu.internet2.middleware.signet.tree.TreeNode;
+import edu.internet2.middleware.subject.Subject;
 
 import junit.framework.TestCase;
 
@@ -69,11 +76,30 @@ public class Common extends TestCase
     return
       (LimitValue[])(assignment.getLimitValues().toArray(limitValuesArray));
   }
+  
+  static LimitValue[] getLimitValuesArray(AssignmentHistory assignmentHistory)
+  {
+    LimitValue limitValuesArray[] = new LimitValue[0];
+    Set limitValues = assignmentHistory.getLimitValues();
+    assertNotNull(limitValues);
+    limitValuesArray = (LimitValue[])(limitValues.toArray(limitValuesArray));
+
+    return limitValuesArray;
+  }
 
   static LimitValue[] getLimitValuesInDisplayOrder
     (Assignment assignment)
   {
     LimitValue[] limitValues = getLimitValuesArray(assignment);
+    Arrays.sort(limitValues);
+    
+    return limitValues;
+  }
+
+  static LimitValue[] getLimitValuesInDisplayOrder
+    (AssignmentHistory assignmentHistory)
+  {
+    LimitValue[] limitValues = getLimitValuesArray(assignmentHistory);
     Arrays.sort(limitValues);
     
     return limitValues;
@@ -120,19 +146,19 @@ public class Common extends TestCase
    * @return
    * @throws SignetAuthorityException
    */
-  public static PrivilegedSubject getOriginalGrantor(Assignment assignment)
+  public static PrivilegedSubject getOriginalGrantor(Grantable grantable)
   throws SignetAuthorityException
   {
     PrivilegedSubject originalGrantor;
     
-    if (assignment.getProxy() == null)
+    if (grantable.getProxy() == null)
     {
-      originalGrantor = assignment.getGrantor();
+      originalGrantor = grantable.getGrantor();
     }
     else
     {
-      originalGrantor = assignment.getProxy();
-      originalGrantor.setActingAs(assignment.getGrantor());
+      originalGrantor = grantable.getProxy();
+      originalGrantor.setActingAs(grantable.getGrantor());
     }
     
     return originalGrantor;
@@ -279,5 +305,79 @@ public class Common extends TestCase
     }
 
     return subset;
+  }
+  
+  public static TreeNode getRootNode(Signet signet)
+  throws ObjectNotFoundException
+  {
+    Tree tree = signet.getTree(Constants.TREE_ID);
+    Set roots = tree.getRoots();
+    TreeNode root = (TreeNode)(Common.getSingleSetMember(roots));
+    
+    return root;
+  }
+  
+  public static PrivilegedSubject getPrivilegedSubject
+    (Signet signet,
+     int    subjectIndex)
+  throws ObjectNotFoundException
+  {
+    Subject subject = getSubject(signet, subjectIndex);
+    PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
+    return pSubject;
+  }
+
+
+  /**
+   * @param i
+   * @return
+   * @throws ObjectNotFoundException
+   * @throws ObjectNotFoundException
+   */
+  public static Subject getSubject(Signet signet, int subjectNumber)
+  throws ObjectNotFoundException
+  {
+    Subject subject = null;
+
+    subject
+      = signet.getSubject
+          (Signet.DEFAULT_SUBJECT_TYPE_ID,
+           makeSubjectId(subjectNumber));
+    
+    return subject;
+  }
+
+  /**
+   * @param subjectNumber
+   * @return
+   */
+  public static String makeSubjectId(int subjectNumber)
+  {
+    return
+      "SUBJECT"
+      + Constants.DELIMITER
+      + subjectNumber
+      + Constants.DELIMITER
+      + "ID";
+  }
+
+  public static Function getFunction(Signet signet, int functionNumber)
+  throws ObjectNotFoundException
+  {
+    Subsystem subsystem = signet.getSubsystem(Constants.SUBSYSTEM_ID);
+    String functionId = makeFunctionId(functionNumber);
+    Function function = subsystem.getFunction(functionId);
+    
+    return function;
+  }
+  
+  public static String makeFunctionId(int functionNumber)
+  {
+    return
+      "FUNCTION"
+      + Constants.DELIMITER
+      + functionNumber
+      + Constants.DELIMITER
+      + "ID";
   }
 }

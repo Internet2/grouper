@@ -1,6 +1,6 @@
 /*--
-$Id: Fixtures.java,v 1.30 2005-11-24 00:02:53 acohen Exp $
-$Date: 2005-11-24 00:02:53 $
+$Id: Fixtures.java,v 1.31 2005-12-02 18:36:53 acohen Exp $
+$Date: 2005-12-02 18:36:53 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -109,6 +109,13 @@ public class Fixtures
    *     grantor: SuperPrivilegedSubject
    *     grantee: Subject 2
    *     Function 2
+   * 
+   *   Assignment 4
+   *     grantor: Subject 0
+   *     grantee: Subject 1
+   *     revoker: Subject 0
+   *     Function 0
+   * 
    * @throws HibernateException
    * @throws SQLException
    * @throws ClassNotFoundException
@@ -233,6 +240,33 @@ public class Fixtures
     			 2,  // function-number
     			 limitChoiceNumbers);
     assignment.save();
+    
+    // Grant and immediately revoke an Assignment from subject0 to subject2.
+    // This will come in handy later for testing the Assignment.getRevoker()
+    // method.
+    int[] limitChoiceNumbersForRevocation = {0};
+    PrivilegedSubject pSubject0 = Common.getPrivilegedSubject(signet, 0);
+    Assignment assignmentForRevocation
+      = getOrCreateAssignment
+          (pSubject0,
+           2, // grantee subject number
+           0,
+           limitChoiceNumbersForRevocation);
+    assignmentForRevocation.save();
+    assignmentForRevocation.revoke(pSubject0);
+    assignmentForRevocation.save();
+    
+    // Grant and immediately revoke a Proxy from subject0 to subject2.
+    // This will come in handy later for testing the Proxy.getRevoker()
+    // method.
+    Proxy proxyForRevocation
+      = getOrCreateProxy
+          (0, // grantor subject number
+           2, // grantee subject number
+           this.subsystem);
+    proxyForRevocation.save();
+    proxyForRevocation.revoke(pSubject0);
+    proxyForRevocation.save();
   }
   
   private PrivilegedSubject designateSubsystemOwner
@@ -245,7 +279,7 @@ public class Fixtures
   {
     PrivilegedSubject subsystemOwner
       = signet.getPrivilegedSubject
-          (getSubject(subjectNumber));
+          (Common.getSubject(signet, subjectNumber));
     
     Proxy newProxy
       = sysAdmin
@@ -270,7 +304,7 @@ public class Fixtures
   {
     PrivilegedSubject sysAdmin
       = signet.getPrivilegedSubject
-          (getSubject(subjectNumber));
+          (Common.getSubject(signet, subjectNumber));
     
     Proxy newProxy
       = signet.getSignetSubject()
@@ -317,8 +351,10 @@ public class Fixtures
     stmt.executeUpdate
       ("DELETE"
        + " FROM signet_assignmentLimit_history"
-       + " WHERE assignmentID IN"
-       + "   (SELECT assignmentID FROM signet_assignment WHERE subsystemID='"
+       + " WHERE assignment_historyID IN"
+       + "   (SELECT historyID"
+       + "    FROM signet_assignment_history"
+       + "    WHERE subsystemID='"
        + Constants.SUBSYSTEM_ID
        + "')");
     stmt.executeUpdate
@@ -359,12 +395,12 @@ public class Fixtures
   {
     PrivilegedSubject grantor
       = signet.getPrivilegedSubject
-          (getSubject
-            (grantorSubjectNumber));
+          (Common.getSubject
+            (signet, grantorSubjectNumber));
     PrivilegedSubject grantee
       = signet.getPrivilegedSubject
-          (getSubject
-            (granteeSubjectNumber));
+          (Common.getSubject
+            (signet, granteeSubjectNumber));
     
     // Before granting this new Proxy, let's see if it already exists
     // in the database.
@@ -407,7 +443,7 @@ public class Fixtures
   	ObjectNotFoundException
   {
     TreeNode rootNode = getRoot(tree);
-    Subject subject = getSubject(subjectNumber);
+    Subject subject = Common.getSubject(signet, subjectNumber);
     PrivilegedSubject pSubject = signet.getPrivilegedSubject(subject);
     Function function = getOrCreateFunction(functionNumber);
     Limit[] limitsInDisplayOrder
@@ -484,39 +520,6 @@ public class Fixtures
        assignmentNumber, // subjectNumber
        assignmentNumber, // functionNumber,
        limitChoiceNumbers);
-  }
-
-  /**
-   * @param i
-   * @return
-   * @throws ObjectNotFoundException
-   * @throws ObjectNotFoundException
-   */
-  private Subject getSubject(int subjectNumber)
-  throws ObjectNotFoundException
-  {
-    Subject subject = null;
-
-    subject
-      = this.signet.getSubject
-          (Signet.DEFAULT_SUBJECT_TYPE_ID,
-           makeSubjectId(subjectNumber));
-    
-    return subject;
-  }
-
-  /**
-   * @param subjectNumber
-   * @return
-   */
-  String makeSubjectId(int subjectNumber)
-  {
-    return
-      "SUBJECT"
-      + Constants.DELIMITER
-      + subjectNumber
-      + Constants.DELIMITER
-      + "ID";
   }
 
 //  private String makeSubjectName(int subjectNumber)
@@ -819,9 +822,7 @@ public class Fixtures
     
     try
     {
-      function
-      	= this.subsystem.getFunction
-      			(makeFunctionId(functionNumber));
+      function = Common.getFunction(signet, functionNumber);
     }
     catch (ObjectNotFoundException onfe)
     {      
