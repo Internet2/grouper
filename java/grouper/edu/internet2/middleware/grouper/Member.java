@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.13 2005-11-29 19:39:40 blair Exp $
+ * @version $Id: Member.java,v 1.14 2005-12-02 17:17:01 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -74,8 +74,20 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getEffectiveGroups() {
-    throw new RuntimeException("Not implemented");
-  }
+    Set groups = new LinkedHashSet();
+    Iterator iter = this.getEffectiveMemberships().iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        Group g = ms.getGroup();
+        groups.add(g);
+      }
+      catch (GroupNotFoundException eGNF) {
+        // TODO Ignore?  Kvetch?
+      }
+    }
+    return groups;
+  } // public Set getEffectiveGroups()
 
   /**
    * Get effective memberships.
@@ -99,8 +111,20 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getGroups() {
-    throw new RuntimeException("Not implemented");
-  }
+    Set groups = new LinkedHashSet();
+    Iterator iter = this.getMemberships().iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        Group g = ms.getGroup();
+        groups.add(g);
+      }
+      catch (GroupNotFoundException eGNF) {
+        // TODO Ignore?  Kvetch?
+      }
+    }
+    return groups;
+  } // public Set getGroups()
 
   /**
    * Get groups where this member has an immediate membership.
@@ -111,8 +135,20 @@ public class Member implements Serializable {
    * @return  Set of {@link Group} objects.
    */
   public Set getImmediateGroups() {
-    throw new RuntimeException("Not implemented");
-  }
+    Set groups = new LinkedHashSet();
+    Iterator iter = this.getImmediateMemberships().iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        Group g = ms.getGroup();
+        groups.add(g);
+      }
+      catch (GroupNotFoundException eGNF) {
+        // TODO Ignore?  Kvetch?
+      }
+    }
+    return groups;
+  } // public Set getImmediateGroups()
 
   /**
    * Get immediate memberships.

@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.5 2005-11-28 19:14:19 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.6 2005-12-02 17:17:01 blair Exp $
  */
 public class MembershipHelper {
 
@@ -72,7 +72,10 @@ public class MembershipHelper {
       Assert.assertTrue("eff mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
-      Assert.fail("eff membership not found");
+      Assert.fail(
+        "eff membership not found: '" + g.getName() + "/" + subj.getName() 
+        + "/" + f.getName() + "/" + d + "/" + v.getName() + "'"
+      );
     }
   } // protected static void testEffMship(s, g, subj, f, v, d)
 
@@ -86,7 +89,10 @@ public class MembershipHelper {
       Assert.assertTrue("imm mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
-      Assert.fail("imm membership not found");
+      Assert.fail(
+        "imm membership not found: '" + g.getName() + "/" + subj.getName() 
+        + "/" + f.getName() + "'"
+      );
     }
   } // protected static void testImmMship(s, g, subj, f)
 

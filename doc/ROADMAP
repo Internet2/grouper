@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.89 2005-12-02 03:36:58 blair Exp $
+$Id: ROADMAP,v 1.90 2005-12-02 17:17:00 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Group deletion when groups have members or are members
 * Implement VIEW (and ADMIN, OPTIN, OPTOUT, READ, UPDATE)
 * Implement READ (and ADMIN)
 * Implement OPTIN (and ADMIN, UPDATE)
@@ -21,9 +20,9 @@ $Id: ROADMAP,v 1.89 2005-12-02 03:36:58 blair Exp $
 * Implement remaining unimplemented methods
 * Review generated SQL
   * Including my twisty column names
+* Commons logging
 
 ## Later
-* Commons logging
 * Review old _*.todo_ test classes
   * More effective membership testing
 * Add create member and time to memberships

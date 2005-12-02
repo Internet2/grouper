@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.21 2005-12-02 03:15:52 blair Exp $
+ * @version $Id: Group.java,v 1.22 2005-12-02 17:17:01 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -227,14 +227,42 @@ public class Group implements Serializable {
    * @throws  InsufficientPrivilegeException
    */
   public void delete() 
-    throws GroupDeleteException, InsufficientPrivilegeException
+    throws  GroupDeleteException,
+            InsufficientPrivilegeException
   {
+    // TODO Revoke access privs
+    // TODO Iterate through all lists, not just the default
     try {
-      HibernateHelper.delete(this);
+      Set       deletes = new LinkedHashSet();
+      deletes.add(this);
+
+      // Deal with where this group is an immediate member
+      Iterator  iterIs  = this.toMember().getImmediateGroups().iterator();
+      while (iterIs.hasNext()) {
+        Group g = (Group) iterIs.next();
+        deletes.addAll( 
+          this._membershipsToDelete(
+            g, this.toSubject(), Group.getDefaultList()
+          )
+        );
+      }
+      // Deal with this group's immediate members
+      Iterator  iterHas = this.getImmediateMembers().iterator();
+      while (iterHas.hasNext()) {
+        Member m = (Member) iterHas.next();
+        deletes.addAll( 
+          this._membershipsToDelete(
+            this, m.getSubject(), Group.getDefaultList()
+          )
+        );
+      }
+
+      // And then commit changes to registry
+      HibernateHelper.delete(deletes);
     }
-    catch (HibernateException e) {
+    catch (Exception e) {
       throw new GroupDeleteException(
-        "Unable to delete group: " + e.getMessage()
+        "unable to delete group: " + e.getMessage()
       );
     }
   }
@@ -309,61 +337,21 @@ public class Group implements Serializable {
             MemberDeleteException
   {
     try {
-      Member  m       = MemberFinder.findBySubject(this.s, subj);
-
       // The objects that will need saving and deleting
-      Set     deletes = new LinkedHashSet();
-      Set     saves   = new LinkedHashSet();
-
+      Set deletes = new LinkedHashSet();
+      Set saves   = new LinkedHashSet();
       // Update group modify time
       this.setModified();
       saves.add(this);
-
-      // Find the immediate membership that is to be deleted
-      deletes.add( 
-        MembershipFinder.findImmediateMembership(
-          this.s, this, m.getSubject(), f
-        )
-      );
-
-      // Find effective memberships
-      // As many of the memberships are likely to be transient, we
-      // need to retrieve the persistent version of each before
-      // passing it along to be deleted by HibernateHelper.  
-      Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = MemberOf.doMemberOf(this.s, this, m).iterator();
-      while (iter.hasNext()) {
-        Membership ms = (Membership) iter.next();
-        deletes.add( 
-          MembershipFinder.findEffectiveMembership(
-            ms.getOwner_id(), ms.getMember_id(), 
-            ms.getList(), ms.getVia_id(), ms.getDepth()
-          )
-        );
-      }
-      hs.close();
-
+      // Find memberships to delete
+      deletes.addAll( this._membershipsToDelete(this, subj, f) );
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (GroupNotFoundException eGNF) {
+    catch (Exception e) {
       throw new MemberDeleteException(
-        "error deleting effective memberships: " + eGNF.getMessage()
+        "unable to delete membership: " + e.getMessage()
       );
-    }
-    catch (HibernateException eH) {
-      throw new MemberDeleteException(
-        "could not delete subject: " + eH.getMessage()
-      );
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new MemberDeleteException(eMNF.getMessage());
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new MemberDeleteException(eMSNF.getMessage());
-    }
-    catch (SubjectNotFoundException eSNF) {
-      throw new MemberDeleteException(eSNF.getMessage());
     }
   } // public void deleteMember(subj, f)
 
@@ -542,8 +530,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getEffectiveMembers() {
-    throw new RuntimeException("Not implemented");
-  }
+    Set members = new LinkedHashSet();
+    Iterator iter = this.getEffectiveMemberships().iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        Member m = ms.getMember();
+        members.add(m);
+      }
+      catch (MemberNotFoundException eGNF) {
+        // TODO Ignore?  Kvetch?
+      }
+    }
+    return members;
+  }  // public Set getEffectiveMembers()
 
   /**
    * Get effective memberships of this group.
@@ -582,8 +582,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getImmediateMembers() {
-    throw new RuntimeException("Not implemented");
-  }
+    Set members = new LinkedHashSet();
+    Iterator iter = this.getImmediateMemberships().iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        Member m = ms.getMember();
+        members.add(m);
+      }
+      catch (MemberNotFoundException eGNF) {
+        // TODO Ignore?  Kvetch?
+      }
+    }
+    return members;
+  } // public Set getImmediateMembers()
 
   /**
    * Get immediate memberships of this group.
@@ -1275,6 +1287,33 @@ public class Group implements Serializable {
 
 
   // Private Instance Methods
+  private Set _membershipsToDelete(Group g, Subject subj, Field f) 
+    throws  Exception
+  {
+    Set memberships = new LinkedHashSet();
+    Member m = MemberFinder.findBySubject(this.s, subj);
+    // Find the immediate membership that is to be deleted
+    Membership imm = MembershipFinder.findImmediateMembership(this.s, g, subj, f);
+    memberships.add(imm);
+    // Find effective memberships
+    // As many of the memberships are likely to be transient, we
+    // need to retrieve the persistent version of each before
+    // passing it along to be deleted by HibernateHelper.  
+    Session   hs    = HibernateHelper.getSession();
+    Iterator  iter  = MemberOf.doMemberOf(this.s, g, m).iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      memberships.add( 
+        MembershipFinder.findEffectiveMembership(
+          ms.getOwner_id(), ms.getMember_id(), 
+          ms.getList(), ms.getVia_id(), ms.getDepth()
+        )
+      );
+    }
+    hs.close();
+    return memberships;
+  } // private Set _membershipsToDelete(g, subj, f)
+
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );
     this.setCreate_time( new Date().getTime() );
