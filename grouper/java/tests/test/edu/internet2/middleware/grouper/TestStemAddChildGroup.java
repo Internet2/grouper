@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.5 2005-12-01 20:04:47 blair Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.6 2005-12-02 17:50:46 blair Exp $
  */
 public class TestStemAddChildGroup extends TestCase {
 
@@ -58,6 +58,15 @@ public class TestStemAddChildGroup extends TestCase {
     Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
     Group i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
   } // public void testAddChildGroup()
+
+  public void testAddDuplicateChildGroup() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    StemHelper.addChildGroupFail(edu, "i2", "internet2");
+  } // public void testAddDuplicateChildGroup()
 
 }
 
