@@ -241,6 +241,7 @@ expirationDate      smalldatetime       NULL,
 revokerKey          numeric(12,0)       NULL,
 historyDatetime     smalldatetime       NOT NULL,
 modifyDatetime      smalldatetime       NOT NULL,
+primary key (historyID),
 unique (assignmentID, instanceNumber),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
@@ -250,16 +251,13 @@ foreign key (revokerKey) references signet_subject (subjectKey)
 ;
 create table signet_assignmentLimit_history
 (
-  historyID			numeric(12,0)		IDENTITY,
-  assignmentID        numeric(12,0)       NOT NULL,
-  instanceNumber      int                 NOT NULL,
-  limitKey        int          NOT NULL,
-  value               varchar(32)         NOT NULL,
-  primary key (historyID),
-  unique      (historyID, assignmentID, instanceNumber, limitKey, value),
-  foreign key (assignmentID, instanceNumber)
+  assignment_historyID numeric(12,0) NOT NULL,
+  limitKey             numeric(12,0) NOT NULL,
+  value                varchar(32)   NOT NULL,
+  unique      (assignment_historyID, limitKey, value),
+  foreign key (assignment_historyID)
     references signet_assignment_history
-      (assignmentID, instanceNumber),
+      (historyID),
   foreign key (limitKey)
     references signet_limit
       (limitKey)

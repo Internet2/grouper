@@ -1,6 +1,6 @@
 /*--
-$Id: Signet.java,v 1.46 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: Signet.java,v 1.47 2005-12-02 20:57:05 acohen Exp $
+$Date: 2005-12-02 20:57:05 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -1825,7 +1825,8 @@ public final class Signet
    Subject subject = null;
    for (Iterator iter = getSources(subjectTypeId).iterator(); iter.hasNext(); ) {
     try {
-      subject = ((Source)iter.next()).getSubjectByIdentifier(displayId);
+      Source source = (Source)(iter.next());
+      subject = source.getSubjectByIdentifier(displayId);
     }
     catch (SubjectNotFoundException snfe) {
         // Don't do anything since we may find the subject
