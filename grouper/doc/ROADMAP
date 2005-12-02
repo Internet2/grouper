@@ -3,18 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.87 2005-12-02 02:28:33 blair Exp $
+$Id: ROADMAP,v 1.88 2005-12-02 03:15:52 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Test parent and child mappings
-  * _Stem.getParentStem()_
-  * _Stem.getChildStems()_
-  * _Stem.getChildGroups()_
-  * _Group.getParentStem()_
 * Group deletion when groups have members or are members
 * Implement VIEW (and ADMIN, OPTIN, OPTOUT, READ, UPDATE)
 * Implement READ (and ADMIN)
@@ -24,18 +19,18 @@ $Id: ROADMAP,v 1.87 2005-12-02 02:28:33 blair Exp $
 * Implement ADMIN
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
-
-## Later
 * Review generated SQL
   * Including my twisty column names
+
+## Later
 * Commons logging
 * Review old _*.todo_ test classes
   * More effective membership testing
 * Add create member and time to memberships
 * Add create time to members
 * Rename subjectIDs in local subject<=>member mapping (#133)
-* many-to-many maping between _Field_ and _GroupType_
-* Test concurrent mods and access
+* many-to-many mapping between _Field_ and _GroupType_
+* Test concurrent and subsequent mods and access
 * What triggers a "modified" update?
 * Profiling and benchmarking
 * Custom group types
@@ -91,6 +86,7 @@ $Id: ROADMAP,v 1.87 2005-12-02 02:28:33 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
 

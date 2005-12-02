@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.5 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: Db.java,v 1.6 2005-12-02 03:15:53 blair Exp $
  */
 class Db {
 
@@ -59,7 +59,7 @@ class Db {
     _emptyTable("grouper_memberships");
     _emptyTable("grouper_sessions");
     _emptyTable("grouper_attributes");
-    _emptyTable("grouper_groups");
+    _emptyTableGrouperGroups();
     _emptyTableGrouperStems();
     _emptyTable("grouper_factors");
     _emptyTable("grouper_members");
@@ -173,6 +173,27 @@ class Db {
     }
   } // private static void _emptyTable(table)
 
+  private static void _emptyTableGrouperGroups() {
+    PreparedStatement del = null;
+    try {
+      del = conn.prepareStatement(
+        "UPDATE grouper_groups SET "
+        + "modifier_id = null, modify_source = null, modify_time = 0.0"
+      );
+      del.executeUpdate();
+      del = conn.prepareStatement(
+        "UPDATE grouper_groups SET parent_stem = null"
+      );
+      del.executeUpdate();
+    }
+    catch (SQLException eSQL) {
+      throw new RuntimeException(
+        "unable to delete various group attrs: " + eSQL.getMessage()
+      );
+    }
+    _emptyTable("grouper_groups");
+  } // private static void _emptyTableGrouperGroups()
+
   private static void _emptyTableGrouperStems() {
     PreparedStatement del = null;
     try {
@@ -181,10 +202,14 @@ class Db {
         + "modifier_id = null, modify_source = null, modify_time = 0.0"
       );
       del.executeUpdate();
+      del = conn.prepareStatement(
+        "UPDATE grouper_stems SET parent_stem = null"
+      );
+      del.executeUpdate();
     }
     catch (SQLException eSQL) {
       throw new RuntimeException(
-        "unable to delete stem modify* attrs: " + eSQL.getMessage()
+        "unable to delete various stem attrs: " + eSQL.getMessage()
       );
     }
     _emptyTable("grouper_stems");

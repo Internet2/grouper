@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.22 2005-12-01 21:18:23 blair Exp $
+ * @version $Id: Stem.java,v 1.23 2005-12-02 03:15:52 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -52,7 +52,7 @@ public class Stem implements Serializable {
   private String  stem_name;
 
 
-  // Transient Instance Variables
+  // Private Transient Instance Variables
   private transient GrouperSession s;
 
 
@@ -120,12 +120,6 @@ public class Stem implements Serializable {
       Set children  = this.getChild_groups();
       children.add(child);
       this.setChild_groups(children);
-/* TODO Does cascading now work?
-      Set objects = new LinkedHashSet();
-      objects.add(this);
-      objects.add(child);
-      HibernateHelper.save(objects);
-*/
       HibernateHelper.save(this);
       return child;
     }
@@ -180,13 +174,6 @@ public class Stem implements Serializable {
     children.add(child);
     this.setChild_stems(children);
     try {
-/* TODO Does cascading now work?
-      Set objects = new LinkedHashSet();
-      this.setModified();
-      objects.add(this);
-      objects.add(child);
-      HibernateHelper.save(objects);
-*/
       HibernateHelper.save(this);
       try {
         // Now grant STEM (as root) to the creator on the child stem.
@@ -235,8 +222,14 @@ public class Stem implements Serializable {
    */
   public Set getChildGroups() {
     // TODO Filter through canVIEW()
-    // TODO Do I need to attach sessions?
-    return this.getChild_groups();
+    Set       children  = new LinkedHashSet();
+    Iterator  iter      = this.getChild_groups().iterator();
+    while (iter.hasNext()) {
+      Group child = (Group) iter.next();
+      child.setSession(this.s);
+      children.add(child);
+    }
+    return children;
   } // public Set getChildGroups()
 
   /**
@@ -248,8 +241,14 @@ public class Stem implements Serializable {
    * @return  Set of {@link Stem} objects
    */
   public Set getChildStems() {
-    // TODO Do I need to attach sessions?
-    return this.getChild_stems();
+    Set       children  = new LinkedHashSet();
+    Iterator  iter      = this.getChild_stems().iterator();
+    while (iter.hasNext()) {
+      Stem child = (Stem) iter.next();
+      child.setSession(this.s);
+      children.add(child);
+    }
+    return children;
   } // public Set getChildStems()
 
   /**
@@ -432,6 +431,7 @@ public class Stem implements Serializable {
     if (parent == null) {
       throw new StemNotFoundException();
     }
+    parent.setSession(this.s);
     return parent;
   } // public Stem getParentStem()
 
