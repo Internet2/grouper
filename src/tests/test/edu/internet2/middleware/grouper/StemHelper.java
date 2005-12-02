@@ -26,7 +26,7 @@ import  junit.framework.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.8 2005-12-01 20:04:47 blair Exp $
+ * @version $Id: StemHelper.java,v 1.9 2005-12-02 17:50:46 blair Exp $
  */
 public class StemHelper {
 
@@ -115,8 +115,8 @@ public class StemHelper {
     catch (InsufficientPrivilegeException eIP) {
       Assert.assertTrue("failed to add stem", true);
     }
-    catch (Exception e) {
-      Assert.fail("failed to add stem: " + e.getMessage());
+    catch (StemAddException eSA) {
+      Assert.assertTrue("failed to add stem", true);
     }
   } // protected static void addChildStemFail(ns, extn, displayExtn)
 

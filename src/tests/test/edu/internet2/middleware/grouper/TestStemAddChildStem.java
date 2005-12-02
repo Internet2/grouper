@@ -26,7 +26,7 @@ import  junit.framework.*;
  * Test {@link Stem.addChildStem()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildStem.java,v 1.4 2005-11-28 17:53:06 blair Exp $
+ * @version $Id: TestStemAddChildStem.java,v 1.5 2005-12-02 17:50:46 blair Exp $
  */
 public class TestStemAddChildStem extends TestCase {
 
@@ -50,6 +50,23 @@ public class TestStemAddChildStem extends TestCase {
     );
     Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
   } // public void testAddChildStemAtRoot()
+
+  public void testAddChildStem() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    Stem  uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
+  } // public void testAddChildStem()
+
+  public void testAddDuplicateChildStem() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    Stem  uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
+    StemHelper.addChildStemFail(edu, "uofc", "uchicago");
+  } // public void testAddDuplicateChildStem()
 
 }
 
