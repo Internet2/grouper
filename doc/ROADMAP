@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.86 2005-12-01 21:18:23 blair Exp $
+$Id: ROADMAP,v 1.87 2005-12-02 02:28:33 blair Exp $
 
 ---
 
@@ -16,11 +16,11 @@ $Id: ROADMAP,v 1.86 2005-12-01 21:18:23 blair Exp $
   * _Stem.getChildGroups()_
   * _Group.getParentStem()_
 * Group deletion when groups have members or are members
-* Implement VIEW
-* Implement READ
-* Implement UPDATE
-* Implement OPTIN
-* Implement OPTOUT
+* Implement VIEW (and ADMIN, OPTIN, OPTOUT, READ, UPDATE)
+* Implement READ (and ADMIN)
+* Implement OPTIN (and ADMIN, UPDATE)
+* Implement OPTOUT (and ADMIN, UPDATE)
+* Implement UPDATE (and ADMIN)
 * Implement ADMIN
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
