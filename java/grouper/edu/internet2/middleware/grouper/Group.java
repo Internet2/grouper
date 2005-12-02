@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.22 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: Group.java,v 1.23 2005-12-02 17:20:13 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -232,6 +232,7 @@ public class Group implements Serializable {
   {
     // TODO Revoke access privs
     // TODO Iterate through all lists, not just the default
+    // TODO Could we run into priv issues?
     try {
       Set       deletes = new LinkedHashSet();
       deletes.add(this);
