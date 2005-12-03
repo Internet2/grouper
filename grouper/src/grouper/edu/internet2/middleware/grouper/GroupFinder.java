@@ -26,9 +26,13 @@ import  net.sf.hibernate.type.*;
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.6 2005-12-01 03:43:10 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.7 2005-12-03 17:46:22 blair Exp $
  */
 public class GroupFinder {
+
+  // Private Class Constants
+  private static final String E_GNF = "unable to find group";
+
 
   // Public Instance Methods
 
@@ -51,10 +55,17 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSession.validate(s);
-    Group g = findByName(name);
+    Group g = _findByName(name);
     g.setSession(s);
-    return g;
-  }
+    try {
+      PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
+      return g;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      // Ignore
+    }  
+    throw new GroupNotFoundException(E_GNF + " by name: " + name);
+  } // public static Group findByName(s, name)
 
   /**
    * Find a group within the registry by UUID.
@@ -75,9 +86,16 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSession.validate(s);
-    Group g = findByUuid(uuid);
+    Group g = _findByUuid(uuid);
     g.setSession(s);
-    return g;
+    try {
+      PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
+      return g;
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      // Ignore
+    }  
+    throw new GroupNotFoundException(E_GNF + " by uuid: " + uuid);
   } // public static Group findByUuid(s, uuid)
 
 
@@ -105,7 +123,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage()
       );  
     }
-    return new LinkedHashSet(groups);
+    return PrivilegeResolver.getInstance().canVIEW(s, new LinkedHashSet(groups));
   } // protected static Set findByCreatedAfter(s, d)
 
   // @return  groups created before this date
@@ -130,7 +148,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage()
       );  
     }
-    return new LinkedHashSet(groups);
+    return PrivilegeResolver.getInstance().canVIEW(s, new LinkedHashSet(groups));
   } // protected static Set findByCreatedBefore(s, d)
 
   protected static Set findByAnyApproximateAttr(GrouperSession s, String val) 
@@ -157,7 +175,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage()
       );
     }
-    return groups;
+    return PrivilegeResolver.getInstance().canVIEW(s, groups);
   } // protected static Set findByAnyApproximateAttr(s, val)
 
   protected static Set findByApproximateAttr(GrouperSession s, String attr, String val) 
@@ -191,7 +209,7 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage()
       );
     }
-    return groups;
+    return PrivilegeResolver.getInstance().canVIEW(s, groups);
   } // protected static Set findByApproximateAttr(s, attr, val)
 
   protected static Set findByApproximateName(GrouperSession s, String name) 
@@ -231,11 +249,13 @@ public class GroupFinder {
         "error finding groups: " + eH.getMessage()
       );
     }
-    return groups;
+    return PrivilegeResolver.getInstance().canVIEW(s, groups);
   } // protected static Set findByApproximateName(s, name)
 
-  protected static Group findByName(String name)
-    throws GroupNotFoundException
+
+  // Private Class Methods
+  private static Group _findByName(String name)
+    throws  GroupNotFoundException
   {
     try {
       Group   g       = null;
@@ -253,45 +273,45 @@ public class GroupFinder {
       }
       hs.close();
       if (g == null) {
-        throw new GroupNotFoundException("group not found");
+        throw new GroupNotFoundException(E_GNF + " by name: " + name);
       }
       return g; 
     }
-    catch (HibernateException e) {
+    catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        "error finding group: " + e.getMessage()
-      );  
+        E_GNF + " by name: " + name + "(" + eH.getMessage() + ")"
+      );
     }
-  } // protected static Group findByName(s, name)
+  } // private static Group _findByName(name)
 
-  protected static Group findByUuid(String uuid)
-    throws GroupNotFoundException
+  private static Group _findByUuid(String uuid)
+    throws  GroupNotFoundException
   {
     try {
       Group   g       = null;
       Session hs      = HibernateHelper.getSession();
       List    groups  = hs.find(
-                          "from Group as g where  "
-                          + "g.group_id = ?       ",
-                          uuid,
-                          Hibernate.STRING
-                        )
-                        ;
+        "from Group as g where  "
+        + "g.group_id = ?       ",
+        uuid,
+        Hibernate.STRING
+        )
+        ;
       if (groups.size() == 1) {
         g = (Group) groups.get(0);
       }
       hs.close();
       if (g == null) {
-        throw new GroupNotFoundException("group not found");
+        throw new GroupNotFoundException(E_GNF + " by uuid: " + uuid);
       }
       return g; 
     }
-    catch (HibernateException e) {
+    catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        "error finding group: " + e.getMessage()
+        E_GNF + " by uuid: " + uuid + "(" + eH.getMessage() + ")"
       );  
     }
-  } // protected static Group findByUuid(s, uuid)
+  } // private static Group _findByUuid(uuid)
 
 }
 

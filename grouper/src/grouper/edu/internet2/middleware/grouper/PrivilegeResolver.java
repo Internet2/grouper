@@ -29,7 +29,7 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.14 2005-12-02 03:15:52 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.15 2005-12-03 17:46:22 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -65,6 +65,231 @@ class PrivilegeResolver {
 
 
   // Protected Instance Methods
+
+  protected void canADMIN(GrouperSession s, Group g, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = AccessPrivilege.ADMIN;
+    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + g.getName() + "'"
+      );
+    }
+  } // protected void canADMIN(s, g, subj)
+
+  protected void canCREATE(GrouperSession s, Stem ns, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = NamingPrivilege.CREATE;
+    if (PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + ns.getName() + "'"
+      );
+    }
+  } // protected void canCREATE(s, ns, subj)
+
+  protected void canOPTIN(GrouperSession s, Group g, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = AccessPrivilege.OPTIN;
+    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + g.getName() + "'"
+      );
+    }
+  } // protected void canOPTIN(s, g, subj)
+
+  protected void canOPTOUT(GrouperSession s, Group g, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = AccessPrivilege.OPTOUT;
+    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + g.getName() + "'"
+      );
+    }
+  } // protected void canOPTOUT(s, g, subj)
+
+  protected void canPrivDispatch(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName());
+    if      (priv.equals(AccessPrivilege.ADMIN))  { 
+      this.canADMIN(s, g, subj);
+    }
+    else if (priv.equals(AccessPrivilege.OPTIN))  {
+      this.canOPTIN(s, g, subj);
+    }
+    else if (priv.equals(AccessPrivilege.OPTOUT)) {
+      this.canOPTOUT(s, g, subj);
+    }
+    else if (priv.equals(AccessPrivilege.READ))   {
+      this.canREAD(s, g, subj);
+    }
+    else if (priv.equals(AccessPrivilege.UPDATE)) {
+      this.canUPDATE(s, g, subj);
+    }
+    else if (priv.equals(AccessPrivilege.VIEW))   {
+      this.canVIEW(s, g, subj );
+    }
+    else {
+      throw new SchemaException("unknown access privilege: " + priv);
+    }
+  } // protected void canPrivDispatch(s, g, subj, priv)
+
+  protected void canPrivDispatch(
+    GrouperSession s, Stem ns, Subject subj, Privilege priv
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    if      (priv.equals(NamingPrivilege.CREATE)) { 
+      this.canCREATE(s, ns, subj);
+    }
+    else if (priv.equals(NamingPrivilege.STEM))   {
+      this.canSTEM(s, ns, subj);
+    }
+    else {
+      throw new SchemaException("unknown naming privilege: " + priv);
+    }
+  } // protected void canPrivDispatch(s, ns, subj, priv)
+
+  protected void canREAD(GrouperSession s, Group g, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = AccessPrivilege.READ;
+    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + g.getName() + "'"
+      );
+    }
+  } // protected void canREAD(s, g, subj)
+
+  protected void canSTEM(GrouperSession s, Stem ns, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = NamingPrivilege.STEM;
+    if (PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + ns.getName() + "'"
+      );
+    }
+  } // protected void canSTEM(s, ns, subj)
+
+  protected void canUPDATE(GrouperSession s, Group g, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    boolean   can   = false;
+    Privilege priv  = AccessPrivilege.UPDATE;
+    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + g.getName() + "'"
+      );
+    }
+  } // protected void canUPDATE(s, g, subj)
+
+  protected void canVIEW(GrouperSession s, Group g, Subject subj)
+    throws  InsufficientPrivilegeException
+  {
+    // TODO This is ugly
+    boolean   can   = false;
+    Privilege priv  = AccessPrivilege.VIEW;
+    if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)
+    )
+    {
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+    )
+    {
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+    )
+    {
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN)
+    )
+    {
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
+    )
+    {
+      can = true;
+    }
+    if (can == false) {
+      throw new InsufficientPrivilegeException(
+        s.getSubject().getId() + " does not have " + priv + " on '" 
+        + g.getName() + "'"
+      );
+    }
+  } // protected void canVIEW(s, g, subj)
+  // TODO Can I remove s or subj?
+
+  protected Set canVIEW(GrouperSession s, Set candidates) {
+    Set             groups  = new LinkedHashSet();
+    Iterator        iter    = candidates.iterator();
+    while (iter.hasNext()) {
+      Group g = (Group) iter.next();
+      g.setSession(s);
+      try {
+        this.canVIEW(s, g, s.getSubject());
+        groups.add(g);
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        // Ignore
+      }  
+    }
+    return groups;
+  }
+
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
   )

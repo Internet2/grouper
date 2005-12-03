@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.115 2005-12-02 17:17:00 blair Exp $
+$Id: API,v 1.116 2005-12-03 17:46:22 blair Exp $
 
 ---
 
@@ -126,6 +126,7 @@ $Id: API,v 1.115 2005-12-02 17:17:00 blair Exp $
 * boolean             hasOptin(subject)
 * boolean             hasOptout(subject)
 * boolean             hasMember(subject)
+* boolean             hasMember(subject, field)
 * boolean             hasRead(subject)
 * boolean             hasUpdate(subject)
 * boolean             hasView(subject)
@@ -210,6 +211,7 @@ $Id: API,v 1.115 2005-12-02 17:17:00 blair Exp $
 * boolean             isEffectiveMember(group)
 * boolean             isImmediateMember(group)
 * boolean             isMember(group)
+* boolean             isMember(group, field)
 
 ## MemberFinder
 * Member              MemberFinder.findByUuid(session, uuid)

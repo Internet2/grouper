@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.14 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: Member.java,v 1.15 2005-12-03 17:46:22 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -650,17 +650,32 @@ public class Member implements Serializable {
    */
   // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g) {
+    return this.isMember(g, Group.getDefaultList());
+  } // public boolean isMember(g)
+
+  /**
+   * Test whether a member belongs to the specified group list.
+   * <pre class="eg">
+   * // Does this member belong to the specified group?
+   * if (m.isMember(g, f)) {
+   *   // Is a member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @param   f   Test for membership in this list {@link Field}.
+   * @return  Boolean true if is a member.
+   */
+  // TODO isEffectiveMember() and isImmediateMember()?
+  public boolean isMember(Group g, Field f) {
     if 
     (
-      MembershipFinder.findMemberships(
-        g.getUuid(), this, Group.getDefaultList()
-      ).size() > 0
+      MembershipFinder.findMemberships(g.getUuid(), this, f).size() > 0
     ) 
     {
       return true;
     }
     return false;
-  } // public boolean isMember(g)
+  } // public boolean isMember(g, f)
 
   public String toString() {
     return new ToStringBuilder(this)

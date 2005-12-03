@@ -28,7 +28,7 @@ import  junit.framework.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.9 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.10 2005-12-03 17:46:22 blair Exp $
  */
 public class PrivHelper {
 
@@ -290,20 +290,13 @@ public class PrivHelper {
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
   {
-    String msg = subj.getName() + " does not have  " + priv + " on  " + g.getName();
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       g.revokePriv(subj, priv);  
       hasPriv(g, subj, m, priv, false);
     }
-    catch (RevokePrivilegeException eRP) {
-      Assert.fail(eRP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail(eIP.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
+    catch (Exception e) {
+      Assert.fail("failed to revoke priv: " + e.getMessage());
     }
   } // protected static void revokePriv(s, g, subj, priv)
 
@@ -311,20 +304,13 @@ public class PrivHelper {
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
   {
-    String msg = subj.getName() + " does not have " + priv + " on  " + ns.getName();
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       ns.revokePriv(subj, priv);  
       hasPriv(ns, subj, m, priv, false);
     }
-    catch (RevokePrivilegeException eRP) {
-      Assert.fail(eRP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail(eIP.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
+    catch (Exception e) {
+      Assert.fail("failed to revoke priv: " + e.getMessage());
     }
   } // protected static void revokePriv(s, ns, subj, priv)
 
