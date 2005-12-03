@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.24 2005-12-02 17:50:46 blair Exp $
+ * @version $Id: Stem.java,v 1.25 2005-12-03 17:46:22 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -103,9 +103,9 @@ public class Stem implements Serializable {
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
-    if (!this.hasCreate(this.s.getSubject())) {
-      throw new InsufficientPrivilegeException("does not have CREATE");
-    }
+    PrivilegeResolver.getInstance().canCREATE(
+      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+    );
     if (this.equals(StemFinder.findRootStem(this.s))) {
       throw new GroupAddException(
         "cannot create groups at root stem level"
@@ -161,9 +161,14 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemAddException 
   {
+/* TODO
     if (!this.hasStem(this.s.getSubject())) {
       throw new InsufficientPrivilegeException("does not have STEM");
     }
+*/
+    PrivilegeResolver.getInstance().canSTEM(
+      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+    );
     try {
       Stem ns = StemFinder.findByName(
         this.s, this.constructName(this.getName(), extension)
@@ -638,9 +643,14 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+/* TODO
     if (!this.hasStem(this.s.getSubject())) {
       throw new InsufficientPrivilegeException("does not have STEM");
     }
+*/
+    PrivilegeResolver.getInstance().canSTEM(
+      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+    );
     try {
       this.setStem_description(value);
       this.setModified();
@@ -675,9 +685,14 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+/* TODO
     if (!this.hasStem(this.s.getSubject())) {
       throw new InsufficientPrivilegeException("does not have STEM");
     }
+*/
+    PrivilegeResolver.getInstance().canSTEM(
+      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+    );
     try {
       Set objects = new HashSet();
       this.setDisplay_extension(value);

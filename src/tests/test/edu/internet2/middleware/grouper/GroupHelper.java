@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.6 2005-11-28 19:14:19 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.7 2005-12-03 17:46:22 blair Exp $
  */
 public class GroupHelper {
 
@@ -98,6 +98,52 @@ public class GroupHelper {
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
   } // protected static void deleteMember(g, subj, m)
+
+  protected static Group findByName(GrouperSession s, String name) {
+    try {
+      Group g = GroupFinder.findByName(s, name);
+      Assert.assertNotNull("found group by name !null", g);
+      Assert.assertTrue("group name", g.getName().equals(name));
+      return g;
+    }
+    catch (GroupNotFoundException eGNF) {
+      Assert.fail("failed to find group by name: " + eGNF.getMessage());
+    }
+    throw new RuntimeException("failed to find group by name");
+  } // protected static Group findByName(s, name)
+
+  protected static void findByNameFail(GrouperSession s, String name) {
+    try {
+      Group g = GroupFinder.findByName(s, name);
+      Assert.fail("found group: " + name);
+    }
+    catch (GroupNotFoundException eGNF) {
+      Assert.assertTrue("failed to find group: " + name, true);
+    }
+  } // protected static void findByNameFail(s, name)
+
+  protected static Group findByUuid(GrouperSession s, String uuid) {
+    try {
+      Group g = GroupFinder.findByUuid(s, uuid);
+      Assert.assertNotNull("found group by uuid !null", g);
+      Assert.assertTrue("group uuid", g.getUuid().equals(uuid));
+      return g;
+    }
+    catch (GroupNotFoundException eGNF) {
+      Assert.fail("failed to find group by uuid: " + eGNF.getMessage());
+    }
+    throw new RuntimeException("failed to find group by uuid");
+  } // protected static Gropu findByUuid(s, name)
+
+  protected static void findByUuidFail(GrouperSession s, String uuid) {
+    try {
+      Group g = GroupFinder.findByUuid(s, uuid);
+      Assert.fail("found group: " + uuid);
+    }
+    catch (GroupNotFoundException eGNF) {
+      Assert.assertTrue("failed to find group: " + uuid, true);
+    }
+  } // protected static void findByUuidFail(s, uuid)
 
   // test converting a Group to a Member
   protected static Member toMember(Group g) {

@@ -67,6 +67,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestPrivGroupSTEM.class);
     suite.addTestSuite(TestPrivCREATE.class);
     suite.addTestSuite(TestPrivSTEM.class);
+    suite.addTestSuite(TestPrivVIEW.class);
     suite.addTestSuite(TestStem.class);
     suite.addTestSuite(TestStemAddChildGroup.class);
     suite.addTestSuite(TestStemAddChildStem.class);

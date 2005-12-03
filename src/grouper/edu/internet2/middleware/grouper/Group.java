@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.23 2005-12-02 17:20:13 blair Exp $
+ * @version $Id: Group.java,v 1.24 2005-12-03 17:46:22 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -985,6 +985,31 @@ public class Group implements Serializable {
     }
     return false;
   } // public boolean hasMember(subj)
+
+  /**
+   * Check whether the subject is a member of this list on this group.
+   * <pre class="eg">
+   * if (g.hasMember(subj, f)) {
+   *   // Subject is a member of this group
+   * }
+   * else {
+   *   // Subject is not a member of this group
+   * } 
+   * </pre>
+   * @param   subj  Check this subject.
+   * @param   f     Is subject a member of this list {@link Field}.
+   * @return  Boolean true if subject belongs to this group.
+   */
+  public boolean hasMember(Subject subj, Field f) {
+    try {
+      Member m = MemberFinder.findBySubject(this.s, subj);
+      return m.isMember(this, f);
+    }
+    catch (MemberNotFoundException eMNF) {
+      // TODO Fail silently?
+    }
+    return false;
+  } // public boolean hasMember(subj, f)
 
   /**
    * Check whether the subject has READ on this group.

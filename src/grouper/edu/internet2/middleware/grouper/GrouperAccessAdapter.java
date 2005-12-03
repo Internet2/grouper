@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.15 2005-12-02 19:28:46 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.16 2005-12-03 17:46:22 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -245,22 +245,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    try {
-      Field   f   = FieldFinder.find( (String) priv2list.get(priv));
-      Member  m   = MemberFinder.findBySubject(s, subj);
-      if (MembershipFinder.findMemberships(g.getUuid(), m, f).size() > 0) {
-        return true;
-      }
-      return false;
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new RuntimeException(
-        "could not convert subject to member: " + eMNF.getMessage()
-      );  
-    }
-    catch (SchemaException eS) {
-      throw new SchemaException("invalid privilege: " + priv);
-    }
+    return g.hasMember(subj, this._getField(priv));
   } // public boolean hasPriv(s, g, subj, priv)
 
   /**
@@ -298,7 +283,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
 
       // Find every subject that needs to have the priv revoked
       Iterator iter = MembershipFinder.findImmediateSubjects(
-        s, g.getUuid(), FieldFinder.find( (String) priv2list.get(priv))
+        s, g.getUuid(), this._getField(priv)
       ).iterator();
       while (iter.hasNext()) {
         Subject subj  = (Subject) iter.next();
@@ -307,7 +292,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
         // This is the immediate privilege that needs to be deleted
         deletes.add(
           MembershipFinder.findImmediateMembership(
-            s, g.getUuid(), m, FieldFinder.find( (String) priv2list.get(priv) )
+            s, g.getUuid(), m, this._getField(priv)
           )
         );
 
@@ -386,9 +371,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     try {
-      g.deleteMember(
-        subj, FieldFinder.find( (String) priv2list.get(priv) ) 
-      );
+      g.deleteMember(subj, this._getField(priv));
     }
     catch (MemberDeleteException eMA) {
       throw new RevokePrivilegeException(
@@ -404,121 +387,20 @@ public class GrouperAccessAdapter implements AccessAdapter {
 
 
   // Private Instance Methods
-  private void _canFieldDispatch(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
+  private void _canWriteField(GrouperSession s, Group g, Privilege priv)
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    if      (priv.equals(AccessPrivilege.ADMIN))  { 
-      this._canADMIN(s, g, subj, priv);
-    }
-    else if (priv.equals(AccessPrivilege.OPTIN))  {
-      this._canOPTIN(s, g, subj, priv);
-    }
-    else if (priv.equals(AccessPrivilege.OPTOUT)) {
-      this._canOPTOUT(s, g, subj, priv);
-    }
-    else if (priv.equals(AccessPrivilege.READ))   {
-      this._canREAD(s, g, subj, priv);
-    }
-    else if (priv.equals(AccessPrivilege.UPDATE)) {
-      this._canUPDATE(s, g, subj, priv);
-    }
-    else if (priv.equals(AccessPrivilege.VIEW))   {
-      this._canVIEW(s, g, subj, priv);
-    }
-    else {
-      throw new SchemaException("unknown access privilege: " + priv);
-    }
-  } // private void _canFieldDispatch(s, g, subj, priv)
+    PrivilegeResolver.getInstance().canPrivDispatch(
+      s, g, s.getSubject(), this._getField(priv).getWritePriv()
+    );
+  } // private void _canWriteField(s, g, priv)
 
-  private void _canADMIN(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
+  private Field _getField(Privilege priv) 
+    throws  SchemaException
   {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
-    }
-  } // private void _canADMIN(s, g, subj, priv)
+    return FieldFinder.find( (String) priv2list.get(priv) );
+  } // private Field _getField(priv)
 
-  private void _canOPTIN(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
-  {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
-    }
-  } // private void _canOPTIN(s, g, subj, priv)
-
-  private void _canOPTOUT(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
-  {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
-    }
-  } // private void _canOPTOUT(s, g, subj, priv)
-
-  private void _canREAD(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
-  {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
-    }
-  } // private void _canREAD(s, g, subj, priv)
-
-  private void _canUPDATE(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
-  {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
-    }
-  } // private void _canUPDATE(s, g, subj, priv)
-
-  private void _canVIEW(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
-  {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + g.getName() + "'"
-      );
-    }
-  } // private void _canVIEW(s, g, subj, priv)
-
-  private void _canWriteField(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    Field f = (Field) FieldFinder.find( (String) priv2list.get(priv));
-    this._canFieldDispatch(s, g, subj, f.getWritePriv());
-  } // private void _canWriteField(s, g, subj, priv)
 }
 

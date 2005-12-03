@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.19 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.20 2005-12-03 17:46:22 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -65,10 +65,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return MembershipFinder.findSubjects(
-      s, ns.getUuid(), 
-      (Field) FieldFinder.find( (String) priv2list.get(priv) )
-    );
+    return MembershipFinder.findSubjects(s, ns.getUuid(), this._getField(priv));
   } // public Set getSubjectsWithPriv(s, ns, priv)
 
   /**
@@ -99,7 +96,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       Member    m   = MemberFinder.findBySubject(s, subj);
       Iterator iter = MembershipFinder.findMemberships(
-        m, (Field) FieldFinder.find( (String) priv2list.get(priv) )
+        m, this._getField(priv)
       ).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
@@ -140,10 +137,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Member    m     = MemberFinder.findBySubject(s, subj);
       Iterator  iterP = Privilege.getNamingPrivs().iterator();
       while (iterP.hasNext()) {
-        Privilege p = (Privilege) iterP.next();
+        Privilege priv = (Privilege) iterP.next();
         Iterator  iterM = MembershipFinder.findMemberships(
-          ns.getUuid(), m, 
-          (Field) FieldFinder.find( (String) priv2list.get(p) )
+          ns.getUuid(), m, this._getField(priv)
         ).iterator();
         while (iterM.hasNext()) {
           Membership  ms      = (Membership) iterM.next();
@@ -161,7 +157,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
           privs.add(
             new NamingPrivilege(
               ms.getStem(), subj,               owner,
-              p           , s.getNamingClass(), revoke
+              priv        , s.getNamingClass(), revoke
             )
           );
         }
@@ -215,7 +211,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     String msg_gp = "unable to grant " + priv + " on " + ns.getName() 
       + " to " + subj.getId();
     try {
-      this._canWriteField(s, ns, s.getSubject(), priv);
+      this._canWriteField(s, ns, priv);
 
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);
@@ -228,11 +224,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       objects.add(ns);
 
       // Create the immediate membership
-      objects.add( 
-        Membership.addMembership(
-          s, ns, m, FieldFinder.find( (String) priv2list.get(priv) )
-        )
-      );
+      objects.add(Membership.addMembership(s, ns, m, this._getField(priv)));
 
       // Find effective memberships
       objects.addAll( MemberOf.doMemberOf(s, ns, m) );
@@ -267,11 +259,15 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws SchemaException 
   {
+    // TODO Use a _hasMember()_ or _isMember()_ variant?
     GrouperSession.validate(s);
     try {
-      Field   f   = FieldFinder.find( (String) priv2list.get(priv));
-      Member  m   = MemberFinder.findBySubject(s, subj);
-      if (MembershipFinder.findMemberships(ns.getUuid(), m, f).size() > 0) {
+      if (
+        MembershipFinder.findMemberships(
+          ns.getUuid(), MemberFinder.findBySubject(s, subj), this._getField(priv)
+        ).size() > 0
+      ) 
+      {
         return true;
       }
       return false;
@@ -312,7 +308,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     String msg_rp = "unable to revoke " + priv + " on " + ns.getName(); 
     try {
-      this._canWriteField(s, ns, s.getSubject(), priv);
+      this._canWriteField(s, ns, priv);
 
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
@@ -324,7 +320,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
       // Find every subject that needs to have the priv revoked
       Iterator iter = MembershipFinder.findImmediateSubjects(
-        s, ns.getUuid(), FieldFinder.find( (String) priv2list.get(priv))
+        s, ns.getUuid(), this._getField(priv)
       ).iterator();
       while (iter.hasNext()) {
         Subject subj  = (Subject) iter.next();
@@ -333,7 +329,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
         // This is the immediate privilege that needs to be deleted
         deletes.add(
           MembershipFinder.findImmediateMembership(
-            s, ns.getUuid(), m, FieldFinder.find( (String) priv2list.get(priv) )
+            s, ns.getUuid(), m, this._getField(priv)
           )
         );
 
@@ -395,7 +391,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     String msg_rp = "unable to revoke " + priv + " on " + ns.getName()
       + " from " + subj.getId();
     try {
-      this._canWriteField(s, ns, s.getSubject(), priv);
+      this._canWriteField(s, ns, priv);
 
       // Convert subject to a member
       Member  m       = MemberFinder.findBySubject(s, subj);
@@ -411,7 +407,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // Find the immediate privilege that is to be deleted
       deletes.add(
         MembershipFinder.findImmediateMembership(
-          s, ns.getUuid(), m, FieldFinder.find( (String) priv2list.get(priv) )
+          s, ns.getUuid(), m, this._getField(priv)
         )
       );
 
@@ -443,60 +439,22 @@ public class GrouperNamingAdapter implements NamingAdapter {
     }
   } // public void revokePriv(s, ns, subj, priv)
 
-
+  
   // Private Instance Methods
-  private void _canFieldDispatch(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
+  private void _canWriteField(GrouperSession s, Stem ns, Privilege priv)
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    if      (priv.equals(NamingPrivilege.CREATE)) { 
-      this._canCREATE(s, ns, subj, priv);
-    }
-    else if (priv.equals(NamingPrivilege.STEM))   {
-      this._canSTEM(s, ns, subj, priv);
-    }
-    else {
-      throw new SchemaException("unknown naming privilege: " + priv);
-    }
-  } // private void _canFieldDispatch(s, ns, subj, priv)
+    PrivilegeResolver.getInstance().canPrivDispatch(
+      s, ns, s.getSubject(), this._getField(priv).getWritePriv()
+    );
+  } // private void _canWriteField(s, ns, priv)
 
-  private void _canCREATE(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
+  private Field _getField(Privilege priv) 
+    throws  SchemaException
   {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + ns.getName() + "'"
-      );
-    }
-  } // private void _canCREATE(s, ns, subj, priv)
-
-  private void _canSTEM(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException
-  {
-    if (!PrivilegeResolver.getInstance().hasPriv(s, ns, subj, priv)) {
-      throw new InsufficientPrivilegeException(
-        s.getSubject().getId() + " does not have " + priv + " on '" 
-        + ns.getName() + "'"
-      );
-    }
-  } // private void _canSTEM(s, ns, subj, priv)
-
-  private void _canWriteField(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    Field f = (Field) FieldFinder.find( (String) priv2list.get(priv));
-    this._canFieldDispatch(s, ns, subj, f.getWritePriv());
-  } // private void _canWriteField(s, ns, subj, priv)
+    return FieldFinder.find( (String) priv2list.get(priv) );
+  } // private Field _getField(priv)
 
 }
 

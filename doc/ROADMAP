@@ -3,18 +3,17 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.90 2005-12-02 17:17:00 blair Exp $
+$Id: ROADMAP,v 1.91 2005-12-03 17:46:22 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement VIEW (and ADMIN, OPTIN, OPTOUT, READ, UPDATE)
 * Implement READ (and ADMIN)
+* Implement UPDATE (and ADMIN)
 * Implement OPTIN (and ADMIN, UPDATE)
 * Implement OPTOUT (and ADMIN, UPDATE)
-* Implement UPDATE (and ADMIN)
 * Implement ADMIN
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
