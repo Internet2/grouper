@@ -22,15 +22,20 @@ import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
+import  org.apache.commons.logging.*;
 
 
 /**
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.12 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.13 2005-12-04 22:52:49 blair Exp $
  */
 public class MembershipFinder {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(MembershipFinder.class);
+
 
   // Public Class Methods
 
@@ -53,6 +58,7 @@ public class MembershipFinder {
   )
     throws MembershipNotFoundException
   {
+    // TODO Filter
     GrouperSession.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
@@ -84,6 +90,7 @@ public class MembershipFinder {
   )
     throws MembershipNotFoundException
   {
+    // TODO Filter
     GrouperSession.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
@@ -99,31 +106,48 @@ public class MembershipFinder {
 
   // Protected Class Methods
 
+  // @return  Set of matching members for a {@link Group}
+  protected static Set findEffectiveMembers(GrouperSession s, Group g, Field f) {
+    Set       members = new LinkedHashSet();
+    Iterator  iter    = findEffectiveMemberships(s, g, f).iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        members.add(ms.getMember());
+      }
+      catch (MemberNotFoundException eMNF) {
+        // Ignore
+      }
+    }
+    return members;
+  } // protected static Set findEffectiveMembers(s, g, f)
+
   // @return  Set of effective memberships for a group
   protected static Set findEffectiveMemberships(
     GrouperSession s, Group g, Field f
   )
   {
     // TODO Switch to criteria queries?
-    Set mships = new LinkedHashSet();
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "group hasEffectiveMemberships '" + g.getName() 
+      + "'/'" + f.getName() + "'";
     try {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
-                      "from Membership as ms where  "
-                      + "ms.owner_id        = ?     "
-                      + "and ms.field.name  = ?     " 
-                      + "and ms.field.type  = ?     "
-                      + "and ms.depth       > 0     ", 
-                      new Object[] {
-                        g.getUuid(), f.getName(), f.getType().toString()
-                      },
-                      new Type[] {
-                        Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-                      }
-                    )
-                    ;
+        "from Membership as ms where  "
+        + "ms.owner_id        = ?     "
+        + "and ms.field.name  = ?     " 
+        + "and ms.field.type  = ?     "
+        + "and ms.depth       > 0     ", 
+        new Object[] {
+          g.getUuid(), f.getName(), f.getType().toString()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+        );
       hs.close();
-      mships.addAll(Membership.setSession(s, l));
+      mships = _filterMemberships(s, g, f, l, msg);
     }
     catch (HibernateException eH) {
       // TODO Is a RE appropriate here?
@@ -140,6 +164,7 @@ public class MembershipFinder {
   )
   {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -177,6 +202,7 @@ public class MembershipFinder {
   )
   {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set mships = new LinkedHashSet();
     try {
       Session hs = HibernateHelper.getSession();
@@ -209,35 +235,47 @@ public class MembershipFinder {
     return mships;
   } // protected static Set findEffectiveMemberships(g, m, f)
 
+  protected static Set findImmediateMembers(GrouperSession s, Group g, Field f) {
+    Set       members = new LinkedHashSet();
+    Iterator  iter    = findImmediateMemberships(s, g, f).iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        members.add(ms.getMember());
+      }
+      catch (MemberNotFoundException eMNF) {
+        // Ignore
+      }
+    }
+    return members;
+  } // protected static Set findImmediateMembers(s, g, f)
+
   // @return  Set of immediate memberships for a group
   protected static Set findImmediateMemberships(
     GrouperSession s, Group g, Field f
   )
   {
     // TODO Switch to criteria queries?
-    Set mships = new LinkedHashSet();
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "group hasImmediateMemberships '" + g.getName() 
+      + "'/'" + f.getName() + "'";
     try {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
-                      "from Membership as ms where  "
-                      + "ms.owner_id    = ?         "
-                      + "and ms.field.name  = ?     "
-                      + "and ms.field.type  = ?     "
-                      + "and ms.depth   = 0         ",   
-                      new Object[] {
-                        g.getUuid(), 
-                        f.getName(), 
-                        f.getType().toString()
-                      },
-                      new Type[] {
-                        Hibernate.STRING, 
-                        Hibernate.STRING,
-                        Hibernate.STRING
-                      }
-                    )
-                    ;
+        "from Membership as ms where  "
+        + "ms.owner_id    = ?         "
+        + "and ms.field.name  = ?     "
+        + "and ms.field.type  = ?     "
+        + "and ms.depth   = 0         ",   
+        new Object[] {
+          g.getUuid(), f.getName(), f.getType().toString()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+        );
       hs.close();
-      mships.addAll(Membership.setSession(s, l));
+      mships = _filterMemberships(s, g, f, l, msg);
     }
     catch (HibernateException eH) {
       // TODO Is a RE appropriate here?
@@ -254,6 +292,7 @@ public class MembershipFinder {
   )
   {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -262,7 +301,7 @@ public class MembershipFinder {
                       + "ms.member_id       = ?     "
                       + "and ms.field.name  = ?     "
                       + "and ms.field.type  = ?     "
-                      + "and ms.depth       = 0     ", 
+                      + "and ms.depth       = 0     ",
                       new Object[] {
                         m.getUuid(), f.getName(), f.getType().toString()
                       },
@@ -285,42 +324,16 @@ public class MembershipFinder {
 
   // @return  Set of matching members for a {@link Group}
   protected static Set findMembers(GrouperSession s, Group g, Field f) {
-    // TODO Switch to criteria queries?
-    Set members = new LinkedHashSet();
-    try {
-      Session     hs  = HibernateHelper.getSession();
-      Iterator  iter  = hs.find(
-                          "select distinct ms.member_id from Membership "
-                          + "as ms where                                "
-                          + "ms.owner_id        = ?                     "
-                          + "and ms.field.name  = ?                     "  
-                          + "and ms.field.type  = ?                     ",
-                          new Object[] {
-                            g.getUuid(), f.getName(), f.getType().toString()
-                          },
-                          new Type[] {
-                            Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-                          }
-                        )
-                        .iterator()
-                        ;
-      hs.close();
-      while (iter.hasNext()) {
-        try {
-          members.add(
-            MemberFinder.findByUuid( s, (String) iter.next() )
-          );
-        }
-        catch (MemberNotFoundException eMNF) {
-          // TODO Throw exception?  Ignore?
-        }
+    Set       members = new LinkedHashSet();
+    Iterator  iter    = findMemberships(s, g, f).iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();
+      try {
+        members.add(ms.getMember());
       }
-    }
-    catch (HibernateException eH) {
-      // TODO Is a RE appropriate here?
-      throw new RuntimeException(
-        "error finding members: " + eH.getMessage()
-      );  
+      catch (MemberNotFoundException eMNF) {
+        // Ignore
+      }
     }
     return members;
   } // protected static Set findMembers(s, g, f)
@@ -328,24 +341,24 @@ public class MembershipFinder {
   // @return  Set of matching memberships for a {@link Group}
   protected static Set findMemberships(GrouperSession s, Group g, Field f) {
     // TODO Switch to criteria queries?
-    Set mships = new LinkedHashSet();
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "group hasMemberships '" + g.getName() + "'/'" + f.getName() + "'";
     try {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
-                      "from Membership as ms where  "
-                      + "ms.owner_id        = ?     "
-                      + "and ms.field.name  = ?     "
-                      + "and ms.field.type  = ?     ",
-                      new Object[] {
-                        g.getUuid(), f.getName(), f.getType().toString()
-                      },
-                      new Type[] {
-                        Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-                      }
-                    )
-                    ;
+        "from Membership as ms where  "
+        + "ms.owner_id        = ?     "
+        + "and ms.field.name  = ?     "
+        + "and ms.field.type  = ?     ",
+        new Object[] {
+          g.getUuid(), f.getName(), f.getType().toString()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+        );
       hs.close();
-      mships.addAll(Membership.setSession(s, l));
+      mships = _filterMemberships(s, g, f, l, msg);
     }
     catch (HibernateException e) {
       // TODO Is a RE appropriate here?
@@ -359,6 +372,7 @@ public class MembershipFinder {
   // @return  Set of matching memberships for a {@link Member}
   protected static Set findMemberships(Member m, Field f) {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set mships = new LinkedHashSet();
     try {
       Session hs = HibernateHelper.getSession();
@@ -390,6 +404,7 @@ public class MembershipFinder {
   // @return  Set of matching memberships
   protected static Set findMemberships(String oid, Member m, Field f) {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set mships = new LinkedHashSet();
     try {
       Session hs = HibernateHelper.getSession();
@@ -424,6 +439,7 @@ public class MembershipFinder {
   // @return  Set of matching immediate subjects
   protected static Set findImmediateSubjects(GrouperSession s, String oid, Field f) {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set subjs = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
@@ -467,6 +483,7 @@ public class MembershipFinder {
   // @return  Set of matching subjects
   protected static Set findSubjects(GrouperSession s, String oid, Field f) {
     // TODO Switch to criteria queries?
+    // TODO Filter
     Set subjs = new LinkedHashSet();
     try {
       Session   hs    = HibernateHelper.getSession();
@@ -513,6 +530,7 @@ public class MembershipFinder {
     throws MembershipNotFoundException
   {
     // TODO Switch to criteria queries?
+    // TODO Filter
     List mships = new ArrayList();
     try {
       Session hs  = HibernateHelper.getSession();
@@ -557,6 +575,7 @@ public class MembershipFinder {
   protected static Membership findImmediateMembership(String oid, Member m, Field f)
     throws MembershipNotFoundException
   {
+    // TODO Filter
     Set mships = findMemberships(oid, m, f);
     if (mships.size() == 1) {
       return (Membership) new ArrayList(mships).get(0);
@@ -569,10 +588,44 @@ public class MembershipFinder {
   )
     throws MembershipNotFoundException
   {
+    // TODO Filter
     Membership ms = findImmediateMembership(oid, m, f);
     ms.setSession(s);
     return ms;
   } // protected static Membership findImmediateMembership(s, oid, m, f)
+
+
+  // Private Class Methods
+  private static Set _filterMemberships(
+    GrouperSession s, Group g, Field f, List l, String msg
+  ) 
+  {
+    Set       mships  = new LinkedHashSet();
+    Iterator iter     = l.iterator();
+    GrouperLog.debug(LOG, s, msg + " unfiltered: " + l.size());
+    while (iter.hasNext()) {
+      Membership  ms  = (Membership) iter.next();
+      ms.setSession(s);
+      try {
+        String      who = msg + " has '" + ms.getMember() 
+          + "'/'" + ms.getList().getName() + "'/" + ms.getDepth() + ": ";
+        try {
+          PrivilegeResolver.getInstance().canPrivDispatch(
+            s, g, s.getSubject(), f.getReadPriv());
+          mships.add(ms);
+          GrouperLog.debug(LOG, s, who + "visible");
+        }
+        catch (Exception e) {
+          GrouperLog.debug(LOG, s, who + "not visible");
+        }
+      }
+      catch (MemberNotFoundException eMNF) {
+        GrouperLog.debug(LOG, s, msg + " could not resolve member: " + ms);
+      } 
+    }
+    GrouperLog.debug(LOG, s, msg + " filtered: " + mships.size());
+    return mships;
+  } // private static Set _filterMemberships(s, g, f, l, msg)
 
 }
 

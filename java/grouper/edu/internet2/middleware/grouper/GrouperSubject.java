@@ -17,18 +17,24 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.4 2005-11-29 17:25:39 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.5 2005-12-04 22:52:49 blair Exp $
  */
 public class GrouperSubject implements Subject {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(GrouperSubject.class);
+
 
   // Private Instance Methods
   private GrouperSourceAdapter  adapter = null;
@@ -91,6 +97,7 @@ public class GrouperSubject implements Subject {
     // TODO Should I be applying a regex to the attr name?  The current check
     //      is fairly naive - but I guess right now only *I* can add items so
     //      it is probably sufficient - for now.
+    //      Use Commons validating code?
     if ( 
       (attr   != null       ) 
       && (attr.length() > 0 )
@@ -99,6 +106,9 @@ public class GrouperSubject implements Subject {
     ) 
     {
       this.attrs.put(attr, value);
+      GrouperLog.debug(
+        LOG, this.name, "attached attribute: '" + attr + "' = '" + value + "'"
+      );
     }
   } // private void _addAttr(attr, value)
 
@@ -116,10 +126,6 @@ public class GrouperSubject implements Subject {
     catch (SubjectNotFoundException eSNF0) {
       // No creator?
     }
-    this._addAttr("description"         , g.getDescription()            );
-    this._addAttr("displayExtension"    , g.getDisplayExtension()       );
-    this._addAttr("displayName"         , g.getDisplayName()            );
-    this._addAttr("extension"           , g.getExtension()              );
     try {
       // Don't bother with any of the modify* attrs unless we can find
       // the modifying subject
@@ -131,10 +137,14 @@ public class GrouperSubject implements Subject {
     catch (SubjectNotFoundException eSNF1) {
       // No modifier?
     }
-    this.attrs.put(
-      "name"              , g.getName()
-    );
-    // TODO Attach custom attributes
+    Map       attrs = g.getAttributes();
+    Iterator  iter  = attrs.keySet().iterator();
+    while (iter.hasNext()) {
+      String key = (String) iter.next();
+      this._addAttr(key, (String) attrs.get(key));
+      //this.attrs.put(key, attrs.get(key));
+    }
+    GrouperLog.debug(LOG, this.name, "attached attributes: " + this.attrs.size());
     // TODO Attach lists.  "list name" => [ subjectids? ]
   } // private void _addAttrs(g)
 }

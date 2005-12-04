@@ -27,7 +27,7 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.6 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.7 2005-12-04 22:52:49 blair Exp $
  */
 public class MembershipHelper {
 
@@ -97,17 +97,17 @@ public class MembershipHelper {
   } // protected static void testImmMship(s, g, subj, f)
 
   protected static void testNumMship(Group g, Field f, int m, int i, int e) {
+    int gotM = g.getMemberships().size();
+    int gotI = g.getImmediateMemberships().size();
+    int gotE = g.getEffectiveMemberships().size();
     Assert.assertTrue(
-      g.getName() + " mships = " + m,
-      g.getMemberships().size() == m
+      g.getName() + " mships == " + gotM + " (exp " + m + ")", gotM == m
     );
     Assert.assertTrue(
-      g.getName() + " imm mships = " + i,
-      g.getImmediateMemberships().size() == i
+      g.getName() + " imm mships == " + gotI + " (exp " + i + ")", gotI == i
     );
     Assert.assertTrue(
-      g.getName() + " eff mships = " + e,
-      g.getEffectiveMemberships().size() == e
+      g.getName() + " eff mships == " + gotE + " (exp " + e + ")", gotE == e
     );
   } // protected static void testNumMship(g, f, m, i, e) 
   

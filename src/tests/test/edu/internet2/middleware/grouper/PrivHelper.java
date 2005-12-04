@@ -17,20 +17,26 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
 
 
 /**
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.10 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.11 2005-12-04 22:52:49 blair Exp $
  */
 public class PrivHelper {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(PrivHelper.class);
+
 
   // Protected Class Methods
 
@@ -146,6 +152,41 @@ public class PrivHelper {
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void grantPriv(s, g, subj, priv)
+
+  protected static void grantPrivFail(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+  {
+    try {
+      LOG.debug("grantPrivFail.0 " + priv.getName());
+      Member m = MemberFinder.findBySubject(s, subj);
+      LOG.debug("grantPrivFail.1 " + priv.getName());
+      try {
+        g.grantPriv(subj, priv);  
+        LOG.debug("grantPrivFail.2 " + priv.getName());
+        Assert.fail("granted " + priv);
+        LOG.debug("grantPrivFail.3 " + priv.getName());
+      }
+      catch (GrantPrivilegeException eGP) {
+        LOG.debug("grantPrivFail.4 " + priv.getName());
+        Assert.assertTrue("failed to grant " + priv + " (exists)", true);
+        LOG.debug("grantPrivFail.5 " + priv.getName());
+        hasPriv(g, subj, m, priv, true);
+        LOG.debug("grantPrivFail.6 " + priv.getName());
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        LOG.debug("grantPrivFail.7 " + priv.getName());
+        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+        LOG.debug("grantPrivFail.8 " + priv.getName());
+        hasPriv(g, subj, m, priv, false);
+        LOG.debug("grantPrivFail.9 " + priv.getName());
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      LOG.debug("grantPrivFail.10 " + priv.getName());
+      Assert.fail(eMNF.getMessage());
+    }
+  } // protected static void grantPrivFail(s, g, subj, priv)
 
   protected static void grantPriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv

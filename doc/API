@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.116 2005-12-03 17:46:22 blair Exp $
+$Id: API,v 1.117 2005-12-04 22:52:49 blair Exp $
 
 ---
 
@@ -176,7 +176,6 @@ $Id: API,v 1.116 2005-12-03 17:46:22 blair Exp $
 ## IntersectionFilter extends BaseQueryFilter
 
 ## Member
-* Group               getAsGroup()
 * Set                 getEffectiveGroups()
 * Set                 getEffectiveMemberships()
 * Set                 getGroups()
@@ -212,6 +211,7 @@ $Id: API,v 1.116 2005-12-03 17:46:22 blair Exp $
 * boolean             isImmediateMember(group)
 * boolean             isMember(group)
 * boolean             isMember(group, field)
+* Group               toGroup()
 
 ## MemberFinder
 * Member              MemberFinder.findByUuid(session, uuid)

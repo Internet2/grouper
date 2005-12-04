@@ -18,19 +18,28 @@
 package edu.internet2.middleware.grouper;
 
 import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.24 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: Group.java,v 1.25 2005-12-04 22:52:49 blair Exp $
  */
 public class Group implements Serializable {
+
+  // Private Class Constants
+  private static final String ERR_AM  = "could not add member: ";
+  private static final String ERR_GA  = "attribute not found: ";
+  private static final String ERR_S2G = "could not convert subject to group: ";
+  private static final Log    LOG     = LogFactory.getLog(Group.class);
+
 
   // Hibernate Properties
   private String  create_source;
@@ -47,7 +56,7 @@ public class Group implements Serializable {
 
 
   // Transient Instance Variables
-  private transient Map             attrs;
+  private transient Map             attrs     = new HashMap();
   private transient Subject         creator;
   private transient Subject         modifier;
   private transient GrouperSession  s;
@@ -170,24 +179,58 @@ public class Group implements Serializable {
     throws  InsufficientPrivilegeException,
             MemberAddException
   {
+    // TODO Verify whether we are privileged to grant to this field
+    // TODO Refactor into smaller components
     try {
-      Member  m       = MemberFinder.findBySubject(this.s, subj);
+      Member  m       = MemberFinder.findBySubject(s, subj);
+      String  member  = "'" + subj.getId() + "'/'" + subj.getType().getName() + "'";
+
+      // If subject is a group, verify that we can VIEW the group
+      if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
+        try {
+          Subject who   = this.s.getSubject();
+          Group   what  = m.toGroup();
+          String  msg   = "'" + who.getName() + "'/'" + who.getType().getName() 
+            + "' can VIEW '" + what.getName() + "': ";
+          // Make the logging the prettier
+          member  = "'" + what.getName() + "'/'" + subj.getType().getName() + "'";
+          try {
+            PrivilegeResolver.getInstance().canVIEW(s, what, who);
+            GrouperLog.debug(LOG, this.s, msg + "true");
+          }
+          catch (InsufficientPrivilegeException eIP) {
+            GrouperLog.debug(LOG, this.s, msg + "false");
+            throw new InsufficientPrivilegeException(ERR_AM + eIP.getMessage());
+          }
+        }
+        catch (GroupNotFoundException eGNF) {
+          GrouperLog.warn(LOG, this.s, ERR_S2G + subj.getId());
+          throw new MemberAddException(ERR_AM + eGNF.getMessage());
+        }
+      }
 
       // The objects that will need saving
-      Set     objects = new LinkedHashSet();
-
-      // Update group modify time
-      this.setModified();
+      Set objects = new LinkedHashSet();
+    
+      // Conditionally update group modify time.  Because the granting
+      // of ADMIN to the creator takes place *after* the group has been
+      // created, the modify* attributes would be set when using the 
+      // _GrouperAccessAdapter_.  However, we don't want to consider
+      // that a modification.  As such, if the modify time is equal to
+      // the start of the epoch, don't set the group's modify* attrs.
+      if (this.getModifyTime().equals(new Date())) {
+        this.setModified();
+      }
       objects.add(this);
 
       // Create the immediate membership
-      objects.add( 
-        Membership.addMembership(this.s, this, m, f)
-      );
+      objects.add( Membership.addMembership(this.s, this, m, f) ); 
 
+      Set effs = new LinkedHashSet();
       // Find effective memberships
       try {
-        objects.addAll( MemberOf.doMemberOf(this.s, this, m) );
+        effs.addAll( MemberOf.doMemberOf(this.s, this, m) );
+        objects.addAll(effs);
       }
       catch (GroupNotFoundException eGNF) {
         throw new MemberAddException(
@@ -197,6 +240,12 @@ public class Group implements Serializable {
 
       // And then save group and memberships
       HibernateHelper.save(objects);
+      // TODO make INFO + (conditionally?) log each membership added
+      GrouperLog.debug(
+        LOG, this.s, 
+        "added members to '"+ this.getName() + "'/'" + f.getName() 
+        + "': " + member + " and " + effs.size() + " effs"
+      );
     }
     catch (HibernateException eH) {
       throw new MemberAddException(
@@ -401,12 +450,23 @@ public class Group implements Serializable {
    * @throws  AttributeNotFoundException
    */
   public String getAttribute(String attr) 
-    throws AttributeNotFoundException
+    throws  AttributeNotFoundException
   {
-    if (!this.getAttributes().containsKey(attr)) {
-      throw new AttributeNotFoundException("attribute not found: " + attr);  
+    String val = null;
+    try {
+      Attribute a = (Attribute) this._getAttributes().get(attr);
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        this.s, this, this.s.getSubject(), a.getField().getReadPriv()
+      );
+      val = a.getValue();
     }
-    return (String) this.getAttributes().get(attr);
+    catch (Exception e) {
+      // Ignore
+    }
+    if (val == null) {
+      throw new AttributeNotFoundException(ERR_GA + attr);  
+    }
+    return val;
   } // public String getAttribute(attr)
 
   /**
@@ -418,13 +478,22 @@ public class Group implements Serializable {
    */
   public Map getAttributes() {
     // TODO Cache results
-    Map       attrs = new HashMap();
-    Iterator  iter  = this.getGroup_attributes().iterator();
+    Map       filtered  = new HashMap();
+    Iterator  iter      = this._getAttributes().values().iterator();
     while (iter.hasNext()) {
       Attribute attr = (Attribute) iter.next();
-      attrs.put( attr.getField().getName(), attr.getValue() );
+      try {
+        // TODO Does this actually work?
+        PrivilegeResolver.getInstance().canPrivDispatch(
+          this.s, this, this.s.getSubject(), attr.getField().getReadPriv()
+        );
+        filtered.put( attr.getField().getName(), attr.getValue() );
+      }
+      catch (Exception e) {
+        // Nothing
+      }
     }
-    return attrs;
+    return filtered;
   } // public Map getAttributes()
 
   /**
@@ -436,8 +505,12 @@ public class Group implements Serializable {
    * @return  Create source for this group.
    */
   public String getCreateSource() {
-    throw new RuntimeException("Not implemented");
-  }
+    String source = this.getCreate_source();
+    if (source == null) {
+      source = new String();
+    }
+    return source;
+  } // public String getCreateSource()
   
   /**
    * Get subject that created this group.
@@ -531,19 +604,9 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getEffectiveMembers() {
-    Set members = new LinkedHashSet();
-    Iterator iter = this.getEffectiveMemberships().iterator();
-    while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
-      try {
-        Member m = ms.getMember();
-        members.add(m);
-      }
-      catch (MemberNotFoundException eGNF) {
-        // TODO Ignore?  Kvetch?
-      }
-    }
-    return members;
+    return MembershipFinder.findEffectiveMembers(
+      this.s, this, getDefaultList()
+    );
   }  // public Set getEffectiveMembers()
 
   /**
@@ -583,19 +646,9 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getImmediateMembers() {
-    Set members = new LinkedHashSet();
-    Iterator iter = this.getImmediateMemberships().iterator();
-    while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
-      try {
-        Member m = ms.getMember();
-        members.add(m);
-      }
-      catch (MemberNotFoundException eGNF) {
-        // TODO Ignore?  Kvetch?
-      }
-    }
-    return members;
+    return MembershipFinder.findImmediateMembers(
+      this.s, this, getDefaultList()
+    );
   } // public Set getImmediateMembers()
 
   /**
@@ -646,8 +699,12 @@ public class Group implements Serializable {
    * @return  Modify source for this group.
    */
   public String getModifySource() {
-    throw new RuntimeException("Not implemented");
-  }
+    String source = this.getModify_source();
+    if (source == null) {
+      source = new String();
+    }
+    return source;
+  } // public String getModifySource()
   
   /**
    * Get subject that last modified this group.
@@ -698,7 +755,6 @@ public class Group implements Serializable {
    * @return  Group name.
    */
   public String getName() {
-    //return this.getGroup_name();
     try {
       return (String) this.getAttribute("name");
     }
@@ -976,14 +1032,7 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasMember(Subject subj) {
-    try {
-      Member m = MemberFinder.findBySubject(this.s, subj);
-      return m.isMember(this);
-    }
-    catch (MemberNotFoundException eMNF) {
-      // TODO Fail silently?
-    }
-    return false;
+    return this.hasMember(subj, Group.getDefaultList());
   } // public boolean hasMember(subj)
 
   /**
@@ -1001,14 +1050,17 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasMember(Subject subj, Field f) {
+    // TODO I should probably have _Member_ call _Group_ and not the inverse
+    boolean rv = false;
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
-      return m.isMember(this, f);
+      rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
     }
-    return false;
+    GrouperLog.debug(LOG, this.s, "hasMember '" + subj.getId() + "': " + rv);
+    return rv;
   } // public boolean hasMember(subj, f)
 
   /**
@@ -1144,11 +1196,13 @@ public class Group implements Serializable {
    * @throws  InsufficientPrivilegeException
    */
   public void setAttribute(String attr, String value) 
-    throws AttributeNotFoundException, GroupModifyException, 
-           InsufficientPrivilegeException
+    throws  AttributeNotFoundException, 
+            GroupModifyException, 
+            InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    // TODO s,AttributeNotFoundException,SchemaException,?
+    throw new RuntimeException("Group.setAttribute(attr,value) not implemented");
+  } // public void setAttribute(attr, value)
 
   /**
    * Set group description.
@@ -1168,7 +1222,8 @@ public class Group implements Serializable {
    * @throws  InsufficientPrivilegeException
    */
   public void setDescription(String value) 
-    throws GroupModifyException, InsufficientPrivilegeException
+    throws  GroupModifyException, 
+            InsufficientPrivilegeException
   {
     try {
       this.setAttribute("description", value);
@@ -1313,6 +1368,16 @@ public class Group implements Serializable {
 
 
   // Private Instance Methods
+  private Map _getAttributes() {
+    Iterator iter = this.getGroup_attributes().iterator();
+    while (iter.hasNext()) {
+      Attribute attr = (Attribute) iter.next();
+      this.attrs.put(attr.getField().getName(), attr);
+      //this.attrs.put( attr.getField().getName(), attr.getValue() );
+    }
+    return this.attrs;
+  } // private Map _getAttributes()
+
   private Set _membershipsToDelete(Group g, Subject subj, Field f) 
     throws  Exception
   {

@@ -17,18 +17,25 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.9 2005-12-02 17:50:46 blair Exp $
+ * @version $Id: StemHelper.java,v 1.10 2005-12-04 22:52:49 blair Exp $
  */
 public class StemHelper {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(StemHelper.class);
+
 
   // Protected Class Methods
 
@@ -36,35 +43,48 @@ public class StemHelper {
   // @return  Created {@link Group}
   protected static Group addChildGroup(Stem ns, String extn, String displayExtn) {
     try {
+      LOG.debug("addChildGroup.0 " + extn);
       Group child = ns.addChildGroup(extn, displayExtn);
+      LOG.debug("addChildGroup.1 " + extn);
       Assert.assertNotNull("child !null", child);
+      LOG.debug("addChildGroup.2 " + extn);
       Assert.assertTrue("added child group", true);
+      LOG.debug("addChildGroup.3 " + extn);
       Assert.assertTrue(
         "child group instanceof Group", 
         child instanceof Group
       );
+      LOG.debug("addChildGroup.4 " + extn);
       Assert.assertNotNull("child uuid !null", child.getUuid());
+      LOG.debug("addChildGroup.5 " + extn);
       Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
+      LOG.debug("addChildGroup.6 " + extn);
       Assert.assertTrue(
         "parent stem", child.getParentStem().equals(ns)
       );
+      LOG.debug("addChildGroup.7 " + extn);
       Assert.assertTrue(
         "group extension", child.getExtension().equals(extn)
       );
+      LOG.debug("addChildGroup.8 " + extn);
       Assert.assertTrue(
         "group name", child.getName().equals(ns.getName() + ":" + extn)
       );
+      LOG.debug("addChildGroup.9 " + extn);
       Assert.assertTrue(
         "group displayExtension", 
         child.getDisplayExtension().equals(displayExtn)
       );
+      LOG.debug("addChildGroup.10 " + extn);
       Assert.assertTrue(
         "group displayName", 
         child.getDisplayName().equals(ns.getDisplayName() + ":" + displayExtn)
       );
+      LOG.debug("addChildGroup.11 " + extn);
       return child;
     }
     catch (Exception e) {
+      LOG.debug("addChildGroup.12 " + extn);
       Assert.fail("failed to add group: " + e.getMessage());
     }
     throw new RuntimeException(Helper.ERROR);

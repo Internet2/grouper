@@ -17,29 +17,39 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.5 2005-11-29 17:25:39 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdentifier.java,v 1.6 2005-12-04 22:52:49 blair Exp $
  */
 public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
 
-  protected GrouperSession  s;
-  protected Stem            edu, root;
-  protected Group           i2;
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestSuFiGrSoAdFindByIdentifier.class);
+
+
+  // Private Class Variables
+  private GrouperSession  s;
+  private Stem            edu, root;
+  private Group           i2;
+
 
   public TestSuFiGrSoAdFindByIdentifier(String name) {
     super(name);
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
@@ -48,27 +58,31 @@ public class TestSuFiGrSoAdFindByIdentifier extends TestCase {
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
   }
 
   // Tests
 
   public void testFindByIdentifierBadId() {
+    LOG.info("testFindByIdentifierBadId");
     SubjectHelper.getSubjectByBadId(Helper.BAD_SUBJ_ID);
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdentifierBadId()
 
   public void testFindByIdentifierGoodIdBadType() {
+    LOG.info("testFindByIdentifierGoodIdBadType");
     SubjectHelper.getSubjectByBadIdType(i2.getName(), "person");
     Assert.assertTrue("failed to find bad subject", true);
   } // public void testFindByIdentifierGoodIdBadType()
 
   public void testFindByIdentifierGoodId() {
+    LOG.info("testFindByIdentifierGoodId");
     Subject subj = SubjectHelper.getSubjectByIdentifier(i2.getName());
     Assert.assertTrue("found subject", true);
   } // public void testFindByIdentifierGoodId()
 
   public void testFindByIdentifierGoodIdGoodType() {
+    LOG.info("testFindByIdentifierGoodIdGoodType");
     Subject subj = SubjectHelper.getSubjectByIdentifierType(i2.getName(), "group");
     Assert.assertTrue("found subject", true);
     Map attrs = subj.getAttributes();

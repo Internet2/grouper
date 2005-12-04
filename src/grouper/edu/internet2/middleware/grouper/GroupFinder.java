@@ -17,21 +17,24 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.type.*;
+import  org.apache.commons.logging.*;
 
 
 /**
  * Find groups within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.7 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.8 2005-12-04 22:52:49 blair Exp $
  */
 public class GroupFinder {
 
   // Private Class Constants
-  private static final String E_GNF = "unable to find group";
+  private static final String ERR_GNF = "unable to find group";
+  private static final Log    LOG     = LogFactory.getLog(GroupFinder.class);
 
 
   // Public Instance Methods
@@ -55,16 +58,24 @@ public class GroupFinder {
     throws GroupNotFoundException
   {
     GrouperSession.validate(s);
-    Group g = _findByName(name);
-    g.setSession(s);
+    String msg = "findByName '" + name + "'";
+    GrouperLog.debug(LOG, s, msg);
+    Group g = findByName(name);
+    GrouperLog.debug(LOG, s, msg + ": found");
+    // Attach root session for VIEW check
+    // TODO What problems might this cause?
+    g.setSession(GrouperSessionFinder.getRootSession());
     try {
       PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
+      GrouperLog.debug(LOG, s, msg + ": visible");
+      // Now attach proper session
+      g.setSession(s);
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
-      // Ignore
+      GrouperLog.debug(LOG, s, msg + ": not visible");
     }  
-    throw new GroupNotFoundException(E_GNF + " by name: " + name);
+    throw new GroupNotFoundException(ERR_GNF + " by name: " + name);
   } // public static Group findByName(s, name)
 
   /**
@@ -87,15 +98,19 @@ public class GroupFinder {
   {
     GrouperSession.validate(s);
     Group g = _findByUuid(uuid);
-    g.setSession(s);
+    // Attach root session for VIEW check
+    // TODO What problems might this cause?
+    g.setSession(GrouperSessionFinder.getRootSession());
     try {
       PrivilegeResolver.getInstance().canVIEW(s, g, s.getSubject());
+      // Now attach proper session
+      g.setSession(s);
       return g;
     }
     catch (InsufficientPrivilegeException eIP) {
       // Ignore
     }  
-    throw new GroupNotFoundException(E_GNF + " by uuid: " + uuid);
+    throw new GroupNotFoundException(ERR_GNF + " by uuid: " + uuid);
   } // public static Group findByUuid(s, uuid)
 
 
@@ -252,9 +267,10 @@ public class GroupFinder {
     return PrivilegeResolver.getInstance().canVIEW(s, groups);
   } // protected static Set findByApproximateName(s, name)
 
-
-  // Private Class Methods
-  private static Group _findByName(String name)
+  // Needs _protected_ access so that _Stem.addChildGroup()_ can check
+  // to see if the group exists before creating it.
+  // @caller: Stem.addChildGroup()
+  protected static Group findByName(String name)
     throws  GroupNotFoundException
   {
     try {
@@ -273,17 +289,19 @@ public class GroupFinder {
       }
       hs.close();
       if (g == null) {
-        throw new GroupNotFoundException(E_GNF + " by name: " + name);
+        throw new GroupNotFoundException(ERR_GNF + " by name: " + name);
       }
       return g; 
     }
     catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        E_GNF + " by name: " + name + "(" + eH.getMessage() + ")"
+        ERR_GNF + " by name: " + name + "(" + eH.getMessage() + ")"
       );
     }
-  } // private static Group _findByName(name)
+  } // protected static Group findByName(name)
 
+
+  // Private Class Methods
   private static Group _findByUuid(String uuid)
     throws  GroupNotFoundException
   {
@@ -302,13 +320,13 @@ public class GroupFinder {
       }
       hs.close();
       if (g == null) {
-        throw new GroupNotFoundException(E_GNF + " by uuid: " + uuid);
+        throw new GroupNotFoundException(ERR_GNF + " by uuid: " + uuid);
       }
       return g; 
     }
     catch (HibernateException eH) {
       throw new GroupNotFoundException(
-        E_GNF + " by uuid: " + uuid + "(" + eH.getMessage() + ")"
+        ERR_GNF + " by uuid: " + uuid + "(" + eH.getMessage() + ")"
       );  
     }
   } // private static Group _findByUuid(uuid)

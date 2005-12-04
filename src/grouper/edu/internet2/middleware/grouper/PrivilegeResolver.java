@@ -22,6 +22,7 @@ import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.lang.reflect.*;
 import  java.util.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
@@ -29,10 +30,14 @@ import  java.util.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.15 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.16 2005-12-04 22:52:49 blair Exp $
  *     
 */
 class PrivilegeResolver {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(PrivilegeResolver.class);
+
 
   // Private Class Variables
   private static PrivilegeResolver pr = null;
@@ -136,7 +141,6 @@ class PrivilegeResolver {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName());
     if      (priv.equals(AccessPrivilege.ADMIN))  { 
       this.canADMIN(s, g, subj);
     }
@@ -153,7 +157,7 @@ System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName()
       this.canUPDATE(s, g, subj);
     }
     else if (priv.equals(AccessPrivilege.VIEW))   {
-      this.canVIEW(s, g, subj );
+      this.canVIEW(s, g, subj);
     }
     else {
       throw new SchemaException("unknown access privilege: " + priv);
@@ -183,6 +187,12 @@ System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName()
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.READ;
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+    )
+    {
       can = true;
     }
     if (can == false) {
@@ -231,40 +241,48 @@ System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName()
     // TODO This is ugly
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.VIEW;
+    String    msg   = "canVIEW: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      GrouperLog.debug(LOG, s, msg + "VIEW");
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.READ)
     )
     {
+      GrouperLog.debug(LOG, s, msg + "READ");
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
     )
     {
+      GrouperLog.debug(LOG, s, msg + "ADMIN");
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
     )
     {
+      GrouperLog.debug(LOG, s, msg + "UPDATE");
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTIN)
     )
     {
+      GrouperLog.debug(LOG, s, msg + "OPTIN");
       can = true;
     }
     else if (
       PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.OPTOUT)
     )
     {
+      GrouperLog.debug(LOG, s, msg + "OPTOUT");
       can = true;
     }
     if (can == false) {
+      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
@@ -377,17 +395,23 @@ System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName()
   )
   {
     GrouperSession.validate(s);
+    String msg = "hasPriv '" + priv.getName().toUpperCase() 
+      + "' '" + subj.getId() + "': ";
     if (this._isRoot(subj)) {
+      GrouperLog.debug(LOG, s, msg + "true (ROOT)");
       return true;
     }
     try {
-      if (access.hasPriv(s, g, SubjectFinder.findAllSubject(), priv)) {
-        return true;
-      }
-      return access.hasPriv(s, g, subj, priv);
+      boolean rv = access.hasPriv(s, g, subj, priv);
+      GrouperLog.debug(LOG, s, msg + rv);
+      if (rv == false) {
+        rv = access.hasPriv(s, g, SubjectFinder.findAllSubject(), priv);
+        GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
+      } 
+      return rv;
     }
     catch (SchemaException ePNF) {
-      // TODO Is this right?
+      GrouperLog.debug(LOG, s, msg + "false (" + ePNF.getMessage() + ")");
       return false;
     }
   } // protected boolean hasPriv(s, g, subj, priv)
@@ -397,17 +421,23 @@ System.err.println("DISPATCH/"+g.getName()+"/"+subj.getName()+"/"+priv.getName()
   )
   {
     GrouperSession.validate(s);
+    String msg = "hasPriv '" + priv.getName().toUpperCase() 
+      + "' '" + subj.getId() + "': ";
     if (this._isRoot(subj)) {
+      GrouperLog.debug(LOG, s, msg + "true (ROOT)");
       return true;
     }
     try {
-      if (naming.hasPriv(s, ns, SubjectFinder.findAllSubject(), priv)) {
-        return true;
-      }
-      return naming.hasPriv(s, ns, subj, priv);
+      boolean rv = naming.hasPriv(s, ns, subj, priv);
+      GrouperLog.debug(LOG, s, msg + rv);
+      if (rv == false) {
+        rv = naming.hasPriv(s, ns, SubjectFinder.findAllSubject(), priv);
+        GrouperLog.debug(LOG, s, msg + rv + " (ALL)");
+      } 
+      return rv;
     }
     catch (SchemaException ePNF) {
-      // TODO This is *not* right
+      GrouperLog.debug(LOG, s, msg + "false (" + ePNF.getMessage() + ")");
       return false;
     }
   } // protected boolean hasPriv(s, ns, subj, priv)
