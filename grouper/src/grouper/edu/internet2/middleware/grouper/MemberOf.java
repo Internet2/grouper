@@ -17,18 +17,24 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.5 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: MemberOf.java,v 1.6 2005-12-04 22:52:49 blair Exp $
  */
 class MemberOf implements Serializable {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(MemberOf.class);
+
 
   // Protected Class Methods
   
@@ -36,29 +42,47 @@ class MemberOf implements Serializable {
   protected static Set doMemberOf(GrouperSession s, Group g, Member m) 
     throws GroupNotFoundException
   {
-    Set mships    = new LinkedHashSet();
+    // In order to bypass privilege constraints since a subject may be
+    // privileged to adjust memberships but not be privileged to see,
+    // let alone alter, all of the effective memberships that change as
+    // a result.
+    GrouperSession  root    = GrouperSessionFinder.getRootSession();
+    Set             mships  = new LinkedHashSet();
+    String          msg     = " for '" + g.getName() + "'/'" + m + "': ";
 
-    // Find where g is a member
-    Set isMember  = g.toMember().getMemberships();
+    // Find where g is a member - but do it as root
+    g.setSession(root);  
+    Set isMember = g.toMember().getMemberships();
 
-    // Add m to where g is a member
-    mships.addAll(
-      _findMembershipsWhereGroupIsMember(s, g, m, isMember)
-    );
+    // Add m to where g is a member - as root
+    Set temp0 = _findMembershipsWhereGroupIsMember(root, g, m, isMember);
+    mships.addAll(temp0);
+    GrouperLog.debug(LOG, s, "group is member" + msg + temp0.size());
 
-    // Add members of m to g
-    // Add members of m to where g is a member
-    mships.addAll(
-      _findGroupAsMember(s, g.getUuid(), m, isMember)
-    );
+    // Add members of m to g - as root
+    // Add members of m to where g is a member - as root
+    mships.addAll(_findGroupAsMember(root, g.getUuid(), m, isMember));
 
-    return mships;
+    // Now reset everything to the proper session
+    g.setSession(s);
+    Set resetMships = new LinkedHashSet();
+    // TODO Don't I already have a method to do this in bulk?
+    Iterator iter = mships.iterator();
+    while (iter.hasNext()) {
+      Membership ms = (Membership) iter.next();    
+      ms.setSession(s);
+      resetMships.add(ms);
+    }
+
+    GrouperLog.debug(LOG, s, "memberOf total" + msg + resetMships.size());
+    return resetMships;
   } // protected static Set doMemberOf(s, m)
 
   // Find effective memberships, whether for addition or deletion
   protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) 
     throws  GroupNotFoundException
   {
+    // TODO Add logging as above
     Set mships    = new LinkedHashSet();
 
     // Stems can't be members
@@ -76,34 +100,45 @@ class MemberOf implements Serializable {
 
   // Private Class Methods
 
-  // More effective membership voodoo
+  // If m is a group, find its members and add them to g and where g is
+  // a member
   private static Set _findGroupAsMember(
     GrouperSession s, String oid, Member m, Set isMember
   )
     throws  GroupNotFoundException
   {
-    Set mships      = new LinkedHashSet();
-    Set hasMembers  = new LinkedHashSet();
-    
+    Set     mships      = new LinkedHashSet();
+    Set     hasMembers  = new LinkedHashSet();
+    String  msg         = null;
+
     if (m.getSubjectTypeId().equals("group")) {
       // Convert member back to a group
       Group gm = m.toGroup();
+      msg = "member '" + m + "' is group";
+      GrouperLog.debug(LOG, s, msg);
+      // And attach root session for better looking up of memberships
+      gm.setSession(GrouperSessionFinder.getRootSession());
 
       // Find members of m
-      hasMembers = gm.getMemberships();
+      Set hasMships = gm.getMemberships();
+      GrouperLog.debug(LOG, s, msg + " has members: " + hasMships.size());
 
       // Add members of m to g
       // Add members of m to where g is a member
       mships.addAll(
         _findMembershipsOfMember(
-          s, oid, gm.getUuid(), isMember, hasMembers
+          s, oid, gm.getUuid(), isMember, hasMships
         )
       );
+    }
+    if (msg != null) {
+      GrouperLog.debug(LOG, s, msg + " total: " + mships.size());
     }
     return mships; 
   } // private static Set _findGroupAsMember(s, oid, m, isMember)
 
-  // More effective membership voodoo
+  // Member is a group.  Look for its memberships and add them to where
+  // the containing object is a member.
   private static Set _findMembershipsOfMember(
     GrouperSession s, String oid, String gmid, Set isMember, Set hasMembers
   ) 

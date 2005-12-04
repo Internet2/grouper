@@ -66,6 +66,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestMeFiFindBySubject.class);
     suite.addTestSuite(TestPrivGroupSTEM.class);
     suite.addTestSuite(TestPrivCREATE.class);
+    suite.addTestSuite(TestPrivREAD.class);
     suite.addTestSuite(TestPrivSTEM.class);
     suite.addTestSuite(TestPrivVIEW.class);
     suite.addTestSuite(TestStem.class);

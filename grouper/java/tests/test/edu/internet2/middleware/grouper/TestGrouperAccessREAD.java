@@ -17,22 +17,26 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessREAD.java,v 1.8 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestGrouperAccessREAD.java,v 1.9 2005-12-04 22:52:49 blair Exp $
  */
 public class TestGrouperAccessREAD extends TestCase {
 
   // Private Class Constants
-  private static final Privilege PRIV = AccessPrivilege.READ;
+  private static final Log        LOG   = LogFactory.getLog(TestGrouperAccessREAD.class);
+  private static final Privilege  PRIV  = AccessPrivilege.READ;
 
 
   // Private Class Variables
@@ -49,6 +53,7 @@ public class TestGrouperAccessREAD extends TestCase {
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
     s       = SessionHelper.getRootSession();
     root    = StemHelper.findRootStem(s);
@@ -59,14 +64,16 @@ public class TestGrouperAccessREAD extends TestCase {
   }
 
   protected void tearDown () {
+    LOG.debug("tearDown");
     // Nothing 
   }
 
   // Tests
 
   public void testDefaultPrivs() {
+    LOG.info("testDefaultPrivs");
     PrivHelper.getPrivs(
-      s, i2, s.getSubject(),       0, true,  true, true, true, true, true
+      s, i2, s.getSubject(),       1, true,  true, true, true, true, true
     );
     PrivHelper.getPrivs(
       s, i2, SubjectHelper.SUBJ0,  0, false, false, false, false, false, false
@@ -79,10 +86,11 @@ public class TestGrouperAccessREAD extends TestCase {
   } // public void testDefaultPrivs()
 
   public void testGrantPrivs() {
+    LOG.info("testGrantPrivs");
     PrivHelper.grantPriv( s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv( s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
-      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
+      s, i2,  s.getSubject()      , 2, true,  true,   true,   true,   true,   true
     );
     PrivHelper.getPrivs(
       s, i2,  SubjectHelper.SUBJ0 , 1, false, false,  false,  true,   false,  false
@@ -99,6 +107,7 @@ public class TestGrouperAccessREAD extends TestCase {
   } // public void testGrantPrivs()
 
   public void testGrantPrivsAll() {
+    LOG.info("testGrantPrivsAll");
     PrivHelper.grantPriv( s, i2, SubjectFinder.findAllSubject(), PRIV);
     PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
     PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, true);
@@ -110,10 +119,11 @@ public class TestGrouperAccessREAD extends TestCase {
   } // public void testGrantPrivs()
 
   public void testRevokePrivs() {
+    LOG.info("testRevokePrivs");
     PrivHelper.grantPriv(s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
-      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
+      s, i2,  s.getSubject()      , 2, true,  true,   true,   true,   true,   true
     );
     PrivHelper.getPrivs(
       s, i2,  SubjectHelper.SUBJ0 , 1, false, false,  false,  true,   false,  false
@@ -124,7 +134,7 @@ public class TestGrouperAccessREAD extends TestCase {
     PrivHelper.revokePriv(s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.revokePriv(s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
-      s, i2,  s.getSubject()      , 0, true,  true,   true,   true,   true,   true
+      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
     );
     PrivHelper.getPrivs(
       s, i2,  SubjectHelper.SUBJ0 , 0, false, false,  false,  false,  false,  false
@@ -137,6 +147,7 @@ public class TestGrouperAccessREAD extends TestCase {
   } // public void testRevokePrivs()
 
   public void testRevokePrivsAll() {
+    LOG.info("testRevokePrivsAll");
     PrivHelper.grantPriv( s, i2, SubjectFinder.findAllSubject(), PRIV);
     PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
     PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, true);
@@ -148,10 +159,11 @@ public class TestGrouperAccessREAD extends TestCase {
   } // public void testRevokePrivsAll()
 
   public void testRevokeAllPrivs() {
+    LOG.info("testRevokeAllPrivs");
     PrivHelper.grantPriv(s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
-      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
+      s, i2,  s.getSubject()      , 2, true,  true,   true,   true,   true,   true
     );
     PrivHelper.getPrivs(
       s, i2,  SubjectHelper.SUBJ0 , 1, false, false,  false,  true,   false,  false
@@ -161,7 +173,7 @@ public class TestGrouperAccessREAD extends TestCase {
     );
     PrivHelper.revokePriv(s, i2, PRIV);      
     PrivHelper.getPrivs(
-      s, i2,  s.getSubject()      , 0, true,  true,   true,   true,   true,   true
+      s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
     );
     PrivHelper.getPrivs(
       s, i2,  SubjectHelper.SUBJ0 , 0, false, false,  false,  false,  false,  false

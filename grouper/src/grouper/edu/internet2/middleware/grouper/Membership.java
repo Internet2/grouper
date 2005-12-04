@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.5 2005-11-28 18:33:22 blair Exp $
+ * @version $Id: Membership.java,v 1.6 2005-12-04 22:52:49 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -39,7 +39,7 @@ public class Membership implements Serializable {
   private String    via_id;
 
   
-  // Transient Private Instance Variables
+  // Private Transient Instance Variables
   private transient GrouperSession s;
 
 

@@ -17,17 +17,20 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.Date;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
+
 /** 
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.4 2005-11-17 01:38:27 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.5 2005-12-04 22:52:49 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
@@ -40,7 +43,6 @@ public class GrouperSession implements Serializable {
 
 
   // Private Transient Instance Variables
-  private transient Member  m     = null;
   private transient Subject subj  = null;
 
 
@@ -146,11 +148,7 @@ public class GrouperSession implements Serializable {
    * @return  A {@link Member} object.
    */
   public Member getMember() {
-    // TODO What exception?
-    if (this.m == null) {
-      throw new RuntimeException("Member.getMember() not implemented");
-    }
-    return this.m;
+    return this.getMember_id();
   } // public Member getMember()
 
   /**
@@ -198,10 +196,15 @@ public class GrouperSession implements Serializable {
     // DESIGN What exception?
     // TODO What exception?
     if (this.subj == null) {
-      throw new RuntimeException("Member.getSubject() not implemented");
+      try {
+        this.subj = this.getMember_id().getSubject();
+      }
+      catch (SubjectNotFoundException eSNF) {
+        throw new RuntimeException("invalid session: subject not found");
+      }
     }
     return this.subj;
-  }
+  } // public Subject getSubject()
 
   public int hashCode() {
     return new HashCodeBuilder()
@@ -234,12 +237,17 @@ public class GrouperSession implements Serializable {
   }
 
   public String toString() {
-    return new ToStringBuilder(this)
-      .append("session_id", this.getSession_id())
-      .append("member_id",  this.getMember_id() )
-      .append("start",      this.getStart_time())
+    String  who   = this.getSubject().getId();
+    String  type  = this.getSubject().getType().getName();
+    if (type.equals(SubjectTypeEnum.valueOf("group"))) {
+      who = this.getSubject().getName();
+    }
+    return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+      .append("session_id"    , this.getSession_id())
+      .append("subject_id"    , who                 )
+      .append("subject_type"  , type                )
       .toString();
-  }
+  } // public String toString()
 
 
   // Protected Static Methods
@@ -255,10 +263,9 @@ public class GrouperSession implements Serializable {
     try {
       GrouperSession s = new GrouperSession();
       // Transient
-      s.m    = MemberFinder.findBySubject(subj);
       s.subj = subj;
       // Persistent
-      s.setMember_id(s.m);
+      s.setMember_id(MemberFinder.findBySubject(subj));
       s.setStart_time( new Date() );
       s.setSession_id( GrouperUuid.getUuid() );
       return s;

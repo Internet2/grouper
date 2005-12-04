@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.25 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: Stem.java,v 1.26 2005-12-04 22:52:49 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -113,7 +113,7 @@ public class Stem implements Serializable {
     } 
     try {
       Group g = GroupFinder.findByName(
-        this.s, this.constructName(this.getName(), extension)
+        this.constructName(this.getName(), extension)
       );
       throw new GroupAddException("group already exists");
     }
@@ -130,6 +130,26 @@ public class Stem implements Serializable {
       children.add(child);
       this.setChild_groups(children);
       HibernateHelper.save(this);
+      try {
+        // Now grant ADMIN (as root) to the creator of the child group.
+        //
+        // Ideally this would be wrapped up in the broader transaction
+        // of adding the child stem but as the interfaces may be
+        // outside of our control, I don't think we can do that.  
+        child.setSession(GrouperSessionFinder.getRootSession());
+        PrivilegeResolver.getInstance().grantPriv(
+          GrouperSessionFinder.getRootSession(), child, 
+          s.getSubject(), AccessPrivilege.ADMIN
+        );
+        child.setSession(this.s);
+      }
+      catch (Exception e) {
+        throw new GroupAddException(
+          "group created but unable to grant ADMIN to creator: " + e.getMessage()
+        );
+      }
+
+
       return child;
     }
     catch (Exception e) {
@@ -161,11 +181,6 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemAddException 
   {
-/* TODO
-    if (!this.hasStem(this.s.getSubject())) {
-      throw new InsufficientPrivilegeException("does not have STEM");
-    }
-*/
     PrivilegeResolver.getInstance().canSTEM(
       GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
     );

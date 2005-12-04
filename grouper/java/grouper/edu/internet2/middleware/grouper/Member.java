@@ -17,18 +17,26 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
+import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
+
 
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.15 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: Member.java,v 1.16 2005-12-04 22:52:49 blair Exp $
  */
 public class Member implements Serializable {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(Member.class);
+
 
   // Hibernate Properties
   private String  id;
@@ -289,8 +297,8 @@ public class Member implements Serializable {
    * @return  Subject's {@link SubjectType}
    */ 
   public SubjectType getSubjectType() {
-    throw new RuntimeException("Not implemented");
-  }
+    return SubjectTypeEnum.valueOf(this.getSubject_type());
+  } // public SubjectType getSubjectType()
 
   /**
    * Get the subject type id of the subject that maps to this member.
@@ -667,25 +675,38 @@ public class Member implements Serializable {
    */
   // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g, Field f) {
-    if 
-    (
+    boolean rv = false;
+    if (
       MembershipFinder.findMemberships(g.getUuid(), this, f).size() > 0
     ) 
     {
-      return true;
+      rv = true;
     }
-    return false;
+    GrouperLog.debug(LOG, this.s, "isMember '" + this + "': " + rv);
+    return rv;
   } // public boolean isMember(g, f)
 
   public String toString() {
-    return new ToStringBuilder(this)
-           .append("ID",      this.getId()            ) 
-           .append("uuid",    this.getMember_id()     )
-           .append("id",      this.getSubject_id()    )
-           .append("source",  this.getSubject_source())
-           .append("type",    this.getSubject_type()  )
-           .toString();
-  }
+    try {
+      String  who   = this.getSubject().getId();
+      String  type  = this.getSubject().getType().getName();
+      if (type.equals("group")) {
+        who = this.getSubject().getName();
+      } 
+      // Prettier
+      return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+        .append("subject_id"    , who )
+        .append("subject_type"  , type)
+        .toString();
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // But better than nothing
+      return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+        .append("subject_id"    , this.getSubject_id()  )  
+        .append("subject_type"  , this.getSubject_type())
+        .toString();
+    }
+  } // public String toString()
 
   public boolean equals(Object other) {
     if (this == other) {
@@ -725,7 +746,9 @@ public class Member implements Serializable {
    * </pre>
    * @return  {@link Member} as a {@link Group}
    */
-  public Group toGroup() throws GroupNotFoundException {
+  public Group toGroup() 
+    throws GroupNotFoundException 
+  {
     // TODO TEST Check for group type 
     return GroupFinder.findByUuid(this.s, this.getSubjectId());
   } // public Group toGroup()

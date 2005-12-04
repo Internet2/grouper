@@ -30,7 +30,7 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.20 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.21 2005-12-04 22:52:49 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -207,6 +207,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws GrantPrivilegeException, 
            InsufficientPrivilegeException
   {
+    // TODO Update per _Group.addMember()_
     GrouperSession.validate(s);
     String msg_gp = "unable to grant " + priv + " on " + ns.getName() 
       + " to " + subj.getId();

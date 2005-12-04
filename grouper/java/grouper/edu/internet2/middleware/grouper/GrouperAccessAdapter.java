@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
@@ -30,9 +32,13 @@ import  net.sf.hibernate.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.16 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.17 2005-12-04 22:52:49 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(GrouperAccessAdapter.class);
+
 
   // Private Class Variables
   private static Map priv2list = new HashMap();
@@ -245,7 +251,24 @@ public class GrouperAccessAdapter implements AccessAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    return g.hasMember(subj, this._getField(priv));
+    boolean rv = g.hasMember(subj, this._getField(priv));
+    // TODO info?
+    // TODO log group name
+    // TODO Wrapper for subject conversion when logging
+    GrouperLog.debug(
+      LOG, s, 
+      "hasPriv '" + priv.getName().toUpperCase() + "' '" + subj.getId() 
+      + "': " + rv
+    );
+    return rv;
+    // TODO Grr.  I get in my own way.
+/*
+    g.setSession(GrouperSessionFinder.getRootSession());
+    boolean rv = g.hasMember(subj, this._getField(priv));
+    g.setSession(s);
+    return rv;
+*/
+    //return g.hasMember(subj, this._getField(priv));
   } // public boolean hasPriv(s, g, subj, priv)
 
   /**

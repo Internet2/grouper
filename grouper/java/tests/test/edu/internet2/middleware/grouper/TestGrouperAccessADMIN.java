@@ -17,22 +17,26 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link GrouperAccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperAccessADMIN.java,v 1.8 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestGrouperAccessADMIN.java,v 1.9 2005-12-04 22:52:49 blair Exp $
  */
 public class TestGrouperAccessADMIN extends TestCase {
 
   // Private Class Constants
-  private static final Privilege PRIV = AccessPrivilege.ADMIN;
+  private static final Log        LOG   = LogFactory.getLog(TestGrouperAccessADMIN.class);
+  private static final Privilege  PRIV  = AccessPrivilege.ADMIN;
 
 
   // Private Class Variables
@@ -49,6 +53,7 @@ public class TestGrouperAccessADMIN extends TestCase {
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
     s       = SessionHelper.getRootSession();
     root    = StemHelper.findRootStem(s);
@@ -60,13 +65,15 @@ public class TestGrouperAccessADMIN extends TestCase {
 
   protected void tearDown () {
     // Nothing 
+    LOG.debug("tearDown");
   }
 
   // Tests
 
   public void testDefaultPrivs() {
+    LOG.info("testDefaultPrivs");
     PrivHelper.getPrivs(
-      s, i2, s.getSubject(),       0, true,  true, true, true, true, true
+      s, i2, s.getSubject(),       1, true,  true, true, true, true, true
     );
     PrivHelper.getPrivs(
       s, i2, SubjectHelper.SUBJ0,  0, false, false, false, false, false, false
@@ -74,12 +81,15 @@ public class TestGrouperAccessADMIN extends TestCase {
     PrivHelper.getPrivs(
       s, i2, SubjectHelper.SUBJ1,  0, false, false, false, false, false, false
     );
+    subjs.add(s.getSubject());
     PrivHelper.getSubjsWithPriv(i2, subjs, PRIV);
+    groups.add(i2);
     PrivHelper.subjInGroups(s, s.getSubject(), groups, PRIV);
   } // public void testDefaultPrivs()
 
   public void testGrantPrivs() {
-    PrivHelper.grantPriv( s, i2,  s.getSubject()      , PRIV);      
+    LOG.info("testGrantPrivs");
+    PrivHelper.grantPrivFail( s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv( s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
       s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
@@ -99,10 +109,12 @@ public class TestGrouperAccessADMIN extends TestCase {
   } // public void testGrantPrivs()
 
   public void testGrantPrivsAll() {
+    LOG.info("testGrantPrivsAll");
     PrivHelper.grantPriv( s, i2, SubjectFinder.findAllSubject(), PRIV);
     PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
     PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, true);
     PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ1,  PRIV, true);
+    subjs.add(s.getSubject());
     subjs.add(SubjectFinder.findAllSubject());
     PrivHelper.getSubjsWithPriv(i2, subjs, PRIV);
     groups.add(i2);
@@ -110,7 +122,8 @@ public class TestGrouperAccessADMIN extends TestCase {
   } // public void testGrantPrivs()
 
   public void testRevokePrivs() {
-    PrivHelper.grantPriv(s, i2,  s.getSubject()      , PRIV);      
+    LOG.info("testRevokePrivs");
+    PrivHelper.grantPrivFail(s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
       s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true
@@ -137,6 +150,7 @@ public class TestGrouperAccessADMIN extends TestCase {
   } // public void testRevokePrivs()
 
   public void testRevokePrivsAll() {
+    LOG.info("testRevokePrivsAll");
     PrivHelper.grantPriv( s, i2, SubjectFinder.findAllSubject(), PRIV);
     PrivHelper.hasPriv(s, i2, s.getSubject(),       PRIV, true);
     PrivHelper.hasPriv(s, i2, SubjectHelper.SUBJ0,  PRIV, true);
@@ -148,7 +162,8 @@ public class TestGrouperAccessADMIN extends TestCase {
   } // public void testRevokePrivsAll()
 
   public void testRevokeAllPrivs() {
-    PrivHelper.grantPriv(s, i2,  s.getSubject()      , PRIV);      
+    LOG.info("testRevokeAllPrivs");
+    PrivHelper.grantPrivFail(s, i2,  s.getSubject()      , PRIV);      
     PrivHelper.grantPriv(s, i2,  SubjectHelper.SUBJ0 , PRIV);    
     PrivHelper.getPrivs(
       s, i2,  s.getSubject()      , 1, true,  true,   true,   true,   true,   true

@@ -17,22 +17,26 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.1 2005-12-01 19:38:51 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.2 2005-12-04 22:52:49 blair Exp $
  */
 public class TestPrivSTEM extends TestCase {
 
   // Private Class Constants
-  private static final Privilege PRIV = NamingPrivilege.STEM;
+  private static final Log        LOG   = LogFactory.getLog(TestPrivSTEM.class);
+  private static final Privilege  PRIV  = NamingPrivilege.STEM;
 
 
   public TestPrivSTEM(String name) {
@@ -40,16 +44,19 @@ public class TestPrivSTEM extends TestCase {
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
   }
 
   protected void tearDown () {
+    LOG.debug("tearDown");
     // Nothing 
   }
 
   // Tests
 
   public void testGrantedToCreator() {
+    LOG.info("testGrantedToCreator");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -66,6 +73,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Grant CREATE without STEM 
   public void testGrantCreateFail() {
+    LOG.info("testGranteCreateFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -77,6 +85,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Grant CREATE with STEM 
   public void testGrantCreate() {
+    LOG.info("testGrantCreate");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -93,6 +102,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Grant STEM without STEM 
   public void testGrantStemFail() {
+    LOG.info("testGrantStemFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -104,6 +114,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Grant STEM with STEM 
   public void testGrantStem() {
+    LOG.info("testGrantStem");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -120,6 +131,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke all CREATE without STEM 
   public void testRevokeAllCreateFail() {
+    LOG.info("testRevokeAllCreateFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -131,6 +143,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke all CREATE with STEM 
   public void testRevokeAllCreate() {
+    LOG.info("testRevokeAllCreate");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -151,6 +164,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke all STEM without STEM 
   public void testRevokeAllStemFail() {
+    LOG.info("testRevokeAllStemFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -162,6 +176,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke all STEM with STEM 
   public void testRevokeAllStem() {
+    LOG.info("testRevokeAllStem");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -182,6 +197,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke CREATE without STEM 
   public void testRevokeCreateFail() {
+    LOG.info("testRevokeCreateFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -193,6 +209,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke CREATE with STEM 
   public void testRevokeCreate() {
+    LOG.info("testRevokeCreate");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -213,6 +230,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke STEM without STEM 
   public void testRevokeStemFail() {
+    LOG.info("testRevokeStemFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -224,6 +242,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Revoke STEM with STEM 
   public void testRevokeStem() {
+    LOG.info("testRevokeStem");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -244,6 +263,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Create child stem without STEM
   public void testCreateChildStemFail() {
+    LOG.info("testCreateChildStemFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -257,6 +277,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Create child stem with STEM
   public void testCreateChildStem() {
+    LOG.info("testCreateChildStem");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -273,6 +294,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Modify stem attrs without STEM
   public void testModifyAttrsFail() {
+    LOG.info("testModifyAttrsFail");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
@@ -287,6 +309,7 @@ public class TestPrivSTEM extends TestCase {
 
   // Modify stem attrs with STEM
   public void testModifyttrs() {
+    LOG.info("testModifyAttrs");
     // Get root and !root sessions
     GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
