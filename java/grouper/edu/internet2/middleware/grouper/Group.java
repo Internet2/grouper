@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.27 2005-12-05 02:29:05 blair Exp $
+ * @version $Id: Group.java,v 1.28 2005-12-05 05:48:35 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -40,6 +40,8 @@ public class Group implements Serializable {
   private static final String ERR_GA  = "attribute not found: ";
   private static final String ERR_S2G = "could not convert subject to group: ";
   private static final Log    LOG     = LogFactory.getLog(Group.class);
+  private static final String MSG_AM  = "add member ";
+  private static final String MSG_RM  = "revoke member ";
 
 
   // Hibernate Properties
@@ -187,6 +189,8 @@ public class Group implements Serializable {
             MemberAddException,
             SchemaException
   {
+    String msg = MSG_AM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
+    GrouperLog.debug(LOG, this.s, msg);
     this._canWriteList(subj, f, ERR_AM);
     try {
       // The objects that will need saving
@@ -223,12 +227,15 @@ public class Group implements Serializable {
       );
     }
     catch (GroupNotFoundException eGNF) {
+      GrouperLog.debug(LOG, s, ERR_AM + eGNF.getMessage());
       throw new MemberAddException(ERR_AM + eGNF.getMessage());
     }
     catch (HibernateException eH) {
+      GrouperLog.debug(LOG, s, ERR_AM + eH.getMessage());
       throw new MemberAddException(ERR_AM + eH.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
+      GrouperLog.debug(LOG, s, ERR_AM + eMNF.getMessage());
       throw new MemberAddException(ERR_AM + eMNF.getMessage());
     }
   } // public void addMember(subj, f)
@@ -369,6 +376,8 @@ public class Group implements Serializable {
             SchemaException
   {
     this._canWriteList(subj, f, ERR_DM);
+    String msg = MSG_RM + "'" + f.getName() + "' " + SubjectHelper.getPretty(subj);
+    GrouperLog.debug(LOG, this.s, msg);
     try {
       // The objects that will need saving and deleting
       Set     deletes = new LinkedHashSet();
@@ -379,17 +388,27 @@ public class Group implements Serializable {
       this.setModified();
       saves.add(this);
       // Find memberships to delete
-      deletes.addAll( this._membershipsToDelete(this, subj, f) );
+      Set effs = this._membershipsToDelete(this, subj, f);
+      deletes.addAll(effs);
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
+      GrouperLog.debug(
+        LOG, this.s, 
+        "deleted members from '"+ this.getName() + "'/'" + f.getName() 
+        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
+        + " effs"
+      );
     }
     catch (GroupNotFoundException eGNF) {
+      GrouperLog.debug(LOG, s, ERR_DM + eGNF.getMessage());
       throw new MemberDeleteException(ERR_DM + eGNF.getMessage());
     }
     catch (HibernateException eH) {
+      GrouperLog.debug(LOG, s, ERR_DM + eH.getMessage());
       throw new MemberDeleteException(ERR_DM + eH.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
+      GrouperLog.debug(LOG, s, ERR_DM + eMNF.getMessage());
       throw new MemberDeleteException(ERR_DM + eMNF.getMessage());
     }
   } // public void deleteMember(subj, f)
@@ -927,15 +946,33 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasEffectiveMember(Subject subj) {
+    return this.hasEffectiveMember(subj, Group.getDefaultList());
+  } // public boolean hasEffectiveMember(Subject subj)
+
+  /**
+   * Check whether the subject is an effective member of this group.
+   * <pre class="eg">
+   * if (g.hasEffectiveMember(subj, f)) {
+   *   // Subject is an effective member of this group
+   * }
+   * else {
+   *   // Subject is not an effective member of this group
+   * } 
+   * </pre>
+   * @param   subj  Check this subject.
+   * @param   f     Check for membership in this list field.
+   * @return  Boolean true if subject belongs to this group.
+   */
+  public boolean hasEffectiveMember(Subject subj, Field f) {
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
-      return m.isEffectiveMember(this);
+      return m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Is silence the proper response?
     }
     return false;
-  } // public boolean hasEffectiveMember(subj)
+  } // public boolean hasEffectiveMember(subj, f)
 
   /**
    * Check whether the subject is an immediate member of this group.
@@ -951,15 +988,33 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasImmediateMember(Subject subj) {
+    return this.hasImmediateMember(subj, Group.getDefaultList());
+  } // public boolean hasImmediateMember(subj)
+
+  /**
+   * Check whether the subject is an immediate member of this group.
+   * <pre class="eg">
+   * if (g.hasImmediateMember(subj, f)) {
+   *   // Subject is an immediate member of this group
+   * }
+   * else {
+   *   // Subject is not a immediate member of this group
+   * } 
+   * </pre>
+   * @param   subj  Check this subject.
+   * @param   f     Check for membership in this list field.
+   * @return  Boolean true if subject belongs to this group.
+   */
+  public boolean hasImmediateMember(Subject subj, Field f) {
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
-      return m.isImmediateMember(this);
+      return m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Is silence the proper response?
     }
     return false;
-  } // public boolean hasImmediateMember(subj)
+  } // public boolean hasImmediateMember(subj, f)
 
   public int hashCode() {
     return new HashCodeBuilder()
@@ -1040,15 +1095,18 @@ public class Group implements Serializable {
    */
   public boolean hasMember(Subject subj, Field f) {
     // TODO I should probably have _Member_ call _Group_ and not the inverse
-    boolean rv = false;
+    boolean rv  = false;
+    String  msg = "hasMember " + SubjectHelper.getPretty(subj) + " '" 
+      + f.getName() + "': ";
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
       rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
       // TODO Fail silently?
+      GrouperLog.debug(LOG, this.s, msg + eMNF.getMessage());
     }
-    GrouperLog.debug(LOG, this.s, "hasMember '" + subj.getId() + "': " + rv);
+    GrouperLog.debug(LOG, this.s, msg + rv);
     return rv;
   } // public boolean hasMember(subj, f)
 

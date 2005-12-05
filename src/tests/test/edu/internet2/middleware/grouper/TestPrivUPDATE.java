@@ -29,12 +29,13 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.1 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.2 2005-12-05 05:48:35 blair Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestPrivUPDATE.class);
+
 
   // Private Class Variables
   private static Stem           edu;
@@ -342,9 +343,6 @@ public class TestPrivUPDATE extends TestCase {
     Group a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.OPTOUT);
   } // public void testRevokeOptoutWithAllUPDATE
-
-
-
 
 }
 

@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.6 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: MemberOf.java,v 1.7 2005-12-05 05:48:35 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -80,7 +80,7 @@ class MemberOf implements Serializable {
 
   // Find effective memberships, whether for addition or deletion
   protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) 
-    throws  GroupNotFoundException
+    throws  StemNotFoundException
   {
     // TODO Add logging as above
     Set mships    = new LinkedHashSet();
@@ -90,9 +90,14 @@ class MemberOf implements Serializable {
 
     // Add members of m to ns
     // Add members of m to where ns is a member
-    mships.addAll(
-      _findGroupAsMember(s, ns.getUuid(), m, isMember)
-    );
+    try {
+      mships.addAll(
+        _findGroupAsMember(s, ns.getUuid(), m, isMember)
+      );
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new StemNotFoundException(eGNF.getMessage());
+    }
 
     return mships;
   } // protected static Set doMemberOf(s, m)

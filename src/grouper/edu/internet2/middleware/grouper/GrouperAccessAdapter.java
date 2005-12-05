@@ -32,12 +32,16 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.18 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.19 2005-12-05 05:48:35 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(GrouperAccessAdapter.class);
+  private static final String ERR_GP  = "unable to grant priv: ";
+  private static final String ERR_RP  = "unable to revoke priv: ";
+  private static final Log    LOG     = LogFactory.getLog(GrouperAccessAdapter.class);
+  private static final String MSG_GP  = "grant priv ";
+  private static final String MSG_RP  = "revoke priv ";
 
 
   // Private Class Variables
@@ -210,24 +214,25 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public void grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
-    throws GrantPrivilegeException, 
-           InsufficientPrivilegeException
+    throws  GrantPrivilegeException, 
+            InsufficientPrivilegeException
   {
     GrouperSession.validate(s);
+    String msg = MSG_GP + "'" + priv.getName() + "' " + SubjectHelper.getPretty(subj);
+    GrouperLog.debug(LOG, s, msg);
     try {
       g.addMember(
         subj, FieldFinder.find( (String) priv2list.get(priv) ) 
       );
+      GrouperLog.debug(LOG, s, msg + ": granted");
     }
     catch (MemberAddException eMA) {
-      throw new GrantPrivilegeException(
-        "unable to grant priv: " + eMA.getMessage()
-      );
+      GrouperLog.debug(LOG, s, ERR_GP + eMA.getMessage());
+      throw new GrantPrivilegeException(ERR_GP + eMA.getMessage());
     }
     catch (SchemaException eS) {
-      throw new GrantPrivilegeException(
-        "unable to grant priv: " + eS.getMessage()
-      ); 
+      GrouperLog.debug(LOG, s, ERR_GP + eS.getMessage());
+      throw new GrantPrivilegeException(ERR_GP + eS.getMessage());
     }
   } // public void grantPriv(s, g, subj, priv)
 
@@ -331,29 +336,19 @@ public class GrouperAccessAdapter implements AccessAdapter {
       HibernateHelper.saveAndDelete(saves, deletes);
     }
     catch (GroupNotFoundException eGNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eGNF.getMessage()
-      );
+      throw new RevokePrivilegeException(ERR_RP + eGNF.getMessage());
     }
     catch (HibernateException eH) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eH.getMessage()
-      );
+      throw new RevokePrivilegeException(ERR_RP + eH.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eMNF.getMessage()
-      );
+      throw new RevokePrivilegeException(ERR_RP + eMNF.getMessage());
     }
     catch (MembershipNotFoundException eMSNF) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eMSNF.getMessage()
-      );
+      throw new RevokePrivilegeException(ERR_RP + eMSNF.getMessage());
     }
     catch (SchemaException eS) {
-      throw new RevokePrivilegeException(
-        "could not revoke privilege: " + eS.getMessage()
-      );
+      throw new RevokePrivilegeException(ERR_RP + eS.getMessage());
     }
   } // public void revokePriv(s, g, priv)
 
@@ -384,18 +379,19 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException
   {
     GrouperSession.validate(s);
+    String msg = MSG_RP + "'" + priv.getName() + "' " + SubjectHelper.getPretty(subj);
+    GrouperLog.debug(LOG, s, msg);
     try {
       g.deleteMember(subj, this._getField(priv));
+      GrouperLog.debug(LOG, s, msg + ": revoked");
     }
     catch (MemberDeleteException eMA) {
-      throw new RevokePrivilegeException(
-        "unable to revoke priv: " + eMA.getMessage()
-      );
+      GrouperLog.debug(LOG, s, ERR_RP + eMA.getMessage());
+      throw new RevokePrivilegeException(ERR_RP + eMA.getMessage());
     }
     catch (SchemaException eS) {
-      throw new RevokePrivilegeException(
-        "unable to revoke priv: " + eS.getMessage()
-      ); 
+      GrouperLog.debug(LOG, s, ERR_RP + eS.getMessage());
+      throw new RevokePrivilegeException(ERR_RP + eS.getMessage());
     }
   } // public void revokePriv(s, g, subj, priv)
 

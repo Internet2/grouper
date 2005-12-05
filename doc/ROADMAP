@@ -3,15 +3,18 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.94 2005-12-05 02:29:05 blair Exp $
+$Id: ROADMAP,v 1.95 2005-12-05 05:48:35 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement OPTOUT (and ADMIN, UPDATE)
 * Implement ADMIN
+  * group deletion
+  * set attributes
+  * delete attributes
+  * rename group
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
 * Add create member and time to memberships
@@ -28,11 +31,11 @@ $Id: ROADMAP,v 1.94 2005-12-05 02:29:05 blair Exp $
   * Subject cache(s)
   * Cache attributes
   * Cache members
+* normalize source adapter id + name conventions
 
 ## Later
 * Test concurrence and persistence
 * What triggers a "modified" update?
-* normalize source adapter id + name conventions
 * wheel group
 * Review files and add TODO items to this list
 * Custom group types

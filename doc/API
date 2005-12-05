@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.117 2005-12-04 22:52:49 blair Exp $
+$Id: API,v 1.118 2005-12-05 05:48:35 blair Exp $
 
 ---
 
@@ -122,7 +122,9 @@ $Id: API,v 1.117 2005-12-04 22:52:49 blair Exp $
 * void                grantPriv(subject, access priv)
 * boolean             hasAdmin(subject)
 * boolean             hasEffectiveMember(subject)
+* boolean             hasEffectiveMember(subject, field)
 * boolean             hasImmediateMember(subject)
+* boolean             hasImmediateMember(subject, field)
 * boolean             hasOptin(subject)
 * boolean             hasOptout(subject)
 * boolean             hasMember(subject)
@@ -208,7 +210,9 @@ $Id: API,v 1.117 2005-12-04 22:52:49 blair Exp $
 * Set                 hasView()
 * boolean             hasView(group)
 * boolean             isEffectiveMember(group)
+* boolean             isEffectiveMember(group, field)
 * boolean             isImmediateMember(group)
+* boolean             isImmediateMember(group, field)
 * boolean             isMember(group)
 * boolean             isMember(group, field)
 * Group               toGroup()

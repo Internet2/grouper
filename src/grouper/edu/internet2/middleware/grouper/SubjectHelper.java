@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.1 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.2 2005-12-05 05:48:35 blair Exp $
  */
 class SubjectHelper {
 
@@ -42,7 +42,6 @@ class SubjectHelper {
       pretty = subj.getName();
     }
     pretty = "'" + pretty + "'/'" + subj.getType().getName() + "'";
-    GrouperLog.debug(LOG, subj.getId(), "made pretty: " + pretty);
     return pretty;
   } // protected static String getPretty(subj)
 

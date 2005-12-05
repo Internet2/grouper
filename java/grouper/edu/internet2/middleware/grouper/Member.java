@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.16 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: Member.java,v 1.17 2005-12-05 05:48:35 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -607,17 +607,46 @@ public class Member implements Serializable {
    * @return  Boolean true if is a member.
    */
   public boolean isEffectiveMember(Group g) {
-    if 
-    (
+    return this.isEffectiveMember(g, Group.getDefaultList());
+  } // public boolean isEffectiveMember(g);
+
+  /**
+   * Test whether a member effectively belongs to a group.
+   * <pre class="eg">
+   * // Does this member effectively belong to the specified group?
+   * if (m.isEffectiveMember(g, f)) {
+   *   // Is an effective member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @param   f   Test for membership in this list field.
+   * @return  Boolean true if is a member.
+   */
+  public boolean isEffectiveMember(Group g, Field f) {
+    boolean rv  = false;
+    String  msg = "isEffectiveMember '" + f.getName() + "' '";
+    if (
+      MembershipFinder.findEffectiveMemberships(g, this, f).size() > 0
+    ) 
+    {
+      rv = true;
+      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
+    }
+    else if (
       MembershipFinder.findEffectiveMemberships(
-        g, this, Group.getDefaultList()
+        g, MemberFinder.findAllMember(), f
       ).size() > 0
     )
     {
-      return true;
+      // TODO I wonder about this.
+      rv = true;
+      GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
     }
-    return false;
-  } // public boolean isEffectiveMember(g)
+    else {
+      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
+    }
+    return rv;
+  } // public boolean isEffectiveMember(g, f)
 
   /**
    * Test whether a member immediately belongs to a group.
@@ -631,19 +660,48 @@ public class Member implements Serializable {
    * @return  Boolean true if is a member.
    */
   public boolean isImmediateMember(Group g) {
+    return this.isImmediateMember(g, Group.getDefaultList());
+  } // public boolean isImmediateMember(g)
+
+  /**
+   * Test whether a member immediately belongs to a group.
+   * <pre class="eg">
+   * // Does this member immediately belong to the specified group?
+   * if (m.isImmediateMember(g, f)) {
+   *   // Is an immediate member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @param   f   Test for memberhip in this list field.
+   * @return  Boolean true if is a member.
+   */
+  public boolean isImmediateMember(Group g, Field f) {
+    boolean rv  = false;
+    String  msg = "isImmediateMember '" + f.getName() + "' '";
     try {
-      Membership ms = MembershipFinder.findImmediateMembership(
-        this.s, g, this.getSubject(), Group.getDefaultList()
+      MembershipFinder.findImmediateMembership(
+        g.getUuid(), this, f
       );
-      return true;
+      rv = true;
+      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
     }
     catch (MembershipNotFoundException eMNF) {
-      return false;
+      try {
+        MembershipFinder.findImmediateMembership(
+          g.getUuid(), MemberFinder.findAllMember(), f
+        );
+        rv = true;
+        GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+      }
+      catch (MembershipNotFoundException anotherMNF) {
+        // ignore
+      }
     }
-    catch (SubjectNotFoundException eSNF) {
-      return false;
+    if (rv == false) {
+      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
     }
-  } // public boolean isImmediateMember(g)
+    return rv;
+  } // public boolean isImmediateMember(g, f)
 
   /**
    * Test whether a member belongs to a group.
@@ -656,7 +714,6 @@ public class Member implements Serializable {
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
    */
-  // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g) {
     return this.isMember(g, Group.getDefaultList());
   } // public boolean isMember(g)
@@ -673,16 +730,29 @@ public class Member implements Serializable {
    * @param   f   Test for membership in this list {@link Field}.
    * @return  Boolean true if is a member.
    */
-  // TODO isEffectiveMember() and isImmediateMember()?
   public boolean isMember(Group g, Field f) {
-    boolean rv = false;
+    boolean rv  = false;
+    String  msg = "isMember '" + f.getName() + "' '";
     if (
       MembershipFinder.findMemberships(g.getUuid(), this, f).size() > 0
     ) 
     {
       rv = true;
+      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
     }
-    GrouperLog.debug(LOG, this.s, "isMember '" + this + "': " + rv);
+    else if (
+      MembershipFinder.findMemberships(
+        g.getUuid(), MemberFinder.findAllMember(), f
+      ).size() > 0
+    )
+    {
+      // TODO I wonder about this.
+      rv = true;
+      GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+    }
+    else {
+      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
+    }
     return rv;
   } // public boolean isMember(g, f)
 
