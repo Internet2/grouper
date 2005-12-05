@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.1 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.2 2005-12-05 14:56:37 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -306,7 +306,23 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.VIEW);     
   } // public void testRevokeViewWithADMIN()
 
-  // delete group
+  public void testDeleteGroupWithoutADMIN() {
+    LOG.info("testDeleteGroupWithoutADMIN");
+    GroupHelper.deleteFail(nrs, a, i2.getName());
+  } // public void testDeleteGroupWithoutADMIN()
+
+  public void testDeleteGroupWithADMIN() {
+    LOG.info("testDeleteGroupWithADMIN");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+    GroupHelper.delete(nrs, a, i2.getName());
+  } // public void testDeleteGroupWithADMIN()
+
+  public void testDeleteGroupWithAllADMIN() {
+    LOG.info("testDeleteGroupWithAllADMIN");
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    GroupHelper.delete(nrs, a, i2.getName());
+  } // public void testDeleteGroupWithAllADMIN()
+
   // Set + delete group attributes
   // Rename group
 

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.9 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.10 2005-12-05 14:56:37 blair Exp $
  */
 public class GroupHelper {
 
@@ -105,6 +105,43 @@ public class GroupHelper {
       LOG.debug("addMemberUpdateFail.3");
     }
   } // protected static void addMemberUpdateFail(g, subj, m)
+
+  // Delete a group
+  protected static void delete(GrouperSession s, Group g, String name) {
+    LOG.debug("delete.0");
+    try {
+      g.delete();
+      LOG.debug("delete.1");
+      findByNameFail(s, name);
+      LOG.debug("delete.2");
+    }
+    catch (GroupDeleteException eGD) {
+      LOG.debug("delete.3");
+      Assert.fail("failed to delete group: " + eGD.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("delete.4");
+      Assert.fail("failed to delete group: " + eIP.getMessage());
+    }
+  } // protected static void delete(s, g, name)
+
+  // Fail to delete a group
+  protected static void deleteFail(GrouperSession s, Group g, String name) {
+    LOG.debug("deleteFail.0");
+    try {
+      g.delete();
+      LOG.debug("deleteFail.1");
+      Assert.fail("deleted group");
+    }
+    catch (GroupDeleteException eGD) {
+      LOG.debug("deleteFail.2");
+      Assert.assertTrue("failed to delete group: " + eGD.getMessage(), true);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("deleteFail.3");
+      Assert.assertTrue("failed to delete group: " + eIP.getMessage(), true);
+    }
+  } // protected static void deleteFail(s, g, name)
 
   // Delete a group as a member from a group
   protected static void deleteMember(Group g, Group gm) {

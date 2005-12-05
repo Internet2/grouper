@@ -30,17 +30,19 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.28 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: Group.java,v 1.29 2005-12-05 14:56:37 blair Exp $
  */
 public class Group implements Serializable {
 
   // Private Class Constants
   private static final String ERR_AM  = "unable to add member: ";
+  private static final String ERR_DG  = "unable to delete group: ";
   private static final String ERR_DM  = "unable to delete member: ";
   private static final String ERR_GA  = "attribute not found: ";
   private static final String ERR_S2G = "could not convert subject to group: ";
   private static final Log    LOG     = LogFactory.getLog(Group.class);
   private static final String MSG_AM  = "add member ";
+  private static final String MSG_DG  = "group deleted: ";
   private static final String MSG_RM  = "revoke member ";
 
 
@@ -260,41 +262,62 @@ public class Group implements Serializable {
     throws  GroupDeleteException,
             InsufficientPrivilegeException
   {
-    // TODO Revoke access privs
-    // TODO Iterate through all lists, not just the default
-    // TODO Could we run into priv issues?
+    // TODO Refactor into smaller components
     try {
-      Set       deletes = new LinkedHashSet();
+      PrivilegeResolver.getInstance().canADMIN(this.s, this, this.s.getSubject());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, this.s, ERR_DG + eIP.getMessage());
+      throw new InsufficientPrivilegeException(ERR_DG + eIP.getMessage());
+    } 
+    try {
+      Set     deletes = new LinkedHashSet();
       deletes.add(this);
+      String  name    = "'" + this.getName() + "'";
 
-      // Deal with where this group is an immediate member
-      Iterator  iterIs  = this.toMember().getImmediateGroups().iterator();
-      while (iterIs.hasNext()) {
-        Group g = (Group) iterIs.next();
-        deletes.addAll( 
-          this._membershipsToDelete(
-            g, this.toSubject(), Group.getDefaultList()
-          )
-        );
+      // Find all fields of type list
+      Iterator iter = FieldFinder.findAllByType(FieldType.LIST).iterator();
+      while (iter.hasNext()) {
+        Field f = (Field) iter.next();
+
+        // ... and then remove where this group is an immediate member
+        Iterator  iterIs  = this.toMember().getImmediateGroups().iterator();
+        while (iterIs.hasNext()) {
+          Group g = (Group) iterIs.next();
+          deletes.addAll(this._membershipsToDelete(g, this.toSubject(), f));
+        }
+        // ... and then deal with this group's immediate members
+        Iterator  iterHas = this.getImmediateMembers().iterator();
+        while (iterHas.hasNext()) { Member m = (Member) iterHas.next();
+          deletes.addAll(this._membershipsToDelete(this, m.getSubject(), f));
+        }
       }
-      // Deal with this group's immediate members
-      Iterator  iterHas = this.getImmediateMembers().iterator();
-      while (iterHas.hasNext()) {
-        Member m = (Member) iterHas.next();
-        deletes.addAll( 
-          this._membershipsToDelete(
-            this, m.getSubject(), Group.getDefaultList()
-          )
-        );
-      }
+      // And revoke all access privileges
+      this.revokePriv(AccessPrivilege.OPTIN);
+      this.revokePriv(AccessPrivilege.OPTOUT);
+      this.revokePriv(AccessPrivilege.READ);
+      this.revokePriv(AccessPrivilege.UPDATE);
+      this.revokePriv(AccessPrivilege.VIEW);
+      // TODO I think ordering may be important here, especially since
+      //      I don't have privilege caching in place yet
+      this.revokePriv(AccessPrivilege.OPTIN);
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
+      // TODO info
+      GrouperLog.debug(LOG, this.s, MSG_DG + name);
     }
-    catch (Exception e) {
-      throw new GroupDeleteException(
-        "unable to delete group: " + e.getMessage()
-      );
+    catch (HibernateException eH) {
+      throw new GroupDeleteException(ERR_DG + eH.getMessage());
+    }
+    catch (MemberDeleteException eMD) {
+      throw new GroupDeleteException(ERR_DG + eMD.getMessage());
+    }
+    catch (RevokePrivilegeException eRP) {
+      throw new GroupDeleteException(ERR_DG + eRP.getMessage());
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new GroupDeleteException(ERR_DG + eSNF.getMessage());
     }
   }
 
