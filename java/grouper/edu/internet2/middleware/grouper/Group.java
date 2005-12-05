@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.26 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: Group.java,v 1.27 2005-12-05 02:29:05 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -187,7 +187,7 @@ public class Group implements Serializable {
             MemberAddException,
             SchemaException
   {
-    this._canWriteList(f, ERR_AM);
+    this._canWriteList(subj, f, ERR_AM);
     try {
       // The objects that will need saving
       Set     objects = new LinkedHashSet();
@@ -368,7 +368,7 @@ public class Group implements Serializable {
             MemberDeleteException,
             SchemaException
   {
-    this._canWriteList(f, ERR_DM);
+    this._canWriteList(subj, f, ERR_DM);
     try {
       // The objects that will need saving and deleting
       Set     deletes = new LinkedHashSet();
@@ -1382,21 +1382,54 @@ public class Group implements Serializable {
     return m;
   } // private Member _canViewSubject(subj, msg)
 
-  private void _canWriteList(Field f, String msg) 
+  // What a tangled mess this has become
+  private void _canWriteList(Subject subj, Field f, String msg) 
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    // See if we can write to the desired list
+    // TODO Validate that this is a "list" field
+    // First see if we can write to the desired list
+    boolean rv      = false;
+    String  eipMsg  = msg;
     try {
       PrivilegeResolver.getInstance().canPrivDispatch(
         this.s, this, this.s.getSubject(), f.getWritePriv()
       );
+      rv = true;
     }
     catch (InsufficientPrivilegeException eIP) {
-      GrouperLog.debug(LOG, this.s, msg + eIP.getMessage());
-      throw new InsufficientPrivilegeException(msg + eIP.getMessage());
+      // On failure we want to throw the original eIP message so
+      // preserve it.
+      eipMsg += eIP.getMessage();
+      // Now see if this is a potential OPTIN or OPTOUT situation.
+      // TODO I'm not sure that I can trust two instances of the same
+      //      subject to pass an `equals()` test.  As such: ugliness.
+      if (
+        s.getSubject().getId().equals(subj.getId())
+        && s.getSubject().getType().equals(subj.getType())
+        && s.getSubject().getSource().equals(subj.getSource())
+        && f.equals(Group.getDefaultList())
+      )
+      {
+        try {
+          if      (msg.equals(ERR_AM)) {
+            PrivilegeResolver.getInstance().canOPTIN(s, this, subj);
+            rv = true;
+          }
+          else if (msg.equals(ERR_DM)) {
+            PrivilegeResolver.getInstance().canOPTOUT(s, this, subj);
+            rv = true;
+          }
+        }
+        catch (InsufficientPrivilegeException anotherIP) {
+          // Ignore
+        }
+      }
     }
-  } // private void _canWriteList(f, msg)
+    if (rv == false) {
+      throw new InsufficientPrivilegeException(eipMsg);
+    }
+  } // private void _canWriteList(subj, f, msg)
 
   private Map _getAttributes() {
     Iterator iter = this.getGroup_attributes().iterator();

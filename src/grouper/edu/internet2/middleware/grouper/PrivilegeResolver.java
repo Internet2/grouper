@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.17 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.18 2005-12-05 02:29:05 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -108,10 +108,27 @@ class PrivilegeResolver {
   {
     boolean   can   = false;
     Privilege priv  = AccessPrivilege.OPTIN;
+    String    msg   = "canOPTIN: ";
     if (PrivilegeResolver.getInstance().hasPriv(s, g, subj, priv)) {
+      GrouperLog.debug(LOG, s, msg + "OPTIN");
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.ADMIN)
+    )
+    {
+      GrouperLog.debug(LOG, s, msg + "ADMIN");
+      can = true;
+    }
+    else if (
+      PrivilegeResolver.getInstance().hasPriv(s, g, subj, AccessPrivilege.UPDATE)
+    )
+    {
+      GrouperLog.debug(LOG, s, msg + "UPDATE");
       can = true;
     }
     if (can == false) {
+      GrouperLog.debug(LOG, s, msg + "no");
       throw new InsufficientPrivilegeException(
         s.getSubject().getId() + " does not have " + priv + " on '" 
         + g.getName() + "'"
