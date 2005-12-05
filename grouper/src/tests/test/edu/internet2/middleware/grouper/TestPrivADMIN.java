@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.3 2005-12-05 16:24:49 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.4 2005-12-05 18:34:21 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -366,8 +366,166 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.delete(nrs, a, i2.getName());
   } // public void testDeleteGroupIsMemberWithAllADMIN()
 
-  // Set + delete group attributes
-  // Rename group
+  public void testSetAttrsWithoutADMIN() {
+    LOG.info("testSetAttrsWithoutADMIN");
+    String val = "new value";
+    GroupHelper.setAttrFail(a, ""                 , ""  );
+    GroupHelper.setAttrFail(a, ""                 , null);
+    GroupHelper.setAttrFail(a, null               , null);
+    GroupHelper.setAttrFail(a, null               , ""  );
+    GroupHelper.setAttrFail(a, "attr"             , val );
+    GroupHelper.setAttrFail(a, "description"      , val );
+    GroupHelper.setAttrFail(a, "displayName"      , val );
+    GroupHelper.setAttrFail(a, "displayExtension" , val );
+    GroupHelper.setAttrFail(a, "extension"        , val );
+    GroupHelper.setAttrFail(a, "name"             , val );
+  } // public void testSetAttrsWithoutADMIN()
+
+  public void testSetAttrsWithADMIN() {
+    LOG.info("testSetAttrsWithADMIN");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+    String val = "new value";
+    GroupHelper.setAttrFail(a, ""                 , ""  );
+    GroupHelper.setAttrFail(a, ""                 , null);
+    GroupHelper.setAttrFail(a, null               , null);
+    GroupHelper.setAttrFail(a, null               , ""  );
+    GroupHelper.setAttrFail(a, "attr"             , val );
+    GroupHelper.setAttr(    a, "description"      , val );
+    GroupHelper.setAttrFail(a, "displayName"      , val );
+    GroupHelper.setAttr(    a, "displayExtension" , val );
+    GroupHelper.setAttr(    a, "extension"        , val );
+    GroupHelper.setAttrFail(a, "name"             , val );
+  } // public void testSetAttrsWithADMIN()
+
+  public void testSetAttrsWithAllADMIN() {
+    LOG.info("testSetAttrsWithAllADMIN");
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    String val = "new value";
+    GroupHelper.setAttrFail(a, ""                 , ""  );
+    GroupHelper.setAttrFail(a, ""                 , null);
+    GroupHelper.setAttrFail(a, null               , null);
+    GroupHelper.setAttrFail(a, null               , ""  );
+    GroupHelper.setAttrFail(a, "attr"             , val );
+    GroupHelper.setAttr(    a, "description"      , val );
+    GroupHelper.setAttrFail(a, "displayName"      , val );
+    GroupHelper.setAttr(    a, "displayExtension" , val );
+    GroupHelper.setAttr(    a, "extension"        , val );
+    GroupHelper.setAttrFail(a, "name"             , val );
+  } // public void testSetAttrsWithAllADMIN()
+
+  public void testDelAttrsWithoutADMIN() {
+    LOG.info("testDelAttrsWithoutADMIN");
+    GroupHelper.delAttrFail(a, ""                 );
+    GroupHelper.delAttrFail(a, null               );
+    GroupHelper.delAttrFail(a, "attr"             );
+    GroupHelper.delAttrFail(a, "description"      );
+    GroupHelper.delAttrFail(a, "displayName"      );
+    GroupHelper.delAttrFail(a, "displayExtension" );
+    GroupHelper.delAttrFail(a, "extension"        );
+    GroupHelper.delAttrFail(a, "name"             );
+  } // public void testDelAttrsWithoutADMIN()
+
+  public void testDelAttrsWithADMIN() {
+    LOG.info("testDelAttrsWithADMIN");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+    String val = "new value";
+    GroupHelper.delAttrFail(a, ""                 );
+    GroupHelper.delAttrFail(a, null               );
+    GroupHelper.delAttrFail(a, "attr"             );
+    GroupHelper.delAttrFail(a, "description"      );
+    GroupHelper.setAttr(    a, "description", val );
+    GroupHelper.delAttr(    a, "description"      );
+    GroupHelper.delAttrFail(a, "displayName"      );
+    GroupHelper.delAttrFail(a, "displayExtension" );
+    GroupHelper.delAttrFail(a, "extension"        );
+    GroupHelper.delAttrFail(a, "name"             );
+  } // public void testDelAttrsWithADMIN()
+
+  public void testDelAttrsWithAllADMIN() {
+    LOG.info("testDelAttrsWithAllADMIN");
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    String val = "new value";
+    GroupHelper.delAttrFail(a, ""                 );
+    GroupHelper.delAttrFail(a, null               );
+    GroupHelper.delAttrFail(a, "attr"             );
+    GroupHelper.delAttrFail(a, "description"      );
+    GroupHelper.setAttr(    a, "description", val );
+    GroupHelper.delAttr(    a, "description"      );
+    GroupHelper.delAttrFail(a, "displayName"      );
+    GroupHelper.delAttrFail(a, "displayExtension" );
+    GroupHelper.delAttrFail(a, "extension"        );
+    GroupHelper.delAttrFail(a, "name"             );
+  } // public void testDelAttrsWithAllADMIN()
+
+  public void testRenameGroupWithoutADMIN() {
+    LOG.info("testRenameGroupWithoutADMIN");
+    String orig = a.getExtension();
+    try {
+      a.setExtension("foo");
+      Assert.fail("set extension");
+    }
+    catch (Exception e) {
+      Assert.assertTrue("failed to set extension", true);
+      Assert.assertTrue("extension", a.getExtension().equals(orig));
+    } 
+    orig = a.getDisplayExtension();
+    try {
+      a.setDisplayExtension("foo");
+      Assert.fail("set displayExtension");
+    }
+    catch (Exception e) {
+      Assert.assertTrue("failed to set displayExtension", true);
+      Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(orig));
+    } 
+  } // public void testRenameGroupWithoutADMIN()
+
+  public void testRenameGroupWithADMIN() {
+    LOG.info("testRenameGroupWithADMIN");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+    String  orig  = a.getExtension();
+    String  val   = "foo";
+    try {
+      a.setExtension(val);
+      Assert.assertTrue("set extension", true);
+      Assert.assertTrue("extension", a.getExtension().equals(val));
+    }
+    catch (Exception e) {
+      Assert.fail("failed to set extension");
+    } 
+    orig = a.getDisplayExtension();
+    try {
+      a.setDisplayExtension("foo");
+      Assert.assertTrue("set displayExtension", true);
+      Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(val));
+    }
+    catch (Exception e) {
+      Assert.fail("failed to set displayExtension");
+    } 
+  } // public void testRenameGroupWithADMIN()
+
+  public void testRenameGroupWithAllADMIN() {
+    LOG.info("testRenameGroupWithAllADMIN");
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    String  orig  = a.getExtension();
+    String  val   = "foo";
+    try {
+      a.setExtension("foo");
+      Assert.assertTrue("set extension", true);
+      Assert.assertTrue("extension", a.getExtension().equals(val));
+    }
+    catch (Exception e) {
+      Assert.fail("failed to set extension");
+    } 
+    orig = a.getDisplayExtension();
+    try {
+      a.setDisplayExtension("foo");
+      Assert.assertTrue("set displayExtension", true);
+      Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(val));
+    }
+    catch (Exception e) {
+      Assert.fail("failed to set displayExtension");
+    } 
+  } // public void testRenameGroupWithAllADMIN()
 
 }
 

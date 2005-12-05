@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.26 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: Stem.java,v 1.27 2005-12-05 18:34:21 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -113,7 +113,7 @@ public class Stem implements Serializable {
     } 
     try {
       Group g = GroupFinder.findByName(
-        this.constructName(this.getName(), extension)
+        constructName(this.getName(), extension)
       );
       throw new GroupAddException("group already exists");
     }
@@ -186,7 +186,7 @@ public class Stem implements Serializable {
     );
     try {
       Stem ns = StemFinder.findByName(
-        this.s, this.constructName(this.getName(), extension)
+        this.s, constructName(this.getName(), extension)
       );
       throw new StemAddException("stem already exists");
     }
@@ -200,10 +200,10 @@ public class Stem implements Serializable {
     child.setStem_extension(extension);
     child.setDisplay_extension(displayExtension);
     child.setStem_name( 
-      this.constructName(this.getName(), extension)
+      constructName(this.getName(), extension)
     );
     child.setDisplay_name( 
-      this.constructName(this.getDisplayName(), displayExtension)
+      constructName(this.getDisplayName(), displayExtension)
     );
     // Set parent
     child.setParent_stem(this);
@@ -700,11 +700,6 @@ public class Stem implements Serializable {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
-/* TODO
-    if (!this.hasStem(this.s.getSubject())) {
-      throw new InsufficientPrivilegeException("does not have STEM");
-    }
-*/
     PrivilegeResolver.getInstance().canSTEM(
       GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
     );
@@ -714,7 +709,7 @@ public class Stem implements Serializable {
       this.setModified();
       try {
         this.setDisplay_name(
-          this.constructName(
+          constructName(
             this.getParentStem().getDisplayName(), value
           )
         );
@@ -759,6 +754,19 @@ public class Stem implements Serializable {
     }
   } // protected static void addRootStem(GrouperSession s)
 
+  protected static String constructName(String stem, String extn) {
+    // TODO This should probably end up in a "naming" utility class
+    if (stem.equals("")) {
+      return extn;
+    }
+    return stem + ":" + extn;
+  } // protected static String constructName(stem, extn)
+
+  protected void setModified() {
+    this.setModifier_id( s.getMember()        );
+    this.setModify_time( new Date().getTime() );
+  } // protected void setModified()
+
   protected static List setSession(GrouperSession s, List l) {
     List      stems = new ArrayList();
     Iterator  iter  = l.iterator();
@@ -772,19 +780,6 @@ public class Stem implements Serializable {
 
 
   // Protected Instance Methods
-  protected String constructName(String stem, String extn) {
-    // TODO This should probably end up in a "naming" utility class
-    if (stem.equals("")) {
-      return extn;
-    }
-    return stem + ":" + extn;
-  } // protected String constructName(stem, extn)
-
-  protected void setModified() {
-    this.setModifier_id( s.getMember()        );
-    this.setModify_time( new Date().getTime() );
-  } // protected void setModified()
-
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
     this.s = s;

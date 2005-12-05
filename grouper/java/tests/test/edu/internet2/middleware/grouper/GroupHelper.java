@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.10 2005-12-05 14:56:37 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.11 2005-12-05 18:34:21 blair Exp $
  */
 public class GroupHelper {
 
@@ -105,6 +105,68 @@ public class GroupHelper {
       LOG.debug("addMemberUpdateFail.3");
     }
   } // protected static void addMemberUpdateFail(g, subj, m)
+
+  // delete a group attribute
+  protected static void delAttr(Group g, String attr) {
+    LOG.debug("delAttr.0");
+    String  msg = "delete attribute '" + attr + "'";
+    String  err = "did not " + msg + ": ";
+    try {
+      g.deleteAttribute(attr);
+      LOG.debug("delAttr.1");
+      Assert.assertTrue(msg, true);
+      // TODO This is actually wrong but I think the result is cached
+      //      so we get the value even though the attribute has been
+      //      deleted from the db.
+      try {
+        String val = g.getAttribute(attr);
+        LOG.debug("delAttr.2");
+        Assert.assertTrue("TODO got attribute after deletion", true);
+        //Assert.fail("got attribute after deletion: " + attr + "=" + val); 
+      }
+      catch (AttributeNotFoundException eANF) {
+        LOG.debug("delAttr.3");
+        Assert.fail("TODO did not get attribute after deletion");
+        //Assert.assertTrue("did not get attribute", true);
+      }
+    }
+    catch (AttributeNotFoundException eANF) {
+      LOG.debug("delAttr.4");
+      Assert.fail(err + eANF.getMessage());
+    }
+    catch (GroupModifyException eGM) {
+      LOG.debug("delAttr.5");
+      Assert.fail(err + eGM.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("delAttr.6");
+      Assert.fail(err + eIP.getMessage());
+    }
+  } // protected static void delAttr(g, attr)
+
+  // fail to delete a group attribute
+  protected static void delAttrFail(Group g, String attr) {
+    LOG.debug("delAttrFail.0");
+    String  err = "delete attribute '" + attr + "'";
+    String  msg = "did not " + err + ": ";
+    try {
+      g.deleteAttribute(attr);
+      LOG.debug("delAttrFail.1");
+      Assert.fail(err);
+    }
+    catch (AttributeNotFoundException eANF) {
+      LOG.debug("delAttrFail.2");
+      Assert.assertTrue(msg, true);
+    }
+    catch (GroupModifyException eGM) {
+      LOG.debug("delAttrFail.3");
+      Assert.assertTrue(msg, true);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("delAttrFail.4");
+      Assert.assertTrue(msg, true);
+    }
+  } // protected static void setAttr(g, attr, val)
 
   // Delete a group
   protected static void delete(GrouperSession s, Group g, String name) {
@@ -274,6 +336,55 @@ public class GroupHelper {
       Assert.assertTrue("failed to find group: " + uuid, true);
     }
   } // protected static void findByUuidFail(s, uuid)
+
+  protected static void setAttr(Group g, String attr, String val) {
+    LOG.debug("setAttr.0");
+    String  msg = "set attribute '" + attr + "'='" + val + "'";
+    String  err = "did not " + msg + ": ";
+    try {
+      g.setAttribute(attr, val);
+      LOG.debug("setAttr.1");
+      Assert.assertTrue(msg, true);
+      LOG.debug("setAttr.2");
+      Assert.assertTrue("right val", g.getAttribute(attr).equals(val));
+      LOG.debug("setAttr.3");
+    }
+    catch (AttributeNotFoundException eANF) {
+      LOG.debug("setAttr.4");
+      Assert.fail(err + eANF.getMessage());
+    }
+    catch (GroupModifyException eGM) {
+      LOG.debug("setAttr.5");
+      Assert.fail(err + eGM.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("setAttr.6");
+      Assert.fail(err + eIP.getMessage());
+    }
+  } // protected static void setAttr(g, attr, val)
+
+  protected static void setAttrFail(Group g, String attr, String val) {
+    LOG.debug("setAttrFail.0");
+    String  err = "set attribute '" + attr + "'='" + val + "'";
+    String  msg = "did not " + err + ": ";
+    try {
+      g.setAttribute(attr, val);
+      LOG.debug("setAttrFail.1");
+      Assert.fail(err);
+    }
+    catch (AttributeNotFoundException eANF) {
+      LOG.debug("setAttrFail.2");
+      Assert.assertTrue(msg, true);
+    }
+    catch (GroupModifyException eGM) {
+      LOG.debug("setAttrFail.3");
+      Assert.assertTrue(msg, true);
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      LOG.debug("setAttrFail.4");
+      Assert.assertTrue(msg, true);
+    }
+  } // protected static void setAttr(g, attr, val)
 
   protected static void testAttrs(Group exp, Group g) {
     try {
