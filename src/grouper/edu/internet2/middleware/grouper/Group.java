@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.30 2005-12-05 16:24:49 blair Exp $
+ * @version $Id: Group.java,v 1.31 2005-12-05 18:34:21 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -92,13 +92,13 @@ public class Group implements Serializable {
     attributes.add( 
       new Attribute(
         this, FieldFinder.find("name"),
-        ns.constructName(ns.getName(), extn)
+        Stem.constructName(ns.getName(), extn)
       )
     );
     attributes.add( 
       new Attribute(
         this, FieldFinder.find("displayName"),
-        ns.constructName(ns.getDisplayName(), displayExtn)
+        Stem.constructName(ns.getDisplayName(), displayExtn)
       )
     );
     attributes.add( 
@@ -365,14 +365,79 @@ public class Group implements Serializable {
    * }
    * </pre>
    * @param   attr  Delete this attribute.
+   * @throws  AttributeNotFoundException
    * @throws  GroupModifyException
    * @throws  InsufficientPrivilegeException
    */
   public void deleteAttribute(String attr) 
-    throws GroupModifyException, InsufficientPrivilegeException
+    throws  AttributeNotFoundException,
+            GroupModifyException, 
+            InsufficientPrivilegeException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    // TODO This needs some refactoring.  Definitely some duplicate
+    //      code between here and setAttribute() if nothing else.
+    String msg = "deleteAttribute: ";
+    if ( (attr == null) || (attr.equals("")) ) {
+      GrouperLog.debug(LOG, this.s, msg + "no attr");
+      throw new GroupModifyException(msg + "no attr");
+    }
+    // TODO Yuck
+    if (
+      attr.equals("displayExtension")
+      || attr.equals("displayName")
+      || attr.equals("extension")
+      || attr.equals("name")
+    )
+    {
+      GrouperLog.debug(LOG, this.s, msg + "cannot delete '" + attr + "'");
+      throw new GroupModifyException(msg + "cannot delete '" + attr + "'");
+    }
+    try {
+      Field f = FieldFinder.find(attr);
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        this.s, this, this.s.getSubject(), f.getWritePriv()
+      );
+      Set       saves   = new LinkedHashSet();
+      Set       deletes = new LinkedHashSet();
+      Set       attrs   = new LinkedHashSet();
+      boolean   found   = false;
+      Iterator  iter    = this.getGroup_attributes().iterator();
+      while (iter.hasNext()) {
+        Attribute a = (Attribute) iter.next();
+        if (a.getField().equals(f)) {
+          GrouperLog.debug(LOG, this.s, msg + "will delete '" + attr + "'");
+          deletes.add(a);
+          found = true;
+        }
+        else {
+          GrouperLog.debug(
+            LOG, this.s, msg + "will preserve '" + a.getField().getName() + "'"
+          );
+          attrs.add(a);
+        }
+      }
+      if (found == true) {
+        this.setModified();
+        this.setGroup_attributes(attrs);
+        saves.add(this);
+        HibernateHelper.saveAndDelete(saves, deletes);
+        GrouperLog.debug(LOG, this.s, msg + "deleted '" + attr + "'");
+      }
+      else {
+        msg += "does not have '" + attr + "'";
+        GrouperLog.debug(LOG, this.s, msg); 
+        throw new AttributeNotFoundException(msg);
+      }
+    }
+    catch (HibernateException eH) {
+      GrouperLog.debug(LOG, this.s, msg + eH.getMessage());
+      throw new GroupModifyException(msg + eH.getMessage());
+    }
+    catch (SchemaException eS) {
+      GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
+      throw new AttributeNotFoundException(msg + eS.getMessage());
+    }
+  } // public void deleteAttribute(attr)
 
   /** 
    * Delete a subject from this group.
@@ -1301,7 +1366,48 @@ public class Group implements Serializable {
             InsufficientPrivilegeException
   {
     // TODO s,AttributeNotFoundException,SchemaException,?
-    throw new RuntimeException("Group.setAttribute(attr,value) not implemented");
+    String msg = "setAttribute: ";
+    if ( (value == null) || (value.equals("")) ) {
+      GrouperLog.debug(LOG, this.s, msg + "no value");
+      throw new GroupModifyException(msg + "no value");
+    }
+    try {
+      Field f = FieldFinder.find(attr);
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        this.s, this, this.s.getSubject(), f.getWritePriv()
+      );
+      Set       attrs = new LinkedHashSet();
+      boolean   found = false;
+      Iterator  iter  = this.getGroup_attributes().iterator();
+      while (iter.hasNext()) {
+        Attribute a = (Attribute) iter.next();
+        if (a.getField().equals(f)) {
+          // updating attribute
+          GrouperLog.debug(
+            LOG, this.s, "updating '" + a.getField().getName() + "'"
+          );
+          a.setValue(value);  
+        }
+        attrs.add(a);
+      }
+      if (found == false) {
+        // adding new attribute
+        GrouperLog.debug(LOG, this.s, "adding '" + attr + "'");
+        attrs.add(new Attribute(this, f, value));
+      }
+      this.setGroup_attributes( this._updateSystemAttrs(f, value, attrs) );
+      this.setModified();
+      HibernateHelper.save(this);
+      GrouperLog.debug(LOG, this.s, "saved " + attrs.size() + " attributes");
+    }
+    catch (HibernateException eH) {
+      GrouperLog.debug(LOG, this.s, msg + eH.getMessage());
+      throw new AttributeNotFoundException(msg + eH.getMessage());
+    }
+    catch (SchemaException eS) {
+      GrouperLog.debug(LOG, this.s, msg + eS.getMessage());
+      throw new AttributeNotFoundException(msg + eS.getMessage());
+    }
   } // public void setAttribute(attr, value)
 
   /**
@@ -1336,6 +1442,37 @@ public class Group implements Serializable {
   } // public void setDescription(value)
  
   /**
+   * Set group <i>extension</i>.
+   * <pre class="eg">
+   * try {
+   *   g.setExtension(value);
+   * }
+   * catch (GroupModifyException eGM) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to modify group
+   * }
+   * </pre>
+   * @param   value   Set <i>extension</i> to this value.
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setExtension(String value) 
+    throws  GroupModifyException, 
+            InsufficientPrivilegeException
+  {
+    try {
+      this.setAttribute("extension", value);
+    }
+    catch (AttributeNotFoundException eANF) {
+      throw new GroupModifyException(
+        "unable to set extension: " + eANF.getMessage()
+      );
+    }
+  } // public void setExtension(value)
+
+  /**
    * Set group displayExtension.
    * <pre class="eg">
    * try {
@@ -1353,7 +1490,8 @@ public class Group implements Serializable {
    * @throws  InsufficientPrivilegeException
    */
   public void setDisplayExtension(String value) 
-    throws GroupModifyException, InsufficientPrivilegeException
+    throws  GroupModifyException, 
+            InsufficientPrivilegeException
   {
     try {
       this.setAttribute("displayExtension", value);
@@ -1547,7 +1685,6 @@ public class Group implements Serializable {
     while (iter.hasNext()) {
       Attribute attr = (Attribute) iter.next();
       this.attrs.put(attr.getField().getName(), attr);
-      //this.attrs.put( attr.getField().getName(), attr.getValue() );
     }
     return this.attrs;
   } // private Map _getAttributes()
@@ -1602,6 +1739,36 @@ public class Group implements Serializable {
     this.setCreate_time( new Date().getTime() );
   } // private void _setCreated()
 
+  private Set _updateSystemAttrs(Field f, String value, Set attrs) {
+    Set updated = new LinkedHashSet();
+    if      (f.getName().equals("extension")) {
+      Iterator iter = attrs.iterator();
+      while (iter.hasNext()) {
+        Attribute a = (Attribute) iter.next();
+        if (a.getField().getName().equals("name")) {
+          a.setValue(
+            Stem.constructName(this.getParentStem().getName(), value)
+          );
+        }
+        updated.add(a);
+      }
+    }
+    else if (f.getName().equals("displayExtension")) {
+      Iterator iter = attrs.iterator();
+      while (iter.hasNext()) {
+        Attribute a = (Attribute) iter.next();
+        if (a.getField().getName().equals("displayName")) {
+          a.setValue(
+            Stem.constructName(this.getParentStem().getDisplayName(), value)
+          );
+        }
+        updated.add(a);
+      }
+    } else {
+      updated = attrs;
+    }
+    return updated;
+  } // private Set _updateSystemAttrs(f, value, attrs
 
   // Hibernate Accessors
   private String getId() {

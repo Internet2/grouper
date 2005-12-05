@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A group attribute within the Groups registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.3 2005-12-01 03:12:24 blair Exp $
+ * @version $Id: Attribute.java,v 1.4 2005-12-05 18:34:21 blair Exp $
  */
 class Attribute implements Serializable {
 
@@ -93,7 +93,7 @@ class Attribute implements Serializable {
     return this.value;
   }
 
-  private void setValue(String value) {
+  protected void setValue(String value) {
     this.value = value;
   }
 

@@ -3,41 +3,35 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.96 2005-12-05 16:24:49 blair Exp $
+$Id: ROADMAP,v 1.97 2005-12-05 18:34:21 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement ADMIN
-  * group deletion
-  * set attributes
-  * delete attributes
-  * rename group
 * Look at Gary's bug
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
-* Add create member and time to memberships
-  * Add create time to members
-    * Review generated SQL
-      * Including my twisty column names
 * Rename subjectIDs in local subject<=>member mapping (#133)
-* Review old _*.todo_ test classes
-  * More effective membership testing
 * Finish refactoring _MembershipFinder_ to apply READ filtering
 * Update Subject API jar
+* normalize source adapter id + name conventions
 * Profiling and benchmarking
   * Privilege cache(s)
   * Subject cache(s)
   * Cache attributes
-  * Cache members
+* wheel group
+* ALL toggle switches 
 
 ## Later
-* normalize source adapter id + name conventions
-* Test concurrence and persistence
 * What triggers a "modified" update?
-* wheel group
+* Review generated SQL
+  * Including my twisty column names
+  * Add create member and time to memberships
+    * Add create time to members
+    * status + ttl?
+    * factor type
 * Review files and add TODO items to this list
 * Custom group types
   * Map _GroupType_
@@ -46,6 +40,10 @@ $Id: ROADMAP,v 1.96 2005-12-05 16:24:49 blair Exp $
     * setting, unsetting, nullable, etc
   * Custom group lists
     * add to group subjects
+* Review old _*.todo_ test classes
+  * More effective membership testing
+  * Cache members
+* Test concurrence and persistence
 * Commons logging
 * Additional query filters
 * record where each *Finder method is called from

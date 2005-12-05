@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.20 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.21 2005-12-05 18:34:21 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -208,6 +208,10 @@ class PrivilegeResolver {
     else if (priv.equals(AccessPrivilege.VIEW))   {
       GrouperLog.debug(LOG, s, msg + "canVIEW");
       this.canVIEW(s, g, subj);
+    }
+    else if (priv.equals(AccessPrivilege.SYSTEM))  {
+      GrouperLog.debug(LOG, s, msg + "system maintained");
+      throw new InsufficientPrivilegeException("system maintained");
     }
     else {
       throw new SchemaException("unknown access privilege: " + priv);
