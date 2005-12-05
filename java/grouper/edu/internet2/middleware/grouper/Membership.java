@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.6 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: Membership.java,v 1.7 2005-12-05 21:40:02 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -34,7 +34,8 @@ public class Membership implements Serializable {
   private int       depth;
   private Field     field;
   private String    id;
-  private String    member_id;
+  //private String    member_id;
+  private Member    member_id;
   private String    owner_id;
   private String    via_id;
 
@@ -54,7 +55,7 @@ public class Membership implements Serializable {
 
   // Create new membership
   protected Membership(
-    GrouperSession s, String oid, String mid, Field f
+    GrouperSession s, String oid, Member m, Field f
   ) 
   {
     // Attach session
@@ -62,21 +63,21 @@ public class Membership implements Serializable {
     // Set owner
     this.setOwner_id(oid);
     // Set member
-    this.setMember_id(mid);
+    this.setMember_id(m);
     // Set field  
     this.setField(f);
-  } // protected Membership(s, oid, mid, f)
+  } // protected Membership(s, oid, m, f)
 
   // Creating a new (effective) membership
   protected Membership(
-    GrouperSession s, String gid, String mid, 
+    GrouperSession s, String gid, Member m,
     Field f         , String vid, int depth
   )
   {
-    this(s, gid, mid, f);
+    this(s, gid, m, f);
     this.setVia_id(vid);
     this.setDepth(depth); 
-  } // protected Membership(s, gid, mid, f, vid, depth)
+  } // protected Membership(s, gid, m, f, vid, depth)
 
 
   // Public Instance Methods
@@ -146,7 +147,8 @@ public class Membership implements Serializable {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    return MemberFinder.findByUuid(this.s, this.getMember_id());
+    return this.getMember_id();
+    //return MemberFinder.findByUuid(this.s, this.getMember_id());
   } // public Member getMember()
 
   /**
@@ -244,7 +246,7 @@ public class Membership implements Serializable {
     }
     catch (MembershipNotFoundException eMNF) {
       // Membership doesn't exist.  Create it.
-      ms = new Membership(s, oid, m.getUuid(), f);
+      ms = new Membership(s, oid, m, f);
     }
     if (ms == null) {
       throw new MemberAddException("unable to add member");
@@ -309,11 +311,13 @@ public class Membership implements Serializable {
   }
 
   // TODO private String getMember_id() {
-  protected String getMember_id() {
+  //protected String getMember_id() {
+  private Member getMember_id() {
     return this.member_id;
   }
 
-  private void setMember_id(String member_id) {
+  //private void setMember_id(String member_id) {
+  private void setMember_id(Member member_id) {
     this.member_id = member_id;
   }
 

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.31 2005-12-05 18:34:21 blair Exp $
+ * @version $Id: Group.java,v 1.32 2005-12-05 21:40:02 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -198,7 +198,9 @@ public class Group implements Serializable {
       // The objects that will need saving
       Set     objects = new LinkedHashSet();
       // Who we're adding
-      Member  m       = this._canViewSubject(subj, ERR_AM);
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        this.s, subj, ERR_AM
+      );
 
       // Conditionally update group modify time.  Because the granting
       // of ADMIN to the creator takes place *after* the group has been
@@ -501,7 +503,9 @@ public class Group implements Serializable {
       Set     deletes = new LinkedHashSet();
       Set     saves   = new LinkedHashSet();
       // Who we're adding
-      Member  m       = this._canViewSubject(subj, ERR_DM);
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        this.s, subj, ERR_DM
+      );
       // Update group modify time
       this.setModified();
       saves.add(this);
@@ -516,10 +520,6 @@ public class Group implements Serializable {
         + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
         + " effs"
       );
-    }
-    catch (GroupNotFoundException eGNF) {
-      GrouperLog.debug(LOG, s, ERR_DM + eGNF.getMessage());
-      throw new MemberDeleteException(ERR_DM + eGNF.getMessage());
     }
     catch (HibernateException eH) {
       GrouperLog.debug(LOG, s, ERR_DM + eH.getMessage());
@@ -1021,10 +1021,12 @@ public class Group implements Serializable {
    * @param   priv  Grant this privilege.
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
    */
   public void grantPriv(Subject subj, Privilege priv)
     throws  GrantPrivilegeException,
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
     PrivilegeResolver.getInstance().grantPriv(
       this.s, this, subj, priv
@@ -1607,30 +1609,6 @@ public class Group implements Serializable {
 
   // Private Instance Methods
 
-  private Member _canViewSubject(Subject subj, String msg) 
-    throws  GroupNotFoundException,
-            InsufficientPrivilegeException,
-            MemberNotFoundException
-  {
-    Member  m = MemberFinder.findBySubject(s, subj);
-    // If the subject being added is a group, verify that we can VIEW it
-    if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
-      Subject who         = this.s.getSubject();
-      Group   what        = m.toGroup();
-      String  debug_msg   = "'" + who.getName() + "'/'" + who.getType().getName() 
-        + "' can VIEW '" + what.getName() + "': ";
-      try {
-        PrivilegeResolver.getInstance().canVIEW(s, what, who);
-        GrouperLog.debug(LOG, this.s, debug_msg + "true");
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        GrouperLog.debug(LOG, this.s, debug_msg + "false");
-        throw new InsufficientPrivilegeException(eIP.getMessage());
-      }
-    }
-    return m;
-  } // private Member _canViewSubject(subj, msg)
-
   // What a tangled mess this has become
   private void _canWriteList(Subject subj, Field f, String msg) 
     throws  InsufficientPrivilegeException,
@@ -1711,7 +1689,7 @@ public class Group implements Serializable {
         Membership ms = (Membership) iter.next();
         memberships.add( 
           MembershipFinder.findEffectiveMembership(
-            ms.getOwner_id(), ms.getMember_id(), 
+            ms.getOwner_id(), ms.getMember().getId(), 
             ms.getList(), ms.getVia_id(), ms.getDepth()
           )
         );

@@ -1,3 +1,4 @@
+alter table grouper_memberships drop constraint FK2B2D6F0A5000A8E0;
 alter table grouper_sessions drop constraint FKF43E3C105000A8E0;
 alter table grouper_stems drop constraint FKA98254373C82913E;
 alter table grouper_stems drop constraint FKA9825437A3FBEB83;
@@ -29,8 +30,8 @@ create table grouper_members (
 );
 create table grouper_memberships (
    id char(32) not null,
-   owner_id char(64),
-   member_id char(64),
+   owner_id char(64) not null,
+   member_id char(64) not null,
    list_name varchar(255) not null,
    list_type varchar(255) not null,
    via_id char(64),
@@ -112,6 +113,7 @@ create table grouper_attributes (
    primary key (id),
    unique (group_id, field_name, field_type)
 );
+alter table grouper_memberships add constraint FK2B2D6F0A5000A8E0 foreign key (member_id) references grouper_members;
 alter table grouper_sessions add constraint FKF43E3C105000A8E0 foreign key (member_id) references grouper_members;
 alter table grouper_stems add constraint FKA98254373C82913E foreign key (parent_stem) references grouper_stems;
 alter table grouper_stems add constraint FKA9825437A3FBEB83 foreign key (modifier_id) references grouper_members;

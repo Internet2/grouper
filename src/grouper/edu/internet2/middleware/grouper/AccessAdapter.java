@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.8 2005-12-01 15:16:19 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.9 2005-12-05 21:40:02 blair Exp $
  */
 public interface AccessAdapter {
 
@@ -106,11 +106,13 @@ public interface AccessAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
    */
   public void grantPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
-    throws GrantPrivilegeException, 
-           InsufficientPrivilegeException
-           ; 
+    throws  GrantPrivilegeException, 
+            InsufficientPrivilegeException,
+            SchemaException
+            ; 
 
   /**
    * Check whether the subject has this privilege on this group.

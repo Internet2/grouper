@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.10 2005-12-01 15:16:19 blair Exp $
+ * @version $Id: NamingAdapter.java,v 1.11 2005-12-05 21:40:02 blair Exp $
  */
 public interface NamingAdapter {
 
@@ -103,10 +103,12 @@ public interface NamingAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
    */
   public void grantPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  GrantPrivilegeException, 
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
             ;
 
   /**
