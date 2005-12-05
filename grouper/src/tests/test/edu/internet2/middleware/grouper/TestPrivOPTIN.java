@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the OPTIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTIN.java,v 1.1 2005-12-05 02:29:05 blair Exp $
+ * @version $Id: TestPrivOPTIN.java,v 1.2 2005-12-05 02:41:09 blair Exp $
  */
 public class TestPrivOPTIN extends TestCase {
 
@@ -44,8 +44,6 @@ public class TestPrivOPTIN extends TestCase {
   private static Stem           root;
   private static GrouperSession s;
   private static Subject        subj0;
-  private static Subject        subj1;
-  private static Group          uofc;
 
 
   public TestPrivOPTIN(String name) {
@@ -60,10 +58,8 @@ public class TestPrivOPTIN extends TestCase {
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectHelper.SUBJ0;
-    subj1 = SubjectHelper.SUBJ1;
-    m     = Helper.getMemberBySubject(nrs, subj1);
+    m     = Helper.getMemberBySubject(nrs, subj0);
   }
 
   protected void tearDown () {

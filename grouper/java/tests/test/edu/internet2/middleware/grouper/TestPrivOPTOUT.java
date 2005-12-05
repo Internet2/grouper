@@ -26,15 +26,15 @@ import  org.apache.commons.logging.*;
 
 
 /**
- * Test use of the OPTIN {@link AccessPrivilege}.
+ * Test use of the OPTOUT {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTIN.java,v 1.2 2005-12-05 02:41:09 blair Exp $
+ * @version $Id: TestPrivOPTOUT.java,v 1.1 2005-12-05 02:41:09 blair Exp $
  */
-public class TestPrivOPTIN extends TestCase {
+public class TestPrivOPTOUT extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestPrivOPTIN.class);
+  private static final Log LOG = LogFactory.getLog(TestPrivOPTOUT.class);
 
   // Private Class Variables
   private static Stem           edu;
@@ -46,7 +46,7 @@ public class TestPrivOPTIN extends TestCase {
   private static Subject        subj0;
 
 
-  public TestPrivOPTIN(String name) {
+  public TestPrivOPTOUT(String name) {
     super(name);
   }
 
@@ -60,6 +60,7 @@ public class TestPrivOPTIN extends TestCase {
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     subj0 = SubjectHelper.SUBJ0;
     m     = Helper.getMemberBySubject(nrs, subj0);
+    GroupHelper.addMemberUpdate(i2, subj0, m);
   }
 
   protected void tearDown () {
@@ -69,68 +70,68 @@ public class TestPrivOPTIN extends TestCase {
 
   // Tests
 
-  public void testAddSelfAsMemberWithoutADMIN() {
-    LOG.info("testAddSelfAsMemberWithoutADMIN");
+  public void testDelSelfAsMemberWithoutADMIN() {
+    LOG.info("testDelSelfAsMemberWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0, m);
-  } // public void testAddSelfAsMemberWithoutADMIN
+    GroupHelper.delMemberUpdateFail(a, subj0, m);
+  } // public void testDelSelfAsMemberWithoutADMIN
  
-  public void testAddSelfAsMemberWithADMIN() {
-    LOG.info("testAddSelfAsMemberWithADMIN");
+  public void testDelSelfAsMemberWithADMIN() {
+    LOG.info("testDelSelfAsMemberWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
-  } // public void testAddSelfAsMemberWithADMIN
+    GroupHelper.delMemberUpdate(a, subj0, m);
+  } // public void testDelSelfAsMemberWithADMIN
 
-  public void testAddSelfAsMemberWithAllADMIN() {
-    LOG.info("testAddSelfAsMemberWithAllADMIN");
+  public void testDelSelfAsMemberWithAllADMIN() {
+    LOG.info("testDelSelfAsMemberWithAllADMIN");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
-  } // public void testAddSelfAsMemberWithAllADMIN
+    GroupHelper.delMemberUpdate(a, subj0, m);
+  } // public void testDelSelfAsMemberWithAllADMIN
 
-  public void testAddSelfAsMemberWithoutOPTIN() {
-    LOG.info("testAddSelfAsMemberWithoutOPTIN");
+  public void testDelSelfAsMemberWithoutOPTOUT() {
+    LOG.info("testDelSelfAsMemberWithoutOPTOUT");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0, m);
-  } // public void testAddSelfAsMemberWithoutOPTIN
+    GroupHelper.delMemberUpdateFail(a, subj0, m);
+  } // public void testDelSelfAsMemberWithoutOPTOUT
  
-  public void testAddSelfAsMemberWithOPTIN() {
-    LOG.info("testAddSelfAsMemberWithOPTIN");
-    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.OPTIN);
+  public void testDelSelfAsMemberWithOPTOUT() {
+    LOG.info("testDelSelfAsMemberWithOPTOUT");
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.OPTOUT);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
-  } // public void testAddSelfAsMemberWithOPTIN
+    GroupHelper.delMemberUpdate(a, subj0, m);
+  } // public void testDelSelfAsMemberWithOPTOUT
 
-  public void testAddSelfAsMemberWithAllOPTIN() {
-    LOG.info("testAddSelfAsMemberWithAllOPTIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
+  public void testDelSelfAsMemberWithAllOPTOUT() {
+    LOG.info("testDelSelfAsMemberWithAllOPTOUT");
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
-  } // public void testAddSelfAsMemberWithAllOPTIN
+    GroupHelper.delMemberUpdate(a, subj0, m);
+  } // public void testDelSelfAsMemberWithAllOPTOUT
 
-  public void testAddSelfAsMemberWithoutUPDATE() {
-    LOG.info("testAddSelfAsMemberWithoutUPDATE");
+  public void testDelSelfAsMemberWithoutUPDATE() {
+    LOG.info("testDelSelfAsMemberWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0, m);
-  } // public void testAddSelfAsMemberWithoutUPDATE
+    GroupHelper.delMemberUpdateFail(a, subj0, m);
+  } // public void testDelSelfAsMemberWithoutUPDATE
  
-  public void testAddSelfAsMemberWithUPDATE() {
-    LOG.info("testAddSelfAsMemberWithUPDATE");
+  public void testDelSelfAsMemberWithUPDATE() {
+    LOG.info("testDelSelfAsMemberWithUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
-  } // public void testAddSelfAsMemberWithUPDATE
+    GroupHelper.delMemberUpdate(a, subj0, m);
+  } // public void testDelSelfAsMemberWithUPDATE
 
-  public void testAddSelfAsMemberWithAllUPDATE() {
-    LOG.info("testAddSelfAsMemberWithAllUPDATE");
+  public void testDelSelfAsMemberWithAllUPDATE() {
+    LOG.info("testDelSelfAsMemberWithAllUPDATE");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
-  } // public void testAddSelfAsMemberWithAllUPDATE
+    GroupHelper.delMemberUpdate(a, subj0, m);
+  } // public void testDelSelfAsMemberWithAllUPDATE
 
 }
 
