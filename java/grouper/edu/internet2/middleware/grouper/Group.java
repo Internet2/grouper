@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.29 2005-12-05 14:56:37 blair Exp $
+ * @version $Id: Group.java,v 1.30 2005-12-05 16:24:49 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -206,6 +206,7 @@ public class Group implements Serializable {
       // _GrouperAccessAdapter_.  However, we don't want to consider
       // that a modification.  As such, if the modify time is equal to
       // the start of the epoch, don't set the group's modify* attrs.
+      // TODO Shouldn't this be negated?
       if (this.getModifyTime().equals(new Date())) {
         this.setModified();
       }
@@ -215,7 +216,7 @@ public class Group implements Serializable {
       objects.add( Membership.addMembership(this.s, this, m, f) ); 
 
       // Find effective memberships
-      Set effs = MemberOf.doMemberOf(this.s, this, m);
+      Set effs = MemberOf.doMemberOf(this.s, this, m, f);
       objects.addAll(effs);
 
       // And then save group and memberships
@@ -274,33 +275,62 @@ public class Group implements Serializable {
       Set     deletes = new LinkedHashSet();
       deletes.add(this);
       String  name    = "'" + this.getName() + "'";
+      String  msg     = "deleting group " + name;
+      GrouperLog.debug(LOG, this.s, msg);
+
+      //GrouperSession orig = this.s;
+      //this.setSession(GrouperSessionFinder.getRootSession());
 
       // Find all fields of type list
       Iterator iter = FieldFinder.findAllByType(FieldType.LIST).iterator();
       while (iter.hasNext()) {
-        Field f = (Field) iter.next();
+        Field   f       = (Field) iter.next();
+        String  tmpMsg  = msg + " '" + f.getName() + "'";
+        GrouperLog.debug(LOG, this.s, tmpMsg);
 
         // ... and then remove where this group is an immediate member
         Iterator  iterIs  = this.toMember().getImmediateGroups().iterator();
         while (iterIs.hasNext()) {
           Group g = (Group) iterIs.next();
-          deletes.addAll(this._membershipsToDelete(g, this.toSubject(), f));
+          Set   temp0 = this._membershipsToDelete(g, this.toSubject(), f);
+          deletes.addAll(temp0);
+          GrouperLog.debug(
+            LOG, this.s, 
+            tmpMsg + ": " + temp0.size() + " mships from group membership "
+            + " in group '" + g.getName() + "'"
+          );
         }
         // ... and then deal with this group's immediate members
         Iterator  iterHas = this.getImmediateMembers().iterator();
-        while (iterHas.hasNext()) { Member m = (Member) iterHas.next();
-          deletes.addAll(this._membershipsToDelete(this, m.getSubject(), f));
+        while (iterHas.hasNext()) { 
+          Member  m     = (Member) iterHas.next();
+          Set     temp1 = this._membershipsToDelete(this, m.getSubject(), f);
+          deletes.addAll(temp1);
+          GrouperLog.debug(
+            LOG, this.s, 
+            tmpMsg + ": " + temp1.size() + " mships from immediate member '" 
+            + m + "'"
+          );
         }
       }
-      // And revoke all access privileges
+      // And revoke all access privileges 
+      // TODO Make a method
+      GrouperLog.debug(LOG, this.s, msg + ": revoking OPTIN");
       this.revokePriv(AccessPrivilege.OPTIN);
+      GrouperLog.debug(LOG, this.s, msg + ": revoking OPTOUT");
       this.revokePriv(AccessPrivilege.OPTOUT);
+      GrouperLog.debug(LOG, this.s, msg + ": revoking READ");
       this.revokePriv(AccessPrivilege.READ);
+      GrouperLog.debug(LOG, this.s, msg + ": revoking UPDATE");
       this.revokePriv(AccessPrivilege.UPDATE);
+      GrouperLog.debug(LOG, this.s, msg + ": revoking VIEW");
       this.revokePriv(AccessPrivilege.VIEW);
       // TODO I think ordering may be important here, especially since
       //      I don't have privilege caching in place yet
-      this.revokePriv(AccessPrivilege.OPTIN);
+      GrouperLog.debug(LOG, this.s, msg + ": revoking ADMIN");
+      this.revokePriv(AccessPrivilege.ADMIN);
+
+      //this.setSession(orig);
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
@@ -319,7 +349,7 @@ public class Group implements Serializable {
     catch (SubjectNotFoundException eSNF) {
       throw new GroupDeleteException(ERR_DG + eSNF.getMessage());
     }
-  }
+  } // public void delete()
 
   /**
    * Delete a group attribute.
@@ -1525,7 +1555,10 @@ public class Group implements Serializable {
   private Set _membershipsToDelete(Group g, Subject subj, Field f) 
     throws  MemberDeleteException
   {
-    Set memberships = new LinkedHashSet();
+    Set     memberships = new LinkedHashSet();
+    String  msg         = "membership delete calculation for  " + 
+      SubjectHelper.getPretty(subj) + " '" + f.getName() + "'";
+    GrouperLog.debug(LOG, g.s, msg);
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
       // Find the immediate membership that is to be deleted
@@ -1536,7 +1569,7 @@ public class Group implements Serializable {
       // need to retrieve the persistent version of each before
       // passing it along to be deleted by HibernateHelper.  
       Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = MemberOf.doMemberOf(this.s, g, m).iterator();
+      Iterator  iter  = MemberOf.doMemberOf(this.s, g, m, f).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
         memberships.add( 
@@ -1548,9 +1581,19 @@ public class Group implements Serializable {
       }
       hs.close();
     }
-    catch (Exception e) {
-      throw new MemberDeleteException(ERR_DM + e.getMessage());
+    catch (GroupNotFoundException eGNF) {
+      throw new MemberDeleteException(eGNF.getMessage());
     }
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(eH.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new MemberDeleteException(eMNF.getMessage());
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new MemberDeleteException(eMSNF.getMessage());
+    }
+    GrouperLog.debug(LOG, g.s, msg + ": " + memberships.size());
     return memberships;
   } // private Set _membershipsToDelete(g, subj, f)
 

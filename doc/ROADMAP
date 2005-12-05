@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.95 2005-12-05 05:48:35 blair Exp $
+$Id: ROADMAP,v 1.96 2005-12-05 16:24:49 blair Exp $
 
 ---
 
@@ -15,6 +15,7 @@ $Id: ROADMAP,v 1.95 2005-12-05 05:48:35 blair Exp $
   * set attributes
   * delete attributes
   * rename group
+* Look at Gary's bug
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
 * Add create member and time to memberships
@@ -31,9 +32,9 @@ $Id: ROADMAP,v 1.95 2005-12-05 05:48:35 blair Exp $
   * Subject cache(s)
   * Cache attributes
   * Cache members
-* normalize source adapter id + name conventions
 
 ## Later
+* normalize source adapter id + name conventions
 * Test concurrence and persistence
 * What triggers a "modified" update?
 * wheel group

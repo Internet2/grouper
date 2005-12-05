@@ -17,34 +17,43 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link Group.delete()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupDelete.java,v 1.5 2005-12-02 17:17:01 blair Exp $
+ * @version $Id: TestGroupDelete.java,v 1.6 2005-12-05 16:24:49 blair Exp $
  */
 public class TestGroupDelete extends TestCase {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGroupDelete.class);
+
 
   public TestGroupDelete(String name) {
     super(name);
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
   }
 
   // Tests
 
   public void testGroupDelete() {
+    LOG.info("testGroupDelete");
     Stem  root  = StemHelper.findRootStem(
       SessionHelper.getRootSession()
     );
@@ -60,6 +69,7 @@ public class TestGroupDelete extends TestCase {
   } // public void testGroupDelete()
 
   public void testGroupDeleteWhenMemberAndHasMembers() {
+    LOG.info("testGroupDeleteWhenMemberAndHasMembers");
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
