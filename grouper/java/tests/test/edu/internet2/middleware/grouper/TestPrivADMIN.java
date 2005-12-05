@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.2 2005-12-05 14:56:37 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.3 2005-12-05 16:24:49 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -47,6 +47,7 @@ public class TestPrivADMIN extends TestCase {
   private static GrouperSession s;
   private static Subject        subj0;
   private static Subject        subj1;
+  private static Group          uofc;
 
 
   public TestPrivADMIN(String name) {
@@ -61,9 +62,11 @@ public class TestPrivADMIN extends TestCase {
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectHelper.SUBJ0;
     subj1 = SubjectHelper.SUBJ1;
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
+    PrivHelper.grantPriv(s, uofc, subj0, AccessPrivilege.VIEW);
     a     = GroupHelper.findByName(nrs, i2.getName());
     m     = Helper.getMemberBySubject(nrs, subj1);
   }
@@ -322,6 +325,46 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     GroupHelper.delete(nrs, a, i2.getName());
   } // public void testDeleteGroupWithAllADMIN()
+
+  public void testDeleteGroupWithMemberWithoutADMIN() {
+    LOG.info("testDeleteGroupWithMemberWithoutADMIN");
+    GroupHelper.addMember(i2, subj1, m);
+    GroupHelper.deleteFail(nrs, a, i2.getName());
+  } // public void testDeleteGroupWithMemberWithoutADMIN()
+
+  public void testDeleteGroupWithMemberWithADMIN() {
+    LOG.info("testDeleteGroupWithMemberWithADMIN");
+    GroupHelper.addMember(i2, subj1, m);
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+    GroupHelper.delete(nrs, a, i2.getName());
+  } // public void testDeleteGroupWithMemberWithADMIN()
+
+  public void testDeleteGroupWithMemberWithAllADMIN() {
+    LOG.info("testDeleteGroupWithMemberWithAllADMIN");
+    GroupHelper.addMember(i2, subj1, m);
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    GroupHelper.delete(nrs, a, i2.getName());
+  } // public void testDeleteGroupWithMemberWithAllADMIN()
+
+  public void testDeleteGroupIsMemberWithoutADMIN() {
+    LOG.info("testDeleteGroupIsMemberWithoutADMIN");
+    GroupHelper.addMember(uofc, i2);
+    GroupHelper.deleteFail(nrs, a, i2.getName());
+  } // public void testDeleteGroupIsMemberWithoutADMIN()
+
+  public void testDeleteGroupIsMemberWithADMIN() {
+    LOG.info("testDeleteGroupIsMemberWithADMIN");
+    GroupHelper.addMember(uofc, i2);
+    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+    GroupHelper.delete(nrs, a, i2.getName());
+  } // public void testDeleteGroupIsMemberWithADMIN()
+
+  public void testDeleteGroupIsMemberWithAllADMIN() {
+    LOG.info("testDeleteGroupIsMemberWithAllADMIN");
+    GroupHelper.addMember(uofc, i2);
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    GroupHelper.delete(nrs, a, i2.getName());
+  } // public void testDeleteGroupIsMemberWithAllADMIN()
 
   // Set + delete group attributes
   // Rename group

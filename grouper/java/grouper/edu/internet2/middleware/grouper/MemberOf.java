@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.7 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: MemberOf.java,v 1.8 2005-12-05 16:24:49 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -39,8 +39,8 @@ class MemberOf implements Serializable {
   // Protected Class Methods
   
   // Find effective memberships, whether for addition or deletion
-  protected static Set doMemberOf(GrouperSession s, Group g, Member m) 
-    throws GroupNotFoundException
+  protected static Set doMemberOf(GrouperSession s, Group g, Member m, Field f) 
+    throws  GroupNotFoundException
   {
     // In order to bypass privilege constraints since a subject may be
     // privileged to adjust memberships but not be privileged to see,
@@ -48,11 +48,20 @@ class MemberOf implements Serializable {
     // a result.
     GrouperSession  root    = GrouperSessionFinder.getRootSession();
     Set             mships  = new LinkedHashSet();
-    String          msg     = " for '" + g.getName() + "'/'" + m + "': ";
+    String          msg     = " for '" + g.getName() + "'/'" + m + "'";
+    GrouperLog.debug(LOG, s, "doMemberOf: membership calculation" + msg);
+    msg += ": ";
+
+    // Proxy as root for a short period of time
+    g.setSession(root);  
 
     // Find where g is a member - but do it as root
-    g.setSession(root);  
-    Set isMember = g.toMember().getMemberships();
+    Set isMember = new LinkedHashSet();
+    if (f.equals(Group.getDefaultList())) {
+      // We only propagate effective membership changes further up when
+      // adding to the "members" list.
+      isMember = g.toMember().getMemberships();
+    }
 
     // Add m to where g is a member - as root
     Set temp0 = _findMembershipsWhereGroupIsMember(root, g, m, isMember);
@@ -76,7 +85,7 @@ class MemberOf implements Serializable {
 
     GrouperLog.debug(LOG, s, "memberOf total" + msg + resetMships.size());
     return resetMships;
-  } // protected static Set doMemberOf(s, m)
+  } // protected static Set doMemberOf(s, g, m, f)
 
   // Find effective memberships, whether for addition or deletion
   protected static Set doMemberOf(GrouperSession s, Stem ns, Member m) 

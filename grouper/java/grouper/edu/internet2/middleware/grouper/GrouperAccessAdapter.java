@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.19 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.20 2005-12-05 16:24:49 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -296,13 +296,15 @@ public class GrouperAccessAdapter implements AccessAdapter {
       Set     saves   = new LinkedHashSet();
       Set     deletes = new LinkedHashSet();
 
+      Field   f       = this._getField(priv);
+
       // Update stem modify time
       g.setModified();
       saves.add(g);
 
       // Find every subject that needs to have the priv revoked
       Iterator iter = MembershipFinder.findImmediateSubjects(
-        s, g.getUuid(), this._getField(priv)
+        s, g.getUuid(), f
       ).iterator();
       while (iter.hasNext()) {
         Subject subj  = (Subject) iter.next();
@@ -319,7 +321,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
         // need to retrieve the persistent version of each before
         // passing it along to be deleted by HibernateHelper.  
         Session   hs    = HibernateHelper.getSession();
-        Iterator  iterM = MemberOf.doMemberOf(s, g, m).iterator();
+        Iterator  iterM = MemberOf.doMemberOf(s, g, m, f).iterator();
         while (iterM.hasNext()) {
           Membership ms = (Membership) iterM.next();
           deletes.add( 
