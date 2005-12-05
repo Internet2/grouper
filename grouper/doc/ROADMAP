@@ -3,14 +3,13 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.93 2005-12-05 01:43:40 blair Exp $
+$Id: ROADMAP,v 1.94 2005-12-05 02:29:05 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement OPTIN (and ADMIN, UPDATE)
 * Implement OPTOUT (and ADMIN, UPDATE)
 * Implement ADMIN
 * Replace `_init()` methods with static {} declarations where possible
@@ -24,13 +23,13 @@ $Id: ROADMAP,v 1.93 2005-12-05 01:43:40 blair Exp $
   * More effective membership testing
 * Finish refactoring _MembershipFinder_ to apply READ filtering
 * Update Subject API jar
-
-## Later
 * Profiling and benchmarking
   * Privilege cache(s)
   * Subject cache(s)
   * Cache attributes
   * Cache members
+
+## Later
 * Test concurrence and persistence
 * What triggers a "modified" update?
 * normalize source adapter id + name conventions
