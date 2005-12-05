@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.17 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.18 2005-12-05 01:43:40 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -254,21 +254,12 @@ public class GrouperAccessAdapter implements AccessAdapter {
     boolean rv = g.hasMember(subj, this._getField(priv));
     // TODO info?
     // TODO log group name
-    // TODO Wrapper for subject conversion when logging
     GrouperLog.debug(
       LOG, s, 
-      "hasPriv '" + priv.getName().toUpperCase() + "' '" + subj.getId() 
-      + "': " + rv
+      "hasPriv '" + priv.getName().toUpperCase() + "' " 
+      + SubjectHelper.getPretty(subj) + ": " + rv
     );
     return rv;
-    // TODO Grr.  I get in my own way.
-/*
-    g.setSession(GrouperSessionFinder.getRootSession());
-    boolean rv = g.hasMember(subj, this._getField(priv));
-    g.setSession(s);
-    return rv;
-*/
-    //return g.hasMember(subj, this._getField(priv));
   } // public boolean hasPriv(s, g, subj, priv)
 
   /**

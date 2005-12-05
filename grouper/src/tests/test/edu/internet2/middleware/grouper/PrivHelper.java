@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.11 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.12 2005-12-05 01:43:40 blair Exp $
  */
 public class PrivHelper {
 
@@ -340,6 +340,33 @@ public class PrivHelper {
       Assert.fail("failed to revoke priv: " + e.getMessage());
     }
   } // protected static void revokePriv(s, g, subj, priv)
+
+  protected static void revokePrivFail(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+  {
+    LOG.debug("revokePrivFail.0");
+    String msg = subj.getName() + " does not have " + priv + " on  " + g.getName();
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      LOG.debug("revokePrivFail.1");
+      g.revokePriv(subj, priv);  
+      LOG.debug("revokePrivFail.2");
+      Assert.fail("revoked privilege");
+    }
+    catch (RevokePrivilegeException eRP) {
+      Assert.assertTrue("failed to revoke privilege", true);
+      LOG.debug("revokePrivFail.3");
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("failed to revoke privilege", true);
+      LOG.debug("revokePrivFail.4");
+    }
+    catch (MemberNotFoundException eMNF) {
+      Assert.assertTrue("failed to revoke privilege", true);
+      LOG.debug("revokePrivFail.5");
+    }
+  } // protected static void revokePrivFail(s, g, subj, priv)
 
   protected static void revokePriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv

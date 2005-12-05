@@ -30,12 +30,13 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.25 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: Group.java,v 1.26 2005-12-05 01:43:40 blair Exp $
  */
 public class Group implements Serializable {
 
   // Private Class Constants
-  private static final String ERR_AM  = "could not add member: ";
+  private static final String ERR_AM  = "unable to add member: ";
+  private static final String ERR_DM  = "unable to delete member: ";
   private static final String ERR_GA  = "attribute not found: ";
   private static final String ERR_S2G = "could not convert subject to group: ";
   private static final Log    LOG     = LogFactory.getLog(Group.class);
@@ -152,9 +153,14 @@ public class Group implements Serializable {
     throws  InsufficientPrivilegeException,
             MemberAddException
   {
-    this.addMember(
-      subj, getDefaultList()
-    );
+    try {
+      this.addMember(
+        subj, getDefaultList()
+      );
+    }
+    catch (SchemaException eS) {
+      throw new MemberAddException(eS.getMessage());
+    }
   } // public void addMember(subj)
 
   /**
@@ -174,44 +180,20 @@ public class Group implements Serializable {
    * @param   f     Add subject to this {@link Field}.
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
+   * @throws  SchemaException
    */
   public void addMember(Subject subj, Field f)
     throws  InsufficientPrivilegeException,
-            MemberAddException
+            MemberAddException,
+            SchemaException
   {
-    // TODO Verify whether we are privileged to grant to this field
-    // TODO Refactor into smaller components
+    this._canWriteList(f, ERR_AM);
     try {
-      Member  m       = MemberFinder.findBySubject(s, subj);
-      String  member  = "'" + subj.getId() + "'/'" + subj.getType().getName() + "'";
-
-      // If subject is a group, verify that we can VIEW the group
-      if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
-        try {
-          Subject who   = this.s.getSubject();
-          Group   what  = m.toGroup();
-          String  msg   = "'" + who.getName() + "'/'" + who.getType().getName() 
-            + "' can VIEW '" + what.getName() + "': ";
-          // Make the logging the prettier
-          member  = "'" + what.getName() + "'/'" + subj.getType().getName() + "'";
-          try {
-            PrivilegeResolver.getInstance().canVIEW(s, what, who);
-            GrouperLog.debug(LOG, this.s, msg + "true");
-          }
-          catch (InsufficientPrivilegeException eIP) {
-            GrouperLog.debug(LOG, this.s, msg + "false");
-            throw new InsufficientPrivilegeException(ERR_AM + eIP.getMessage());
-          }
-        }
-        catch (GroupNotFoundException eGNF) {
-          GrouperLog.warn(LOG, this.s, ERR_S2G + subj.getId());
-          throw new MemberAddException(ERR_AM + eGNF.getMessage());
-        }
-      }
-
       // The objects that will need saving
-      Set objects = new LinkedHashSet();
-    
+      Set     objects = new LinkedHashSet();
+      // Who we're adding
+      Member  m       = this._canViewSubject(subj, ERR_AM);
+
       // Conditionally update group modify time.  Because the granting
       // of ADMIN to the creator takes place *after* the group has been
       // created, the modify* attributes would be set when using the 
@@ -226,17 +208,9 @@ public class Group implements Serializable {
       // Create the immediate membership
       objects.add( Membership.addMembership(this.s, this, m, f) ); 
 
-      Set effs = new LinkedHashSet();
       // Find effective memberships
-      try {
-        effs.addAll( MemberOf.doMemberOf(this.s, this, m) );
-        objects.addAll(effs);
-      }
-      catch (GroupNotFoundException eGNF) {
-        throw new MemberAddException(
-          "error creating effective memberships: " + eGNF.getMessage()
-        );
-      }
+      Set effs = MemberOf.doMemberOf(this.s, this, m);
+      objects.addAll(effs);
 
       // And then save group and memberships
       HibernateHelper.save(objects);
@@ -244,18 +218,18 @@ public class Group implements Serializable {
       GrouperLog.debug(
         LOG, this.s, 
         "added members to '"+ this.getName() + "'/'" + f.getName() 
-        + "': " + member + " and " + effs.size() + " effs"
+        + "': " + SubjectHelper.getPretty(subj) + " and " + effs.size() 
+        + " effs"
       );
+    }
+    catch (GroupNotFoundException eGNF) {
+      throw new MemberAddException(ERR_AM + eGNF.getMessage());
     }
     catch (HibernateException eH) {
-      throw new MemberAddException(
-        "unable to add member: " + eH.getMessage()
-      );
+      throw new MemberAddException(ERR_AM + eH.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
-      throw new MemberAddException(
-        "unable to add member: " + eMNF.getMessage()
-      );
+      throw new MemberAddException(ERR_AM + eMNF.getMessage());
     }
   } // public void addMember(subj, f)
 
@@ -356,12 +330,18 @@ public class Group implements Serializable {
    * @param   subj  Delete this {@link Subject}
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
+   * @throws  SchemaException
    */
   public void deleteMember(Subject subj)
     throws  InsufficientPrivilegeException,
             MemberDeleteException
   {
-    this.deleteMember(subj, Group.getDefaultList());
+    try {
+      this.deleteMember(subj, Group.getDefaultList());
+    }
+    catch (SchemaException eS) {
+      throw new MemberDeleteException(eS.getMessage());
+    }
   } // public void deleteMember(subj)
 
   /** 
@@ -381,15 +361,20 @@ public class Group implements Serializable {
    * @param   f     Delete subject from this {@link Field}.
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
+   * @throws  SchemaException
    */
   public void deleteMember(Subject subj, Field f) 
     throws  InsufficientPrivilegeException, 
-            MemberDeleteException
+            MemberDeleteException,
+            SchemaException
   {
+    this._canWriteList(f, ERR_DM);
     try {
       // The objects that will need saving and deleting
-      Set deletes = new LinkedHashSet();
-      Set saves   = new LinkedHashSet();
+      Set     deletes = new LinkedHashSet();
+      Set     saves   = new LinkedHashSet();
+      // Who we're adding
+      Member  m       = this._canViewSubject(subj, ERR_DM);
       // Update group modify time
       this.setModified();
       saves.add(this);
@@ -398,10 +383,14 @@ public class Group implements Serializable {
       // And then commit changes to registry
       HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (Exception e) {
-      throw new MemberDeleteException(
-        "unable to delete membership: " + e.getMessage()
-      );
+    catch (GroupNotFoundException eGNF) {
+      throw new MemberDeleteException(ERR_DM + eGNF.getMessage());
+    }
+    catch (HibernateException eH) {
+      throw new MemberDeleteException(ERR_DM + eH.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new MemberDeleteException(ERR_DM + eMNF.getMessage());
     }
   } // public void deleteMember(subj, f)
 
@@ -1368,6 +1357,47 @@ public class Group implements Serializable {
 
 
   // Private Instance Methods
+
+  private Member _canViewSubject(Subject subj, String msg) 
+    throws  GroupNotFoundException,
+            InsufficientPrivilegeException,
+            MemberNotFoundException
+  {
+    Member  m = MemberFinder.findBySubject(s, subj);
+    // If the subject being added is a group, verify that we can VIEW it
+    if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
+      Subject who         = this.s.getSubject();
+      Group   what        = m.toGroup();
+      String  debug_msg   = "'" + who.getName() + "'/'" + who.getType().getName() 
+        + "' can VIEW '" + what.getName() + "': ";
+      try {
+        PrivilegeResolver.getInstance().canVIEW(s, what, who);
+        GrouperLog.debug(LOG, this.s, debug_msg + "true");
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        GrouperLog.debug(LOG, this.s, debug_msg + "false");
+        throw new InsufficientPrivilegeException(eIP.getMessage());
+      }
+    }
+    return m;
+  } // private Member _canViewSubject(subj, msg)
+
+  private void _canWriteList(Field f, String msg) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    // See if we can write to the desired list
+    try {
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        this.s, this, this.s.getSubject(), f.getWritePriv()
+      );
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, this.s, msg + eIP.getMessage());
+      throw new InsufficientPrivilegeException(msg + eIP.getMessage());
+    }
+  } // private void _canWriteList(f, msg)
+
   private Map _getAttributes() {
     Iterator iter = this.getGroup_attributes().iterator();
     while (iter.hasNext()) {
@@ -1379,29 +1409,34 @@ public class Group implements Serializable {
   } // private Map _getAttributes()
 
   private Set _membershipsToDelete(Group g, Subject subj, Field f) 
-    throws  Exception
+    throws  MemberDeleteException
   {
     Set memberships = new LinkedHashSet();
-    Member m = MemberFinder.findBySubject(this.s, subj);
-    // Find the immediate membership that is to be deleted
-    Membership imm = MembershipFinder.findImmediateMembership(this.s, g, subj, f);
-    memberships.add(imm);
-    // Find effective memberships
-    // As many of the memberships are likely to be transient, we
-    // need to retrieve the persistent version of each before
-    // passing it along to be deleted by HibernateHelper.  
-    Session   hs    = HibernateHelper.getSession();
-    Iterator  iter  = MemberOf.doMemberOf(this.s, g, m).iterator();
-    while (iter.hasNext()) {
-      Membership ms = (Membership) iter.next();
-      memberships.add( 
-        MembershipFinder.findEffectiveMembership(
-          ms.getOwner_id(), ms.getMember_id(), 
-          ms.getList(), ms.getVia_id(), ms.getDepth()
-        )
-      );
+    try {
+      Member m = MemberFinder.findBySubject(this.s, subj);
+      // Find the immediate membership that is to be deleted
+      Membership imm = MembershipFinder.findImmediateMembership(this.s, g, subj, f);
+      memberships.add(imm);
+      // Find effective memberships
+      // As many of the memberships are likely to be transient, we
+      // need to retrieve the persistent version of each before
+      // passing it along to be deleted by HibernateHelper.  
+      Session   hs    = HibernateHelper.getSession();
+      Iterator  iter  = MemberOf.doMemberOf(this.s, g, m).iterator();
+      while (iter.hasNext()) {
+        Membership ms = (Membership) iter.next();
+        memberships.add( 
+          MembershipFinder.findEffectiveMembership(
+            ms.getOwner_id(), ms.getMember_id(), 
+            ms.getList(), ms.getVia_id(), ms.getDepth()
+          )
+        );
+      }
+      hs.close();
     }
-    hs.close();
+    catch (Exception e) {
+      throw new MemberDeleteException(ERR_DM + e.getMessage());
+    }
     return memberships;
   } // private Set _membershipsToDelete(g, subj, f)
 

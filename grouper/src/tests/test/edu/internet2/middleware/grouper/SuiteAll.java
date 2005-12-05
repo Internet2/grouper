@@ -64,11 +64,20 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestMemberToGroup.class);
     suite.addTestSuite(TestMeFiFindBySubject.class);
+    // TODO Remove this class and (ugh) move group-with-priv
+    //      tests into the _TestPriv*_ classes.  Basically,
+    //      in addition to the without, with and all with tests
+    //      and a test where the priv is granted to a group
+    //      and then test to see that a member of the group
+    //      effectively has the priv.
+    //
+    //      And, yes, this **is** going to be **painful**.
     suite.addTestSuite(TestPrivGroupSTEM.class);
     suite.addTestSuite(TestPrivCREATE.class);
     suite.addTestSuite(TestPrivREAD.class);
     suite.addTestSuite(TestPrivSTEM.class);
     suite.addTestSuite(TestPrivVIEW.class);
+    suite.addTestSuite(TestPrivUPDATE.class);
     suite.addTestSuite(TestStem.class);
     suite.addTestSuite(TestStemAddChildGroup.class);
     suite.addTestSuite(TestStemAddChildStem.class);
