@@ -3,48 +3,49 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.92 2005-12-04 22:52:49 blair Exp $
+$Id: ROADMAP,v 1.93 2005-12-05 01:43:40 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Implement UPDATE (and ADMIN)
 * Implement OPTIN (and ADMIN, UPDATE)
 * Implement OPTOUT (and ADMIN, UPDATE)
 * Implement ADMIN
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
-* Review generated SQL
-  * Including my twisty column names
-* Commons logging
-* Review old _*.todo_ test classes
-  * More effective membership testing
 * Add create member and time to memberships
   * Add create time to members
+    * Review generated SQL
+      * Including my twisty column names
+* Rename subjectIDs in local subject<=>member mapping (#133)
+* Review old _*.todo_ test classes
+  * More effective membership testing
+* Finish refactoring _MembershipFinder_ to apply READ filtering
+* Update Subject API jar
 
 ## Later
-* Rename subjectIDs in local subject<=>member mapping (#133)
-* Finish refactoring _MembershipFinder_ to apply READ filtering
-* many-to-many mapping between _Field_ and _GroupType_
-* Test concurrent and subsequent mods and access
-* What triggers a "modified" update?
 * Profiling and benchmarking
-* Custom group types
-  * Map _GroupType_
-* Custom group attributes
-  * add to group subjects 
-    * i can actually simplify this now, no?
-  * setting, unsetting, nullable, etc
-* Custom group lists
-  * add to group subjects
-* Additional query filters
-* Update Subject API jar
+  * Privilege cache(s)
+  * Subject cache(s)
+  * Cache attributes
+  * Cache members
+* Test concurrence and persistence
+* What triggers a "modified" update?
 * normalize source adapter id + name conventions
 * wheel group
-* record where each *Finder method is called from
 * Review files and add TODO items to this list
+* Custom group types
+  * Map _GroupType_
+  * many-to-many mapping between _Field_ and _GroupType_
+  * Custom group attributes
+    * setting, unsetting, nullable, etc
+  * Custom group lists
+    * add to group subjects
+* Commons logging
+* Additional query filters
+* record where each *Finder method is called from
 * Test with Pg and Oracle and review generated SQL
 * Update and expand query api javadocs
 * Replace contrib with updated cdg
