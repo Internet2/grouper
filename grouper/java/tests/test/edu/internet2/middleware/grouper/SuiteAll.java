@@ -76,6 +76,7 @@ public class SuiteAll extends TestCase {
     //
     //      And, yes, this **is** going to be **painful**.
     suite.addTestSuite(TestPrivGroupSTEM.class);
+    suite.addTestSuite(TestPrivADMIN.class);
     suite.addTestSuite(TestPrivCREATE.class);
     suite.addTestSuite(TestPrivOPTIN.class);
     suite.addTestSuite(TestPrivOPTOUT.class);

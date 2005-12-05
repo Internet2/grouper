@@ -30,9 +30,14 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.21 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.22 2005-12-05 05:48:35 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
+
+  // Private Class Constants
+  private static final String ERR_GP  = "unable to grant priv: ";
+  private static final String ERR_RP  = "unable to revoke priv: ";
+
 
   // Private Class Variables
   private static Map priv2list = new HashMap();
@@ -204,8 +209,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public void grantPriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
-    throws GrantPrivilegeException, 
-           InsufficientPrivilegeException
+    throws  GrantPrivilegeException, 
+            InsufficientPrivilegeException
   {
     // TODO Update per _Group.addMember()_
     GrouperSession.validate(s);
@@ -233,11 +238,20 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // And then save group and memberships
       HibernateHelper.save(objects);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      throw new InsufficientPrivilegeException(eIP.getMessage());
+    catch (HibernateException eH) {
+      throw new GrantPrivilegeException(ERR_GP + eH.getMessage());
     }
-    catch (Exception e) {
-      throw new GrantPrivilegeException(msg_gp + ": " + e.getMessage());
+    catch (MemberAddException eMA) {
+      throw new GrantPrivilegeException(ERR_GP + eMA.getMessage());
+    }
+    catch (MemberNotFoundException eMNF) {
+      throw new GrantPrivilegeException(ERR_GP + eMNF.getMessage());
+    }
+    catch (SchemaException eS) {
+      throw new GrantPrivilegeException(ERR_GP + eS.getMessage());
+    }
+    catch (StemNotFoundException eSNF) {
+      throw new GrantPrivilegeException(ERR_GP + eSNF.getMessage());
     }
   } // public void grantPriv(s, ns, subj, priv)
 
@@ -306,6 +320,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException 
   {
+    // TODO Refactor into smaller chunks
     GrouperSession.validate(s);
     String msg_rp = "unable to revoke " + priv + " on " + ns.getName(); 
     try {
@@ -354,11 +369,20 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // And then update the registry
       HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      throw new InsufficientPrivilegeException(eIP.getMessage());
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(ERR_RP + eH.getMessage());
     }
-    catch (Exception e) {
-      throw new RevokePrivilegeException(msg_rp + ": " + e.getMessage());
+    catch (MemberNotFoundException eMNF) {
+      throw new RevokePrivilegeException(ERR_RP + eMNF.getMessage());
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new RevokePrivilegeException(ERR_RP + eMSNF.getMessage());
+    }
+    catch (SchemaException eS) {
+      throw new RevokePrivilegeException(ERR_RP + eS.getMessage());
+    }
+    catch (StemNotFoundException eSNF) {
+      throw new RevokePrivilegeException(ERR_RP + eSNF.getMessage());
     }
   } // public void revokePriv(s, ns, priv)
 
@@ -388,6 +412,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  InsufficientPrivilegeException, 
             RevokePrivilegeException 
   {
+    // TODO Refactor into smaller components
     GrouperSession.validate(s);
     String msg_rp = "unable to revoke " + priv + " on " + ns.getName()
       + " from " + subj.getId();
@@ -432,11 +457,20 @@ public class GrouperNamingAdapter implements NamingAdapter {
       //HibernateHelper.delete(objects);
       HibernateHelper.saveAndDelete(saves, deletes);
     }
-    catch (InsufficientPrivilegeException eIP) {
-      throw new InsufficientPrivilegeException(eIP.getMessage());
+    catch (HibernateException eH) {
+      throw new RevokePrivilegeException(ERR_RP + eH.getMessage());
     }
-    catch (Exception e) {
-      throw new RevokePrivilegeException(msg_rp + ": " + e.getMessage());
+    catch (MemberNotFoundException eMNF) {
+      throw new RevokePrivilegeException(ERR_RP + eMNF.getMessage());
+    }
+    catch (MembershipNotFoundException eMSNF) {
+      throw new RevokePrivilegeException(ERR_RP + eMSNF.getMessage());
+    }
+    catch (SchemaException eS) {
+      throw new RevokePrivilegeException(ERR_RP + eS.getMessage());
+    }
+    catch (StemNotFoundException eSNF) {
+      throw new RevokePrivilegeException(ERR_RP + eSNF.getMessage());
     }
   } // public void revokePriv(s, ns, subj, priv)
 

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.12 2005-12-05 01:43:40 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.13 2005-12-05 05:48:35 blair Exp $
  */
 public class PrivHelper {
 
@@ -340,6 +340,28 @@ public class PrivHelper {
       Assert.fail("failed to revoke priv: " + e.getMessage());
     }
   } // protected static void revokePriv(s, g, subj, priv)
+
+  // ALL has been granted this priv as well so even after revoking the
+  // priv from this subject they'll show up as having it, at least when
+  // calling hasMember or isMember.
+  protected static void revokePrivAllHasPriv(
+    GrouperSession s, Group g, Subject subj, Privilege priv
+  )
+  {
+    LOG.debug("revokePrivAllHasPriv.0");
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      LOG.debug("revokePrivAllHasPriv.1");
+      g.revokePriv(subj, priv);  
+      LOG.debug("revokePrivAllHasPriv.2");
+      hasPriv(g, subj, m, priv, true);
+      LOG.debug("revokePrivAllHasPriv.3");
+    }
+    catch (Exception e) {
+      LOG.debug("revokePrivAllHasPriv.4");
+      Assert.fail("failed to revoke priv: " + e.getMessage());
+    }
+  } // protected static void revokePrivAllHasPriv(s, g, subj, priv)
 
   protected static void revokePrivFail(
     GrouperSession s, Group g, Subject subj, Privilege priv
