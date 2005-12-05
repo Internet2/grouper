@@ -26,12 +26,16 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperLog.java,v 1.1 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: GrouperLog.java,v 1.2 2005-12-05 21:40:02 blair Exp $
  *     
 */
 class GrouperLog implements Serializable {
 
   // Protected Class Methods
+  protected static void debug(Log log, String msg) {
+    log.debug( _formatMsg("internal", msg) );
+  } // protected static void debug(log, id, msg)
+
   protected static void debug(Log log, String id, String msg) {
     log.debug( _formatMsg(id, msg) );
   } // protected static void debug(log, id, msg)

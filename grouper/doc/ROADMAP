@@ -3,49 +3,49 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.97 2005-12-05 18:34:21 blair Exp $
+$Id: ROADMAP,v 1.98 2005-12-05 21:40:02 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Look at Gary's bug
 * Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
 * Rename subjectIDs in local subject<=>member mapping (#133)
 * Finish refactoring _MembershipFinder_ to apply READ filtering
 * Update Subject API jar
 * normalize source adapter id + name conventions
+* Add "base" group type
+  * Map _GroupType_
+  * many-to-many mapping between _Field_ and _GroupType_
+* wheel group
+* ALL toggle switches 
+* Review files and add TODO items to this list
+
+## Later
+* What triggers a "modified" update?
 * Profiling and benchmarking
   * Privilege cache(s)
   * Subject cache(s)
   * Cache attributes
-* wheel group
-* ALL toggle switches 
-
-## Later
-* What triggers a "modified" update?
 * Review generated SQL
   * Including my twisty column names
   * Add create member and time to memberships
     * Add create time to members
     * status + ttl?
     * factor type
-* Review files and add TODO items to this list
-* Custom group types
-  * Map _GroupType_
-  * many-to-many mapping between _Field_ and _GroupType_
-  * Custom group attributes
-    * setting, unsetting, nullable, etc
-  * Custom group lists
-    * add to group subjects
 * Review old _*.todo_ test classes
   * More effective membership testing
   * Cache members
 * Test concurrence and persistence
 * Commons logging
 * Additional query filters
+* Custom group types
+  * Custom group attributes
+    * setting, unsetting, nullable, etc
+  * Custom group lists
+    * add to group subjects
 * record where each *Finder method is called from
 * Test with Pg and Oracle and review generated SQL
 * Update and expand query api javadocs
@@ -86,4 +86,5 @@ $Id: ROADMAP,v 1.97 2005-12-05 18:34:21 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 

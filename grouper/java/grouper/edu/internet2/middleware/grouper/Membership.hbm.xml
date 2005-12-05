@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Membership.hbm.xml,v 1.3 2005-11-14 18:35:39 blair Exp $ -->
+<!-- $Id: Membership.hbm.xml,v 1.4 2005-12-05 21:40:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Membership" table="grouper_memberships">
@@ -46,26 +46,27 @@ A list membership in the Groups Registry.
     <!-- owner_id -->
     <property name="owner_id"
               type="string"
-              not-null="true"
     >
       <column name="owner_id" 
               sql-type="char(64)" 
               unique-key="members_idx"
+              not-null="true"
       />
     </property>
     <!-- owner_id -->
 
     <!-- member_id -->
-<!-- TODO I'll resolve this later -->
-    <property name="member_id"
-              type="string"
-              not-null="true"
+    <many-to-one
+      name="member_id"
+      class="edu.internet2.middleware.grouper.Member" 
+      cascade="save-update"
     >
       <column name="member_id" 
-              sql-type="char(64)" 
+              sql-type="char(64)"
               unique-key="members_idx"
+              not-null="true"
       />
-    </property>
+    </many-to-one>
     <!-- member_id -->
 
     <!-- field -->

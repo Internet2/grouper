@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.13 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.14 2005-12-05 21:40:02 blair Exp $
  */
 public class PrivHelper {
 
@@ -151,6 +151,9 @@ public class PrivHelper {
     catch (MemberNotFoundException eMNF) {
       Assert.fail(eMNF.getMessage());
     }
+    catch (SchemaException eS) {
+      Assert.fail(eS.getMessage());
+    }
   } // protected static void grantPriv(s, g, subj, priv)
 
   protected static void grantPrivFail(
@@ -181,9 +184,16 @@ public class PrivHelper {
         hasPriv(g, subj, m, priv, false);
         LOG.debug("grantPrivFail.9 " + priv.getName());
       }
+      catch (SchemaException eS) {
+        LOG.debug("grantPrivFail.10 " + priv.getName());
+        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+        LOG.debug("grantPrivFail.11 " + priv.getName());
+        hasPriv(g, subj, m, priv, false);
+        LOG.debug("grantPrivFail.12 " + priv.getName());
+      }
     }
     catch (MemberNotFoundException eMNF) {
-      LOG.debug("grantPrivFail.10 " + priv.getName());
+      LOG.debug("grantPrivFail.13 " + priv.getName());
       Assert.fail(eMNF.getMessage());
     }
   } // protected static void grantPrivFail(s, g, subj, priv)
@@ -207,6 +217,9 @@ public class PrivHelper {
     catch (MemberNotFoundException eMNF) {
       Assert.fail(eMNF.getMessage());
     }
+    catch (SchemaException eS) {
+      Assert.fail(eS.getMessage());
+    }
   } // protected static void grantPriv(s, ns, subj, priv)
 
   protected static void grantPrivFail(
@@ -224,6 +237,10 @@ public class PrivHelper {
         hasPriv(ns, subj, m, priv, true);
       }
       catch (InsufficientPrivilegeException eIP) {
+        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+        hasPriv(ns, subj, m, priv, false);
+      }
+      catch (SchemaException eS) {
         Assert.assertTrue("failed to grant " + priv + " (privs)", true);
         hasPriv(ns, subj, m, priv, false);
       }

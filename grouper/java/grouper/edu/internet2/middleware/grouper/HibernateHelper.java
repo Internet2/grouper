@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
@@ -29,16 +30,13 @@ import  org.apache.commons.logging.*;
  * Action</i>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateHelper.java,v 1.5 2005-11-28 19:21:48 blair Exp $
+ * @version $Id: HibernateHelper.java,v 1.6 2005-12-05 21:40:02 blair Exp $
  */
 class HibernateHelper {
 
   // Private Class Constants
 	private static final SessionFactory factory;
-
-
-  // Private Class Variables
-	private static Log log = LogFactory.getLog(HibernateHelper.class);
+	private static final Log            LOG       = LogFactory.getLog(HibernateHelper.class);
 
 
   // Create the static session factory 
@@ -58,7 +56,7 @@ class HibernateHelper {
 		} 
     catch (Throwable e) {
       // Catch *all* the errors
-      log.fatal(
+      LOG.fatal(
         "Unable to build HibernateSessionFactory: " + e.getMessage()
       );
 			throw new ExceptionInInitializerError(e.getMessage());
@@ -127,27 +125,37 @@ class HibernateHelper {
   protected static void save(Set objects)
     throws HibernateException
   { 
+    String msg = "save: ";
     try {
+      GrouperLog.debug(LOG, msg + objects.size() + " objects");
       Session     hs = HibernateHelper.getSession();
       Transaction tx = hs.beginTransaction();
       Iterator    iter  = objects.iterator();
       try {
         while (iter.hasNext()) {
           Object o = iter.next();
+          GrouperLog.debug(LOG, msg + "saving " + o.getClass() + " " + o);
           hs.saveOrUpdate(o);
+          GrouperLog.debug(LOG, msg + "saved");
         }
+        GrouperLog.debug(LOG, msg + "committing");
         tx.commit();
+        GrouperLog.debug(LOG, msg + "committed");
       }
       catch (HibernateException e) {
+        GrouperLog.debug(LOG, msg + "rollback");
         tx.rollback();
         throw new HibernateException(e.getMessage());
       }
       finally {
+        GrouperLog.debug(LOG, msg + "hibernate session closing");
         hs.close();
+        GrouperLog.debug(LOG, msg + "hibernate session closed");
       }
     }
-    catch (HibernateException e) {
-      throw new HibernateException(e.getMessage());
+    catch (HibernateException eH) {
+      GrouperLog.debug(LOG, msg + eH.getMessage());
+      throw new HibernateException(msg + eH.getMessage());
     }
   } // protected static void save(objects)
 

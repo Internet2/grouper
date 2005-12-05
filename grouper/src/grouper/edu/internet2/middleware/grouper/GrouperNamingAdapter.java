@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  net.sf.hibernate.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
@@ -30,13 +32,15 @@ import  net.sf.hibernate.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.22 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.23 2005-12-05 21:40:02 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
   // Private Class Constants
-  private static final String ERR_GP  = "unable to grant priv: ";
-  private static final String ERR_RP  = "unable to revoke priv: ";
+  private static final String ERR_GP  = "grantPriv: unable to grant priv: ";
+  private static final String ERR_RP  = "revokePriv: unable to revoke priv: ";
+  private static final Log    LOG     = LogFactory.getLog(GrouperNamingAdapter.class);
+  private static final String MSG_GP  = "grantPriv: ";
 
 
   // Private Class Variables
@@ -205,52 +209,71 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
    */
   public void grantPriv(
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
     throws  GrantPrivilegeException, 
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
-    // TODO Update per _Group.addMember()_
-    GrouperSession.validate(s);
-    String msg_gp = "unable to grant " + priv + " on " + ns.getName() 
-      + " to " + subj.getId();
+    String msg = MSG_GP + "'" + priv.toString().toUpperCase() + "' " 
+      + SubjectHelper.getPretty(subj);
+    GrouperLog.debug(LOG, s, msg);
+    this._canWriteList(s, ns, priv, msg);
     try {
-      this._canWriteField(s, ns, priv);
-
-      // Convert subject to a member
-      Member  m       = MemberFinder.findBySubject(s, subj);
-
       // The objects that will need saving
       Set     objects = new LinkedHashSet();
+      // Who we're adding
+      Member  m       = PrivilegeResolver.getInstance().canViewSubject(
+        s, subj, msg
+      );
 
-      // Update group modify time
-      ns.setModified();
+      // Conditionally update stem modify time.  Because the granting
+      // of STEM to the creator takes place *after* the group has been
+      // created, the modify* attributes would be set.  However, we
+      // don't want to consider that a modification.  As such, if
+      // the modify time is equal to the start of the epoch, don't
+      // set the group's modify* attrs.
+      // TODO Shouldn't this be negated?
+      if (!ns.getModifyTime().equals(new Date())) {
+        ns.setModified();
+      }
       objects.add(ns);
 
+      Field f = this._getField(priv);
+
       // Create the immediate membership
-      objects.add(Membership.addMembership(s, ns, m, this._getField(priv)));
+      objects.add(Membership.addMembership(s, ns, m, f));
 
       // Find effective memberships
-      objects.addAll( MemberOf.doMemberOf(s, ns, m) );
+      Set effs = MemberOf.doMemberOf(s, ns, m, f);
+      objects.addAll(effs);
 
-      // And then save group and memberships
+      // And then save stem and memberships
       HibernateHelper.save(objects);
+      // TODO make INFO + (conditionally?) log each privilege granted
+      GrouperLog.debug(
+        LOG, s, 
+        msg + "added members: " + SubjectHelper.getPretty(subj) 
+        + " and " + effs.size() + " effs"
+      );
     }
     catch (HibernateException eH) {
+      GrouperLog.debug(LOG, s, ERR_GP + eH.getMessage());
       throw new GrantPrivilegeException(ERR_GP + eH.getMessage());
     }
-    catch (MemberAddException eMA) {
-      throw new GrantPrivilegeException(ERR_GP + eMA.getMessage());
+    catch (MemberAddException eMAF) {
+      GrouperLog.debug(LOG, s, ERR_GP + eMAF.getMessage());
+      throw new GrantPrivilegeException(ERR_GP + eMAF.getMessage());
     }
     catch (MemberNotFoundException eMNF) {
+      GrouperLog.debug(LOG, s, ERR_GP + eMNF.getMessage());
       throw new GrantPrivilegeException(ERR_GP + eMNF.getMessage());
     }
-    catch (SchemaException eS) {
-      throw new GrantPrivilegeException(ERR_GP + eS.getMessage());
-    }
     catch (StemNotFoundException eSNF) {
+      GrouperLog.debug(LOG, s, ERR_GP + eSNF.getMessage());
       throw new GrantPrivilegeException(ERR_GP + eSNF.getMessage());
     }
   } // public void grantPriv(s, ns, subj, priv)
@@ -324,11 +347,14 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     String msg_rp = "unable to revoke " + priv + " on " + ns.getName(); 
     try {
+      // TODO Replace with _canWriteList
       this._canWriteField(s, ns, priv);
 
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
       Set     deletes = new LinkedHashSet();
+
+      Field   f       = this._getField(priv);
 
       // Update stem modify time
       ns.setModified();
@@ -336,7 +362,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
       // Find every subject that needs to have the priv revoked
       Iterator iter = MembershipFinder.findImmediateSubjects(
-        s, ns.getUuid(), this._getField(priv)
+        s, ns.getUuid(), f
       ).iterator();
       while (iter.hasNext()) {
         Subject subj  = (Subject) iter.next();
@@ -353,12 +379,12 @@ public class GrouperNamingAdapter implements NamingAdapter {
         // need to retrieve the persistent version of each before
         // passing it along to be deleted by HibernateHelper.  
         Session   hs    = HibernateHelper.getSession();
-        Iterator  iterM = MemberOf.doMemberOf(s, ns, m).iterator();
+        Iterator  iterM = MemberOf.doMemberOf(s, ns, m, f).iterator();
         while (iterM.hasNext()) {
           Membership ms = (Membership) iterM.next();
           deletes.add( 
             MembershipFinder.findEffectiveMembership(
-              ms.getOwner_id(), ms.getMember_id(), 
+              ms.getOwner_id(), ms.getMember().getId(), 
               ms.getList(), ms.getVia_id(), ms.getDepth()
             )
           );
@@ -417,6 +443,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     String msg_rp = "unable to revoke " + priv + " on " + ns.getName()
       + " from " + subj.getId();
     try {
+      // TODO Replace with _canWriteList
       this._canWriteField(s, ns, priv);
 
       // Convert subject to a member
@@ -425,6 +452,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
       Set     deletes = new LinkedHashSet();
+      Field   f       = this._getField(priv);
 
       // Update stem modify time
       ns.setModified();
@@ -432,21 +460,19 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
       // Find the immediate privilege that is to be deleted
       deletes.add(
-        MembershipFinder.findImmediateMembership(
-          s, ns.getUuid(), m, this._getField(priv)
-        )
+        MembershipFinder.findImmediateMembership(s, ns.getUuid(), m, f)
       );
 
       // As many of the privileges are likely to be transient, we
       // need to retrieve the persistent version of each before
       // passing it along to be deleted by HibernateHelper.  
       Session   hs    = HibernateHelper.getSession();
-      Iterator  iter  = MemberOf.doMemberOf(s, ns, m).iterator();
+      Iterator  iter  = MemberOf.doMemberOf(s, ns, m, f).iterator();
       while (iter.hasNext()) {
         Membership ms = (Membership) iter.next();
         deletes.add( 
           MembershipFinder.findEffectiveMembership(
-            ms.getOwner_id(), ms.getMember_id(), 
+            ms.getOwner_id(), ms.getMember().getId(), 
             ms.getList(), ms.getVia_id(), ms.getDepth()
           )
         );
@@ -476,6 +502,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
 
   
   // Private Instance Methods
+  // TODO Remove
   private void _canWriteField(GrouperSession s, Stem ns, Privilege priv)
     throws  InsufficientPrivilegeException,
             SchemaException
@@ -490,6 +517,27 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     return FieldFinder.find( (String) priv2list.get(priv) );
   } // private Field _getField(priv)
+
+  // What a tangled mess this has become
+  private void _canWriteList(
+    GrouperSession s, Stem ns, Privilege p, String msg
+  ) 
+    throws  InsufficientPrivilegeException,
+            SchemaException
+  {
+    // TODO Validate that this is a "naming" field
+    // First see if we can write to the desired list
+    try {
+      PrivilegeResolver.getInstance().canPrivDispatch(
+        s, ns, s.getSubject(), this._getField(p).getWritePriv()
+      );
+      GrouperLog.debug(LOG, s, msg + "true");
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, s, msg + eIP.getMessage());
+      throw new InsufficientPrivilegeException(msg + eIP.getMessage());
+    }
+  } // private void _canWriteList(s, ns, p, msg)
 
 }
 

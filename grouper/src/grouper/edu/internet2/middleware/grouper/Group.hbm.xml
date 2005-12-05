@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Group.hbm.xml,v 1.5 2005-12-01 21:18:23 blair Exp $ -->
+<!-- $Id: Group.hbm.xml,v 1.6 2005-12-05 21:40:02 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="Group" table="grouper_groups">
@@ -45,6 +45,7 @@ A group within the Groups Registry.
 
 
     <!-- attributes -->
+    <!-- TODO Would switching to _all-delete-orphan_ work -->
     <set  name="group_attributes"
           cascade="all"
     >

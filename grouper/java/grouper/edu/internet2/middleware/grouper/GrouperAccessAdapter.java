@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.20 2005-12-05 16:24:49 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.21 2005-12-05 21:40:02 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -210,12 +210,14 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @param   priv  Grant this privilege.   
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
    */
   public void grantPriv(
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
     throws  GrantPrivilegeException, 
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
     String msg = MSG_GP + "'" + priv.getName() + "' " + SubjectHelper.getPretty(subj);
@@ -232,7 +234,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     catch (SchemaException eS) {
       GrouperLog.debug(LOG, s, ERR_GP + eS.getMessage());
-      throw new GrantPrivilegeException(ERR_GP + eS.getMessage());
+      throw new SchemaException(ERR_GP + eS.getMessage());
     }
   } // public void grantPriv(s, g, subj, priv)
 
@@ -326,7 +328,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
           Membership ms = (Membership) iterM.next();
           deletes.add( 
             MembershipFinder.findEffectiveMembership(
-              ms.getOwner_id(), ms.getMember_id(), 
+              ms.getOwner_id(), ms.getMember().getId(), 
               ms.getList(), ms.getVia_id(), ms.getDepth()
             )
           );

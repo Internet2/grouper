@@ -22,16 +22,21 @@ import  java.io.Serializable;
 import  java.util.*;
 import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
+import  org.apache.commons.logging.*;
 
 
 /** 
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.27 2005-12-05 18:34:21 blair Exp $
+ * @version $Id: Stem.java,v 1.28 2005-12-05 21:40:02 blair Exp $
  *     
 */
 public class Stem implements Serializable {
+
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(Stem.class);
+
 
   // Hibernate Properties
   private String  id;
@@ -526,14 +531,31 @@ public class Stem implements Serializable {
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.
    * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
    */
   public void grantPriv(Subject subj, Privilege priv)
     throws  GrantPrivilegeException,
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
-    PrivilegeResolver.getInstance().grantPriv(
-      this.s, this, subj, priv
-    );
+    String msg = "grantPriv: " + SubjectHelper.getPretty(subj) 
+      + " '" + priv.toString().toUpperCase() + "'";
+    GrouperLog.debug(LOG, this.s, msg);
+    try {
+      PrivilegeResolver.getInstance().grantPriv(
+        this.s, this, subj, priv
+      );
+      GrouperLog.debug(LOG, this.s, msg + ": granted");
+    }
+    catch (GrantPrivilegeException eGP) {
+      GrouperLog.debug(LOG, this.s, eGP.getMessage());
+      throw new GrantPrivilegeException(eGP.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, this.s, eIP.getMessage());
+      throw new InsufficientPrivilegeException(eIP.getMessage());
+    }
   } // public void grantPriv(subj, priv)
 
   /**

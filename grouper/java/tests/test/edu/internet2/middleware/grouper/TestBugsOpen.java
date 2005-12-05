@@ -17,19 +17,26 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.1 2005-12-02 18:39:42 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.2 2005-12-05 21:40:02 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
+
+  // Private Static Class Constants
+  private static final Log LOG = LogFactory.getLog(TestBugsOpen.class);
+
 
   public TestBugsOpen(String name) {
     super(name);
@@ -46,6 +53,7 @@ public class TestBugsOpen extends TestCase {
   // Tests
 
   // Gary Brown, 20051202, <C76C2307ED5A17415027C3D2@cse-gwb.cse.bris.ac.uk>
+  // Status: Unconfirmed, Unresolved
   public void testGrantStemToGroup() {
     try {
       // Setup
@@ -64,12 +72,23 @@ public class TestBugsOpen extends TestCase {
       Assert.assertNotNull("ns !null", ns);
       Group           g     = GroupFinder.findByName(s, i2.getName());
       Assert.assertNotNull("g !null", g);
+
+      // Without the pre-granting of CREATE, the later granting of STEM
+      // is fine.
+      ns.grantPriv(
+        SubjectFinder.findById(g.getUuid()),
+         Privilege.getInstance("create")
+       );
+      Assert.assertTrue("g (ns) has CREATE", g.toMember().hasCreate(ns));
+      Assert.assertTrue("g (m) has CREATE",  ns.hasCreate(g.toSubject()));
+
       ns.grantPriv(
         SubjectFinder.findById(g.getUuid()),
         Privilege.getInstance("stem")
       );
       Assert.assertTrue("g (ns) has STEM", g.toMember().hasStem(ns));
       Assert.assertTrue("g (m) has STEM",  ns.hasStem(g.toSubject()));
+
     }
     catch (Exception e) {
       Assert.fail("exception: " + e.getMessage());

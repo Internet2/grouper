@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.17 2005-12-05 05:48:35 blair Exp $
+ * @version $Id: Member.java,v 1.18 2005-12-05 21:40:02 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -890,7 +890,8 @@ public class Member implements Serializable {
 
 
   // Hibernate Accessors
-  private String getId() {
+  // TODO Make private again
+  protected String getId() {
     return this.id;
   } 
 

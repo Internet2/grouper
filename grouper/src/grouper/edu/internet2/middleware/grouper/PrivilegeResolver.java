@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper configuration information.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.21 2005-12-05 18:34:21 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.22 2005-12-05 21:40:02 blair Exp $
  *     
 */
 class PrivilegeResolver {
@@ -381,6 +381,30 @@ class PrivilegeResolver {
     return groups;
   }
 
+  protected Member canViewSubject(GrouperSession s, Subject subj, String msg) 
+    throws  MemberNotFoundException
+  {
+    Member  m = MemberFinder.findBySubject(s, subj);
+    // If the subject being added is a group, verify that we can VIEW it
+    try {
+      if (m.getSubjectType().equals(SubjectTypeEnum.valueOf("group"))) {
+        Subject who   = s.getSubject();
+        Group   what  = m.toGroup();
+        PrivilegeResolver.getInstance().canVIEW(s, what, who);
+        GrouperLog.debug(LOG, s, msg + "true");
+      }
+    }
+    catch (GroupNotFoundException eGNF) {
+      GrouperLog.debug(LOG, s, msg + eGNF.getMessage());
+      throw new MemberNotFoundException(msg + eGNF.getMessage());
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      GrouperLog.debug(LOG, s, msg + eIP.getMessage());
+      throw new MemberNotFoundException(msg + eIP.getMessage());
+    }
+    return m;
+  } // protected Member canViewSubject(s, subj, msg)
+
   protected Set getPrivs(
     GrouperSession s, Group g, Subject subj
   )
@@ -447,7 +471,8 @@ class PrivilegeResolver {
     GrouperSession s, Group g, Subject subj, Privilege priv
   )
     throws  GrantPrivilegeException,
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
     this.access.grantPriv(s, g, subj, priv);
@@ -457,7 +482,8 @@ class PrivilegeResolver {
     GrouperSession s, Stem ns, Subject subj, Privilege priv
   )
     throws  GrantPrivilegeException,
-            InsufficientPrivilegeException
+            InsufficientPrivilegeException,
+            SchemaException
   {
     GrouperSession.validate(s);
     this.naming.grantPriv(s, ns, subj, priv);
