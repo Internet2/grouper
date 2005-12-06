@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.63 2005-10-25 17:49:25 acohen Exp $
-  $Date: 2005-10-25 17:49:25 $
+  $Id: main.jsp,v 1.64 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -215,7 +215,7 @@
       <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
         <%=Constants.HOMEPAGE_NAME%>
       </a>
-      &gt; <%=currentPSubject.getName()%>
+      &gt; Subject View [<%=currentPSubject.getName()%>]
 <%
   }
 %>
@@ -248,9 +248,9 @@
         <h2>
           Grant a privilege
         </h2>
-        <p>to <%=currentPSubject.getName()%></p>
+        <p>to <%=currentPSubject.getName()%>
         <form name="grantForm" id="grantForm" action="Functions.do">
-          <p>
+          
             <select
               id="grantableSubsystems"
               name="grantableSubsystems"
@@ -282,11 +282,12 @@
               class="button1"
               <%="disabled=\"disabled\""%>
               value="Start &gt;&gt;" />
-            <br />
-            <label for="grantableSubsystems">
-              Select the type of privilege you want to grant, then click "Start."
+            </p>
+            <p class="dropback"><label for="grantableSubsystems">
+              Select the type of privilege you want to grant, then click Start.
             </label>
-          </p>
+            </p>
+          
         </form> <!-- grantForm -->
       </div> <!-- grant -->
           
@@ -321,8 +322,9 @@
             onclick="personSearchButtonHasFocus=true;"
             onfocus="personSearchButtonHasFocus=true;"
             onblur="personSearchButtonHasFocus=false;" />
-          <br />
-        <label for="words">Enter a subject's name, then click "Search".</label>
+          </p>
+        <p class="dropback">
+          <label for="words">Enter a person's or a group's name, then click Search.</label>
          </p>
         <div id="PersonSearchResults" style="display:none">
         </div> <!-- PersonSearchResults -->
@@ -342,15 +344,15 @@
         method="post"
         action="ActAs.do">
         <h2>Designated Drivers</h2>
-        <%=Common.displayActingForOptions
+        <p><%=Common.displayActingForOptions
              (loggedInPrivilegedSubject,
               Constants.ACTING_FOR_SELECT_ID,
-              "actAsChange")%>
-        <br/>
+              "actAsChange")%></p>
+        <p>
         <a href='Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true'>
-          <img src="images/arrow_right.gif" alt="" />
-          Designate a granting proxy
+          <img src="images/arrow_right.gif" alt="" />Designate a granting proxy
         </a>
+		</p>
       </form>
     </div> <!-- findperson -->        
 <%

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.7 2005-11-22 20:18:13 acohen Exp $
-  $Date: 2005-11-22 20:18:13 $
+  $Id: confirmProxy.jsp,v 1.8 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -87,8 +87,8 @@
           <%=Constants.HOMEPAGE_NAME%>
         </a>
         &gt; <!-- displays as text right-angle bracket -->
-        <a href="<%=personViewHref%>">  
-          <%=currentGranteePrivilegedSubject.getName()%>
+        <a href="<%=personViewHref%>">Subject View 
+          [<%=currentGranteePrivilegedSubject.getName()%>]
         </a>
         &gt; Designated Driver
       </span> <!-- select -->
@@ -118,16 +118,16 @@
                     </span>
                 </td>
               </tr>
+			  <!-- redundant name row
               <tr>
                 <th class="label" scope="row">Scope:</th>                
                 <td>
                   acting as
-                  <%=currentProxy.getGrantor().getName()%>
-                  <span class="dropback">
-                    - <%=currentProxy.getGrantor().getDescription()%>
-                  </span>
+                  <%=/*currentProxy.getGrantor().getName()*/%>
+				  <span class="ident"><%=/*currentProxy.getGrantor().getDescription()*/%></span>
                 </td>
-              </tr>
+              </tr>	-->
+
               <tr>
                 <th class="label" scope="row"><%=Common.displayLimitType(currentProxy)%>:</th>
                 <td><%=Common.displaySubsystem(currentProxy)%></td>
@@ -141,19 +141,20 @@
                 <td><!-- DATE (or condition) GOES HERE --></td>
               </tr>
               <tr>
-        		<th class="label" scope="row">Expires:</th>
+        		<th class="label" scope="row">Ends:</th>
         		<td><!-- DATE (or condition) GOES HERE --></td>
       		</tr>
-	  		<tr>
+	  		<!-- redundant rows, in history popup 
+			<tr>
                 <th class="label" scope="row">Designated on:</th>
-                <td><%=Common.displayDatetime(new Date())%></td>
+                <td><%=/*Common.displayDatetime(new Date())*/%></td>
               </tr>
               <tr>
                 <th class="label" scope="row">Designated by:</th>
                 <td>
-				<%=(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()%>
+				<%=/*(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()*/%>
 				</td>
-              </tr>
+              </tr> -->
             </table>            
         </div><!-- section -->
          
@@ -161,12 +162,10 @@
             <h2>
               Continue
             </h2>
-			<p class="default">
+			<p>
               <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                 <img src="images/arrow_right.gif" alt="" />
-                Return to your  overview
-              </a>
-            </p>
+            <span class="default">My View </span> : Current assignments to others</a></p>
             <p>
               <a href="Designate.do">
                 <img src="images/arrow_right.gif" alt="" />
@@ -176,7 +175,7 @@
             <p>
               <a href="Designate.do?<%=Constants.NEW_PROXY_HTTPPARAMNAME%>=true">
                 <img src="images/arrow_right.gif" alt="" />
-                Designate another proxy
+                Designate another granting proxy
               </a>
             </p>
           
@@ -211,9 +210,10 @@
                   onclick="personSearchButtonHasFocus=true;"
                   onfocus="personSearchButtonHasFocus=true;"
                   onblur="personSearchButtonHasFocus=false;" />
-                <br />
-                <label for="words">Enter a subject's name, then click "Search".</label>
-              </p>
+                </p>
+                <p class="dropback">
+                  <label for="words">Enter a person's or group's name, then click Search.</label>
+                </p>
               <div id="PersonSearchResults" style="display:none">
               </div> <!-- PersonSearchResults -->
 

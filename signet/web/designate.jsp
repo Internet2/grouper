@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: designate.jsp,v 1.14 2005-10-25 23:12:57 acohen Exp $
-  $Date: 2005-10-25 23:12:57 $
+  $Id: designate.jsp,v 1.15 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -220,8 +220,8 @@
                 </td>
                 <td width="85%">
                   <%=currentProxy.getGrantee().getName()%>
-                  <span class="dropback">
-                    [<%=currentProxy.getGrantee().getDescription()%>]
+                  <span class="ident">
+                    <%=currentProxy.getGrantee().getDescription()%>
                   </span>
                 </td>
               </tr>
@@ -258,8 +258,7 @@
       
         <div class="section">    
           <h2>
-            Find subject
-          </h2>
+            Find a person </h2>
           <div style="margin-left: 25px;">
             <input
                 name="subjectSearchString"
@@ -312,7 +311,7 @@
               <%=Common.dateSelection
                 (request,
                  Constants.EFFECTIVE_DATE_PREFIX,
-                 "Designation will take effect:",
+                 "Effective:",
                  "immediately",
                  "on",
                  currentProxy == null
@@ -325,9 +324,9 @@
               <%=Common.dateSelection
                 (request,
                  Constants.EXPIRATION_DATE_PREFIX,
-                 "...and will remain in effect:",
-                 "until I revoke this designation",
-                 "until",
+                 "Ends:",
+                 "when revoked",
+                 "on",
                  currentProxy == null
                    ? null
                    : currentProxy.getExpirationDate())%>
@@ -359,8 +358,7 @@
           <br />
           <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
             <img src="images/arrow_left.gif" />
-            CANCEL and return to your overview
-          </a>
+            CANCEL and return to My View </a>
         </div>
       </div>
   
@@ -371,10 +369,14 @@
           </h2>
             <p>The proxy you designate will be able to grant all of your <b>grantable</b> privileges, within the privilege type you select.</p>
             <p>The proxy <i>will not have</i> your <b>usable</b> privileges.</p>
-            <p>To designate a proxy:</p>
-            <p>1. Select the privilege type <i>(only the types in which you have grantable authority are listed)</i>.</p>
-            <p>2. Search for and select the person you want to be your proxy.</p>
-            <p>3. Set a start and/or end date for the proxy, or leave it open-ended.</p>
+            <p>Steps to designate a proxy:</p>
+            <ol>
+              <li>Select the privilege type. <i><br />
+              (Only the types in which you have grantable authority are listed.)</i></li>
+              <li>Search for and select the person you want to be your proxy.</li>
+              <li>Set a start and/or end date for the proxy, or leave it open-ended.</li>
+              <li>Click Complete designation. </li>
+            </ol>
         </div>
       </div>
   

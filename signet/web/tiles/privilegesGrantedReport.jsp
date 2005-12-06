@@ -29,7 +29,7 @@
 <DIV id="Content"> 
   <DIV id="ViewHead">
     <SPAN class="dropback">
-      Privileges overview for</SPAN> 
+      Privileges and granting activity for</SPAN> 
       <H1>
         <%=pSubject.getName()%>
       </H1>
@@ -56,19 +56,20 @@
         alt="" />
       Printable version
     </A>
-    <H2><%=pSubject.getName()%> : <%=privDisplayType.getDescription()%><%=(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))%></H2>
-  </DIV> <!-- tableheader -->
-  
-  <DIV class="tablecontrols">
-    <FORM
+    <H2>
+		<%=/*pSubject.getName()*/%><!-- : -->
+		<%=privDisplayType.getDescription()%>
+		<%=/*(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))*/%>
+	</H2>
+	<DIV class="inlinecontrol">
+	<FORM
       name="personSearchForm"
       method="post"
       action="PersonView.do">
-      Change the view to show 
-      <DIV style="display: inline;">
         <SELECT
           name="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>"
           id="<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME%>">
+		  <OPTION value="" selected>change the view to show...</OPTION>
           <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
           <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, privDisplayType)%>
           <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
@@ -79,13 +80,14 @@
           value="Show"
           type="submit"
           class="button1" />
-      </DIV>
     </FORM>
+	</DIV>
+  </DIV> <!-- tableheader -->
+  
+  <DIV class="tablecontrols">
+    Privilege types: <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
   </DIV> <!-- tablecontrols -->
   
-  <DIV id="Paging" style="margin: 5px;">
-    Privilege types: <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
-  </DIV>		
              
   <FORM
       onSubmit
@@ -116,10 +118,10 @@
 <%
   }
 %>
-          <TH width="30%">
+          <TH width="40%">
             Privilege
           </TH>
-          <TH width="20%">
+          <TH>
             Scope
           </TH>
           <TH>
@@ -128,7 +130,7 @@
           <TH>
             Status
           </TH>
-          <TH width="10%">
+          <TH width="60">
             All:
             <INPUT
                name="checkAll"
@@ -220,7 +222,7 @@
           <TD>&nbsp;</TD>
           <TD>&nbsp;</TD>
           <TD>&nbsp;</TD>
-          <TD align="center" >
+          <TD width="60" align="center" >
             <INPUT
               name="revokeButton"
               type="submit"

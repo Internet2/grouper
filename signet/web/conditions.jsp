@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: conditions.jsp,v 1.40 2005-11-16 02:30:14 jvine Exp $
-  $Date: 2005-11-16 02:30:14 $
+  $Id: conditions.jsp,v 1.41 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -18,7 +18,7 @@
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
     </script>
-    </head>
+  </head>
 
   <body onload="javascript:selectLimitCheckbox();">
     <script type="text/javascript">
@@ -196,8 +196,8 @@
             <%=Constants.HOMEPAGE_NAME%>
           </a>
           &gt; <!-- displays as text right-angle bracket -->
-        <a href="<%=personViewHref%>"> 
-            <%=currentGranteePrivilegedSubject.getName()%>
+        <a href="<%=personViewHref%>">Subject View 
+            [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>
 <% if (currentAssignment == null)
    {
@@ -253,17 +253,7 @@
    }
 %>
 							<table>
-              	<tr>
-              		<th class="label" scope="row">Granted to:</th>
-              		<td><%=currentGranteePrivilegedSubject.getName()%></td>
-<% if (currentAssignment == null)
-   {
-%>
-              		<td>&nbsp;</td> <!-- 3rd col appears only for new assignments -->
-<%
-   }
-%>									
-             		</tr>
+              	<!-- deleted name row -->
               	<tr>
               		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
@@ -475,7 +465,7 @@
 
               <p>
                 <a href="<%=personViewHref%>">
-                  <img src="images/arrow_left.gif" alt="" />CANCEL and return to overview for <%=currentGranteePrivilegedSubject.getName()%>
+                  <img src="images/arrow_left.gif" alt="" />CANCEL and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
                 </a>
           </p>
           </div> <!-- section -->
@@ -484,17 +474,23 @@
         <div id="Sidebar">
           <div class="helpbox">
 			 	  	<h2>Help</h2>
-			  		<div class="helpbox"><p>To grant a privilege:</p>
-          	  <p><i>1. Select the privilege (done).</i> </p>
-          	  <p><i>2. Select the scope (done).</i></p>
-          	  <p>3. Set any limits that apply to this privilege. Set effective dates or conditions for the privilege, and select whether this subject can use and/or grant this privilege.</p>
-          	  <p>Then click &quot;Complete assignment.&quot;</p>
-          	  <p><b>Definitions</b></p>
-          	  <p>Use:  subject has access to the appropriate business system(s) to perform the tasks controlled by this privilege. </p>
-          	  <p>Grant:  subject can grant this privilege (in the same scope, and up to the same limits) to any other subject. </p>
+			  		<div class="helpbox">
+			  		  <p>Steps to grant a privilege:</p>
+          	          <ol>
+          	            <li class="dropback">Select the privilege (done). </li>
+          	            <li class="dropback">Select the scope (done).</li>
+          	            <li><b>Set  limits and effective dates. Select whether the subject can use and/or grant this privilege, then click Complete assignment.</b></li>
+       	              </ol>
+					  <h2>Definitions</h2>
+          	          <dl>
+					  <dt>Use this privilege </dt>
+					  <dd>Subject has access to the appropriate business system(s) to perform the tasks controlled by this privilege.</dd>
+					  <dt>Grant this privilege </dt>
+					  <dd>Subject can grant this privilege (in the same scope, and up to the same limits) to any other subject.</dd>
+					  </dl>
 			  		</div>
           	</div> 
-          </div> <!-- Sidebar -->
+        </div> <!-- Sidebar -->
        <tiles:insert page="/tiles/footer.jsp" flush="true" />
       </div> <!-- Layout -->
     </form>

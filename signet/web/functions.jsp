@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.25 2005-11-29 22:40:33 jvine Exp $
-  $Date: 2005-11-29 22:40:33 $
+  $Id: functions.jsp,v 1.26 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -17,7 +17,7 @@
     </title>
     <link href="styles/signet.css" rel="stylesheet" type="text/css" />
     <script language="JavaScript" type="text/javascript" src="scripts/signet.js"></script>
-  </head>
+    </head>
 
   <body>
     <script type="text/javascript">
@@ -108,8 +108,8 @@
               <%=Constants.HOMEPAGE_NAME%>
             </a>
             &gt; <!-- displays as text right-angle bracket -->
-            <a href="<%=personViewHref%>">
-						<%=currentGranteePrivilegedSubject.getName()%>
+            <a href="<%=personViewHref%>">Subject View
+						[<%=currentGranteePrivilegedSubject.getName()%>]
             </a>
             &gt; Grant new privilege
           </span> <!-- select -->
@@ -128,11 +128,12 @@
          <div class="section">
 				 		<h2>New assignment details</h2>
 							<table>
-              	<tr>
+              	<!-- redundant name row
+				<tr>
               		<th class="label" scope="row">Granted to:</th>
-              		<td><%=currentGranteePrivilegedSubject.getName()%></td>
+              		<td><%=/*currentGranteePrivilegedSubject.getName()*/%></td>
               		<td>&nbsp;</td>
-             		</tr>
+             		</tr> -->
               	<tr>
               		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
@@ -149,7 +150,7 @@
 					<h2>
            	Select privilege
          	</h2> 
-						  <p><label for="scope">
+						  <p class="dropback"><label for="scope">
 							  Select a privilege, then click Continue.
 							</label>
 						  </p>
@@ -242,7 +243,7 @@
            	
            	<p>
              	<a href="<%=personViewHref%>">
-               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to  overview for <%=currentGranteePrivilegedSubject.getName()%>
+               	<img src="images/arrow_left.gif" alt="" />CANCEL and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
            	  </a>
            	</p>
        	  </div>	<!-- section -->
@@ -251,11 +252,14 @@
         <div id="Sidebar">
           <div class="helpbox">
           	<h2>Help</h2>
-          	<p>To grant a privilege:</p>
-          	<p>1. Select the privilege you want to grant <i>(only those you are authorized to grant are shown)</i>, then click &quot;Continue&quot;.</p>
-          	<p>Next:<br />
-       	    2. Select the scope to which the privilege applies.</p>
-          	<p>3. Set limits and conditions for the privilege.</p>
+          	<p>Steps to grant a privilege:</p>
+          	<ol>
+          	  <li><b>Select the privilege you want to grant, then click Continue.<i><br />
+       	      </i></b>Only the privileges you are authorized to grant are shown.</li>
+          	  <p style="margin: 10px 0px 2px -20px;">Next:</p>
+			  <li>Select the scope to which the privilege applies.</li>
+          	  <li> Set limits and conditions for the privilege.</li>
+       	    </ol>
           </div>  
           <!-- end helpbox -->
         </div> <!-- Sidebar -->

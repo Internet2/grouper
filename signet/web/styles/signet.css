@@ -1,6 +1,6 @@
 /*
-   $Id: signet.css,v 1.19 2005-11-16 02:30:14 jvine Exp $
-   $Date: 2005-11-16 02:30:14 $
+   $Id: signet.css,v 1.20 2005-12-06 05:57:59 jvine Exp $
+   $Date: 2005-12-06 05:57:59 $
 
    Copyright 2004, 2005 Internet2 and Stanford University.  All Rights Reserved.
    Licensed under the Signet License, Version 1,
@@ -98,11 +98,6 @@ img {
 a img {
 	vertical-align: middle;
 }
-
-label {
-	color: #000;
-}
-
 #Sidebar label {
 	display: block;
 	margin-top: 5px;
@@ -203,7 +198,7 @@ th {
 	background-color: #60ADC1;
 	text-decoration: none;
 	color: #FFF;
-	padding: 0px;
+	padding: 0px 0px 0px 3px;
 	margin: 0px;
 	white-space: nowrap;
 }
@@ -216,7 +211,7 @@ th.label {
 	background-color: #FFF;
 	text-decoration: none;
 	color: #666;
-	padding: 0px;
+	padding: 3px 3px 3px 0px;
 	margin: 0px;
 	white-space: nowrap;
 	border-bottom: 1px solid #CCC;	
@@ -417,6 +412,7 @@ li {
 	background-color: #EEE;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	font-size: 11px;
+	width: 60px;
 	font-weight: normal;	
 }
 
@@ -508,7 +504,7 @@ li {
 	text-transform : none;
 	font-weight: normal;
 	background-color: #CEEDF7;
-	padding: 3px;
+	padding: 3px 3px 3px 4px;
 	margin: 0px;
 	white-space: nowrap;
 	vertical-align: middle;	
@@ -586,7 +582,9 @@ li {
 	color: #FFFFCC;
 	font-weight: bold;
 }
-
+.big {
+	font-size: 16px;
+}
 .clear {  /* hack to make various things work right */
 	clear: both;
 	display: block;
@@ -596,11 +594,11 @@ li {
 	margin: 0px;
 	padding: 0px;
 }
-
 .close {
 	float: right;
 	font-size: 0.9em;
 }
+
 .default {
 	text-transform: uppercase;
 	font-weight: bold;
@@ -620,9 +618,11 @@ li {
 	color: #666;
 	text-transform: none;
 	font-weight: normal;
-	margin-left: 10px;
+	margin-left: 22px;
 }
-
+.inlinecontrol {
+	display: inline;
+}
 .label {
 	color: #666;
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: not-yet-implemented.jsp,v 1.13 2005-11-22 20:18:13 acohen Exp $
-  $Date: 2005-11-22 20:18:13 $
+  $Id: not-yet-implemented.jsp,v 1.14 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -73,19 +73,27 @@
           <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
             <%=Constants.HOMEPAGE_NAME%>
           </a>
-            > Feature not implemented
-        </span> <!-- select -->
-      </div> <!-- Navbar -->
+            > Logging out </span> <!-- select -->
+      </div> 
+      <!-- Navbar -->
       
       <div id="Layout">
         <div id="Content">
-          <h1>This feature has not yet been implemented.</h1>
-          <br /> 
-          <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
-            <img src="images/arrow_left.gif" alt="" />Return to home page
-          </a>
-          or click your browser's back button.
-        </div> <!-- Content -->
+          <h1>Logout is not complete.</h1>
+          <p>You've reached this page because:</p>
+          <ul>
+            <li>you clicked Logout, or </li>
+            <li>you selected a feature that has not been implemented, or </li>
+            <li>the system encountered an unexpected error. </li>
+          </ul>
+          <p><span class="big alert">In order to close your Signet session, you must  quit (exit) the browser.</span></p>
+          <p>If you are not the only person who has access to this computer, another user could re-open your Signet session. <br />
+          Quitting the browser will remove all traces of your session.</p>
+          <p style="margin-top: 25px;"> 
+            <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
+          <img src="images/arrow_left.gif" alt="" />Return to your Signet session</a></p>
+        </div> 
+        <!-- Content -->
         <tiles:insert page="/tiles/footer.jsp" flush="true" />
 
       </div>	

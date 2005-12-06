@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateProxies.jsp,v 1.8 2005-11-22 20:18:13 acohen Exp $
-  $Date: 2005-11-22 20:18:13 $
+  $Id: duplicateProxies.jsp,v 1.9 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -88,8 +88,8 @@
             <%=Constants.HOMEPAGE_NAME%>
           </a>
           &gt; <!-- displays as text right-angle bracket -->
-          <a href="<%=personViewHref%>"> 
-            <%=currentGranteePrivilegedSubject.getName()%>
+          <a href="<%=personViewHref%>">Subject View 
+            [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>          
         </span> <!-- select -->
       </div>  <!-- Navbar -->
@@ -191,7 +191,7 @@
     
     <a href="<%=personViewHref%>">
       <img src="images/arrow_left.gif" />
-      CANCEL this proxy designation and return to  overview for <%=currentGranteePrivilegedSubject.getName()%>
+      CANCEL this proxy designation and return to Subject View [<%=currentGranteePrivilegedSubject.getName()%>]
     </a>
   </div>
 

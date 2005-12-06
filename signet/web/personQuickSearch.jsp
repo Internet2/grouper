@@ -18,10 +18,6 @@
       <SCRIPT language="JavaScript" type="text/javascript" src="scripts/signet.js">
       </SCRIPT>
       
-<!-- This is commented out until we get around to actually implementing it.
-	<A class="close" href="javascript:hideResult('Subject');">[close]</A>
--->
-
 <% 
   Signet signet
      = (Signet)

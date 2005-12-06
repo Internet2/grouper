@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirm.jsp,v 1.37 2005-11-22 20:18:13 acohen Exp $
-  $Date: 2005-11-22 20:18:13 $
+  $Id: confirm.jsp,v 1.38 2005-12-06 05:57:59 jvine Exp $
+  $Date: 2005-12-06 05:57:59 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -106,8 +106,8 @@
             <%=Constants.HOMEPAGE_NAME%>
           </a>
           &gt; <!-- displays as text right-angle bracket -->
-          <a href="<%=personViewHref%>">  
-            <%=currentGranteePrivilegedSubject.getName()%>
+          <a href="<%=personViewHref%>">Subject View 
+            [<%=currentGranteePrivilegedSubject.getName()%>]
           </a>
           &gt; Grant new privilege
         </span> <!-- select -->
@@ -126,10 +126,11 @@
           <div class="section">
 				 		<h2>Completed assignment</h2>
 							<table>
-              	<tr>
+              	<!-- redundant name row
+				<tr>
               		<th class="label" scope="row">Granted to:</th>
-              		<td><%=currentGranteePrivilegedSubject.getName()%></td>
-             		</tr>
+              		<td><%=/*currentGranteePrivilegedSubject.getName()*/%></td>
+             		</tr> -->
               	<tr>
               		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
@@ -214,6 +215,7 @@
 			    <th class="label" scope="row">Expires:</th>
 			    <td><!-- DATE (or condition) GOES HERE --></td>
 			    </tr>
+			  <!-- redundant, moved to history popup
 			  <tr>
 				  <th class="label" scope="row">
 				  	Granted on:
@@ -225,9 +227,9 @@
 				  <th class="label" scope="row">
 				  	Granted by:
 				  </th>
-				  <td><%=(proxy==null ? "" : (proxy.getName() + " acting as ")) + grantor.getName()%>
+				  <td><%=/*(proxy==null ? "" : (proxy.getName() + " acting as ")) + grantor.getName()*/%>
 				  </td>
-			  </tr>			   
+			  </tr>	-->   
 
 			</table>						
 		  </div><!-- section -->
@@ -237,20 +239,18 @@
              Continue</h2>
              <p class="default">
                <a href="<%=personViewHref%>">
-                 <img src="images/arrow_right.gif" alt="" />RETURN TO  overview for <%=currentGranteePrivilegedSubject.getName()%>
+                 <img src="images/arrow_right.gif" alt="" />Subject view [<%=currentGranteePrivilegedSubject.getName()%>]
                </a>
              </p>
              <p>
                <a href="Functions.do?grantableSubsystems=<%=currentSubsystem.getId()%>">
-                 <img src="images/arrow_right.gif" alt="" />Grant another privilege to <%=currentGranteePrivilegedSubject.getName()%>
+                 <img src="images/arrow_right.gif" alt="" />Grant another <%=currentSubsystem.getName()%> privilege to <%=currentGranteePrivilegedSubject.getName()%>
                </a>
              </p>
              <p>
                <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
                  <img src="images/arrow_right.gif" alt="" />
-                 View privileges you have granted
-               </a>
-             </p>
+             My View : Current assignments to others</a></p>
           </div>
            </div> <!-- Content -->    
          <div id="Sidebar">
@@ -281,9 +281,8 @@
                 onclick="personSearchButtonHasFocus=true;"
                 onfocus="personSearchButtonHasFocus=true;"
                 onblur="personSearchButtonHasFocus=false;" />
-			<br />
-		  	<label for="words">Enter a subject's name, then click "Search".</label>
 			</p>
+		  	<p class="dropback"><label for="words">Enter a person's or group's name, then click Search. </label></p>
             <div id="PersonSearchResults" style="display:none">
             </div> <!-- PersonSearchResults -->
 
