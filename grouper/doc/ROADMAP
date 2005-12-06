@@ -3,17 +3,15 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.99 2005-12-06 05:35:03 blair Exp $
+$Id: ROADMAP,v 1.100 2005-12-06 06:43:49 blair Exp $
 
 ---
 
 # Grouper 0.9
 
 ## Next Actions
-* Replace `_init()` methods with static {} declarations where possible
 * Implement remaining unimplemented methods
 * Rename subjectIDs in local subject<=>member mapping (#133)
-* Finish refactoring _MembershipFinder_ to apply READ filtering
 * Update Subject API jar
 * normalize source adapter id + name conventions
 * Add "base" group type
@@ -22,41 +20,85 @@ $Id: ROADMAP,v 1.99 2005-12-06 05:35:03 blair Exp $
 * wheel group
 * ALL toggle switches 
 * Review files and add TODO items to this list
-
-## Later
 * What triggers a "modified" update?
+  * possibly make configurable to avoid bikeshedding?
+* Refactor membership adding and removing into _Membership_.  There is
+  too much duplicated and inconsistent code right now.
+  * _Group_
+  * _GrouperAccessAdapter_
+  * _GrouperNamingAdapter_
+
+## Later - pre-code freeze
+* Finish refactoring _MembershipFinder_ to apply READ filtering
 * Profiling and benchmarking
-  * Privilege cache(s)
-  * Subject cache(s)
-  * Cache attributes
+  * Areas that probably need tweaking
+    * Privilege cache(s)
+    * Subject cache(s)
+    * Attribute cache
+    * List cache
+* Throw _SchemaException_ on all things that take a _Privilege_ or _Field_ as argument
 * Review generated SQL
   * Including my twisty column names
-  * Add create member and time to memberships
-    * Add create time to members
-    * status + ttl?
+  * Add 
+    * create member + time to memberships 
     * factor type
-* Review old _*.todo_ test classes
-* Test concurrence and persistence
-* Commons logging
+    * status + ttl?
+  * Remove column size constraints on ids and uuids
+* Configurable options for logging adding/granting/deleting/revoking
+  immediate and effective memberships and privs
+* Test
+  * Review old _*.todo_ test classes (and then remove)
+  * Test concurrence and persistence  
+  * Test with Pg and Oracle and review generated SQL
+    * ship with generated schema?
+  * What happens when you delete a group and then attempt to perform
+    further operations on it?
+  * Field validation
+    * Attributes
+    * Lists
+    * Naming privs
+    * Access privs
+  * _AccessPrivilege_ and _NamingPrivilege_ objects
+* Review thrown exceptions, especially runtime exceptions
+* General code review
+
+## Later - post-code freeze
+* Event logging
+* record where each *Finder method is called from
+* Replace contrib items with updated cdg
+* Document
+  * wheel group
+  * ALL subject toggle switches
+  * query api javadoc
+  * caching
+    * privileges
+    * subjects
+  * _doc/CHANGES_
+    * public api
+    * query api
+    * ALL subject
+    * wheel group
+* Attempt to normalize API debug logging
+  * Include method names
+  * Use constants
+
+## Probably 1.0
 * Additional query filters
 * Custom group types
   * Custom group attributes
     * setting, unsetting, nullable, etc
   * Custom group lists
     * add to group subjects
-* record where each *Finder method is called from
-* Test with Pg and Oracle and review generated SQL
-* Update and expand query api javadocs
-* Replace contrib with updated cdg
-* Switch to Hibernate 3.x
+    * removing upon group deletion
 
 ---
 
 # Grouper 1.0
 
 ## Features
+* Switch to Hibernate 3.x
 * Group math
-* Improved custom group type support
+* _Programming The Grouper API_ guide
 
 ---
 
@@ -84,5 +126,6 @@ $Id: ROADMAP,v 1.99 2005-12-06 05:35:03 blair Exp $
 * Improved, expanded and more consistent logging policy (#226)
 * Ability to rename groups (#262) 
 * Search limits
+
 
 
