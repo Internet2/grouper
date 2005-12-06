@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.48 2005-12-06 22:34:51 acohen Exp $
-  $Date: 2005-12-06 22:34:51 $
+  $Id: Common.java,v 1.49 2005-12-06 23:56:07 acohen Exp $
+  $Date: 2005-12-06 23:56:07 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -157,7 +157,7 @@ public class Common
     
     String editorDescription = 
       (newerHistoryRecord.getProxySubject()==null
-       ? ""
+       ? newerHistoryRecord.getGrantor().getName()
        : (newerHistoryRecord.getProxySubject().getName()
           + ", acting as "
           + newerHistoryRecord.getGrantor().getName()));
