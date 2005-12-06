@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.15 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.16 2005-12-06 17:40:21 blair Exp $
  */
 public class MembershipFinder {
 
@@ -90,15 +90,21 @@ public class MembershipFinder {
   )
     throws  MembershipNotFoundException
   {
+    String msg = "findImmediateMembership " 
+      + SubjectHelper.getPretty(subj) 
+      + " '" + f.getName() + "'";
+    GrouperLog.debug(LOG, s, msg);
     // TODO Filter
     GrouperSession.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = findImmediateMembership(g.getUuid(), m, f);
       ms.setSession(s);
+      GrouperLog.debug(LOG, s, msg + " found: " + ms);
       return ms;
     }
     catch (MemberNotFoundException eMNF) {
+      GrouperLog.debug(LOG, s, msg + " not found: " + eMNF.getMessage());
       throw new MembershipNotFoundException(eMNF.getMessage());
     }
   } // public static Membership findImmediateMembership(s, g, m, f)
@@ -293,23 +299,23 @@ public class MembershipFinder {
   {
     // TODO Switch to criteria queries?
     // TODO Filter
+    // FIXME Why does this return a Set?  That makes no sense.
     Set mships = new LinkedHashSet();
     try {
       Session hs  = HibernateHelper.getSession();
       List    l   = hs.find(
-                      "from Membership as ms where  "
-                      + "ms.member_id       = ?     "
-                      + "and ms.field.name  = ?     "
-                      + "and ms.field.type  = ?     "
-                      + "and ms.depth       = 0     ",
-                      new Object[] {
-                        m.getId(), f.getName(), f.getType().toString()
-                      },
-                      new Type[] {
-                        Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
-                      }
-                    )
-                    ;
+        "from Membership as ms where  "
+        + "ms.member_id       = ?     "
+        + "and ms.field.name  = ?     "
+        + "and ms.field.type  = ?     "
+        + "and ms.depth       = 0     ",
+        new Object[] {
+          m.getId(), f.getName(), f.getType().toString()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, Hibernate.STRING
+        }
+        );
       hs.close();
       mships.addAll(Membership.setSession(s, l));
     }
@@ -600,14 +606,49 @@ public class MembershipFinder {
 
   // @return  {@link Membership} object
   protected static Membership findImmediateMembership(String oid, Member m, Field f)
-    throws MembershipNotFoundException
+    throws  MembershipNotFoundException
   {
+    // TODO Switch to criteria queries?
     // TODO Filter
-    Set mships = findMemberships(oid, m, f);
-    if (mships.size() == 1) {
-      return (Membership) new ArrayList(mships).get(0);
+    String msg = "findImmediateMembership '" + oid + "' + '" + m + "' '"
+      + f.getName() + "'";
+    LOG.debug(msg);
+    Membership ms = null;
+    try {
+      Session hs  = HibernateHelper.getSession();
+      List    l   = hs.find(
+        "from Membership as ms where  "
+        + "ms.owner_id        = ?     "
+        + "and ms.member_id   = ?     "
+        + "and ms.field.name  = ?     "
+        + "and ms.field.type  = ?     "
+        + "and ms.depth       = 0     ",
+        new Object[] {
+          oid, m.getId(), f.getName(), f.getType().toString()
+        },
+        new Type[] {
+          Hibernate.STRING, Hibernate.STRING, 
+          Hibernate.STRING, Hibernate.STRING
+        }
+      );
+      hs.close();
+      if      (l.size() == 1) {
+        ms = (Membership) l.get(0);
+      }
+      else if (l.size() > 0)  {
+        LOG.error(msg + " duplicate immediate memberships?");
+      }
     }
-    throw new MembershipNotFoundException("membership not found");
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error checking membership: " + e.getMessage()
+      );  
+    }
+    if (ms == null) {
+      throw new MembershipNotFoundException();
+    }
+    return ms;
   } // protected static Membership findImmediateMembership(oid, m, f)
 
   protected static Membership findImmediateMembership(

@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.33 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: Group.java,v 1.34 2005-12-06 17:40:21 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -1130,14 +1130,19 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasEffectiveMember(Subject subj, Field f) {
+    boolean rv  = false;
+    String  msg = "hasEffectiveMember " + SubjectHelper.getPretty(subj) + " '" 
+      + f.getName() + "': ";
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
-      return m.isEffectiveMember(this, f);
+      rv = m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      // TODO Is silence the proper response?
+      // TODO Fail silently?
+      GrouperLog.debug(LOG, this.s, msg + eMNF.getMessage());
     }
-    return false;
+    GrouperLog.debug(LOG, this.s, msg + rv);
+    return rv;
   } // public boolean hasEffectiveMember(subj, f)
 
   /**
@@ -1172,14 +1177,19 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasImmediateMember(Subject subj, Field f) {
+    boolean rv  = false;
+    String  msg = "hasImmediateMember " + SubjectHelper.getPretty(subj) + " '" 
+      + f.getName() + "': ";
     try {
       Member m = MemberFinder.findBySubject(this.s, subj);
-      return m.isImmediateMember(this, f);
+      rv = m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      // TODO Is silence the proper response?
+      // TODO Fail silently?
+      GrouperLog.debug(LOG, this.s, msg + eMNF.getMessage());
     }
-    return false;
+    GrouperLog.debug(LOG, this.s, msg + rv);
+    return rv;
   } // public boolean hasImmediateMember(subj, f)
 
   public int hashCode() {

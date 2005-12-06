@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.19 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: Member.java,v 1.20 2005-12-06 17:40:21 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -677,25 +677,31 @@ public class Member implements Serializable {
    */
   public boolean isImmediateMember(Group g, Field f) {
     boolean rv  = false;
-    String  msg = "isImmediateMember '" + f.getName() + "' '";
+    String  msg = "isImmediateMember '" + g.getName() + "' '" 
+      + f.getName() + "' ";
     try {
-      MembershipFinder.findImmediateMembership(
-        g.getUuid(), this, f
-      );
-      rv = true;
-      GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
-    }
-    catch (MembershipNotFoundException eMNF) {
+      Subject subj = this.getSubject();
+      msg += SubjectHelper.getPretty(subj) + " ";
       try {
-        MembershipFinder.findImmediateMembership(
-          g.getUuid(), MemberFinder.findAllMember(), f
-        );
+        MembershipFinder.findImmediateMembership(this.s, g, subj, f);
         rv = true;
-        GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+        GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);
       }
-      catch (MembershipNotFoundException anotherMNF) {
-        // ignore
+      catch (MembershipNotFoundException eMNF) {
+        try {
+          MembershipFinder.findImmediateMembership(
+            g.getUuid(), MemberFinder.findAllMember(), f
+          );
+          rv = true;
+          GrouperLog.debug(LOG, this.s, msg + "GrouperAll': " + rv);
+        }
+        catch (MembershipNotFoundException anotherMNF) {
+          // ignore
+        }
       }
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // TODO Well, this is unexpected.
     }
     if (rv == false) {
       GrouperLog.debug(LOG, this.s, msg + this + "': " + rv);

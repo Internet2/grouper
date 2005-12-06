@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.10 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: MemberOf.java,v 1.11 2005-12-06 17:40:21 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -176,26 +176,31 @@ class MemberOf implements Serializable {
         Membership msMofM = new Membership(
           s, oid, mofm.getMember(), f, vid, depth
         );
+        GrouperLog.debug(LOG, orig, msg + " msMofM: " + msMofM);
         mships.add(msMofM);
       }
       catch (MemberNotFoundException eMNF0) {
         // TODO
         GrouperLog.warn(LOG, orig, eMNF0.getMessage());
       }
-      // ... and add to wherever this group is a member
-      Iterator iterGisM = isMember.iterator();
-      while (iterGisM.hasNext()) {
-        Membership gism = (Membership) iterGisM.next();
-        try {
-          Membership msGisM = new Membership(
-            s, gism.getOwner_id(), mofm.getMember(), Group.getDefaultList(), 
-            vid, depth + gism.getDepth() 
-          );
-          mships.add(msGisM);
-        }
-        catch (MemberNotFoundException eMNF1) {
-          // TODO
-          GrouperLog.warn(LOG, orig, eMNF1.getMessage());
+      // ... and add to wherever this is a member - as root - but only
+      // if we were adding to g's "members" list
+      if (f.equals(Group.getDefaultList())) {
+        Iterator iterGisM = isMember.iterator();
+        while (iterGisM.hasNext()) {
+          Membership gism = (Membership) iterGisM.next();
+          try {
+            Membership msGisM = new Membership(
+              s, gism.getOwner_id(), mofm.getMember(), Group.getDefaultList(), 
+              vid, depth + gism.getDepth() 
+            );
+            GrouperLog.debug(LOG, orig, msg + " msGisM: " + msGisM);
+            mships.add(msGisM);
+          }
+          catch (MemberNotFoundException eMNF1) {
+            // TODO
+            GrouperLog.warn(LOG, orig, eMNF1.getMessage());
+          }
         }
       }
     }
