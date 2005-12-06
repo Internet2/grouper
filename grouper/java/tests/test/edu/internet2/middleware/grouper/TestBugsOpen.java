@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test open bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsOpen.java,v 1.2 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: TestBugsOpen.java,v 1.3 2005-12-06 17:40:21 blair Exp $
  */
 public class TestBugsOpen extends TestCase {
 
@@ -52,49 +52,162 @@ public class TestBugsOpen extends TestCase {
 
   // Tests
 
-  // Gary Brown, 20051202, <C76C2307ED5A17415027C3D2@cse-gwb.cse.bris.ac.uk>
-  // Status: Unconfirmed, Unresolved
-  public void testGrantStemToGroup() {
+  // @source  Gary Brown, 20051206, <6513d0390512060544q3fff7944vb8e1cedae7d4f92c@mail.gmail.com>
+  // @status  awaiting fixed confirmation
+  // TODO Convert into _TestMemberOf_ test case
+  public void testGrantNamingPrivsToGroupAndAccessPrivsToSelf() {
+    LOG.info("testGrantNamingPrivsToGroupAndAccessPrivsToSelf");
     try {
-      // Setup
-      GrouperSession  s     = GrouperSession.startSession(
-        SubjectFinder.findById("GrouperSystem", "application")
-      );
-      Stem            root  = StemFinder.findRootStem(s);
-      Stem            edu   = root.addChildStem("edu", "educational");
-      Group           i2    = edu.addChildGroup("i2", "internet2");
-      Subject         subj0 = SubjectFinder.findById("test.subject.0");
-      i2.addMember(subj0);
-      Assert.assertTrue("i2 has mem subj0", i2.hasMember(subj0));
-      Assert.assertTrue("i2 has imm mem subj0", i2.hasImmediateMember(subj0));
-      // Test
-      Stem            ns    = StemFinder.findByName(s, edu.getName());
-      Assert.assertNotNull("ns !null", ns);
-      Group           g     = GroupFinder.findByName(s, i2.getName());
-      Assert.assertNotNull("g !null", g);
+      Subject kebe = SubjectHelper.SUBJ0;
+      Subject iata = SubjectHelper.SUBJ1;
+      Subject iawi = SubjectHelper.SUBJ2;
 
-      // Without the pre-granting of CREATE, the later granting of STEM
-      // is fine.
-      ns.grantPriv(
-        SubjectFinder.findById(g.getUuid()),
-         Privilege.getInstance("create")
-       );
-      Assert.assertTrue("g (ns) has CREATE", g.toMember().hasCreate(ns));
-      Assert.assertTrue("g (m) has CREATE",  ns.hasCreate(g.toSubject()));
+      Subject subj = SubjectFinder.findById("GrouperSystem");
+      GrouperSession s = GrouperSession.startSession(subj);
+      Stem root = StemFinder.findRootStem(s);
+			Stem qsuob = root.addChildStem("qsuob","qsuob");
+      Group admins = qsuob.addChildGroup("admins","admins");
 
-      ns.grantPriv(
-        SubjectFinder.findById(g.getUuid()),
-        Privilege.getInstance("stem")
-      );
-      Assert.assertTrue("g (ns) has STEM", g.toMember().hasStem(ns));
-      Assert.assertTrue("g (m) has STEM",  ns.hasStem(g.toSubject()));
+      admins.addMember(kebe);
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
 
+      Group staff = qsuob.addChildGroup("staff","staff");
+      staff.addMember(iata);
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testNumMship(staff, "members", 1, 1, 0);
+      staff.addMember(iawi);
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+
+      Group all_staff = qsuob.addChildGroup("all_staff","all staff");
+      all_staff.addMember(staff.toSubject());
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+
+      admins.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testImm(s, admins, subj, "admins");
+      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+
+      qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("create"));
+      // TODO test
+      qsuob.grantPriv(admins.toSubject(),Privilege.getInstance("stem"));
+      // TODO test
+
+      staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testImm(s, admins, subj, "admins");
+      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+
+      staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testImm(s, admins, subj, "admins");
+      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, staff, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
+
+      all_staff.grantPriv(all_staff.toSubject(),Privilege.getInstance("read"));
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testImm(s, admins, subj, "admins");
+      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+
+      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipHelper.testImm(s, all_staff, all_staff.toSubject(), "readers");
+      MembershipHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
+      MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
+      MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
+      MembershipHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, staff, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
+
+      all_staff.grantPriv(admins.toSubject(),Privilege.getInstance("admin"));
+      MembershipHelper.testImm(s, admins, kebe, "members");
+      MembershipHelper.testImm(s, admins, subj, "admins");
+      MembershipHelper.testImm(s, admins, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, admins, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(admins, "members", 1, 1, 0);
+      MembershipHelper.testNumMship(admins, "admins", 3, 2, 1);
+
+      MembershipHelper.testImm(s, all_staff, staff.toSubject() , "members");
+      MembershipHelper.testEff(s, all_staff, iata, "members", staff, 1);
+      MembershipHelper.testEff(s, all_staff, iawi, "members", staff, 1);
+      MembershipHelper.testNumMship(all_staff, "members", 3, 1, 2);
+      MembershipHelper.testImm(s, all_staff, all_staff.toSubject(), "readers");
+      MembershipHelper.testEff(s, all_staff, staff.toSubject(), "readers", all_staff, 1);
+      MembershipHelper.testEff(s, all_staff, iata, "readers", staff, 2);
+      MembershipHelper.testEff(s, all_staff, iawi, "readers", staff, 2);
+      MembershipHelper.testNumMship(all_staff, "readers", 4, 1, 3);
+      MembershipHelper.testImm(s, all_staff, subj, "admins");
+      MembershipHelper.testImm(s, all_staff, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, all_staff, kebe, "admins", admins, 1);
+
+      MembershipHelper.testImm(s, staff, iata , "members");
+      MembershipHelper.testImm(s, staff, iawi , "members");
+      MembershipHelper.testImm(s, staff, admins.toSubject(), "admins");
+      MembershipHelper.testEff(s, staff, kebe, "admins", admins, 1);
+      MembershipHelper.testNumMship(staff, "members", 2, 2, 0);
+      MembershipHelper.testNumMship(staff, "admins", 3, 2, 1);
+
+      // TODO s.stopSession();
     }
     catch (Exception e) {
       Assert.fail("exception: " + e.getMessage());
     }
-  } // public void testGrantStemToGroup()
-
+  } // public void testGrantNamingPrivsToGroupAndAccessPrivsToSelf() 
 
 }
 

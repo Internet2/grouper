@@ -28,7 +28,7 @@ import  java.util.*;
  * DbUnit did earlier.  Oh well.
  * </p>
  * @author  blair christensen.
- * @version $Id: Db.java,v 1.6 2005-12-02 03:15:53 blair Exp $
+ * @version $Id: Db.java,v 1.7 2005-12-06 17:40:21 blair Exp $
  */
 class Db {
 
@@ -107,6 +107,11 @@ class Db {
         SubjectHelper.SUBJ1_ID, 
         SubjectHelper.SUBJ1_TYPE,
         SubjectHelper.SUBJ1_NAME
+      );
+      _addSubject(
+        SubjectHelper.SUBJ2_ID, 
+        SubjectHelper.SUBJ2_TYPE,
+        SubjectHelper.SUBJ2_NAME
       );
     }
     catch (SQLException eSQL) {

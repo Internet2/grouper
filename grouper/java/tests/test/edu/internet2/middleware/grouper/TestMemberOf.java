@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.1 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.2 2005-12-06 17:40:21 blair Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -220,5 +220,18 @@ public class TestMemberOf extends TestCase {
     MembershipHelper.testNumMship(i2   , "readers", 1, 1, 0);
     MembershipHelper.testNumMship(uofc , "readers", 1, 1, 0);
   } // public void testIsMemberCustomListHasMemberCustomList()
+
+  public void testHasMemberDefaultListIsMemberCustomListSelf() {
+    LOG.info("testHasMemberDefaultListIsMemberCustomListSelf");
+    MembershipHelper.testNumMship(i2  , "members" , 0, 0, 0);
+    MembershipHelper.testNumMship(i2  , "readers" , 0, 0, 0);
+    GroupHelper.addMember(i2, subj0, "members");
+    MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
+    MembershipHelper.testNumMship(i2  , "readers" , 0, 0, 0);
+    GroupHelper.addMember(i2, i2.toSubject(), "readers");
+    MembershipHelper.testNumMship(i2  , "members" , 1, 1, 0);
+    MembershipHelper.testNumMship(i2  , "readers" , 2, 1, 1);
+  } // public void testHasMemberDefaultListIsMemberCustomListSelf()
+
 }
 
