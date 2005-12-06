@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: personview-print.jsp,v 1.22 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: personview-print.jsp,v 1.23 2005-12-06 22:36:48 acohen Exp $
+  $Date: 2005-12-06 22:36:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -80,10 +80,7 @@
           		 privDisplayType,
           		 pSubject)%>
         </h1>
-          <!-- 
-		  <p class="ident"><%=/*pSubject.getDescription()*/%></p> 
-		  -->
-		  <p class="dropback">Date of report: <%=Common.displayDatetime(new Date())%></p> 
+		  <p class="dropback">Date of report: <%=Common.displayDatetime(Constants.DATETIME_FORMAT_24_SECOND, new Date())%></p> 
       <a href="PersonView.do"><img src="images/arrow_left.gif" alt="" />return</a>
 
         

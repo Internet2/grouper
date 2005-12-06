@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.8 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: confirmProxy.jsp,v 1.9 2005-12-06 22:36:48 acohen Exp $
+  $Date: 2005-12-06 22:36:48 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -118,16 +118,6 @@
                     </span>
                 </td>
               </tr>
-			  <!-- redundant name row
-              <tr>
-                <th class="label" scope="row">Scope:</th>                
-                <td>
-                  acting as
-                  <%=/*currentProxy.getGrantor().getName()*/%>
-				  <span class="ident"><%=/*currentProxy.getGrantor().getDescription()*/%></span>
-                </td>
-              </tr>	-->
-
               <tr>
                 <th class="label" scope="row"><%=Common.displayLimitType(currentProxy)%>:</th>
                 <td><%=Common.displaySubsystem(currentProxy)%></td>
@@ -143,18 +133,7 @@
               <tr>
         		<th class="label" scope="row">Ends:</th>
         		<td><!-- DATE (or condition) GOES HERE --></td>
-      		</tr>
-	  		<!-- redundant rows, in history popup 
-			<tr>
-                <th class="label" scope="row">Designated on:</th>
-                <td><%=/*Common.displayDatetime(new Date())*/%></td>
-              </tr>
-              <tr>
-                <th class="label" scope="row">Designated by:</th>
-                <td>
-				<%=/*(proxySubject==null ? "" : (proxySubject.getName() + " acting as ")) + grantor.getName()*/%>
-				</td>
-              </tr> -->
+      		  </tr>
             </table>            
         </div><!-- section -->
          
@@ -210,7 +189,7 @@
                   onclick="personSearchButtonHasFocus=true;"
                   onfocus="personSearchButtonHasFocus=true;"
                   onblur="personSearchButtonHasFocus=false;" />
-                </p>
+              </p>
                 <p class="dropback">
                   <label for="words">Enter a person's or group's name, then click Search.</label>
                 </p>

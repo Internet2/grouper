@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.18 2005-10-25 17:49:25 acohen Exp $
-$Date: 2005-10-25 17:49:25 $
+$Id: Constants.java,v 1.19 2005-12-06 22:34:51 acohen Exp $
+$Date: 2005-12-06 22:34:51 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -133,6 +133,9 @@ public final class Constants
   public static final String ACTAS_BUTTON_ID = "actAsButton";
   
   public static final String HOMEPAGE_NAME = "My Overview";
+  
+  public static final String DATETIME_FORMAT_24_SECOND = "dd-MMM-yyyy kk:mm:ss";
+  public static final String DATETIME_FORMAT_12_MINUTE = "MMM d, yyyy hh:mmaa";
   
   public static final Subsystem WILDCARD_SUBSYSTEM
     = new Subsystem()

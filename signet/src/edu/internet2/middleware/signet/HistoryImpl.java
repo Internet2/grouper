@@ -1,6 +1,6 @@
 /*--
-$Id: HistoryImpl.java,v 1.1 2005-12-02 18:36:53 acohen Exp $
-$Date: 2005-12-02 18:36:53 $
+$Id: HistoryImpl.java,v 1.2 2005-12-06 22:34:51 acohen Exp $
+$Date: 2005-12-06 22:34:51 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -176,5 +176,10 @@ abstract class HistoryImpl implements History
   protected void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
+  }
+  
+  public Date getDate()
+  {
+    return this.getHistoryDatetime();
   }
 }

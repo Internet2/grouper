@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.47 2005-11-22 03:56:44 acohen Exp $
-  $Date: 2005-11-22 03:56:44 $
+  $Id: Common.java,v 1.48 2005-12-06 22:34:51 acohen Exp $
+  $Date: 2005-12-06 22:34:51 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -16,9 +16,11 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -34,6 +36,7 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.AssignmentHistory;
 import edu.internet2.middleware.signet.Decision;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.Limit;
@@ -65,8 +68,6 @@ public class Common
   private static final String DATE_FORMAT = "MM-dd-yyyy";
   private static final String DATE_SAMPLE = "mm-dd-yyyy";
 
-  private static final String DATETIME_FORMAT = "dd-MMM-yyyy kk:mm:ss";
-
   final private static java.text.SimpleDateFormat[] DATERS =  {
     new java.text.SimpleDateFormat("MM/d/yy"),
     new java.text.SimpleDateFormat("MM-d-yy"),
@@ -82,6 +83,8 @@ public class Common
   
   private static final Comparator grantableReportComparator
     = new GrantableReportComparator();
+  
+  private static final Map dateFormatMap = new HashMap();
 
   /**
    *  
@@ -111,11 +114,94 @@ public class Common
     }
   }
   
-  public static String displayDatetime(Date datetimeVal)
+  private static SimpleDateFormat getDateFormat(String formatStr)
   {
-    SimpleDateFormat formatter = new SimpleDateFormat(DATETIME_FORMAT);
+    SimpleDateFormat formatter
+      = (SimpleDateFormat)(dateFormatMap.get(formatStr));
+    
+    if (formatter == null)
+    {
+      formatter = new SimpleDateFormat(formatStr);
+      dateFormatMap.put(formatStr, formatter);
+    }
+    
+    return formatter;
+  }
+  
+  public static String displayDatetime(String formatStr, Date datetimeVal)
+  {
+    SimpleDateFormat formatter = getDateFormat(formatStr);
     String dateStr = formatter.format(datetimeVal);
+    
+    // Here's a hack: If the dateStr includes "AM" or "PM", then make those
+    // characters lower-case.
+    
+    dateStr = dateStr.replaceAll("AM", "am");
+    dateStr = dateStr.replaceAll("PM", "pm");
+
     return dateStr;
+  }
+  
+  public static String describeChange
+    (AssignmentHistory[]  historyArray,
+     int                  historyIndex)
+  {
+    String changeStr = null;
+    AssignmentHistory newerHistoryRecord = historyArray[historyIndex];
+    AssignmentHistory olderHistoryRecord = null;
+    
+    if (historyIndex != (historyArray.length - 1))
+    {
+      olderHistoryRecord = historyArray[historyIndex + 1];
+    }
+    
+    String editorDescription = 
+      (newerHistoryRecord.getProxySubject()==null
+       ? ""
+       : (newerHistoryRecord.getProxySubject().getName()
+          + ", acting as "
+          + newerHistoryRecord.getGrantor().getName()));
+    
+    Difference diff = diff(newerHistoryRecord, olderHistoryRecord);
+    
+    if (diff.equals(Difference.GRANT))
+    {
+      changeStr = "Granted by " + editorDescription;
+    }
+    else if (diff.equals(Difference.REVOKE))
+    {
+      changeStr = "Revoked by " + editorDescription;
+    }
+    else
+    {
+      changeStr = "Modified by " + editorDescription;
+    }
+    
+    return changeStr;
+  }
+  
+  static private Difference diff
+    (AssignmentHistory newer,
+     AssignmentHistory older)
+  {
+    Difference diff;
+    
+    if (older == null)
+    {
+      // If it's the first record, it must be the initial grant.
+      diff = Difference.GRANT;
+    }
+    else if (older.getStatus().equals(Status.ACTIVE)
+             && newer.getStatus().equals(Status.INACTIVE))
+    {
+      diff = Difference.REVOKE;
+    }
+    else
+    {
+      diff = Difference.MODIFY;
+    }
+    
+    return diff;
   }
 
   /**
