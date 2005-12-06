@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.20 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: Member.java,v 1.21 2005-12-06 20:56:07 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -243,7 +243,7 @@ public class Member implements Serializable {
    * @throws  SubjectNotFoundException
    */ 
   public Subject getSubject() 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException
   {
     if (this.subj == null) {
       this.subj = SubjectFinder.findById(
@@ -274,8 +274,15 @@ public class Member implements Serializable {
    * @return  Subject's {@link Source}
    */ 
   public Source getSubjectSource() {
-    throw new RuntimeException("Not implemented");
-  }
+    try {
+      return this.getSubject().getSource();
+    }
+    catch (SubjectNotFoundException eSNF) {
+      throw new RuntimeException(
+        "unable to retrieve source: " + eSNF.getMessage()
+      );
+    }
+  } // public Source getSubjectSource()
 
   /** Get the {@link Source} id of the subject that maps to this
    * member.
