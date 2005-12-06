@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find memberships within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.14 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.15 2005-12-06 05:35:03 blair Exp $
  */
 public class MembershipFinder {
 
@@ -56,7 +56,7 @@ public class MembershipFinder {
   public static Membership findEffectiveMembership(
     GrouperSession s, Group g, Subject subj, Field f, Group via, int depth
   )
-    throws MembershipNotFoundException
+    throws  MembershipNotFoundException
   {
     // TODO Filter
     GrouperSession.validate(s);
@@ -88,7 +88,7 @@ public class MembershipFinder {
   public static Membership findImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f
   )
-    throws MembershipNotFoundException
+    throws  MembershipNotFoundException
   {
     // TODO Filter
     GrouperSession.validate(s);
@@ -368,6 +368,33 @@ public class MembershipFinder {
     }
     return mships;
   } // protected static Set findMemberships(s, g, f)
+
+  // Find all memberships for this member
+  // @caller    Member.getAllMemberships()
+  // @filtered  no
+  protected static Set findMemberships(Member m) {
+    // TODO Switch to criteria queries?
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs = HibernateHelper.getSession();
+      mships.addAll(
+        hs.find(
+          "from Membership as ms where  "
+          + "ms.member_id       = ?     ",
+          m.getId(), 
+          Hibernate.STRING
+        )
+      );
+      hs.close();
+    }
+    catch (HibernateException e) {
+      // TODO Is a RE appropriate here?
+      throw new RuntimeException(
+        "error checking membership: " + e.getMessage()
+      );  
+    }
+    return mships;
+  } // protected static Set findMemberships(m)
 
   // @return  Set of matching memberships for a {@link Member}
   protected static Set findMemberships(Member m, Field f) {

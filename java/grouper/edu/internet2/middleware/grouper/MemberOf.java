@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Perform <i>member of</i> calculation.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.9 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: MemberOf.java,v 1.10 2005-12-06 05:35:03 blair Exp $
  */
 class MemberOf implements Serializable {
 
@@ -48,30 +48,26 @@ class MemberOf implements Serializable {
     // a result.
     GrouperSession  root    = GrouperSessionFinder.getRootSession();
     Set             mships  = new LinkedHashSet();
-    String          msg     = " for '" + g.getName() + "'/'" + m + "'";
-    GrouperLog.debug(LOG, s, "doMemberOf: membership calculation" + msg);
-    msg += ": ";
+    String          msg     = "doMemberOf for '" + g.getName() + "'/'" 
+      + m + "'/'" + f.getName() + "'";
+    GrouperLog.debug(LOG, s, msg);
 
     // Proxy as root for a short period of time
     g.setSession(root);  
 
-    // Find where g is a member - but do it as root
-    Set isMember = new LinkedHashSet();
+    // Find *everywhere* where g is a member - but do it as root
+    Set isMember = g.toMember().getAllMemberships();
+
+    // Add m to where g is a member - as root - but only we are adding
+    // to g's "members" list
     if (f.equals(Group.getDefaultList())) {
-      // We only propagate effective membership changes further up when
-      // adding to the "members" list.
-      isMember = g.toMember().getMemberships();
+      Set temp0 = _findMembershipsWhereGroupIsMember(root, s, g, m, isMember);
+      mships.addAll(temp0);
     }
 
-    // Add m to where g is a member - as root
-    Set temp0 = _findMembershipsWhereGroupIsMember(root, g, m, isMember);
-    mships.addAll(temp0);
-    GrouperLog.debug(LOG, s, "group is member" + msg + temp0.size());
-
     // Add members of m to g - as root
-    // FIXME I need to pass along field here
     // Add members of m to where g is a member - as root
-    mships.addAll(_findGroupAsMember(root, g.getUuid(), m, f, isMember));
+    mships.addAll(_findGroupAsMember(root, s, g.getUuid(), m, f, isMember));
 
     // Now reset everything to the proper session
     g.setSession(s);
@@ -82,9 +78,10 @@ class MemberOf implements Serializable {
       Membership ms = (Membership) iter.next();    
       ms.setSession(s);
       resetMships.add(ms);
+      GrouperLog.debug(LOG, s, msg + " found: " + ms);
     }
 
-    GrouperLog.debug(LOG, s, "memberOf total" + msg + resetMships.size());
+    GrouperLog.debug(LOG, s, msg + ": " + resetMships.size());
     return resetMships;
   } // protected static Set doMemberOf(s, g, m, f)
 
@@ -102,7 +99,7 @@ class MemberOf implements Serializable {
     // Add members of m to where ns is a member
     try {
       mships.addAll(
-        _findGroupAsMember(s, ns.getUuid(), m, f, isMember)
+        _findGroupAsMember(s, s, ns.getUuid(), m, f, isMember)
       );
     }
     catch (GroupNotFoundException eGNF) {
@@ -118,48 +115,50 @@ class MemberOf implements Serializable {
   // If m is a group, find its members and add them to g and where g is
   // a member
   private static Set _findGroupAsMember(
-    GrouperSession s, String oid, Member m, Field f, Set isMember
+    GrouperSession s, GrouperSession orig, String oid, Member m, 
+    Field f, Set isMember
   )
     throws  GroupNotFoundException
   {
     Set     mships      = new LinkedHashSet();
     Set     hasMembers  = new LinkedHashSet();
-    String  msg         = null;
+    String  msg         = "findGroupAsMember";
+    GrouperLog.debug(LOG, orig, msg);
 
     if (m.getSubjectTypeId().equals("group")) {
       // Convert member back to a group
       Group gm = m.toGroup();
-      msg = "member '" + m + "' is group";
-      GrouperLog.debug(LOG, s, msg);
+      GrouperLog.debug(LOG, orig, msg + " member is group: " + m);
       // And attach root session for better looking up of memberships
       gm.setSession(GrouperSessionFinder.getRootSession());
 
       // Find members of m
       Set hasMships = gm.getMemberships();
-      GrouperLog.debug(LOG, s, msg + " has members: " + hasMships.size());
+      GrouperLog.debug(LOG, orig, msg + " has members: " + hasMships.size());
 
       // Add members of m to g
       // Add members of m to where g is a member
       mships.addAll(
         _findMembershipsOfMember(
-          s, oid, gm.getUuid(), f, isMember, hasMships
+          s, orig, oid, gm.getUuid(), f, isMember, hasMships
         )
       );
     }
-    if (msg != null) {
-      GrouperLog.debug(LOG, s, msg + " total: " + mships.size());
-    }
+    GrouperLog.debug(LOG, orig, msg + ": " + mships.size());
     return mships; 
-  } // private static Set _findGroupAsMember(s, oid, m, f, isMember)
+  } // private static Set _findGroupAsMember(s, orig, oid, m, f, isMember)
 
   // Member is a group.  Look for its memberships and add them to where
   // the containing object is a member.
   private static Set _findMembershipsOfMember(
-    GrouperSession s, String oid, String gmid, Field f, Set isMember, Set hasMembers
+    GrouperSession s, GrouperSession orig, String oid, String gmid, Field f, 
+    Set isMember, Set hasMembers
   ) 
   {
     // TODO Refactor into smaller components
-    Set mships = new LinkedHashSet();
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "findMembershipsOfMember";
+    GrouperLog.debug(LOG, orig, "findMembershipsOfMember");
 
     // Add members of m to where this group is a member
 
@@ -181,7 +180,7 @@ class MemberOf implements Serializable {
       }
       catch (MemberNotFoundException eMNF0) {
         // TODO
-        GrouperLog.warn(LOG, s, eMNF0.getMessage());
+        GrouperLog.warn(LOG, orig, eMNF0.getMessage());
       }
       // ... and add to wherever this group is a member
       Iterator iterGisM = isMember.iterator();
@@ -196,36 +195,42 @@ class MemberOf implements Serializable {
         }
         catch (MemberNotFoundException eMNF1) {
           // TODO
-          GrouperLog.warn(LOG, s, eMNF1.getMessage());
+          GrouperLog.warn(LOG, orig, eMNF1.getMessage());
         }
       }
     }
 
+    GrouperLog.debug(LOG, orig, msg + ": " + mships.size());
     return mships;
-  } // private static Set _findMembershipsOfMember(s, oid, gmid, f, isMember, hasMembers)
+  } // private static Set _findMembershipsOfMember(s, orig, oid, gmid, f, isMember, hasMembers)
 
   // More effective membership voodoo
   private static Set _findMembershipsWhereGroupIsMember(
-    GrouperSession s, Group g, Member m, Set isMember
+    GrouperSession s, GrouperSession orig, Group g, Member m, Set isMember
   ) 
   {
-    Set mships = new LinkedHashSet();
+    Set     mships  = new LinkedHashSet();
+    String  msg     = "findMembershipsWhereGroupIsMember";
+    GrouperLog.debug(LOG, orig, msg);
     // Add m to where g is a member
     Iterator iter = isMember.iterator();
     while (iter.hasNext()) {
       Membership  ms    = (Membership) iter.next();
+      ms.setSession(s);
+      GrouperLog.debug(LOG, orig, msg + " group isMember: " + ms);
       int         depth = ms.getDepth() + 1;
       String      vid   = ms.getVia_id();
       if (vid == null) {
         vid = g.getUuid();
       }
       Membership msGisM = new Membership(
-        s, ms.getOwner_id(), m, Group.getDefaultList(), vid, depth
+        s, ms.getOwner_id(), m, ms.getList(), vid, depth
       );
       mships.add(msGisM);
     }
+    GrouperLog.debug(LOG, orig, msg + ": " + mships.size());
     return mships;
-  } // private static Set _findMembershipsWhereGroupIsMember(s, g, m, isMember)
+  } // private static Set _findMembershipsWhereGroupIsMember(s, orig, g, m, isMember)
 
 }
 

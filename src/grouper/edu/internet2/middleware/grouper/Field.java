@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group attribute or list.
  * <p />
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.4 2005-12-01 03:12:24 blair Exp $    
+ * @version $Id: Field.java,v 1.5 2005-12-06 05:35:03 blair Exp $    
  */
 public class Field implements Serializable {
 
@@ -97,11 +97,11 @@ public class Field implements Serializable {
 
   public String toString() {
     return new ToStringBuilder(this)
-           .append("name"   , getField_name() )
-           .append("type"   , getField_type() )
-           .append("read"   , getRead_priv()  )
-           .append("write"  , getWrite_priv() )
-           .toString();
+      .append("name"   , getField_name() )
+      .append("type"   , getField_type() )
+      .append("read"   , getRead_priv()  )
+      .append("write"  , getWrite_priv() )
+      .toString();
   } // public String toString()
 
 

@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.98 2005-12-05 21:40:02 blair Exp $
+$Id: ROADMAP,v 1.99 2005-12-06 05:35:03 blair Exp $
 
 ---
 
@@ -36,8 +36,6 @@ $Id: ROADMAP,v 1.98 2005-12-05 21:40:02 blair Exp $
     * status + ttl?
     * factor type
 * Review old _*.todo_ test classes
-  * More effective membership testing
-  * Cache members
 * Test concurrence and persistence
 * Commons logging
 * Additional query filters

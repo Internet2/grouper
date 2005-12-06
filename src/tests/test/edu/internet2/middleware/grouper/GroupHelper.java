@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.11 2005-12-05 18:34:21 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.12 2005-12-06 05:35:03 blair Exp $
  */
 public class GroupHelper {
 
@@ -39,6 +39,21 @@ public class GroupHelper {
 
 
   // Protected Class Methods
+
+  // Add a member to a group
+  protected static void addMember(Group g, Subject subj, String list) {
+    try {
+      Field f = FieldFinder.find(list); 
+      g.addMember(subj, f);
+      Assert.assertTrue("added member", true);
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // protected static void addMember(g, subj, list)
+
+
+  // 'Tis more ugly below
 
   // Add a group as a member to a group
   protected static void addMember(Group g, Group gm) {

@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * A list membership in the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.7 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: Membership.java,v 1.8 2005-12-06 05:35:03 blair Exp $
  */
 public class Membership implements Serializable {
 
@@ -34,7 +34,6 @@ public class Membership implements Serializable {
   private int       depth;
   private Field     field;
   private String    id;
-  //private String    member_id;
   private Member    member_id;
   private String    owner_id;
   private String    via_id;
@@ -205,13 +204,35 @@ public class Membership implements Serializable {
   } // public int hashCode()
 
   public String toString() {
-    return new ToStringBuilder(this)
-           .append("owner_id"   , getOwner_id()   )
-           .append("member_id"  , getMember_id()  )
-           .append("list"       , getField()      )
-           .append("via_id"     , getVia_id()     )
-           .append("depth"      , getDepth()      )
-           .toString();
+    Object  owner = this.getOwner_id();
+    Object  via   = new String();
+    try {
+      Group g = this.getGroup();
+      owner   = g.getName() + "/group"; 
+    }
+    catch (GroupNotFoundException eNGF) {
+      try {
+        Stem ns = this.getStem();
+        owner   = ns.getName() + "/stem";
+      }
+      catch (StemNotFoundException eSNF) {
+        // ignore
+      }
+    }
+    try {
+      Group g = this.getViaGroup();
+      via     = g.getName();
+    }
+    catch (GroupNotFoundException eGNF) {
+      /// ignore
+    }
+    return new ToStringBuilder(this) 
+      .append("owner"   , owner           )
+      .append("member"  , getMember_id()  )
+      .append("list"    , getField()      )
+      .append("via"     , getVia_id()     )
+      .append("depth"   , getDepth()      )
+      .toString();
   } // public String toString()
 
 

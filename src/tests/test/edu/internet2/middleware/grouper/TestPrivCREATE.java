@@ -30,13 +30,23 @@ import  org.apache.commons.logging.*;
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.2 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.3 2005-12-06 05:35:03 blair Exp $
  */
 public class TestPrivCREATE extends TestCase {
 
   // Private Class Constants
   private static final Log        LOG   = LogFactory.getLog(TestPrivCREATE.class); 
   private static final Privilege  PRIV  = NamingPrivilege.CREATE;
+
+
+  // Private Class Variables
+  private static Stem           a;
+  private static Stem           edu;
+  private static Group          i2;
+  private static GrouperSession nrs;
+  private static Stem           root;
+  private static GrouperSession s;
+  private static Subject        subj0;
 
 
   public TestPrivCREATE(String name) {
@@ -46,50 +56,52 @@ public class TestPrivCREATE extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     Db.refreshDb();
+    a     = null;
+    s     = SessionHelper.getRootSession();
+    root  = StemHelper.findRootStem(s);
+    edu   = StemHelper.addChildStem(root, "edu", "education");
+    i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    subj0 = SubjectHelper.SUBJ0;
+    nrs   = SessionHelper.getSession(subj0.getId());
+    GroupHelper.addMember(i2, subj0, "members");
   }
 
   protected void tearDown () {
     LOG.debug("tearDown");
-    // Nothing 
   }
+
 
   // Tests
 
-  // Create child group without CREATE
-/*
-  public void testCreateChildGroupFail() {
-    LOG.info("testCreateChildGroupFail");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
-    // Get root stem
-    Stem            root    = StemHelper.findRootStem(s);
-    // Create child stem
-    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
-    // Now get child stem as !root subject
-    Stem            nredu   = StemHelper.findByName(nrs, "edu");
-    // Now fail to add a child group as !root subject
-    StemHelper.addChildGroupFail(nredu, "i2", "internet2");
-  } // public void testCreateChildGroupFail()
-*/
+  public void testCreateChildGroupWithoutCREATE() {
+    LOG.info("testCreateChildGroupWithoutCREATE");
+    a = StemHelper.findByName(nrs, edu.getName());
+    StemHelper.addChildGroupFail(a, "uofc", "uchicago");
+  } // public void testCreateChildGroupWithoutCREATE()
 
-  // Create child group with CREATE
-  public void testCreateChildGroup() {
-    LOG.info("testCreateChildGroup");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectHelper.SUBJ0_ID);
-    // Get root stem
-    Stem            root    = StemHelper.findRootStem(s);
-    // Create child stem
-    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
-    // Grant priv on child stem to !root subject
-    PrivHelper.grantPriv(s, edu, nrs.getSubject(), PRIV);
-    // Now get child stem as !root subject
-    Stem            nredu   = StemHelper.findByName(nrs, "edu");
-    // Now add a child group as !root subject
-    StemHelper.addChildGroup(nredu, "i2", "internet2");
-  } // public void testCreateChildGroup()
+  public void testCreateChildGroupWithCREATE() {
+    LOG.info("testCreateChildGroupWithCREATE");
+    PrivHelper.grantPriv(s, edu, subj0, NamingPrivilege.CREATE);
+    a = StemHelper.findByName(nrs, edu.getName());
+    StemHelper.addChildGroup(a, "uofc", "uchicago");
+  } // public void testCreateChildGroupWithCREATE()
 
-}
+  public void testCreateChildGroupWithAllCREATE() {
+    LOG.info("testCreateChildGroupWithAllCREATE");
+    PrivHelper.grantPriv(s, edu, SubjectFinder.findAllSubject(), NamingPrivilege.CREATE);
+    a = StemHelper.findByName(nrs, edu.getName());
+    StemHelper.addChildGroup(a, "uofc", "uchicago");
+  } // public void testCreateChildGroupWithAllCREATE()
+
+  public void testCreateChildGroupWithGroupCREATE() {
+    LOG.info("testCreateChildGroupWithGroupCREATE");
+    MembershipHelper.testImm(s, i2, subj0, "members");
+    PrivHelper.grantPriv(s, edu, i2.toSubject(), NamingPrivilege.CREATE);
+    Assert.assertTrue("i2 has priv", edu.hasCreate(i2.toSubject()));
+    Assert.assertTrue("subj0 has priv", edu.hasCreate(subj0));
+    a = StemHelper.findByName(nrs, edu.getName());
+    StemHelper.addChildGroup(a, "uofc", "uchicago");
+  } // public void testCreateChildGroupWithGroupCREATE()
+
+} 
 
