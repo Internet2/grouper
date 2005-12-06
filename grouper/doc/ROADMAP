@@ -3,7 +3,7 @@
 
 This file provides information on future Grouper development.
 
-$Id: ROADMAP,v 1.100 2005-12-06 06:43:49 blair Exp $
+$Id: ROADMAP,v 1.101 2005-12-06 18:48:22 blair Exp $
 
 ---
 
@@ -98,6 +98,7 @@ $Id: ROADMAP,v 1.100 2005-12-06 06:43:49 blair Exp $
 ## Features
 * Switch to Hibernate 3.x
 * Group math
+* XML import and export
 * _Programming The Grouper API_ guide
 
 ---
@@ -106,6 +107,7 @@ $Id: ROADMAP,v 1.100 2005-12-06 06:43:49 blair Exp $
 
 ## Features
 * Aging Tasks
+* User-defined transaction scoping
 
 ---
 
