@@ -17,26 +17,61 @@
 
 package edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
 import  java.util.*;
 import  org.apache.commons.logging.*;
-import  org.apache.commons.logging.LogFactory;
+
 
 /**
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.5 2005-11-30 21:23:22 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.6 2005-12-06 06:21:52 blair Exp $
  */
 public class SubjectFinder implements Serializable {
-  // TODO Add caching?
 
-  // Private Class Variables
-  private static Log            log = LogFactory.getLog(SubjectFinder.class);
-  private static SourceManager  mgr = null;
-  private static Subject        all = null;
+  // Private Class Constants
+  private static final Log            LOG;
+  private static final SourceManager  MGR;
+  private static final Subject        ALL; // TODO Make public?
+
+
+  static {
+    LOG = LogFactory.getLog(SubjectFinder.class);
+    LOG.debug("Initializing source manager");
+    try {
+      MGR = SourceManager.getInstance();
+      LOG.debug("Source manager initialized: " + MGR);
+      // Add in internal source adapter
+      BaseSourceAdapter isa = new InternalSourceAdapter(
+        "grouper internal adapter", "grouper internal adapter"
+      ); 
+      MGR.loadSource(isa);
+      LOG.debug("Added source: " + isa.getId());
+      // Add in group source adapter
+      BaseSourceAdapter gsa = new GrouperSourceAdapter(
+        "grouper group adapter", "grouper group adapter"
+      );
+      MGR.loadSource(gsa);
+      LOG.debug("Added source: " + gsa.getId());
+      LOG.info("Subject finder initialized");
+      try {
+        ALL = SubjectFinder.findById("GrouperAll", "application");
+        LOG.info("ALL subject initialized");
+      }
+      catch (SubjectNotFoundException eSNF) {
+        String msg = "unable to initialize ALL subject: " + eSNF.getMessage();
+        LOG.fatal(msg);
+        throw new RuntimeException(msg);
+      }
+    } 
+    catch (Exception e) {
+      throw new RuntimeException("failed to initialize: " + e.getMessage()); 
+    }
+  } // static
 
 
   // Public Class Methods
@@ -59,9 +94,8 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id) 
     throws SubjectNotFoundException
   {
-    SubjectFinder._init();
     List subjects  = SubjectFinder._findById(
-      id, mgr.getSources().iterator()
+      id, MGR.getSources().iterator()
     );
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
@@ -89,9 +123,8 @@ public class SubjectFinder implements Serializable {
   public static Subject findById(String id, String type) 
     throws SubjectNotFoundException
   {
-    SubjectFinder._init();
     List subjects  = SubjectFinder._findById(
-      id, mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator()
+      id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
     );
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
@@ -118,9 +151,8 @@ public class SubjectFinder implements Serializable {
   public static Subject findByIdentifier(String id) 
     throws SubjectNotFoundException
   {
-    SubjectFinder._init();
     List subjects  = SubjectFinder._findByIdentifier(
-      id, mgr.getSources().iterator()
+      id, MGR.getSources().iterator()
     );
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
@@ -148,9 +180,8 @@ public class SubjectFinder implements Serializable {
   public static Subject findByIdentifier(String id, String type) 
     throws SubjectNotFoundException
   {
-    SubjectFinder._init();
     List subjects  = SubjectFinder._findByIdentifier(
-      id, mgr.getSources(SubjectTypeEnum.valueOf(type)).iterator()
+      id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
     );
     if (subjects.size() == 1) {
       return (Subject) subjects.get(0);
@@ -186,19 +217,8 @@ public class SubjectFinder implements Serializable {
    * @return  The <i>GrouperAll</i> {@link Subject} 
    */
   public static Subject findAllSubject() {
-    if (all == null) {
-      SubjectFinder._init();
-      try {
-        all = SubjectFinder.findById("GrouperAll", "application");
-      }
-      catch (SubjectNotFoundException eSNF) {
-        throw new RuntimeException(
-          "unable to retrieve ALL subject: " + eSNF.getMessage()
-        );
-      }
-    }
-    return all;
-  }
+    return ALL;
+  } // public static Subject findAllSubject()
 
 
   // Private class methods
@@ -211,11 +231,11 @@ public class SubjectFinder implements Serializable {
       Source sa = (Source) iter.next();
       try {
         subj = sa.getSubject(id);
-        log.debug("Found subject in " + sa.getId() + ": " + id);
+        LOG.debug("Found subject in " + sa.getId() + ": " + id);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {
-        log.debug("Subject not found in " + sa.getId() + ": " + id);
+        LOG.debug("Subject not found in " + sa.getId() + ": " + id);
       }
     }
     return subjects;
@@ -229,43 +249,15 @@ public class SubjectFinder implements Serializable {
       Source sa = (Source) iter.next();
       try {
         subj = sa.getSubjectByIdentifier(id);
-        log.debug("Found subject in " + sa.getId() + ": " + id);
+        LOG.debug("Found subject in " + sa.getId() + ": " + id);
         subjects.add(subj);
       }
       catch (SubjectNotFoundException e) {
-        log.debug("Subject not found in " + sa.getId() + ": " + id);
+        LOG.debug("Subject not found in " + sa.getId() + ": " + id);
       }
     }
     return subjects;
   } // private static List _findByIdentifier(id, iter) 
-
-  // Initialize the Source Manager
-  private static void _init() {
-    if (mgr == null) {
-      log.debug("Initializing source manager");
-      try {
-        mgr = SourceManager.getInstance();
-        log.debug("Source manager initialized: " + mgr);
-        // Add in internal source adapter
-        BaseSourceAdapter isa = new InternalSourceAdapter(
-          "grouper internal adapter", "grouper internal adapter"
-        ); 
-        mgr.loadSource(isa);
-        log.debug("Added source: " + isa.getId());
-        // Add in group source adapter
-        BaseSourceAdapter gsa = new GrouperSourceAdapter(
-          "grouper group adapter", "grouper group adapter"
-        );
-        mgr.loadSource(gsa);
-        log.debug("Added source: " + gsa.getId());
-        log.info("Subject finder initialized");
-      } 
-      catch (Exception e) {
-        // TODO Is there something more appropriate to do here?
-        throw new RuntimeException(e.getMessage()); 
-      }
-    }
-  } // private static void _init()
 
 }
 
