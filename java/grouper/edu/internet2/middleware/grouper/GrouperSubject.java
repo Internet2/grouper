@@ -28,12 +28,13 @@ import  org.apache.commons.logging.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.5 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.6 2005-12-06 18:11:56 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(GrouperSubject.class);
+  private static final Set  ATTR_VALUES = new LinkedHashSet();
+  private static final Log  LOG         = LogFactory.getLog(GrouperSubject.class);
 
 
   // Private Instance Methods
@@ -67,12 +68,11 @@ public class GrouperSubject implements Subject {
   } // public String getAttributevalue(name)
 
   public Set getAttributeValues(String name) {
-    throw new RuntimeException("Not implemented");
+    return ATTR_VALUES;
   } // public Set getAttributeValues(name)
 
-  // TODO Is this even part of the latest spec?
   public String getDescription() {
-    throw new RuntimeException("Not implemented");
+    return this.getAttributeValue("description");
   } // public String getDescription()
 
   public String getId() {
@@ -115,6 +115,8 @@ public class GrouperSubject implements Subject {
   private void _addAttrs(Group g) {
     // TODO Ideally I wouldn't just iterate through the appropriate items in
     //      the fields list but I think I need more logic than that
+    // TODO Attach lists.  Maybe.  Aren't there security issues with
+    //      that?  We're already ignoring them when it comes to attributes.
     try {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
@@ -142,10 +144,8 @@ public class GrouperSubject implements Subject {
     while (iter.hasNext()) {
       String key = (String) iter.next();
       this._addAttr(key, (String) attrs.get(key));
-      //this.attrs.put(key, attrs.get(key));
     }
     GrouperLog.debug(LOG, this.name, "attached attributes: " + this.attrs.size());
-    // TODO Attach lists.  "list name" => [ subjectids? ]
   } // private void _addAttrs(g)
 }
 

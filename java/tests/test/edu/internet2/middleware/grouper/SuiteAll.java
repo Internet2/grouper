@@ -65,6 +65,7 @@ public class SuiteAll extends TestCase {
     suite.addTestSuite(TestGrouperNamingSTEM.class);
     suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestGrouperSourceAdapter.class);
+    suite.addTestSuite(TestGrouperSubject.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
     suite.addTestSuite(TestMemberToGroup.class);
     suite.addTestSuite(TestMeFiFindBySubject.class);
