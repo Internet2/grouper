@@ -17,21 +17,29 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.3 2005-11-14 17:35:35 blair Exp $
+ * @version $Id: TestGrouperSession.java,v 1.4 2005-12-06 18:48:22 blair Exp $
  */
 public class TestGrouperSession extends TestCase {
 
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestGrouperSession.class);
+
+
+  // Private Class Variables
   private Source sa;
 
   public TestGrouperSession(String name) {
@@ -39,22 +47,67 @@ public class TestGrouperSession extends TestCase {
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
   }
 
   // Tests
 
   public void testStartSessionBadSubject() {
+    LOG.info("testStartSessionBadSubject");
     Helper.getBadSession("bad subject");
   } // public void testStartSessionBadSubject()
 
   public void testStartSessionGoodSubject() {
+    LOG.info("testStartSessionGoodSubject");
     GrouperSession s = SessionHelper.getSession("GrouperSystem", "application");
   } // public void testStartSessionGoodSubject()
+
+  public void testGetStartTime() {
+    LOG.info("testGetStartTime");
+    GrouperSession s = SessionHelper.getRootSession();
+    Date d = s.getStartTime();
+    Assert.assertNotNull("start time !null", d);
+    Assert.assertTrue("start time != epoch", !d.equals(new Date()));
+  } // public void testGetStartTime()
+
+  public void testStopSession() {
+    LOG.info("testStopSession");
+    GrouperSession s = SessionHelper.getRootSession();
+    try { 
+      s.stop();
+      Assert.assertTrue("stopped session", true);
+    }
+    catch (Exception e) {
+      Assert.fail("failed to stop session: " + e.getMessage());
+    }
+  } // public void testStopSession()
+
+  public void testUseStoppedSession() {
+    LOG.info("testUseStoppedSession");
+    GrouperSession s = SessionHelper.getRootSession();
+    try { 
+      s.stop();
+      Assert.assertTrue("stopped session", true);
+      Assert.assertNull("null member", s.getMember());
+      try {
+        Subject subj = s.getSubject();
+        Assert.fail("got subject");
+      }
+      catch (RuntimeException eR) {
+        Assert.assertTrue("failed to get subject", true);
+      }
+      Assert.assertNull("null session id", s.getSessionId());
+      Assert.assertNull("null start time", s.getStartTime());
+    }
+    catch (Exception e) {
+      Assert.fail("failed to stop session: " + e.getMessage());
+    }
+  } // public void testUseStoppedSession()
 
 }
 

@@ -30,12 +30,12 @@ import  org.apache.commons.lang.builder.*;
  * Session for interacting with the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.5 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.6 2005-12-06 18:48:22 blair Exp $
  *     
 */
 public class GrouperSession implements Serializable {
 
-  // Properties
+  // Hibernate Properties
   private String  id;
   private Member  member_id;
   private String  session_id;
@@ -88,36 +88,6 @@ public class GrouperSession implements Serializable {
 
   // Public instance methods
 
-  /**
-   * Begin a Groups Registry transaction.
-   * <p>
-   * By default, the Grouper API will update the Groups Registry for
-   * each API call that modifies a registry object.  This method allows
-   * one to disable the default behavior and combine a number of
-   * operations into a single update.
-   * </p>
-   * <pre class="eg">
-   * // Begin a transaction.
-   * s.beginTransaction();
-   * </pre> 
-   */ 
-  public void beginTransaction() {
-    // DESIGN What exception?
-    throw new RuntimeException("Not implemented");
-  }
-
-  /**
-   * Commit a Groups Registry transaction.
-   * <pre class="eg">
-   * // Commit all updates within a registry transaction.
-   * s.commit();
-   * </pre>
-   */
-  public void commit() {
-    // DESIGN What exception?
-    throw new RuntimeException("Not implemented");
-  }
- 
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
     if ( !(other instanceof GrouperSession) ) return false;
@@ -181,7 +151,7 @@ public class GrouperSession implements Serializable {
    * @return  This session's start time.
    */
   public Date getStartTime() {
-    throw new RuntimeException("Not implemented");
+    return this.getStart_time();
   } // public Date getStartTime()
 
   /**
@@ -199,9 +169,12 @@ public class GrouperSession implements Serializable {
       try {
         this.subj = this.getMember_id().getSubject();
       }
-      catch (SubjectNotFoundException eSNF) {
-        throw new RuntimeException("invalid session: subject not found");
+      catch (Exception e) {
+        // Ignore
       }
+    }
+    if (this.subj == null) {
+      throw new RuntimeException("unable to get subject");
     }
     return this.subj;
   } // public Subject getSubject()
@@ -214,27 +187,24 @@ public class GrouperSession implements Serializable {
   }
 
   /**
-   * Rollback a Groups Registry transaction.
-   * <pre class="eg">
-   * // Roll back changes performed during this transaction.
-   * s.rollback();
-   * </pre>
-   */
-  public void rollback() {
-    // DESIGN What exception?
-    throw new RuntimeException("Not implemented");
-  }
-
-  /**
    * Stop this API session.
    * <pre class="eg">
-   * // Stop the session.
-   * s.stopSession();
+   * s.stop();
    * </pre>
    */
-  public void stopSession() {
-    throw new RuntimeException("Not implemented");
-  }
+  public void stop() {
+    try {
+      HibernateHelper.delete(this);
+      this.setId(null);
+      this.setMember_id(null);
+      this.setSession_id(null);
+      this.setStart_time(null);
+      this.subj = null;
+    }
+    catch (HibernateException eH) {
+      throw new RuntimeException("unable to stop session: " + eH.getMessage());
+    }
+  } // public void stop()
 
   public String toString() {
     String  who   = this.getSubject().getId();
@@ -254,6 +224,18 @@ public class GrouperSession implements Serializable {
   protected static void validate(GrouperSession s) {
     if (s == null) {
       throw new RuntimeException("null session");
+    }
+    if (s.id == null) {
+      throw new RuntimeException("null session");
+    }
+    if (s.member_id == null) {
+      throw new RuntimeException("null session member");
+    }
+    if (s.session_id == null) {
+      throw new RuntimeException("null session id");
+    }
+    if (s.start_time == null) {
+      throw new RuntimeException("null session start time");
     }
   } // protected static void validate(s)
 
