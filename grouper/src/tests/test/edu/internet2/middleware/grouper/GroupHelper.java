@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.12 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.13 2005-12-06 19:42:19 blair Exp $
  */
 public class GroupHelper {
 
@@ -181,7 +181,7 @@ public class GroupHelper {
       LOG.debug("delAttrFail.4");
       Assert.assertTrue(msg, true);
     }
-  } // protected static void setAttr(g, attr, val)
+  } // protected static void delAttrFail(g, attr)
 
   // Delete a group
   protected static void delete(GrouperSession s, Group g, String name) {
@@ -404,7 +404,10 @@ public class GroupHelper {
   protected static void testAttrs(Group exp, Group g) {
     try {
       LOG.debug("testAttrs.0");
-      Assert.assertTrue("4 attrs", g.getAttributes().size() == 4);
+      Map attrs = g.getAttributes();
+      Assert.assertTrue(
+        attrs.size() + " attributes (exp 5)", attrs.size() == 5
+      );
       LOG.debug("testAttrs.1");
       Assert.assertTrue(
         "createSource", g.getCreateSource().equals("")
@@ -425,17 +428,14 @@ public class GroupHelper {
       LOG.debug("testAttrs.4");
       try {
         String desc = g.getAttribute("description");
-      LOG.debug("testAttrs.5");
-        Assert.fail("found description");
-/* TODO Change once I'm setting description
+        LOG.debug("testAttrs.5");
         Assert.assertTrue(
           "[i] description", g.getAttribute("description").equals(exp.getDescription())
         );
-*/
       }
       catch (AttributeNotFoundException eTODO) {
         Assert.assertTrue("no description found", true);
-      LOG.debug("testAttrs.6");
+        LOG.debug("testAttrs.6");
       }
       Assert.assertTrue(
         "[d] description", g.getDescription().equals(exp.getDescription())
@@ -469,15 +469,14 @@ public class GroupHelper {
         "modifySource", g.getModifySource().equals("")
       );
       LOG.debug("testAttrs.14");
-/* TODO Change once I'm setting description */
       try {
         Subject modder = g.getModifySubject();
-      LOG.debug("testAttrs.15");
-        Assert.fail("group modified");
+        LOG.debug("testAttrs.15");
+        Assert.assertTrue("group modified", true);
       }
       catch (SubjectNotFoundException esNF) {
-        Assert.assertTrue("group not modified", true);
-      LOG.debug("testAttrs.16");
+        Assert.fail("group not modified");
+        LOG.debug("testAttrs.16");
       }
       Assert.assertTrue(
         "modifyTime", g.getModifyTime() instanceof Date
@@ -571,15 +570,14 @@ public class GroupHelper {
       "modifySource", g.getModifySource().equals("")
     );
     LOG.debug("testAttrsFail.17");
-// TODO Change once I'm setting description 
     try {
       Subject modder = g.getModifySubject();
-    LOG.debug("testAttrsFail.18");
-      Assert.fail("group modified");
+      LOG.debug("testAttrsFail.18");
+      Assert.assertTrue("group modified", true);
     }
     catch (SubjectNotFoundException eSNF) {
-      Assert.assertTrue("group not modified", true);
-    LOG.debug("testAttrsFail.19");
+      Assert.fail("group not modified");
+      LOG.debug("testAttrsFail.19");
     }
     Assert.assertTrue(
       "modifyTime", g.getModifyTime() instanceof Date

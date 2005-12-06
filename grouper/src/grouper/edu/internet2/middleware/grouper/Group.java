@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.34 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: Group.java,v 1.35 2005-12-06 19:42:19 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -202,16 +202,7 @@ public class Group implements Serializable {
         this.s, subj, ERR_AM
       );
 
-      // Conditionally update group modify time.  Because the granting
-      // of ADMIN to the creator takes place *after* the group has been
-      // created, the modify* attributes would be set when using the 
-      // _GrouperAccessAdapter_.  However, we don't want to consider
-      // that a modification.  As such, if the modify time is equal to
-      // the start of the epoch, don't set the group's modify* attrs.
-      // TODO Shouldn't this be negated?
-      if (this.getModifyTime().equals(new Date())) {
-        this.setModified();
-      }
+      this.setModified();
       objects.add(this);
 
       // Create the immediate membership
@@ -641,10 +632,10 @@ public class Group implements Serializable {
   public Subject getCreateSubject() 
     throws SubjectNotFoundException
   {
-    if (creator == null) {
-      creator = this.getCreator_id().getSubject();
+    if (this.creator == null) {
+      this.creator = this.getCreator_id().getSubject();
     }
-    return creator; 
+    return this.creator; 
   } // public Subject getCreateSubject() 
   
   /**
@@ -895,16 +886,16 @@ public class Group implements Serializable {
   public Subject getModifySubject() 
     throws SubjectNotFoundException
   {
-    if (modifier == null) {
+    if (this.modifier == null) {
       Member m = this.getModifier_id();
       if (m == null) {
         throw new SubjectNotFoundException(
           "group has not been modified"
         );
       }
-      modifier = m.getSubject();
+      this.modifier = m.getSubject();
     }
-    return modifier; 
+    return this.modifier; 
   } // public Subject getModifySubject()
   
   /**

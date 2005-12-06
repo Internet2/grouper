@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.23 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.24 2005-12-06 19:42:19 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -230,16 +230,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
         s, subj, msg
       );
 
-      // Conditionally update stem modify time.  Because the granting
-      // of STEM to the creator takes place *after* the group has been
-      // created, the modify* attributes would be set.  However, we
-      // don't want to consider that a modification.  As such, if
-      // the modify time is equal to the start of the epoch, don't
-      // set the group's modify* attrs.
-      // TODO Shouldn't this be negated?
-      if (!ns.getModifyTime().equals(new Date())) {
-        ns.setModified();
-      }
+      ns.setModified();
       objects.add(ns);
 
       Field f = this._getField(priv);
