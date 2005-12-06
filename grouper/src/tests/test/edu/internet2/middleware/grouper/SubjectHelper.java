@@ -27,11 +27,13 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.6 2005-12-06 17:40:21 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.7 2005-12-06 20:38:43 blair Exp $
  */
 public class SubjectHelper {
 
   // Protected Class Constants
+  protected static final Subject  SUBJA;
+  protected static final Subject  SUBJR;
   protected static final Subject  SUBJ0;
   protected static final Subject  SUBJ1;
   protected static final Subject  SUBJ2;
@@ -52,6 +54,8 @@ public class SubjectHelper {
       SUBJ0 = SubjectFinder.findById(SUBJ0_ID);
       SUBJ1 = SubjectFinder.findById(SUBJ1_ID);
       SUBJ2 = SubjectFinder.findById(SUBJ2_ID);
+      SUBJA = SubjectFinder.findById(SUBJ_ALL);
+      SUBJR = SubjectFinder.findById(SUBJ_ROOT);
     }
     catch (SubjectNotFoundException eSNF) {
       throw new RuntimeException(

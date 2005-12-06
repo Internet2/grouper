@@ -17,21 +17,29 @@
 
 package test.edu.internet2.middleware.grouper;
 
+
 import  edu.internet2.middleware.grouper.*;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.*;
 import  java.util.*;
 import  junit.framework.*;
+import  org.apache.commons.logging.*;
+
 
 /**
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.3 2005-11-30 21:23:23 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.4 2005-12-06 20:38:43 blair Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
+  // Private Class Constants
+  private static final Log LOG = LogFactory.getLog(TestInternalSourceAdapter.class);
+
+
+  // Private Class Variables
   private Source sa;
 
   public TestInternalSourceAdapter(String name) {
@@ -39,23 +47,26 @@ public class TestInternalSourceAdapter extends TestCase {
   }
 
   protected void setUp () {
+    LOG.debug("setUp");
     Db.refreshDb();
     sa = new InternalSourceAdapter("isa", "isa");
   }
 
   protected void tearDown () {
-    // Nothing 
+    LOG.debug("tearDown");
   }
 
   // Tests
  
   public void testAdapter() { 
+    LOG.info("testAdapter");
     Assert.assertNotNull("sa !null", sa);
     Assert.assertTrue("sa.id == isa", sa.getId().equals("isa"));
     Assert.assertTrue("sa.name == isa", sa.getName().equals("isa"));
   } // public void testAdapter()
 
   public void testAdapterTypes() {
+    LOG.info("testAdapterTypes");
     Object[]    types = sa.getSubjectTypes().toArray();
     Assert.assertTrue("1 type", types.length == 1);
     SubjectType type  = (SubjectType) types[0];
@@ -70,6 +81,7 @@ public class TestInternalSourceAdapter extends TestCase {
   } // public void testAdapterTypes()
 
   public void testAdapterBadSubject() {
+    LOG.info("testAdapterBadSubject");
     String id = "i do not exist";
     try { 
       Subject subj = sa.getSubject(id);
@@ -81,6 +93,7 @@ public class TestInternalSourceAdapter extends TestCase {
   } // public void testAdapterBadSubject()
 
   public void testAdapterBadSubjectByIdentifier() {
+    LOG.info("testAdapterBadSubjectByIdentifier");
     String id = "i do not exist";
     try { 
       Subject subj = sa.getSubjectByIdentifier(id);
@@ -91,7 +104,15 @@ public class TestInternalSourceAdapter extends TestCase {
     }
   } // public void testAdapterBadSubjectByIdentifer() 
 
+  public void testAdapterBadSubjectBySearch() {
+    LOG.info("testAdapterBadSubjectBySearch");
+    String id = "i do not exist";
+    Set results = sa.search(id);
+    Assert.assertTrue("found none", results.size() == 0);
+  } // public void testAdapterBadSubjectBySearch()
+
   public void testAdapterGrouperAllSubject() {
+    LOG.info("testAdapterGrouperAllSubject");
     String id = SubjectHelper.SUBJ_ALL;
     try { 
       Subject subj = sa.getSubject(id);
@@ -118,6 +139,7 @@ public class TestInternalSourceAdapter extends TestCase {
   } // public void testAdapterGrouperAllSubject()
 
   public void testAdapterGrouperAllSubjectByIdentifier() {
+    LOG.info("testAdapterGrouperAllSubjectByIdentifier");
     String id = SubjectHelper.SUBJ_ALL;
     try { 
       Subject subj = sa.getSubjectByIdentifier(id);
@@ -143,7 +165,15 @@ public class TestInternalSourceAdapter extends TestCase {
     }
   } // public void testAdapterGrouperAllSubjectByIdentifier()
 
+  public void testAdapterGrouperAllSubjectBySearch() {
+    LOG.info("testAdapterGrouperAllSubjectBySearch");
+    String id = SubjectHelper.SUBJ_ALL;
+    Set results = sa.search(id);
+    Assert.assertTrue("found one", results.size() == 1);
+  } // public void testAdapterGrouperAllSubjectByIdentifier()
+
   public void testAdapterGrouperSystemSubject() {
+    LOG.info("testAdapterGrouperSystemSubject");
     String id = SubjectHelper.SUBJ_ROOT;
     try { 
       Subject subj = sa.getSubject(id);
@@ -170,6 +200,7 @@ public class TestInternalSourceAdapter extends TestCase {
   } // public void testAdapterGrouperSystemSubject()
 
   public void testAdapterGrouperSystemSubjectByIdentifier() {
+    LOG.info("testAdapterGrouperSystemSubjectByIdentifier");
     String id = SubjectHelper.SUBJ_ROOT;
     try { 
       Subject subj = sa.getSubjectByIdentifier(id);
@@ -193,6 +224,13 @@ public class TestInternalSourceAdapter extends TestCase {
     catch (SubjectNotFoundException e) {
       Assert.fail("failed to find subject: " + id);
     }
+  } // public void testAdapterGrouperSystemSubjectByIdentifier()
+
+  public void testAdapterGrouperSystemSubjectBySearch() {
+    LOG.info("testAdapterGrouperSystemSubjectBySearch");
+    String id = SubjectHelper.SUBJ_ROOT;
+    Set results = sa.search(id);
+    Assert.assertTrue("found one", results.size() == 1);
   } // public void testAdapterGrouperSystemSubjectByIdentifier()
 
 }

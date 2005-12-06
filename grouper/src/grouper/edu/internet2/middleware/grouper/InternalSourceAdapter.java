@@ -31,7 +31,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.4 2005-11-30 21:23:22 blair Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.5 2005-12-06 20:38:42 blair Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -145,7 +145,14 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return  Subjects matching search value.
    */
   public Set search(String searchValue) {
-    throw new RuntimeException("Not implemented");
+    Set results = new LinkedHashSet();
+    try {
+      results.add(this._resolveSubject(searchValue));
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // Ignore 
+    }
+    return results;
   } // public Set search(searchValue)
 
 
@@ -153,7 +160,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 
   // Resolve an internal subject
   private Subject _resolveSubject(String qry) 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException
   {
     // TODO What attributes do I need to set?  Check with Gary at some
     // point.
