@@ -57,9 +57,7 @@
       Printable version
     </A>
     <H2>
-		<%=/*pSubject.getName()*/%><!-- : -->
-		<%=privDisplayType.getDescription()%>
-		<%=/*(currentSubsystem == Constants.WILDCARD_SUBSYSTEM ? "" : (" : " + currentSubsystem.getName()))*/%>
+      <%=privDisplayType.getDescription()%>
 	</H2>
 	<DIV class="inlinecontrol">
 	<FORM

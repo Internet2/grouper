@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: functions.jsp,v 1.26 2005-12-06 05:57:59 jvine Exp $
-  $Date: 2005-12-06 05:57:59 $
+  $Id: functions.jsp,v 1.27 2005-12-06 23:14:22 acohen Exp $
+  $Date: 2005-12-06 23:14:22 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -128,12 +128,6 @@
          <div class="section">
 				 		<h2>New assignment details</h2>
 							<table>
-              	<!-- redundant name row
-				<tr>
-              		<th class="label" scope="row">Granted to:</th>
-              		<td><%=/*currentGranteePrivilegedSubject.getName()*/%></td>
-              		<td>&nbsp;</td>
-             		</tr> -->
               	<tr>
               		<th class="label" scope="row">Type:</th>
               		<td><%=currentSubsystem.getName()%></td>
