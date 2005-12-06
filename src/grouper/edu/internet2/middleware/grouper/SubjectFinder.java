@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Find I2MI subjects.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.6 2005-12-06 06:21:52 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.7 2005-12-06 20:38:42 blair Exp $
  */
 public class SubjectFinder implements Serializable {
 
@@ -206,7 +206,15 @@ public class SubjectFinder implements Serializable {
    * @return  A {@link Set} of {@link Subject} objects.
    */
   public static Set findAll(String query) {
-    throw new RuntimeException("Not implemented");
+    Set       subjects  = new LinkedHashSet();
+    Iterator  iter      = MGR.getSources().iterator();
+    while (iter.hasNext()) {
+      Source sa = (Source) iter.next();
+      Set found = sa.search(query);
+      LOG.debug("Found subjects in " + sa.getId() + ": " + found.size());
+      subjects.addAll(found);
+    }
+    return subjects;
   } // public static Set findAll(query)
 
   /**

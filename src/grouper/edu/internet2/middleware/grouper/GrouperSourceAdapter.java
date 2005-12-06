@@ -41,7 +41,7 @@ import  net.sf.hibernate.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.4 2005-12-03 17:46:22 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.5 2005-12-06 20:38:42 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
   // TODO Is configuration necessary if used within Grouper?
@@ -192,8 +192,22 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * </pre>
    */
   public Set search(String searchValue) {
-    // TODO Implement and document
-    return new LinkedHashSet();
+    Set   subjs  = new LinkedHashSet();
+    Stem  root   = StemFinder.findRootStem(GrouperSessionFinder.getRootSession());
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        GrouperSessionFinder.getRootSession(), new GroupNameFilter(searchValue, root)
+      );
+      Iterator iter = gq.getGroups().iterator();
+      while (iter.hasNext()){
+        Group g = (Group) iter.next();
+        subjs.add(g.toSubject()); 
+      }
+    }
+    catch (QueryException eQ) {
+      // TODO Ignore?
+    } 
+    return subjs;
   } // public Set search(searchValue)
 
 }
