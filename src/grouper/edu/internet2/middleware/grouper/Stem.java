@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.29 2005-12-06 05:35:03 blair Exp $
+ * @version $Id: Stem.java,v 1.30 2005-12-06 19:42:19 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -57,8 +57,10 @@ public class Stem implements Serializable {
   private String  stem_name;
 
 
-  // Private Transient Instance Variables
-  private transient GrouperSession s;
+  // Transient Instance Variables
+  private transient Subject         creator;
+  private transient Subject         modifier;
+  private transient GrouperSession  s;
 
 
   // Constructors
@@ -142,6 +144,8 @@ public class Stem implements Serializable {
         // Ideally this would be wrapped up in the broader transaction
         // of adding the child stem but as the interfaces may be
         // outside of our control, I don't think we can do that.  
+        //
+        // TODO Unfortunately this sets the modify* attrs
         child.setSession(GrouperSessionFinder.getRootSession());
         PrivilegeResolver.getInstance().grantPriv(
           GrouperSessionFinder.getRootSession(), child, 
@@ -225,6 +229,8 @@ public class Stem implements Serializable {
         // Ideally this would be wrapped up in the broader transaction
         // of adding the child stem but as the interfaces may be
         // outside of our control, I don't think we can do that.  
+        //
+        // TODO Unfortunately this sets the modify* attrs
         PrivilegeResolver.getInstance().grantPriv(
           GrouperSessionFinder.getRootSession(), child, 
           s.getSubject(), NamingPrivilege.STEM
@@ -304,8 +310,12 @@ public class Stem implements Serializable {
    * @return  Create source for this stem.
    */
   public String getCreateSource() {
-    throw new RuntimeException("Not implemented");
-  }
+    String source = this.getCreate_source();
+    if (source == null) {
+      source = new String();
+    }
+    return source;
+  } // public String getCreateSource()
   
   /**
    * Get subject that created this stem.
@@ -322,10 +332,13 @@ public class Stem implements Serializable {
    * @throws  SubjectNotFoundException
    */
   public Subject getCreateSubject() 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (this.creator == null) {
+      this.creator = this.getCreator_id().getSubject();
+    }
+    return this.creator; 
+  } // public Subject getCreateSubject()
   
   /**
    * Get creation time for this stem.
@@ -413,8 +426,12 @@ public class Stem implements Serializable {
    * @return  Modify source for this stem.
    */
   public String getModifySource() {
-    throw new RuntimeException("Not implemented");
-  }
+    String source = this.getModify_source();
+    if (source == null) {
+      source = new String();
+    }
+    return source;
+  } // public String getModifySource()
   
   /**
    * Get subject that last modified this stem.
@@ -431,10 +448,19 @@ public class Stem implements Serializable {
    * @throws  SubjectNotFoundException
    */
   public Subject getModifySubject() 
-    throws SubjectNotFoundException
+    throws  SubjectNotFoundException
   {
-    throw new RuntimeException("Not implemented");
-  }
+    if (this.modifier == null) {
+      Member m = this.getModifier_id();
+      if (m == null) {
+        throw new SubjectNotFoundException(
+          "stem has not been modified"
+        );
+      }
+      this.modifier = m.getSubject();
+    }
+    return this.modifier; 
+  } // public Subject getModifySubject()
   
   /**
    * Get last modified time for this stem.
