@@ -4,7 +4,7 @@
 This file contains a synopsis of the Grouper API.  For more details,
 see the API javadoc and other documentation.
 
-$Id: API,v 1.119 2005-12-05 18:34:21 blair Exp $
+$Id: API,v 1.120 2005-12-06 05:35:03 blair Exp $
 
 ---
 
@@ -100,12 +100,18 @@ $Id: API,v 1.119 2005-12-05 18:34:21 blair Exp $
 * String              getDisplayExtension()
 * String              getDisplayName()
 * Set                 getEffectiveMembers()
+* Set                 getEffectiveMembers(field)
 * Set                 getEffectiveMemberships()
+* Set                 getEffectiveMemberships(field)
 * String              getExtension()
 * Set                 getImmediateMembers()
+* Set                 getImmediateMembers(field)
 * Set                 getImmediateMemberships()
+* Set                 getImmediateMemberships(field)
 * Set                 getMembers()
+* Set                 getMembers(field)
 * Set                 getMemberships()
+* Set                 getMemberships(field)
 * String              getModifySource()
 * Subject             getModifySubject()
 * Date                getModifyTime()
@@ -232,8 +238,8 @@ $Id: API,v 1.119 2005-12-05 18:34:21 blair Exp $
 * Group               getViaGroup()
 
 ## MembershipFinder
-* Membership          MembershipFinder.findEffectiveMembership(session, group, subject, list, group, depth)
-* Membership          MembershipFinder.findImmediateMembership(session, group, subject, list)
+* Membership          MembershipFinder.findEffectiveMembership(session, group, subject, field, group, depth)
+* Membership          MembershipFinder.findImmediateMembership(session, group, subject, field)
 
 ## NamingPrivilege 
 * String              getImplementationName()

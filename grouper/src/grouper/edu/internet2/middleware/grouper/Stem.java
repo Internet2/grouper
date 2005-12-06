@@ -29,7 +29,7 @@ import  org.apache.commons.logging.*;
  * A namespace within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.28 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: Stem.java,v 1.29 2005-12-06 05:35:03 blair Exp $
  *     
 */
 public class Stem implements Serializable {
@@ -109,7 +109,8 @@ public class Stem implements Serializable {
             InsufficientPrivilegeException
   {
     PrivilegeResolver.getInstance().canCREATE(
-      GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+      //GrouperSessionFinder.getRootSession(), this, this.s.getSubject()
+      this.s, this, this.s.getSubject()
     );
     if (this.equals(StemFinder.findRootStem(this.s))) {
       throw new GroupAddException(

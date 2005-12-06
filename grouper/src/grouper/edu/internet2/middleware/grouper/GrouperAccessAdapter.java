@@ -32,7 +32,7 @@ import  org.apache.commons.logging.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.21 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.22 2005-12-06 05:35:03 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -293,6 +293,9 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException 
   {
     GrouperSession.validate(s);
+    String msg = "revokePriv '" + g.getName() + "' '" 
+      + priv.getName().toUpperCase() + "'";
+    GrouperLog.debug(LOG, s, msg);
     try {
       // The objects that will need updating and deleting
       Set     saves   = new LinkedHashSet();
@@ -313,11 +316,11 @@ public class GrouperAccessAdapter implements AccessAdapter {
         Member  m     = MemberFinder.findBySubject(s, subj);
 
         // This is the immediate privilege that needs to be deleted
-        deletes.add(
-          MembershipFinder.findImmediateMembership(
-            s, g.getUuid(), m, this._getField(priv)
-          )
+        Membership imm = MembershipFinder.findImmediateMembership(
+          s, g.getUuid(), m, this._getField(priv)
         );
+        GrouperLog.debug(LOG, s, msg + " immediate priv: " + imm);
+        deletes.add(imm);
 
         // As many of the privileges are likely to be transient, we
         // need to retrieve the persistent version of each before
@@ -325,19 +328,22 @@ public class GrouperAccessAdapter implements AccessAdapter {
         Session   hs    = HibernateHelper.getSession();
         Iterator  iterM = MemberOf.doMemberOf(s, g, m, f).iterator();
         while (iterM.hasNext()) {
-          Membership ms = (Membership) iterM.next();
-          deletes.add( 
-            MembershipFinder.findEffectiveMembership(
-              ms.getOwner_id(), ms.getMember().getId(), 
-              ms.getList(), ms.getVia_id(), ms.getDepth()
-            )
+          Membership  ms = (Membership) iterM.next();
+          Membership  eff = MembershipFinder.findEffectiveMembership(
+            ms.getOwner_id(), ms.getMember().getId(), 
+            ms.getList(), ms.getVia_id(), ms.getDepth()
           );
+          eff.setSession(s);
+          GrouperLog.debug(LOG, s, msg + " effective priv: " + eff);
+          deletes.add(eff);
         }
         hs.close();
       }
 
       // And then update the registry
+      GrouperLog.debug(LOG, s, msg + " committing changes to registry");
       HibernateHelper.saveAndDelete(saves, deletes);
+      GrouperLog.debug(LOG, s, msg + " revoked privs: " + deletes.size());
     }
     catch (GroupNotFoundException eGNF) {
       throw new RevokePrivilegeException(ERR_RP + eGNF.getMessage());

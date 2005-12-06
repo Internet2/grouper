@@ -27,19 +27,115 @@ import  junit.framework.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipHelper.java,v 1.7 2005-12-04 22:52:49 blair Exp $
+ * @version $Id: MembershipHelper.java,v 1.8 2005-12-06 05:35:03 blair Exp $
  */
 public class MembershipHelper {
 
   // Protected Class Methods
 
+  protected static void testImm(
+    GrouperSession s, Group g, Subject subj, String list
+  ) 
+  {
+    try {
+      Field   f = FieldFinder.find(list);
+      Member  m = MemberFinder.findBySubject(s, subj);
+      Assert.assertTrue("m.subj == subj", m.getSubject().equals(subj));
+      Assert.assertTrue("g hasMember"   , g.hasMember(subj, f));
+      Assert.assertTrue("g hasImmMember", g.hasImmediateMember(subj, f));
+      Assert.assertTrue("m isMember"    , m.isMember(g, f));
+      Assert.assertTrue("m isImmMember" , m.isImmediateMember(g, f));
+      Membership ms = MembershipFinder.findImmediateMembership(
+        s, g, subj, f
+      );
+      Assert.assertNotNull("found ms", ms);
+      Assert.assertTrue("ms group   " , ms.getGroup().equals(g) );
+      Assert.assertTrue("ms member"   , ms.getMember().equals(m));
+      Assert.assertTrue("ms list"     , ms.getList().equals(f)  );
+      Assert.assertTrue("ms depth"    , ms.getDepth() == 0      );
+      try {
+        Group via = ms.getViaGroup();
+        Assert.fail("imm ms has via group");
+      }
+      catch (GroupNotFoundException eGNF) {
+        Assert.assertTrue("imm ms has no via group", true);
+      }
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // protected static TestImm(s, g, subj, list)
+
+  protected static void testEff(
+    GrouperSession s, Group g, Subject subj, String list, Group via, int depth
+  ) 
+  {
+    try {
+      // TODO Test via, depth, etc
+      Field   f = FieldFinder.find(list);
+      Member  m = MemberFinder.findBySubject(s, subj);
+      Assert.assertTrue("m.subj == subj", m.getSubject().equals(subj));
+      Assert.assertTrue("g hasMember"   , g.hasMember(subj, f));
+      Assert.assertTrue("g hasEffMember", g.hasEffectiveMember(subj, f));
+      Assert.assertTrue("m isMember"    , m.isMember(g, f));
+      Assert.assertTrue("m isEffMember" , m.isEffectiveMember(g, f));
+      Membership ms = MembershipFinder.findEffectiveMembership(
+        s, g, subj, f, via, depth
+      );
+      Assert.assertNotNull("found ms", ms);
+      Assert.assertTrue("ms group   " , ms.getGroup().equals(g) );
+      Assert.assertTrue("ms member"   , ms.getMember().equals(m));
+      Assert.assertTrue("ms list"     , ms.getList().equals(f)  );
+      Assert.assertTrue("ms depth"    , ms.getDepth() == depth  );
+      try {
+        Group v = ms.getViaGroup();
+        Assert.assertTrue("ms via group", v.equals(via));
+      }
+      catch (GroupNotFoundException eGNF) {
+        Assert.fail("eff ms has no via group");
+      }
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // protected static TestImm(s, g, subj, list, via, depth)
+
+  protected static void testNumMship(
+    Group g, String list, int m, int i, int e) 
+  {
+    try {
+      testNumMship(g, FieldFinder.find(list), m, i, e);
+    }
+    catch (Exception e0) {
+      Assert.fail(e0.getMessage());
+    }
+  } // protected static void testNumMship(g, list, m, i, e)
+  
+  protected static void testNumMship(Group g, Field f, int m, int i, int e) {
+    int gotM = g.getMemberships(f).size();
+    int gotI = g.getImmediateMemberships(f).size();
+    int gotE = g.getEffectiveMemberships(f).size();
+    String msg = " mships '" + f.getName() + "' == ";
+    Assert.assertTrue(
+      g.getName() + msg + gotM + " (exp " + m + ")", gotM == m
+    );
+    Assert.assertTrue(
+      g.getName() + " imm" + msg + gotI + " (exp " + i + ")", gotI == i
+    );
+    Assert.assertTrue(
+      g.getName() + " eff" + msg + gotE + " (exp " + e + ")", gotE == e
+    );
+  } // protected static void testNumMship(g, f, m, i, e) 
+  
+
+  // 'Tis more hateful below
   protected static void testImm(Group g, Subject subj, Member m) {
     // The basics
     Assert.assertTrue("g hasMember m",    g.hasMember(subj));
     Assert.assertTrue("g hasImmMember m", g.hasImmediateMember(subj));
     Assert.assertTrue("m isMember g",     m.isMember(g));
     Assert.assertTrue("m isImmMember g",  m.isImmediateMember(g));
-  } // protected static TestImm(g, m)
+  } // protected static TestImm(g, subj, m)
 
   protected static void testEff(Group g, Group gm, Member m) {
     // Get memberships
@@ -96,21 +192,6 @@ public class MembershipHelper {
     }
   } // protected static void testImmMship(s, g, subj, f)
 
-  protected static void testNumMship(Group g, Field f, int m, int i, int e) {
-    int gotM = g.getMemberships().size();
-    int gotI = g.getImmediateMemberships().size();
-    int gotE = g.getEffectiveMemberships().size();
-    Assert.assertTrue(
-      g.getName() + " mships == " + gotM + " (exp " + m + ")", gotM == m
-    );
-    Assert.assertTrue(
-      g.getName() + " imm mships == " + gotI + " (exp " + i + ")", gotI == i
-    );
-    Assert.assertTrue(
-      g.getName() + " eff mships == " + gotE + " (exp " + e + ")", gotE == e
-    );
-  } // protected static void testNumMship(g, f, m, i, e) 
-  
   
   // Private Class Methods
 

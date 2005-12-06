@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * A group within the Groups Registry.
  * <p />
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.32 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: Group.java,v 1.33 2005-12-06 05:35:03 blair Exp $
  */
 public class Group implements Serializable {
 
@@ -280,8 +280,11 @@ public class Group implements Serializable {
       String  msg     = "deleting group " + name;
       GrouperLog.debug(LOG, this.s, msg);
 
-      //GrouperSession orig = this.s;
-      //this.setSession(GrouperSessionFinder.getRootSession());
+      // And revoke all access privileges
+      this._revokeAllAccessPrivs(msg);
+
+      GrouperSession orig = this.s;
+      this.setSession(GrouperSessionFinder.getRootSession());
 
       // Find all fields of type list
       Iterator iter = FieldFinder.findAllByType(FieldType.LIST).iterator();
@@ -315,24 +318,7 @@ public class Group implements Serializable {
           );
         }
       }
-      // And revoke all access privileges 
-      // TODO Make a method
-      GrouperLog.debug(LOG, this.s, msg + ": revoking OPTIN");
-      this.revokePriv(AccessPrivilege.OPTIN);
-      GrouperLog.debug(LOG, this.s, msg + ": revoking OPTOUT");
-      this.revokePriv(AccessPrivilege.OPTOUT);
-      GrouperLog.debug(LOG, this.s, msg + ": revoking READ");
-      this.revokePriv(AccessPrivilege.READ);
-      GrouperLog.debug(LOG, this.s, msg + ": revoking UPDATE");
-      this.revokePriv(AccessPrivilege.UPDATE);
-      GrouperLog.debug(LOG, this.s, msg + ": revoking VIEW");
-      this.revokePriv(AccessPrivilege.VIEW);
-      // TODO I think ordering may be important here, especially since
-      //      I don't have privilege caching in place yet
-      GrouperLog.debug(LOG, this.s, msg + ": revoking ADMIN");
-      this.revokePriv(AccessPrivilege.ADMIN);
-
-      //this.setSession(orig);
+      this.setSession(orig);
 
       // And then commit changes to registry
       HibernateHelper.delete(deletes);
@@ -464,7 +450,7 @@ public class Group implements Serializable {
             MemberDeleteException
   {
     try {
-      this.deleteMember(subj, Group.getDefaultList());
+      this.deleteMember(subj, getDefaultList());
     }
     catch (SchemaException eS) {
       throw new MemberDeleteException(eS.getMessage());
@@ -730,10 +716,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getEffectiveMembers() {
-    return MembershipFinder.findEffectiveMembers(
-      this.s, this, getDefaultList()
-    );
+    return this.getEffectiveMembers(getDefaultList());
   }  // public Set getEffectiveMembers()
+
+  /**
+   * Get effective members of this group.
+   * <pre class="eg">
+   * Set effectives = g.getEffectiveMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @return  A set of {@link Member} objects.
+   */
+  public Set getEffectiveMembers(Field f) {
+    return MembershipFinder.findEffectiveMembers(this.s, this, f);
+  }  // public Set getEffectiveMembers(f)
 
   /**
    * Get effective memberships of this group.
@@ -743,10 +739,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getEffectiveMemberships() {
-    return MembershipFinder.findEffectiveMemberships(
-      this.s, this, getDefaultList()
-    );
+    return this.getEffectiveMemberships(getDefaultList());
   } // public Set getEffectiveMembership()
+
+  /**
+   * Get memberships of this group.
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @return  A set of {@link Membership} objects.
+   */
+  public Set getEffectiveMemberships(Field f) {
+    return MembershipFinder.findEffectiveMemberships(this.s, this, f);
+  } // public Set getEffectiveMemberships(f)
 
   /**
    * Get group extension.
@@ -772,10 +778,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getImmediateMembers() {
-    return MembershipFinder.findImmediateMembers(
-      this.s, this, getDefaultList()
-    );
+    return this.getImmediateMembers(getDefaultList());
   } // public Set getImmediateMembers()
+
+  /**
+   * Get immediate members of this group.
+   * <pre class="eg">
+   * Set immediates = g.getImmediateMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @return  A set of {@link Member} objects.
+   */
+  public Set getImmediateMembers(Field f) {
+    return MembershipFinder.findImmediateMembers(this.s, this, f);
+  } // public Set getImmediateMembers(f)
 
   /**
    * Get immediate memberships of this group.
@@ -785,10 +801,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getImmediateMemberships() {
-    return MembershipFinder.findImmediateMemberships(
-      this.s, this, getDefaultList()
-    );
+    return this.getImmediateMemberships(getDefaultList());
   } // public Set getImmediateMemberships()
+
+  /**
+   * Get immediate memberships of this group.
+   * <pre class="eg">
+   * Set immediates = g.getImmediateMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @return  A set of {@link Membership} objects.
+   */
+  public Set getImmediateMemberships(Field f) {
+    return MembershipFinder.findImmediateMemberships(this.s, this, f);
+  } // public Set getImmediateMemberships(f)
 
   /**
    * Get members of this group.
@@ -798,10 +824,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Member} objects.
    */
   public Set getMembers() {
-    return MembershipFinder.findMembers(
-      this.s, this, getDefaultList()
-    );
+    return this.getMembers(getDefaultList());
   } // public Set getMembers()
+
+  /**
+   * Get members of this group.
+   * <pre class="eg">
+   * Set members = g.getMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @return  A set of {@link Member} objects.
+   */
+  public Set getMembers(Field f) {
+    return MembershipFinder.findMembers(this.s, this, f);
+  } // public Set getMembers(f)
 
   /**
    * Get memberships of this group.
@@ -811,10 +847,20 @@ public class Group implements Serializable {
    * @return  A set of {@link Membership} objects.
    */
   public Set getMemberships() {
-    return MembershipFinder.findMemberships(
-      this.s, this, getDefaultList()
-    );
+    return this.getMemberships(getDefaultList());
   } // public Set getMemberships()
+
+  /**
+   * Get memberships of this group.
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @return  A set of {@link Membership} objects.
+   */
+  public Set getMemberships(Field f) {
+    return MembershipFinder.findMemberships(this.s, this, f);
+  } // public Set getMemberships(f)
 
   /**
    * Get (optional and questionable) modify source for this group.
@@ -1066,7 +1112,7 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasEffectiveMember(Subject subj) {
-    return this.hasEffectiveMember(subj, Group.getDefaultList());
+    return this.hasEffectiveMember(subj, getDefaultList());
   } // public boolean hasEffectiveMember(Subject subj)
 
   /**
@@ -1108,7 +1154,7 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasImmediateMember(Subject subj) {
-    return this.hasImmediateMember(subj, Group.getDefaultList());
+    return this.hasImmediateMember(subj, getDefaultList());
   } // public boolean hasImmediateMember(subj)
 
   /**
@@ -1196,7 +1242,7 @@ public class Group implements Serializable {
    * @return  Boolean true if subject belongs to this group.
    */
   public boolean hasMember(Subject subj) {
-    return this.hasMember(subj, Group.getDefaultList());
+    return this.hasMember(subj, getDefaultList());
   } // public boolean hasMember(subj)
 
   /**
@@ -1635,7 +1681,7 @@ public class Group implements Serializable {
         s.getSubject().getId().equals(subj.getId())
         && s.getSubject().getType().equals(subj.getType())
         && s.getSubject().getSource().equals(subj.getSource())
-        && f.equals(Group.getDefaultList())
+        && f.equals(getDefaultList())
       )
       {
         try {
@@ -1711,6 +1757,27 @@ public class Group implements Serializable {
     GrouperLog.debug(LOG, g.s, msg + ": " + memberships.size());
     return memberships;
   } // private Set _membershipsToDelete(g, subj, f)
+
+  private void _revokeAllAccessPrivs(String msg) 
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException
+  {
+    GrouperSession orig = this.s;
+    this.setSession(GrouperSessionFinder.getRootSession());
+    GrouperLog.debug(LOG, orig, msg + ": revoking ADMIN");
+    this.revokePriv(AccessPrivilege.ADMIN);
+    GrouperLog.debug(LOG, orig, msg + ": revoking OPTIN");
+    this.revokePriv(AccessPrivilege.OPTIN);
+    GrouperLog.debug(LOG, orig, msg + ": revoking OPTOUT");
+    this.revokePriv(AccessPrivilege.OPTOUT);
+    GrouperLog.debug(LOG, orig, msg + ": revoking READ");
+    this.revokePriv(AccessPrivilege.READ);
+    GrouperLog.debug(LOG, orig, msg + ": revoking UPDATE");
+    this.revokePriv(AccessPrivilege.UPDATE);
+    GrouperLog.debug(LOG, orig, msg + ": revoking VIEW");
+    this.revokePriv(AccessPrivilege.VIEW);
+    this.setSession(orig);
+  } // private void _revokeAllAccessPrivs(msg)
 
   private void _setCreated() {
     this.setCreator_id( s.getMember()         );

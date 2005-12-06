@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.18 2005-12-05 21:40:02 blair Exp $
+ * @version $Id: Member.java,v 1.19 2005-12-06 05:35:03 blair Exp $
  */
 public class Member implements Serializable {
 
@@ -844,9 +844,14 @@ public class Member implements Serializable {
   } // protected static Member addMember(subj)
 
 
-
   // Protected Instance Methods
-  
+ 
+  // Find *all* memberships for this member 
+  // @filtered  no
+  protected Set getAllMemberships() {
+    return MembershipFinder.findMemberships(this);
+  } // protected Set getAllMemberships()
+
   // Assign Session
   protected void setSession(GrouperSession s) {
     GrouperSession.validate(s);
