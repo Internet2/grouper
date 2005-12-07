@@ -1,6 +1,6 @@
 /*--
-  $Id: Common.java,v 1.49 2005-12-06 23:56:07 acohen Exp $
-  $Date: 2005-12-06 23:56:07 $
+  $Id: Common.java,v 1.50 2005-12-07 21:51:30 acohen Exp $
+  $Date: 2005-12-07 21:51:30 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -39,11 +39,13 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
 import edu.internet2.middleware.signet.Decision;
 import edu.internet2.middleware.signet.Grantable;
+import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Proxy;
+import edu.internet2.middleware.signet.ProxyHistory;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
@@ -154,13 +156,60 @@ public class Common
     {
       olderHistoryRecord = historyArray[historyIndex + 1];
     }
+
+    String editorDescription = describeEditor(newerHistoryRecord);
     
-    String editorDescription = 
-      (newerHistoryRecord.getProxySubject()==null
-       ? newerHistoryRecord.getGrantor().getName()
-       : (newerHistoryRecord.getProxySubject().getName()
+    Difference diff = diff(newerHistoryRecord, olderHistoryRecord);
+    
+    if (diff.equals(Difference.GRANT))
+    {
+      changeStr = "Granted by " + editorDescription;
+    }
+    else if (diff.equals(Difference.REVOKE))
+    {
+      changeStr = "Revoked by " + editorDescription;
+    }
+    else
+    {
+      changeStr = "Modified by " + editorDescription;
+    }
+    
+    return changeStr;
+  }
+  
+  private static String describeEditor(History history)
+  {
+    String description;
+    
+    if (history.getProxySubject() == null)
+    {
+      description = history.getGrantor().getName();
+    }
+    else
+    {
+      description
+        = history.getProxySubject().getName()
           + ", acting as "
-          + newerHistoryRecord.getGrantor().getName()));
+          + history.getGrantor().getName();
+    }
+    
+    return description;
+  }
+  
+  public static String describeChange
+    (ProxyHistory[]  historyArray,
+     int             historyIndex)
+  {
+    String changeStr = null;
+    ProxyHistory newerHistoryRecord = historyArray[historyIndex];
+    ProxyHistory olderHistoryRecord = null;
+    
+    if (historyIndex != (historyArray.length - 1))
+    {
+      olderHistoryRecord = historyArray[historyIndex + 1];
+    }
+    
+    String editorDescription = describeEditor(newerHistoryRecord);
     
     Difference diff = diff(newerHistoryRecord, olderHistoryRecord);
     
@@ -181,8 +230,8 @@ public class Common
   }
   
   static private Difference diff
-    (AssignmentHistory newer,
-     AssignmentHistory older)
+    (History newer,
+     History older)
   {
     Difference diff;
     
