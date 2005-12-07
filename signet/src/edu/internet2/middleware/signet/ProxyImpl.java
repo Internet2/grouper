@@ -1,6 +1,6 @@
 /*--
- $Id: ProxyImpl.java,v 1.10 2005-12-02 18:36:53 acohen Exp $
- $Date: 2005-12-02 18:36:53 $
+ $Id: ProxyImpl.java,v 1.11 2005-12-07 19:51:11 acohen Exp $
+ $Date: 2005-12-07 19:51:11 $
  
  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
  Licensed under the Signet License, Version 1,
@@ -205,9 +205,12 @@ implements Proxy
         
       ProxyHistory historyRecord
         = new ProxyHistoryImpl(this);
-
+      Set historySet = this.getHistory();
+      historySet.add(historyRecord);
+      this.setHistory(historySet);
+      
       this.getSignet().save(this);
-      this.getSignet().save(historyRecord);
+      // this.getSignet().save(historyRecord);
     }
     else
     {
