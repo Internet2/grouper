@@ -131,8 +131,8 @@
 		<fail unless="webapp.folder">webapp.folder must be set</fail>
 		<fail unless="grouper.folder">grouper.folder must be set</fail>
 		<fail unless="ui.folder">ui.folder must be set</fail>
-		<available file="${grouper.folder}/dist/lib/Grouper.jar" property="grouper.is.available"/>
-		<fail unless="grouper.is.available" message="${grouper.folder}/dist/lib/Grouper.jar does not exist. You must
+		<available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.available"/>
+		<fail unless="grouper.is.available" message="${grouper.folder}/dist/lib/grouper.jar does not exist. You must
 			   build and configure Grouper before running this script"/>
 
 		<echo message="Creating  ${webapp.folder}"/>
@@ -191,9 +191,9 @@
 				<!-- Make available jar files that Grouper needs -->
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
-				<exclude name="Grouper-lib-*.jar"/>
-				<exclude name="Grouper.jar"/>
-				<exclude name="Grouper-2*.jar"/>
+				<exclude name="grouper-lib-*.jar"/>
+				<exclude name="grouper.jar"/>
+				<exclude name="grouper-2*.jar"/>
 			</fileset>
 				
 			<!-- Make available jar files the UI needs -->
@@ -208,7 +208,7 @@
 			<!-- make available any classes / resources already placed in the build folder -->
 			<pathelement location="${webapp.class.folder}"/>
 			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/Grouper.jar"/>
+			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
 		
 		</path>
 		<antcall target="-compileGrouper"/>
@@ -230,8 +230,8 @@
 		<copy todir="${webapp.folder}/WEB-INF/lib" overwrite="true">
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
-				<exclude name="Grouper-lib-*.jar"/>
-				<exclude name="Grouper-2*.jar"/>
+				<exclude name="grouper-lib-*.jar"/>
+				<exclude name="grouper-2*.jar"/>
 			</fileset>
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
@@ -324,7 +324,12 @@
 	-->
 	<target name="-compileGrouper" if="grouper.compile.api">
 		<echo message="Compiling the Grouper api"/>
-		<javac srcdir="${grouper.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<javac srcdir="${grouper.folder}/java/grouper" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<copy todir="${webapp.class.folder}">
+			<fileset dir="${grouper.folder}/java/grouper">
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
 	</target>
 	
 	<!--
@@ -565,9 +570,9 @@
 				<!-- Make available jar files that Grouper needs -->
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
-				<exclude name="Grouper-lib-*.jar"/>
-				<exclude name="Grouper.jar"/>
-				<exclude name="Grouper-2*.jar"/>
+				<exclude name="grouper-lib-*.jar"/>
+				<exclude name="grouper.jar"/>
+				<exclude name="grouper-2*.jar"/>
 			</fileset>
 			<!-- Make available jar files the UI needs -->
 			<fileset dir="${ui.folder}/java/lib">
@@ -575,11 +580,11 @@
 			</fileset>
 			
 			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/Grouper.jar"/>
+			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
 		
 		</path> 
 		<property name="cp" refid="ui.class.path"/>
-		<available file="${grouper.folder}/java/src" property="exists.grouper.src"/>
+		<available file="${grouper.folder}/java/grouper" property="exists.grouper.src"/>
 		<antcall target="-create-if-absent-grouper-src"/>
 		  <antcall target="-html-with-subject" inheritrefs="true"/>
 		  <antcall target="-html-without-subject" inheritrefs="true"/>
@@ -587,11 +592,11 @@
   </target>
 	
 			<target name="-create-if-absent-grouper-src" unless="exists.grouper.src">
-				<mkdir dir="${grouper.folder}/java/src"/>
+				<mkdir dir="${grouper.folder}/java/grouper"/>
 			</target>
 			
 			<target name="-remove-if-created-grouper-src" unless="exists.grouper.src">
-				<delete dir="${grouper.folder}/java/src"/>
+				<delete dir="${grouper.folder}/java/grouper"/>
 			</target>
 			
 	
@@ -607,7 +612,7 @@
       <include name="edu/internet2/middleware/grouper/**"/>
       
     </packageset>
-    <packageset dir="${grouper.folder}/java/src" defaultexcludes="yes">
+    <packageset dir="${grouper.folder}/java/grouper" defaultexcludes="yes">
       <include name="edu/internet2/middleware/grouper/**"/>
     </packageset>
        <packageset dir="${subject.folder}/src" defaultexcludes="yes">
@@ -633,7 +638,7 @@
       <include name="edu/internet2/middleware/grouper/**"/>
       
     </packageset>
-    <packageset dir="${grouper.folder}/java/src" defaultexcludes="yes">
+    <packageset dir="${grouper.folder}/java/grouper" defaultexcludes="yes">
       <include name="edu/internet2/middleware/grouper/**"/>
     </packageset>
 
@@ -645,7 +650,7 @@
 	  </target>
 	  
 	  <target name="-ensure-grouper-libs">
-		  <available property="grouper-lib.dist.available" file="${grouper.folder}/dist/lib/Grouper-lib.jar"/>
+		  <available property="grouper-lib.dist.available" file="${grouper.folder}/dist/lib/grouper-lib.jar"/>
 		  <available property="grouper-libs.dist.available" file="${grouper.folder}/dist/lib/junit.jar"/>
 		  <available property="grouper-libs.available" file="${grouper.folder}/java/lib"/>
 		  <condition property="no.grouper-libs.available">
@@ -679,7 +684,7 @@
 	  </target>
 	  
 	  <target name="-grouper-lib-available" if="grouper-lib.dist.available">
-		 <echo>Grouper-lib.jar available</echo> 
+		 <echo>grouper-lib.jar available</echo> 
 	  </target>
 	  <target name="-only-grouper-libs-available" if="only.grouper-libs.available">
 		<echo>Copy jar files from java/lib</echo>
@@ -694,6 +699,6 @@
 		<echo>JAR files already available</echo>
 	  </target>
 	  <target name="-no-grouper-libs-available" if="no.grouper-libs.available">
-			 <fail message="Unable to find ${grouper.folder}/dist/lib/Grouper-lib.jar or ${grouper.folder}/java/lib or individual jar files in ${grouper.folder}/dist/lib"/>
+			 <fail message="Unable to find ${grouper.folder}/dist/lib/grouper-lib.jar or ${grouper.folder}/java/lib or individual jar files in ${grouper.folder}/dist/lib"/>
 	  </target>
 </project>
