@@ -2,7 +2,7 @@
 			Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.5 2005-11-08 15:58:02 isgwb Exp $
+  @version $Id: generalHelp.jsp,v 1.6 2005-12-08 15:33:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -21,6 +21,9 @@
   <dt>All Groups</dt>
   <dd>lets you explore all stems and lets you see groups where you have <strong>View 
     privilege</strong>. There may be many thousands of stems and groups in Grouper.</dd>
+	<dt>Search Subjects</dt>
+  <dd>Lets you search for any subject known to Grouper. Allows a Subject centric approach i.e. you
+  can list all groups where the Subject is a member or has an Access privilege.</dd>
 </dl>
 <h2>Finding groups</h2>
 Grouper provides several ways of finding groups<br/>

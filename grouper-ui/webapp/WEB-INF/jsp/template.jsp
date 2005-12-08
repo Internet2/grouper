@@ -7,7 +7,7 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.3 2005-11-14 14:10:28 isgwb Exp $
+  @version $Id: template.jsp,v 1.4 2005-12-08 15:33:28 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
@@ -22,8 +22,10 @@
 <%@page import="java.io.PrintWriter"%>
 <%
 StringBuffer pageUrl = request.getRequestURL();
-//request.setAttribute("pageUrlMinusQueryString",pageUrl.toString());
-request.setAttribute("pageUrlMinusQueryString", request.getAttribute( "javax.servlet.forward.request_uri" )); // added, smb1 - 2005.10.11
+String pageUrlMinusQuery = pageUrl.toString();
+//OK so Tomcat 4 and 5 do things differently
+if(!pageUrlMinusQuery.endsWith(".do")) pageUrlMinusQuery = (String)request.getAttribute( "javax.servlet.forward.request_uri" );
+request.setAttribute("pageUrlMinusQueryString", pageUrlMinusQuery); 
 char delim = '?';
 if(request.getQueryString()!=null) {
 	pageUrl.append("?" + request.getQueryString());

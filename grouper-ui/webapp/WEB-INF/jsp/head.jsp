@@ -4,7 +4,7 @@
 			overridden
 --%><%--
   @author Gary Brown.
-  @version $Id: head.jsp,v 1.2 2005-11-08 16:10:39 isgwb Exp $
+  @version $Id: head.jsp,v 1.3 2005-12-08 15:33:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -30,10 +30,14 @@ base.append("/");
 <title><fmt:message bundle="${nav}" key="app.name"/></title>
 
 <c:if test="${!debugPrefs.doHideStyles}">
-<link href="i2mi/signet.css" rel="stylesheet" type="text/css" />
+<c:if test="${mediaMap['grouper-css.hide']!='true'}">
+<link href="i2mi/signet.css" rel="stylesheet" type="text/css"/>
 <link href="grouper/grouper.css" rel="stylesheet" type="text/css" />
+</c:if>
 <c:if test="${!empty mediaMap['css.additional']}">
-	<link href="<c:out value="${mediaMap['css.additional']}"/>" rel="stylesheet" type="text/css" />
+	<c:forTokens var="cssRef" items="${mediaMap['css.additional']}" delims=" ">
+	<link href="<c:out value="${cssRef}"/>" rel="stylesheet" type="text/css" />
+	</c:forTokens>
 </c:if>
 </c:if>
 <script type="text/javascript" src="<%=base%>i2mi/signet.js"></script>

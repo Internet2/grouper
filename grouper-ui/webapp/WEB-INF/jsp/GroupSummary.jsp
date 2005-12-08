@@ -3,7 +3,7 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.3 2005-11-22 10:42:54 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.4 2005-12-08 15:33:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -40,6 +40,7 @@
 		<html:link page="/populateSubjectSummary.do">
 					<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
+		<c:set target="${browseParent}" property="changeMode" value="true"/>
 		<html:link page="/populateGroupSummary.do" name="browseParent">
 					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>

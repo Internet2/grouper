@@ -1,5 +1,6 @@
-
-<%@include file="/WEB-INF/jsp/include.jsp"%>
+<%-- @annotation@ 
+	Displays chain of effective memberships by which a subject is a member of a group	
+ --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <jsp:useBean id="membershipMap" class="java.util.HashMap"/>
 <c:set target="${membershipMap}" property="contextGroup" value="${currentGroup.id}"/>
